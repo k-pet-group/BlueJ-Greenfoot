@@ -54,15 +54,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
 import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
@@ -107,12 +100,10 @@ import bluej.BlueJEvent;
 import bluej.BlueJEventListener;
 import bluej.BlueJTheme;
 import bluej.Config;
-import bluej.debugger.gentype.GenTypeClass;
-import bluej.debugger.gentype.GenTypeParameter;
-import bluej.debugger.gentype.MethodReflective;
-import bluej.debugger.gentype.Reflective;
 import bluej.editor.EditorWatcher;
+import bluej.parser.AssistContent;
 import bluej.parser.CodeSuggestions;
+import bluej.parser.ParseUtils;
 import bluej.parser.SourceLocation;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.lexer.LocatableToken;
@@ -126,7 +117,6 @@ import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 import bluej.utility.GradientFillPanel;
-import bluej.utility.JavaUtils;
 import bluej.utility.Utility;
 
 /**
@@ -3409,7 +3399,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                 sourceDocument);
         if (suggests != null) {
             LocatableToken suggestToken = suggests.getSuggestionToken();
-            AssistContent[] values = getPossibleCompletions(suggests, "");
+            AssistContent[] values = ParseUtils.getPossibleCompletions(suggests, "", javadocResolver);
             if (values != null && values.length > 0) {
                 codeCompletionDlg = new CodeCompletionDisplay(this, 
                         suggests.getSuggestionType().toString(false), 
@@ -3440,87 +3430,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
             codeCompletionDlg.setVisible(false);
             codeCompletionDlg.dispose();
         }
-    }
-
-    /**
-     * Get the possible code completions.
-     */
-    public AssistContent[] getPossibleCompletions(CodeSuggestions suggests, String prefix)
-    {
-        if (suggests != null) {
-            GenTypeClass exprType = suggests.getSuggestionType().asClass();
-            if (exprType == null) {
-                return null;
-            }
-            
-            GenTypeClass accessType = suggests.getAccessType();
-            Reflective accessReflective = (accessType != null) ? accessType.getReflective() : null;
-
-            // Use two sets, one to keep track of which types we have already processed,
-            // another for individual methods.
-            Set<String> contentSigs = new HashSet<String>();
-            Set<String> typesDone = new HashSet<String>();
-            List<AssistContent> completions = new ArrayList<AssistContent>();
-
-            LinkedList<GenTypeClass> typeQueue = new LinkedList<GenTypeClass>();
-            typeQueue.add(exprType);
-            
-            while (! typeQueue.isEmpty()) {
-                exprType = typeQueue.removeFirst();
-                if (! typesDone.add(exprType.getReflective().getName())) {
-                    // we've already done this type...
-                    continue;
-                }
-                Map<String,Set<MethodReflective>> methods = exprType.getReflective().getDeclaredMethods();
-                Map<String,GenTypeParameter> typeArgs = exprType.getMap();
-
-                for (String name : methods.keySet()) {
-                    if (name.startsWith(prefix)) {
-                        Set<MethodReflective> mset = methods.get(name);
-                        for (MethodReflective method : mset) {
-                            if (accessReflective != null &&
-                                    ! JavaUtils.checkMemberAccess(method.getDeclaringType(),
-                                    suggests.getAccessType().getReflective(),
-                                    method.getModifiers(), suggests.isStatic())) {
-                                continue;
-                            }
-                            MethodCompletion completion = new MethodCompletion(method,
-                                    typeArgs, javadocResolver);
-                            String sig = completion.getDisplayName();
-                            if (contentSigs.add(sig)) {
-                                completions.add(new MethodCompletion(method, typeArgs, javadocResolver));
-                            }
-                        }
-                    }
-                }
-
-                for (GenTypeClass stype : exprType.getReflective().getSuperTypes()) {
-                    if (typeArgs != null) {
-                        typeQueue.add(stype.mapTparsToTypes(typeArgs));
-                    }
-                    else {
-                        typeQueue.add(stype.getErasedType());
-                    }
-                }
-                
-                Reflective outer = exprType.getReflective().getOuterClass();
-                if (outer != null) {
-                    typeQueue.add(new GenTypeClass(outer));
-                }
-            }
-
-            // Sort the completions by name
-            Collections.sort(completions, new Comparator<AssistContent>() {
-                public int compare(AssistContent o1, AssistContent o2)
-                {
-                    return o1.getDisplayName().compareTo(o2.getDisplayName());
-                }
-            });
-
-            return (AssistContent []) completions.toArray(new AssistContent[completions.size()]);
-        }
-
-        return null; // no completions
     }
 
     /**

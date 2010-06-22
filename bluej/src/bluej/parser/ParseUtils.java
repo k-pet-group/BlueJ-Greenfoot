@@ -21,13 +21,22 @@
  */
 package bluej.parser;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
+import java.util.Set;
 
+import bluej.debugger.gentype.GenTypeClass;
+import bluej.debugger.gentype.GenTypeParameter;
 import bluej.debugger.gentype.JavaPrimitiveType;
 import bluej.debugger.gentype.JavaType;
+import bluej.debugger.gentype.MethodReflective;
 import bluej.debugger.gentype.Reflective;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.ImportedEntity;
@@ -42,6 +51,8 @@ import bluej.parser.entity.WildcardExtendsEntity;
 import bluej.parser.entity.WildcardSuperEntity;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
+import bluej.pkgmgr.JavadocResolver;
+import bluej.utility.JavaUtils;
 
 /**
  * Utilities for parsers.
@@ -53,6 +64,88 @@ public class ParseUtils
     private static class DepthRef
     {
         int depth = 0;
+    }
+    
+    /**
+     * Get the possible code completions, based on the provided suggestions and string prefix.
+     */
+    public static AssistContent[] getPossibleCompletions(CodeSuggestions suggests, String prefix,
+            JavadocResolver javadocResolver)
+    {
+        if (suggests != null) {
+            GenTypeClass exprType = suggests.getSuggestionType().asClass();
+            if (exprType == null) {
+                return null;
+            }
+            
+            GenTypeClass accessType = suggests.getAccessType();
+            Reflective accessReflective = (accessType != null) ? accessType.getReflective() : null;
+
+            // Use two sets, one to keep track of which types we have already processed,
+            // another for individual methods.
+            Set<String> contentSigs = new HashSet<String>();
+            Set<String> typesDone = new HashSet<String>();
+            List<AssistContent> completions = new ArrayList<AssistContent>();
+
+            LinkedList<GenTypeClass> typeQueue = new LinkedList<GenTypeClass>();
+            typeQueue.add(exprType);
+            
+            while (! typeQueue.isEmpty()) {
+                exprType = typeQueue.removeFirst();
+                if (! typesDone.add(exprType.getReflective().getName())) {
+                    // we've already done this type...
+                    continue;
+                }
+                Map<String,Set<MethodReflective>> methods = exprType.getReflective().getDeclaredMethods();
+                Map<String,GenTypeParameter> typeArgs = exprType.getMap();
+
+                for (String name : methods.keySet()) {
+                    if (name.startsWith(prefix)) {
+                        Set<MethodReflective> mset = methods.get(name);
+                        for (MethodReflective method : mset) {
+                            if (accessReflective != null &&
+                                    ! JavaUtils.checkMemberAccess(method.getDeclaringType(),
+                                    suggests.getAccessType().getReflective(),
+                                    method.getModifiers(), suggests.isStatic())) {
+                                continue;
+                            }
+                            MethodCompletion completion = new MethodCompletion(method,
+                                    typeArgs, javadocResolver);
+                            String sig = completion.getDisplayName();
+                            if (contentSigs.add(sig)) {
+                                completions.add(new MethodCompletion(method, typeArgs, javadocResolver));
+                            }
+                        }
+                    }
+                }
+
+                for (GenTypeClass stype : exprType.getReflective().getSuperTypes()) {
+                    if (typeArgs != null) {
+                        typeQueue.add(stype.mapTparsToTypes(typeArgs));
+                    }
+                    else {
+                        typeQueue.add(stype.getErasedType());
+                    }
+                }
+                
+                Reflective outer = exprType.getReflective().getOuterClass();
+                if (outer != null) {
+                    typeQueue.add(new GenTypeClass(outer));
+                }
+            }
+
+            // Sort the completions by name
+            Collections.sort(completions, new Comparator<AssistContent>() {
+                public int compare(AssistContent o1, AssistContent o2)
+                {
+                    return o1.getDisplayName().compareTo(o2.getDisplayName());
+                }
+            });
+
+            return (AssistContent []) completions.toArray(new AssistContent[completions.size()]);
+        }
+
+        return null; // no completions
     }
     
     /**

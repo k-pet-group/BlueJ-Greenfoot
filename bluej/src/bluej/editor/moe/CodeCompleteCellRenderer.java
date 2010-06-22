@@ -31,6 +31,7 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
 
+import bluej.parser.AssistContent;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.DBoxLayout;
 import java.awt.Color;

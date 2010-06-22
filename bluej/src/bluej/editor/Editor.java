@@ -26,6 +26,7 @@ import java.awt.print.PrinterJob;
 import java.io.IOException;
 
 import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
 
 import bluej.parser.SourceLocation;
 import bluej.parser.nodes.ParsedCUNode;
@@ -235,9 +236,17 @@ public interface Editor
      * @return The bounds
      */
     Rectangle getBounds();
+    
+    /**
+     * Get the source document that this editor is currently editing. Certain
+     * operations (such as reload) might change the document; that is, the
+     * returned document may become invalid at some later point in time.
+     * 
+     * @return  the document being edited.
+     */
+    Document getSourceDocument(); 
 
-
-   /**
+    /**
      * Returns the current caret location within the edited text.
      *
      * @return    the LineColumn object.

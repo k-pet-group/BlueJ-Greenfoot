@@ -50,15 +50,15 @@ import bluej.debugger.SourceLocation;
 import bluej.debugmgr.CallHistory;
 import bluej.debugmgr.Invoker;
 import bluej.editor.Editor;
-import bluej.editor.moe.AssistContent;
-import bluej.editor.moe.MoeEditor;
 import bluej.extensions.BPackage;
 import bluej.extensions.ExtensionBridge;
 import bluej.extensions.event.CompileEvent;
 import bluej.extmgr.ExtensionsManager;
 import bluej.graph.Edge;
 import bluej.graph.Graph;
+import bluej.parser.AssistContent;
 import bluej.parser.CodeSuggestions;
+import bluej.parser.ParseUtils;
 import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
 import bluej.pkgmgr.dependency.Dependency;
@@ -2461,11 +2461,13 @@ public final class Package extends Graph
         private static final int MAX_EDIT_DISTANCE = 2;
         private final String message;
         private int lineNumber;
+        private Project project;
 
-        public MisspeltMethodChecker(String message, int lineNumber)
+        public MisspeltMethodChecker(String message, int lineNumber, Project project)
         {
             this.message = message;
             this.lineNumber = lineNumber;
+            this.project = project;
         }
         
         private static String chopAtOpeningBracket(String name)
@@ -2545,40 +2547,41 @@ public final class Package extends Graph
         
         public String calculateMessage(Editor e)
         {
-            if (e != null && e instanceof MoeEditor) {
-                String missing = chopAtOpeningBracket(message.substring(message.lastIndexOf(' ') + 1));
-                
-                String lineText = getLine(e);
-                // We're only given the line number, not the column number
-                // Let's guess that the method name only occurs once on the line,
-                // and use its first occurrence:
-                int pos = getLineStart(e) + lineText.indexOf(missing);
-                
-                LinkedList<String> maybeTheyMeant = new LinkedList<String>();
-                CodeSuggestions suggests = e.getParsedNode().getExpressionType(pos, ((MoeEditor)e).getSourceDocument());
-                if (suggests != null) {
-                    AssistContent[] values = ((MoeEditor)e).getPossibleCompletions(suggests, "");
-                    for (AssistContent a : values) {
-                        String name = chopAtOpeningBracket(a.getDisplayName());
-                        
-                        if (editDistance(name.toLowerCase(), missing.toLowerCase()) <= MAX_EDIT_DISTANCE) {
-                            maybeTheyMeant.addLast(a.getDisplayName());
-                        }
-                    }
-                }
-                
-                if (maybeTheyMeant.isEmpty()) {
-                    return message;
-                } else {
-                    String augmentedMessage = message + "; maybe you meant: " + maybeTheyMeant.getFirst();
-                    maybeTheyMeant.removeFirst();
-                    for (String sugg : maybeTheyMeant) {
-                        augmentedMessage += " or " + sugg;
-                    }
-                    return augmentedMessage;
-                }
-            } else {
+            if (e == null) {
                 return message;
+            }
+            
+            String missing = chopAtOpeningBracket(message.substring(message.lastIndexOf(' ') + 1));
+
+            String lineText = getLine(e);
+            // We're only given the line number, not the column number
+            // Let's guess that the method name only occurs once on the line,
+            // and use its first occurrence:
+            int pos = getLineStart(e) + lineText.indexOf(missing);
+
+            LinkedList<String> maybeTheyMeant = new LinkedList<String>();
+            CodeSuggestions suggests = e.getParsedNode().getExpressionType(pos, e.getSourceDocument());
+            if (suggests != null) {
+                AssistContent[] values = ParseUtils.getPossibleCompletions(suggests, "",
+                        project.getJavadocResolver());
+                for (AssistContent a : values) {
+                    String name = chopAtOpeningBracket(a.getDisplayName());
+
+                    if (editDistance(name.toLowerCase(), missing.toLowerCase()) <= MAX_EDIT_DISTANCE) {
+                        maybeTheyMeant.addLast(a.getDisplayName());
+                    }
+                }
+            }
+
+            if (maybeTheyMeant.isEmpty()) {
+                return message;
+            } else {
+                String augmentedMessage = message + "; maybe you meant: " + maybeTheyMeant.getFirst();
+                maybeTheyMeant.removeFirst();
+                for (String sugg : maybeTheyMeant) {
+                    augmentedMessage += " or " + sugg;
+                }
+                return augmentedMessage;
             }
         }
     }
@@ -2601,13 +2604,17 @@ public final class Package extends Graph
             
             // See if we can help the user a bit more if they've mis-spelt a method:
             if (message.contains("cannot find symbol - method")) {
-                messageShown = showEditorMessage(filename, lineNo, new MisspeltMethodChecker(message, lineNo), true, true, false, Config.compilertype);
+                messageShown = showEditorMessage(filename, lineNo,
+                        new MisspeltMethodChecker(message, lineNo, project), true, true,
+                        false, Config.compilertype);
             } else {
-                messageShown = showEditorMessage(filename, lineNo, message, true, true, false, Config.compilertype);
+                messageShown = showEditorMessage(filename, lineNo, message, true, true, false,
+                        Config.compilertype);
             }
             // Display the error message in the source editor
-            if (false == messageShown)
+            if (false == messageShown) {
                 showMessageWithText("error-in-file", filename + ":" + lineNo + "\n" + message);
+            }
         }
 
         /**

@@ -19,7 +19,7 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package bluej.editor.moe;
+package bluej.parser;
 
 import java.util.Collections;
 import java.util.Iterator;
