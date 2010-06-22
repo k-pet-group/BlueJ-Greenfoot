@@ -21,6 +21,7 @@
  */
 package bluej.parser.entity;
 
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -198,15 +199,13 @@ public class ParsedReflective extends Reflective
     @Override
     public boolean isStatic()
     {
-        // TODO Auto-generated method stub
-        return false;
+        return Modifier.isStatic(pnode.getModifiers());
     }
     
     @Override
     public boolean isPublic()
     {
-        // TODO Auto-generated method stub
-        return true;
+        return Modifier.isPublic(pnode.getModifiers());
     }
     
     @Override
