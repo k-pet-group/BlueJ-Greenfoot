@@ -3345,12 +3345,12 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     {
     	Highlighter hilite;
     	if (sourcePane!=null){
-    		hilite = sourcePane.getHighlighter();
-    		removeSearchHighlights(hilite);
+    	    hilite = sourcePane.getHighlighter();
+    	    removeSearchHighlights(hilite);
     	}
         if (htmlPane!=null){
-        	hilite=htmlPane.getHighlighter();
-        	removeSearchHighlights(hilite);
+            hilite=htmlPane.getHighlighter();
+            removeSearchHighlights(hilite);
         }  
     }
     

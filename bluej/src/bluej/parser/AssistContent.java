@@ -34,10 +34,7 @@ public abstract class AssistContent
     public abstract String getDisplayMethodParams();
     
     /** Get the text to display in the code completion box for this completion */
-    public String getDisplayName()
-    {
-        return getDisplayMethodName() + getDisplayMethodParams();
-    }
+    public abstract String getDisplayName();
     
     /** Get the completion text (to appear in front of the cursor/selection) */
     public abstract String getCompletionText();

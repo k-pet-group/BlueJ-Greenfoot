@@ -74,11 +74,22 @@ public class MethodCompletion extends AssistContent
     @Override
     public String getDisplayMethodParams()
     {
+        return getDisplayMethodParams(true);
+    }
+    
+    public String getDisplayMethodParams(boolean includeNames)
+    {
+        List<String> paramNames = includeNames ? method.getParamNames() : null;
+        Iterator<String> nameIterator = paramNames != null ? paramNames.iterator() : null;
+        
         String displayName = "(";
         List<JavaType> paramTypes = method.getParamTypes();
         for (Iterator<JavaType> i = paramTypes.iterator(); i.hasNext(); ) {
             JavaType paramType = convertToSolid(i.next());
             displayName += paramType.toString(true);
+            if (nameIterator != null) {
+                displayName += " " + nameIterator.next();
+            }
             if (i.hasNext()) {
                 displayName += ", ";
             }
@@ -88,6 +99,12 @@ public class MethodCompletion extends AssistContent
         return displayName;
     }
 
+    @Override
+    public String getDisplayName()
+    {
+        return getDisplayMethodName() + getDisplayMethodParams(false);
+    }
+    
     @Override
     public String getCompletionText()
     {

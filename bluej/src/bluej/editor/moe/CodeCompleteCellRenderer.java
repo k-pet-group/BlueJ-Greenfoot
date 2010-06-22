@@ -36,7 +36,11 @@ import bluej.prefmgr.PrefMgr;
 import bluej.utility.DBoxLayout;
 import java.awt.Color;
 
-
+/**
+ * A cell renderer for the code completion popup list.
+ * 
+ * @author Davin McCall
+ */
 public class CodeCompleteCellRenderer extends JPanel implements ListCellRenderer
 {
     private JLabel typeLabel = new JLabel();
