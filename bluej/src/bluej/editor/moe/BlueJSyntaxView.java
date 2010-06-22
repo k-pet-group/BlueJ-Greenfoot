@@ -783,7 +783,8 @@ public abstract class BlueJSyntaxView extends PlainView
 
     /**
      * Get a node's indent amount (in component co-ordinate space) for a given line.
-     * If the node isn't present on the line, returns Integer.MAX_VALUE.
+     * If the node isn't present on the line, returns Integer.MAX_VALUE. A cached value
+     * is used if available.
      */
     private int getNodeIndent(Shape a, MoeSyntaxDocument doc, NodeAndPosition<ParsedNode> nap, Element lineEl,
             Segment segment)
@@ -833,6 +834,9 @@ public abstract class BlueJSyntaxView extends PlainView
         return xpos;
     }
 
+    /**
+     * Calculate the indent for a node.
+     */
     private int getNodeIndent(Shape a, MoeSyntaxDocument doc, NodeAndPosition<ParsedNode> nap)
     {
         try {
@@ -903,7 +907,6 @@ public abstract class BlueJSyntaxView extends PlainView
         int le = map.getElementIndex(dmgEnd);
         Segment segment = new Segment();
         
-        
         try {
             int [] dmgRange = new int[2];
             dmgRange[0] = dmgStart;
@@ -921,9 +924,11 @@ public abstract class BlueJSyntaxView extends PlainView
             }
             
             if (top == null) {
+                // No nodes at all.
                 return dmgRange;
             }
             if (top.getPosition() >= lineEl.getEndOffset()) {
+                // The first node we found is on the next line.
                 i = map.getElementIndex(top.getPosition());
                 if (i > le) {
                     return dmgRange;
@@ -1011,9 +1016,11 @@ public abstract class BlueJSyntaxView extends PlainView
                 for (j = scopeStack.listIterator(scopeStack.size()); j.hasPrevious(); ) {
                     NodeAndPosition<ParsedNode> next = j.previous();
                     if (next.getPosition() <= curpos) {
+                        // Node is present on this line (begins before curpos)
                         updateNodeIndent(next, indent, nodeIndents.get(next.getNode()), dmgRange);
                     }
                     else if (next.getPosition() < lineEl.getEndOffset()) {
+                        // Node starts on this line, after curpos.
                         nws = findNonWhitespace(segment, next.getPosition() - lineEl.getStartOffset());
                         Integer oindent = nodeIndents.get(next.getNode());
                         if (oindent != null && nws != -1) {
@@ -1023,7 +1030,8 @@ public abstract class BlueJSyntaxView extends PlainView
                         }
                     }
                     else {
-                        break;
+                        // Node isn't on this line.
+                        continue;
                     }
                     
                     // Inner nodes are skipped during indent calculation
@@ -1077,6 +1085,15 @@ public abstract class BlueJSyntaxView extends PlainView
         return null;
     }
     
+    /**
+     * Update an existing indent, in the case where we have found a line where the indent
+     * may now be smaller due to an edit.
+     * @param nap    The node whose cached indent value is to be updated
+     * @param indent   The indent, on some line
+     * @param oindent  The old indent value (may be null)
+     * @param dmgRange  The range of positions which must be repainted. This is updated by
+     *                  if necessary.
+     */
     private void updateNodeIndent(NodeAndPosition<ParsedNode> nap, int indent, Integer oindent, int [] dmgRange)
     {
         int dmgStart = dmgRange[0];
