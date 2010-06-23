@@ -1538,8 +1538,8 @@ public class Project implements DebuggerListener, InspectorManager
         currentClassLoader = new BPClassLoader( newUrls,
                      Boot.getInstance().getBootClassLoader(), isJavaMEproject );
         
-        currentClassLoader.setJavaMEcoreLibs( toStringList( coreLibs ) );
-        currentClassLoader.setJavaMEoptLibs ( toStringList( optLibs  ) );
+        currentClassLoader.setJavaMEcoreLibs(coreLibs);
+        currentClassLoader.setJavaMEoptLibs (optLibs);
         
         return currentClassLoader;
     }

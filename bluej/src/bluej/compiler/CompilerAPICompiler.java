@@ -92,7 +92,13 @@ public class CompilerAPICompiler extends Compiler
             if(isDeprecation()) {
                 optionsList.add("-deprecation");
             }
-            addUserSpecifiedOptions(optionsList, COMPILER_OPTIONS);
+            if(getProjectClassLoader().loadsForJavaMEproject()) {
+                // Set the "bootclasspath" and use the ME-specific compiler options
+                sjfm.setLocation(StandardLocation.PLATFORM_CLASS_PATH, Arrays.asList(getProjectClassLoader().getJavaMElibsAsFiles()));
+                addUserSpecifiedOptions(optionsList, JAVAME_COMPILER_OPTIONS);
+            } else {
+                addUserSpecifiedOptions(optionsList, COMPILER_OPTIONS);
+            }
 
             //compile
             jc.getTask(null, sjfm, diagnostics, optionsList, null, compilationUnits1).call();

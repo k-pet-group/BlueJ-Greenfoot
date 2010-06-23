@@ -27,8 +27,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.Iterator;
 import java.util.List;
+import java.util.ArrayList;
 
 /**
  * A Bluej Project ClassLoader that can be used to load or obtain information about classes loadable in a bluej project.
@@ -40,7 +40,7 @@ import java.util.List;
  * having a correct working version. This is the reason for this class being named BPClassLoader.
  * it will be renamed when the new classloading is refactored and tested.
  *
- * @version    $Id: BPClassLoader.java 6215 2009-03-30 13:28:25Z polle $
+ * @version    $Id: BPClassLoader.java 7799 2010-06-23 10:54:27Z iau $
  * @author  Damiano Bolla
  */
 
@@ -52,8 +52,8 @@ public final class BPClassLoader extends URLClassLoader
     //these libraries are in the search path of URLs of the loader--because
     //we need them in the compiler's bootclasspath and in the classpath of the
     //preverify command.
-    private List javaMEcoreLibs;  // Java ME core libraries
-    private List javaMEoptLibs;   // Java ME optional libraries  
+    private List<URL> javaMEcoreLibs;  // Java ME core libraries
+    private List<URL> javaMEoptLibs;   // Java ME optional libraries
     
     /**
      * Constructructor.
@@ -196,12 +196,24 @@ public final class BPClassLoader extends URLClassLoader
         return "BPClassLoader path=" + getClassPathAsString();
     }
     
-    public void setJavaMEcoreLibs( List list ) { javaMEcoreLibs = list; }
-    public void setJavaMEoptLibs ( List list ) { javaMEoptLibs  = list; }   
+    public void setJavaMEcoreLibs( List<URL> list ) { javaMEcoreLibs = list; }
+    public void setJavaMEoptLibs ( List<URL> list ) { javaMEoptLibs  = list; }
     
-    public List getJavaMEcoreLibs( ) { return javaMEcoreLibs; }
-    public List getJavaMEoptLibs ( ) { return javaMEoptLibs;  }  
+    public List<URL> getJavaMEcoreLibs( ) { return javaMEcoreLibs; }
+    public List<URL> getJavaMEoptLibs ( ) { return javaMEoptLibs;  }
     
+    /**
+     * Concatenates the Java ME libraries, both core and optional, into a single
+     * array of Files.
+     * @return all the Java ME libraries as an array of Files
+     */
+    public File [] getJavaMElibsAsFiles()
+    {
+        ArrayList<URL> urls = new ArrayList<URL>(javaMEcoreLibs);
+        urls.addAll(javaMEoptLibs);
+        return toFiles(urls.toArray(new URL[0]));
+    }
+
     /**
      * Concatenates the Java ME libraries, both core and optional, into a single
      * colon/semicolon-separated String.
@@ -209,19 +221,6 @@ public final class BPClassLoader extends URLClassLoader
      */
     public String getJavaMElibsAsPath( ) 
     {
-        StringBuffer risul = new StringBuffer();
-
-        Iterator iter = getJavaMEcoreLibs( ).iterator( );
-        while ( iter.hasNext( ) ) 
-            risul.append((String) iter.next( )).append(File.pathSeparatorChar);
-        
-        iter = getJavaMEoptLibs( ).iterator( );
-        while ( iter.hasNext( ) ) 
-            risul.append((String) iter.next( )).append(File.pathSeparatorChar);
-        
-        if ( risul.length() > 0 ) //Remove trailing separator.
-            risul.delete( risul.length( ) - 1, risul.length() );
-        
-        return risul.toString();
+        return toClasspathString(getJavaMElibsAsFiles());
     }
 }
