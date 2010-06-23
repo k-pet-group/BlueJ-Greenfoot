@@ -25,6 +25,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Iterator;
@@ -124,15 +125,18 @@ public class InfoParser extends EditorParser
 
     public static ClassInfo parse(File f) throws FileNotFoundException
     {
-        FileInputStream fis = new FileInputStream(f);
-        return parse(new InputStreamReader(fis),
-                new ClassLoaderResolver(InfoParser.class.getClassLoader()), null);
+        return parse(f, new ClassLoaderResolver(InfoParser.class.getClassLoader()));
     }
     
     public static ClassInfo parse(File f, EntityResolver resolver) throws FileNotFoundException
     {
         FileInputStream fis = new FileInputStream(f);
-        return parse(new BufferedReader(new InputStreamReader(fis)), resolver, null);
+        ClassInfo info = parse(new BufferedReader(new InputStreamReader(fis)), resolver, null);
+        try {
+            fis.close();
+        }
+        catch (IOException ioe) {}
+        return info;
     }
     
     public static ClassInfo parse(File f, Package pkg) throws FileNotFoundException
@@ -140,7 +144,12 @@ public class InfoParser extends EditorParser
         FileInputStream fis = new FileInputStream(f);
         EntityResolver resolver = new PackageResolver(pkg.getProject().getEntityResolver(),
                 pkg.getQualifiedName());
-        return parse(new BufferedReader(new InputStreamReader(fis)), resolver, pkg.getQualifiedName());
+        ClassInfo info = parse(new BufferedReader(new InputStreamReader(fis)), resolver, pkg.getQualifiedName());
+        try {
+            fis.close();
+        }
+        catch (IOException ioe) {}
+        return info;
     }
 
     public static ClassInfo parse(Reader r, EntityResolver resolver, String targetPkg)

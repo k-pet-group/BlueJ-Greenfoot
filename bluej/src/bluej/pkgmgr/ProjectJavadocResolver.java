@@ -139,12 +139,13 @@ public class ProjectJavadocResolver implements JavadocResolver
                     fullEntryName += "/";
                 }
                 fullEntryName += entName;
+                Reader r = null;
                 try {
                     ZipFile zipFile = new ZipFile(jarFile);
                     ZipEntry zipEnt = zipFile.getEntry(fullEntryName);
                     if (zipEnt != null) {
                         InputStream zeis = zipFile.getInputStream(zipEnt);
-                        Reader r = new InputStreamReader(zeis);
+                        r = new InputStreamReader(zeis);
                         EntityResolver resolver = new PackageResolver(project.getEntityResolver(),
                                 pkg);
                         ClassInfo info = InfoParser.parse(r, resolver, null);
@@ -155,6 +156,14 @@ public class ProjectJavadocResolver implements JavadocResolver
                     }
                 }
                 catch (IOException ioe) {}
+                finally {
+                    if (r != null) {
+                        try {
+                            r.close();
+                        }
+                        catch (IOException e) {}
+                    }
+                }
             }
         }
         
