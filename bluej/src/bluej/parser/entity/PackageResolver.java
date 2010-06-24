@@ -57,6 +57,7 @@ public class PackageResolver implements EntityResolver
         String fqName = (pkg.length() == 0) ? name : pkg + "." + name;
         TypeEntity tent = parentResolver.resolveQualifiedClass(fqName);
         if (tent != null) {
+            // TODO check the returned class isn't private
             return tent;
         }
         else {
@@ -69,23 +70,7 @@ public class PackageResolver implements EntityResolver
      */
     public TypeEntity resolveQualifiedClass(String name)
     {
-        TypeEntity tent = parentResolver.resolveQualifiedClass(name);
-        if (tent != null) {
-            Reflective r = tent.getClassType().getReflective();
-            if (r.isPublic()) {
-                return tent;
-            }
-            // The returned type is not public: is it actually in this package though?
-            // In that case it may still be accessible
-            String fname = r.getName();
-            if (fname.startsWith(pkg + ".") && fname.indexOf('.', pkg.length() + 1) == -1) {
-                // TODO inner classes of another class in the same package might be private,
-                //   in which case access should be denied.
-                return tent;
-            }
-            return null;
-        }
-        return tent;
+        return parentResolver.resolveQualifiedClass(name);
     }
 
 }
