@@ -40,17 +40,19 @@ public class CodeSuggestions
     /**
      * Construct a new set of CodeSuggestions.
      * @param suggestionType  The type to suggest members from
-     * @param accessType      The type which is doing the access (for access control purposes)
+     * @param accessType      The type which is doing the access (for access control purposes).
+     *                        May be null.
      * @param suggestionToken The token representing the suggestion prefix, i.e. the portion of the
      *                        member name already typed by the user
-     * @param restrictions    Flag indicating non-static methods should not be included                 
+     * @param staticOnly    Indicates if true that non-static members should not be included
+     *                      in the returned results                 
      */
-    public CodeSuggestions(JavaType suggestionType, GenTypeClass accessType, LocatableToken suggestionToken, boolean restricted)
+    public CodeSuggestions(JavaType suggestionType, GenTypeClass accessType, LocatableToken suggestionToken, boolean staticOnly)
     {
         this.suggestionToken = suggestionToken;
         this.suggestionType = suggestionType;
         this.accessType = accessType;
-        this.staticRestricted = restricted;
+        this.staticRestricted = staticOnly;
     }
     
     public LocatableToken getSuggestionToken()
@@ -63,6 +65,10 @@ public class CodeSuggestions
         return suggestionType;
     }
     
+    /**
+     * Get the type in which the expression occurs (the "access type").
+     * This might return null.
+     */
     public GenTypeClass getAccessType()
     {
         return accessType;
