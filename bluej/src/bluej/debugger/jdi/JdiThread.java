@@ -37,7 +37,7 @@ import com.sun.jdi.request.StepRequest;
  * This class represents a thread running on the remote virtual machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiThread.java 7742 2010-06-01 09:42:49Z nccb $
+ * @version $Id: JdiThread.java 7802 2010-06-24 09:48:14Z nccb $
  */
 class JdiThread extends DebuggerThread
 {
@@ -53,9 +53,9 @@ class JdiThread extends DebuggerThread
 	static final String statusZombie = Config.getString("debugger.threadstatus.zombie");
 
     /** a list of classes to exclude from source display */
-    private static List excludes;
+    private static List<String> excludes;
 
-    static private List getExcludes() {
+    static private List<String> getExcludes() {
         if (excludes == null) {
             setExcludes("java.*, javax.*, sun.*, com.sun.*");
         }
@@ -64,7 +64,7 @@ class JdiThread extends DebuggerThread
 
     static void setExcludes(String excludeString) {
         StringTokenizer t = new StringTokenizer(excludeString, " ,;");
-        List list = new ArrayList();
+        List<String> list = new ArrayList<String>();
         while (t.hasMoreTokens()) {
             list.add(t.nextToken());
         }
@@ -72,9 +72,9 @@ class JdiThread extends DebuggerThread
     }
 
     static void addExcludesToRequest(StepRequest request) {
-        Iterator iter = getExcludes().iterator();
+        Iterator<String> iter = getExcludes().iterator();
         while (iter.hasNext()) {
-            String pattern = (String)iter.next();
+            String pattern = iter.next();
             request.addClassExclusionFilter(pattern);
         }
     }
@@ -266,7 +266,7 @@ class JdiThread extends DebuggerThread
 	 *
 	 * @return  A List of SourceLocations
 	 */
-	public List getStack()
+	public List<SourceLocation> getStack()
 	{
 		return getStack(rt);
 	}
@@ -374,8 +374,8 @@ class JdiThread extends DebuggerThread
         try {
             if(rt.isSuspended()) {
                 StackFrame frame = rt.frame(frameNo);
-                List vars = frame.visibleVariables();
-                LocalVariable var = (LocalVariable)vars.get(index);
+                List<LocalVariable> vars = frame.visibleVariables();
+                LocalVariable var = vars.get(index);
                 Value val = frame.getValue(var);
                 return (val instanceof ObjectReference);
             }
@@ -398,8 +398,8 @@ class JdiThread extends DebuggerThread
         try {
             if(rt.isSuspended()) {
                 StackFrame frame = rt.frame(frameNo);
-                List vars = frame.visibleVariables();
-                LocalVariable var = (LocalVariable)vars.get(index);
+                List<LocalVariable> vars = frame.visibleVariables();
+                LocalVariable var = vars.get(index);
                 JavaType vartype = JdiReflective.fromLocalVar(frame, var);
                 ObjectReference val = (ObjectReference)frame.getValue(var);
                 return JdiObject.getDebuggerObject(val, vartype);
@@ -534,11 +534,11 @@ class JdiThread extends DebuggerThread
         if(eventReqMgr == null)
             getEventRequestManager();
 
-        List requests = eventReqMgr.stepRequests();
-        Iterator iter = requests.iterator();
+        List<StepRequest> requests = eventReqMgr.stepRequests();
+        Iterator<StepRequest> iter = requests.iterator();
 
         while (iter.hasNext()) {
-            StepRequest request = (StepRequest)iter.next();
+            StepRequest request = iter.next();
 
             if (request != null && request.thread() != null) {
                 if (request.thread().equals(thread)) {
