@@ -83,6 +83,7 @@ import com.sun.jdi.event.ThreadDeathEvent;
 import com.sun.jdi.event.ThreadStartEvent;
 import com.sun.jdi.event.VMStartEvent;
 import com.sun.jdi.request.BreakpointRequest;
+import com.sun.jdi.request.ClassPrepareRequest;
 import com.sun.jdi.request.EventRequest;
 import com.sun.jdi.request.EventRequestManager;
 
@@ -93,7 +94,7 @@ import com.sun.jdi.request.EventRequestManager;
  * machine, which gets started from here via the JDI interface.
  * 
  * @author Michael Kolling
- * @version $Id: VMReference.java 6260 2009-04-20 07:20:37Z davmac $
+ * @version $Id: VMReference.java 7804 2010-06-24 13:38:26Z nccb $
  * 
  * The startup process is as follows:
  * 
@@ -136,7 +137,7 @@ class VMReference
     static final String SERVER_SUSPEND_METHOD_NAME = "vmSuspend";
 
     // A map which can be used to map instances of VirtualMachine to VMReference 
-    private static Map vmToReferenceMap = new HashMap();
+    private static Map<VirtualMachine, VMReference> vmToReferenceMap = new HashMap<VirtualMachine, VMReference>();
     
     // ==== instance data ====
 
@@ -251,11 +252,11 @@ class VMReference
         
         // Attempt to connect via TCP/IP transport
         
-        List connectors = mgr.attachingConnectors();
+        List<AttachingConnector> connectors = mgr.attachingConnectors();
         AttachingConnector connector = null;
 
         // find the known connectors
-        Iterator it = connectors.iterator();
+        Iterator<AttachingConnector> it = connectors.iterator();
         while (it.hasNext()) {
             AttachingConnector c = (AttachingConnector) it.next();
             
@@ -296,7 +297,7 @@ class VMReference
                         };
                     }
                     
-                    Map arguments = connector.defaultArguments();
+                    Map<String, Argument> arguments = connector.defaultArguments();
                     
                     Connector.Argument hostnameArg = (Connector.Argument) arguments.get("hostname");
                     Connector.Argument portArg = (Connector.Argument) arguments.get("port");
@@ -348,7 +349,7 @@ class VMReference
             
             if (connector != null) {
                 try {
-                    Map arguments = connector.defaultArguments();
+                    Map<String, Argument> arguments = connector.defaultArguments();
                     Connector.Argument addressArg = (Connector.Argument) arguments.get("name");
                     if (addressArg == null) {
                         throw new Exception() {
@@ -612,7 +613,7 @@ class VMReference
         // remove the "class prepare" event request (not needed anymore)
 
         EventRequestManager erm = machine.eventRequestManager();
-        List list = erm.classPrepareRequests();
+        List<ClassPrepareRequest> list = erm.classPrepareRequests();
         erm.deleteEventRequests(list);
 
         try {
@@ -1103,7 +1104,7 @@ class VMReference
         //}
         //int lineNumber = loc.lineNumber();
 
-        List stack = JdiThread.getStack(exc.thread());
+        List<SourceLocation> stack = JdiThread.getStack(exc.thread());
         //exitStatus = Debugger.EXCEPTION;
         //lastException = new ExceptionDescription(excClass, exceptionText, stack);
         //        }
@@ -1118,7 +1119,7 @@ class VMReference
      * @param args  The arguments to pass to the method (List of Values)
      * @return      The return Value from the method
      */
-    private Value safeInvoke(ObjectReference o, Method m, List args)
+    private Value safeInvoke(ObjectReference o, Method m, List<? extends Value> args)
     {
         synchronized (workerThread) {
             workerThreadReadyWait();
@@ -1138,7 +1139,7 @@ class VMReference
     
     public void exceptionEvent(InvocationException exc)
     {
-        List empty = new LinkedList();
+        List<Value> empty = new LinkedList<Value>();
         
         ObjectReference remoteException = exc.exception();
         Field msgField = remoteException.referenceType().fieldByName("detailMessage");
@@ -1147,12 +1148,12 @@ class VMReference
         String excClass = exc.exception().type().name();
         
         ReferenceType remoteType = exc.exception().referenceType();
-        List getStackTraceMethods = remoteType.methodsByName("getStackTrace");
+        List<Method> getStackTraceMethods = remoteType.methodsByName("getStackTrace");
         Method getStackTrace = (Method)getStackTraceMethods.get(0);
         ArrayReference stackValue = (ArrayReference)safeInvoke(exc.exception(),  getStackTrace, empty);
         
         ObjectReference [] stackt = (ObjectReference [])stackValue.getValues().toArray(new ObjectReference[0]);
-        List stack = new LinkedList();
+        List<SourceLocation> stack = new LinkedList<SourceLocation>();
         
         // "stackt" is now an array of Values. Each Value represents a
         // "StackTraceElement" object.
@@ -1264,17 +1265,17 @@ class VMReference
         catch (ClassNotFoundException cnfe) {
             return null;
         }
-        List allTypesInFile = new ArrayList();
+        List<ReferenceType> allTypesInFile = new ArrayList<ReferenceType>();
 
         // find all ReferenceType's declared in this source file
         buildNestedTypes(remoteClass, allTypesInFile);
 
-        Iterator it = allTypesInFile.iterator();
+        Iterator<ReferenceType> it = allTypesInFile.iterator();
         while (it.hasNext()) {
             ReferenceType r = (ReferenceType) it.next();
 
             try {
-                List list = r.locationsOfLine(line);
+                List<Location> list = r.locationsOfLine(line);
                 if (list.size() > 0)
                     return (Location) list.get(0);
             }
@@ -1292,7 +1293,7 @@ class VMReference
      * @param l
      *            the List to add the reference types to
      */
-    private void buildNestedTypes(ReferenceType rootType, List l)
+    private void buildNestedTypes(ReferenceType rootType, List<ReferenceType> l)
     {
         try {
             synchronized(workerThread) {
@@ -1308,7 +1309,7 @@ class VMReference
                 workerThreadReadyWait();
                 ObjectReference or = getStaticFieldObject(serverClass, ExecServer.WORKER_RETURN_NAME);
                 ArrayReference inners = (ArrayReference) or;
-                Iterator i = inners.getValues().iterator();
+                Iterator<Value> i = inners.getValues().iterator();
                 while (i.hasNext()) {
                     ClassObjectReference cor = (ClassObjectReference) i.next();
                     ReferenceType rt = cor.reflectedType();
@@ -1364,9 +1365,9 @@ class VMReference
 
         EventRequestManager erm = machine.eventRequestManager();
         boolean found = false;
-        List list = erm.breakpointRequests();
+        List<BreakpointRequest> list = erm.breakpointRequests();
         for (int i = 0; i < list.size(); i++) {
-            BreakpointRequest bp = (BreakpointRequest) list.get(i);
+            BreakpointRequest bp = list.get(i);
             if (bp.location().equals(location)) {
                 erm.deleteEventRequest(bp);
                 found = true;
@@ -1382,15 +1383,15 @@ class VMReference
     /**
      * Return a list of the Locations of user breakpoints in the VM.
      */
-    public List getBreakpoints()
+    public List<Location> getBreakpoints()
     {
         // Debug.message("[VMRef] getBreakpoints()");
 
         EventRequestManager erm = machine.eventRequestManager();
-        List breaks = new LinkedList();
+        List<Location> breaks = new LinkedList<Location>();
 
-        List allBreakpoints = erm.breakpointRequests();
-        Iterator it = allBreakpoints.iterator();
+        List<BreakpointRequest> allBreakpoints = erm.breakpointRequests();
+        Iterator<BreakpointRequest> it = allBreakpoints.iterator();
 
         while (it.hasNext()) {
             BreakpointRequest bp = (BreakpointRequest) it.next();
@@ -1409,10 +1410,10 @@ class VMReference
     public void clearAllBreakpoints()
     {
         EventRequestManager erm = machine.eventRequestManager();
-        List breaks = new LinkedList();
+        List<BreakpointRequest> breaks = new LinkedList<BreakpointRequest>();
 
-        List allBreakpoints = erm.breakpointRequests();
-        Iterator it = allBreakpoints.iterator();
+        List<BreakpointRequest> allBreakpoints = erm.breakpointRequests();
+        Iterator<BreakpointRequest> it = allBreakpoints.iterator();
 
         while (it.hasNext()) {
             BreakpointRequest bp = (BreakpointRequest) it.next();
@@ -1431,9 +1432,9 @@ class VMReference
     {
         EventRequestManager erm = machine.eventRequestManager();
 
-        List allBreakpoints = erm.breakpointRequests();
-        Iterator it = allBreakpoints.iterator();
-        List toDelete = new LinkedList();
+        List<BreakpointRequest> allBreakpoints = erm.breakpointRequests();
+        Iterator<BreakpointRequest> it = allBreakpoints.iterator();
+        List<BreakpointRequest> toDelete = new LinkedList<BreakpointRequest>();
 
         while (it.hasNext()) {
             BreakpointRequest bp = (BreakpointRequest) it.next();
@@ -1454,7 +1455,7 @@ class VMReference
      * @param loader
      *            The new class loader to restore the breakpoints into
      */
-    public void restoreBreakpoints(List saved)
+    public void restoreBreakpoints(List<Location> saved)
     {
         // Debug.message("[VMRef] restoreBreakpoints()");
 
@@ -1464,12 +1465,12 @@ class VMReference
         // this has to be done before we suspend the machine because
         // loadClassesAndFindLine needs the machine running to work
         // see bug #526
-        List newSaved = new ArrayList();
+        List<Location> newSaved = new ArrayList<Location>();
 
-        Iterator savedIterator = saved.iterator();
+        Iterator<Location> savedIterator = saved.iterator();
 
         while (savedIterator.hasNext()) {
-            Location oldLocation = (Location) savedIterator.next();
+            Location oldLocation = savedIterator.next();
 
             Location newLocation = loadClassesAndFindLine(oldLocation.declaringType().name(), oldLocation.lineNumber());
 
@@ -1499,7 +1500,7 @@ class VMReference
             serverClassAddBreakpoints();
             
             // add all the new breakpoints we have created
-            Iterator it = newSaved.iterator();
+            Iterator<Location> it = newSaved.iterator();
             
             while (it.hasNext()) {
                 Location l = (Location) it.next();
@@ -1901,14 +1902,14 @@ class VMReference
         throws ClassNotFoundException
     {
         // find the class
-        List list = machine.classesByName(className);
+        List<ReferenceType> list = machine.classesByName(className);
         if (list.size() == 1) {
             return (ReferenceType) list.get(0);
         }
         else if (list.size() > 1) {
-            Iterator iter = list.iterator();
+            Iterator<ReferenceType> iter = list.iterator();
             while (iter.hasNext()) {
-                ReferenceType cl = (ReferenceType) iter.next();
+                ReferenceType cl = iter.next();
                 if (cl.classLoader() == clr)
                     return cl;
             }
@@ -1939,7 +1940,7 @@ class VMReference
      */
     Method findMethodByName(ClassType type, String methodName)
     {
-        List list = type.methodsByName(methodName);
+        List<Method> list = type.methodsByName(methodName);
         if (list.size() != 1) {
             throw new IllegalArgumentException("getting method " + methodName + " resulted in " + list.size()
                     + " methods");
