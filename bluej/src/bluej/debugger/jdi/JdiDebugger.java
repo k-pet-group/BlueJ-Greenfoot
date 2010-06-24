@@ -54,7 +54,7 @@ import com.sun.jdi.*;
  * 
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: JdiDebugger.java 7744 2010-06-01 12:59:29Z nccb $
+ * @version $Id: JdiDebugger.java 7803 2010-06-24 10:00:55Z nccb $
  */
 public class JdiDebugger extends Debugger
 {
@@ -96,7 +96,7 @@ public class JdiDebugger extends Debugger
 
     // a Set of strings which have been used as names on the
     // object bench. We endeavour to not reuse them.
-    private Set usedNames;
+    private Set<String> usedNames;
 
     // indicate whether we want to see system threads
     private boolean hideSystemThreads;
@@ -129,7 +129,7 @@ public class JdiDebugger extends Debugger
 
         allThreads = new JdiThreadSet();
         treeModel = new JdiThreadTreeModel(new JdiThreadNode());
-        usedNames = new TreeSet();
+        usedNames = new TreeSet<String>();
         hideSystemThreads = true;
     }
 
@@ -362,7 +362,7 @@ public class JdiDebugger extends Debugger
      * 
      * @return a Map of (String name, DebuggerObject obj) entries
      */
-    public Map getObjects()
+    public Map<String, DebuggerObject> getObjects()
     {
         throw new IllegalStateException("not implemented");
         // the returned array consists of double the number of objects
@@ -457,10 +457,10 @@ public class JdiDebugger extends Debugger
      * @return a Map of (String name, DebuggerObject obj) entries
      *         null if an error occurs (such as VM termination)
      */
-    public Map runTestSetUp(String className)
+    public Map<String, DebuggerObject> runTestSetUp(String className)
     {
         ArrayReference arrayRef = null;
-        Map returnMap = new HashMap();
+        Map<String, DebuggerObject> returnMap = new HashMap<String, DebuggerObject>();
         
         VMReference vmr = getVM();
         try {
@@ -889,7 +889,7 @@ public class JdiDebugger extends Debugger
     {
         treeModel.setRoot(new JdiThreadNode());
 
-        for (Iterator it = allThreads.iterator(); it.hasNext();) {
+        for (Iterator<JdiThread> it = allThreads.iterator(); it.hasNext();) {
             JdiThread currentThread = (JdiThread) it.next();
             displayThread(currentThread);
         }
