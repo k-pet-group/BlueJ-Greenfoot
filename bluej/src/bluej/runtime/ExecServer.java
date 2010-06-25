@@ -28,6 +28,7 @@ import java.awt.event.AWTEventListener;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -53,7 +54,6 @@ import junit.framework.TestSuite;
  *
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: ExecServer.java 6702 2009-09-17 04:42:20Z davmac $
  */
 public class ExecServer
 {
@@ -152,7 +152,6 @@ public class ExecServer
 
     /**
      * Main method.
-     *
      */
     public static void main(String[] args)
         throws Throwable
@@ -164,7 +163,12 @@ public class ExecServer
         // Set up encoding for the terminal, the only arg that should be passed in
         // is the encoding eg. "UTF-8, otherwise do nothing
         if(args.length > 0 && !args[0].equals("")) {
-            System.setOut(new PrintStream(System.out, true, args[0]));
+            try {
+                System.setOut(new PrintStream(System.out, true, args[0]));
+            }
+            catch (UnsupportedEncodingException uee) {
+                // Do nothing; don't use the requested encoding
+            }
         }
         
         // Set up the worker thread. The worker thread can be used to perform certain actions
@@ -967,107 +971,3 @@ public class ExecServer
         currentLoader = newLoader;
     }
 }
-
-/**
- * Classloader used in greenfoot to ensure that the user's classes are reloaded.
- * 
- * For now, this is done by checking whether the class is in the default
- * package, which indicates that it is a user class.
- * 
- * @author Poul Henriksen
- */
-//class GreenfootClassLoader extends URLClassLoader {
-//    public GreenfootClassLoader(URL[] urls)
-//    {
-//        super(urls);
-//     
-//    }
-//    public GreenfootClassLoader(URL[] urls, ClassLoader parent)
-//    {
-//        super(urls, parent);
-//     
-//    }
-//    public GreenfootClassLoader(URL[] urls, ClassLoader parent, URLStreamHandlerFactory factory)
-//    {
-//        super(urls, parent, factory);
-//     
-//    }
-//    
-//    /**
-//     * If the class is in the default package (the name contains no '.') it will
-//     * be reloaded. If not, it will use the normal URLClassloader mechanism.
-//     */
-//    public Class loadClass(String filename)
-//        throws ClassNotFoundException
-//    {
-//        Class c = null;
-//        if (filename.indexOf(".") == -1) {
-//            try {
-//                c = findClass(filename);
-//            }
-//            catch (ClassNotFoundException e) {}
-//        }
-//        if (c == null) {
-//            c = super.loadClass(filename);
-//        }
-//        return c;
-//    }
-//    
-//    protected Class<?> findClass(String filename) throws ClassNotFoundException
-//    {
-//        boolean debugmode = filename.indexOf('.') == -1 || filename.equals("greenfoot.Actor");
-//        if (debugmode)
-//        System.out.println("Find class: " + filename);
-//        Class c = super.findClass(filename);
-//        if (debugmode);
-//        System.out.println("  (Found! : " + filename);
-//        return c;
-//    }
-//}
-
-//class DebugClassLoader extends URLClassLoader
-//{
-//    public DebugClassLoader(URL[] urls)
-//    {
-//        super(urls);
-//     
-//    }
-//    public DebugClassLoader(URL[] urls, ClassLoader parent)
-//    {
-//        super(urls, parent);
-//     
-//    }
-//    public DebugClassLoader(URL[] urls, ClassLoader parent, URLStreamHandlerFactory factory)
-//    {
-//        super(urls, parent, factory);
-//     
-//    }
-//    
-//    /**
-//     * If the class is in the default package (the name contains no '.') it will
-//     * be reloaded. If not, it will use the normal URLClassloader mechanism.
-//     */
-//    public Class loadClass(String filename)
-//        throws ClassNotFoundException
-//    {
-//        boolean debugmode = filename.indexOf('.') == -1 || filename.equals("greenfoot.Actor");
-//        
-//        if (debugmode)
-//            System.out.println("DebugClassLoader, loadClass: " + filename);
-//        Class c = super.loadClass(filename);
-//        if (debugmode)
-//            System.out.println("  Loaded: " + filename);
-//        return c;
-//    }
-//    
-//    protected Class<?> findClass(String filename) throws ClassNotFoundException
-//    {
-//        boolean debugmode = filename.indexOf('.') == -1 || filename.equals("greenfoot.Actor");
-//        if (debugmode)
-//        System.out.println("DBCL, find class: " + filename);
-//        Class c = super.findClass(filename);
-//        if (debugmode)
-//        System.out.println("  Found: " + filename);
-//        return c;
-//    }
-//}
