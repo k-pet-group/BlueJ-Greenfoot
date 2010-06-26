@@ -2301,7 +2301,13 @@ public final class Package extends Graph
     {
         try {
             URL srcUrl = c.getResource(c.getSimpleName()+".class");
-            if (srcUrl.getProtocol().equals("file")) {
+            if (srcUrl == null) {
+                // If we weren't able to load the class file at all, it may have been
+                // deleted; this happens when a class is added to a project, then
+                // removed, and then another class is added with the same name.
+                return true;
+            }
+            if (srcUrl != null && srcUrl.getProtocol().equals("file")) {
                 File srcFile = new File(srcUrl.toURI());
                 if (! f.equals(srcFile)) {
                     return false;
