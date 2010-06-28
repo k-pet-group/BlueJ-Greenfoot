@@ -392,6 +392,29 @@ public class BasicParseTest extends junit.framework.TestCase
         return document.getParser();
     }
     
+    public void testInterfaceSelections()
+    {
+        InitConfig.init();
+        TestEntityResolver ter = new TestEntityResolver(
+                new ClassLoaderResolver(this.getClass().getClassLoader())
+                );
+        PackageResolver pkgr = new PackageResolver(ter, "");
+        ter.addCompilationUnit("", cuForSource("interface I {}", pkgr));
+        //ter.addCompilationUnit("", cuForSource("interface II extends I {}", pkgr));
+        ter.addCompilationUnit("", cuForSource("interface J {}", pkgr));
+        //ter.addCompilationUnit("", cuForSource("interface JJ extends I, J {}", pkgr));
+
+        String IIsrc = "interface II extends I { public void sampleMethod(); }";
+        ClassInfo info = InfoParser.parse(new StringReader(IIsrc), pkgr, "");
+        
+        List<Selection> isels = info.getInterfaceSelections();
+        assertEquals(2, isels.size());
+        assertEquals(14, isels.get(0).getColumn());
+        assertEquals(22, isels.get(1).getColumn());
+        
+        // Also for JJ!!!!
+    }
+    
     public void testDependencyAnalysis()
         throws Exception
     {
