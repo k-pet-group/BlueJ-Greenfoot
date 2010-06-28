@@ -21,10 +21,8 @@
  */
 package bluej.pkgmgr.dependency;
 
-import bluej.Config;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.target.*;
-import bluej.utility.Utility;
 
 import java.util.Properties;
 
@@ -32,7 +30,6 @@ import java.util.Properties;
  * An "extends" dependency between two (class) targets in a package
  *
  * @author Michael Kolling
- * @version $Id: ExtendsDependency.java 7651 2010-05-20 14:02:51Z nccb $
  */
 public class ExtendsDependency extends Dependency
 {

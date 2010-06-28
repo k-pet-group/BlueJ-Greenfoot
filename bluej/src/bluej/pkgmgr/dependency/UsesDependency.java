@@ -21,10 +21,8 @@
  */
 package bluej.pkgmgr.dependency;
 
-import bluej.Config;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.target.*;
-import bluej.utility.Utility;
 
 import java.util.Properties;
 import java.awt.*;
@@ -33,7 +31,7 @@ import java.awt.*;
  * A dependency between two targets in a package
  *
  * @author  Michael Kolling
- * @version $Id: UsesDependency.java 7651 2010-05-20 14:02:51Z nccb $
+ * @version $Id: UsesDependency.java 7807 2010-06-28 05:41:28Z davmac $
  */
 public class UsesDependency extends Dependency
 {
