@@ -704,14 +704,29 @@ public final class Package extends Graph
         }
         recalcArrows();
 
-        //Update class roles, and their state
+        // Update class states. We do this before updating roles (or anything else
+        // which analyses the source) because the analysis does symbol resolution, and
+        // that depends on having the correct compiled state. 
         targetIt = targets.iterator();
         for ( ; targetIt.hasNext();) {
             Target target = targetIt.next();
 
             if (target instanceof ClassTarget) {
                 ClassTarget ct = (ClassTarget) target;
-                if (ct.isCompiled() && ct.upToDate()) {
+                if (ct.isCompiled() && !ct.upToDate()) {
+                    ct.setState(ClassTarget.S_INVALID);
+                }
+            }
+        }
+        
+        // Update class roles
+        targetIt = targets.iterator();
+        for ( ; targetIt.hasNext();) {
+            Target target = targetIt.next();
+
+            if (target instanceof ClassTarget) {
+                ClassTarget ct = (ClassTarget) target;
+                if (ct.isCompiled()) {
                     Class<?> cl = loadClass(ct.getQualifiedName());
                     ct.determineRole(cl);
                     ct.analyseDependencies(cl);
@@ -720,7 +735,6 @@ public final class Package extends Graph
                     }
                 }
                 else {
-                    ct.setState(ClassTarget.S_INVALID);
                     ct.analyseSource();
                     try {
                         ct.enforcePackage(getQualifiedName());
@@ -1477,30 +1491,6 @@ public final class Package extends Graph
     }
 
     /**
-     * Removes a class from the Package
-     * 
-     * @param removableTarget
-     *            the ClassTarget representing the class to be removed.
-     */
-    public void removeClass(ClassTarget removableTarget)
-    {
-        removeTarget(removableTarget);
-        graphChanged();
-    }
-
-    /**
-     * Removes a subpackage from the Package
-     * 
-     * @param removableTarget
-     *            the ClassTarget representing the class to be removed.
-     */
-    public void removePackage(PackageTarget removableTarget)
-    {
-        removeTarget(removableTarget);
-        graphChanged();
-    }
-
-    /**
      * remove the arrow representing the given dependency
      * 
      * @param d  the dependency to remove
@@ -1562,9 +1552,6 @@ public final class Package extends Graph
         try {
             ed.save();
             
-            // Debug.message("Implements class dependency from " + from.getName() +
-            // " to " + to.getName());
-            
             ClassInfo info = from.getSourceInfo().getInfo(from.getSourceFile(), this);
             if (info != null) {
                 
@@ -1609,10 +1596,9 @@ public final class Package extends Graph
         try {
             ed.save();
 
-        // Debug.message("Implements interface dependency from " +
-        // from.getName() + " to " + to.getName());
-
             ClassInfo info = from.getSourceInfo().getInfo(from.getSourceFile(), this);
+            // DAV
+            System.out.println("from = " + from.getQualifiedName());
 
             if (info != null) {
                 Selection s1 = info.getExtendsInsertSelection();
