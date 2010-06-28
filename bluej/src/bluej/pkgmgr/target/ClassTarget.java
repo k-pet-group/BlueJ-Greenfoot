@@ -1242,7 +1242,6 @@ public class ClassTarget extends DependentTarget
                 }
 
                 getPackage().addDependency(new UsesDependency(getPackage(), this, used), true);
-
             }
         }
 
@@ -1318,13 +1317,8 @@ public class ClassTarget extends DependentTarget
         }
     }
     
-    
     /**
-     * Check to see that name has not changed. If name has changed then update
-     * details. Return true if the name has changed.
-     * 
-     * @param newName Description of the Parameter
-     * @return Description of the Return Value
+     * Notification that the class represented by this class target has changed name.
      */
     private boolean doClassNameChange(String newName)
     {
