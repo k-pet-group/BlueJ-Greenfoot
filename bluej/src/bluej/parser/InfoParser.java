@@ -364,8 +364,12 @@ public class InfoParser extends EditorParser
         if (tentity != null && ! gotExtends && ! gotImplements) {
             typeReferences.add(tentity);
         }
+        
+        boolean isSuper = storeCurrentClassInfo && gotExtends && !info.isInterface();
+        boolean isInterface = storeCurrentClassInfo && (gotImplements ||
+                (info.isInterface() && gotExtends));
 
-        if (gotExtends && storeCurrentClassInfo) {
+        if (isSuper) {
             // The list of tokens gives us the name of the class that we extend
             superclassEntity = ParseUtils.getTypeEntity(scopeStack.get(0), null, tokens);
             info.setSuperclass(""); // this will be corrected when the type is resolved
@@ -375,7 +379,7 @@ public class InfoParser extends EditorParser
                     superClassSelection.getEndColumn()));
             gotExtends = false;
         }
-        else if (gotImplements && storeCurrentClassInfo) {
+        else if (isInterface) {
             Selection interfaceSel = getSelection(tokens);
             if (lastCommaSelection != null) {
                 lastCommaSelection.extendEnd(interfaceSel.getLine(), interfaceSel.getColumn());
@@ -554,7 +558,6 @@ public class InfoParser extends EditorParser
     {
         super.gotTypeDefExtends(extendsToken);
         if (classLevel == 0 && storeCurrentClassInfo) {
-            // info.setExtendsReplaceSelection(s)
             gotExtends = true;
             SourceLocation extendsStart = info.getExtendsInsertSelection().getStartLocation();
             int extendsEndCol = tokenStream.LA(1).getColumn();
@@ -566,6 +569,12 @@ public class InfoParser extends EditorParser
                 info.setExtendsReplaceSelection(new Selection(extendsEndLine, extendsStart.getColumn(), extendsToken.getEndColumn() - extendsStart.getColumn()));
             }
             info.setExtendsInsertSelection(null);
+            
+            if (info.isInterface()) {
+                interfaceSelections = new LinkedList<Selection>();
+                interfaceSelections.add(getSelection(extendsToken));
+                interfaceEntities = new LinkedList<JavaEntity>();
+            }
         }
     }
 
