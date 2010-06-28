@@ -344,6 +344,8 @@ public class InfoParser extends EditorParser
     {
         super.beginTypeBody(token);
         classLevel++;
+        gotExtends = false;
+        gotImplements = false;
     }
     
     @Override
@@ -377,7 +379,6 @@ public class InfoParser extends EditorParser
             info.setSuperReplaceSelection(superClassSelection);
             info.setImplementsInsertSelection(new Selection(superClassSelection.getEndLine(),
                     superClassSelection.getEndColumn()));
-            gotExtends = false;
         }
         else if (isInterface) {
             Selection interfaceSel = getSelection(tokens);
@@ -582,6 +583,7 @@ public class InfoParser extends EditorParser
     {
         super.gotTypeDefImplements(implementsToken);
         if (classLevel == 0 && storeCurrentClassInfo) {
+            gotExtends = false;
             gotImplements = true;
             interfaceSelections = new LinkedList<Selection>();
             interfaceSelections.add(getSelection(implementsToken));

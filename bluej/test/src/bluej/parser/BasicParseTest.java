@@ -412,7 +412,14 @@ public class BasicParseTest extends junit.framework.TestCase
         assertEquals(14, isels.get(0).getColumn());
         assertEquals(22, isels.get(1).getColumn());
         
-        // Also for JJ!!!!
+        String JJsrc = "interface JJ extends I, J { public void sampleMethod(); }";
+        info = InfoParser.parse(new StringReader(JJsrc), pkgr, "");
+        isels = info.getInterfaceSelections();
+        assertEquals(4, isels.size());
+        assertEquals(14, isels.get(0).getColumn());  // "extends"
+        assertEquals(22, isels.get(1).getColumn());  // "I"
+        assertEquals(23, isels.get(2).getColumn());  // ","
+        assertEquals(25, isels.get(3).getColumn());  // "J"
     }
     
     public void testDependencyAnalysis()
