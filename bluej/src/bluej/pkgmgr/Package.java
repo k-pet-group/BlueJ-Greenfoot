@@ -911,7 +911,6 @@ public final class Package extends Graph
      */
     public void reReadGraphLayout() throws IOException
     {
-
         // try to load the package file for this package
         SortedProperties props = new SortedProperties();
         packageFile.load(props);
@@ -961,11 +960,11 @@ public final class Package extends Graph
         SortedProperties props = new SortedProperties();
         
         String javaMEflag = lastSavedProps.getProperty( "package.isJavaMEproject", "false" );
-        if ( javaMEflag.equals( "true" ) ) 
+        if ( javaMEflag.equals( "true" ) )  {
             props.put( "package.isJavaMEproject", "true" );
+        }
          
-        if (frameProperties != null)
-            props.putAll(frameProperties);
+        props.putAll(frameProperties);
 
         // save targets and dependencies in package
         props.put("package.numDependencies", String.valueOf(usesArrows.size()));
