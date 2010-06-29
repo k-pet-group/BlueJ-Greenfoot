@@ -311,7 +311,7 @@ pkgmgr.chooseUsesTo=Select the class it depends on
 pkgmgr.chooseInhFrom=Select the subclass
 pkgmgr.chooseInhTo=Select the superclass
 pkgmgr.chooseArrow=Select an arrow to delete
-pkgmgr.packageSaved=Package saved
+pkgmgr.packageSaved=Package saved.
 pkgmgr.info.printing = Printing...
 pkgmgr.info.printed = Printing... Done.
 

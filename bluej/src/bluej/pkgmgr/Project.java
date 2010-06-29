@@ -27,7 +27,6 @@ import java.awt.Window;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1025,9 +1024,11 @@ public class Project implements DebuggerListener, InspectorManager
     }
 
     /**
-     * Save all open packages of this project.
+     * Save all open packages of this project. This doesn't save files open
+     * in editor windows - use saveAllEditors() for that.
      */
-    public void saveAll() {
+    public void saveAll()
+    {
         PkgMgrFrame[] frames = PkgMgrFrame.getAllProjectFrames(this);
 
         // Surely we do not want to stack trace if nothing exists. Damiano
@@ -1037,9 +1038,14 @@ public class Project implements DebuggerListener, InspectorManager
 
         for (int i = 0; i < frames.length; i++) {
             frames[i].doSave();
+            frames[i].setStatus(Config.getString("pkgmgr.packageSaved"));
         }
     }
 
+    /**
+     * Request all open editor windows for the current project to save their
+     * contents (if modified).
+     */
     public void saveAllEditors()
     {
         Iterator<Package> i = packages.values().iterator();
@@ -1050,21 +1056,9 @@ public class Project implements DebuggerListener, InspectorManager
                 pkg.saveFilesInEditors();
             }
             catch(IOException ioe) {
-                ioe.printStackTrace();
+                Debug.reportError("Error while trying to save editor file:", ioe);
             }
         } 
-    }
-    
-    /**
-     * Make all the Packages in this project save their graphlayout
-     */
-    public void saveAllGraphLayout(){
-        Iterator<Package> i = packages.values().iterator();
- 
-        while(i.hasNext()) {
-            Package pkg = (Package) i.next();
-                                pkg.save(null);
-        }
     }
     
     /**
@@ -1149,7 +1143,6 @@ public class Project implements DebuggerListener, InspectorManager
     /**
      * Open the source editor for each target that is selected in its
      * package editor
-     *
      */
     public void openEditorsForSelectedTargets()
     {
@@ -1168,8 +1161,8 @@ public class Project implements DebuggerListener, InspectorManager
     }
     
     /**
-     * Returns a list of Targets that is seleceted in its package editor
-     * @return List list of targets that is selected
+     * Get a list of selected targets (in all packages)
+     * @return a list of the selected targets
      */
     private List<Target> getSelectedTargets()
     {
@@ -1185,7 +1178,7 @@ public class Project implements DebuggerListener, InspectorManager
     
     /**
      * Explicitly restart the remote debug VM. The VM first gets shut down, and then
-     * freshly restarted.
+     * restarted.
      */
     public void restartVM()
     {
@@ -1562,29 +1555,6 @@ public class Project implements DebuggerListener, InspectorManager
     {
         return javadocResolver;
     }
-    
-    /**
-     * Converts a list of URLs into a list of Strings.
-     * @param urlList List of URLs to convert to Strings.
-     * @return the parameter as a list of Strings or an empty list if parameter list is empty.
-     */
-    private List<String> toStringList(List<URL> urlList)  
-    {
-        List<String> risul = new ArrayList<String>();        
-        Iterator<URL> it = urlList.iterator( );
-        while ( it.hasNext( ) ) 
-        {
-            URL u = it.next( );
-            try {
-                File f = new File( u.toURI( ) );
-                risul.add( f.toString( ) );
-            } 
-            catch( URISyntaxException e ) { 
-                Debug.reportError("Bad syntax in URL " + u + ". Cannot do toURI().");
-            }
-        }
-        return risul;
-    }  
     
     /**
      * Convert a filename into a fully qualified Java name.

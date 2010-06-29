@@ -46,7 +46,7 @@ public class StatusAction extends TeamAction
     {
         // save all bluej.pkg files first
         Project project = pmf.getProject();
-        project.saveAllGraphLayout();
+        project.saveAll();
         doStatus(pmf);
     }
 

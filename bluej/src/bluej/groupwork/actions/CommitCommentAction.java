@@ -27,14 +27,12 @@ import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
 
 
-
 /**
  * Action to show the frame which allows commit comments to be entered.
  * The frame has a button to make the commit.
  * 
  * @author Kasper
  * @author Bruce Quig
- * @version $Id$
  */
 public class CommitCommentAction extends TeamAction
 {
@@ -57,7 +55,8 @@ public class CommitCommentAction extends TeamAction
         if(!pmf.isEmptyFrame()) {
             Project project = pmf.getProject();
             // we want to save bluej.pkg files first
-            project.saveAllGraphLayout();
+            project.saveAll();
+            project.saveAllEditors();
             CommitCommentsFrame dialog = project.getCommitCommentsDialog();
             
             dialog.reset();

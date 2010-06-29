@@ -68,7 +68,6 @@ import bluej.utility.SwingWorker;
  * A Swing based user interface for showing files to be updated
  * @author Bruce Quig
  * @author Davin McCall
- * @version $Id: UpdateFilesFrame.java 6215 2009-03-30 13:28:25Z polle $
  */
 public class UpdateFilesFrame extends EscapeDialog
 {
@@ -118,7 +117,7 @@ public class UpdateFilesFrame extends EscapeDialog
             
             if (repository != null) {
                 project.saveAllEditors();
-                project.saveAllGraphLayout();
+                project.saveAll();
                 startProgress();
                 updateWorker = new UpdateWorker();
                 updateWorker.start();

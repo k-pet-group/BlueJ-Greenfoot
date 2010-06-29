@@ -122,7 +122,7 @@ public class CommitCommentsFrame extends EscapeDialog
             
             if (repository != null) {
                 project.saveAllEditors();
-                project.saveAllGraphLayout();
+                project.saveAll();
                 startProgress();
                 commitWorker = new CommitWorker();
                 commitWorker.start();

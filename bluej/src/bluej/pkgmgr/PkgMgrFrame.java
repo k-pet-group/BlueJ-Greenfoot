@@ -1738,8 +1738,6 @@ public class PkgMgrFrame extends JFrame
                 p.put( "package.isJavaMEproject", "true");
         }
         pkg.save(p);
-
-        setStatus(Config.getString("pkgmgr.packageSaved"));
     }
 
     /**

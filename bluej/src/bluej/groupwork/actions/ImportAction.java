@@ -22,12 +22,17 @@
 package bluej.groupwork.actions;
 
 import java.awt.EventQueue;
+import java.io.File;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
 import bluej.Config;
-import bluej.groupwork.*;
+import bluej.groupwork.Repository;
+import bluej.groupwork.TeamSettingsController;
+import bluej.groupwork.TeamUtils;
+import bluej.groupwork.TeamworkCommand;
+import bluej.groupwork.TeamworkCommandResult;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
 
@@ -35,7 +40,6 @@ import bluej.pkgmgr.Project;
  * An action to perform an import into a repository, i.e. to share a project.
  * 
  * @author Kasper
- * @version $Id: ImportAction.java 6215 2009-03-30 13:28:25Z polle $
  */
 public class ImportAction extends TeamAction 
 {
@@ -70,7 +74,8 @@ public class ImportAction extends TeamAction
             return;
         }
 
-        project.saveAllGraphLayout();
+        project.saveAll();
+        project.saveAllEditors();
         setStatus(Config.getString("team.sharing"));
         startProgressBar(); 
         
@@ -86,10 +91,11 @@ public class ImportAction extends TeamAction
 
                 if (! result.isError()) {
                     project.setTeamSettingsController(tsc);
-                    Set files = tsc.getProjectFiles(true);
-                    Set newFiles = new HashSet(files);
-                    Set binFiles = TeamUtils.extractBinaryFilesFromSet(newFiles);
-                    command = repository.commitAll(newFiles, binFiles, Collections.EMPTY_SET, files, Config.getString("team.import.initialMessage"));
+                    Set<File> files = tsc.getProjectFiles(true);
+                    Set<File> newFiles = new HashSet<File>(files);
+                    Set<File> binFiles = TeamUtils.extractBinaryFilesFromSet(newFiles);
+                    command = repository.commitAll(newFiles, binFiles, Collections.<File>emptySet(),
+                            files, Config.getString("team.import.initialMessage"));
                     result = command.getResult();
                 }
 
