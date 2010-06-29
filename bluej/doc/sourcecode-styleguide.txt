@@ -20,7 +20,7 @@ Use descriptive names for all identifiers (names of classes, variables and metho
 
 2. Layout
 
-2.1 One level of indentation is four spaces.
+2.1 One level of indentation is four spaces. Tab characters ("hard" tabs) are not used.
 
 2.2 All statements within a block are indented one level.
 
@@ -71,17 +71,17 @@ Use descriptive names for all identifiers (names of classes, variables and metho
 
 3. Documentation
 
-3.1 Every class has a class comment at the top.
+3.1 Every class has a license comment and a class comment at the top.
+
+	The copyright statement in the license comment should list years during which the file
+	was modified.
 
     The class comment contains at least
     - a general description of the class
-    - the author's name(s)
-    - a version number
+    - the author's name(s), specified by the @author javadoc tag.
 
-    Every person who has contributed to the class should be named as an author or
-    otherwise appropriately credited using @author javadoc tag.
-
-    The version number should be in the form of the cvs tag $Id: sourcecode-styleguide.txt 2520 2004-05-07 00:20:06Z bquig $.
+    Every person who has contributed to the class should be named as an author
+    (i.e. appropriately credited using @author javadoc tag).
 
 3.2 Every method has a method comment.
 
@@ -131,5 +131,5 @@ Use descriptive names for all identifiers (names of classes, variables and metho
 
 5.1 Use iterators with collections.
 
-    To iterate over a collection, use iterators, not int indicees.
+    To iterate over a collection, use iterators, not "int" indices.
 
