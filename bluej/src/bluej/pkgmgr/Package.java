@@ -1596,8 +1596,6 @@ public final class Package extends Graph
             ed.save();
 
             ClassInfo info = from.getSourceInfo().getInfo(from.getSourceFile(), this);
-            // DAV
-            System.out.println("from = " + from.getQualifiedName());
 
             if (info != null) {
                 Selection s1 = info.getExtendsInsertSelection();
