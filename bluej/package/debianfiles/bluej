@@ -1,5 +1,4 @@
 #!/bin/sh
-APPBASE="/usr/bin"
 if [ -e /usr/lib/jvm/java-6-sun ]; then
 	JAVAPATH="/usr/lib/jvm/java-6-sun"
 elif [ -e /usr/lib/jvm/java-6-openjdk ]; then
@@ -11,5 +10,5 @@ else
 	echo "/usr/bin/bluej launch script."
 fi
 	
-CP="$APPBASE/bluejlib/bluej.jar:$JAVAPATH/lib/tools.jar"
+CP="/usr/share/bluej/bluej.jar:$JAVAPATH/lib/tools.jar"
 "$JAVAPATH/bin/java" -cp "$CP" bluej.Boot  "$@"

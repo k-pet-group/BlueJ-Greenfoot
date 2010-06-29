@@ -271,7 +271,7 @@
 		<chmod perm="ugo+x" file="bluejdeb/usr/bin/bluej" verbose="true" />
 		
 		<!-- lib files -->
-		<mkdir dir="bluejdeb/usr/bin/bluejlib" />
+		<mkdir dir="bluejdeb/usr/share/bluej" />
 		<mkdir dir="bluejdeb-lib-tmp" />
         <copy todir="bluejdeb-lib-tmp">
             <fileset dir="${bluej_home}">
@@ -279,7 +279,7 @@
             	<patternset refid="bluej.libfiles" />
             </fileset>
         </copy>
-		<move todir="bluejdeb/usr/bin/bluejlib">
+		<move todir="bluejdeb/usr/share/bluej">
 			<fileset dir="bluejdeb-lib-tmp/lib">
 				<patternset includes="**" />
 			</fileset>
