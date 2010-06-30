@@ -34,10 +34,10 @@ Name: "{group}\Select VM"; Filename: "{app}\bluej.exe"; WorkingDir: "{app}"; Par
 Name: "{app}\Select VM"; Filename: "{app}\bluej.exe"; WorkingDir: "{app}"; Parameters: "/select"; IconIndex: 1
 
 [Registry]
-Root: HKCR; Subkey: ".bluej"; ValueType: string; ValueName: ""; ValueData: "BlueJProject"; Flags: uninsdeletevalue; Tasks: associations
-Root: HKCR; Subkey: "BlueJProject"; ValueType: string; ValueName: ""; ValueData: "BlueJ project file"; Flags: uninsdeletekey; Tasks: associations
-Root: HKCR; Subkey: "BlueJProject\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\bluej.exe,0"; Flags: uninsdeletekey; Tasks: associations
-Root: HKCR; Subkey: "BlueJProject\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\bluej.exe"" ""%1"""; Flags: uninsdeletekey; Tasks: associations
+Root: {code:ClassesRoot}; Subkey: "Software\Classes\.bluej"; ValueType: string; ValueName: ""; ValueData: "BlueJProject"; Flags: uninsdeletevalue; Tasks: associations
+Root: {code:ClassesRoot}; Subkey: "Software\Classes\BlueJProject"; ValueType: string; ValueName: ""; ValueData: "BlueJ project file"; Flags: uninsdeletekey; Tasks: associations
+Root: {code:ClassesRoot}; Subkey: "Software\Classes\BlueJProject\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\bluej.exe,0"; Flags: uninsdeletekey; Tasks: associations
+Root: {code:ClassesRoot}; Subkey: "Software\Classes\BlueJProject\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\bluej.exe"" ""%1"""; Flags: uninsdeletekey; Tasks: associations
 
 [InstallDelete]
 Type: files; Name: "{app}\lib\extensions\submission.jar"
@@ -51,3 +51,11 @@ Source: "..\winlaunch\README.TXT"; DestDir: "{app}"
 Filename: "{app}\README.TXT"; Description: "View the README file"; Flags: postinstall shellexec skipifsilent
 Filename: "{app}\bluej.exe"; WorkingDir: "{app}"; Parameters: "/select"; Description: "Launch BlueJ"; Flags: postinstall nowait skipifsilent unchecked
 
+[Code]
+function ClassesRoot(Param: String) : String
+begin
+	if IsAdminLoggedOn() then
+		Result := 'HKLM'
+	else
+		Result := 'HKCU';
+end;
