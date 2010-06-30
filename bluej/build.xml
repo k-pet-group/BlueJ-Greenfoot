@@ -300,6 +300,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
                 <pathelement location="${core.jar}"/>
                 <pathelement location="${extension.jar}"/>
                 <pathelement location="${run_java_home}/lib/tools.jar"/>
+            	<pathelement location="${editor.jar}"/>
                 <pathelement location="${test.build}"/>
             </classpath>
 
@@ -308,6 +309,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
             <batchtest fork="yes" todir="${test.report}">
                 <fileset dir="${test.src}">
                     <include name="**/*Test*.java"/>
+                	<exclude name="bluej/debugger/gentype/TestReflective.java"/>
                     <exclude name="**/AllTests.java"/>
                 </fileset>
             </batchtest>
