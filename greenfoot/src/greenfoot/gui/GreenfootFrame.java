@@ -405,7 +405,7 @@ public class GreenfootFrame extends JFrame
         borderPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         borderPanel.add(worldCanvas);
         
-        JPanel canvasPanel = new JPanel(new CenterLayout());        
+        JPanel canvasPanel = new ScrollablePanel(new CenterLayout());        
         canvasPanel.add(borderPanel, BorderLayout.CENTER);
         JScrollPane worldScrollPane = new JScrollPane(canvasPanel);
         worldScrollPane.setOpaque(false);
