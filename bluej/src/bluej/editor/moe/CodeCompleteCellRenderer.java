@@ -31,6 +31,7 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
 
+import bluej.Config;
 import bluej.parser.AssistContent;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.DBoxLayout;
@@ -43,17 +44,26 @@ import java.awt.Color;
  */
 public class CodeCompleteCellRenderer extends JPanel implements ListCellRenderer
 {
+    /** label showing the return type */
     private JLabel typeLabel = new JLabel();
+    /** label showing method name and parameters */
     private JLabel descriptionLabel = new JLabel();
+    
     private Dimension rtypeSize;
     private String immediateType;
+    private static Font cfont;
+    private static Font cfontBold;
     
     CodeCompleteCellRenderer(String immediateType)
     {
         setBorder(null);
         setLayout(new DBoxLayout(DBoxLayout.X_AXIS));
-        int fontSize = PrefMgr.getStandardEditorFont().getSize();
-        typeLabel.setFont(new Font("Courier", Font.PLAIN, fontSize));
+        if (cfont == null) {
+            int fontSize = PrefMgr.getStandardEditorFont().getSize();
+            cfont = Config.getFont("bluej.codecompletion.font", "Monospaced", fontSize);
+            cfontBold = cfont.deriveFont(Font.BOLD);
+        }
+        typeLabel.setFont(cfont);
         typeLabel.setText("String123456"); // for assigning width
         rtypeSize = typeLabel.getPreferredSize();
         typeLabel.setMaximumSize(rtypeSize);
@@ -77,16 +87,12 @@ public class CodeCompleteCellRenderer extends JPanel implements ListCellRenderer
             typeLabel.setText(content.getReturnType().toString());
             descriptionLabel.setText(content.getDisplayName());
             
-            int fontSize = PrefMgr.getStandardEditorFont().getSize();
-            Font font;
-
             if (content.getDeclaringClass().equals(immediateType)) {
-                font = new Font("Courier", Font.BOLD, fontSize);
+                descriptionLabel.setFont(cfontBold);
             }
             else {
-                font = new Font("Courier", Font.PLAIN, fontSize);
+                descriptionLabel.setFont(cfont);
             }
-            descriptionLabel.setFont(font);
         }
         
         if (isSelected) {

@@ -67,7 +67,7 @@ import bluej.utility.Utility;
  * bluej.defs - contains system definitions which are not user specific<BR>
  * bluej.properties - contains user specific settings.
  *    Settings here override settings in bluej.defs <BR>
- * command line arguemtns - contains per-launch specific settings.
+ * command line arguments - contains per-launch specific settings.
  *    Settings here override settings in bluej.properties <BR>
  * <BR>
  * There is also a set of language specific labels 
@@ -78,7 +78,6 @@ import bluej.utility.Utility;
  * @author Michael Kolling
  * @author Andrew Patterson
  */
-
 public final class Config
 {
     public static final String nl = System.getProperty("line.separator");
@@ -1309,10 +1308,7 @@ public final class Config
      */
     public static Font getFont(String propertyName, String defaultFontName, int size)
     {
-        String fontName = getPropString(propertyName, null);
-        if (fontName == null) {
-            fontName = defaultFontName;
-        }
+        String fontName = getPropString(propertyName, defaultFontName);
         
         int style;
         if(fontName.endsWith("-bold")) {

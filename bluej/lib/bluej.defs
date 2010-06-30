@@ -368,6 +368,8 @@ bluej.editor.MacOS.font=Monaco
 # bluej.editor.font=SansSerif-bold
 # bluej.editor.font=Arial-bold
 
+# The font used in the code completion display (method list)
+bluej.codecompletion.font=Courier
 
 #######################################################################
 ## Printing settings.
