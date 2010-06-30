@@ -31,7 +31,6 @@ import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
-import java.awt.Insets;
 import java.awt.Paint;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -147,7 +146,9 @@ public class CodeCompletionDisplay extends JFrame
 
         // create function description area     
         methodDescription = new JEditorPane();
-        methodDescription.setBorder(new BorderCustomMargin(BorderFactory.createLineBorder(Color.BLACK)));
+        Border mdBorder = BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.BLACK),
+                BorderFactory.createEmptyBorder(0, 10, 5, 10));
+        methodDescription.setBorder(mdBorder);
         methodDescription.setEditable(false);
         methodDescription.setOpaque(false);
         
@@ -407,42 +408,6 @@ public class CodeCompletionDisplay extends JFrame
     {
         return sig.replace("<", "&lt;").replace(">", "&gt;");
     }
-    
-    /**
-     * A wrapper class for a border that adjusts the insets (margin) of the border
-     * 
-     * We get the border from a Swing helper as a Border, so hence we must wrap rather
-     * than inherit+override.
-     */
-    private static class BorderCustomMargin implements Border
-    {
-        private Border wrappedBorder;
-        public BorderCustomMargin(Border border)
-        {
-            wrappedBorder = border;
-        }
-
-        public Insets getBorderInsets(Component c)
-        {
-            Insets insets = wrappedBorder.getBorderInsets(c);
-            insets.left += 10;
-            insets.right += 5;
-            insets.bottom += 10;
-            return insets;
-        }
-
-        public boolean isBorderOpaque()
-        {
-            return wrappedBorder.isBorderOpaque();
-        }
-
-        public void paintBorder(Component c, Graphics g, int x,
-                int y, int width, int height)
-        {
-            wrappedBorder.paintBorder(c, g, x, y, width, height);
-        }
-
-    }
 
     /**
      * A JScrollPane variant that paints a gradient fill as the background.
@@ -499,7 +464,7 @@ public class CodeCompletionDisplay extends JFrame
     }
 
     /**
-     * We have to provide our own glass pane so that it can paint the dragged object.
+     * A glass pane which displays a "no matching completions" message. 
      */
     class CodeCompleteGlassPane extends JComponent
     {
