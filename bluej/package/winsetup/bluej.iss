@@ -3,7 +3,7 @@
 
 [Setup]
 AppName=BlueJ
-AppVerName=BlueJ 3.0.0 preview
+AppVerName=BlueJ 3.0.1
 AppPublisher=La Trobe University
 AppPublisherURL=http://www.bluej.org
 AppSupportURL=http://www.bluej.org
@@ -12,7 +12,7 @@ UninstallFilesDir={app}\uninst
 DefaultDirName={sd}\BlueJ
 DefaultGroupName=BlueJ
 Compression=bzip/9
-OutputBaseFilename=BlueJ-windows-300 preview
+OutputBaseFilename=BlueJ-windows-301
 OutputDir=.
 PrivilegesRequired=none
 
@@ -34,10 +34,16 @@ Name: "{group}\Select VM"; Filename: "{app}\bluej.exe"; WorkingDir: "{app}"; Par
 Name: "{app}\Select VM"; Filename: "{app}\bluej.exe"; WorkingDir: "{app}"; Parameters: "/select"; IconIndex: 1
 
 [Registry]
-Root: {code:ClassesRoot}; Subkey: "Software\Classes\.bluej"; ValueType: string; ValueName: ""; ValueData: "BlueJProject"; Flags: uninsdeletevalue; Tasks: associations
-Root: {code:ClassesRoot}; Subkey: "Software\Classes\BlueJProject"; ValueType: string; ValueName: ""; ValueData: "BlueJ project file"; Flags: uninsdeletekey; Tasks: associations
-Root: {code:ClassesRoot}; Subkey: "Software\Classes\BlueJProject\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\bluej.exe,0"; Flags: uninsdeletekey; Tasks: associations
-Root: {code:ClassesRoot}; Subkey: "Software\Classes\BlueJProject\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\bluej.exe"" ""%1"""; Flags: uninsdeletekey; Tasks: associations
+; For admin
+Root: HKLM; Subkey: "Software\Classes\.bluej"; ValueType: string; ValueName: ""; ValueData: "BlueJProject"; Flags: uninsdeletevalue; Tasks: associations; Check: isAdminLoggedOn
+Root: HKLM; Subkey: "Software\Classes\BlueJProject"; ValueType: string; ValueName: ""; ValueData: "BlueJ project file"; Flags: uninsdeletekey; Tasks: associations; Check: isAdminLoggedOn
+Root: HKLM; Subkey: "Software\Classes\BlueJProject\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\bluej.exe,0"; Flags: uninsdeletekey; Tasks: associations; Check: isAdminLoggedOn
+Root: HKLM; Subkey: "Software\Classes\BlueJProject\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\bluej.exe"" ""%1"""; Flags: uninsdeletekey; Tasks: associations; Check: isAdminLoggedOn
+; For non-admin
+Root: HKCU; Subkey: "Software\Classes\.bluej"; ValueType: string; ValueName: ""; ValueData: "BlueJProject"; Flags: uninsdeletevalue; Tasks: associations; Check: not isAdminLoggedOn
+Root: HKCU; Subkey: "Software\Classes\BlueJProject"; ValueType: string; ValueName: ""; ValueData: "BlueJ project file"; Flags: uninsdeletekey; Tasks: associations; Check: not isAdminLoggedOn
+Root: HKCU; Subkey: "Software\Classes\BlueJProject\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\bluej.exe,0"; Flags: uninsdeletekey; Tasks: associations; Check: not isAdminLoggedOn
+Root: HKCU; Subkey: "Software\Classes\BlueJProject\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\bluej.exe"" ""%1"""; Flags: uninsdeletekey; Tasks: associations; Check: not isAdminLoggedOn
 
 [InstallDelete]
 Type: files; Name: "{app}\lib\extensions\submission.jar"
@@ -51,11 +57,3 @@ Source: "..\winlaunch\README.TXT"; DestDir: "{app}"
 Filename: "{app}\README.TXT"; Description: "View the README file"; Flags: postinstall shellexec skipifsilent
 Filename: "{app}\bluej.exe"; WorkingDir: "{app}"; Parameters: "/select"; Description: "Launch BlueJ"; Flags: postinstall nowait skipifsilent unchecked
 
-[Code]
-function ClassesRoot(Param: String) : String
-begin
-	if IsAdminLoggedOn() then
-		Result := 'HKLM'
-	else
-		Result := 'HKCU';
-end;
