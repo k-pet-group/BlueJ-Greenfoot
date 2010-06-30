@@ -22,7 +22,6 @@
 package bluej.editor.moe;
 
 
-import bluej.Config;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -33,6 +32,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.Insets;
+import java.awt.Paint;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
@@ -60,6 +60,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.text.html.HTMLEditorKit;
 
+import bluej.Config;
 import bluej.parser.AssistContent;
 import bluej.parser.SourceLocation;
 import bluej.parser.lexer.LocatableToken;
@@ -477,8 +478,10 @@ public class CodeCompletionDisplay extends JFrame
                     0, 0, topColor,
                     0, h, bottomColor);
    
+                Paint origPaint = g2d.getPaint();
                 g2d.setPaint(gp);
                 g2d.fillRect(0, 0, w, h);
+                g2d.setPaint(origPaint);
             }
         }
     }    
@@ -503,9 +506,13 @@ public class CodeCompletionDisplay extends JFrame
         @Override
         protected void paintComponent(Graphics g)
         {
+            Color origColor = g.getColor();
+            Font origFont = g.getFont();
             g.setColor(msgTextColor);
-            g.setFont(g.getFont().deriveFont(20f));
+            g.setFont(origFont.deriveFont(20f));
             g.drawString(Config.getString("editor.completion.noMatch"), 30, 60);
+            g.setColor(origColor);
+            g.setFont(origFont);
         }
     }
 }
