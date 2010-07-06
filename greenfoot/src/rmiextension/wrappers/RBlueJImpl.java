@@ -42,7 +42,7 @@ import bluej.prefmgr.PrefMgrDialog;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RBlueJImpl.java 7748 2010-06-01 15:33:13Z nccb $
+ * @version $Id: RBlueJImpl.java 7836 2010-07-06 10:33:48Z nccb $
  */
 public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     implements RBlueJ
@@ -174,8 +174,12 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
         throws RemoteException
     {
         BProject bProject = blueJ.openProject(new File(directory));
-        GreenfootRelauncher.addDebuggerListener(bProject);
-        return WrapperPool.instance().getWrapper(bProject);
+        if (bProject != null) {
+            GreenfootRelauncher.addDebuggerListener(bProject);
+            return WrapperPool.instance().getWrapper(bProject);
+        } else {
+            return null;
+        }
     }
 
     /* (non-Javadoc)
