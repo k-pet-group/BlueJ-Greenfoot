@@ -4,8 +4,12 @@ How to make a BlueJ release for Windows
  1. Build a BlueJ release (see HOWTO.make-release)
 
  2. Building the BlueJ release should have left a bluej-dist.jar
-    file in the package directory. This is needs to be copied to the
-    package directory of the machine building the windows release.
+    file in the package directory. 
+    
+    If building the Windows release on a machine other than that
+    on which the release itself was built, the bluej-dist.jar file
+    needs to be copied to the package directory of the machine
+    building the windows release, before step 4 (below) is performed.
 
  3. Build the Windows launcher (bjlaunch.exe).
  
@@ -14,7 +18,7 @@ How to make a BlueJ release for Windows
     The bjlaunch.exe file must be in the package/winlaunch folder before you
     continue.
  
- 4. Run "ant windows-dist" from the root of the bluej project.
+ 4. Run "ant windows-dist" from the root of the BlueJ project.
 
  5. The resulting winsetup/BlueJ-windows-VERSION.exe is the distributable file
     (where VERSION is the version number).
