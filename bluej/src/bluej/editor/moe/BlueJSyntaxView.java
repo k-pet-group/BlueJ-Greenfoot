@@ -1057,17 +1057,17 @@ public abstract class BlueJSyntaxView extends PlainView
                     if (nap != null) {
                         do {
                             scopeStack.add(nap);
-                            nws = findNonWhitespace(segment, nap.getPosition() - lineEl.getStartOffset());
-                            Integer oindent = nodeIndents.get(nap.getNode());
-                            if (oindent != null && nws != -1) {
-                                cbounds = modelToView(lineEl.getStartOffset() + nws, a, Position.Bias.Forward).getBounds();
-                                indent = cbounds.x;
-                                updateNodeIndent(nap, indent, oindent, dmgRange);
+                            if (nap.getPosition() < lineEl.getEndOffset()) {
+                                int spos = nap.getPosition() - lineEl.getStartOffset();
+                                nws = findNonWhitespace(segment, spos);
+                                Integer oindent = nodeIndents.get(nap.getNode());
+                                if (oindent != null && nws != -1) {
+                                    cbounds = modelToView(lineEl.getStartOffset() + nws, a, Position.Bias.Forward).getBounds();
+                                    indent = cbounds.x;
+                                    updateNodeIndent(nap, indent, oindent, dmgRange);
+                                }
                             }
                             nap = nap.getNode().findNodeAtOrAfter(nap.getPosition(), nap.getPosition());
-                            if (nap != null && nap.getPosition() > lineEndPos) {
-                                break;
-                            }
                         }
                         while (nap != null);
                         j = scopeStack.listIterator(scopeStack.size());
