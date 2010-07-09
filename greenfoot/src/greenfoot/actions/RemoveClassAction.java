@@ -32,6 +32,9 @@ import javax.swing.JFrame;
 
 import bluej.BlueJTheme;
 import bluej.Config;
+import bluej.utility.Debug;
+import javax.swing.JDialog;
+import javax.swing.JOptionPane;
 
 
 /**
@@ -66,10 +69,15 @@ public class RemoveClassAction extends AbstractAction
     
     public static boolean confirmRemoveClass(ClassView cls, JFrame frame)
     {
-        JButton okButton = BlueJTheme.getOkButton();
-        JButton cancelButton = BlueJTheme.getCancelButton();
-        MessageDialog confirmRemove = new MessageDialog(frame, confirmRemoveText1 + " " + cls.getClassName()
-                + ". " + confirmRemoveText2, confirmRemoveTitle, 100, new JButton[]{okButton, cancelButton});
-        return confirmRemove.displayModal() == okButton;
+        String[] options = new String[] { BlueJTheme.getOkLabel(), BlueJTheme.getCancelLabel() };
+        int response = JOptionPane.showOptionDialog(frame,
+                confirmRemoveText1 + " " + cls.getClassName() + ". " + confirmRemoveText2,
+                confirmRemoveTitle,
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                options,
+                options[0]);
+        return response == 0;
     }
 }
