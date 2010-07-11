@@ -36,141 +36,140 @@ import bluej.utility.Debug;
  * wrapped class except for restart().
  * 
  * @author Poul Henriksen
- * 
  */
 public class JavaAudioInputStream implements GreenfootAudioInputStream
 {
-	private AudioInputStream stream;
-	private URL url;
-	private boolean readingHasStarted = false;
-	private boolean open;
+    private AudioInputStream stream;
+    private URL url;
+    private boolean readingHasStarted = false;
+    private boolean open;
 
-	public JavaAudioInputStream(URL url) throws UnsupportedAudioFileException,
-			IOException
-	{
-		this.url = url;
-		open();
-	}
+    public JavaAudioInputStream(URL url) throws UnsupportedAudioFileException,
+    IOException
+    {
+        this.url = url;
+        open();
+    }
 
-	public void open() throws UnsupportedAudioFileException, IOException
-	{
-		if (!open) {
-			readingHasStarted = false;
+    public void open() throws UnsupportedAudioFileException, IOException
+    {
+        if (!open) {
+            readingHasStarted = false;
 
-			if (stream != null) {
-				try {
-					stream.close();
-				} catch (IOException e) {
-					// An exception here is probably not fatal, so we just log
-					// it and continue.
-					Debug.reportError(
-							"Exception while closing java audio input stream.",
-							e);
-				}
-			}
-			stream = AudioSystem.getAudioInputStream(url);
-			open = true;
-		}
+            if (stream != null) {
+                try {
+                    stream.close();
+                } catch (IOException e) {
+                    // An exception here is probably not fatal, so we just log
+                    // it and continue.
+                    Debug.reportError(
+                            "Exception while closing java audio input stream.",
+                            e);
+                }
+            }
+            stream = AudioSystem.getAudioInputStream(url);
+            open = true;
+        }
 
-	}
-	
-	public void restart() throws UnsupportedAudioFileException, IOException
-	{
-		if(!open || readingHasStarted() || stream == null) {
-			open = false;
-			open();
-		}		
-	}
+    }
 
-	/**
-	 * Whether reading from this stream has begun.
-	 * 
-	 * @return True if it has been restarted and no reading has been done since.
-	 *         False otherwise.
-	 */
-	private boolean readingHasStarted()
-	{
-		return readingHasStarted;
-	}
+    public void restart() throws UnsupportedAudioFileException, IOException
+    {
+        if(!open || readingHasStarted() || stream == null) {
+            open = false;
+            open();
+        }		
+    }
 
-	public String getSource()
-	{
-		return url.toString();
-	}
+    /**
+     * Whether reading from this stream has begun.
+     * 
+     * @return True if it has been restarted and no reading has been done since.
+     *         False otherwise.
+     */
+    private boolean readingHasStarted()
+    {
+        return readingHasStarted;
+    }
 
-	public int available() throws IOException
-	{
-		return stream.available();
-	}
+    public String getSource()
+    {
+        return url.toString();
+    }
 
-	public void close() throws IOException
-	{
-		open = false;
-		stream.close();
-	}
+    public int available() throws IOException
+    {
+        return stream.available();
+    }
 
-	public boolean equals(Object obj)
-	{
-		return stream.equals(obj);
-	}
+    public void close() throws IOException
+    {
+        open = false;
+        stream.close();
+    }
 
-	public AudioFormat getFormat()
-	{
-		return stream.getFormat();
-	}
+    public boolean equals(Object obj)
+    {
+        return stream.equals(obj);
+    }
 
-	public long getFrameLength()
-	{
-		return stream.getFrameLength();
-	}
+    public AudioFormat getFormat()
+    {
+        return stream.getFormat();
+    }
 
-	public int hashCode()
-	{
-		return stream.hashCode();
-	}
+    public long getFrameLength()
+    {
+        return stream.getFrameLength();
+    }
 
-	public void mark(int readlimit)
-	{
-		stream.mark(readlimit);
-	}
+    public int hashCode()
+    {
+        return stream.hashCode();
+    }
 
-	public boolean markSupported()
-	{
-		return stream.markSupported();
-	}
+    public void mark(int readlimit)
+    {
+        stream.mark(readlimit);
+    }
 
-	public int read() throws IOException
-	{
-		readingHasStarted = true;
-		return stream.read();
-	}
+    public boolean markSupported()
+    {
+        return stream.markSupported();
+    }
 
-	public int read(byte[] b, int off, int len) throws IOException
-	{
-		readingHasStarted = true;
-		return stream.read(b, off, len);
-	}
+    public int read() throws IOException
+    {
+        readingHasStarted = true;
+        return stream.read();
+    }
 
-	public int read(byte[] b) throws IOException
-	{
-		readingHasStarted = true;
-		return stream.read(b);
-	}
+    public int read(byte[] b, int off, int len) throws IOException
+    {
+        readingHasStarted = true;
+        return stream.read(b, off, len);
+    }
 
-	public void reset() throws IOException
-	{
-		stream.reset();
-	}
+    public int read(byte[] b) throws IOException
+    {
+        readingHasStarted = true;
+        return stream.read(b);
+    }
 
-	public long skip(long n) throws IOException
-	{
-		readingHasStarted = true;
-		return stream.skip(n);
-	}
+    public void reset() throws IOException
+    {
+        stream.reset();
+    }
 
-	public String toString()
-	{
-		return stream.toString();
-	}
+    public long skip(long n) throws IOException
+    {
+        readingHasStarted = true;
+        return stream.skip(n);
+    }
+
+    public String toString()
+    {
+        return stream.toString();
+    }
 
 }

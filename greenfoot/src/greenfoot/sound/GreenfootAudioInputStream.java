@@ -37,48 +37,48 @@ import javax.sound.sampled.UnsupportedAudioFileException;
  */
 public interface GreenfootAudioInputStream extends Closeable
 {
-	/**
-	 * Opens this stream.
-	 * 
-	 * @throws UnsupportedAudioFileException
-	 *             if the stream does not point to valid audio file data
-	 *             recognised by the system
-	 * @throws IOException
-	 *             if an I/O exception occurs
-	 */
-	public void open() throws IOException, UnsupportedAudioFileException;
- 	
-	/**
-	 * Restarts this stream by repositioning to the beginning of the stream.
-	 * 
-	 * @throws UnsupportedAudioFileException
-	 *             if the stream does not point to valid audio file data
-	 *             recognised by the system
-	 * @throws IOException
-	 *             if an I/O exception occurs
-	 */
-	public void restart() throws IOException, UnsupportedAudioFileException;
+    /**
+     * Opens this stream.
+     * 
+     * @throws UnsupportedAudioFileException
+     *             if the stream does not point to valid audio file data
+     *             recognised by the system
+     * @throws IOException
+     *             if an I/O exception occurs
+     */
+    public void open() throws IOException, UnsupportedAudioFileException;
 
-	/**
-	 * Gets the source where this stream comes from. Typically a filename on a
-	 * URL.
-	 */
-	public String getSource();
+    /**
+     * Restarts this stream by repositioning to the beginning of the stream.
+     * 
+     * @throws UnsupportedAudioFileException
+     *             if the stream does not point to valid audio file data
+     *             recognised by the system
+     * @throws IOException
+     *             if an I/O exception occurs
+     */
+    public void restart() throws IOException, UnsupportedAudioFileException;
 
-	// ================================================================
-	// Interface for AudioInputStream
-	// ================================================================
+    /**
+     * Gets the source where this stream comes from. Typically a filename on a
+     * URL.
+     */
+    public String getSource();
 
-	/**
-	 * Obtains the audio format of the sound data in this audio input stream.
-	 * 
-	 * @return an audio format object describing this stream's format
-	 */
-	public AudioFormat getFormat();
+    // ================================================================
+    // Interface for AudioInputStream
+    // ================================================================
 
-	// ================================================================
-	// Interface for InputStream
-	// ================================================================
+    /**
+     * Obtains the audio format of the sound data in this audio input stream.
+     * 
+     * @return an audio format object describing this stream's format
+     */
+    public AudioFormat getFormat();
+
+    // ================================================================
+    // Interface for InputStream
+    // ================================================================
 
     /**
      * Reads the next byte of data from the audio input stream.  The audio input
@@ -91,9 +91,9 @@ public interface GreenfootAudioInputStream extends Closeable
      * @see #read(byte[])
      * @see #available
      * <p>
-	 * @see javax.sound.sampled.AudioInputStream#read()
-	 */
-	public int read() throws IOException;
+     * @see javax.sound.sampled.AudioInputStream#read()
+     */
+    public int read() throws IOException;
 
 
     /**
@@ -113,11 +113,11 @@ public interface GreenfootAudioInputStream extends Closeable
      * @see #read(byte[], int, int)
      * @see #read()
      * @see #available
-	 * @see javax.sound.sampled.AudioInputStream#read(byte[]))
-	 */
-	public int read(byte b[]) throws IOException;
+     * @see javax.sound.sampled.AudioInputStream#read(byte[]))
+     */
+    public int read(byte b[]) throws IOException;
 
-	/**
+    /**
      * Reads up to a specified maximum number of bytes of data from the audio
      * stream, putting them into the given byte array.
      * <p>This method will always read an integral number of frames.
@@ -136,9 +136,9 @@ public interface GreenfootAudioInputStream extends Closeable
      * @see #read()
      * @see #skip
      * @see #available
-	 * @see javax.sound.sampled.AudioInputStream#read(byte[], int, int)
-	 */
-	public int read(byte b[], int off, int len) throws IOException;
+     * @see javax.sound.sampled.AudioInputStream#read(byte[], int, int)
+     */
+    public int read(byte b[], int off, int len) throws IOException;
 
 
     /**
@@ -149,9 +149,9 @@ public interface GreenfootAudioInputStream extends Closeable
      * @throws IOException if an input or output error occurs
      * @see #read
      * @see #available
-	 * @see javax.sound.sampled.AudioInputStream#skip(long)
-	 */
-	public long skip(long n) throws IOException;
+     * @see javax.sound.sampled.AudioInputStream#skip(long)
+     */
+    public long skip(long n) throws IOException;
 
     /**
      * Returns the maximum number of bytes that can be read (or skipped over) from this
@@ -166,18 +166,18 @@ public interface GreenfootAudioInputStream extends Closeable
      * @see #read(byte[])
      * @see #read()
      * @see #skip
-	 * @see javax.sound.sampled.AudioInputStream#available()
-	 */
-	public int available() throws IOException;
+     * @see javax.sound.sampled.AudioInputStream#available()
+     */
+    public int available() throws IOException;
 
 
     /**
      * Closes this audio input stream and releases any system resources associated
      * with the stream.
      * @throws IOException if an input or output error occurs
-	 * @see javax.sound.sampled.AudioInputStream#close
-	 */
-	public void close() throws IOException;
+     * @see javax.sound.sampled.AudioInputStream#close
+     */
+    public void close() throws IOException;
 
     /**
      * Marks the current position in this audio input stream.
@@ -185,9 +185,9 @@ public interface GreenfootAudioInputStream extends Closeable
      * the mark position becomes invalid.
      * @see #reset
      * @see #markSupported
-	 * @see javax.sound.sampled.AudioInputStream#mark(int)
-	 */
-	public void mark(int readlimit);
+     * @see javax.sound.sampled.AudioInputStream#mark(int)
+     */
+    public void mark(int readlimit);
 
     /**
      * Repositions this audio input stream to the position it had at the time its
@@ -196,8 +196,8 @@ public interface GreenfootAudioInputStream extends Closeable
      * @see #mark
      * @see #markSupported
      * @see javax.sound.sampled.AudioInputStream#reset()
-	 */
-	public void reset() throws IOException;
+     */
+    public void reset() throws IOException;
 
     /**
      * Tests whether this audio input stream supports the <code>mark</code> and
@@ -206,8 +206,8 @@ public interface GreenfootAudioInputStream extends Closeable
      * and <code>reset</code> methods; <code>false</code> otherwise
      * @see #mark
      * @see #reset
-	 * @see javax.sound.sampled.AudioInputStream#markSupported()
-	 */
-	public boolean markSupported();
+     * @see javax.sound.sampled.AudioInputStream#markSupported()
+     */
+    public boolean markSupported();
 
 }
