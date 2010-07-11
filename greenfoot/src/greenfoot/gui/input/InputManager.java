@@ -254,13 +254,13 @@ public class InputManager
 
     public void mouseClicked(MouseEvent e)
     {
-		checkShift(e);
+        checkShift(e);
         activeMouseListener.mouseClicked(e);
     }
 
     public void mousePressed(MouseEvent e)
     {
-		checkShift(e);
+        checkShift(e);
         activeMouseListener.mousePressed(e);
         if (SwingUtilities.isLeftMouseButton(e) && !e.isShiftDown()) {
             state.switchToNextState(State.Event.MOUSE_PRESSED, null);
@@ -269,7 +269,7 @@ public class InputManager
 
     public void mouseReleased(MouseEvent e)
     {
-		checkShift(e);
+        checkShift(e);
         activeMouseListener.mouseReleased(e);
         if (SwingUtilities.isLeftMouseButton(e)) {
             state.switchToNextState(State.Event.MOUSE_RELEASED, null);
@@ -278,44 +278,46 @@ public class InputManager
 
     public void mouseEntered(MouseEvent e)
     {
-		checkShift(e);
+        checkShift(e);
         activeMouseListener.mouseEntered(e);
     }
 
     public void mouseExited(MouseEvent e)
     {
-		checkShift(e);
+        checkShift(e);
         activeMouseListener.mouseExited(e);
     }
 
     /**
-	 * Method that checks whether shift has been released without us noticing.
-	 * It will then simulate that the shift key has been released.
-	 * 
-	 */
-	private void checkShift(MouseEvent e) {
-		if (state == QuickAddDragState.getInstance() && !e.isShiftDown()) {
-			state.switchToNextState(State.Event.SHIFT_RELEASED, null);
-		}
-	}
+     * Method that checks whether shift has been released without us noticing.
+     * It will then simulate that the shift key has been released.
+     */
+    private void checkShift(MouseEvent e)
+    {
+        if (state == QuickAddDragState.getInstance() && !e.isShiftDown()) {
+            state.switchToNextState(State.Event.SHIFT_RELEASED, null);
+        }
+    }
 
     public void mouseDragged(MouseEvent e)
     {
-		checkShift(e);
-		activeMouseMotionListener.mouseDragged(e);
+        checkShift(e);
+        activeMouseMotionListener.mouseDragged(e);
     }
 
     public void mouseMoved(MouseEvent e)
     {
-		checkShift(e);
+        checkShift(e);
         activeMouseMotionListener.mouseMoved(e);
     }
 
-	public void worldCreated(WorldEvent e) {
-		state.switchToNextState(State.Event.WORLD_CREATED, null);
-	}
+    public void worldCreated(WorldEvent e)
+    {
+        state.switchToNextState(State.Event.WORLD_CREATED, null);
+    }
 
-	public void worldRemoved(WorldEvent e) {
-		state.switchToNextState(State.Event.WORLD_REMOVED, null);
-	}
+    public void worldRemoved(WorldEvent e)
+    {
+        state.switchToNextState(State.Event.WORLD_REMOVED, null);
+    }
 }
