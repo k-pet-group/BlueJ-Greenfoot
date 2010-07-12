@@ -29,7 +29,7 @@ import java.util.Hashtable;
 import java.util.Map;
 import java.util.Properties;
 
-import rmiextension.GreenfootRelauncher;
+import rmiextension.GreenfootDebugHandler;
 import rmiextension.ProjectManager;
 import rmiextension.wrappers.event.*;
 import bluej.Config;
@@ -42,7 +42,7 @@ import bluej.prefmgr.PrefMgrDialog;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RBlueJImpl.java 7836 2010-07-06 10:33:48Z nccb $
+ * @version $Id: RBlueJImpl.java 7851 2010-07-12 10:11:17Z nccb $
  */
 public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     implements RBlueJ
@@ -161,7 +161,7 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     {
         ProjectManager.instance().addNewProject(directory);
         BProject wrapped = blueJ.newProject(directory);
-        GreenfootRelauncher.addDebuggerListener(wrapped);
+        GreenfootDebugHandler.addDebuggerListener(wrapped);
         RProject wrapper = WrapperPool.instance().getWrapper(wrapped);
         ProjectManager.instance().removeNewProject(directory);
         return wrapper;
@@ -175,7 +175,7 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     {
         BProject bProject = blueJ.openProject(new File(directory));
         if (bProject != null) {
-            GreenfootRelauncher.addDebuggerListener(bProject);
+            GreenfootDebugHandler.addDebuggerListener(bProject);
             return WrapperPool.instance().getWrapper(bProject);
         } else {
             return null;

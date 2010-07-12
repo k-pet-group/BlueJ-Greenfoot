@@ -53,7 +53,7 @@ import bluej.utility.Debug;
  * This is the starting point of greenfoot as a BlueJ Extension.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RMIExtension.java 7747 2010-06-01 15:29:01Z nccb $
+ * @version $Id: RMIExtension.java 7851 2010-07-12 10:11:17Z nccb $
  */
 public class RMIExtension extends Extension implements ApplicationListener
 {
@@ -114,7 +114,7 @@ public class RMIExtension extends Extension implements ApplicationListener
         if (project == null) {
             Debug.reportError("Could not open scenario: " + projectPath);
         } else {
-            GreenfootRelauncher.addDebuggerListener(project);
+            GreenfootDebugHandler.addDebuggerListener(project);
         }
     }
 
@@ -130,7 +130,7 @@ public class RMIExtension extends Extension implements ApplicationListener
         if (project == null) {
             Debug.reportError("Could not open scenario: " + projectPath);
         } else {
-            GreenfootRelauncher.addDebuggerListener(project);
+            GreenfootDebugHandler.addDebuggerListener(project);
         }
         ProjectManager.instance().removeNewProject(projectPath);
 
@@ -186,7 +186,7 @@ public class RMIExtension extends Extension implements ApplicationListener
     {
         GreenfootLauncherBlueJVM.getInstance().launch(this);
         for (BProject project : theBlueJ.getOpenProjects()) {
-            GreenfootRelauncher.addDebuggerListener(project);
+            GreenfootDebugHandler.addDebuggerListener(project);
         }
     }
 
