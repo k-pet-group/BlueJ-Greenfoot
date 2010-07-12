@@ -924,7 +924,7 @@ public class ClassTarget extends DependentTarget
     public String breakpointToggleEvent(Editor editor, int lineNo, boolean set)
     {
         if (isCompiled() || ! modifiedSinceCompile) {
-            return getPackage().getDebugger().toggleBreakpoint(getQualifiedName(), lineNo, set);
+            return getPackage().getDebugger().toggleBreakpoint(getQualifiedName(), lineNo, set, null);
         }
         else {
             return Config.getString("pkgmgr.breakpointMsg");

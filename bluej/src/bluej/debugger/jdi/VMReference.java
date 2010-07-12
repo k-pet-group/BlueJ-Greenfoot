@@ -40,11 +40,13 @@ import bluej.Boot;
 import bluej.Config;
 import bluej.classmgr.BPClassLoader;
 import bluej.debugger.Debugger;
+import bluej.debugger.DebuggerEvent;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.DebuggerResult;
 import bluej.debugger.DebuggerTerminal;
 import bluej.debugger.ExceptionDescription;
 import bluej.debugger.SourceLocation;
+import bluej.debugger.DebuggerEvent.BreakpointProperties;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.runtime.ExecServer;
 import bluej.utility.Debug;
@@ -94,7 +96,7 @@ import com.sun.jdi.request.EventRequestManager;
  * machine, which gets started from here via the JDI interface.
  * 
  * @author Michael Kolling
- * @version $Id: VMReference.java 7804 2010-06-24 13:38:26Z nccb $
+ * @version $Id: VMReference.java 7849 2010-07-12 10:03:11Z nccb $
  * 
  * The startup process is as follows:
  * 
@@ -627,6 +629,16 @@ class VMReference
         // need to be readded)
         serverClassAddBreakpoints();
     }
+    
+    private Location findMethodLocation(ClassType classType, String methodName)
+    {
+        Method method = findMethodByName(classType, methodName);
+        if (method == null) {
+            throw new IllegalStateException("can't find method " + classType.name() + "."
+                    + methodName);
+        }
+        return method.location();
+    }
 
     /**
      * This breakpoint is used to stop the server process to make it wait for
@@ -639,13 +651,7 @@ class VMReference
 
         // set a breakpoint in the vm started method
         {
-            Method startedMethod = findMethodByName(serverClass, SERVER_STARTED_METHOD_NAME);
-            if (startedMethod == null) {
-                throw new IllegalStateException("can't find method " + SERVER_CLASSNAME + "."
-                        + SERVER_STARTED_METHOD_NAME);
-            }
-            Location loc = startedMethod.location();
-            serverBreakpoint = erm.createBreakpointRequest(loc);
+            serverBreakpoint = erm.createBreakpointRequest(findMethodLocation(serverClass, SERVER_STARTED_METHOD_NAME));
             serverBreakpoint.setSuspendPolicy(EventRequest.SUSPEND_EVENT_THREAD);
             // the presence of this property indicates to breakEvent that we are
             // a special type of breakpoint
@@ -656,13 +662,7 @@ class VMReference
 
         // set a breakpoint in the suspend method
         {
-            Method suspendMethod = findMethodByName(serverClass, SERVER_SUSPEND_METHOD_NAME);
-            if (suspendMethod == null) {
-                throw new IllegalStateException("can't find method " + SERVER_CLASSNAME + "."
-                        + SERVER_SUSPEND_METHOD_NAME);
-            }
-            Location loc = suspendMethod.location();
-            workerBreakpoint = erm.createBreakpointRequest(loc);
+            workerBreakpoint = erm.createBreakpointRequest(findMethodLocation(serverClass, SERVER_SUSPEND_METHOD_NAME));
             workerBreakpoint.setSuspendPolicy(EventRequest.SUSPEND_EVENT_THREAD);
             // the presence of this property indicates to breakEvent that we are
             // a special type of breakpoint
@@ -1191,7 +1191,7 @@ class VMReference
     /**
      * A breakpoint has been hit or step completed in a thread.
      */
-    public void breakpointEvent(LocatableEvent event, boolean breakpoint)
+    public void breakpointEvent(LocatableEvent event, boolean breakpoint, boolean skipUpdate)
     {
         // if the breakpoint is marked as with the SERVER_STARTED property
         // then this is our own breakpoint that is used to detect when a new
@@ -1246,8 +1246,26 @@ class VMReference
             }
 
             // signal the breakpoint/step to the user
-            owner.breakpoint(event.thread(), breakpoint);
+            owner.breakpoint(event.thread(), breakpoint, skipUpdate, makeBreakpointProperties(event.request()));
         }
+    }
+
+    private BreakpointProperties makeBreakpointProperties(final EventRequest request)
+    {
+        if (request == null)
+            return null;
+        else
+            return new DebuggerEvent.BreakpointProperties() {
+                public Object get(Object key)
+                {
+                    return request.getProperty(key);
+                }
+            };
+    }
+
+    public boolean screenBreakpointEvent(LocatableEvent event, boolean breakpoint)
+    {
+        return owner.screenBreakpoint(event.thread(), breakpoint, makeBreakpointProperties(event.request()));
     }
 
     // ==== code for active debugging: setting breakpoints, stepping, etc ===
@@ -1272,7 +1290,7 @@ class VMReference
 
         Iterator<ReferenceType> it = allTypesInFile.iterator();
         while (it.hasNext()) {
-            ReferenceType r = (ReferenceType) it.next();
+            ReferenceType r = it.next();
 
             try {
                 List<Location> list = r.locationsOfLine(line);
@@ -1330,9 +1348,10 @@ class VMReference
      *            The class in which to set the breakpoint.
      * @param line
      *            The line number of the breakpoint.
+     * @param properties The collection of properties to set on the breakpoint.  Can be null.
      * @return null if there was no problem, or an error string
      */
-    String setBreakpoint(String className, int line)
+    String setBreakpoint(String className, int line, Map<String, String> properties)
     {
         Location location = loadClassesAndFindLine(className, line);
         if (location == null) {
@@ -1342,9 +1361,26 @@ class VMReference
         BreakpointRequest bpreq = erm.createBreakpointRequest(location);
         bpreq.setSuspendPolicy(EventRequest.SUSPEND_EVENT_THREAD);
         bpreq.putProperty(VMEventHandler.DONT_RESUME, "yes");
+        if (properties != null) {
+            for (Map.Entry<String, String> property : properties.entrySet()) {
+                bpreq.putProperty(property.getKey(), property.getValue());
+            }
+        }
         bpreq.enable();
 
         return null;
+    }
+    
+    // As above but sets the breakpoint on the first line of a given method
+    String setBreakpoint(String className, String methodName, Map<String, String> properties)
+    {
+        try {
+            ClassType classType = (ClassType)findClassByName(className);
+            Location loc = findMethodLocation(classType, methodName);
+            return setBreakpoint(className, loc.lineNumber(), properties);
+        } catch (ClassNotFoundException e) {
+            return "Could not find class: " + className; 
+        }
     }
 
     /**
@@ -1378,6 +1414,18 @@ class VMReference
             return null;
         else
             return Config.getString("debugger.jdiDebugger.noBreakpointMsg");
+    }
+    
+    // As above but clears the breakpoint in a given method (as set by the corresponding setBreakpoint method that takes a method name)
+    String clearBreakpoint(String className, String methodName)
+    {
+        try {
+            ClassType classType = (ClassType)findClassByName(className);
+            Location loc = findMethodLocation(classType, methodName);
+            return clearBreakpoint(className, loc.lineNumber());
+        }  catch (ClassNotFoundException e) {
+            return "Could not find class: " + className; 
+        }
     }
 
     /**
@@ -1437,11 +1485,10 @@ class VMReference
         List<BreakpointRequest> toDelete = new LinkedList<BreakpointRequest>();
 
         while (it.hasNext()) {
-            BreakpointRequest bp = (BreakpointRequest) it.next();
+            BreakpointRequest bp = it.next();
 
             ReferenceType bpType = bp.location().declaringType();
-            if (bpType.name().equals(className)
-                    && bpType.classLoader() == currentLoader) {
+            if (bpType.name().equals(className)) {
                 toDelete.add(bp);
             }
         }

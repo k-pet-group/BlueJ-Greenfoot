@@ -26,10 +26,25 @@ import java.util.EventListener;
 /**
  * The listener for Debugger events.
  *
- * @author  Andrew Patterson
- * @version $Id: DebuggerListener.java 6215 2009-03-30 13:28:25Z polle $
+ * Debugger events are processed in two stages
+ * 
+ * First, all the events in a set are passed to examineDebuggerEvent.
+ * This method should return true if it wants to set the thread going again,
+ * or otherwise upset the interface updates.
+ * 
+ * The result of all examine.. calls are ORed together and later passed to
+ * processDebuggerEvent, which should act on the boolean accordingly.  In particular,
+ * if the interface is given the value true, it should not update. 
  */
 public interface DebuggerListener extends EventListener
 {
-    void debuggerEvent(DebuggerEvent e);
+    void processDebuggerEvent(DebuggerEvent e, boolean skipUpdate);
+    boolean examineDebuggerEvent(DebuggerEvent e);
+    
+    /**
+     * Called when the user instigates a halt of a thread in the debugger.
+     * @return true if you do not want the thread display to be updated (e.g. if you have set the thread running again),
+     *   or false if you want things to be handled normally. 
+     */
+    boolean threadHalted(Debugger debugger, DebuggerThread thread);
 }

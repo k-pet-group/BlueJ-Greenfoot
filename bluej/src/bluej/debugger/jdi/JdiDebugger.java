@@ -54,7 +54,7 @@ import com.sun.jdi.*;
  * 
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: JdiDebugger.java 7803 2010-06-24 10:00:55Z nccb $
+ * @version $Id: JdiDebugger.java 7849 2010-07-12 10:03:11Z nccb $
  */
 public class JdiDebugger extends Debugger
 {
@@ -676,7 +676,7 @@ public class JdiDebugger extends Debugger
      * notify all listeners that have registered interest for
      * notification on this event type.
      */ 
-    private void fireTargetEvent(DebuggerEvent ce)
+    private void fireTargetEvent(DebuggerEvent ce, boolean skipUpdate)
     {
         // Guaranteed to return a non-null array
         Object[] listeners = listenerList.getListenerList();
@@ -684,9 +684,14 @@ public class JdiDebugger extends Debugger
         // those that are interested in this event
         for (int i = listeners.length - 2; i >= 0; i -= 2) {
             if (listeners[i] == DebuggerListener.class) {
-                ((DebuggerListener) listeners[i + 1]).debuggerEvent(ce);
+                ((DebuggerListener) listeners[i + 1]).processDebuggerEvent(ce, skipUpdate);
             }
         }
+    }
+    
+    private void fireTargetEvent(DebuggerEvent ce)
+    {
+        fireTargetEvent(ce, false);
     }
 
     void raiseStateChangeEvent(int newState)
@@ -729,7 +734,7 @@ public class JdiDebugger extends Debugger
      * 
      * @return null if there was no problem, or an error string
      */
-    public String toggleBreakpoint(String className, int line, boolean set)
+    public String toggleBreakpoint(String className, int line, boolean set, Map<String, String> properties)
     {
         // Debug.message("[toggleBreakpoint]: " + className + " line " + line);
 
@@ -737,10 +742,33 @@ public class JdiDebugger extends Debugger
         try {
             if (vmr != null) {
                 if (set) {
-                    return vmr.setBreakpoint(className, line);
+                    return vmr.setBreakpoint(className, line, properties);
                 }
                 else {
                     return vmr.clearBreakpoint(className, line);
+                }
+            }
+            else {
+                return "VM terminated.";
+            }
+        }
+        catch (Exception e) {
+            Debug.reportError("breakpoint error: " + e);
+            e.printStackTrace(System.out);
+            return Config.getString("debugger.jdiDebugger.internalErrorMsg");
+        }
+    }
+    
+    public String toggleBreakpoint(String className, String method, boolean set, Map<String, String> properties)
+    {
+        VMReference vmr = getVM();
+        try {
+            if (vmr != null) {
+                if (set) {
+                    return vmr.setBreakpoint(className, method, properties);
+                }
+                else {
+                    return vmr.clearBreakpoint(className, method);
                 }
             }
             else {
@@ -761,28 +789,52 @@ public class JdiDebugger extends Debugger
      * @param tr   the thread in which code hit the breakpoint/step
      * @param bp   true for a breakpoint, false for a step
      */
-    public void breakpoint(final ThreadReference tr, final boolean bp)
+    public void breakpoint(final ThreadReference tr, final boolean bp, boolean skipUpdate, DebuggerEvent.BreakpointProperties props)
     {
         final JdiThread breakThread = allThreads.find(tr);
-        treeModel.syncExec(new Runnable() {
-            public void run()
-            {
-                JdiThreadNode jtn = treeModel.findThreadNode(tr);
-                // if the thread at the breakpoint is not currently displayed,
-                // display it now.
-                if (jtn == null) {
-                    JdiThreadNode root = treeModel.getThreadRoot();
-                    treeModel.insertNodeInto(new JdiThreadNode(breakThread), root, 0);
+        if (false == skipUpdate)
+            treeModel.syncExec(new Runnable() {
+                public void run()
+                {
+                    JdiThreadNode jtn = treeModel.findThreadNode(tr);
+                    // if the thread at the breakpoint is not currently displayed,
+                    // display it now.
+                    if (jtn == null) {
+                        JdiThreadNode root = treeModel.getThreadRoot();
+                        treeModel.insertNodeInto(new JdiThreadNode(breakThread), root, 0);
+                    }
+                    else
+                        treeModel.nodeChanged(jtn);
                 }
-                else
-                    treeModel.nodeChanged(jtn);
-            }
-        });
+            });
 
         if (bp)
-            fireTargetEvent(new DebuggerEvent(this, DebuggerEvent.THREAD_BREAKPOINT, breakThread));
+            fireTargetEvent(new DebuggerEvent(this, DebuggerEvent.THREAD_BREAKPOINT, breakThread, props), skipUpdate);
         else
-            fireTargetEvent(new DebuggerEvent(this, DebuggerEvent.THREAD_HALT, breakThread));
+            fireTargetEvent(new DebuggerEvent(this, DebuggerEvent.THREAD_HALT, breakThread, props), skipUpdate);
+    }
+    
+
+    public boolean screenBreakpoint(ThreadReference thread, boolean breakpoint, DebuggerEvent.BreakpointProperties props)
+    {
+        JdiThread breakThread = allThreads.find(thread);
+        DebuggerEvent event;
+        if (breakpoint)
+            event = new DebuggerEvent(this, DebuggerEvent.THREAD_BREAKPOINT, breakThread, props);
+        else
+            event = new DebuggerEvent(this, DebuggerEvent.THREAD_HALT, breakThread, props);
+        
+        boolean done = false;
+        // Guaranteed to return a non-null array
+        Object[] listeners = listenerList.getListenerList();
+        // Process the listeners last to first, notifying
+        // those that are interested in this event
+        for (int i = listeners.length - 2; i >= 0; i -= 2) {
+            if (listeners[i] == DebuggerListener.class) {
+                done = done || ((DebuggerListener) listeners[i + 1]).examineDebuggerEvent(event);
+            }
+        }
+        return done;
     }
 
     // - event handling
@@ -839,7 +891,7 @@ public class JdiDebugger extends Debugger
      */
     void threadStart(final ThreadReference tr)
     {
-        final JdiThread newThread = new JdiThread(treeModel, tr);
+        final JdiThread newThread = new JdiThread(this, treeModel, tr);
         allThreads.add(newThread);
         treeModel.syncExec(new Runnable() {
             public void run()
@@ -1018,4 +1070,21 @@ public class JdiDebugger extends Debugger
     {
         return startingDirectory;
     }
+
+    //Package-visible:
+    boolean threadHalted(JdiThread jdiThread)
+    {
+        boolean done = false;
+        // Guaranteed to return a non-null array
+        Object[] listeners = listenerList.getListenerList();
+        // Process the listeners last to first, notifying
+        // those that are interested in this event
+        for (int i = listeners.length - 2; i >= 0; i -= 2) {
+            if (listeners[i] == DebuggerListener.class) {
+                done |= ((DebuggerListener) listeners[i + 1]).threadHalted(this, jdiThread);
+            }
+        }
+        return done;
+    }
+
 }

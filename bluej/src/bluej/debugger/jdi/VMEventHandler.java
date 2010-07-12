@@ -30,7 +30,7 @@ import com.sun.jdi.event.*;
  * Event handler class to handle events coming from the remote VM.
  *
  * @author  Michael Kolling
- * @version $Id: VMEventHandler.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: VMEventHandler.java 7849 2010-07-12 10:03:11Z nccb $
  */
 class VMEventHandler extends Thread
 {
@@ -104,12 +104,13 @@ class VMEventHandler extends Thread
                 // iterate through all events in the set
                 EventIterator it = eventSet.eventIterator();
                 
+                boolean examineSaidSkipUpdates = false;
+                
                 while (it.hasNext()) {
                     Event ev = it.nextEvent();
                     
-                    // do some processing with this event
-                    // this calls back into VMReference
-                    handleEvent(ev);
+                    boolean examineResult = screenEvent(ev);
+                    examineSaidSkipUpdates = examineSaidSkipUpdates || examineResult;
                     
                     // for breakpoint and step events, we may want
                     // to leave the relevant thread suspended. If the dontResume
@@ -125,6 +126,16 @@ class VMEventHandler extends Thread
                             }
                         }
                     }
+                }
+            
+                // Now go through again to do proper processing:
+                it = eventSet.eventIterator();
+                while (it.hasNext()) {
+                    Event ev = it.nextEvent();
+                    
+                    // do some processing with this event
+                    // this calls back into VMReference
+                    handleEvent(ev, examineSaidSkipUpdates);
                 }
                 
                 // resume the VM
@@ -150,7 +161,17 @@ class VMEventHandler extends Thread
         }
     }
     
-    private void handleEvent(Event event)
+    private boolean screenEvent(Event event)
+    {
+        if (event instanceof BreakpointEvent) {
+            return vm.screenBreakpointEvent((LocatableEvent)event, true);
+        } else if (event instanceof StepEvent) {
+            return vm.screenBreakpointEvent((LocatableEvent)event, false);
+        }
+        return false;
+    }
+        
+    private void  handleEvent(Event event, boolean skipUpdate)
     {
         if (event instanceof VMStartEvent) {
             vm.vmStartEvent((VMStartEvent) event);
@@ -161,9 +182,9 @@ class VMEventHandler extends Thread
         } else if (event instanceof ExceptionEvent) {
             vm.exceptionEvent((ExceptionEvent)event);
         } else if (event instanceof BreakpointEvent) {
-            vm.breakpointEvent((LocatableEvent)event, true);
+            vm.breakpointEvent((LocatableEvent)event, true, skipUpdate);
         } else if (event instanceof StepEvent) {
-            vm.breakpointEvent((LocatableEvent)event, false);
+            vm.breakpointEvent((LocatableEvent)event, false, skipUpdate);
         } else if (event instanceof ThreadStartEvent) {
             vm.threadStartEvent((ThreadStartEvent)event);
         } else if (event instanceof ThreadDeathEvent) {

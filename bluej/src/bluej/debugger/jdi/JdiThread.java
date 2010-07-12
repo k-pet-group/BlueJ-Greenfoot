@@ -37,7 +37,7 @@ import com.sun.jdi.request.StepRequest;
  * This class represents a thread running on the remote virtual machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiThread.java 7802 2010-06-24 09:48:14Z nccb $
+ * @version $Id: JdiThread.java 7849 2010-07-12 10:03:11Z nccb $
  */
 class JdiThread extends DebuggerThread
 {
@@ -91,13 +91,16 @@ class JdiThread extends DebuggerThread
 	JdiThreadTreeModel jttm;
 	
     EventRequestManager eventReqMgr;
+    
+    JdiDebugger debugger;
 
     // ---- instance: ----
 
-    public JdiThread(JdiThreadTreeModel jttm, ThreadReference rt)
+    public JdiThread(JdiDebugger debugger, JdiThreadTreeModel jttm, ThreadReference rt)
     {
 		this.jttm = jttm;
         this.rt = rt;
+        this.debugger = debugger;
 
         selectedFrame = 0;      // unless specified otherwise, assume we want
                                 //  to see the top level frame
@@ -473,10 +476,13 @@ class JdiThread extends DebuggerThread
 	{
 		rt.suspend();
 		
-		JdiThreadNode jtn = jttm.findThreadNode(rt);
+		if (false == debugger.threadHalted(this)) {
 		
-		if (jtn != null)
-			jttm.nodeChanged(jtn);		
+    		JdiThreadNode jtn = jttm.findThreadNode(rt);
+    		
+    		if (jtn != null)
+    			jttm.nodeChanged(jtn);
+		}
 	}
 
 	/**

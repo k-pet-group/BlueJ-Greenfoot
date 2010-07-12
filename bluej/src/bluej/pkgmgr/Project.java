@@ -1586,12 +1586,20 @@ public class Project implements DebuggerListener, InspectorManager
 
     // ---- DebuggerListener interface ----
 
+    public boolean threadHalted(Debugger debugger, DebuggerThread thread)
+    {
+        return false;
+    }
+    
     /**
      * A debugger event was fired. Analyse which event it was, and take
      * appropriate action.
      */
-    public void debuggerEvent(final DebuggerEvent event)
+    public void processDebuggerEvent(final DebuggerEvent event, boolean skipUpdate)
     {
+        if (skipUpdate)
+            return;
+        
         EventQueue.invokeLater(new Runnable() {
             public void run() {
                 if (event.getID() == DebuggerEvent.DEBUGGER_STATECHANGED) {
@@ -1905,5 +1913,10 @@ public class Project implements DebuggerListener, InspectorManager
         if (tsc != null) {
             tsc.prepareCreateDir(dir);
         }
+    }
+
+    public boolean examineDebuggerEvent(DebuggerEvent e)
+    {
+        return false;
     }
 }

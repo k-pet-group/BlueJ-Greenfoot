@@ -34,7 +34,7 @@ import bluej.debugger.jdi.JdiDebugger;
  * @author  Michael Cahill
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: Debugger.java 6983 2010-01-11 07:12:06Z davmac $
+ * @version $Id: Debugger.java 7849 2010-07-12 10:03:11Z nccb $
  */
 public abstract class Debugger
 {
@@ -229,12 +229,19 @@ public abstract class Debugger
      * @param className  The class in which to set the breakpoint.
      * @param line       The line number of the breakpoint.
      * @param set        True to set, false to clear a breakpoint.
+     * @param properties Extra properties to set on the breakpoint.  Can (and usually should) be null.
      * @return           a string of the error message generated performing
      *                   this operation or null
      */
     public abstract String toggleBreakpoint(String className, int line,
-                                            boolean set);
+                                            boolean set, Map<String, String> properties);
 
+
+    /**
+     * As the other toggleBreakpoint method, but sets it in the specified method rather than at a particular line.
+     */
+    public abstract String toggleBreakpoint(String className, String method, boolean set, Map<String, String> properties);
+    
     /**
      * A tree model representing the threads running in
      * the debug VM.

@@ -377,7 +377,7 @@ public class ExecControls extends JFrame
             selectedThread.setSelectedFrame(index);
                 
             if (! autoSelectionEvent)
-                project.debuggerEvent(new DebuggerEvent(this, DebuggerEvent.THREAD_SHOWSOURCE, selectedThread));
+                project.processDebuggerEvent(new DebuggerEvent(this, DebuggerEvent.THREAD_SHOWSOURCE, selectedThread, null), false);
             
             currentFrame = index;
         }

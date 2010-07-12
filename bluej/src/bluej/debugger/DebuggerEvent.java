@@ -23,11 +23,17 @@ package bluej.debugger;
 
 import java.util.EventObject;
 
+
 /**
  */
 public class DebuggerEvent extends EventObject
 {
-	public final static int DEBUGGER_STATECHANGED = 1;
+	public static interface BreakpointProperties
+    {
+        public Object get(Object key);
+    }
+
+    public final static int DEBUGGER_STATECHANGED = 1;
 	public final static int DEBUGGER_REMOVESTEPMARKS = 2;
 	
 	public final static int THREAD_HALT = 3;
@@ -38,6 +44,7 @@ public class DebuggerEvent extends EventObject
 	private int id;
 	private DebuggerThread thr;
 	private int oldState, newState;
+	private BreakpointProperties props;
 
 	public DebuggerEvent(Object source, int id)
 	{
@@ -46,11 +53,12 @@ public class DebuggerEvent extends EventObject
 		this.id = id;
 	}
 
-	public DebuggerEvent(Object source, int id, DebuggerThread thr)
+	public DebuggerEvent(Object source, int id, DebuggerThread thr, BreakpointProperties props)
 	{
 		this(source, id);
 
 		this.thr = thr;
+		this.props = props;
 	}
 
 	public DebuggerEvent(Object source, int id, int oldState, int newState)
@@ -80,4 +88,10 @@ public class DebuggerEvent extends EventObject
 	{
 		return newState;
 	}
+
+    // May return null
+    public DebuggerEvent.BreakpointProperties getBreakpointProperties()
+    {
+        return props;
+    }
 }
