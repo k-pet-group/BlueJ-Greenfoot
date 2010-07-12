@@ -41,7 +41,7 @@ import bluej.views.View;
  * From this you can create BlueJ objects and call their methods.
  * Behaviour is similar to the Java reflection API.
  *
- * @version    $Id: BClass.java 6215 2009-03-30 13:28:25Z polle $
+ * @version    $Id: BClass.java 7847 2010-07-12 09:50:38Z nccb $
  */
 
 /*
@@ -159,6 +159,16 @@ public class BClass
         ClassTarget aTarget = classId.getClassTarget();
 
         return EditorBridge.newEditor(aTarget);
+    }
+    
+    /**
+     * Finds out whether this class has source code available.
+     */
+    boolean hasSourceCode() throws ProjectNotOpenException, PackageNotFoundException
+    {
+        ClassTarget aTarget = classId.getClassTarget();
+        
+        return aTarget.hasSourceCode();
     }
 
 

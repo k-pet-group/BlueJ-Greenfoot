@@ -99,4 +99,9 @@ public final class ExtensionBridge {
       throws ProjectNotOpenException {
         proj.addDebuggerListener(listener);
     }
+    
+    public static boolean hasSourceCode(BClass bClass) throws ProjectNotOpenException, PackageNotFoundException
+    {
+        return bClass.hasSourceCode();
+    }
 }
