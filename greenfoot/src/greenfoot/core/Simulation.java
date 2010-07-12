@@ -329,7 +329,7 @@ public class Simulation extends Thread
             lock.writeLock().lockInterruptibly();
             try {
                 try {
-                    world.act();
+                    actWorld(world);
                 }
                 catch (ActInterruptedException e) {
                     interruptedException = e;
@@ -343,7 +343,7 @@ public class Simulation extends Thread
                     }
                     if (actor.getWorld() != null) {
                         try {
-                            actor.act();
+                            actActor(actor);
                         }
                         catch (ActInterruptedException e) {
                             if (interruptedException == null) {
@@ -375,6 +375,22 @@ public class Simulation extends Thread
         printUpdateRate(System.nanoTime());
 
         repaintIfNeeded();
+    }
+    
+    // The actActor and actWorld methods exist as a tagging mechanism
+    // that allows them to be found easily in the debugger when we
+    // are attempting to reach the next call to act()
+    
+    public static final String ACT_ACTOR = "actActor";
+    private static void actActor(Actor actor)
+    {
+        actor.act();
+    }
+    
+    public static final String ACT_WORLD = "actWorld";
+    private static void actWorld(World world)
+    {
+        world.act();
     }
 
     /**
