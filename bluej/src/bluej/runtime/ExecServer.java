@@ -72,7 +72,7 @@ public class ExecServer
     public static String methodToRun;
     public static String [] parameterTypes;
     public static Object [] arguments;
-    public static int execAction;   // EXEC_SHELL, TEST_SETUP or TEST_RUN
+    public static int execAction = -1;   // EXEC_SHELL, TEST_SETUP or TEST_RUN
     
     public static Object methodReturn;
     public static Class<?> executedClass;
