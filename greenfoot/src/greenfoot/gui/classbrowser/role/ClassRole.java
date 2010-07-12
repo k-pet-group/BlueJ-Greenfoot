@@ -50,6 +50,7 @@ import javax.swing.JPopupMenu;
 import bluej.Config;
 import bluej.debugmgr.ConstructAction;
 import bluej.debugmgr.objectbench.ObjectBenchInterface;
+import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
@@ -64,7 +65,7 @@ import bluej.views.ViewFilter;
  * "normal" classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassRole.java 6363 2009-06-08 14:00:45Z polle $
+ * @version $Id: ClassRole.java 7848 2010-07-12 09:54:05Z nccb $
  */
 public abstract class ClassRole implements WorldListener
 {
@@ -165,7 +166,16 @@ public abstract class ClassRole implements WorldListener
 
 
         if (!classView.isCoreClass()) {
-            popupMenu.add(createMenuItem(new EditClassAction(classBrowser)));
+            
+            try {
+                if (gClass.hasSourceCode()) {
+                    popupMenu.add(createMenuItem(new EditClassAction(classBrowser)));
+                }
+            }
+            // If there is a problem, don't add the menu item:
+            catch (ProjectNotOpenException e) {}
+            catch (PackageNotFoundException e) {}
+            catch (RemoteException e) {}
 
             addPopupMenuItems(popupMenu, false);
 

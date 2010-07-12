@@ -202,6 +202,11 @@ public class GClass
         rmiClass.edit();
     }
     
+    public boolean hasSourceCode() throws ProjectNotOpenException, PackageNotFoundException, RemoteException
+    {
+        return rmiClass.hasSourceCode();
+    }
+    
     /**
      * Used for adding code to a void method with no parameters -- creating it if necessary
      * 

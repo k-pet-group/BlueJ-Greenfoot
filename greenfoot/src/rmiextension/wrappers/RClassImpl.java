@@ -39,6 +39,7 @@ import bluej.extensions.BMethod;
 import bluej.extensions.BPackage;
 import bluej.extensions.ClassNotFoundException;
 import bluej.extensions.CompilationNotStartedException;
+import bluej.extensions.ExtensionBridge;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.extensions.editor.Editor;
@@ -48,7 +49,7 @@ import bluej.utility.Debug;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RClassImpl.java 7543 2010-05-12 14:32:08Z nccb $
+ * @version $Id: RClassImpl.java 7848 2010-07-12 09:54:05Z nccb $
  */
 public class RClassImpl extends java.rmi.server.UnicastRemoteObject
     implements RClass
@@ -87,6 +88,11 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
         throws ProjectNotOpenException, PackageNotFoundException, CompilationNotStartedException
     {
         bClass.compile(waitCompileEnd);
+    }
+    
+    public boolean hasSourceCode() throws ProjectNotOpenException, PackageNotFoundException
+    {
+        return ExtensionBridge.hasSourceCode(bClass);
     }
 
     public void edit()
