@@ -38,7 +38,7 @@ import bluej.parser.nodes.ParsedCUNode;
  * Test that void results are handled correctly by the textpad parser.
  * 
  * @author Davin McCall
- * @version $Id: TextParserTest.java 7768 2010-06-16 04:55:19Z davmac $
+ * @version $Id: TextParserTest.java 7853 2010-07-13 11:31:52Z davmac $
  */
 public class TextParserTest extends TestCase
 {
@@ -136,6 +136,15 @@ public class TextParserTest extends TestCase
         
         r = tp.parseCommand("Class.forName(\"java.lang.Object\")");
         assertEquals("java.lang.Class<?>", r);
+        
+        // Now try dynamically
+        String aSrc = "class A {\n" +
+            "  static int nn() { return 0; }\n" +
+            "}\n";
+        ParsedCUNode aNode = cuForSource(aSrc, "");
+        resolver.addCompilationUnit("", aNode);
+        r = tp.parseCommand("A.nn()");
+        assertEquals("int", r);
     }
 
     public void testStaticVariable()
@@ -145,6 +154,14 @@ public class TextParserTest extends TestCase
         assertEquals("java.io.PrintStream", r);
         r = tp.parseCommand("java.lang.System.out");
         assertEquals("java.io.PrintStream", r);
+        
+        String aSrc = "class A {\n" +
+            "  static int nn = 1;\n" +
+            "}\n";
+        ParsedCUNode aNode = cuForSource(aSrc, "");
+        resolver.addCompilationUnit("", aNode);
+        r = tp.parseCommand("A.nn");
+        assertEquals("int", r);
     }
 
     public void testNewExpression()

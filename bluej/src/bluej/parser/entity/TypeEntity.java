@@ -90,6 +90,7 @@ public class TypeEntity extends PackageOrClass
         Map<String,JavaType> m = thisClass.getReflective().getDeclaredFields();
         JavaType type = m.get(name);
         if (type != null) {
+            // TODO: access check
             return new ValueEntity(name, type);
         }
 
