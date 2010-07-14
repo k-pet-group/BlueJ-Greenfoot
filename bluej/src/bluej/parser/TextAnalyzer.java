@@ -58,6 +58,7 @@ import bluej.parser.entity.PackageEntity;
 import bluej.parser.entity.PackageOrClass;
 import bluej.parser.entity.TypeEntity;
 import bluej.parser.entity.ValueEntity;
+import bluej.utility.JavaNames;
 import bluej.utility.JavaReflective;
 import bluej.utility.JavaUtils;
 
@@ -85,7 +86,6 @@ public class TextAnalyzer
     
     private ImportsCollection imports;
     private String importCandidate; // any import candidates.
-    //private JavaRecognizer parser;
     
     /**
      * TextParser constructor. Defines the class loader and package scope
@@ -104,7 +104,6 @@ public class TextAnalyzer
      */
     public void newClassLoader(ClassLoader newLoader)
     {
-        //classLoader = newLoader;
         imports.clear();
     }
     
@@ -128,7 +127,8 @@ public class TextAnalyzer
         
         EntityResolver resolver = getResolver(); 
         
-        TypeEntity accessType = new TypeEntity(Object.class);
+        Reflective accessRef = new DummyReflective(JavaNames.combineNames(packageScope, "$SHELL"));
+        TypeEntity accessType = new TypeEntity(accessRef);
         TextParser parser = new TextParser(resolver, command, accessType, true);
         
         // check if it's an import statement
