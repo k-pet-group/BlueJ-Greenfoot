@@ -68,7 +68,7 @@ import javax.imageio.ImageIO;
  * General utility methods for Greenfoot.
  * 
  * @author Davin McCall
- * @version $Id: GreenfootUtil.java 6786 2009-10-13 03:24:49Z davmac $
+ * @version $Id: GreenfootUtil.java 7859 2010-07-14 07:17:28Z marionz $
  */
 public class GreenfootUtil
 {
@@ -782,5 +782,26 @@ public class GreenfootUtil
             number++;
         }
         return f;
+    }
+    
+    /**
+     * Adds the classname of a class with a null image to the list of classes with null images (if applicable)
+     * @param className
+     */
+    public static void addNullImage(String className)
+    {
+        delegate.addNullImage(className);
+    }
+
+
+    /**
+     * Questions whether the className has a null image associated with it
+     * @param className the name of the class
+     * @return true if the className has a null image; false if the className is not in the list
+     * or there is no list
+     */
+    public static boolean isNullImage(String className)
+    {
+        return delegate.isNullImage(className);
     }
 }

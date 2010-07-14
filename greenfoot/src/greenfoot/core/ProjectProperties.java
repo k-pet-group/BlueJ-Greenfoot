@@ -251,6 +251,11 @@ public class ProjectProperties
     {
         className = GreenfootUtil.extractClassName(className);
         
+        //check if the class has already been listed as 
+        //having no associated image and return if so
+        if (GreenfootUtil.isNullImage(className)){
+            return null;
+        }
         synchronized (classImages) {
             GreenfootImage image = classImages.get(className);
 
@@ -273,6 +278,9 @@ public class ProjectProperties
 
                 if (image != null) {
                     classImages.put(className, image);
+                }
+                else {
+                    GreenfootUtil.addNullImage(className);
                 }
             }
             return image;

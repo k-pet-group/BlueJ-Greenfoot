@@ -71,5 +71,11 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
         return libDir.getAbsolutePath() + "/imagelib/other/greenfoot.png";        
     }
 
+    public void addNullImage(String className) {  }
+
+    public boolean isNullImage(String className)
+    {
+        return false;
+    }
 
 }

@@ -21,18 +21,21 @@
  */
 package greenfoot.platforms.standalone;
 
+import greenfoot.platforms.GreenfootUtilDelegate;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-
-
-import greenfoot.platforms.GreenfootUtilDelegate;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
 {
+    /** A list of null images. Avoids repeatedly looking for the same image that does not exist */
+    public List<String> nullImages = new ArrayList<String>();
 
     public void createSkeleton(String className, String superClassName, File file, String templateFileName)
-        throws IOException
+    throws IOException
     {
         // Not needed in stand alone
     }
@@ -60,6 +63,25 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
     public String getGreenfootLogoPath()
     {    
         return this.getClass().getClassLoader().getResource("greenfoot.png").toString();
+    }
+
+    /**
+     * Adds an classname to the list of classes with null images
+     * @param className
+     */
+    public void addNullImage(String className)
+    {
+        nullImages.add(className);
+    }
+
+
+    /**
+     * Queries the list of classes with null images and returns true 
+     * if it is in the list and false if not
+     */
+    public boolean isNullImage(String className)
+    {
+        return nullImages.contains(className);
     }
 
 }

@@ -39,4 +39,9 @@ public interface GreenfootUtilDelegate
     public URL getResource(String path);  
 
     public String getGreenfootLogoPath();
+
+    public void addNullImage(String className);
+
+    public boolean isNullImage(String className);
+
 }
