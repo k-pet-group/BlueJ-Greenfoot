@@ -68,6 +68,9 @@ public class ParseUtils
     
     /**
      * Get the possible code completions, based on the provided suggestions and string prefix.
+     * If there are can be no valid completions in the give context, returns null.
+     * If there are valid completions but the given prefix doesn't match any of them,
+     * returns an empty array.
      */
     public static AssistContent[] getPossibleCompletions(CodeSuggestions suggests, String prefix,
             JavadocResolver javadocResolver)
