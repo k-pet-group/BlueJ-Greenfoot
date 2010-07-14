@@ -875,9 +875,10 @@ public class EditorParser extends JavaParser
             lastTypeParamName = null;
         }
 
-        JavaEntity rtype = ParseUtils.getTypeEntity(scopeStack.peek(),
+        MethodNode pnode = new MethodNode(scopeStack.peek(), token.getText(), jdcomment);
+        JavaEntity returnType = ParseUtils.getTypeEntity(pnode,
                 currentQuerySource(), lastTypeSpec);
-        MethodNode pnode = new MethodNode(scopeStack.peek(), token.getText(), rtype, jdcomment);
+        pnode.setReturnType(returnType);
         pnode.setModifiers(currentModifiers);
         pnode.setTypeParams(typeParams);
         typeParams = null;

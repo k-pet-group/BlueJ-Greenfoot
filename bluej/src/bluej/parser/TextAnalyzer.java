@@ -23,9 +23,6 @@ package bluej.parser;
 
 import java.io.Reader;
 import java.io.StringReader;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -77,9 +74,6 @@ public class TextAnalyzer
     private String packageScope;  // evaluation package
     private ValueCollection objectBench;
 
-    private static JavaUtils jutils = JavaUtils.getJavaUtils();
-    //private static boolean java15 = Config.isJava15();
-    
     private List<DeclaredVar> declVars; // variables declared in the parsed statement block
     private String amendedCommand;  // command string amended with initializations for
                                     // all variables
@@ -756,275 +750,6 @@ public class TextAnalyzer
 //    }
     
     /**
-     * Attempt to load, by its unqualified name,  a class which might be in the
-     * current package or which might be in java.lang.
-     * 
-     * @param className   the name of the class to try to load
-     * @param tryWildcardImports    indicates whether the class name can be resolved by
-     *                              checking wildcard imports (including java.lang.*)
-     * @throws ClassNotFoundException  if the class cannot be resolved/loaded
-     */
-//    private Class loadUnqualifiedClass(String className, boolean tryWildcardImports)
-//        throws ClassNotFoundException
-//    {
-//        // Try singly imported types first
-//        ClassEntity imported = imports.getTypeImport(className);
-//        if (imported != null) {
-//            try {
-//                String cname = ((GenTypeClass) imported.getType()).rawName();
-//                return classLoader.loadClass(cname);
-//            }
-//            catch (ClassNotFoundException cnfe) { }
-//        }
-//        
-//        // It's an unqualified name - try package scope
-//        try {
-//            if (packageScope.length() != 0)
-//                return classLoader.loadClass(packageScope + "." + className);
-//            else
-//                return classLoader.loadClass(className);
-//        }
-//        catch(ClassNotFoundException cnfe) {}
-//        
-//        // If not trying wildcard imports, bail out now
-//        if (! tryWildcardImports)
-//            throw new ClassNotFoundException(className);
-//        
-//        // Try wildcard imports
-//        imported = imports.getTypeImportWC(className);
-//        if (imported != null) {
-//            try {
-//                String cname = ((GenTypeClass) imported.getType()).rawName();
-//                return classLoader.loadClass(cname);
-//            }
-//            catch (ClassNotFoundException cnfe) { }
-//        }
-//        
-//        // Try java.lang
-//        return classLoader.loadClass("java.lang." + className);
-//    }
-    
-    
-    /**
-     * Get the type from a node which must by context be an inner class type.
-     * @param node   The node representing the type
-     * @param outer  The containing type
-     * *
-     * @throws SemanticException
-     * @throws RecognitionException
-     */
-//    JavaType getInnerType(AST node, GenTypeClass outer) throws SemanticException, RecognitionException
-//    {
-//        if (node.getType() == JavaTokenTypes.IDENT) {
-//            // A simple name<params> expression
-//            List<JavaType> params = getTypeArgs(node.getFirstChild());
-//            
-//            String name = outer.rawName() + '$' + node.getText();
-//            try {
-//                Class<?> theClass = classLoader.loadClass(name);
-//                Reflective r = new JavaReflective(theClass);
-//                return new GenTypeClass(r, params, outer);
-//            }
-//            catch (ClassNotFoundException cnfe) {
-//                throw new SemanticException();
-//            }
-//        }
-//        else if (node.getType() == JavaTokenTypes.DOT) {
-//            // A name.name<params> style expression
-//            // The children nodes are: the qualified class name, and then
-//            // the type arguments
-//            AST packageNode = node.getFirstChild();
-//            String dotnames = combineDotNames(packageNode, '$');
-//
-//            AST classNode = packageNode.getNextSibling();
-//            List<JavaType> params = getTypeArgs(classNode.getFirstChild());
-//
-//            String name = outer.rawName() + '$' + dotnames + '$' + node.getText();
-//            try {
-//                Class<?> c = classLoader.loadClass(name);
-//                Reflective r = new JavaReflective(c);
-//                return new GenTypeClass(r, params);
-//            }
-//            catch(ClassNotFoundException cnfe) {
-//                throw new SemanticException();
-//            }
-//            
-//        }
-//        else
-//            throw new RecognitionException();
-//    }
-    
-    /**
-     * Parse a node as an entity (which could be a package, class or value).
-     * @throws SemanticException
-     * @throws RecognitionException
-     */
-//    JavaEntity getEntity(AST node) throws SemanticException, RecognitionException
-//    {
-//        // simple case first:
-//        if (node.getType() == JavaTokenTypes.IDENT) {
-//            
-//            // Treat it first as a variable...
-//            String nodeText = node.getText();
-//            NamedValue nv = objectBench.getNamedValue(nodeText);
-//            if (nv != null)
-//                return new ValueEntity(nv.getGenType());
-//            
-//            // It's not a codepad or object bench variable, perhaps it's an import
-//            List l = imports.getStaticImports(nodeText);
-//            if (l != null) {
-//                Iterator i = l.iterator();
-//                while (i.hasNext()) {
-//                    ClassEntity importEntity = (ClassEntity) i.next();
-//                    try {
-//                        JavaEntity fieldEnt = importEntity.getStaticField(nodeText);
-//                        return fieldEnt;
-//                    }
-//                    catch (SemanticException se) { }
-//                }
-//            }
-//            
-//            // It might be a type
-//            try {
-//                Class c = loadUnqualifiedClass(nodeText, false);
-//                return new TypeEntity(c);
-//            }
-//            catch (ClassNotFoundException cnfe) { }
-//            
-//            // Wildcard static imports of fields override wildcard
-//            // imports of types
-//            l = imports.getStaticWildcardImports();
-//            Iterator i = l.iterator();
-//            while (i.hasNext()) {
-//                ClassEntity importEntity = (ClassEntity) i.next();
-//                try {
-//                    JavaEntity fieldEnt = importEntity.getStaticField(nodeText);
-//                    return fieldEnt;
-//                }
-//                catch (SemanticException se) { }
-//            }
-//            
-//            // Finally try wildcard type imports
-//            try {
-//                Class c = loadWildcardImportedType(nodeText);
-//                return new TypeEntity(c);
-//            }
-//            catch (ClassNotFoundException cnfe) {
-//                return new PackageEntity(nodeText);
-//            }
-//        }
-//        
-//        // A dot-node in the form xxx.identifier:
-//        if (node.getType() == JavaTokenTypes.DOT) {
-//            AST firstChild = node.getFirstChild();
-//            AST secondChild = firstChild.getNextSibling();
-//            if (secondChild.getType() == JavaTokenTypes.IDENT) {
-//                JavaEntity firstpart = getEntity(firstChild);
-//                return firstpart.getSubentity(secondChild.getText());
-//            }
-//            // Don't worry about xxx.super, it shouldn't be used at this
-//            // level.
-//        }
-//        
-//        // Anything else must be an expression, therefore a value:
-//        JavaType exprType = getExpressionType(node).getType();
-//        return new ValueEntity(exprType);
-//    }
-    
-    /**
-     * Get an entity which by context must be either a package or a (possibly
-     * generic) type.
-     */
-//    private PackageOrClass getPackageOrType(AST node)
-//        throws SemanticException, RecognitionException
-//    {
-//        return getPackageOrType(node, false);
-//    }
-    
-    /**
-     * Get an entity which by context must be either a package or a (possibly
-     * generic) type.
-     * @param node  The AST node representing the package/type
-     * @param fullyQualified   True if the type must be fully qualified
-     *            (if false, imports and the current package are checked for
-     *            definitions of a class with the initial name)
-     * 
-     * @throws SemanticException
-     */
-//    private PackageOrClass getPackageOrType(AST node, boolean fullyQualified)
-//        throws SemanticException, RecognitionException
-//    {
-//        // simple case first:
-//        if (node.getType() == JavaTokenTypes.IDENT) {
-//            // Treat it first as a type, then as a package.
-//            String nodeText = node.getText();
-//            List tparams = getTypeArgs(node.getFirstChild());
-//            
-//            try {
-//                Class c;
-//                if (fullyQualified) {
-//                    c = classLoader.loadClass(nodeText);
-//                }
-//                else {
-//                    c = loadUnqualifiedClass(nodeText, true);
-//                }
-//                TypeEntity r = new TypeEntity(c, tparams);
-//                return r;
-//            }
-//            catch (ClassNotFoundException cnfe) {
-//                // Could not be loaded as a class, so it must be a package.
-//                if (! tparams.isEmpty())
-//                    throw new SemanticException();
-//                return new PackageEntity(nodeText);
-//            }
-//        }
-//        
-//        // A dot-node in the form xxx.identifier:
-//        if (node.getType() == JavaTokenTypes.DOT) {
-//            AST firstChild = node.getFirstChild();
-//            AST secondChild = firstChild.getNextSibling();
-//            if (secondChild.getType() == JavaTokenTypes.IDENT) {
-//                List tparams = getTypeArgs(secondChild.getFirstChild());
-//                PackageOrClass firstpart = getPackageOrType(firstChild, fullyQualified);
-//
-//                PackageOrClass entity = firstpart.getPackageOrClassMember(secondChild.getText());
-//                if (! tparams.isEmpty()) {
-//                    // There are type parmaters, so we must have a type
-//                    if (entity.isClass()) {
-//                        entity = ((ClassEntity) entity).setTypeParams(tparams);
-//                    }
-//                    else
-//                        throw new SemanticException();
-//                }
-//                
-//                return entity;
-//            }
-//        }
-//        
-//        throw new SemanticException();
-//    }
-    
-    /**
-     * Get an expression list node as an array of GenType
-     * 
-     * @throws SemanticException
-     * @throws RecognitionException
-     */
-//    private JavaType [] getExpressionList(AST node) throws SemanticException, RecognitionException
-//    {
-//        int num = node.getNumberOfChildren();
-//        JavaType [] r = new JavaType[num];
-//        AST child = node.getFirstChild();
-//        
-//        // loop through the child nodes
-//        for (int i = 0; i < num; i++) {
-//            r[i] = getExpressionType(child).getType();
-//            child = child.getNextSibling();
-//        }
-//        return r;
-//    }
-    
-    /**
      * Check whether a particular method is callable with particular
      * parameters. If so return information about how specific the call is.
      * If the parameters cannot be applied to this method, return null.
@@ -1146,15 +871,15 @@ public class TextAnalyzer
             // what we have now is a map with tpar constraints.
             // Some tpars may not have been constrained: these are inferred to be the
             // intersection of their upper bounds.
-            tpars = new ArrayList();
-            Iterator i = tparams.iterator();
+            tpars = new ArrayList<GenTypeClass>();
+            Iterator<GenTypeDeclTpar> i = tparams.iterator();
             while (i.hasNext()) {
                 GenTypeDeclTpar fTpar = (GenTypeDeclTpar) i.next();
                 String tparName = fTpar.getTparName();
                 GenTypeSolid eqConstraint = (GenTypeSolid) teqConstraints.get(tparName);
                 // If there's no equality constraint, use the lower bound constraints
                 if (eqConstraint == null) {
-                    Set lbConstraintSet = (Set) tlbConstraints.get(tparName);
+                    Set<GenTypeSolid> lbConstraintSet = tlbConstraints.get(tparName);
                     if (lbConstraintSet != null) {
                         GenTypeSolid [] lbounds = (GenTypeSolid []) lbConstraintSet.toArray(new GenTypeSolid[lbConstraintSet.size()]);
                         eqConstraint = GenTypeSolid.lub(lbounds); 
@@ -1300,7 +1025,8 @@ public class TextAnalyzer
     /**
      * Process type parameters from a type inference constraint A convertible-to F.
      */
-    private static void processAtoFtpar(GenTypeParameter aPar, GenTypeParameter fPar, Map tlbConstraints, Map teqConstraints)
+    private static void processAtoFtpar(GenTypeParameter aPar, GenTypeParameter fPar,
+            Map<String,Set<GenTypeSolid>> tlbConstraints, Map<String,GenTypeSolid> teqConstraints)
     {
         if (fPar instanceof GenTypeSolid) {
             if (aPar instanceof GenTypeSolid) {
@@ -1332,7 +1058,8 @@ public class TextAnalyzer
     /**
      * Process a type inference constraint of the form "A is equal to F".
      */
-    private static void processAeqFConstraint(GenTypeSolid a, GenTypeSolid f, Map tlbConstraints, Map teqConstraints)
+    private static void processAeqFConstraint(GenTypeSolid a, GenTypeSolid f,
+            Map<String,Set<GenTypeSolid>> tlbConstraints, Map<String,GenTypeSolid> teqConstraints)
     {
         if (f instanceof GenTypeTpar) {
             // The constraint T == A is implied.
@@ -1362,14 +1089,14 @@ public class TextAnalyzer
             GenTypeClass af = a.asClass();
             if (af != null && cf != null) {
                 if (cf.classloaderName().equals(af.classloaderName())) {
-                    Map fMap = cf.getMap();
-                    Map aMap = af.getMap();
+                    Map<String,GenTypeParameter> fMap = cf.getMap();
+                    Map<String,GenTypeParameter> aMap = af.getMap();
                     if (fMap != null && aMap != null) {
-                        Iterator j = fMap.keySet().iterator();
+                        Iterator<String> j = fMap.keySet().iterator();
                         while (j.hasNext()) {
-                            String tpName = (String) j.next();
-                            GenTypeParameter fPar = (GenTypeParameter) fMap.get(tpName);
-                            GenTypeParameter aPar = (GenTypeParameter) aMap.get(tpName);
+                            String tpName = j.next();
+                            GenTypeParameter fPar = fMap.get(tpName);
+                            GenTypeParameter aPar = aMap.get(tpName);
                             processAeqFtpar(aPar, fPar, tlbConstraints, teqConstraints);
                         }
                     }
@@ -1381,7 +1108,8 @@ public class TextAnalyzer
     /**
      * Process type parameters from a type inference constraint A equal-to F.
      */
-    private static void processAeqFtpar(GenTypeParameter aPar, GenTypeParameter fPar, Map tlbConstraints, Map teqConstraints)
+    private static void processAeqFtpar(GenTypeParameter aPar, GenTypeParameter fPar,
+            Map<String,Set<GenTypeSolid>> tlbConstraints, Map<String,GenTypeSolid> teqConstraints)
     {
         if (aPar instanceof GenTypeSolid && fPar instanceof GenTypeSolid) {
             processAeqFConstraint((GenTypeSolid) aPar, (GenTypeSolid) fPar, tlbConstraints, teqConstraints);
@@ -1407,7 +1135,8 @@ public class TextAnalyzer
     /**
      * Process a type inference constraint of the form "F is convertible to A".
      */
-    private static void processFtoAConstraint(GenTypeSolid a, GenTypeSolid f, Map tlbConstraints, Map teqConstraints)
+    private static void processFtoAConstraint(GenTypeSolid a, GenTypeSolid f,
+            Map<String,Set<GenTypeSolid>> tlbConstraints, Map<String,GenTypeSolid> teqConstraints)
     {
         // This is pretty much nothing like what the JLS says it should be. As far as I can
         // make out, the JLS is just plain wrong.
@@ -1459,7 +1188,8 @@ public class TextAnalyzer
     /**
      * Process type parameters from a type inference constraint F convertible-to A.
      */
-    private static void processFtoAtpar(GenTypeParameter aPar, GenTypeParameter fPar, Map tlbConstraints, Map teqConstraints)
+    private static void processFtoAtpar(GenTypeParameter aPar, GenTypeParameter fPar,
+            Map<String,Set<GenTypeSolid>> tlbConstraints, Map<String,GenTypeSolid> teqConstraints)
     {
         if (fPar instanceof GenTypeSolid) {
             if (aPar instanceof GenTypeSolid) {
@@ -1880,152 +1610,6 @@ public class TextAnalyzer
 //        else
 //            return u;
 //    }
-    
-    /**
-     * Check if a member of some class is accessible from the context of the given
-     * package. This will be the case if the member is public, if the member is
-     * protected and declared in the same class, or if the member is package-
-     * private and declared in the same class.
-     * 
-     * @param declaringClass  The class which declares the member
-     * @param mods            The member modifier flags (as returned by getModifiers())
-     * @param pkg             The package to check access for
-     * @return  true if the package has access to the member
-     */
-    static boolean isAccessible(Class declaringClass, int mods, String pkg)
-    {
-        if (Modifier.isPrivate(mods))
-            return false;
-        
-        if (Modifier.isPublic(mods))
-            return true;
-        
-        // get the package of the class
-        String className = declaringClass.getName();
-        int lastDot = className.lastIndexOf('.');
-        if (lastDot == -1)
-            lastDot = 0;
-        String classPkg = className.substring(0, lastDot);
-        
-        // it's not private nor public - so it's package private (or protected).
-        // It is therefore accessible if the accessing package is the same as
-        // the declaring package.
-        return classPkg.equals(pkg);
-    }
-    
-    /**
-     * Find (if one exists) an accessible field with the given name in the given class (and
-     * its supertypes). The "getField(String)" method in java.lang.Class does the same thing,
-     * except it doesn't take into account accessible package-private fields which is
-     * important.
-     * 
-     * @param c    The class in which to find the field
-     * @param fieldName   The name of the accessible field to find
-     * @param pkg         The package context from which the field is accessed
-     * @param searchSupertypes  Whether to search in supertypes for the field
-     * @return      The field
-     * @throws NoSuchFieldException  if no accessible field with the given name exists
-     */
-    static Field getAccessibleField(Class c, String fieldName, String pkg, boolean searchSupertypes)
-        throws NoSuchFieldException
-    {
-        String className = c.getName();
-        int lastDot = className.lastIndexOf('.');
-        if (lastDot == -1)
-            lastDot = 0;
-        
-        String classPkg = className.substring(0, lastDot);
-        
-        // package private members accessible if the package is the same
-        boolean pprivateAccessible = classPkg.equals(pkg);
-
-        try {
-            // Try fields declared in this class
-            Field [] cfields = c.getDeclaredFields();
-            for (int i = 0; i < cfields.length; i++) {
-                if (cfields[i].getName().equals(fieldName)) {
-                    int mods = cfields[i].getModifiers();
-                    // rule out private fields
-                    if (! Modifier.isPrivate(mods)) {
-                        // now, if the fields is public, or package-private fields are
-                        // accessible, then the field is accessible.
-                        if (pprivateAccessible || Modifier.isPublic(mods)) {
-                            return cfields[i];
-                        }
-                    }
-                }
-            }
-            
-            if (searchSupertypes) {
-                // Try fields declared in superinterfaces
-                Class [] ifaces = c.getInterfaces();
-                for (int i = 0; i < ifaces.length; i++) {
-                    try {
-                        return getAccessibleField(ifaces[i], fieldName, pkg, true);
-                    }
-                    catch (NoSuchFieldException nsfe) { }
-                }
-                
-                // Try fields declared in superclass
-                Class sclass = c.getSuperclass();
-                if (sclass != null)
-                    return getAccessibleField(sclass, fieldName, pkg, true);
-            }
-        }
-        catch (LinkageError le) { }
-        
-        throw new NoSuchFieldException();
-    }
-    
-    /**
-     * Get a list of accessible static methods declared in the given class with the
-     * given name. The list includes public methods and, if the class is in the designated
-     * package, package-private and protected methods.
-     * 
-     * @param c  The class in which to find the methods
-     * @param methodName  The name of the methods to find
-     * @param pkg   The accessing package
-     * @return  A list of java.lang.reflect.Method
-     */
-    static List getAccessibleStaticMethods(Class c, String methodName, String pkg)
-    {
-        String className = c.getName();
-        int lastDot = className.lastIndexOf('.');
-        if (lastDot == -1)
-            lastDot = 0;
-        
-        String classPkg = className.substring(0, lastDot);
-        
-        // package private members accessible if the package is the same
-        boolean pprivateAccessible = classPkg.equals(pkg);
-
-        try {
-            List rlist = new ArrayList();
-            
-            // Now find methods declared in this class
-            Method [] cmethods = c.getDeclaredMethods();
-            methodLoop:
-            for (int i = 0; i < cmethods.length; i++) {
-                if (cmethods[i].getName().equals(methodName)) {
-                    int mods = cmethods[i].getModifiers();
-                    if (Modifier.isPrivate(mods) || ! Modifier.isStatic(mods))
-                        continue methodLoop;
-                    
-                    if (! Modifier.isPublic(mods) && ! pprivateAccessible)
-                        continue methodLoop;
-                    
-                    if (jutils.isSynthetic(cmethods[i]))
-                        continue methodLoop;
-                    
-                    rlist.add(cmethods[i]);
-                }
-            }
-            return rlist;
-        }
-        catch (LinkageError le) { }
-        
-        return Collections.EMPTY_LIST;
-    }
     
     /**
      * A simple structure to hold various information about a method call.

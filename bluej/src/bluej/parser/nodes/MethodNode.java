@@ -70,18 +70,14 @@ public class MethodNode extends JavaParentNode
     }
 
     /**
-     * Construct a MethodNode representing a method.
-     * @param parent   The parent node (containing this node)
-     * @param name     The method name
-     * @param returnType   The method return type
-     * @param javadoc  The javadoc comment text (or null)
+     * Set the return type of this method.
+     * 
+     * (If the returnType is unresolved, it must resolve against type parameters for
+     * this actual method).
      */
-    public MethodNode(JavaParentNode parent, String name, JavaEntity returnType, String javadoc)
+    public void setReturnType(JavaEntity returnType)
     {
-        super(parent);
-        this.name = name;
         this.returnType = returnType;
-        this.javadoc = javadoc;
     }
     
     /**
