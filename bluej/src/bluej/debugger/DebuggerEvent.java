@@ -25,71 +25,75 @@ import java.util.EventObject;
 
 
 /**
+ * Represents an event occurring in the BlueJ debugger implementation.
  */
 public class DebuggerEvent extends EventObject
 {
-	public static interface BreakpointProperties
+    public static interface BreakpointProperties
     {
         public Object get(Object key);
     }
 
     public final static int DEBUGGER_STATECHANGED = 1;
-	public final static int DEBUGGER_REMOVESTEPMARKS = 2;
-	
-	public final static int THREAD_HALT = 3;
-	public final static int THREAD_BREAKPOINT = 4;
-	public final static int THREAD_CONTINUE = 5;
-	public final static int THREAD_SHOWSOURCE = 6;
+    public final static int DEBUGGER_REMOVESTEPMARKS = 2;
 
-	private int id;
-	private DebuggerThread thr;
-	private int oldState, newState;
-	private BreakpointProperties props;
+    public final static int THREAD_HALT = 3;
+    public final static int THREAD_BREAKPOINT = 4;
+    public final static int THREAD_CONTINUE = 5;
+    public final static int THREAD_SHOWSOURCE = 6;
 
-	public DebuggerEvent(Object source, int id)
-	{
-		super(source);
+    private int id;
+    private DebuggerThread thr;
+    private int oldState, newState;
+    private BreakpointProperties props;
 
-		this.id = id;
-	}
+    public DebuggerEvent(Object source, int id)
+    {
+        super(source);
 
-	public DebuggerEvent(Object source, int id, DebuggerThread thr, BreakpointProperties props)
-	{
-		this(source, id);
+        this.id = id;
+    }
 
-		this.thr = thr;
-		this.props = props;
-	}
+    public DebuggerEvent(Object source, int id, DebuggerThread thr, BreakpointProperties props)
+    {
+        this(source, id);
 
-	public DebuggerEvent(Object source, int id, int oldState, int newState)
-	{
-		this(source, id);
+        this.thr = thr;
+        this.props = props;
+    }
 
-		this.oldState = oldState;
-		this.newState = newState;
-	}
-	
-	public int getID()
-	{
-		return id;
-	}
+    public DebuggerEvent(Object source, int id, int oldState, int newState)
+    {
+        this(source, id);
 
-	public DebuggerThread getThread()
-	{
-		return thr;
-	}
+        this.oldState = oldState;
+        this.newState = newState;
+    }
 
-	public int getOldState()
-	{
-		return oldState;
-	}
+    public int getID()
+    {
+        return id;
+    }
 
-	public int getNewState()
-	{
-		return newState;
-	}
+    public DebuggerThread getThread()
+    {
+        return thr;
+    }
 
-    // May return null
+    public int getOldState()
+    {
+        return oldState;
+    }
+
+    public int getNewState()
+    {
+        return newState;
+    }
+
+    /**
+     * Get the properties associated with the breakpoint that was reached.
+     * May return null.
+     */
     public DebuggerEvent.BreakpointProperties getBreakpointProperties()
     {
         return props;
