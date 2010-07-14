@@ -25,11 +25,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import bluej.debugger.gentype.FieldReflective;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeParameter;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.Reflective;
 import bluej.utility.JavaReflective;
+import bluej.utility.JavaUtils;
 
 /**
  * An entity which essentially wraps a JavaType.
@@ -73,7 +75,7 @@ public class TypeEntity extends PackageOrClass
         return thisType.getCapture().asClass();
     }
     
-    public JavaEntity getSubentity(String name, Reflective reflective)
+    public JavaEntity getSubentity(String name, Reflective accessor)
     {
         GenTypeClass thisClass = thisType.getCapture().asClass();
         if (thisClass == null) {
@@ -87,11 +89,14 @@ public class TypeEntity extends PackageOrClass
         // subentity of a class could be a member type or field
         // Is it a field?
         
-        Map<String,JavaType> m = thisClass.getReflective().getDeclaredFields();
-        JavaType type = m.get(name);
-        if (type != null) {
-            // TODO: access check
-            return new ValueEntity(name, type);
+        Map<String,FieldReflective> m = thisClass.getReflective().getDeclaredFields();
+        FieldReflective field = m.get(name);
+        if (field != null) {
+            boolean accessAllowed = JavaUtils.checkMemberAccess(thisClass.getReflective(),
+                    accessor, field.getModifiers(), true);
+            if (accessAllowed) {
+                return new ValueEntity(name, field.getType());
+            }
         }
 
         // Is it a member type?

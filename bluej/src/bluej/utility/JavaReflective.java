@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import bluej.debugger.gentype.FieldReflective;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeDeclTpar;
 import bluej.debugger.gentype.JavaType;
@@ -210,16 +211,15 @@ public class JavaReflective extends Reflective {
     }
     
     @Override
-    public Map<String,JavaType> getDeclaredFields()
+    public Map<String,FieldReflective> getDeclaredFields()
     {
         Field [] fields = c.getDeclaredFields();
-        Map<String,JavaType> rmap = new HashMap<String,JavaType>();
+        Map<String,FieldReflective> rmap = new HashMap<String,FieldReflective>();
         for (int i = 0; i < fields.length; i++) {
-            if (Modifier.isPublic(fields[i].getModifiers())) {
-                JavaType fieldType = (JavaType) JavaUtils.getJavaUtils()
-                        .genTypeFromClass(fields[i].getType());
-                rmap.put(fields[i].getName(), fieldType);
-            }
+            JavaType fieldType = JavaUtils.getJavaUtils().genTypeFromClass(fields[i].getType());
+            FieldReflective fref = new FieldReflective(fields[i].getName(), fieldType,
+                    fields[i].getModifiers());
+            rmap.put(fields[i].getName(), fref);
         }
         return rmap;
     }

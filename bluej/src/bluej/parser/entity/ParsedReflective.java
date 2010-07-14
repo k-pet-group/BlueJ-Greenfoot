@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import bluej.debugger.gentype.FieldReflective;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeDeclTpar;
 import bluej.debugger.gentype.JavaType;
@@ -209,15 +210,18 @@ public class ParsedReflective extends Reflective
     }
     
     @Override
-    public Map<String,JavaType> getDeclaredFields()
+    public Map<String,FieldReflective> getDeclaredFields()
     {
         Map<String,FieldNode> fields = pnode.getInner().getFields();
-        Map<String,JavaType> rmap = new HashMap<String, JavaType>();
+        Map<String,FieldReflective> rmap = new HashMap<String,FieldReflective>();
         for (Iterator<String> i = fields.keySet().iterator(); i.hasNext(); ) {
             String fieldName = i.next();
-            JavaEntity ftypeEnt = fields.get(fieldName).getFieldType().resolveAsType();
+            FieldNode fieldNode = fields.get(fieldName);
+            JavaEntity ftypeEnt = fieldNode.getFieldType().resolveAsType();
             if (ftypeEnt != null) {
-                rmap.put(fieldName, ftypeEnt.getType());
+                FieldReflective fref = new FieldReflective(fieldName, ftypeEnt.getType(),
+                        fieldNode.getModifiers());
+                rmap.put(fieldName, fref);
             }
         }
         return rmap;

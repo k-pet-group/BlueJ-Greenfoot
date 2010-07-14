@@ -155,7 +155,7 @@ public abstract class Reflective
      * Get the fields declared in the type represented by this Reflective.
      * This does not include fields declared in the superclass(es).
      */
-    abstract public Map<String,JavaType> getDeclaredFields();
+    abstract public Map<String,FieldReflective> getDeclaredFields();
     
     /**
      * Get the inner classes of the type represented by this Reflective.

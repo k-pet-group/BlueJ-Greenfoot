@@ -23,12 +23,14 @@ package bluej.parser;
 
 import java.io.Reader;
 import java.io.StringReader;
+import java.lang.reflect.Modifier;
 import java.util.Map;
 
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
 
 import junit.framework.TestCase;
+import bluej.debugger.gentype.FieldReflective;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.Reflective;
@@ -37,6 +39,7 @@ import bluej.parser.entity.ClassLoaderResolver;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.PackageResolver;
+import bluej.parser.entity.TypeEntity;
 import bluej.parser.lexer.LocatableToken;
 import bluej.parser.nodes.ParsedCUNode;
 
@@ -88,14 +91,17 @@ public class CompletionTest extends TestCase
         
         EntityResolver resolver = new PackageResolver(this.resolver, "");
         JavaEntity aClassEnt = resolver.resolvePackageOrClass("A", null);
-        Reader r = new StringReader("");
-        CompletionParser cp = new CompletionParser(resolver, r, aClassEnt);
-        cp.parseExpression();
+        assertNotNull(aClassEnt);
+        TypeEntity typeEnt = aClassEnt.resolveAsType();
+        assertNotNull(typeEnt);
         
-        Map<String,JavaType> fields = cp.getFieldSuggestions();
-        JavaType ftype = fields.get("f");
-        assertNotNull(ftype);
-        assertEquals("int", ftype.toString());
+        GenTypeClass gtc = typeEnt.getClassType();
+        assertNotNull(gtc);
+        assertEquals("A", gtc.toString());
+        FieldReflective fref = gtc.getReflective().getDeclaredFields().get("f");
+        assertNotNull(fref);
+        assertEquals("int", fref.getType().toString());
+        assertEquals(Modifier.PUBLIC | Modifier.STATIC, fref.getModifiers());
     }
     
     /**
@@ -112,13 +118,9 @@ public class CompletionTest extends TestCase
         
         EntityResolver resolver = new PackageResolver(this.resolver, "");
         JavaEntity aClassEnt = resolver.resolvePackageOrClass("A", null);
-        Reader r = new StringReader("");
-        CompletionParser cp = new CompletionParser(resolver, r, aClassEnt);
-        cp.parseExpression();
         
-        Map<String,JavaType> fields = cp.getFieldSuggestions();
-        JavaType ftype = fields.get("f");
-        assertNotNull(ftype);
+        Map<String,FieldReflective> fields = aClassEnt.resolveAsType().getClassType().getReflective().getDeclaredFields();
+        JavaType ftype = fields.get("f").getType();
         assertEquals("int[]", ftype.toString());
     }
     
@@ -159,13 +161,12 @@ public class CompletionTest extends TestCase
         Reader r = new StringReader("");
         CompletionParser cp = new CompletionParser(resolver, r, aClassEnt);
         cp.parseExpression();
-        
-        Map<String,JavaType> fields = cp.getFieldSuggestions();
-        JavaType ftype = fields.get("f");
-        assertNotNull(ftype);
+
+        Map<String,FieldReflective> fields = aClassEnt.resolveAsType().getClassType().getReflective().getDeclaredFields();
+        JavaType ftype = fields.get("f").getType();
         assertEquals("int", ftype.toString());
         
-        ftype = fields.get("g");
+        ftype = fields.get("g").getType();
         assertNotNull(ftype);
         assertEquals("int[]", ftype.toString());
     }
@@ -191,10 +192,9 @@ public class CompletionTest extends TestCase
         Reader r = new StringReader("A.");
         CompletionParser cp = new CompletionParser(bNode, r, bClassEnt);
         cp.parseExpression();
-        
-        Map<String,JavaType> fields = cp.getFieldSuggestions();
-        JavaType ftype = fields.get("f");
-        assertNotNull(ftype);
+
+        Map<String,FieldReflective> fields = cp.getSuggestionType().asClass().getReflective().getDeclaredFields();
+        JavaType ftype = fields.get("f").getType();
         assertEquals("int", ftype.toString());
     }
     

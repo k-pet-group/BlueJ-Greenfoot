@@ -27,9 +27,9 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
+import bluej.debugger.gentype.FieldReflective;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeDeclTpar;
-import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.MethodReflective;
 import bluej.debugger.gentype.Reflective;
 
@@ -57,7 +57,7 @@ public class ParsedArrayReflective extends Reflective
     }
     
     @Override
-    public Map<String, JavaType> getDeclaredFields()
+    public Map<String,FieldReflective> getDeclaredFields()
     {
         return Collections.emptyMap();
     }

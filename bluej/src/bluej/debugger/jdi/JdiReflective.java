@@ -853,11 +853,11 @@ public class JdiReflective extends Reflective
     }
     
     @Override
-    public Map<String,JavaType> getDeclaredFields()
+    public Map<String,FieldReflective> getDeclaredFields()
     {
         checkLoaded();
         List<Field> fields = rclass.fields();
-        Map<String,JavaType> rfields = new HashMap<String,JavaType>();
+        Map<String,FieldReflective> rfields = new HashMap<String,FieldReflective>();
         
         for (Field field : fields) {
             String genSig = field.genericSignature();
@@ -867,7 +867,9 @@ public class JdiReflective extends Reflective
             
             StringIterator i = new StringIterator(genSig);
             JavaType ftype = (JavaType) fromSignature(i, null, rclass);
-            rfields.put(field.name(), ftype);
+            FieldReflective fref = new FieldReflective(field.name(),
+                    ftype, field.modifiers());
+            rfields.put(field.name(), fref);
         }
         
         return rfields;

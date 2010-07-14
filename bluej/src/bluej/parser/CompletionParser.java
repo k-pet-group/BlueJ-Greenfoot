@@ -28,7 +28,6 @@ import java.util.Set;
 
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeSolid;
-import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.MethodReflective;
 import bluej.debugger.gentype.Reflective;
 import bluej.parser.entity.EntityResolver;
@@ -43,7 +42,6 @@ import bluej.parser.lexer.LocatableToken;
  */
 public class CompletionParser extends TextParser
 {
-    private Map<String,JavaType> fieldSuggestions = Collections.emptyMap();
     private Map<String,Set<MethodReflective>> methodSuggestions = Collections.emptyMap();
     private JavaEntity suggestionEntity;
     private LocatableToken suggestionToken;
@@ -95,11 +93,6 @@ public class CompletionParser extends TextParser
     protected void error(String msg)
     {
         return;
-    }
-    
-    public Map<String,JavaType> getFieldSuggestions()
-    {
-        return fieldSuggestions;
     }
     
     public Map<String,Set<MethodReflective>> getMethodSuggestions()
@@ -178,7 +171,6 @@ public class CompletionParser extends TextParser
             GenTypeClass ctype = type.asClass();
             if (ctype != null) {
                 Reflective r = ctype.getReflective();
-                fieldSuggestions = r.getDeclaredFields();
                 methodSuggestions = r.getDeclaredMethods();
             }
         }

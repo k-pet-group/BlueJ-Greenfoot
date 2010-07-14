@@ -24,11 +24,18 @@ package bluej.parser.entity;
 import java.util.List;
 import java.util.Map;
 
+import bluej.debugger.gentype.FieldReflective;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeParameter;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.Reflective;
+import bluej.utility.JavaUtils;
 
+/**
+ * Represents a value entity - an unspecified value with a known type.
+ * 
+ * @author Davin McCall
+ */
 public class ValueEntity extends JavaEntity
 {
     private String name;
@@ -52,19 +59,21 @@ public class ValueEntity extends JavaEntity
     }
 
     @Override
-    public JavaEntity getSubentity(String name, Reflective accessSource)
+    public JavaEntity getSubentity(String name, Reflective accessor)
     {
         GenTypeClass ctype = type.asClass();
         if (ctype != null) {
-            Map<String,JavaType> fields = ctype.getReflective().getDeclaredFields();
-            JavaType fieldType = fields.get(name);
+            Map<String,FieldReflective> fields = ctype.getReflective().getDeclaredFields();
+            FieldReflective field = fields.get(name);
             
-            Map<String,GenTypeParameter> tparMap = ctype.getMap();
-            fieldType = fieldType.mapTparsToTypes(tparMap);
-            
-            if (fieldType != null) {
-                // TODO check access restriction!
-                return new ValueEntity(this.name + "." + name, fieldType);
+            if (field != null) {
+                if (JavaUtils.checkMemberAccess(ctype.getReflective(), accessor,
+                        field.getModifiers(), false)) {
+                    JavaType fieldType = field.getType();
+                    Map<String,GenTypeParameter> tparMap = ctype.getMap();
+                    fieldType = fieldType.mapTparsToTypes(tparMap);
+                    return new ValueEntity(this.name + "." + name, fieldType);
+                }
             }
         }
         return null;
