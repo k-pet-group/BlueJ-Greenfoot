@@ -197,7 +197,7 @@ public class GreenfootImage
             throw new IllegalArgumentException("Could not load image from: " + imageFileName);
         }
         if (image!=null){
-            GreenfootUtil.addCachedImage(imageFileName, this);
+            GreenfootUtil.addCachedImage(imageFileName, new GreenfootImage(this));
         }           
     }
 
