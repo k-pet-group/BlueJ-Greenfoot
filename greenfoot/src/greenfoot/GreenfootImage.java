@@ -99,9 +99,8 @@ public class GreenfootImage
     {
         if (GreenfootUtil.getCachedImage(imageFileName)!=null)
         {
-            getCopyOnWriteClone(GreenfootUtil.getCachedImage(imageFileName));
-        } else 
-        {
+            GreenfootUtil.getCachedImage(imageFileName).getCopyOnWriteClone();
+        } else {
             loadFile(filename);
         }
     }
@@ -156,23 +155,6 @@ public class GreenfootImage
         clone.copyOnWrite = true;
         clone.image = image;
         copyStates(this, clone);
-        
-        return clone;
-    }
-    
-    /**
-     * Create a copy-on-write image based on a source image.If the new image is
-     * modified, the original image will not be affected.
-     * <p>
-     * Only use this method if you are sure that the original image will never
-     * be modified.
-     */
-    GreenfootImage getCopyOnWriteClone(GreenfootImage srcImage)
-    {
-        GreenfootImage clone = new GreenfootImage();
-        clone.copyOnWrite = true;
-        clone.image = srcImage.image;
-        copyStates(srcImage, clone);
         
         return clone;
     }
