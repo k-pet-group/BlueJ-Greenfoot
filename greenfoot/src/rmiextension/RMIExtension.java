@@ -22,38 +22,25 @@
 package rmiextension;
 
 import greenfoot.core.GreenfootLauncherBlueJVM;
-import greenfoot.core.GreenfootMain;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import rmiextension.wrappers.WrapperPool;
-
 import bluej.Config;
-import bluej.debugger.Debugger;
-import bluej.debugger.DebuggerEvent;
-import bluej.debugger.DebuggerListener;
-import bluej.debugger.jdi.JdiDebugger;
-import bluej.extensions.BPackage;
 import bluej.extensions.BProject;
 import bluej.extensions.BlueJ;
 import bluej.extensions.Extension;
-import bluej.extensions.ExtensionBridge;
-import bluej.extensions.ProjectNotOpenException;
 import bluej.extensions.event.ApplicationEvent;
 import bluej.extensions.event.ApplicationListener;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.utility.Debug;
 
 /**
- * 
- * 
- * This is the starting point of greenfoot as a BlueJ Extension.
+ * This is the starting point of Greenfoot as a BlueJ Extension.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RMIExtension.java 7851 2010-07-12 10:11:17Z nccb $
  */
 public class RMIExtension extends Extension implements ApplicationListener
 {
@@ -61,14 +48,10 @@ public class RMIExtension extends Extension implements ApplicationListener
 
     /**
      * When this method is called, the extension may start its work.
-     * 
      */
     public void startup(BlueJ bluej)
     {
         theBlueJ = bluej;
-        // GreenfootUtil.initialise(new GreenfootUtilDelegateIDE());
-        // Above is not necessary
-        // theBlueJ.addPackageListener(ProjectLauncher.instance());
         ProjectManager.init(bluej);
 
         try {
@@ -81,8 +64,6 @@ public class RMIExtension extends Extension implements ApplicationListener
         }
 
         theBlueJ.addApplicationListener(this);
-        
-        //GreenfootLauncherBlueJVM.getInstance().launch(this);
     }
 
     /**

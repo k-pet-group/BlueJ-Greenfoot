@@ -25,13 +25,19 @@ import java.awt.EventQueue;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Properties;
 
 import rmiextension.GreenfootDebugHandler;
 import rmiextension.ProjectManager;
-import rmiextension.wrappers.event.*;
+import rmiextension.wrappers.event.RClassListener;
+import rmiextension.wrappers.event.RClassListenerWrapper;
+import rmiextension.wrappers.event.RCompileListener;
+import rmiextension.wrappers.event.RCompileListenerWrapper;
+import rmiextension.wrappers.event.RInvocationListener;
+import rmiextension.wrappers.event.RInvocationListenerWrapper;
 import bluej.Config;
 import bluej.extensions.BProject;
 import bluej.extensions.BlueJ;
@@ -42,16 +48,23 @@ import bluej.prefmgr.PrefMgrDialog;
 import bluej.utility.Debug;
 
 /**
+ * Implements the RBlueJ RMI interface.
+ * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RBlueJImpl.java 7866 2010-07-15 07:18:29Z davmac $
  */
 public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     implements RBlueJ
 {
     BlueJ blueJ;
 
-    Map<Object,Object> listeners = new Hashtable<Object,Object>();
-
+    // These maps are implemented as instances Hashtable rather than HashMap, so they
+    // do not require external synchronization.
+    private Map<RCompileListener,RCompileListenerWrapper> compileListeners =
+        new Hashtable<RCompileListener,RCompileListenerWrapper>();
+    private Map<RInvocationListener,RInvocationListenerWrapper> invocationListeners =
+        new Hashtable<RInvocationListener,RInvocationListenerWrapper>();
+    private Map<RClassListener,RClassListenerWrapper> classListeners =
+        new Hashtable<RClassListener,RClassListenerWrapper>();
     
     public RBlueJImpl(BlueJ blueJ)
         throws RemoteException
@@ -71,24 +84,45 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     /* (non-Javadoc)
      * @see rmiextension.wrappers.RBlueJ#addCompileListener(rmiextension.wrappers.event.RCompileListener, java.lang.String)
      */
-    public void addCompileListener(RCompileListener listener, File projectPath)
+    public void addCompileListener(RCompileListener listener, final File projectPath)
     {
-        BProject[] projects = blueJ.getOpenProjects();
-        BProject project = null;
-        for (int i = 0; i < projects.length; i++) {
-            BProject prj = projects[i];
-            try {
-                if(prj.getDir().equals(projectPath)) {
-                    project = prj;
+        final BProjectRef bProjectRef = new BProjectRef();
+        
+        try {
+            EventQueue.invokeAndWait(new Runnable() {
+                @Override
+                public void run()
+                {
+                    BProject[] projects = blueJ.getOpenProjects();
+                    BProject project = null;
+                    for (int i = 0; i < projects.length; i++) {
+                        BProject prj = projects[i];
+                        try {
+                            if(prj.getDir().equals(projectPath)) {
+                                project = prj;
+                            }
+                        }
+                        catch (ProjectNotOpenException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    bProjectRef.bProject = project;
                 }
-            }
-            catch (ProjectNotOpenException e) {
-                e.printStackTrace();
-            }
+            });
         }
-        RCompileListenerWrapper wrapper = new RCompileListenerWrapper(listener, project);
-        listeners.put(listener, wrapper);
+        catch (InterruptedException e1) { }
+        catch (InvocationTargetException e1) {
+            throw new Error(e1);
+        }
+        
+        RCompileListenerWrapper wrapper = new RCompileListenerWrapper(listener, bProjectRef.bProject);
+        compileListeners.put(listener, wrapper);
         blueJ.addCompileListener(wrapper);
+    }
+    
+    private class BProjectRef
+    {
+        public BProject bProject;
     }
 
     /* (non-Javadoc)
@@ -97,7 +131,7 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     public void addInvocationListener(RInvocationListener listener)
     {
         RInvocationListenerWrapper wrapper = new RInvocationListenerWrapper(listener);
-        listeners.put(listener, wrapper);
+        invocationListeners.put(listener, wrapper);
         blueJ.addInvocationListener(wrapper);
     }
     
@@ -106,8 +140,8 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
      */
     public void addClassListener(RClassListener listener) throws RemoteException
     {
-        ClassListener wrapper = new RClassListenerWrapper(listener);
-        listeners.put(listener, wrapper);
+        RClassListenerWrapper wrapper = new RClassListenerWrapper(listener);
+        classListeners.put(listener, wrapper);
         blueJ.addClassListener(wrapper);
     }
 
@@ -133,15 +167,31 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     public RProject[] getOpenProjects()
         throws RemoteException
     {
-
-        BProject[] bProjects = blueJ.getOpenProjects();
-        int length = bProjects.length;
-        RProject[] rProjects = new RProject[length];
-        for (int i = 0; i < length; i++) {
-            rProjects[i] = WrapperPool.instance().getWrapper(bProjects[i]);
+        final ArrayList<RProject> rProjects = new ArrayList<RProject>();
+        
+        try {
+            EventQueue.invokeAndWait(new Runnable() {
+                @Override
+                public void run()
+                {
+                    BProject[] bProjects = blueJ.getOpenProjects();
+                    for (BProject bProject : bProjects) {
+                        try {
+                            rProjects.add(WrapperPool.instance().getWrapper(bProject));
+                        }
+                        catch (RemoteException e) {
+                            // Shouldn't happen?
+                        }
+                    }
+                }
+            });
+        }
+        catch (InterruptedException e) { }
+        catch (InvocationTargetException e) {
+            Debug.reportError("Problem getting open projects", e.getCause());
         }
 
-        return rProjects;
+        return rProjects.toArray(new RProject[rProjects.size()]);
     }
 
     /* (non-Javadoc)
@@ -157,15 +207,35 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     /* (non-Javadoc)
      * @see rmiextension.wrappers.RBlueJ#newProject(java.io.File)
      */
-    public RProject newProject(File directory)
+    public RProject newProject(final File directory)
         throws RemoteException
     {
-        ProjectManager.instance().addNewProject(directory);
-        BProject wrapped = blueJ.newProject(directory);
-        GreenfootDebugHandler.addDebuggerListener(wrapped);
-        RProject wrapper = WrapperPool.instance().getWrapper(wrapped);
-        ProjectManager.instance().removeNewProject(directory);
-        return wrapper;
+        final RProjectRef wrapper = new RProjectRef();
+        
+        try {
+            EventQueue.invokeAndWait(new Runnable() {
+                @Override
+                public void run()
+                {
+                    ProjectManager.instance().addNewProject(directory);
+                    BProject wrapped = blueJ.newProject(directory);
+                    GreenfootDebugHandler.addDebuggerListener(wrapped);
+                    try {
+                        wrapper.rProject = WrapperPool.instance().getWrapper(wrapped);
+                    }
+                    catch (RemoteException e) {
+                        Debug.reportError("Error creating RMI project wrapper", e);
+                    }
+                    ProjectManager.instance().removeNewProject(directory);
+                }
+            });
+        }
+        catch (InterruptedException e) { }
+        catch (InvocationTargetException e) {
+            Debug.reportError("Error creating project via RMI", e.getCause());
+        }
+        
+        return wrapper.rProject;
     }
 
     /* (non-Javadoc)
@@ -213,8 +283,7 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
      */
     public void removeCompileListener(RCompileListener listener)
     {
-        RCompileListenerWrapper wrapper = (RCompileListenerWrapper) listeners.get(listener);
-        listeners.remove(listener);
+        RCompileListenerWrapper wrapper = compileListeners.remove(listener);
         blueJ.removeCompileListener(wrapper);
     }
 
@@ -223,8 +292,7 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
      */
     public void removeInvocationListener(RInvocationListener listener)
     {
-        RInvocationListenerWrapper wrapper = (RInvocationListenerWrapper) listeners.get(listener);
-        listeners.remove(listener);
+        RInvocationListenerWrapper wrapper = invocationListeners.remove(listener);
         blueJ.removeInvocationListener(wrapper);
     }
 
@@ -233,7 +301,7 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
      */
     public void removeClassListener(RClassListener listener) throws RemoteException
     {
-        ClassListener wrapper = (ClassListener) listeners.remove(listener);
+        ClassListener wrapper = classListeners.remove(listener);
         blueJ.removeClassListener(wrapper);
     }
     
@@ -289,8 +357,13 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     @Override
     public void showPreferences() throws RemoteException
     {
-        PrefMgrDialog.showDialog();        
+        EventQueue.invokeLater(new Runnable() {
+           @Override
+           public void run()
+           {
+               PrefMgrDialog.showDialog();        
+           }
+        });
     }
-    
     
 }
