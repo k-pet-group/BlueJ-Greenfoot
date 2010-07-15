@@ -701,26 +701,6 @@ public abstract class Actor
         return world.getOneIntersectingObject(this, cls);
     }
 
-//    /**
-//     * Return all objects that intersect a straight line from this object at
-//     * a specified angle. The angle is clockwise relative to the current 
-//     * rotation of the object.   <br>
-//     * It will never include the object itself.
-//     * 
-//     * NOTE: not implemented yet!
-//     * 
-//     * @param angle The angle relative to current rotation of the object.
-//     * @param cls Class of objects to look for (passing 'null' will find all objects).
-//     */
-//    protected List getObjectsInDirection(int angle, int length, Class cls)
-//    {
-//        failIfNotInWorld();
-//        List l = world.getObjectsInDirection(getX(), getY(), angle + getRotation(), length, cls);
-//        l.remove(this);
-//        return l;
-//    }
-
-
     /**
      * Checks whether the specified relative cell-location is considered to be
      * inside this object.
@@ -768,7 +748,6 @@ public abstract class Actor
      */
     private Shape getRotatedShape()
     {
-
         int width = image.getWidth();
         int height = image.getHeight();
         int xMin = - (width / 2);
@@ -791,15 +770,6 @@ public abstract class Actor
             
             AffineTransform transform = AffineTransform.getRotateInstance(Math.toRadians(getRotation()), xOrigin, yOrigin);       
             Shape rotatedImageBounds = transform.createTransformedShape(imageBounds);
-          //  System.out.println("Rotated Image: " + rotatedImageBounds);
-          
-          /*  it = rotatedImageBounds.getPathIterator(null);
-            while (!it.isDone()) {
-                double[] coords = new double[6];
-                it.currentSegment(coords);
-                it.next();
-                System.out.println(" coords: " + coords[0] + ", " + coords[1]+ ", " + coords[2]+ ", " + coords[3]+ ", " + coords[4] + ", " + coords[5]);
-            }*/
 
             return rotatedImageBounds;
         } else {
