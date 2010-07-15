@@ -60,9 +60,6 @@ public class ProjectProperties
 
     /** Reference to the file that holds the properties */
     private File propsFile;
-    
-    /** Holds images for classes. Avoids loading the same image twice */
-    public Map<String, GreenfootImage> classImages = new HashMap<String, GreenfootImage>();
 
     /**
      * Creates a new properties instance for the project in the given directory.
@@ -238,67 +235,6 @@ public class ProjectProperties
         return (String) properties.remove(key);
     }
 
-    /**
-     * Gets an image for the given class. The images are cached to avoid loading
-     * images several times. This method is thread-safe.
-     * 
-     * @param className If it is a qualified name, the package is ignored.
-     *            Returns null, if there is no entry for this class in the
-     *            properties.
-     * @return The image.
-     */
-    public GreenfootImage getImage(String className)
-    {
-        className = GreenfootUtil.extractClassName(className);
-        
-        //check if the class has already been listed as 
-        //having no associated image and return if so
-        if (GreenfootUtil.isNullImage(className)){
-            return null;
-        }
-        synchronized (classImages) {
-            GreenfootImage image = classImages.get(className);
-
-            if (image == null) {
-                // If it is the Actor class the image is always the same:
-                if (className.equals("Actor")) {
-                    image = new GreenfootImage(GreenfootUtil.getGreenfootLogoPath());
-                }
-                else {
-                    String imageName = getString("class." + className + ".image");
-                    if (imageName != null) {
-                        try {
-                            image = new GreenfootImage("images/" + imageName);
-                        }
-                        catch (IllegalArgumentException iae) {
-                            // This occurs if the image file doesn't exist anymore
-                        }
-                    }
-                }
-
-                if (image != null) {
-                    classImages.put(className, image);
-                }
-                else {
-                    GreenfootUtil.addNullImage(className);
-                }
-            }
-            return image;
-        }
-    }
-
-
-    /**
-     * Remove the cached version of an image for a particular class. This should be
-     * called when the image for the class is changed. Thread-safe.
-     */
-    public void removeCachedImage(String className)
-    {
-        synchronized (classImages) {
-            classImages.remove(className);
-        }
-    }
-
 
     /**
      * Stores the API version. Thread-safe.
@@ -322,4 +258,28 @@ public class ProjectProperties
         Version version = new Version(versionString);
         return version;
     }
+    
+    /**
+     * Gets an image for the given class. The images are cached to avoid loading
+     * images several times. This method is thread-safe.
+     * 
+     * @param className If it is a qualified name, the package is ignored.
+     *            Returns null, if there is no entry for this class in the
+     *            properties.
+     * @return The image.
+     */
+    public GreenfootImage getImage(String className)
+    {
+        return GreenfootUtil.getGreenfootImage(className, getString("class." + className + ".image"));
+    }
+    
+    /**
+     * Remove the cached version of an image for a particular class. This should be
+     * called when the image for the class is changed. Thread-safe.
+     */
+    public void removeCachedImage(String className)
+    {
+       GreenfootUtil.removeCachedImage(className);
+    }
+
 }

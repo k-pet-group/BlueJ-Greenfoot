@@ -97,7 +97,13 @@ public class GreenfootImage
     public GreenfootImage(String filename)
         throws IllegalArgumentException
     {
-        loadFile(filename);
+        if (GreenfootUtil.getCachedImage(imageFileName)!=null)
+        {
+            getCopyOnWriteClone(GreenfootUtil.getCachedImage(imageFileName));
+        } else 
+        {
+            loadFile(filename);
+        }
     }
        
     /**
@@ -155,6 +161,23 @@ public class GreenfootImage
     }
     
     /**
+     * Create a copy-on-write image based on a source image.If the new image is
+     * modified, the original image will not be affected.
+     * <p>
+     * Only use this method if you are sure that the original image will never
+     * be modified.
+     */
+    GreenfootImage getCopyOnWriteClone(GreenfootImage srcImage)
+    {
+        GreenfootImage clone = new GreenfootImage();
+        clone.copyOnWrite = true;
+        clone.image = srcImage.image;
+        copyStates(srcImage, clone);
+        
+        return clone;
+    }
+    
+    /**
      * Copies the states from the src image to dst image.
      */
     private static void copyStates(GreenfootImage src, GreenfootImage dst)
@@ -178,6 +201,9 @@ public class GreenfootImage
         } catch (IOException ex) {
             throw new IllegalArgumentException("Could not load image from: " + imageFileName);
         }
+        if (image!=null){
+            GreenfootUtil.addCachedImage(imageFileName, this);
+        }           
     }
 
     /**
