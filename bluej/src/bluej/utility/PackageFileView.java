@@ -34,7 +34,7 @@ import java.io.File;
  *
  * @author Michael Kolling
  * @see FileUtility
- * @version $Id: PackageFileView.java 7731 2010-05-25 09:58:57Z mik $
+ * @version $Id: PackageFileView.java 7860 2010-07-15 02:45:20Z davmac $
  */
 public class PackageFileView extends FileView
 {
@@ -77,6 +77,12 @@ public class PackageFileView extends FileView
     @Override
     public Icon getIcon(File f)
     {
+        if (Config.isMacOS() && f.getAbsolutePath().equals("/net")) {
+            // On MacOS this path is a special mapping; looking for a particular
+            // file inside it can cause a significant delay.
+            return null;
+        }
+        
         if(Package.isPackage(f))
             if (Config.isGreenfoot()) {
                 return greenfootProjectIcon;
@@ -84,7 +90,8 @@ public class PackageFileView extends FileView
             else {
                 return bluejProjectIcon;
             }
-        else
+        else {
             return null;
+        }
     }
 }
