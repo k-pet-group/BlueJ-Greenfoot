@@ -39,10 +39,11 @@ import bluej.extensions.ProjectNotOpenException;
 import bluej.extensions.event.ClassListener;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.prefmgr.PrefMgrDialog;
+import bluej.utility.Debug;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RBlueJImpl.java 7851 2010-07-12 10:11:17Z nccb $
+ * @version $Id: RBlueJImpl.java 7866 2010-07-15 07:18:29Z davmac $
  */
 public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     implements RBlueJ
@@ -170,16 +171,41 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     /* (non-Javadoc)
      * @see rmiextension.wrappers.RBlueJ#openProject(java.lang.String)
      */
-    public RProject openProject(String directory)
+    public RProject openProject(final String directory)
         throws RemoteException
     {
-        BProject bProject = blueJ.openProject(new File(directory));
-        if (bProject != null) {
-            GreenfootDebugHandler.addDebuggerListener(bProject);
-            return WrapperPool.instance().getWrapper(bProject);
-        } else {
-            return null;
+        final RProjectRef projectRef = new RProjectRef();
+        
+        try {
+            EventQueue.invokeAndWait(new Runnable() {
+                @Override
+                public void run()
+                {
+                    BProject bProject = blueJ.openProject(new File(directory));
+                    if (bProject != null) {
+                        GreenfootDebugHandler.addDebuggerListener(bProject);
+                        try {
+                            projectRef.rProject = WrapperPool.instance().getWrapper(bProject);
+                        }
+                        catch (RemoteException re) {
+                            Debug.reportError("Error when opening project via RMI", re);
+                        }
+                    }
+                }
+            });
         }
+        catch (InterruptedException e) { }
+        catch (InvocationTargetException e) {
+            Debug.reportError("Error opening project", e);
+            Debug.reportError("Error cause:", e.getCause());
+        }
+        
+        return projectRef.rProject;
+    }
+    
+    private class RProjectRef
+    {
+        public RProject rProject;
     }
 
     /* (non-Javadoc)
