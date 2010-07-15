@@ -21,6 +21,7 @@
  */
 package greenfoot.platforms.ide;
 
+import greenfoot.GreenfootImage;
 import greenfoot.platforms.GreenfootUtilDelegate;
 
 import java.io.File;
@@ -77,5 +78,15 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
     {
         return false;
     }
+
+    public void cacheGreenfootImage(String name, GreenfootImage image){    }
+
+    public void addCachedImage(String name, GreenfootImage image){  }
+
+    public GreenfootImage getCachedImage(String name){ 
+        return null;
+    }
+
+    public void removeCachedImage(String className){  }
 
 }

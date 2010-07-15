@@ -97,9 +97,10 @@ public class GreenfootImage
     public GreenfootImage(String filename)
         throws IllegalArgumentException
     {
-        if (GreenfootUtil.getCachedImage(imageFileName)!=null)
+        GreenfootImage gImage=GreenfootUtil.getCachedImage(imageFileName);
+        if (gImage!=null)
         {
-            GreenfootUtil.getCachedImage(imageFileName).getCopyOnWriteClone();
+            createClone(gImage);
         } else {
             loadFile(filename);
         }
@@ -160,6 +161,18 @@ public class GreenfootImage
     }
     
     /**
+     * Creates a copy of the cached image
+     * @param cachedImage image to copy
+     */
+    void createClone(GreenfootImage cachedImage)
+    {
+        this.copyOnWrite = true;
+        this.image = cachedImage.image;
+        copyStates(cachedImage, this);
+
+    }
+    
+    /**
      * Copies the states from the src image to dst image.
      */
     private static void copyStates(GreenfootImage src, GreenfootImage dst)
@@ -179,7 +192,7 @@ public class GreenfootImage
         }
         try {
             image = GraphicsUtilities.loadCompatibleTranslucentImage(imageURL);
-            copyOnWrite = false;
+            copyOnWrite = true;
         } catch (IOException ex) {
             throw new IllegalArgumentException("Could not load image from: " + imageFileName);
         }

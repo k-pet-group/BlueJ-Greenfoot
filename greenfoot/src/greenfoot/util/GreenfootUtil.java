@@ -50,11 +50,11 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.AccessControlException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import javax.imageio.ImageIO;
 import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -64,13 +64,12 @@ import javax.swing.JPanel;
 import bluej.Boot;
 import bluej.Config;
 import bluej.utility.Utility;
-import javax.imageio.ImageIO;
 
 /**
  * General utility methods for Greenfoot.
  * 
  * @author Davin McCall
- * @version $Id: GreenfootUtil.java 7863 2010-07-15 06:12:24Z marionz $
+ * @version $Id: GreenfootUtil.java 7867 2010-07-15 07:38:09Z marionz $
  */
 public class GreenfootUtil
 {
@@ -81,9 +80,6 @@ public class GreenfootUtil
     private static GreenfootUtilDelegate delegate;
 
     private static final Color urlColor = new Color(0, 90, 200);
-    
-    /** Holds images for classes. Avoids loading the same image twice */
-    public static Map<String, GreenfootImage> classImages = new HashMap<String, GreenfootImage>();
     
     public static void initialise(GreenfootUtilDelegate newDelegate)
     {
@@ -826,37 +822,29 @@ public class GreenfootUtil
         if (isNullImage(className)){
             return null;
         }
-        synchronized (classImages) {
-            GreenfootImage image = classImages.get(className);
+        GreenfootImage image = delegate.getCachedImage(className);
 
-            if (image == null) {
-                // If it is the Actor class the image is always the same:
-                if (className.equals("Actor")) {
-                    image = new GreenfootImage(getGreenfootLogoPath());
-                }
-                else {
-                    if (imageName != null) {
-                        try {
-                            image = new GreenfootImage("images/" + imageName);
-                        }
-                        catch (IllegalArgumentException iae) {
-                            // This occurs if the image file doesn't exist anymore
-                        }
+        if (image == null) {
+            // If it is the Actor class the image is always the same:
+            if (className.equals("Actor")) {
+                image = new GreenfootImage(getGreenfootLogoPath());
+            }
+            else {
+                if (imageName != null) {
+                    try {
+                        image = new GreenfootImage("images/" + imageName);
+                    }
+                    catch (IllegalArgumentException iae) {
+                        // This occurs if the image file doesn't exist anymore
                     }
                 }
-
-                if (image != null) {
-                    classImages.put(className, image);
-                }
-                else {
-                    addNullImage(className);
-                }
             }
-            return image;
+
+            delegate.cacheGreenfootImage(className, image);
         }
+        return image;
 
     }
-    
 
     /**
      * Remove the cached version of an image for a particular class. This should be
@@ -864,9 +852,7 @@ public class GreenfootUtil
      */
     public static void removeCachedImage(String className)
     {
-        synchronized (classImages) {
-            classImages.remove(className);
-        }
+        delegate.removeCachedImage(className);
     }
    
     /**
@@ -876,32 +862,16 @@ public class GreenfootUtil
      */
     public static void addCachedImage(String name, GreenfootImage image)
     {
-        synchronized (classImages) {
-            classImages.put(name, image);
-        }
+        delegate.addCachedImage(name, image);
     }
     
     /**
      * Gets the cached image of the requested name
      * @param name of the image
+     * @return GreenfootImage
      */
     public static GreenfootImage getCachedImage(String name)
     {
-        synchronized (classImages) {
-            return classImages.get(name);
-        }
+        return delegate.getCachedImage(name);
     }
-    
-    /**
-     * Returns whether it is a cached image
-     * @param name of the file
-     * @return true if it is in the cached; false if not
-     */
-    public static boolean isCachedImage(String name)
-    {
-        synchronized (classImages) {
-            return classImages.containsKey(name);
-        } 
-    }  
-
 }

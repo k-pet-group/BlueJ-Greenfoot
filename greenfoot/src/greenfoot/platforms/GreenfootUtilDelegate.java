@@ -21,6 +21,8 @@
  */
 package greenfoot.platforms;
 
+import greenfoot.GreenfootImage;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -43,5 +45,13 @@ public interface GreenfootUtilDelegate
     public void addNullImage(String className);
 
     public boolean isNullImage(String className);
+    
+    public void cacheGreenfootImage(String name, GreenfootImage image);
+
+    public void removeCachedImage(String className);
+
+    public void addCachedImage(String name, GreenfootImage image);
+
+    public GreenfootImage getCachedImage(String name);
 
 }
