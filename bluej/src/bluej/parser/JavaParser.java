@@ -363,6 +363,8 @@ public class JavaParser
     /** Saw a binary operator as part of an expression */
     protected void gotBinaryOperator(LocatableToken token) { }
     
+    protected void gotUnaryOperator(LocatableToken token) { }
+    
     protected void gotArrayElementAccess() { }
     
     protected void gotImport(List<LocatableToken> tokens, boolean isStatic) { }
@@ -2736,6 +2738,7 @@ public class JavaParser
             case 29: // INC
             case 30: // DEC
                 // Unary operator
+                gotUnaryOperator(token);
                 token = tokenStream.nextToken();
                 continue exprLoop;
             default:

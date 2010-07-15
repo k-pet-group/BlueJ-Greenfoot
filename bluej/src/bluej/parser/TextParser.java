@@ -86,6 +86,10 @@ public class TextParser extends JavaParser
     private static final int METHOD_CALL_OP = MEMBER_CALL_OP + 1;
     private static final int CONSTRUCTOR_CALL_OP = METHOD_CALL_OP + 1;
     
+    private static final int UNARY_PLUS_OP = CONSTRUCTOR_CALL_OP + 1;
+    private static final int UNARY_MINUS_OP = UNARY_PLUS_OP + 1;
+    
+    
     private static final int STATE_NONE = 0;
     private static final int STATE_NEW = 1;  // just saw "new"
     private static final int STATE_NEW_ARGS = 2;  // expecting "new" arguments or array dimensions
@@ -168,6 +172,13 @@ public class TextParser extends JavaParser
         case JavaTokenTypes.STAR:
         case JavaTokenTypes.DIV:
             return 12;
+        case JavaTokenTypes.LNOT:
+        case JavaTokenTypes.BNOT:
+        case UNARY_PLUS_OP:
+        case UNARY_MINUS_OP:
+        case JavaTokenTypes.INC:
+        case JavaTokenTypes.DEC:
+            return 13;
         case JavaTokenTypes.DOT:
             return 25;
         case CAST_OPERATOR:
@@ -228,6 +239,15 @@ public class TextParser extends JavaParser
             arg1 = popValueStack();
             checkArgs(arg1, arg2, token);
             break;
+        case JavaTokenTypes.LNOT:
+        case JavaTokenTypes.BNOT:
+        case JavaTokenTypes.INC:
+        case JavaTokenTypes.DEC:
+        case UNARY_MINUS_OP:
+        case UNARY_PLUS_OP:
+            arg1 = popValueStack();
+            checkArg(arg1, token);
+            break;
         case CAST_OPERATOR:
             popValueStack(); // remove the value being cast, leave the cast-to type.
             JavaEntity castType = popValueStack();
@@ -244,7 +264,7 @@ public class TextParser extends JavaParser
             popValueStack(); // remove the value being cast
             valueStack.push(new ErrorEntity());
         }
-        // TODO
+        // TODO logical not, bitwise not/and/or/xor
     }
     
     @Override
@@ -369,10 +389,25 @@ public class TextParser extends JavaParser
 
         valueStack.push(new ValueEntity(suitable.get(0).retType));
     }
+
+    /**
+     * For a unary operator, check that the argument is valid,
+     * then process the operator.
+     */
+    private void checkArg(JavaEntity arg1, Operator op)
+    {
+        JavaEntity rarg1 = arg1.resolveAsValue();
+        if (rarg1 == null) {
+            valueStack.push(new ErrorEntity());
+            return;
+        }
+        
+        doUnaryOp(rarg1, op);
+    }
     
     /**
-     * For a binary operator, check that both arguments are values before processing
-     * the operator.
+     * For a binary operator, check that both arguments are values, and
+     * then process the operator.
      */
     private void checkArgs(JavaEntity arg1, JavaEntity arg2, Operator op)
     {
@@ -386,6 +421,23 @@ public class TextParser extends JavaParser
         doBinaryOp(rarg1, rarg2, op);
     }
     
+    private void doUnaryOp(JavaEntity arg, Operator op)
+    {
+        JavaType argType = arg.getType().getCapture();
+        
+        int ttype = op.getType();
+        switch (ttype) {
+        case JavaTokenTypes.LNOT:
+            // TODO: check that the argument is boolean (or boxed boolean)
+            valueStack.push(new ValueEntity(JavaPrimitiveType.getBoolean()));
+            break;
+        case JavaTokenTypes.BNOT:
+            // TODO: check type is numeric
+            valueStack.push(new ValueEntity(argType));
+            break;
+        }
+    }
+    
     /**
      * Process a binary operator. Arguments have been resolved as values.
      * The result is pushed back onto the value stack.
@@ -397,7 +449,6 @@ public class TextParser extends JavaParser
         
         int ttype = op.getType();
         switch (ttype) {
-        // TODO and remember unboxing conversion
         case JavaTokenTypes.PLUS:
             if (! a1type.isNumeric() && !(TextAnalyzer.unBox(a1type).isNumeric())) {
                 GenTypeClass [] rstypes = a1type.asSolid().getReferenceSupertypes();
@@ -521,6 +572,10 @@ public class TextParser extends JavaParser
             ValueEntity ent = new ValueEntity(new GenTypeClass(new JavaReflective(String.class)));
             valueStack.push(ent);
         }
+        else if (token.getType() == JavaTokenTypes.LITERAL_true
+                || token.getType() == JavaTokenTypes.LITERAL_false) {
+            valueStack.push(new ValueEntity(JavaPrimitiveType.getBoolean()));
+        }
         else if (token.getType() == JavaTokenTypes.LITERAL_this) {
             if (staticAccess) {
                 valueStack.push(new ErrorEntity());
@@ -594,6 +649,20 @@ public class TextParser extends JavaParser
     protected void gotConstructorCall(LocatableToken token)
     {
         operatorStack.push(new Operator(METHOD_CALL_OP, token));
+    }
+    
+    @Override
+    protected void gotUnaryOperator(LocatableToken token)
+    {
+        int ttype = token.getType();
+        if (ttype == JavaTokenTypes.PLUS) {
+            ttype = UNARY_PLUS_OP;
+        }
+        else if (ttype == JavaTokenTypes.MINUS) {
+            ttype = UNARY_MINUS_OP;
+        }
+        processHigherPrecedence(getPrecedence(ttype));
+        operatorStack.push(new Operator(ttype, token));
     }
     
     @Override
