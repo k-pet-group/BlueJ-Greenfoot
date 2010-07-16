@@ -59,11 +59,14 @@ public abstract class GenTypeParameter
 
     public boolean equals(Object other)
     {
-        if (other instanceof GenTypeParameter)
+        if (other instanceof GenTypeParameter) {
             return equals((GenTypeParameter) other);
-        else
+        } else {
             return false;
+        }
     }
+    
+    abstract public boolean equals(GenTypeParameter other);
 
     /**
      * Assuming that this is some type which encloses some type parameters by

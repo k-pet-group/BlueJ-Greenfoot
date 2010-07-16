@@ -365,6 +365,8 @@ public class JavaParser
     
     protected void gotUnaryOperator(LocatableToken token) { }
     
+    protected void gotQuestionOperator(LocatableToken token) { }
+    
     protected void gotArrayElementAccess() { }
     
     protected void gotImport(List<LocatableToken> tokens, boolean isStatic) { }
@@ -2859,6 +2861,7 @@ public class JavaParser
                         continue;
                     }
                     else if (token.getType() == JavaTokenTypes.QUESTION) {
+                        gotQuestionOperator(token);
                         parseExpression();
                         token = tokenStream.nextToken();
                         if (token.getType() != JavaTokenTypes.COLON) {

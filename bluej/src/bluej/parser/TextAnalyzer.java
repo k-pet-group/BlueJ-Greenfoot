@@ -389,100 +389,97 @@ public class TextAnalyzer
      * Java 1.5 version of the trinary "? :" operator.
      * See JLS section 15.25. Note that JLS 3rd ed. differs extensively
      * from JLS 2nd edition. The changes are not backwards compatible.
-     * 
-     * @throws RecognitionException
-     * @throws SemanticException
      */
-//    private JavaType questionOperator15(AST node) throws RecognitionException, SemanticException
-//    {
-//        AST trueAlt = node.getFirstChild().getNextSibling();
-//        AST falseAlt = trueAlt.getNextSibling();
-//        ExprValue trueAltEv = getExpressionType(trueAlt);
-//        ExprValue falseAltEv = getExpressionType(falseAlt);
-//        JavaType trueAltType = trueAltEv.getType();
-//        JavaType falseAltType = falseAltEv.getType();
-//        
-//        // if we don't know the type of both alternatives, we don't
-//        // know the result type:
-//        if (trueAltType == null || falseAltType == null)
-//            return null;
-//        
-//        // Neither argument can be a void type.
-//        if (trueAltType.isVoid() || falseAltType.isVoid())
-//            throw new SemanticException();
-//        
-//        // if the second & third arguments have the same type, then
-//        // that is the result type:
-//        if (trueAltType.equals(falseAltType))
-//            return trueAltType;
-//        
-//        JavaType trueUnboxed = unBox(trueAltType);
-//        JavaType falseUnboxed = unBox(falseAltType);
-//        
-//        // if one the arguments is of type boolean and the other
-//        // Boolean, the result type is boolean.
-//        if (trueUnboxed.typeIs(JavaType.JT_BOOLEAN) && falseUnboxed.typeIs(JavaType.JT_BOOLEAN))
-//            return trueUnboxed;
-//        
-//        // if one type is null and the other is a reference type, the
-//        // return is that reference type.
-//        //   Also partially handle the final case from the JLS,
-//        // involving boxing conversion & capture conversion (which
-//        // is trivial when non-parameterized types such as boxed types
-//        // are involved)
-//        // 
-//        // This precludes either type from being null later on.
-//        if (trueAltType.typeIs(JavaType.JT_NULL))
-//            return boxType(falseAltType);
-//        if (falseAltType.typeIs(JavaType.JT_NULL))
-//            return boxType(trueAltType);
-//        
-//        // if the two alternatives are convertible to numeric types,
-//        // there are several cases:
-//        if (trueUnboxed.isNumeric() && falseUnboxed.isNumeric()) {
-//            // If one is byte/Byte and the other is short/Short, the
-//            // result type is short.
-//            if (trueUnboxed.typeIs(JavaType.JT_BYTE) && falseUnboxed.typeIs(JavaType.JT_SHORT))
-//                return falseUnboxed;
-//            if (falseUnboxed.typeIs(JavaType.JT_BYTE) && trueUnboxed.typeIs(JavaType.JT_SHORT))
-//                return trueUnboxed;
-//            
-//            // If one type, when unboxed, is byte/short/char, and the
-//            // other is an integer constant whose value fits in the
-//            // first, the result type is the (unboxed) former type. (The JLS
-//            // takes four paragraphs to say this, but the result is the
-//            // same).
-//            if (isMinorInteger(trueUnboxed) && falseAltType.typeIs(JavaType.JT_INT) && falseAltEv.knownValue()) {
-//                int kval = falseAltEv.intValue();
-//                if (trueUnboxed.couldHold(kval))
-//                    return trueUnboxed;
-//            }
-//            if (isMinorInteger(falseUnboxed) && trueAltType.typeIs(JavaType.JT_INT) && trueAltEv.knownValue()) {
-//                int kval = trueAltEv.intValue();
-//                if (falseUnboxed.couldHold(kval))
-//                    return falseUnboxed;
-//            }
-//            
-//            // Otherwise apply binary numeric promotion
-//            return binaryNumericPromotion(trueAltType, falseAltType);
-//        }
-//        
-//        // Box both alternatives:
-//        trueAltType = boxType(trueAltType);
-//        falseAltType = boxType(falseAltType);
-//        
-//        if (trueAltType instanceof GenTypeSolid && falseAltType instanceof GenTypeSolid) {
-//            // apply capture conversion (JLS 5.1.10) to lub() of both
-//            // alternatives (JLS 15.12.2.7). I have no idea why capture conversion
-//            // should be performed here, but I follow the spec blindly.
-//            GenTypeSolid [] lubArgs = new GenTypeSolid[2];
-//            lubArgs[0] = (GenTypeSolid) trueAltType;
-//            lubArgs[1] = (GenTypeSolid) falseAltType;
-//            return captureConversion(GenTypeSolid.lub(lubArgs));
-//        }
-//        
-//        return null;
-//    }
+    public static JavaType questionOperator15(JavaEntity trueAlt, JavaEntity falseAlt)
+    {
+        JavaType trueAltType = trueAlt.getType();
+        JavaType falseAltType = falseAlt.getType();
+        
+        // if we don't know the type of both alternatives, we don't
+        // know the result type:
+        if (trueAltType == null || falseAltType == null)
+            return null;
+        
+        // Neither argument can be a void type.
+        if (trueAltType.isVoid() || falseAltType.isVoid()) {
+            return null;
+        }
+        
+        if (trueAltType.equals(falseAltType)) {
+            return trueAltType;
+        }
+        
+        // if the second & third arguments have the same type, then
+        // that is the result type:
+        if (trueAltType.equals(falseAltType))
+            return trueAltType;
+        
+        JavaType trueUnboxed = unBox(trueAltType);
+        JavaType falseUnboxed = unBox(falseAltType);
+        
+        // if one the arguments is of type boolean and the other
+        // Boolean, the result type is boolean.
+        if (trueUnboxed.typeIs(JavaType.JT_BOOLEAN) && falseUnboxed.typeIs(JavaType.JT_BOOLEAN))
+            return trueUnboxed;
+        
+        // if one type is null and the other is a reference type, the
+        // return is that reference type.
+        //   Also partially handle the final case from the JLS,
+        // involving boxing conversion & capture conversion (which
+        // is trivial when non-parameterized types such as boxed types
+        // are involved)
+        // 
+        // This precludes either type from being null later on.
+        if (trueAltType.typeIs(JavaType.JT_NULL))
+            return boxType(falseAltType);
+        if (falseAltType.typeIs(JavaType.JT_NULL))
+            return boxType(trueAltType);
+        
+        // if the two alternatives are convertible to numeric types,
+        // there are several cases:
+        if (trueUnboxed.isNumeric() && falseUnboxed.isNumeric()) {
+            // If one is byte/Byte and the other is short/Short, the
+            // result type is short.
+            if (trueUnboxed.typeIs(JavaType.JT_BYTE) && falseUnboxed.typeIs(JavaType.JT_SHORT))
+                return falseUnboxed;
+            if (falseUnboxed.typeIs(JavaType.JT_BYTE) && trueUnboxed.typeIs(JavaType.JT_SHORT))
+                return trueUnboxed;
+            
+            // If one type, when unboxed, is byte/short/char, and the
+            // other is an integer constant whose value fits in the
+            // first, the result type is the (unboxed) former type. (The JLS
+            // takes four paragraphs to say this, but the result is the
+            // same).
+            //if (isMinorInteger(trueUnboxed) && falseAltType.typeIs(JavaType.JT_INT) && falseAltEv.knownValue()) {
+            //    int kval = falseAltEv.intValue();
+            //    if (trueUnboxed.couldHold(kval))
+            //        return trueUnboxed;
+            //}
+            //if (isMinorInteger(falseUnboxed) && trueAltType.typeIs(JavaType.JT_INT) && trueAltEv.knownValue()) {
+            //    int kval = trueAltEv.intValue();
+            //    if (falseUnboxed.couldHold(kval))
+            //        return falseUnboxed;
+            //}
+            
+            // Otherwise apply binary numeric promotion
+            return binaryNumericPromotion(trueAltType, falseAltType);
+        }
+        
+        // Box both alternatives:
+        trueAltType = boxType(trueAltType);
+        falseAltType = boxType(falseAltType);
+        
+        if (trueAltType.asSolid() != null && falseAltType.asSolid() != null) {
+            // apply capture conversion (JLS 5.1.10) to lub() of both
+            // alternatives (JLS 15.12.2.7).
+            GenTypeSolid [] lubArgs = new GenTypeSolid[2];
+            lubArgs[0] = trueAltType.asSolid();
+            lubArgs[1] = falseAltType.asSolid();
+            return captureConversion(GenTypeSolid.lub(lubArgs));
+        }
+        
+        return null;
+    }
     
     /**
      * Capture conversion, as in the JLS 5.1.10

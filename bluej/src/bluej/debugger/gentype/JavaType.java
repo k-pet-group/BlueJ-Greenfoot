@@ -158,6 +158,14 @@ public abstract class JavaType extends GenTypeParameter
     }
 
     abstract public boolean equals(JavaType other);
+    
+    public boolean equals(GenTypeParameter other)
+    {
+        if (other instanceof JavaType) {
+            return equals((JavaType) other);
+        }
+        return false;
+    }
 
     /**
      * Determine whether a variable of this type could legally be assigned

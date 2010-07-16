@@ -397,16 +397,26 @@ public class TextParserTest extends TestCase
         assertEquals("int", r);
         r = tp.parseCommand("4 ^ 5"); // xor
         assertEquals("int", r);
-
-        r = tp.parseCommand("true ? 3 : 4");
+    }
+    
+    public void testOperators2()
+    {
+        TextAnalyzer tp = new TextAnalyzer(resolver, "", objectBench);
+        
+        String r = tp.parseCommand("true ? 3 : 4");
         assertEquals("int", r);
         r = tp.parseCommand("true ? \"a string\" : \"b string\"");
         assertEquals("java.lang.String", r);
         r = tp.parseCommand("true ? \"a string\" : 4");
         assertEquals("java.lang.Object", r);
+        
+        // If one side is a byte and the other is a constant which could be narrowed to
+        // a byte, then the result type should be byte:
+        r = tp.parseCommand("true ? (byte) 3 : 4");
+        assertEquals("byte", r);
     }
     
-    public void testOperators2()
+    public void testOperators3()
     {
         String lalaSrc = ""
             + "public class Lala\n"

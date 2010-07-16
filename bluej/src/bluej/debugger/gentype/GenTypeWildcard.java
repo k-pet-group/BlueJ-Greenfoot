@@ -36,7 +36,7 @@ import bluej.utility.Debug;
  * This is an Immutable type.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeWildcard.java 7631 2010-05-20 05:00:59Z davmac $
+ * @version $Id: GenTypeWildcard.java 7870 2010-07-16 04:56:48Z davmac $
  */
 public class GenTypeWildcard extends GenTypeParameter
 {
@@ -105,7 +105,7 @@ public class GenTypeWildcard extends GenTypeParameter
         
         // Find new upper bounds
         if (upperBound != null) {
-            ArrayList newUppers = new ArrayList();
+            ArrayList<GenTypeSolid> newUppers = new ArrayList<GenTypeSolid>();
             GenTypeSolid [] upperBounds = upperBound.getUpperBounds();
             
             // find the new upper bounds
@@ -115,8 +115,9 @@ public class GenTypeWildcard extends GenTypeParameter
                     GenTypeWildcard newWcBound = (GenTypeWildcard) newBound;
                     newUppers.add(newWcBound.upperBound);
                 }
-                else
-                    newUppers.add(newBound);
+                else {
+                    newUppers.add((GenTypeSolid) newBound);
+                }
             }
             GenTypeSolid [] newUppersA = (GenTypeSolid []) newUppers.toArray(new GenTypeSolid[newUppers.size()]);
             newUpper = IntersectionType.getIntersection(newUppersA);
@@ -153,7 +154,7 @@ public class GenTypeWildcard extends GenTypeParameter
         return true;
     }
     
-    public void getParamsFromTemplate(Map map, GenTypeParameter template)
+    public void getParamsFromTemplate(Map<String,GenTypeParameter> map, GenTypeParameter template)
     {
         // This should never actually be called on a wildcard type (I think).
         // TODO fix. Actually it probably can get called. When it is called, it

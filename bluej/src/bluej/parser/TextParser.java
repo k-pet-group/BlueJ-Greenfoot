@@ -154,6 +154,21 @@ public class TextParser extends JavaParser
         switch (tokenType) {
         case PAREN_OPERATOR:
             return -1;
+        case JavaTokenTypes.ASSIGN:
+        case JavaTokenTypes.BAND_ASSIGN:
+        case JavaTokenTypes.BOR_ASSIGN:
+        case JavaTokenTypes.PLUS_ASSIGN:
+        case JavaTokenTypes.MINUS_ASSIGN:
+        case JavaTokenTypes.STAR_ASSIGN:
+        case JavaTokenTypes.DIV_ASSIGN:
+        case JavaTokenTypes.SL_ASSIGN:
+        case JavaTokenTypes.SR_ASSIGN:
+        case JavaTokenTypes.BSR_ASSIGN:
+        case JavaTokenTypes.MOD_ASSIGN:
+        case JavaTokenTypes.BXOR_ASSIGN:
+            return 0;
+        case JavaTokenTypes.QUESTION:
+            return 1;
         case JavaTokenTypes.EQUAL:
         case JavaTokenTypes.NOT_EQUAL:
             return 8;
@@ -235,6 +250,18 @@ public class TextParser extends JavaParser
         case JavaTokenTypes.GE:
         case JavaTokenTypes.EQUAL:
         case JavaTokenTypes.NOT_EQUAL:
+        case JavaTokenTypes.ASSIGN:
+        case JavaTokenTypes.BAND_ASSIGN:
+        case JavaTokenTypes.BOR_ASSIGN:
+        case JavaTokenTypes.PLUS_ASSIGN:
+        case JavaTokenTypes.MINUS_ASSIGN:
+        case JavaTokenTypes.STAR_ASSIGN:
+        case JavaTokenTypes.DIV_ASSIGN:
+        case JavaTokenTypes.SL_ASSIGN:
+        case JavaTokenTypes.SR_ASSIGN:
+        case JavaTokenTypes.BSR_ASSIGN:
+        case JavaTokenTypes.MOD_ASSIGN:
+        case JavaTokenTypes.BXOR_ASSIGN:
             arg2 = popValueStack();
             arg1 = popValueStack();
             checkArgs(arg1, arg2, token);
@@ -263,6 +290,10 @@ public class TextParser extends JavaParser
         case BAD_CAST_OPERATOR:
             popValueStack(); // remove the value being cast
             valueStack.push(new ErrorEntity());
+            break;
+        case JavaTokenTypes.QUESTION:
+            processQuestionOperator();
+            break;
         }
         // TODO logical not, bitwise not/and/or/xor
     }
@@ -432,7 +463,12 @@ public class TextParser extends JavaParser
             valueStack.push(new ValueEntity(JavaPrimitiveType.getBoolean()));
             break;
         case JavaTokenTypes.BNOT:
-            // TODO: check type is numeric
+            // TODO: check type is (possibly boxed) numeric
+            valueStack.push(new ValueEntity(argType));
+            break;
+        case JavaTokenTypes.INC:
+        case JavaTokenTypes.DEC:
+            // TODO: check value is a (possibly boxed) numeric
             valueStack.push(new ValueEntity(argType));
             break;
         }
@@ -526,10 +562,60 @@ public class TextParser extends JavaParser
                 valueStack.push(new ErrorEntity());
             }
             break;
+        case JavaTokenTypes.ASSIGN:
+        case JavaTokenTypes.BAND_ASSIGN:
+        case JavaTokenTypes.BOR_ASSIGN:
+        case JavaTokenTypes.PLUS_ASSIGN:
+        case JavaTokenTypes.MINUS_ASSIGN:
+        case JavaTokenTypes.STAR_ASSIGN:
+        case JavaTokenTypes.DIV_ASSIGN:
+        case JavaTokenTypes.SL_ASSIGN:
+        case JavaTokenTypes.SR_ASSIGN:
+        case JavaTokenTypes.BSR_ASSIGN:
+        case JavaTokenTypes.MOD_ASSIGN:
+        case JavaTokenTypes.BXOR_ASSIGN:
+            valueStack.push(arg1);
+            break;
         case JavaTokenTypes.DOT:
             // This is handled elsewhere
             valueStack.push(new ErrorEntity());
         default:
+        }
+    }
+    
+    private void processQuestionOperator()
+    {
+        // JLS 15.25
+        JavaEntity rhs = popValueStack();
+        JavaEntity lhs = popValueStack();
+        JavaEntity condition = popValueStack();
+        
+        condition = condition.resolveAsValue();
+        if (condition == null) {
+            valueStack.push(new ErrorEntity());
+            return;
+        }
+        
+        JavaType ctype = condition.getType();
+        if (!ctype.typeIs(JavaType.JT_BOOLEAN) && !ctype.toString().equals("java.lang.Boolean")) {
+            // Condition is not a boolean
+            valueStack.push(new ErrorEntity());
+            return;
+        }
+        
+        rhs = rhs.resolveAsValue();
+        lhs = lhs.resolveAsValue();
+        if (rhs == null || lhs == null) {
+            valueStack.push(new ErrorEntity());
+            return;
+        }
+        
+        JavaType rtype = TextAnalyzer.questionOperator15(lhs, rhs);
+        if (rtype == null) {
+            valueStack.push(new ErrorEntity());
+        }
+        else {
+            valueStack.push(new ValueEntity(rtype));
         }
     }
     
@@ -667,6 +753,13 @@ public class TextParser extends JavaParser
     
     @Override
     protected void gotBinaryOperator(LocatableToken token)
+    {
+        processHigherPrecedence(getPrecedence(token.getType()));
+        operatorStack.push(new Operator(token.getType(), token));
+    }
+    
+    @Override
+    protected void gotQuestionOperator(LocatableToken token)
     {
         processHigherPrecedence(getPrecedence(token.getType()));
         operatorStack.push(new Operator(token.getType(), token));
