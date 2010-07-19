@@ -27,7 +27,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
 import javax.swing.ImageIcon;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -51,7 +50,8 @@ public class EditorDividerPanel extends JPanel implements MouseListener {
     private ImageIcon closeNavArrow;
     private boolean currentlyHidden = false;
 
-    public EditorDividerPanel(NaviView naviview, boolean expanded) {
+    public EditorDividerPanel(NaviView naviview, boolean expanded) 
+    {
         super();
         //display consists of a label with an image
         nav=naviview;
@@ -65,7 +65,7 @@ public class EditorDividerPanel extends JPanel implements MouseListener {
         setLayout(new DBoxLayout(DBox.X_AXIS, 0, 0));
         expandCollapseButton=new JLabel();
         expandCollapseButton.setName(EXPAND_COLLAPSE_NAVIVIEW);
-        expandCollapseButton.addMouseListener(this); 
+        addMouseListener(this); 
         add(expandCollapseButton, BorderLayout.CENTER);
         if (isExpanded())
             expandCollapseButton.setIcon(closeNavArrow);
@@ -101,38 +101,35 @@ public class EditorDividerPanel extends JPanel implements MouseListener {
         // don't allow the toggle to act:
         if (currentlyHidden)
             return;
-        
-        JComponent src = (JComponent) e.getSource();
         //if expanded/collapse set the necessary images and flags 
-        if (src.getName()==EXPAND_COLLAPSE_NAVIVIEW){  
-            if (isExpanded()){
-                nav.setVisible(false);
-                setExpanded(false);
-                expandCollapseButton.setIcon(openNavArrow);
-            }           
-            else{
-                nav.setVisible(true);
-                setExpanded(true);
-                expandCollapseButton.setIcon(closeNavArrow);
-            }
-        }       
+        if (isExpanded()){
+            nav.setVisible(false);
+            setExpanded(false);
+            expandCollapseButton.setIcon(openNavArrow);
+        }           
+        else{
+            nav.setVisible(true);
+            setExpanded(true);
+            expandCollapseButton.setIcon(closeNavArrow);
+        }     
     }
 
-    public void mouseEntered(MouseEvent e) {
-
+    public void mouseEntered(MouseEvent e) 
+    {
+        setOpaque(true);
+        setBackground(MoeEditor.frameBgColor);
+        repaint();
     }
 
     public void mouseExited(MouseEvent e) {
-
+        setOpaque(false);
+        repaint();
     }
 
-    public void mousePressed(MouseEvent e) {
+    public void mousePressed(MouseEvent e) { }
 
-    }
+    public void mouseReleased(MouseEvent e) { }
 
-    public void mouseReleased(MouseEvent e) {
-
-    }
 
     /**
      * Temporarily hides the naviview (when switching to documentation view)

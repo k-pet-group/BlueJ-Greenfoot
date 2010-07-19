@@ -3632,14 +3632,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }
     
     /**
-     * Sets the dividerpanel to expand/collapse the naviview
-     */
-    public void setDividerPanelExpanded(boolean expanded)
-    {
-        dividerPanel.setExpanded(expanded);
-    }
-    
-    /**
      * Determines whether the Naviview should initially be expanded or not.
      */
     protected boolean getNaviviewExpandedProperty()
