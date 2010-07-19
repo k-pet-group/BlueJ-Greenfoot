@@ -250,13 +250,18 @@ public final class ClassInfo
 
     /**
      * Returns where we would insert the string "extends" in a class/interface.
-     * For a class/interface which already extends other classes/interfaces, returns
-     * null. 
+     * For a class which already extends another classes, returns null.
+     * 
+     * For an interface which extends no other interfaces, returns where to
+     * insert "extends {super-interface-name}". For an interface which extends
+     * one or more other interfaces already, returns where to insert
+     * ", {additional-interface-name}".
      *
      * @returns s the Selection object which records a location to
      *          insert the "extends" keyword
      */
-    public Selection getExtendsInsertSelection() {
+    public Selection getExtendsInsertSelection()
+    {
         return extendsInsertSelection;
     }
 

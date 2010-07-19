@@ -392,15 +392,19 @@ public class InfoParser extends EditorParser
             if (interfaceEnt != null) {
                 interfaceEntities.add(interfaceEnt);
             }
-            //info.addImplements(getClassName(tokens));
             if (tokenStream.LA(1).getType() == JavaTokenTypes.COMMA) {
                 lastCommaSelection = getSelection(tokenStream.LA(1));
             }
             else {
-                gotImplements = false;
                 info.setInterfaceSelections(interfaceSelections);
-                info.setImplementsInsertSelection(new Selection(interfaceSel.getEndLine(),
-                        interfaceSel.getEndColumn()));
+                if (! info.isInterface()) {
+                    info.setImplementsInsertSelection(new Selection(interfaceSel.getEndLine(),
+                            interfaceSel.getEndColumn()));
+                }
+                else {
+                    info.setExtendsInsertSelection(new Selection(interfaceSel.getEndLine(),
+                            interfaceSel.getEndColumn()));
+                }
             }
         }
     }

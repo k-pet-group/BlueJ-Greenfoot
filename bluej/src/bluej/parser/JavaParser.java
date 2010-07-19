@@ -365,6 +365,10 @@ public class JavaParser
     
     protected void gotUnaryOperator(LocatableToken token) { }
     
+    /** Saw a "?" operator. This will be followed by the left-hand-side expression
+     * (demarked by beginExpression() and endExpression()) followed by a continuation
+     * of the current expression (for the right-hand-side).
+     */
     protected void gotQuestionOperator(LocatableToken token) { }
     
     protected void gotArrayElementAccess() { }

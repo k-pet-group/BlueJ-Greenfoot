@@ -305,11 +305,29 @@ public class BasicParseTest extends junit.framework.TestCase
     	assertTrue(implemented.contains("java.lang.Runnable"));
     	assertTrue(implemented.contains("java.lang.Iterable"));
     }
+    
+    public void testValidClassInfo3() throws Exception
+    {
+        StringReader sr = new StringReader(
+                "interface A extends Runnable, Iterable {\n" +
+                "}\n");
+        ClassInfo info = InfoParser.parse(sr,
+                new ClassLoaderResolver(this.getClass().getClassLoader()), null);
+        List<String> implemented = info.getImplements();
+        assertNotNull(implemented);
+        assertEquals(2, implemented.size());
+        assertTrue(implemented.contains("java.lang.Runnable"));
+        assertTrue(implemented.contains("java.lang.Iterable"));
+        Selection extendsSel = info.getExtendsInsertSelection();
+        assertNotNull(extendsSel);
+        assertEquals(1, extendsSel.getLine());
+        assertEquals(39, extendsSel.getColumn());
+    }
 
     /**
      * Test recognition of interfaces
      */
-    public void testValidClassInfo3() throws Exception
+    public void testValidClassInfo4() throws Exception
     {
     	StringReader sr = new StringReader(
     			"interface A {}"
@@ -321,7 +339,7 @@ public class BasicParseTest extends junit.framework.TestCase
     /**
      * Test recognition of enumerations
      */
-    public void testValidClassInfo4() throws Exception
+    public void testValidClassInfo5() throws Exception
     {
     	StringReader sr = new StringReader(
     			"enum A { monday, tuesday, wednesday }"
