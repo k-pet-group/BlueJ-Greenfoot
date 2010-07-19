@@ -24,7 +24,6 @@ package bluej.groupwork.ui;
 import java.awt.FocusTraversalPolicy;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.*;
@@ -43,7 +42,6 @@ import bluej.utility.MiksGridLayout;
  * A panel for team settings.
  * 
  * @author fisker
- * @version $Id: TeamSettingsPanel.java 6215 2009-03-30 13:28:25Z polle $
  */
 public class TeamSettingsPanel extends JPanel 
 {
@@ -206,9 +204,8 @@ public class TeamSettingsPanel extends JPanel
             
             serverTypeLabel = new JLabel(Config.getString("team.settings.serverType"));
             serverTypeComboBox = new JComboBox();
-            List teamProviders = teamSettingsController.getTeamworkProviders();
-            for (Iterator i = teamProviders.iterator(); i.hasNext(); ) {
-                TeamworkProvider provider = (TeamworkProvider) i.next();
+            List<TeamworkProvider> teamProviders = teamSettingsController.getTeamworkProviders();
+            for (TeamworkProvider provider : teamProviders) {
                 serverTypeComboBox.addItem(provider.getProviderName());
             }
             
@@ -258,8 +255,8 @@ public class TeamSettingsPanel extends JPanel
         if (selected != selectedServerType) {
             selectedServerType = selected;
             protocolComboBox.removeAllItems();
-            List teamProviders = teamSettingsController.getTeamworkProviders();
-            TeamworkProvider provider = (TeamworkProvider) teamProviders.get(selected);
+            List<TeamworkProvider> teamProviders = teamSettingsController.getTeamworkProviders();
+            TeamworkProvider provider = teamProviders.get(selected);
             String [] protocols = provider.getProtocols();
             for (int i = 0; i < protocols.length; i++) {
                 protocolComboBox.addItem(protocols[i]);
@@ -288,9 +285,9 @@ public class TeamSettingsPanel extends JPanel
         
         String providerName = teamSettingsController.getPropString("bluej.teamsettings.vcs");
         if (providerName != null) {
-            List teamProviders = teamSettingsController.getTeamworkProviders();
+            List<TeamworkProvider> teamProviders = teamSettingsController.getTeamworkProviders();
             for (int index = 0; index < teamProviders.size(); index++) {
-                TeamworkProvider provider = (TeamworkProvider) teamProviders.get(index);
+                TeamworkProvider provider = teamProviders.get(index);
                 if (provider.getProviderName().equalsIgnoreCase(providerName)) {
                     serverTypeComboBox.setSelectedIndex(index);
                     break;
@@ -384,9 +381,7 @@ public class TeamSettingsPanel extends JPanel
     public TeamworkProvider getSelectedProvider()
     {
         int selected = serverTypeComboBox.getSelectedIndex();
-        List teamProviders = teamSettingsController.getTeamworkProviders();
-        TeamworkProvider provider = (TeamworkProvider) teamProviders.get(selected);
-        return provider;
+        return teamSettingsController.getTeamworkProviders().get(selected);
     }
     
     private String getUser()
