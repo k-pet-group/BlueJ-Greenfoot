@@ -231,6 +231,14 @@ public class GreenfootFrame extends JFrame
 
             int width = projectProperties.getInt("mainWindow.width");
             int height = projectProperties.getInt("mainWindow.height");
+            
+            Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
+            
+            if (x > (d.width - 16))
+                x = d.width - 16;
+
+            if (y > (d.height - 16))
+                y = d.height - 16;
 
             setBounds(x, y, width, height);
             setResizeWhenPossible(false);
