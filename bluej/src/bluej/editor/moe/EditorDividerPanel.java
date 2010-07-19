@@ -37,8 +37,8 @@ import bluej.utility.DBoxLayout;
 
 /**
  * Simple divider between the editor and the naviview to provide expand/collapse functionality
+ * 
  * @author Marion Zalk  
- *
  */
 public class EditorDividerPanel extends JPanel implements MouseListener {
 
@@ -106,18 +106,20 @@ public class EditorDividerPanel extends JPanel implements MouseListener {
             nav.setVisible(false);
             setExpanded(false);
             expandCollapseButton.setIcon(openNavArrow);
+            mouseExited(e);
         }           
         else{
             nav.setVisible(true);
             setExpanded(true);
             expandCollapseButton.setIcon(closeNavArrow);
+            mouseExited(e);
         }     
     }
 
     public void mouseEntered(MouseEvent e) 
     {
         setOpaque(true);
-        setBackground(MoeEditor.frameBgColor);
+        setBackground(MoeEditor.lightGrey);
         repaint();
     }
 
