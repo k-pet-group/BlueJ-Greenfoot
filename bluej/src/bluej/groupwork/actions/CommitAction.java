@@ -55,7 +55,6 @@ import bluej.utility.SwingWorker;
  * </ul>
  * 
  * @author Kasper
- * @version $Id: CommitAction.java 6215 2009-03-30 13:28:25Z polle $
  */
 public class CommitAction extends AbstractAction
 {
@@ -119,7 +118,6 @@ public class CommitAction extends AbstractAction
         if (project != null) {
             commitCommentsFrame.startProgress();
             PkgMgrFrame.displayMessage(project, Config.getString("team.commit.statusMessage"));
-            project.saveAllEditors();
             setEnabled(false);
             
             //doCommit(project);

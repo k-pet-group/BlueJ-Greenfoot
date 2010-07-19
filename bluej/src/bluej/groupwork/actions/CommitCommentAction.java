@@ -54,9 +54,6 @@ public class CommitCommentAction extends TeamAction
     {
         if(!pmf.isEmptyFrame()) {
             Project project = pmf.getProject();
-            // we want to save bluej.pkg files first
-            project.saveAll();
-            project.saveAllEditors();
             CommitCommentsFrame dialog = project.getCommitCommentsDialog();
             
             dialog.reset();

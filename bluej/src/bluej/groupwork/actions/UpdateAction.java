@@ -111,8 +111,6 @@ public class UpdateAction extends AbstractAction
         project = updateFrame.getProject();
         
         if (project != null) {
-            project.saveAllEditors();
-            // doUpdate(project);
             updateFrame.startProgress();
             PkgMgrFrame.displayMessage(project, Config.getString("team.update.statusMessage"));
             

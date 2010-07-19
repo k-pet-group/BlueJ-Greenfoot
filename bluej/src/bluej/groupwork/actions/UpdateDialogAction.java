@@ -21,8 +21,6 @@
  */
 package bluej.groupwork.actions;
 
-import java.util.List;
-
 import bluej.Config;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
@@ -31,16 +29,11 @@ import bluej.pkgmgr.Project;
 /**
  * Action to show dialog for updating out-of-date files.
  * 
- * @author davmac
- * @version $Id: UpdateDialogAction.java 6215 2009-03-30 13:28:25Z polle $
+ * @author Davin McCall
  */
 public class UpdateDialogAction extends TeamAction
 {
     private Project project;
-    private boolean includeLayout;
-    
-    /** A list of packages whose bluej.pkg file has been removed */
-    private List removedPackages;
     
     public UpdateDialogAction()
     {
@@ -55,7 +48,6 @@ public class UpdateDialogAction extends TeamAction
     {
         project = pmf.getProject();
         if (project != null) {
-            project.saveAllEditors();
             project.getUpdateDialog().setVisible(true);
         }
     }

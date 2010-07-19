@@ -147,17 +147,16 @@ public class DialogManager
     
 
     /**
-     * Show an error dialog with message and "OK" button.
+     * Show an error dialog with a message, some additional text, and "OK" button.
      */
     public static void showErrorWithText(Component parent, String msgID,
                                          String text)
     {
         String message = getMessage(msgID);
-        if(message != null)
-            JOptionPane.showMessageDialog(parent, message + "\n" + text,
-                                          "Error", JOptionPane.ERROR_MESSAGE);
+        if(message != null) {
+            showErrorText(parent, message + "\n" + text);
+        }
     }
-
 
     /**
      * Brings up a two or three button question dialog. The text for the

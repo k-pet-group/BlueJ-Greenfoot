@@ -29,6 +29,7 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -66,6 +67,7 @@ import bluej.utility.DBoxLayout;
 import bluej.utility.DialogManager;
 import bluej.utility.EscapeDialog;
 import bluej.utility.SwingWorker;
+import bluej.utility.Utility;
 
 
 /**
@@ -121,8 +123,17 @@ public class CommitCommentsFrame extends EscapeDialog
             repository = project.getRepository();
             
             if (repository != null) {
-                project.saveAllEditors();
-                project.saveAll();
+                try {
+                    project.saveAllEditors();
+                    project.saveAll();
+                }
+                catch (IOException ioe) {
+                    String msg = DialogManager.getMessage("team-error-saving-project");
+                    if (msg != null) {
+                        msg = Utility.mergeStrings(msg, ioe.getLocalizedMessage());
+                        DialogManager.showErrorText(this, msg);
+                    }
+                }
                 startProgress();
                 commitWorker = new CommitWorker();
                 commitWorker.start();

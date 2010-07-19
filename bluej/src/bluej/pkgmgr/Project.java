@@ -1046,9 +1046,10 @@ public class Project implements DebuggerListener, InspectorManager
      * Request all open editor windows for the current project to save their
      * contents (if modified).
      */
-    public void saveAllEditors()
+    public void saveAllEditors() throws IOException
     {
         Iterator<Package> i = packages.values().iterator();
+        IOException exception = null;
 
         while(i.hasNext()) {
             Package pkg = (Package) i.next();
@@ -1056,9 +1057,15 @@ public class Project implements DebuggerListener, InspectorManager
                 pkg.saveFilesInEditors();
             }
             catch(IOException ioe) {
+                exception = ioe;
                 Debug.reportError("Error while trying to save editor file:", ioe);
             }
-        } 
+        }
+        
+        if (exception != null) {
+            // Propagate the exception - let the caller know that something went wrong.
+            throw exception;
+        }
     }
     
     /**
@@ -1067,7 +1074,8 @@ public class Project implements DebuggerListener, InspectorManager
      * This function is used after a major change to the contents
      * of the project directory ie an import.
      */
-    public void reloadAll() {
+    public void reloadAll()
+    {
         Iterator<Package> i = packages.values().iterator();
 
         while (i.hasNext()) {
