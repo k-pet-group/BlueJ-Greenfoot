@@ -30,17 +30,15 @@ import java.util.List;
  * @author  Michael Cahill
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: DebuggerThread.java 7742 2010-06-01 09:42:49Z nccb $
  */
-
 public abstract class DebuggerThread
 {
     public abstract String getName();
 
     public abstract String getStatus();
-    
+
     public abstract boolean isSuspended();
-	public abstract boolean isAtBreakpoint();
+    public abstract boolean isAtBreakpoint();
 
     public abstract String getClass(int frameNo);
     public abstract String getClassSourceName(int frameNo);
@@ -57,9 +55,9 @@ public abstract class DebuggerThread
     public abstract void setSelectedFrame(int frame);
     public abstract int getSelectedFrame();
 
-	public abstract void halt();
-	public abstract void cont();
-	
+    public abstract void halt();
+    public abstract void cont();
+
     public abstract void step();
     public abstract void stepInto();
 }

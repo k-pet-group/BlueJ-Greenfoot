@@ -34,7 +34,7 @@ import bluej.debugger.jdi.JdiDebugger;
  * @author  Michael Cahill
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: Debugger.java 7849 2010-07-12 10:03:11Z nccb $
+ * @version $Id: Debugger.java 7883 2010-07-20 13:17:38Z davmac $
  */
 public abstract class Debugger
 {
@@ -45,10 +45,10 @@ public abstract class Debugger
 
     // machine states
     public static final int UNKNOWN = 0;	// cannot move to this state,
-    										// but this can be the oldState in an event
+                                                // but this can be the oldState in an event
     public static final int NOTREADY = 1;
     public static final int IDLE = 2;
-	public static final int RUNNING = 3;
+    public static final int RUNNING = 3;
     public static final int SUSPENDED = 4;
     public static final int LAUNCH_FAILED = 5; // failed to launch
 
@@ -210,7 +210,7 @@ public abstract class Debugger
      * Get the value of a static field in a class
      */
     public abstract DebuggerObject getStaticValue(String className, String fieldName)
-		throws ClassNotFoundException;
+        throws ClassNotFoundException;
     
     /**
      * Get a reference to a string in the remote machine whose value is the
@@ -256,5 +256,4 @@ public abstract class Debugger
      * This method also updates the current display if necessary.
      */
     public abstract void hideSystemThreads(boolean hide);
-
 }

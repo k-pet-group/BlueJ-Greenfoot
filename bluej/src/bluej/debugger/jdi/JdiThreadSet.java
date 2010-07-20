@@ -32,24 +32,23 @@ import com.sun.jdi.ThreadReference;
  * store JdiThreads.
  * 
  * @author  Michael Kolling
- * @version $Id: JdiThreadSet.java 7803 2010-06-24 10:00:55Z nccb $
  */
 public class JdiThreadSet extends HashSet<JdiThread>
 {
-	/**
-	 * Construct an empty thread set.
-	 * 
-	 */
+    /**
+     * Construct an empty thread set.
+     * 
+     */
     public JdiThreadSet()
     {
         super();
     }
 
-	/**
-	 * Find the thread in the set representing the thread reference specified.
-	 */
+    /**
+     * Find the thread in the set representing the thread reference specified.
+     */
     public JdiThread find(ThreadReference thread)
-	{
+    {
         for(Iterator<JdiThread> it=iterator(); it.hasNext(); ) {
             JdiThread currentThread = (JdiThread)it.next();
             if(currentThread.getRemoteThread().equals(thread)) {
@@ -58,13 +57,13 @@ public class JdiThreadSet extends HashSet<JdiThread>
         }
         Debug.reportError("Encountered thread not in ThreadSet!");
         return null;
-	}
+    }
 
-	/**
-	 * Remove the given thread from the set.
-	 */
+    /**
+     * Remove the given thread from the set.
+     */
     public void removeThread(ThreadReference thread)
-	{
+    {
         for(Iterator<JdiThread> it=iterator(); it.hasNext(); ) {
             if(((JdiThread)it.next()).getRemoteThread().equals(thread)) {
                 it.remove();
@@ -72,5 +71,5 @@ public class JdiThreadSet extends HashSet<JdiThread>
             }
         }
         Debug.reportError("Unknown thread died!");
-	}
+    }
 }
