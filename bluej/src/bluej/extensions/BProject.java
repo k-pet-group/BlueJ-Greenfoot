@@ -34,14 +34,9 @@ import bluej.pkgmgr.Project;
 /**
  * A wrapper for a BlueJ project.
  *
- * @version $Id: BProject.java 7744 2010-06-01 12:59:29Z nccb $
+ * @author Clive Mille, Univeristy of Kent at Canterbury, 2002
+ * @author Damiano Bolla, University of Kent at Canterbury, 2003,2004,2005
  */
-
-/*
- * Author Clive Mille, Univeristy of Kent at Canterbury, 2002
- * Author Damiano Bolla, University of Kent at Canterbury, 2003,2004,2005
- */
-
 public class BProject
 {
     private Identifier projectId;
@@ -117,7 +112,7 @@ public class BProject
      * 
      * @return the requested package, or null if it wasn't found
      * @throws ProjectNotOpenException if the project has been closed by the user.
-     * @throws PackageExistException if the named package already exist in BlueJ.
+     * @throws PackageAlreadyExistsException if the named package already exists in the project.
      */
     public BPackage newPackage( String fullyQualifiedName )
         throws ProjectNotOpenException, PackageAlreadyExistsException
@@ -138,12 +133,12 @@ public class BProject
         if ( risul != Project.NEW_PACKAGE_DONE )
             throw new IllegalStateException("newPackage: Unknown result code="+risul);
 
-        Package pkg = bluejProject.getCachedPackage (fullyQualifiedName);
+        Package pkg = bluejProject.getPackage(fullyQualifiedName);
 
         if ( pkg == null ) 
-            throw new IllegalStateException("newPackage: getPackage '"+fullyQualifiedName+"' returned null");
+            throw new Error("newPackage: getPackage '"+fullyQualifiedName+"' returned null");
 
-        Package reloadPkg=pkg;
+        Package reloadPkg = pkg;
         for(int index=0; index<10 && reloadPkg != null; index++) {
             // This is needed since the GUI is not sync with the state
             // It would be better is core BlueJ did fix this..
@@ -165,11 +160,10 @@ public class BProject
     public BPackage getPackage (String name) throws ProjectNotOpenException
     {
         Project bluejProject = projectId.getBluejProject();
-
-        Package pkg = bluejProject.getCachedPackage (name);
-        if(pkg == null) 
+        Package pkg = bluejProject.getPackage (name);
+        if (pkg == null) {
             return null;
-
+        }
         return pkg.getBPackage();
     }
     
@@ -182,11 +176,11 @@ public class BProject
     {
         Project thisProject = projectId.getBluejProject();
 
-        List names = thisProject.getPackageNames();
+        List<String> names = thisProject.getPackageNames();
         BPackage[] packages = new BPackage [names.size()];
-        for (ListIterator li=names.listIterator(); li.hasNext();) {
+        for (ListIterator<String> li = names.listIterator(); li.hasNext();) {
             int i=li.nextIndex();
-            String name = (String)li.next();
+            String name = li.next();
             packages [i] = getPackage (name);
         }
         return packages;
