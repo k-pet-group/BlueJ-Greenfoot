@@ -21,13 +21,14 @@
  */
 package bluej.extensions;
 
+import java.awt.EventQueue;
+
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerObject;
 import bluej.debugmgr.objectbench.ObjectBench;
 import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
-import bluej.views.View;
 
 /**
  * 
@@ -36,23 +37,16 @@ import bluej.views.View;
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
  */
-public class ConstructorInvoker {
+public class ConstructorInvoker
+{
     private PkgMgrFrame pkgFrame;
-    private BProject prj;
-
-    private View view;
+    private String className;
 
     public ConstructorInvoker(BPackage bPackage, String className)
-        throws ProjectNotOpenException, PackageNotFoundException {
+        throws ProjectNotOpenException, PackageNotFoundException
+    {
         pkgFrame = (PkgMgrFrame) bPackage.getFrame();
-        prj = bPackage.getProject();
-        Class launcherClass = null;
-        try {
-            launcherClass = getClass(className);
-        } catch (java.lang.ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        view = View.getView(launcherClass);
+        this.className = className;
     }
    
     
@@ -61,51 +55,47 @@ public class ConstructorInvoker {
      * 
      * @param instanceNameOnObjectBench  Name of the created object as it
      *                                   should appear on the bench
-     * @param args  Arguments to supply to the constructor
-     * @return  The newly created object
-     * 
-     * @throws InvocationArgumentException
-     * @throws InvocationErrorException
+     * @param args           Arguments to supply to the constructor; the constructor can
+     *                       only take String parameters
+     * @param resultNotify   A runnable to be executed when the constructor completes
+     *                       (or when execution fails)
      */
-    public ObjectWrapper invokeConstructor(String instanceNameOnObjectBench, String[] args)
-        throws InvocationArgumentException, InvocationErrorException
+    public void invokeConstructor(final String instanceNameOnObjectBench, final String[] args,
+            final Runnable resultNotify)
     {
-        ObjectBench objBench = pkgFrame.getObjectBench();
-        Package pkg = pkgFrame.getPackage();    
+        final ObjectBench objBench = pkgFrame.getObjectBench();
+        final Package pkg = pkgFrame.getPackage(); 
+        final Debugger debugger = pkgFrame.getProject().getDebugger();
         
-        Debugger debugger = pkgFrame.getProject().getDebugger();
-        String [] argTypes = new String[args.length];
-        DebuggerObject [] argObjects = new DebuggerObject[args.length];
-        for (int i = 0; i < args.length; i++) {
-            argTypes[i] = "java.lang.String";
-            argObjects[i] = debugger.getMirror(args[i]);
-        }
+        Thread t = new Thread() {
+            public void run() {
+                String [] argTypes = new String[args.length];
+                DebuggerObject [] argObjects = new DebuggerObject[args.length];
+                for (int i = 0; i < args.length; i++) {
+                    argTypes[i] = "java.lang.String";
+                    argObjects[i] = debugger.getMirror(args[i]);
+                }
+                
+                final DebuggerObject debugObject = debugger.instantiateClass(className,
+                        argTypes, argObjects).getResultObject();
+                
+                EventQueue.invokeLater(new Runnable() {
+                    @Override
+                    public void run()
+                    {
+                        ObjectWrapper wrapper = ObjectWrapper.getWrapper(
+                                pkgFrame, objBench,
+                                debugObject,
+                                debugObject.getGenType(),
+                                instanceNameOnObjectBench);       
+                        
+                        objBench.addObject(wrapper);        
+                        pkg.getDebugger().addObject(pkg.getQualifiedName(), wrapper.getName(), debugObject);  
+                    }
+                });
+            }
+        };
         
-        DebuggerObject debugObject = debugger.instantiateClass(view.getQualifiedName(),
-                argTypes, argObjects).getResultObject();
-        
-        ObjectWrapper wrapper = ObjectWrapper.getWrapper(
-                pkgFrame, objBench,
-                debugObject,
-                debugObject.getGenType(),
-                instanceNameOnObjectBench);       
-        
-        objBench.addObject(wrapper);        
-        pkg.getDebugger().addObject(pkg.getQualifiedName(), wrapper.getName(), debugObject);  
-        
-        return wrapper;         
-    }
-
-    private Class getClass(String fullClassname)
-        throws java.lang.ClassNotFoundException {
-        Class cls = null;
-        try {
-            cls = prj.getClassLoader().loadClass(fullClassname);
-        }
-        catch (ProjectNotOpenException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        return cls;
+        t.start();
     }
 }
