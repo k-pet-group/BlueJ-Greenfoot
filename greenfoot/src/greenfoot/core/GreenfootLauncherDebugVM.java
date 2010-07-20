@@ -46,7 +46,6 @@ import bluej.utility.Debug;
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @version 22-05-2003
- * @version $Id$
  */
 public class GreenfootLauncherDebugVM
 {

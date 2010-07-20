@@ -61,11 +61,26 @@ public class DebuggerResult
         exitStatus = status;
     }
     
+    /**
+     * Get the status of the invocation. Returns one of:
+     * <ul>
+     * <li>Debugger.NORMAL_EXIT - the invocation succeeded
+     * <li>Debugger.EXCEPTION   - an exception occurred in the invoked code
+     * <li>Debugger.TERMINATED  - the debug VM exited (possibly due to a
+     *                            System.exit() call)
+     * </ul>
+     * @return
+     */
     public int getExitStatus()
     {
         return exitStatus;
     }
     
+    /**
+     * Returns the result of the invocation as a DebuggerObject.
+     * This is only valid for a NORMAL_EXIT; any other invocation
+     * result will cause this method to return null.
+     */
     public DebuggerObject getResultObject()
     {
         return resultObject;

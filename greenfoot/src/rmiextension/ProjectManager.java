@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,23 +29,24 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import bluej.Config;
+import bluej.debugger.DebuggerObject;
+import bluej.debugmgr.ResultWatcher;
 import bluej.extensions.BPackage;
 import bluej.extensions.BlueJ;
-import bluej.extensions.InvocationArgumentException;
-import bluej.extensions.InvocationErrorException;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.extensions.event.PackageEvent;
 import bluej.extensions.event.PackageListener;
 import bluej.pkgmgr.PkgMgrFrame;
+import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.Debug;
+import bluej.utility.DialogManager;
 
 /**
  * The ProjectManager is on the BlueJ-VM. It monitors pacakage events from BlueJ
  * and launches the greenfoot project in the greenfoot-VM.
  * 
- * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ProjectManager.java 7745 2010-06-01 13:31:35Z nccb $
  */
 public class ProjectManager
     implements PackageListener
@@ -93,7 +94,7 @@ public class ProjectManager
     }
 
     /**
-     * Launch the project in the greenfoot-VM if it is a proper greenfoot
+     * Launch the project in the Greenfoot VM if it is a proper Greenfoot
      * project.
      */
     private void launchProject(final Project project)
@@ -106,13 +107,11 @@ public class ProjectManager
                     if (versionOK == GreenfootMain.VERSION_UPDATED) {
                         project.getPackage().getProject().getPackage("").reload();
                     }
-                    openGreenfoot(project, versionOK);
+                    openGreenfoot(project);
                 } catch (Exception e) {
                     Debug.reportError("Could not create greenfoot launcher.", e);
-                    e.printStackTrace();
                     // This is bad, lets exit.
-                    // TODO should display a dialog first
-                    System.exit(1);
+                    greenfootLaunchFailed(project);
                 }
             }
             else {
@@ -127,10 +126,52 @@ public class ProjectManager
         }
     }
 
-    public void openGreenfoot(final Project project, int versionOK) throws InvocationArgumentException, InvocationErrorException
+    /**
+     * Launch the Greenfoot debug VM code (and tell it where to connect to for RMI purposes).
+     * @param project  A just-opened project
+     */
+    public void openGreenfoot(final Project project)
     {
-        ObjectBench.createObject(project, launchClass, launcherName, new String[]{project.getDir(),
-                project.getName(), BlueJRMIServer.getBlueJService()});
+        ResultWatcher watcher = new ResultWatcher() {
+            @Override
+            public void putError(String message)
+            {
+                Debug.message("Greenfoot launch failed with error: " + message);
+                greenfootLaunchFailed(project);
+            }
+            @Override
+            public void putException(String message)
+            {
+                Debug.message("Greenfoot launch failed due to exception in debug VM: " + message);
+                greenfootLaunchFailed(project);
+            }
+            @Override
+            public void putResult(DebuggerObject result, String name,
+                    InvokerRecord ir)
+            {
+                // This is ok
+            }
+            @Override
+            public void putVMTerminated()
+            {
+                Debug.message("Greenfoot launch failed due to debug VM terminating.");
+                greenfootLaunchFailed(project);
+            }
+        };
+        
+        ObjectBench.createObject(project, launchClass, launcherName,
+                new String[] {project.getDir(), project.getName(),
+                BlueJRMIServer.getBlueJService()}, watcher);
+    }
+    
+    /**
+     * Launching Greenfoot failed. Display a dialog, and exit.
+     */
+    public static void greenfootLaunchFailed(Project project)
+    {
+        String text = Config.getString("greenfoot.launchFailed");
+        DialogManager.showErrorText(null, text);
+        System.exit(1);
     }
 
     /**

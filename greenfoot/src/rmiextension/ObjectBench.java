@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,10 +21,8 @@
  */
 package rmiextension;
 
+import bluej.debugmgr.ResultWatcher;
 import bluej.extensions.BObject;
-import bluej.extensions.ConstructorInvoker;
-import bluej.extensions.InvocationArgumentException;
-import bluej.extensions.InvocationErrorException;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
 
@@ -36,22 +34,22 @@ import bluej.extensions.ProjectNotOpenException;
 public class ObjectBench
 {
     /**
-     * Creates a new object, and puts it on the object bench
-     * 
-     * @throws InvocationErrorException 
-     * @throws InvocationArgumentException 
+     * Creates a new object, and puts it on the object bench. The given ResultWatcher
+     * will be notified of the result (on the AWT event thread).
      */
-    public static void createObject(Project prj, String className, String instanceName, String[] constructorParams) throws InvocationArgumentException, InvocationErrorException
+    public static void createObject(Project prj, String className,
+            String instanceName, String[] constructorParams,
+            ResultWatcher watcher)
     {
         try {
             ConstructorInvoker launcher = new ConstructorInvoker(prj.getPackage(), className);
-            launcher.invokeConstructor(instanceName, constructorParams, null);
+            launcher.invokeConstructor(instanceName, constructorParams, watcher);
         }
         catch (ProjectNotOpenException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Project not open (any longer)");
         }
         catch (PackageNotFoundException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Package not found");
         }
     }
 
@@ -72,10 +70,11 @@ public class ObjectBench
             }
         }
         catch (ProjectNotOpenException e) {
-            e.printStackTrace();
+            // Ok, we don't care. If the project isn't open, then the object
+            // has effectively been removed already.
         }
         catch (PackageNotFoundException e) {
-            e.printStackTrace();
+            // Likewise.
         }
     }
 

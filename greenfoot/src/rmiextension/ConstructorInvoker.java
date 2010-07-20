@@ -19,14 +19,19 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package bluej.extensions;
+package rmiextension;
 
 import java.awt.EventQueue;
 
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerObject;
+import bluej.debugger.DebuggerResult;
+import bluej.debugmgr.ResultWatcher;
 import bluej.debugmgr.objectbench.ObjectBench;
 import bluej.debugmgr.objectbench.ObjectWrapper;
+import bluej.extensions.BPackage;
+import bluej.extensions.PackageNotFoundException;
+import bluej.extensions.ProjectNotOpenException;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 
@@ -41,6 +46,7 @@ public class ConstructorInvoker
 {
     private PkgMgrFrame pkgFrame;
     private String className;
+    private DebuggerResult result;
 
     public ConstructorInvoker(BPackage bPackage, String className)
         throws ProjectNotOpenException, PackageNotFoundException
@@ -57,11 +63,12 @@ public class ConstructorInvoker
      *                                   should appear on the bench
      * @param args           Arguments to supply to the constructor; the constructor can
      *                       only take String parameters
-     * @param resultNotify   A runnable to be executed when the constructor completes
-     *                       (or when execution fails)
+     * @param resultNotify   A watcher to be notified when the constructor completes
+     *                       (or when execution fails). Notification will occur on the AWT
+     *                       event thread. 
      */
     public void invokeConstructor(final String instanceNameOnObjectBench, final String[] args,
-            final Runnable resultNotify)
+            final ResultWatcher resultWatcher)
     {
         final ObjectBench objBench = pkgFrame.getObjectBench();
         final Package pkg = pkgFrame.getPackage(); 
@@ -76,26 +83,50 @@ public class ConstructorInvoker
                     argObjects[i] = debugger.getMirror(args[i]);
                 }
                 
-                final DebuggerObject debugObject = debugger.instantiateClass(className,
-                        argTypes, argObjects).getResultObject();
+                result = debugger.instantiateClass(className, argTypes, argObjects);
+                final DebuggerObject debugObject = result.getResultObject();
                 
                 EventQueue.invokeLater(new Runnable() {
                     @Override
                     public void run()
                     {
-                        ObjectWrapper wrapper = ObjectWrapper.getWrapper(
-                                pkgFrame, objBench,
-                                debugObject,
-                                debugObject.getGenType(),
-                                instanceNameOnObjectBench);       
+                        if (debugObject != null) {
+                            ObjectWrapper wrapper = ObjectWrapper.getWrapper(
+                                    pkgFrame, objBench,
+                                    debugObject,
+                                    debugObject.getGenType(),
+                                    instanceNameOnObjectBench);       
+
+                            objBench.addObject(wrapper);
+                            pkg.getDebugger().addObject(pkg.getQualifiedName(), wrapper.getName(), debugObject);  
+                        }
                         
-                        objBench.addObject(wrapper);        
-                        pkg.getDebugger().addObject(pkg.getQualifiedName(), wrapper.getName(), debugObject);  
+                        if (resultWatcher != null) {
+                            int status = result.getExitStatus();
+                            if (status == Debugger.NORMAL_EXIT) {
+                                resultWatcher.putResult(result.getResultObject(),
+                                        instanceNameOnObjectBench, null);
+                            }
+                            else if (status == Debugger.EXCEPTION) {
+                                resultWatcher.putException(result.getException().getText());
+                            }
+                            else if (status == Debugger.TERMINATED) {
+                                resultWatcher.putVMTerminated();
+                            }
+                        }
                     }
                 });
             }
         };
         
         t.start();
+    }
+    
+    /**
+     * Get the result from constructor invocation.
+     */
+    public DebuggerResult getResult()
+    {
+        return result;
     }
 }

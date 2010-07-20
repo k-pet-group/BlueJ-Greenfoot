@@ -9,7 +9,6 @@ import java.util.Map;
 
 import greenfoot.Actor;
 import greenfoot.World;
-import greenfoot.core.GreenfootMain;
 import greenfoot.core.Simulation;
 import rmiextension.wrappers.WrapperPool;
 import bluej.debugger.Debugger;
@@ -77,6 +76,7 @@ public class GreenfootDebugHandler implements DebuggerListener
             //It is important to have this code run at a later time.
             //If it runs from this thread, it tries to notify us and we get some
             //sort of RMI deadlock between the two VMs (I think).
+            // XXX
             java.awt.EventQueue.invokeLater(new Runnable() {
                 public void run()
                 {
@@ -85,7 +85,7 @@ public class GreenfootDebugHandler implements DebuggerListener
                         WrapperPool.instance().remove(bProject);
                         BPackage bPackage = bProject.getPackages()[0];
                         WrapperPool.instance().remove(bPackage);
-                        ProjectManager.instance().openGreenfoot(new Project(bPackage), GreenfootMain.VERSION_OK);
+                        ProjectManager.instance().openGreenfoot(new Project(bPackage));
                     } catch (Exception ex) {
                         Debug.reportError("Exception while trying to relaunch Greenfoot", ex);
                     }
@@ -243,21 +243,23 @@ public class GreenfootDebugHandler implements DebuggerListener
         
         //To avoid that nasty re-entrant deadlock, we must run this method in a different thread:
         
-        return new Runnable () { public void run () {
-        // They aren't in an act method; let's get them there
-        //Debug.message("GreenfootRelauncher.runToAct");
-        
-        // First, set a break point where we want them to be:
-        setInvokeActBreakpoints(debugger);
-        
-        //Debug.message("GreenfootRelauncher.runToAct #2");
-        
-        // Then set them running again:
-        thread.cont();
-                    
-        // We will be called again once they hit the breakpoint, but we'll exit in the loop above
-        //Debug.message("GreenfootRelauncher.runToAct #3");
-        }};
+        return new Runnable () {
+            public void run () {
+                // They aren't in an act method; let's get them there
+                //Debug.message("GreenfootRelauncher.runToAct");
+
+                // First, set a break point where we want them to be:
+                setInvokeActBreakpoints(debugger);
+
+                //Debug.message("GreenfootRelauncher.runToAct #2");
+
+                // Then set them running again:
+                thread.cont();
+
+                // We will be called again once they hit the breakpoint, but we'll exit in the loop above
+                //Debug.message("GreenfootRelauncher.runToAct #3");
+            }
+        };
     }
         
     private static void setInvokeActBreakpoints(final Debugger debugger)

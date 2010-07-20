@@ -59,8 +59,7 @@ public class RMIExtension extends Extension implements ApplicationListener
         }
         catch (IOException e) {
             Debug.reportError("Could not launch RMI server", e);
-            // This is bad, lets exit.
-            System.exit(1);
+            ProjectManager.greenfootLaunchFailed(null);
         }
 
         theBlueJ.addApplicationListener(this);

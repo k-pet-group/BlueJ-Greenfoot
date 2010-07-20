@@ -7,6 +7,8 @@ greenfoot.quit=Quit
 greenfoot.continue=Continue
 greenfoot.cancel=Cancel
 
+greenfoot.launchFailed=Greenfoot failed to launch. For help go to http://greenfoot.org/programming/support/index.html
+
 # About dialog
 about.title=About Greenfoot
 about.moreInfo=More information can be found at www.greenfoot.org
@@ -241,4 +243,4 @@ properties.heading.greenfoot=Greenfoot properties. Settings in this file overrid
 
 # Message to display if there is no default world constructor
 world.missing.constructor.title=Error when instantiating World.
-world.missing.constructor.msg=It was not possible to instantiate a new world. The reason for this is usually that the world does not have a public default constructor (a constructor that takes no parameters). 
+world.missing.constructor.msg=It was not possible to instantiate a new world. The reason for this is usually that the world does not have a public default constructor (a constructor that takes no parameters).
