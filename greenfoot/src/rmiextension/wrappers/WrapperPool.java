@@ -36,15 +36,14 @@ import bluej.extensions.BProject;
  * avoid getting more than one RMI-wrapper for each object. Doing this, makes it
  * possible to use == to test if two objects are the same.
  * 
- * TODO remember to "release" objects when they are no longer needed
+ * Remember to "release" objects when they are no longer needed.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: WrapperPool.java 7746 2010-06-01 14:10:21Z nccb $
  */
 public class WrapperPool
 {
 
-    static private WrapperPool instance;
+    static private WrapperPool instance = new WrapperPool();
 
     private WeakHashMap<Object,Object> pool = new WeakHashMap<Object,Object>();
 
@@ -53,11 +52,8 @@ public class WrapperPool
 
     }
 
-    public synchronized static WrapperPool instance()
+    public static WrapperPool instance()
     {
-        if (instance == null) {
-            instance = new WrapperPool();
-        }
         return instance;
     }
 
@@ -101,8 +97,7 @@ public class WrapperPool
     }
 
     /**
-     * @param constructor
-     * @return
+     * Get a remote wrapper for a BConstructor.
      */
     public synchronized RConstructor getWrapper(BConstructor wrapped)
         throws RemoteException
@@ -119,8 +114,7 @@ public class WrapperPool
     }
 
     /**
-     * @param object
-     * @return
+     * Get a remote wrapper for a BObject.
      */
     public synchronized RObject getWrapper(BObject wrapped)
         throws RemoteException
@@ -137,8 +131,7 @@ public class WrapperPool
     }
 
     /**
-     * @param wrapped
-     * @return
+     * Get a remote wrapper for a BField.
      */
     public synchronized RField getWrapper(BField wrapped)
         throws RemoteException
@@ -157,7 +150,7 @@ public class WrapperPool
     /**
      * Removes a wrapper for a particular object (key) from the pool
      */
-    public void remove(Object wrapped)
+    public synchronized void remove(Object wrapped)
     {
         pool.remove(wrapped);        
     }
