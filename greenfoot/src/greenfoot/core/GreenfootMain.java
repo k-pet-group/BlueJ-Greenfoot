@@ -65,7 +65,7 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 7545 2010-05-12 15:20:21Z nccb $
+ * @version $Id: GreenfootMain.java 7880 2010-07-20 06:53:32Z davmac $
  */
 public class GreenfootMain extends Thread implements CompileListener, RProjectListener
 {
@@ -418,12 +418,13 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
      */
     public void newProject()
     {
-        File newname = FileUtility.getDirName(frame,
+        File newFile = FileUtility.getDirName(frame,
                 Config.getString("greenfoot.utilDelegate.newScenario"),
-                Config.getString("pkgmgr.newPkg.buttonLabel"), false, true);
-        if (newname != null) {
+                Config.getString("pkgmgr.newPkg.buttonLabel"),
+                false, true);
+        if (newFile != null) {
             try {
-                rBlueJ.newProject(newname);
+                rBlueJ.newProject(newFile);
                 // The rest of the project preparation will be done by the
                 // ProjectManager on the BlueJ VM.
 
