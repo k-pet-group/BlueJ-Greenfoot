@@ -34,6 +34,7 @@ import bluej.debugger.DebuggerObject;
 import bluej.debugmgr.ResultWatcher;
 import bluej.extensions.BPackage;
 import bluej.extensions.BlueJ;
+import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.extensions.event.PackageEvent;
 import bluej.extensions.event.PackageListener;
@@ -100,7 +101,13 @@ public class ProjectManager
     private void launchProject(final Project project)
     {
         if (!ProjectManager.instance().isProjectOpen(project)) {
-            File projectDir = new File(project.getDir());
+            File projectDir;
+            try {
+                projectDir = new File(project.getDir());
+            } catch (ProjectNotOpenException pnoe) {
+                // The project must have closed in the meantime
+                return;
+            }
             int versionOK = checkVersion(projectDir);
             if (versionOK != GreenfootMain.VERSION_BAD) {
                 try {
@@ -159,9 +166,15 @@ public class ProjectManager
             }
         };
         
-        ObjectBench.createObject(project, launchClass, launcherName,
-                new String[] {project.getDir(), project.getName(),
-                BlueJRMIServer.getBlueJService()}, watcher);
+        try {
+            ObjectBench.createObject(project, launchClass, launcherName,
+                    new String[] {project.getDir(), project.getName(),
+                    BlueJRMIServer.getBlueJService()}, watcher);
+        } catch (ProjectNotOpenException e) {
+            // Not important; project has been closed, so no need to launch
+        } catch (PackageNotFoundException e) {
+            // likewise
+        }
     }
     
     /**
@@ -255,8 +268,7 @@ public class ProjectManager
     //bluej.extensions.event.PackageListener implementation
     //=================================================================
 
-    /**
-     * 
+    /*
      * @see bluej.extensions.event.PackageListener#packageOpened(bluej.extensions.event.PackageEvent)
      */
     public void packageOpened(PackageEvent event)
@@ -271,8 +283,7 @@ public class ProjectManager
         openedPackages.add(event.getPackage());
     }
 
-    /**
-     * 
+    /*
      * @see bluej.extensions.event.PackageListener#packageClosing(bluej.extensions.event.PackageEvent)
      */
     public void packageClosing(PackageEvent event)

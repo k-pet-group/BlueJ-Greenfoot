@@ -30,11 +30,9 @@ import bluej.extensions.ProjectNotOpenException;
  * not support packages.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: Project.java 6216 2009-03-30 13:41:07Z polle $
  */
 public class Project
 {
-
     private BPackage pkg;
 
     public Project(BPackage pkg)
@@ -44,44 +42,20 @@ public class Project
 
     public BPackage getPackage()
     {
-
         return pkg;
     }
 
-    /**
-     * @return
-     */
-    public String getDir()
+    public String getDir() throws ProjectNotOpenException
     {
-
-        try {
-            return pkg.getProject().getDir().toString();
-        }
-        catch (ProjectNotOpenException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        return null;
+        return pkg.getProject().getDir().toString();
     }
 
     /**
      * Get the name of the package.
      * @return  The package name
      */
-    public String getName()
+    public String getName() throws ProjectNotOpenException, PackageNotFoundException
     {
-        try {
-            return pkg.getName();
-        }
-        catch (ProjectNotOpenException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch (PackageNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        return null;
+        return pkg.getName();
     }
-
 }
