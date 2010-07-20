@@ -38,8 +38,24 @@ import java.util.EventListener;
  */
 public interface DebuggerListener extends EventListener
 {
-    void processDebuggerEvent(DebuggerEvent e, boolean skipUpdate);
+    /**
+     * Examines the debugger event -- a precursor to a call to
+     * processDebuggerEvent.  First, examineDebuggerEvent is called on all the listeners.
+     * The results of all of them are ORed together,
+     * and then processDebuggerEvent is called with this value.
+     * 
+     * So if you return true from examineDebuggerEvent, you
+     * are guaranteed that the corresponding processDebuggerEvent
+     * calls will have true as their parameter.
+     */
     boolean examineDebuggerEvent(DebuggerEvent e);
+    
+    /**
+     * Called after examineDebuggerEvent to process an event.
+     * For an explanation of the skipUpdate parameter, see examineDebuggerEvent.
+     */
+    void processDebuggerEvent(DebuggerEvent e, boolean skipUpdate);
+    
     
     /**
      * Called when the user instigates a halt of a thread in the debugger.
