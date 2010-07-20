@@ -74,4 +74,49 @@ public class TestUtilDelegate implements GreenfootUtilDelegate
     {
         // TODO Auto-generated method stub
         return null;
-    }}
+    }
+
+    @Override
+    public void addCachedImage(String name, GreenfootImage image)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void addNullImage(String className)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void cacheGreenfootImage(String name, GreenfootImage image)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public GreenfootImage getCachedImage(String name)
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public boolean isNullImage(String className)
+    {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public void removeCachedImage(String className)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+    
+    
+}
