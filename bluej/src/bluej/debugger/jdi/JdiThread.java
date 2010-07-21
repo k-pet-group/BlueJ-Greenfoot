@@ -37,20 +37,19 @@ import com.sun.jdi.request.StepRequest;
  * This class represents a thread running on the remote virtual machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiThread.java 7849 2010-07-12 10:03:11Z nccb $
  */
 class JdiThread extends DebuggerThread
 {
-	static final String statusFinished = Config.getString("debugger.threadstatus.finished");
-	static final String statusBreakpoint = Config.getString("debugger.threadstatus.breakpoint");
-	static final String statusStopped = Config.getString("debugger.threadstatus.stopped");
-	static final String statusMonitor = Config.getString("debugger.threadstatus.monitor");
-	static final String statusNotStarted = Config.getString("debugger.threadstatus.notstarted");
-	static final String statusRunning = Config.getString("debugger.threadstatus.running");
-	static final String statusSleeping = Config.getString("debugger.threadstatus.sleeping");
-	static final String statusUnknown = Config.getString("debugger.threadstatus.unknown");
-	static final String statusWaiting = Config.getString("debugger.threadstatus.waiting");
-	static final String statusZombie = Config.getString("debugger.threadstatus.zombie");
+    static final String statusFinished = Config.getString("debugger.threadstatus.finished");
+    static final String statusBreakpoint = Config.getString("debugger.threadstatus.breakpoint");
+    static final String statusStopped = Config.getString("debugger.threadstatus.stopped");
+    static final String statusMonitor = Config.getString("debugger.threadstatus.monitor");
+    static final String statusNotStarted = Config.getString("debugger.threadstatus.notstarted");
+    static final String statusRunning = Config.getString("debugger.threadstatus.running");
+    static final String statusSleeping = Config.getString("debugger.threadstatus.sleeping");
+    static final String statusUnknown = Config.getString("debugger.threadstatus.unknown");
+    static final String statusWaiting = Config.getString("debugger.threadstatus.waiting");
+    static final String statusZombie = Config.getString("debugger.threadstatus.zombie");
 
     /** a list of classes to exclude from source display */
     private static List<String> excludes;
@@ -79,16 +78,16 @@ class JdiThread extends DebuggerThread
         }
     }
 
-	// the reference to the remote thread
-	private ThreadReference rt;
+    // the reference to the remote thread
+    private ThreadReference rt;
     
-	// stores a stack frame that was selected for this
+    // stores a stack frame that was selected for this
     // thread (selection is done for debugging)
     int selectedFrame;
    
     // the TreeModel that we are being stored in. This reference
     // lets us propogate changes to our state into the TreeModel.
-	JdiThreadTreeModel jttm;
+    JdiThreadTreeModel jttm;
 	
     EventRequestManager eventReqMgr;
     
@@ -98,7 +97,7 @@ class JdiThread extends DebuggerThread
 
     public JdiThread(JdiDebugger debugger, JdiThreadTreeModel jttm, ThreadReference rt)
     {
-		this.jttm = jttm;
+        this.jttm = jttm;
         this.rt = rt;
         this.debugger = debugger;
 
@@ -137,9 +136,9 @@ class JdiThread extends DebuggerThread
         try {
             if (rt.isAtBreakpoint()) {
             	if(VMReference.isAtMainBreakpoint(rt))
-                	return statusFinished;
+            	    return statusFinished;
             	else
-               		return statusBreakpoint;
+            	    return statusBreakpoint;
             }
                         
             if(rt.isSuspended())
@@ -189,10 +188,10 @@ class JdiThread extends DebuggerThread
     /** 
      * Return true if this thread is currently at a breakpoint.
      */
-	public boolean isAtBreakpoint()
-	{
-		return rt.isAtBreakpoint();
-	}
+    public boolean isAtBreakpoint()
+    {
+        return rt.isAtBreakpoint();
+    }
 
     /** 
      * Return the class this thread was executing in when the
@@ -260,19 +259,19 @@ class JdiThread extends DebuggerThread
         return false;
     }
 
-	/**
-	 * Get strings showing the current stack frames. Ignore everything
-	 * including the __SHELL class and below.
-	 *
-	 * The thread must be suspended to do this. Otherwise an empty list
-	 * is returned.
-	 *
-	 * @return  A List of SourceLocations
-	 */
-	public List<SourceLocation> getStack()
-	{
-		return getStack(rt);
-	}
+    /**
+     * Get strings showing the current stack frames. Ignore everything
+     * including the __SHELL class and below.
+     *
+     * The thread must be suspended to do this. Otherwise an empty list
+     * is returned.
+     *
+     * @return  A List of SourceLocations
+     */
+    public List<SourceLocation> getStack()
+    {
+        return getStack(rt);
+    }
 
     /**
      * Get strings showing the current stack frames. Ignore everything
@@ -308,13 +307,13 @@ class JdiThread extends DebuggerThread
                     if(JavaNames.getBase(className).startsWith("__SHELL"))
                         break;
 
-					String fileName = null;
-					try {
-						fileName = loc.sourceName();
-					}
-					catch(AbsentInformationException e) {
-						continue;
-					}
+                    String fileName = null;
+                    try {
+                        fileName = loc.sourceName();
+                    }
+                    catch(AbsentInformationException e) {
+                        continue;
+                    }
                     String methodName = loc.method().name();
                     int lineNumber = loc.lineNumber();
 
@@ -325,12 +324,12 @@ class JdiThread extends DebuggerThread
             }
         }
         catch(IncompatibleThreadStateException e) {
-			// this is possible if the thread state changes after
-			// our check for its suspended state
-			// lets just return an empty List
+            // this is possible if the thread state changes after
+            // our check for its suspended state
+            // lets just return an empty List
         }
         catch(InvalidStackFrameException isfe) {
-        	// same here
+            // same here
         }
         return new ArrayList<SourceLocation>();
     }
@@ -469,38 +468,38 @@ class JdiThread extends DebuggerThread
         return selectedFrame;
     }
 
-	/**
-	 * Halt this thread.
-	 */
-	public void halt()
-	{
-		rt.suspend();
-		
-		if (false == debugger.threadHalted(this)) {
-		
-    		JdiThreadNode jtn = jttm.findThreadNode(rt);
-    		
-    		if (jtn != null)
-    			jttm.nodeChanged(jtn);
-		}
-	}
+    /**
+     * Halt this thread.
+     */
+    public void halt()
+    {
+        rt.suspend();
 
-	/**
-	 * Continue a previously halted thread.
-	 */
-	public void cont()
-	{
-		rt.resume();		
+        if (false == debugger.threadHalted(this)) {
 
-		JdiThreadNode jtn = jttm.findThreadNode(rt);
-		
-		if (jtn != null)
-			jttm.nodeChanged(jtn);		
-	}
+            JdiThreadNode jtn = jttm.findThreadNode(rt);
 
-	/**
-	 * Make this thread step a single line.
-	 */
+            if (jtn != null)
+                jttm.nodeChanged(jtn);
+        }
+    }
+
+    /**
+     * Continue a previously halted thread.
+     */
+    public void cont()
+    {
+        rt.resume();		
+
+        JdiThreadNode jtn = jttm.findThreadNode(rt);
+
+        if (jtn != null)
+            jttm.nodeChanged(jtn);		
+    }
+
+    /**
+     * Make this thread step a single line.
+     */
     public void step()
     {
         doStep(StepRequest.STEP_OVER);
@@ -523,12 +522,12 @@ class JdiThread extends DebuggerThread
 		request.putProperty(VMEventHandler.DONT_RESUME, "yes");
         request.enable();
 
-		rt.resume();
+        rt.resume();
 
-		JdiThreadNode jtn = jttm.findThreadNode(rt);
-		
-		if (jtn != null)
-			jttm.nodeChanged(jtn);		
+        JdiThreadNode jtn = jttm.findThreadNode(rt);
+
+        if (jtn != null)
+            jttm.nodeChanged(jtn);		
     }
 
     /**
@@ -549,13 +548,13 @@ class JdiThread extends DebuggerThread
             if (request != null && request.thread() != null) {
                 if (request.thread().equals(thread)) {
                     eventReqMgr.deleteEventRequest(request);
-					// we must break here because now we
-					// have deleted the step event, the
-					// list iterator is invalid
-					// our assumption is that we can have at
-					// most one step event for this thread
-					// in the system.
-					break;
+                    // we must break here because now we
+                    // have deleted the step event, the
+                    // list iterator is invalid
+                    // our assumption is that we can have at
+                    // most one step event for this thread
+                    // in the system.
+                    break;
                 }
             }
         }
@@ -568,13 +567,13 @@ class JdiThread extends DebuggerThread
     
     public String toString()
     {
-    	try {
-			return getName() + " (" + getStatus() + ")";
-			//return getName() + " (" + getStatus() + ") " + rt.threadGroup().name();  // for debugging
-    	}
+        try {
+            return getName() + " (" + getStatus() + ")";
+            //return getName() + " (" + getStatus() + ") " + rt.threadGroup().name();  // for debugging
+        }
     	catch (ObjectCollectedException oce)
     	{
-    		return "collected";
+    	    return "collected";
     	}
     }
 }
