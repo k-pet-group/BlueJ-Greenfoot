@@ -25,38 +25,41 @@ import javax.swing.tree.DefaultMutableTreeNode;
 
 import com.sun.jdi.*;
 
+/**
+ * A tree node for the JDI thread tree.
+ */
 class JdiThreadNode extends DefaultMutableTreeNode
 {
-	public JdiThreadNode()
-	{
-	}
-	
-	public JdiThreadNode(ThreadGroupReference tgr)
-	{
-		setUserObject(tgr);
-	}
-	
-	public JdiThreadNode(JdiThread jt)
-	{
-		setUserObject(jt);	
-	}
+    public JdiThreadNode()
+    {
+    }
 
-	public boolean getAllowsChildren()
-	{
-		return (getUserObject() == null) || (getUserObject() instanceof ThreadGroupReference);
-	}
+    public JdiThreadNode(ThreadGroupReference tgr)
+    {
+        setUserObject(tgr);
+    }
 
-	public String toString()
-	{
-		if (getUserObject() != null) {
-			try {
-				return getUserObject().toString();
-			}
-			catch (ObjectCollectedException oce) {
-				return "collected";
-			}
-		}
+    public JdiThreadNode(JdiThread jt)
+    {
+        setUserObject(jt);	
+    }
 
-		return "All Threads";
-	}
+    public boolean getAllowsChildren()
+    {
+        return (getUserObject() == null) || (getUserObject() instanceof ThreadGroupReference);
+    }
+
+    public String toString()
+    {
+        if (getUserObject() != null) {
+            try {
+                return getUserObject().toString();
+            }
+            catch (ObjectCollectedException oce) {
+                return "collected";
+            }
+        }
+
+        return "All Threads";
+    }
 }

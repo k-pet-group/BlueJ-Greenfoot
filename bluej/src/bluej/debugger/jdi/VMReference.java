@@ -96,7 +96,7 @@ import com.sun.jdi.request.EventRequestManager;
  * machine, which gets started from here via the JDI interface.
  * 
  * @author Michael Kolling
- * @version $Id: VMReference.java 7849 2010-07-12 10:03:11Z nccb $
+ * @version $Id: VMReference.java 7890 2010-07-21 04:20:43Z davmac $
  * 
  * The startup process is as follows:
  * 
@@ -983,6 +983,14 @@ class VMReference
     }
     
     /**
+     * Emit a thread halted/resumed event for the given thread.
+     */
+    public void emitThreadEvent(JdiThread thread)
+    {
+        eventHandler.emitThreadEvent(thread);
+    }
+    
+    /**
      * Return the status of the last invocation. One of (NORMAL_EXIT,
      * FORCED_EXIT, EXCEPTION, TERMINATED).
      * 
@@ -1062,6 +1070,23 @@ class VMReference
         // Only affects some platforms/vm versions some of the time.
         //if (tr == serverThread && serverThreadStarted || tr == workerThread)
         //    close();
+    }
+    
+    /**
+     * A thread has been suspended (due to a breakpoint, step, or
+     * call to DebuggerThread.halt()).
+     */
+    public void threadHaltedEvent(JdiThread thread)
+    {
+        owner.threadHalted(thread);
+    }
+    
+    /**
+     * A thread has been resumed.
+     */
+    public void threadResumedEvent(JdiThread thread)
+    {
+        owner.threadResumed(thread);
     }
 
     /**

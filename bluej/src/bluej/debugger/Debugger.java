@@ -28,13 +28,34 @@ import bluej.classmgr.BPClassLoader;
 import bluej.debugger.jdi.JdiDebugger;
 
 /**
- * A class defining the debugger primitives needed by BlueJ
- * May be supported by different implementations, locally or remotely.
+ * A class defining the debugger primitives needed by BlueJ. May be supported by different
+ * implementations, locally or remotely.
+ * 
+ * <p>Debugger has a listener interface to allow listening for certain events. Events reported to
+ * the listener are guaranteed to be serialised, that is, a callback will not be entered while
+ * the previous callback is still executing.
+ * 
+ * <p>Part of the listener interface is notification of debugger state changes. There possible
+ * states are UNKNOWN, NOTREADY, IDLE, RUNNING, SUSPENDED and LAUNCH_FAILED. Only certain
+ * transitions are possible:
+ * 
+ * <ul>
+ * <li>UNKNOWN to NOTREADY: when the debugger is first launched
+ * <li>NOTREADY to IDLE:  when the debugger finishes launching or restarting
+ * <li>IDLE to RUNNING:  when the debugger begins execution of user code
+ * <li>IDLE to NOTREADY:  when the virtual machine restarts (possibly for external reasons)
+ * <li>RUNNING to IDLE:  when user code finishes or is otherwise terminated
+ * <li>RUNNING to SUSPENDED:  when a breakpoint is hit etc.
+ * <li>SUSPENDED to RUNNING:  when execution is continued after a breakpoint etc.
+ * </ul>
+ * 
+ * Transitions that do not conform to the list are modified by inserting appropriate transitions.
+ * For instance a transition from RUNNING to NOTREADY is represented as a transition first to
+ * IDLE and then to NOTREADY. 
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: Debugger.java 7883 2010-07-20 13:17:38Z davmac $
  */
 public abstract class Debugger
 {
@@ -43,14 +64,19 @@ public abstract class Debugger
     public static final int EXCEPTION = 2;
     public static final int TERMINATED = 3;
 
-    // machine states
-    public static final int UNKNOWN = 0;	// cannot move to this state,
-                                                // but this can be the oldState in an event
+    /** Virtual machine states **/
+    /** The unknown state can only be the previous state, and only in the first state change */
+    public static final int UNKNOWN = 0;
+    /** The debugger is not yet ready to execute code etc */
     public static final int NOTREADY = 1;
+    /** The debugger is idle: ready to execute */
     public static final int IDLE = 2;
+    /** The debugger is currently running user code */ 
     public static final int RUNNING = 3;
+    /** The debugger is suspended, i.e. running user code but stopped at a breakpoint/step */
     public static final int SUSPENDED = 4;
-    public static final int LAUNCH_FAILED = 5; // failed to launch
+    /** The debugger failed to start. */
+    public static final int LAUNCH_FAILED = 5;
 
     /**
      * Create an instance of a debugger.
@@ -74,7 +100,7 @@ public abstract class Debugger
     public abstract void launch();
 
     /**
-     * Finish debugging.
+     * Terminate the debug VM, stop all user processes etc. Optionally restart afterwards.
      */
     public abstract void close(boolean restart);
 
@@ -122,7 +148,7 @@ public abstract class Debugger
      * Return the debugger objects that exist in the
      * debugger.
      * 
-     * @return			a Map of (String name, DebuggerObject obj) entries
+     * @return	a Map of (String name, DebuggerObject obj) entries
      */
     public abstract Map<String,DebuggerObject> getObjects();
 
@@ -132,16 +158,14 @@ public abstract class Debugger
      * @param	startingName  a fully qualified class name (will be stripped of
      *                        qualifying part) or a field name that will be used
      *                        as the basis for the new name.
-     * @return				  a String suitable as a name for an object on the
-     * 						  object bench. 
+     * @return  a String suitable as a name for an object on the object bench. 
      */
     public abstract String guessNewName(String className);
 
     /**
      * Guess a suitable name for an object about to be put on the object bench.
      * 
-     * @param obj
-     *            the object that will be put on the object bench
+     * @param obj      the object that will be put on the object bench
      * @return a String suitable as a name for an object on the object bench.
      */
     public abstract String guessNewName(DebuggerObject obj);
@@ -149,7 +173,7 @@ public abstract class Debugger
 
     /**
      * Return the machine status; one of the "machine state" constants:
-     * (IDLE, RUNNING, SUSPENDED).
+     * (IDLE, RUNNING, SUSPENDED, NOTREADY).
      */
     public abstract int getStatus();
     

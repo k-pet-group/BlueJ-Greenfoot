@@ -174,7 +174,12 @@ class JdiThread extends DebuggerThread
      */
     public boolean isFinished()
     {
-        return  rt.isAtBreakpoint() && VMReference.isAtMainBreakpoint(rt);
+        try {
+            return  rt.isAtBreakpoint() && VMReference.isAtMainBreakpoint(rt);
+        }
+        catch (VMDisconnectedException vmde) {
+            return true;
+        }
     }
 
     /**
@@ -182,7 +187,12 @@ class JdiThread extends DebuggerThread
      */
     public boolean isSuspended()
     {
-        return rt.isSuspended();
+        try {
+            return rt.isSuspended();
+        }
+        catch (VMDisconnectedException vmde) {
+            return false;
+        }
     }
 
     /** 
@@ -322,6 +332,9 @@ class JdiThread extends DebuggerThread
                 }
                 return stack;
             }
+        }
+        catch (VMDisconnectedException vmde) {
+            // Finished, no trace
         }
         catch(IncompatibleThreadStateException e) {
             // this is possible if the thread state changes after
@@ -474,14 +487,7 @@ class JdiThread extends DebuggerThread
     public void halt()
     {
         rt.suspend();
-
-        if (false == debugger.threadHalted(this)) {
-
-            JdiThreadNode jtn = jttm.findThreadNode(rt);
-
-            if (jtn != null)
-                jttm.nodeChanged(jtn);
-        }
+        debugger.emitThreadHaltEvent(this);
     }
 
     /**
@@ -489,12 +495,8 @@ class JdiThread extends DebuggerThread
      */
     public void cont()
     {
-        rt.resume();		
-
-        JdiThreadNode jtn = jttm.findThreadNode(rt);
-
-        if (jtn != null)
-            jttm.nodeChanged(jtn);		
+        rt.resume();
+        debugger.emitThreadResumedEvent(this);
     }
 
     /**

@@ -54,7 +54,7 @@ import com.sun.jdi.*;
  * 
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: JdiDebugger.java 7884 2010-07-20 14:54:00Z nccb $
+ * @version $Id: JdiDebugger.java 7890 2010-07-21 04:20:43Z davmac $
  */
 public class JdiDebugger extends Debugger
 {
@@ -702,11 +702,17 @@ public class JdiDebugger extends Debugger
         
         if (newState != machineState) {
             
-            // If going from running state to notready state, first pass
-            // through idle state
+            // Going from SUSPENDED to any other state must ass through RUNNING
+            if (machineState == SUSPENDED && newState != RUNNING) {
+                machineState = RUNNING;
+                fireTargetEvent(new DebuggerEvent(this, DebuggerEvent.DEBUGGER_STATECHANGED, SUSPENDED, RUNNING));
+            }
+            
+            // If going from RUNNING state to NOTREADY state, first pass
+            // through IDLE state
             if (machineState == RUNNING && newState == NOTREADY) {
-                fireTargetEvent(new DebuggerEvent(this, DebuggerEvent.DEBUGGER_STATECHANGED, RUNNING, IDLE));
                 machineState = IDLE;
+                fireTargetEvent(new DebuggerEvent(this, DebuggerEvent.DEBUGGER_STATECHANGED, RUNNING, IDLE));
             }
             
             int oldState = machineState;
@@ -1066,8 +1072,26 @@ public class JdiDebugger extends Debugger
         }
     }
 
-    //Package-visible:
-    boolean threadHalted(JdiThread jdiThread)
+    /**
+     * Emit an event (to listeners) due to a thread being halted.
+     */
+    void emitThreadHaltEvent(JdiThread thread)
+    {
+        vmRef.emitThreadEvent(thread);
+    }
+    
+    /**
+     * Emit an event (to listeners) due to a thread being resumed.
+     */
+    void emitThreadResumedEvent(JdiThread thread)
+    {
+        vmRef.emitThreadEvent(thread);
+    }
+    
+    /**
+     * A thread has become halted; inform listeners.
+     */
+    void threadHalted(final JdiThread thread)
     {
         boolean done = false;
         // Guaranteed to return a non-null array
@@ -1076,10 +1100,46 @@ public class JdiDebugger extends Debugger
         // those that are interested in this event
         for (int i = listeners.length - 2; i >= 0; i -= 2) {
             if (listeners[i] == DebuggerListener.class) {
-                done |= ((DebuggerListener) listeners[i + 1]).threadHalted(this, jdiThread);
+                done |= ((DebuggerListener) listeners[i + 1]).threadHalted(this, thread);
             }
         }
-        return done;
+        
+        if (! done) {
+            treeModel.syncExec(new Runnable() {
+                @Override
+                public void run()
+                {
+                    JdiThreadNode threadNode = treeModel.findThreadNode(thread.getRemoteThread());
+                    if (threadNode != null) {
+                        treeModel.nodeChanged(threadNode);
+                    }
+                }
+            });
+        }
     }
+    
+    /**
+     * A thread has been resumed; inform listeners.
+     */
+    void threadResumed(final JdiThread thread)
+    {
+        // There is no threadResumed event
+        //Object[] listeners = listenerList.getListenerList();
+        //for (int i = listeners.length - 2; i >= 0; i -= 2) {
+        //    if (listeners[i] == DebuggerListener.class) {
+        //        ((DebuggerListener) listeners[i + 1]).threadResumed(this, thread);
+        //    }
+        //}
 
+        treeModel.syncExec(new Runnable() {
+            @Override
+            public void run()
+            {
+                JdiThreadNode threadNode = treeModel.findThreadNode(thread.getRemoteThread());
+                if (threadNode != null) {
+                    treeModel.nodeChanged(threadNode);
+                }
+            }
+        });
+    }
 }

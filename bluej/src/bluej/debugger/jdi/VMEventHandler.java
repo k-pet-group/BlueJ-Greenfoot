@@ -21,16 +21,31 @@
  */
 package bluej.debugger.jdi;
 
+import java.util.LinkedList;
+import java.util.Queue;
+
 import com.sun.jdi.ReferenceType;
 import com.sun.jdi.VMDisconnectedException;
 import com.sun.jdi.VirtualMachine;
-import com.sun.jdi.event.*;
+import com.sun.jdi.event.BreakpointEvent;
+import com.sun.jdi.event.ClassPrepareEvent;
+import com.sun.jdi.event.Event;
+import com.sun.jdi.event.EventIterator;
+import com.sun.jdi.event.EventQueue;
+import com.sun.jdi.event.EventSet;
+import com.sun.jdi.event.ExceptionEvent;
+import com.sun.jdi.event.LocatableEvent;
+import com.sun.jdi.event.StepEvent;
+import com.sun.jdi.event.ThreadDeathEvent;
+import com.sun.jdi.event.ThreadStartEvent;
+import com.sun.jdi.event.VMDeathEvent;
+import com.sun.jdi.event.VMDisconnectEvent;
+import com.sun.jdi.event.VMStartEvent;
 
 /**
  * Event handler class to handle events coming from the remote VM.
  *
  * @author  Michael Kolling
- * @version $Id: VMEventHandler.java 7849 2010-07-12 10:03:11Z nccb $
  */
 class VMEventHandler extends Thread
 {
@@ -39,6 +54,7 @@ class VMEventHandler extends Thread
     private VMReference vm;
     private EventQueue queue;
     private boolean queueEmpty;
+    private Queue<JdiThread> haltedThreads = new LinkedList<JdiThread>();
     
     volatile boolean exiting = false;
     
@@ -55,6 +71,8 @@ class VMEventHandler extends Thread
         while (!exiting) {
             try {
                 // get the next event
+                // NOTE: use 1 as the timeout, because 0 just waits indefinitely,
+                //  contrary to documentation.
                 EventSet eventSet = queue.remove(1);
                 
                 if (eventSet == null) {
@@ -65,11 +83,25 @@ class VMEventHandler extends Thread
                         notifyAll();
                     }
 
-                    eventSet = queue.remove();
+                    try {
+                        eventSet = queue.remove();
+                    }
+                    catch (InterruptedException ie) {
+                        if (exiting) {
+                            break;
+                        }
+                        handleThreadEvents();
+                        continue;
+                    }
+                    
                     synchronized (this) {
+                        isInterrupted(); // clear the interrupt flag;
+                        // we need to do this in a synchronized context
                         queueEmpty = false;
                     }
                 }
+                
+                handleThreadEvents();
                 
                 // From the JDK documentation
                 // The events that are grouped in an EventSet are restricted in the following ways:
@@ -90,7 +122,7 @@ class VMEventHandler extends Thread
                 //		 o AccessWatchpointEvent 
                 //   * Only with other ModificationWatchpointEvents for the same field modification:
                 //		 o ModificationWatchpointEvent 
-                //   * Only with other ExceptionEvents for the same exception occurrance:
+                //   * Only with other ExceptionEvents for the same exception occurrence:
                 //		 o ExceptionEvent 
                 //   * Only with other MethodExitEvents for the same method exit:
                 //		 o MethodExitEvent 
@@ -143,6 +175,38 @@ class VMEventHandler extends Thread
             }
             catch (InterruptedException exc) { }
             catch (VMDisconnectedException discExc) { exiting = true; }
+        }
+    }
+    
+    /**
+     * Deliver thread halted/resumed events.
+     */
+    private synchronized void handleThreadEvents()
+    {
+        JdiThread halted = haltedThreads.poll();
+        while (halted != null) {
+            if (halted.isSuspended()) {
+                vm.threadHaltedEvent(halted);
+            }
+            else {
+                vm.threadResumedEvent(halted);
+            }
+            halted = haltedThreads.poll();
+        }
+    }
+    
+    /**
+     * Emit a thread halted/resumed event (depending on the actual
+     * running state of the thread).
+     */
+    public synchronized void emitThreadEvent(JdiThread thr)
+    {
+        haltedThreads.add(thr);
+        if (queueEmpty) {
+            // The VM event handler thread is either waiting for an event,
+            // or it has just pulled one but has yet to set queueEmpty = false,
+            // which it will only do while synched.
+            interrupt();
         }
     }
     
