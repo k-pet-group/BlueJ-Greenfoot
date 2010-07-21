@@ -54,7 +54,7 @@ import com.sun.jdi.*;
  * 
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: JdiDebugger.java 7890 2010-07-21 04:20:43Z davmac $
+ * @version $Id: JdiDebugger.java 7891 2010-07-21 09:31:20Z nccb $
  */
 public class JdiDebugger extends Debugger
 {
@@ -1106,7 +1106,6 @@ public class JdiDebugger extends Debugger
         
         if (! done) {
             treeModel.syncExec(new Runnable() {
-                @Override
                 public void run()
                 {
                     JdiThreadNode threadNode = treeModel.findThreadNode(thread.getRemoteThread());
@@ -1132,7 +1131,6 @@ public class JdiDebugger extends Debugger
         //}
 
         treeModel.syncExec(new Runnable() {
-            @Override
             public void run()
             {
                 JdiThreadNode threadNode = treeModel.findThreadNode(thread.getRemoteThread());
