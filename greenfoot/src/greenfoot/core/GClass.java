@@ -202,6 +202,15 @@ public class GClass
         rmiClass.edit();
     }
     
+    /**
+     * Close the editor for this class.
+     */
+    public void closeEditor()
+        throws ProjectNotOpenException, PackageNotFoundException, RemoteException
+    {
+        rmiClass.closeEditor();
+    }
+    
     public boolean hasSourceCode() throws ProjectNotOpenException, PackageNotFoundException, RemoteException
     {
         return rmiClass.hasSourceCode();

@@ -301,6 +301,24 @@ public class GProject extends RProjectListenerImpl
         return true;
     }
     
+    
+    /**
+     * Closes classes in this project
+     */
+    public void closeEditors()
+    {
+        try {
+            GClass[] classes = getDefaultPackage().getClasses();
+            for (int i = 0; i < classes.length; i++) {
+                GClass cls = classes[i];
+                cls.closeEditor();
+            }
+        }
+        catch (Exception e2) {
+            e2.printStackTrace();
+        }
+    }
+    
     public void addCompileListener(CompileListener listener)
     {
         synchronized (compileListeners) {

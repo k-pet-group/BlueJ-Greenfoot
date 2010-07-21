@@ -331,6 +331,7 @@ public class GreenfootFrame extends JFrame
     {
         setTitle("Greenfoot: ");
         project.removeCompileListener(this);
+        project.closeEditors();
         worldCanvas.setVisible(false);
         classBrowser.setVisible(false);
         worldHandlerDelegate.getWorldTitle().setVisible(false);

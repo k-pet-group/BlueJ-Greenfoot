@@ -49,7 +49,7 @@ import bluej.utility.Debug;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RClassImpl.java 7848 2010-07-12 09:54:05Z nccb $
+ * @version $Id: RClassImpl.java 7888 2010-07-21 01:25:12Z marionz $
  */
 public class RClassImpl extends java.rmi.server.UnicastRemoteObject
     implements RClass
@@ -120,6 +120,41 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
                 }
             });
             
+            if (pnoe != null) throw pnoe;
+            if (pnfe != null) throw pnfe;
+        }
+    }
+    
+    /**
+     * Closes the editor (sets the editor to not visible)
+     * @throws ProjectNotOpenException
+     * @throws PackageNotFoundException
+     * @throws RemoteException
+     */
+    public void closeEditor() throws ProjectNotOpenException, PackageNotFoundException, RemoteException
+    {
+        synchronized (RClassImpl.class) {
+            pnoe = null;
+            pnfe = null;
+
+            EventQueue.invokeLater(new Runnable() {
+                public void run()
+                {
+                    try {
+                        Editor editor = bClass.getEditor();
+                        if (editor != null) {
+                            editor.setVisible(false);
+                        }
+                    }
+                    catch (ProjectNotOpenException e) {
+                        pnoe = e;
+                    }
+                    catch (PackageNotFoundException e) {
+                        pnfe = e;
+                    }
+                }
+            });
+
             if (pnoe != null) throw pnoe;
             if (pnfe != null) throw pnfe;
         }
