@@ -130,6 +130,7 @@ public abstract class World
     public World(int worldWidth, int worldHeight, int cellSize, boolean bounded)
     {
         initialize(worldWidth, worldHeight, cellSize);
+        this.isBounded = bounded;
         
         backgroundIsClassImage = true;
         setBackground(getClassImage());

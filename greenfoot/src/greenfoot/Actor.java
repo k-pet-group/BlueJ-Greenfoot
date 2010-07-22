@@ -255,7 +255,7 @@ public abstract class Actor
             boundingRect.setY(boundingRect.getY() + dy);
         }
         
-        if (x != oldX || y != oldY) {
+        if (this.x != oldX || this.y != oldY) {
             locationChanged(oldX, oldY);
         }
     }
