@@ -361,7 +361,11 @@ public class SoundRecorderDialog extends JDialog
         
         private float calculatePosition(Point p)
         {
-            return ((float)p.x / getWidth());
+            float pos = (float)p.x / getWidth();
+            // Clamp to the range 0->1:
+            pos = Math.max(0, pos);
+            pos = Math.min(1, pos);
+            return pos;
         }
 
         @Override
@@ -397,7 +401,7 @@ public class SoundRecorderDialog extends JDialog
     
     private int getSelectionFinishOffset()
     {
-        float start = Math.max(selectionBegin, selectionEnd);
-        return (int)(start * (float)recorder.getRawSound().length);
+        float finish = Math.max(selectionBegin, selectionEnd);
+        return (int)(finish * (float)recorder.getRawSound().length);
     }
 }
