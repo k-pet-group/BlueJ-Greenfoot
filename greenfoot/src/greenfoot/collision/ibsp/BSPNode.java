@@ -190,6 +190,10 @@ public final class BSPNode
         actors.put(actor, new ActorNode(actor, this));
     }
     
+    /**
+     * Check whether the actor is already listed in this node, and
+     * mark the ActorNode if this is the case. 
+     */
     public boolean containsActor(Actor actor)
     {
         // return actors.containsKey(actor);

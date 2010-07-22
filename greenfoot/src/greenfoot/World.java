@@ -98,6 +98,9 @@ public abstract class World
     /** Timeout used for readers attempting to acquire lock */
     static final int READ_LOCK_TIMEOUT = 500;
     
+    /** Whether actors are bound to stay inside the world */
+    private boolean isBounded;
+
     /**
      * Construct a new world. The size of the world (in number of cells) and the
      * size of each cell (in pixels) must be specified.
@@ -108,6 +111,23 @@ public abstract class World
      * 
      */
     public World(int worldWidth, int worldHeight, int cellSize)
+    {
+        this(worldWidth, worldHeight, cellSize, true);
+    }
+
+    /**
+     * Construct a new world. The size of the world (in number of cells) and the
+     * size of each cell (in pixels) must be specified. This constructor allows
+     * the option of creating an unbounded world, which actors can move outside
+     * the boundaries of.
+     * 
+     * @param worldWidth  The width of the world (in cells).
+     * @param worldHeight The height of the world (in cells).
+     * @param cellSize    Size of a cell in pixels.
+     * @param bounded     Should actors be restricted to the world boundary?
+     * 
+     */
+    public World(int worldWidth, int worldHeight, int cellSize, boolean bounded)
     {
         initialize(worldWidth, worldHeight, cellSize);
         
@@ -221,7 +241,7 @@ public abstract class World
     }
     
     /**
-     * Return the world's background image but without intialising it first
+     * Return the world's background image but without initialising it first
      * 
      * @return The background image or null if not initialised yet.
      */
@@ -229,7 +249,15 @@ public abstract class World
     {
         return backgroundImage;
     }
-      
+    
+    /**
+     * Test whether this world is bounded. 
+     */
+    boolean isBounded()
+    {
+        return isBounded;
+    }
+    
     /**
      * Return the color at the centre of the cell. To paint a color, you need to
      * get the background image for the world and paint on that.
@@ -241,7 +269,8 @@ public abstract class World
      *             bounds. If there is no background image at the location it
      *             will return Color.WHITE.
      */
-    public Color getColorAt(int x, int y) {
+    public Color getColorAt(int x, int y)
+    {
         ensureWithinXBounds(x);
         ensureWithinYBounds(y);       
         
@@ -852,14 +881,12 @@ public abstract class World
     
     void paintDebug(Graphics g)
     {
-    /*
-     * g.setColor(Color.BLACK); g.drawString("# of Objects: " + objects.size(),
-     * 50,50);
-     */
-   //  collisionChecker.paintDebug(g); 
+        /*
+         * g.setColor(Color.BLACK); g.drawString("# of Objects: " + objects.size(),
+         * 50,50);
+         */
+        //collisionChecker.paintDebug(g); 
     }
-    
-    
     
     //============================================================================
     //  

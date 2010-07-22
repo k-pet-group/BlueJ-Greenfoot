@@ -239,8 +239,14 @@ public abstract class Actor
         int oldX = this.x;
         int oldY = this.y;
 
-        this.x = limitValue(x, world.getWidth());
-        this.y = limitValue(y, world.getHeight());
+        if (world.isBounded()) {
+            this.x = limitValue(x, world.getWidth());
+            this.y = limitValue(y, world.getHeight());
+        }
+        else {
+            this.x = x;
+            this.y = y;
+        }
         if (boundingRect != null) {
             int dx = (this.x - oldX) * world.getCellSize();
             int dy = (this.y - oldY) * world.getCellSize();
@@ -248,7 +254,10 @@ public abstract class Actor
             boundingRect.setX(boundingRect.getX() + dx);
             boundingRect.setY(boundingRect.getY() + dy);
         }
-        locationChanged(oldX, oldY);
+        
+        if (x != oldX || y != oldY) {
+            locationChanged(oldX, oldY);
+        }
     }
 
     /**

@@ -129,6 +129,10 @@ public class GetAtTest extends TestCase
      */
     public void testIBSPDynamicRotationBug() 
     {
+        // This test currently fails, but I'm not convinced it *should* pass. Do we really want rotated
+        // objects in a cell to overlap other cells? Does "getObjectsAt" really return all objects
+        // overlapping any part of the cell? - DM
+        
         world = WorldCreator.createWorld(10, 10, 50);
         // Test a second object forced to be on the bounds of the areas in the IBSPColChecker
 
@@ -159,6 +163,10 @@ public class GetAtTest extends TestCase
      */
     public void testIBSPRotationBug() 
     {
+        // This test currently fails, but I'm not convinced it *should* pass. Do we really want rotated
+        // objects in a cell to overlap other cells? Does "getObjectsAt" really return all objects
+        // overlapping any part of the cell? - DM
+        
         world = WorldCreator.createWorld(10, 10, 50);
         // Test a second object forced to be on the bounds of the areas in the IBSPColChecker
 

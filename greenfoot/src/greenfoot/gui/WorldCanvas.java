@@ -50,7 +50,7 @@ import javax.swing.SwingConstants;
  * The visual representation of the world.
  * 
  * @author Poul Henriksen
- * @version $Id: WorldCanvas.java 6733 2009-09-19 07:56:57Z davmac $
+ * @version $Id: WorldCanvas.java 7893 2010-07-22 06:25:34Z davmac $
  */
 public class WorldCanvas extends JPanel
     implements  DropTarget, Scrollable
@@ -145,7 +145,6 @@ public class WorldCanvas extends JPanel
         if (world == null) {
             return;
         }
-        
         
         // We need to sync, so that objects are not added and removed when we
         // traverse the list.

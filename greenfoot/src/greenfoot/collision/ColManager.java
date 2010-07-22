@@ -147,6 +147,7 @@ public class ColManager
         return collisionChecker.getNeighbours(actor, distance, diag, cls);
     }
 
+    @SuppressWarnings("unchecked")
     public <T extends Actor> List<T> getObjects(Class<T> cls)
     {
         List<T> result = collisionChecker.getObjects(cls);

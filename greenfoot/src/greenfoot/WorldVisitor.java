@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -32,7 +32,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * in the public interface visible to users.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: WorldVisitor.java 6725 2009-09-19 04:55:02Z davmac $
  */
 public class WorldVisitor
 {
@@ -51,9 +50,10 @@ public class WorldVisitor
         return w.getCellSize();
     }
     
-    public static Collection getObjectsAtPixel(World w, int x, int y)
+    @SuppressWarnings("unchecked")
+    public static Collection<Actor> getObjectsAtPixel(World w, int x, int y)
     {
-        return w.getObjectsAtPixel(x, y);
+        return (Collection<Actor>) w.getObjectsAtPixel(x, y);
     }
 
     /**

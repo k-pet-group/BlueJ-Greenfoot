@@ -21,9 +21,11 @@
  */
 package greenfoot.collision;
 
+import greenfoot.TestUtilDelegate;
 import greenfoot.World;
 import greenfoot.TestObject;
 import greenfoot.WorldCreator;
+import greenfoot.util.GreenfootUtil;
 
 import java.util.Collection;
 
@@ -37,6 +39,13 @@ import junit.framework.TestCase;
 public class InRangeTest extends TestCase
 {
     private World world;
+    
+    @Override
+    protected void setUp()
+        throws Exception
+    {
+        GreenfootUtil.initialise(new TestUtilDelegate());        
+    }
 
     public void testNoWrap()
     {

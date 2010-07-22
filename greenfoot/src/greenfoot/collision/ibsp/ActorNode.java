@@ -106,6 +106,8 @@ public final class ActorNode
     /**
      * Remove this actor node. The node is removed from both the BSPNode
      * which contains it, and the linked list of actor nodes for the actor.
+     * The next() call will still be valid, unless the next actor is also
+     * removed.
      */
     public void remove()
     {

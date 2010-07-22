@@ -21,7 +21,7 @@
  */
 package greenfoot.collision.ibsp;
 
-public class Rect
+final public class Rect
 {
     private int x, y, width, height;
     
