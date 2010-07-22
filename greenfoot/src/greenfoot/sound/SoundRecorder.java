@@ -24,6 +24,7 @@ package greenfoot.sound;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -62,7 +63,7 @@ public class SoundRecorder
      * Starts recording.  You should make sure to call stop() exactly once after
      * each call to start()
      */
-    public void start()
+    public void startRecording()
     {
         try {
             line = (TargetDataLine)AudioSystem.getLine(new DataLine.Info(TargetDataLine.class, format));
@@ -113,7 +114,7 @@ public class SoundRecorder
     /**
      * Stops recording.  Should be called exactly once for each call to start().
      */
-    public void stop()
+    public void stopRecording()
     {
         keepRecording.set(false);
         recorded = null;
@@ -167,9 +168,35 @@ public class SoundRecorder
             
     }
 
+    /**
+     * Gets the raw array of bytes representing the currently recorded sound
+     */
     public byte[] getRawSound()
     {
         return recorded;
     }
+    
+    /**
+     * Trims the current sound recording (if any) to the given offsets.
+     * 
+     * The offsets are given as floats in the range 0 to 1.
+     */
+    public void trim(float begin, float end)
+    {
+        if (recorded != null)
+        {
+            int beginIndex = (int)(begin * (float)recorded.length);
+            int endIndex = (int)(end * (float)recorded.length);
+            
+            recorded = Arrays.copyOfRange(recorded, beginIndex, endIndex);
+        }
+    }
 
+    /**
+     * Gets the format that was used to record the sound.
+     */
+    public AudioFormat getFormat()
+    {
+        return format;
+    }
 }
