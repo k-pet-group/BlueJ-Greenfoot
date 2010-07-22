@@ -1550,9 +1550,10 @@ public final class Config
             }
             
             StringBuffer arg = new StringBuffer();
-            char c = str.charAt(i++);
+            char c;
             
-            do {
+            while (i < str.length()) {
+                c = str.charAt(i++);
                 if (c == '\\') {
                     if (i < str.length()) {
                         arg.append(str.charAt(i++));
@@ -1581,8 +1582,7 @@ public final class Config
                 else {
                     arg.append(c);
                 }
-                c = str.charAt(i++);
-            } while (i < str.length());
+            }
             strings.add(arg.toString());
         }
         
