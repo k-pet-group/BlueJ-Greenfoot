@@ -139,14 +139,14 @@ final public class Rect
 
     public boolean intersects(Rect otherBounds)
     {        
-        if(x <= otherBounds.x && otherBounds.x >= getRight()) {
+        if (otherBounds.x >= getRight()) {
             return false;
-        } else if (otherBounds.x < x && x >= otherBounds.getRight()) {
+        } else if (x >= otherBounds.getRight()) {
             return false;
         }         
-        if(y <= otherBounds.y && otherBounds.y >= getTop()) {
+        if (otherBounds.y >= getTop()) {
             return false;
-        } else if (otherBounds.y < y && y >= otherBounds.getTop()) {
+        } else if (y >= otherBounds.getTop()) {
             return false;
         }
         return true;
