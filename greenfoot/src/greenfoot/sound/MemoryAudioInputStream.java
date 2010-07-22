@@ -131,8 +131,6 @@ public class MemoryAudioInputStream implements GreenfootAudioInputStream
             maxRead = left - (left % getFrameSize());
         }
         
-        Debug.message("Copying from " + curIndex + " of " + endOffset + " bounds " + sound.length + " to " + off + " of " + b.length + " after req " + len + " actual " + maxRead);
-        
         System.arraycopy(sound, curIndex, b, off, maxRead);
         curIndex += maxRead;
         

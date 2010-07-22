@@ -21,6 +21,7 @@
  */
 package greenfoot.gui.soundrecorder;
 
+import greenfoot.core.GProject;
 import greenfoot.sound.MemoryAudioInputStream;
 import greenfoot.sound.Sound;
 import greenfoot.sound.SoundPlaybackListener;
@@ -37,14 +38,20 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.io.File;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.rmi.RemoteException;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+
+import bluej.extensions.ProjectNotOpenException;
+import bluej.utility.Debug;
 
 /**
  * The GUI class for the sound recorder.
@@ -66,12 +73,16 @@ public class SoundRecorderDialog extends JDialog
     private JButton trim;
     private JButton playStop;
     private JButton recordStop;
+    private JTextField filenameField;
+    private JButton saveButton;
     
     boolean playing = false;
 
     private SoundPanel soundPanel;
     
-    public SoundRecorderDialog()
+    private String projectSoundDir;
+    
+    public SoundRecorderDialog(GProject project)
     {
         soundPanel = new SoundPanel();
         recordStop = new JButton("Record");
@@ -88,8 +99,6 @@ public class SoundRecorderDialog extends JDialog
                     //Stop recording
                     recorder.stopRecording();
                     playStop.setEnabled(true);
-                    //TODO make the name of the WAV file configurable, but always write to project dir
-                    recorder.writeWAV(new File("/home/neil/work/greenfoot/recording.wav"));
                     soundPanel.repaint();
                     recordStop.setText("Record");
                 }
@@ -119,6 +128,53 @@ public class SoundRecorderDialog extends JDialog
         box.add(trim);
         box.add(playStop);
         
+        Box saveBox = new Box(BoxLayout.X_AXIS);
+        saveBox.add(new JLabel("Filename: "));
+        filenameField = new JTextField();
+        filenameField.getDocument().addDocumentListener(new DocumentListener() {
+            
+            public void removeUpdate(DocumentEvent e)
+            {
+                updateSaveButton();
+                
+            }
+            
+            public void insertUpdate(DocumentEvent e)
+            {
+                updateSaveButton();                
+            }
+            
+            public void changedUpdate(DocumentEvent e)
+            {                
+            }
+        });
+        saveBox.add(filenameField);
+        saveBox.add(new JLabel(".wav"));
+        saveButton = new JButton("Save");
+        saveButton.setEnabled(false);
+        projectSoundDir = null;
+        try {
+            projectSoundDir = project.getDir() + "/sounds/";
+        }
+        catch (RemoteException e) {
+            projectSoundDir = null;
+            Debug.reportError("Project not open when recording sounds", e);
+        }
+        catch (ProjectNotOpenException e) {
+            projectSoundDir = null;
+            Debug.reportError("Project not open when recording sounds", e);
+        }
+        saveButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e)
+            {
+                if (projectSoundDir != null)
+                    recorder.writeWAV(new File(projectSoundDir + filenameField.getText() + ".wav"));                
+            }
+        });
+        saveBox.add(saveButton);
+        
+        box.add(saveBox);
+        
         add(box);
         pack();
         setVisible(true);
@@ -128,6 +184,11 @@ public class SoundRecorderDialog extends JDialog
     {
         trim.setEnabled(selectionActive);
         playStop.setText(selectionActive ? "Play selected" : "Play");
+    }
+    
+    private void updateSaveButton()
+    {
+        saveButton.setEnabled(recorder.getRawSound() != null && !filenameField.getText().isEmpty());
     }
     
     private class Player implements ActionListener, SoundPlaybackListener
