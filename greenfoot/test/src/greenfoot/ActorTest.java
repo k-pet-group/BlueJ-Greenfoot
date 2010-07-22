@@ -22,8 +22,6 @@
 package greenfoot;
 
 import greenfoot.collision.ibsp.Rect;
-import greenfoot.core.WorldHandler;
-import greenfoot.platforms.WorldHandlerDelegate;
 import greenfoot.util.GreenfootUtil;
 import junit.framework.TestCase;
 
