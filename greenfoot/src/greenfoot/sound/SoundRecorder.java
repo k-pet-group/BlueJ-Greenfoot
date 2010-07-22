@@ -124,6 +124,7 @@ public class SoundRecorder
             catch (InterruptedException e) {
             }
         }
+        line.close();
     }
     
     /**
@@ -164,6 +165,11 @@ public class SoundRecorder
         return result;
             
             
+    }
+
+    public byte[] getRawSound()
+    {
+        return recorded;
     }
 
 }
