@@ -57,20 +57,22 @@ public final class BSPNode
         actors = new HashMap<Actor, ActorNode>();
     }
     
+    /**
+     * Set the child on either side. The child's area must be set
+     * appropriately before calling this.
+     */
     public void setChild(int side, BSPNode child)
     {
         if (side == IBSPColChecker.PARENT_LEFT) {
             left = child;
             if (child != null) {
                 child.parent = this;
-                child.setArea(getLeftArea());
             }
         }
         else {
             right = child;
             if (child != null) {
                 child.parent = this;
-                child.setArea(getRightArea());
             }
         }
     }
@@ -196,7 +198,6 @@ public final class BSPNode
      */
     public boolean containsActor(Actor actor)
     {
-        // return actors.containsKey(actor);
         ActorNode anode = actors.get(actor);
         if (anode != null) {
             anode.mark();
@@ -215,6 +216,9 @@ public final class BSPNode
         return actors.size();
     }
     
+    /**
+     * Check whether any actors are registered in this node.
+     */
     public boolean isEmpty()
     {
         return actors.isEmpty();
