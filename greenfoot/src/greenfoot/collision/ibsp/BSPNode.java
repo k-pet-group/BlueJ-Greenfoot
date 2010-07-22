@@ -26,19 +26,21 @@ import greenfoot.Actor;
 import java.util.*;
 
 /**
- * A node in a BSP tree.
+ * A node in a BSP tree. Each node covers a rectangular area, and is potentially split
+ * down either axis to allow two child nodes. A BSP node area contains one or more
+ * Actors (or parts of Actors); in implementation, this is represented as a map of
+ * Actor to ActorNode.
  * 
  * @author Davin McCall
  */
 public final class BSPNode
 {
-    // private List<ActorNode> actorNodes;
     private Map<Actor, ActorNode> actors;
     
     private BSPNode parent;
     private Rect area;
     private int splitAxis;  // which axis is split
-    private int splitPos;  // where it is split (absolute)
+    private int splitPos;   // where it is split (absolute)
     private BSPNode left;
     private BSPNode right;
     
@@ -57,16 +59,11 @@ public final class BSPNode
     
     public void setChild(int side, BSPNode child)
     {
-//        int oldDepth = getDepth();
         if (side == IBSPColChecker.PARENT_LEFT) {
             left = child;
             if (child != null) {
                 child.parent = this;
                 child.setArea(getLeftArea());
-//                leftDepth = child.getDepth();
-            }
-            else {
-//                leftDepth = 0;
             }
         }
         else {
@@ -74,73 +71,14 @@ public final class BSPNode
             if (child != null) {
                 child.parent = this;
                 child.setArea(getRightArea());
-//                rightDepth = child.getDepth();
-            }
-            else {
-//                rightDepth = 0;
             }
         }
-//        int depth = getDepth();
-//        if (depth != oldDepth) {
-//            if (parent != null) {
-//                parent.updateDepth();
-//            }
-//        }
     }
-    
-//    private void updateDepth()
-//    {
-//        int oldDepth = getDepth();
-//        leftDepth = left != null ? left.getDepth() : 0;
-//        rightDepth = right != null ? right.getDepth() : 0;
-//        int depth = getDepth();
-//        if (depth != oldDepth) {
-//            if (parent != null) {
-//                parent.updateDepth();
-//            }
-//        }
-//    }
-    
-//    public int getDepth()
-//    {
-//        return Math.max(leftDepth, rightDepth) + 1;
-//    }
-    
-//    public int getLeftDepth()
-//    {
-//        return leftDepth;
-//    }
-    
-//    public boolean needsRebalance()
-//    {
-//        return Math.abs(leftDepth - rightDepth) > IBSPColChecker.REBALANCE_THRESHOLD;
-//    }
-    
-//    public int getRightDepth()
-//    {
-//        return rightDepth;
-//    }
     
     public void setArea(Rect area)
     {
-//        if (this.area != null) {
-//            if (! area.contains(this.area)) {
-//                System.out.println("Error, old area = " + this.area + ", new area = " + area);
-//                throw new Error();
-//            }
-//        }
         this.area = area;
         areaRipple = true;
-//        if (splitAxis == IBSPColChecker.Y_AXIS) {
-//            if (splitPos < area.getY() || splitPos > area.getTop()) {
-//                throw new Error();
-//            }
-//        }
-//        else {
-//            if (splitPos < area.getX() || splitPos > area.getRight()) {
-//                throw new Error();
-//            }
-//        }
     }
     
     public void setSplitAxis(int axis)
@@ -268,14 +206,6 @@ public final class BSPNode
         actors.remove(actor);
     }
     
-//    public void removeActor(Actor actor)
-//    {
-//        ActorNode anode = actors.remove(actor);
-//        if (anode != null) {
-//            anode.removed();
-//        }
-//    }
-    
     public int numberActors()
     {
         return actors.size();
@@ -300,17 +230,4 @@ public final class BSPNode
     {
         return new ArrayList<Actor>(actors.keySet());
     }
-    
-    /**
-     * Remove all actors from this node.
-     */
-//    public void clear()
-//    {
-//        Iterator<Map.Entry<Actor,ActorNode>> i = actors.entrySet().iterator();
-//
-//        while (i.hasNext()) {
-//            i.next().getValue().removed();
-//            i.remove();
-//        }
-//    }
 }

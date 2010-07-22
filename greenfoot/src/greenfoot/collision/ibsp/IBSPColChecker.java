@@ -32,6 +32,10 @@ import java.util.*;
 /**
  * A collision checker using a Binary Space Partition tree.
  * 
+ * <p>Each node of the tree represents a rectangular area, and potentially has
+ * two non-overlapping child nodes which together cover the same area as their
+ * parent.
+ * 
  * @author Davin McCall
  */
 public class IBSPColChecker implements CollisionChecker
@@ -54,9 +58,6 @@ public class IBSPColChecker implements CollisionChecker
     
     private BSPNode bspTree;
     private Rect allArea = new Rect(0 - Integer.MAX_VALUE / 2, 0 - Integer.MAX_VALUE / 2, Integer.MAX_VALUE, Integer.MAX_VALUE);
-    
-    /** the node scheduled to be re-balanced */
-    // private BSPNode rebalanceNode;
     
     public static boolean debugging = false;
     
@@ -288,7 +289,7 @@ public class IBSPColChecker implements CollisionChecker
     
     /**
      * Check whether a node can be removed, and remove it if so, traversing up the
-     * tree and so on. Removes the highest node which wasn't removed.
+     * tree and so on. Returns the highest node which wasn't removed.
      */
     private BSPNode checkRemoveNode(BSPNode node)
     {

@@ -23,6 +23,13 @@ package greenfoot.collision.ibsp;
 
 import greenfoot.Actor;
 
+/**
+ * An ActorNode represents a piece (or whole) of an Actor within the IBSP collision
+ * checking tree. Because an actor can be split over several tree nodes, it may be
+ * represented by several ActorNodes, which are linked together in a linked list. 
+ * 
+ * @author Davin McCall
+ */
 public final class ActorNode
 {
     private Actor actor;
@@ -47,16 +54,29 @@ public final class ActorNode
         mark = true;
     }
     
+    /**
+     * Clar the mark on this ActorNode. This is used by the collision
+     * checker when actors reposition or resize.
+     */
     public void clearMark()
     {
         mark = false;
     }
     
+    /**
+     * Mark this ActorNode. This is used by the collision checker when
+     * actors reposition or resize.
+     */
     public void mark()
     {
         mark = true;
     }
     
+    /**
+     * Check, and clear, the mark on this ActorNode. This is used by the
+     * collision checker when actors reposition or resize. Returns the
+     * mark value before it was cleared.
+     */
     public boolean checkMark()
     {
         boolean markVal = mark;
