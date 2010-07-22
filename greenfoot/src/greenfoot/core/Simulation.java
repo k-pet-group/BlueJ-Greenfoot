@@ -30,7 +30,6 @@ import greenfoot.event.WorldEvent;
 import greenfoot.event.WorldListener;
 import greenfoot.platforms.SimulationDelegate;
 import greenfoot.util.HDTimer;
-
 import java.awt.EventQueue;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -63,7 +62,7 @@ public class Simulation extends Thread
     private volatile boolean enabled;
 
     /** Whether to run one loop when paused */
-    private volatile boolean runOnce;
+    private boolean runOnce;
 
     private EventListenerList listenerList = new EventListenerList();
 
@@ -89,7 +88,6 @@ public class Simulation extends Thread
      * calculate the frame rate. Accessed only from the simulation thread.
      */
     private Queue<Long> repaintTimes = new LinkedList<Long>();
-    private volatile boolean interruptedForSpeedChange = false;
     private SimulationDelegate delegate;
 
     /**
@@ -99,7 +97,7 @@ public class Simulation extends Thread
     private boolean paintPending;
 
     /**
-     * Lock to synchronize access to the two feilds: delaying and interruptDelay
+     * Lock to synchronize access to the two fields: delaying and interruptDelay
      */
     private Object interruptLock = new Object();
     /** Whether we are currently delaying between act-loops. */
@@ -160,16 +158,8 @@ public class Simulation extends Thread
      */
     public void run()
     {
-        System.gc();
         while (!abort) {
             try {
-                if(interruptedForSpeedChange) {
-                    // If it was interrupted because of a speed change, then we
-                    // delay an amount equal to the new delay.
-                    interruptedForSpeedChange = false;
-                    delay();
-                }
-                                
                 maybePause();
                 
                 World world = worldHandler.getWorld();
@@ -183,14 +173,15 @@ public class Simulation extends Thread
             catch (ActInterruptedException e) {
                 // Someone interrupted the user code. We ignore it and let
                 // maybePause() handle whatever needs to be done.
-                
             }
             catch (InterruptedException e) {
             	//maybePause was interrupted. Do nothing, will be handled the next time we get to maybePause.
             }
             catch (Throwable t) {
                 // If any other exceptions occur, halt the simulation
-                paused = true;
+                synchronized (this) {
+                    paused = true;
+                }
                 t.printStackTrace();
             }
         }
@@ -217,7 +208,6 @@ public class Simulation extends Thread
     private synchronized void maybePause()
         throws InterruptedException
     {
-
         if(runOnce || paused) {
             // This code will be executed when:
             //  runOnce is over
@@ -436,6 +426,9 @@ public class Simulation extends Thread
         paintPending = true;
         worldHandler.repaint();
 
+        // Having issued a repaint, we now put another event on the event queue,
+        // which should run after the repaint. When this event runs, we know that
+        // the repaint has also run.
         EventQueue.invokeLater(new Runnable() {
             public void run()
             {
@@ -531,7 +524,7 @@ public class Simulation extends Thread
     /**
      * Interrupt if we are currently delaying between act-loops or the user is
      * using the Greenfoot.delay() method. This will basically jump to the next
-     * act-loop as fast as possible while still excuting the rest of actors in
+     * act-loop as fast as possible while still executing the rest of actors in
      * the current loop. Used by setPaused() and setSpeed() to interrupt current
      * delays.
      */
@@ -622,20 +615,26 @@ public class Simulation extends Thread
             speed = MAX_SIMULATION_SPEED;
         }
 
-        if (this.speed != speed) {
-            this.speed = speed;
-            
-            delegate.setSpeed(speed);
-            
-            this.delay = calculateDelay(speed);
+        boolean speedChanged;
+        synchronized (this) {
+            speedChanged = this.speed != speed;
+            if (speedChanged) {
+                this.speed = speed;
+                
+                delegate.setSpeed(speed);
+                
+                this.delay = calculateDelay(speed);
 
-            // If simulation is running we should interrupt any waiting or
-            // sleeping that is currently happening.
-            
-            if(!paused) {
-                interruptedForSpeedChange = true;
-                interruptDelay();
-            }    
+                // If simulation is running we should interrupt any waiting or
+                // sleeping that is currently happening.
+                
+                if(!paused) {
+                    interruptDelay();
+                }    
+            }
+        }
+        
+        if (speedChanged) {
             fireSimulationEvent(speedChangeEvent);
         }
     }
@@ -666,7 +665,7 @@ public class Simulation extends Thread
      * 
      * @return The speed in the range (1..100)
      */
-    public int getSpeed()
+    public synchronized int getSpeed()
     {
         return speed;
     }
@@ -680,19 +679,20 @@ public class Simulation extends Thread
     {
         World world = WorldHandler.getInstance().getWorld();
 
-        if (paused && isRunning && !runOnce) {
-            // If it should be paused but is still running, it means that we
-            // should try to end as quickly as possible and hence should NOT
-            // delay.
-            // If the user is interactively invoking a method that calls this
-            // method, it will not be caught here, which is the correct
-            // behaviour. Otherwise the call to sleep() will have no visible
-            // effect at all.
-            return;
+        synchronized (this) {
+            if (paused && isRunning && !runOnce) {
+                // If it should be paused but is still running, it means that we
+                // should try to end as quickly as possible and hence should NOT
+                // delay.
+                // If the user is interactively invoking a method that calls this
+                // method, it will not be caught here, which is the correct
+                // behaviour. Otherwise the call to sleep() will have no visible
+                // effect at all.
+                return;
+            }
         }
         
         try {
-            
             synchronized (interruptLock) {
                 if (interruptDelay) {
                     // If interrupted, we just want to return now. We do not
@@ -730,60 +730,45 @@ public class Simulation extends Thread
      * simulation. It will take the time spend in this simulation loop into
      * consideration and only pause the remaining time.
      * 
-     * This method is used for timing the animation.
+     * This method is used for controlling the speed of the animation.
      */
-    private void delay() throws ActInterruptedException
+    private void delay()
     {
-        try {
-            long currentTime = System.nanoTime();
-            long timeElapsed = currentTime - this.lastDelayTime;
-            long actualDelay = delay - timeElapsed;
+        long currentTime = System.nanoTime();
+        long timeElapsed = currentTime - lastDelayTime;
+        long actualDelay = Math.max(delay - timeElapsed, 0L);
 
-            // It is not possible to go back in time, so don't try it!
-            if (actualDelay < 0) {
-                actualDelay = 0;
+        synchronized (interruptLock) {
+            if(interruptDelay) {
+                // interruptDelay was issued before entering this sync, so interrupt now.
+                interruptDelay = false;
+                if (paused || abort) {
+                    lastDelayTime = currentTime;
+                    return; // return... without delay
+                }
             }
-            
-            if (actualDelay > 0) {
-                // Signal that we are now in the delay part of the code, by setting delaying=true
-                synchronized (interruptLock) {
-                    if(interruptDelay) {
-                        // interruptDelay was issued before entering this sync, so interrupt now.
-                        interruptDelay = false;
-                        throw new InterruptedException("Interrupted in Simulation.delay() before sleep.");
-                    }
-                    delaying = true;
-                }                
-                
+            delaying = true;
+        }
+
+        while (actualDelay > 0) {
+
+            try {
                 HDTimer.sleep(actualDelay);
-                
             }
-            else {
-                // If we get to this point, it means that we have trouble
-                // keeping up with chosen speed, and that we are probably
-                // starving the CPU. Running at full speed means infinite speed
-                // and hence we will always end here when running at full speed.
-            }            
+            catch (InterruptedException ie) {
+                if (paused || abort) {
+                    break;
+                }
+            }
 
-            // This is the time at which the delay should be over. Instead of
-            // using the time after sleep we use the time measured at the
-            // beginning, so that the bad precision of sleep() will not have too
-            // big an impact.
-            // The reason we put it here (and not before the sleep), is so that
-            // it is not set if we are interrupted, because an interruption will
-            // get back to this point (if interrupted for speed) or will be
-            // reset (if interrupted for pausing).
-            this.lastDelayTime = currentTime + actualDelay;
+            currentTime = System.nanoTime();
+            timeElapsed = currentTime - lastDelayTime;
+            actualDelay = delay - timeElapsed;
         }
-        catch (InterruptedException e) {            
-            throw new ActInterruptedException(e);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            synchronized (interruptLock) {
-                delaying = false;
-            }
+
+        lastDelayTime = currentTime;
+        synchronized (interruptLock) {
+            delaying = false;
         }
     }
 
