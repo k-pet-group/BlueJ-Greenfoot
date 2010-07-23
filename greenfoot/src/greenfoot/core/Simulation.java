@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -30,7 +30,6 @@ import greenfoot.event.WorldEvent;
 import greenfoot.event.WorldListener;
 import greenfoot.platforms.SimulationDelegate;
 import greenfoot.util.HDTimer;
-import java.awt.EventQueue;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -88,6 +87,9 @@ public class Simulation extends Thread
      * calculate the frame rate. Accessed only from the simulation thread.
      */
     private Queue<Long> repaintTimes = new LinkedList<Long>();
+    private long lastRepaintTime;
+    private Object repaintLock = new Object();
+    
     private SimulationDelegate delegate;
 
     /**
@@ -227,13 +229,7 @@ public class Simulation extends Thread
                     paused = true;
                     t.printStackTrace();
                 }
-                finally {
-                    // Release lock if we have it (we might not have the
-                    // lock if interrupted)
-                    if (lock.isWriteLockedByCurrentThread()) {
-                        lock.writeLock().unlock();
-                    }
-                }
+                lock.writeLock().unlock();
             }
             isRunning = false;
             runOnce = false;
@@ -264,6 +260,7 @@ public class Simulation extends Thread
             }
                 
             if (!paused && enabled && !abort) {
+                // We should begin execution again.
                 repaintTimes.clear();
                 lastDelayTime = System.nanoTime();
                 fireSimulationEvent(startedEvent);
@@ -282,12 +279,7 @@ public class Simulation extends Thread
                     world.started();
                 }
                 finally {
-                    // Release lock if we have it (we might not have the
-                    // lock if
-                    // interrupted)
-                    if (lock.isWriteLockedByCurrentThread()) {
-                        lock.writeLock().unlock();
-                    }
+                    lock.writeLock().unlock();
                 }
             }
         }
@@ -296,6 +288,7 @@ public class Simulation extends Thread
     /**
      * Performs one step in the simulation. Calls act() on all actors.
      * 
+     * @throws ActInterruptedException  if an act() call was interrupted.
      */
     private void runOneLoop()
     {
@@ -345,11 +338,7 @@ public class Simulation extends Thread
                 }
             }
             finally {
-                // Release lock if we have it (we might not have the lock if
-                // interrupted)
-                if(lock.isWriteLockedByCurrentThread()){
-                    lock.writeLock().unlock();
-                }
+                lock.writeLock().unlock();
             }
         }
         catch (InterruptedException e) {
@@ -388,28 +377,31 @@ public class Simulation extends Thread
      */
     private void repaintIfNeeded()
     {
-        int repaintRate = getRepaintRate();
-        if (repaintRate <= MAX_FRAME_RATE) {
+        long currentTime = System.currentTimeMillis();
+        long timeSinceLast = Math.max(1, currentTime - lastRepaintTime);
+        
+        if ((1000 / timeSinceLast) <= MAX_FRAME_RATE) {
             try {
-                synchronized(this) {
+                synchronized(repaintLock) {
+                    
+                    // Current frame rate is less than maximum, so we'll at least request
+                    // a repaint at this time.
+                    if (! paintPending) {
+                        lastRepaintTime = currentTime;
+                        repaintTimes.offer(currentTime);
+                        worldHandler.repaint();
+                        paintPending = true;
+                    }
+                    
+                    int repaintRate = getRepaintRate();
                     if (repaintRate <= MIN_FRAME_RATE) {
-                        repaintTimes.offer(System.currentTimeMillis());
-
                         // Waiting here makes sure the WorldCanvas gets a chance to
                         // repaint. It also lets the rest of the UI be responsive, even if
                         // we are running at maximum speed, by making sure events on the
                         // event queue are processed.
 
                         while (paintPending) {
-                            wait();
-                        }
-                        
-                        doRepaint();
-                    }
-                    else {
-                        if (! paintPending) {
-                            repaintTimes.offer(System.currentTimeMillis());
-                            doRepaint();
+                            repaintLock.wait();
                         }
                     }
                 }
@@ -419,26 +411,18 @@ public class Simulation extends Thread
     }
 
     /**
-     * Issue a repaint of the world canvas.
+     * Inform the simulation that the world has been repainted successfully.
      */
-    private void doRepaint()
+    public void worldRepainted()
     {
-        paintPending = true;
-        worldHandler.repaint();
-
-        // Having issued a repaint, we now put another event on the event queue,
-        // which should run after the repaint. When this event runs, we know that
-        // the repaint has also run.
-        EventQueue.invokeLater(new Runnable() {
-            public void run()
-            {
-                synchronized (Simulation.this) {
-                    paintPending = false;
-                    // worldHandler.paintImmediately();
-                    Simulation.this.notifyAll();
-                }
-            }
-        });
+        synchronized (repaintLock) {
+            paintPending = false;
+            //long response = System.currentTimeMillis() - lastRepaintTime;
+            //if (response > 250) {
+            //    System.out.println("Repaint response time: " + response);
+            //}
+            repaintLock.notify();
+        }
     }
     
     /**
@@ -458,10 +442,8 @@ public class Simulation extends Thread
             lastRepaintTime = repaintTimes.peek();
         }
         
-        long timeSinceRepaint = currentTime - lastRepaintTime;
         // Avoid divide by zero
-        if (timeSinceRepaint == 0)
-            timeSinceRepaint = 1;
+        long timeSinceRepaint = Math.max(1, currentTime - lastRepaintTime);
         int frameRate = (int) ((knownRepaintTimes * 1000L) / timeSinceRepaint);
         return frameRate;
     }
@@ -547,28 +529,33 @@ public class Simulation extends Thread
      */
     public synchronized void setEnabled(boolean b)
     {
+        if (b == enabled) {
+            return;
+        }
+
+        enabled = b;
+        
         if (b) {
             notifyAll();
+            // fire a paused event to let listeners know we are
+            // enabled again
+            fireSimulationEvent(stoppedEvent);
         }
-        if (enabled != b) {
-            enabled = b;
-            if (!enabled) {
-                paused = true;
-                interrupt();
-                fireSimulationEvent(disabledEvent);
-            }
-            else {
-                // fire a paused event to let listeners know we are
-                // enabled again
-                fireSimulationEvent(stoppedEvent);
-            }
+        else {
+            paused = true;
+            interrupt();
+            fireSimulationEvent(disabledEvent);
         }
     }
 
     private void fireSimulationEvent(SimulationEvent event)
     {
         // Guaranteed to return a non-null array
-        Object[] listeners = listenerList.getListenerList();
+        Object[] listeners;
+        synchronized (this) {
+            listeners = listenerList.getListenerList();
+        }
+        
         // Process the listeners last to first, notifying
         // those that are interested in this event
         for (int i = listeners.length - 2; i >= 0; i -= 2) {
@@ -730,13 +717,20 @@ public class Simulation extends Thread
      * simulation. It will take the time spend in this simulation loop into
      * consideration and only pause the remaining time.
      * 
-     * This method is used for controlling the speed of the animation.
+     * <p>This method is used for controlling the speed of the animation.
      */
     private void delay()
     {
         long currentTime = System.nanoTime();
         long timeElapsed = currentTime - lastDelayTime;
         long actualDelay = Math.max(delay - timeElapsed, 0L);
+        
+        boolean paused;
+        boolean abort;
+        synchronized (this) {
+            paused = this.paused;
+            abort = this.abort;
+        }
 
         synchronized (interruptLock) {
             if(interruptDelay) {

@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -50,7 +50,6 @@ import javax.swing.SwingConstants;
  * The visual representation of the world.
  * 
  * @author Poul Henriksen
- * @version $Id: WorldCanvas.java 7904 2010-07-22 15:18:44Z davmac $
  */
 public class WorldCanvas extends JPanel
     implements  DropTarget, Scrollable
@@ -168,18 +167,12 @@ public class WorldCanvas extends JPanel
                 }
                 finally {
                     lock.readLock().unlock();
-
-                    // Wake up any threads waiting. For instance the
-                    // World.repaint() call.
-                    if (lock.writeLock().tryLock()) {
-                        try {
-                            lock.writeLock().newCondition().signalAll();
-                        }
-                        finally {
-                            lock.writeLock().unlock();
-                        }
-                    }
+                    WorldVisitor.worldPainted(world);
                 }
+            }
+            else {
+                WorldVisitor.worldPainted(world); // we failed, but notify waiters anyway
+                // (otherwise they keep waiting indefinitely...)
             }
         }
         catch (InterruptedException e) {

@@ -26,6 +26,7 @@ import greenfoot.collision.ColManager;
 import greenfoot.collision.CollisionChecker;
 import greenfoot.collision.ibsp.Rect;
 import greenfoot.core.ActInterruptedException;
+import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
 
 import java.awt.Color;
@@ -35,24 +36,21 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-
-
 
 
 /**
  * World is the world that Actors live in. It is a two-dimensional grid of
- * cells. <br>
+ * cells.
  * 
- * All Actor are associated with a World and can get access to the world object.
+ * <p>All Actor are associated with a World and can get access to the world object.
  * The size of cells can be specified at world creation time, and is constant
  * after creation. Simple scenarios may use large cells that entirely contain
  * the representations of objects in a single cell. More elaborate scenarios may
  * use smaller cells (down to single pixel size) to achieve fine-grained
  * placement and smoother animation.
  * 
- * The world background can be decorated with drawings or images.
+ * <p>The world background can be decorated with drawings or images.
  * 
  * @see greenfoot.Actor
  * @author Poul Henriksen
@@ -97,6 +95,10 @@ public abstract class World
     ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
     /** Timeout used for readers attempting to acquire lock */
     static final int READ_LOCK_TIMEOUT = 500;
+    
+    /** Condition used to wait for repaint */
+    private Object repaintLock = new Object();
+    private boolean isRepaintPending = false;
     
     /** Whether actors are bound to stay inside the world */
     private boolean isBounded;
@@ -528,23 +530,47 @@ public abstract class World
     public void repaint() 
     {   
         WorldHandler.getInstance().repaint();
-        // If we have the write lock now, we need to release it for the repaint
-        // to actually happen:
-        if (lock.isWriteLockedByCurrentThread()) {
+        boolean isWorldLocked = lock.isWriteLockedByCurrentThread();
+        
+        synchronized (repaintLock) {
+            // If the world lock is held, as it should be unless this method is called from
+            // a user-created thread, we should unlock it to allow the repaint to occur.
+            if (isWorldLocked) {
+                lock.writeLock().unlock();
+            }
+            
+            // When the repaint actually happens, repainted() will be called, which
+            // sets isRepaintPending false and signals repaintLock.
+            isRepaintPending = true;
             try {
-                // TODO to really ensure a repaint, we should check whether the
-                // repaint actually happened and keep waiting until it does.
-                // Because we could get spurious wake ups. BUT, if we miss an
-                // update that is really not a big problem, so we just ignore it
-                lock.writeLock().newCondition().await(100, TimeUnit.MILLISECONDS);
+                do {
+                    repaintLock.wait(100);
+                } while (isRepaintPending);
             }
-            catch (InterruptedException e) {
-                // Since we have the writeLock, it means that we are executing in
-                // the simulation loop, and hence need interruptions to be
-                // handled by the simulation.
-                throw new ActInterruptedException(e);
+            catch (InterruptedException ie) {
+                throw new ActInterruptedException();
             }
-        }        
+            finally {
+                isRepaintPending = false; // in case our wait interrupted/timed out
+                if (isWorldLocked) {
+                    lock.writeLock().lock();
+                }
+            }
+        }
+    }
+    
+    /**
+     * The world has been painted.
+     */
+    void repainted()
+    {
+        synchronized (repaintLock) {
+            if (isRepaintPending) {
+                isRepaintPending = false;
+                repaintLock.notify();
+            }
+        }
+        Simulation.getInstance().worldRepainted();
     }
     
     /**
@@ -723,7 +749,7 @@ public abstract class World
         return cellCenter;
     }
     
-    Collection getObjectsAtPixel(int x, int y)
+    Collection<Actor> getObjectsAtPixel(int x, int y)
     {
         // This is a very naive and slow way of getting the objects at a given
         // pixel.
@@ -747,12 +773,7 @@ public abstract class World
         } 
       
         return result;
-        // return collisionChecker.getObjectsAt(Floor(x), toCellFloor(y), null);
     }
-    
-    
-
-   
 
     void updateObjectLocation(Actor object, int oldX, int oldY)
     {
@@ -775,7 +796,7 @@ public abstract class World
      */
     private GreenfootImage getClassImage()
     {
-        Class clazz = getClass();
+        Class<?> clazz = getClass();
         while (clazz != null) {
             GreenfootImage image = null;
             try {
@@ -838,11 +859,13 @@ public abstract class World
         collisionChecker.startSequence();
     }
 
+    @SuppressWarnings("unchecked")
     Actor getOneObjectAt(Actor object, int dx, int dy, Class cls)
     {
         return collisionChecker.getOneObjectAt(object, dx, dy, cls);
     }
 
+    @SuppressWarnings("unchecked")
     Actor getOneIntersectingObject(Actor object, Class cls)
     {
         return collisionChecker.getOneIntersectingObject(object, cls);

@@ -50,7 +50,6 @@ public class WorldVisitor
         return w.getCellSize();
     }
     
-    @SuppressWarnings("unchecked")
     public static Collection<Actor> getObjectsAtPixel(World w, int x, int y)
     {
         return (Collection<Actor>) w.getObjectsAtPixel(x, y);
@@ -68,6 +67,15 @@ public class WorldVisitor
     public static void paintDebug(World world, Graphics g)
     {
         world.paintDebug(g);
+    }
+    
+    /**
+     * Inform the world that it has been repainted; must be called with the world
+     * lock held.
+     */
+    public static void worldPainted(World world)
+    {
+        world.repainted();
     }
     
     /**

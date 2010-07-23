@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,10 +24,12 @@ package greenfoot.event;
 import java.util.EventListener;
 
 /**
- * Listener for simulation events
+ * Listener for simulation events.
+ * 
+ * <p>Events may be dispatched from the simulation thread and must be dealt with
+ * quickly.
  * 
  * @author Poul Henriksen
- * @version $Id: SimulationListener.java 6216 2009-03-30 13:41:07Z polle $
  */
 public interface SimulationListener
     extends EventListener

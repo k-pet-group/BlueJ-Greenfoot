@@ -72,7 +72,7 @@ public class WorldHandler
     implements TriggeredMouseListener, TriggeredMouseMotionListener, TriggeredKeyListener, DropTarget, DragListener, SimulationListener
 {
     private World initialisingWorld;
-    private World world;
+    private volatile World world;
     private WorldCanvas worldCanvas;
 
     // where did the the drag/drop operation begin? In pixels
@@ -448,7 +448,8 @@ public class WorldHandler
     /** 
      * Removes the current world.
      */
-    public synchronized void discardWorld() {
+    public synchronized void discardWorld()
+    {
         if(world == null) return;
         handlerDelegate.discardWorld(world); 
         final World discardedWorld = world;
@@ -495,7 +496,7 @@ public class WorldHandler
     /**
      * Return the currently active world.
      */
-    public World getWorld()
+    public synchronized World getWorld()
     {
         if (world == null)
             return initialisingWorld;
@@ -510,6 +511,8 @@ public class WorldHandler
      */
     public boolean drop(Object o, Point p)
     {
+        World world = this.world;
+        
         int maxHeight = WorldVisitor.getHeightInPixels(world);
         int maxWidth = WorldVisitor.getWidthInPixels(world);
         int x = (int) p.getX();
