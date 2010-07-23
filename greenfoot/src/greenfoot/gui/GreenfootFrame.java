@@ -619,7 +619,7 @@ public class GreenfootFrame extends JFrame
         addMenuItem(removeSelectedClassAction, editMenu, KeyEvent.VK_D, false, KeyEvent.VK_R);
         
         editMenu.addSeparator();
-        addMenuItem(new AbstractAction("Sound Recorder") {
+        addMenuItem(new AbstractAction(Config.getString("menu.soundRecorder")) {
             public void actionPerformed(ActionEvent e)
             {
                 new SoundRecorderDialog(GreenfootFrame.this, project);                

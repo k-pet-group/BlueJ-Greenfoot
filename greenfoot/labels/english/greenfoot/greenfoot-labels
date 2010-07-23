@@ -214,6 +214,19 @@ browser.border.world=World classes
 browser.border.actors=Actor classes
 browser.border.others=Other classes
 
+# Sound Recorder
+
+soundRecorder.title=Sound Recorder
+soundRecorder.record=Record
+soundRecorder.stopRecord=Stop recording
+soundRecorder.trim=Trim to selection
+soundRecorder.play=Play
+soundRecorder.playSelection=Play selection
+soundRecorder.stopPlay=Stop playing
+soundRecorder.filename=Filename
+soundRecorder.save=Save
+soundRecorder.done=Done
+
 # Menus
 
 menu.openRecent=Open recent
@@ -225,6 +238,8 @@ menu.edit=Edit
 menu.controls=Controls
 
 menu.debugger=Show Debugger
+
+menu.soundRecorder=Sound Recorder
 
 menu.help=Help
 menu.help.about=About Greenfoot...

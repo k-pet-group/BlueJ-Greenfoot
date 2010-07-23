@@ -52,6 +52,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import bluej.BlueJTheme;
+import bluej.Config;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
@@ -82,10 +83,14 @@ public class SoundRecorderDialog extends JDialog
     private JTextField filenameField;
     private JButton saveButton;
     
-    boolean playing = false;
-    boolean recording = false;
+    private boolean playing = false;
+    private boolean recording = false;
 
     private SoundPanel soundPanel;
+    
+    private final String playLabel;
+    private final String playSelectionLabel;
+    private final String stopPlayLabel;
     
     /**
      * Creates a SoundRecorderDialog that will save the sounds
@@ -94,21 +99,29 @@ public class SoundRecorderDialog extends JDialog
     public SoundRecorderDialog(JFrame owner, GProject project)
     {
         super(owner, true);
-        setTitle("Sound Recorder");
+        
+        playLabel = Config.getString("soundRecorder.play");
+        playSelectionLabel = Config.getString("soundRecorder.playSelection");
+        stopPlayLabel = Config.getString("soundRecorder.stopPlay");
+        
+        setTitle(Config.getString("soundRecorder.title"));
         buildUI(project);
     }
     
     // Builds the controls: record/trim/play
     private Box buildControlBox()
     {
-        recordStop = new JButton("Record");
+        final String recordLabel = Config.getString("soundRecorder.record");
+        final String stopRecordLabel = Config.getString("soundRecorder.stopRecord");
+        
+        recordStop = new JButton(recordLabel);
         recordStop.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
                 if (!recording) {
                     //Start recording
                     recorder.startRecording();
-                    recordStop.setText("Stop recording");
+                    recordStop.setText(stopRecordLabel);
                     playStop.setEnabled(false);
                     recording = true;
                 } else {
@@ -116,13 +129,13 @@ public class SoundRecorderDialog extends JDialog
                     recorder.stopRecording();
                     playStop.setEnabled(true);
                     soundPanel.repaint();
-                    recordStop.setText("Record");
+                    recordStop.setText(recordLabel);
                     recording = false;
                 }
             }
         });
         
-        trim = new JButton("Trim to selection");
+        trim = new JButton(Config.getString("soundRecorder.trim"));
         trim.setEnabled(false);
         trim.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
@@ -134,7 +147,7 @@ public class SoundRecorderDialog extends JDialog
             }
         });
         
-        playStop = new JButton("Play");
+        playStop = new JButton(playLabel);
         playStop.setEnabled(false);
         playStop.addActionListener(new Player());
         
@@ -153,7 +166,7 @@ public class SoundRecorderDialog extends JDialog
     private Box buildSaveBox(final String projectSoundDir)
     {
         Box saveBox = new Box(BoxLayout.X_AXIS);
-        saveBox.add(new JLabel("Filename: "));
+        saveBox.add(new JLabel(Config.getString("soundRecorder.filename") + ": "));
         filenameField = new JTextField();
         filenameField.setMaximumSize(new Dimension(Short.MAX_VALUE, filenameField.getPreferredSize().height));
         filenameField.getDocument().addDocumentListener(new DocumentListener() {
@@ -178,7 +191,7 @@ public class SoundRecorderDialog extends JDialog
         
         saveBox.add(Box.createHorizontalStrut(12));
         
-        saveButton = new JButton("Save");
+        saveButton = new JButton(Config.getString("soundRecorder.save"));
         saveButton.setEnabled(false);
         saveButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
@@ -212,7 +225,7 @@ public class SoundRecorderDialog extends JDialog
         
         contentPane.add(Box.createVerticalStrut(12));
         
-        JButton done = new JButton("Done");
+        JButton done = new JButton(Config.getString("soundRecorder.done"));
         done.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
@@ -247,7 +260,7 @@ public class SoundRecorderDialog extends JDialog
     private void updateButtons()
     {
         trim.setEnabled(selectionActive);
-        playStop.setText(selectionActive ? "Play selected" : "Play");
+        playStop.setText(selectionActive ? playSelectionLabel : playLabel);
     }
     
     // Updates the save button based on whether the filename field is blank (and whether a recording exists)
@@ -283,7 +296,7 @@ public class SoundRecorderDialog extends JDialog
                 stream = new SoundStream(memoryStream, this);
                 playing = true;
                 stream.play();
-                playStop.setText("Stop playing");
+                playStop.setText(stopPlayLabel);
                 recordStop.setEnabled(false);
                 
                 /*
