@@ -44,14 +44,17 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import bluej.BlueJTheme;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.utility.Debug;
+import bluej.utility.DialogManager;
 
 /**
  * The GUI class for the sound recorder.
@@ -63,10 +66,13 @@ public class SoundRecorderDialog extends JDialog
 {
     private SoundRecorder recorder = new SoundRecorder();
     
+    // Indicates whether the selection is currently in use (and should be displayed/used)
+    // If the selection is zero width, this will be false
     private boolean selectionActive = false;
+    // Indicates whether the user is currently in the middle of drawing a selection
     private boolean selectionDrawing = false;
-    //Begin is where it started, end is where it currently extends to
-    //It's valid for end to be before beginning.
+    //Begin is where the user started dragging, end is where the user has dragged it to.
+    //It's valid for end to be before beginning, if they drag right to left.
     private float selectionBegin;
     private float selectionEnd;
     
@@ -77,30 +83,41 @@ public class SoundRecorderDialog extends JDialog
     private JButton saveButton;
     
     boolean playing = false;
+    boolean recording = false;
 
     private SoundPanel soundPanel;
     
-    private String projectSoundDir;
-    
-    public SoundRecorderDialog(GProject project)
+    /**
+     * Creates a SoundRecorderDialog that will save the sounds
+     * in the sounds directory of the given project.
+     */
+    public SoundRecorderDialog(JFrame owner, GProject project)
     {
-        soundPanel = new SoundPanel();
+        super(owner, true);
+        setTitle("Sound Recorder");
+        buildUI(project);
+    }
+    
+    // Builds the controls: record/trim/play
+    private Box buildControlBox()
+    {
         recordStop = new JButton("Record");
         recordStop.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
-                //TODO keep track better than this
-                if (recordStop.getText().equals("Record")) {
+                if (!recording) {
                     //Start recording
                     recorder.startRecording();
                     recordStop.setText("Stop recording");
                     playStop.setEnabled(false);
+                    recording = true;
                 } else {
                     //Stop recording
                     recorder.stopRecording();
                     playStop.setEnabled(true);
                     soundPanel.repaint();
                     recordStop.setText("Record");
+                    recording = false;
                 }
             }
         });
@@ -121,16 +138,24 @@ public class SoundRecorderDialog extends JDialog
         playStop.setEnabled(false);
         playStop.addActionListener(new Player());
         
-        Box box = new Box(BoxLayout.Y_AXIS);
+        Box box = new Box(BoxLayout.X_AXIS);
         
         box.add(recordStop);
-        box.add(soundPanel);
+        box.add(Box.createHorizontalGlue());
         box.add(trim);
+        box.add(Box.createHorizontalGlue());
         box.add(playStop);
         
+        return box;
+    }
+    
+    // Builds the save row: a filename field and save button
+    private Box buildSaveBox(final String projectSoundDir)
+    {
         Box saveBox = new Box(BoxLayout.X_AXIS);
         saveBox.add(new JLabel("Filename: "));
         filenameField = new JTextField();
+        filenameField.setMaximumSize(new Dimension(Short.MAX_VALUE, filenameField.getPreferredSize().height));
         filenameField.getDocument().addDocumentListener(new DocumentListener() {
             
             public void removeUpdate(DocumentEvent e)
@@ -150,20 +175,11 @@ public class SoundRecorderDialog extends JDialog
         });
         saveBox.add(filenameField);
         saveBox.add(new JLabel(".wav"));
+        
+        saveBox.add(Box.createHorizontalStrut(12));
+        
         saveButton = new JButton("Save");
         saveButton.setEnabled(false);
-        projectSoundDir = null;
-        try {
-            projectSoundDir = project.getDir() + "/sounds/";
-        }
-        catch (RemoteException e) {
-            projectSoundDir = null;
-            Debug.reportError("Project not open when recording sounds", e);
-        }
-        catch (ProjectNotOpenException e) {
-            projectSoundDir = null;
-            Debug.reportError("Project not open when recording sounds", e);
-        }
         saveButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
@@ -173,24 +189,77 @@ public class SoundRecorderDialog extends JDialog
         });
         saveBox.add(saveButton);
         
-        box.add(saveBox);
+        return saveBox;
+    }
+    
+    private void buildUI(GProject project)
+    {
+        JPanel contentPane = new JPanel();
+        this.setContentPane(contentPane);
+        contentPane.setLayout(new BoxLayout(this.getContentPane(), BoxLayout.Y_AXIS));
+        contentPane.setBorder(BlueJTheme.dialogBorder);
+              
+        soundPanel = new SoundPanel();
+        contentPane.add(soundPanel);
         
-        add(box);
+        contentPane.add(Box.createVerticalStrut(12));
+        
+        contentPane.add(buildControlBox());
+        
+        contentPane.add(Box.createVerticalStrut(12));      
+        
+        contentPane.add(buildSaveBox(getSoundDir(project)));
+        
+        contentPane.add(Box.createVerticalStrut(12));
+        
+        JButton done = new JButton("Done");
+        done.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e)
+            {
+                setVisible(false);           
+            }
+        });
+        done.setAlignmentX(CENTER_ALIGNMENT);
+        contentPane.add(done);
+        
         pack();
+        DialogManager.centreDialog(this);
         setVisible(true);
     }
     
+    // Gets the sounds directory for the given project, or null if there is a problem
+    private static String getSoundDir(GProject project)
+    {
+        String projectSoundDir = null;
+        try {
+            projectSoundDir = project.getDir() + "/sounds/";
+        }
+        catch (RemoteException e) {
+            Debug.reportError("Remote exception querying project directory when recording sounds", e);
+        }
+        catch (ProjectNotOpenException e) {
+            Debug.reportError("Project not open when recording sounds", e);
+        }
+        return projectSoundDir;
+    }
+    
+    // Updates trim and play buttons based on whether the selection is active
     private void updateButtons()
     {
         trim.setEnabled(selectionActive);
         playStop.setText(selectionActive ? "Play selected" : "Play");
     }
     
+    // Updates the save button based on whether the filename field is blank (and whether a recording exists)
     private void updateSaveButton()
     {
         saveButton.setEnabled(recorder.getRawSound() != null && !filenameField.getText().isEmpty());
     }
     
+    /**
+     * A class that handles playing sound, controlled by a play/stop button (for which this is the ActionListener).
+     *
+     */
     private class Player implements ActionListener, SoundPlaybackListener
     {
         //private final Timer tim = new Timer();
@@ -239,10 +308,9 @@ public class SoundRecorderDialog extends JDialog
             //Nothing to do            
         }
 
-        @Override
         public void playbackStopped(Sound sound)
         {
-            playStop.setText(selectionActive ? "Play selected" : "Play");
+            updateButtons();
             recordStop.setEnabled(true);
             //repaintWhilePlaying.cancel();
             playing = false;
@@ -254,12 +322,15 @@ public class SoundRecorderDialog extends JDialog
         }
     }
 
+    /**
+     * A panel for displaying a recorded sound.
+     */
     private class SoundPanel extends JPanel implements MouseListener, MouseMotionListener
     {       
         private SoundPanel()
         {
-            setMinimumSize(new Dimension(400, 200));
-            setPreferredSize(getMinimumSize());
+            setPreferredSize(new Dimension(400, 200));
+            setMaximumSize(new Dimension(Short.MAX_VALUE, Short.MAX_VALUE));
             addMouseListener(this);
             addMouseMotionListener(this);
         }
@@ -284,7 +355,8 @@ public class SoundRecorderDialog extends JDialog
                 for (int i = 0; i < width; i++) {
                     float pos = (float)i / (float)width;
                     float f = getValue(sound, pos);
-                    int waveHeight = (int)(halfHeight * f);
+                    //Looks slightly better if we don't draw all the way to the edge, so use 90%:
+                    int waveHeight = (int)(halfHeight * f * 0.9f);
                     if (inSelection(pos)) {
                         g.setColor(Color.YELLOW);
                     } else {
@@ -308,37 +380,18 @@ public class SoundRecorderDialog extends JDialog
             }
         }
         
+        // Works out whether the given number (0->1) is inside the current selection (if there is one)
         private boolean inSelection(float f)
         {
             return selectionActive && f >= Math.min(selectionBegin, selectionEnd)
               && f <= Math.max(selectionBegin, selectionEnd);
         }
 
-        @Override
-        public void mouseClicked(MouseEvent e)
-        {
-            // TODO Auto-generated method stub
-            
-        }
-
-        @Override
-        public void mouseEntered(MouseEvent e)
-        {
-            // TODO Auto-generated method stub
-            
-        }
-
-        @Override
-        public void mouseExited(MouseEvent e)
-        {
-            // TODO Auto-generated method stub
-            
-        }
-
-        @Override
         public void mousePressed(MouseEvent e)
         {
             if (recorder.getRawSound() != null) {
+                // Selection only becomes active if they drag.
+                // Otherwise this is just a click and actually ends up removing the selection:
                 selectionActive = false;
                 selectionDrawing = true;
                 selectionBegin = calculatePosition(e.getPoint());
@@ -346,19 +399,19 @@ public class SoundRecorderDialog extends JDialog
             }            
         }
 
-        @Override
         public void mouseReleased(MouseEvent e)
         {
             if (selectionDrawing) {
                 selectionDrawing = false;
                 selectionEnd = calculatePosition(e.getPoint());
+                if (selectionBegin == selectionEnd)
+                    selectionActive = false;
                 repaint();
             }
             updateButtons();
         }    
         
-        
-        
+                
         private float calculatePosition(Point p)
         {
             float pos = (float)p.x / getWidth();
@@ -368,7 +421,6 @@ public class SoundRecorderDialog extends JDialog
             return pos;
         }
 
-        @Override
         public void mouseDragged(MouseEvent e)
         {
             if (selectionDrawing) {
@@ -379,26 +431,29 @@ public class SoundRecorderDialog extends JDialog
             
         }
 
-        @Override
-        public void mouseMoved(MouseEvent e)
-        {
-            // TODO Auto-generated method stub
-            
-        }
+        public void mouseClicked(MouseEvent e) {}
+        
+        public void mouseEntered(MouseEvent e) {}
+        
+        public void mouseExited(MouseEvent e) {}
+
+        public void mouseMoved(MouseEvent e) {}
     }
     
     private static float getValue(byte[] arr, float x)
     {
         int index = (int)(x * (float)arr.length);
-        return (float)arr[index] / 256.0f;
+        return (float)arr[index] / 128.0f;
     }
     
+    // Gets the start of the selection as an index into the raw sound array 
     private int getSelectionStartOffset()
     {
         float start = Math.min(selectionBegin, selectionEnd);
         return (int)(start * (float)recorder.getRawSound().length);
     }
     
+    // Gets the finish of the selection as an index into the raw sound array
     private int getSelectionFinishOffset()
     {
         float finish = Math.max(selectionBegin, selectionEnd);
