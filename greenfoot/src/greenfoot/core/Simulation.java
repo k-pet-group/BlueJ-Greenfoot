@@ -31,9 +31,7 @@ import greenfoot.event.WorldListener;
 import greenfoot.platforms.SimulationDelegate;
 import greenfoot.util.HDTimer;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.swing.event.EventListenerList;
@@ -47,15 +45,20 @@ import javax.swing.event.EventListenerList;
 public class Simulation extends Thread
     implements WorldListener
 {
+    // Most of the fields require synchronized access. Some of them do not because they are only
+    // accessed from the simulation thread itself. "repaintLock" protects paintPending and
+    // lastRepaintTime.
+    
     // We skip repaints if the simulation is running faster than the
     // MAX_FRAME_RATE. This makes the high speeds run faster, since we avoid
     // repaints that can't be seen anyway.
-    private static int MAX_FRAME_RATE = 60;
+    private static int MAX_FRAME_RATE = 65;
     private static int MIN_FRAME_RATE = 30;
+    
     private WorldHandler worldHandler;
     
-    
-    private volatile boolean paused;
+    /** Whether the simulation is (to be) paused */
+    private boolean paused;
 
     /** Whether the simulation is enabled (world installed) */
     private volatile boolean enabled;
@@ -82,21 +85,14 @@ public class Simulation extends Thread
     private long updates; // used for debugging to calculate update rate
     private long lastUpdate; // used for debugging to calculate update rate
     
-    /**
-     * The last few times at which repaints were requested. These are used to
-     * calculate the frame rate. Accessed only from the simulation thread.
-     */
-    private Queue<Long> repaintTimes = new LinkedList<Long>();
-    private long lastRepaintTime;
+    /** Protects "paintPending" and "lastRepaintTime" */
     private Object repaintLock = new Object();
+    /** The last time that a repaint of the World was issued. */
+    private long lastRepaintTime;
+    /** true if a repaint has been issued and not yet processed. */
+    private boolean paintPending;
     
     private SimulationDelegate delegate;
-
-    /**
-     * Track whether a repaint operation on the world canvas is pending.
-     * Used in keeping track of the repaint rate.
-     */
-    private boolean paintPending;
 
     /**
      * Lock to synchronize access to the two fields: delaying and interruptDelay
@@ -261,7 +257,6 @@ public class Simulation extends Thread
                 
             if (!paused && enabled && !abort) {
                 // We should begin execution again.
-                repaintTimes.clear();
                 lastDelayTime = System.nanoTime();
                 fireSimulationEvent(startedEvent);
             }
@@ -388,13 +383,11 @@ public class Simulation extends Thread
                     // a repaint at this time.
                     if (! paintPending) {
                         lastRepaintTime = currentTime;
-                        repaintTimes.offer(currentTime);
                         worldHandler.repaint();
                         paintPending = true;
                     }
                     
-                    int repaintRate = getRepaintRate();
-                    if (repaintRate <= MIN_FRAME_RATE) {
+                    if ((1000 / timeSinceLast) <= MIN_FRAME_RATE) {
                         // Waiting here makes sure the WorldCanvas gets a chance to
                         // repaint. It also lets the rest of the UI be responsive, even if
                         // we are running at maximum speed, by making sure events on the
@@ -423,29 +416,6 @@ public class Simulation extends Thread
             //}
             repaintLock.notify();
         }
-    }
-    
-    /**
-     * Returns the current repaint rate. Calculated from the time since a
-     * previous repaint and the current time.
-     */
-    private int getRepaintRate()
-    {
-        long currentTime = System.currentTimeMillis();
-        long lastRepaintTime = 0;
-        int knownRepaintTimes = repaintTimes.size();
-
-        if (knownRepaintTimes >= 100) {
-            lastRepaintTime = repaintTimes.poll();
-        }
-        else if (knownRepaintTimes > 0) {
-            lastRepaintTime = repaintTimes.peek();
-        }
-        
-        // Avoid divide by zero
-        long timeSinceRepaint = Math.max(1, currentTime - lastRepaintTime);
-        int frameRate = (int) ((knownRepaintTimes * 1000L) / timeSinceRepaint);
-        return frameRate;
     }
 
     /**
