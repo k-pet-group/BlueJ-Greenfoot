@@ -413,9 +413,11 @@ public class GreenfootFrame extends JFrame
         borderPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         borderPanel.add(worldCanvas);
         
-        JPanel canvasPanel = new ScrollablePanel(new CenterLayout());        
+        JPanel canvasPanel = new JPanel(new CenterLayout());        
         canvasPanel.add(borderPanel, BorderLayout.CENTER);
         JScrollPane worldScrollPane = new JScrollPane(canvasPanel);
+        // Set the scroll bar increments so that using the scroll wheel works well:
+        setScrollIncrements(worldScrollPane);
         worldScrollPane.setOpaque(false);
         // Why are these not opaque? Maybe they have to be on some platforms? looks fine on Mac OS X Leopard.
         worldScrollPane.getViewport().setOpaque(false);
@@ -447,6 +449,7 @@ public class GreenfootFrame extends JFrame
         // the class browser 
         
         classScrollPane = new JScrollPane(classBrowser);
+        setScrollIncrements(classScrollPane);
         classScrollPane.setOpaque(false);
         classScrollPane.getViewport().setOpaque(false);
         classScrollPane.setBorder(BorderFactory.createEtchedBorder());
@@ -472,6 +475,18 @@ public class GreenfootFrame extends JFrame
 
         pack();
         worldDimensions = worldCanvas.getPreferredSize();        
+    }
+
+    /**
+     * Sets the scroll increments on a scroll pane to be something sensible
+     * and useable.
+     */
+    private static void setScrollIncrements(JScrollPane scrollPane)
+    {
+        scrollPane.getVerticalScrollBar().setUnitIncrement(20);
+        scrollPane.getVerticalScrollBar().setBlockIncrement(30);
+        scrollPane.getHorizontalScrollBar().setUnitIncrement(20);
+        scrollPane.getHorizontalScrollBar().setBlockIncrement(30);
     }
 
     /**

@@ -24,7 +24,6 @@ package greenfoot.gui.classbrowser;
 import bluej.Config;
 import greenfoot.core.GProject;
 import greenfoot.gui.GreenfootFrame;
-import greenfoot.gui.ScrollablePanel;
 import greenfoot.gui.classbrowser.ClassForest.TreeEntry;
 import greenfoot.gui.classbrowser.role.ActorClassRole;
 import greenfoot.gui.classbrowser.role.WorldClassRole;
@@ -53,9 +52,9 @@ import javax.swing.border.TitledBorder;
  * laying out the classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassBrowser.java 7832 2010-06-30 15:00:12Z nccb $
+ * @version $Id: ClassBrowser.java 7911 2010-07-23 14:08:59Z nccb $
  */
-public class ClassBrowser extends ScrollablePanel
+public class ClassBrowser extends JPanel
 {
 
     private ButtonGroup buttonGroup = new ButtonGroup();
