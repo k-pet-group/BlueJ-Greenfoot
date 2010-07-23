@@ -66,6 +66,7 @@ import greenfoot.gui.input.mouse.LocationTracker;
 import greenfoot.gui.inspector.GreenfootResultInspector;
 import greenfoot.gui.inspector.GreenfootClassInspector;
 import greenfoot.gui.inspector.GreenfootObjectInspector;
+import greenfoot.gui.soundrecorder.SoundRecorderDialog;
 import greenfoot.platforms.ide.SimulationDelegateIDE;
 import greenfoot.platforms.ide.WorldHandlerDelegateIDE;
 import greenfoot.sound.SoundFactory;
@@ -617,6 +618,15 @@ public class GreenfootFrame extends JFrame
         addMenuItem(newClassAction, editMenu, KeyEvent.VK_N, false, KeyEvent.VK_N);
         addMenuItem(removeSelectedClassAction, editMenu, KeyEvent.VK_D, false, KeyEvent.VK_R);
         
+        editMenu.addSeparator();
+        addMenuItem(new AbstractAction("Sound Recorder") {
+            public void actionPerformed(ActionEvent e)
+            {
+                new SoundRecorderDialog(GreenfootFrame.this, project);                
+            }
+        }, editMenu, -1, false, KeyEvent.VK_S);
+        
+        
         if (!Config.usingMacScreenMenubar()) { // no "Preferences" here for
             // Mac
             editMenu.addSeparator();
@@ -638,7 +648,7 @@ public class GreenfootFrame extends JFrame
                 project.showExecControls();
             }}, ctrlMenu, KeyEvent.VK_D, false, KeyEvent.VK_D);
         ctrlMenu.addSeparator();
-        addMenuItem(saveWorldAction, ctrlMenu, -1, false, -1);
+        addMenuItem(saveWorldAction, ctrlMenu, -1, false, KeyEvent.VK_W);
         ctrlMenu.addSeparator();
         addMenuItem(compileAllAction, ctrlMenu, KeyEvent.VK_K, false, -1);
         
