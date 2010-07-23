@@ -33,6 +33,14 @@ final public class Rect
         this.height = height;
     }
     
+    public void copyFrom(Rect other)
+    {
+        this.x = other.x;
+        this.y = other.y;
+        this.width = other.width;
+        this.height = other.height;
+    }
+    
     public String toString()
     {
         return ("rect (" + x + "," + y + ")-(" + (x + width) + "," + (y + height) + ")");

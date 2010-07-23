@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -87,8 +87,10 @@ public class IBSPColChecker implements CollisionChecker
                 splitAxis = Y_AXIS;
                 splitPos = bounds.getMiddleY();
             }
-            Rect nbounds = new Rect(bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight());
-            bspTree = new BSPNode(nbounds, splitAxis, splitPos);
+            bspTree = BSPNodeCache.getBSPNode();
+            bspTree.getArea().copyFrom(bounds);
+            bspTree.setSplitAxis(splitAxis);
+            bspTree.setSplitPos(splitPos);
             bspTree.addActor(actor);
         }
         else {
@@ -102,7 +104,10 @@ public class IBSPColChecker implements CollisionChecker
                 if (bounds.getX() < treeArea.getX()) {
                     Rect newArea = new Rect(bounds.getX(), treeArea.getY(),
                             treeArea.getRight() - bounds.getX(), treeArea.getHeight());
-                    BSPNode newTop = new BSPNode(newArea, X_AXIS, treeArea.getX());
+                    BSPNode newTop = BSPNodeCache.getBSPNode();
+                    newTop.getArea().copyFrom(newArea);
+                    newTop.setSplitAxis(X_AXIS);
+                    newTop.setSplitPos(treeArea.getX());
                     newTop.setChild(PARENT_RIGHT, bspTree);
                     bspTree = newTop;
                     treeArea = newArea;
@@ -110,7 +115,10 @@ public class IBSPColChecker implements CollisionChecker
                 if (bounds.getRight() > treeArea.getRight()) {
                     Rect newArea = new Rect(treeArea.getX(), treeArea.getY(),
                             bounds.getRight() - treeArea.getX(), treeArea.getHeight());
-                    BSPNode newTop = new BSPNode(newArea, X_AXIS, treeArea.getRight());
+                    BSPNode newTop = BSPNodeCache.getBSPNode();
+                    newTop.getArea().copyFrom(newArea);
+                    newTop.setSplitAxis(X_AXIS);
+                    newTop.setSplitPos(treeArea.getRight());
                     newTop.setChild(PARENT_LEFT, bspTree);
                     bspTree = newTop;
                     treeArea = newArea;
@@ -118,7 +126,10 @@ public class IBSPColChecker implements CollisionChecker
                 if (bounds.getY() < treeArea.getY()) {
                     Rect newArea = new Rect(treeArea.getX(), bounds.getY(),
                             treeArea.getWidth(), treeArea.getTop() - bounds.getY());
-                    BSPNode newTop = new BSPNode(newArea, Y_AXIS, treeArea.getY());
+                    BSPNode newTop = BSPNodeCache.getBSPNode();
+                    newTop.getArea().copyFrom(newArea);
+                    newTop.setSplitAxis(Y_AXIS);
+                    newTop.setSplitPos(treeArea.getY());
                     newTop.setChild(PARENT_RIGHT, bspTree);
                     bspTree = newTop;
                     treeArea = newArea;
@@ -126,7 +137,10 @@ public class IBSPColChecker implements CollisionChecker
                 if (bounds.getTop() > treeArea.getTop()) {
                     Rect newArea = new Rect(treeArea.getX(), treeArea.getY(),
                             treeArea.getWidth(), bounds.getTop() - treeArea.getY());
-                    BSPNode newTop = new BSPNode(newArea, Y_AXIS, treeArea.getTop());
+                    BSPNode newTop = BSPNodeCache.getBSPNode();
+                    newTop.getArea().copyFrom(newArea);
+                    newTop.setSplitAxis(Y_AXIS);
+                    newTop.setSplitPos(treeArea.getTop());
                     newTop.setChild(PARENT_LEFT, bspTree);
                     bspTree = newTop;
                     treeArea = newArea;
@@ -247,7 +261,10 @@ public class IBSPColChecker implements CollisionChecker
             splitAxis = Y_AXIS;
             splitPos = area.getMiddleY();
         }
-        BSPNode newNode = new BSPNode(area, splitAxis, splitPos);
+        BSPNode newNode = BSPNodeCache.getBSPNode();
+        newNode.setArea(area);
+        newNode.setSplitAxis(splitAxis);
+        newNode.setSplitPos(splitPos);
         return newNode;
     }
     
@@ -326,7 +343,12 @@ public class IBSPColChecker implements CollisionChecker
                 }
                 else {
                     bspTree = right;
+                    if (right != null) {
+                        right.setParent(null);
+                    }
                 }
+                node.setChild(PARENT_RIGHT, null);
+                BSPNodeCache.returnNode(node);
                 node = parent;
             }
             else if (right == null) {
@@ -338,7 +360,12 @@ public class IBSPColChecker implements CollisionChecker
                 }
                 else {
                     bspTree = left;
+                    if (left != null) {
+                        left.setParent(null);
+                    }
                 }
+                node.setChild(PARENT_LEFT, null);
+                BSPNodeCache.returnNode(node);
                 node = parent;
             }
             else {
