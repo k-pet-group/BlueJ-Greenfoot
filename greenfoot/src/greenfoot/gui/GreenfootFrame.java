@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -253,38 +253,37 @@ public class GreenfootFrame extends JFrame
     }
 
     
-
     /**
-     * Prepare MacOS specific behaviour (About menu, Preferences menu, Quit
-     * menu)
+     * Prepare MacOS specific behaviour (About menu, Preferences menu, Quit menu)
      */
     private Application prepareMacOSApp()
     {
-        Application macApp = new Application();
-        macApp.setEnabledPreferencesMenu(true);
-        macApp.addApplicationListener(new ApplicationAdapter() {
-            public void handleAbout(ApplicationEvent e)
-            {
-                AboutGreenfootAction.getInstance(GreenfootFrame.this).actionPerformed(null);
-                e.setHandled(true);
-            }
+        Application macApp = Application.getApplication();
+        if (macApp != null) {
+            macApp.setEnabledPreferencesMenu(true);
+            macApp.addApplicationListener(new ApplicationAdapter() {
+                public void handleAbout(ApplicationEvent e)
+                {
+                    AboutGreenfootAction.getInstance(GreenfootFrame.this).actionPerformed(null);
+                    e.setHandled(true);
+                }
 
-            public void handlePreferences(ApplicationEvent e)
-            {
-               PreferencesAction.getInstance().actionPerformed(null);
-               e.setHandled(true);
-            }
+                public void handlePreferences(ApplicationEvent e)
+                {
+                    PreferencesAction.getInstance().actionPerformed(null);
+                    e.setHandled(true);
+                }
 
-            public void handleQuit(ApplicationEvent e)
-            {
-                exit();
-                e.setHandled(true);
-            }
-        });
+                public void handleQuit(ApplicationEvent e)
+                {
+                    exit();
+                    e.setHandled(true);
+                }
+            });
+        }
 
         return macApp;
     }
-    
     
     /**
      * Open a given project into this frame.

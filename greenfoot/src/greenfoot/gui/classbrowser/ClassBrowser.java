@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -40,7 +40,6 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JComponent;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JRootPane;
 import javax.swing.border.TitledBorder;
@@ -52,7 +51,6 @@ import javax.swing.border.TitledBorder;
  * laying out the classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassBrowser.java 7911 2010-07-23 14:08:59Z nccb $
  */
 public class ClassBrowser extends JPanel
 {
@@ -244,7 +242,8 @@ public class ClassBrowser extends JPanel
      *            hierarchy.
      * @return
      */
-    private JComponent createClassHierarchyComponent(Collection roots, boolean isRecursiveCall)
+    private JComponent createClassHierarchyComponent(Collection<TreeEntry> roots,
+            boolean isRecursiveCall)
     {
 
         JComponent hierarchyPanel = new JPanel();
@@ -253,12 +252,12 @@ public class ClassBrowser extends JPanel
         
         boolean isFirstSubclass = true; //whether it is the first subclass
 
-        for (Iterator iter = roots.iterator(); iter.hasNext();) {
+        for (Iterator<TreeEntry> iter = roots.iterator(); iter.hasNext();) {
             JComponent classPanel = new JPanel();
             classPanel.setOpaque(false);
             classPanel.setLayout(new BoxLayout(classPanel, BoxLayout.X_AXIS));
 
-            ClassForest.TreeEntry element = (ClassForest.TreeEntry) iter.next();
+            ClassForest.TreeEntry element = iter.next();
 
             if (!isRecursiveCall) {
                 // not recursive: we are at the greenfoot root - no arrows up
@@ -287,7 +286,7 @@ public class ClassBrowser extends JPanel
             flowPanel.setOpaque(false);
             hierarchyPanel.add(flowPanel);
             
-            List children = element.getChildren();
+            List<TreeEntry> children = element.getChildren();
             if(!children.isEmpty()) {
                 JComponent childPanel = new JPanel();
                 childPanel.setOpaque(false);
