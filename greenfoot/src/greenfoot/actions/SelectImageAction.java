@@ -21,7 +21,6 @@
  */
 package greenfoot.actions;
 
-import bluej.Config;
 import greenfoot.core.GClass;
 import greenfoot.core.GreenfootMain;
 import greenfoot.gui.classbrowser.ClassView;
@@ -36,6 +35,7 @@ import java.rmi.RemoteException;
 import javax.swing.AbstractAction;
 import javax.swing.JFrame;
 
+import bluej.Config;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.utility.Debug;
 import bluej.utility.FileUtility;
@@ -44,7 +44,7 @@ import bluej.utility.FileUtility;
  * Action to select an image for a class.
  * 
  * @author Davin McCall
- * @version $Id: SelectImageAction.java 6765 2009-09-30 17:50:25Z polle $
+ * @version $Id: SelectImageAction.java 7920 2010-07-26 05:50:25Z marionz $
  */
 public class SelectImageAction extends AbstractAction
 {
@@ -89,6 +89,7 @@ public class SelectImageAction extends AbstractAction
                 
                 gclass.setClassProperty("image", imageFile.getName());
                 gclassRole.changeImage();
+                gclass.getPackage().getProject().getProjectProperties().save();
             }
         }
         catch (RemoteException re) {
