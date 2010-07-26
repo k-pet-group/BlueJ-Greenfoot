@@ -30,6 +30,7 @@ import greenfoot.util.ExternalAppLauncher;
 
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -112,9 +113,8 @@ public class NewImageDialog extends EscapeDialog
 
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 
-        JPanel namePanel = new JPanel();
-        namePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        namePanel.add(new JLabel(Config.getString("imagelib.new.image.name") + " "));
+        JPanel detailsPanel = new JPanel(new GridLayout(4, 2));
+        detailsPanel.add(new JLabel(Config.getString("imagelib.new.image.name") + " "));
         name = new JTextField(10);
         name.setText(rootName);
         name.addKeyListener(new KeyListener() {
@@ -130,42 +130,38 @@ public class NewImageDialog extends EscapeDialog
                 checkName();
             }
         });
-        namePanel.add(name);
-        mainPanel.add(namePanel);
-
-        mainPanel.add(fixHeight(Box.createVerticalStrut(BlueJTheme.componentSpacingLarge)));
-
-        JPanel widthPanel = new JPanel();
-        widthPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        widthPanel.setLayout(new BoxLayout(widthPanel, BoxLayout.X_AXIS));
-        widthPanel.add(new JLabel(Config.getString("imagelib.new.image.width")));
-        width = new JSpinner(new SpinnerNumberModel(imageWidth, 1, 1000, 1));
-        widthPanel.add(width);
-        mainPanel.add(widthPanel);
-
-        mainPanel.add(fixHeight(Box.createVerticalStrut(BlueJTheme.componentSpacingLarge)));
-
-        JPanel heightPanel = new JPanel();
-        heightPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        heightPanel.setLayout(new BoxLayout(heightPanel, BoxLayout.X_AXIS));
-        heightPanel.add(new JLabel(Config.getString("imagelib.new.image.height")));
-        height = new JSpinner(new SpinnerNumberModel(imageHeight, 1, 1000, 1));
-        heightPanel.add(height);
-        mainPanel.add(heightPanel);
-
-        mainPanel.add(fixHeight(Box.createVerticalStrut(BlueJTheme.componentSpacingLarge)));
         
-        JPanel typePanel = new JPanel();
-        typePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        typePanel.setLayout(new BoxLayout(typePanel, BoxLayout.X_AXIS));
-        typePanel.add(new JLabel(Config.getString("imagelib.new.image.type")));
+        detailsPanel.add(name);
+
+        //mainPanel.add(fixHeight(Box.createVerticalStrut(BlueJTheme.componentSpacingLarge)));
+
+        detailsPanel.add(new JLabel(Config.getString("imagelib.new.image.width")));
+        width = new JSpinner(new SpinnerNumberModel(imageWidth, 1, 1000, 1));
+        detailsPanel.add(width);
+
+        //mainPanel.add(fixHeight(Box.createVerticalStrut(BlueJTheme.componentSpacingLarge)));
+
+        detailsPanel.add(new JLabel(Config.getString("imagelib.new.image.height")));
+        height = new JSpinner(new SpinnerNumberModel(imageHeight, 1, 1000, 1));
+        detailsPanel.add(height);        
+
+        //mainPanel.add(fixHeight(Box.createVerticalStrut(BlueJTheme.componentSpacingLarge)));
+        
+        detailsPanel.add(new JLabel(Config.getString("imagelib.new.image.type")));
         type = new JComboBox(getImageTypes());
         type.setSelectedItem(imageType);
-        typePanel.add(type);
-        mainPanel.add(typePanel);
+        detailsPanel.add(type);
 
+        detailsPanel.setMaximumSize(new Dimension(Short.MAX_VALUE, detailsPanel.getPreferredSize().height));
+        
+        mainPanel.add(detailsPanel);
+        mainPanel.add(Box.createVerticalGlue());
         mainPanel.add(fixHeight(Box.createVerticalStrut(BlueJTheme.componentSpacingLarge)));
+        
 
+        Box buttonBox = new Box(BoxLayout.X_AXIS);
+        buttonBox.add(Box.createHorizontalGlue());
+        
         okButton = BlueJTheme.getOkButton();
         okButton.setEnabled(false);
         okButton.addActionListener(new ActionListener() {
@@ -173,7 +169,19 @@ public class NewImageDialog extends EscapeDialog
                 createAndEdit();
             }            
         });
-        mainPanel.add(okButton);
+        buttonBox.add(okButton);
+        buttonBox.add(Box.createHorizontalStrut(10));
+        
+        JButton cancelButton = BlueJTheme.getCancelButton();
+        cancelButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e)
+            {
+                dispose();                
+            }
+        });
+        buttonBox.add(cancelButton);
+        
+        mainPanel.add(buttonBox);
 
         setLocation(parent.getX()+parent.getWidth()/2, parent.getY()+parent.getHeight()/2);
         getRootPane().setDefaultButton(okButton);
