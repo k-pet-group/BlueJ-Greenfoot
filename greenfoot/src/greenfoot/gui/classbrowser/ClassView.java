@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,12 +21,11 @@
  */
 package greenfoot.gui.classbrowser;
 
-import greenfoot.World;
 import greenfoot.core.GClass;
-import greenfoot.core.GCoreClass;
 import greenfoot.core.GPackage;
 import greenfoot.core.GProject;
 import greenfoot.core.GreenfootMain;
+import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
 import greenfoot.event.ActorInstantiationListener;
 import greenfoot.gui.classbrowser.role.ActorClassRole;
@@ -60,7 +59,7 @@ import bluej.utility.Utility;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 7761 2010-06-14 13:11:58Z nccb $
+ * @version $Id: ClassView.java 7922 2010-07-26 06:29:28Z davmac $
  */
 public class ClassView extends JToggleButton
     implements Selectable, MouseListener
@@ -93,8 +92,10 @@ public class ClassView extends JToggleButton
         init(gClass);
     }    
     
-
-	public boolean isFocusable() 
+    /*
+     * @see java.awt.Component#isFocusable()
+     */
+    public boolean isFocusable() 
     {
         return false;
     }
@@ -111,9 +112,7 @@ public class ClassView extends JToggleButton
     /**
      * Updates this ClassView to reflect a change in super class.
      * 
-     * <p>
-     * Will also update the UI, but can be called from any thread.
-     * 
+     * <p>Will also update the UI, but can be called from any thread.
      */
     public void updateSuperClass()
     {
@@ -186,7 +185,7 @@ public class ClassView extends JToggleButton
     /**
      * Return the real Java class that this class view represents.
      */
-    public Class getRealClass()
+    public Class<?> getRealClass()
     {
         return gClass.getJavaClass();
     }
@@ -416,62 +415,73 @@ public class ClassView extends JToggleButton
      * 
      * @return The Object that has been created
      */
-    public Object createInstance()
+    public void createInstance()
     {
-        Class<?> realClass = getRealClass();
-        try {
-            if (realClass == null) {
-                return null;
-            }
-            Constructor constructor = realClass.getConstructor(new Class[]{});
+        Simulation.getInstance().runLater(new Runnable() {
+            @Override
+            public void run()
+            {
+                Class<?> realClass = getRealClass();
+                try {
+                    if (realClass == null) {
+                        return;
+                    }
+                    
+                    Constructor<?> constructor = realClass.getConstructor(new Class[]{});
+                    constructor.setAccessible(true);
 
-            Object newObject = constructor.newInstance(new Object[]{});
-            WorldHandler.getInstance().notifyCreatedActor(realClass, newObject, new String [0]);            
-            ActorInstantiationListener invocationListener = GreenfootMain.getInstance().getInvocationListener();
-            if(invocationListener != null) {
-                invocationListener.localObjectCreated(newObject, LocationTracker.instance().getMouseButtonEvent());
-            }
-            return newObject;
-        }
-        catch (LinkageError le) {
-            // This could be NoClassDefFound or similar. It really means the
-            // class needs to be recompiled.
-        }
-        catch (NoSuchMethodException e) {
-            // This might happen if there is no default constructor
-            // e.printStackTrace();
-        }
-        catch (IllegalArgumentException e) {
-            e.printStackTrace();
-        }
-        catch (InstantiationException e) {
-            e.printStackTrace();
-        }
-        catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
-        catch (InvocationTargetException e) {
-            Throwable cause = e.getCause();
-            if (cause != null) {
-                // Filter the stack trace. Take it from the first point
-                // at which code from this class was being executed.
-                StackTraceElement [] strace = cause.getStackTrace();
-                for (int i = strace.length; i > 0; i--) {
-                    if (strace[i-1].getClassName().equals(realClass.getName())) {
-                        StackTraceElement [] newStrace = new StackTraceElement[i];
-                        System.arraycopy(strace, 0, newStrace, 0, i);
-                        cause.setStackTrace(newStrace);
-                        break;
+                    Object newObject = constructor.newInstance(new Object[]{});
+                    WorldHandler.getInstance().notifyCreatedActor(realClass, newObject, new String [0]);            
+                    ActorInstantiationListener invocationListener = GreenfootMain.getInstance().getInvocationListener();
+                    if(invocationListener != null) {
+                        invocationListener.localObjectCreated(newObject, LocationTracker.instance().getMouseButtonEvent());
+                    }
+                    return;
+                }
+                catch (LinkageError le) {
+                    // This could be NoClassDefFound or similar. It really means the
+                    // class needs to be recompiled.
+                    le.printStackTrace();
+                }
+                catch (NoSuchMethodException e) {
+                    // This might happen if there is no default constructor
+                    // e.printStackTrace();
+                    // TODO prevent this by checking for the constructor beforehand (before
+                    // this method is called)
+                }
+                catch (IllegalArgumentException e) {
+                    // Shouldn't happen - we pass the correct arguments always
+                }
+                catch (InstantiationException e) {
+                    e.printStackTrace();
+                }
+                catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+                catch (InvocationTargetException e) {
+                    Throwable cause = e.getCause();
+                    if (cause != null) {
+                        // Filter the stack trace. Take it from the first point
+                        // at which code from this class was being executed.
+                        StackTraceElement [] strace = cause.getStackTrace();
+                        for (int i = strace.length; i > 0; i--) {
+                            if (strace[i-1].getClassName().equals(realClass.getName())) {
+                                StackTraceElement [] newStrace = new StackTraceElement[i];
+                                System.arraycopy(strace, 0, newStrace, 0, i);
+                                cause.setStackTrace(newStrace);
+                                break;
+                            }
+                        }
+                        cause.printStackTrace();
+                    }
+                    else {
+                        e.printStackTrace();
                     }
                 }
-                cause.printStackTrace();
+
+                return;
             }
-            else
-                e.printStackTrace();
-        }
-
-        return null;
-
+        });
     }
 
     public GClass createSubclass(String className)

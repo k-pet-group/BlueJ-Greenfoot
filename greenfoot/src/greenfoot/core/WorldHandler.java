@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -435,7 +435,7 @@ public class WorldHandler
     }
 
     /**
-     * 
+     * Notify that construction of a new world has started.
      * @see #setWorld(World)
      * @param world
      */
@@ -466,12 +466,14 @@ public class WorldHandler
     /**
      * Sets a new world. A world is set in two steps:
      * 
-     * 1. When it is partially created the constructor in World will set the
+     * <ol>
+     * <li> When it is partially created the constructor in World will set the
      * world in world handler, so that actors can access the world early on in
-     * their own constructors. (with worldInitialising(World world)
+     * their own constructors (with worldInitialising(World world)).
      * 
-     * 2. When the world-object is fully created (finished the constructor) it
+     * <li> When the world-object is fully created (finished the constructor) it
      * will notify the worldhandler that it is fully created. (with setWorld)
+     * </ol>
      * 
      * @see #setInitialisingWorld(World)
      */

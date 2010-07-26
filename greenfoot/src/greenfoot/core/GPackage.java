@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,6 +21,7 @@
  */
 package greenfoot.core;
 
+import greenfoot.World;
 import greenfoot.util.GreenfootUtil;
 
 import java.io.File;
@@ -38,6 +39,7 @@ import bluej.extensions.CompilationNotStartedException;
 import bluej.extensions.MissingJavaFileException;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
+import bluej.utility.Debug;
 
 /**
  * Represents a package in Greenfoot.
@@ -56,11 +58,10 @@ public class GPackage
     private Map<RClass,GClass> classPool = new HashMap<RClass,GClass>();
     
     /**
-	 * Contructor for an unspecified package, but for which a project is known.
-	 * Used to allow a class to not be part of a package, but still being able
-	 * to get the project the class is part of.
-	 * 
-	 */
+     * Contructor for an unspecified package, but for which a project is known.
+     * Used to allow a class to not be part of a package, but still being able
+     * to get the project the class is part of.
+     */
     GPackage(GProject project) 
     {
         if(project == null) {
@@ -259,25 +260,23 @@ public class GPackage
             pkg.close();
         }
         catch (RemoteException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            Debug.reportError("closing package", e);
         }
     }
 
     /** 
      * Returns all the world sub-classes in this package that can be instantiated.
-     * 
-     * @return
      */
-    public List<Class<?>> getWorldClasses()
+    @SuppressWarnings("unchecked")
+    public List<Class<? extends World>> getWorldClasses()
     {
-        List<Class<?>> worldClasses= new LinkedList<Class<?>>();
+        List<Class<? extends World>> worldClasses= new LinkedList<Class<? extends World>>();
         try {
             GClass[] classes = getClasses();
             for (int i = 0; i < classes.length; i++) {
                 GClass cls = classes[i];
                 if(cls.isWorldSubclass()) {
-                    Class<?> realClass = cls.getJavaClass();   
+                    Class<? extends World> realClass = (Class<? extends World>) cls.getJavaClass();   
                     if (GreenfootUtil.canBeInstantiated(realClass)) {                  
                         worldClasses.add(realClass);
                     }                    
@@ -285,16 +284,13 @@ public class GPackage
             }
         }
         catch (ProjectNotOpenException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
+            Debug.reportError("getting world class list", e1);
         }
         catch (PackageNotFoundException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
+            Debug.reportError("getting world class list", e1);
         }
         catch (RemoteException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
+            Debug.reportError("getting world class list", e1);
         }
         return worldClasses;
     }

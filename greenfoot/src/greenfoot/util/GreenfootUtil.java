@@ -47,6 +47,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.AccessControlException;
@@ -69,7 +70,7 @@ import bluej.utility.Utility;
  * General utility methods for Greenfoot.
  * 
  * @author Davin McCall
- * @version $Id: GreenfootUtil.java 7867 2010-07-15 07:38:09Z marionz $
+ * @version $Id: GreenfootUtil.java 7922 2010-07-26 06:29:28Z davmac $
  */
 public class GreenfootUtil
 {
@@ -592,19 +593,26 @@ public class GreenfootUtil
         return delegate.getGreenfootLogoPath();
     }
     
-    public static boolean canBeInstantiated(Class<?> cls) {
+    /**
+     * Check whether a class can be instantiated: it is not abstract
+     * or an interface.
+     */
+    public static boolean canBeInstantiated(Class<?> cls)
+    {
         // ACC_INTERFACE 0x0200 Is an interface, not a class.
         // ACC_ABSTRACT 0x0400 Declared abstract; may not be
         // instantiated.
-        if(cls == null)
+        if (cls == null) {
             return false;
-        int modifiers = cls.getModifiers();
-        return ( (0x0600 & modifiers) == 0x0000);
+        }
+        if (cls.isEnum() || cls.isInterface()) {
+            return false;
+        }
+        return ! Modifier.isAbstract(cls.getModifiers());
     }
     
     /**
      * Creates a new image which is a copy of the original with a drop shadow added.
-     * 
      */
     public static BufferedImage createDragShadow(BufferedImage image)
     {

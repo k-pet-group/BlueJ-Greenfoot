@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -61,7 +61,7 @@ public class GClass
     private ClassView classView;
     private Class<?> realClass;
 
-        /**
+    /**
      * Constructor used by GCoreClass only
      */
     protected GClass() {
@@ -341,7 +341,8 @@ public class GClass
      * Returns true if there is a cycle in the inheritance hierarchy.
      * @return
      */
-    private boolean containsCyclicHierarchy() {
+    private boolean containsCyclicHierarchy()
+    {
         GClass superCls = getSuperclassWithoutCheck();
         while (superCls != null) {
             if (superCls == this) {
@@ -433,7 +434,8 @@ public class GClass
     }
     
     /**
-     * This method tries to guess which class is the superclass. This can be used for non compilable and non parseable classes.
+     * This method tries to guess which class is the superclass. This can be used for non
+     * compilable and non parseable classes.
      * <p>
      * If the class is compiled, it will return the real superclass.
      * <br>
@@ -444,9 +446,11 @@ public class GClass
      * In general, we will try to remember the last known superclass, and report that back.
      * <p>
      * 
-     * The meethod will only find superclasses that is part of this project or is one of the greenfoot API class (World or Actor).
+     * The meethod will only find superclasses that is part of this project or is one of the
+     * greenfoot API class (World or Actor).
      * 
-     * OBS: This method can be very slow and shouldn't be called unless needed. Especially if the class isn't compiled it can be very slow.
+     * OBS: This method can be very slow and shouldn't be called unless needed. Especially if the
+     * class isn't compiled it can be very slow.
      * 
      * @return Best guess of the name of the superclass (NOT the qualified name).
      */

@@ -301,7 +301,7 @@ public class WorldInvokeListener
             params[i] = cparams[i].getName();
         }
 
-        Thread t = new Thread() {
+        Runnable r = new Runnable() {
             public void run()
             {
                 if (mv != null) {
@@ -423,7 +423,7 @@ public class WorldInvokeListener
                 update();
             }
         };
-        t.start();
+        Simulation.getInstance().runLater(r);
     }
 
     private void update()

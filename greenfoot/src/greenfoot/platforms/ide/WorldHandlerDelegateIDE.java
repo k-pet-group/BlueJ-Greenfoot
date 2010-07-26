@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,6 +27,7 @@ import greenfoot.World;
 import greenfoot.actions.SaveWorldAction;
 import greenfoot.core.GClass;
 import greenfoot.core.GProject;
+import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
 import greenfoot.core.WorldInvokeListener;
 import greenfoot.gui.DragGlassPane;
@@ -48,6 +49,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.lang.reflect.Constructor;
 import java.rmi.RemoteException;
 import java.util.List;
 
@@ -432,12 +434,12 @@ public class WorldHandlerDelegateIDE
 
     public void instantiateNewWorld()
     {
-        Class<?> cls = getLastWorldClass();
+        Class<? extends World> cls = getLastWorldClass();
         
         cls = getLastWorldClass();
         if(cls == null) {
             try {
-                List<Class<?>> worldClasses = project.getDefaultPackage().getWorldClasses();
+                List<Class<? extends World>> worldClasses = project.getDefaultPackage().getWorldClasses();
                 if(worldClasses.isEmpty() ) {
                         return;
                 }
@@ -452,22 +454,33 @@ public class WorldHandlerDelegateIDE
             }
         }
         
-        try {
-            World w = (World) cls.newInstance();      
-            worldHandler.setWorld(w);
-        }
-        catch (LinkageError e) { }
-        catch (InstantiationException e) {
-            showMissingConstructorDialog();
-        }
-        catch (IllegalAccessException e) {
-            showMissingConstructorDialog();
-        }
-        catch (Throwable ise) {
-            // This can happen if a static initializer block throws a Throwable.
-            // Or for other reasons.
-            ise.printStackTrace();
-        }
+        final Class<? extends World> icls = cls;
+        Simulation.getInstance().runLater(new Runnable() {
+            @Override
+            public void run()
+            {
+                try {
+                    Constructor<?> cons = icls.getConstructor(new Class<?>[0]);
+                    World w = (World) cons.newInstance((Object[]) null);
+                    worldHandler.setWorld(w);
+                }
+                catch (LinkageError e) { }
+                catch (NoSuchMethodException nsme) {
+                    showMissingConstructorDialog();
+                }
+                catch (InstantiationException e) {
+                    // abstract class; shouldn't happen
+                }
+                catch (IllegalAccessException e) {
+                    showMissingConstructorDialog();
+                }
+                catch (Throwable ise) {
+                    // This can happen if a static initializer block throws a Throwable.
+                    // Or for other reasons.
+                    ise.printStackTrace();
+                }
+            }
+        });
     }
 
     private void showMissingConstructorDialog()
@@ -493,12 +506,13 @@ public class WorldHandlerDelegateIDE
         }
     }
 
-    public Class<?> getLastWorldClass()
+    @SuppressWarnings("unchecked")
+    public Class<? extends World> getLastWorldClass()
     {
         try {
             GClass gclass = getLastWorldGClass();
             if (gclass != null) {
-                Class<?> rclass = gclass.getJavaClass();
+                Class<? extends World> rclass = (Class<? extends World>) gclass.getJavaClass();
                 if (GreenfootUtil.canBeInstantiated(rclass)) {
                     return  rclass;
                 }
