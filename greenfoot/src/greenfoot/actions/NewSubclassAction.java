@@ -44,7 +44,7 @@ import bluej.extensions.ProjectNotOpenException;
  * Action that creates a new class as a subclass of an existing class
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: NewSubclassAction.java 6764 2009-09-30 12:29:11Z polle $
+ * @version $Id: NewSubclassAction.java 7923 2010-07-26 06:45:51Z davmac $
  */
 public class NewSubclassAction extends AbstractAction
 {
@@ -92,13 +92,15 @@ public class NewSubclassAction extends AbstractAction
         String className = dialog.getClassName();
         GClass gClass = superclass.createSubclass(className);
        
-        ClassView classView = new ClassView(classBrowser, gClass);
-        
-        SelectImageAction.setClassImage(classView,
-                (ImageClassRole) classView.getRole(),
-                dialog.getSelectedImageFile());
+        if (gClass != null) {
+            ClassView classView = new ClassView(classBrowser, gClass);
 
-        classBrowser.addClass(classView);
+            SelectImageAction.setClassImage(classView,
+                    (ImageClassRole) classView.getRole(),
+                    dialog.getSelectedImageFile());
+
+            classBrowser.addClass(classView);
+        }
     }
     
     public void createNonActorClass()
@@ -125,8 +127,10 @@ public class NewSubclassAction extends AbstractAction
         String className = dialog.getClassName();
         GClass gClass = superclass.createSubclass(className);   
         
-        ClassView classView = new ClassView(classBrowser, gClass);
-        classBrowser.addClass(classView);        
+        if (gClass != null) {
+            ClassView classView = new ClassView(classBrowser, gClass);
+            classBrowser.addClass(classView);
+        }
     }
 
 }

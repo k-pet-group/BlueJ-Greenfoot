@@ -52,14 +52,16 @@ import javax.swing.JPopupMenu;
 import javax.swing.JRootPane;
 import javax.swing.JToggleButton;
 
+import bluej.Config;
 import bluej.extensions.ClassNotFoundException;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
+import bluej.utility.DialogManager;
 import bluej.utility.Utility;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 7922 2010-07-26 06:29:28Z davmac $
+ * @version $Id: ClassView.java 7923 2010-07-26 06:45:51Z davmac $
  */
 public class ClassView extends JToggleButton
     implements Selectable, MouseListener
@@ -508,11 +510,10 @@ public class ClassView extends JToggleButton
             e.printStackTrace();
         }
         catch (IOException e3) {
-            // TODO Auto-generated catch block
-            e3.printStackTrace();
+            DialogManager.showErrorText(this,
+                    Config.getString("greenfoot.cannotCreateClass" + ": " + e3.getLocalizedMessage()));
         }
         return null;
-
     }
         
     /**
