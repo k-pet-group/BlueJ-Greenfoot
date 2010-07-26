@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -51,6 +51,7 @@ import bluej.debugmgr.objectbench.ObjectBenchInterface;
 import bluej.extensions.ClassNotFoundException;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
+import bluej.utility.Debug;
 import bluej.views.CallableView;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
@@ -58,17 +59,16 @@ import bluej.views.MethodView;
 /**
  * A listener for interactive method/constructor invocations.
  * 
- * Invocations occur on either an object (instance methods) or a class
+ * <p>Invocations occur on either an object (instance methods) or a class
  * (static methods and constructors).
  * 
- * A method call dialog is displayed, if necessary, to ask for parameters, and 
+ * <p>A method call dialog is displayed, if necessary, to ask for parameters, and 
  * an inspector window for the result (method call). For constructed objects,
  * the greenfoot object instantiation listener is notified.
  * 
- * When a method call has been executed the world is repainted.
+ * <p>When a method call has been executed the world is repainted.
  * 
  * @author Davin McCall
- * @version $Id$
  */
 public class WorldInvokeListener
     implements InvokeListener, CallDialogWatcher
@@ -78,13 +78,14 @@ public class WorldInvokeListener
     private RObject rObj;
     private MethodView mv;
     private ConstructorView cv;
-    private Class cl;
+    private Class<?> cl;
     private InspectorManager inspectorManager;
     private ObjectBenchInterface objectBench;
     private GProject project;
     
     /** A map which tells us which construction location applies to each dialog */
-    private Map dialogToLocationMap = new HashMap();
+    private Map<GreenfootMethodDialog,MouseEvent> dialogToLocationMap =
+        new HashMap<GreenfootMethodDialog,MouseEvent>();
     
     public WorldInvokeListener(Object obj, ObjectBenchInterface bench,
             InspectorManager inspectorManager, GProject project)
@@ -95,7 +96,7 @@ public class WorldInvokeListener
         this.project = project;
     }
     
-    public WorldInvokeListener(Class cl, ObjectBenchInterface bench, InspectorManager inspectorManager, GProject project)
+    public WorldInvokeListener(Class<?> cl, ObjectBenchInterface bench, InspectorManager inspectorManager, GProject project)
     {
         this.objectBench = bench;
         this.cl = cl;
@@ -158,18 +159,18 @@ public class WorldInvokeListener
                 // callDialogEvent method.
             }
         }
-        catch (RemoteException re) {}
+        catch (RemoteException re) {
+            Debug.reportError("Remote error when invoking method", re);
+        }
         catch (ProjectNotOpenException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            // Really shouldn't happen
+            Debug.reportError("Error invoking method", e);
         }
         catch (PackageNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            Debug.reportError("Error invoking method", e);
         }
         catch (ClassNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            Debug.reportError("Error invoking method", e);
         }
     }
     
@@ -189,7 +190,7 @@ public class WorldInvokeListener
             new Thread() {
                 public void run() {
                     try {
-                        final Constructor c = cl.getDeclaredConstructor(new Class[0]);
+                        final Constructor<?> c = cl.getDeclaredConstructor(new Class[0]);
                         c.setAccessible(true);
                         Object o = c.newInstance((Object[]) null);
                         WorldHandler.getInstance().notifyCreatedActor(cl, o, new String[0]);
@@ -245,42 +246,27 @@ public class WorldInvokeListener
                 if(obj != null) {
                     rObj = ObjectTracker.getRObject(obj);
                 }
+                
+                GPackage pkg = project.getDefaultPackage();
+                
+                if(pkg == null) {
+                    return;
+                }      
+                
+                executeMethod(mdlg, rObj, pkg);
             }
             catch (ProjectNotOpenException e1) {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
+                Debug.reportError("Error invoking interative method", e1);
             }
             catch (PackageNotFoundException e1) {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
+                Debug.reportError("Error invoking interative method", e1);
             }
             catch (RemoteException e1) {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
+                Debug.reportError("Error invoking interative method", e1);
             }
             catch (ClassNotFoundException e1) {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
+                Debug.reportError("Error invoking interative method", e1);
             }
-
-            GPackage pkg = null;
-            try {
-                pkg = project.getDefaultPackage();
-            }
-            catch (ProjectNotOpenException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            catch (RemoteException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            
-            if(pkg == null) {
-                return;
-            }      
-            
-            executeMethod(mdlg, rObj, pkg);
         }
     }
 
@@ -302,7 +288,7 @@ public class WorldInvokeListener
     {
 
         CallableView callv = mv == null ? (CallableView)cv : mv;
-        Class [] cparams = callv.getParameters();
+        Class<?> [] cparams = callv.getParameters();
         final String [] params = new String[cparams.length];
         for (int i = 0; i < params.length; i++) {
             params[i] = cparams[i].getName();
@@ -409,7 +395,7 @@ public class WorldInvokeListener
                             // Construction went ok (or there was a runtime
                             // error).
                             mdlg.setVisible(false);
-                            MouseEvent location = (MouseEvent) dialogToLocationMap.remove(mdlg);
+                            MouseEvent location = dialogToLocationMap.remove(mdlg);
                             if (resultName != null) {
                                 RObject rresult = pkg.getObject(resultName);
                                 Object resultw = ObjectTracker.getRealObject(rresult);
@@ -452,51 +438,60 @@ public class WorldInvokeListener
      * @param c  The result type
      * @return   A DebuggerObject which wraps the result
      */
-    private static LocalObject wrapResult(final Object r, Class c)
+    private static LocalObject wrapResult(final Object r, Class<?> c)
     {
         Object wrapped;
         if (c == boolean.class) {
             wrapped = new Object() {
+                @SuppressWarnings("unused")
                 public boolean result = ((Boolean) r).booleanValue();
             };
         }
         else if (c == byte.class) {
             wrapped = new Object() {
+                @SuppressWarnings("unused")
                 public byte result = ((Byte) r).byteValue();
             };
         }
         else if (c == char.class) {
             wrapped = new Object() {
+                @SuppressWarnings("unused")
                 public char result = ((Character) r).charValue();
             };
         }
         else if (c == short.class) {
             wrapped = new Object() {
+                @SuppressWarnings("unused")
                 public short result = ((Short) r).shortValue();
             };
         }
         else if (c == int.class) {
             wrapped = new Object() {
+                @SuppressWarnings("unused")
                 public int result = ((Integer) r).intValue();
             };
         }
         else if (c == long.class) {
             wrapped = new Object() {
+                @SuppressWarnings("unused")
                 public long result = ((Long) r).longValue();
             };
         }
         else if (c == float.class) {
             wrapped = new Object() {
+                @SuppressWarnings("unused")
                 public float result = ((Float) r).floatValue();
             };
         }
         else if (c == double.class) {
             wrapped = new Object() {
+                @SuppressWarnings("unused")
                 public double result = ((Double) r).doubleValue();
             };
         }
         else {
             wrapped = new Object() {
+                @SuppressWarnings("unused")
                 public Object result = r;
             };
         }
