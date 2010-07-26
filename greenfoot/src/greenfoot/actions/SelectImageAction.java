@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009, 2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -44,7 +44,7 @@ import bluej.utility.FileUtility;
  * Action to select an image for a class.
  * 
  * @author Davin McCall
- * @version $Id: SelectImageAction.java 7920 2010-07-26 05:50:25Z marionz $
+ * @version $Id: SelectImageAction.java 7921 2010-07-26 06:11:04Z marionz $
  */
 public class SelectImageAction extends AbstractAction
 {
@@ -93,7 +93,7 @@ public class SelectImageAction extends AbstractAction
             }
         }
         catch (RemoteException re) {
-        	re.printStackTrace();
+            re.printStackTrace();
         }
         catch (ProjectNotOpenException pnoe) {}
     }
