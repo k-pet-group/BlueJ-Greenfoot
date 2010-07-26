@@ -73,7 +73,6 @@ import bluej.views.MethodView;
 public class WorldInvokeListener
     implements InvokeListener, CallDialogWatcher
 {
-    //private Actor obj;
     private Object obj;
     private RObject rObj;
     private MethodView mv;
@@ -118,6 +117,7 @@ public class WorldInvokeListener
             
             if (mv.getParameterCount() == 0) {
                 final Method m = mv.getMethod();
+                m.setAccessible(true);
                 new Thread() {
                     public void run() {
                         try {
@@ -129,7 +129,9 @@ public class WorldInvokeListener
                                 EventQueue.invokeLater(new Runnable() {
                                     public void run()
                                     {
-                                        ResultInspector ri = inspectorManager.getResultInspectorInstance(wrapResult(r, m.getReturnType()), instanceName, null, null, ei,  GreenfootMain.getInstance().getFrame());
+                                        ResultInspector ri = inspectorManager.getResultInspectorInstance(
+                                                wrapResult(r, m.getReturnType()), instanceName, null,
+                                                null, ei,  GreenfootMain.getInstance().getFrame());
                                         ri.setVisible(true);
                                     }
                                 });
@@ -277,7 +279,7 @@ public class WorldInvokeListener
      * TODO: The methods should maybe be invoked via reflection instead of
      * through the BlueJ extensions. Using the BlueJ extension makes it
      * impossible to do a compile until the execution has finished. If Compile
-     * All is pressed in Greenfoot while a method is being invoked, and error
+     * All is pressed in Greenfoot while a method is being invoked, an error
      * will appear and the button will be disabled.
      * 
      * @param mdlg MethodDialog used for the invocation.
@@ -286,7 +288,6 @@ public class WorldInvokeListener
      */
     private void executeMethod(final MethodDialog mdlg, final RObject rObj, final GPackage pkg)
     {
-
         CallableView callv = mv == null ? (CallableView)cv : mv;
         Class<?> [] cparams = callv.getParameters();
         final String [] params = new String[cparams.length];
