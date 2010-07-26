@@ -118,7 +118,7 @@ public class WorldInvokeListener
             if (mv.getParameterCount() == 0) {
                 final Method m = mv.getMethod();
                 m.setAccessible(true);
-                new Thread() {
+                Simulation.getInstance().runLater(new Runnable() {
                     public void run() {
                         try {
                             final Object r = m.invoke(obj, (Object[])null);
@@ -143,10 +143,10 @@ public class WorldInvokeListener
                         }
                         catch (IllegalAccessException iae) {
                             // shouldn't happen
-                            iae.printStackTrace();
+                            Debug.reportError("Invoking method", iae);
                         }
                     }
-                }.start();
+                });
             }
             else {
                 CallHistory ch = GreenfootMain.getInstance().getCallHistory();
@@ -189,7 +189,7 @@ public class WorldInvokeListener
         if (cv.getParameterCount() == 0) {
             // No parameters to ask for, so there's no need to pop up a dialog
             // or compile a shell file
-            new Thread() {
+            Simulation.getInstance().runLater(new Runnable() {
                 public void run() {
                     try {
                         final Constructor<?> c = cl.getDeclaredConstructor(new Class[0]);
@@ -199,16 +199,22 @@ public class WorldInvokeListener
                         ActorInstantiationListener invocListener = GreenfootMain.getInstance().getInvocationListener();
                         invocListener.localObjectCreated(o, LocationTracker.instance().getMouseButtonEvent());
                     }
-                    catch (NoSuchMethodException nsme) {}
-                    catch (IllegalAccessException iae) {}
-                    catch (InstantiationException ie) {}
+                    catch (NoSuchMethodException nsme) {
+                        Debug.reportError("Invoking constructor", nsme);
+                    }
+                    catch (IllegalAccessException iae) {
+                        Debug.reportError("Invoking constructor", iae);
+                    }
+                    catch (InstantiationException ie) {
+                        Debug.reportError("Invoking constructor", ie);
+                    }
                     catch (InvocationTargetException ite) {
                         // exception thrown in constructor
                         // TODO highlight the line in the editor
                         ite.getCause().printStackTrace();
                     }
                 }
-            }.start();
+            });
         }
         else {
             // Parameters are required for this call, so we need to use a call dialog.

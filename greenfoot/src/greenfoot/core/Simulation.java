@@ -30,8 +30,11 @@ import greenfoot.event.WorldEvent;
 import greenfoot.event.WorldListener;
 import greenfoot.platforms.SimulationDelegate;
 import greenfoot.util.HDTimer;
+
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.swing.event.EventListenerList;
@@ -49,11 +52,17 @@ public class Simulation extends Thread
     // accessed from the simulation thread itself. "repaintLock" protects paintPending and
     // lastRepaintTime.
     
-    // We skip repaints if the simulation is running faster than the
-    // MAX_FRAME_RATE. This makes the high speeds run faster, since we avoid
-    // repaints that can't be seen anyway.
+    // The following two constants control repainting of the world while the simulation is
+    // running. We skip repaints if the simulation is running faster than the MAX_FRAME_RATE.
+    // This makes the high speeds run faster, since we avoid repaints that can't be seen
+    // anyway. Once requested, the repaint may take some time to occur; if the effective
+    // repaint rate falls below MIN_FRAME_RATE, then we temporarily suspend the simulation
+    // and wait for the repaint to occur.
+    
+    /** Repaints will be requested at this rate (at most) */
     private static int MAX_FRAME_RATE = 65;
-    private static int MIN_FRAME_RATE = 30;
+    /** Simulation will wait for repaints if the repaint rate falls below this */
+    private static int MIN_FRAME_RATE = 35;
     
     private WorldHandler worldHandler;
     
@@ -65,6 +74,9 @@ public class Simulation extends Thread
 
     /** Whether to run one loop when paused */
     private boolean runOnce;
+    
+    /** Tasks that are queued to run on the simulation thread */
+    private Queue<Runnable> queuedTasks = new LinkedList<Runnable>();
 
     private EventListenerList listenerList = new EventListenerList();
 
@@ -195,18 +207,29 @@ public class Simulation extends Thread
             } 
         }
     }   
-         
+
+    /**
+     * Schedule some task to run on the simulation thread.
+     */
+    public synchronized void runLater(Runnable r)
+    {
+        queuedTasks.add(r);
+        if (paused) {
+            notify();
+        }
+    }
+    
     /**
      * Block if the simulation is paused. This will block until the simulation
-     * is resumed.
+     * is resumed. It should only be called on the simulation thread.
      * 
      * @throws InterruptedException If it couldn't acquire the world lock when
-     *             signalling started() stopped() to the world.
+     *             signalling started()/stopped() to the world.
      */
     private synchronized void maybePause()
         throws InterruptedException
     {
-        if(runOnce || paused) {
+        if(paused) {
             // This code will be executed when:
             //  runOnce is over
             //  setPaused(true)
@@ -219,6 +242,10 @@ public class Simulation extends Thread
                 lock.writeLock().lockInterruptibly();
                 try {
                     world.stopped();
+                }
+                catch (ActInterruptedException aie) {
+                    paused = true;
+                    throw aie;
                 }
                 catch (Throwable t) {
                     // If any exceptions occur, halt the simulation
@@ -236,6 +263,8 @@ public class Simulation extends Thread
             System.gc();
         }
 
+        runQueuedTasks();
+        
         // Wait loop that waits until no longer pause or if we need to run the
         // simulation once because the user pressed 'Act'
         while (paused && !runOnce) {
@@ -254,7 +283,8 @@ public class Simulation extends Thread
             catch (InterruptedException e1) {
                 // Swallow the interrupt
             }
-                
+
+            runQueuedTasks();
             if (!paused && enabled && !abort) {
                 // We should begin execution again.
                 lastDelayTime = System.nanoTime();
@@ -280,6 +310,19 @@ public class Simulation extends Thread
         }
     }
 
+    /**
+     * Run all tasks that have been schedule to run on the simulation thread.
+     * Of course, this should only be called from the simulation thread...
+     */
+    private void runQueuedTasks()
+    {
+        Runnable r = queuedTasks.poll();
+        while (r != null) {
+            r.run();
+            r = queuedTasks.poll();
+        }
+    }
+    
     /**
      * Performs one step in the simulation. Calls act() on all actors.
      * 
