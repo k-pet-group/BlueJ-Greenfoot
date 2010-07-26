@@ -91,7 +91,7 @@ import bluej.utility.FileUtility;
  * project image library, or the greenfoot library, or an external location.
  *
  * @author Davin McCall
- * @version $Id: ImageLibFrame.java 7924 2010-07-26 12:57:15Z nccb $
+ * @version $Id: ImageLibFrame.java 7925 2010-07-26 13:43:21Z nccb $
  */
 public class ImageLibFrame extends EscapeDialog implements ListSelectionListener, WindowListener, MouseListener
 {
@@ -335,7 +335,6 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
         refreshTask = new TimerTask() {
             public void run()
             {
-                Debug.message("Refreshing previews");
                 projImageList.refreshPreviews();
             }
         };
