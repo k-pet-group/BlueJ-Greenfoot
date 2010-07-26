@@ -53,6 +53,8 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.rmi.RemoteException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
@@ -89,14 +91,12 @@ import bluej.utility.FileUtility;
  * project image library, or the greenfoot library, or an external location.
  *
  * @author Davin McCall
- * @version $Id: ImageLibFrame.java 7736 2010-05-25 14:10:26Z nccb $
+ * @version $Id: ImageLibFrame.java 7924 2010-07-26 12:57:15Z nccb $
  */
 public class ImageLibFrame extends EscapeDialog implements ListSelectionListener, WindowListener, MouseListener
 {
     /** Label displaying the currently selected image. */
     private JLabel imageLabel;
-    /** Button to edit the currently selected image */
-    private JButton editButton;
     private JLabel imageTextLabel;
     private GClass gclass;
     private GProject proj;
@@ -119,6 +119,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
     private GreenfootImage originalImage;
     private File newlyCreatedImage;
 
+    private TimerTask refreshTask;
 
     /**
      * Construct an ImageLibFrame for changing the image of an existing class.
@@ -330,6 +331,15 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
 
             getRootPane().setDefaultButton(okButton);
         }
+        
+        refreshTask = new TimerTask() {
+            public void run()
+            {
+                Debug.message("Refreshing previews");
+                projImageList.refreshPreviews();
+            }
+        };
+        new Timer().schedule(refreshTask, 2000, 2000);
 
         pack();
         DialogManager.centreDialog(this);
@@ -428,24 +438,6 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
             currentImagePanel.add(imageLabel);
             currentImagePanel.add(Box.createHorizontalStrut(spacingSmall));
 
-            editButton = new JButton("Edit...");
-            editButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    if(selectedImageFile!=null) {
-                        try {
-                            selectedImageFile = copyToProject(selectedImageFile);
-                        } catch (IOException ex) {
-                            ex.printStackTrace();
-                        }
-                        ExternalAppLauncher.editImage(selectedImageFile);
-                    }
-                }
-            });
-            if(selectedImageFile==null) {
-                editButton.setEnabled(false);
-            }
-            currentImagePanel.add(Box.createHorizontalStrut(spacingSmall));
-
             imageTextLabel = new JLabel() {
                 // We don't want changing the text to re-layout the
                 // whole frame
@@ -516,7 +508,6 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
     private void selectImage(File imageFile)
     {
         if(GreenfootUtil.isImage(imageFile)) {
-            editButton.setEnabled(true);
             imageLabel.setIcon(getPreviewIcon(imageFile));
             selectedImageFile = imageFile;
             if(gclass != null && gclass.isWorldSubclass()) {
@@ -689,11 +680,13 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
     public void windowClosed(WindowEvent e)
     {
         restoreOriginalImage();
+        refreshTask.cancel();
     }
 
     public void windowClosing(WindowEvent e)
     {
         restoreOriginalImage();
+        refreshTask.cancel();
     }
 
     public void windowDeactivated(WindowEvent e)

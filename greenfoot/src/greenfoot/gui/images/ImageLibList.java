@@ -66,7 +66,7 @@ import bluej.Config;
  * 
  * @author Davin McCall
  * @author Poul Henriksen
- * @version $Id: ImageLibList.java 6765 2009-09-30 17:50:25Z polle $
+ * @version $Id: ImageLibList.java 7924 2010-07-26 12:57:15Z nccb $
  */
 public class ImageLibList extends EditableList<ImageLibList.ImageListEntry> implements Selectable<File>
 {   
@@ -75,6 +75,8 @@ public class ImageLibList extends EditableList<ImageLibList.ImageListEntry> impl
     
     /** The preferred height of this list */
     private int prefHeight = 200;
+    
+    private LinkedList<ImageListEntry> data;
     
     /**
      * Construct an empty ImageLibList.
@@ -138,7 +140,7 @@ public class ImageLibList extends EditableList<ImageLibList.ImageListEntry> impl
             imageFiles = new File[0];
         }
                 
-        List<ImageListEntry> data = new LinkedList<ImageListEntry>();
+        data = new LinkedList<ImageListEntry>();
         
         for (int i = 0; i < imageFiles.length; i++) {
             ImageListEntry entry = new ImageListEntry(imageFiles[i]);
@@ -171,6 +173,23 @@ public class ImageLibList extends EditableList<ImageLibList.ImageListEntry> impl
         if(getDirectory()!=null) {
             setDirectory(getDirectory());
         }
+    }
+    
+    /**
+     * Refreshes the previews of any existing images in the list
+     * that have been modified since the previews were last loaded
+     */
+    public void refreshPreviews()
+    {
+        boolean anyReloaded = false;
+        for (ImageListEntry entry : data)
+        {
+            boolean reloaded = entry.refreshPreview();
+            anyReloaded |= reloaded;
+        }
+        
+        if (anyReloaded)
+            repaint();
     }
 
     /**
@@ -328,29 +347,52 @@ public class ImageLibList extends EditableList<ImageLibList.ImageListEntry> impl
     {
         public File imageFile;
         public Icon imageIcon;
+        private long lastModified;
         
         private ImageListEntry(File file)
         {
             this(file, true);
         }
         
+        /**
+         * Checks if the file has been modified since the preview was last generated,
+         * and reloads if it has been modified.
+         * 
+         * @return true if the preview did need to be reloaded
+         */
+        public boolean refreshPreview()
+        {
+            if (imageFile.lastModified() != lastModified)
+            {
+                loadPreview();
+                return true;
+            }
+            return false;
+        }
+
         private ImageListEntry(File file, boolean loadImage)
         {
             imageFile = file;
             
             if (loadImage) {
-                int dpi = Toolkit.getDefaultToolkit().getScreenResolution();
-
-                try {
-                    BufferedImage image = ImageIO.read(imageFile);
-                    if (image != null) {
-                        Image scaledImage = GreenfootUtil.getScaledImage(image, dpi / 3, dpi / 3);
-                        imageIcon = new ImageIcon(scaledImage);
-                    }
-                }
-                catch (MalformedURLException mfue) {}
-                catch (IOException ioe) {}
+                loadPreview();
             }
+        }
+
+        private void loadPreview()
+        {
+            lastModified = imageFile.lastModified();
+            int dpi = Toolkit.getDefaultToolkit().getScreenResolution();
+
+            try {
+                BufferedImage image = ImageIO.read(imageFile);
+                if (image != null) {
+                    Image scaledImage = GreenfootUtil.getScaledImage(image, dpi / 3, dpi / 3);
+                    imageIcon = new ImageIcon(scaledImage);
+                }
+            }
+            catch (MalformedURLException mfue) {}
+            catch (IOException ioe) {}
         }
         
         public boolean equals(Object other) 
