@@ -139,7 +139,6 @@ public class BPackage
     {
         return packageId.getPackageFrame();
     }
-
     
     /**
      * Returns the class with the given name in this package.
@@ -271,7 +270,7 @@ public class BPackage
 
     /**
      * Compile all files of this package.
-     * A single CompileEvent with all modified files listed will be generated.
+     * A single CompileEvent with all compiled files listed will be generated.
      * @param  waitCompileEnd <code>true</code> waits for the compilation to be finished.
      * @throws ProjectNotOpenException if the project this package is part of has been closed by the user.
      * @throws PackageNotFoundException if the package has been deleted by the user.
@@ -322,7 +321,7 @@ public class BPackage
      * @throws ProjectNotOpenException if the project this package is part of has been closed by the user.
      * @throws PackageNotFoundException if the package has been deleted by the user.
      */
-    public BObject []getCurrentObjects ()
+    public BObject[] getCurrentObjects ()
         throws ProjectNotOpenException, PackageNotFoundException
     {
         PkgMgrFrame bluejFrame = packageId.getPackageFrame();
