@@ -353,8 +353,14 @@ public class ExportDialog extends EscapeDialog
                     public void actionPerformed(ActionEvent evt) { doClose(); }                
                 });
 
-                buttonPanel.add(continueButton);
-                buttonPanel.add(closeButton);
+                if (Config.isMacOS()) {
+                    buttonPanel.add(closeButton);
+                    buttonPanel.add(continueButton);
+                }
+                else {
+                    buttonPanel.add(continueButton);
+                    buttonPanel.add(closeButton);
+                }
 
                 getRootPane().setDefaultButton(continueButton);
             }

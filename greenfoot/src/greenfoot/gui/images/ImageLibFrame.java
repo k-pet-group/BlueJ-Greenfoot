@@ -91,7 +91,7 @@ import bluej.utility.FileUtility;
  * project image library, or the greenfoot library, or an external location.
  *
  * @author Davin McCall
- * @version $Id: ImageLibFrame.java 7925 2010-07-26 13:43:21Z nccb $
+ * @version $Id: ImageLibFrame.java 7935 2010-07-27 09:54:39Z plcs $
  */
 public class ImageLibFrame extends EscapeDialog implements ListSelectionListener, WindowListener, MouseListener
 {
@@ -321,9 +321,18 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
             });
 
             okCancelPanel.add(Box.createHorizontalGlue());
-            okCancelPanel.add(okButton);
-            okCancelPanel.add(Box.createHorizontalStrut(spacingLarge));
-            okCancelPanel.add(cancelButton);
+            
+            if (Config.isMacOS()) {
+                okCancelPanel.add(cancelButton);
+                okCancelPanel.add(Box.createHorizontalStrut(spacingLarge));
+                okCancelPanel.add(okButton);
+            }
+            else {
+                okCancelPanel.add(okButton);
+                okCancelPanel.add(Box.createHorizontalStrut(spacingLarge));
+                okCancelPanel.add(cancelButton);
+            }
+            
             okCancelPanel.setAlignmentX(0.0f);
             okCancelPanel.validate();
             contentPane.add(fixHeight(Box.createVerticalStrut(spacingLarge)));

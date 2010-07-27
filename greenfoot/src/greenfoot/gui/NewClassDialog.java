@@ -118,9 +118,6 @@ public class NewClassDialog extends EscapeDialog
             }
         });
         okButton.setEnabled(false);
-        buttonPanel.add(okButton);
-
-        buttonPanel.add(Box.createHorizontalStrut(BlueJTheme.generalSpacingWidth));
 
         JButton cancelButton = BlueJTheme.getCancelButton();
         cancelButton.setVerifyInputWhenFocusTarget(false);
@@ -130,7 +127,17 @@ public class NewClassDialog extends EscapeDialog
                 cancel();
             }
         });
-        buttonPanel.add(cancelButton);
+        
+        if (Config.isMacOS()) {
+            buttonPanel.add(cancelButton);
+            buttonPanel.add(Box.createHorizontalStrut(BlueJTheme.generalSpacingWidth));
+            buttonPanel.add(okButton);
+        }
+        else {
+            buttonPanel.add(okButton);
+            buttonPanel.add(Box.createHorizontalStrut(BlueJTheme.generalSpacingWidth));
+            buttonPanel.add(cancelButton);
+        }
 
         getRootPane().setDefaultButton(okButton);
         buttonPanel.setAlignmentX(0.0f);
