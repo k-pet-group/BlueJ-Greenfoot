@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009, 2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,6 +21,8 @@
  */
 package greenfoot.gui.classbrowser.role;
 
+import greenfoot.GreenfootImage;
+import greenfoot.actions.DragProxyAction;
 import greenfoot.actions.SelectImageAction;
 import greenfoot.actions.ShowApiDocAction;
 import greenfoot.core.GProject;
@@ -40,7 +42,6 @@ import bluej.Config;
  * A role for Actor classes 
  * 
  * @author Poul Henriksen
- * @version $Id: ActorClassRole.java 6216 2009-03-30 13:41:07Z polle $
  */
 public class ActorClassRole extends ImageClassRole
 {
@@ -50,9 +51,9 @@ public class ActorClassRole extends ImageClassRole
 
     private static final String newline = System.getProperty("line.separator");
     public static final String imports = "import greenfoot.*;  // (World, Actor, GreenfootImage, and Greenfoot)" + newline;
-
-	private List<Action> constructorItems = new ArrayList<Action>();
-	private boolean enableConstrutors = false;
+    
+    private List<Action> constructorItems = new ArrayList<Action>();
+    private boolean enableConstrutors = false;
 	
     public ActorClassRole(GProject project)
     {
@@ -69,11 +70,32 @@ public class ActorClassRole extends ImageClassRole
         constructorItems = new ArrayList<Action>();
         for (Action realAction : realActions) {
             Action tempAction = createDragProxyAction(realAction);
-        	tempAction.setEnabled(enableConstrutors);
+            tempAction.setEnabled(enableConstrutors);
             constructorItems.add(tempAction);
         }
  
         return constructorItems;
+    }
+    
+    /**
+     * The image for the constructor action has changed and needs to be updated
+     */
+    public void modifyConstructorActions(GreenfootImage image)
+    {
+        for (Action addedAction: constructorItems){
+            ((DragProxyAction)addedAction).setDragImage(image);
+        }
+    }
+    
+    /**
+     * Changes image for the class (removed from cache) and updates the
+     * constructors with the correct image 
+     */
+    public void changeImage()
+    {
+        super.changeImage();
+        GreenfootImage greenfootImage = getGreenfootImage(gClass);
+        modifyConstructorActions(greenfootImage);
     }
         
     /* (non-Javadoc)

@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009, 2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -115,7 +115,7 @@ public abstract class ImageClassRole extends ClassRole
         return gclass;
     }
     
-    private static GreenfootImage getGreenfootImage(GClass gclass)
+    protected static GreenfootImage getGreenfootImage(GClass gclass)
     {
         gclass = getClassThatHasImage(gclass);
 
@@ -171,9 +171,7 @@ public abstract class ImageClassRole extends ClassRole
      */
     public void changeImage()
     {
-        project.getProjectProperties().removeCachedImage(classView.getClassName());
-       
-        
+        project.getProjectProperties().removeCachedImage(classView.getClassName());             
         Image image = getImage(gClass);
         if (image != null) {
             Image scaledImage = GreenfootUtil.getScaledImage(image,iconSize.width, iconSize.height);

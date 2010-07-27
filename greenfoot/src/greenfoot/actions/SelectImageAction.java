@@ -44,7 +44,6 @@ import bluej.utility.FileUtility;
  * Action to select an image for a class.
  * 
  * @author Davin McCall
- * @version $Id: SelectImageAction.java 7921 2010-07-26 06:11:04Z marionz $
  */
 public class SelectImageAction extends AbstractAction
 {
@@ -66,6 +65,7 @@ public class SelectImageAction extends AbstractAction
         File currentImageFile = imageLibFrame.getSelectedImageFile();
         
         setClassImage(classView, gclassRole, currentImageFile);
+        gfFrame.repaint();
     }
 
     public static void setClassImage(ClassView classView, ImageClassRole gclassRole, File imageFile)
