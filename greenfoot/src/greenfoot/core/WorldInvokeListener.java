@@ -23,7 +23,6 @@ package greenfoot.core;
 
 import greenfoot.ObjectTracker;
 import greenfoot.event.ActorInstantiationListener;
-import greenfoot.gui.GreenfootMethodDialog;
 import greenfoot.gui.input.mouse.LocationTracker;
 import greenfoot.localdebugger.LocalObject;
 
@@ -83,8 +82,8 @@ public class WorldInvokeListener
     private GProject project;
     
     /** A map which tells us which construction location applies to each dialog */
-    private Map<GreenfootMethodDialog,MouseEvent> dialogToLocationMap =
-        new HashMap<GreenfootMethodDialog,MouseEvent>();
+    private Map<MethodDialog,MouseEvent> dialogToLocationMap =
+        new HashMap<MethodDialog,MouseEvent>();
     
     public WorldInvokeListener(Object obj, ObjectBenchInterface bench,
             InspectorManager inspectorManager, GProject project)
@@ -150,7 +149,7 @@ public class WorldInvokeListener
             }
             else {
                 CallHistory ch = GreenfootMain.getInstance().getCallHistory();
-                GreenfootMethodDialog md = new GreenfootMethodDialog(GreenfootMain.getInstance().getFrame(),
+                MethodDialog md = new MethodDialog(GreenfootMain.getInstance().getFrame(),
                         objectBench , ch, instanceName, mv, null);
 
                 md.setWatcher(this);
@@ -219,7 +218,7 @@ public class WorldInvokeListener
         else {
             // Parameters are required for this call, so we need to use a call dialog.
             CallHistory ch = GreenfootMain.getInstance().getCallHistory();
-            GreenfootMethodDialog md = new GreenfootMethodDialog(GreenfootMain.getInstance().getFrame(),
+            MethodDialog md = new MethodDialog(GreenfootMain.getInstance().getFrame(),
                     objectBench, ch, "result", cv, null);
 
             dialogToLocationMap.put(md, LocationTracker.instance().getMouseButtonEvent());
