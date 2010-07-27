@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,30 +21,61 @@
  */
 package bluej.debugmgr;
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GradientPaint;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSeparator;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 
 import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.debugger.gentype.GenTypeArray;
 import bluej.debugger.gentype.GenTypeDeclTpar;
+import bluej.debugger.gentype.GenTypeParameter;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.TextType;
 import bluej.debugmgr.objectbench.ObjectBenchInterface;
-import bluej.pkgmgr.Package;
-import bluej.pkgmgr.PkgMgrFrame;
 import bluej.utility.ComponentFactory;
 import bluej.utility.GrowableBox;
 import bluej.utility.JavaNames;
 import bluej.utility.MultiLineLabel;
-import bluej.views.*;
+import bluej.views.CallableView;
+import bluej.views.ConstructorView;
+import bluej.views.LabelPrintWriter;
+import bluej.views.MethodView;
+import bluej.views.TypeParamView;
+import bluej.views.View;
 
 
 /**
@@ -55,8 +86,6 @@ import bluej.views.*;
  * @author  Michael Kolling
  * @author  Bruce Quig
  * @author  Poul Henriksen <polle@mip.sdu.dk>
- *
- * @version $Id: MethodDialog.java 7681 2010-05-22 07:44:08Z nccb $
  */
 public class MethodDialog extends CallDialog implements FocusListener
 {
@@ -85,7 +114,7 @@ public class MethodDialog extends CallDialog implements FocusListener
 
     private String methodName;
     private CallableView method;
-    private Map typeParameterMap;
+    private Map<String,GenTypeParameter> typeParameterMap;
 
     // Text Area
     private JPanel descPanel;
@@ -102,15 +131,17 @@ public class MethodDialog extends CallDialog implements FocusListener
 
     public static class VarArgFactory implements ComponentFactory
     {
-        private List history;
+        private List<String> history;
         private MethodDialog dialog;
 
-        public VarArgFactory(MethodDialog dialog, List history) {
+        public VarArgFactory(MethodDialog dialog, List<String> history)
+        {
             this.history = history;
             this.dialog = dialog;
         }
 
-        public void setHistory(List history) {
+        public void setHistory(List<String> history)
+        {
             this.history = history;
         }
         
@@ -134,19 +165,18 @@ public class MethodDialog extends CallDialog implements FocusListener
      * Class that holds the components for  a list of parameters. 
      * That is: the actual parameter component and the formal type of the parameter.
      * @author Poul Henriksen <polle@mip.sdu.dk>
-     * @version $Id: MethodDialog.java 7681 2010-05-22 07:44:08Z nccb $
      */
     public static class ParameterList
     {
-        private List parameters;
-        private List types;
+        private List<JComponent> parameters;
+        private List<String> types;
         private boolean isVarArgs;
         private String defaultParamValue;
 
         public ParameterList(int initialSize, String defaultParamValue, boolean isVarArgs) 
         {            
-            parameters = new ArrayList(initialSize);
-            types = new ArrayList(initialSize);
+            parameters = new ArrayList<JComponent>(initialSize);
+            types = new ArrayList<String>(initialSize);
             this.defaultParamValue = defaultParamValue;
             this.isVarArgs = isVarArgs;
         }
@@ -216,8 +246,8 @@ public class MethodDialog extends CallDialog implements FocusListener
 
         public void clear()
         {
-            for (Iterator iter = parameters.iterator(); iter.hasNext();) {
-                Object element = iter.next();
+            for (Iterator<JComponent> iter = parameters.iterator(); iter.hasNext();) {
+                JComponent element = iter.next();
                 if (isVarArgs && !iter.hasNext()) {
                     ((GrowableBox) element).clear();
                 } else {
@@ -232,7 +262,7 @@ public class MethodDialog extends CallDialog implements FocusListener
          * @param i
          * @param historyList
          */
-        public void setHistory(int i, List historyList)
+        public void setHistory(int i, List<String> historyList)
         {
             if(historyList == null) {
                 return;
@@ -251,37 +281,6 @@ public class MethodDialog extends CallDialog implements FocusListener
     /**
      * MethodDialog constructor.
      * 
-     * @param pmf          The assosciated PkgMgrFrame instance
-     * @param instanceName The initial instance name (for a constructor dialog)
-     *                     or the object instance on which the method is being called
-     * @param method       The constructor or method being used
-     * @param typeMap      The mapping of type parameter names (as they appear
-     *                     in the method declaration) to runtime types
-     *                     (a Map of String -> GenType).
-     */
-    public MethodDialog(PkgMgrFrame pmf, String instanceName, CallableView method, Map typeMap) {
-        super(pmf, pmf.getObjectBench(), "");
-
-        Package pkg = pmf.getPackage();
-
-        history = pkg.getCallHistory();
-
-        // Find out the type of dialog
-        if (method instanceof MethodView) {
-            dialogType = MD_CALL;
-            methodName = ((MethodView) method).getName();
-        }
-        else if (method instanceof ConstructorView) {
-            dialogType = MD_CREATE;
-        }
-
-        makeDialog(method.getClassName(), instanceName, method);
-        setInstanceInfo(instanceName, typeMap);
-    }
-
-    /**
-     * MethodDialog constructor.
-     * 
      * @param parentFrame  The parent window for the dialog
      * @param ob           The object bench to listen for object selection on
      * @param callHistory  The call history tracker
@@ -291,7 +290,8 @@ public class MethodDialog extends CallDialog implements FocusListener
      * @param typeMap      The mapping of type parameter names to runtime types
      *                     (a Map of String -> GenType).
      */
-    public MethodDialog(JFrame parentFrame, ObjectBenchInterface ob, CallHistory callHistory, String instanceName, CallableView method, Map typeMap)
+    public MethodDialog(JFrame parentFrame, ObjectBenchInterface ob, CallHistory callHistory,
+            String instanceName, CallableView method, Map<String,GenTypeParameter> typeMap)
     {
         super(parentFrame, ob, "");
 
@@ -485,7 +485,7 @@ public class MethodDialog extends CallDialog implements FocusListener
      * for method call dialogs, or in the text field for construction dialogs,
      * and the assosciated type parameters.
      */
-    public void setInstanceInfo(String instanceName, Map typeParams)
+    public void setInstanceInfo(String instanceName, Map<String,GenTypeParameter> typeParams)
     {
         if(dialogType == MD_CALL) {
             typeParameterMap = typeParams;
@@ -568,16 +568,16 @@ public class MethodDialog extends CallDialog implements FocusListener
      * @param varArgsExpanded
      *            if set to true, varargs will be expanded.
      */
-    public Class[] getArgTypes(boolean varArgsExpanded)
+    public Class<?>[] getArgTypes(boolean varArgsExpanded)
     {
-        Class[] params = method.getParameters();
+        Class<?>[] params = method.getParameters();
         boolean hasVarArgs = method.isVarArgs() && parameterList != null
                 && parameterList.size() >= params.length;
         if (hasVarArgs && varArgsExpanded) {
             int totalParams = parameterList.size();
-            Class[] allParams = new Class[totalParams];
+            Class<?>[] allParams = new Class[totalParams];
             System.arraycopy(params, 0, allParams, 0, params.length);
-            Class varArgType = params[params.length - 1].getComponentType();
+            Class<?> varArgType = params[params.length - 1].getComponentType();
             for (int i = params.length - 1; i < totalParams; i++) {
                 allParams[i] = varArgType;
             }
@@ -610,9 +610,10 @@ public class MethodDialog extends CallDialog implements FocusListener
         // first construct a type parameter map which includes not only
         // type parameters from the declaring class, but also those from this
         // particular call
-        Map typeMap = new HashMap();
-        if (typeParameterMap != null)
+        Map<String,GenTypeParameter> typeMap = new HashMap<String,GenTypeParameter>();
+        if (typeParameterMap != null) {
             typeMap.putAll(typeParameterMap);
+        }
         
         String [] typeParams = getTypeParams();
         TypeParamView[] formalTypeParamViews = getFormalTypeParams();                  
@@ -664,7 +665,7 @@ public class MethodDialog extends CallDialog implements FocusListener
     public void updateParameters()
     {
         if (parameterList != null) {
-            Class[] paramClasses = getArgTypes(true);
+            Class<?>[] paramClasses = getArgTypes(true);
             //First we add all the current items into the historylist
             for (int i = 0; i < parameterList.size(); i++) {
                 history.addCall(paramClasses[i], (String) parameterList.getParameter(i).getEditor()
@@ -672,7 +673,7 @@ public class MethodDialog extends CallDialog implements FocusListener
             }
             //Then we update all the comboboxes
             for (int i = 0; i < parameterList.size(); i++) {                
-                List historyList = history.getHistory(paramClasses[i]);                
+                List<String> historyList = history.getHistory(paramClasses[i]);                
                 parameterList.setHistory(i, historyList);                
             }
         }
@@ -686,7 +687,7 @@ public class MethodDialog extends CallDialog implements FocusListener
             }
             //Then we update all the comboboxes
             for (int i = 0; i < typeParams.length; i++) {
-                List historyList = history.getHistory(formalTypeParams[i]);
+                List<String> historyList = history.getHistory(formalTypeParams[i]);
                 typeParameterList.setHistory(i, historyList);                                
             }
         }
@@ -953,7 +954,6 @@ public class MethodDialog extends CallDialog implements FocusListener
 
     /**
      * Creates a panel of type parameters for a new object
-     * 
      */
     private JPanel createTypeParameterPanel()
     {
@@ -961,7 +961,7 @@ public class MethodDialog extends CallDialog implements FocusListener
 
         typeParameterList = new ParameterList(formalTypeParams.length, defaultParamValue, false);
         for (int i = 0; i < formalTypeParams.length; i++) {
-            List historyList = history.getHistory(formalTypeParams[i]);            
+            List<String> historyList = history.getHistory(formalTypeParams[i]);            
             JComboBox component = createComboBox(historyList);
             typeParameterList.addParameter(i, component, formalTypeParams[i].toString());
         }
@@ -971,15 +971,13 @@ public class MethodDialog extends CallDialog implements FocusListener
         return createParameterPanel(startString, endString, superParamList);
     }
 
-
-
     /**
      * Creates a panel of parameters for a method
      * 
      */
     private JPanel createParameterPanel()
     {
-        Class[] paramClasses = getArgTypes(false);
+        Class<?>[] paramClasses = getArgTypes(false);
         String[] paramNames = method.getParamNames();
         String[] paramTypes = method.getParamTypeStrings();
 
@@ -990,7 +988,7 @@ public class MethodDialog extends CallDialog implements FocusListener
                 paramString += " " + paramNames[i];
             }
             if (method.isVarArgs() && i == (paramClasses.length - 1)) {
-                List historyList = history.getHistory(paramClasses[i].getComponentType());
+                List<String> historyList = history.getHistory(paramClasses[i].getComponentType());
                 GrowableBox component = new GrowableBox(new VarArgFactory(this, historyList),
                         BoxLayout.Y_AXIS, INSETS.top + INSETS.bottom);
                 //We want the dialog to resize when new args are added
@@ -1014,7 +1012,7 @@ public class MethodDialog extends CallDialog implements FocusListener
                 });
                 parameterList.setVarArg(component, paramString);
             } else {
-                List historyList = history.getHistory(paramClasses[i]);
+                List<String> historyList = history.getHistory(paramClasses[i]);
                 JComboBox component = createComboBox(historyList);
                 parameterList.addParameter(i, component, paramString);
             }
@@ -1108,7 +1106,7 @@ public class MethodDialog extends CallDialog implements FocusListener
      */
     private double getComboBoxHeight()
     {
-        JComboBox comboBox = createComboBox(new ArrayList());
+        JComboBox comboBox = createComboBox(new ArrayList<String>());
         double comboHeight = comboBox.getPreferredSize().getHeight();
         return comboHeight;
     }
@@ -1122,10 +1120,10 @@ public class MethodDialog extends CallDialog implements FocusListener
             callLabel.setText(JavaNames.stripPrefix(instanceName) + "." + methodName);
     }
 
-    private JComboBox createComboBox(List history)
+    private JComboBox createComboBox(List<String> history)
     {        
         if(history == null) {
-            history = new ArrayList();
+            history = new ArrayList<String>();
         }
         JComboBox component = new JComboBox(history.toArray());
         component.insertItemAt(defaultParamValue, 0);

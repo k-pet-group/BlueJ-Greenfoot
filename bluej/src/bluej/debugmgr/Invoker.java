@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -59,7 +59,6 @@ import bluej.views.MethodView;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 7782 2010-06-21 04:50:41Z davmac $
  */
 
 public class Invoker
@@ -261,7 +260,8 @@ public class Invoker
             MethodDialog mDialog = methods.get(member);
 
             if (mDialog == null) {
-                mDialog = new MethodDialog(pmf, objName, member, typeMap);
+                mDialog = new MethodDialog(pmf, pmf.getObjectBench(),
+                        pmf.getPackage().getCallHistory(), objName, member, typeMap);
                 methods.put(member, mDialog);
                 mDialog.setVisible(true);
             }
