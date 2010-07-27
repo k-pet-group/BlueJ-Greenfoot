@@ -448,7 +448,17 @@ public class GreenfootFrame extends JFrame
         
         // the class browser 
         
-        classScrollPane = new JScrollPane(classBrowser);
+        classScrollPane = new JScrollPane(classBrowser) {
+            public Dimension getPreferredSize()
+            {
+                Dimension size = super.getPreferredSize();
+                // Always leave room for the vertical scroll bar to appear
+                // This stops a horizontal scroll bar getting added when the vertical one appears
+                size.width += getVerticalScrollBar().getWidth();
+                return size;
+            }
+            
+        };
         setScrollIncrements(classScrollPane);
         classScrollPane.setOpaque(false);
         classScrollPane.getViewport().setOpaque(false);
