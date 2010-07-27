@@ -25,7 +25,6 @@ import greenfoot.actions.EditClassAction;
 import greenfoot.actions.InspectClassAction;
 import greenfoot.actions.NewSubclassAction;
 import greenfoot.actions.RemoveClassAction;
-import greenfoot.actions.ShowApiDocAction;
 import greenfoot.core.GClass;
 import greenfoot.core.GProject;
 import greenfoot.core.GreenfootMain;
@@ -65,7 +64,6 @@ import bluej.views.ViewFilter;
  * "normal" classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassRole.java 7848 2010-07-12 09:54:05Z nccb $
  */
 public abstract class ClassRole implements WorldListener
 {
@@ -214,17 +212,17 @@ public abstract class ClassRole implements WorldListener
         // default implementation does nothing
     }
 
-	public void worldCreated(WorldEvent e) {
-		// Do nothing - only want to handle this for actors
-	}
+    public void worldCreated(WorldEvent e) {
+        // Do nothing - only want to handle this for actors
+    }
 
-	public void worldRemoved(WorldEvent e) {
-		// Do nothing - only want to handle this for actors
-	}
+    public void worldRemoved(WorldEvent e) {
+        // Do nothing - only want to handle this for actors
+    }
 
-	/**
-	 * Called when this role is being removed. Do any cleanup that is needed here.
-	 */
+    /**
+     * Called when this role is being removed. Do any cleanup that is needed here.
+     */
     public abstract void remove();
 	
 }

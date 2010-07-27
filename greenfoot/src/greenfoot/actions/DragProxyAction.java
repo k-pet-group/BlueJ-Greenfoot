@@ -56,13 +56,4 @@ public class DragProxyAction extends AbstractAction
         WorldHandler.getInstance().getInputManager().objectCreated(object);
     }
 
-    /**
-     * Sets the image to be used when the drag action is called
-     * @param dragImage GreenfootImage
-     */
-    public void setDragImage(GreenfootImage dragImage)
-    {
-        this.dragImage = dragImage;
-    }
-
 }

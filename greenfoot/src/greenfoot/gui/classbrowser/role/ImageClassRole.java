@@ -179,6 +179,10 @@ public abstract class ImageClassRole extends ClassRole
             icon.setImage(scaledImage);
             classView.setIcon(icon);
         }
+        //resets the pop up menu to ensure that a new one is created when next it is requested
+        //this is required because the constructor action images are out of date because of the
+        //image change
+        classView.setPopupMenu(null);
     }
 
     @Override    

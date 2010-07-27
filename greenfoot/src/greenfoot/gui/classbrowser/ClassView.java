@@ -39,6 +39,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.PopupMenu;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
@@ -61,7 +62,7 @@ import bluej.utility.Utility;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 7923 2010-07-26 06:45:51Z davmac $
+ * @version $Id: ClassView.java 7928 2010-07-27 02:58:48Z marionz $
  */
 public class ClassView extends JToggleButton
     implements Selectable, MouseListener
@@ -620,5 +621,10 @@ public class ClassView extends JToggleButton
     public String getSuperclass()
     {
         return gClass.getSuperclassGuess();
+    }
+
+    public void setPopupMenu(JPopupMenu popupMenu)
+    {
+        this.popupMenu = popupMenu;
     }
 }
