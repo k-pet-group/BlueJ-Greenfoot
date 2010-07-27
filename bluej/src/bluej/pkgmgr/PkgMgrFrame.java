@@ -2029,8 +2029,9 @@ public class PkgMgrFrame extends JFrame
         }
 
         // create an Invoker to handle the actual invocation
-
-        new Invoker(this, cv, watcher).invokeInteractive();
+        if (checkDebuggerState()) {
+            new Invoker(this, cv, watcher).invokeInteractive();
+        }
     }
 
     /**

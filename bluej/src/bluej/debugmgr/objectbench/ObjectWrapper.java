@@ -126,13 +126,6 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
 
     private boolean isSelected = false;
     
-    private Color[] shadowColours = {
-            new Color(0,0,0,11), //furthest out
-            new Color(0,0,0,22),     
-            new Color(0,0,0,33),
-            new Color(0,0,0,66)//closes to the center
-    };
-
     /**
      * Get an object wrapper for a user object. 
      * 
@@ -149,9 +142,6 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
                                             GenTypeClass iType,
                                             String instanceName)
     {
-        if(pmf.isEmptyFrame())
-            throw new IllegalArgumentException();
-
         if (obj.isArray()) {
             return new ArrayWrapper(pmf, ob, obj, instanceName);
         }
@@ -162,12 +152,10 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
 
     protected ObjectWrapper(PkgMgrFrame pmf, ObjectBench ob, DebuggerObject obj, GenTypeClass iType, String instanceName)
     {
-        if(pmf.isEmptyFrame())
-            throw new IllegalArgumentException();
-
         // first one we construct will give us more info about the size of the screen
-        if(!itemHeightKnown)
+        if(!itemHeightKnown) {
             itemsOnScreen = (int)Config.screenBounds.getHeight() / itemHeight;
+        }
 
         this.pmf = pmf;
         this.pkg = pmf.getPackage();
@@ -774,33 +762,35 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
             public void putVMTerminated() { }
         };
 
-        Invoker invoker = new Invoker(pmf, method, this, watcher);
-        invoker.invokeInteractive();
+        if (pmf.checkDebuggerState()) {
+            Invoker invoker = new Invoker(pmf, method, this, watcher);
+            invoker.invokeInteractive();
+        }
     }
     
     public void callConstructor(ConstructorView cv)
     {
         // do nothing (satisfy the InvokeListener interface)
     }
-    
-	/**
-	 * @return Returns the isSelected.
-	 */
-	public boolean isSelected() 
+
+    /**
+     * @return Returns the isSelected.
+     */
+    public boolean isSelected() 
     {
-		return isSelected;
-	}
-    
-	/**
-	 * @param isSelected The isSelected to set.
-	 */
-	public void setSelected(boolean isSelected) 
+        return isSelected;
+    }
+
+    /**
+     * @param isSelected The isSelected to set.
+     */
+    public void setSelected(boolean isSelected) 
     {
-		this.isSelected = isSelected;
-		if(isSelected) {
-		    pmf.setStatus(getName() + " : " + displayClassName);
-		}
+        this.isSelected = isSelected;
+        if(isSelected) {
+            pmf.setStatus(getName() + " : " + displayClassName);
+        }
         repaint();
         scrollRectToVisible(new Rectangle(0, 0, WIDTH, HEIGHT));
-	}
+    }
 }

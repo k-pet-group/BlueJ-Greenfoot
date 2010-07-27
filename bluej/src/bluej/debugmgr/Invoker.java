@@ -115,11 +115,9 @@ public class Invoker
      */
     public Invoker(PkgMgrFrame pmf, ValueCollection localVars, String command, ResultWatcher watcher)
     {
-        if (pmf.isEmptyFrame())
-            throw new IllegalArgumentException();
-
-        if (watcher == null)
+        if (watcher == null) {
             throw new NullPointerException("Invoker: watcher == null");
+        }
 
         this.pmf = pmf;
         this.pkg = pmf.getPackage();
@@ -148,11 +146,9 @@ public class Invoker
      */
     public Invoker(PkgMgrFrame pmf, CallableView member, ResultWatcher watcher)
     {
-        if (pmf.isEmptyFrame())
-            throw new IllegalArgumentException();
-
-        if (watcher == null)
+        if (watcher == null) {
             throw new NullPointerException("Invoker: watcher == null");
+        }
 
         this.pmf = pmf;
         this.pkg = pmf.getPackage();
@@ -242,12 +238,6 @@ public class Invoker
         //in greenfoot mode we don't ever want to ask for instance name
         if(constructing && Config.isGreenfoot()) {     
             instanceName = objName;
-        }
-        
-        if (!Config.isGreenfoot()) {
-            if (!pmf.checkDebuggerState()) {
-                return;
-            }
         }
         
         // check for a method call with no parameter
