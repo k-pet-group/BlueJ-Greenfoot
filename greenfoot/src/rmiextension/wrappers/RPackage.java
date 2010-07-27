@@ -30,88 +30,64 @@ import bluej.extensions.MissingJavaFileException;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
 /**
- * The interface for a package.
+ * The remote interface for a package.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
  */
 public interface RPackage
     extends java.rmi.Remote
 {
-
     /**
-     * Compile all modified files.
-     * @param waitCompileEnd
-     * @throws ProjectNotOpenException
-     * @throws PackageNotFoundException
-     * @throws RemoteException
-     * @throws CompilationNotStartedException
+     * Compile files in the package which need compilation, optionally waiting until the
+     * compilation finishes.
      */
     public abstract void compile(boolean waitCompileEnd)
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException, CompilationNotStartedException;
 
     /**
-     * Force compilation of all files in the package.
-     * @param waitCompileEnd
-     * @throws ProjectNotOpenException
-     * @throws PackageNotFoundException
-     * @throws RemoteException
-     * @throws CompilationNotStartedException
+     * Rebuild the package, i.e. compile all classes regardless of their current state.
      */
     public abstract void compileAll()
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException, CompilationNotStartedException;
 
     /**
-     * @param name
-     * @return
-     * @throws ProjectNotOpenException
-     * @throws PackageNotFoundException
+     * Get a remote reference to a class within the package.
      */
     public abstract RClass getRClass(String name)
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException;
 
     /**
-     * @return
-     * @throws ProjectNotOpenException
-     * @throws PackageNotFoundException
+     * Get all classes within the package
      */
     public abstract RClass[] getRClasses()
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException;
 
     /**
-     * @return
-     * @throws ProjectNotOpenException
-     * @throws PackageNotFoundException
+     * Get the qualified name of this package.
      */
     public abstract String getName()
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException;
 
     /**
-     * @param instanceName
-     * @return
-     * @throws ProjectNotOpenException
-     * @throws PackageNotFoundException
+     * Get the object with the given instance name from the object bench of this package.
      */
     public abstract RObject getObject(String instanceName)
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException;
 
     /**
-     * @return
-     * @throws ProjectNotOpenException
-     * @throws PackageNotFoundException
+     * Get all objects from the object bench of this package.
      */
     public abstract BObject[] getObjects()
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException;
 
     /**
-     * @return
-     * @throws ProjectNotOpenException
+     * Get the project to which this package belongs.
      */
     public abstract RProject getProject()
         throws ProjectNotOpenException, RemoteException;
 
     /**
-     * @throws ProjectNotOpenException
-     * @throws PackageNotFoundException
+     * Reload the entire package.
      */
     public abstract void reload()
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException;
@@ -168,12 +144,14 @@ public interface RPackage
      * @param className  The class for which to invoke the method
      * @param methodName The name of the method
      * @param argTypes   The argument types of the method (class names)
-     * @param args       The argument strings to use
+     * @param args       The argument strings to use (as Java expressions)
      * @return   The name of the returned object (see notes above).
      */
     public String invokeMethod(String className, String methodName, String [] argTypes, String [] args)
         throws RemoteException;
 
+    /**
+     * Close the package.
+     */
     public void close() throws RemoteException;
-
 }

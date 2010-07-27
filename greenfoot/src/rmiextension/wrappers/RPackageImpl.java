@@ -80,10 +80,8 @@ public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
     // Wrapper Methods
     /////////////////////
 
-    /**
-     * @param forceAll
-     * @throws ProjectNotOpenException
-     * @throws PackageNotFoundException
+    /* (non-Javadoc)
+     * @see rmiextension.wrappers.RPackage#compile(boolean)
      */
     public void compile(boolean waitCompileEnd)
         throws ProjectNotOpenException, PackageNotFoundException, CompilationNotStartedException
@@ -91,6 +89,9 @@ public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
         bPackage.compile(waitCompileEnd);
     }
     
+    /* (non-Javadoc)
+     * @see rmiextension.wrappers.RPackage#compileAll()
+     */
     public void compileAll()
         throws ProjectNotOpenException, PackageNotFoundException, CompilationNotStartedException
     {
@@ -137,11 +138,8 @@ public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
         }
     }
 
-    /**
-     * @param name
-     * @return
-     * @throws ProjectNotOpenException
-     * @throws PackageNotFoundException
+    /* (non-Javadoc)
+     * @see rmiextension.wrappers.RPackage#getRClass(java.lang.String)
      */
     public RClass getRClass(final String name)
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException
@@ -178,10 +176,8 @@ public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
         }
     }
 
-    /**
-     * @return
-     * @throws ProjectNotOpenException
-     * @throws PackageNotFoundException
+    /* (non-Javadoc)
+     * @see rmiextension.wrappers.RPackage#getRClasses()
      */
     public RClass[] getRClasses()
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException
@@ -226,10 +222,8 @@ public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
         }
     }
 
-    /**
-     * @return
-     * @throws ProjectNotOpenException
-     * @throws PackageNotFoundException
+    /* (non-Javadoc)
+     * @see rmiextension.wrappers.RPackage#getName()
      */
     public String getName()
         throws ProjectNotOpenException, PackageNotFoundException
@@ -237,26 +231,19 @@ public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
         return bPackage.getName();
     }
 
-    /**
-     * @param instanceName
-     * @return
-     * @throws ProjectNotOpenException
-     * @throws PackageNotFoundException
+    /* (non-Javadoc)
+     * @see rmiextension.wrappers.RPackage#getObject(java.lang.String)
      */
     public RObject getObject(String instanceName)
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException
     {
-
         BObject wrapped = bPackage.getObject(instanceName);
         RObject wrapper = WrapperPool.instance().getWrapper(wrapped);
         return wrapper;
-
     }
 
-    /**
-     * @return
-     * @throws ProjectNotOpenException
-     * @throws PackageNotFoundException
+    /* (non-Javadoc)
+     * @see rmiextension.wrappers.RPackage#getObjects()
      */
     public BObject[] getObjects()
         throws ProjectNotOpenException, PackageNotFoundException
@@ -264,9 +251,8 @@ public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
         return bPackage.getObjects();
     }
 
-    /**
-     * @return
-     * @throws ProjectNotOpenException
+    /* (non-Javadoc)
+     * @see rmiextension.wrappers.RPackage#getProject()
      */
     public RProject getProject()
         throws RemoteException, ProjectNotOpenException
@@ -274,9 +260,8 @@ public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
         return WrapperPool.instance().getWrapper(bPackage.getProject());
     }
 
-    /**
-     * @throws ProjectNotOpenException
-     * @throws PackageNotFoundException
+    /* (non-Javadoc)
+     * @see rmiextension.wrappers.RPackage#reload()
      */
     public void reload()
         throws ProjectNotOpenException, PackageNotFoundException
@@ -309,23 +294,13 @@ public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
         return wrapper;
     }
     
-    /**
-     * Invoke a static method.
-     * 
-     * Return is the compiler error message preceded by '!' in the case of
-     * a compile time error, or the name of the constructed object, or null
-     * if a run-time error occurred.
-     * 
-     * @param className  The class for which to invoke the method
-     * @param methodName The name of the method
-     * @param argTypes   The argument types of the method (class names)
-     * @param args       The argument strings to use
-     * @return   The name of the returned object (see notes above).
+    /* (non-Javadoc)
+     * @see rmiextension.wrappers.RPackage#invokeMethod(java.lang.String, java.lang.String, java.lang.String[], java.lang.String[])
      */
     public String invokeMethod(String className, String methodName, String [] argTypes, String [] args)
     {
         Package pkg = getPackage();
-        Class cl = pkg.loadClass(className);
+        Class<?> cl = pkg.loadClass(className);
         View mClassView = View.getView(cl);
         
         // do we really need to search super classes?
@@ -346,7 +321,7 @@ public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
                     continue;
                 
                 // ... or if any of the parameters are different
-                Class [] params = methods[i].getParameters();
+                Class<?> [] params = methods[i].getParameters();
                 for (int j = 0; j < params.length; j++) {
                     if (! params[j].getName().equals(argTypes[j]))
                         continue findMethod;
@@ -380,7 +355,7 @@ public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
         // TODO support generics
         
         Package pkg = getPackage();
-        Class cl = pkg.loadClass(className);
+        Class<?> cl = pkg.loadClass(className);
         View mClassView = View.getView(cl);
 
         // Search through the constructors for the one we want.
@@ -390,7 +365,7 @@ public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
             // check the parameter count and types match
             if (constructors[i].getParameterCount() != argTypes.length)
                 continue;
-            Class [] params = constructors[i].getParameters();
+            Class<?> [] params = constructors[i].getParameters();
             for (int j = 0; j < params.length; j++) {
                 if (! params[j].getName().equals(argTypes[j]))
                     continue consLoop;
@@ -461,12 +436,12 @@ public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
     private Package getPackage()
     {
         try {
-            Class bPackageClass = bPackage.getClass();
+            Class<?> bPackageClass = bPackage.getClass();
             Field packageId = bPackageClass.getDeclaredField("packageId");
             packageId.setAccessible(true);
             Object identifier = packageId.get(bPackage);
             
-            Class identifierClass = identifier.getClass();
+            Class<?> identifierClass = identifier.getClass();
             Method getBluejPackage = identifierClass.getDeclaredMethod("getBluejPackage", new Class[0]);
             getBluejPackage.setAccessible(true);
             Package pkg = (bluej.pkgmgr.Package) getBluejPackage.invoke(identifier, (Object[]) null);
@@ -480,6 +455,9 @@ public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
         return null;
     }
 
+    /* (non-Javadoc)
+     * @see rmiextension.wrappers.RPackage#close()
+     */
     public void close()
         throws RemoteException
     {

@@ -39,7 +39,7 @@ import bluej.views.View;
 
 /**
  * @author Poul Henriksen
- * @version $Id: RObjectImpl.java 6216 2009-03-30 13:41:07Z polle $
+ * @version $Id: RObjectImpl.java 7934 2010-07-27 05:55:36Z davmac $
  */
 public class RObjectImpl extends UnicastRemoteObject
     implements RObject
@@ -123,14 +123,19 @@ public class RObjectImpl extends UnicastRemoteObject
         bObject.removeFromBench();
     }
 
-    // no longer needed
-//    public MenuSerializer getMenu()
-//        throws RemoteException
-//    {
-//        JPopupMenu menu = (JPopupMenu) bObject.getMenu();
-//        return new MenuSerializer(menu);
-//    }
-    
+    /**
+     * Invoke a static method.
+     * 
+     * Return is the compiler error message preceded by '!' in the case of
+     * a compile time error, or the name of the constructed object, or null
+     * if a run-time error occurred.
+     * 
+     * @param className  The class for which to invoke the method
+     * @param methodName The name of the method
+     * @param argTypes   The argument types of the method (class names)
+     * @param args       The argument strings to use
+     * @return   The name of the returned object (see notes above).
+     */
     public String invokeMethod(String method, String [] argTypes, String [] argVals)
         throws RemoteException
     {
@@ -143,7 +148,7 @@ public class RObjectImpl extends UnicastRemoteObject
             // TODO: add to extension mechanism(?).
             // For the moment, cheat and use reflection.
             
-            Class BObjectClass = BObject.class;
+            Class<?> BObjectClass = BObject.class;
             Field oWrapperField = BObjectClass.getDeclaredField("objectWrapper");
             oWrapperField.setAccessible(true);
             ObjectWrapper ow = (ObjectWrapper) oWrapperField.get(bObject);
@@ -151,13 +156,12 @@ public class RObjectImpl extends UnicastRemoteObject
             // Debug.message("Calling method: " + method + " on object: " + ow.getName());
             String className = ow.getObject().getClassName();
             PkgMgrFrame pmf = ow.getFrame();
-            Class oClass = ow.getPackage().loadClass(className);
+            Class<?> oClass = ow.getPackage().loadClass(className);
             
             // can't just use getMethods() as that doesn't give us package-private
             // methods, sigh...
             View mClassView = View.getView(oClass);
             
-            classLoop:
             while (mClassView != null) {
                 MethodView [] methods = mClassView.getDeclaredMethods();
                 findMethod:
@@ -173,7 +177,7 @@ public class RObjectImpl extends UnicastRemoteObject
                         continue;
                     
                     // ... or if any of the parameters are different
-                    Class [] params = methods[i].getParameters();
+                    Class<?> [] params = methods[i].getParameters();
                     for (int j = 0; j < params.length; j++) {
                         if (! params[j].getName().equals(argTypes[j]))
                             continue findMethod;
