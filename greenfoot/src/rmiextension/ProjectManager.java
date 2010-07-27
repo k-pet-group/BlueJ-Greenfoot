@@ -96,7 +96,9 @@ public class ProjectManager
 
     /**
      * Launch the project in the Greenfoot VM if it is a proper Greenfoot
-     * project.
+     * project. This is called when a package is opened; because there is
+     * no listener interface for project open/close events, we have to keep
+     * track of projects manually.
      */
     private void launchProject(final Project project)
     {
@@ -231,7 +233,8 @@ public class ProjectManager
     }
 
     /**
-     * Whether this project is currently open or not.
+     * Whether this project is currently open or not, according to our records.
+     * 
      */
     private boolean isProjectOpen(Project prj)
     {
@@ -240,25 +243,25 @@ public class ProjectManager
         try {
             prjFile = prj.getPackage().getProject().getDir();
         }
-        catch (ProjectNotOpenException e1) {
-            e1.printStackTrace();
+        catch (ProjectNotOpenException pnoe) {
+            // If we get a ProjectNotOpenException... then surely the project isn't open?
+            // (shouldn't be possible).
+            return false;
         }
         for (int i = 0; i < openedPackages.size(); i++) {
             BPackage openPkg = openedPackages.get(i);
 
             File openPrj = null;
             try {
-                //  TODO package could be null if it is removed inbetween. should
-                // synchronize the access to the list.
-                //can throw ProjectNotOpenException
                 openPrj = openPkg.getProject().getDir();
             }
             catch (ProjectNotOpenException e2) {
-                //e2.printStackTrace();
+                // Shouldn't happen; but if it does, it should be
+                // safe to ignore.
             }
 
-            if (openPrj != null && prjFile != null && openPrj.equals(prjFile)) {
-                projectIsOpen = true;
+            if (openPrj != null && openPrj.equals(prjFile)) {
+                return true;
             }
         }
         return projectIsOpen;
