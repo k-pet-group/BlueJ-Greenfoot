@@ -43,8 +43,10 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.Image;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -52,16 +54,22 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
 import java.util.Properties;
+import java.util.jar.JarInputStream;
+import java.util.zip.ZipEntry;
 
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JApplet;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JRootPane;
 import javax.swing.RootPaneContainer;
 
+import bluej.BlueJTheme;
 import bluej.Config;
+import bluej.utility.FileUtility;
 
 /**
  * This class can view and run a greenfoot scenario. It is not possible to
@@ -115,6 +123,11 @@ public class GreenfootScenarioViewer extends JApplet
                 new GreenfootScenarioViewer(frame);
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 frame.setTitle(scenarioName);
+                
+                URL resource = this.getClass().getClassLoader().getResource("greenfoot.png");
+                ImageIcon icon = new ImageIcon(resource);
+                frame.setIconImage(icon.getImage());
+                
                 frame.pack();
                 frame.setVisible(true);
             }
