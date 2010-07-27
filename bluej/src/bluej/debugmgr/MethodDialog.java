@@ -99,8 +99,9 @@ public class MethodDialog extends CallDialog implements FocusListener
     private boolean rawObject;
 
     // Window Titles
-    static final String wCreateTitle = Config.getString("pkgmgr.methodCall.titleCreate");
-    static final String wCallRoutineTitle = Config.getString("pkgmgr.methodCall.titleCall");
+    private static final String appName = Config.getApplicationName(); 
+    static final String wCreateTitle = appName + ":  " + Config.getString("pkgmgr.methodCall.titleCreate");
+    static final String wCallRoutineTitle = appName + ":  " + Config.getString("pkgmgr.methodCall.titleCall");
     // MD_CREATE Specific
     static final String sNameOfInstance = Config.getString("pkgmgr.methodCall.namePrompt");
     static final String sTypeParameters = Config.getString("pkgmgr.methodCall.typeParametersPrompt");

@@ -473,8 +473,8 @@ pkgmgr.printDialog.printSource=Print source code
 pkgmgr.printDialog.printReadme=Print project readme 
 
 # method call dialog
-pkgmgr.methodCall.titleCreate=BlueJ:  Create Object
-pkgmgr.methodCall.titleCall=BlueJ:  Method Call
+pkgmgr.methodCall.titleCreate=Create Object
+pkgmgr.methodCall.titleCall=Method Call
 pkgmgr.methodCall.namePrompt=Name of Instance:
 pkgmgr.methodCall.typeParametersPrompt=Type Parameters:
 pkgmgr.methodCall.typeParameterPrompt=Type Parameter:

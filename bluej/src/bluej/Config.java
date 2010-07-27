@@ -314,7 +314,6 @@ public final class Config
         initialise(bluejLibDir, tempCommandLineProps, bootingGreenfoot);
 
     }
-    
 
     /**
      * Get the properties that were given on the command line and used 
