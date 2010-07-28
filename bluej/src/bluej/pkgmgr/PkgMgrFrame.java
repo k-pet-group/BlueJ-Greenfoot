@@ -45,19 +45,12 @@ import java.awt.print.PageFormat;
 import java.awt.print.Paper;
 import java.awt.print.PrinterJob;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Properties;
 import java.util.StringTokenizer;
-import java.util.jar.JarEntry;
-import java.util.jar.JarInputStream;
 
 import javax.swing.AbstractButton;
 import javax.swing.Action;
@@ -1405,169 +1398,26 @@ public class PkgMgrFrame extends JFrame
      */
     private boolean openArchive(File archive)
     {
-        JarInputStream jarInStream = null;
-
-        try { 
-            // first need to determine the output path. If the jar file
-            // contains a root-level (eg bluej.pkg) entry, extract into a directory
-            // whose name is the basename of the archive file. Otherwise, if
-            // all entries have a common ancestor, extract to that directory
-            // (after checking it doesn't exist).
-            
-            String prefixFolder = getArchivePrefixFolder(archive);
-            
-            // Determine the output path.
-            File oPath = archive.getParentFile();
-            if (prefixFolder == null) {
-                // Try to extract to directory which has same name as the jar
-                // file, with the .jar or .bjar extension stripped.
-                String archiveName = archive.getName();
-                int dotIndex = archiveName.lastIndexOf('.');
-                String strippedName = null;
-                if(dotIndex != -1) {
-                    strippedName = archiveName.substring(0, dotIndex);
-                } else {
-                    strippedName = archiveName;
-                }
-                oPath = new File(oPath, strippedName);
-                if (oPath.exists()) {
-                    DialogManager.showErrorWithText(this, "jar-output-dir-exists", oPath.toString());
-                    return false;
-                }
-                else if (! oPath.mkdir()) {
-                    DialogManager.showErrorWithText(this, "jar-output-no-write", archive.toString());
-                    return false;
-                }
-            }
-            else {
-                File prefixFolderFile = new File(oPath, prefixFolder);
-                if (prefixFolderFile.exists()) {
-                    DialogManager.showErrorWithText(this, "jar-output-dir-exists", prefixFolderFile.toString());
-                    return false;
-                }
-                if (! prefixFolderFile.mkdir()) {
-                    DialogManager.showErrorWithText(this, "jar-output-no-write", archive.toString());
-                    return false;
-                }
-            }
-            
-            // Need to extract the project somewhere, then open it
-            FileInputStream is = new FileInputStream(archive);
-            jarInStream = new JarInputStream(is);
-            
-            // Extract entries in the jar file
-            JarEntry je = jarInStream.getNextJarEntry();
-            while (je != null) {
-                File outFile = new File(oPath, je.getName());
-                
-                // An entry could represent a file or directory
-                if (je.getName().endsWith("/"))
-                    outFile.mkdirs();
-                else {
-                    outFile.getParentFile().mkdirs();
-                    OutputStream os = new FileOutputStream(outFile);
-                    
-                    // try to read 8k at a time
-                    byte [] buffer = new byte[8192];
-                    int rlength = jarInStream.read(buffer);
-                    while (rlength != -1) {
-                        os.write(buffer, 0, rlength);
-                        rlength = jarInStream.read(buffer);
-                    }
-                    
-                    jarInStream.closeEntry();
-                }
-                je = jarInStream.getNextJarEntry();
-            }
-            
-            // Now, the jar file may contain a bluej project, or it may
-            // be a regular jar file in which case we should convert it
-            // to a bluej project first.
-            
-            if (prefixFolder != null)
-                oPath = new File(oPath, prefixFolder);
-            if (Project.isProject(oPath.getPath())) {
+        // Determine the output path.
+        File oPath = Utility.maybeExtractArchive(archive, this);
+        
+        if (oPath == null)
+            return false;
+        
+        if (Project.isProject(oPath.getPath())) {
+            return openProject(oPath.getPath());
+        }
+        else {
+            // Convert to a BlueJ project
+            if (Import.convertNonBlueJ(this, oPath)) {
                 return openProject(oPath.getPath());
             }
             else {
-                // Convert to a BlueJ project
-                if (Import.convertNonBlueJ(this, oPath)) {
-                    return openProject(oPath.getPath());
-                }
-            }            
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            DialogManager.showError(this, "jar-extraction-error");
-        }
-        finally {
-            try {
-                if (jarInStream != null)
-                    jarInStream.close();
+                return false;
             }
-            catch (IOException ioe) {}
-        }
+        }        
+    }
 
-        return false;
-    }
-    
-    /**
-     * Attempt to determine the prefix folder of a zip or jar archive.
-     * That is, if all files in the archive are stored under a first-level
-     * folder, return the name of that folder; otherwise return null.
-     * 
-     * @param arName   The archive file
-     * @return         The prefix folder of the archive, or null.
-     * @throws FileNotFoundException
-     * @throws IOException
-     */
-    private String getArchivePrefixFolder(File arName)
-    throws FileNotFoundException, IOException
-    {
-        JarInputStream jarInStream = null;
-        FileInputStream is = null;
-        String prefixFolder = null;
-        try {
-            is = new FileInputStream(arName);
-            jarInStream = new JarInputStream(is);
-            
-            // Extract entries in the jar file
-            JarEntry je = jarInStream.getNextJarEntry();
-            while (je != null) {
-                String entryName = je.getName();
-                int slashIndex = entryName.indexOf('/');
-                if (slashIndex == -1) {
-                    prefixFolder = null;
-                    break;
-                }
-                
-                String prefix = entryName.substring(0, slashIndex);
-                if (prefixFolder == null)
-                    prefixFolder = prefix;
-                else if (! prefixFolder.equals(prefix)) {
-                    prefixFolder = null;
-                    break;
-                }
-                
-                je = jarInStream.getNextJarEntry();
-            }
-        }
-        catch (FileNotFoundException fnfe) {
-            throw fnfe;  // rethrow after processing finally block
-        }
-        catch (IOException ioe) {
-            throw ioe; // rethrow after processing finally block
-        }
-        finally {
-            if (jarInStream != null)
-                jarInStream.close();
-            if (is != null)
-                is.close();
-        }
-        
-        return prefixFolder;
-    }
-    
     /**
      * Close all frames which show packages from the specified project. This
      * causes the project itself to close.
