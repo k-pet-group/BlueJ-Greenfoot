@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,7 +25,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
 import java.util.List;
-import java.io.File;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -42,8 +41,6 @@ import bluej.views.*;
  * it can be invoked.
  *
  * @author  Michael Kolling
- *
- * @version $Id: LibraryCallDialog.java 7055 2010-01-27 13:58:55Z plcs $
  */
 public class LibraryCallDialog extends EscapeDialog
 	implements ActionListener, ListSelectionListener
@@ -69,13 +66,13 @@ public class LibraryCallDialog extends EscapeDialog
     private ClassHistory history;
     private Package pkg;
     private CallableView viewToCall;
-    private List currentViews;      // views currently displayed in list
+    private List<CallableView> currentViews;      // views currently displayed in list
 
     public LibraryCallDialog(PkgMgrFrame pmf)
     {
         super(pmf, Config.getString("callLibraryDialog.title"), false);
         pkg = pmf.getPackage();
-        currentViews = new ArrayList();
+        currentViews = new ArrayList<CallableView>();
         viewToCall = null;
         history = ClassHistory.getClassHistory(10);
         makeDialog();
@@ -156,7 +153,7 @@ public class LibraryCallDialog extends EscapeDialog
      */
     private void classSelected()
     {
-        Class cl = null;
+        Class<?> cl = null;
         currentViews.clear();
         viewToCall = null;
         okButton.setEnabled(false);
@@ -170,8 +167,6 @@ public class LibraryCallDialog extends EscapeDialog
 
         boolean loaded;
         try {
-//            File file = pkg.getProject().getProjectDir();
-//            cl = Class.forName(className, true, ClassMgr.getProjectLoader(file));
             ClassLoader loader = pkg.getProject().getClassLoader();
             cl = loader.loadClass(className);
             loaded = true;
@@ -181,10 +176,8 @@ public class LibraryCallDialog extends EscapeDialog
         }
         if (!loaded) {   // try for unqualified names in java.lang
             try {
-//                File file = pkg.getProject().getProjectDir();
-//                cl = Class.forName("java.lang." + className, true,ClassMgr.getProjectLoader(file));
-            ClassLoader loader = pkg.getProject().getClassLoader();
-            cl = loader.loadClass("java.lang."+className);
+                ClassLoader loader = pkg.getProject().getClassLoader();
+                cl = loader.loadClass("java.lang."+className);
             }
             catch(Exception exc) {
                 displayTextInClassList(classNotFound);
@@ -197,11 +190,11 @@ public class LibraryCallDialog extends EscapeDialog
     /**
      * Given a class, display its constructors and methods in the method list.
      */
-    private void displayMethodsForClass(Class cl)
+    private void displayMethodsForClass(Class<?> cl)
     {
         View classView = View.getView(cl);
         ViewFilter filter;
-        List list = new ArrayList();
+        List<String> list = new ArrayList<String>();
 
         ConstructorView[] constructors = classView.getConstructors();
         
@@ -236,7 +229,7 @@ public class LibraryCallDialog extends EscapeDialog
     /**
      * Add some methods, filtered by a given view filter, to a list.
      */
-    public void addMethods(List list, CallableView[] methods,
+    public void addMethods(List<String> list, CallableView[] methods,
                             ViewFilter filter)
     {
         for(int i = 0; i < methods.length; i++) {
@@ -267,7 +260,7 @@ public class LibraryCallDialog extends EscapeDialog
         if(text.charAt(0) == ' ')
             return;
 
-        viewToCall = (CallableView)currentViews.get(index);
+        viewToCall = currentViews.get(index);
         okButton.setEnabled(true);
     }
 
