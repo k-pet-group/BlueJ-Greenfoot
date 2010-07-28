@@ -243,11 +243,6 @@ public class ExecServer
 
         toolkit.addAWTEventListener(listener, AWTEvent.WINDOW_EVENT_MASK);
 
-        // we create the security manager last so that hopefully, all the system/AWT
-        // threads will have been created and we can then rig our security manager
-        // to make all user-created threads go into a single thread group
-        System.setSecurityManager(new RemoteSecurityManager());
-
         // signal with a breakpoint that we have performed our VM
         // initialization, at the same time, create the initial server thread.
         newThread();
@@ -313,13 +308,6 @@ public class ExecServer
             return m;
         }
     }
-
-    // -- methods called by reflection from JdiDebugger --
-    // --
-    // -- methods that can be made private have been, as
-    // -- the reflection is still able to access them
-    // -- (RemoteSecurityManager switches all reflection
-    // --  access checks off)
 
     /**
      * Create a new class loader for a given classpath.
@@ -697,29 +685,6 @@ public class ExecServer
         return null;
     }
 
-//    private static Object executeCode(String code) throws Throwable
-//    {
-//        System.out.println("[VM] executeCode " + code);
-//        // eval a statement and get the result
-//        try {
-//            return interpreter.eval(code);             
-//        }
-//        catch (TargetError e) {
-//            // The script threw an exception
-//            e.getTarget().printStackTrace();
-//            throw e.getTarget();
-//        } catch ( ParseException e ) {
-//            e.printStackTrace();
-//        } catch ( EvalError e ) {
-//            e.printStackTrace();
-//        }
-//        catch (Exception e)
-//        {
-//            e.printStackTrace();
-//        }
-//        return null;
-//    }
-    
     /**
      * Remove an object from the scope.
      */
@@ -737,7 +702,7 @@ public class ExecServer
      *
      * Must be static because it is used by RemoteSecurityManager without a execServer reference
      */
-    static void disposeWindows()
+    private static void disposeWindows()
     {
         synchronized(openWindows) {
             disposingAllWindows = true;
@@ -756,7 +721,7 @@ public class ExecServer
      * make sure that System.in.read() doesn't read input which was buffered
      * during the last method call but never read.
      */
-    static void clearInputBuffer()
+    private static void clearInputBuffer()
     {
         try {
             int n = System.in.available();
@@ -773,7 +738,7 @@ public class ExecServer
      * if we re-use the same thread over and over. So, whenever running user
      * code results in an exception, this method is used to spawn a new thread.
      */
-    static void newThread()
+    private static void newThread()
     {        
         final Thread oldThread = mainThread;
         // Then make a new one.
@@ -781,21 +746,13 @@ public class ExecServer
             public void run()
             {
                 try {
-                if(oldThread != null)
-                    oldThread.join();
+                    if(oldThread != null) {
+                        oldThread.join();
+                    }
                 }
                 catch(InterruptedException ie) { }
                 
                 vmStarted();
-                // int count = 0;
-                
-                // wait in an infinit(ish) loop.. (we want the loop to finish if
-                // for some reason vmSuspend() is not working - say the connecting
-                // VM has failed and therefore the breakpoint has been removed -
-                // in this case we will fall through the loop and exit)
-                //while(count++ < 100000 && ! shouldDie) {
-                // Wait for a command from the BlueJ VM
-                //vmSuspend();
                 
                 // Execute the command
                 methodReturn = null;
@@ -809,8 +766,9 @@ public class ExecServer
                             executedClass = null;
                             
                             clearInputBuffer();
-                            // ShellClassLoader cloader = new ShellClassLoader(currentLoader, classToRun);
-                            Class<?> c = currentLoader.loadClass(classToRun);
+                            ShellClassLoader cloader = new ShellClassLoader(currentLoader, classToRun);
+                            //Class<?> c = currentLoader.loadClass(classToRun);
+                            Class<?> c = cloader.loadClass(classToRun);
                             executedClass = c;
                             // Class c = cloader.loadClass(classToRun);
                             Method m = c.getMethod("run", new Class[0]);
@@ -930,7 +888,8 @@ public class ExecServer
      * @param instanceName The name of the object
      * @return The object
      */
-    public static Object getObject(String instanceName) {
+    public static Object getObject(String instanceName)
+    {
         BJMap<String,Object> m = getScope(scopeId);
         Object rval = null;
         

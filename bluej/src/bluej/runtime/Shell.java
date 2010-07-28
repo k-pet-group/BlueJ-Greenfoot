@@ -30,7 +30,6 @@ package bluej.runtime;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Shell.java 6702 2009-09-17 04:42:20Z davmac $
  */
 public abstract class Shell
 {
@@ -61,41 +60,44 @@ public abstract class Shell
 
     /**
      * Construct an object that allows the result to be plucked out by
-     * the debugger.
-     *
-     * Object results are different from all the primitive types such as
-     * boolean, byte etc.. don't exactly know why but it is..
+     * the debugger. We do this so that primitive types can be encapsulated
+     * properly; if we boxed them, the debugger wouldn't know if the result
+     * was really primitive or not.
      */
-    public static ObjectResultWrapper makeObj(Object o) {
-        return new ObjectResultWrapper(o);
+    public static Object makeObj(final Object o)
+    {
+        return new Object() {
+            @SuppressWarnings("unused")
+            public Object result = o;
+        };
     }
 
-    /**
-     * Construct an object that allows the result to be plucked out by
-     * the debugger.
-     */
-    protected static Object makeObj(final String s) {
+    protected static Object makeObj(final String s)
+    {
         return new Object() {
            @SuppressWarnings("unused")
            public String result = s;
         };
     }
 
-    protected static Object makeObj(final boolean b) {
+    protected static Object makeObj(final boolean b)
+    {
         return new Object() {
             @SuppressWarnings("unused")
             public boolean result = b;
         };
     }
 
-    protected static Object makeObj(final byte b) {
+    protected static Object makeObj(final byte b)
+    {
         return new Object() {
             @SuppressWarnings("unused")
             public byte result = b;
         };
     }
 
-    protected static Object makeObj(final char c) {
+    protected static Object makeObj(final char c)
+    {
         return new Object() {
             @SuppressWarnings("unused")
             public char result = c;
@@ -109,28 +111,32 @@ public abstract class Shell
         };
     }
 
-    protected static Object makeObj(final float f) {
+    protected static Object makeObj(final float f)
+    {
         return new Object() {
             @SuppressWarnings("unused")
             public float result = f;
         };
     }
 
-    protected static Object makeObj(final int i) {
+    protected static Object makeObj(final int i)
+    {
         return new Object() {
             @SuppressWarnings("unused")
             public int result = i;
         };
     }
 
-    protected static Object makeObj(final long l) {
+    protected static Object makeObj(final long l)
+    {
         return new Object() {
             @SuppressWarnings("unused")
             public long result = l;
         };
     }
 
-    protected static Object makeObj(final short s) {
+    protected static Object makeObj(final short s)
+    {
         return new Object() {
             @SuppressWarnings("unused")
             public short result = s;
