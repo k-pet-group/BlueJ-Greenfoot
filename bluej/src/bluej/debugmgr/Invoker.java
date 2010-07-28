@@ -434,9 +434,6 @@ public class Invoker
             }
             command = "new " + constype;
             ir = new ConstructionInvokerRecord(constype, instanceName, command + actualArgString, args);
-
-            //          BeanShell
-            //commandAsString = command + actualArgString;
         }
         else { // it's a method call
             MethodView method = (MethodView) member;
@@ -471,10 +468,6 @@ public class Invoker
                 ir = new MethodInvokerRecord(method.getGenericReturnType(), command + actualArgString, args, pmf);
                 instanceName = "result";
             }
-
-            //          BeanShell
-            //commandAsString = "bluej.runtime.Shell.makeObj(" + command +
-            // actualArgString + ");";
         }
 
         if (constructing && member.getParameterCount() == 0 && (typeParams == null || typeParams.length == 0)) {
@@ -1157,21 +1150,6 @@ public class Invoker
                     ir.setResultObject(result.getResultObject());   
                     executionEvent.setResultObject(result.getResultObject());
                     executionEvent.setResult(ExecutionEvent.NORMAL_EXIT);
-                    break;
-
-                case Debugger.FORCED_EXIT : // exit through System.exit()
-                    String excMsg = result.getException().getText();
-                    if (instanceName != null) {
-                        // always report System.exit for non-void calls
-                        pkg.reportExit(excMsg);
-                        watcher.putException(excMsg);
-                    }
-                    else {
-                        // for void calls, only report non-zero exits
-                        if (!"0".equals(excMsg))
-                            pkg.reportExit(excMsg);
-                    }
-                    executionEvent.setResult(ExecutionEvent.FORCED_EXIT);
                     break;
 
                 case Debugger.EXCEPTION :

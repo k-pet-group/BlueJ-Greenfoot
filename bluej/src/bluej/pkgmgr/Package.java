@@ -2626,15 +2626,6 @@ public final class Package extends Graph
     // ---- end of bluej.compiler.CompileObserver interfaces ----
 
     /**
-     * Report an exit of a method through "System.exit()" where we expected a
-     * result or an object being created.
-     */
-    public void reportExit(String exitCode)
-    {
-        showMessageWithText("system-exit", exitCode);
-    }
-
-    /**
      * closeAllEditors - closes all currently open editors within package Should
      * be run whenever a package is removed from PkgFrame.
      */

@@ -60,7 +60,6 @@ import bluej.debugger.jdi.JdiDebugger;
 public abstract class Debugger
 {
     public static final int NORMAL_EXIT = 0;
-    public static final int FORCED_EXIT = 1;
     public static final int EXCEPTION = 2;
     public static final int TERMINATED = 3;
 
