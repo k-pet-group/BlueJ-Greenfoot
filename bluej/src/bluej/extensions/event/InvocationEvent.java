@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -37,13 +37,8 @@ import com.sun.jdi.*;
  * From this event you can extract the actual result of the invocation, and access the BlueJ
  * classes and objects involved.
  *
- *
- * @version    $Id: InvocationEvent.java 6986 2010-01-12 02:58:23Z davmac $
- */
-
-/*
- * Author Clive Miller, University of Kent at Canterbury, 2002
- * Author Damiano Bolla, University of Kent at Canterbury, 2003,2004
+ * @author Clive Miller, University of Kent at Canterbury, 2002
+ * @author Damiano Bolla, University of Kent at Canterbury, 2003,2004
  */
 public class InvocationEvent implements ExtensionEvent
 {
@@ -56,8 +51,10 @@ public class InvocationEvent implements ExtensionEvent
      */
     public final static int NORMAL_EXIT = 1;
     /**
-     * The execution finished through a call to <code>System.exit()</code>
+     * The execution finished through a call to <code>System.exit()</code>. This is
+     * deprecated; it cannot actually occur.
      */
+    @Deprecated
     public final static int FORCED_EXIT = 2;
     /**
      * The execution finished due to an exception
@@ -88,9 +85,6 @@ public class InvocationEvent implements ExtensionEvent
 
         if (resultType == ExecutionEvent.NORMAL_EXIT) {
             invocationStatus = NORMAL_EXIT;
-        }
-        if (resultType == ExecutionEvent.FORCED_EXIT) {
-            invocationStatus = FORCED_EXIT;
         }
         if (resultType == ExecutionEvent.EXCEPTION_EXIT) {
             invocationStatus = EXCEPTION_EXIT;
@@ -184,13 +178,13 @@ public class InvocationEvent implements ExtensionEvent
      *
      * @return    An array of Classes corresponding to the static types of the method's parameters.
      */
-    public Class[] getSignature()
+    public Class<?>[] getSignature()
     {
         if (signature == null) {
             return new Class[0];
         }
 
-        Class[] risul = new Class[signature.length];
+        Class<?>[] risul = new Class[signature.length];
         for (int index = 0; index < signature.length; index++) {
             JavaType sig = signature[index];
             if (sig.isPrimitive()) {

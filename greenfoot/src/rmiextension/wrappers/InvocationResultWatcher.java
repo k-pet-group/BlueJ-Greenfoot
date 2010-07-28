@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,6 +22,7 @@
 package rmiextension.wrappers;
 
 import bluej.debugger.DebuggerObject;
+import bluej.debugger.ExceptionDescription;
 import bluej.debugmgr.ExpressionInformation;
 import bluej.debugmgr.ResultWatcher;
 import bluej.testmgr.record.InvokerRecord;
@@ -30,7 +31,6 @@ import bluej.testmgr.record.InvokerRecord;
  * A result watcher used by the RObjectImpl class.
  * 
  * @author Davin McCall
- * @version $Id: InvocationResultWatcher.java 6216 2009-03-30 13:41:07Z polle $
  */
 class InvocationResultWatcher implements ResultWatcher
 {
@@ -58,9 +58,9 @@ class InvocationResultWatcher implements ResultWatcher
         return null;
     }
 
-    public void putException(String message)
+    public void putException(ExceptionDescription exception)
     {
-        errorMsg = message;
+        errorMsg = exception.getText();
         synchronized (this) {
             notify();
         }

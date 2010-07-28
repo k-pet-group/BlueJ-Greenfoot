@@ -1135,8 +1135,10 @@ public class Invoker
      * a freshly created object, a function result or an exception) and make
      * sure that it gets processed appropriately.
      * 
-     * "exitStatus" and "result" fields should be set with appropriate values before
+     * <p>"exitStatus" and "result" fields should be set with appropriate values before
      * calling this.
+     * 
+     * <p>This method is called on the Swing event thread.
      */
     public void handleResult(DebuggerResult result)
     {
@@ -1154,18 +1156,9 @@ public class Invoker
 
                 case Debugger.EXCEPTION :
                     ExceptionDescription exc = result.getException();
-                    String msg = exc.getText();
-                    String text = exc.getClassName();
-                    if (text != null) {
-                        text = JavaNames.stripPrefix(text) + ":\n" + msg;
-                        pkg.exceptionMessage(exc.getStack(), text);
-                        watcher.putException(text);
-                    }
-                    else {
-                        pkg.reportException(msg);
-                        watcher.putException(msg);
-                    }
+                    watcher.putException(exc);
                     executionEvent.setResult(ExecutionEvent.EXCEPTION_EXIT);
+                    executionEvent.setException(exc);
                     break;
 
                 case Debugger.TERMINATED : // terminated by user

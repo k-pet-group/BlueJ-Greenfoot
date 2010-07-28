@@ -22,6 +22,7 @@
 package bluej.debugmgr;
 
 import bluej.debugger.DebuggerObject;
+import bluej.debugger.ExceptionDescription;
 
 import bluej.testmgr.record.*;
 
@@ -32,7 +33,7 @@ import bluej.testmgr.record.*;
  *
  * @author  Michael Kolling
  * @author  Poul Henriksen
- * @version $Id: ResultWatcher.java 6671 2009-09-14 04:37:14Z davmac $
+ * @version $Id: ResultWatcher.java 7941 2010-07-28 04:58:19Z davmac $
  */
 public interface ResultWatcher
 {
@@ -53,9 +54,9 @@ public interface ResultWatcher
     void putError(String message);
 	
     /**
-     * A runtime exception occurred - here is the exception text
+     * A runtime exception occurred - here is the exception text, and stack trace
      */
-    void putException(String message);
+    void putException(ExceptionDescription exception);
     
     /**
      * The debug VM terminated. This may have been due to an explicit user action in

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,6 +22,7 @@
 package bluej.debugmgr;
 
 import bluej.debugger.DebuggerObject;
+import bluej.debugger.ExceptionDescription;
 import bluej.debugger.gentype.JavaType;
 import bluej.pkgmgr.Package;
 
@@ -30,20 +31,13 @@ import bluej.pkgmgr.Package;
  * an execution.
  *
  * @author  Clive Miller
- * @version $Id: ExecutionEvent.java 6421 2009-07-08 04:47:39Z davmac $
  */
-
 public class ExecutionEvent
 {
     /**
      * The execution has finished normally;
      */
     public static final String NORMAL_EXIT = "Normal exit";
-
-    /**
-     * The execution has finished through a call to System.exit();
-     */
-    public static final String FORCED_EXIT = "Forced exit";
 
     /**
      * The execution has finished due to an exception
@@ -63,6 +57,7 @@ public class ExecutionEvent
     private String command;
     private Package pkg;
     private DebuggerObject resultObject;   // If there is a result object it goes here.
+    private ExceptionDescription exception;  // If an exception occurred, this is it.
 
     /**
      * Constructs an ExecutionEvent where className and objName are null and only the package is set.
@@ -121,7 +116,15 @@ public class ExecutionEvent
     {
         this.resultObject = resultObject;
     }
-
+    
+    /**
+     * Set the exception which occurred (if one did).
+     */
+    public void setException(ExceptionDescription exception)
+    {
+        this.exception = exception;
+    }
+    
     void setCommand (String cmd)
     {
         this.command = cmd;
@@ -179,7 +182,6 @@ public class ExecutionEvent
     /**
      * Get the result of the execution. This will be one of:
      * NORMAL_EXIT - the execution terminated successfully
-     * FORCED_EXIT - System.exit() was called
      * EXCEPTION_EXIT - the execution failed due to an exception
      * TERMINATED_EXIT - the user terminated the VM before execution completed
      */
@@ -196,6 +198,14 @@ public class ExecutionEvent
         return resultObject;
     }
 
+    /**
+     * Get the exception which occurred (valid if the result is EXCEPTION_EXIT).
+     */
+    public ExceptionDescription getException()
+    {
+        return exception;
+    }
+    
     public Package getPackage()
     {
         return pkg;

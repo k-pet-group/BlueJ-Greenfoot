@@ -35,15 +35,15 @@ import bluej.utility.JavaNames;
  * This record is for method calls that return a result.
  *
  * @author  Andrew Patterson
- * @version $Id: MethodInvokerRecord.java 7517 2010-05-07 08:23:32Z davmac $
+ * @version $Id: MethodInvokerRecord.java 7941 2010-07-28 04:58:19Z davmac $
  */
 public class MethodInvokerRecord extends VoidMethodInvokerRecord
 {
     private JavaType returnType;
-	private String benchType;
-	protected String benchName;
+    private String benchType;
+    protected String benchName;
 	
-	/** How many times has this record been used. */
+    /** How many times has this record been used. */
     private int usageCount;
     
     /** Has the method call been initialised? */

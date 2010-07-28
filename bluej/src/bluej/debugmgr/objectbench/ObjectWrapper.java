@@ -41,6 +41,7 @@ import javax.swing.JPopupMenu;
 import bluej.BlueJEvent;
 import bluej.Config;
 import bluej.debugger.DebuggerObject;
+import bluej.debugger.ExceptionDescription;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeParameter;
 import bluej.debugger.gentype.JavaType;
@@ -758,7 +759,10 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
                                       viewer.getResult());
             }
             public void putError(String msg) { }
-            public void putException(String msg) { }
+            public void putException(ExceptionDescription exception)
+            {
+                pkg.exceptionMessage(exception);
+            }
             public void putVMTerminated() { }
         };
 

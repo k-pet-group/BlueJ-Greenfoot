@@ -29,6 +29,7 @@ import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Frame;
+import java.awt.Image;
 import java.awt.Insets;
 import java.awt.KeyboardFocusManager;
 import java.awt.Point;
@@ -88,6 +89,7 @@ import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerObject;
+import bluej.debugger.ExceptionDescription;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugmgr.ExpressionInformation;
 import bluej.debugmgr.Invoker;
@@ -167,7 +169,6 @@ import bluej.views.MethodView;
 
 import com.apple.eawt.Application;
 import com.apple.eawt.ApplicationEvent;
-import java.awt.Image;
 
 /**
  * The main user interface frame which allows editing of packages
@@ -1983,12 +1984,14 @@ public class PkgMgrFrame extends JFrame
                     }
                 }
 
-                public void putError(String msg)
-                {}
-                public void putException(String msg)
-                {}
-                public void putVMTerminated()
-                {}
+                public void putError(String msg) {}
+                
+                public void putException(ExceptionDescription exception)
+                {
+                    getPackage().exceptionMessage(exception);
+                }
+                
+                public void putVMTerminated() {}
             };
         }
         else if (cv instanceof MethodView) {
@@ -2019,12 +2022,14 @@ public class PkgMgrFrame extends JFrame
                     BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, viewer.getResult());
                 }
 
-                public void putError(String msg)
-                {}
-                public void putException(String msg)
-                {}
-                public void putVMTerminated()
-                {}
+                public void putError(String msg) {}
+                
+                public void putException(ExceptionDescription exception)
+                {
+                    getPackage().exceptionMessage(exception);
+                }
+                
+                public void putVMTerminated() {}
             };
         }
 

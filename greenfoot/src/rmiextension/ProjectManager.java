@@ -31,6 +31,7 @@ import java.util.List;
 
 import bluej.Config;
 import bluej.debugger.DebuggerObject;
+import bluej.debugger.ExceptionDescription;
 import bluej.debugmgr.ResultWatcher;
 import bluej.extensions.BPackage;
 import bluej.extensions.BlueJ;
@@ -149,9 +150,9 @@ public class ProjectManager
                 greenfootLaunchFailed(project);
             }
             @Override
-            public void putException(String message)
+            public void putException(ExceptionDescription exception)
             {
-                Debug.message("Greenfoot launch failed due to exception in debug VM: " + message);
+                Debug.message("Greenfoot launch failed due to exception in debug VM: " + exception.getText());
                 greenfootLaunchFailed(project);
             }
             @Override

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -51,6 +51,7 @@ import javax.swing.text.SimpleAttributeSet;
 import bluej.BlueJEvent;
 import bluej.Config;
 import bluej.debugger.DebuggerObject;
+import bluej.debugger.ExceptionDescription;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugmgr.IndexHistory;
 import bluej.debugmgr.Invoker;
@@ -72,7 +73,6 @@ import bluej.utility.Utility;
  * account in size computations.
  * 
  * @author Michael Kolling
- * @version $Id: TextEvalPane.java 7785 2010-06-21 05:14:06Z davmac $
  */
 public class TextEvalPane extends JEditorPane 
     implements ValueCollection, ResultWatcher, MouseMotionListener
@@ -330,13 +330,13 @@ public class TextEvalPane extends JEditorPane
     /**
      * A runtime exception occurred.
      */
-    public void putException(String message)
+    public void putException(ExceptionDescription exception)
     {
         if (autoInitializedVars != null)
             autoInitializedVars.clear();
         
         removeNewlyDeclareds();
-        showErrorMsg(message);
+        showErrorMsg(exception.getText());
     }
     
     /**

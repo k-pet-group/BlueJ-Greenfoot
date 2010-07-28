@@ -46,6 +46,7 @@ import bluej.compiler.EventqueueCompileObserver;
 import bluej.compiler.JobQueue;
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerThread;
+import bluej.debugger.ExceptionDescription;
 import bluej.debugger.SourceLocation;
 import bluej.debugmgr.CallHistory;
 import bluej.debugmgr.Invoker;
@@ -2068,16 +2069,6 @@ public final class Package extends Graph
     }
 
     /**
-     * Report an execption. Usually, we do this through "errorMessage", but if
-     * we cannot make sense of the message format, and thus cannot figure out
-     * class name and line number, we use this way.
-     */
-    public void reportException(String text)
-    {
-        showMessageWithText("exception-thrown", text);
-    }
-
-    /**
      * Don't remember the last shown source anymore.
      */
     public void forgetLastSource()
@@ -2207,8 +2198,17 @@ public final class Package extends Graph
      * Display an exception message. This is almost the same as "errorMessage"
      * except for different help texts.
      */
-    public void exceptionMessage(List<SourceLocation> stack, String message)
+    public void exceptionMessage(ExceptionDescription exception)
     {
+        String text = exception.getClassName();
+        if (text == null) {
+            reportException(exception.getText());
+            return;
+        }
+        
+        String message = text + ":\n" + exception.getText();
+        List<SourceLocation> stack = exception.getStack();
+        
         if ((stack == null) || (stack.size() == 0)) {
             // Stack empty or missing. This can happen when an exception is
             // thrown from the code pad for instance.
@@ -2235,7 +2235,17 @@ public final class Package extends Graph
             showMessageWithText("error-in-file", loc.getClassName() + ":" + loc.getLineNumber() + "\n" + message);
         }
     }
-    
+
+    /**
+     * Report an execption. Usually, we do this through "errorMessage", but if
+     * we cannot make sense of the message format, and thus cannot figure out
+     * class name and line number, we use this way.
+     */
+    public void reportException(String text)
+    {
+        showMessageWithText("exception-thrown", text);
+    }
+
     /**
      * Use the resource name in order to return the classpath of the jar file.
      * If it is not a jar file it returns the original resource

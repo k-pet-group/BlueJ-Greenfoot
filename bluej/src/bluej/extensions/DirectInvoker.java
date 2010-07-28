@@ -22,6 +22,7 @@
 package bluej.extensions;
 
 import bluej.debugger.DebuggerObject;
+import bluej.debugger.ExceptionDescription;
 import bluej.debugmgr.ExpressionInformation;
 import bluej.debugmgr.Invoker;
 import bluej.debugmgr.ResultWatcher;
@@ -38,7 +39,7 @@ import bluej.views.MethodView;
  * @author     Damiano Bolla, University of Kent at Canterbury, 2003,2004
  * @author     Clive Miller, University of Kent at Canterbury, 2002
  *
- * @version    $Id: DirectInvoker.java 6215 2009-03-30 13:28:25Z polle $
+ * @version    $Id: DirectInvoker.java 7941 2010-07-28 04:58:19Z davmac $
  */
 
 class DirectInvoker
@@ -254,7 +255,7 @@ class DirectInvoker
      * @param  paramClass  The reference params array
      * @return             true if they match, false othervise
      */
-    private boolean paramsAlmostMatch(Object[] params, Class[] paramClass)
+    private boolean paramsAlmostMatch(Object[] params, Class<?>[] paramClass)
     {
         // A zero len param or a null one are the same !
         if (params != null && params.length < 1) {
@@ -383,9 +384,9 @@ class DirectInvoker
          * 
          * @param  msg  The exception message
          */
-        public void putException(String msg)
+        public void putException(ExceptionDescription exception)
         {
-            putError(msg);
+            putError(exception.getText());
         }
         
         

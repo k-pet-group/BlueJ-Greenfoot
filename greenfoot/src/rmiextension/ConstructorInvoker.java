@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -108,7 +108,7 @@ public class ConstructorInvoker
                                         instanceNameOnObjectBench, null);
                             }
                             else if (status == Debugger.EXCEPTION) {
-                                resultWatcher.putException(result.getException().getText());
+                                resultWatcher.putException(result.getException());
                             }
                             else if (status == Debugger.TERMINATED) {
                                 resultWatcher.putVMTerminated();
