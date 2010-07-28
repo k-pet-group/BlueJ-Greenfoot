@@ -26,7 +26,6 @@ import greenfoot.platforms.GreenfootUtilDelegate;
 
 import java.awt.Color;
 import java.awt.Cursor;
-import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Frame;
@@ -70,7 +69,7 @@ import bluej.utility.Utility;
  * General utility methods for Greenfoot.
  * 
  * @author Davin McCall
- * @version $Id: GreenfootUtil.java 7922 2010-07-26 06:29:28Z davmac $
+ * @version $Id: GreenfootUtil.java 7938 2010-07-28 01:42:50Z davmac $
  */
 public class GreenfootUtil
 {
@@ -679,20 +678,6 @@ public class GreenfootUtil
         String newTitle = title.replaceAll("BlueJ", "Greenfoot");
         frame.setTitle(newTitle);
     }    
-    
-
-    /**
-     * Replaces all occurrences of BlueJ with Greenfoot in the title of the dialog.
-     * <p>
-     * Should be called from event thread.
-     */
-    public static void makeGreenfootTitle(Dialog dialog)
-    {
-        String title = dialog.getTitle();
-        String newTitle = title.replaceAll("BlueJ", "Greenfoot");
-        dialog.setTitle(newTitle);
-    }    
-    
     
     /**
      * Tries to locate the top level greenfoot dir. This method takes the
