@@ -743,8 +743,20 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
         watcher = new ResultWatcher() {
             private ExpressionInformation expressionInformation = new ExpressionInformation(method,getName(),obj.getGenType());
             
+            public void beginCompile()
+            {
+                pmf.setWaitCursor(true);
+            }
+            
+            @Override
+            public void beginExecution()
+            {
+                pmf.setWaitCursor(false);
+            }
+            
             public void putResult(DebuggerObject result, String name, InvokerRecord ir)
             {
+                pkg.getProject().updateInspectors();
                 expressionInformation.setArgumentValues(ir.getArgumentValues());
                 ob.addInteraction(ir);
                 
@@ -758,11 +770,18 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
                 BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL,
                                       viewer.getResult());
             }
-            public void putError(String msg) { }
+            
+            public void putError(String msg)
+            {
+                pmf.setWaitCursor(false);
+            }
+            
             public void putException(ExceptionDescription exception)
             {
+                pkg.getProject().updateInspectors();
                 pkg.exceptionMessage(exception);
             }
+            
             public void putVMTerminated() { }
         };
 

@@ -36,8 +36,6 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import bluej.BlueJTheme;
-import bluej.Config;
-import bluej.debugmgr.objectbench.ObjectBench;
 import bluej.debugmgr.objectbench.ObjectBenchEvent;
 import bluej.debugmgr.objectbench.ObjectBenchInterface;
 import bluej.debugmgr.objectbench.ObjectBenchListener;
@@ -50,8 +48,6 @@ import bluej.utility.MultiLineLabel;
  * form calls.
  *
  * @author  Michael Kolling
- *
- * @version $Id: CallDialog.java 7671 2010-05-21 16:15:02Z nccb $
  */
 public abstract class CallDialog extends EscapeDialog
 	implements ObjectBenchListener

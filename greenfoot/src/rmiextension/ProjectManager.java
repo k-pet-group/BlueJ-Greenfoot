@@ -144,6 +144,16 @@ public class ProjectManager
     {
         ResultWatcher watcher = new ResultWatcher() {
             @Override
+            public void beginCompile()
+            {
+                // Nothing needs doing
+            }
+            @Override
+            public void beginExecution()
+            {
+                // Nothing needs doing
+            }
+            @Override
             public void putError(String message)
             {
                 Debug.message("Greenfoot launch failed with error: " + message);

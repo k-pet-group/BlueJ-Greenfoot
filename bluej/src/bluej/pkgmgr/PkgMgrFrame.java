@@ -1957,18 +1957,27 @@ public class PkgMgrFrame extends JFrame
             // completion of the call and then places the object on the object
             // bench
             watcher = new ResultWatcher() {
+                public void beginCompile()
+                {
+                    setWaitCursor(true);
+                    setStatus(Config.getString("pkgmgr.creating"));
+                }
+                
+                public void beginExecution()
+                {
+                    setWaitCursor(false);
+                }
+                
                 public void putResult(DebuggerObject result, String name, InvokerRecord ir)
                 {
+                    getPackage().getProject().updateInspectors();
+                    setStatus(Config.getString("pkgmgr.createDone"));
+                    
                     // this shouldn't ever happen!! (ajp 5/12/02)
                     if ((name == null) || (name.length() == 0))
                         name = "result";
 
                     if (result != null) {
-                        //BeanShell does not need to use the realresult, but
-                        // can use result directly
-                        //DebuggerObject realResult =
-                        // result.getInstanceFieldObject(0);
-
                         ObjectWrapper wrapper = ObjectWrapper.getWrapper(PkgMgrFrame.this, getObjectBench(), result,
                                 result.getGenType(), name);
                         getObjectBench().addObject(wrapper);
@@ -1978,20 +1987,27 @@ public class PkgMgrFrame extends JFrame
                         getObjectBench().addInteraction(ir);
                     }
                     else {
-                        // we can get here if the machine is terminated mid way
-                        // through
-                        // a construction. If so, lets do nothing
+                        // This shouldn't happen, but let's play it safe.
                     }
                 }
 
-                public void putError(String msg) {}
+                public void putError(String msg)
+                {
+                    setStatus("");
+                    setWaitCursor(false);
+                }
                 
                 public void putException(ExceptionDescription exception)
                 {
+                    setStatus("");
                     getPackage().exceptionMessage(exception);
+                    getPackage().getProject().updateInspectors();
                 }
                 
-                public void putVMTerminated() {}
+                public void putVMTerminated()
+                {
+                    setStatus("");
+                }
             };
         }
         else if (cv instanceof MethodView) {
@@ -2003,8 +2019,23 @@ public class PkgMgrFrame extends JFrame
             watcher = new ResultWatcher() {
                 private ExpressionInformation expressionInformation = new ExpressionInformation(mv, getName());
 
+                public void beginCompile()
+                {
+                    setWaitCursor(true);
+                    if (mv.isMain()) {
+                        getProject().removeClassLoader();
+                        getProject().newRemoteClassLoaderLeavingBreakpoints();
+                    }
+                }
+                
+                public void beginExecution()
+                {
+                    setWaitCursor(false);
+                }
+                
                 public void putResult(DebuggerObject result, String name, InvokerRecord ir)
                 {
+                    getPackage().getProject().updateInspectors();
                     expressionInformation.setArgumentValues(ir.getArgumentValues());
                     getObjectBench().addInteraction(ir);
 
@@ -2022,14 +2053,18 @@ public class PkgMgrFrame extends JFrame
                     BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, viewer.getResult());
                 }
 
-                public void putError(String msg) {}
+                public void putError(String msg)
+                {
+                    setWaitCursor(false);
+                }
                 
                 public void putException(ExceptionDescription exception)
                 {
+                    getPackage().getProject().updateInspectors();
                     getPackage().exceptionMessage(exception);
                 }
                 
-                public void putVMTerminated() {}
+                public void putVMTerminated() { }
             };
         }
 

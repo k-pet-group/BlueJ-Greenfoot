@@ -60,13 +60,9 @@ import bluej.views.MethodView;
  * 
  * @author Michael Kolling
  */
-
 public class Invoker
     implements CompileObserver, CallDialogWatcher
 {
-    private static final String creating = Config.getString("pkgmgr.creating");
-    private static final String createDone = Config.getString("pkgmgr.createDone");
-
     public static final int OBJ_NAME_LENGTH = 8;
     public static final String SHELLNAME = "__SHELL";
     private static int shellNumber = 0;
@@ -165,7 +161,7 @@ public class Invoker
         }
         else if (member instanceof MethodView) {
             constructing = false;
-        	executionEvent = new ExecutionEvent(pkg, member.getClassName(), null );
+            executionEvent = new ExecutionEvent(pkg, member.getClassName(), null );
         }
         else {
             Debug.reportError("illegal member type in invocation");
@@ -299,11 +295,7 @@ public class Invoker
                 instanceName = mDialog.getNewInstanceName();                
                 String[] actualTypeParams = mDialog.getTypeParams();
                 
-                pmf.setWaitCursor(true);
                 doInvocation(mDialog.getArgs(), mDialog.getArgGenTypes(true), actualTypeParams);
-                
-                if (constructing)
-                    pkg.setStatus(creating);
             }
         }
         else
@@ -452,11 +444,6 @@ public class Invoker
                     // classes (prevents problems with static variables not being
                     // reinitialised because the class hangs around from a previous
                     // call)
-                    if (! Config.isGreenfoot()) {
-                        pmf.getProject().removeClassLoader();
-                        pmf.getProject().newRemoteClassLoaderLeavingBreakpoints();
-                    }
-
                     ir = new StaticVoidMainMethodInvokerRecord();
                 } 
                 else {
@@ -476,15 +463,17 @@ public class Invoker
             
             commandString = command + actualArgString;
             BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, commandString);
+            watcher.beginCompile(); // there is no compile step, really
+            watcher.beginExecution();
             
             // We must however do so in a seperate thread. Otherwise a constructor which
             // goes into an infinite loop can hang BlueJ.
             new Thread() {
                 public void run() {
                 	EventQueue.invokeLater(new Runnable() {
-                		public void run() {
-                            closeCallDialog();
-                		}
+                	    public void run() {
+                	        closeCallDialog();
+                	    }
                 	});
                 	
                     final DebuggerResult result = pkg.getProject().getDebugger().instantiateClass(className);
@@ -495,11 +484,6 @@ public class Invoker
                             // (this could be either a construction or a function result)
                             
                             handleResult(result); // handles error situations
-                                
-                            pmf.setWaitCursor(false);
-                            
-                            // update all open inspect windows
-                            pkg.getProject().updateInspectors();
                         }
                     });
                 }
@@ -509,6 +493,7 @@ public class Invoker
             if (isVoid)
                 argString += ';';
             
+            watcher.beginCompile();
             File shell = writeInvocationFile(paramInit, command + argString, isVoid, constype);
             if (shell != null) {
                 commandString = command + actualArgString;
@@ -1023,9 +1008,8 @@ public class Invoker
             }
         }
 
-        pmf.setWaitCursor(false);
-
         if (successful) {
+            watcher.beginExecution();
             startClass();
         }
         else {
@@ -1035,23 +1019,16 @@ public class Invoker
 
     /**
      * Clean up after an invocation or attempted invocation.
-     * @param successful  Whether the invocation was successful
+     * @param successful  Whether the invocation compilation was successful
      */
     private void finishCall(boolean successful)
     {
-        if (constructing && successful) {
-            pkg.setStatus(createDone);
-        }
-        else {
-            pkg.setStatus(" ");
-        }
-
         deleteShellFiles();
         
         if (! successful && doTryAgain) {
-        	doTryAgain = false;
-        	doFreeFormInvocation(null);
-        	return;
+            doTryAgain = false;
+            doFreeFormInvocation(null);
+            return;
         }
         
         if (! successful && dialog != null) {
@@ -1114,10 +1091,6 @@ public class Invoker
                             // (this could be either a construction or a function result)
                             
                             handleResult(result);
-                            
-                            // update all open inspect windows
-                            pkg.getProject().updateInspectors();
-                            
                             finishCall(true);
                         }
                     });

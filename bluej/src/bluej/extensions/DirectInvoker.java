@@ -39,7 +39,7 @@ import bluej.views.MethodView;
  * @author     Damiano Bolla, University of Kent at Canterbury, 2003,2004
  * @author     Clive Miller, University of Kent at Canterbury, 2002
  *
- * @version    $Id: DirectInvoker.java 7941 2010-07-28 04:58:19Z davmac $
+ * @version    $Id: DirectInvoker.java 7942 2010-07-28 05:56:35Z davmac $
  */
 
 class DirectInvoker
@@ -349,6 +349,22 @@ class DirectInvoker
         }
 
 
+        /*
+         * @see bluej.debugmgr.ResultWatcher#beginExecution()
+         */
+        public void beginCompile()
+        {
+            // Nothing needs doing.
+        }
+        
+        /*
+         * @see bluej.debugmgr.ResultWatcher#beginExecution()
+         */
+        public void beginExecution()
+        {
+            // Nothing needs doing.
+        }
+        
         /**
          * Used to return a result. We know that it is a good one.
          *

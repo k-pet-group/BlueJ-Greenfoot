@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -33,10 +33,19 @@ import bluej.testmgr.record.*;
  *
  * @author  Michael Kolling
  * @author  Poul Henriksen
- * @version $Id: ResultWatcher.java 7941 2010-07-28 04:58:19Z davmac $
  */
 public interface ResultWatcher
 {
+    /**
+     * The user has supplied any requested arguments, and compilation has begun. 
+     */
+    void beginCompile();
+    
+    /**
+     * Compilation (if needed) was successful, and execution has begun.
+     */
+    void beginExecution();
+    
     /**
      * An invocation has completed - here is the result.
      * 

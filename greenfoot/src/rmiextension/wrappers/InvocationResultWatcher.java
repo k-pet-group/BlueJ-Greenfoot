@@ -45,6 +45,12 @@ class InvocationResultWatcher implements ResultWatcher
         }
     }
     
+    @Override
+    public void beginCompile() { }
+    
+    @Override
+    public void beginExecution() { }
+    
     public void putResult(DebuggerObject dObj, String name, InvokerRecord ir)
     {
         resultObj = dObj;

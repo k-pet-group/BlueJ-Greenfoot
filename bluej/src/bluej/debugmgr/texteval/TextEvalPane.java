@@ -221,6 +221,16 @@ public class TextEvalPane extends JEditorPane
     
     //   --- ResultWatcher interface ---
 
+    /*
+     * @see bluej.debugmgr.ResultWatcher#beginExecution()
+     */
+    public void beginCompile() { }
+    
+    /* (non-Javadoc)
+     * @see bluej.debugmgr.ResultWatcher#beginExecution()
+     */
+    public void beginExecution() { }
+    
     /**
      * An invocation has completed - here is the result.
      * If the invocation has a void result (note that is a void type), result == null.
