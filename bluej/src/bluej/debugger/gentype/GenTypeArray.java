@@ -34,12 +34,12 @@ import bluej.utility.JavaReflective;
  */
 public class GenTypeArray extends GenTypeSolid
 {
-    GenTypeParameter baseType;
+    JavaType baseType;
     
     /**
      * Construct a new GenTypeArray, with the given component type.
      */
-    public GenTypeArray(GenTypeParameter baseType)
+    public GenTypeArray(JavaType baseType)
     {
         super();
         this.baseType = baseType;
@@ -78,10 +78,7 @@ public class GenTypeArray extends GenTypeSolid
         
     public JavaType getArrayComponent()
     {
-        if (baseType.isPrimitive()) {
-            return baseType.getCapture();
-        }
-        return baseType.getUpperBound();
+        return baseType;
     }
     
     public GenTypeSolid getLowerBound()
@@ -173,10 +170,9 @@ public class GenTypeArray extends GenTypeSolid
     }
     
     @Override
-    public GenTypeSolid mapTparsToTypes(
-            Map<String, ? extends GenTypeParameter> tparams)
+    public GenTypeSolid mapTparsToTypes(Map<String, ? extends GenTypeParameter> tparams)
     {
-        JavaType mappedBase = baseType.getCapture().mapTparsToTypes(tparams);
+        JavaType mappedBase = baseType.mapTparsToTypes(tparams);
         if (mappedBase != baseType) {
             return new GenTypeArray(mappedBase);
         }
