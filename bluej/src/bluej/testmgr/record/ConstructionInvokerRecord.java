@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -20,6 +20,8 @@
  LICENSE.txt file that accompanied this code.
  */
 package bluej.testmgr.record;
+
+import bluej.pkgmgr.PkgMgrFrame;
 
 /**
  * Records a single user interaction with the object construction
@@ -77,7 +79,7 @@ public class ConstructionInvokerRecord extends InvokerRecord
      * 
      * @return a String representing the test method src
      */
-    public String toTestMethod()
+    public String toTestMethod(PkgMgrFrame pmf)
     {
         return secondIndent + type + " " + name + " = " + command + statementEnd;
     }

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,6 +21,8 @@
  */
 package bluej.testmgr.record;
 
+import bluej.pkgmgr.PkgMgrFrame;
+
 
 /**
  * Records a single user interaction with the 
@@ -29,7 +31,6 @@ package bluej.testmgr.record;
  * This record is for method calls with no result.
  *
  * @author  Andrew Patterson
- * @version $Id: VoidMethodInvokerRecord.java 7517 2010-05-07 08:23:32Z davmac $
  */
 public class VoidMethodInvokerRecord extends InvokerRecord
 {
@@ -71,7 +72,8 @@ public class VoidMethodInvokerRecord extends InvokerRecord
         return secondIndent + command + statementEnd;
     }
 
-    public String toTestMethod()
+    @Override
+    public String toTestMethod(PkgMgrFrame pmf)
     {
         // code for the test method involves just inserting the method call
         return secondIndent + command + statementEnd;

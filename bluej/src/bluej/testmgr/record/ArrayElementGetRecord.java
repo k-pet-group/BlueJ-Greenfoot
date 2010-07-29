@@ -21,6 +21,8 @@
  */
 package bluej.testmgr.record;
 
+import bluej.pkgmgr.PkgMgrFrame;
+
 /**
  * An invoker record for "get" operations on array elements.
  * 
@@ -97,7 +99,7 @@ public class ArrayElementGetRecord extends InvokerRecord
      * @return a String representing the test method src
      */
     @Override
-    public String toTestMethod()
+    public String toTestMethod(PkgMgrFrame pmf)
     {
         return secondIndent + objType + " " + objName + " = " + toExpression() + statementEnd;
     }

@@ -30,6 +30,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import javax.swing.JFrame;
+
 import bluej.BlueJEvent;
 import bluej.Config;
 import bluej.compiler.CompileObserver;
@@ -41,10 +43,16 @@ import bluej.debugger.ExceptionDescription;
 import bluej.debugger.gentype.GenTypeParameter;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.NameTransform;
+import bluej.debugmgr.objectbench.ObjectBenchInterface;
 import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
-import bluej.testmgr.record.*;
+import bluej.testmgr.record.ConstructionInvokerRecord;
+import bluej.testmgr.record.ExpressionInvokerRecord;
+import bluej.testmgr.record.InvokerRecord;
+import bluej.testmgr.record.MethodInvokerRecord;
+import bluej.testmgr.record.StaticVoidMainMethodInvokerRecord;
+import bluej.testmgr.record.VoidMethodInvokerRecord;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.JavaNames;
@@ -79,7 +87,7 @@ public class Invoker
      */
     private static Map<CallableView, MethodDialog> methods = new HashMap<CallableView, MethodDialog>();
 
-    private PkgMgrFrame pmf;
+    private JFrame pmf;
     private Package pkg;
     private ResultWatcher watcher;
     private CallableView member;
@@ -87,6 +95,8 @@ public class Invoker
     private String objName;
     private Map<String,GenTypeParameter> typeMap; // map type parameter names to types
     private ValueCollection localVars;
+    private ValueCollection objectBenchVars;
+    private ObjectBenchInterface objectBench;
     private String imports; // import statements to include in shell file
     private boolean doTryAgain = false; // whether to re-try
     
@@ -123,6 +133,8 @@ public class Invoker
         this.objName = null;
         this.instanceName = null;
         this.localVars = localVars;
+        this.objectBenchVars = pmf.getObjectBench();
+        this.objectBench = pmf.getObjectBench();
 
         constructing = false;
         executionEvent = new ExecutionEvent(this.pkg);
@@ -148,6 +160,8 @@ public class Invoker
 
         this.pmf = pmf;
         this.pkg = pmf.getPackage();
+        this.objectBenchVars = pmf.getObjectBench();
+        this.objectBench = pmf.getObjectBench();
         this.member = member;
         this.watcher = watcher;
 
@@ -182,16 +196,12 @@ public class Invoker
      */
     public Invoker(PkgMgrFrame pmf, MethodView member, ObjectWrapper objWrapper, ResultWatcher watcher)
     {
-        if (pmf.isEmptyFrame())
-            throw new IllegalArgumentException();
-
-        if (watcher == null)
-            throw new NullPointerException("Invoker: watcher == null");
-
         this.pmf = pmf;
         this.pkg = pmf.getPackage();
         this.member = member;
         this.watcher = watcher;
+        this.objectBenchVars = pmf.getObjectBench();
+        this.objectBench = pmf.getObjectBench();
 
         this.shellName = getShellName();
 
@@ -246,8 +256,7 @@ public class Invoker
             MethodDialog mDialog = methods.get(member);
 
             if (mDialog == null) {
-                mDialog = new MethodDialog(pmf, pmf.getObjectBench(),
-                        pmf.getPackage().getCallHistory(), objName, member, typeMap);
+                mDialog = new MethodDialog(pmf, objectBench, pkg.getCallHistory(), objName, member, typeMap);
                 methods.put(member, mDialog);
                 mDialog.setVisible(true);
             }
@@ -452,7 +461,7 @@ public class Invoker
                 instanceName = null;
             }
             else {
-                ir = new MethodInvokerRecord(method.getGenericReturnType(), command + actualArgString, args, pmf);
+                ir = new MethodInvokerRecord(method.getGenericReturnType(), command + actualArgString, args);
                 instanceName = "result";
             }
         }
@@ -657,7 +666,7 @@ public class Invoker
         // __bluej_runtime_scope("instnameB");
 
         String scopeId = Utility.quoteString(pkg.getId());
-        Iterator<ObjectWrapper> wrappers = pmf.getObjectBench().getValueIterator();
+        Iterator<? extends NamedValue> wrappers = objectBenchVars.getValueIterator();
         NameTransform cqtTransform = new CleverQualifyTypeNameTransform(pkg);
 
         Map<String, String> objBenchVarsMap = new HashMap<String, String>();
@@ -667,7 +676,7 @@ public class Invoker
         
             // writeVariables("", buffer, false, wrappers, cqtTransform);
             while (wrappers.hasNext()) {
-                NamedValue objBenchVar = (NamedValue) wrappers.next();
+                NamedValue objBenchVar = wrappers.next();
                 objBenchVarsMap.put(objBenchVar.getName(), getVarDeclString("", false, objBenchVar, cqtTransform));
             }
         }

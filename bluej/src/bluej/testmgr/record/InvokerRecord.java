@@ -21,9 +21,10 @@
  */
 package bluej.testmgr.record;
 
-import java.util.*;
+import java.util.ArrayList;
 
 import bluej.debugger.DebuggerObject;
+import bluej.pkgmgr.PkgMgrFrame;
 
 /**
  * Records a single user interaction with the object
@@ -88,7 +89,7 @@ public abstract class InvokerRecord
      * 
      * @return a String representing the test method src
      */
-    public abstract String toTestMethod();
+    public abstract String toTestMethod(PkgMgrFrame pmf);
 
     /**
      * Construct an expression. This is an open expression which is not ended by

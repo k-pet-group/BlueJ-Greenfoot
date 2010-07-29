@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,6 +21,8 @@
  */
 package bluej.testmgr.record;
 
+import bluej.pkgmgr.PkgMgrFrame;
+
 /**
  * Records a call to a programs static void main()
  * entry point. Because this does not return a result
@@ -30,7 +32,6 @@ package bluej.testmgr.record;
  * code being created.
  *
  * @author  Andrew Patterson
- * @version $Id: StaticVoidMainMethodInvokerRecord.java 7517 2010-05-07 08:23:32Z davmac $
  */
 public class StaticVoidMainMethodInvokerRecord extends InvokerRecord
 {
@@ -48,10 +49,10 @@ public class StaticVoidMainMethodInvokerRecord extends InvokerRecord
         return null;
     }
 
-	public String toTestMethod()
-	{
+    public String toTestMethod(PkgMgrFrame pmf)
+    {
         return null;
-	}
+    }
 
     @Override
     public String toExpression()

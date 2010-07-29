@@ -21,6 +21,8 @@
  */
 package bluej.testmgr.record;
 
+import bluej.pkgmgr.PkgMgrFrame;
+
 /**
  * Records a single user interaction with the 
  * object inspection mechanisms of BlueJ.
@@ -69,7 +71,7 @@ public class ObjectInspectInvokerRecord extends InvokerRecord
         return null;
     }
 
-    public String toTestMethod()
+    public String toTestMethod(PkgMgrFrame pmf)
     {
         return null;
     }

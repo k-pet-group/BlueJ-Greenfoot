@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -35,7 +35,6 @@ import bluej.utility.JavaNames;
  * This record is for method calls that return a result.
  *
  * @author  Andrew Patterson
- * @version $Id: MethodInvokerRecord.java 7941 2010-07-28 04:58:19Z davmac $
  */
 public class MethodInvokerRecord extends VoidMethodInvokerRecord
 {
@@ -49,22 +48,19 @@ public class MethodInvokerRecord extends VoidMethodInvokerRecord
     /** Has the method call been initialised? */
     private boolean methodCallInited = false;
     
-    private PkgMgrFrame pkgMgrFrame;
-	
     /**
      * Records a method call that returns a result to the user.
      * 
      * @param returnType  the Class of the return type of the method
      * @param command     the method statement to execute
      */
-    public MethodInvokerRecord(JavaType returnType, String command, String [] argumentValues, PkgMgrFrame pkgMgrFrame)
+    public MethodInvokerRecord(JavaType returnType, String command, String [] argumentValues)
     {
     	super(command, argumentValues);
     	
         this.returnType = returnType;
         this.benchType = returnType.toString(false);
         this.benchName = null;
-        this.pkgMgrFrame = pkgMgrFrame;
     }
 
     /**
@@ -126,15 +122,14 @@ public class MethodInvokerRecord extends VoidMethodInvokerRecord
         return sb.toString();
     }
 
-    /**
-     * Construct a portion of a test method for this invoker record.
-     * 
-     * @return a String representing the test method src
+    /*
+     * @see bluej.testmgr.record.VoidMethodInvokerRecord#toTestMethod(bluej.pkgmgr.PkgMgrFrame)
      */
-    public String toTestMethod()
+    @Override
+    public String toTestMethod(PkgMgrFrame pmf)
     {
         StringBuffer sb = new StringBuffer();
-        sb.append(toTestMethodInit());
+        sb.append(toTestMethodInit(pmf));
 
         String resultRef = toExpression();
 
@@ -159,7 +154,7 @@ public class MethodInvokerRecord extends VoidMethodInvokerRecord
      * up local variables if the result of the method is used more than once or
      * placed on the bench by using "Get".
      */
-    private String toTestMethodInit()
+    private String toTestMethodInit(PkgMgrFrame pkgMgrFrame)
     {
         // If we have already prepared the method call, we return the name that
         // references it.
@@ -174,7 +169,6 @@ public class MethodInvokerRecord extends VoidMethodInvokerRecord
                 // method result more than once, we need to put it on the bench to
                 // give it a unique name.
                 DebuggerObject result = getResultObject();
-                assert (result != null);
                 ObjectBench bench = pkgMgrFrame.getObjectBench();
                 ObjectWrapper wrapper = ObjectWrapper.getWrapper(pkgMgrFrame, bench, result, result.getGenType(),
                 "result");
@@ -191,7 +185,6 @@ public class MethodInvokerRecord extends VoidMethodInvokerRecord
             incUsageCount();
         }
 
-        assert (benchName != null);
         methodCallInited = true;
         // assign result to a local variable with the given benchName.
         return secondIndent + benchDeclaration() + benchAssignmentTypecast() + statementEnd;

@@ -21,6 +21,8 @@
  */
 package bluej.testmgr.record;
 
+import bluej.pkgmgr.PkgMgrFrame;
+
 public class ArrayElementInspectorRecord extends InvokerRecord
 {
     private InvokerRecord parentIr;
@@ -51,7 +53,7 @@ public class ArrayElementInspectorRecord extends InvokerRecord
     }
 
     @Override
-    public String toTestMethod()
+    public String toTestMethod(PkgMgrFrame pmf)
     {
         return null;
     }
