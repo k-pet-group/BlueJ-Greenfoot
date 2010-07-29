@@ -134,7 +134,8 @@ class PackageChooser extends JFileChooser
         
         String fname = f.getName();
         return fname.endsWith(".jar") || fname.endsWith(".JAR") ||
-                fname.endsWith(".zip") || fname.endsWith(".ZIP");
+                fname.endsWith(".zip") || fname.endsWith(".ZIP")
+                || (Config.isGreenfoot() && (fname.endsWith(".gfar") || fname.endsWith(".GFAR")));
     }
 
     /**
