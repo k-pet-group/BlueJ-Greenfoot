@@ -66,8 +66,8 @@ public class ShellClassLoader extends ClassLoader
             
             // If the basename matches *our* class, load it ourselves
             if (baseName.equals(className)) {
-                name = name.replace('.', File.separatorChar) + ".class";
-                File f = new File(name);
+                String filename = name.replace('.', File.separatorChar) + ".class";
+                File f = new File(filename);
                 if (f.canRead()) {
                     int length = (int) f.length();
                     byte [] buf = new byte[length];
@@ -82,7 +82,7 @@ public class ShellClassLoader extends ClassLoader
                         length -= read;
                     }
                     
-                    return defineClass(className, buf, 0, offset);
+                    return defineClass(name, buf, 0, offset);
                 }
             }
         }
