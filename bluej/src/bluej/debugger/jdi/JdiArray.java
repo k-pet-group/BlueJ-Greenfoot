@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 2000-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -42,7 +42,6 @@ import com.sun.jdi.Value;
  *
  * @author     Michael Kolling
  * @created    December 26, 2000
- * @version    $Id: JdiArray.java 7947 2010-07-29 03:20:32Z davmac $
  */
 public class JdiArray extends JdiObject
 {    
@@ -61,10 +60,6 @@ public class JdiArray extends JdiObject
      */
     protected JdiArray(ArrayReference obj, JavaType expectedType)
     {
-        if (expectedType == null) {
-            throw new NullPointerException(); // DAV
-        }
-        
         this.obj = obj;
         obj.disableCollection();
         // All arrays extend java.lang.Object - so it's possible that the
