@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -342,9 +342,10 @@ public class BasicParseTest extends junit.framework.TestCase
     public void testValidClassInfo5() throws Exception
     {
     	StringReader sr = new StringReader(
-    			"enum A { monday, tuesday, wednesday }"
+    			"enum A { monday {}, tuesday() {}, wednesday }"
     	);
     	ClassInfo info = InfoParser.parse(sr, null, null);
+    	assertNotNull(info);
     	assertTrue(info.isEnum());
     }
     

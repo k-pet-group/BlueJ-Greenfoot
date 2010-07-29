@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -745,6 +745,24 @@ public class JavaParser
             token = tokenStream.nextToken();
             if (token.getType() == JavaTokenTypes.LPAREN) {
                 parseArgumentList(token);
+                token = tokenStream.nextToken();
+            }
+            
+            // "body"
+            if (token.getType() == JavaTokenTypes.LCURLY) {
+                beginMethodBody(token);
+                parseStmtBlock();
+                token = tokenStream.nextToken();
+                if (token.getType() != JavaTokenTypes.RCURLY) {
+                    error("Expected '}' at end of enum constant body");
+                    tokenStream.pushBack(token);
+                    endMethodBody(token, false);
+                    //endMethodDecl(token, false);
+                }
+                else {
+                    endMethodBody(token, true);
+                    //endMethodDecl(token, true);
+                }
                 token = tokenStream.nextToken();
             }
 
