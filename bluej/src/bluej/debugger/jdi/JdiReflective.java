@@ -217,7 +217,7 @@ public class JdiReflective extends Reflective
             // multiple bounds appear as T:bound1;:bound2; ... etc
             ArrayList<GenTypeSolid> bounds = new ArrayList<GenTypeSolid>(3);
             while (s.current() == ':') {
-                bounds.add((GenTypeSolid) fromSignature(s, null, rclass));
+                bounds.add((GenTypeSolid) typeFromSignature(s, null, rclass));
                 
                 //we don't want the next char to be eaten...
                 if (s.peek() == ':')
@@ -318,7 +318,7 @@ public class JdiReflective extends Reflective
         // go through each base type in turn.
         while (s.hasNext()) {
             // We now have a base.
-            GenTypeClass t = (GenTypeClass) fromSignature(s, declTpars, rclass);
+            GenTypeClass t = typeFromSignature(s, declTpars, rclass).asClass();
             rlist.add(t);
         }
         return rlist;
@@ -482,17 +482,19 @@ public class JdiReflective extends Reflective
     private static GenTypeParameter fromSignature(StringIterator i,
             Map<String,? extends GenTypeParameter> tparams, ReferenceType parent)
     {
-        char c = i.next();
+        char c = i.peek();
         if (c == '*') {
             // '*' represents an unbounded '?'. For instance, List<?>
             // has signature: Ljava/lang/list<*>;
+            i.next();
             return new GenTypeUnbounded();
         }
         if (c == '+') {
             // ? extends ...
             // The bound must be a solid, but it's possible that tparams map
             // a type parameter (solid) to a wildcard (non-solid).
-            GenTypeSolid t = (GenTypeSolid) fromSignature(i, null, parent);
+            i.next();
+            GenTypeSolid t = (GenTypeSolid) typeFromSignature(i, null, parent);
             if (tparams != null) {
                 return new GenTypeExtends(t).mapTparsToTypes(tparams);
             }
@@ -503,6 +505,7 @@ public class JdiReflective extends Reflective
         if (c == '-') {
             // ? super ...
             // Likewise as for extends.
+            i.next();
             GenTypeSolid t = (GenTypeSolid) fromSignature(i, null, parent);
             if (tparams != null) {
                 return new GenTypeSuper(t).mapTparsToTypes(tparams);
@@ -511,19 +514,29 @@ public class JdiReflective extends Reflective
                 return new GenTypeSuper(t);
             }
         }
+        
+        return typeFromSignature(i, tparams, parent);
+    }
+    
+    private static JavaType typeFromSignature(StringIterator i,
+            Map<String,? extends GenTypeParameter> tparams, ReferenceType parent)
+    {
+        char c = i.next();
         if (c == '[') {
             // array
-            GenTypeParameter t = fromSignature(i, tparams, parent);
+            JavaType t = typeFromSignature(i, tparams, parent);
             t = new GenTypeArray(t);
             return t;
         }
         if (c == 'T') {
             // type parameter
             String tname = readClassName(i);
-            if (tparams != null && tparams.get(tname) != null)
-                return tparams.get(tname);
-            else
+            if (tparams != null && tparams.get(tname) != null) {
+                return tparams.get(tname).getCapture();
+            }
+            else {
                 return new GenTypeTpar(tname);
+            }
         }
         if (c == 'I') {
             // integer
@@ -596,6 +609,7 @@ public class JdiReflective extends Reflective
         // otherwise assume we have ';'
         return result;
     }
+
     
     private static GenTypeClass innerFromSignature(StringIterator i, String outerName, GenTypeClass outer,
             Map<String,? extends GenTypeParameter> tparams, ReferenceType parent)
@@ -719,7 +733,7 @@ public class JdiReflective extends Reflective
         StringIterator iterator = new StringIterator(gensig);
 
         // Parse the signature, using the determined tpar mappings.
-        return (JavaType) fromSignature(iterator, tparams, parent.obj.referenceType());
+        return typeFromSignature(iterator, tparams, parent.obj.referenceType());
     }
 
     /**
@@ -763,7 +777,7 @@ public class JdiReflective extends Reflective
 
         // if the generic signature wasn't null, get the type from it.
         StringIterator iterator = new StringIterator(gensig);
-        return (JavaType) fromSignature(iterator, null, parent);
+        return typeFromSignature(iterator, null, parent);
     }
 
     public static JavaType fromLocalVar(StackFrame sf, LocalVariable var)
@@ -804,7 +818,7 @@ public class JdiReflective extends Reflective
         StringIterator iterator = new StringIterator(gensig);
         Map<String,GenTypeParameter> tparams = new HashMap<String,GenTypeParameter>();
         addDefaultParamBases(tparams, new JdiReflective(declType));
-        return (JavaType) fromSignature(iterator, tparams, declType);
+        return typeFromSignature(iterator, tparams, declType);
     }
 
     /**
@@ -866,7 +880,7 @@ public class JdiReflective extends Reflective
             }
             
             StringIterator i = new StringIterator(genSig);
-            JavaType ftype = (JavaType) fromSignature(i, null, rclass);
+            JavaType ftype = typeFromSignature(i, null, rclass);
             FieldReflective fref = new FieldReflective(field.name(),
                     ftype, field.modifiers());
             rfields.put(field.name(), fref);
@@ -899,12 +913,11 @@ public class JdiReflective extends Reflective
             
             List<JavaType> paramTypes = new ArrayList<JavaType>();
             while (i.peek() != ')') {
-                GenTypeParameter gtp = fromSignature(i, null, rclass);
-                paramTypes.add((JavaType) gtp);
+                paramTypes.add(typeFromSignature(i, null, rclass));
             }
             
             i.next(); // skip ')'
-            JavaType returnType = (JavaType) fromSignature(i, null, rclass);
+            JavaType returnType = typeFromSignature(i, null, rclass);
             
             boolean isVarArgs = method.isVarArgs();
             int modifiers = method.modifiers();

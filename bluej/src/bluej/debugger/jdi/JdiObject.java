@@ -379,12 +379,8 @@ public class JdiObject extends DebuggerObject
         return obj;
     }
 
-    /**
-     *  Return a list of strings with the description of each instance field
-     *  in the format "<modifier> <type> <name> = <value>".
-     *
-     *@param  includeModifiers  Description of Parameter
-     *@return                   The InstanceFields value
+    /*
+     * @see bluej.debugger.DebuggerObject#getInstanceFields(boolean, java.util.Map)
      */
     public List<String> getInstanceFields(boolean includeModifiers, Map<String, List<String>> restrictedClasses)
     {

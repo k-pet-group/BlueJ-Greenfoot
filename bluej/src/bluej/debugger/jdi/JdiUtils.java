@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -32,17 +32,16 @@ import com.sun.jdi.ReferenceType;
 import com.sun.jdi.StringReference;
 import com.sun.jdi.Value;
 
-/*
+/**
  * Utility methods for Jdi. Used to abstract away differences between java
  * 1.4 and 1.5
  * 
  * @author Davin McCall
- * @version $Id: JdiUtils.java 6215 2009-03-30 13:28:25Z polle $
  */
-public abstract class JdiUtils {
-
+public abstract class JdiUtils
+{
     private static JdiUtils jutils = null;
-    private static final String nullLabel = Config.getString("debugger.null");
+    private static final String nullLabel = "null";
     
     /**
      * Factory method. Returns a JdiUtils object.
@@ -54,7 +53,7 @@ public abstract class JdiUtils {
             return jutils;
         if( Config.isJava15() ) {
             try {
-                Class J15Class = Class.forName("bluej.debugger.jdi.JdiUtils15");
+                Class<?> J15Class = Class.forName("bluej.debugger.jdi.JdiUtils15");
                 jutils = (JdiUtils)J15Class.newInstance();
             }
             catch(ClassNotFoundException cnfe) { }
@@ -77,10 +76,18 @@ public abstract class JdiUtils {
     abstract public boolean isEnum(ClassType ct);
     
     /**
-     *  Return the value of a field as as string.
+     * Return the value of a field as as string.
+     * 
+     * <p>Values are represented differently depending on their type:
+     * <ul>
+     * <li>A String value is represented as a valid Java string expression.
+     * <li>A null value is represented as "null".
+     * <li>An Enum value is represented as the name of the Enum constant.
+     * <li>Any other object reference is represented as "&lt;object reference&gt;".
+     * <li>A primitive value is represented as the value itself.
+     * </ul>
      *
-     *@param  val  Description of Parameter
-     *@return      The ValueString value
+     * @see bluej.debugger.DebuggerObject#getInstanceFields(boolean, java.util.Map)
      */
     public String getValueString(Value val)
     {

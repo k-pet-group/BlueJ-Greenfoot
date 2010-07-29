@@ -246,11 +246,7 @@ public class GenTypeClass extends GenTypeSolid
         }
         else {
             baseClass = nt.transform(baseClass);
-            int i = baseClass.lastIndexOf('$');
-            while (i != -1) {
-                baseClass = baseClass.substring(0, i) + '.' + baseClass.substring(i + 1);
-                i = baseClass.lastIndexOf('$');
-            }
+            baseClass = baseClass.replace('$', '.');
         }
 
         // Append type parameters, if any

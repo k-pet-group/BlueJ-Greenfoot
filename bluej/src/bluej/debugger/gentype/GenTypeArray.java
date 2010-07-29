@@ -65,9 +65,22 @@ public class GenTypeArray extends GenTypeSolid
     {
         return "[" + baseType.getUpperBound().arrayComponentName();
     }
+    
+    @Override
+    public JavaType getCapture()
+    {
+        JavaType baseCap = baseType.getCapture();
+        if (baseCap == baseType) {
+            return this;
+        }
+        return new GenTypeArray(baseCap);
+    }
         
     public JavaType getArrayComponent()
     {
+        if (baseType.isPrimitive()) {
+            return baseType.getCapture();
+        }
         return baseType.getUpperBound();
     }
     
