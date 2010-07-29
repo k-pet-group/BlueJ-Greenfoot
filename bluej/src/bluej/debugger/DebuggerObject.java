@@ -31,7 +31,7 @@ import bluej.debugger.gentype.GenTypeClass;
  *  A class representing an object in the debugged VM.
  *
  *@author     Michael Kolling
- *@version    $Id: DebuggerObject.java 7751 2010-06-03 10:55:25Z nccb $
+ *@version    $Id: DebuggerObject.java 7946 2010-07-29 03:03:04Z davmac $
  */
 public abstract class DebuggerObject
 {
@@ -214,12 +214,28 @@ public abstract class DebuggerObject
      * "(hidden)" means that the field is declared in a superclass of the
      * object class and shadowed by a field with the same name declared in
      * a descendant class.
+     * 
+     * <p>Values are represented differently depending on their type:
+     * <ul>
+     * <li>A String value is represented as a valid Java string expression.
+     * <li>A null value is represented as "null".
+     * <li>An Enum value is represented as the name of the Enum constant.
+     * <li>Any other object reference is represented as "&lt;object reference&gt;".
+     * <li>A primitive value is represented as the value itself.
+     * </ul>
      *
-     *@param  includeModifiers  Whether to include the access modifier
-     *@return                   The InstanceFields value
+     * @param  includeModifiers  Whether to include the access modifier
+     * @param restrictedClasses  a map of class names for which the field should be filtered;
+     *                           the class name maps to list of fields which should not be
+     *                           filtered (i.e. a whitelist). 
      */
     public abstract List<String> getInstanceFields(boolean includeModifiers, Map<String, List<String>> restrictedClasses);
     
+    /**
+     * Get a list of the instance fields of this object.
+     * @param includeModifiers  Whether to include modifiers ("private" etc).
+     * @see #getInstanceFields(boolean, java.util.Map)
+     */
     public final List<String> getInstanceFields(boolean includeModifiers)
     {
         return getInstanceFields(includeModifiers, null);
