@@ -44,8 +44,7 @@ public class MethodInvokerRecordTest extends junit.framework.TestCase
     {
         JavaType mathType = JavaUtils.getJavaUtils().genTypeFromClass(java.lang.Math.class);
         lotsOfAssertions = new MethodInvokerRecord(mathType,
-                                                    "Math.pow(4,3)", new String [] {"3", "4"},
-                                                    null);
+                "Math.pow(4,3)", new String [] {"3", "4"});
         lotsOfAssertions.addAssertion(
             InvokerRecord.makeAssertionStatement("assertNotNull"));
         lotsOfAssertions.addAssertion(
@@ -99,7 +98,7 @@ public class MethodInvokerRecordTest extends junit.framework.TestCase
         lotsOfAssertions.setBenchName("on_bench", "java.lang.Math");
 
         assertEquals(testMethodResultWithBench,
-                        lotsOfAssertions.toTestMethod());
+                        lotsOfAssertions.toTestMethod(null));
         assertEquals("\tprivate java.lang.Math on_bench;\n",
                         lotsOfAssertions.toFixtureDeclaration());
         assertEquals("\t\ton_bench = Math.pow(4,3);\n",
@@ -126,7 +125,7 @@ public class MethodInvokerRecordTest extends junit.framework.TestCase
         lotsOfAssertions.setBenchName("on_bench", "java.lang.Math");
 
         assertEquals(testMethodResultWithBenchTypecast,
-                        lotsOfAssertions.toTestMethod());
+                        lotsOfAssertions.toTestMethod(null));
         assertEquals("\tprivate java.lang.Math on_bench;\n",
                         lotsOfAssertions.toFixtureDeclaration());
         assertEquals("\t\ton_bench = Math.pow(4,3);\n",

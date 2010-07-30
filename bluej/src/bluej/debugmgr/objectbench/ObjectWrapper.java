@@ -748,7 +748,6 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
                 pmf.setWaitCursor(true);
             }
             
-            @Override
             public void beginExecution()
             {
                 pmf.setWaitCursor(false);
