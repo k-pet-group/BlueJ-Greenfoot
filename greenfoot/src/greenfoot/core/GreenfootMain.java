@@ -53,6 +53,7 @@ import rmiextension.wrappers.event.RProjectListener;
 import bluej.Config;
 import bluej.debugmgr.CallHistory;
 import bluej.extensions.ProjectNotOpenException;
+import bluej.pkgmgr.Project;
 import bluej.runtime.ExecServer;
 import bluej.utility.Debug;
 import bluej.utility.FileUtility;
@@ -65,7 +66,7 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 7953 2010-07-29 14:59:02Z nccb $
+ * @version $Id: GreenfootMain.java 7957 2010-07-30 09:49:01Z nccb $
  */
 public class GreenfootMain extends Thread implements CompileListener, RProjectListener
 {
@@ -266,11 +267,18 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
         }
         catch (ProjectNotOpenException pnoe) {}
 
-        rBlueJ.openProject(projectDir);
+        if (!projectDirFile.isDirectory() && !Project.isProject(projectDirFile.toString()))
+            projectDirFile = Utility.maybeExtractArchive(projectDirFile, frame);
+                
+        int versionStatus = GreenfootMain.updateApi(projectDirFile, frame);
+        boolean doOpen = versionStatus != VERSION_BAD;
+        if (doOpen) {
+            rBlueJ.openProject(projectDirFile);
 
-        // if this is the dummy startup project, close it now.
-        if (frame.getProject() == null) {
-            project.close();
+            // if this is the dummy startup project, close it now.
+            if (frame.getProject() == null) {
+                project.close();
+            }
         }
     }
 

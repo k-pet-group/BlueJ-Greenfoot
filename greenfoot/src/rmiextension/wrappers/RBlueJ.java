@@ -102,10 +102,10 @@ public interface RBlueJ
 
     /**
      * Open an existing project
-     * @param directory  The directory containing the project to open
+     * @param projectDirFile  The directory containing the project to open
      * @return  A reference to the project
      */
-    public RProject openProject(String directory)
+    public RProject openProject(File projectDirFile)
         throws RemoteException;
 
     /**

@@ -21,8 +21,6 @@
  */
 package rmiextension.wrappers;
 
-import greenfoot.core.GreenfootMain;
-
 import java.awt.EventQueue;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
@@ -46,10 +44,8 @@ import bluej.extensions.BlueJ;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.extensions.event.ClassListener;
 import bluej.pkgmgr.PkgMgrFrame;
-import bluej.pkgmgr.Project;
 import bluej.prefmgr.PrefMgrDialog;
 import bluej.utility.Debug;
-import bluej.utility.Utility;
 
 /**
  * Implements the RBlueJ RMI interface.
@@ -245,7 +241,7 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     /* (non-Javadoc)
      * @see rmiextension.wrappers.RBlueJ#openProject(java.lang.String)
      */
-    public RProject openProject(final String directory)
+    public RProject openProject(final File directory)
         throws RemoteException
     {
         final RProjectRef projectRef = new RProjectRef();
@@ -255,22 +251,14 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
                 @Override
                 public void run()
                 {
-                    File file = new File(directory);
-                    if (!file.isDirectory() && !Project.isProject(file.toString()))
-                        file = Utility.maybeExtractArchive(file, null);
-                    
-                    int versionStatus = GreenfootMain.updateApi(file, null);
-                    boolean doOpen = versionStatus != GreenfootMain.VERSION_BAD;
-                    if (doOpen) {
-                    BProject bProject = blueJ.openProject(file);
-                        if (bProject != null) {
-                            GreenfootDebugHandler.addDebuggerListener(bProject);
-                            try {
-                                projectRef.rProject = WrapperPool.instance().getWrapper(bProject);
-                            }
-                            catch (RemoteException re) {
-                                Debug.reportError("Error when opening project via RMI", re);
-                            }
+                    BProject bProject = blueJ.openProject(directory);
+                    if (bProject != null) {
+                        GreenfootDebugHandler.addDebuggerListener(bProject);
+                        try {
+                            projectRef.rProject = WrapperPool.instance().getWrapper(bProject);
+                        }
+                        catch (RemoteException re) {
+                            Debug.reportError("Error when opening project via RMI", re);
                         }
                     }
                 }
