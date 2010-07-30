@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,9 +21,10 @@
  */
 package bluej.extensions;
 
+import bluej.BlueJEvent;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.ExceptionDescription;
-import bluej.debugmgr.ExpressionInformation;
+import bluej.debugmgr.ExecutionEvent;
 import bluej.debugmgr.Invoker;
 import bluej.debugmgr.ResultWatcher;
 import bluej.debugmgr.objectbench.ObjectWrapper;
@@ -31,6 +32,7 @@ import bluej.pkgmgr.PkgMgrFrame;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.Utility;
 import bluej.views.CallableView;
+import bluej.views.ConstructorView;
 import bluej.views.MethodView;
 
 /**
@@ -38,14 +40,10 @@ import bluej.views.MethodView;
  *
  * @author     Damiano Bolla, University of Kent at Canterbury, 2003,2004
  * @author     Clive Miller, University of Kent at Canterbury, 2002
- *
- * @version    $Id: DirectInvoker.java 7942 2010-07-28 05:56:35Z davmac $
  */
-
 class DirectInvoker
 {
     private final PkgMgrFrame pkgFrame;
-    private final CallableView callable;
     private String resultName;
 
 
@@ -55,10 +53,9 @@ class DirectInvoker
      * @param  i_pkgFrame  Description of the Parameter
      * @param  i_callable  Description of the Parameter
      */
-    DirectInvoker(PkgMgrFrame i_pkgFrame, CallableView i_callable)
+    DirectInvoker(PkgMgrFrame i_pkgFrame)
     {
         pkgFrame = i_pkgFrame;
-        callable = i_callable;
     }
 
 
@@ -84,12 +81,13 @@ class DirectInvoker
      * generate an InvocationErrorException instead. In such cases no
      * expression arguments will be evaluated.
      *
-     * @param  args                             Arguments to the constructor
+     * @param  callable         The constructor to call
+     * @param  args             Arguments to the constructor
      * @return                                  The newly created object
-     * @throws  InvocationArgumentException   if the arglist is not consistent with the signature
+     * @throws  InvocationArgumentException   if the argument list is not consistent with the signature
      * @throws  InvocationErrorException      if there is a system error
      */
-    DebuggerObject invokeConstructor(Object[] args)
+    DebuggerObject invokeConstructor(ConstructorView callable, Object[] args)
              throws InvocationArgumentException, InvocationErrorException
     {
         if (!paramsAlmostMatch(args, callable.getParameters())) {
@@ -98,10 +96,17 @@ class DirectInvoker
 
         DirectResultWatcher watcher = new DirectResultWatcher();
         Invoker invoker = new Invoker(pkgFrame, callable, watcher);
-        invoker.invokeDirect(convObjToString(args));
+        String [] argStrings = convObjToString(args);
+        invoker.invokeDirect(argStrings);
 
         // this will wait() on the invoke to finish
         DebuggerObject result = watcher.getResult();
+        
+        String resultType = watcher.getResultType();
+        if (resultType != null) {
+            ExecutionEvent ee = new ExecutionEvent(pkgFrame.getPackage(), callable.getClassName(), null);
+            raiseEvent(ee, callable, argStrings, watcher);
+        }
 
         if (watcher.isFailed()) {
             throw new InvocationErrorException("invokeConstructor: Error=" + watcher.getError());
@@ -146,7 +151,7 @@ class DirectInvoker
      * @exception  InvocationArgumentException  Thrown if the arglist is not consistent with the signature
      * @exception  InvocationErrorException     Thrown if there is a system error
      */
-    DebuggerObject invokeMethod(ObjectWrapper onThisObjectInstance, Object[] args)
+    DebuggerObject invokeMethod(ObjectWrapper onThisObjectInstance, MethodView callable, Object[] args)
              throws InvocationArgumentException, InvocationErrorException
     {
         if (!paramsAlmostMatch(args, callable.getParameters())) {
@@ -155,14 +160,25 @@ class DirectInvoker
 
         DirectResultWatcher watcher = new DirectResultWatcher();
         Invoker invoker;
-        if (((MethodView) callable).isStatic())
+        if (callable.isStatic()) {
             invoker = new Invoker(pkgFrame, callable, watcher);
-        else
+        }
+        else {
             invoker = new Invoker(pkgFrame, (MethodView) callable, onThisObjectInstance, watcher);
+        }
+        String [] argStrings = convObjToString(args);
         invoker.invokeDirect(convObjToString(args));
 
         // this will wait() on the invoke to finish
         DebuggerObject result = watcher.getResult();
+
+        String resultType = watcher.getResultType();
+        if (resultType != null) {
+            ExecutionEvent ee = new ExecutionEvent(pkgFrame.getPackage(), callable.getClassName(),
+                    onThisObjectInstance.getName());
+            ee.setMethodName(callable.getName());
+            raiseEvent(ee, callable, argStrings, watcher);
+        }
 
         if (watcher.isFailed()) {
             throw new InvocationErrorException("invokeMethod: Error=" + watcher.getError());
@@ -174,6 +190,27 @@ class DirectInvoker
         return result;
     }
 
+    /**
+     * Raise an appropriate execution event, after a result has been received.
+     */
+    private static void raiseEvent(ExecutionEvent event, CallableView callable, String [] argStrings, 
+            DirectResultWatcher watcher)
+    {
+        DebuggerObject result = watcher.getResult();
+        String resultType = watcher.getResultType();
+        
+        event.setParameters(callable.getParamTypes(false), argStrings);
+        event.setResult(resultType);
+        if (resultType == ExecutionEvent.NORMAL_EXIT) {
+            event.setResultObject(result);
+            event.setObjectName(watcher.getResultName());
+        }
+        else if (resultType == ExecutionEvent.EXCEPTION_EXIT) {
+            event.setException(watcher.getException());
+        }
+        
+        BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, event);
+    }
 
     /**
      * Returns the result object name of an invocation
@@ -204,7 +241,6 @@ class DirectInvoker
 
         String[] o_array = new String[i_array.length];
         for (int index = 0; index < i_array.length; index++) {
-//        Debug.message("convert="+convOneObj ( i_array[index] ));
             o_array[index] = convOneObj(i_array[index]);
         }
 
@@ -293,8 +329,10 @@ class DirectInvoker
     {
         private boolean resultReady;
         private boolean isFailed;
+        private String resultType;
 
         private DebuggerObject result;
+        private ExceptionDescription exception;
         private String errorMsg;
         // When there is a fail this is the reason.
         private String resultName;
@@ -348,7 +386,6 @@ class DirectInvoker
             return isFailed;
         }
 
-
         /*
          * @see bluej.debugmgr.ResultWatcher#beginExecution()
          */
@@ -360,7 +397,7 @@ class DirectInvoker
         /*
          * @see bluej.debugmgr.ResultWatcher#beginExecution()
          */
-        public void beginExecution()
+        public void beginExecution(InvokerRecord ir)
         {
             // Nothing needs doing.
         }
@@ -375,6 +412,7 @@ class DirectInvoker
         public synchronized void putResult(DebuggerObject aResult, String anObjectName, InvokerRecord ir)
         {
             result = aResult;
+            resultType = ExecutionEvent.NORMAL_EXIT;
             resultName = anObjectName;
             resultReady = true;
             notifyAll();
@@ -383,10 +421,9 @@ class DirectInvoker
 
         /**
          * This is used to return an error.
-         *
          * @param  error  The error message
          */
-        public synchronized void putError(String error)
+        public synchronized void putError(String error, InvokerRecord ir)
         {
             errorMsg = "Invocation: Error=" + error;
             isFailed = true;
@@ -397,21 +434,23 @@ class DirectInvoker
 
         /**
          * Treat run-time error the same as compile-time error.
-         * 
          * @param  msg  The exception message
          */
-        public void putException(ExceptionDescription exception)
+        public synchronized void putException(ExceptionDescription exception, InvokerRecord ir)
         {
-            putError(exception.getText());
+            this.exception = exception;
+            resultType = ExecutionEvent.EXCEPTION_EXIT;
+            putError(exception.getText(), ir);
         }
         
         
         /**
          * Treat termination as an error
          */
-        public void putVMTerminated()
+        public void putVMTerminated(InvokerRecord ir)
         {
-            putError("Terminated");
+            resultType = ExecutionEvent.TERMINATED_EXIT;
+            putError("Terminated", ir);
         }
 
 
@@ -435,17 +474,25 @@ class DirectInvoker
         {
             return resultName;
         }
-
-
+        
         /**
-         * Gets the expressionInformation attribute of the DirectResultWatcher object
-         * @see bluej.debugmgr.ResultWatcher#getExpressionInformation()
-         * @return    The expressionInformation value
+         * Returns the result type:<br>
+         * ExecutionEvent.NORMAL_EXIT if execution completed normally;<br>
+         * ExecutionEvent.EXCEPTION_EXIT if an exception occurred in user code;<br>
+         * ExecutionEvent.TERMINATED_EXIT if the user VM exited for any reason;<br>
+         * null if compilation failure occurred.
          */
-        public ExpressionInformation getExpressionInformation()
+        public String getResultType()
         {
-            // TODO Auto-generated method stub
-            return null;
+            return resultType;
+        }
+        
+        /**
+         * Get the exception which occurred (if result type == EXCEPTION_EXIT).
+         */
+        public ExceptionDescription getException()
+        {
+            return exception;
         }
     }
 

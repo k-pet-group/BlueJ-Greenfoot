@@ -32,7 +32,6 @@ import java.util.Map;
 
 import javax.swing.JFrame;
 
-import bluej.BlueJEvent;
 import bluej.Config;
 import bluej.compiler.CompileObserver;
 import bluej.compiler.EventqueueCompileObserver;
@@ -89,6 +88,7 @@ public class Invoker
 
     private JFrame pmf;
     private Package pkg;
+    private String pkgName;
     private ResultWatcher watcher;
     private CallableView member;
     private String shellName;
@@ -97,6 +97,7 @@ public class Invoker
     private ValueCollection localVars;
     private ValueCollection objectBenchVars;
     private ObjectBenchInterface objectBench;
+    private Debugger debugger;
     private String imports; // import statements to include in shell file
     private boolean doTryAgain = false; // whether to re-try
     
@@ -111,7 +112,6 @@ public class Invoker
     private boolean constructing;
 
     private String commandString;
-    private ExecutionEvent executionEvent;
     private InvokerRecord ir;
 
     /**
@@ -121,23 +121,21 @@ public class Invoker
      */
     public Invoker(PkgMgrFrame pmf, ValueCollection localVars, String command, ResultWatcher watcher)
     {
-        if (watcher == null) {
-            throw new NullPointerException("Invoker: watcher == null");
-        }
-
         this.pmf = pmf;
         this.pkg = pmf.getPackage();
+        this.pkgName = pkg.getQualifiedName();
+        this.objectBenchVars = pmf.getObjectBench();
+        this.objectBench = pmf.getObjectBench();
+        this.debugger = pkg.getProject().getDebugger();
+        
         this.watcher = watcher;
         this.member = null;
         this.shellName = getShellName();
         this.objName = null;
         this.instanceName = null;
         this.localVars = localVars;
-        this.objectBenchVars = pmf.getObjectBench();
-        this.objectBench = pmf.getObjectBench();
 
         constructing = false;
-        executionEvent = new ExecutionEvent(this.pkg);
         commandString = command;
     }
 
@@ -154,31 +152,28 @@ public class Invoker
      */
     public Invoker(PkgMgrFrame pmf, CallableView member, ResultWatcher watcher)
     {
-        if (watcher == null) {
-            throw new NullPointerException("Invoker: watcher == null");
-        }
-
         this.pmf = pmf;
         this.pkg = pmf.getPackage();
+        this.pkgName = pkg.getQualifiedName();
         this.objectBenchVars = pmf.getObjectBench();
         this.objectBench = pmf.getObjectBench();
+        this.debugger = pkg.getProject().getDebugger();
+
         this.member = member;
         this.watcher = watcher;
-
         this.shellName = getShellName();
 
         // in the case of a constructor, we need to construct an object name
         if (member instanceof ConstructorView) {
             this.objName = pmf.getProject().getDebugger().guessNewName(member.getClassName());
             constructing = true;
-            executionEvent = new ExecutionEvent(pkg, member.getClassName(), null);
         }
         else if (member instanceof MethodView) {
             constructing = false;
-            executionEvent = new ExecutionEvent(pkg, member.getClassName(), null );
         }
         else {
             Debug.reportError("illegal member type in invocation");
+            throw new IllegalArgumentException("Unknown callable type");
         }
     }
 
@@ -198,11 +193,13 @@ public class Invoker
     {
         this.pmf = pmf;
         this.pkg = pmf.getPackage();
-        this.member = member;
-        this.watcher = watcher;
+        this.pkgName = pkg.getQualifiedName();
         this.objectBenchVars = pmf.getObjectBench();
         this.objectBench = pmf.getObjectBench();
+        this.debugger = pkg.getProject().getDebugger();
 
+        this.member = member;
+        this.watcher = watcher;
         this.shellName = getShellName();
 
         // We want a map of all the type parameters that may appear in the
@@ -215,8 +212,6 @@ public class Invoker
         this.objName = objWrapper.getName();
         this.typeMap = objWrapper.getObject().getGenType().mapToSuper(member.getClassName()).getMap();
 
-        executionEvent = new ExecutionEvent(pkg, member.getClassName(), objName);
-        
         constructing = false;
     }
 
@@ -365,14 +360,6 @@ public class Invoker
             }
         }
 
-        executionEvent.setParameters(argTypes, args);
-        if (constructing) {
-            executionEvent.setObjectName(instanceName);
-        }
-        else {
-            executionEvent.setMethodName(((MethodView) member).getName());
-        }
-
         doInvocation(args, argTypeStrings, typeParams);
     }
 
@@ -471,9 +458,8 @@ public class Invoker
             // We can do this without writing and compiling a shell file.
             
             commandString = command + actualArgString;
-            BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, commandString);
             watcher.beginCompile(); // there is no compile step, really
-            watcher.beginExecution();
+            watcher.beginExecution(ir);
             
             // We must however do so in a seperate thread. Otherwise a constructor which
             // goes into an infinite loop can hang BlueJ.
@@ -485,7 +471,7 @@ public class Invoker
                 	    }
                 	});
                 	
-                    final DebuggerResult result = pkg.getProject().getDebugger().instantiateClass(className);
+                    final DebuggerResult result = debugger.instantiateClass(className);
                     
                     EventQueue.invokeLater(new Runnable() {
                         public void run() {
@@ -575,7 +561,6 @@ public class Invoker
 
         File shell = writeInvocationFile("", commandString, !hasResult, resultType);
         if (shell != null) {
-            executionEvent.setCommand(commandString);
             compileInvocationFile(shell);
             return true;
         }
@@ -633,10 +618,12 @@ public class Invoker
     {
         // Create package specification line ("package xyz")
         String packageLine;
-        if (pkg.isUnnamedPackage())
+        if (pkgName.length() == 0) {
             packageLine = "";
-        else
-            packageLine = "package " + pkg.getQualifiedName() + ";";
+        }
+        else {
+            packageLine = "package " + pkgName + ";";
+        }
 
         // add variable declaration for a (possible) result
 
@@ -993,7 +980,7 @@ public class Invoker
         if (dialog != null) {
             dialog.setErrorMessage("Error: " + message);
         }
-        watcher.putError(message);
+        watcher.putError(message, ir);
     }
     
     /**
@@ -1018,7 +1005,7 @@ public class Invoker
         }
 
         if (successful) {
-            watcher.beginExecution();
+            watcher.beginExecution(ir);
             startClass();
         }
         else {
@@ -1084,15 +1071,14 @@ public class Invoker
      * Execute an interactive method call. At this point, the shell class has
      * been compiled and we are ready to go.
      */
-    public void startClass()
+    private void startClass()
     {
-        BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, commandString);
-        final String shellClassName = pkg.getQualifiedName(shellName);
+        final String shellClassName = JavaNames.combineNames(pkgName, shellName);
         
         new Thread() {
             public void run() {
                 try {
-                    final DebuggerResult result = pkg.getProject().getDebugger().runClassMain(shellClassName);
+                    final DebuggerResult result = debugger.runClassMain(shellClassName);
                     
                     EventQueue.invokeLater(new Runnable() {
                         public void run() {
@@ -1130,26 +1116,20 @@ public class Invoker
             switch(status) {
                 case Debugger.NORMAL_EXIT :
                     // result will be null here for a void call
-                    watcher.putResult(result.getResultObject(), instanceName, ir);
                     ir.setResultObject(result.getResultObject());   
-                    executionEvent.setResultObject(result.getResultObject());
-                    executionEvent.setResult(ExecutionEvent.NORMAL_EXIT);
+                    watcher.putResult(result.getResultObject(), instanceName, ir);
                     break;
 
                 case Debugger.EXCEPTION :
                     ExceptionDescription exc = result.getException();
-                    watcher.putException(exc);
-                    executionEvent.setResult(ExecutionEvent.EXCEPTION_EXIT);
-                    executionEvent.setException(exc);
+                    watcher.putException(exc, ir);
                     break;
 
                 case Debugger.TERMINATED : // terminated by user
-                    watcher.putVMTerminated();
-                    executionEvent.setResult(ExecutionEvent.TERMINATED_EXIT);
+                    watcher.putVMTerminated(ir);
                     break;
 
             } // switch
-            BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, executionEvent);
         }
         catch (Throwable e) {
             e.printStackTrace(System.err);

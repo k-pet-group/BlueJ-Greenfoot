@@ -26,6 +26,7 @@ import java.awt.Color;
 import java.awt.Event;
 import java.awt.EventQueue;
 import java.awt.Font;
+import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.Window;
@@ -62,14 +63,15 @@ import bluej.BlueJEventListener;
 import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.debugger.Debugger;
+import bluej.debugger.DebuggerObject;
 import bluej.debugger.DebuggerTerminal;
+import bluej.debugmgr.ExecutionEvent;
 import bluej.pkgmgr.Project;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 import bluej.utility.Utility;
-import java.awt.Image;
 
 /**
  * The Frame part of the Terminal window used for I/O when running programs
@@ -383,6 +385,42 @@ public final class Terminal extends JFrame
         }
         newMethodCall = true;
     }
+    
+    private void methodResult(ExecutionEvent event)
+    {
+        if(recordMethodCalls) {
+            try {
+                if(text.getCaretPosition() !=
+                   text.getLineStartOffset(text.getLineCount())) {
+                    writeToTerminal("\n");
+                }
+            }
+            catch(BadLocationException exc) {
+                writeToTerminal("\n");
+            }
+            
+            String result = null;
+            String resultType = event.getResult();
+            
+            if (resultType == ExecutionEvent.NORMAL_EXIT) {
+                DebuggerObject object = event.getResultObject();
+                result = object.getGenClassName() + " result = ";
+                result += object.getFieldValueString(0);
+            }
+            else if (resultType == ExecutionEvent.EXCEPTION_EXIT) {
+                result = "Exception occurred.";
+            }
+            else if (resultType == ExecutionEvent.TERMINATED_EXIT) {
+                result = "VM terminated.";
+            }
+            
+            if(result != null) {
+                writeToTerminal("[ ");
+                writeToTerminal(result);
+                writeToTerminal(" ]\n");
+            }
+        }
+    }
 
 
     /**
@@ -519,6 +557,9 @@ public final class Terminal extends JFrame
         initialise();
         if(eventId == BlueJEvent.METHOD_CALL) {
             methodCall((String)arg);
+        }
+        else if (eventId == BlueJEvent.EXECUTION_RESULT) {
+            methodResult((ExecutionEvent) arg);
         }
     }
 

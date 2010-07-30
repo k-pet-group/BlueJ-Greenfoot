@@ -63,7 +63,7 @@ public class ExecutionEvent
      * Constructs an ExecutionEvent where className and objName are null and only the package is set.
      * @param pkg The package this event is bound to.
      */
-    ExecutionEvent(Package pkg)
+    public ExecutionEvent(Package pkg)
     {
         this.pkg = pkg;
     }
@@ -74,24 +74,24 @@ public class ExecutionEvent
      * @param className  The className of the event.
      * @param objectName The object name, as in the object bench, of the event, can be null.
      */
-    ExecutionEvent(Package pkg, String className, String objectName)
+    public ExecutionEvent(Package pkg, String className, String objectName)
     {
     	this.pkg = pkg;
         this.className = className;
         this.objectName = objectName;
     }
 
-    void setObjectName (String objectName)
+    public void setObjectName (String objectName)
     {
         this.objectName = objectName;
     }
     
-    void setMethodName (String methodName)
+    public void setMethodName (String methodName)
     {
         this.methodName = methodName;
     }
     
-    void setParameters (JavaType[] signature, String[] parameters)
+    public void setParameters (JavaType[] signature, String[] parameters)
     {
         this.signature = signature;
         this.parameters = parameters;
@@ -104,7 +104,7 @@ public class ExecutionEvent
      * EXCEPTION_EXIT - the execution failed due to an exception
      * TERMINATED_EXIT - the user terminated the VM before execution completed
      */
-    void setResult (String result)
+    public void setResult (String result)
     {
         this.result = result;
     }
@@ -112,7 +112,7 @@ public class ExecutionEvent
     /**
      * When an invocation has some valid result it can pass it on using this method.
      */
-    void setResultObject (DebuggerObject resultObject)
+    public void setResultObject (DebuggerObject resultObject)
     {
         this.resultObject = resultObject;
     }
@@ -125,7 +125,7 @@ public class ExecutionEvent
         this.exception = exception;
     }
     
-    void setCommand (String cmd)
+    public void setCommand (String cmd)
     {
         this.command = cmd;
     }

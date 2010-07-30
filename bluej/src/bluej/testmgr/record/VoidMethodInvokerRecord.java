@@ -82,6 +82,6 @@ public class VoidMethodInvokerRecord extends InvokerRecord
     @Override
     public String toExpression()
     {
-        throw new RuntimeException("Method not implemented for this type.");
+        return command;
     }
 }

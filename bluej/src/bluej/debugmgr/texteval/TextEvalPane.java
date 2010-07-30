@@ -53,6 +53,7 @@ import bluej.Config;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.ExceptionDescription;
 import bluej.debugger.gentype.JavaType;
+import bluej.debugmgr.ExecutionEvent;
 import bluej.debugmgr.IndexHistory;
 import bluej.debugmgr.Invoker;
 import bluej.debugmgr.NamedValue;
@@ -229,7 +230,10 @@ public class TextEvalPane extends JEditorPane
     /* (non-Javadoc)
      * @see bluej.debugmgr.ResultWatcher#beginExecution()
      */
-    public void beginExecution() { }
+    public void beginExecution(InvokerRecord ir)
+    { 
+        BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, currentCommand);
+    }
     
     /**
      * An invocation has completed - here is the result.
@@ -237,7 +241,6 @@ public class TextEvalPane extends JEditorPane
      */
     public void putResult(final DebuggerObject result, final String name, final InvokerRecord ir)
     {
-        currentCommand = "";
         frame.getObjectBench().addInteraction(ir);
         
         // Newly declared variables are now initialized
@@ -296,11 +299,15 @@ public class TextEvalPane extends JEditorPane
                     output(resultString + "   (" + resultType + ")");
                 }
             }            
-            BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, resultString);
         } 
-        else {
-            BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, null);
-        }
+        
+        ExecutionEvent executionEvent = new ExecutionEvent(frame.getPackage());
+        executionEvent.setCommand(currentCommand);
+        executionEvent.setResult(ExecutionEvent.NORMAL_EXIT);
+        executionEvent.setResultObject(result);
+        BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, executionEvent);
+        
+        currentCommand = "";
         textParser.confirmCommand();
         setEditable(true);    // allow next input
         busy = false;
@@ -309,7 +316,7 @@ public class TextEvalPane extends JEditorPane
     /**
      * An invocation has failed - here is the error message
      */
-    public void putError(final String message)
+    public void putError(final String message, InvokerRecord ir)
     {
         if(firstTry) {
             // append("   --error, first try: " + message + "\n");
@@ -340,10 +347,17 @@ public class TextEvalPane extends JEditorPane
     /**
      * A runtime exception occurred.
      */
-    public void putException(ExceptionDescription exception)
+    public void putException(ExceptionDescription exception, InvokerRecord ir)
     {
-        if (autoInitializedVars != null)
+        ExecutionEvent executionEvent = new ExecutionEvent(frame.getPackage());
+        executionEvent.setCommand(currentCommand);
+        executionEvent.setResult(ExecutionEvent.EXCEPTION_EXIT);
+        executionEvent.setException(exception);
+        BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, executionEvent);
+        
+        if (autoInitializedVars != null) {
             autoInitializedVars.clear();
+        }
         
         removeNewlyDeclareds();
         showErrorMsg(exception.getText());
@@ -353,7 +367,7 @@ public class TextEvalPane extends JEditorPane
      * The remote VM terminated before execution completed (or as a result of
      * execution).
      */
-    public void putVMTerminated()
+    public void putVMTerminated(InvokerRecord ir)
     {
         if (autoInitializedVars != null)
             autoInitializedVars.clear();
@@ -863,7 +877,7 @@ public class TextEvalPane extends JEditorPane
                 if (!invoker.doFreeFormInvocation(retType)) {
                     // Invocation failed
                     firstTry = false;
-                    putError("Invocation failed.");
+                    putError("Invocation failed.", null);
                 }
             }
             else {
@@ -873,7 +887,7 @@ public class TextEvalPane extends JEditorPane
     }
 
     final class ContinueCommandAction extends AbstractAction {
-
+        
         /**
          * Create a new action object. This action reads the current
          * line as a start for a new command and continues reading the 

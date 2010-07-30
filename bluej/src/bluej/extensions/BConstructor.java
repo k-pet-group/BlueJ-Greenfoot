@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -31,21 +31,19 @@ import bluej.views.*;
  * A wrapper for a constructor of a BlueJ class.
  * Behaviour is similar to reflection API.
  *
- * @version    $Id: BConstructor.java 6215 2009-03-30 13:28:25Z polle $
- */
-
-/*
- * The problem of consistency here is quite subtle.....
- * I could try to get a kind of id for a ConstructorView and then try to get it back
- * when I need it, but really, the gain is almost nil.
- * What I will do is to have an Identifier with Project,Package,Class given and before doing
- * anythink I will check with it. If everything is still there it should be OK.
- * In any case, it it goes wrong we will get an invoker exception !
  *
- * Author Damiano Bolla, University of Kent at Canterbury, 2003,2004
+ * @author Damiano Bolla, University of Kent at Canterbury, 2003,2004
  */
 public class BConstructor
 {
+    // The problem of consistency here is quite subtle.....
+    // I could try to get a kind of id for a ConstructorView and then try to get it back
+    // when I need it, but really, the gain is almost nil.
+    // What I will do is to have an Identifier with Project,Package,Class given and before doing
+    // anything I will check with it. If everything is still there it should be OK.
+    // In any case, it it goes wrong we will get an invoker exception !
+    
+    
     private Identifier parentId;
     private ConstructorView bluej_view;
 
@@ -70,9 +68,9 @@ public class BConstructor
      * @param  parameter  Description of the Parameter
      * @return            true if it does, false otherwise.
      */
-    public boolean matches(Class[] parameter)
+    public boolean matches(Class<?>[] parameter)
     {
-        Class[] thisArgs = bluej_view.getParameters();
+        Class<?>[] thisArgs = bluej_view.getParameters();
 
         // An empty array is equivalent to a null array
         if (thisArgs != null && thisArgs.length <= 0) {
@@ -113,7 +111,7 @@ public class BConstructor
      *
      * @return    The parameterTypes value
      */
-    public Class[] getParameterTypes()
+    public Class<?>[] getParameterTypes()
     {
         return bluej_view.getParameters();
     }
@@ -156,8 +154,8 @@ public class BConstructor
     {
         PkgMgrFrame pkgFrame = parentId.getPackageFrame();
 
-        DirectInvoker invoker = new DirectInvoker(pkgFrame, bluej_view);
-        DebuggerObject result = invoker.invokeConstructor(initargs);
+        DirectInvoker invoker = new DirectInvoker(pkgFrame);
+        DebuggerObject result = invoker.invokeConstructor(bluej_view, initargs);
 
         if (result == null) {
             return null;

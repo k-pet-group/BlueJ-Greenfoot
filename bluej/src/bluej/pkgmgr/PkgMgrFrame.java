@@ -84,6 +84,7 @@ import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.ExceptionDescription;
 import bluej.debugger.gentype.GenTypeClass;
+import bluej.debugmgr.ExecutionEvent;
 import bluej.debugmgr.ExpressionInformation;
 import bluej.debugmgr.Invoker;
 import bluej.debugmgr.LibraryCallDialog;
@@ -1813,13 +1814,20 @@ public class PkgMgrFrame extends JFrame
                     setStatus(Config.getString("pkgmgr.creating"));
                 }
                 
-                public void beginExecution()
+                public void beginExecution(InvokerRecord ir)
                 {
+                    BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, ir.toExpression());
                     setWaitCursor(false);
                 }
                 
                 public void putResult(DebuggerObject result, String name, InvokerRecord ir)
                 {
+                    ExecutionEvent executionEvent = new ExecutionEvent(pkg, cv.getClassName(), null);
+                    executionEvent.setParameters(cv.getParamTypes(false), ir.getArgumentValues());
+                    executionEvent.setResult(ExecutionEvent.NORMAL_EXIT);
+                    executionEvent.setResultObject(result);
+                    BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, executionEvent);
+                    
                     getPackage().getProject().updateInspectors();
                     setStatus(Config.getString("pkgmgr.createDone"));
                     
@@ -1841,21 +1849,32 @@ public class PkgMgrFrame extends JFrame
                     }
                 }
 
-                public void putError(String msg)
+                public void putError(String msg, InvokerRecord ir)
                 {
                     setStatus("");
                     setWaitCursor(false);
                 }
                 
-                public void putException(ExceptionDescription exception)
+                public void putException(ExceptionDescription exception, InvokerRecord ir)
                 {
+                    ExecutionEvent executionEvent = new ExecutionEvent(pkg, cv.getClassName(), null);
+                    executionEvent.setParameters(cv.getParamTypes(false), ir.getArgumentValues());
+                    executionEvent.setResult(ExecutionEvent.EXCEPTION_EXIT);
+                    executionEvent.setException(exception);
+                    BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, executionEvent);
+                    
                     setStatus("");
                     getPackage().exceptionMessage(exception);
                     getPackage().getProject().updateInspectors();
                 }
                 
-                public void putVMTerminated()
+                public void putVMTerminated(InvokerRecord ir)
                 {
+                    ExecutionEvent executionEvent = new ExecutionEvent(pkg, cv.getClassName(), null);
+                    executionEvent.setParameters(cv.getParamTypes(false), ir.getArgumentValues());
+                    executionEvent.setResult(ExecutionEvent.TERMINATED_EXIT);
+                    BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, executionEvent);
+                    
                     setStatus("");
                 }
             };
@@ -1878,13 +1897,20 @@ public class PkgMgrFrame extends JFrame
                     }
                 }
                 
-                public void beginExecution()
+                public void beginExecution(InvokerRecord ir)
                 {
+                    BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, ir.toExpression());
                     setWaitCursor(false);
                 }
                 
                 public void putResult(DebuggerObject result, String name, InvokerRecord ir)
                 {
+                    ExecutionEvent executionEvent = new ExecutionEvent(pkg, cv.getClassName(), null);
+                    executionEvent.setParameters(cv.getParamTypes(false), ir.getArgumentValues());
+                    executionEvent.setResult(ExecutionEvent.NORMAL_EXIT);
+                    executionEvent.setResultObject(result);
+                    BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, executionEvent);
+                    
                     getPackage().getProject().updateInspectors();
                     expressionInformation.setArgumentValues(ir.getArgumentValues());
                     getObjectBench().addInteraction(ir);
@@ -1903,18 +1929,30 @@ public class PkgMgrFrame extends JFrame
                     BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, viewer.getResult());
                 }
 
-                public void putError(String msg)
+                public void putError(String msg, InvokerRecord ir)
                 {
                     setWaitCursor(false);
                 }
                 
-                public void putException(ExceptionDescription exception)
+                public void putException(ExceptionDescription exception, InvokerRecord ir)
                 {
+                    ExecutionEvent executionEvent = new ExecutionEvent(pkg, cv.getClassName(), null);
+                    executionEvent.setParameters(cv.getParamTypes(false), ir.getArgumentValues());
+                    executionEvent.setResult(ExecutionEvent.EXCEPTION_EXIT);
+                    executionEvent.setException(exception);
+                    BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, executionEvent);
+                    
                     getPackage().getProject().updateInspectors();
                     getPackage().exceptionMessage(exception);
                 }
                 
-                public void putVMTerminated() { }
+                public void putVMTerminated(InvokerRecord ir)
+                {
+                    ExecutionEvent executionEvent = new ExecutionEvent(pkg, cv.getClassName(), null);
+                    executionEvent.setParameters(cv.getParamTypes(false), ir.getArgumentValues());
+                    executionEvent.setResult(ExecutionEvent.TERMINATED_EXIT);
+                    BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, executionEvent);
+                }
             };
         }
 

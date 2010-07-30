@@ -21,7 +21,18 @@
  */
 package bluej.debugmgr.objectbench;
 
-import java.awt.*;
+import java.awt.AWTEvent;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
+import java.awt.Stroke;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -45,11 +56,11 @@ import bluej.debugger.ExceptionDescription;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeParameter;
 import bluej.debugger.gentype.JavaType;
+import bluej.debugmgr.ExecutionEvent;
 import bluej.debugmgr.ExpressionInformation;
 import bluej.debugmgr.Invoker;
 import bluej.debugmgr.NamedValue;
 import bluej.debugmgr.ResultWatcher;
-import bluej.debugmgr.inspector.ResultInspector;
 import bluej.extensions.BObject;
 import bluej.extensions.ExtensionBridge;
 import bluej.extmgr.MenuManager;
@@ -111,10 +122,11 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
     private static boolean itemHeightKnown = false;
     private static int itemsOnScreen;
 
-    // The Java object that this wraps
+    /** The Java object that this wraps */
     protected DebuggerObject obj;
     protected GenTypeClass iType;
 
+    /** Fully qualified type this object represents, including type parameters */
     private String className;
     private String instanceName;
     protected String displayClassName;
@@ -748,40 +760,55 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
                 pmf.setWaitCursor(true);
             }
             
-            public void beginExecution()
+            public void beginExecution(InvokerRecord ir)
             {
+                BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, ir.toExpression());
                 pmf.setWaitCursor(false);
             }
             
             public void putResult(DebuggerObject result, String name, InvokerRecord ir)
             {
+                ExecutionEvent executionEvent = new ExecutionEvent(pkg, obj.getClassName(), instanceName);
+                executionEvent.setParameters(method.getParamTypes(false), ir.getArgumentValues());
+                executionEvent.setResult(ExecutionEvent.NORMAL_EXIT);
+                executionEvent.setResultObject(result);
+                BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, executionEvent);
+                
                 pkg.getProject().updateInspectors();
                 expressionInformation.setArgumentValues(ir.getArgumentValues());
                 ob.addInteraction(ir);
                 
                 // a void result returns a name of null
-                if (name == null)
-                    return;
-                                    
-                ResultInspector viewer =
+                if (result != null) {
                     pkg.getProject().getResultInspectorInstance(result, name, pkg,
-                                           ir, expressionInformation, pmf);
-                BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL,
-                                      viewer.getResult());
+                            ir, expressionInformation, pmf);
+                }
             }
             
-            public void putError(String msg)
+            public void putError(String msg, InvokerRecord ir)
             {
                 pmf.setWaitCursor(false);
             }
             
-            public void putException(ExceptionDescription exception)
+            public void putException(ExceptionDescription exception, InvokerRecord ir)
             {
+                ExecutionEvent executionEvent = new ExecutionEvent(pkg, obj.getClassName(), instanceName);
+                executionEvent.setParameters(method.getParamTypes(false), ir.getArgumentValues());
+                executionEvent.setResult(ExecutionEvent.EXCEPTION_EXIT);
+                executionEvent.setException(exception);
+                BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, executionEvent);
+                
                 pkg.getProject().updateInspectors();
                 pkg.exceptionMessage(exception);
             }
             
-            public void putVMTerminated() { }
+            public void putVMTerminated(InvokerRecord ir)
+            {
+                ExecutionEvent executionEvent = new ExecutionEvent(pkg, obj.getClassName(), instanceName);
+                executionEvent.setParameters(method.getParamTypes(false), ir.getArgumentValues());
+                executionEvent.setResult(ExecutionEvent.TERMINATED_EXIT);
+                BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, executionEvent);
+            }
         };
 
         if (pmf.checkDebuggerState()) {

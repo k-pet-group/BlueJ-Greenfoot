@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -40,16 +40,13 @@ import java.lang.reflect.Modifier;
  * In the case that the returned value is an object type then an appropriate BObject will 
  * be returned, allowing the returned object itself to be placed on the BlueJ object bench.
  *
- * @version $Id: BMethod.java 6215 2009-03-30 13:28:25Z polle $
- */
-
-/*
- * The same reasoning as of BConstructor applies here.
- * AUthor Clive Miller, University of Kent at Canterbury, 2002
- * Author Damiano Bolla, University of Kent at Canterbury 2003
+ * @author Clive Miller, University of Kent at Canterbury, 2002
+ * @author Damiano Bolla, University of Kent at Canterbury 2003
  */
 public class BMethod
 {
+    // The same reasoning as of BConstructor applies here.
+    
     private Identifier parentId;
     private MethodView bluej_view;
     
@@ -67,7 +64,7 @@ public class BMethod
      * Returns true if there is a match, false otherwise.
      * Pass a zero length parameter array if the method takes no arguments.
      */
-    public boolean matches ( String methodName, Class[] parameter )
+    public boolean matches ( String methodName, Class<?>[] parameter )
     {
         // If someone is crazy enough to do this he deserves it :-)
         if ( methodName == null ) return false;
@@ -75,7 +72,7 @@ public class BMethod
         // Let me se if the named method is OK
         if ( ! methodName.equals(bluej_view.getName() ) ) return false;
      
-        Class[] thisArgs = bluej_view.getParameters();
+        Class<?>[] thisArgs = bluej_view.getParameters();
 
         // An empty array is equivalent to a null array
         if (thisArgs  != null && thisArgs.length  <= 0)  thisArgs  = null;
@@ -112,7 +109,7 @@ public class BMethod
      * Returns the types of the parameters of this method.
      * Similar to Reflection API
      */
-    public Class[] getParameterTypes()
+    public Class<?>[] getParameterTypes()
     {
         return bluej_view.getParameters();
     }
@@ -130,7 +127,7 @@ public class BMethod
      * Returns the return type of this method
      * Similar to Reflection API
      */
-    public Class getReturnType()
+    public Class<?> getReturnType()
     {
         View aView = bluej_view.getReturnType();
         return aView.getViewClass();
@@ -189,8 +186,8 @@ public class BMethod
         if ( onThis != null ) instanceWrapper = onThis.getObjectWrapper();
         
         PkgMgrFrame  pkgFrame = parentId.getPackageFrame();
-        DirectInvoker invoker = new DirectInvoker (pkgFrame, bluej_view );
-        DebuggerObject result = invoker.invokeMethod (instanceWrapper, params);
+        DirectInvoker invoker = new DirectInvoker (pkgFrame);
+        DebuggerObject result = invoker.invokeMethod (instanceWrapper, bluej_view, params);
 
         // Result can be null if the method returns void. It is Reflection standard
         if (result == null) return null;
@@ -214,7 +211,7 @@ public class BMethod
      */
     public String toString()
     {
-        Class[] signature = getParameterTypes();
+        Class<?>[] signature = getParameterTypes();
         String sig = "";
         for (int i=0; i<signature.length; i++) {
             sig += signature[i].getName() + (i==signature.length-1?"":", ");

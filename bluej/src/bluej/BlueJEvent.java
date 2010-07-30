@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -58,10 +58,7 @@ import java.util.List;
   *
   * </PRE>
   * @author Michael Kolling
-  * @version $Id: BlueJEvent.java 6421 2009-07-08 04:47:39Z davmac $
-  *
   */
-
 public class BlueJEvent
 {
     // BlueJ event types
@@ -76,11 +73,10 @@ public class BlueJEvent
     public static final int DOCU_GENERATED      = GENERATING_DOCU + 1;
     public static final int DOCU_ABORTED        = DOCU_GENERATED + 1;
     
-
-
     // other variables
 
-    private static List listeners = Collections.synchronizedList(new ArrayList());
+    private static List<BlueJEventListener> listeners =
+        Collections.synchronizedList(new ArrayList<BlueJEventListener>());
 
     /**
      * Raise a BlueJ event with an argument. All registered listeners

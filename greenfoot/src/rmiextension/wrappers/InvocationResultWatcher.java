@@ -37,7 +37,7 @@ class InvocationResultWatcher implements ResultWatcher
     public String errorMsg = null;
     public DebuggerObject resultObj = null;
     
-    public void putError(String error)
+    public void putError(String error, InvokerRecord ir)
     {
         errorMsg = error;
         synchronized (this) {
@@ -49,7 +49,7 @@ class InvocationResultWatcher implements ResultWatcher
     public void beginCompile() { }
     
     @Override
-    public void beginExecution() { }
+    public void beginExecution(InvokerRecord ir) { }
     
     public void putResult(DebuggerObject dObj, String name, InvokerRecord ir)
     {
@@ -64,7 +64,7 @@ class InvocationResultWatcher implements ResultWatcher
         return null;
     }
 
-    public void putException(ExceptionDescription exception)
+    public void putException(ExceptionDescription exception, InvokerRecord ir)
     {
         errorMsg = exception.getText();
         synchronized (this) {
@@ -72,7 +72,7 @@ class InvocationResultWatcher implements ResultWatcher
         }
     }
     
-    public void putVMTerminated()
+    public void putVMTerminated(InvokerRecord ir)
     {
         synchronized (this) {
             notify();

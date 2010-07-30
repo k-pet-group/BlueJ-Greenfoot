@@ -108,10 +108,10 @@ public class ConstructorInvoker
                                         instanceNameOnObjectBench, null);
                             }
                             else if (status == Debugger.EXCEPTION) {
-                                resultWatcher.putException(result.getException());
+                                resultWatcher.putException(result.getException(), null);
                             }
                             else if (status == Debugger.TERMINATED) {
-                                resultWatcher.putVMTerminated();
+                                resultWatcher.putVMTerminated(null);
                             }
                         }
                     }

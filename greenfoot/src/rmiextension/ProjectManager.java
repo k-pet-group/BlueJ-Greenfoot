@@ -149,18 +149,18 @@ public class ProjectManager
                 // Nothing needs doing
             }
             @Override
-            public void beginExecution()
+            public void beginExecution(InvokerRecord ir)
             {
                 // Nothing needs doing
             }
             @Override
-            public void putError(String message)
+            public void putError(String message, InvokerRecord ir)
             {
                 Debug.message("Greenfoot launch failed with error: " + message);
                 greenfootLaunchFailed(project);
             }
             @Override
-            public void putException(ExceptionDescription exception)
+            public void putException(ExceptionDescription exception, InvokerRecord ir)
             {
                 Debug.message("Greenfoot launch failed due to exception in debug VM: " + exception.getText());
                 greenfootLaunchFailed(project);
@@ -172,7 +172,7 @@ public class ProjectManager
                 // This is ok
             }
             @Override
-            public void putVMTerminated()
+            public void putVMTerminated(InvokerRecord ir)
             {
                 Debug.message("Greenfoot launch failed due to debug VM terminating.");
                 greenfootLaunchFailed(project);

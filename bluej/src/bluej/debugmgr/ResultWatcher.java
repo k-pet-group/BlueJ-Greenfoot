@@ -44,7 +44,7 @@ public interface ResultWatcher
     /**
      * Compilation (if needed) was successful, and execution has begun.
      */
-    void beginExecution();
+    void beginExecution(InvokerRecord ir);
     
     /**
      * An invocation has completed - here is the result.
@@ -60,16 +60,16 @@ public interface ResultWatcher
     /**
      * An invocation has failed (compilation error) - here is the error message.
      */
-    void putError(String message);
+    void putError(String message, InvokerRecord ir);
 	
     /**
      * A runtime exception occurred - here is the exception text, and stack trace
      */
-    void putException(ExceptionDescription exception);
+    void putException(ExceptionDescription exception, InvokerRecord ir);
     
     /**
      * The debug VM terminated. This may have been due to an explicit user action in
      * the UI, or the executing code called System.exit().
      */
-    void putVMTerminated();
+    void putVMTerminated(InvokerRecord ir);
 }

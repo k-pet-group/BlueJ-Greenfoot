@@ -87,6 +87,6 @@ public class ConstructionInvokerRecord extends InvokerRecord
     @Override
     public String toExpression()
     {
-        return name;
+        return command;
     }
 }
