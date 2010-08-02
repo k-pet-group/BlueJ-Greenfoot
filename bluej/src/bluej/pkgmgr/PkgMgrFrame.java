@@ -2026,7 +2026,7 @@ public class PkgMgrFrame extends JFrame
      * @param iType    The "interface type" of the object. This is the type of the object
      *               for purposes of method calls etc if the actual type is inaccessible
      *               (private to another package or class).
-     * @param ir    The invoker record (for recording interaction).
+     * @param ir    The invoker record (for recording interaction). May be null.
      */
     public void putObjectOnBench(String newInstanceName, DebuggerObject object, GenTypeClass iType, InvokerRecord ir)
     {
@@ -2038,7 +2038,9 @@ public class PkgMgrFrame extends JFrame
             // load the object into runtime scope
             getPackage().getDebugger().addObject(pkg.getId(), newInstanceName, object);
 
-            ir.setBenchName(newInstanceName, wrapper.getObject().getGenClassName());
+            if (ir != null) {
+                ir.setBenchName(newInstanceName, wrapper.getObject().getGenClassName());
+            }
         }
     }
 

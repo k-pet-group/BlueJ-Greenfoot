@@ -205,9 +205,12 @@ public class JdiObject extends DebuggerObject
         if(genType != null) {
             return genType;
         }
-        else {
+        else if (obj != null) {
             Reflective r = new JdiReflective(obj.referenceType());
             return new GenTypeClass(r);
+        }
+        else {
+            return null;
         }
     }
     

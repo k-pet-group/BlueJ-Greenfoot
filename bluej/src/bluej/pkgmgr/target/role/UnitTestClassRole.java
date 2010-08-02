@@ -404,7 +404,9 @@ public class UnitTestClassRole extends ClassRole
                             Map.Entry<String,DebuggerObject> mapent = it.next();
                             DebuggerObject objVal = mapent.getValue();
                             
-                            pmf.putObjectOnBench(mapent.getKey(), objVal, objVal.getGenType(), null);
+                            if (! objVal.isNullObject()) {
+                                pmf.putObjectOnBench(mapent.getKey(), objVal, objVal.getGenType(), null);
+                            }
                         }
                     }
                 });
