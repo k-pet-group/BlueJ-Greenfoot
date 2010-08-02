@@ -1906,6 +1906,7 @@ public class PkgMgrFrame extends JFrame
                 public void putResult(DebuggerObject result, String name, InvokerRecord ir)
                 {
                     ExecutionEvent executionEvent = new ExecutionEvent(pkg, cv.getClassName(), null);
+                    executionEvent.setMethodName(mv.getName());
                     executionEvent.setParameters(cv.getParamTypes(false), ir.getArgumentValues());
                     executionEvent.setResult(ExecutionEvent.NORMAL_EXIT);
                     executionEvent.setResultObject(result);

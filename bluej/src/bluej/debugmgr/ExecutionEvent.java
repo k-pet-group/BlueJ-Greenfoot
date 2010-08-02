@@ -86,11 +86,17 @@ public class ExecutionEvent
         this.objectName = objectName;
     }
     
+    /**
+     * Set the name of the called method. For a constructor call, this should be left null.
+     */
     public void setMethodName (String methodName)
     {
         this.methodName = methodName;
     }
     
+    /**
+     * Set the types and values (Java expressions) of the method/constructor arguments.
+     */
     public void setParameters (JavaType[] signature, String[] parameters)
     {
         this.signature = signature;
@@ -111,6 +117,10 @@ public class ExecutionEvent
 
     /**
      * When an invocation has some valid result it can pass it on using this method.
+     * 
+     * <p>For a constructor call (class name is set but method name is not), the created
+     * instance itself should be set as the result object. For any other invocation, the
+     * result should be a wrapper with a single "result" field containing the actual result.
      */
     public void setResultObject (DebuggerObject resultObject)
     {
@@ -192,6 +202,10 @@ public class ExecutionEvent
 
     /**
      * This is the Object resulting from the invocation.
+     * 
+     * <p>For a constructor call (class name is set but method name is not), the created
+     * instance itself is the result object. For any other invocation, the result object is 
+     * a wrapper with a single "result" field containing the actual invocation result.
      */
     public DebuggerObject getResultObject()
     {

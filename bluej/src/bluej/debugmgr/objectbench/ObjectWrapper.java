@@ -769,6 +769,7 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
             public void putResult(DebuggerObject result, String name, InvokerRecord ir)
             {
                 ExecutionEvent executionEvent = new ExecutionEvent(pkg, obj.getClassName(), instanceName);
+                executionEvent.setMethodName(method.getName());
                 executionEvent.setParameters(method.getParamTypes(false), ir.getArgumentValues());
                 executionEvent.setResult(ExecutionEvent.NORMAL_EXIT);
                 executionEvent.setResultObject(result);

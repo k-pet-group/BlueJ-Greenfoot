@@ -50,6 +50,9 @@ public interface ResultWatcher
      * An invocation has completed - here is the result.
      * 
      * @param result   The invocation result object (null for a void result).
+     *                 For a constructor call, the result object is the newly created instance.
+     *                 For any other invocation, the result is a wrapper object with a single
+     *                 field containing the actual result.
      * @param name     The name of the result. For a constructed object, this
      *                 is the name supplied by the user. Otherwise this is  the
      *                 literal "result", or null if the result is void type.

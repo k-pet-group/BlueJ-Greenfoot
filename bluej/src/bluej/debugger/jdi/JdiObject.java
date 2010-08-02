@@ -40,7 +40,8 @@ import com.sun.jdi.ReferenceType;
 import com.sun.jdi.Value;
 
 /**
- * Represents an object running on the user (remote) machine.
+ * Represents an object running on the user (remote) machine, together with an optional generic
+ * type of the object.
  *
  * @author  Michael Kolling
  */
