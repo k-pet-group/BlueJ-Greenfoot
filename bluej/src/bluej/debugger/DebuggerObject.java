@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,10 +28,10 @@ import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.GenTypeClass;
 
 /**
- *  A class representing an object in the debugged VM.
+ * A class representing an object, and its type, in the debugged VM. The "null" value
+ * can also be represented.
  *
- *@author     Michael Kolling
- *@version    $Id: DebuggerObject.java 7946 2010-07-29 03:03:04Z davmac $
+ * @author     Michael Kolling
  */
 public abstract class DebuggerObject
 {
@@ -67,9 +67,10 @@ public abstract class DebuggerObject
     public abstract DebuggerClass getClassRef();
     
     /**
-     *  Get the complete generic type of this object.
+     * Get the complete generic type of this object, if known. If not known, the raw
+     * dynamic type of the object is returned, or null if this is the null object.
      * 
-     *  @return    The object type.
+     * @return    The object type (or null for the null object).
      */
     public abstract GenTypeClass getGenType();
 
