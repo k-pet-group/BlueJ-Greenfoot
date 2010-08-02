@@ -766,9 +766,7 @@ public class ExecServer
                             executedClass = null;
                             
                             clearInputBuffer();
-                            ShellClassLoader cloader = new ShellClassLoader(currentLoader, classToRun);
-                            //Class<?> c = currentLoader.loadClass(classToRun);
-                            Class<?> c = cloader.loadClass(classToRun);
+                            Class<?> c = currentLoader.loadClass(classToRun);
                             executedClass = c;
                             // Class c = cloader.loadClass(classToRun);
                             Method m = c.getMethod("run", new Class[0]);
