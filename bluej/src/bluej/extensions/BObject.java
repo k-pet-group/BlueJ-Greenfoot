@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -36,7 +36,7 @@ import java.util.*;
  * @see        BConstructor
  * @see        BMethod
  * @see        BField
- * @version    $Id: BObject.java 6215 2009-03-30 13:28:25Z polle $
+ * @version    $Id: BObject.java 7965 2010-08-02 05:19:54Z davmac $
  */
 
 /*
@@ -245,11 +245,11 @@ public class BObject
     }
 
 
-    private static HashMap primiMap;
+    private static HashMap<String,String> primiMap;
 
     static {
         // This will be executed once when this class is loaded
-        primiMap = new HashMap();
+        primiMap = new HashMap<String,String>();
         primiMap.put("boolean", "Z");
         primiMap.put("byte", "B");
         primiMap.put("short", "S");
