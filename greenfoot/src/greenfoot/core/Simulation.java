@@ -267,7 +267,7 @@ public class Simulation extends Thread
         
         // Wait loop that waits until no longer pause or if we need to run the
         // simulation once because the user pressed 'Act'
-        while (paused && !runOnce) {
+        while (!enabled || (paused && !runOnce)) {
             if (abort) {
                 // if we are about to abort, now is the time. We have notified
                 // the world.stopped and there is nothing else to do here.
