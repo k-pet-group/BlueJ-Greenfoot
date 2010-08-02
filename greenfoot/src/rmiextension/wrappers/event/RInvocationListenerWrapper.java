@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,45 +22,50 @@
 package rmiextension.wrappers.event;
 
 import java.rmi.RemoteException;
+import java.rmi.ServerError;
+import java.rmi.ServerException;
+
+import rmiextension.wrappers.RBlueJImpl;
 
 import bluej.extensions.event.InvocationEvent;
 import bluej.extensions.event.InvocationListener;
+import bluej.utility.Debug;
 
 /**
  * Wrapper for remote invocation listeners
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RInvocationListenerWrapper.java,v 1.4 2004/11/18 09:43:50 polle
- *          Exp $
  */
 public class RInvocationListenerWrapper
     implements InvocationListener
 {
     private RInvocationListener remoteListener;
+    private RBlueJImpl blueJ;
 
-    public RInvocationListenerWrapper(RInvocationListener remoteListener)
+    public RInvocationListenerWrapper(RBlueJImpl bluej, RInvocationListener remoteListener)
     {
         this.remoteListener = remoteListener;
     }
 
     /*
-     * (non-Javadoc)
-     * 
      * @see bluej.extensions.event.InvocationListener#invocationFinished(bluej.extensions.event.InvocationEvent)
      */
     public void invocationFinished(InvocationEvent event)
     {
         try {
             RInvocationEvent rEvent = new RInvocationEventImpl(event);
-
-            //TODO can give java.net.ConnectException. Might be because the
-            // project is closed. Should remember to d-register listeneres
             remoteListener.invocationFinished(rEvent);
         }
-        catch (RemoteException e1) {
-            e1.printStackTrace();
+        catch (ServerError se) {
+            Debug.reportError("Remote compile listener ServerError", se.getCause());
         }
-
+        catch (ServerException se) {
+            Debug.reportError("Remote compile listener ServerException", se.getCause());
+        }
+        catch (RemoteException re) {
+            // Connection interrupted or other problem; remote VM no longer accessible
+            blueJ.removeInvocationListener(remoteListener);
+        }
     }
 
 }

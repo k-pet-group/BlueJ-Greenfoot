@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,6 +23,10 @@ package rmiextension.wrappers.event;
 
 import java.io.File;
 import java.rmi.RemoteException;
+import java.rmi.ServerError;
+import java.rmi.ServerException;
+
+import rmiextension.wrappers.RBlueJImpl;
 
 import bluej.extensions.BClass;
 import bluej.extensions.BPackage;
@@ -31,21 +35,25 @@ import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.extensions.event.CompileEvent;
 import bluej.extensions.event.CompileListener;
+import bluej.utility.Debug;
 
 /**
+ * Wrapper for remote compile listeners.
+ * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
  */
 public class RCompileListenerWrapper
     implements CompileListener
 {
-
     private RCompileListener remoteListener;
     private BProject project;
+    private RBlueJImpl blueJ;
 
-    public RCompileListenerWrapper(RCompileListener remoteListener, BProject project)
+    public RCompileListenerWrapper(RCompileListener remoteListener, BProject project, RBlueJImpl blueJ)
     {
         this.remoteListener = remoteListener;
         this.project = project;
+        this.blueJ = blueJ;
     }
 
     /**
@@ -78,12 +86,9 @@ public class RCompileListenerWrapper
             e.printStackTrace();
         }
         return false;
-        
     }
 
     /*
-     * (non-Javadoc)
-     * 
      * @see bluej.extensions.event.CompileListener#compileStarted(bluej.extensions.event.CompileEvent)
      */
     public void compileStarted(final CompileEvent event)
@@ -97,8 +102,15 @@ public class RCompileListenerWrapper
                         RCompileEvent rEvent = new RCompileEventImpl(event);
                         remoteListener.compileStarted(rEvent);
                     }
-                    catch (RemoteException e1) {
-                        e1.printStackTrace();
+                    catch (ServerError se) {
+                        Debug.reportError("Remote compile listener ServerError", se.getCause());
+                    }
+                    catch (ServerException se) {
+                        Debug.reportError("Remote compile listener ServerException", se.getCause());
+                    }
+                    catch (RemoteException re) {
+                        // Connection interrupted or other problem; remote VM no longer accessible
+                        blueJ.removeCompileListener(remoteListener);
                     }
                 }
             }.start();
@@ -107,8 +119,6 @@ public class RCompileListenerWrapper
 
     
     /*
-     * (non-Javadoc)
-     * 
      * @see bluej.extensions.event.CompileListener#compileError(bluej.extensions.event.CompileEvent)
      */
     public void compileError(final CompileEvent event)
@@ -122,8 +132,15 @@ public class RCompileListenerWrapper
                         RCompileEvent rEvent = new RCompileEventImpl(event);
                         remoteListener.compileError(rEvent);
                     }
-                    catch (RemoteException e1) {
-                        e1.printStackTrace();
+                    catch (ServerError se) {
+                        Debug.reportError("Remote compile listener ServerError", se.getCause());
+                    }
+                    catch (ServerException se) {
+                        Debug.reportError("Remote compile listener ServerException", se.getCause());
+                    }
+                    catch (RemoteException re) {
+                        // Connection interrupted or other problem; remote VM no longer accessible
+                        blueJ.removeCompileListener(remoteListener);
                     }
                 }
             }.start();
@@ -131,8 +148,6 @@ public class RCompileListenerWrapper
     }
 
     /*
-     * (non-Javadoc)
-     * 
      * @see bluej.extensions.event.CompileListener#compileWarning(bluej.extensions.event.CompileEvent)
      */
     public void compileWarning(final CompileEvent event)
@@ -146,8 +161,15 @@ public class RCompileListenerWrapper
                         RCompileEvent rEvent = new RCompileEventImpl(event);
                         remoteListener.compileWarning(rEvent);
                     }
-                    catch (RemoteException e1) {
-                        e1.printStackTrace();
+                    catch (ServerError se) {
+                        Debug.reportError("Remote compile listener ServerError", se.getCause());
+                    }
+                    catch (ServerException se) {
+                        Debug.reportError("Remote compile listener ServerException", se.getCause());
+                    }
+                    catch (RemoteException re) {
+                        // Connection interrupted or other problem; remote VM no longer accessible
+                        blueJ.removeCompileListener(remoteListener);
                     }
                 }
             }.start();
@@ -155,8 +177,6 @@ public class RCompileListenerWrapper
     }
 
     /*
-     * (non-Javadoc)
-     * 
      * @see bluej.extensions.event.CompileListener#compileSucceeded(bluej.extensions.event.CompileEvent)
      */
     public void compileSucceeded(final CompileEvent event)
@@ -168,8 +188,15 @@ public class RCompileListenerWrapper
                         RCompileEvent rEvent = new RCompileEventImpl(event);
                         remoteListener.compileSucceeded(rEvent);
                     }
-                    catch (RemoteException e1) {
-                        e1.printStackTrace();
+                    catch (ServerError se) {
+                        Debug.reportError("Remote compile listener ServerError", se.getCause());
+                    }
+                    catch (ServerException se) {
+                        Debug.reportError("Remote compile listener ServerException", se.getCause());
+                    }
+                    catch (RemoteException re) {
+                        // Connection interrupted or other problem; remote VM no longer accessible
+                        blueJ.removeCompileListener(remoteListener);
                     }
                 }
             }.start();
@@ -177,8 +204,6 @@ public class RCompileListenerWrapper
     }
 
     /*
-     * (non-Javadoc)
-     * 
      * @see bluej.extensions.event.CompileListener#compileFailed(bluej.extensions.event.CompileEvent)
      */
     public void compileFailed(final CompileEvent event)
@@ -190,8 +215,15 @@ public class RCompileListenerWrapper
                         RCompileEvent rEvent = new RCompileEventImpl(event);
                         remoteListener.compileFailed(rEvent);
                     }
-                    catch (RemoteException e1) {
-                        e1.printStackTrace();
+                    catch (ServerError se) {
+                        Debug.reportError("Remote compile listener ServerError", se.getCause());
+                    }
+                    catch (ServerException se) {
+                        Debug.reportError("Remote compile listener ServerException", se.getCause());
+                    }
+                    catch (RemoteException re) {
+                        // Connection interrupted or other problem; remote VM no longer accessible
+                        blueJ.removeCompileListener(remoteListener);
                     }
                 }
             }.start();

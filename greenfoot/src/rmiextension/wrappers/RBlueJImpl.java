@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -73,7 +73,7 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
         this.blueJ = blueJ;
     }
 
-    /* (non-Javadoc)
+    /*
      * @see rmiextension.wrappers.RBlueJ#getDebugPrinter()
      */
     public RPrintStream getDebugPrinter() throws RemoteException
@@ -81,7 +81,7 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
         return new RPrintStreamImpl();
     }
     
-    /* (non-Javadoc)
+    /*
      * @see rmiextension.wrappers.RBlueJ#addCompileListener(rmiextension.wrappers.event.RCompileListener, java.lang.String)
      */
     public void addCompileListener(RCompileListener listener, final File projectPath)
@@ -115,7 +115,7 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
             throw new Error(e1);
         }
         
-        RCompileListenerWrapper wrapper = new RCompileListenerWrapper(listener, bProjectRef.bProject);
+        RCompileListenerWrapper wrapper = new RCompileListenerWrapper(listener, bProjectRef.bProject, this);
         compileListeners.put(listener, wrapper);
         blueJ.addCompileListener(wrapper);
     }
@@ -125,27 +125,27 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
         public BProject bProject;
     }
 
-    /* (non-Javadoc)
+    /*
      * @see rmiextension.wrappers.RBlueJ#addInvocationListener(rmiextension.wrappers.event.RInvocationListener)
      */
     public void addInvocationListener(RInvocationListener listener)
     {
-        RInvocationListenerWrapper wrapper = new RInvocationListenerWrapper(listener);
+        RInvocationListenerWrapper wrapper = new RInvocationListenerWrapper(this, listener);
         invocationListeners.put(listener, wrapper);
         blueJ.addInvocationListener(wrapper);
     }
     
-    /* (non-Javadoc)
+    /*
      * @see rmiextension.wrappers.RBlueJ#addClassListener(rmiextension.wrappers.event.RClassListener)
      */
     public void addClassListener(RClassListener listener) throws RemoteException
     {
-        RClassListenerWrapper wrapper = new RClassListenerWrapper(listener);
+        RClassListenerWrapper wrapper = new RClassListenerWrapper(this, listener);
         classListeners.put(listener, wrapper);
         blueJ.addClassListener(wrapper);
     }
 
-    /* (non-Javadoc)
+    /*
      * @see rmiextension.wrappers.RBlueJ#getBlueJPropertyString(java.lang.String, java.lang.String)
      */
     public String getBlueJPropertyString(String property, String def)
@@ -153,7 +153,7 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
         return blueJ.getBlueJPropertyString(property, def);
     }
 
-    /* (non-Javadoc)
+    /*
      * @see rmiextension.wrappers.RBlueJ#getExtensionPropertyString(java.lang.String, java.lang.String)
      */
     public String getExtensionPropertyString(String property, String def)
@@ -161,7 +161,7 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
         return blueJ.getExtensionPropertyString(property, def);
     }
 
-    /* (non-Javadoc)
+    /*
      * @see rmiextension.wrappers.RBlueJ#getOpenProjects()
      */
     public RProject[] getOpenProjects()
@@ -194,7 +194,7 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
         return rProjects.toArray(new RProject[rProjects.size()]);
     }
 
-    /* (non-Javadoc)
+    /*
      * @see rmiextension.wrappers.RBlueJ#getSystemLibDir()
      */
     public File getSystemLibDir()
@@ -204,7 +204,7 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
         return f.getAbsoluteFile();
     }
 
-    /* (non-Javadoc)
+    /*
      * @see rmiextension.wrappers.RBlueJ#newProject(java.io.File)
      */
     public RProject newProject(final File directory)
@@ -238,7 +238,7 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
         return wrapper.rProject;
     }
 
-    /* (non-Javadoc)
+    /*
      * @see rmiextension.wrappers.RBlueJ#openProject(java.lang.String)
      */
     public RProject openProject(final File directory)
@@ -278,7 +278,7 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
         public RProject rProject;
     }
 
-    /* (non-Javadoc)
+    /*
      * @see rmiextension.wrappers.RBlueJ#removeCompileListener(rmiextension.wrappers.event.RCompileListener)
      */
     public void removeCompileListener(RCompileListener listener)
@@ -287,7 +287,7 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
         blueJ.removeCompileListener(wrapper);
     }
 
-    /* (non-Javadoc)
+    /*
      * @see rmiextension.wrappers.RBlueJ#removeInvocationListener(rmiextension.wrappers.event.RInvocationListener)
      */
     public void removeInvocationListener(RInvocationListener listener)
@@ -296,16 +296,16 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
         blueJ.removeInvocationListener(wrapper);
     }
 
-    /* (non-Javadoc)
+    /*
      * @see rmiextension.wrappers.RBlueJ#removeClassListener(rmiextension.wrappers.event.RClassListener)
      */
-    public void removeClassListener(RClassListener listener) throws RemoteException
+    public void removeClassListener(RClassListener listener)
     {
         ClassListener wrapper = classListeners.remove(listener);
         blueJ.removeClassListener(wrapper);
     }
     
-    /* (non-Javadoc)
+    /*
      * @see rmiextension.wrappers.RBlueJ#setExtensionPropertyString(java.lang.String, java.lang.String)
      */
     public void setExtensionPropertyString(String property, String value)
@@ -314,8 +314,6 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     }
 
     /*
-     * (non-Javadoc)
-     * 
      * @see dk.sdu.mip.dit.remote.RBlueJ#exit()
      */
     public void exit()
@@ -348,12 +346,18 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
         }
     }
 
+    /*
+     * @see rmiextension.wrappers.RBlueJ#getInitialCommandLineProperties()
+     */
     public Properties getInitialCommandLineProperties()
         throws RemoteException
     {
         return Config.getInitialCommandLineProperties();
     }
 
+    /*
+     * @see rmiextension.wrappers.RBlueJ#showPreferences()
+     */
     @Override
     public void showPreferences() throws RemoteException
     {
@@ -365,5 +369,4 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
            }
         });
     }
-    
 }

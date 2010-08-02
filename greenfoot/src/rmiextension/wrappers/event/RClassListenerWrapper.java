@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,9 +22,14 @@
 package rmiextension.wrappers.event;
 
 import java.rmi.RemoteException;
+import java.rmi.ServerError;
+import java.rmi.ServerException;
+
+import rmiextension.wrappers.RBlueJImpl;
 
 import bluej.extensions.event.ClassEvent;
 import bluej.extensions.event.ClassListener;
+import bluej.utility.Debug;
 
 /**
  * Wraps a remote class listener (RClassListener) as a local listener.
@@ -32,9 +37,11 @@ import bluej.extensions.event.ClassListener;
 public class RClassListenerWrapper implements ClassListener
 {
     private RClassListener remoteListener;
+    private RBlueJImpl bluej;
     
-    public RClassListenerWrapper(RClassListener listener)
+    public RClassListenerWrapper(RBlueJImpl bluej, RClassListener listener)
     {
+        this.bluej = bluej;
         remoteListener = listener;
     }
     
@@ -43,8 +50,15 @@ public class RClassListenerWrapper implements ClassListener
         try {
             remoteListener.classStateChanged(new RClassEventImpl(event));
         }
+        catch (ServerError se) {
+            Debug.reportError("Remote class listener ServerError", se.getCause());
+        }
+        catch (ServerException se) {
+            Debug.reportError("Remote class listener ServerException", se.getCause());
+        }
         catch (RemoteException re) {
-            re.printStackTrace();
+            // Connection interrupted or other problem; remote VM no longer accessible
+            bluej.removeClassListener(remoteListener);
         }
     }
 
