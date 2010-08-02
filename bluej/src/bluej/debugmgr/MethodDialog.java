@@ -21,61 +21,24 @@
  */
 package bluej.debugmgr;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.GradientPaint;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JSeparator;
-import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
-import bluej.BlueJTheme;
 import bluej.Config;
-import bluej.debugger.gentype.GenTypeArray;
-import bluej.debugger.gentype.GenTypeDeclTpar;
 import bluej.debugger.gentype.GenTypeParameter;
-import bluej.debugger.gentype.JavaType;
-import bluej.debugger.gentype.TextType;
 import bluej.debugmgr.objectbench.ObjectBenchInterface;
-import bluej.utility.ComponentFactory;
-import bluej.utility.GrowableBox;
 import bluej.utility.JavaNames;
-import bluej.utility.MultiLineLabel;
 import bluej.views.CallableView;
-import bluej.views.ConstructorView;
 import bluej.views.LabelPrintWriter;
 import bluej.views.MethodView;
-import bluej.views.TypeParamView;
-import bluej.views.View;
 
 
 /**
@@ -89,195 +52,22 @@ import bluej.views.View;
  */
 public class MethodDialog extends CallDialog implements FocusListener
 {
-    private static final Insets INSETS = new Insets(2, 2, 2, 2);
-    private static final int MD_CREATE = 0;
-    private static final int MD_CALL = 1;
-
-    private int dialogType;
-    private boolean listeningObjects; // listening on the object bench
     private boolean okCalled;
     private boolean rawObject;
 
     // Window Titles
     private static final String appName = Config.getApplicationName(); 
-    static final String wCreateTitle = appName + ":  " + Config.getString("pkgmgr.methodCall.titleCreate");
     static final String wCallRoutineTitle = appName + ":  " + Config.getString("pkgmgr.methodCall.titleCall");
-    // MD_CREATE Specific
-    static final String sNameOfInstance = Config.getString("pkgmgr.methodCall.namePrompt");
-    static final String sTypeParameters = Config.getString("pkgmgr.methodCall.typeParametersPrompt");
-    static final String sTypeParameter = Config.getString("pkgmgr.methodCall.typeParameterPrompt");
-    static final String emptyFieldMsg = Config.getString("error.methodCall.emptyField");
-    static final String emptyTypeFieldMsg = Config.getString("error.methodCall.emptyTypeField");
-    static final String illegalNameMsg = Config.getString("error.methodCall.illegalName");
-    static final String duplicateNameMsg = Config.getString("error.methodCall.duplicateName");
 
     static final String commentSlash = "   ";
 
     private String methodName;
-    private CallableView method;
+    private MethodView method;
     private Map<String,GenTypeParameter> typeParameterMap;
 
-    // Text Area
-    private JPanel descPanel;
-
-    private ParameterList parameterList;
-    private ParameterList typeParameterList;
-
-    private JTextField instanceNameText;
-    private JTextField focusedTextField;
     private JLabel callLabel;
 
-    private CallHistory history;
-    private String defaultParamValue = "";
 
-    public static class VarArgFactory implements ComponentFactory
-    {
-        private List<String> history;
-        private MethodDialog dialog;
-
-        public VarArgFactory(MethodDialog dialog, List<String> history)
-        {
-            this.history = history;
-            this.dialog = dialog;
-        }
-
-        public void setHistory(List<String> history)
-        {
-            this.history = history;
-        }
-        
-        public JComponent createComponent(JButton addButton, JButton removeButton)
-        {
-            Box container = new Box(BoxLayout.X_AXIS);
-            JComboBox comboBox = dialog.createComboBox(history);
-            comboBox.setSelectedIndex(0);
-            container.add(comboBox);
-            container.add(Box.createHorizontalStrut(5));
-            container.add(new JLabel(" , "));
-            container.add(Box.createHorizontalStrut(5));
-            container.add(addButton);
-            container.add(Box.createHorizontalStrut(5));
-            container.add(removeButton);
-            return container;
-        }
-    }
-
-    /**
-     * Class that holds the components for  a list of parameters. 
-     * That is: the actual parameter component and the formal type of the parameter.
-     * @author Poul Henriksen <polle@mip.sdu.dk>
-     */
-    public static class ParameterList
-    {
-        private List<JComponent> parameters;
-        private List<String> types;
-        private boolean isVarArgs;
-        private String defaultParamValue;
-
-        public ParameterList(int initialSize, String defaultParamValue, boolean isVarArgs) 
-        {            
-            parameters = new ArrayList<JComponent>(initialSize);
-            types = new ArrayList<String>(initialSize);
-            this.defaultParamValue = defaultParamValue;
-            this.isVarArgs = isVarArgs;
-        }
-
-        public JComboBox getParameter(int index)
-        {
-            if (isVarArgs && index >= (parameters.size() - 1)) {
-                GrowableBox box = getGrowableBox();
-                int boxIndex = index - parameters.size() + 1;
-                return (JComboBox) ((Container) box.getComponent(boxIndex)).getComponent(0);
-            } else {
-                return (JComboBox) parameters.get(index);
-            }
-        }
-
-        public JComponent getParameterComponent(int index)
-        {
-            return (JComponent) parameters.get(index);
-        }
-
-        public String getType(int index)
-        {
-            if (isVarArgs && index >= (parameters.size() - 1)) {
-                return (String) types.get(types.size() - 1);
-            } else {
-                return (String) types.get(index);
-            }
-        }
-
-        private GrowableBox getGrowableBox()
-        {
-            if (parameters.size() < 1) {
-                return null;
-            }
-            Object c = parameters.get(parameters.size() - 1);
-            if (c instanceof GrowableBox) {
-                return (GrowableBox) parameters.get(parameters.size() - 1);
-            } else {
-                return null;
-            }
-        }
-
-        public void addParameter(int index, JComboBox component, String type)
-        {
-            parameters.add(index, component);
-            types.add(index, type);
-        }
-
-        public void setVarArg(GrowableBox component, String type)
-        {
-            GrowableBox box = getGrowableBox();
-            if (box != null) {
-                parameters.remove(box);
-            }
-            parameters.add(component);
-            types.add(type);
-        }
-
-        public int size()
-        {
-            if (isVarArgs) {
-                return parameters.size() + getGrowableBox().getComponentCountWithoutEmpty() - 1;
-            } else {
-                return parameters.size();
-            }
-        }
-
-        public void clear()
-        {
-            for (Iterator<JComponent> iter = parameters.iterator(); iter.hasNext();) {
-                JComponent element = iter.next();
-                if (isVarArgs && !iter.hasNext()) {
-                    ((GrowableBox) element).clear();
-                } else {
-                    ((JComboBox) element).setSelectedIndex(0);
-                }
-            }
-        }
-
-        /**
-         * Set the history for the given element.
-         * 
-         * @param i
-         * @param historyList
-         */
-        public void setHistory(int i, List<String> historyList)
-        {
-            if(historyList == null) {
-                return;
-            }
-            else if (isVarArgs && i >= (parameters.size() - 1)) {
-                GrowableBox varArgs = getGrowableBox();
-                VarArgFactory factory = (VarArgFactory) varArgs.getComponentFactory();
-                factory.setHistory(historyList);
-            } else {
-                getParameter(i).setModel(new DefaultComboBoxModel(historyList.toArray()));
-                getParameter(i).insertItemAt(defaultParamValue, 0);
-            }
-        }
-    }
 
     /**
      * MethodDialog constructor.
@@ -292,38 +82,18 @@ public class MethodDialog extends CallDialog implements FocusListener
      *                     (a Map of String -> GenType).
      */
     public MethodDialog(JFrame parentFrame, ObjectBenchInterface ob, CallHistory callHistory,
-            String instanceName, CallableView method, Map<String,GenTypeParameter> typeMap)
+            String instanceName, MethodView method, Map<String,GenTypeParameter> typeMap)
     {
         super(parentFrame, ob, "");
 
         history = callHistory;
 
         // Find out the type of dialog
-        if (method instanceof MethodView) {
-            dialogType = MD_CALL;
-            methodName = ((MethodView) method).getName();
-        }
-        else if (method instanceof ConstructorView) {
-            dialogType = MD_CREATE;
-        }
+        methodName = method.getName();
 
-        makeDialog(method.getClassName(), instanceName, method);
+        this.method = method;
+        makeDialog(method.getClassName(), instanceName);
         setInstanceInfo(instanceName, typeMap);
-    }
-
-
-    /**
-     * Set the visibility of the dialog, clearing parameter edit fields
-     * and setting focus.
-     */
-    public void setVisible(boolean show)
-    {
-        if (! show) {
-            if(listeningObjects)
-                stopObjectBenchListening();
-            listeningObjects = false;
-        }
-        super.setVisible(show);
     }
 
     /**
@@ -332,20 +102,7 @@ public class MethodDialog extends CallDialog implements FocusListener
      */
     public void doOk()
     {
-        // only process if 
         if(!okCalled) {
-            if (dialogType == MD_CREATE) {
-                if (!JavaNames.isIdentifier(getNewInstanceName())) {
-                    setErrorMessage(illegalNameMsg);
-                    return;
-                }
-                ObjectBenchInterface ob = getObjectBench();
-                if (ob != null && ob.hasObject(getNewInstanceName())) {
-                    setErrorMessage(duplicateNameMsg);
-                    return;
-                }
-            }
-            
             if (!parameterFieldsOk()) {
                 setErrorMessage(emptyFieldMsg);            
             } else if(!typeParameterFieldsOk()) {     
@@ -358,125 +115,9 @@ public class MethodDialog extends CallDialog implements FocusListener
                     public void run()
                     {
                         callWatcher(OK);
-
                     }
                 });
                 okCalled = true;
-            }
-        }
-    }
-
-    /**
-     * Process a "Cancel" event to cancel a Constructor or Method call.
-     * Makes dialog invisible.
-     */
-    public void doCancel()
-    {
-        callWatcher(CANCEL);
-    }
-
-    /**
-     * setDescription - display a new description in the dialog
-     */
-    private void setDescription(MultiLineLabel label)
-    {
-        label.setAlignmentX(LEFT_ALIGNMENT);
-        descPanel.removeAll();
-        descPanel.add(label);
-        label.setOpaque(false);
-        invalidate();
-        validate();
-    }
-
-    /**
-     * Get arguments from param entry fields as array of strings.
-     * May be null (if there are no arguments).
-     */
-    public String[] getArgs()
-    {
-        String[] args = null;
-
-        if (parameterList != null) {
-            args = new String[parameterList.size()];
-            for (int i = 0; i < parameterList.size(); i++) {
-                args[i] = (String) parameterList.getParameter(i).getEditor().getItem();    
-            }
-        }
-        return args;
-    }
-    
-    /**
-     * Returns false if any of the parameter fields are empty
-     */
-    public boolean parameterFieldsOk()
-    {        
-        if (parameterList != null) {            
-            for (int i = 0; i < parameterList.size(); i++) {
-                String arg = (String) parameterList.getParameter(i).getEditor().getItem();
-                if (arg == null || arg.trim().equals(""))
-                    return false;                
-            }
-        }
-        return true;
-    }
-    
-    /**
-     * Returns false if some of the typeParameter fields are empty.
-     * That is: if more than one type parameter, but not all, is typed in
-     */
-    public boolean typeParameterFieldsOk()
-    {        
-        boolean oneIsTypedIn = false;
-        boolean oneIsEmpty = false;
-        if (typeParameterList != null) {            
-            for (int i = 0; i < typeParameterList.size(); i++) {
-                String arg = (String) typeParameterList.getParameter(i).getEditor().getItem();
-                if (arg == null || arg.trim().equals("")) {
-                    oneIsEmpty = true;                     
-                } else {
-                    oneIsTypedIn = true;
-                }
-                if(oneIsEmpty && oneIsTypedIn) {
-                    return false;
-                }                
-            }
-        }
-        return true;
-    }
-
-    /**
-     * For a generic class this will return the type parameters if any has been
-     * typed in. Otherwise it will just return an empty array.
-     * 
-     * @return A String array containing the type parameters as typed by the
-     *         user
-     */
-    public String[] getTypeParams()
-    {
-        if (typeParameterList == null) {
-            return new String[0];
-        }
-        String[] typeParams = new String[typeParameterList.size()];
-        for (int i = 0; i < typeParameterList.size(); i++) {
-            typeParams[i] = (String) typeParameterList.getParameter(i).getEditor().getItem();
-            if (typeParams[i].equals("")) {
-                // more complete checking of parameters is done elsewhere
-                return new String[0];
-            }
-        }
-        return typeParams;
-    }
-
-    /**
-     * Insert text into edit field (JComboBox) that has focus.
-     */
-    public void insertText(String text)
-    {
-        if (parameterList != null) {
-            if (focusedTextField != null) {
-                focusedTextField.setText(text);
-                // bring to front after insertion, doesn't seem to work.
-                this.setVisible(true);
             }
         }
     }
@@ -488,45 +129,29 @@ public class MethodDialog extends CallDialog implements FocusListener
      */
     public void setInstanceInfo(String instanceName, Map<String,GenTypeParameter> typeParams)
     {
-        if(dialogType == MD_CALL) {
-            typeParameterMap = typeParams;
-            //setCallLabel(instanceName, methodName);
-            rawObject = instanceName != null && typeParams == null;
-        }
-        else {
-            instanceNameText.setText(instanceName);
-            rawObject = false;
-        }
+        typeParameterMap = typeParams;
+        rawObject = instanceName != null && typeParams == null;
         createDescription();
         
         // reset error label message
         setErrorMessage("");
 
         clearParameters();
-        if(! listeningObjects) {
-            startObjectBenchListening();
-            listeningObjects = true;
-        }
-        setVisible(true);
+        startObjectBenchListening();
 
         // focus requests have been wrapped in invokeLater method to resolve issues 
         // with focus confusion on Mac OSX (BlueJ 2.0, JDK 1.4.2)
         SwingUtilities.invokeLater(new Runnable() {
             public void run()
             {
-                if (parameterList != null) {
-                    parameterList.getParameter(0).getEditor().getEditorComponent().requestFocusInWindow();
-                } else if (dialogType == MD_CREATE) {
-                    instanceNameText.selectAll();
-                    instanceNameText.requestFocusInWindow();
-                }
-                
                 if (typeParameterList != null) {
                     typeParameterList.getParameter(0).getEditor().getEditorComponent().requestFocusInWindow();
                 }
+                else if (parameterList != null) {
+                    parameterList.getParameter(0).getEditor().getEditorComponent().requestFocusInWindow();
+                }
             }
         });
-        
     }
     
     /**
@@ -537,274 +162,19 @@ public class MethodDialog extends CallDialog implements FocusListener
     private void createDescription()
     {
         LabelPrintWriter writer = new LabelPrintWriter();
-        if (dialogType == MD_CALL)
-            ((MethodView) method).print(writer, typeParameterMap, 0);
-        else
-            method.print(writer);
+        method.print(writer, typeParameterMap, 0);
         setDescription(writer.getLabel());
         setVisible(true);
     }
-
-    /**
-     * getNewInstanceName - get the contents of the instance name field.
-     */
-    public String getNewInstanceName()
-    {
-        if (instanceNameText == null)
-            return "";
-        else
-            return instanceNameText.getText().trim();
-    }
-
-
-    /**
-     * getArgTypes - Get an array with the classes of the parameters for this
-     * method. "null" if there are no parameters. <br>
-     * If varArgsExpanded is set to true, the varargs will be expanded to the
-     * number of variable arguments that have been typed into the dialog. For
-     * instance, if the only argument is a vararg of type String and two strings
-     * has been typed in, this method will return an array of two String
-     * classes.
-     * 
-     * @param varArgsExpanded
-     *            if set to true, varargs will be expanded.
-     */
-    public Class<?>[] getArgTypes(boolean varArgsExpanded)
-    {
-        Class<?>[] params = method.getParameters();
-        boolean hasVarArgs = method.isVarArgs() && parameterList != null
-                && parameterList.size() >= params.length;
-        if (hasVarArgs && varArgsExpanded) {
-            int totalParams = parameterList.size();
-            Class<?>[] allParams = new Class[totalParams];
-            System.arraycopy(params, 0, allParams, 0, params.length);
-            Class<?> varArgType = params[params.length - 1].getComponentType();
-            for (int i = params.length - 1; i < totalParams; i++) {
-                allParams[i] = varArgType;
-            }
-            return allParams;
-        } else {
-            return params;
-        }
-    }
-
-    /**
-     * getArgTypes - Get an array with the types of the parameters for this
-     * method. This takes into account mapping from type parameter names to
-     * their types as supplied in the constructor or setInstanceInfo call.<p>
-     * 
-     * If varArgsExpanded is set to true, the varargs will be expanded to the
-     * number of variable arguments that have been typed into the dialog. For
-     * instance, if the only argument is a vararg of type String and two
-     * strings have been typed in, this method will return an array of two
-     * String classes.
-     * 
-     * @param varArgsExpanded
-     *            if set to true, varargs will be expanded.
-     * @param raw
-     *            if true, raw types will be returned
-     */
-    public JavaType[] getArgGenTypes(boolean varArgsExpanded)
-    {
-        boolean raw = rawObject;
-        
-        // first construct a type parameter map which includes not only
-        // type parameters from the declaring class, but also those from this
-        // particular call
-        Map<String,GenTypeParameter> typeMap = new HashMap<String,GenTypeParameter>();
-        if (typeParameterMap != null) {
-            typeMap.putAll(typeParameterMap);
-        }
-        
-        String [] typeParams = getTypeParams();
-        TypeParamView[] formalTypeParamViews = getFormalTypeParams();                  
-        int len = typeParams.length;
-        for (int i = 0; i < len; i++) {
-            TypeParamView view = formalTypeParamViews[i];
-            GenTypeDeclTpar formalType = view.getParamType();
-            JavaType actualType = new TextType(typeParams[i]);
-            typeMap.put(formalType.getTparName(), actualType);
-        }
-        
-        // Map type parameter names in arguments to the corresponding types
-        JavaType[] params = method.getParamTypes(raw);
-        for (int i = 0; i < params.length; i++) {
-            params[i] = params[i].mapTparsToTypes(typeMap);
-        }
-        
-        // handle varargs expansion
-        boolean hasVarArgs = method.isVarArgs() && parameterList != null
-                && parameterList.size() >= params.length;
-        if (hasVarArgs && varArgsExpanded) {
-            int totalParams = parameterList.size();
-            JavaType[] allParams = new JavaType[totalParams];
-            System.arraycopy(params, 0, allParams, 0, params.length);
-            JavaType varArgType = ((GenTypeArray)params[params.length - 1]).getArrayComponent();
-            for (int i = params.length - 1; i < totalParams; i++) {
-                allParams[i] = varArgType;
-            }
-            return allParams;
-        } else {
-            return params;
-        }
-    }
     
-    /**
-     * Returns the formal type parameters for the class that declares this method.
-     * @return Array of typeParamViews
+    /*
+     * @see bluej.debugmgr.CallDialog#makeDialogInternal(java.lang.String, java.lang.String, javax.swing.JPanel)
      */
-    public TypeParamView[] getFormalTypeParams() {
-        View clazz = method.getDeclaringView();
-        return clazz.getTypeParams();        
-    }
-    
-    /**
-     * Workaround for udating model problems with JComboBox.
-     * Updates CallHistory and resets model to updated Vectors.  Ugly and
-     * brutal but corrects problems with JComboBox update problems.
-     */
-    public void updateParameters()
+    @Override
+    protected void makeDialogInternal(String className, String instanceName, JPanel centerPanel)
     {
-        if (parameterList != null) {
-            Class<?>[] paramClasses = getArgTypes(true);
-            //First we add all the current items into the historylist
-            for (int i = 0; i < parameterList.size(); i++) {
-                history.addCall(paramClasses[i], (String) parameterList.getParameter(i).getEditor()
-                        .getItem());                
-            }
-            //Then we update all the comboboxes
-            for (int i = 0; i < parameterList.size(); i++) {                
-                List<String> historyList = history.getHistory(paramClasses[i]);                
-                parameterList.setHistory(i, historyList);                
-            }
-        }
-        
-        if (typeParameterList != null) {
-            TypeParamView[] formalTypeParams = getFormalTypeParams();
-            String[] typeParams = getTypeParams();
-            //First we add all the current items into the historylist
-            for (int i = 0; i < typeParams.length; i++) {
-                history.addCall(formalTypeParams[i], typeParams[i]);
-            }
-            //Then we update all the comboboxes
-            for (int i = 0; i < typeParams.length; i++) {
-                List<String> historyList = history.getHistory(formalTypeParams[i]);
-                typeParameterList.setHistory(i, historyList);                                
-            }
-        }
+        makeCallDialog(className, instanceName, method, centerPanel);
     }
-
-    /**
-     * Clear parameters of any param entry fields
-     *
-     */
-    private void clearParameters()
-    {
-        if (parameterList != null) {
-            parameterList.clear();
-        }
-        if (typeParameterList != null) {
-            typeParameterList.clear();
-        }
-    }
-
-    // --- FocusListener interface ---
-
-    /**
-     * FocusEventListener method fired when watched component gains focus
-     * Assigns focusedTextField to work around difficulties in JComboBox
-     * firing focus gained events.
-     */
-    public void focusGained(FocusEvent fe)
-    {
-        if (fe.getComponent() instanceof JTextField) {
-            focusedTextField = (JTextField) fe.getComponent();
-            focusedTextField.selectAll();
-        }
-    }
-
-    /**
-     * FocusEventListener method fired when watched component loses focus
-     * Does nothing at present except for debug message.
-     *
-     */
-    public void focusLost(FocusEvent fe)
-    {
-        //Debug.message(" Focus Lost: " + fe.paramString());
-    }
-
-    // --- end of FocusListener interface ---
-
-    /**
-     * Build the Swing dialog.
-     */
-    private void makeDialog(String className, String instanceName, CallableView method)
-    {
-        this.method = method;
-        
-        super.setContentPane(new JPanel() {
-            protected void paintComponent(Graphics g)
-            {
-                super.paintComponent(g);
-                
-                Graphics2D g2d = (Graphics2D)g;
-                int width = getWidth();
-                int height = getHeight();
-                
-                g2d.setPaint(new GradientPaint(width/4, 0, new Color(230,229,228),
-                                               width*3/4, height, new Color(191,186,178)));
-                g2d.fillRect(0, 0, width, height);
-            }
-        });
-        
-        JPanel dialogPanel = new JPanel();
-        dialogPanel.setOpaque(false);
-        {
-            descPanel = new JPanel();
-            descPanel.setOpaque(false);
-            {
-                descPanel.setLayout(new BoxLayout(descPanel, BoxLayout.Y_AXIS));
-                descPanel.setAlignmentX(LEFT_ALIGNMENT);
-            }
-
-            JPanel centerPanel = new JPanel();
-            centerPanel.setOpaque(false);
-            {
-                centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
-                centerPanel.setAlignmentX(LEFT_ALIGNMENT);
-                //
-                // Set dialog items depends on the Dialog type
-                //
-                switch (dialogType) {
-
-                    case MD_CALL :
-                        makeCallDialog(className, instanceName, method, centerPanel);
-                        break;
-
-                    case MD_CREATE :
-                        makeCreateDialog(className, instanceName, method, centerPanel);
-                        break;
-
-                    default : // error!
-                        throw new Error("Invalid MethodDialog type " + dialogType);
-                }
-            }
-
-            dialogPanel.setLayout(new BoxLayout(dialogPanel, BoxLayout.Y_AXIS));
-            dialogPanel.setBorder(BlueJTheme.generalBorder);
-            dialogPanel.add(descPanel);
-            dialogPanel.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
-            JSeparator sep = new JSeparator();
-            sep.setForeground(new Color(191,190,187));
-            sep.setBackground(new Color(0,0,0,0));
-            dialogPanel.add(sep);
-            dialogPanel.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
-            dialogPanel.add(centerPanel);
-            dialogPanel.add(getErrorLabel());
-        }
-        super.makeDialog(null, dialogPanel);
-    }
-
 
     /**
      * makeCallDialog - create a dialog to make a method call
@@ -822,12 +192,15 @@ public class MethodDialog extends CallDialog implements FocusListener
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.insets = INSETS;
         callLabel = new JLabel("", JLabel.RIGHT);
-        if (method.isStatic())
-            setCallLabel(className, methodName);
-        else
-            setCallLabel(instanceName, methodName);
-        if (methView.isMain())
+        if (method.isStatic()) {
+            setCallLabel(className);
+        }
+        else {
+            setCallLabel(instanceName);
+        }
+        if (methView.isMain()) {
             defaultParamValue = "{ }";
+        }
 
         setPreferredHeight(callLabel, getComboBoxHeight());
 
@@ -841,312 +214,14 @@ public class MethodDialog extends CallDialog implements FocusListener
         tmpPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         tmpPanel.setAlignmentX(LEFT_ALIGNMENT);
         panel.add(tmpPanel);
-    } // makeCallDialog
-
-    /**
-     * makeCreateDialog - create a dialog to create an object (including
-     *  constructor call)
-     */
-    private void makeCreateDialog(String className, String instanceName, CallableView method,
-            JPanel panel)
-    {
-        setTitle(wCreateTitle);
-
-        JLabel instName = new JLabel(sNameOfInstance);
-        instanceNameText = new JTextField(instanceName, 16);
-        // treat 'return' in text field as OK
-        instanceNameText.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt)
-            {
-                doOk();
-            }
-        });
-        instanceNameText.addFocusListener(new FocusListener() {
-            public void focusGained(FocusEvent fe)
-            {
-                ((JTextField) (fe.getComponent())).selectAll();
-            }
-
-            public void focusLost(FocusEvent fe)
-            {
-            }
-        });
-
-        JPanel tmpPanel = new JPanel();
-        tmpPanel.setOpaque(false);
-
-        GridBagLayout gridBag = new GridBagLayout();
-        tmpPanel.setLayout(gridBag);
-        GridBagConstraints constraints = new GridBagConstraints();
-        constraints.insets = INSETS;
-        constraints.gridy = 0;
-        constraints.gridx = 0;
-        gridBag.setConstraints(instName, constraints);
-        if(!Config.isGreenfoot()) {
-            tmpPanel.add(instName);
-        }
-        constraints.gridx = 1;
-        constraints.gridwidth = 1;
-        constraints.anchor = GridBagConstraints.WEST;
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        gridBag.setConstraints(instanceNameText, constraints);
-        if(!Config.isGreenfoot()) {
-            tmpPanel.add(instanceNameText);
-        }
-
-        View clazz = method.getDeclaringView();
-        if (clazz.isGeneric()) {
-            JLabel name = null;
-            if(getFormalTypeParams().length > 1) {
-                name = new JLabel(sTypeParameters);
-            } else {
-                name = new JLabel(sTypeParameter);
-            }
-            constraints.gridwidth = 1;
-            constraints.gridx = 0;
-            constraints.gridy++;
-            constraints.anchor = GridBagConstraints.NORTHWEST;
-            constraints.fill = GridBagConstraints.NONE;
-            setPreferredHeight(name, getComboBoxHeight());
-            gridBag.setConstraints(name, constraints);
-            tmpPanel.add(name);
-
-            JPanel typeParameterPanel = createTypeParameterPanel();
-            typeParameterPanel.setOpaque(false);
-            constraints.gridwidth = 1;
-            constraints.gridx = 1;
-            constraints.anchor = GridBagConstraints.WEST;
-            constraints.fill = GridBagConstraints.NONE;
-            tmpPanel.add(typeParameterPanel, constraints);
-        }
-
-        if (method.hasParameters()) {
-            JLabel name = new JLabel("new " + className, JLabel.RIGHT);
-            constraints.gridwidth = 1;
-            constraints.gridx = 0;
-            constraints.gridy++;
-            constraints.anchor = GridBagConstraints.NORTHEAST;
-            constraints.fill = GridBagConstraints.NONE;
-            setPreferredHeight(name, getComboBoxHeight());
-            gridBag.setConstraints(name, constraints);
-            tmpPanel.add(name);
-
-            constraints.anchor = GridBagConstraints.WEST;
-            constraints.gridx = 1;
-            constraints.fill = GridBagConstraints.HORIZONTAL;
-            JPanel parameterPanel = createParameterPanel();
-            parameterPanel.setOpaque(false);
-            tmpPanel.add(parameterPanel, constraints);
-
-            constraints.gridx = 3;
-            constraints.gridy = 0;
-            constraints.weightx = 1.0;
-            JPanel filler = new JPanel();
-            filler.setOpaque(false);
-            gridBag.setConstraints(filler, constraints);
-            tmpPanel.add(filler);
-        }
-
-        tmpPanel.setBorder(BorderFactory.createEmptyBorder(BlueJTheme.generalSpacingWidth, 0,
-                BlueJTheme.generalSpacingWidth, 0));
-        panel.add(tmpPanel, BorderLayout.NORTH);
-    } // makeCreateDialog
-
-
-    /**
-     * Creates a panel of type parameters for a new object
-     */
-    private JPanel createTypeParameterPanel()
-    {
-        TypeParamView formalTypeParams[] = getFormalTypeParams();
-
-        typeParameterList = new ParameterList(formalTypeParams.length, defaultParamValue, false);
-        for (int i = 0; i < formalTypeParams.length; i++) {
-            List<String> historyList = history.getHistory(formalTypeParams[i]);            
-            JComboBox component = createComboBox(historyList);
-            typeParameterList.addParameter(i, component, formalTypeParams[i].toString());
-        }
-        String startString = "<";
-        String endString = ">";
-        ParameterList superParamList = typeParameterList;
-        return createParameterPanel(startString, endString, superParamList);
-    }
-
-    /**
-     * Creates a panel of parameters for a method
-     * 
-     */
-    private JPanel createParameterPanel()
-    {
-        Class<?>[] paramClasses = getArgTypes(false);
-        String[] paramNames = method.getParamNames();
-        String[] paramTypes = method.getParamTypeStrings();
-
-        parameterList = new ParameterList(paramClasses.length, defaultParamValue, method.isVarArgs());
-        for (int i = 0; i < paramTypes.length; i++) {
-            String paramString = paramTypes[i];
-            if(paramNames!=null) {
-                paramString += " " + paramNames[i];
-            }
-            if (method.isVarArgs() && i == (paramClasses.length - 1)) {
-                List<String> historyList = history.getHistory(paramClasses[i].getComponentType());
-                GrowableBox component = new GrowableBox(new VarArgFactory(this, historyList),
-                        BoxLayout.Y_AXIS, INSETS.top + INSETS.bottom);
-                //We want the dialog to resize when new args are added
-                component.addComponentListener(new ComponentListener() {
-                    public void componentResized(ComponentEvent e)
-                    {
-                        MethodDialog.this.pack();
-                    }
-
-                    public void componentMoved(ComponentEvent e)
-                    {
-                    }
-
-                    public void componentShown(ComponentEvent e)
-                    {
-                    }
-
-                    public void componentHidden(ComponentEvent e)
-                    {
-                    }
-                });
-                parameterList.setVarArg(component, paramString);
-            } else {
-                List<String> historyList = history.getHistory(paramClasses[i]);
-                JComboBox component = createComboBox(historyList);
-                parameterList.addParameter(i, component, paramString);
-            }
-        }
-
-        return createParameterPanel("(", ")", parameterList);
-    }
-
-    /**
-     * Creates a panel of parameters.
-     * 
-     * @param startString The string prepended before the first parameter. Typically something like ( or <
-     * @param endString The string appended after the last parameter. Typically something like ) or >
-     * @param parameterList A list containing the components for the parameter panel
-     * @return
-     */
-    private JPanel createParameterPanel(String startString, String endString,
-            ParameterList parameterList)
-    {
-        JPanel tmpPanel = new JPanel();
-        GridBagLayout gridBag = new GridBagLayout();
-        tmpPanel.setLayout(gridBag);
-
-
-        JLabel startParenthesis = new JLabel(startString);
-        double comboHeight = getComboBoxHeight();
-        //we want a large parenthesis
-        double parenthesisHeight = startParenthesis.getPreferredSize().getHeight();
-        double parenthesisScale = comboHeight / parenthesisHeight;
-        Font f = startParenthesis.getFont();
-        Font parenthesisFont = f.deriveFont((float) (f.getSize() * parenthesisScale));
-        startParenthesis.setFont(parenthesisFont);
-
-        GridBagConstraints constraints = new GridBagConstraints();
-        constraints.insets = INSETS;
-        constraints.gridx = 0;
-        constraints.anchor = GridBagConstraints.NORTHEAST;
-        tmpPanel.add(startParenthesis, constraints);
-
-        for (int i = 0; i < parameterList.size(); i++) {
-            constraints.gridx = 1;
-            constraints.gridy = i;
-            constraints.anchor = GridBagConstraints.WEST;
-
-            JComponent component = parameterList.getParameterComponent(i);
-            gridBag.setConstraints(component, constraints);
-            tmpPanel.add(component);
-
-            JLabel eol = new JLabel(",", JLabel.LEFT);
-            JLabel type = new JLabel(" " + parameterList.getType(i), JLabel.LEFT);
-            if (i == (parameterList.size() - 1)) {
-                eol.setText(endString);
-                eol.setFont(parenthesisFont);
-                if (parameterList.size() == 1) {                    
-                    type = null;
-                } else {
-                    setPreferredHeight(type, comboHeight);
-                    constraints.anchor = GridBagConstraints.NORTH;
-                }                
-            }                      
-
-            if(type!=null) {
-	            constraints.gridx = 3;
-	            tmpPanel.add(type, constraints);
-            }            
-
-            constraints.gridx = 2;
-            setPreferredHeight(eol, comboHeight);
-            constraints.anchor = GridBagConstraints.SOUTHWEST;
-            gridBag.setConstraints(eol, constraints);
-            tmpPanel.add(eol); 
-        }
-        return tmpPanel;
-    }
-
-    /**
-     * Sets the preferred height of the component.
-     * @param c The component for which to change the preferred height
-     * @param height the new height
-     */
-    private void setPreferredHeight(JComponent c, double height)
-    {
-        int lastTypeWidth = (int) c.getPreferredSize().getWidth();
-        c.setPreferredSize(new Dimension(lastTypeWidth, (int) height));
-    }
-
-    /**
-     * Calculates and returns the preferred height of a combobox.
-     * 
-     * @return Preferred height of a normal JComboBox
-     */
-    private double getComboBoxHeight()
-    {
-        JComboBox comboBox = createComboBox(new ArrayList<String>());
-        double comboHeight = comboBox.getPreferredSize().getHeight();
-        return comboHeight;
     }
 
     /**
      * Set the text of the label showing the call to be made.
      */
-    protected void setCallLabel(String instanceName, String methodName)
+    public void setCallLabel(String instanceName)
     {
-        if (callLabel != null)
-            callLabel.setText(JavaNames.stripPrefix(instanceName) + "." + methodName);
-    }
-
-    private JComboBox createComboBox(List<String> history)
-    {        
-        if(history == null) {
-            history = new ArrayList<String>();
-        }
-        JComboBox component = new JComboBox(history.toArray());
-        component.insertItemAt(defaultParamValue, 0);
-        component.setEditable(true);
-        
-        Dimension prefSize = component.getPreferredSize();
-        if (prefSize.width < 100) {
-            // On MacOS (Leopard) the ComboBox is tiny. So we
-            // explicitly set the width here.
-            prefSize.width = 100;
-            component.setPreferredSize(prefSize);            
-        }
-        // treat 'return' in text field as OK
-        component.getEditor().addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt)
-            {
-               doOk();
-            }
-        });
-        // add FocusListener for text insertion
-        ((JTextField) component.getEditor().getEditorComponent()).addFocusListener(this);
-        return component;
+        callLabel.setText(JavaNames.stripPrefix(instanceName) + "." + methodName);
     }
     
     /**
@@ -1155,13 +230,12 @@ public class MethodDialog extends CallDialog implements FocusListener
      * more than one OK action as the default button also catches an 
      * action whther it has focus or not.
      * 
-     * Calling setEnabled on the Dialog alone does not prevent the default button 
+     * <p>Calling setEnabled on the Dialog alone does not prevent the default button 
      * from getting action events. We therefore explicitly call setEnabled on the 
      * default button (OK)
      * 
-     * The okCalled flag is used to prevent multiple rapid button presses before
+     * <p>The okCalled flag is used to prevent multiple rapid button presses before
      * the button and dialog are disabled.
-     * 
      */
     public void setEnabled(boolean state)
     {
@@ -1171,5 +245,32 @@ public class MethodDialog extends CallDialog implements FocusListener
             //reset ok called status when re-enabling dialog
             okCalled = false;    
         }
+    }
+    
+    /*
+     * @see bluej.debugmgr.CallDialog#getCallableView()
+     */
+    @Override
+    protected CallableView getCallableView()
+    {
+        return method;
+    }
+    
+    /*
+     * @see bluej.debugmgr.CallDialog#targetIsRaw()
+     */
+    @Override
+    protected boolean targetIsRaw()
+    {
+        return rawObject;
+    }
+
+    /*
+     * @see bluej.debugmgr.CallDialog#getTargetTypeArgs()
+     */
+    @Override
+    protected Map<String, GenTypeParameter> getTargetTypeArgs()
+    {
+        return typeParameterMap;
     }
 }

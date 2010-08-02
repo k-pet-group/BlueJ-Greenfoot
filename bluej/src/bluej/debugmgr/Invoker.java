@@ -84,7 +84,9 @@ public class Invoker
      * cache the dialogs we create. We store the mapping from method to dialog
      * in this hashtable.
      */
-    private static Map<CallableView, MethodDialog> methods = new HashMap<CallableView, MethodDialog>();
+    private static Map<MethodView, MethodDialog> methods = new HashMap<MethodView, MethodDialog>();
+    private static Map<ConstructorView, ConstructorDialog> constructors =
+        new HashMap<ConstructorView, ConstructorDialog>();
 
     private JFrame pmf;
     private File pkgPath;
@@ -94,6 +96,7 @@ public class Invoker
     private ResultWatcher watcher;
     private CallableView member;
     private String shellName;
+    /** Name of the result object */
     private String objName;
     private Map<String,GenTypeParameter> typeMap; // map type parameter names to types
     private ValueCollection localVars;
@@ -104,11 +107,7 @@ public class Invoker
     private NameTransform nameTransform;
     private InvokerCompiler compiler;
     
-    /**
-     * The instance name for any object we create. For a constructed object the
-     * user sets it in the dialog. For a method call with result we set this to
-     * "result". For a void method we set this to null.
-     */
+    /** Name of the target object to which the call is applied */
     private String instanceName;
 
     private CallDialog dialog;
@@ -124,22 +123,7 @@ public class Invoker
      */
     public Invoker(PkgMgrFrame pmf, ValueCollection localVars, String command, ResultWatcher watcher)
     {
-        this.pmf = pmf;
-        final Package pkg = pmf.getPackage();
-        this.pkgPath = pkg.getPath();
-        this.pkgName = pkg.getQualifiedName();
-        this.pkgScopeId = pkg.getId();
-        this.objectBenchVars = pmf.getObjectBench();
-        this.objectBench = pmf.getObjectBench();
-        this.debugger = pkg.getProject().getDebugger();
-        this.nameTransform = new CleverQualifyTypeNameTransform(pkg);
-        compiler = new InvokerCompiler() {
-            public void compile(File[] files, CompileObserver observer)
-            {
-                JobQueue.getJobQueue().addJob(files, observer, pkg.getProject().getClassLoader(),
-                        pkg.getProject().getProjectDir(),true);
-            }
-        };
+        initialize(pmf);
         
         this.watcher = watcher;
         this.member = null;
@@ -165,23 +149,7 @@ public class Invoker
      */
     public Invoker(PkgMgrFrame pmf, CallableView member, ResultWatcher watcher)
     {
-        this.pmf = pmf;
-        final Package pkg = pmf.getPackage();
-        this.pkgPath = pkg.getPath();
-        this.pkgName = pkg.getQualifiedName();
-        this.pkgScopeId = pkg.getId();
-        this.callHistory = pkg.getCallHistory();
-        this.objectBenchVars = pmf.getObjectBench();
-        this.objectBench = pmf.getObjectBench();
-        this.debugger = pkg.getProject().getDebugger();
-        this.nameTransform = new CleverQualifyTypeNameTransform(pkg);
-        compiler = new InvokerCompiler() {
-            public void compile(File[] files, CompileObserver observer)
-            {
-                JobQueue.getJobQueue().addJob(files, observer, pkg.getProject().getClassLoader(),
-                        pkg.getProject().getProjectDir(),true);
-            }
-        };
+        initialize(pmf);
 
         this.member = member;
         this.watcher = watcher;
@@ -215,6 +183,30 @@ public class Invoker
      */
     public Invoker(PkgMgrFrame pmf, MethodView member, ObjectWrapper objWrapper, ResultWatcher watcher)
     {
+        initialize(pmf);
+
+        this.member = member;
+        this.watcher = watcher;
+        this.shellName = getShellName();
+
+        // We want a map of all the type parameters that may appear in the
+        // method signature to the corresponding instantiation types from the
+        // object to which the method is being applied.
+        //
+        // Tpar names in the method signature however correspond to names from
+        // the class in which the method was declared. So we need to map tpars
+        // from the object's class to that class.
+        this.instanceName = objWrapper.getName();
+        this.typeMap = objWrapper.getObject().getGenType().mapToSuper(member.getClassName()).getMap();
+
+        constructing = false;
+    }
+
+    /**
+     * Initialize most of the invoker's necessary fields via a PkgMgrFrame reference.
+     */
+    private void initialize(PkgMgrFrame pmf)
+    {
         this.pmf = pmf;
         final Package pkg = pmf.getPackage();
         this.pkgPath = pkg.getPath();
@@ -232,24 +224,8 @@ public class Invoker
                         pkg.getProject().getProjectDir(),true);
             }
         };
-
-        this.member = member;
-        this.watcher = watcher;
-        this.shellName = getShellName();
-
-        // We want a map of all the type parameters that may appear in the
-        // method signature to the corresponding instantiation types from the
-        // object to which the method is being applied.
-        //
-        // Tpar names in the method signature however correspond to names from
-        // the class in which the method was declared. So we need to map tpars
-        // from the object's class to that class.
-        this.objName = objWrapper.getName();
-        this.typeMap = objWrapper.getObject().getGenType().mapToSuper(member.getClassName()).getMap();
-
-        constructing = false;
     }
-
+    
     /**
      * Set the import statements that should be in effect when this invocation
      * is performed.
@@ -271,11 +247,6 @@ public class Invoker
      */
     public void invokeInteractive()
     {
-        //in greenfoot mode we don't ever want to ask for instance name
-        if(constructing && Config.isGreenfoot()) {     
-            instanceName = objName;
-        }
-        
         // check for a method call with no parameter
         // if so, just do it
         if ((!constructing || Config.isGreenfoot()) && !member.hasParameters()) {
@@ -283,24 +254,41 @@ public class Invoker
             doInvocation(null, (JavaType []) null, null);
         }
         else {
-            MethodDialog mDialog = methods.get(member);
+            CallDialog cDialog;
+            if (member instanceof MethodView) {
+                // Method requires a method dialog
+                MethodView mmember = (MethodView) member;
+                MethodDialog mDialog = methods.get(member);
 
-            if (mDialog == null) {
-                mDialog = new MethodDialog(pmf, objectBench, callHistory, objName, member, typeMap);
-                methods.put(member, mDialog);
-                mDialog.setVisible(true);
+                if (mDialog == null) {
+                    mDialog = new MethodDialog(pmf, objectBench, callHistory, instanceName, mmember, typeMap);
+                    methods.put(mmember, mDialog);
+                }
+                else {
+                    mDialog.setInstanceInfo(instanceName, typeMap);
+                    mDialog.setCallLabel(instanceName);
+                }
+                cDialog = mDialog;
             }
             else {
-                mDialog.setInstanceInfo(objName, typeMap);
-                String methodName=null;
-                if (member instanceof MethodView)
-                    methodName=((MethodView) member).getName();
-                mDialog.setCallLabel(member.getClassName(),methodName);
+                // Constructor
+                ConstructorView cmember = (ConstructorView) member;
+                ConstructorDialog conDialog = constructors.get(cmember);
+                
+                if (conDialog == null) {
+                    conDialog = new ConstructorDialog(pmf, objectBench, callHistory, objName, cmember);
+                    constructors.put(cmember, conDialog);
+                }
+                else {
+                    conDialog.setInstanceInfo(objName);
+                }
+                cDialog = conDialog;
             }
 
-            mDialog.setEnabled(true);
-            mDialog.setWatcher(this);
-            dialog = mDialog;
+            cDialog.setVisible(true);
+            cDialog.setEnabled(true);
+            cDialog.setWatcher(this);
+            dialog = cDialog;
         }
     }
 
@@ -313,21 +301,17 @@ public class Invoker
     public void callDialogEvent(CallDialog dlg, int event)
     {
         if (event == CallDialog.CANCEL) {
-
             dlg.setVisible(false);
         }
         else if (event == CallDialog.OK) {
-            if (dlg instanceof MethodDialog) {
-                MethodDialog mDialog = (MethodDialog) dlg;
-                mDialog.setEnabled(false);
-                instanceName = mDialog.getNewInstanceName();                
-                String[] actualTypeParams = mDialog.getTypeParams();
-                
-                doInvocation(mDialog.getArgs(), mDialog.getArgGenTypes(true), actualTypeParams);
-            }
+            dialog.setEnabled(false);
+            objName = dialog.getNewInstanceName();                
+            String[] actualTypeParams = dialog.getTypeParams();
+            doInvocation(dialog.getArgs(), dialog.getArgGenTypes(true), actualTypeParams);
         }
-        else
+        else {
             Debug.reportError("Invoker: Unknown CallDialog event");
+        }
     }
 
     // -- end of CallDialogWatcher interface --
@@ -339,9 +323,6 @@ public class Invoker
      */
     public void invokeDirect(String[] params)
     {
-        if (instanceName == null)
-            instanceName = objName;
-
         final JavaType[] argTypes = member.getParamTypes(false);
         for (int i = 0; i < argTypes.length; i++) {
             argTypes[i] = argTypes[i].mapTparsToTypes(typeMap);
@@ -445,7 +426,7 @@ public class Invoker
                 constype += ">";
             }
             command = "new " + constype;
-            ir = new ConstructionInvokerRecord(constype, instanceName, command + actualArgString, args);
+            ir = new ConstructionInvokerRecord(constype, objName, command + actualArgString, args);
         }
         else { // it's a method call
             MethodView method = (MethodView) member;
@@ -454,7 +435,7 @@ public class Invoker
             if (method.isStatic())
                 command = nameTransform.transform(className) + "." + method.getName();
             else {
-                command = objName + "." + method.getName();
+                command = instanceName + "." + method.getName();
             }
 
             if (isVoid) {
@@ -469,11 +450,11 @@ public class Invoker
                 else {
                     ir = new VoidMethodInvokerRecord(command + actualArgString, args);
                 }
-                instanceName = null;
+                objName = null;
             }
             else {
                 ir = new MethodInvokerRecord(method.getGenericReturnType(), command + actualArgString, args);
-                instanceName = "result";
+                objName = "result";
             }
         }
 
@@ -574,11 +555,11 @@ public class Invoker
         if (hasResult) {
             if (resultType.equals(""))
                 resultType = null;
-            instanceName = "result";
+            objName = "result";
             ir = new ExpressionInvokerRecord(commandString);
         }
         else {
-            instanceName = null;
+            objName = null;
             // this is a statement, treat as a void method result
             ir = new VoidMethodInvokerRecord(commandString, null);
         }
@@ -1063,9 +1044,7 @@ public class Invoker
             if (Config.isWinOS()) {
                 dialog.dispose();
             }
-            if (dialog instanceof MethodDialog) {
-                ((MethodDialog) dialog).updateParameters();
-            }
+            dialog.updateParameters();
         }
     }
 
@@ -1133,7 +1112,7 @@ public class Invoker
                 case Debugger.NORMAL_EXIT :
                     // result will be null here for a void call
                     ir.setResultObject(result.getResultObject());   
-                    watcher.putResult(result.getResultObject(), instanceName, ir);
+                    watcher.putResult(result.getResultObject(), objName, ir);
                     break;
 
                 case Debugger.EXCEPTION :
