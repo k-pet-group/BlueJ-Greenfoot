@@ -87,8 +87,10 @@ public class Invoker
     private static Map<CallableView, MethodDialog> methods = new HashMap<CallableView, MethodDialog>();
 
     private JFrame pmf;
-    private Package pkg;
+    private File pkgPath;
     private String pkgName;
+    private String pkgScopeId;
+    private CallHistory callHistory;
     private ResultWatcher watcher;
     private CallableView member;
     private String shellName;
@@ -99,7 +101,8 @@ public class Invoker
     private ObjectBenchInterface objectBench;
     private Debugger debugger;
     private String imports; // import statements to include in shell file
-    private boolean doTryAgain = false; // whether to re-try
+    private NameTransform nameTransform;
+    private InvokerCompiler compiler;
     
     /**
      * The instance name for any object we create. For a constructed object the
@@ -122,11 +125,21 @@ public class Invoker
     public Invoker(PkgMgrFrame pmf, ValueCollection localVars, String command, ResultWatcher watcher)
     {
         this.pmf = pmf;
-        this.pkg = pmf.getPackage();
+        final Package pkg = pmf.getPackage();
+        this.pkgPath = pkg.getPath();
         this.pkgName = pkg.getQualifiedName();
+        this.pkgScopeId = pkg.getId();
         this.objectBenchVars = pmf.getObjectBench();
         this.objectBench = pmf.getObjectBench();
         this.debugger = pkg.getProject().getDebugger();
+        this.nameTransform = new CleverQualifyTypeNameTransform(pkg);
+        compiler = new InvokerCompiler() {
+            public void compile(File[] files, CompileObserver observer)
+            {
+                JobQueue.getJobQueue().addJob(files, observer, pkg.getProject().getClassLoader(),
+                        pkg.getProject().getProjectDir(),true);
+            }
+        };
         
         this.watcher = watcher;
         this.member = null;
@@ -153,11 +166,22 @@ public class Invoker
     public Invoker(PkgMgrFrame pmf, CallableView member, ResultWatcher watcher)
     {
         this.pmf = pmf;
-        this.pkg = pmf.getPackage();
+        final Package pkg = pmf.getPackage();
+        this.pkgPath = pkg.getPath();
         this.pkgName = pkg.getQualifiedName();
+        this.pkgScopeId = pkg.getId();
+        this.callHistory = pkg.getCallHistory();
         this.objectBenchVars = pmf.getObjectBench();
         this.objectBench = pmf.getObjectBench();
         this.debugger = pkg.getProject().getDebugger();
+        this.nameTransform = new CleverQualifyTypeNameTransform(pkg);
+        compiler = new InvokerCompiler() {
+            public void compile(File[] files, CompileObserver observer)
+            {
+                JobQueue.getJobQueue().addJob(files, observer, pkg.getProject().getClassLoader(),
+                        pkg.getProject().getProjectDir(),true);
+            }
+        };
 
         this.member = member;
         this.watcher = watcher;
@@ -192,11 +216,22 @@ public class Invoker
     public Invoker(PkgMgrFrame pmf, MethodView member, ObjectWrapper objWrapper, ResultWatcher watcher)
     {
         this.pmf = pmf;
-        this.pkg = pmf.getPackage();
+        final Package pkg = pmf.getPackage();
+        this.pkgPath = pkg.getPath();
         this.pkgName = pkg.getQualifiedName();
+        this.pkgScopeId = pkg.getId();
+        this.callHistory = pkg.getCallHistory();
         this.objectBenchVars = pmf.getObjectBench();
         this.objectBench = pmf.getObjectBench();
         this.debugger = pkg.getProject().getDebugger();
+        this.nameTransform = new CleverQualifyTypeNameTransform(pkg);
+        compiler = new InvokerCompiler() {
+            public void compile(File[] files, CompileObserver observer)
+            {
+                JobQueue.getJobQueue().addJob(files, observer, pkg.getProject().getClassLoader(),
+                        pkg.getProject().getProjectDir(),true);
+            }
+        };
 
         this.member = member;
         this.watcher = watcher;
@@ -251,7 +286,7 @@ public class Invoker
             MethodDialog mDialog = methods.get(member);
 
             if (mDialog == null) {
-                mDialog = new MethodDialog(pmf, objectBench, pkg.getCallHistory(), objName, member, typeMap);
+                mDialog = new MethodDialog(pmf, objectBench, callHistory, objName, member, typeMap);
                 methods.put(member, mDialog);
                 mDialog.setVisible(true);
             }
@@ -269,16 +304,6 @@ public class Invoker
         }
     }
 
-    /**
-     * After attempting a free form invocation, and getting an error, we try
-     * again. First time round, we tried interpreting the input as an
-     * expression, the second time we try as a statement (i.e. without a result type).
-     */
-    public void tryAgain()
-    {
-    	doTryAgain = true;
-    }
-
     // -- CallDialogWatcher interface --
 
     /**
@@ -292,7 +317,6 @@ public class Invoker
             dlg.setVisible(false);
         }
         else if (event == CallDialog.OK) {
-
             if (dlg instanceof MethodDialog) {
                 MethodDialog mDialog = (MethodDialog) dlg;
                 mDialog.setEnabled(false);
@@ -356,7 +380,7 @@ public class Invoker
         if (! member.isGeneric() || member.isConstructor()) {
             for (int i = 0; i < numArgs; i++) {
                 JavaType argType = argTypes[i];
-                argTypeStrings[i] = argType.toString(new CleverQualifyTypeNameTransform(pkg));
+                argTypeStrings[i] = argType.toString(nameTransform);
             }
         }
 
@@ -408,7 +432,7 @@ public class Invoker
 
         String constype = null;
         if (constructing) {
-            constype = cleverQualifyTypeName(pkg, className);
+            constype = nameTransform.transform(className);
             if (typeParams != null && typeParams.length > 0) {
                 constype += "<";
                 for (int i = 0; i < typeParams.length; i++) {
@@ -428,7 +452,7 @@ public class Invoker
             isVoid = method.isVoid();
 
             if (method.isStatic())
-                command = cleverQualifyTypeName(pkg, className) + "." + method.getName();
+                command = nameTransform.transform(className) + "." + method.getName();
             else {
                 command = objName + "." + method.getName();
             }
@@ -533,14 +557,14 @@ public class Invoker
     /**
      * Arrange to execute a free form (text) invocation.
      * 
-     * Invocation here means: construct shell class and compile. The execution
+     * <p>Invocation here means: construct shell class and compile. The execution
      * is done once we return from compilation (in method "endCompile").
      * Compilation is done asynchronously by the CompilerThread.
      * 
-     * This method is still executed in the interface thread, while "endCompile"
+     * <p>This method is still executed in the interface thread, while "endCompile"
      * will be executed by the CompilerThread.
      * 
-     * Returns true if successful, or false if there was a problem (the shell
+     * <p>Returns true if successful, or false if there was a problem (the shell
      * file couldn't be written). In case of failure, a dialog is displayed to
      * alert the user.
      */
@@ -652,9 +676,8 @@ public class Invoker
         //  OtherJavaType instnameB = (OtherJavaType)
         // __bluej_runtime_scope("instnameB");
 
-        String scopeId = Utility.quoteString(pkg.getId());
+        String scopeId = Utility.quoteString(pkgScopeId);
         Iterator<? extends NamedValue> wrappers = objectBenchVars.getValueIterator();
-        NameTransform cqtTransform = new CleverQualifyTypeNameTransform(pkg);
 
         Map<String, String> objBenchVarsMap = new HashMap<String, String>();
         
@@ -664,7 +687,7 @@ public class Invoker
             // writeVariables("", buffer, false, wrappers, cqtTransform);
             while (wrappers.hasNext()) {
                 NamedValue objBenchVar = wrappers.next();
-                objBenchVarsMap.put(objBenchVar.getName(), getVarDeclString("", false, objBenchVar, cqtTransform));
+                objBenchVarsMap.put(objBenchVar.getName(), getVarDeclString("", false, objBenchVar, nameTransform));
             }
         }
         
@@ -676,7 +699,7 @@ public class Invoker
             Iterator<? extends NamedValue> i = localVars.getValueIterator();
             while (i.hasNext()) {
                 NamedValue localVar = i.next();
-                objBenchVarsMap.put(localVar.getName(), getVarDeclString("lv:", false, localVar, cqtTransform));
+                objBenchVarsMap.put(localVar.getName(), getVarDeclString("lv:", false, localVar, nameTransform));
             }
         }
         
@@ -712,7 +735,7 @@ public class Invoker
                     buffer.append(constype + " result;");
                     if (localVars != null) {
                         buffer.append("{ ");
-                        writeVariables("lv:", buffer, false, localVars.getValueIterator(), cqtTransform);
+                        writeVariables("lv:", buffer, false, localVars.getValueIterator(), nameTransform);
                         buffer.append("this.result = ");
                     }
                 }
@@ -748,7 +771,7 @@ public class Invoker
         }
         String scopeSave = buffer.toString();
 
-        File shellFile = new File(pkg.getPath(), shellName + ".java");
+        File shellFile = new File(pkgPath, shellName + ".java");
         BufferedWriter shell = null;
         try {
             shell = new BufferedWriter(new FileWriter(shellFile));
@@ -962,8 +985,7 @@ public class Invoker
     private void compileInvocationFile(File shellFile)
     {
         File[] files = {shellFile};
-        JobQueue.getJobQueue().addJob(files, new EventqueueCompileObserver(this),
-                pkg.getProject().getClassLoader(), pkg.getProject().getProjectDir(),true);
+        compiler.compile(files, new EventqueueCompileObserver(this));
     }
 
     // -- CompileObserver interface --
@@ -1021,12 +1043,6 @@ public class Invoker
     {
         deleteShellFiles();
         
-        if (! successful && doTryAgain) {
-            doTryAgain = false;
-            doFreeFormInvocation(null);
-            return;
-        }
-        
         if (! successful && dialog != null) {
             // Re-enable call dialog: use can try again with
             // different parameters.
@@ -1058,10 +1074,10 @@ public class Invoker
      */
     private void deleteShellFiles()
     {
-        File srcFile = new File(pkg.getPath(), shellName + ".java");
+        File srcFile = new File(pkgPath, shellName + ".java");
         srcFile.delete();
 
-        File classFile = new File(pkg.getPath(), shellName + ".class");
+        File classFile = new File(pkgPath, shellName + ".class");
         classFile.delete();
     }
 

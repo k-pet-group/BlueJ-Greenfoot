@@ -93,8 +93,12 @@ public class TextEvalPane extends JEditorPane
     private IndexHistory history;
     private Invoker invoker = null;
     private TextAnalyzer textParser = null;
+    
+    // Keeping track of invocation
     private boolean firstTry;
     private boolean wrappedResult;
+    private String errorMessage;
+    
     private boolean mouseInTag = false;
     private boolean mouseOverObject = false;
     private boolean busy = false;
@@ -316,31 +320,45 @@ public class TextEvalPane extends JEditorPane
     /**
      * An invocation has failed - here is the error message
      */
-    public void putError(final String message, InvokerRecord ir)
+    public void putError(String message, InvokerRecord ir)
     {
         if(firstTry) {
-            // append("   --error, first try: " + message + "\n");
             if (wrappedResult) {
                 // We thought we knew what the result type should be, but there
                 // was a compile time error. So try again, assuming that we
-                // got it wrong.
+                // got it wrong, and we'll use the dynamic result type (meaning
+                // we won't get type arguments).
                 wrappedResult = false;
+                errorMessage = null; // use the error message from this second attempt
                 invoker = new Invoker(frame, this, currentCommand, TextEvalPane.this);
                 invoker.setImports(textParser.getImportStatements());
                 invoker.doFreeFormInvocation("");
             }
             else {
+                // We thought there was going to be a result, but compilation failed.
+                // Try again, but assume we have a statement this time.
                 firstTry = false;
-                invoker.tryAgain();
+                invoker = new Invoker(frame, this, currentCommand, TextEvalPane.this);
+                invoker.setImports(textParser.getImportStatements());
+                invoker.doFreeFormInvocation(null);
+                if (errorMessage == null) {
+                    errorMessage = message;
+                }
             }
         }
         else {
+            if (errorMessage == null) {
+                errorMessage = message;
+            }
+            
             // An error. Remove declared variables.
-            if (autoInitializedVars != null)
+            if (autoInitializedVars != null) {
                 autoInitializedVars.clear();
+            }
             
             removeNewlyDeclareds();
-            showErrorMsg(message);
+            showErrorMsg(errorMessage);
+            errorMessage = null;
         }
     }
     
@@ -834,6 +852,7 @@ public class TextEvalPane extends JEditorPane
                 
                 // see if any variables were declared
                 if (retType == null) {
+                    firstTry = false; // Only try once.
                     currentCommand = textParser.getAmendedCommand();
                     List<DeclaredVar> declaredVars = textParser.getDeclaredVars();
                     if (declaredVars != null) {
