@@ -404,8 +404,10 @@ public final class Terminal extends JFrame
             
             if (resultType == ExecutionEvent.NORMAL_EXIT) {
                 DebuggerObject object = event.getResultObject();
-                result = object.getGenClassName() + " result = ";
-                result += object.getFieldValueString(0);
+                if (object != null) {
+                    result = object.getGenClassName() + " result = ";
+                    result += object.getFieldValueString(0);
+                }
             }
             else if (resultType == ExecutionEvent.EXCEPTION_EXIT) {
                 result = "Exception occurred.";
