@@ -750,20 +750,17 @@ public class JavaParser
             
             // "body"
             if (token.getType() == JavaTokenTypes.LCURLY) {
-                beginMethodBody(token);
-                parseStmtBlock();
+                beginAnonClassBody(token);
+                parseClassBody();
                 token = tokenStream.nextToken();
                 if (token.getType() != JavaTokenTypes.RCURLY) {
                     error("Expected '}' at end of enum constant body");
-                    tokenStream.pushBack(token);
-                    endMethodBody(token, false);
-                    //endMethodDecl(token, false);
+                    endAnonClassBody(token, false);
                 }
                 else {
-                    endMethodBody(token, true);
-                    //endMethodDecl(token, true);
+                    endAnonClassBody(token, true);
+                    token = tokenStream.nextToken();
                 }
-                token = tokenStream.nextToken();
             }
 
             if (token.getType() == JavaTokenTypes.SEMI) {
@@ -890,7 +887,10 @@ public class JavaParser
         
         return rval;
     }
-        
+
+    /**
+     * Having seen '{', parse the rest of a class body.
+     */
     public void parseClassBody()
     {
         LocatableToken token = tokenStream.nextToken();

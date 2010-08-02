@@ -342,7 +342,7 @@ public class BasicParseTest extends junit.framework.TestCase
     public void testValidClassInfo5() throws Exception
     {
     	StringReader sr = new StringReader(
-    			"enum A { monday {}, tuesday() {}, wednesday }"
+    			"enum A { monday { public int getAnInt() { return 3;} }, tuesday() {}, wednesday }"
     	);
     	ClassInfo info = InfoParser.parse(sr, null, null);
     	assertNotNull(info);
