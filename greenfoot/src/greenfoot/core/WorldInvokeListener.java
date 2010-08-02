@@ -41,6 +41,7 @@ import rmiextension.wrappers.RObject;
 import bluej.debugmgr.CallDialog;
 import bluej.debugmgr.CallDialogWatcher;
 import bluej.debugmgr.CallHistory;
+import bluej.debugmgr.ConstructorDialog;
 import bluej.debugmgr.ExpressionInformation;
 import bluej.debugmgr.MethodDialog;
 import bluej.debugmgr.inspector.InspectorManager;
@@ -82,8 +83,8 @@ public class WorldInvokeListener
     private GProject project;
     
     /** A map which tells us which construction location applies to each dialog */
-    private Map<MethodDialog,MouseEvent> dialogToLocationMap =
-        new HashMap<MethodDialog,MouseEvent>();
+    private Map<CallDialog,MouseEvent> dialogToLocationMap =
+        new HashMap<CallDialog,MouseEvent>();
     
     public WorldInvokeListener(Object obj, ObjectBenchInterface bench,
             InspectorManager inspectorManager, GProject project)
@@ -102,7 +103,7 @@ public class WorldInvokeListener
         this.inspectorManager = inspectorManager;
     }
     
-    /* (non-Javadoc)
+    /*
      * @see bluej.debugmgr.objectbench.InvokeListener#executeMethod(bluej.views.MethodView)
      */
     public void executeMethod(MethodView mv)
@@ -218,8 +219,8 @@ public class WorldInvokeListener
         else {
             // Parameters are required for this call, so we need to use a call dialog.
             CallHistory ch = GreenfootMain.getInstance().getCallHistory();
-            MethodDialog md = new MethodDialog(GreenfootMain.getInstance().getFrame(),
-                    objectBench, ch, "result", cv, null);
+            ConstructorDialog md = new ConstructorDialog(GreenfootMain.getInstance().getFrame(),
+                    objectBench, ch, "result", cv);
 
             dialogToLocationMap.put(md, LocationTracker.instance().getMouseButtonEvent());
             
@@ -245,9 +246,8 @@ public class WorldInvokeListener
             dialogToLocationMap.remove(dlg);
         }
         else if (event == CallDialog.OK) {
-            MethodDialog mdlg = (MethodDialog) dlg;
-            mdlg.setWaitCursor(true);
-            mdlg.setEnabled(false);
+            dlg.setWaitCursor(true);
+            dlg.setEnabled(false);
             RObject rObj = null;
             try {
                 if(obj != null) {
@@ -260,7 +260,7 @@ public class WorldInvokeListener
                     return;
                 }      
                 
-                executeMethod(mdlg, rObj, pkg);
+                executeMethod(dlg, rObj, pkg);
             }
             catch (ProjectNotOpenException e1) {
                 Debug.reportError("Error invoking interative method", e1);
@@ -291,7 +291,7 @@ public class WorldInvokeListener
      * @param rObj Object to invoke method on
      * @param pkg Package used for invocation
      */
-    private void executeMethod(final MethodDialog mdlg, final RObject rObj, final GPackage pkg)
+    private void executeMethod(final CallDialog mdlg, final RObject rObj, final GPackage pkg)
     {
         CallableView callv = mv == null ? (CallableView)cv : mv;
         Class<?> [] cparams = callv.getParameters();
