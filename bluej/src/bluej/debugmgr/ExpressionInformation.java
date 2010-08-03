@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -33,46 +33,46 @@ import bluej.views.MethodView;
  * information such as the method signature, javadoc, etc...
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ExpressionInformation.java 6215 2009-03-30 13:28:25Z polle $
  */
-public class ExpressionInformation {
-	private Comment comment;
-	private String signature;
-	private String expression;
-	private String dynamicType;	
-	private MethodView methodView;
+public class ExpressionInformation
+{
+    private Comment comment;
+    private String signature;
+    private String expression;
+    private MethodView methodView;
 
     private String invokedOn;
     private String[] args;
     
-	// if expression is a call of an instance method, this is the type of the instance.
+    // if expression is a call of an instance method, this is the type of the instance.
     private GenTypeClass instanceType;
     
     private static final Comment emptyComment = new Comment();;
 
-	/**
-	 * Generates the expression information from a method view. The actual
-	 * values for arguments to the method is not yet available and should be set
-	 * later.
-	 * 
-	 * @see #setArgumentValues(String[])
-	 * @param methodView
-	 *            The MethodView of the invoked method
-	 */
-	public ExpressionInformation(MethodView methodView, String instanceName) {
-		this.methodView = methodView;
-		comment = methodView.getComment();
-		signature = methodView.getLongDesc();
+    /**
+     * Generates the expression information from a method view. The actual
+     * values for arguments to the method is not yet available and should be set
+     * later.
+     * 
+     * @see #setArgumentValues(String[])
+     * @param methodView
+     *            The MethodView of the invoked method
+     */
+    public ExpressionInformation(MethodView methodView, String instanceName)
+    {
+        this.methodView = methodView;
+        comment = methodView.getComment();
+        signature = methodView.getLongDesc();
 
-		if (methodView.isStatic()) {
-			invokedOn = methodView.getClassName();
-		} else {
-			invokedOn = instanceName;
-		}
-
-	}
+        if (methodView.isStatic()) {
+            invokedOn = methodView.getClassName();
+        } else {
+            invokedOn = instanceName;
+        }
+    }
     
-    public ExpressionInformation(MethodView methodView, String instanceName, GenTypeClass instanceType) {
+    public ExpressionInformation(MethodView methodView, String instanceName, GenTypeClass instanceType)
+    {
         this.methodView = methodView;
         comment = methodView.getComment();
         signature = methodView.getLongDesc(instanceType.getMap());
@@ -83,48 +83,50 @@ public class ExpressionInformation {
             invokedOn = instanceName;
             this.instanceType = instanceType;
         }
-
     }
 
-	/**
-	 * Generates the expression information from an expression. This just copies
-	 * the actual string.
-	 * 
-	 * @param expression
-	 *            The expression we are watching
-	 */
-	public ExpressionInformation(String expression) {
-		this.expression = expression;
-	}
-	
-	/**
-	 * Sets the values for the arguments to the method call.
-	 * 
-	 * @param args the argument values
-	 */
-	public void setArgumentValues(String[] args) {	
-	    this.args = args;	    
-	}
-	
-	/**
-	 * Returns the javadoc for this method
-	 *  
-	 * @return Returns the comment. Never null.
-	 */
-	public Comment getComment() {
-	    if(comment!=null) {
-	        return comment;
-	    } else {
-	        return emptyComment;
-	    }
-	}
-	
-	/**
-	 * Returns the expression.
-	 * 
-	 * @return Returns the expression.
-	 */
-	public String getExpression()
+    /**
+     * Generates the expression information from an expression. This just copies
+     * the actual string.
+     * 
+     * @param expression
+     *            The expression we are watching
+     */
+    public ExpressionInformation(String expression)
+    {
+        this.expression = expression;
+    }
+
+    /**
+     * Sets the values for the arguments to the method call.
+     * 
+     * @param args the argument values
+     */
+    public void setArgumentValues(String[] args)
+    {	
+        this.args = args;	    
+    }
+
+    /**
+     * Returns the javadoc for this method
+     *  
+     * @return Returns the comment. Never null.
+     */
+    public Comment getComment()
+    {
+        if(comment!=null) {
+            return comment;
+        } else {
+            return emptyComment;
+        }
+    }
+
+    /**
+     * Returns the expression.
+     * 
+     * @return Returns the expression.
+     */
+    public String getExpression()
     {
         expression = invokedOn + "." + methodView.getName();
         expression += "(";
@@ -141,16 +143,17 @@ public class ExpressionInformation {
 
         return expression;
     }
-	
-	/**
-	 * Get the signature for the method.
-	 * 
-	 * @return Returns the method signature or null if it is not available
-	 */
-	public String getSignature() {
-		return signature;
-	}
-	
+
+    /**
+     * Get the signature for the method.
+     * 
+     * @return Returns the method signature or null if it is not available
+     */
+    public String getSignature()
+    {
+        return signature;
+    }
+
     /**
      * Get the type of the object on which the method was called.
      * 
@@ -160,7 +163,7 @@ public class ExpressionInformation {
     {
         return instanceType;
     }
-	
+
     /**
      * Get the method view assosciated with this expression.
      * 
@@ -170,21 +173,19 @@ public class ExpressionInformation {
     {
         return methodView;
     }
-	
-	public String toString() {
-		String newline = System.getProperty("line.separator");
-		StringBuffer s = new StringBuffer();
 
-		s.append(newline);
-		s.append(getComment());		
-		s.append(newline);
-		s.append(getSignature());
-		s.append(newline);
-		s.append(getExpression());	
+    public String toString()
+    {
+        String newline = System.getProperty("line.separator");
+        StringBuffer s = new StringBuffer();
 
-		return s.toString();
-	}
+        s.append(newline);
+        s.append(getComment());		
+        s.append(newline);
+        s.append(getSignature());
+        s.append(newline);
+        s.append(getExpression());	
 
-	
-
+        return s.toString();
+    }
 }

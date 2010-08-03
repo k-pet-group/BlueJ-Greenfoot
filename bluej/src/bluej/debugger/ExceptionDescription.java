@@ -28,13 +28,19 @@ import java.util.List;
  *
  * @author Michael Kolling
  */
-
 public final class ExceptionDescription
 {
     private String className;
     private String text;
     private List<SourceLocation> stack;
 
+    /**
+     * Construct an exception description.
+     * 
+     * @param className  The name of the exception class
+     * @param text       The exception message
+     * @param stack      The stack trace for the exception
+     */
     public ExceptionDescription(String className, String text, 
                                 List<SourceLocation> stack)
     {
