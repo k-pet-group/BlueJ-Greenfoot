@@ -81,6 +81,7 @@ import bluej.views.MethodView;
 public class WorldInvokeListener
     implements InvokeListener, CallDialogWatcher
 {
+    /** The object on which we are listening. Null if we are listening on a class. */
     private Object obj;
     private RObject rObj;
     private MethodView mv;
@@ -95,7 +96,9 @@ public class WorldInvokeListener
     private Map<CallDialog,MouseEvent> dialogToLocationMap =
         new HashMap<CallDialog,MouseEvent>();
     
-    // DAV comment
+    /**
+     * Create a WorldInvokeListener for listening to method invocations on an object.
+     */
     public WorldInvokeListener(JFrame frame, Object obj, ObjectBenchInterface bench,
             InspectorManager inspectorManager, GProject project)
     {
@@ -106,7 +109,10 @@ public class WorldInvokeListener
         this.frame = frame;
     }
     
-    // DAV comment
+    /**
+     * Create a WorldInvokeListener for listening to static method and constructor
+     * invocations.
+     */
     public WorldInvokeListener(JFrame frame, Class<?> cl, ObjectBenchInterface bench, InspectorManager inspectorManager, GProject project)
     {
         this.objectBench = bench;
@@ -116,7 +122,10 @@ public class WorldInvokeListener
         this.frame = frame;
     }
     
-    // DAV comment
+    /**
+     * Get an invoker instance to deal with invocation of the given method or
+     * constructor.
+     */
     private Invoker getInvokerInstance(final CallableView callable)
     {
         if (obj != null) {
