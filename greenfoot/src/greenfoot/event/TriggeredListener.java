@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,8 +23,8 @@ package greenfoot.event;
 
 /**
  * Interface for classes that wants to be able to receive events from the InputManager.
- * <p>
- * You should not use this interface directly, but rather one of the sub interfaces.
+ * 
+ * <p>You should not use this interface directly, but rather one of the sub interfaces.
  * 
  * @see TriggeredKeyListener 
  * @see TriggeredMouseListener
@@ -35,9 +35,11 @@ package greenfoot.event;
 public interface TriggeredListener
 {
     /**
-     * Fired when this event will start receiving events.
-     * @param obj Optional object to be passed to the listener. Can be null.
+     * Fired when this listener will start receiving events.
      * 
+     * @param obj Optional object to be passed to the listener. If a state change occurred
+     *            due to an object being constructed, this will be a reference to the constructed object. 
+     *            Can otherwise be null.
      */
     public void listeningStarted(Object obj);
 

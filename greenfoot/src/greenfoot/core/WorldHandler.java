@@ -256,8 +256,6 @@ public class WorldHandler
     }
 
     /*
-     * (non-Javadoc)
-     * 
      * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
      */
     public void mouseClicked(MouseEvent e)
@@ -266,8 +264,6 @@ public class WorldHandler
     }
 
     /*
-     * (non-Javadoc)
-     * 
      * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
      */
     public void mousePressed(MouseEvent e)
@@ -302,8 +298,6 @@ public class WorldHandler
     }
 
     /*
-     * (non-Javadoc)
-     * 
      * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
      */
     public void mouseReleased(MouseEvent e)
@@ -362,20 +356,14 @@ public class WorldHandler
     }
 
     /*
-     * (non-Javadoc)
-     * 
      * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
      */
     public void mouseEntered(MouseEvent e)
     {
-        // TODO figure out if I need this still:
-        //handlerDelegate.setQuickAddActive(false);
         worldCanvas.requestFocusInWindow();
     }
 
     /*
-     * (non-Javadoc)
-     * 
      * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
      */
     public void mouseExited(MouseEvent e)
@@ -396,16 +384,12 @@ public class WorldHandler
     }
 
     /*
-     * (non-Javadoc)
-     * 
      * @see java.awt.event.KeyListener#keyTyped(java.awt.event.KeyEvent)
      */
     public void keyTyped(KeyEvent e)
     {}
 
     /*
-     * (non-Javadoc)
-     * 
      * @see java.awt.event.KeyListener#keyPressed(java.awt.event.KeyEvent)
      */
     public void keyPressed(KeyEvent e)
@@ -413,8 +397,6 @@ public class WorldHandler
     }
 
     /*
-     * (non-Javadoc)
-     * 
      * @see java.awt.event.KeyListener#keyReleased(java.awt.event.KeyEvent)
      */
     public void keyReleased(KeyEvent e)
@@ -437,7 +419,6 @@ public class WorldHandler
     /**
      * Notify that construction of a new world has started.
      * @see #setWorld(World)
-     * @param world
      */
     public void setInitialisingWorld(World world)
     {
@@ -757,7 +738,7 @@ public class WorldHandler
 
     public void simulationChanged(SimulationEvent e)
     {
-        inputManager.simulationChanged(e); // TODO maybe add somewhere else?
+        inputManager.simulationChanged(e);
         if (e.getType() == SimulationEvent.NEW_ACT) {
             mousePollingManager.newActStarted();
             handlerDelegate.simulationActive();
@@ -837,9 +818,9 @@ public class WorldHandler
 
     public void listeningEnded()
     {
-    // TODO: instead of relying on mousePressed to start a drag on the world, we
-    // should initiate it in listeningStarted. Maybe by passing the event object
-    // to listening started. 
+        // TODO: instead of relying on mousePressed to start a drag on the world, we
+        // should initiate it in listeningStarted. Maybe by passing the event object
+        // to listening started. 
     }
 
     public void listeningStarted(Object obj)
@@ -854,10 +835,15 @@ public class WorldHandler
         }
     }
     
-    public void notifyCreatedActor(Class<?> theClass, Object actor, String[] args)
+    /**
+     * Notify that an actor was constructed interactively by the user.
+     * @param actor   The actor object
+     * @param String[] args   The constructor arguments (as Java expressions)
+     */
+    public void notifyCreatedActor(Object actor, String[] args)
     {
         if (interactionListener != null)
-            interactionListener.createdActor(theClass, actor, args);
+            interactionListener.createdActor(actor, args);
     }
 
     public void notifyMethodCall(Object obj, String instanceName, String name, String[] args)

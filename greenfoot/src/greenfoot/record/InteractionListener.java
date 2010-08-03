@@ -28,7 +28,7 @@ import greenfoot.Actor;
  */
 public interface InteractionListener
 {
-    public void createdActor(Class<?> theClass, Object actor, String[] args);
+    public void createdActor(Object actor, String[] args);
 
     public void methodCall(Object obj, String actorName, String name, String[] args);
 

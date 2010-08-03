@@ -515,9 +515,9 @@ public class WorldHandlerDelegateIDE
         greenfootRecorder.addActorToWorld(actor, x, y);
     }
 
-    public void createdActor(Class<?> theClass, Object actor, String[] args)
+    public void createdActor(Object actor, String[] args)
     {
-        greenfootRecorder.createActor(theClass, actor, args);
+        greenfootRecorder.createActor(actor, args);
     }
 
     public void methodCall(Object obj, String actorName, String name, String[] args)

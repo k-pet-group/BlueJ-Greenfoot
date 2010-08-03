@@ -39,7 +39,6 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.PopupMenu;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
@@ -62,7 +61,7 @@ import bluej.utility.Utility;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 7928 2010-07-27 02:58:48Z marionz $
+ * @version $Id: ClassView.java 7974 2010-08-03 12:38:38Z davmac $
  */
 public class ClassView extends JToggleButton
     implements Selectable, MouseListener
@@ -433,8 +432,9 @@ public class ClassView extends JToggleButton
                     Constructor<?> constructor = realClass.getConstructor(new Class[]{});
                     constructor.setAccessible(true);
 
+                    // DAV this should be executed on the Simulation thread
                     Object newObject = constructor.newInstance(new Object[]{});
-                    WorldHandler.getInstance().notifyCreatedActor(realClass, newObject, new String [0]);            
+                    WorldHandler.getInstance().notifyCreatedActor(newObject, new String [0]);            
                     ActorInstantiationListener invocationListener = GreenfootMain.getInstance().getInvocationListener();
                     if(invocationListener != null) {
                         invocationListener.localObjectCreated(newObject, LocationTracker.instance().getMouseButtonEvent());

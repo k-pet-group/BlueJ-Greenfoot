@@ -50,8 +50,9 @@ public class GreenfootRecorder
         this.action.setRecordingValid(false);
     }
 
-    public void createActor(Class<?> theClass, Object actor, String[] args)
+    public void createActor(Object actor, String[] args)
     {
+        Class<?> theClass = actor.getClass();
         String name = nameActor(actor);
         code.add(theClass.getCanonicalName() + " " + name + " = new " + theClass.getCanonicalName() + "(" + withCommas(args) + ");");
     }

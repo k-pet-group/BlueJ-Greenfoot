@@ -169,7 +169,9 @@ public class WorldInvokeListener
                         // DAV shouldn't we also handle world construction here?
                         // What about non-actors?
                         Object o = ((LocalObject) result).getObject();
-                        WorldHandler.getInstance().notifyCreatedActor(cl, o, new String[0]);
+                        if (callable instanceof ConstructorView) {
+                            WorldHandler.getInstance().notifyCreatedActor(o, new String[0]);
+                        }
                         ActorInstantiationListener invocListener = GreenfootMain.getInstance().getInvocationListener();
                         invocListener.localObjectCreated(o, LocationTracker.instance().getMouseButtonEvent());
                     }
@@ -224,7 +226,7 @@ public class WorldInvokeListener
                         final Constructor<?> c = cl.getDeclaredConstructor(new Class[0]);
                         c.setAccessible(true);
                         Object o = c.newInstance((Object[]) null);
-                        WorldHandler.getInstance().notifyCreatedActor(cl, o, new String[0]);
+                        WorldHandler.getInstance().notifyCreatedActor(o, new String[0]);
                         ActorInstantiationListener invocListener = GreenfootMain.getInstance().getInvocationListener();
                         invocListener.localObjectCreated(o, LocationTracker.instance().getMouseButtonEvent());
                     }
@@ -435,7 +437,7 @@ public class WorldInvokeListener
                                 RObject rresult = pkg.getObject(resultName);
                                 Object resultw = ObjectTracker.getRealObject(rresult);
                                 rresult.removeFromBench();
-                                WorldHandler.getInstance().notifyCreatedActor(cl,resultw,mdlg.getArgs());
+                                WorldHandler.getInstance().notifyCreatedActor(resultw, mdlg.getArgs());
                                 ActorInstantiationListener invocListener = GreenfootMain.getInstance()
                                         .getInvocationListener();
                                 invocListener.localObjectCreated(resultw, location);
@@ -460,76 +462,5 @@ public class WorldInvokeListener
         if(worldHandler != null) {
             worldHandler.repaint();
         }
-    }
-        
-    /**
-     * Wrap a value, that is the result of a method call, in a form that the
-     * ResultInspector can understand.<p>
-     * 
-     * Also ensure that if the result is a primitive type it is correctly
-     * unwrapped.
-     * 
-     * @param r  The result value
-     * @param c  The result type
-     * @return   A DebuggerObject which wraps the result
-     */
-    private static LocalObject wrapResult(final Object r, Class<?> c)
-    {
-        Object wrapped;
-        if (c == boolean.class) {
-            wrapped = new Object() {
-                @SuppressWarnings("unused")
-                public boolean result = ((Boolean) r).booleanValue();
-            };
-        }
-        else if (c == byte.class) {
-            wrapped = new Object() {
-                @SuppressWarnings("unused")
-                public byte result = ((Byte) r).byteValue();
-            };
-        }
-        else if (c == char.class) {
-            wrapped = new Object() {
-                @SuppressWarnings("unused")
-                public char result = ((Character) r).charValue();
-            };
-        }
-        else if (c == short.class) {
-            wrapped = new Object() {
-                @SuppressWarnings("unused")
-                public short result = ((Short) r).shortValue();
-            };
-        }
-        else if (c == int.class) {
-            wrapped = new Object() {
-                @SuppressWarnings("unused")
-                public int result = ((Integer) r).intValue();
-            };
-        }
-        else if (c == long.class) {
-            wrapped = new Object() {
-                @SuppressWarnings("unused")
-                public long result = ((Long) r).longValue();
-            };
-        }
-        else if (c == float.class) {
-            wrapped = new Object() {
-                @SuppressWarnings("unused")
-                public float result = ((Float) r).floatValue();
-            };
-        }
-        else if (c == double.class) {
-            wrapped = new Object() {
-                @SuppressWarnings("unused")
-                public double result = ((Double) r).doubleValue();
-            };
-        }
-        else {
-            wrapped = new Object() {
-                @SuppressWarnings("unused")
-                public Object result = r;
-            };
-        }
-        return LocalObject.getLocalObject(wrapped);
     }
 }
