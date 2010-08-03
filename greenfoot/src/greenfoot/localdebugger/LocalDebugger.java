@@ -21,8 +21,12 @@
  */
 package greenfoot.localdebugger;
 
+import greenfoot.core.Simulation;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import bluej.classmgr.BPClassLoader;
@@ -33,9 +37,17 @@ import bluej.debugger.DebuggerObject;
 import bluej.debugger.DebuggerResult;
 import bluej.debugger.DebuggerTestResult;
 import bluej.debugger.DebuggerThreadTreeModel;
+import bluej.debugger.ExceptionDescription;
+import bluej.debugger.SourceLocation;
 import bluej.runtime.ExecServer;
+import bluej.utility.Debug;
 
-// DAV comment
+/**
+ * A "local" debugger. This implements various parts of the Debugger interface, to allow
+ * executing user code in the local VM. Some of the interface is not implemented however.
+ * 
+ * @author Davin McCall
+ */
 public class LocalDebugger extends Debugger
 {
 
@@ -163,28 +175,67 @@ public class LocalDebugger extends Debugger
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * A class to support running user code on the simulation thread.
+     * 
+     * @author Davin McCall
+     */
+    private static class QueuedExecution implements Runnable
+    {
+        private Class<?> c;
+        private DebuggerResult result;
+        
+        public QueuedExecution(Class <?> c)
+        {
+            this.c = c;
+        }
+        
+        public synchronized void run()
+        {
+            try {
+                Method m = c.getMethod("run", new Class[0]);
+                Object result = m.invoke(null, new Object[0]);
+                LocalObject resultObject = wrapResult(result, m.getReturnType());
+                this.result = new DebuggerResult(resultObject);
+            }
+            catch (IllegalAccessException iae) {
+                Debug.reportError("LocalDebugger runClassMain error", iae);
+                result = new DebuggerResult(new ExceptionDescription("Internal error"));
+            }
+            catch (NoSuchMethodException nsme) {
+                Debug.reportError("LocalDebugger runClassMain error", nsme);
+                result = new DebuggerResult(new ExceptionDescription("Internal error"));
+            }
+            catch(InvocationTargetException ite) {
+                ite.getCause().printStackTrace(System.err);
+                ExceptionDescription exception = getExceptionDescription(ite.getCause());
+                result = new DebuggerResult(exception);
+            }
+            notify();
+        }
+        
+        public synchronized DebuggerResult getResult()
+        {
+            while (result == null) {
+                try {
+                    wait();
+                } catch (InterruptedException e) {
+                    // should be safe to ignore
+                }
+            }
+            return result;
+        }
+    }
+    
     @Override
     public DebuggerResult runClassMain(String className)
             throws ClassNotFoundException
     {
         ClassLoader currentLoader = ExecServer.getCurrentClassLoader();
         Class<?> c = currentLoader.loadClass(className);
-        try {
-            Method m = c.getMethod("run", new Class[0]);
-            Object result = m.invoke(null, new Object[0]);
-            LocalObject resultObject = wrapResult(result, m.getReturnType());
-            return new DebuggerResult(resultObject);
-        }
-        catch (NoSuchMethodException nsme) {
-            return null; // DAV
-        }
-        catch (IllegalAccessException iae) {
-            return null; // DAV
-        }
-        catch(InvocationTargetException ite) {
-            //throw ite.getCause();
-            return null; // DAV
-        }
+        QueuedExecution qe = new QueuedExecution(c);
+        Simulation.getInstance().runLater(qe);
+        return qe.getResult();
     }
 
     @Override
@@ -282,5 +333,20 @@ public class LocalDebugger extends Debugger
             };
         }
         return LocalObject.getLocalObject(wrapped);
+    }
+    
+    /**
+     * Convert a Throwable into an ExceptionDescription.
+     */
+    private static ExceptionDescription getExceptionDescription(Throwable t)
+    {
+        List<SourceLocation> stack = new ArrayList<SourceLocation>();
+        StackTraceElement [] stackTrace = t.getStackTrace();
+        for (StackTraceElement element : stackTrace) {
+            stack.add(new SourceLocation(element.getClassName(), element.getFileName(),
+                    element.getMethodName(), element.getLineNumber()));
+        }
+        new ExceptionDescription(t.getClass().getName(), t.getLocalizedMessage(), stack);
+        return null;
     }
 }
