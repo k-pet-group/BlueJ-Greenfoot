@@ -123,6 +123,7 @@ public class GreenfootScenarioViewer extends JApplet
                 new GreenfootScenarioViewer(frame);
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 frame.setTitle(scenarioName);
+                frame.setResizable(false);
                 
                 URL resource = this.getClass().getClassLoader().getResource("greenfoot.png");
                 ImageIcon icon = new ImageIcon(resource);
