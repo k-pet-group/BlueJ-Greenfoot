@@ -116,6 +116,41 @@ public class Invoker
     private String commandString;
     private InvokerRecord ir;
 
+    // DAV comment
+    public Invoker(JFrame frame, CallableView member, ResultWatcher watcher, File pkgPath, String pkgName,
+            String pkgScopeId, CallHistory callHistory, ValueCollection objectBenchVars,
+            ObjectBenchInterface objectBench, Debugger debugger, InvokerCompiler compiler,
+            String instanceName)
+    {
+        this.pmf = frame;
+        this.member = member;
+        this.watcher = watcher;
+        if (member instanceof ConstructorView) {
+            this.objName = member.getClassName().toLowerCase();
+            constructing = true;
+        }
+        else if (member instanceof MethodView) {
+            constructing = false;
+        }
+        
+        this.instanceName = instanceName;
+        this.pkgPath = pkgPath;
+        this.pkgName = pkgName;
+        this.pkgScopeId = pkgScopeId;
+        this.callHistory = callHistory;
+        this.objectBenchVars = objectBenchVars;
+        this.objectBench = objectBench;
+        this.debugger = debugger;
+        this.nameTransform = new NameTransform() {
+            public String transform(String typeName)
+            {
+                return typeName;
+            }
+        };
+        this.compiler = compiler;
+        this.shellName = getShellName();
+    }
+
     /**
      * Create an invoker for a free form statement or expression. After using this
      * constructor, optionally call setImports(), then call doFreeFormInvocation()
@@ -135,7 +170,7 @@ public class Invoker
         constructing = false;
         commandString = command;
     }
-
+    
     /**
      * Call a class's constructor OR call a static method and create an
      * ObjectWrapper for the resulting object

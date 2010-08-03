@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -878,10 +878,7 @@ public class ExecServer
     
 
     /**
-     * Gets an object in the scope.
-     * <br>
-     * 
-     * Used by greenfoot.
+     * Gets an object in the scope. Used by greenfoot.
      * 
      * @param instanceName The name of the object
      * @return The object
@@ -906,6 +903,15 @@ public class ExecServer
         catch (InterruptedException ie) {}
         
         return rval;
+    }
+    
+    /**
+     * Get the name-to-object map for the current package scope.
+     * Access to the map must be synchronized.
+     */
+    public static BJMap<String,Object> getObjectMap()
+    {
+        return getScope(scopeId);
     }
     
     /**
