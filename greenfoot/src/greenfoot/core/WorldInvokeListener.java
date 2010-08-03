@@ -166,14 +166,26 @@ public class WorldInvokeListener
                         InvokerRecord ir)
                 {
                     if (result instanceof LocalObject) {
-                        // DAV shouldn't we also handle world construction here?
-                        // What about non-actors?
                         Object o = ((LocalObject) result).getObject();
-                        if (callable instanceof ConstructorView) {
-                            WorldHandler.getInstance().notifyCreatedActor(o, new String[0]);
+
+                        if (callable instanceof MethodView) {
+                            MethodView mv = (MethodView) callable;
+                            if (! mv.isVoid()) {
+                                // Display a result inspector for the method result
+                                ExpressionInformation ei = new ExpressionInformation((MethodView) callable, instanceName);
+                                ei.setArgumentValues(ir.getArgumentValues());
+                                ResultInspector ri = inspectorManager.getResultInspectorInstance(result,
+                                        instanceName, null, null, ei, GreenfootMain
+                                        .getInstance().getFrame());
+                                ri.setVisible(true);
+                            }
                         }
-                        ActorInstantiationListener invocListener = GreenfootMain.getInstance().getInvocationListener();
-                        invocListener.localObjectCreated(o, LocationTracker.instance().getMouseButtonEvent());
+                        else {
+                            // DAV constructor for non-actor/world?
+                            WorldHandler.getInstance().notifyCreatedActor(o, new String[0]);
+                            ActorInstantiationListener invocListener = GreenfootMain.getInstance().getInvocationListener();
+                            invocListener.localObjectCreated(o, LocationTracker.instance().getMouseButtonEvent());
+                        }
                     }
 
                     update();

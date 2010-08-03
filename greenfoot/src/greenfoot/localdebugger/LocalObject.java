@@ -163,7 +163,7 @@ public class LocalObject extends DebuggerObject
     }
     
     
-    /* (non-Javadoc)
+    /*
      * @see bluej.debugger.DebuggerObject#getClassName()
      */
     public String getClassName()
@@ -171,7 +171,7 @@ public class LocalObject extends DebuggerObject
         return object.getClass().getName();
     }
 
-    /* (non-Javadoc)
+    /*
      * @see bluej.debugger.DebuggerObject#getGenClassName()
      */
     public String getGenClassName()
@@ -185,7 +185,7 @@ public class LocalObject extends DebuggerObject
             return getClassName();
     }
 
-    /* (non-Javadoc)
+    /*
      * @see bluej.debugger.DebuggerObject#getStrippedGenClassName()
      */
     public String getStrippedGenClassName()
@@ -419,8 +419,9 @@ public class LocalObject extends DebuggerObject
                 Object o = field.get(object);
                 if (o != null) { // The return value might be null
                     Class<?> c = o.getClass();
-                    if (genericParams != null)
+                    if (genericParams != null) {
                         expectedType.mapTparsToTypes(genericParams);
+                    }
                     GenTypeClass g = expectedCtype.mapToDerived(new JavaReflective(c));
                     Map<String,GenTypeParameter> m = g.getMap();
                     return getLocalObject(o, m);
@@ -507,12 +508,17 @@ public class LocalObject extends DebuggerObject
         }
     }
 
-    /* (non-Javadoc)
+    /*
      * @see bluej.debugger.DebuggerObject#getFieldValueString(int)
      */
     public String getFieldValueString(int slot)
     {
+        // DAV
+        System.out.println("LocalObject getFieldValueString slot = " + slot);
         Field f = getAllFields()[slot];
+        // DAV
+        System.out.println("  field name = " + f.getName());
+        System.out.println("  field type = " + f.getType().getName());
         Object v = null;
         try {
             v = f.get(object);
