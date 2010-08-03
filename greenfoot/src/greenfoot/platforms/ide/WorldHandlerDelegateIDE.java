@@ -26,6 +26,7 @@ import greenfoot.ObjectTracker;
 import greenfoot.World;
 import greenfoot.actions.SaveWorldAction;
 import greenfoot.core.GClass;
+import greenfoot.core.GNamedValue;
 import greenfoot.core.GProject;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
@@ -65,8 +66,6 @@ import javax.swing.SwingUtilities;
 import rmiextension.wrappers.RObject;
 import bluej.Config;
 import bluej.debugger.DebuggerObject;
-import bluej.debugger.gentype.JavaType;
-import bluej.debugmgr.NamedValue;
 import bluej.debugmgr.objectbench.ObjectBenchEvent;
 import bluej.debugmgr.objectbench.ObjectBenchInterface;
 import bluej.debugmgr.objectbench.ObjectBenchListener;
@@ -124,7 +123,8 @@ public class WorldHandlerDelegateIDE
     {
         JPopupMenu menu = new JPopupMenu();
 
-        ObjectWrapper.createMethodMenuItems(menu, obj.getClass(), new WorldInvokeListener(obj, this, frame, project),
+        ObjectWrapper.createMethodMenuItems(menu, obj.getClass(),
+                new WorldInvokeListener(frame, obj, this, frame, project),
                 LocalObject.getLocalObject(obj), null, false);
 
         // "inspect" menu item
@@ -253,9 +253,10 @@ public class WorldHandlerDelegateIDE
                         if (e.isPopupTrigger() && worldHandler.getWorld() != null) {
                             JPopupMenu menu = new JPopupMenu();
 
-                            ObjectWrapper.createMethodMenuItems(menu, newWorld.getClass(), new WorldInvokeListener(
-                                    newWorld, WorldHandlerDelegateIDE.this, frame, project), LocalObject
-                                    .getLocalObject(newWorld), null, false);
+                            ObjectWrapper.createMethodMenuItems(menu, newWorld.getClass(),
+                                    new WorldInvokeListener(frame, newWorld, WorldHandlerDelegateIDE.this,
+                                            frame, project),
+                                    LocalObject.getLocalObject(newWorld), null, false);
                             // "inspect" menu item
                             JMenuItem m = getInspectMenuItem(newWorld);
                             menu.add(m);
@@ -299,40 +300,11 @@ public class WorldHandlerDelegateIDE
      */
     public void fireObjectEvent(Actor actor)
     {
-        class GNamedValue implements NamedValue {
-            private String name;
-            public GNamedValue(String instanceName)
-            {
-                name = instanceName;
-            }
-
-            public JavaType getGenType()
-            {
-                // TODO Auto-generated method stub
-                return null;
-            }
-
-            public String getName()
-            {
-                return name;
-            }
-
-            public boolean isFinal()
-            {
-                // TODO Auto-generated method stub
-                return false;
-            }
-
-            public boolean isInitialized()
-            {
-                return true;
-            }            
-        }
         GNamedValue value =null;
         try {
             RObject rObj = ObjectTracker.getRObject(actor);
             if (rObj != null)
-                value =  new GNamedValue(rObj.getInstanceName());
+                value =  new GNamedValue(rObj.getInstanceName(), null);
         }
         catch (RemoteException e) {
             // TODO Auto-generated catch block

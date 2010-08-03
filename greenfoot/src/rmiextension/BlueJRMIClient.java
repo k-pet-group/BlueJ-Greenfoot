@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -39,7 +39,6 @@ import bluej.extensions.ProjectNotOpenException;
  * The RMI client that establishes the initial connection to the BlueJ RMI server
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: BlueJRMIClient.java 6216 2009-03-30 13:41:07Z polle $
  */
 public class BlueJRMIClient implements BlueJPropStringSource
 {
@@ -55,7 +54,7 @@ public class BlueJRMIClient implements BlueJPropStringSource
         instance = this;
 
         try {
-        	blueJ = (RBlueJ) Naming.lookup(rmiServiceName);
+            blueJ = (RBlueJ) Naming.lookup(rmiServiceName);
         }
         catch (MalformedURLException e) {
             e.printStackTrace();

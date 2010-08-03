@@ -24,9 +24,9 @@ package greenfoot.core;
 import greenfoot.ObjectTracker;
 import greenfoot.event.ActorInstantiationListener;
 import greenfoot.gui.input.mouse.LocationTracker;
+import greenfoot.localdebugger.LocalDebugger;
 import greenfoot.localdebugger.LocalObject;
 
-import java.awt.EventQueue;
 import java.awt.event.MouseEvent;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -35,15 +35,22 @@ import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
 import rmiextension.wrappers.RObject;
+import bluej.debugger.Debugger;
+import bluej.debugger.DebuggerObject;
+import bluej.debugger.ExceptionDescription;
 import bluej.debugmgr.CallDialog;
 import bluej.debugmgr.CallDialogWatcher;
 import bluej.debugmgr.CallHistory;
 import bluej.debugmgr.ConstructorDialog;
 import bluej.debugmgr.ExpressionInformation;
-import bluej.debugmgr.MethodDialog;
+import bluej.debugmgr.Invoker;
+import bluej.debugmgr.InvokerCompiler;
+import bluej.debugmgr.ResultWatcher;
+import bluej.debugmgr.ValueCollection;
 import bluej.debugmgr.inspector.InspectorManager;
 import bluej.debugmgr.inspector.ResultInspector;
 import bluej.debugmgr.objectbench.InvokeListener;
@@ -51,6 +58,7 @@ import bluej.debugmgr.objectbench.ObjectBenchInterface;
 import bluej.extensions.ClassNotFoundException;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
+import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.Debug;
 import bluej.views.CallableView;
 import bluej.views.ConstructorView;
@@ -81,101 +89,122 @@ public class WorldInvokeListener
     private InspectorManager inspectorManager;
     private ObjectBenchInterface objectBench;
     private GProject project;
+    private JFrame frame;
     
     /** A map which tells us which construction location applies to each dialog */
     private Map<CallDialog,MouseEvent> dialogToLocationMap =
         new HashMap<CallDialog,MouseEvent>();
     
-    public WorldInvokeListener(Object obj, ObjectBenchInterface bench,
+    // DAV comment
+    public WorldInvokeListener(JFrame frame, Object obj, ObjectBenchInterface bench,
             InspectorManager inspectorManager, GProject project)
     {
         this.objectBench = bench;
         this.obj = obj;
         this.inspectorManager = inspectorManager;
         this.project = project;
+        this.frame = frame;
     }
     
-    public WorldInvokeListener(Class<?> cl, ObjectBenchInterface bench, InspectorManager inspectorManager, GProject project)
+    // DAV comment
+    public WorldInvokeListener(JFrame frame, Class<?> cl, ObjectBenchInterface bench, InspectorManager inspectorManager, GProject project)
     {
         this.objectBench = bench;
         this.cl = cl;
         this.project = project;
         this.inspectorManager = inspectorManager;
+        this.frame = frame;
     }
     
-    /*
-     * @see bluej.debugmgr.objectbench.InvokeListener#executeMethod(bluej.views.MethodView)
-     */
-    public void executeMethod(MethodView mv)
+    // DAV comment
+    private Invoker getInvokerInstance(final CallableView callable)
     {
-        this.mv = mv;
-        
-        try {
-            if (obj != null)
+        if (obj != null) {
+            try {
                 rObj = ObjectTracker.getRObject(obj);
-            final String instanceName = obj != null ? rObj.getInstanceName() : cl.getName();
-            
-            if (mv.getParameterCount() == 0) {
-                final Method m = mv.getMethod();
-                m.setAccessible(true);
-                Simulation.getInstance().runLater(new Runnable() {
-                    public void run() {
-                        try {
-                            final Object r = m.invoke(obj, (Object[])null);
-                            update();
-                            WorldHandler.getInstance().notifyMethodCall(obj, instanceName, m.getName(), new String[0]);
-                            if (m.getReturnType() != void.class) {
-                                final ExpressionInformation ei = new ExpressionInformation(WorldInvokeListener.this.mv, instanceName);
-                                EventQueue.invokeLater(new Runnable() {
-                                    public void run()
-                                    {
-                                        ResultInspector ri = inspectorManager.getResultInspectorInstance(
-                                                wrapResult(r, m.getReturnType()), instanceName, null,
-                                                null, ei,  GreenfootMain.getInstance().getFrame());
-                                        ri.setVisible(true);
-                                    }
-                                });
-                            }
-                        }
-                        catch (InvocationTargetException ite) {
-                            // TODO highlight the line in the editor
-                            ite.getCause().printStackTrace();
-                        }
-                        catch (IllegalAccessException iae) {
-                            // shouldn't happen
-                            Debug.reportError("Invoking method", iae);
-                        }
-                    }
-                });
             }
-            else {
-                CallHistory ch = GreenfootMain.getInstance().getCallHistory();
-                MethodDialog md = new MethodDialog(GreenfootMain.getInstance().getFrame(),
-                        objectBench , ch, instanceName, mv, null);
+            catch (ProjectNotOpenException e) {
+                return null;
+            }
+            catch (PackageNotFoundException e) {
+                return null;
+            }
+            catch (RemoteException e) {
+                Debug.reportError("Error getting remote object", e);
+                return null;
+            }
+            catch (ClassNotFoundException e) {
+                Debug.reportError("Error getting remote object", e);
+                return null;
+            }
+        }
 
-                md.setWatcher(this);
-                md.setVisible(true);
+        ValueCollection objectBenchVars = ObjectTracker.getObjects();
+        Debugger debugger = new LocalDebugger(); // DAV probably can use a single static instance
+        CallHistory ch = GreenfootMain.getInstance().getCallHistory();
+        try {
+            final String instanceName = rObj != null ? rObj.getInstanceName() : cl.getName();
+            ResultWatcher watcher = new ResultWatcher() {
+                public void beginCompile()
+                {
+                }
                 
-                // The dialog will be Ok'd or cancelled, this
-                // WorldInvokeListener instance is notified via the
-                // callDialogEvent method.
-            }
+                public void beginExecution(InvokerRecord ir)
+                {
+                }
+                
+                public void putError(String message, InvokerRecord ir)
+                {
+                }
+                
+                public void putException(ExceptionDescription exception,
+                        InvokerRecord ir)
+                {
+                }
+                
+                public void putResult(DebuggerObject result, String name,
+                        InvokerRecord ir)
+                {
+                    if (result instanceof LocalObject) {
+                        // DAV shouldn't we also handle world construction here?
+                        // What about non-actors?
+                        Object o = ((LocalObject) result).getObject();
+                        WorldHandler.getInstance().notifyCreatedActor(cl, o, new String[0]);
+                        ActorInstantiationListener invocListener = GreenfootMain.getInstance().getInvocationListener();
+                        invocListener.localObjectCreated(o, LocationTracker.instance().getMouseButtonEvent());
+                    }
+
+                    update();
+                    if (callable instanceof MethodView) {
+                        MethodView m = (MethodView) callable;
+                        WorldHandler.getInstance().notifyMethodCall(obj, instanceName, m.getName(), new String[0]);
+                    }
+                }
+
+                public void putVMTerminated(InvokerRecord ir)
+                {
+                    // What, the VM was terminated? *this* VM? then how am I still executing...?
+                }
+            };
+            InvokerCompiler compiler = project.getDefaultPackage().getCompiler();
+            return new Invoker(frame, callable, watcher, project.getDir(), "", project.getDir().getPath(),
+                    ch, objectBenchVars, objectBench, debugger, compiler, instanceName);
         }
         catch (RemoteException re) {
-            Debug.reportError("Remote error when invoking method", re);
+            Debug.reportError("Error getting invoker instance", re);
+            return null;
         }
-        catch (ProjectNotOpenException e) {
-            // Really shouldn't happen
-            Debug.reportError("Error invoking method", e);
-        }
-        catch (PackageNotFoundException e) {
-            Debug.reportError("Error invoking method", e);
-        }
-        catch (ClassNotFoundException e) {
-            Debug.reportError("Error invoking method", e);
+        catch (ProjectNotOpenException pnoe) {
+            return null; // should never happen
         }
     }
-    
+
+    public void executeMethod(MethodView mv)
+    {
+        Invoker invoker = getInvokerInstance(mv);
+        invoker.invokeInteractive();
+    }
+
     /**
      * Interactively call a constructor. If necessary, a dialog is presented to ask for
      * parameters; then the object is constructed. The ActorInstantiationListener is

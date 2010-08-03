@@ -32,8 +32,11 @@ import java.util.List;
 import java.util.Map;
 
 import rmiextension.wrappers.RClass;
+import rmiextension.wrappers.RJobQueue;
 import rmiextension.wrappers.RObject;
 import rmiextension.wrappers.RPackage;
+import bluej.compiler.CompileObserver;
+import bluej.debugmgr.InvokerCompiler;
 import bluej.extensions.BObject;
 import bluej.extensions.CompilationNotStartedException;
 import bluej.extensions.MissingJavaFileException;
@@ -295,4 +298,29 @@ public class GPackage
         return worldClasses;
     }
 
+    /**
+     * Get access to the remote compiler queue.
+     */
+    public InvokerCompiler getCompiler()
+    {
+        try {
+            final RJobQueue rqueue = pkg.getCompiler();
+            return new InvokerCompiler() {
+                @Override
+                public void compile(File[] files, CompileObserver observer)
+                {
+                    try {
+                        rqueue.compile(files, new LocalCompileObserverWrapper(observer));
+                    }
+                    catch (RemoteException re) {
+                        Debug.reportError("Error trying to compile on remote queue", re);
+                    }
+                }
+            };
+        }
+        catch (RemoteException re) {
+            Debug.reportError("Error getting remote compiler queue", re);
+            return null;
+        }
+    }
 }

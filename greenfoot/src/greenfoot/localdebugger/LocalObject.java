@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,15 +21,12 @@
  */
 package greenfoot.localdebugger;
 
-import greenfoot.Actor;
-import greenfoot.World;
 import greenfoot.util.DebugUtil;
 
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -40,6 +37,7 @@ import bluej.Config;
 import bluej.debugger.DebuggerClass;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.gentype.GenTypeClass;
+import bluej.debugger.gentype.GenTypeParameter;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.Reflective;
 import bluej.utility.JavaNames;
@@ -47,13 +45,11 @@ import bluej.utility.JavaReflective;
 import bluej.utility.JavaUtils;
 
 import com.sun.jdi.ObjectReference;
-import com.sun.jdi.ReferenceType;
 
 /**
  * A class to represent a local object as a DebuggerObject
  *  
  * @author Davin McCall
- * @version $Id: LocalObject.java 7753 2010-06-03 11:03:22Z nccb $
  */
 public class LocalObject extends DebuggerObject
 {
@@ -62,7 +58,7 @@ public class LocalObject extends DebuggerObject
     
     // instance fields
     protected Object object;
-    private Map genericParams = null; // Map of parameter names to types 
+    private Map<String,GenTypeParameter> genericParams = null; // Map of parameter names to types 
     
     public static LocalObject getLocalObject(Object o)
     {
@@ -96,7 +92,7 @@ public class LocalObject extends DebuggerObject
         }
     }
     
-    public static LocalObject getLocalObject(Object o, Map genericParams)
+    public static LocalObject getLocalObject(Object o, Map<String,GenTypeParameter> genericParams)
     {        
         if (o != null && o.getClass().isArray()) {
             if (o instanceof boolean[]) {
@@ -144,7 +140,7 @@ public class LocalObject extends DebuggerObject
      * @param genericParams  The mapping of type parameter names to types
      *                       (String to GenType).
      */
-    protected LocalObject(Object o, Map genericParams)
+    protected LocalObject(Object o, Map<String,GenTypeParameter> genericParams)
     {
         object = o;
         this.genericParams = genericParams;
@@ -203,7 +199,7 @@ public class LocalObject extends DebuggerObject
             return JavaNames.stripPrefix(getClassName());
     }
 
-    /* (non-Javadoc)
+    /*
      * @see bluej.debugger.DebuggerObject#getClassRef()
      */
     public DebuggerClass getClassRef()
@@ -211,7 +207,7 @@ public class LocalObject extends DebuggerObject
         return new LocalClass(object.getClass());
     }
 
-    /* (non-Javadoc)
+    /*
      * @see bluej.debugger.DebuggerObject#getGenType()
      */
     public GenTypeClass getGenType()
@@ -223,18 +219,19 @@ public class LocalObject extends DebuggerObject
             return new GenTypeClass(r);
     }
 
-    /* (non-Javadoc)
+    /*
      * @see bluej.debugger.DebuggerObject#getGenericParams()
      */
-    public Map getGenericParams()
+    public Map<String,GenTypeParameter> getGenericParams()
     {
-        Map r = null;
+        Map<String,GenTypeParameter> r = null;
         if( genericParams != null ) {
-            r = new HashMap();
+            r = new HashMap<String,GenTypeParameter>();
             r.putAll(genericParams);
         }
-        else if (! isRaw())
-            r = new HashMap();
+        else if (! isRaw()) {
+            r = new HashMap<String,GenTypeParameter>();
+        }
         return r;
     }
 
@@ -255,7 +252,7 @@ public class LocalObject extends DebuggerObject
         }
     }
 
-    /* (non-Javadoc)
+    /*
      * @see bluej.debugger.DebuggerObject#isArray()
      */
     public boolean isArray()
@@ -263,7 +260,7 @@ public class LocalObject extends DebuggerObject
         return object.getClass().isArray();
     }
 
-    /* (non-Javadoc)
+    /*
      * @see bluej.debugger.DebuggerObject#isNullObject()
      */
     public boolean isNullObject()
@@ -282,8 +279,8 @@ public class LocalObject extends DebuggerObject
             return noFields;
         }
         
-        ArrayList allFields = new ArrayList();
-        Class c = object.getClass();
+        ArrayList<Field> allFields = new ArrayList<Field>();
+        Class<?> c = object.getClass();
         
         while (c != null) {
             Field [] declFields = c.getDeclaredFields();
@@ -300,7 +297,7 @@ public class LocalObject extends DebuggerObject
             c = c.getSuperclass();
         }
 
-        return (Field []) allFields.toArray(noFields);
+        return allFields.toArray(noFields);
     }
     
     /**
@@ -345,7 +342,7 @@ public class LocalObject extends DebuggerObject
         return fields[index - 1];
     }
     
-    /* (non-Javadoc)
+    /*
      * @see bluej.debugger.DebuggerObject#getStaticFieldCount()
      */
     public int getStaticFieldCount()
@@ -360,7 +357,7 @@ public class LocalObject extends DebuggerObject
         return staticCount;
     }
 
-    /* (non-Javadoc)
+    /*
      * @see bluej.debugger.DebuggerObject#getInstanceFieldCount()
      */
     public int getInstanceFieldCount()
@@ -375,7 +372,7 @@ public class LocalObject extends DebuggerObject
         return instanceCount;
     }
 
-    /* (non-Javadoc)
+    /*
      * @see bluej.debugger.DebuggerObject#getStaticFieldName(int)
      */
     public String getStaticFieldName(int slot)
@@ -383,7 +380,7 @@ public class LocalObject extends DebuggerObject
         return getStaticFieldSlot(slot).getName();
     }
 
-    /* (non-Javadoc)
+    /*
      * @see bluej.debugger.DebuggerObject#getInstanceFieldName(int)
      */
     public String getInstanceFieldName(int slot)
@@ -421,11 +418,11 @@ public class LocalObject extends DebuggerObject
             if (expectedCtype != null && !isRaw()) {
                 Object o = field.get(object);
                 if (o != null) { // The return value might be null
-                    Class c = o.getClass();
+                    Class<?> c = o.getClass();
                     if (genericParams != null)
                         expectedType.mapTparsToTypes(genericParams);
                     GenTypeClass g = expectedCtype.mapToDerived(new JavaReflective(c));
-                    Map m = g.getMap();
+                    Map<String,GenTypeParameter> m = g.getMap();
                     return getLocalObject(o, m);
                 }
             }
@@ -555,24 +552,13 @@ public class LocalObject extends DebuggerObject
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see bluej.debugger.DebuggerObject#getStaticFields(boolean)
-     */
-    public List getStaticFields(boolean includeModifiers)
-    {
-        if (object == null)
-            return Collections.EMPTY_LIST;
-        
-        return getClassRef().getStaticFields(includeModifiers);
-    }
-
-    /* (non-Javadoc)
+    /*
      * @see bluej.debugger.DebuggerObject#getInstanceFields(boolean)
      */
-    public List getInstanceFields(boolean includeModifiers, Map<String, List<String>> restrictedClasses)
+    public List<String> getInstanceFields(boolean includeModifiers, Map<String, List<String>> restrictedClasses)
     {
-        List r = new ArrayList();
-        Set fieldNames = new HashSet();
+        List<String> r = new ArrayList<String>();
+        Set<String> fieldNames = new HashSet<String>();
         
         Field [] fields = getAllFields();
         for (int i = 0; i < fields.length; i++) {
@@ -644,7 +630,7 @@ public class LocalObject extends DebuggerObject
         return r;
     }
 
-    /* (non-Javadoc)
+    /*
      * @see bluej.debugger.DebuggerObject#staticFieldIsPublic(int)
      */
     public boolean staticFieldIsPublic(int slot)
@@ -654,7 +640,7 @@ public class LocalObject extends DebuggerObject
         return Modifier.isPublic(mods);
     }
 
-    /* (non-Javadoc)
+    /*
      * @see bluej.debugger.DebuggerObject#instanceFieldIsPublic(int)
      */
     public boolean instanceFieldIsPublic(int slot)
@@ -664,7 +650,7 @@ public class LocalObject extends DebuggerObject
         return Modifier.isPublic(mods);
     }
 
-    /* (non-Javadoc)
+    /*
      * @see bluej.debugger.DebuggerObject#staticFieldIsObject(int)
      */
     public boolean staticFieldIsObject(int slot)
@@ -674,7 +660,7 @@ public class LocalObject extends DebuggerObject
             && fieldNotNull(field);
     }
 
-    /* (non-Javadoc)
+    /*
      * @see bluej.debugger.DebuggerObject#instanceFieldIsObject(int)
      */
     public boolean instanceFieldIsObject(int slot)
@@ -684,7 +670,7 @@ public class LocalObject extends DebuggerObject
             && fieldNotNull(field);
     }
 
-    /* (non-Javadoc)
+    /*
      * @see bluej.debugger.DebuggerObject#fieldIsObject(int)
      */
     public boolean fieldIsObject(int slot)
@@ -703,12 +689,6 @@ public class LocalObject extends DebuggerObject
         catch (IllegalAccessException iae) { return false; }
     }
 
-    public List getAllFields(boolean includeModifiers)
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
-    
     /**
      * Whether a given field should be used.
      * @return True if the field should be used, false if it should be ignored

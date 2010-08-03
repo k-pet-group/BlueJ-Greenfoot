@@ -51,6 +51,12 @@ public interface RPackage
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException, CompilationNotStartedException;
 
     /**
+     * Get access to the compiler queue.
+     */
+    public abstract RJobQueue getCompiler()
+        throws RemoteException;
+    
+    /**
      * Get a remote reference to a class within the package.
      */
     public abstract RClass getRClass(String name)

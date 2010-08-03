@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -32,6 +32,7 @@ import greenfoot.core.WorldHandler;
 import greenfoot.core.WorldInvokeListener;
 import greenfoot.event.WorldEvent;
 import greenfoot.event.WorldListener;
+import greenfoot.gui.GreenfootFrame;
 import greenfoot.gui.classbrowser.ClassBrowser;
 import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.localdebugger.LocalClass;
@@ -99,7 +100,8 @@ public abstract class ClassRole implements WorldListener
                     continue;
 
                 ObjectBenchInterface ob = WorldHandler.getInstance().getObjectBench();
-                WorldInvokeListener invocListener = new WorldInvokeListener(realClass, ob, GreenfootMain.getInstance().getFrame(), project);
+                GreenfootFrame frame = GreenfootMain.getInstance().getFrame();
+                WorldInvokeListener invocListener = new WorldInvokeListener(frame, realClass, ob, frame, project);
 
                 String prefix = "new ";
                 Action callAction = new ConstructAction(m, invocListener, prefix + m.getLongDesc());
@@ -157,9 +159,12 @@ public abstract class ClassRole implements WorldListener
             MethodView[] allMethods = view.getAllMethods();
 
             ObjectBenchInterface ob = WorldHandler.getInstance().getObjectBench();
-            WorldInvokeListener invocListener = new WorldInvokeListener(realClass, ob, GreenfootMain.getInstance().getFrame(), project);
-            if (bluej.pkgmgr.target.role.ClassRole.createMenuItems(popupMenu, allMethods, filter, 0, allMethods.length, "", invocListener))
+            GreenfootFrame frame = GreenfootMain.getInstance().getFrame();
+            WorldInvokeListener invocListener = new WorldInvokeListener(frame, realClass, ob, frame, project);
+            if (bluej.pkgmgr.target.role.ClassRole.createMenuItems(popupMenu, allMethods, filter, 0,
+                    allMethods.length, "", invocListener)) {
                 popupMenu.addSeparator();
+            }
         }
 
 

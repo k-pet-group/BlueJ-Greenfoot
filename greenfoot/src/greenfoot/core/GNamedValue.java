@@ -1,6 +1,6 @@
 /*
- This file is part of the Greenfoot program. 
- Copyright (C) 2010  Poul Henriksen and Michael Kolling 
+ This file is part of the BlueJ program. 
+ Copyright (C) 2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -19,24 +19,44 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package greenfoot.record;
+package greenfoot.core;
 
-import greenfoot.Actor;
+import bluej.debugger.gentype.JavaType;
+import bluej.debugmgr.NamedValue;
 
 /**
- * An interface currently used to provide hooks for recording the save-the-world.
+ * A class to represent a simple named value.
+ * 
+ * @author Davin McCall
  */
-public interface InteractionListener
+public class GNamedValue implements NamedValue
 {
-    public void createdActor(Class<?> theClass, Object actor, String[] args);
+    private String name;
+    private JavaType type;
+    
+    public GNamedValue(String instanceName, JavaType type)
+    {
+        name = instanceName;
+        this.type = type;
+    }
 
-    public void methodCall(Object obj, String actorName, String name, String[] args);
+    public JavaType getGenType()
+    {
+        return type;
+    }
 
-    public void staticMethodCall(String className, String name, String[] args);
+    public String getName()
+    {
+        return name;
+    }
 
-    public void movedActor(Actor actor, int xCell, int yCell);
+    public boolean isFinal()
+    {
+        return true;
+    }
 
-    public void removedActor(Actor obj);
-
-    public void objectAddedToWorld(Actor object);
+    public boolean isInitialized()
+    {
+        return true;
+    }            
 }

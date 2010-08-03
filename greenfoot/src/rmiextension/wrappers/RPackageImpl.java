@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -80,7 +80,7 @@ public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
     // Wrapper Methods
     /////////////////////
 
-    /* (non-Javadoc)
+    /*
      * @see rmiextension.wrappers.RPackage#compile(boolean)
      */
     public void compile(boolean waitCompileEnd)
@@ -89,7 +89,7 @@ public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
         bPackage.compile(waitCompileEnd);
     }
     
-    /* (non-Javadoc)
+    /*
      * @see rmiextension.wrappers.RPackage#compileAll()
      */
     public void compileAll()
@@ -138,7 +138,16 @@ public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
         }
     }
 
-    /* (non-Javadoc)
+    /*
+     * @see rmiextension.wrappers.RPackage#getCompiler()
+     */
+    @Override
+    public RJobQueue getCompiler() throws RemoteException
+    {
+        return new RJobQueueImpl(getPackage());
+    }
+    
+    /*
      * @see rmiextension.wrappers.RPackage#getRClass(java.lang.String)
      */
     public RClass getRClass(final String name)
@@ -176,7 +185,7 @@ public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
         }
     }
 
-    /* (non-Javadoc)
+    /*
      * @see rmiextension.wrappers.RPackage#getRClasses()
      */
     public RClass[] getRClasses()

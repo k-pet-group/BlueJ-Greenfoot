@@ -19,24 +19,15 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package greenfoot.record;
+package rmiextension.wrappers;
 
-import greenfoot.Actor;
+import java.io.File;
+import java.rmi.Remote;
+import java.rmi.RemoteException;
 
-/**
- * An interface currently used to provide hooks for recording the save-the-world.
- */
-public interface InteractionListener
+// DAV comment
+public interface RJobQueue extends Remote
 {
-    public void createdActor(Class<?> theClass, Object actor, String[] args);
-
-    public void methodCall(Object obj, String actorName, String name, String[] args);
-
-    public void staticMethodCall(String className, String name, String[] args);
-
-    public void movedActor(Actor actor, int xCell, int yCell);
-
-    public void removedActor(Actor obj);
-
-    public void objectAddedToWorld(Actor object);
+    public void compile(File [] files, RCompileObserver observer)
+            throws RemoteException;
 }
