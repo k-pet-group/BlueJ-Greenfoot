@@ -44,10 +44,4 @@ public class LocalCharArray extends LocalArray
     {
         return false;
     }
-    
-    @Override
-    public String getStrippedGenClassName()
-    {
-        return "char[]";
-    }
 }

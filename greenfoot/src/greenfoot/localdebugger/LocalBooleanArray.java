@@ -44,10 +44,4 @@ public class LocalBooleanArray extends LocalArray
     {
         return false;
     }
-    
-    @Override
-    public String getStrippedGenClassName()
-    {
-        return "boolean[]";
-    }
 }

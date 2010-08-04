@@ -44,10 +44,4 @@ public class LocalFloatArray extends LocalArray
     {
         return false;
     }
-    
-    @Override
-    public String getStrippedGenClassName()
-    {
-        return "float[]";
-    }
 }

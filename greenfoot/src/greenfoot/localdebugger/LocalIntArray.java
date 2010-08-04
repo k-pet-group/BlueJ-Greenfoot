@@ -45,9 +45,4 @@ public class LocalIntArray extends LocalArray
         return false;
     }
     
-    @Override
-    public String getStrippedGenClassName()
-    {
-        return "int[]";
-    }
 }

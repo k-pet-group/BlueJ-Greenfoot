@@ -194,8 +194,37 @@ public class LocalObject extends DebuggerObject
         if(genericParams != null)
             return new GenTypeClass(new JavaReflective(object.getClass()),
                     genericParams).toString(true);
-        else
-            return JavaNames.stripPrefix(getClassName());
+        else {
+            String name = getClassName();
+            if (name.startsWith("[")) {
+                //It's an array type that we need to decode
+                int dims = 1 + name.lastIndexOf('[');
+                name = name.substring(dims);
+                switch (name.charAt(0)) {
+                    case 'Z': name = "boolean"; break;
+                    case 'B': name = "byte"; break;
+                    case 'C': name = "char"; break;
+                    case 'D': name = "double"; break;
+                    case 'F': name = "float"; break;
+                    case 'I': name = "int"; break;
+                    case 'J': name = "long"; break;
+                    case 'S': name = "short"; break;
+                    case 'L':
+                        //Strip off trailing semi-colon:
+                        name = name.substring(0, name.length() - 1);
+                        //Strip prefix:
+                        name = JavaNames.stripPrefix(name);
+                        break;
+                }
+                // Add on the appropriate number of square brackets:
+                for (int i = 0;i < dims; i++)
+                    name += "[]";
+                
+                return name;
+            }
+            else 
+                return JavaNames.stripPrefix(name);
+        }
     }
 
     /*
