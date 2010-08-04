@@ -211,7 +211,7 @@ public class LocalObject extends DebuggerObject
                     case 'S': name = "short"; break;
                     case 'L':
                         //Strip off trailing semi-colon:
-                        name = name.substring(0, name.length() - 1);
+                        name = name.substring(1, name.length() - 2);
                         //Strip prefix:
                         name = JavaNames.stripPrefix(name);
                         break;
