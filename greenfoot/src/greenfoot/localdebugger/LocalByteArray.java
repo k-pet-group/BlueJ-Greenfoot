@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,6 +21,11 @@
  */
 package greenfoot.localdebugger;
 
+/**
+ * Represent an array of byte as a DebuggerObject.
+ * 
+ * @author Davin McCall
+ */
 public class LocalByteArray extends LocalArray
 {
     public LocalByteArray(byte [] array)
@@ -29,7 +34,7 @@ public class LocalByteArray extends LocalArray
     }
     
     @Override
-    public String getValueString(int index)
+    public String getFieldValueString(int index)
     {
         return Byte.toString(((byte []) object)[index]);
     }

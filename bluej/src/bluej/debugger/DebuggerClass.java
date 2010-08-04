@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,10 +25,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *  A class representing an object in the debugged VM.
+ * A class for representing classes in the debugged VM.
  *
- *@author     Michael Kolling
- *@version    $Id: DebuggerClass.java 7751 2010-06-03 10:55:25Z nccb $
+ * @author     Michael Kolling
  */
 public abstract class DebuggerClass
 {
@@ -94,7 +93,7 @@ public abstract class DebuggerClass
 
     /**
      *  Return true if the static field 'slot' is an object (and not
-     *  a simple type).
+     *  a simple type, or null).
      *
      *@param  slot  The slot number to be checked
      *@return       Description of the Returned Value

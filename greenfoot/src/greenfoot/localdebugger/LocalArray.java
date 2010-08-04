@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,6 +23,7 @@ package greenfoot.localdebugger;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import bluej.debugger.DebuggerObject;
 import bluej.utility.JavaNames;
@@ -51,7 +52,7 @@ public class LocalArray extends LocalObject
     }
     
     /**
-     * Subclasses use this constructor to specifiy the array lenght.
+     * Subclasses use this constructor to specify the array length.
      * 
      * @param object  The array object
      * @param length  The array length
@@ -67,6 +68,12 @@ public class LocalArray extends LocalObject
         return length;
     }
 
+    @Override
+    public boolean isArray()
+    {
+        return true;
+    }
+    
     public String getInstanceFieldName(int slot)
     {
         return "[" + String.valueOf(slot) + "]";
@@ -91,18 +98,21 @@ public class LocalArray extends LocalObject
         return JavaNames.getArrayElementType(arrayType);
     }
 
-    public List getInstanceFields(boolean includeModifiers, List<String> ignoreFieldsFrom)
+    @Override
+    public List<String> getInstanceFields(boolean includeModifiers,
+            Map<String, List<String>> restrictedClasses)
     {
-        List fields = new ArrayList(length);
+        List<String> fields = new ArrayList<String>(length);
 
         for (int i = 0; i < length; i++) {
-            String valString = getValueString(i);
+            String valString = getFieldValueString(i);
             fields.add("[" + i + "]" + " = " + valString);
         }
         return fields;
     }
     
-    public String getValueString(int index)
+    @Override
+    public String getFieldValueString(int index)
     {
         Object value = ((Object []) object)[index];
         
@@ -110,7 +120,7 @@ public class LocalArray extends LocalObject
             return "\"" + value + "\"";
         }
         else if (value instanceof Enum) {
-            Enum enumv = (Enum) value;
+            Enum<?> enumv = (Enum<?>) value;
             return enumv.name();
         }
         else {
@@ -203,6 +213,4 @@ public class LocalArray extends LocalObject
     {
         return super.equals(other);
     }
-
-
 }

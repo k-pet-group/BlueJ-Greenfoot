@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -37,7 +37,6 @@ import com.sun.jdi.*;
  *
  *@author     Michael Kolling
  *@created    December 26, 2000
- *@version    $Id: JdiClass.java 7751 2010-06-03 10:55:25Z nccb $
  */
 public class JdiClass extends DebuggerClass
 {

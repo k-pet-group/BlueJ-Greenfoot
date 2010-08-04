@@ -27,7 +27,6 @@ import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -93,7 +92,7 @@ public class LocalObject extends DebuggerObject
     }
     
     public static LocalObject getLocalObject(Object o, Map<String,GenTypeParameter> genericParams)
-    {        
+    {
         if (o != null && o.getClass().isArray()) {
             if (o instanceof boolean[]) {
                 return new LocalBooleanArray((boolean []) o);
@@ -219,26 +218,11 @@ public class LocalObject extends DebuggerObject
             return new GenTypeClass(r);
     }
 
-    /*
-     * @see bluej.debugger.DebuggerObject#getGenericParams()
-     */
-    public Map<String,GenTypeParameter> getGenericParams()
-    {
-        Map<String,GenTypeParameter> r = null;
-        if( genericParams != null ) {
-            r = new HashMap<String,GenTypeParameter>();
-            r.putAll(genericParams);
-        }
-        else if (! isRaw()) {
-            r = new HashMap<String,GenTypeParameter>();
-        }
-        return r;
-    }
-
     /**
      * Determine whether this is a raw object. That is, an object of a class
      * which has formal type parameters, but for which no actual types have
      * been given.
+     * 
      * @return  true if the object is raw, otherwise false.
      */
     private boolean isRaw()
