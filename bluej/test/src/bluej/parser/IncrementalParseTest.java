@@ -503,4 +503,88 @@ public class IncrementalParseTest extends TestCase
         assertEquals(0, nap.getPosition());
         assertEquals(28, nap.getSize());
     }
+    
+    public void test11() throws Exception
+    {
+        // Regression test for bug #276
+        String aSrc = 
+            "public class ArrayWrapper\n" +  // 0 - 26 
+            "{\n" +                          // 26 - 28 
+            "  private int x;\n" +           // 28 - 45 
+            "  /**\n" +                      // 45 - 51 
+            "   * Constructor for objects of class ArrayWrapper\n" +  // 51 - 102 
+            "   */\n" +                      // 102 - 108 
+            "  public ArrayWrapper()\n" +    // 108 - 132
+            "  {\n" +                        // 132 - 136 
+            "    x = 0;\n" +                 // 136 - 147
+            "  }\n" +                        // 147 - 151
+            "}\n";                           // 151 - 153
+
+        MoeSyntaxDocument aDoc = docForSource(aSrc, "");
+        ParsedCUNode aNode = aDoc.getParser();
+        NodeAndPosition<ParsedNode> nap = aNode.findNodeAt(0, 0);
+
+        // nap is class node, ends just after '}' at 152
+        assertNotNull(nap);
+        assertEquals(0, nap.getPosition());
+        assertEquals(152, nap.getSize());
+        
+        // class inner node
+        nap = nap.getNode().findNodeAt(27, nap.getPosition());
+        assertNotNull(nap);
+        assertEquals(27, nap.getPosition());
+        assertEquals(151, nap.getEnd());
+        
+        // First in the inner - field node
+        nap = nap.getNode().findNodeAtOrAfter(27, 27);
+        assertNotNull(nap);
+        assertEquals(30, nap.getPosition());
+        assertEquals(44, nap.getEnd());
+        
+        // next - method node (comment is inside it)
+        nap = nap.nextSibling();
+        assertNotNull(nap);
+        assertEquals(47, nap.getPosition());
+        assertEquals(150, nap.getEnd());
+        
+        // Look inside the method node - see comment
+        nap = nap.getNode().findNodeAtOrAfter(47, 47);
+        assertNotNull(nap);
+        assertEquals(47, nap.getPosition());
+        assertEquals(107, nap.getEnd());
+        
+        nap = nap.nextSibling(); // method inner
+        assertNotNull(nap);
+        assertEquals(135, nap.getPosition());
+        assertEquals(149, nap.getEnd());
+
+        int removeSize = 107 - 42;
+        aDoc.remove(42, removeSize); // remove selection:
+        // from just before "x" in "private int x;" to the end of
+        // the comment.
+        
+        //aNode = aDoc.getParser();
+        nap = aNode.findNodeAt(0, 0);
+
+        // nap is class node
+        assertNotNull(nap);
+        assertEquals(0, nap.getPosition());
+        assertEquals(152 - removeSize, nap.getSize());
+
+        // class inner node
+        nap = nap.getNode().findNodeAt(27, nap.getPosition());
+        assertNotNull(nap);
+        assertEquals(27, nap.getPosition());
+        assertEquals(151 - removeSize, nap.getEnd());
+
+        // field
+        nap = nap.getNode().findNodeAtOrAfter(27, 27);
+        assertNotNull(nap);
+        assertEquals(30, nap.getPosition());
+        assertEquals(42, nap.getEnd());
+        NodeAndPosition<ParsedNode> nnap = nap.nextSibling();
+        
+        // The field following was removed, or is at a suitable place
+        assertTrue(nnap == null || nnap.getPosition() >= nap.getEnd());
+    }
 }

@@ -141,17 +141,17 @@ public abstract class ParentParsedNode extends ParsedNode
 
             // Remove any following nodes as necessary
             NodeAndPosition<ParsedNode> next = child.nextSibling();
-            while (next != null && next.getEnd() < endPos) {
+            while (next != null && next.getPosition() < endPos) {
                 NodeAndPosition<ParsedNode> nnext = next.nextSibling();
                 removeChild(next, listener);
                 next = nnext;
             }
 
-            // Inform the child of the removed text 
             if (next != null) {
                 // Slide the portion which remains
                 next.getNode().slide(rlength - length);
             }
+            // Inform the child of the removed text 
             int r = child.getNode().textRemoved(document, child.getPosition(), delPos, rlength, listener);
             int reparseOffset;
             if (r == REMOVE_NODE) {
