@@ -44,4 +44,10 @@ public class LocalByteArray extends LocalArray
     {
         return false;
     }
+    
+    @Override
+    public String getStrippedGenClassName()
+    {
+        return "byte[]";
+    }
 }

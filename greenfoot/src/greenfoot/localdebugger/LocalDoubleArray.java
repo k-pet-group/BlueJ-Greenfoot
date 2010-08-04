@@ -44,4 +44,10 @@ public class LocalDoubleArray extends LocalArray
     {
         return false;
     }
+    
+    @Override
+    public String getStrippedGenClassName()
+    {
+        return "double[]";
+    }
 }

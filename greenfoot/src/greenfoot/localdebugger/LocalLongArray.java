@@ -44,4 +44,12 @@ public class LocalLongArray extends LocalArray
     {
         return false;
     }
+
+    @Override
+    public String getStrippedGenClassName()
+    {
+        return "long[]";
+    }
+    
+    
 }
