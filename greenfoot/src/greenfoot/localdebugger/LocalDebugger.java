@@ -23,6 +23,7 @@ package greenfoot.localdebugger;
 
 import greenfoot.core.Simulation;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -132,10 +133,80 @@ public class LocalDebugger extends Debugger
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * A class to support running user code on the simulation thread.
+     * 
+     * @author Davin McCall
+     */
+    private static class QueuedInstantiation implements Runnable
+    {
+        private Class<?> c;
+        private DebuggerResult result;
+        
+        public QueuedInstantiation(Class <?> c)
+        {
+            this.c = c;
+        }
+        
+        public synchronized void run()
+        {
+            try {
+                final Constructor<?> cons = c.getDeclaredConstructor(new Class[0]);
+                cons.setAccessible(true);
+                Object o = cons.newInstance((Object[]) null);
+                result = new DebuggerResult(LocalObject.getLocalObject(o));
+            }
+            catch (InstantiationException ite) {
+                Debug.reportError("LocalDebugger instantiateClass error", ite);
+                result = new DebuggerResult(new ExceptionDescription("Internal error"));
+            }
+            catch (IllegalAccessException iae) {
+                Debug.reportError("LocalDebugger instantiateClass error", iae);
+                result = new DebuggerResult(new ExceptionDescription("Internal error"));
+            }
+            catch (NoSuchMethodException nsme) {
+                Debug.reportError("LocalDebugger instantiateClass error", nsme);
+                result = new DebuggerResult(new ExceptionDescription("Internal error"));
+            }
+            catch(InvocationTargetException ite) {
+                ite.getCause().printStackTrace(System.err);
+                ExceptionDescription exception = getExceptionDescription(ite.getCause());
+                result = new DebuggerResult(exception);
+            }
+            notify();
+        }
+        
+        public synchronized DebuggerResult getResult()
+        {
+            while (result == null) {
+                try {
+                    wait();
+                } catch (InterruptedException e) {
+                    // should be safe to ignore
+                }
+            }
+            return result;
+        }
+    }
+    
     @Override
     public DebuggerResult instantiateClass(String className)
     {
-        throw new UnsupportedOperationException();
+        ClassLoader currentLoader = ExecServer.getCurrentClassLoader();
+        
+        try {
+            Class<?> cl = currentLoader.loadClass(className);
+            QueuedInstantiation q = new QueuedInstantiation(cl);
+            Simulation.getInstance().runLater(q);
+            return q.getResult();
+        }
+        catch (ClassNotFoundException cnfe) {
+            Debug.reportError("Invoking constructor", cnfe);
+        }
+        catch (LinkageError le) {
+            Debug.reportError("Invoking constructor", le);
+        }
+        return new DebuggerResult(new ExceptionDescription("Internal error"));
     }
 
     @Override

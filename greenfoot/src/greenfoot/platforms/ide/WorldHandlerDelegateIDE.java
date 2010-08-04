@@ -51,6 +51,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.rmi.RemoteException;
 import java.util.List;
 
@@ -446,10 +447,10 @@ public class WorldHandlerDelegateIDE
                 catch (IllegalAccessException e) {
                     showMissingConstructorDialog();
                 }
-                catch (Throwable ise) {
+                catch (InvocationTargetException ite) {
                     // This can happen if a static initializer block throws a Throwable.
                     // Or for other reasons.
-                    ise.printStackTrace();
+                    ite.getCause().printStackTrace();
                 }
             }
         });

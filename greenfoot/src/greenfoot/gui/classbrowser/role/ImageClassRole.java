@@ -149,7 +149,8 @@ public abstract class ImageClassRole extends ClassRole
         return icon;
     }
 
-    public ObjectDragProxy createObjectDragProxy() {
+    public ObjectDragProxy createObjectDragProxy()
+    {
         GreenfootImage greenfootImage = getGreenfootImage(gClass);
         Action dropAction = new AbstractAction() {
             public void actionPerformed(java.awt.event.ActionEvent arg0) {
