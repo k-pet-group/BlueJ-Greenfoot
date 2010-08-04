@@ -77,6 +77,9 @@ public class LocalObject extends DebuggerObject
             else if (o instanceof long[]) {
                 return new LocalLongArray((long []) o);
             }
+            else if (o instanceof short[]) {
+                return new LocalShortArray((short []) o);
+            }
             else if (o instanceof float[]) {
                 return new LocalFloatArray((float []) o);
             }
@@ -108,6 +111,9 @@ public class LocalObject extends DebuggerObject
             }
             else if (o instanceof long[]) {
                 return new LocalLongArray((long []) o);
+            }
+            else if (o instanceof short[]) {
+                return new LocalShortArray((short []) o);
             }
             else if (o instanceof float[]) {
                 return new LocalFloatArray((float []) o);
