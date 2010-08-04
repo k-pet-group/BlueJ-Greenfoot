@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -49,7 +49,7 @@ public class AssertPanel extends JPanel
     private static final String equalToFloatingPointLabel =
         Config.getString("debugger.assert.equalToFloatingPoint");
 
-    private static final String nullLabel = Config.getString("debugger.null");
+    private static final String nullLabel = "null";
 
     /**
      * The panels and UI elements of this panel.

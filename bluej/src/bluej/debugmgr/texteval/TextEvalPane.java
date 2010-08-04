@@ -83,7 +83,7 @@ public class TextEvalPane extends JEditorPane
     private static final Cursor objectCursor = new Cursor(Cursor.HAND_CURSOR);
     private static final Cursor textCursor = new Cursor(Cursor.TEXT_CURSOR);
     
-    private static final String nullLabel = Config.getString("debugger.null");
+    private static final String nullLabel = "null";
     
     private static final String uninitializedWarning = Config.getString("pkgmgr.codepad.uninitialized");
     
