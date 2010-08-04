@@ -513,12 +513,7 @@ public class LocalObject extends DebuggerObject
      */
     public String getFieldValueString(int slot)
     {
-        // DAV
-        System.out.println("LocalObject getFieldValueString slot = " + slot);
         Field f = getAllFields()[slot];
-        // DAV
-        System.out.println("  field name = " + f.getName());
-        System.out.println("  field type = " + f.getType().getName());
         Object v = null;
         try {
             v = f.get(object);

@@ -195,8 +195,7 @@ public class LocalDebugger extends Debugger
             try {
                 Method m = c.getMethod("run", new Class[0]);
                 Object result = m.invoke(null, new Object[0]);
-                LocalObject resultObject = wrapResult(result, m.getReturnType());
-                this.result = new DebuggerResult(resultObject);
+                this.result = new DebuggerResult(LocalObject.getLocalObject(result));
             }
             catch (IllegalAccessException iae) {
                 Debug.reportError("LocalDebugger runClassMain error", iae);
@@ -262,77 +261,6 @@ public class LocalDebugger extends Debugger
             boolean set, Map<String, String> properties)
     {
         throw new UnsupportedOperationException();
-    }
-    
-    /**
-     * Wrap a value, that is the result of a method call, in a form that the
-     * ResultInspector can understand.<p>
-     * 
-     * Also ensure that if the result is a primitive type it is correctly
-     * unwrapped.
-     * 
-     * @param r  The result value
-     * @param c  The result type
-     * @return   A DebuggerObject which wraps the result
-     */
-    private static LocalObject wrapResult(final Object r, Class<?> c)
-    {
-        Object wrapped;
-        if (c == boolean.class) {
-            wrapped = new Object() {
-                @SuppressWarnings("unused")
-                public boolean result = ((Boolean) r).booleanValue();
-            };
-        }
-        else if (c == byte.class) {
-            wrapped = new Object() {
-                @SuppressWarnings("unused")
-                public byte result = ((Byte) r).byteValue();
-            };
-        }
-        else if (c == char.class) {
-            wrapped = new Object() {
-                @SuppressWarnings("unused")
-                public char result = ((Character) r).charValue();
-            };
-        }
-        else if (c == short.class) {
-            wrapped = new Object() {
-                @SuppressWarnings("unused")
-                public short result = ((Short) r).shortValue();
-            };
-        }
-        else if (c == int.class) {
-            wrapped = new Object() {
-                @SuppressWarnings("unused")
-                public int result = ((Integer) r).intValue();
-            };
-        }
-        else if (c == long.class) {
-            wrapped = new Object() {
-                @SuppressWarnings("unused")
-                public long result = ((Long) r).longValue();
-            };
-        }
-        else if (c == float.class) {
-            wrapped = new Object() {
-                @SuppressWarnings("unused")
-                public float result = ((Float) r).floatValue();
-            };
-        }
-        else if (c == double.class) {
-            wrapped = new Object() {
-                @SuppressWarnings("unused")
-                public double result = ((Double) r).doubleValue();
-            };
-        }
-        else {
-            wrapped = new Object() {
-                @SuppressWarnings("unused")
-                public Object result = r;
-            };
-        }
-        return LocalObject.getLocalObject(wrapped);
     }
     
     /**
