@@ -37,6 +37,7 @@ import bluej.compiler.CompileObserver;
 import bluej.compiler.EventqueueCompileObserver;
 import bluej.compiler.JobQueue;
 import bluej.debugger.Debugger;
+import bluej.debugger.DebuggerObject;
 import bluej.debugger.DebuggerResult;
 import bluej.debugger.ExceptionDescription;
 import bluej.debugger.gentype.GenTypeParameter;
@@ -518,7 +519,7 @@ public class Invoker
                             // the execution is completed, get the result if there was one
                             // (this could be either a construction or a function result)
                             
-                            handleResult(result); // handles error situations
+                            handleResult(result, false); // handles error situations
                         }
                     });
                 }
@@ -668,18 +669,6 @@ public class Invoker
         // add variable declaration for a (possible) result
 
         StringBuffer buffer = new StringBuffer();
-        if (!isVoid) {
-            if (constructing) {
-                buffer.append("public static ");
-                buffer.append(constype);
-            }
-            else
-                buffer.append("public static java.lang.Object");
-            buffer.append(" __bluej_runtime_result;");
-            buffer.append(Config.nl);
-        }
-        String resultDecl = buffer.toString();
-        buffer.setLength(0);
         
         // Build scope, ie. add one line for every object on the object
         // bench that gets the object and makes it available for use as
@@ -729,44 +718,36 @@ public class Invoker
 
         // build the invocation string
         
-        if (constructing) {
-            // A sample of the code generated (for a constructor)
-            //  __bluej_runtime_result = new SomeType(2,"adb");
+        // A sample of the code generated (for a method call)
+        //  __bluej_runtime_result = makeObj(2+new String("ap").length());
 
-            buffer.append(shellName);
-            buffer.append(".__bluej_runtime_result = ");
-            buffer.append(callString);
-        }
-        else {
-            // A sample of the code generated (for a method call)
-            //  __bluej_runtime_result = makeObj(2+new String("ap").length());
-
-            if (!isVoid) {
-                buffer.append(shellName);
-                if (constype == null) {
-                    buffer.append(".__bluej_runtime_result = makeObj(");
+        if (!isVoid) {
+            if (constype == null) {
+                buffer.append(paramInit);
+                buffer.append("return makeObj(");
+            }
+            else {
+                buffer.append("return new java.lang.Object() { ");
+                buffer.append(constype + " result;" + Config.nl);
+                buffer.append("{ ");
+                buffer.append(paramInit);
+                if (localVars != null) {
+                    writeVariables("lv:", buffer, false, localVars.getValueIterator(), nameTransform);
                 }
-                else {
-                    buffer.append(".__bluej_runtime_result = new java.lang.Object() { ");
-                    buffer.append(constype + " result;");
-                    if (localVars != null) {
-                        buffer.append("{ ");
-                        writeVariables("lv:", buffer, false, localVars.getValueIterator(), nameTransform);
-                        buffer.append("this.result = ");
-                    }
-                }
+                buffer.append("result=(");
             }
             buffer.append(callString);
             // Append a new line, as the call string may end with a //-style comment
             buffer.append(Config.nl);
-            if (!isVoid && constype == null) {
-                buffer.append(")");
-            }
+            buffer.append(");");
+        }
+        else {
+            buffer.append(paramInit);
+            buffer.append(callString);
+            // Append a new line, as the call string may end with a //-style comment
+            buffer.append(Config.nl);
         }
 
-        if(! isVoid && ! callString.endsWith(";")) {
-            buffer.append(";");
-        }
         buffer.append(Config.nl);
 
         String invocation = buffer.toString();
@@ -802,20 +783,24 @@ public class Invoker
             shell.write(shellName);
             shell.write(" extends bluej.runtime.Shell {");
             shell.newLine();
-            shell.write(resultDecl);
-            shell.newLine();
-            shell.write("public static void run() throws Throwable {");
+            shell.write("public static ");
+            if (isVoid) {
+                shell.write("void");
+            }
+            else {
+                shell.write("java.lang.Object");
+            }
+            shell.write(" run() throws Throwable {");
             shell.newLine();
             shell.write(vardecl);
             shell.newLine();
-            shell.write(paramInit);
             shell.write(invocation);
             shell.write(scopeSave);
-            if (! isVoid && constype != null && ! constructing) {
-                shell.write("} };");
+            if (! isVoid && constype != null) {
+                shell.write("} };"); // end block, anonymous inner object
             }
             shell.newLine();
-            shell.write("}}");
+            shell.write("}}"); // end method, class
             shell.close();
         }
         catch (IOException e) {
@@ -1115,7 +1100,7 @@ public class Invoker
                             // the execution is completed, get the result if there was one
                             // (this could be either a construction or a function result)
                             
-                            handleResult(result);
+                            handleResult(result, constructing);
                             finishCall(true);
                         }
                     });
@@ -1138,7 +1123,7 @@ public class Invoker
      * 
      * <p>This method is called on the Swing event thread.
      */
-    public void handleResult(DebuggerResult result)
+    public void handleResult(DebuggerResult result, boolean unwrap)
     {
         try {
             // first, check whether we had an unexpected exit
@@ -1146,8 +1131,13 @@ public class Invoker
             switch(status) {
                 case Debugger.NORMAL_EXIT :
                     // result will be null here for a void call
-                    ir.setResultObject(result.getResultObject());   
-                    watcher.putResult(result.getResultObject(), objName, ir);
+                    DebuggerObject resultObj = result.getResultObject();
+                    if (unwrap) {
+                        // For constructor calls, the result is expected to be the created object.
+                        resultObj = resultObj.getFieldObject(0);
+                    }
+                    ir.setResultObject(resultObj);   
+                    watcher.putResult(resultObj, objName, ir);
                     break;
 
                 case Debugger.EXCEPTION :

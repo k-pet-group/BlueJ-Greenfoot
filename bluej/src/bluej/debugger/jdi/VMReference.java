@@ -41,13 +41,11 @@ import bluej.Config;
 import bluej.classmgr.BPClassLoader;
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerEvent;
-import bluej.debugger.DebuggerObject;
 import bluej.debugger.DebuggerResult;
 import bluej.debugger.DebuggerTerminal;
 import bluej.debugger.ExceptionDescription;
 import bluej.debugger.SourceLocation;
 import bluej.debugger.DebuggerEvent.BreakpointProperties;
-import bluej.debugger.gentype.GenTypeClass;
 import bluej.runtime.ExecServer;
 import bluej.utility.Debug;
 
@@ -96,7 +94,7 @@ import com.sun.jdi.request.EventRequestManager;
  * machine, which gets started from here via the JDI interface.
  * 
  * @author Michael Kolling
- * @version $Id: VMReference.java 7890 2010-07-21 04:20:43Z davmac $
+ * @version $Id: VMReference.java 7980 2010-08-04 04:47:47Z davmac $
  * 
  * The startup process is as follows:
  * 
@@ -885,19 +883,9 @@ class VMReference
                 }
             }
             
-            ClassObjectReference execdClass = (ClassObjectReference) getStaticFieldObject(serverClass, ExecServer.EXECUTED_CLASS_NAME);
-            ClassType ctype = (ClassType) execdClass.reflectedType();
-            Field rfield = ctype.fieldByName("__bluej_runtime_result");
-            if (rfield != null) {
-                rval = (ObjectReference) ctype.getValue(rfield);
-                if (rval != null) {
-                    GenTypeClass rgtype = (GenTypeClass) JdiReflective.fromField(rfield, ctype);
-                    JdiObject robj = JdiObject.getDebuggerObject(rval, rgtype);
-                    ctype.setValue(rfield, null);
-                    return new DebuggerResult(robj);
-                }
-            }
-            return new DebuggerResult((DebuggerObject) null);
+            ObjectReference objR = getStaticFieldObject(serverClass, ExecServer.METHOD_RETURN_NAME);
+            JdiObject robj = JdiObject.getDebuggerObject(objR);
+            return new DebuggerResult(robj);
         }
         catch (VMDisconnectedException e) {
             exitStatus = Debugger.TERMINATED;
