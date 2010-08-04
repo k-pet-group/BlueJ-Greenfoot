@@ -112,6 +112,14 @@ public class LocalArray extends LocalObject
     }
     
     @Override
+    public String getInstanceField(int slot, boolean includeModifiers)
+    {
+        String valString = getFieldValueString(slot);
+        String field = "[" + slot + "]" + " = " + valString;
+        return field;
+    }
+    
+    @Override
     public String getFieldValueString(int index)
     {
         Object value = ((Object []) object)[index];
