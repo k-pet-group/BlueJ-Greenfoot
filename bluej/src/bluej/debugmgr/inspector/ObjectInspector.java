@@ -514,8 +514,7 @@ public class ObjectInspector extends Inspector
             for (int i = 0; i <= VISIBLE_ARRAY_START; i++) {
                 // first 40 elements are displayed as per normal
                 newArray.add(arrayObject.getInstanceField(i, true));
-                if (i < VISIBLE_ARRAY_START)
-                    indexToSlotList.add(new Integer(i));
+                indexToSlotList.add(new Integer(i));
             }
 
             // now the first of our expansion slots
