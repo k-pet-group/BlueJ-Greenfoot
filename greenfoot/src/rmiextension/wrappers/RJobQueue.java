@@ -25,7 +25,11 @@ import java.io.File;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
-// DAV comment
+/**
+ * Interface for a remote compiler job queue.
+ * 
+ * @author Davin McCall
+ */
 public interface RJobQueue extends Remote
 {
     public void compile(File [] files, RCompileObserver observer)

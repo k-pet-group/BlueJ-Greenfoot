@@ -21,8 +21,9 @@
  */
 package greenfoot.core;
 
+import greenfoot.Actor;
 import greenfoot.ObjectTracker;
-import greenfoot.event.ActorInstantiationListener;
+import greenfoot.World;
 import greenfoot.gui.input.mouse.LocationTracker;
 import greenfoot.localdebugger.LocalDebugger;
 import greenfoot.localdebugger.LocalObject;
@@ -176,10 +177,19 @@ public class WorldInvokeListener
                             }
                         }
                         else {
-                            // DAV constructor for non-actor/world?
-                            WorldHandler.getInstance().notifyCreatedActor(o, new String[0]);
-                            ActorInstantiationListener invocListener = GreenfootMain.getInstance().getInvocationListener();
-                            invocListener.localObjectCreated(o, event);
+                            WorldHandler worldHandler = WorldHandler.getInstance();
+                            worldHandler.notifyCreatedActor(o, new String[0]);
+                            if(o instanceof Actor) {
+                                worldHandler.addObjectAtEvent((Actor) o, event);
+                                worldHandler.repaint();
+                            }
+                            else if(o instanceof greenfoot.World) {
+                                worldHandler.setWorld((World) o);
+                            }
+                            else {
+                                inspectorManager.getInspectorInstance(result, "result", null, null,
+                                        GreenfootMain.getInstance().getFrame());
+                            }
                         }
                     }
 

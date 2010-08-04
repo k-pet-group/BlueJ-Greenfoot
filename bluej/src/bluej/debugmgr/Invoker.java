@@ -117,7 +117,9 @@ public class Invoker
     private String commandString;
     private InvokerRecord ir;
 
-    // DAV comment
+    /**
+     * Construct an invoker, specifying most attributes manually.
+     */
     public Invoker(JFrame frame, CallableView member, ResultWatcher watcher, File pkgPath, String pkgName,
             String pkgScopeId, CallHistory callHistory, ValueCollection objectBenchVars,
             ObjectBenchInterface objectBench, Debugger debugger, InvokerCompiler compiler,
