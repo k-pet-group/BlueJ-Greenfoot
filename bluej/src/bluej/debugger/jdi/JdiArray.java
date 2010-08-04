@@ -200,6 +200,17 @@ public class JdiArray extends JdiObject
         return r;
     }
     
+    @Override
+    public String getInstanceField(int slot, boolean includeModifiers)
+    {
+        ArrayReference array = (ArrayReference) obj;
+        String field = getInstanceFieldName(slot) + " = "
+            + JdiUtils.getJdiUtils().getValueString(array.getValue(slot));
+        return field;
+    }
+    
+    
+    
     /**
      *  Return the name of the static field at 'slot'.
      *

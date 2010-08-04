@@ -307,7 +307,7 @@ public class ObjectInspector extends Inspector
         // if is an array (we potentially will compress the array if it is
         // large)
         if (obj.isArray()) {
-            return compressArrayList(obj.getInstanceFields(true)).toArray(new Object[0]);
+            return compressArrayList(obj).toArray(new Object[0]);
         }
         else {
             return obj.getInstanceFields(true).toArray(new Object[0]);
@@ -493,11 +493,10 @@ public class ObjectInspector extends Inspector
      *            the full field list for an array
      * @return the compressed array
      */
-    private List<String> compressArrayList(List<String> fullArrayFieldList)
+    private List<String> compressArrayList(DebuggerObject arrayObject)
     {
         // mimic the public length field that arrays possess
         // according to the java spec...
-        fullArrayFieldList.add(0, ("int length = " + fullArrayFieldList.size()));
         indexToSlotList = new LinkedList<Integer>();
         indexToSlotList.add(0, new Integer(ARRAY_LENGTH_SLOT_VALUE));
 
@@ -507,13 +506,14 @@ public class ObjectInspector extends Inspector
         // in displaying
         // the ... elements because there would be no elements for them to
         // reveal
-        if (fullArrayFieldList.size() > (VISIBLE_ARRAY_START + VISIBLE_ARRAY_TAIL + 2)) {
+        if (arrayObject.getInstanceFieldCount() > (VISIBLE_ARRAY_START + VISIBLE_ARRAY_TAIL + 2)) {
 
             // the destination list
-            List<String> newArray = new ArrayList<String>();
+            List<String> newArray = new ArrayList<String>(2 + VISIBLE_ARRAY_START + VISIBLE_ARRAY_TAIL);
+            newArray.add(0, ("int length = " + arrayObject.getInstanceFieldCount()));
             for (int i = 0; i <= VISIBLE_ARRAY_START; i++) {
                 // first 40 elements are displayed as per normal
-                newArray.add(fullArrayFieldList.get(i));
+                newArray.add(arrayObject.getInstanceField(i, true));
                 if (i < VISIBLE_ARRAY_START)
                     indexToSlotList.add(new Integer(i));
             }
@@ -524,14 +524,17 @@ public class ObjectInspector extends Inspector
 
             for (int i = VISIBLE_ARRAY_TAIL; i > 0; i--) {
                 // last 5 elements are displayed
-                newArray.add(fullArrayFieldList.get(fullArrayFieldList.size() - i));
+                newArray.add(arrayObject.getInstanceField(arrayObject.getInstanceFieldCount() - i, true));
                 // slot is offset by one due to length field being included in
                 // fullArrayFieldList therefore we add 1 to compensate
-                indexToSlotList.add(new Integer(fullArrayFieldList.size() - (i + 1)));
+                indexToSlotList.add(new Integer(arrayObject.getInstanceFieldCount() - (i + 1)));
             }
             return newArray;
         }
         else {
+            List<String> fullArrayFieldList = arrayObject.getInstanceFields(true);
+            fullArrayFieldList.add(0, ("int length = " + arrayObject.getInstanceFieldCount()));
+            
             for (int i = 0; i < fullArrayFieldList.size(); i++) {
                 indexToSlotList.add(new Integer(i));
             }

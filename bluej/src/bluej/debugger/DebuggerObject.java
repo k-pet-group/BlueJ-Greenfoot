@@ -233,6 +233,26 @@ public abstract class DebuggerObject
     public abstract List<String> getInstanceFields(boolean includeModifiers, Map<String, List<String>> restrictedClasses);
     
     /**
+     * A single-item form of getInstanceFields that only gets a single field.
+     * All parameters are as in getInstanceFields.  In general, it should be the case that
+     * this code:
+     * 
+     * List<String> list = new LinkedList<String>();
+     * for (int i = 0; i < getInstanceFieldCount();i++)
+     *     list.add(getInstanceField(i, includeModifiers));
+     *     
+     * Should produce the same list as:
+     * 
+     * List<String> list = getInstanceFields(includeModifiers, null);
+     * 
+     * Array objects should override this to provide a more efficient implementation.
+     */
+    public String getInstanceField(int slot, boolean includeModifiers)
+    {
+        return getInstanceFields(includeModifiers).get(slot);
+    }
+    
+    /**
      * Get a list of the instance fields of this object.
      * @param includeModifiers  Whether to include modifiers ("private" etc).
      * @see #getInstanceFields(boolean, java.util.Map)
