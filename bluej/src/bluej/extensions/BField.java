@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -47,15 +47,9 @@ import com.sun.jdi.Value;
 /**
  * A wrapper for a field of a BlueJ class.
  * Behaviour is similar to the Reflection API.
- *
- *
- * @version    $Id: BField.java 6215 2009-03-30 13:28:25Z polle $
- */
-
-/*
- * The same reasoning of BConstructor apply here.
- * Author Damiano Bolla, University of Kent at Canterbury, 2003
- * Previous attempt by Clive Miller, University of Kent at Canterbury, 2002
+ * 
+ * @author Damiano Bolla, University of Kent at Canterbury, 2003
+ * @author Clive Miller, University of Kent at Canterbury, 2002
  */
 public class BField
 {
@@ -78,19 +72,16 @@ public class BField
 
     /**
      * Check to see if the field name matches the given one.
+     * 
+     * <p>This method is deprecated. Use "getName().equals(fieldName)" instead.
      *
-     *
-     * @param  fieldName  Description of the Parameter
-     * @return            true if it does, false othervide
+     * @param  fieldName  the field name to compare with
+     * @return            true if it does, false otherwise
      */
+    @Deprecated
     public boolean matches(String fieldName)
     {
-        // Who is so crazy to give me a null name ?
-        if (fieldName == null) {
-            return false;
-        }
-
-        return fieldName.equals(getName());
+        return getName().equals(fieldName);
     }
 
 
@@ -102,7 +93,6 @@ public class BField
      */
     public String getName()
     {
-        // Tested ok, 070303 Damiano
         return bluej_view.getName();
     }
 
@@ -113,9 +103,8 @@ public class BField
      *
      * @return    The type value
      */
-    public Class getType()
+    public Class<?> getType()
     {
-        // Tested ok, 070303 Damiano
         return bluej_view.getType().getViewClass();
     }
 
@@ -132,9 +121,9 @@ public class BField
      * @return    The java.lang.reflect.Field providing extra information about this BField.
      */
     public java.lang.reflect.Field getJavaField()
-      {
-      return bluej_view.getField();
-      }
+    {
+        return bluej_view.getField();
+    }
     
 
     /**
@@ -190,8 +179,7 @@ public class BField
         }
 
         if (debugObj == null) {
-          // No need to complain about it it may not be a static field...
-//        Debug.message("BField.getStatucField: Class="+className+" Field="+wantFieldName+" DEBUG: fieldObject==null");
+            // No need to complain about it it may not be a static field...
             return null;
         }
 
@@ -200,7 +188,6 @@ public class BField
             // WARNING At the moment it is not possible to have reflection behaviour
             // You NEED to have an instance of the class to get static fields...
             // Therefore.... this is normal behaviour and not an ERROR...
-//        Debug.message("BField.getStatucField: Class="+className+" Field="+wantFieldName+" ERROR: ObjectReference==null");
             return null;
         }
 
