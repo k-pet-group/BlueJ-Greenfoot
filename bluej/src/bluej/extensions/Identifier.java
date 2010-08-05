@@ -182,15 +182,15 @@ class Identifier
     /**
      * Returns the Java class that is associated with this name in this package
      *
-     * @return                              The javaClass value
+     * @return                              The java Class object
      * @exception  ProjectNotOpenException  Description of the Exception
      * @exception  ClassNotFoundException   Description of the Exception
      */
-    Class getJavaClass() throws ProjectNotOpenException, ClassNotFoundException
+    Class<?> getJavaClass() throws ProjectNotOpenException, ClassNotFoundException
     {
         Project bluejPrj = getBluejProject();
 
-        Class aClass = bluejPrj.loadClass(qualifiedClassName);
+        Class<?> aClass = bluejPrj.loadClass(qualifiedClassName);
         if (aClass == null)
             throw new ClassNotFoundException("Class " + qualifiedClassName + " Not Found");
 
@@ -212,15 +212,19 @@ class Identifier
 
         String className = qualifiedClassName;
         int dotpos = qualifiedClassName.lastIndexOf(".");
-        if (dotpos > 0)
+        if (dotpos > 0) {
             className = qualifiedClassName.substring(dotpos + 1);
+        }
+        
         Target aTarget = bluejPkg.getTarget(className);
 
-        if (aTarget == null)
-            throw new NullPointerException("Class " + qualifiedClassName + " has NO ClassTarget");
+        if (aTarget == null) {
+            return null;
+        }
 
-        if (!(aTarget instanceof ClassTarget))
-            throw new NullPointerException("Class " + qualifiedClassName + " is not of type ClassTarget");
+        if (!(aTarget instanceof ClassTarget)) {
+            return null;
+        }
 
         return (ClassTarget) aTarget;
     }
@@ -236,7 +240,7 @@ class Identifier
     View getBluejView()
              throws ProjectNotOpenException, ClassNotFoundException
     {
-        Class aClass = getJavaClass();
+        Class<?> aClass = getJavaClass();
 
         // View.getView does not fail, if the class does not exist it will be created.
         return View.getView(aClass);

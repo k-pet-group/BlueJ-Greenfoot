@@ -36,7 +36,7 @@ import java.util.*;
  * @see        BConstructor
  * @see        BMethod
  * @see        BField
- * @version    $Id: BObject.java 7965 2010-08-02 05:19:54Z davmac $
+ * @version    $Id: BObject.java 7999 2010-08-05 04:15:55Z davmac $
  */
 
 /*
@@ -173,11 +173,11 @@ public class BObject
     public BClass getBClass()
              throws ProjectNotOpenException, PackageNotFoundException, ClassNotFoundException
     {
-        // Tis is to test if the Bobject is still valid
-        wrapperId.getJavaClass();
-
         // BClasses are retrieved from the BlueJ classTarget
         ClassTarget classTarget = wrapperId.getClassTarget();
+        if (classTarget == null) {
+            throw new ClassNotFoundException("Can't find ClassTarget for class: " + wrapperId.getClassName());
+        }
         
         // There is only one instance of BClass foer each ClassTarget
         return classTarget.getBClass();
