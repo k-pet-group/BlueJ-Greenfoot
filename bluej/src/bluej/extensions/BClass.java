@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -41,10 +41,6 @@ import bluej.views.View;
  * From this you can create BlueJ objects and call their methods.
  * Behaviour is similar to the Java reflection API.
  *
- * @version    $Id: BClass.java 7999 2010-08-05 04:15:55Z davmac $
- */
-
-/*
  * @author Damiano Bolla, University of Kent at Canterbury, 2002,2003,2004
  */
 public class BClass

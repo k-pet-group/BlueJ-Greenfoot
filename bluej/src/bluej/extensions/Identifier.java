@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,7 +22,18 @@
 package bluej.extensions;
 
 
-/* The problem I am trying to solve is to have a uniform and simple way to deal with
+import java.awt.EventQueue;
+import java.io.File;
+
+import bluej.pkgmgr.Package;
+import bluej.pkgmgr.PkgMgrFrame;
+import bluej.pkgmgr.Project;
+import bluej.pkgmgr.target.ClassTarget;
+import bluej.pkgmgr.target.Target;
+import bluej.views.View;
+
+/**
+ * The problem I am trying to solve is to have a uniform and simple way to deal with
  * objects validity. An extension may be holding BProject  but this BProject may not be valid
  * since the gui has closed it. Or may be holding aBPackage and this not being valid
  * The same apply to a BClass or a BOBject.
@@ -40,20 +51,7 @@ package bluej.extensions;
  * however there are cases when we need the short form, it seems reasonable to store the
  * long form and derive the short one.
  *
- * Author: Damiano Bolla 2003,2004
- */
-import java.awt.EventQueue;
-import java.io.File;
-
-import bluej.pkgmgr.Package;
-import bluej.pkgmgr.PkgMgrFrame;
-import bluej.pkgmgr.Project;
-import bluej.pkgmgr.target.ClassTarget;
-import bluej.pkgmgr.target.Target;
-import bluej.views.View;
-
-/**
- *  Description of the Class
+ * @author Damiano Bolla 2003,2004
  */
 class Identifier
 {
@@ -63,9 +61,7 @@ class Identifier
 
 
     /**
-     *Constructor for the Identifier object
-     *
-     * @param  bleujProject  Description of the Parameter
+     * Constructor for the Identifier object
      */
     Identifier(Project bluejProject)
     {
@@ -74,10 +70,7 @@ class Identifier
 
 
     /**
-     *Constructor for the Identifier object
-     *
-     * @param  bluejProject  Description of the Parameter
-     * @param  bluejPackage  Description of the Parameter
+     * Constructor for the Identifier object
      */
     Identifier(Project bluejProject, Package bluejPackage)
     {
@@ -87,10 +80,6 @@ class Identifier
 
     /**
      * Constructor for the Identifier object
-     *
-     * @param  bluejProject         Description of the Parameter
-     * @param  bluejPackage         Description of the Parameter
-     * @param  aQualifiedClassName  Description of the Parameter
      */
     Identifier(Project bluejProject, Package bluejPackage, String aQualifiedClassName)
     {
@@ -102,9 +91,6 @@ class Identifier
 
     /**
      * Returns the blueJProject and also checks its existence
-     *
-     * @return                              The bluejProject value
-     * @exception  ProjectNotOpenException  Description of the Exception
      */
     Project getBluejProject() throws ProjectNotOpenException
     {
@@ -118,11 +104,9 @@ class Identifier
 
 
     /**
-     * Returns the inner bluej package given the current identifier.
-     *
-     * @return                               The bluejPackage value
-     * @exception  ProjectNotOpenException   Description of the Exception
-     * @exception  PackageNotFoundException  Description of the Exception
+     * Returns the inner BlueJ package given the current identifier.
+     * @throws ProjectNotOpenException
+     * @throws PackageNotFoundException
      */
     Package getBluejPackage() throws ProjectNotOpenException, PackageNotFoundException
     {
@@ -141,7 +125,9 @@ class Identifier
      * its name.
      * This means that the name may not be valid, if the class has 
      * been renamed or deleted.
-     * @return    The qualified name of the class represented by this identifier, or null if it doesn't represent a class
+     * 
+     * @return    The qualified name of the class represented by this identifier,
+     *            or null if it doesn't represent a class
      */
     String getClassName()
     {
@@ -154,8 +140,8 @@ class Identifier
      * This gets rid of one possible exception regarding a packageFrame not open...
      *
      * @return                               The packageFrame value
-     * @exception  ProjectNotOpenException   Description of the Exception
-     * @exception  PackageNotFoundException  Description of the Exception
+     * @exception  ProjectNotOpenException
+     * @exception  PackageNotFoundException
      */
     PkgMgrFrame getPackageFrame()
              throws ProjectNotOpenException, PackageNotFoundException
@@ -182,9 +168,10 @@ class Identifier
     /**
      * Returns the Java class that is associated with this name in this package
      *
-     * @return                              The java Class object
-     * @exception  ProjectNotOpenException  Description of the Exception
-     * @exception  ClassNotFoundException   Description of the Exception
+     * @return      The java Class object
+     * 
+     * @exception  ProjectNotOpenException
+     * @exception  ClassNotFoundException
      */
     Class<?> getJavaClass() throws ProjectNotOpenException, ClassNotFoundException
     {
@@ -201,9 +188,10 @@ class Identifier
     /**
      * Returns the class target of this java class by checking its existence
      *
-     * @return                               The classTarget value
-     * @exception  ProjectNotOpenException   Description of the Exception
-     * @exception  PackageNotFoundException  Description of the Exception
+     * @return      The classTarget value
+     * 
+     * @exception  ProjectNotOpenException
+     * @exception  PackageNotFoundException
      */
     ClassTarget getClassTarget()
              throws ProjectNotOpenException, PackageNotFoundException
@@ -233,9 +221,9 @@ class Identifier
     /**
      * Returns the view associated with this Class
      *
-     * @return                              The bluejView value
-     * @exception  ProjectNotOpenException  Description of the Exception
-     * @exception  ClassNotFoundException   Description of the Exception
+     * @return        The bluejView value
+     * @exception  ProjectNotOpenException
+     * @exception  ClassNotFoundException
      */
     View getBluejView()
              throws ProjectNotOpenException, ClassNotFoundException

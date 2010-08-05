@@ -36,12 +36,9 @@ import java.util.*;
  * @see        BConstructor
  * @see        BMethod
  * @see        BField
- * @version    $Id: BObject.java 7999 2010-08-05 04:15:55Z davmac $
- */
-
-/*
- * Author Clive Miller, University of Kent at Canterbury, 2002
- * Author Damiano Bolla, University of Kent at Canterbury 2003,2004
+ *
+ * @author Clive Miller, University of Kent at Canterbury, 2002
+ * @author Damiano Bolla, University of Kent at Canterbury 2003,2004
  */
 public class BObject
 {
