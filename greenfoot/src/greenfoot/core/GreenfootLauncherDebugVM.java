@@ -48,6 +48,11 @@ import bluej.utility.Debug;
  */
 public class GreenfootLauncherDebugVM
 {
+    private static GreenfootLauncherDebugVM instance;
+    
+    @SuppressWarnings("unused")
+    private Object transportField;
+    
     /**
      * Constructor for the Greenfoot Launcher. This connects to the RMI service on the
      * primary VM, and starts the Greenfoot UI.
@@ -57,6 +62,7 @@ public class GreenfootLauncherDebugVM
      */
     public GreenfootLauncherDebugVM(String prjDir, String rmiServiceName)
     {
+        instance = this;
         BlueJRMIClient client = new BlueJRMIClient(prjDir, rmiServiceName);
         
         RBlueJ blueJ = client.getBlueJ();
@@ -94,5 +100,22 @@ public class GreenfootLauncherDebugVM
         catch (RemoteException re) {
             re.printStackTrace();
         }
+    }
+    
+    /**
+     * Get the GreenfootLauncherDebugVM instance.
+     */
+    public static GreenfootLauncherDebugVM getInstance()
+    {
+        return instance;
+    }
+    
+    /**
+     * Set the transport field to some object. It is then possible to obtain a remote
+     * reference to the object, via RProject.getRemoteObject().
+     */
+    public void setTransportField(Object transportField)
+    {
+        this.transportField = transportField;
     }
 }

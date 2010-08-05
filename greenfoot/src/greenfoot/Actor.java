@@ -860,20 +860,4 @@ public abstract class Actor
             return null;
         }
     }
-
-    // ============================================================================
-    //  
-    // Object Transporting - between the two VMs
-    //  
-    // IMPORTANT: This code is duplicated in greenfoot.World!
-    // ============================================================================
-
-    /** The object we want to get a remote version of */
-    @SuppressWarnings("unused")
-    private static Object transportField;
-
-    static void setTransportField(Object obj)
-    {
-        transportField = obj;
-    }
 }

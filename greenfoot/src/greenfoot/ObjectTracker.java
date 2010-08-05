@@ -22,14 +22,13 @@
 package greenfoot;
 
 import greenfoot.core.GNamedValue;
+import greenfoot.core.GreenfootLauncherDebugVM;
 import greenfoot.core.GreenfootMain;
 
 import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import rmiextension.wrappers.RClass;
-import rmiextension.wrappers.RField;
 import rmiextension.wrappers.RObject;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugmgr.NamedValue;
@@ -69,30 +68,14 @@ public class ObjectTracker
                 return rObject;
             }
             
-            World.setTransportField(obj);
-            //This can be the same for world and actor apart from above lines.
-            if(obj instanceof Actor) {
-                Actor.setTransportField(obj);
-            } else  if( obj instanceof World) {
-                World.setTransportField(obj);
-            } else {
-                Debug.reportError("Could not get remote version of object: " + obj, new Exception());
-                return null;
+            GreenfootLauncherDebugVM.getInstance().setTransportField(obj);
+            RObject rObj = GreenfootMain.getInstance().getProject().getRProject().getRemoteObject();
+            
+            if (rObj != null) {
+                cachedObjects.put(obj,rObj);
             }
             
-
-            RClass rClass = getRemoteClass(obj);
-            if (rClass != null) {
-                RField rField = rClass.getField("transportField");
-                if (rField != null) {
-                    rObject = rField.getValue(null);
-                    cachedObjects.put(obj, rObject);
-                    return rObject;
-                }
-            }
-
-            // This can happen, for example, if it is an anonymous class:
-            return null;
+            return rObj;
         }
     }    
 
@@ -106,17 +89,21 @@ public class ObjectTracker
             BJMap<String,Object> map = ExecServer.getObjectMap();
             String [] names;
             
+            private void initNames()
             {
-                synchronized (map) {
-                    Object [] keys = map.getKeys();
-                    names = new String[keys.length];
-                    System.arraycopy(keys, 0, names, 0, keys.length);
+                if (names == null) {
+                    synchronized (map) {
+                        Object [] keys = map.getKeys();
+                        names = new String[keys.length];
+                        System.arraycopy(keys, 0, names, 0, keys.length);
+                    }
                 }
             }
             
             @Override
             public GNamedValue getNamedValue(String name)
             {
+                initNames();
                 synchronized (map) {
                     Object o = map.get(name);
                     if (o != null) {
@@ -130,6 +117,7 @@ public class ObjectTracker
             @Override
             public Iterator<? extends NamedValue> getValueIterator()
             {
+                initNames();
                 return new Iterator<GNamedValue>() {
                     int index = 0;
                     
@@ -154,17 +142,6 @@ public class ObjectTracker
     }
     
     /**
-     * This method ensures that we have the remote (RClass) representation of
-     * this class.
-     */
-    private static RClass getRemoteClass(Object obj)
-    {
-        String rclassName = obj.getClass().getName();
-        RClass remoteObjectTracker = GreenfootMain.getInstance().getProject().getRClass(rclassName);
-        return remoteObjectTracker;
-    }
-    
-    /**
      * Get the local object corresponding to a remote object.
      */
     public static Object getRealObject(RObject remoteObj)
@@ -173,8 +150,7 @@ public class ObjectTracker
             return ExecServer.getObject(remoteObj.getInstanceName());
         }
         catch (RemoteException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+           Debug.reportError("Unexpected exception getting remote object name", e);
         }
         return null;
     }

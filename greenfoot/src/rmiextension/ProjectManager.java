@@ -26,16 +26,23 @@ import greenfoot.core.GreenfootMain;
 import greenfoot.core.ProjectProperties;
 
 import java.io.File;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import rmiextension.wrappers.RProjectImpl;
+import rmiextension.wrappers.WrapperPool;
 import bluej.Config;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.ExceptionDescription;
 import bluej.debugmgr.ResultWatcher;
+import bluej.extensions.BObject;
 import bluej.extensions.BPackage;
 import bluej.extensions.BProject;
 import bluej.extensions.BlueJ;
+import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.extensions.event.PackageEvent;
 import bluej.extensions.event.PackageListener;
@@ -61,6 +68,9 @@ public class ProjectManager
 
     /** List to keep track of which projects are int the process of being created */
     private List<File> projectsInCreation = new ArrayList<File>();
+    
+    /** Map of open projects (by directory) to the corresponding RProjectImpl instance */
+    private Map<File,RProjectImpl> openedProjects = new HashMap<File,RProjectImpl>();
 
     /** The class that will be instantiated in the greenfoot VM to launch the project */
     private String launchClass = GreenfootLauncherDebugVM.class.getName();
@@ -103,35 +113,33 @@ public class ProjectManager
      */
     private void launchProject(final BProject project)
     {
-        if (!ProjectManager.instance().isProjectOpen(project)) {
-            File projectDir;
+        File projectDir;
+        try {
+            projectDir = project.getDir();
+        } catch (ProjectNotOpenException pnoe) {
+            // The project must have closed in the meantime
+            return;
+        }
+        int versionOK = checkVersion(projectDir);
+        if (versionOK != GreenfootMain.VERSION_BAD) {
             try {
-                projectDir = project.getDir();
-            } catch (ProjectNotOpenException pnoe) {
-                // The project must have closed in the meantime
-                return;
-            }
-            int versionOK = checkVersion(projectDir);
-            if (versionOK != GreenfootMain.VERSION_BAD) {
-                try {
-                    if (versionOK == GreenfootMain.VERSION_UPDATED) {
-                        project.getPackage("").reload();
-                    }
-                    openGreenfoot(project);
-                } catch (Exception e) {
-                    Debug.reportError("Could not create greenfoot launcher.", e);
-                    // This is bad, lets exit.
-                    greenfootLaunchFailed(project);
+                if (versionOK == GreenfootMain.VERSION_UPDATED) {
+                    project.getPackage("").reload();
                 }
+                openGreenfoot(project);
+            } catch (Exception e) {
+                Debug.reportError("Could not create greenfoot launcher.", e);
+                // This is bad, lets exit.
+                greenfootLaunchFailed(project);
             }
-            else {
-                // If this was the only open project, open the startup project
-                // instead.
-                if (bluej.getOpenProjects().length == 1) {
-                    ((PkgMgrFrame) bluej.getCurrentFrame()).doClose(true, true);
-                    File startupProject = new File(bluej.getSystemLibDir(), "startupProject");
-                    bluej.openProject(startupProject);
-                }
+        }
+        else {
+            // If this was the only open project, open the startup project
+            // instead.
+            if (bluej.getOpenProjects().length == 1) {
+                ((PkgMgrFrame) bluej.getCurrentFrame()).doClose(true, true);
+                File startupProject = new File(bluej.getSystemLibDir(), "startupProject");
+                bluej.openProject(startupProject);
             }
         }
     }
@@ -142,45 +150,58 @@ public class ProjectManager
      */
     public void openGreenfoot(final BProject project)
     {
-        ResultWatcher watcher = new ResultWatcher() {
-            @Override
-            public void beginCompile()
-            {
-                // Nothing needs doing
-            }
-            @Override
-            public void beginExecution(InvokerRecord ir)
-            {
-                // Nothing needs doing
-            }
-            @Override
-            public void putError(String message, InvokerRecord ir)
-            {
-                Debug.message("Greenfoot launch failed with error: " + message);
-                greenfootLaunchFailed(project);
-            }
-            @Override
-            public void putException(ExceptionDescription exception, InvokerRecord ir)
-            {
-                Debug.message("Greenfoot launch failed due to exception in debug VM: " + exception.getText());
-                greenfootLaunchFailed(project);
-            }
-            @Override
-            public void putResult(DebuggerObject result, String name,
-                    InvokerRecord ir)
-            {
-                // This is ok
-            }
-            @Override
-            public void putVMTerminated(InvokerRecord ir)
-            {
-                Debug.message("Greenfoot launch failed due to debug VM terminating.");
-                greenfootLaunchFailed(project);
-            }
-        };
-        
         try {
-            BPackage pkg = project.getPackage("");
+            final BPackage pkg = project.getPackage("");
+            ResultWatcher watcher = new ResultWatcher() {
+                @Override
+                public void beginCompile()
+                {
+                    // Nothing needs doing
+                }
+                @Override
+                public void beginExecution(InvokerRecord ir)
+                {
+                    // Nothing needs doing
+                }
+                @Override
+                public void putError(String message, InvokerRecord ir)
+                {
+                    Debug.message("Greenfoot launch failed with error: " + message);
+                    greenfootLaunchFailed(project);
+                }
+                @Override
+                public void putException(ExceptionDescription exception, InvokerRecord ir)
+                {
+                    Debug.message("Greenfoot launch failed due to exception in debug VM: " + exception.getText());
+                    greenfootLaunchFailed(project);
+                }
+                @Override
+                public void putResult(DebuggerObject result, String name,
+                        InvokerRecord ir)
+                {
+                    // This is ok
+                    try {
+                        BObject bObject = pkg.getObject(name);
+                        RProjectImpl rProject = WrapperPool.instance().getWrapper(project);
+                        rProject.setTransportObject(bObject);
+                    }
+                    catch (ProjectNotOpenException e) {
+                        // I guess we can ignore this.
+                    }
+                    catch (PackageNotFoundException e) {
+                        // And this.
+                    }
+                    catch (RemoteException re) {
+                        Debug.reportError("Unexpected exception getting remote project wrapper", re);
+                    }
+                }
+                @Override
+                public void putVMTerminated(InvokerRecord ir)
+                {
+                    Debug.message("Greenfoot launch failed due to debug VM terminating.");
+                    greenfootLaunchFailed(project);
+                }
+            };
             ObjectBench.createObject(pkg, launchClass, launcherName,
                     new String[] {project.getDir().getPath(),
                     BlueJRMIServer.getBlueJService()}, watcher);
@@ -246,7 +267,6 @@ public class ProjectManager
      */
     private boolean isProjectOpen(BProject prj)
     {
-        boolean projectIsOpen = false;
         File prjFile = null;
         try {
             prjFile = prj.getDir();
@@ -256,23 +276,8 @@ public class ProjectManager
             // (shouldn't be possible).
             return false;
         }
-        for (int i = 0; i < openedPackages.size(); i++) {
-            BPackage openPkg = openedPackages.get(i);
-
-            File openPrj = null;
-            try {
-                openPrj = openPkg.getProject().getDir();
-            }
-            catch (ProjectNotOpenException e2) {
-                // Shouldn't happen; but if it does, it should be
-                // safe to ignore.
-            }
-
-            if (openPrj != null && openPrj.equals(prjFile)) {
-                return true;
-            }
-        }
-        return projectIsOpen;
+        
+        return (openedProjects.get(prjFile) != null);
     }
 
     //=================================================================
@@ -288,6 +293,7 @@ public class ProjectManager
             BPackage pkg = event.getPackage();
             BProject project = pkg.getProject();
             if (! isProjectOpen(project)) {
+                openedProjects.put(project.getDir(), WrapperPool.instance().getWrapper(project));
                 launchProject(project);
             }
 
@@ -297,6 +303,10 @@ public class ProjectManager
             // Going out on a bit of a limb, but this won't happen.
             // (if a package is being opened, then the project *must* be open).
         }
+        catch (RemoteException re) {
+            // Not really much reason for this to happen either.
+            Debug.reportError("Remote exception when package opened", re);
+        }
     }
 
     /*
@@ -304,6 +314,27 @@ public class ProjectManager
      */
     public void packageClosing(PackageEvent event)
     {
-        openedPackages.remove(event.getPackage());
+        try {
+            BProject project = event.getPackage().getProject();
+            openedPackages.remove(event.getPackage());
+            for (BPackage pkg : openedPackages) {
+                try {
+                    if (pkg.getProject() == project) {
+                        return; // Project still open
+                    }
+                }
+                catch (ProjectNotOpenException pnoe) {
+                    // If this happens, it's open because the package close event
+                    // has yet to be reported. We'll clean up then.
+                }
+            }
+            // If we finished the loop without finding any packages in the project still
+            // open, then the project itself has closed.
+            openedProjects.remove(project.getDir());
+        }
+        catch (ProjectNotOpenException pnoe) {
+            // Currently this shouldn't happen; the package is reported closed while
+            // the project is still considered open.
+        }
     }
 }

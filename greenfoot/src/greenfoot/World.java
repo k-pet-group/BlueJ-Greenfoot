@@ -911,20 +911,4 @@ public abstract class World
          */
         //collisionChecker.paintDebug(g); 
     }
-    
-    //============================================================================
-    //  
-    //  Object Transporting - between the two VMs
-    //  
-    //  IMPORTANT: This code is duplicated in greenfoot.Actor!
-    //============================================================================
-    
-    /** The object we want to get a remote version of */
-    @SuppressWarnings("unused")
-    private static Object transportField;
-    
-    static void setTransportField(Object obj)
-    {
-        transportField = obj;
-    }    
 }

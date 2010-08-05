@@ -31,9 +31,13 @@ import java.util.List;
 
 import rmiextension.wrappers.event.RProjectListener;
 import bluej.debugmgr.ExecControls;
+import bluej.extensions.BClass;
+import bluej.extensions.BField;
+import bluej.extensions.BObject;
 import bluej.extensions.BPackage;
 import bluej.extensions.BProject;
 import bluej.extensions.PackageAlreadyExistsException;
+import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ReadmeTarget;
@@ -49,6 +53,12 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
 {
     /** The BlueJ-package (from extensions) that is wrapped */
     private BProject bProject;
+    
+    /**
+     * A launcher object with a field called "transportField", used to
+     * allow obtaining a remote reference to a debug VM object.
+     */
+    private BObject transportObject;
     
     private List<RProjectListener> listeners = new ArrayList<RProjectListener>();
 
@@ -73,6 +83,16 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
         }
     }
 
+    /**
+     * Set the object used for passing objects from the remote (debug VM) to the local VM.
+     * The object should have a field of type Object called "transportField".
+     */
+    public synchronized void setTransportObject(BObject transportObject)
+    {
+        this.transportObject = transportObject;
+        notifyAll();
+    }
+    
     /*
      * @see rmiextension.wrappers.RProject#close()
      */
@@ -220,5 +240,30 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
         ExecControls execControls = thisProject.getExecControls();
         execControls.showHide(true);
         execControls.setRestrictedClasses(DebugUtil.restrictedClassesAsNames());
+    }
+    
+    /*
+     * @see rmiextension.wrappers.RProject#getRemoteObject()
+     */
+    @Override
+    public synchronized RObject getRemoteObject() throws RemoteException
+    {
+        try {
+            while (transportObject == null) {
+                wait();
+            }
+            BClass bClass = transportObject.getBClass();
+            BField field = bClass.getField("transportField");
+            BObject value = (BObject) field.getValue(transportObject);
+            String cName = value.getBClass().getName();
+            cName = cName.toLowerCase();
+            value.addToBench(cName);
+            return WrapperPool.instance().getWrapper(value);
+        }
+        catch (InterruptedException ie) { }
+        catch (bluej.extensions.ClassNotFoundException cnfe) { }
+        catch (PackageNotFoundException pnfe) { }
+        catch (ProjectNotOpenException pnoe) { }
+        return null;
     }
 }

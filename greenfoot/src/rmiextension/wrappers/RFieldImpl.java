@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -32,8 +32,9 @@ import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
 
 /**
+ * Implementation of the remote field interface.
+ * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RFieldImpl.java 6216 2009-03-30 13:41:07Z polle $
  */
 public class RFieldImpl extends java.rmi.server.UnicastRemoteObject
     implements RField
@@ -41,7 +42,7 @@ public class RFieldImpl extends java.rmi.server.UnicastRemoteObject
     private BField bField;
 
     /**
-     * @param class1
+     * Construct a remote field wrapper for a BField object.
      */
     public RFieldImpl(BField bField)
         throws RemoteException
@@ -52,46 +53,37 @@ public class RFieldImpl extends java.rmi.server.UnicastRemoteObject
         }
     }
 
-    /**
-     * @throws RemoteException
+    /*
+     * @see rmiextension.wrappers.RField#getModifiers()
      */
-    protected RFieldImpl()
-        throws RemoteException
-    {
-        super();
-        // TODO Auto-generated constructor stub
-    }
-
-    /**
-     * @return
-     */
+    @Override
     public int getModifiers()
     {
         return bField.getModifiers();
     }
 
-    /**
-     * @return
+    /*
+     * @see rmiextension.wrappers.RField#getName()
      */
+    @Override
     public String getName()
     {
         return bField.getName();
     }
 
-    /**
-     * @return
+    /*
+     * @see rmiextension.wrappers.RField#getType()
      */
-    public Class getType()
+    @Override
+    public Class<?> getType()
     {
         return bField.getType();
     }
 
-    /**
-     * @param onThis
-     * @return
-     * @throws ProjectNotOpenException
-     * @throws PackageNotFoundException
+    /*
+     * @see rmiextension.wrappers.RField#getValue(rmiextension.wrappers.RObject)
      */
+    @Override
     public RObject getValue(RObject onThis)
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException
     {
@@ -139,14 +131,5 @@ public class RFieldImpl extends java.rmi.server.UnicastRemoteObject
         //Object obj =bField.getValue(onThis.getBObject());
         // onThis.getField(RField)
         return null;
-    }
-
-    /**
-     * @param fieldName
-     * @return
-     */
-    public boolean matches(String fieldName)
-    {
-        return bField.matches(fieldName);
     }
 }
