@@ -869,15 +869,8 @@ public abstract class Actor
     // ============================================================================
 
     /** The object we want to get a remote version of */
+    @SuppressWarnings("unused")
     private static Object transportField;
-
-    /** Remote version of this class. Will be of type RClass. */
-    private static Object remoteObjectTracker;
-
-    static Object getRemoteObjectTracker()
-    {
-        return remoteObjectTracker;
-    }
 
     static void setTransportField(Object obj)
     {

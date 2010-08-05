@@ -70,31 +70,29 @@ public class ObjectTracker
             }
             
             World.setTransportField(obj);
-            RClass remoteObjectTracker = null;
             //This can be the same for world and actor apart from above lines.
             if(obj instanceof Actor) {
                 Actor.setTransportField(obj);
-                remoteObjectTracker = (RClass) ((Actor) obj).getRemoteObjectTracker();
             } else  if( obj instanceof World) {
                 World.setTransportField(obj);
-                remoteObjectTracker = (RClass) ((World) obj).getRemoteObjectTracker();
             } else {
                 Debug.reportError("Could not get remote version of object: " + obj, new Exception());
                 return null;
             }
             
 
-            RClass rClass = getRemoteClass(obj, remoteObjectTracker);
+            RClass rClass = getRemoteClass(obj);
             if (rClass != null) {
                 RField rField = rClass.getField("transportField");
-                rObject = rField.getValue(null);
-                cachedObjects.put(obj, rObject);
-                return rObject;
-            } else {
-                // This can happen, for example, if it is an anonymous class:
-                return null;
+                if (rField != null) {
+                    rObject = rField.getValue(null);
+                    cachedObjects.put(obj, rObject);
+                    return rObject;
+                }
             }
-            
+
+            // This can happen, for example, if it is an anonymous class:
+            return null;
         }
     }    
 
@@ -159,12 +157,10 @@ public class ObjectTracker
      * This method ensures that we have the remote (RClass) representation of
      * this class.
      */
-    private static RClass getRemoteClass(Object obj, RClass remoteObjectTracker)
+    private static RClass getRemoteClass(Object obj)
     {
-        if (remoteObjectTracker == null) {
-            String rclassName = obj.getClass().getName();
-            remoteObjectTracker = GreenfootMain.getInstance().getProject().getRClass(rclassName);
-        }
+        String rclassName = obj.getClass().getName();
+        RClass remoteObjectTracker = GreenfootMain.getInstance().getProject().getRClass(rclassName);
         return remoteObjectTracker;
     }
     
