@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -40,8 +40,9 @@ import bluej.pkgmgr.target.ReadmeTarget;
 import bluej.utility.Debug;
 
 /**
+ * Implementation of the remote project interface.
+ * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RProjectImpl.java 7754 2010-06-03 11:04:41Z nccb $
  */
 public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
     implements RProject
@@ -72,7 +73,7 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
         }
     }
 
-    /* (non-Javadoc)
+    /*
      * @see rmiextension.wrappers.RProject#close()
      */
     public void close()
@@ -107,9 +108,8 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
         }
     }
 
-    /**
-     * @return
-     * @throws ProjectNotOpenException
+    /*
+     * @see rmiextension.wrappers.RProject#getDir()
      */
     public File getDir()
         throws ProjectNotOpenException
@@ -117,9 +117,8 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
         return bProject.getDir();
     }
 
-    /**
-     * @return
-     * @throws ProjectNotOpenException
+    /*
+     * @see rmiextension.wrappers.RProject#getName()
      */
     public String getName()
         throws ProjectNotOpenException
@@ -127,21 +126,24 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
         return bProject.getName();
     }
 
-    /**
-     * @param name
-     * @return
-     * @throws ProjectNotOpenException
+    /*
+     * @see rmiextension.wrappers.RProject#getPackage(java.lang.String)
      */
     public RPackage getPackage(String name)
         throws ProjectNotOpenException, RemoteException
     {
         BPackage bPackage = bProject.getPackage(name);
         RPackage wrapper = null;
-        wrapper = WrapperPool.instance().getWrapper(bPackage);
+        if (bPackage != null) {
+            wrapper = WrapperPool.instance().getWrapper(bPackage);
+        }
 
         return wrapper;
     }
 
+    /*
+     * @see rmiextension.wrappers.RProject#newPackage(java.lang.String)
+     */
     public RPackage newPackage(String fullyQualifiedName)
         throws ProjectNotOpenException, PackageAlreadyExistsException, RemoteException
     {
@@ -152,9 +154,8 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
         return wrapper;
     }
 
-    /**
-     * @return
-     * @throws ProjectNotOpenException
+    /*
+     * @see rmiextension.wrappers.RProject#getPackages()
      */
     public RPackage[] getPackages()
         throws ProjectNotOpenException, RemoteException
@@ -170,9 +171,8 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
         return wrapper;
     }
 
-    /**
-     * Request a save of all open files in the project.
-     * @throws ProjectNotOpenException
+    /*
+     * @see rmiextension.wrappers.RProject#save()
      */
     public void save()
         throws ProjectNotOpenException
@@ -180,7 +180,7 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
         bProject.save();
     }
     
-    /* (non-Javadoc)
+    /*
      * @see rmiextension.wrappers.RProject#openReadmeEditor()
      */
     public void openReadmeEditor()
@@ -192,7 +192,7 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
         readmeTarget.open();
     }
     
-    /* (non-Javadoc)
+    /*
      * @see rmiextension.wrappers.RProject#addListener(rmiextension.wrappers.event.RProjectListener)
      */
     public void addListener(RProjectListener listener)
@@ -201,7 +201,7 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
         listeners.add(listener);
     }
     
-    /* (non-Javadoc)
+    /*
      * @see rmiextension.wrappers.RProject#removeListener(rmiextension.wrappers.event.RProjectListener)
      */
     public void removeListener(RProjectListener listener)
@@ -210,6 +210,9 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
         listeners.remove(listener);
     }
     
+    /*
+     * @see rmiextension.wrappers.RProject#showExecControls()
+     */
     public void showExecControls()
         throws ProjectNotOpenException
     {

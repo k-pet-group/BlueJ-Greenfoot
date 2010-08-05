@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -140,18 +140,6 @@ public class GProject extends RProjectListenerImpl
         }
     }
     
-    /**
-     * Get the packages in this project. This method is thread-safe.
-     * 
-     * @throws ProjectNotOpenException
-     * @throws RemoteException
-     */
-    public RPackage[] getPackages()
-        throws ProjectNotOpenException, RemoteException
-    {
-        return rProject.getPackages();
-    }
-
     /**
      * Get a remote reference to a class in this project. Thread-safe.
      * 

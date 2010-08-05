@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,9 +29,9 @@ import bluej.extensions.PackageAlreadyExistsException;
 import bluej.extensions.ProjectNotOpenException;
 
 /**
+ * Interface for a remote project.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RProject.java 7754 2010-06-03 11:04:41Z nccb $
  */
 public interface RProject
     extends java.rmi.Remote
@@ -44,32 +44,41 @@ public interface RProject
         throws RemoteException;
 
     /**
-     * @return
+     * Get the project directory.
      * @throws ProjectNotOpenException
      */
     public abstract File getDir()
         throws ProjectNotOpenException, RemoteException;
 
     /**
-     * @return
+     * Get the project's name.
+     * 
      * @throws ProjectNotOpenException
      */
     public abstract String getName()
         throws ProjectNotOpenException, RemoteException;
 
     /**
-     * @param name
-     * @return
+     * Get a remote reference to a package within the project, by name.
+     * 
      * @throws ProjectNotOpenException
      */
     public abstract RPackage getPackage(String name)
         throws ProjectNotOpenException, RemoteException;
 
+    /**
+     * Create a new package within the project.
+     * 
+     * @throws ProjectNotOpenException     if the project is no longer open
+     * @throws PackageAlreadyExistsException  if the package already exists
+     * @throws RemoteException  if a remote exception occurred
+     */
     public abstract RPackage newPackage(String fullyQualifiedName)
         throws ProjectNotOpenException, PackageAlreadyExistsException, RemoteException;
 
     /**
-     * @return
+     * Get all packages within this project.
+     * 
      * @throws ProjectNotOpenException
      */
     public abstract RPackage[] getPackages()
@@ -77,6 +86,7 @@ public interface RProject
 
     /**
      * Request a save of all open files in the project.
+     * 
      * @throws ProjectNotOpenException
      */
     public abstract void save()
@@ -84,6 +94,7 @@ public interface RProject
     
     /**
      * Open the "readme" editor for this project.
+     * 
      * @throws ProjectNotOpenException
      * @throws RemoteException
      */
