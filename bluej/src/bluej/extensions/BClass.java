@@ -23,6 +23,8 @@ package bluej.extensions;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 import bluej.compiler.JobQueue;
 import bluej.extensions.editor.Editor;
@@ -45,19 +47,33 @@ import bluej.views.View;
  */
 public class BClass
 {
-    private Identifier classId;
+    private static Map<Identifier,BClass> externalClasses = new WeakHashMap<Identifier,BClass>();
 
+    private Identifier classId;
 
     /**
      * Constructor for the BClass.
      * It is duty of the caller to guarantee that it is a reasonable classId
-     *
-     * @param  thisClassId  Description of the Parameter
      */
     BClass(Identifier thisClassId)
     {
         classId = thisClassId;
     }
+    
+    /**
+     * Get a BClass for some class identifier. To be used for classes which don't have a
+     * representation (ClassTarget) in BlueJ.
+     */
+    synchronized static BClass getBClass(Identifier classId)
+    {
+        BClass r = externalClasses.get(classId);
+        if (r == null) {
+            r = new BClass(classId);
+            externalClasses.put(classId, r);
+        }
+        return r;
+    }
+    
 
     /**
      * Notification that the name of the class has changed.
@@ -502,7 +518,7 @@ public class BClass
         FieldView[] fieldView = bluejView.getAllFields();
         for (int index = 0; index < fieldView.length; index++) {
             BField result = new BField(classId, fieldView[index]);
-            if (result.matches(fieldName)) {
+            if (result.getName().equals(fieldName)) {
                 return result;
             }
         }

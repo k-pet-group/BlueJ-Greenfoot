@@ -43,6 +43,8 @@ import java.util.*;
 public class BObject
 {
     private ObjectWrapper objectWrapper;
+    
+    /** An identifier for the class of this object */
     private Identifier wrapperId;
 
 
@@ -120,12 +122,12 @@ public class BObject
             return;
         }
 
-        // No reational to add a null object, isn't it ?
+        // Not rational to add a null object, is it ?
         if (objectWrapper.getObject().isNullObject()) {
             return;
         }
 
-        // If you want you may set the instance name here. Othervise accept default
+        // If you want you may set the instance name here. Otherwise accept default
         if (instanceName != null) {
             objectWrapper.setName(instanceName);
         }
@@ -172,8 +174,10 @@ public class BObject
     {
         // BClasses are retrieved from the BlueJ classTarget
         ClassTarget classTarget = wrapperId.getClassTarget();
+        
         if (classTarget == null) {
-            throw new ClassNotFoundException("Can't find ClassTarget for class: " + wrapperId.getClassName());
+            wrapperId.getJavaClass(); // will throw ClassNotFoundException if not loadable
+            return BClass.getBClass(wrapperId);
         }
         
         // There is only one instance of BClass foer each ClassTarget

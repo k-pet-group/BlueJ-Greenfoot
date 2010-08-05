@@ -233,4 +233,51 @@ class Identifier
         // View.getView does not fail, if the class does not exist it will be created.
         return View.getView(aClass);
     }
+    
+    /*
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode()
+    {
+        int total = 0;
+        if (projectId != null) {
+            total += projectId.hashCode();
+        }
+        if (packageId != null) {
+            total += packageId.hashCode();
+        }
+        if (qualifiedClassName != null) {
+            total += qualifiedClassName.hashCode();
+        }
+        return total;
+    }
+    
+    /*
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (! (obj instanceof Identifier)) {
+            return false;
+        }
+        
+        Identifier other = (Identifier) obj;
+ 
+        if (! (projectId != null ? projectId.equals(other.projectId) : other.projectId == null)) {
+            return false;
+        }
+        
+        if (! (packageId != null ? packageId.equals(other.packageId) : other.packageId == null)) {
+            return false;
+        }
+        
+        if (! (qualifiedClassName != null ? qualifiedClassName.equals(other.qualifiedClassName)
+                : other.qualifiedClassName == null)) {
+            return false;
+        }
+        
+        return true;
+    }
 }
