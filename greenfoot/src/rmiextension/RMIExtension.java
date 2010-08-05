@@ -73,10 +73,9 @@ public class RMIExtension extends Extension implements ApplicationListener
     public void maybeOpenProject(File projectPath)
     {
         // Now we need to find out if a greenfoot project is automatically
-        // opening. If not we must openthe dummy project
+        // opening. If not we must open the dummy project.
         boolean openOrphans = "true".equals(Config.getPropString("bluej.autoOpenLastProject"));
-        if (openOrphans && PkgMgrFrame.hadOrphanPackages()) {}
-        else {
+        if (!openOrphans || !PkgMgrFrame.hadOrphanPackages()) {
             if (theBlueJ.getOpenProjects().length == 0) {
                 openProject(projectPath);
             }

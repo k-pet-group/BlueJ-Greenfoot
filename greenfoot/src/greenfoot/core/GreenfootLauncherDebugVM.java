@@ -42,14 +42,20 @@ import bluej.utility.Debug;
  * An object of GreenfootLauncherDebugVM is the first object that is created in the
  * Debug-VM. The launcher object is created from the BlueJ-VM in the Debug-VM.
  * When a new object of the launcher is created, the constructor looks up the
- * BlueJService in the RMI registry and starts the initialisation of greenfoot.
+ * BlueJService in the RMI registry and starts the initialisation of Greenfoot.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version 22-05-2003
  */
 public class GreenfootLauncherDebugVM
 {
-    public GreenfootLauncherDebugVM(String prjDir, String pkgName, String rmiServiceName)
+    /**
+     * Constructor for the Greenfoot Launcher. This connects to the RMI service on the
+     * primary VM, and starts the Greenfoot UI.
+     * 
+     * @param prjDir         The project directory
+     * @param rmiServiceName  The name of the RMI service to connect to
+     */
+    public GreenfootLauncherDebugVM(String prjDir, String rmiServiceName)
     {
         BlueJRMIClient client = new BlueJRMIClient(prjDir, rmiServiceName);
         

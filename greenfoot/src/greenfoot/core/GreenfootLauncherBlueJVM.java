@@ -40,10 +40,9 @@ import bluej.utility.FileUtility;
 import bluej.utility.Utility;
 
 /**
- * This singleton is responsible for starting up greenfoot from the BlueJ VM.
+ * This singleton is responsible for starting up Greenfoot from the BlueJ VM.
  * 
  * @author Poul Henriksen
- * @version $id:$
  */
 public class GreenfootLauncherBlueJVM
 {
@@ -221,9 +220,6 @@ public class GreenfootLauncherBlueJVM
     /**
      * Sets the directory containing the scenarios to be the directory that the
      * file browser will open up in.
-     * <p>
-     * If it can't find the scenarios dir, it will do nothing.
-     * 
      */
     private void setScenariosAsDefaultDir()
     {

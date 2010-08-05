@@ -35,7 +35,6 @@ import bluej.debugger.ExceptionDescription;
 import bluej.debugmgr.ResultWatcher;
 import bluej.extensions.BPackage;
 import bluej.extensions.BlueJ;
-import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.extensions.event.PackageEvent;
 import bluej.extensions.event.PackageListener;
@@ -181,12 +180,10 @@ public class ProjectManager
         
         try {
             ObjectBench.createObject(project, launchClass, launcherName,
-                    new String[] {project.getDir(), project.getName(),
+                    new String[] {project.getDir(),
                     BlueJRMIServer.getBlueJService()}, watcher);
         } catch (ProjectNotOpenException e) {
             // Not important; project has been closed, so no need to launch
-        } catch (PackageNotFoundException e) {
-            // likewise
         }
     }
     
@@ -219,8 +216,6 @@ public class ProjectManager
 
     /**
      * Checks if this is a project that is being created for the first time
-     * @param projectDir
-     * @return
      */
     private boolean isNewProject(File projectDir)
     {
