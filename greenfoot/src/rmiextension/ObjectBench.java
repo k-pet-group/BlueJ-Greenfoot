@@ -22,7 +22,7 @@
 package rmiextension;
 
 import bluej.debugmgr.ResultWatcher;
-import bluej.extensions.BObject;
+import bluej.extensions.BPackage;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
 
@@ -37,12 +37,12 @@ public class ObjectBench
      * Creates a new object, and puts it on the object bench. The given ResultWatcher
      * will be notified of the result (on the AWT event thread).
      */
-    public static void createObject(Project prj, String className,
+    public static void createObject(BPackage pkg, String className,
             String instanceName, String[] constructorParams,
             ResultWatcher watcher)
     {
         try {
-            ConstructorInvoker launcher = new ConstructorInvoker(prj.getPackage(), className);
+            ConstructorInvoker launcher = new ConstructorInvoker(pkg, className);
             launcher.invokeConstructor(instanceName, constructorParams, watcher);
         }
         catch (ProjectNotOpenException e) {
@@ -52,30 +52,4 @@ public class ObjectBench
             throw new RuntimeException("Package not found");
         }
     }
-
-    /**
-     * Removes the object from the object bench
-     * 
-     * @param prj
-     *            The project
-     * @param string
-     *            The name of the instance
-     */
-    public static void removeObject(Project prj, String instanceName)
-    {
-        try {
-            BObject existing = prj.getPackage().getObject(instanceName);
-            if (existing != null) {
-                existing.removeFromBench();
-            }
-        }
-        catch (ProjectNotOpenException e) {
-            // Ok, we don't care. If the project isn't open, then the object
-            // has effectively been removed already.
-        }
-        catch (PackageNotFoundException e) {
-            // Likewise.
-        }
-    }
-
 }

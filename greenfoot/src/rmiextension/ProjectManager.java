@@ -34,6 +34,7 @@ import bluej.debugger.DebuggerObject;
 import bluej.debugger.ExceptionDescription;
 import bluej.debugmgr.ResultWatcher;
 import bluej.extensions.BPackage;
+import bluej.extensions.BProject;
 import bluej.extensions.BlueJ;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.extensions.event.PackageEvent;
@@ -100,12 +101,12 @@ public class ProjectManager
      * no listener interface for project open/close events, we have to keep
      * track of projects manually.
      */
-    private void launchProject(final Project project)
+    private void launchProject(final BProject project)
     {
         if (!ProjectManager.instance().isProjectOpen(project)) {
             File projectDir;
             try {
-                projectDir = new File(project.getDir());
+                projectDir = project.getDir();
             } catch (ProjectNotOpenException pnoe) {
                 // The project must have closed in the meantime
                 return;
@@ -114,7 +115,7 @@ public class ProjectManager
             if (versionOK != GreenfootMain.VERSION_BAD) {
                 try {
                     if (versionOK == GreenfootMain.VERSION_UPDATED) {
-                        project.getPackage().getProject().getPackage("").reload();
+                        project.getPackage("").reload();
                     }
                     openGreenfoot(project);
                 } catch (Exception e) {
@@ -139,7 +140,7 @@ public class ProjectManager
      * Launch the Greenfoot debug VM code (and tell it where to connect to for RMI purposes).
      * @param project  A just-opened project
      */
-    public void openGreenfoot(final Project project)
+    public void openGreenfoot(final BProject project)
     {
         ResultWatcher watcher = new ResultWatcher() {
             @Override
@@ -179,8 +180,9 @@ public class ProjectManager
         };
         
         try {
-            ObjectBench.createObject(project, launchClass, launcherName,
-                    new String[] {project.getDir(),
+            BPackage pkg = project.getPackage("");
+            ObjectBench.createObject(pkg, launchClass, launcherName,
+                    new String[] {project.getDir().getPath(),
                     BlueJRMIServer.getBlueJService()}, watcher);
         } catch (ProjectNotOpenException e) {
             // Not important; project has been closed, so no need to launch
@@ -190,7 +192,7 @@ public class ProjectManager
     /**
      * Launching Greenfoot failed. Display a dialog, and exit.
      */
-    public static void greenfootLaunchFailed(Project project)
+    public static void greenfootLaunchFailed(BProject project)
     {
         String text = Config.getString("greenfoot.launchFailed");
         DialogManager.showErrorText(null, text);
@@ -242,12 +244,12 @@ public class ProjectManager
      * Whether this project is currently open or not, according to our records.
      * 
      */
-    private boolean isProjectOpen(Project prj)
+    private boolean isProjectOpen(BProject prj)
     {
         boolean projectIsOpen = false;
         File prjFile = null;
         try {
-            prjFile = prj.getPackage().getProject().getDir();
+            prjFile = prj.getDir();
         }
         catch (ProjectNotOpenException pnoe) {
             // If we get a ProjectNotOpenException... then surely the project isn't open?
@@ -282,14 +284,19 @@ public class ProjectManager
      */
     public void packageOpened(PackageEvent event)
     {
-        BPackage pkg = event.getPackage();
-        
-        Project project = new Project(pkg);
-        if (! isProjectOpen(project)) {
-            launchProject(project);
-        }
+        try {
+            BPackage pkg = event.getPackage();
+            BProject project = pkg.getProject();
+            if (! isProjectOpen(project)) {
+                launchProject(project);
+            }
 
-        openedPackages.add(event.getPackage());
+            openedPackages.add(event.getPackage());
+        }
+        catch (ProjectNotOpenException pnoe) {
+            // Going out on a bit of a limb, but this won't happen.
+            // (if a package is being opened, then the project *must* be open).
+        }
     }
 
     /*
