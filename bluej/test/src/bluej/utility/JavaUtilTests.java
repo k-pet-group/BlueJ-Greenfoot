@@ -22,8 +22,18 @@
 package bluej.utility;
 
 import java.lang.reflect.Method;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import junit.framework.TestCase;
+import bluej.debugger.gentype.GenTypeClass;
+import bluej.debugger.gentype.GenTypeDeclTpar;
+import bluej.debugger.gentype.GenTypeParameter;
+import bluej.debugger.gentype.GenTypeSolid;
+import bluej.debugger.gentype.JavaType;
+import bluej.debugger.gentype.Reflective;
 
 public class JavaUtilTests extends TestCase
 {
@@ -115,4 +125,54 @@ public class JavaUtilTests extends TestCase
         assertEquals("void sampleMethod2(java.lang.String[])", sig);
     }
     
+    public void testTparReturn() throws Exception
+    {
+        Class<?> colClass = java.util.Collections.class;
+        Method minMethod = colClass.getMethod("min", Collection.class);
+        JavaUtils ju = JavaUtils.getJavaUtils();
+        
+        JavaType type = ju.genTypeFromClass(minMethod.getReturnType());
+        assertNotNull(type.asClass());
+        
+        type = ju.getReturnType(minMethod);
+        assertEquals("T", type.toString());
+    }
+    
+    public void testRecursiveTpar() throws Exception
+    {
+        Class<?> colClass = java.util.Collections.class;
+        Method minMethod = colClass.getMethod("min", Collection.class);
+        JavaUtils ju = JavaUtils.getJavaUtils();
+        
+        List<GenTypeDeclTpar> rlist = ju.getTypeParams(minMethod);
+        assertEquals(1, rlist.size());
+        
+        GenTypeDeclTpar tvar = rlist.get(0);
+        GenTypeSolid bound = tvar.getBound();
+        assertEquals("java.lang.Comparable<? super T>", bound.toString());
+        
+        GenTypeSolid [] ubounds = bound.getUpperBounds();
+        assertEquals(2, ubounds.length); // should be Object and Comparable
+        GenTypeClass boundClass =  bound.getUpperBounds()[1].asClass();
+        
+        List<? extends GenTypeParameter> tpars = boundClass.getTypeParamList();
+        assertEquals(1, tpars.size());
+        
+        GenTypeParameter tparOne = tpars.get(0);
+        GenTypeSolid shouldBeT = tparOne.getLowerBound();
+        assertNotNull(shouldBeT);
+        Set<Reflective> s = new HashSet<Reflective>();
+        shouldBeT.erasedSuperTypes(s);
+        
+        assertTrue(s.size() > 0);
+        boolean foundComparable = false;
+        for (Reflective r: s) {
+            if (r.getName().equals("java.lang.Comparable")) {
+                foundComparable = true;
+                break;
+            }
+        }
+        
+        assertTrue(foundComparable);
+    }
 }

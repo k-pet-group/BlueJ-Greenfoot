@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,19 +26,40 @@ package bluej.debugger.gentype;
  * "? super ..." type.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeSuper.java 6215 2009-03-30 13:28:25Z polle $
  */
 public class GenTypeSuper extends GenTypeWildcard
 {
-    public GenTypeSuper(GenTypeSolid baseType) {
+    /**
+     * Construct a "? super ..." type without specifying the lower bound
+     * at this time. Use "setLowerBound()" to set the lower bound before
+     * using the resulting type.
+     */
+    public GenTypeSuper()
+    {
+        super((GenTypeSolid) null, (GenTypeSolid) null);
+    }
+    
+    /**
+     * Construct a "? super ..." type with the specified lower bound.
+     */
+    public GenTypeSuper(GenTypeSolid baseType)
+    {
         super(null, baseType);
     }
     
+    /*
+     * @see bluej.debugger.gentype.GenTypeParameter#toString(boolean)
+     */
+    @Override
     public String toString(boolean stripPrefix)
     {
         return "? super " + lowerBound.toString(stripPrefix);
     }
     
+    /*
+     * @see bluej.debugger.gentype.GenTypeWildcard#toString(bluej.debugger.gentype.NameTransform)
+     */
+    @Override
     public String toString(NameTransform nt)
     {
         return "? super " + lowerBound.toString(nt);

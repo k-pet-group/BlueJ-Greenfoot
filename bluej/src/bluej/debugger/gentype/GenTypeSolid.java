@@ -87,12 +87,6 @@ public abstract class GenTypeSolid extends JavaType
      */
     abstract public void getParamsFromTemplate(Map<String,GenTypeParameter> map, GenTypeParameter template);
     
-    /**
-     * Get the "real" types (class types) backing this solid. For a T-par this is the bounds.
-     * For an intersection this is the real types of all the types in the intersection.
-     */
-    //abstract public GenTypeClass [] getRealTypes();
-    
     /*
      *  Implement methods from GenTypeParameterizable
      */

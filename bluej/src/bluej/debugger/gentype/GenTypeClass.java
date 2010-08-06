@@ -79,8 +79,9 @@ public class GenTypeClass extends GenTypeSolid
     public GenTypeClass(Reflective r, List<? extends GenTypeParameter> params, GenTypeClass outer)
     {
         reflective = r;
-        if( params != null && ! params.isEmpty() )
+        if (params != null && ! params.isEmpty()) {
             this.params = params;
+        }
         this.outer = outer;
     }
     
@@ -462,12 +463,13 @@ public class GenTypeClass extends GenTypeSolid
             return this;
         
         // the base type could actually be an interface, or a base class. 
-        Stack inheritanceStack = getInheritanceChain(reflective, basename);
-        if( inheritanceStack == null )
+        Stack<Reflective> inheritanceStack = getInheritanceChain(reflective, basename);
+        if( inheritanceStack == null ) {
             throw new BadInheritanceChainException();
+        }
         
         String bname;
-        Iterator i = inheritanceStack.iterator();
+        Iterator<Reflective> i = inheritanceStack.iterator();
         i.next();  // skip the topmost class, we've already got that.
         Reflective baseType;
         Reflective subType = reflective;
@@ -476,7 +478,7 @@ public class GenTypeClass extends GenTypeSolid
         do {
             baseType = (Reflective)i.next();
             bname = baseType.getName();
-            Map tparams = ccc.getMap();
+            Map<String,GenTypeParameter> tparams = ccc.getMap();
             ccc = mapGenericParamsToDirectBase(tparams, subType, baseType);
             subType = baseType;
         } while( ! bname.equals(basename) );
@@ -489,7 +491,7 @@ public class GenTypeClass extends GenTypeSolid
      * @param subType   the derived type
      * @param baseType  the base type
      */
-    private static GenTypeClass mapGenericParamsToDirectBase(Map tparams,
+    private static GenTypeClass mapGenericParamsToDirectBase(Map<String,? extends GenTypeParameter> tparams,
             Reflective subType, Reflective baseType)
     {
         GenTypeClass baseClass = subType.superTypeByName(baseType.getName());
@@ -521,17 +523,18 @@ public class GenTypeClass extends GenTypeSolid
         }
         
         // Otherwise map each parameter, return the result.
-        List retlist = new ArrayList();
+        List<GenTypeParameter> retlist = new ArrayList<GenTypeParameter>();
         if (params != null) {
-            Iterator i = params.iterator();
+            Iterator<? extends GenTypeParameter> i = params.iterator();
             while( i.hasNext() ) {
-                retlist.add(((GenTypeParameter)i.next()).mapTparsToTypes(tparams));
+                retlist.add(i.next().mapTparsToTypes(tparams));
             }
         }
         
         GenTypeClass newOuter = null;
-        if (outer != null)
+        if (outer != null) {
             newOuter = (GenTypeClass) outer.mapTparsToTypes(tparams);
+        }
         
         return new GenTypeClass(reflective, retlist, newOuter);
     }
@@ -549,7 +552,7 @@ public class GenTypeClass extends GenTypeSolid
         
         // Construct a list (actually a stack) of classes from the
         // super type down to this type.
-        Stack classes = getInheritanceChain(derivedType, classloaderName());
+        Stack<Reflective> classes = getInheritanceChain(derivedType, classloaderName());
         if( classes == null )
             return null;
         
@@ -562,12 +565,13 @@ public class GenTypeClass extends GenTypeSolid
         
         while( ! classes.empty() ) {
             Reflective curSubtype = (Reflective)classes.pop();
-            HashMap newMap = new HashMap();
+            HashMap<String,GenTypeParameter> newMap = new HashMap<String,GenTypeParameter>();
            
             // Check that the super inherits from the generic version of base
             GenTypeClass baseDecl = curSubtype.superTypeByName(curBaseC.classloaderName());
-            if (baseDecl.isRaw())
+            if (baseDecl.isRaw()) {
                 return new GenTypeClass(derivedType);
+            }
             
             // Get the mapping of tpar names to types
             baseDecl.getParamsFromTemplate(newMap, curBaseC);
@@ -662,7 +666,7 @@ public class GenTypeClass extends GenTypeSolid
     /*
      * see bluej.debugger.gentype.GenTypeSolid#getParamsFromTemplate(java.util.Map, bluej.debugger.gentype.GenTypeParameterizable)
      */
-    public void getParamsFromTemplate(Map r, GenTypeParameter template)
+    public void getParamsFromTemplate(Map<String,GenTypeParameter> r, GenTypeParameter template)
     {
         // We are classA<...>, template could be anything.
         // possibilities for template:

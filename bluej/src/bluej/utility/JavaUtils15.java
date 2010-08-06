@@ -263,13 +263,13 @@ public class JavaUtils15 extends JavaUtils
         }
         return gentypes;
     }
-        
+
     /**
      * Build a GenType structure from a "Type" object.
      */
     public JavaType genTypeFromClass(Class<?> t)
     {
-        return (JavaType) genTypeFromType(t);
+        return new GenTypeClass(new JavaReflective(t));
     }
     
     /* -------------- Internal methods ---------------- */
@@ -282,15 +282,26 @@ public class JavaUtils15 extends JavaUtils
     {
         List<GenTypeDeclTpar> rlist = new ArrayList<GenTypeDeclTpar>();
         TypeVariable<?> [] tvars = decl.getTypeParameters();
+        
+        Map<String,GenTypeDeclTpar> tvarMap = new HashMap<String,GenTypeDeclTpar>();
+        
+        for (TypeVariable<?> tvar : tvars) {
+            tvarMap.put(tvar.getName(), new GenTypeDeclTpar(tvar.getName()));
+        }
+        
         for( int i = 0; i < tvars.length; i++ ) {
             // find the bounds.
             Type [] bounds = tvars[i].getBounds();
             GenTypeSolid [] upperBounds = new GenTypeSolid[bounds.length];
-            for (int j = 0; j < bounds.length; j++)
-                upperBounds[j] = (GenTypeSolid) genTypeFromType(bounds[j]);
+            for (int j = 0; j < bounds.length; j++) {
+                upperBounds[j] = (GenTypeSolid) genTypeFromType(bounds[j], tvarMap);
+            }
             
             // add the type parameter to the list.
-            rlist.add(new GenTypeDeclTpar(tvars[i].getName(), upperBounds));
+            GenTypeDeclTpar tpar = tvarMap.get(tvars[i].getName());
+            tpar.setBounds(upperBounds);
+            
+            rlist.add(tpar);
         }
         return rlist;
     }
@@ -324,11 +335,11 @@ public class JavaUtils15 extends JavaUtils
         if( primtype == null )
             Debug.message("type == null??");
             
-        if(primtype instanceof Class)
+        if(primtype instanceof Class<?>)
             sb.append(JavaUtils14.getTypeName((Class<?>)primtype));
         else if(primtype instanceof ParameterizedType)
             sb.append(getTypeName((ParameterizedType)primtype));
-        else if(primtype instanceof TypeVariable)
+        else if(primtype instanceof TypeVariable<?>)
             sb.append(((TypeVariable<?>)primtype).getName());
         else if(primtype instanceof WildcardType)
             sb.append(getTypeName((WildcardType)primtype));
@@ -476,65 +487,51 @@ public class JavaUtils15 extends JavaUtils
      */
     private static JavaType genTypeFromType(Type t)
     {
-        return (JavaType) genTypeFromType(t, new LinkedList<Type>());
+        return (JavaType) genTypeFromType(t, new HashMap<String,GenTypeParameter>());
     }
     
     /**
      * Build a GenType structure from a "Type" object, using the given backTrace
      * stack to avoid infinite recursion.
      */
-    private static GenTypeParameter genTypeFromType(Type t, List<Type> backTrace)
+    private static GenTypeParameter genTypeFromType(Type t, Map<String,? extends GenTypeParameter> tvars)
     {
-        if( t instanceof Class )
+        if (t instanceof Class<?>) {
             return JavaUtils14.genTypeFromClass14((Class<?>)t);
-        if (t instanceof TypeVariable) {
-            TypeVariable<?> tv = (TypeVariable<?>) t;
-            if (backTrace.contains(t))
-                return new GenTypeUnbounded();
-            
-            // get the bounds, convert to GenType
-            Type[] bounds = tv.getBounds();
-            GenTypeSolid[] gtBounds = new GenTypeSolid[bounds.length];
-            backTrace.add(t);
-            for (int i = 0; i < bounds.length; i++) {
-                gtBounds[i] = (GenTypeSolid) genTypeFromType(bounds[i], backTrace);
-            }
-
-            return new GenTypeDeclTpar(tv.getName(), gtBounds);
         }
-        if( t instanceof WildcardType ) {
-            if (backTrace.contains(t))
-                return new GenTypeUnbounded();
+        
+        if (t instanceof TypeVariable<?>) {
+            TypeVariable<?> tv = (TypeVariable<?>) t;
+            GenTypeParameter existingTpar = tvars.get(tv.getName());
+            if (existingTpar != null) {
+                return existingTpar;
+            }
             
+            return new GenTypeTpar(tv.getName());
+        }
+        if (t instanceof WildcardType) {
             WildcardType wtype = (WildcardType)t;
             Type[] upperBounds = wtype.getUpperBounds();
             Type[] lowerBounds = wtype.getLowerBounds();
-            backTrace.add(t);
             // The check for lowerBounds[0] == null is necessary. Appears to be
             // a bug in Java 1.5 beta2.
-            if( lowerBounds.length == 0 || lowerBounds[0] == null ) {
-                if( upperBounds.length == 0 || upperBounds[0] == null ) {
+            if (lowerBounds.length == 0 || lowerBounds[0] == null) {
+                if (upperBounds.length == 0 || upperBounds[0] == null) {
                     return new GenTypeUnbounded();
                 }
                 else {
-                    GenTypeSolid gtp = (GenTypeSolid)genTypeFromType(upperBounds[0], backTrace);
+                    GenTypeSolid gtp = (GenTypeSolid)genTypeFromType(upperBounds[0], tvars);
                     if( upperBounds.length != 1 )
                         Debug.message("GenTypeFromType: multiple upper bounds for wildcard type?");
                     return new GenTypeExtends(gtp);
                 }
             } else {
-                if( lowerBounds[0] == null ) {
-                    Debug.message("lower bound[0] is null??");
-                    return new GenTypeSuper(null);
-                }
-                else {
-                    if (upperBounds.length != 0 && upperBounds[0] != null && upperBounds[0] != Object.class)
-                        Debug.message("getTypeName: upper and lower bound?");
-                    if (lowerBounds.length != 1)
-                        Debug.message("getTypeName: multiple lower bounds for wildcard type?");
-                    GenTypeSolid lbound = (GenTypeSolid) genTypeFromType(lowerBounds[0], backTrace);
-                    return new GenTypeSuper(lbound);
-                }
+                if (upperBounds.length != 0 && upperBounds[0] != null && upperBounds[0] != Object.class)
+                    Debug.message("getTypeName: upper and lower bound?");
+                if (lowerBounds.length != 1)
+                    Debug.message("getTypeName: multiple lower bounds for wildcard type?");
+                GenTypeParameter lbound = genTypeFromType(lowerBounds[0], tvars);
+                return new GenTypeSuper((GenTypeSolid) lbound);
             }
         }
         if( t instanceof ParameterizedType ) {
@@ -545,7 +542,7 @@ public class JavaUtils15 extends JavaUtils
             
             // Convert the Type [] into a List of GenType
             for( int i = 0; i < argtypes.length; i++ )
-                arggentypes.add(genTypeFromType(argtypes[i], backTrace));
+                arggentypes.add(genTypeFromType(argtypes[i], tvars));
             
             // Check for outer type
             GenTypeClass outer = null;
@@ -557,7 +554,7 @@ public class JavaUtils15 extends JavaUtils
         
         // Assume we have an array
         GenericArrayType gat = (GenericArrayType)t;
-        JavaType componentType = (JavaType) genTypeFromType(gat.getGenericComponentType(), backTrace);
+        JavaType componentType = (JavaType) genTypeFromType(gat.getGenericComponentType(), tvars);
         
         return new GenTypeArray(componentType);
     }

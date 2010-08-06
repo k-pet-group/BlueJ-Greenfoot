@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,22 +27,23 @@ import java.util.Map;
 import bluej.utility.Debug;
 
 /**
- * A wildcard type with an upper and/or lower bound.<p>
+ * A wildcard type with an upper and/or lower bound.
  * 
- * Note that both an upper and lower bound is allowed. This type doesn't occur
+ * <p>Note that both an upper and lower bound is allowed. This type doesn't occur
  * naturally- it can't be specified in the Java language. But in some cases we
- * can deduce the type of some object to be this.<p>
+ * can deduce the type of some object to be this.
  *
- * This is an Immutable type.
- * 
  * @author Davin McCall
- * @version $Id: GenTypeWildcard.java 7870 2010-07-16 04:56:48Z davmac $
  */
 public class GenTypeWildcard extends GenTypeParameter
 {
     GenTypeSolid upperBound; // ? extends upperBound
     GenTypeSolid lowerBound; // ? super lowerBound
     
+    /**
+     * Constructor for a wildcard with a specific upper and lower bound, either of
+     * which may be null.
+     */
     public GenTypeWildcard(GenTypeSolid upper, GenTypeSolid lower)
     {
         upperBound = upper;
@@ -50,18 +51,19 @@ public class GenTypeWildcard extends GenTypeParameter
     }
     
     /**
-     * Constructor with a given range of upper and lower bounds. The arrays
-     * used should not be modified afterwards.
+     * Constructor with a given range of upper and lower bounds.
      * 
      * @param uppers  The upper bounds
      * @param lowers  The lower bounds
      */
     public GenTypeWildcard(GenTypeSolid [] uppers, GenTypeSolid [] lowers)
     {
-        if (uppers.length != 0)
+        if (uppers.length != 0) {
             upperBound = IntersectionType.getIntersection(uppers);
-        if (lowers.length != 0)
+        }
+        if (lowers.length != 0) {
             lowerBound = GenTypeSolid.lub(lowers);
+        }
     }
     
     public String toString()

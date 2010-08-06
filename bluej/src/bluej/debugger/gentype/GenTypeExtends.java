@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,10 +25,22 @@ package bluej.debugger.gentype;
  * "? extends ..." type.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeExtends.java 6215 2009-03-30 13:28:25Z polle $
  */
 public class GenTypeExtends extends GenTypeWildcard
 {
+    /**
+     * Construct a "? extends ..." without specifying the upper bound at this time.
+     * The upper bound should then be set using "setUpperBound()".
+     */
+    public GenTypeExtends()
+    {
+        super((GenTypeSolid) null, (GenTypeSolid) null);
+    }
+    
+    /**
+     * Construct a "? extends ..." type with the specified upper bound (which
+     * may be an intersection type).
+     */
     public GenTypeExtends(GenTypeSolid baseType)
     {
         super(baseType, null);
