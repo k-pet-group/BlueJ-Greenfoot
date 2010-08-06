@@ -69,7 +69,7 @@ import bluej.utility.Utility;
  * General utility methods for Greenfoot.
  * 
  * @author Davin McCall
- * @version $Id: GreenfootUtil.java 7938 2010-07-28 01:42:50Z davmac $
+ * @version $Id: GreenfootUtil.java 8009 2010-08-06 05:58:38Z davmac $
  */
 public class GreenfootUtil
 {
@@ -779,16 +779,6 @@ public class GreenfootUtil
     }
     
     /**
-     * Adds the classname of a class with a null image to the list of classes with null images (if applicable)
-     * @param className
-     */
-    public static void addNullImage(String className)
-    {
-        delegate.addNullImage(className);
-    }
-
-
-    /**
      * Questions whether the className has a null image associated with it
      * @param className the name of the class
      * @return true if the className has a null image; false if the className is not in the list
@@ -796,7 +786,7 @@ public class GreenfootUtil
      */
     public static boolean isNullImage(String className)
     {
-        return delegate.isNullImage(className);
+        return delegate.isClassImageInvalid(className);
     }
     
     /**

@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,15 +27,15 @@ import greenfoot.platforms.GreenfootUtilDelegate;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
 {
-    /** A list of null images. Avoids repeatedly looking for the same image that does not exist */
-    public List<String> nullImages = new ArrayList<String>();
+    /** A set containing names of classes whose image couldn't be resolved */
+    public Set<String> nullImages = new HashSet<String>();
     /** Holds images for classes. Avoids loading the same image twice */
     public static Map<String, GreenfootImage> classImages = new HashMap<String, GreenfootImage>();
     
@@ -58,6 +58,14 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
             return res;
         }
         else {
+            if (path.indexOf('\\') != -1) {
+                // Looks suspiciously like a Windows path.
+                path = path.replace('\\', '/');
+                res = this.getClass().getClassLoader().getResource(path);
+                if (res != null && res.toString().contains("!")) {  
+                    return res;
+                }
+            }
             return null;
         }
     }
@@ -79,13 +87,12 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
         nullImages.add(name);
     }
 
-
     /**
-     * Queries the list of null images and returns true if it is in the list and false if not
-     * @param name to be added
-     * @return true if it is a null image; false if not
+     * Checks whether the class is known to have no valid image.
+     * This is the case if we previously attempted to load the class
+     * image, and failed.
      */
-    public boolean isNullImage(String className)
+    public boolean isClassImageInvalid(String className)
     {
         return nullImages.contains(className);
     }

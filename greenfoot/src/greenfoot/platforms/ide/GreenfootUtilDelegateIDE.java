@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -72,21 +72,19 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
         return libDir.getAbsolutePath() + "/imagelib/other/greenfoot.png";        
     }
 
-    public void addNullImage(String className) {  }
-
-    public boolean isNullImage(String className)
+    public boolean isClassImageInvalid(String className)
     {
         return false;
     }
 
-    public void cacheGreenfootImage(String name, GreenfootImage image){    }
+    public void cacheGreenfootImage(String name, GreenfootImage image) {  }
 
-    public void addCachedImage(String name, GreenfootImage image){  }
+    public void addCachedImage(String name, GreenfootImage image) { }
 
-    public GreenfootImage getCachedImage(String name){ 
+    public GreenfootImage getCachedImage(String name)
+    { 
         return null;
     }
 
-    public void removeCachedImage(String className){  }
-
+    public void removeCachedImage(String className) { }
 }

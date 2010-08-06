@@ -84,13 +84,6 @@ public class TestUtilDelegate implements GreenfootUtilDelegate
     }
 
     @Override
-    public void addNullImage(String className)
-    {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
     public void cacheGreenfootImage(String name, GreenfootImage image)
     {
         // TODO Auto-generated method stub
@@ -105,7 +98,7 @@ public class TestUtilDelegate implements GreenfootUtilDelegate
     }
 
     @Override
-    public boolean isNullImage(String className)
+    public boolean isClassImageInvalid(String className)
     {
         // TODO Auto-generated method stub
         return false;

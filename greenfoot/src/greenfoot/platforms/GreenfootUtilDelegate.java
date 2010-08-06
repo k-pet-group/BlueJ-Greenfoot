@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -32,19 +32,23 @@ import java.net.URL;
  * class depending on where and how the greenfoot project is running.
  * 
  * @author Poul Henriksen
- * 
  */
 public interface GreenfootUtilDelegate
 {
-    public void createSkeleton(String className, String superClassName, File file, String templateFileName) throws IOException;
+    public void createSkeleton(String className, String superClassName, File file,
+            String templateFileName) throws IOException;
 
+    /**
+     * Get some resource from the project, specified by a relative path.
+     */
     public URL getResource(String path);  
 
+    /**
+     * Get the project-relative path of the Greenfoot logo.
+     */
     public String getGreenfootLogoPath();
 
-    public void addNullImage(String className);
-
-    public boolean isNullImage(String className);
+    public boolean isClassImageInvalid(String className);
     
     public void cacheGreenfootImage(String name, GreenfootImage image);
 
@@ -53,5 +57,4 @@ public interface GreenfootUtilDelegate
     public void addCachedImage(String name, GreenfootImage image);
 
     public GreenfootImage getCachedImage(String name);
-
 }
