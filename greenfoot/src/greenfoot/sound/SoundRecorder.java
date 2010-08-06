@@ -67,13 +67,10 @@ public class SoundRecorder
     {
         try {
             line = (TargetDataLine)AudioSystem.getLine(new DataLine.Info(TargetDataLine.class, format));
-            if (!line.getFormat().equals(format))
-                Debug.message("Format is not as expected:" + line.getFormat().toString());
             line.open();
             if (!line.getFormat().equals(format))
                 Debug.message("Format is not as expected" + line.getFormat().toString());
             line.start();
-            Debug.message("Using format: " + line.getFormat().toString());
             
             keepRecording.set(true);
                        
@@ -94,6 +91,8 @@ public class SoundRecorder
                             frames.addLast(buffer);
                         }
                     }
+                    
+                    line.stop();
                     
                     boolean done = false;
                     while (!done) {
