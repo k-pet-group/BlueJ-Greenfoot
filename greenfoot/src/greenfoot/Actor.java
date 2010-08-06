@@ -623,6 +623,7 @@ public abstract class Actor
      *            objects).
      * @return A list of all neighbours found.
      */
+    @SuppressWarnings("unchecked")
     protected List getNeighbours(int distance, boolean diagonal, Class cls)
     {
         failIfNotInWorld();
@@ -640,6 +641,7 @@ public abstract class Actor
      * @param cls Class of objects to look for (passing 'null' will find all
      *            objects).
      */
+    @SuppressWarnings("unchecked")
     protected List getObjectsAtOffset(int dx, int dy, Class cls)
     {
         failIfNotInWorld();
@@ -658,6 +660,7 @@ public abstract class Actor
      * @param cls Class of objects to look for (passing 'null' will find all objects).
      * @return An object at the given location, or null if none found.
      */
+    @SuppressWarnings("unchecked")
     protected Actor getOneObjectAtOffset(int dx, int dy, Class cls)
     {
         failIfNotInWorld();
@@ -672,6 +675,7 @@ public abstract class Actor
      * @param radius Radius of the circle (in cells)
      * @param cls Class of objects to look for (passing 'null' will find all objects).
      */
+    @SuppressWarnings("unchecked")
     protected List getObjectsInRange(int radius, Class cls)
     {
         failIfNotInWorld();
@@ -688,6 +692,7 @@ public abstract class Actor
      * 
      * @param cls Class of objects to look for (passing 'null' will find all objects).
      */
+    @SuppressWarnings("unchecked")
     protected List getIntersectingObjects(Class cls)
     {
         failIfNotInWorld();
@@ -704,6 +709,7 @@ public abstract class Actor
      * 
      * @param cls Class of objects to look for (passing 'null' will find all objects).
      */
+    @SuppressWarnings("unchecked")
     protected Actor getOneIntersectingObject(Class cls)
     {
         failIfNotInWorld();

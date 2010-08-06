@@ -330,6 +330,7 @@ public abstract class World
      * 
      * @param classes  The classes in desired paint order
      */
+    @SuppressWarnings("unchecked")
     public void setPaintOrder(Class ... classes)
     {
         if (classes == null) {
@@ -376,6 +377,7 @@ public abstract class World
      * @param classes
      *            The classes in desired act order
      */
+    @SuppressWarnings("unchecked")
     public void setActOrder(Class ... classes)
     {
         if (classes == null) {
@@ -480,6 +482,7 @@ public abstract class World
      * 
      * @param objects A list of Actors to remove.
      */
+    @SuppressWarnings("unchecked")
     public synchronized void removeObjects(Collection objects)
     {
         for (Iterator iter = objects.iterator(); iter.hasNext();) {
@@ -499,6 +502,7 @@ public abstract class World
      * 
      * @return A list of objects.
      */
+    @SuppressWarnings("unchecked")
     public List getObjects(Class cls)
     {
         List<Actor> result = new ArrayList<Actor>();
@@ -628,6 +632,7 @@ public abstract class World
      * @param cls Class of objects to look return ('null' will return all
      *            objects).
      */
+    @SuppressWarnings("unchecked")
     public List getObjectsAt(int x, int y, Class cls)
     {
         return collisionChecker.getObjectsAt(x, y, cls);
@@ -641,6 +646,7 @@ public abstract class World
      * @param cls Class of objects to look for (null or Object.class will find
      *            all classes)
      */
+    @SuppressWarnings("unchecked")
     List getIntersectingObjects(Actor actor, Class cls)
     {
         return collisionChecker.getIntersectingObjects(actor, cls);
@@ -657,6 +663,7 @@ public abstract class World
      * @param cls Class of objects to look for (null or Object.class will find
      *            all classes)
      */
+    @SuppressWarnings("unchecked")
     List getObjectsInRange(int x, int y, int r, Class cls)
     {
         return collisionChecker.getObjectsInRange(x, y, r, cls);
@@ -676,6 +683,7 @@ public abstract class World
      *            all classes)
      * @return A collection of all neighbours found
      */
+    @SuppressWarnings("unchecked")
     List getNeighbours(Actor actor, int distance, boolean diag, Class cls)
     {
         return collisionChecker.getNeighbours(actor, distance, diag, cls);
@@ -693,6 +701,7 @@ public abstract class World
      * @param cls Class of objects to look for (passing 'null' will find all
      *            objects).
      */
+    @SuppressWarnings("unchecked")
     List getObjectsInDirection(int x0, int y0, int angle, int length, Class cls)
     {
 

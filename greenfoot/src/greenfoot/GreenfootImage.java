@@ -90,7 +90,7 @@ public class GreenfootImage
      * The file name may be an absolute path, a base name for a file located in
      * the project directory.
      * 
-     * @param filename Typically the name of a file in the images directory in
+     * @param filename Typically the name of a file in the images directory within
      *            the project directory.
      * @throws IllegalArgumentException If the image can not be loaded.
      */
