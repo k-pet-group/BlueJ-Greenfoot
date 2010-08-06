@@ -22,6 +22,7 @@
 package greenfoot.export;
 
 import greenfoot.World;
+import greenfoot.WorldVisitor;
 import greenfoot.core.ProjectProperties;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
@@ -43,10 +44,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
-import java.awt.Image;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -56,8 +55,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.Properties;
-import java.util.jar.JarInputStream;
-import java.util.zip.ZipEntry;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -67,20 +65,16 @@ import javax.swing.JPanel;
 import javax.swing.JRootPane;
 import javax.swing.RootPaneContainer;
 
-import bluej.BlueJTheme;
 import bluej.Config;
-import bluej.utility.FileUtility;
 
 /**
- * This class can view and run a greenfoot scenario. It is not possible to
+ * This class can view and run a Greenfoot scenario. It is not possible to
  * interact with the objects in any way.
  * 
  * @author Poul Henriksen
- * 
  */
 public class GreenfootScenarioViewer extends JApplet
 {
-
     private static final int EMPTY_BORDER_SIZE = 5;
 
     private static String scenarioName;
@@ -150,14 +144,16 @@ public class GreenfootScenarioViewer extends JApplet
      * Returns the size of the borders around the controls.
      * 
      */
-    public static Dimension getControlsBorderSize() {
+    public static Dimension getControlsBorderSize()
+    {
         return new Dimension((EMPTY_BORDER_SIZE ) * 2, (EMPTY_BORDER_SIZE ) * 2);
     } 
     /**
      * Returns the size of the borders around the world panel.
      * 
      */
-    public static Dimension getWorldBorderSize() {
+    public static Dimension getWorldBorderSize()
+    {
         return new Dimension((EMPTY_BORDER_SIZE + 1) * 2, EMPTY_BORDER_SIZE + 1 * 2);
     }
     
@@ -175,12 +171,8 @@ public class GreenfootScenarioViewer extends JApplet
         centerPanel.setBorder( BorderFactory.createEmptyBorder(EMPTY_BORDER_SIZE,EMPTY_BORDER_SIZE,EMPTY_BORDER_SIZE,EMPTY_BORDER_SIZE)); 
         controls.setBorder(BorderFactory.createCompoundBorder( BorderFactory.createEmptyBorder(0,EMPTY_BORDER_SIZE,EMPTY_BORDER_SIZE,EMPTY_BORDER_SIZE), BorderFactory.createEtchedBorder()));
         
-       
-              
         rootPaneContainer.getContentPane().add(centerPanel, BorderLayout.CENTER);
         rootPaneContainer.getContentPane().add(controls, BorderLayout.SOUTH);
-        
-
     }
 
     /**
@@ -190,8 +182,6 @@ public class GreenfootScenarioViewer extends JApplet
      */
     public void init()
     {
-        
-        
         // this is a workaround for a security conflict with some browsers
         // including some versions of Netscape & Internet Explorer which do
         // not allow access to the AWT system event queue which JApplets do
@@ -232,7 +222,6 @@ public class GreenfootScenarioViewer extends JApplet
             e.printStackTrace();
         }
         try {
-
             GreenfootUtil.initialise(new GreenfootUtilDelegateStandAlone());
             properties = new ProjectProperties();
 
@@ -293,12 +282,9 @@ public class GreenfootScenarioViewer extends JApplet
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-    
 
         buildGUI();
-
     }
-
 
     /**
      * Called by the browser or applet viewer to inform this JApplet that it
@@ -315,7 +301,8 @@ public class GreenfootScenarioViewer extends JApplet
                 // make it work in some browsers (Ubuntu's Firefox 1.5
                 // and 2.0)
                 canvas.requestFocus();
-            }});        
+            }
+        });        
     }
 
     /**
@@ -336,8 +323,8 @@ public class GreenfootScenarioViewer extends JApplet
      */
     public void destroy()
     {
-		sim.abort();
-	}
+        sim.abort();
+    }
 
     /**
      * Returns information about this applet. An applet should override this
@@ -403,6 +390,21 @@ public class GreenfootScenarioViewer extends JApplet
             e.getCause().printStackTrace();
         }
     }
-
-
+    
+    /**
+     * Get access to the world. Being a public method in the applet class allows
+     * this method to be called via JavaScript.
+     */
+    public World getWorld()
+    {
+        return WorldHandler.getInstance().getWorld();
+    }
+    
+    /**
+     * Get access to the world lock, for the given world.
+     */
+    public ReentrantReadWriteLock getWorldLock(World world)
+    {
+        return WorldVisitor.getLock(world);
+    }
 }
