@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -19,13 +19,6 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-/*
- * StandalonePropStringManager.java
- *
- * Created on 3/10/2007, 15:09:39
- *
- */
-
 package greenfoot.util;
 
 import bluej.BlueJPropStringSource;
@@ -61,5 +54,4 @@ public class StandalonePropStringManager implements BlueJPropStringSource
     {
         values.setProperty(property, value);
     }
-    
 }
