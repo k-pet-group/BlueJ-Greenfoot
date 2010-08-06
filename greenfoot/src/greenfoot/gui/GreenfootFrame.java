@@ -626,16 +626,7 @@ public class GreenfootFrame extends JFrame
         
         addMenuItem(newClassAction, editMenu, KeyEvent.VK_N, false, KeyEvent.VK_N);
         addMenuItem(removeSelectedClassAction, editMenu, KeyEvent.VK_D, false, KeyEvent.VK_R);
-        
-        editMenu.addSeparator();
-        addMenuItem(new AbstractAction(Config.getString("menu.soundRecorder")) {
-            public void actionPerformed(ActionEvent e)
-            {
-                new SoundRecorderDialog(GreenfootFrame.this, project);                
-            }
-        }, editMenu, -1, false, KeyEvent.VK_S);
-        
-        
+                
         if (!Config.usingMacScreenMenubar()) { // no "Preferences" here for
             // Mac
             editMenu.addSeparator();
@@ -651,13 +642,19 @@ public class GreenfootFrame extends JFrame
 //        addMenuItem(new NYIAction("Increase Speed", this), ctrlMenu, KeyEvent.VK_PLUS, false, KeyEvent.VK_PLUS);
 //        addMenuItem(new NYIAction("Decrease Speed", this), ctrlMenu, KeyEvent.VK_MINUS, false, KeyEvent.VK_MINUS);
         
+        ctrlMenu.addSeparator();
         addMenuItem(new AbstractAction(Config.getString("menu.debugger")) {
             public void actionPerformed(ActionEvent e)
             {
                 project.showExecControls();
             }}, ctrlMenu, KeyEvent.VK_D, false, KeyEvent.VK_D);
-        ctrlMenu.addSeparator();
-        addMenuItem(saveWorldAction, ctrlMenu, -1, false, KeyEvent.VK_W);
+        
+        addMenuItem(new AbstractAction(Config.getString("menu.soundRecorder")) {
+            public void actionPerformed(ActionEvent e)
+            {
+                new SoundRecorderDialog(GreenfootFrame.this, project);                
+            }
+        }, ctrlMenu, -1, false, KeyEvent.VK_S);
         ctrlMenu.addSeparator();
         addMenuItem(compileAllAction, ctrlMenu, KeyEvent.VK_K, false, -1);
         
