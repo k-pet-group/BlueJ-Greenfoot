@@ -39,6 +39,10 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.io.File;
 import java.rmi.RemoteException;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -85,6 +89,8 @@ public class SoundRecorderDialog extends JDialog
     
     private boolean playing = false;
     private boolean recording = false;
+    // Reference will be only be valid when "recording" is true:
+    private AtomicReference<List<byte[]>> currentRecording;
 
     private SoundPanel soundPanel;
     
@@ -120,10 +126,23 @@ public class SoundRecorderDialog extends JDialog
             {
                 if (!recording) {
                     //Start recording
-                    recorder.startRecording();
+                    currentRecording = recorder.startRecording();
                     recordStop.setText(stopRecordLabel);
                     playStop.setEnabled(false);
                     recording = true;
+                    new Timer().scheduleAtFixedRate(new TimerTask() {
+                        List<byte[]> lastValue = null;
+                        public void run()
+                        {
+                            List<byte[]> curValue = currentRecording.get();
+                            if (curValue != lastValue)
+                                soundPanel.repaint();
+                            if (lastValue != null && curValue == null)
+                                cancel();
+                            lastValue = curValue;
+                            
+                        }
+                    }, 100, 200);
                 } else {
                     //Stop recording
                     recorder.stopRecording();
@@ -359,17 +378,54 @@ public class SoundRecorderDialog extends JDialog
             g.setColor(Color.BLACK);
             g.fillRect(0, 0, width, height);
             
-            if (sound != null && sound.length > 0) {
+            if (recording || (sound != null && sound.length > 0)) {
                 if (selectionActive) {
                     g.setColor(Color.GRAY);
                     g.fillRect((int)(Math.min(selectionBegin, selectionEnd) * width), 0, (int)(Math.abs(selectionBegin - selectionEnd) * width), height);
                 }
                 
+                // Get this outside the loop to make sure it's consistent:
+                byte[][] rec = null;
+                int recLength = 0;
+                if (recording) {
+                    List<byte[]> recList = currentRecording.get();
+                    if (recList != null) {
+                        rec = recList.toArray(new byte[0][]);
+                        for (byte[] chunk : rec) {
+                            //Shouldn't have any null chunks, but just in case:
+                            int chunkLength = chunk == null ? 0 : chunk.length;
+                            recLength += chunkLength;
+                        }
+                    }
+                }
+                int curRecChunk = 0;
+                int prevChunksLength = 0;
+                
                 for (int i = 0; i < width; i++) {
                     float pos = (float)i / (float)width;
-                    float f = getValue(sound, pos);
+                    float f;
+                    // Use rec test rather than "recording" in case "recording" changes mid-paint:
+                    if (rec != null) {
+                        int index = (int)(pos * (float)recLength);
+                        if (recLength == 0 || index >= recLength) {
+                            // No data yet:
+                            f = 0.0f;
+                        } else {                            
+                            // We have a list of chunks that make up the current recording:
+                            //  Skip forward to right chunk if needed:
+                            while (index >= prevChunksLength + rec[curRecChunk].length) {
+                                prevChunksLength += rec[curRecChunk].length;
+                                curRecChunk += 1;
+                            }
+                            f = (float)rec[curRecChunk][index - prevChunksLength] / 128.0f;
+                        }
+                    } else {
+                        int index = (int)(pos * (float)sound.length);
+                        f = (float)sound[index] / 128.0f;
+                    }
                     //Looks slightly better if we don't draw all the way to the edge, so use 90%:
                     int waveHeight = (int)(halfHeight * f * 0.9f);
+                    
                     if (inSelection(pos)) {
                         g.setColor(Color.YELLOW);
                     } else {
@@ -451,12 +507,6 @@ public class SoundRecorderDialog extends JDialog
         public void mouseExited(MouseEvent e) {}
 
         public void mouseMoved(MouseEvent e) {}
-    }
-    
-    private static float getValue(byte[] arr, float x)
-    {
-        int index = (int)(x * (float)arr.length);
-        return (float)arr[index] / 128.0f;
     }
     
     // Gets the start of the selection as an index into the raw sound array 

@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
@@ -61,9 +62,23 @@ public class SoundRecorder
 
     /**
      * Starts recording.  You should make sure to call stop() exactly once after
-     * each call to start()
+     * each call to start().
+     * 
+     * The method returns a reference from which you can pick out the current state
+     * of the recording. It will first be set to null, then to be a list with the first part of the recording,
+     * then a list with the first and second parts, then a list with the first, second
+     * and third parts.  This is the easiest way to control
+     * the concurrency involved in the sound recorder that reads from this list.
+     * The internal list is cloned in this method (which is therefore thread-safe), and
+     * thereafter the lists put in the reference can all be accessed individually
+     * without worrying about them being modified.  So any list got by a call to a get
+     * won't be being used again by this method.
+     * 
+     * The reference should be updated roughly every half-second.
+     * 
+     * When the recording has finished, null will be put into the reference.
      */
-    public void startRecording()
+    public AtomicReference<List<byte[]>> startRecording()
     {
         try {
             line = (TargetDataLine)AudioSystem.getLine(new DataLine.Info(TargetDataLine.class, format));
@@ -73,11 +88,15 @@ public class SoundRecorder
             line.start();
             
             keepRecording.set(true);
+            
+            final AtomicReference<List<byte[]>> partialResult = new AtomicReference<List<byte[]>>(null);
                        
             Runnable rec = new Runnable() {
                 public void run()
                 {
-                    int bufferSize = (int) format.getSampleRate() * format.getFrameSize();
+                    // We should get a chunk every half second, which is better than every second
+                    // for updating the display as we go:
+                    int bufferSize = (int) (format.getSampleRate()/2) * format.getFrameSize();
                     LinkedList<byte[]> frames = new LinkedList<byte[]>();
                     
                     while (keepRecording.get()) {
@@ -89,8 +108,11 @@ public class SoundRecorder
                             keepRecording.set(false);
                         } else {
                             frames.addLast(buffer);
+                            partialResult.set((List<byte[]>)frames.clone());
                         }
                     }
+                    
+                    partialResult.set(null);
                     
                     line.stop();
                     
@@ -108,9 +130,11 @@ public class SoundRecorder
             
             new Thread(rec).start();
             
+            return partialResult;
         }
         catch (LineUnavailableException e) {
             Debug.reportError("Problem capturing sound", e);
+            return null;
         }
         
     }
