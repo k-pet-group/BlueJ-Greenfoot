@@ -457,4 +457,9 @@ public class SoundStream implements Sound, Runnable
         stop = true;
         playThread = null;
     }
+
+    public long getLongFramePosition()
+    {
+        return line.getLongFramePosition();
+    }
 }

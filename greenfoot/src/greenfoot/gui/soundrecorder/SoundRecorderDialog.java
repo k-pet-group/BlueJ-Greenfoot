@@ -88,6 +88,8 @@ public class SoundRecorderDialog extends JDialog
     private JButton saveButton;
     
     private boolean playing = false;
+    //Position will only be valid when "playing" is true:
+    private long playbackPosition;
     private boolean recording = false;
     // Reference will be only be valid when "recording" is true:
     private AtomicReference<List<byte[]>> currentRecording;
@@ -294,8 +296,8 @@ public class SoundRecorderDialog extends JDialog
      */
     private class Player implements ActionListener, SoundPlaybackListener
     {
-        //private final Timer tim = new Timer();
-        //private TimerTask repaintWhilePlaying;
+        private final Timer tim = new Timer();
+        private TimerTask repaintWhilePlaying;
         private SoundStream stream;
                 
         public void actionPerformed(ActionEvent e)
@@ -314,19 +316,19 @@ public class SoundRecorderDialog extends JDialog
                 }
                 stream = new SoundStream(memoryStream, this);
                 playing = true;
+                playbackPosition = 0;
                 stream.play();
                 playStop.setText(stopPlayLabel);
                 recordStop.setEnabled(false);
                 
-                /*
                 repaintWhilePlaying = new TimerTask() {
                     public void run()
                     {
+                        playbackPosition = stream.getLongFramePosition();
                         soundPanel.repaint();               
                     }
                 }; 
-                tim.scheduleAtFixedRate(repaintWhilePlaying, 200, 200);
-                */
+                tim.scheduleAtFixedRate(repaintWhilePlaying, 50, 100);
             }
         }
 
@@ -344,7 +346,7 @@ public class SoundRecorderDialog extends JDialog
         {
             updateButtons();
             recordStop.setEnabled(true);
-            //repaintWhilePlaying.cancel();
+            repaintWhilePlaying.cancel();
             playing = false;
         }
 
@@ -398,6 +400,8 @@ public class SoundRecorderDialog extends JDialog
                         }
                     }
                 }
+                else
+                    recLength = sound.length;
                 int curRecChunk = 0;
                 int prevChunksLength = 0;
                 
@@ -435,17 +439,12 @@ public class SoundRecorderDialog extends JDialog
 
                 }
                 
-                // Putting a line that tracks the play is difficult.
-                // The below doesn't work because it tracks where the buffer has been read up to,
-                // which is often around a second away from where it is currently playing
-                /*
-                if (memoryStream != null && playing) {
-                    g.setColor(Color.WHITE);
-                    float playLength = selectionActive ? (int)(Math.abs(selectionBegin - selectionEnd) * sound.length) : sound.length;
-                    int pos = (int)((float)width * ((float)memoryStream.getPosition() / playLength));
+                if (playing) {
+                    g.setColor(Color.RED);
+                    float playPosRel = (float)playbackPosition / (float)recLength;
+                    int pos = (int)(playPosRel * (float)width);
                     g.drawLine(pos, 0, pos, height);
                 }
-                */
             }
         }
         

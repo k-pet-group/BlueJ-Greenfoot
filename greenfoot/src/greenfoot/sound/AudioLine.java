@@ -332,4 +332,9 @@ public class AudioLine
         return SoundUtils.getTimeToPlayBytes(totalWritten, format) - timeTracker.getTimeTracked() + EXTRA_SLEEP_DELAY;
     }
 
+    public long getLongFramePosition()
+    {
+        return line.getLongFramePosition();
+    }
+
 }
