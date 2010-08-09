@@ -229,6 +229,9 @@ soundRecorder.overwrite.part1=The file \"
 soundRecorder.overwrite.part2=\" already exists.  Do you want to overwrite?
 soundRecorder.overwrite.title=Confirm file overwrite
 soundRecorder.overwrite=Overwrite
+soundRecorder.closeAnyway=Close anyway
+soundRecorder.closeTitle=Close without saving
+soundRecorder.closeQuestion=Sound has been changed since you last saved.  If you close the sound recorder, these changes will be lost.
 
 # Menus
 

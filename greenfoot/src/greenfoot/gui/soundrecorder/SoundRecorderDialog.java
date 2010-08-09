@@ -37,6 +37,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.io.File;
 import java.rmi.RemoteException;
 import java.util.List;
@@ -68,7 +70,7 @@ import bluej.utility.DialogManager;
  * @author neil
  *
  */
-public class SoundRecorderDialog extends JDialog
+public class SoundRecorderDialog extends JDialog implements WindowListener
 {
     private SoundRecorder recorder = new SoundRecorder();
     
@@ -100,6 +102,8 @@ public class SoundRecorderDialog extends JDialog
     private final String playLabel;
     private final String playSelectionLabel;
     private final String stopPlayLabel;
+
+    private boolean changedSinceSave = false;
     
     /**
      * Creates a SoundRecorderDialog that will save the sounds
@@ -154,6 +158,7 @@ public class SoundRecorderDialog extends JDialog
                     soundPanel.repaint();
                     recordStop.setText(recordLabel);
                     recording = false;
+                    changedSinceSave = true;
                 }
             }
         });
@@ -164,6 +169,7 @@ public class SoundRecorderDialog extends JDialog
             public void actionPerformed(ActionEvent e)
             {
                 recorder.trim(Math.min(selectionBegin, selectionEnd), Math.max(selectionBegin, selectionEnd));
+                changedSinceSave = true;
                 selectionActive = false;
                 updateButtons();
                 repaint();
@@ -223,25 +229,29 @@ public class SoundRecorderDialog extends JDialog
                     File destination = new File(projectSoundDir + filenameField.getText() + ".wav");
                     if (destination.exists()) {
                         String[] options = null;
-                        int def;
+                        int overwrite;
                         if (Config.isMacOS()) {
                             options = new String[] { BlueJTheme.getCancelLabel(), Config.getString("soundRecorder.overwrite") };
-                            def = 1;
+                            overwrite = 1;
                         }
                         else {
                             options = new String[] { Config.getString("soundRecorder.overwrite"), BlueJTheme.getCancelLabel() };
-                            def = 0;
+                            overwrite = 0;
                         }
                         
-                        JOptionPane.showOptionDialog(SoundRecorderDialog.this,
+                        if (overwrite == JOptionPane.showOptionDialog(SoundRecorderDialog.this,
                           Config.getString("soundRecorder.overwrite.part1") + destination.getName() + Config.getString("soundRecorder.overwrite.part2"),
                           Config.getString("soundRecorder.overwrite.title"),
                           JOptionPane.YES_NO_OPTION,
                           JOptionPane.QUESTION_MESSAGE,
                           null,
-                          options, options[def]);
-                    } else {                       
+                          options, options[overwrite])) {
+                            recorder.writeWAV(destination);
+                            changedSinceSave = false;
+                        }
+                    } else {
                         recorder.writeWAV(destination);
+                        changedSinceSave = false;
                     }
                 }
             }
@@ -280,6 +290,9 @@ public class SoundRecorderDialog extends JDialog
         });
         done.setAlignmentX(CENTER_ALIGNMENT);
         contentPane.add(done);
+        
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+        addWindowListener(this);
         
         pack();
         DialogManager.centreDialog(this);
@@ -546,4 +559,48 @@ public class SoundRecorderDialog extends JDialog
         float finish = Math.max(selectionBegin, selectionEnd);
         return (int)(finish * (float)recorder.getRawSound().length);
     }
+    
+    
+    // WindowListener:
+    
+    public void windowClosing(WindowEvent e)
+    {
+        if (changedSinceSave) {
+            String[] options = null;
+            int close;
+            if (Config.isMacOS()) {
+                options = new String[] { BlueJTheme.getCancelLabel(), Config.getString("soundRecorder.closeAnyway") };
+                close = 1;
+            }
+            else {
+                options = new String[] { Config.getString("soundRecorder.closeAnyway"), BlueJTheme.getCancelLabel() };
+                close = 0;
+            }
+            
+            if (close == JOptionPane.showOptionDialog(SoundRecorderDialog.this,
+              Config.getString("soundRecorder.closeQuestion"),
+              Config.getString("soundRecorder.closeTitle"),
+              JOptionPane.YES_NO_OPTION,
+              JOptionPane.QUESTION_MESSAGE,
+              null,
+              options, options[close])) {
+                setVisible(false);
+            }
+        } else {
+            setVisible(false);
+        }        
+    }
+
+    public void windowActivated(WindowEvent e) {}
+    
+    public void windowClosed(WindowEvent e) {}
+    
+    public void windowDeactivated(WindowEvent e) {}
+    
+    public void windowDeiconified(WindowEvent e) {}
+    
+    public void windowIconified(WindowEvent e) {}
+    
+    public void windowOpened(WindowEvent e) {}
+
 }
