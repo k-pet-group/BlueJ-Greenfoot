@@ -84,13 +84,6 @@ public class TestUtilDelegate implements GreenfootUtilDelegate
     }
 
     @Override
-    public void cacheGreenfootImage(String name, GreenfootImage image)
-    {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
     public GreenfootImage getCachedImage(String name)
     {
         // TODO Auto-generated method stub
