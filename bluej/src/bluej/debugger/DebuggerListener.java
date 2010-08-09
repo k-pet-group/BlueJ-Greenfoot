@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,40 +26,54 @@ import java.util.EventListener;
 /**
  * The listener for Debugger events.
  *
- * Debugger events are processed in two stages
+ * <p>Debugger events are processed in two stages
  * 
- * First, all the events in a set are passed to examineDebuggerEvent.
+ * <p>First, all the events in a set are passed to examineDebuggerEvent.
  * This method should return true if it wants to set the thread going again,
  * or otherwise upset the interface updates.
  * 
- * The result of all examine.. calls are ORed together and later passed to
- * processDebuggerEvent, which should act on the boolean accordingly.  In particular,
- * if the interface is given the value true, it should not update. 
+ * <p>The result of all examineDebuggerEvent calls for an event set are ORed
+ * together and later passed to processDebuggerEvent, which should act on the
+ * boolean accordingly.  In particular, if the interface is given the value true,
+ * it should not update.
+ * 
+ * <p>Calls to examineDebuggerEvent() and processDebuggerEvent() are synchronous,
+ * that is:
+ * <ul>
+ * <li>A single set of events is handled at a time. Such a set will include events
+ * affecting only a single thread.
+ * <li>examineDebuggerEvent() will be called for each event in the set, in series.
+ * <li>processDebuggerEvent() will then be called for each event in the set, in series.
+ * <li>The processing of two separate event sets will occur in series.
+ * </ul>
  */
 public interface DebuggerListener extends EventListener
 {
     /**
      * Examines the debugger event -- a precursor to a call to
-     * processDebuggerEvent.  First, examineDebuggerEvent is called on all the listeners.
-     * The results of all of them are ORed together,
-     * and then processDebuggerEvent is called with this value.
+     * processDebuggerEvent. This should return true if the event should not
+     * cause the debugger UI to be updated.
      * 
-     * So if you return true from examineDebuggerEvent, you
-     * are guaranteed that the corresponding processDebuggerEvent
-     * calls will have true as their parameter.
+     * <p>Related events (belonging to the same thread) will all be processed
+     * before being passed on to processDebuggerEvent().
+     * 
+     * @see #processDebuggerEvent(DebuggerEvent, boolean)
      */
     boolean examineDebuggerEvent(DebuggerEvent e);
     
     /**
      * Called after examineDebuggerEvent to process an event.
-     * For an explanation of the skipUpdate parameter, see examineDebuggerEvent.
+     * 
+     * @param skipUpdate   true if any listener requested that
+     *                  the UI not be updated due to this event
+     *                 (or another event in this event set).
      */
     void processDebuggerEvent(DebuggerEvent e, boolean skipUpdate);
     
-    
     /**
      * Called when the user instigates a halt of a thread in the debugger.
-     * @return true if you do not want the thread display to be updated (e.g. if you have set the thread running again),
+     * @return true if you do not want the thread display to be updated
+     * (e.g. if you have set the thread running again),
      *   or false if you want things to be handled normally. 
      */
     boolean threadHalted(Debugger debugger, DebuggerThread thread);
