@@ -63,14 +63,14 @@ public interface GreenfootUtilDelegate
 
     /**
      * Adds a filename with the associated image into the cache
-     * @param fileName should be the image filename
+     * @param fileName should be the image filename. Thread-safe
      * @param image GreenfootImage
      */
     public void addCachedImage(String fileName, GreenfootImage image);
 
     /**
      * Gets the cached image of the requested fileName
-     * @param fileName should be the image filename
+     * @param fileName should be the image filename. Thread-safe
      */
     public GreenfootImage getCachedImage(String fileName);
 }
