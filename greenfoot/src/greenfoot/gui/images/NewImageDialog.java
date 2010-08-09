@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program.
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling
+ Copyright (C) 2009,2010  Poul Henriksen and Michael Kolling
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -62,7 +62,6 @@ import javax.swing.SpinnerNumberModel;
  * default image editing program so the user can edit it.
  * 
  * @author Michael Berry (mjrb4)
- * @version 09/08/09
  */
 public class NewImageDialog extends EscapeDialog
 {
@@ -110,10 +109,14 @@ public class NewImageDialog extends EscapeDialog
     {
         JPanel mainPanel = new JPanel();
         setContentPane(mainPanel);
+        //int space = BlueJTheme.dialogBorder;
+        //mainPanel.setBorder(BorderFactory.createEmptyBorder(space, space, space, space));
+        mainPanel.setBorder(BlueJTheme.dialogBorder);
 
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 
-        JPanel detailsPanel = new JPanel(new GridLayout(4, 2));
+        JPanel detailsPanel = new JPanel(new GridLayout(4, 2, BlueJTheme.componentSpacingSmall,
+                BlueJTheme.componentSpacingSmall));
         detailsPanel.add(new JLabel(Config.getString("imagelib.new.image.name") + " "));
         name = new JTextField(10);
         name.setText(rootName);
@@ -169,6 +172,7 @@ public class NewImageDialog extends EscapeDialog
                 createAndEdit();
             }            
         });
+        okButton.setAlignmentY(1.0f);
         buttonBox.add(okButton);
         buttonBox.add(Box.createHorizontalStrut(10));
         
@@ -179,6 +183,7 @@ public class NewImageDialog extends EscapeDialog
                 dispose();                
             }
         });
+        cancelButton.setAlignmentY(1.0f);
         buttonBox.add(cancelButton);
         
         mainPanel.add(buttonBox);
