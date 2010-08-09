@@ -792,7 +792,10 @@ public class Simulation extends Thread
                 HDTimer.sleep(actualDelay);
             }
             catch (InterruptedException ie) {
-                if (paused || abort) {
+                // We get interrupted either due to a pause, abort, being disabled or
+                // a speed change. If it's a speed change, we can continue to delay, up
+                // to the new time; otherwise we should finish up now.
+                if (!enabled || paused || abort) {
                     break;
                 }
             }
