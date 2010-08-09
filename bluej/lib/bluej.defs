@@ -607,25 +607,6 @@ bluej.vm.transport=dt_shmem
 bluej.debug=false
 
 #######################################################################
-## Workaround for Windows UNC path (network path) handling bug in
-## java. There is a bug in java versions prior to 6 which means that
-## opening projects from a network location in Windows is problematic
-## (it may not be possible to compile).
-##
-## If you are experiencing this problem, you can try uncommenting this
-## setting. However, upgrading to java 6 is the recommended solution
-## and in that case this setting should not be used.
-##
-## For more information see the BlueJ bug database entry:
-## http://bugs.bluej.org/show_bug.cgi?id=852
-##
-## This setting was added in BlueJ 2.1. It may be removed in a future
-## release.
-#######################################################################
-
-#bluej.windows.customUNCHandler=true
-
-#######################################################################
 ## Images.
 #######################################################################
 
