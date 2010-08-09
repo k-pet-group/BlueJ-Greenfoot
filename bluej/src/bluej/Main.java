@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -42,7 +42,6 @@ import bluej.utility.Debug;
  * "real" BlueJ.
  * 
  * @author Michael Kolling
- * @version $Id: Main.java 6887 2009-12-03 00:49:40Z davmac $
  */
 public class Main
 {
@@ -61,14 +60,6 @@ public class Main
         File bluejLibDir = Boot.getBluejLibDir();
 
         Config.initialise(bluejLibDir, commandLineProps, boot.isGreenfoot());
-
-        // workaround java's broken UNC path handling on Windows
-        if (Config.getPropBoolean("bluej.windows.customUNCHandler")) {
-            String osname = System.getProperty("os.name", "");
-            if (osname.startsWith("Windows")) {
-                URL.setURLStreamHandlerFactory(new BluejURLStreamHandlerFactory());
-            }
-        }
 
         // process command line arguments, start BlueJ!
         EventQueue.invokeLater(new Runnable() {
