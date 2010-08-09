@@ -15,11 +15,6 @@ An error occurred in a file for which the
 source cannot be found.
 class: source line number:
 
-system-exit
-The method finished through an explicit
-"exit" instruction. No result was
-returned. The exit code is:
-
 no-help
 No help available for this message.
 Please mail the text of the error message
