@@ -32,7 +32,7 @@ import java.util.Map;
 
 public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
 {
-    /** Holds images for classes. Avoids loading the same image twice */
+    /** Holds images for classes. Avoids loading the same image twice. Key is the filename */
     public static Map<String, GreenfootImage> classImages = new HashMap<String, GreenfootImage>();
     
     public void createSkeleton(String className, String superClassName, File file, String templateFileName)
@@ -75,31 +75,31 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
     }
 
 
-    public boolean isClassImageInvalid(String className)
+    public boolean isClassImageInvalid(String fileName)
     {
-        return (classImages.containsKey(className)&& (classImages.get(className)==null));
+        return (classImages.containsKey(fileName)&& (classImages.get(fileName)==null));
     }
     
-    public void removeCachedImage(String className)
+    public void removeCachedImage(String fileName)
     {
         synchronized (classImages) {
-            classImages.remove(className);
+            classImages.remove(fileName);
         }
     }
    
 
-    public void addCachedImage(String name, GreenfootImage image)
+    public void addCachedImage(String fileName, GreenfootImage image)
     {
         synchronized (classImages) {
-            classImages.put(name, image);
+            classImages.put(fileName, image);
         }
     }
     
 
-    public GreenfootImage getCachedImage(String name)
+    public GreenfootImage getCachedImage(String fileName)
     {
         synchronized (classImages) {
-            return classImages.get(name);
+            return classImages.get(fileName);
         }
     }
 

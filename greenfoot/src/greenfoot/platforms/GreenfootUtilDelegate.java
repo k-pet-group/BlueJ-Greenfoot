@@ -53,24 +53,24 @@ public interface GreenfootUtilDelegate
      * This is the case if we previously attempted to load the class
      * image, and failed.
      */
-    public boolean isClassImageInvalid(String className);
+    public boolean isClassImageInvalid(String fileName);
 
     /**
      * Remove the cached version of an image for a particular class. This should be
      * called when the image for the class is changed. Thread-safe.
      */
-    public void removeCachedImage(String className);
+    public void removeCachedImage(String fileName);
 
     /**
      * Adds a filename with the associated image into the cache
-     * @param name filename (should be the image filename)
+     * @param fileName should be the image filename
      * @param image GreenfootImage
      */
-    public void addCachedImage(String name, GreenfootImage image);
+    public void addCachedImage(String fileName, GreenfootImage image);
 
     /**
-     * Gets the cached image of the requested name
-     * @param name of the image
+     * Gets the cached image of the requested fileName
+     * @param fileName should be the image filename
      */
-    public GreenfootImage getCachedImage(String name);
+    public GreenfootImage getCachedImage(String fileName);
 }

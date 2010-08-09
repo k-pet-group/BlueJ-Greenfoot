@@ -72,19 +72,19 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
         return libDir.getAbsolutePath() + "/imagelib/other/greenfoot.png";        
     }
 
-    public boolean isClassImageInvalid(String className)
+    public boolean isClassImageInvalid(String fileName)
     {
         return false;
     }
 
-    public void cacheGreenfootImage(String name, GreenfootImage image) {  }
+    public void cacheGreenfootImage(String fileName, GreenfootImage image) {  }
 
-    public void addCachedImage(String name, GreenfootImage image) { }
+    public void addCachedImage(String fileName, GreenfootImage image) { }
 
-    public GreenfootImage getCachedImage(String name)
+    public GreenfootImage getCachedImage(String fileName)
     { 
         return null;
     }
 
-    public void removeCachedImage(String className) { }
+    public void removeCachedImage(String fileName) { }
 }
