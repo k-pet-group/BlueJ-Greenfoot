@@ -50,6 +50,7 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
@@ -149,6 +150,7 @@ public class SoundRecorderDialog extends JDialog
                     //Stop recording
                     recorder.stopRecording();
                     playStop.setEnabled(true);
+                    updateSaveButton();
                     soundPanel.repaint();
                     recordStop.setText(recordLabel);
                     recording = false;
@@ -217,8 +219,31 @@ public class SoundRecorderDialog extends JDialog
         saveButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
-                if (projectSoundDir != null)
-                    recorder.writeWAV(new File(projectSoundDir + filenameField.getText() + ".wav"));                
+                if (projectSoundDir != null) {
+                    File destination = new File(projectSoundDir + filenameField.getText() + ".wav");
+                    if (destination.exists()) {
+                        String[] options = null;
+                        int def;
+                        if (Config.isMacOS()) {
+                            options = new String[] { BlueJTheme.getCancelLabel(), Config.getString("soundRecorder.overwrite") };
+                            def = 1;
+                        }
+                        else {
+                            options = new String[] { Config.getString("soundRecorder.overwrite"), BlueJTheme.getCancelLabel() };
+                            def = 0;
+                        }
+                        
+                        JOptionPane.showOptionDialog(SoundRecorderDialog.this,
+                          Config.getString("soundRecorder.overwrite.part1") + destination.getName() + Config.getString("soundRecorder.overwrite.part2"),
+                          Config.getString("soundRecorder.overwrite.title"),
+                          JOptionPane.YES_NO_OPTION,
+                          JOptionPane.QUESTION_MESSAGE,
+                          null,
+                          options, options[def]);
+                    } else {                       
+                        recorder.writeWAV(destination);
+                    }
+                }
             }
         });
         saveBox.add(saveButton);

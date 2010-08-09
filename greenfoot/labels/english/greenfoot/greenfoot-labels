@@ -225,6 +225,10 @@ soundRecorder.stopPlay=Stop playing
 soundRecorder.filename=Filename
 soundRecorder.save=Save
 soundRecorder.done=Done
+soundRecorder.overwrite.part1=The file \"
+soundRecorder.overwrite.part2=\" already exists.  Do you want to overwrite?
+soundRecorder.overwrite.title=Confirm file overwrite
+soundRecorder.overwrite=Overwrite
 
 # Menus
 
