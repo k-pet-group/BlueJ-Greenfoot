@@ -71,10 +71,10 @@ public class RemoveClassAction extends AbstractAction
     {
         String[] options = null;
         if (Config.isMacOS()) {
-        	options = new String[] { BlueJTheme.getCancelLabel(), BlueJTheme.getOkLabel() };
+        	options = new String[] { BlueJTheme.getCancelLabel(), Config.getString("remove.class") };
         }
         else {
-        	options = new String[] { BlueJTheme.getOkLabel(), BlueJTheme.getCancelLabel() };
+        	options = new String[] { Config.getString("remove.class"), BlueJTheme.getCancelLabel() };
         }
         int response = JOptionPane.showOptionDialog(frame,
                 confirmRemoveText1 + " " + cls.getClassName() + ". " + confirmRemoveText2,
