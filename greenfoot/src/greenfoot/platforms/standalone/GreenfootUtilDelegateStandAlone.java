@@ -28,14 +28,10 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
 {
-    /** A set containing names of classes whose image couldn't be resolved */
-    public Set<String> nullImages = new HashSet<String>();
     /** Holds images for classes. Avoids loading the same image twice */
     public static Map<String, GreenfootImage> classImages = new HashMap<String, GreenfootImage>();
     
@@ -78,40 +74,12 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
         return this.getClass().getClassLoader().getResource("greenfoot.png").toString();
     }
 
-    /**
-     * Adds an name of a null image
-     * @param name to be added
-     */
-    public void addNullImage(String name)
-    {
-        nullImages.add(name);
-    }
 
-    /**
-     * Checks whether the class is known to have no valid image.
-     * This is the case if we previously attempted to load the class
-     * image, and failed.
-     */
     public boolean isClassImageInvalid(String className)
     {
-        return nullImages.contains(className);
-    }
-
-    public void cacheGreenfootImage(String name, GreenfootImage image)
-    {
-        if (image != null) {
-            addCachedImage(name, image);
-        }
-        else {
-            addNullImage(name);
-        }
-        
+        return (classImages.containsKey(className)&& (classImages.get(className)==null));
     }
     
-    /**
-     * Remove the cached version of an image for a particular class. This should be
-     * called when the image for the class is changed. Thread-safe.
-     */
     public void removeCachedImage(String className)
     {
         synchronized (classImages) {
@@ -119,11 +87,7 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
         }
     }
    
-    /**
-     * Adds a filename with the associated image into the cache
-     * @param name filename (should be the image filename)
-     * @param image GreenfootImage
-     */
+
     public void addCachedImage(String name, GreenfootImage image)
     {
         synchronized (classImages) {
@@ -131,10 +95,7 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
         }
     }
     
-    /**
-     * Gets the cached image of the requested name
-     * @param name of the image
-     */
+
     public GreenfootImage getCachedImage(String name)
     {
         synchronized (classImages) {

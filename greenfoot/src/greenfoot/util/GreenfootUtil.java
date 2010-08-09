@@ -69,7 +69,7 @@ import bluej.utility.Utility;
  * General utility methods for Greenfoot.
  * 
  * @author Davin McCall
- * @version $Id: GreenfootUtil.java 8009 2010-08-06 05:58:38Z davmac $
+ * @version $Id: GreenfootUtil.java 8019 2010-08-09 05:29:23Z marionz $
  */
 public class GreenfootUtil
 {
@@ -823,7 +823,7 @@ public class GreenfootUtil
                 }
             }
 
-            delegate.cacheGreenfootImage(className, image);
+            delegate.addCachedImage(className, image);
         }
         return image;
 
