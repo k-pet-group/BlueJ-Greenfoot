@@ -210,10 +210,6 @@ public class GreenfootFrame extends JFrame
         restoreFrameState();
 
         prepareMacOSApp();
-        
-        setVisible(true);
-        worldCanvas.requestFocusInWindow();
-        worldCanvas.requestFocus();
     }
     
     /**
@@ -372,6 +368,7 @@ public class GreenfootFrame extends JFrame
         
         // Some first-time initializations
         worldCanvas = new WorldCanvas(null);
+        worldCanvas.setWorldSize(200, 100);
         
         worldHandlerDelegate = new WorldHandlerDelegateIDE(this);
         WorldHandler.initialise(worldCanvas, worldHandlerDelegate);
@@ -489,7 +486,6 @@ public class GreenfootFrame extends JFrame
         contentPane.add(eastPanel, BorderLayout.EAST);
 
         pack();
-        worldDimensions = worldCanvas.getPreferredSize();        
     }
 
     /**

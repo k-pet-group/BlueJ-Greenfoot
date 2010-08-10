@@ -62,6 +62,8 @@ public class WorldCanvas extends JPanel
     private Point dragLocation;
     /** Image used when dragging new actors on the world. Includes the drop shadow.*/
     private BufferedImage dragImage;
+    /** Preferred size */
+    private Dimension size;
     
     public WorldCanvas(World world)
     {
@@ -69,7 +71,6 @@ public class WorldCanvas extends JPanel
         setBackground(Color.WHITE);
         setOpaque(true);
     }
-
     
     /**
      * Sets the world that should be visualised by this canvas.
@@ -88,6 +89,17 @@ public class WorldCanvas extends JPanel
         }
     }
 
+    /**
+     * Set the last known world size. Affects the preferred size of the
+     * WorldCanvas.
+     */
+    public void setWorldSize(int xsize, int ysize)
+    {
+        if (world == null) {
+            size = new Dimension(xsize, ysize);
+        }
+    }
+    
     /**
      * Paints all the objects.
      * 
@@ -224,29 +236,28 @@ public class WorldCanvas extends JPanel
         }
     }
 
-  
-
+    @Override
     public Dimension getMinimumSize()
     {
         return getPreferredSize();
     }
 
+    @Override
     public Dimension getPreferredSize()
     {
-        Dimension size = new Dimension();
         if (world != null) {
+            Dimension size = new Dimension();
             size.width = WorldVisitor.getWidthInPixels(world) ;
             size.height = WorldVisitor.getHeightInPixels(world) ;
+            this.size = new Dimension(size);
         }
         return size;
     }
-    
     
     public void setDropTargetListener(DropTarget dropTargetListener)
     {
         this.dropTargetListener = dropTargetListener;
     }
-    
 
     public boolean drop(Object o, Point p)
     {

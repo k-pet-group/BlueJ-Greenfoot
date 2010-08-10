@@ -66,7 +66,7 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 7957 2010-07-30 09:49:01Z nccb $
+ * @version $Id: GreenfootMain.java 8046 2010-08-10 08:13:43Z davmac $
  */
 public class GreenfootMain extends Thread implements CompileListener, RProjectListener
 {
@@ -207,9 +207,9 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                             Debug.reportError("Error when opening scenario", exc);
                         }
                     }
-                    else {
-                        Utility.bringToFront(frame);
-                    }
+                    
+                    frame.setVisible(true);
+                    Utility.bringToFront(frame);
                 }
             });
         }
