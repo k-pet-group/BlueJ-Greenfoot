@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -31,18 +31,18 @@ import bluej.utility.JavaUtils;
 /**
  * A representation of a Java constructor in BlueJ
  * 
- * @version $Id: ConstructorView.java 7066 2010-01-29 12:26:27Z nccb $
  * @author Michael Cahill
  * @author Michael Kolling
  */
 public final class ConstructorView extends CallableView
 {
-    protected Constructor cons;
+    protected Constructor<?> cons;
 
     /**
      * Constructor.
      */
-    public ConstructorView(View view, Constructor cons) {
+    public ConstructorView(View view, Constructor<?> cons)
+    {
         super(view);
         this.cons = cons;
     }
@@ -50,18 +50,21 @@ public final class ConstructorView extends CallableView
     /**
      * Returns a string describing this Constructor.
      */
-    public String toString() {
+    public String toString()
+    {
         return cons.toString();
     }
 
-    public int getModifiers() {
+    public int getModifiers()
+    {
         return cons.getModifiers();
     }
 
     /**
      * Returns a boolean indicating whether this method has parameters
      */
-    public boolean hasParameters() {
+    public boolean hasParameters()
+    {
         return (cons.getParameterTypes().length > 0);
     }
 
@@ -79,7 +82,8 @@ public final class ConstructorView extends CallableView
      * Returns a signature string in the format
      *  name(type,type,type)
      */
-    public String getSignature() {
+    public String getSignature()
+    {
         return JavaUtils.getSignature(cons);
     }
 
@@ -106,7 +110,8 @@ public final class ConstructorView extends CallableView
      * Get an array of Class objects representing constructor's parameters
      * @returns array of Class objects
      */
-    public Class[] getParameters() {
+    public Class<?>[] getParameters()
+    {
         return cons.getParameterTypes();
     }
     
@@ -123,14 +128,15 @@ public final class ConstructorView extends CallableView
     public GenTypeDeclTpar[] getTypeParams()
     {
         JavaUtils jutils = JavaUtils.getJavaUtils();
-        List tparams = jutils.getTypeParams(cons);
-        return (GenTypeDeclTpar[]) tparams.toArray(new GenTypeDeclTpar[0]);
+        List<GenTypeDeclTpar> tparams = jutils.getTypeParams(cons);
+        return tparams.toArray(new GenTypeDeclTpar[tparams.size()]);
     }
 
     /**
      * Whether this method has a var arg.
      */
-    public boolean isVarArgs() {
+    public boolean isVarArgs()
+    {
         return JavaUtils.getJavaUtils().isVarArgs(cons);
     }
 }
