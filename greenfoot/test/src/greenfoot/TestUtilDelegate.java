@@ -66,20 +66,17 @@ public class TestUtilDelegate implements GreenfootUtilDelegate
 
     public String getNewProjectName(Component parent)
     {
-        // TODO Auto-generated method stub
         return null;
     }
 
     public File getScenarioFromFileBrowser(Component parent)
     {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public void addCachedImage(String name, GreenfootImage image)
     {
-        // TODO Auto-generated method stub
         
     }
 
@@ -91,18 +88,14 @@ public class TestUtilDelegate implements GreenfootUtilDelegate
     }
 
     @Override
-    public boolean isClassImageInvalid(String className)
-    {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
     public void removeCachedImage(String className)
     {
-        // TODO Auto-generated method stub
-        
+    
     }
     
-    
+    @Override
+    public boolean isNullCachedImage(String fileName)
+    {
+        return false;
+    }
 }
