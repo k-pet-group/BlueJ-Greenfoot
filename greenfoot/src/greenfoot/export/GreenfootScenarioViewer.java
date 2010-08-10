@@ -99,7 +99,6 @@ public class GreenfootScenarioViewer extends JApplet
      *            should be the World to be instantiated. If no arguments are
      *            supplied it will read from the properties file. And if that
      *            can't be found either it will use AntWorld.
-     * 
      */
     public static void main(String[] args)
     {
@@ -107,8 +106,10 @@ public class GreenfootScenarioViewer extends JApplet
         if(args.length != 3 && args.length != 0) {
             System.err.println("Wrong number of arguments");
         }
-            
-            
+        
+        initProperties(); // discover scenario name
+        System.setProperty("com.apple.mrj.application.apple.menu.about.name", scenarioName);
+        
         GreenfootScenarioViewer.args = args; 
         EventQueue.invokeLater(new Runnable() {
             public void run()
@@ -116,7 +117,6 @@ public class GreenfootScenarioViewer extends JApplet
                 JFrame frame = new JFrame(scenarioName);
                 new GreenfootScenarioViewer(frame);
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                frame.setTitle(scenarioName);
                 frame.setResizable(false);
                 
                 URL resource = this.getClass().getClassLoader().getResource("greenfoot.png");
@@ -182,6 +182,10 @@ public class GreenfootScenarioViewer extends JApplet
      */
     public void init()
     {
+        if (scenarioName == null) {
+            initProperties();
+        }
+        
         // this is a workaround for a security conflict with some browsers
         // including some versions of Netscape & Internet Explorer which do
         // not allow access to the AWT system event queue which JApplets do
@@ -189,38 +193,9 @@ public class GreenfootScenarioViewer extends JApplet
         JRootPane rootPane = this.getRootPane();
         rootPane.putClientProperty("defeatSystemEventQueueCheck", Boolean.TRUE);
         
-        String worldClassName = null; 
-        boolean lockScenario = false;
-        Properties p = new Properties();
-        try {
-            ClassLoader loader = GreenfootScenarioViewer.class.getClassLoader();
-            InputStream is = loader.getResourceAsStream("standalone.properties");
-            
-            if(is == null && args.length == 3) {
-                // This might happen if we are running from ant
-                // In that case we should have some command line arguments
-                p.put("project.name", args[0]);
-                p.put("main.class", args[1]);
-                p.put("scenario.lock", "true");  
-                File f = new File(args[2]);
-                is = new FileInputStream(f);    
-            } 
-            
-            p.load(is);
-            worldClassName = p.getProperty("main.class");
-            scenarioName = p.getProperty("project.name");
-            lockScenario = Boolean.parseBoolean(p.getProperty("scenario.lock"));
-            // set bluej Config to use the standalone prop values
-            Config.initializeStandalone(new StandalonePropStringManager(p));
-            is.close();
-            
-        }
-        catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
+        String worldClassName = Config.getPropString("main.class"); 
+        boolean lockScenario = Config.getPropBoolean("scenario.lock");
+
         try {
             GreenfootUtil.initialise(new GreenfootUtilDelegateStandAlone());
             properties = new ProjectProperties();
@@ -286,6 +261,40 @@ public class GreenfootScenarioViewer extends JApplet
         buildGUI();
     }
 
+    /**
+     * Initialize the project properties.
+     */
+    private static void initProperties()
+    {
+        Properties p = new Properties();
+        try {
+            ClassLoader loader = GreenfootScenarioViewer.class.getClassLoader();
+            InputStream is = loader.getResourceAsStream("standalone.properties");
+            
+            if(is == null && args.length == 3) {
+                // This might happen if we are running from ant
+                // In that case we should have some command line arguments
+                p.put("project.name", args[0]);
+                p.put("main.class", args[1]);
+                p.put("scenario.lock", "true");  
+                File f = new File(args[2]);
+                is = new FileInputStream(f);    
+            } 
+            
+            p.load(is);
+            scenarioName = p.getProperty("project.name");
+            // set bluej Config to use the standalone prop values
+            Config.initializeStandalone(new StandalonePropStringManager(p));
+            is.close();
+        }
+        catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
     /**
      * Called by the browser or applet viewer to inform this JApplet that it
      * should start its execution. It is called after the init method and each
