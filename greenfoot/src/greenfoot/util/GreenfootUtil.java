@@ -69,7 +69,7 @@ import bluej.utility.Utility;
  * General utility methods for Greenfoot.
  * 
  * @author Davin McCall
- * @version $Id: GreenfootUtil.java 8041 2010-08-10 06:18:45Z marionz $
+ * @version $Id: GreenfootUtil.java 8045 2010-08-10 07:54:20Z davmac $
  */
 public class GreenfootUtil
 {
@@ -783,7 +783,6 @@ public class GreenfootUtil
      * Adds the image to the cached image list or the null image list (if none was found)
      * @param className name of the class
      * @param imageName filename of the image
-     * @return GreenfootImage
      */
     public static GreenfootImage getGreenfootImage(String className, String imageName)
     {   
@@ -791,7 +790,7 @@ public class GreenfootUtil
         if (imageName==null){
             return image;
         }
-        if (isInvalidImageFilename("images/" + imageName)){
+        if (isInvalidImageFilename(imageName)){
             return image;
         }
         // If it is the Actor class the image is always the same:
@@ -799,14 +798,13 @@ public class GreenfootUtil
             return new GreenfootImage(getGreenfootLogoPath());
         }
         try {
-            image = new GreenfootImage("images/" + imageName);
+            image = new GreenfootImage(imageName);
         }
         catch (IllegalArgumentException iae) {
             // This occurs if the image file doesn't exist anymore
         }
-        delegate.addCachedImage("images/" + imageName, image);
+        delegate.addCachedImage(imageName, image);
         return image;
-
     }
 
     /**
