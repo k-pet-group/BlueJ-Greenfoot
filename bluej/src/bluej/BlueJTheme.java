@@ -21,10 +21,11 @@
  */
 package bluej;
 
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.Image;
 
-import javax.swing.*;
-import javax.swing.border.AbstractBorder;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.border.Border;
 import javax.swing.plaf.FontUIResource;
 import javax.swing.plaf.metal.DefaultMetalTheme;
