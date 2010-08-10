@@ -42,7 +42,6 @@ import greenfoot.record.InteractionListener;
 import greenfoot.util.GreenfootUtil;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
@@ -55,13 +54,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.rmi.RemoteException;
 import java.util.List;
 
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
-import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
 import rmiextension.wrappers.RObject;
@@ -81,7 +78,6 @@ import bluej.utility.Debug;
  * Implementation for running in the Greenfoot IDE.
  * 
  * @author Poul Henriksen
- *
  */
 public class WorldHandlerDelegateIDE
     implements WorldHandlerDelegate, ObjectBenchInterface, InteractionListener
@@ -98,7 +94,7 @@ public class WorldHandlerDelegateIDE
     
     private GreenfootFrame frame;
 
-    private JLabel worldTitle;
+    private WorldLabel worldTitle;
     
     // Records actions manually performed on the world:
     private GreenfootRecorder greenfootRecorder;
@@ -108,9 +104,9 @@ public class WorldHandlerDelegateIDE
 
     public WorldHandlerDelegateIDE(GreenfootFrame frame)
     {
-        worldTitle = new JLabel();
-        worldTitle.setBorder(BorderFactory.createEmptyBorder(18, 0, 4, 0));
-        worldTitle.setHorizontalAlignment(SwingConstants.CENTER);
+        worldTitle = new WorldLabel();
+        //worldTitle.setBorder(BorderFactory.createEmptyBorder(18, 0, 4, 0));
+        //worldTitle.setHorizontalAlignment(SwingConstants.CENTER);
         this.frame = frame;
         saveWorldAction = new SaveWorldAction(this);
         greenfootRecorder = new GreenfootRecorder(saveWorldAction);
@@ -265,10 +261,7 @@ public class WorldHandlerDelegateIDE
                         }
                     }
                 });
-
             }
-
-            
         });
     }
     
@@ -292,7 +285,6 @@ public class WorldHandlerDelegateIDE
     {
         worldHandler.finishDrag(o);
     }
-    
     
     /**
      * Fire an object event for the named object. This will
@@ -389,13 +381,19 @@ public class WorldHandlerDelegateIDE
         }
     }
 
-
+    /**
+     * Attach to a particular project. This should be called whenever the project
+     * changes.
+     */
     public void attachProject(Object project)
     {
         this.project = (GProject) project;
     }
 
-    public Component getWorldTitle()
+    /**
+     * Get the component displaying the world title.
+     */
+    public JComponent getWorldTitle()
     {
         return worldTitle;
     }

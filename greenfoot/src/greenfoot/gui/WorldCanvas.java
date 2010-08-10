@@ -84,7 +84,7 @@ public class WorldCanvas extends JPanel
             repaint();
         }
         else {
-            this.setSize(0, 0);
+            // this.setSize(0, 0);
         }
     }
 
@@ -142,6 +142,10 @@ public class WorldCanvas extends JPanel
     public void paintComponent(Graphics g)
     {
         if (world == null) {
+            Color c = g.getColor();
+            g.setColor(getParent().getBackground());
+            g.fillRect(0, 0, getWidth(), getHeight());
+            g.setColor(c);
             return;
         }
         

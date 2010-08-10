@@ -540,10 +540,6 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
         }
     }
 
-    public JPopupMenu getMenu(){
-    	return menu;
-    }
-
     /**
      * Creates a List containing all classes in an inheritance hierarchy
      * working back to Object

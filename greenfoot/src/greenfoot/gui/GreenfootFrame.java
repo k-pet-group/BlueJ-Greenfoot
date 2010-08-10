@@ -63,9 +63,9 @@ import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.gui.classbrowser.Selectable;
 import greenfoot.gui.classbrowser.SelectionListener;
 import greenfoot.gui.input.mouse.LocationTracker;
-import greenfoot.gui.inspector.GreenfootResultInspector;
 import greenfoot.gui.inspector.GreenfootClassInspector;
 import greenfoot.gui.inspector.GreenfootObjectInspector;
+import greenfoot.gui.inspector.GreenfootResultInspector;
 import greenfoot.gui.soundrecorder.SoundRecorderDialog;
 import greenfoot.platforms.ide.SimulationDelegateIDE;
 import greenfoot.platforms.ide.WorldHandlerDelegateIDE;
@@ -94,6 +94,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -117,6 +118,7 @@ import bluej.pkgmgr.Package;
 import bluej.prefmgr.PrefMgr;
 import bluej.testmgr.record.ClassInspectInvokerRecord;
 import bluej.testmgr.record.InvokerRecord;
+import bluej.utility.DBox;
 
 import com.apple.eawt.Application;
 import com.apple.eawt.ApplicationAdapter;
@@ -153,6 +155,8 @@ public class GreenfootFrame extends JFrame
     private ClassBrowser classBrowser;
     private ControlPanel controlPanel;
     private JScrollPane classScrollPane;
+    /** The panel that needs to be revalidated when the world size changes */
+    private JComponent centrePanel;
     
     private NewClassAction newClassAction;
     private SaveProjectAction saveProjectAction;
@@ -369,7 +373,6 @@ public class GreenfootFrame extends JFrame
         // Some first-time initializations
         worldCanvas = new WorldCanvas(null);
         
-        
         worldHandlerDelegate = new WorldHandlerDelegateIDE(this);
         WorldHandler.initialise(worldCanvas, worldHandlerDelegate);
         worldHandler = WorldHandler.getInstance();
@@ -386,13 +389,14 @@ public class GreenfootFrame extends JFrame
 
         // build the centre panel. this includes the world and the controls
         
-        JPanel centrePanel = new JPanel(new BorderLayout(4, 4));
+        centrePanel = new JPanel(new BorderLayout(4, 4)) {
+            @Override
+            public boolean isValidateRoot()
+            {
+                return true;
+            }
+        };
 
-        // the world panel. this includes the world title and world
-        
-        JPanel worldPanel = new JPanel(new BorderLayout());
-        worldPanel.setBorder(BorderFactory.createEtchedBorder());        
-        
         sim.addSimulationListener(new SimulationListener() {
             public void simulationChanged(SimulationEvent e)
             {
@@ -413,9 +417,15 @@ public class GreenfootFrame extends JFrame
         borderPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         borderPanel.add(worldCanvas);
         
-        JPanel canvasPanel = new JPanel(new CenterLayout());        
-        canvasPanel.add(borderPanel, BorderLayout.CENTER);
-        JScrollPane worldScrollPane = new JScrollPane(canvasPanel);
+        JPanel canvasPanel = new JPanel(new CenterLayout());
+        canvasPanel.setBorder(BorderFactory.createEtchedBorder());        
+        
+        JScrollPane worldScrollPane = new JScrollPane(borderPanel);
+        DBox worldBox = new DBox(DBox.Y_AXIS, 0.5f); // world title and scroll pane
+        worldBox.addAligned(worldHandlerDelegate.getWorldTitle());
+        worldBox.addAligned(worldScrollPane);
+
+        canvasPanel.add(worldBox);
         // Set the scroll bar increments so that using the scroll wheel works well:
         setScrollIncrements(worldScrollPane);
         worldScrollPane.setOpaque(false);
@@ -423,11 +433,7 @@ public class GreenfootFrame extends JFrame
         worldScrollPane.getViewport().setOpaque(false);
         worldScrollPane.setBorder(null);
         
-       
-        worldPanel.add(worldHandlerDelegate.getWorldTitle(), BorderLayout.NORTH);
-        worldPanel.add(worldScrollPane, BorderLayout.CENTER);
-
-        centrePanel.add(worldPanel, BorderLayout.CENTER);
+        centrePanel.add(canvasPanel, BorderLayout.CENTER);
         
         // the control panel
         
@@ -472,7 +478,6 @@ public class GreenfootFrame extends JFrame
         // set the icon image: currently empty, but used to force same button look as readme button
         button.setIcon(new ImageIcon(getClass().getClassLoader().getResource(compileIconFile)));
         eastPanel.add(button, BorderLayout.SOUTH);
-
         
         // arrange the major components in the content pane
         JPanel contentPane = new JPanel();
@@ -890,6 +895,7 @@ public class GreenfootFrame extends JFrame
         if (needsResize() && newWorld != null) {
             resize();
         }
+        centrePanel.revalidate();
         worldDimensions = worldCanvas.getPreferredSize();
         project.setLastWorldClassName(newWorld.getClass().getName());
     }

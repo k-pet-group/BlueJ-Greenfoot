@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,7 +27,6 @@ import java.util.EventListener;
  * Listener to recieve notifcations when worlds are created and removed.
  * 
  * @author Poul Henriksen
- * @version $Id$
  */
 public interface WorldListener
     extends EventListener

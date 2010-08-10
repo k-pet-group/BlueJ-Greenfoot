@@ -35,16 +35,15 @@ import java.awt.Insets;
  * @version 0.1
  */
 
-public class CenterLayout extends FlowLayout {
-    
+public class CenterLayout extends FlowLayout
+{
     /**
      * Creates a new instance of CenterLayout.
      */
-    public CenterLayout() {
+    public CenterLayout()
+    {
         super(FlowLayout.LEFT, 0, 0);
-        
     }
-    
     
     /**
      * Layout the target container.
@@ -59,7 +58,9 @@ public class CenterLayout extends FlowLayout {
             Component m = target.getComponent(0);
             if (m.isVisible()) {
                 Dimension d = m.getPreferredSize();
-                m.setSize(d.width, d.height);
+                d.width = Math.min(d.width, maxwidth);
+                d.height = Math.min(d.height, maxheight);
+                m.setSize(d);
 
                 int hspace = maxwidth - d.width;
                 int xpos = insets.left + getHgap() + (hspace / 2);
@@ -68,7 +69,6 @@ public class CenterLayout extends FlowLayout {
                 int ypos = insets.top + getVgap() + (vspace / 2);
 
                 m.setLocation(xpos, ypos);
-
             }
         }
     }
