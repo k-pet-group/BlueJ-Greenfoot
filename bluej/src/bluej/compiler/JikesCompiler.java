@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -32,7 +32,6 @@ import bluej.utility.DialogManager;
  * compiler. Verified working with Jikes 1.12.
  *
  * @author  Andrew Patterson
- * @version $Id: JikesCompiler.java 6215 2009-03-30 13:28:25Z polle $
  */
 class JikesCompiler extends Compiler
 {
@@ -47,7 +46,7 @@ class JikesCompiler extends Compiler
 
     public boolean compile(File[] sources, CompileObserver watcher, boolean internal)
     {
-        List args = new ArrayList();
+        List<String> args = new ArrayList<String>();
 
         args.add(executable);
 
@@ -57,7 +56,7 @@ class JikesCompiler extends Compiler
 
         if(getDestDir() != null) {
             args.add("-d");
-            args.add(getDestDir());
+            args.add(getDestDir().getPath());
         }
 
         // as of Jikes 0.50, jikes will not automatically find the standard
@@ -151,22 +150,22 @@ class JikesCompiler extends Compiler
 				// ignore it
 	    }
 
-        // the explanation is the rest of the line
+	    // the explanation is the rest of the line
 	    line = line.substring(second_colon + 1);
 
-		if(line.indexOf("arning:") == -1) {
-		    //System.out.println("Indicating error " + filename + " " + lineNo);
-		    readerror = true;
+	    if(line.indexOf("arning:") == -1) {
+	        //System.out.println("Indicating error " + filename + " " + lineNo);
+	        readerror = true;
 
-		    watcher.errorMessage(filename, lineNo, line);
-		    break;
-		}
-		else {
-		    //System.out.println("Ignored warning");
-		}
+	        watcher.errorMessage(filename, lineNo, line);
+	        break;
+	    }
+	    else {
+	        //System.out.println("Ignored warning");
+	    }
 	}
 
-    // discard the rest of the output
+	// discard the rest of the output
 	while((line = d.readLine()) != null)
 	    ;
 
