@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,19 +21,15 @@
  */
 package greenfoot.actions;
 
-import greenfoot.gui.MessageDialog;
 import greenfoot.gui.classbrowser.ClassView;
 
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
-import javax.swing.JButton;
 import javax.swing.JFrame;
 
 import bluej.BlueJTheme;
 import bluej.Config;
-import bluej.utility.Debug;
-import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 
 
@@ -41,13 +37,11 @@ import javax.swing.JOptionPane;
  * Removes a class.
  * 
  * @author Poul Henriksen
- * @version $Id:$
  */
 public class RemoveClassAction extends AbstractAction
 {
     private ClassView cls;
     private JFrame frame;
-    
 
     private static String confirmRemoveTitle = Config.getString("remove.confirm.title");
     private static String confirmRemoveText1 = Config.getString("remove.confirm.text1");
@@ -72,12 +66,12 @@ public class RemoveClassAction extends AbstractAction
         String[] options = null;
         int remove;
         if (Config.isMacOS()) {
-        	options = new String[] { BlueJTheme.getCancelLabel(), Config.getString("remove.class") };
-        	remove = 1;
+            options = new String[] { BlueJTheme.getCancelLabel(), Config.getString("remove.class") };
+            remove = 1;
         }
         else {
-        	options = new String[] { Config.getString("remove.class"), BlueJTheme.getCancelLabel() };
-        	remove = 0;
+            options = new String[] { Config.getString("remove.class"), BlueJTheme.getCancelLabel() };
+            remove = 0;
         }
         int response = JOptionPane.showOptionDialog(frame,
                 confirmRemoveText1 + " " + cls.getClassName() + ". " + confirmRemoveText2,
