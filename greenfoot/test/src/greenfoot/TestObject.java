@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -46,11 +46,13 @@ public class TestObject extends Actor
         setImage(image);
     }
 
+    @SuppressWarnings("unchecked")
     public List getNeighboursP(int distance, boolean diagonal, Class cls)
     {
         return getNeighbours(distance, diagonal, cls);
     }
 
+    @SuppressWarnings("unchecked")
     public List getObjectsInRangeP(int distance, Class cls)
     {
         return getObjectsInRange(distance, cls);
@@ -61,34 +63,25 @@ public class TestObject extends Actor
         return intersects(other);
     }
 
+    @SuppressWarnings("unchecked")
     public List getIntersectingObjectsP(Class cls)
     {
         return getIntersectingObjects(cls);
     }
 
+    @SuppressWarnings("unchecked")
     public List getObjectsAtP(int dx, int dy, Class cls)
     {
         return getObjectsAtOffset(dx, dy, cls);
     }
 
-  /*  public List getObjectsInDirectionP(int angle, int length, Class cls)
-    {
-         return getObjectsInDirection(angle, length, cls);
-    }*/
-
-    public Actor getOneIntersectingObjectP(Class cls)
+    public Actor getOneIntersectingObjectP(Class<?> cls)
     {
        return getOneIntersectingObject(cls);
     }
 
-    public Actor getOneObjectAtP(int dx, int dy, Class cls)
+    public Actor getOneObjectAtP(int dx, int dy, Class<?> cls)
     {
         return getOneObjectAtOffset(dx, dy, cls);
     }
-
-    
-    
-
-
-  
 }
