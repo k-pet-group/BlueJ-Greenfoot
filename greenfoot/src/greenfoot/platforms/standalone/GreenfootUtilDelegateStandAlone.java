@@ -73,12 +73,6 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
     {    
         return this.getClass().getClassLoader().getResource("greenfoot.png").toString();
     }
-
-
-    public boolean isClassImageInvalid(String fileName)
-    {
-        return (classImages.containsKey(fileName)&& (classImages.get(fileName)==null));
-    }
     
     public void removeCachedImage(String fileName)
     {
@@ -95,12 +89,19 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
         }
     }
     
-
     public GreenfootImage getCachedImage(String fileName)
     {
         synchronized (classImages) {
             return classImages.get(fileName);
         }
+    }
+    
+    public boolean isNullCachedImage(String fileName)
+    {
+        if (classImages.containsKey(fileName) && classImages.get(fileName)==null){
+            return true;
+        }
+        return false;
     }
 
 }

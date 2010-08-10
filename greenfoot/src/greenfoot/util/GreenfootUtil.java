@@ -69,7 +69,7 @@ import bluej.utility.Utility;
  * General utility methods for Greenfoot.
  * 
  * @author Davin McCall
- * @version $Id: GreenfootUtil.java 8020 2010-08-09 05:39:42Z marionz $
+ * @version $Id: GreenfootUtil.java 8041 2010-08-10 06:18:45Z marionz $
  */
 public class GreenfootUtil
 {
@@ -779,52 +779,32 @@ public class GreenfootUtil
     }
     
     /**
-     * Questions whether the className has a null image associated with it
-     * @param className the name of the class
-     * @return true if the className has a null image; false if the className is not in the list
-     * or there is no list
-     */
-    public static boolean isNullImage(String className)
-    {
-        return delegate.isClassImageInvalid(className);
-    }
-    
-    /**
      * Retrieves the GreenfootImage either from the cache or a new image if not previously created
      * Adds the image to the cached image list or the null image list (if none was found)
      * @param className name of the class
-     * @param imageName requested image for the class
+     * @param imageName filename of the image
      * @return GreenfootImage
      */
     public static GreenfootImage getGreenfootImage(String className, String imageName)
-    {    
-        className = extractClassName(className);
-
-        //check if the class has already been listed as 
-        //having no associated image and return if so
-        if (isNullImage(className)){
-            return null;
+    {   
+        GreenfootImage image=null;
+        if (imageName==null){
+            return image;
         }
-        GreenfootImage image = delegate.getCachedImage(className);
-
-        if (image == null) {
-            // If it is the Actor class the image is always the same:
-            if (className.equals("Actor")) {
-                image = new GreenfootImage(getGreenfootLogoPath());
-            }
-            else {
-                if (imageName != null) {
-                    try {
-                        image = new GreenfootImage("images/" + imageName);
-                    }
-                    catch (IllegalArgumentException iae) {
-                        // This occurs if the image file doesn't exist anymore
-                    }
-                }
-            }
-
-            delegate.addCachedImage(className, image);
+        if (isInvalidImageFilename("images/" + imageName)){
+            return image;
         }
+        // If it is the Actor class the image is always the same:
+        if (className.equals("Actor")) {
+            return new GreenfootImage(getGreenfootLogoPath());
+        }
+        try {
+            image = new GreenfootImage("images/" + imageName);
+        }
+        catch (IllegalArgumentException iae) {
+            // This occurs if the image file doesn't exist anymore
+        }
+        delegate.addCachedImage("images/" + imageName, image);
         return image;
 
     }
@@ -857,4 +837,13 @@ public class GreenfootUtil
     {
         return delegate.getCachedImage(name);
     }
+    
+    /**
+     * Returns whether the cached image is null
+     */
+    public static boolean isInvalidImageFilename(String fileName)
+    {
+        return delegate.isNullCachedImage(fileName);
+    }
+
 }

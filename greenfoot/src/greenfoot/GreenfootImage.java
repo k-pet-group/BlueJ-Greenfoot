@@ -89,6 +89,8 @@ public class GreenfootImage
      * 
      * The file name may be an absolute path, a base name for a file located in
      * the project directory.
+     * Firstly, checks the cache of images and if it already exists, it returns
+     * a clone of the image. If not, it attempts to load the image and adds it to the cache 
      * 
      * @param filename Typically the name of a file in the images directory within
      *            the project directory.
@@ -97,13 +99,15 @@ public class GreenfootImage
     public GreenfootImage(String filename)
         throws IllegalArgumentException
     {
-        GreenfootImage gImage=GreenfootUtil.getCachedImage(imageFileName);
+        GreenfootImage gImage=GreenfootUtil.getCachedImage(filename);
         if (gImage!=null)
         {
             createClone(gImage);
-        } else {
+        } else 
+        {
             loadFile(filename);
         }
+        GreenfootUtil.addCachedImage(filename, new GreenfootImage(this));
     }
        
     /**
@@ -196,9 +200,6 @@ public class GreenfootImage
         } catch (IOException ex) {
             throw new IllegalArgumentException("Could not load image from: " + imageFileName);
         }
-        if (image!=null){
-            GreenfootUtil.addCachedImage(imageFileName, new GreenfootImage(this));
-        }           
     }
 
     /**
@@ -220,9 +221,8 @@ public class GreenfootImage
             imageUrl = GreenfootUtil.getURL(filename, "images");
         }
         catch (FileNotFoundException e) {
-            throw new IllegalArgumentException(e);
+            throw new IllegalArgumentException(e);           
         }
-
         loadURL(imageUrl);
     }
 

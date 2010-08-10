@@ -49,28 +49,24 @@ public interface GreenfootUtilDelegate
     public String getGreenfootLogoPath();
 
     /**
-     * Checks whether the class is known to have no valid image.
-     * This is the case if we previously attempted to load the class
-     * image, and failed.
-     */
-    public boolean isClassImageInvalid(String fileName);
-
-    /**
      * Remove the cached version of an image for a particular class. This should be
      * called when the image for the class is changed. Thread-safe.
      */
     public void removeCachedImage(String fileName);
 
     /**
-     * Adds a filename with the associated image into the cache
-     * @param fileName should be the image filename. Thread-safe
-     * @param image GreenfootImage
+     * Adds a filename with the associated image into the cache. . Thread-safe
      */
     public void addCachedImage(String fileName, GreenfootImage image);
 
     /**
-     * Gets the cached image of the requested fileName
-     * @param fileName should be the image filename. Thread-safe
+     * Gets the cached image of the requested fileName. Thread-safe
      */
     public GreenfootImage getCachedImage(String fileName);
+    
+    /**
+     * Returns true if the fileName exists in the map and the image is cached as being null; 
+     * returns false if it exists and is not null or if it does not exist in the map
+     */
+    public boolean isNullCachedImage(String fileName);
 }
