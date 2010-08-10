@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -38,29 +38,18 @@ import greenfoot.platforms.standalone.SimulationDelegateStandAlone;
 import greenfoot.platforms.standalone.WorldHandlerDelegateStandAlone;
 import greenfoot.sound.SoundFactory;
 import greenfoot.util.GreenfootUtil;
-import greenfoot.util.StandalonePropStringManager;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.EventQueue;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.net.URL;
-import java.util.Properties;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
 import javax.swing.JApplet;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JRootPane;
 import javax.swing.RootPaneContainer;
@@ -86,48 +75,6 @@ public class GreenfootScenarioViewer extends JApplet
     private RootPaneContainer rootPaneContainer;
 
     private Constructor<?> worldConstructor;
-
-    private static String[] args;
-
-    /**
-     * Start the scenario.
-     * <p>
-     * 
-     * BlueJ and the scenario MUST be on the classpath.
-     * 
-     * @param args One argument can be passed to this method. The first one
-     *            should be the World to be instantiated. If no arguments are
-     *            supplied it will read from the properties file. And if that
-     *            can't be found either it will use AntWorld.
-     */
-    public static void main(String[] args)
-    {
-        System.setProperty("apple.laf.useScreenMenuBar", "true");
-        if(args.length != 3 && args.length != 0) {
-            System.err.println("Wrong number of arguments");
-        }
-        
-        initProperties(); // discover scenario name
-        System.setProperty("com.apple.mrj.application.apple.menu.about.name", scenarioName);
-        
-        GreenfootScenarioViewer.args = args; 
-        EventQueue.invokeLater(new Runnable() {
-            public void run()
-            {
-                JFrame frame = new JFrame(scenarioName);
-                new GreenfootScenarioViewer(frame);
-                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                frame.setResizable(false);
-                
-                URL resource = this.getClass().getClassLoader().getResource("greenfoot.png");
-                ImageIcon icon = new ImageIcon(resource);
-                frame.setIconImage(icon.getImage());
-                
-                frame.pack();
-                frame.setVisible(true);
-            }
-        });
-    }
 
     public GreenfootScenarioViewer()
     {
@@ -182,9 +129,7 @@ public class GreenfootScenarioViewer extends JApplet
      */
     public void init()
     {
-        if (scenarioName == null) {
-            initProperties();
-        }
+        GreenfootScenarioMain.initProperties();
         
         // this is a workaround for a security conflict with some browsers
         // including some versions of Netscape & Internet Explorer which do
@@ -261,39 +206,7 @@ public class GreenfootScenarioViewer extends JApplet
         buildGUI();
     }
 
-    /**
-     * Initialize the project properties.
-     */
-    private static void initProperties()
-    {
-        Properties p = new Properties();
-        try {
-            ClassLoader loader = GreenfootScenarioViewer.class.getClassLoader();
-            InputStream is = loader.getResourceAsStream("standalone.properties");
-            
-            if(is == null && args.length == 3) {
-                // This might happen if we are running from ant
-                // In that case we should have some command line arguments
-                p.put("project.name", args[0]);
-                p.put("main.class", args[1]);
-                p.put("scenario.lock", "true");  
-                File f = new File(args[2]);
-                is = new FileInputStream(f);    
-            } 
-            
-            p.load(is);
-            scenarioName = p.getProperty("project.name");
-            // set bluej Config to use the standalone prop values
-            Config.initializeStandalone(new StandalonePropStringManager(p));
-            is.close();
-        }
-        catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+
     
     /**
      * Called by the browser or applet viewer to inform this JApplet that it
