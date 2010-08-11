@@ -2091,8 +2091,9 @@ public final class Package extends Graph
         lastSourceName = sourcename;
 
         if (!showEditorMessage(new File(getPath(), sourcename).getPath(), lineNo, msg, false, bringToFront,
-                true, null))
+                true, null) && !breakpoint) {
             showMessageWithText("break-no-source", sourcename);
+        }
 
         return bringToFront;
     }
