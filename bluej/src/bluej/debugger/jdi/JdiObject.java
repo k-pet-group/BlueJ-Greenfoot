@@ -135,7 +135,9 @@ public class JdiObject extends DebuggerObject
     
     protected void finalize()
     {
-        obj.enableCollection();
+        if (obj != null) {
+            obj.enableCollection();
+        }
     }
     
     public String toString()
