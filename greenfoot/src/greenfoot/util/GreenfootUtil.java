@@ -69,7 +69,7 @@ import bluej.utility.Utility;
  * General utility methods for Greenfoot.
  * 
  * @author Davin McCall
- * @version $Id: GreenfootUtil.java 8052 2010-08-11 02:28:37Z marionz $
+ * @version $Id: GreenfootUtil.java 8056 2010-08-11 03:33:56Z davmac $
  */
 public class GreenfootUtil
 {
@@ -80,6 +80,9 @@ public class GreenfootUtil
     private static GreenfootUtilDelegate delegate;
 
     private static final Color urlColor = new Color(0, 90, 200);
+    
+    private static boolean haveCheckedForMp3 = false;
+    private static boolean mp3available = false;
     
     public static void initialise(GreenfootUtilDelegate newDelegate)
     {
@@ -744,8 +747,12 @@ public class GreenfootUtil
      */
     public static boolean isMp3LibAvailable()
     {
-        URL url = delegate.getResource("javazoom/jl/decoder/BitstreamException.class");
-        return url != null;
+        if (! haveCheckedForMp3) {
+            URL url = delegate.getResource("javazoom/jl/decoder/BitstreamException.class");
+            mp3available = url != null;
+            haveCheckedForMp3 = true;
+        }
+        return mp3available;
     }
 
     /**
