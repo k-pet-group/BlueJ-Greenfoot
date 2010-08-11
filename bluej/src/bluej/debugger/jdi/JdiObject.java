@@ -390,7 +390,7 @@ public class JdiObject extends DebuggerObject
      */
     public List<String> getInstanceFields(boolean includeModifiers, Map<String, List<String>> restrictedClasses)
     {
-        List<String> fieldStrings = new ArrayList<String>(fields.size());
+        List<String> fieldStrings = new ArrayList<String>(obj == null ? 0 : fields.size());
         
         if (obj == null)
             return fieldStrings;
