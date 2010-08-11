@@ -69,7 +69,7 @@ import bluej.utility.Utility;
  * General utility methods for Greenfoot.
  * 
  * @author Davin McCall
- * @version $Id: GreenfootUtil.java 8045 2010-08-10 07:54:20Z davmac $
+ * @version $Id: GreenfootUtil.java 8052 2010-08-11 02:28:37Z marionz $
  */
 public class GreenfootUtil
 {
@@ -803,7 +803,6 @@ public class GreenfootUtil
         catch (IllegalArgumentException iae) {
             // This occurs if the image file doesn't exist anymore
         }
-        delegate.addCachedImage(imageName, image);
         return image;
     }
 

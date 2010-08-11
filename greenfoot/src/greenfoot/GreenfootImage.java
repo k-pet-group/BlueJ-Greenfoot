@@ -105,7 +105,13 @@ public class GreenfootImage
             createClone(gImage);
         } else 
         {
-            loadFile(filename);
+            try{
+                loadFile(filename);
+            }
+            catch(IllegalArgumentException ile){
+                GreenfootUtil.addCachedImage(filename, null);
+                throw new IllegalArgumentException();
+            }
         }
         GreenfootUtil.addCachedImage(filename, new GreenfootImage(this));
     }
