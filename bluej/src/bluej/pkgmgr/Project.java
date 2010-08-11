@@ -1594,11 +1594,6 @@ public class Project implements DebuggerListener, InspectorManager
 
     // ---- DebuggerListener interface ----
 
-    public boolean threadHalted(Debugger debugger, DebuggerThread thread)
-    {
-        return false;
-    }
-    
     /**
      * A debugger event was fired. Analyse which event it was, and take
      * appropriate action.

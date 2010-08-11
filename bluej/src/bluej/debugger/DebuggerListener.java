@@ -21,8 +21,6 @@
  */
 package bluej.debugger;
 
-import java.util.EventListener;
-
 /**
  * The listener for Debugger events.
  *
@@ -51,7 +49,7 @@ import java.util.EventListener;
  * 
  * @see DebuggerEvent
  */
-public interface DebuggerListener extends EventListener
+public interface DebuggerListener
 {
     /**
      * Examines the debugger event -- a precursor to a call to
