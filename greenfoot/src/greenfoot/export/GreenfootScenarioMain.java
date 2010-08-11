@@ -71,6 +71,7 @@ public class GreenfootScenarioMain
         }
         
         initProperties(); // discover scenario name
+        System.setProperty("com.apple.mrj.application.apple.menu.about.name", scenarioName);
         
         GreenfootScenarioMain.args = args; 
         EventQueue.invokeLater(new Runnable() {
@@ -117,7 +118,6 @@ public class GreenfootScenarioMain
             
             p.load(is);
             scenarioName = p.getProperty("project.name");
-            System.setProperty("com.apple.mrj.application.apple.menu.about.name", scenarioName);
 
             // set bluej Config to use the standalone prop values
             Config.initializeStandalone(new StandalonePropStringManager(p));
