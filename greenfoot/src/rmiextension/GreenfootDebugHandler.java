@@ -57,9 +57,9 @@ import bluej.utility.Debug;
  */
 public class GreenfootDebugHandler implements DebuggerListener
 {  
-    private static final String INVOKE_ACT_CLASS = Simulation.class.getName();
+    private static final String INVOKE_CLASS = Simulation.class.getName();
     
-    private static final String[] INVOKE_ACT_METHODS = {Simulation.ACT_WORLD, Simulation.ACT_ACTOR};
+    private static final String[] INVOKE_METHODS = {Simulation.ACT_WORLD, Simulation.ACT_ACTOR, Simulation.RUN_TASK};
     
     /**
      * The scheduledTasks collection exists to solve some tricky issues with timing and deadlock
@@ -125,31 +125,31 @@ public class GreenfootDebugHandler implements DebuggerListener
         
         if ((e.getID() == DebuggerEvent.THREAD_BREAKPOINT || e.getID() == DebuggerEvent.THREAD_HALT)
                 && isSimulationThread(stack)) {
-            if (insideActMethod(stack)) {
+            if (insideUserCode(stack)) {
                 // They are in an act method, make sure the breakpoints are cleared:
                 
                 // This method can be safely invoked without needing to talk to the worker thread:
-                debugger.removeBreakpointsForClass(INVOKE_ACT_CLASS);
+                debugger.removeBreakpointsForClass(INVOKE_CLASS);
                 
                         
                 // If they have just hit the breakpoint and are in InvokeAct itself,
                 // step-into the World/Actor:
-                if (atInvokeActBreakpoint(e.getBreakpointProperties())) {
+                if (atInvokeBreakpoint(e.getBreakpointProperties())) {
                     Debug.message("  At InvokeAct breakpoint, step-into screen: " + stack.get(0).getLineNumber() + "; scheduling task for: " + e.hashCode());
                     // Avoid tricky re-entrant issues:
                     scheduledTasks.put(e.getThread(), new Runnable() { public void run() {
                         e.getThread().stepInto();
                     }});
                     return true;
-                } else if (inInvokeActMethods(stack, 0)) {
+                } else if (inInvokeMethods(stack, 0)) {
                     // Finished calling act() and have stepped out; run to next one:
                     Debug.message("  In InvokeAct but have gone beyond act(); resume!");
-                    scheduledTasks.put(e.getThread(), runToAct(debugger, e.getThread()));
+                    scheduledTasks.put(e.getThread(), runToInternalBreakpoint(debugger, e.getThread()));
                     return true;                    
                 } //otherwise they are in their own code
             } else {
                 // They are not in an act() method; run until they get there:
-                scheduledTasks.put(e.getThread(), runToAct(debugger, e.getThread()));
+                scheduledTasks.put(e.getThread(), runToInternalBreakpoint(debugger, e.getThread()));
                 Debug.message("GreenfootRelauncher.screenDebuggerEvent: running to act");
                 return true;
             }
@@ -207,11 +207,6 @@ public class GreenfootDebugHandler implements DebuggerListener
             threadHalted((Debugger)e.getSource(), e.getThread(), e.getBreakpointProperties());
         }
     }
-    
-    public boolean threadHalted(final Debugger debugger, final DebuggerThread thread)
-    {
-        return threadHalted(debugger, thread, null);
-    }
 
     /**
      * Decides what to do when the debugger has stopped the simulation thread
@@ -226,21 +221,21 @@ public class GreenfootDebugHandler implements DebuggerListener
         Debug.message("GreenfootRelauncher.threadHalted");
         
         if (isSimulationThread(stack)) {
-            if (insideActMethod(stack)) {
+            if (insideUserCode(stack)) {
                 // It's okay, they are in an act method, make sure the breakpoints are cleared:
-                debugger.removeBreakpointsForClass(INVOKE_ACT_CLASS);
+                debugger.removeBreakpointsForClass(INVOKE_CLASS);
                 //This method ^ can be safely invoked without needing to talk to the worker thread
                         
                 // If they have just hit the breakpoint and are in InvokeAct itself,
                 // step-into the World/Actor:
-                if (atInvokeActBreakpoint(props)) {
+                if (atInvokeBreakpoint(props)) {
                     Debug.message("  At InvokeAct breakpoint, step-into threadHalted!");
                     // Avoid tricky re-entrant issues:
                     EventQueue.invokeLater(new Runnable() { public void run() {
                         thread.stepInto();
                     }});
                     return true;
-                } else if (inInvokeActMethods(stack, 1) && "act".equals(stack.get(0).getMethodName())
+                } else if (inInvokeMethods(stack, 1) && "act".equals(stack.get(0).getMethodName())
                         && (World.class.getName().equals(stack.get(0).getClassName())
                             || Actor.class.getName().equals(stack.get(0).getClassName())
                           )) {
@@ -248,13 +243,13 @@ public class GreenfootDebugHandler implements DebuggerListener
                     // This means the user hasn't provided any code for that world/actor.
                     // Rather than show them being stuck in the Greenfoot classes, let's continue
                     // to find some user code:
-                    EventQueue.invokeLater(runToAct(debugger, thread));
+                    EventQueue.invokeLater(runToInternalBreakpoint(debugger, thread));
                 } else {
                     Debug.message("  Via InvokeAct but top is:" + thread.getStack().get(0).getClassName());
                 }
             } else { 
                 // Set this going now; we are not the examine method:
-                EventQueue.invokeLater(runToAct(debugger, thread));
+                EventQueue.invokeLater(runToInternalBreakpoint(debugger, thread));
                 return true;
             }
         }
@@ -270,7 +265,7 @@ public class GreenfootDebugHandler implements DebuggerListener
      * 
      * Returns a task that will run them onwards, which can be scheduled as you like
      */
-    private static Runnable runToAct(final Debugger debugger, final DebuggerThread thread)
+    private static Runnable runToInternalBreakpoint(final Debugger debugger, final DebuggerThread thread)
     {
         //This method is called (via several others) from the thread that handles VM events
         //If we directly toggle breakpoints from this thread, it tries to wake up
@@ -282,7 +277,7 @@ public class GreenfootDebugHandler implements DebuggerListener
         return new Runnable () {
             public void run () {
                 // Set a break point where we want them to be:
-                setInvokeActBreakpoints(debugger);
+                setInvokeBreakpoints(debugger);
 
                 // Then set them running again:
                 thread.cont();
@@ -307,10 +302,10 @@ public class GreenfootDebugHandler implements DebuggerListener
      * Works out if we are currently in a call to the World or Actor act() methods
      * by looking in the call stack for them
      */
-    private static boolean insideActMethod(List<SourceLocation> stack)
+    private static boolean insideUserCode(List<SourceLocation> stack)
     {
         for (int i = 0; i < stack.size();i++) {
-            if (inInvokeActMethods(stack, i))
+            if (inInvokeMethods(stack, i))
                 return true;
         }
         return false;
@@ -318,14 +313,15 @@ public class GreenfootDebugHandler implements DebuggerListener
    
     /**
      * Works out if the specified frame in the call-stack is in one of the special invoke-act
-     * methods that call the World and Actor's act() methods
+     * methods that call the World and Actor's act() methods or the method that runs
+     * other user code on the simulation thread 
      */
-    private static boolean inInvokeActMethods(List<SourceLocation> stack, int frame)
+    private static boolean inInvokeMethods(List<SourceLocation> stack, int frame)
     {
         if (frame < stack.size()) {
-            if (stack.get(frame).getClassName().equals(INVOKE_ACT_CLASS)) {
+            if (stack.get(frame).getClassName().equals(INVOKE_CLASS)) {
                 String methodName = stack.get(frame).getMethodName();
-                for (String actMethod : INVOKE_ACT_METHODS) {
+                for (String actMethod : INVOKE_METHODS) {
                     if (actMethod.equals(methodName))
                         return true;
                 }
@@ -335,26 +331,28 @@ public class GreenfootDebugHandler implements DebuggerListener
         return false;
     }
     
+    private static final String INTERNAL_INVOKE_BREAKPOINT = INVOKE_CLASS + "INTERNAL";
+    
     /**
      * Checks if the given breakpoint was set by the setInvokeActBreakpoints call, below  
      */
-    private boolean atInvokeActBreakpoint(BreakpointProperties props)
+    private boolean atInvokeBreakpoint(BreakpointProperties props)
     {
-        return props != null && props.get(INVOKE_ACT_CLASS + "INVOKE_ACT") != null;
+        return props != null && props.get(INTERNAL_INVOKE_BREAKPOINT) != null;
     }
     
     /**
      * Sets breakpoints in the special invoke-act methods that call the World and Actor's
      * act() methods.  These breakpoints will thus be encountered immediately before control
-     * would descend into the World and Actor's act() methods (i.e. potential user code)
+     * would descend into the World and Actor's act() methods or other tasks (i.e. potential user code)
      */
-    private static void setInvokeActBreakpoints(final Debugger debugger)
+    private static void setInvokeBreakpoints(final Debugger debugger)
     {
         Map<String, String> properties = new HashMap<String, String>();
-        properties.put(INVOKE_ACT_CLASS  + "INVOKE_ACT", "yes");
+        properties.put(INTERNAL_INVOKE_BREAKPOINT, "yes");
         
-        for (String method : INVOKE_ACT_METHODS) {
-            String err = debugger.toggleBreakpoint(INVOKE_ACT_CLASS, method, true, properties);
+        for (String method : INVOKE_METHODS) {
+            String err = debugger.toggleBreakpoint(INVOKE_CLASS, method, true, properties);
             if (err != null) {
                 Debug.reportError("Problem setting breakpoint: " + err);
             }

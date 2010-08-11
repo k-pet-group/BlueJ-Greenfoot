@@ -340,7 +340,7 @@ public class Simulation extends Thread
         }
         
         while (r != null) {
-            r.run();
+            runTask(r);
             synchronized (this) {
                 r = queuedTasks.poll();
             }
@@ -418,9 +418,9 @@ public class Simulation extends Thread
         repaintIfNeeded();
     }
     
-    // The actActor and actWorld methods exist as a tagging mechanism
+    // The actActor, actWorld and runTask methods exist as a tagging mechanism
     // that allows them to be found easily in the debugger when we
-    // are attempting to reach the next call to act()
+    // are attempting to reach the next call to user code
     
     public static final String ACT_ACTOR = "actActor";
     private static void actActor(Actor actor)
@@ -432,6 +432,12 @@ public class Simulation extends Thread
     private static void actWorld(World world)
     {
         world.act();
+    }
+    
+    public static final String RUN_TASK = "runTask";
+    private void runTask(Runnable r)
+    {
+        r.run();
     }
 
     /**
