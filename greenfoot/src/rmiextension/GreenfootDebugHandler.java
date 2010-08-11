@@ -118,11 +118,6 @@ public class GreenfootDebugHandler implements DebuggerListener
         Debugger debugger = (Debugger)e.getSource();
         List<SourceLocation> stack = e.getThread().getStack();
         
-        if (isSimulationThread(stack)) {
-            Debug.message("GreenfootRelauncher.screenDebuggerEvent: " + e.toString());
-            Debug.message("  " + stack.get(0).toString());
-        }
-        
         if ((e.getID() == DebuggerEvent.THREAD_BREAKPOINT || e.getID() == DebuggerEvent.THREAD_HALT)
                 && isSimulationThread(stack)) {
             if (insideUserCode(stack)) {
@@ -135,7 +130,6 @@ public class GreenfootDebugHandler implements DebuggerListener
                 // If they have just hit the breakpoint and are in InvokeAct itself,
                 // step-into the World/Actor:
                 if (atInvokeBreakpoint(e.getBreakpointProperties())) {
-                    Debug.message("  At InvokeAct breakpoint, step-into screen: " + stack.get(0).getLineNumber() + "; scheduling task for: " + e.hashCode());
                     // Avoid tricky re-entrant issues:
                     scheduledTasks.put(e.getThread(), new Runnable() { public void run() {
                         e.getThread().stepInto();
@@ -143,14 +137,12 @@ public class GreenfootDebugHandler implements DebuggerListener
                     return true;
                 } else if (inInvokeMethods(stack, 0)) {
                     // Finished calling act() and have stepped out; run to next one:
-                    Debug.message("  In InvokeAct but have gone beyond act(); resume!");
                     scheduledTasks.put(e.getThread(), runToInternalBreakpoint(debugger, e.getThread()));
                     return true;                    
                 } //otherwise they are in their own code
             } else {
                 // They are not in an act() method; run until they get there:
                 scheduledTasks.put(e.getThread(), runToInternalBreakpoint(debugger, e.getThread()));
-                Debug.message("GreenfootRelauncher.screenDebuggerEvent: running to act");
                 return true;
             }
         }
@@ -170,17 +162,13 @@ public class GreenfootDebugHandler implements DebuggerListener
     public void processDebuggerEvent(DebuggerEvent e, boolean skipUpdate)
     {
         if (skipUpdate) {
-            Debug.message("processDebuggerEvent: looking for scheduled tasks for: " + e.hashCode() + " in size " + scheduledTasks.size());
             // Now is the time to schedule running the action that will restart the VM.
             // We didn't do this earlier because we needed to wait for the thread to be suspended again
             // during the event handling
             
             Runnable task = scheduledTasks.remove(e.getThread());
             if (task != null) {
-                Debug.message("processDebuggerEvent: scheduling task");
                 EventQueue.invokeLater(task);
-            } else {
-                Debug.message("processDebuggerEvent: no task found");
             }
             
         } else if (e.getNewState() == Debugger.NOTREADY && e.getOldState() == Debugger.IDLE) {           
@@ -203,7 +191,6 @@ public class GreenfootDebugHandler implements DebuggerListener
             });
             
         } else if (e.getID() == DebuggerEvent.THREAD_BREAKPOINT || e.getID() == DebuggerEvent.THREAD_HALT) {
-            Debug.message("GreenfootRelauncher: converting debugger event into thread halted");
             threadHalted((Debugger)e.getSource(), e.getThread(), e.getBreakpointProperties());
         }
     }
@@ -218,8 +205,6 @@ public class GreenfootDebugHandler implements DebuggerListener
     {
         final List<SourceLocation> stack = thread.getStack();
         
-        Debug.message("GreenfootRelauncher.threadHalted");
-        
         if (isSimulationThread(stack)) {
             if (insideUserCode(stack)) {
                 // It's okay, they are in an act method, make sure the breakpoints are cleared:
@@ -229,7 +214,6 @@ public class GreenfootDebugHandler implements DebuggerListener
                 // If they have just hit the breakpoint and are in InvokeAct itself,
                 // step-into the World/Actor:
                 if (atInvokeBreakpoint(props)) {
-                    Debug.message("  At InvokeAct breakpoint, step-into threadHalted!");
                     // Avoid tricky re-entrant issues:
                     EventQueue.invokeLater(new Runnable() { public void run() {
                         thread.stepInto();
@@ -244,8 +228,6 @@ public class GreenfootDebugHandler implements DebuggerListener
                     // Rather than show them being stuck in the Greenfoot classes, let's continue
                     // to find some user code:
                     EventQueue.invokeLater(runToInternalBreakpoint(debugger, thread));
-                } else {
-                    Debug.message("  Via InvokeAct but top is:" + thread.getStack().get(0).getClassName());
                 }
             } else { 
                 // Set this going now; we are not the examine method:
