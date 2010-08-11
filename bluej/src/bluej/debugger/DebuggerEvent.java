@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -34,13 +34,24 @@ public class DebuggerEvent extends EventObject
         public Object get(Object key);
     }
 
+    /**
+     * The readiness state of the debugger changed.
+     */
     public final static int DEBUGGER_STATECHANGED = 1;
-    public final static int DEBUGGER_REMOVESTEPMARKS = 2;
-
+    /** 
+     * A thread halted, due to a step event, or because it was programmatically halted
+     * via the DebuggerThread interface.
+     */
     public final static int THREAD_HALT = 3;
+    /**
+     * A thread halted due to hitting a breakpoint.
+     */
     public final static int THREAD_BREAKPOINT = 4;
+    /**
+     * A thread resumed execution (due to this being requested via the DebuggerThread
+     * interface).
+     */
     public final static int THREAD_CONTINUE = 5;
-    public final static int THREAD_SHOWSOURCE = 6;
 
     private int id;
     private DebuggerThread thr;
@@ -54,7 +65,7 @@ public class DebuggerEvent extends EventObject
         this.id = id;
     }
 
-    public DebuggerEvent(Object source, int id, DebuggerThread thr, BreakpointProperties props)
+    public DebuggerEvent(Debugger source, int id, DebuggerThread thr, BreakpointProperties props)
     {
         this(source, id);
 

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,22 +21,65 @@
  */
 package bluej.debugmgr;
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.CardLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.EventQueue;
+import java.awt.GridLayout;
+import java.awt.Image;
+import java.awt.Toolkit;
+import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.*;
-import javax.swing.event.*;
+import javax.swing.AbstractAction;
+import javax.swing.AbstractButton;
+import javax.swing.Action;
+import javax.swing.BorderFactory;
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.JSplitPane;
+import javax.swing.JTree;
+import javax.swing.KeyStroke;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TreeModelEvent;
+import javax.swing.event.TreeModelListener;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import bluej.BlueJTheme;
 import bluej.Config;
-import bluej.debugger.*;
+import bluej.debugger.Debugger;
+import bluej.debugger.DebuggerClass;
+import bluej.debugger.DebuggerObject;
+import bluej.debugger.DebuggerThread;
+import bluej.debugger.DebuggerThreadTreeModel;
+import bluej.debugger.SourceLocation;
 import bluej.debugger.DebuggerThreadTreeModel.SyncMechanism;
-import bluej.debugmgr.inspector.ObjectInspector;
 import bluej.pkgmgr.Project;
 import bluej.utility.Debug;
 import bluej.utility.GradientFillPanel;
@@ -339,12 +382,12 @@ public class ExecControls extends JFrame
     private void setThreadDetails()
     {
         stackList.setFixedCellWidth(-1);
-        List stack = selectedThread.getStack();
+        List<SourceLocation> stack = selectedThread.getStack();
         if(stack.size() > 0) {
-            stackList.setListData(stack.toArray(new Object[0]));
-			// show details of top frame
+            stackList.setListData(stack.toArray());
+            // show details of top frame
             autoSelectionEvent = true;
-			selectStackFrame(0);
+            selectStackFrame(0);
             autoSelectionEvent = false;
         }
     }
@@ -376,8 +419,9 @@ public class ExecControls extends JFrame
             setStackFrameDetails(index);
             selectedThread.setSelectedFrame(index);
                 
-            if (! autoSelectionEvent)
-                project.processDebuggerEvent(new DebuggerEvent(this, DebuggerEvent.THREAD_SHOWSOURCE, selectedThread, null), false);
+            if (! autoSelectionEvent) {
+                project.showSource(selectedThread);
+            }
             
             currentFrame = index;
         }
@@ -394,7 +438,7 @@ public class ExecControls extends JFrame
         if(currentClass != null) {
             staticList.setFixedCellWidth(-1);
             staticList.setListData(
-               currentClass.getStaticFields(false, restrictedClasses).toArray(new Object[0]));
+                currentClass.getStaticFields(false, restrictedClasses).toArray(new Object[0]));
         }
         if(currentObject != null) {
             instanceList.setFixedCellWidth(-1);
@@ -413,9 +457,7 @@ public class ExecControls extends JFrame
     private void viewStaticField(int index)
     {
         if(currentClass.staticFieldIsObject(index)) {
-            ObjectInspector viewer = project.getInspectorInstance(currentClass.getStaticFieldObject(index),
-                                          null,
-                                          null, null, this);
+            project.getInspectorInstance(currentClass.getStaticFieldObject(index), null, null, null, this);
         }
     }
 
@@ -425,9 +467,7 @@ public class ExecControls extends JFrame
     private void viewInstanceField(int index)
     {
         if(currentObject.instanceFieldIsObject(index)) {
-            ObjectInspector viewer = project.getInspectorInstance(currentObject.getInstanceFieldObject(index),
-                                          null,
-                                          null, null, this);
+            project.getInspectorInstance(currentObject.getInstanceFieldObject(index), null, null, null, this);
         }
     }
 
@@ -437,9 +477,8 @@ public class ExecControls extends JFrame
     private void viewLocalVar(int index)
     {
         if(selectedThread.varIsObject(currentFrame, index)) {
-            ObjectInspector viewer = project.getInspectorInstance(selectedThread.getStackObject(currentFrame, index),
-                           null,
-                           null, null, this);
+            project.getInspectorInstance(selectedThread.getStackObject(currentFrame, index),
+                           null, null, null, this);
         }
     }
 
@@ -670,7 +709,6 @@ public class ExecControls extends JFrame
     {
         JMenuBar menubar = new JMenuBar();
         JMenu menu = new JMenu(Config.getString("terminal.options"));
-        JMenuItem item;
 
         systemThreadItem = new JCheckBoxMenuItem(new HideSystemThreadAction());
         systemThreadItem.setSelected(true);
@@ -679,7 +717,7 @@ public class ExecControls extends JFrame
 
         menu.add(new JSeparator());
 
-        item = menu.add(new CloseAction());
+        menu.add(new CloseAction());
 
         menubar.add(menu);
         return menubar;

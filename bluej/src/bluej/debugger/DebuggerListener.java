@@ -26,11 +26,13 @@ import java.util.EventListener;
 /**
  * The listener for Debugger events.
  *
- * <p>Debugger events are processed in two stages
+ * <p>Debugger events are processed in two stages.
  * 
- * <p>First, all the events in a set are passed to examineDebuggerEvent.
- * This method should return true if it wants to set the thread going again,
- * or otherwise upset the interface updates.
+ * <p>First, for certain event types (including breakpoint and step events),
+ * all the events in a set are passed to examineDebuggerEvent. This method
+ * should return true to prevent debugger user interface updates from reflecting
+ * the thread stoppage; this might be done because the listener intends to resume
+ * the thread execution immediately.
  * 
  * <p>The result of all examineDebuggerEvent calls for an event set are ORed
  * together and later passed to processDebuggerEvent, which should act on the
@@ -46,6 +48,8 @@ import java.util.EventListener;
  * <li>processDebuggerEvent() will then be called for each event in the set, in series.
  * <li>The processing of two separate event sets will occur in series.
  * </ul>
+ * 
+ * @see DebuggerEvent
  */
 public interface DebuggerListener extends EventListener
 {
@@ -69,12 +73,4 @@ public interface DebuggerListener extends EventListener
      *                 (or another event in this event set).
      */
     void processDebuggerEvent(DebuggerEvent e, boolean skipUpdate);
-    
-    /**
-     * Called when the user instigates a halt of a thread in the debugger.
-     * @return true if you do not want the thread display to be updated
-     * (e.g. if you have set the thread running again),
-     *   or false if you want things to be handled normally. 
-     */
-    boolean threadHalted(Debugger debugger, DebuggerThread thread);
 }

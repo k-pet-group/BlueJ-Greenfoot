@@ -137,12 +137,12 @@ class VMEventHandler extends Thread
                 EventIterator it = eventSet.eventIterator();
                 
                 boolean examineSaidSkipUpdates = false;
+                boolean gotBPEvent = false;
                 
                 while (it.hasNext()) {
                     Event ev = it.nextEvent();
                     
-                    boolean examineResult = screenEvent(ev);
-                    examineSaidSkipUpdates = examineSaidSkipUpdates || examineResult;
+                    examineSaidSkipUpdates |= screenEvent(ev);
                     
                     // for breakpoint and step events, we may want
                     // to leave the relevant thread suspended. If the dontResume
@@ -155,6 +155,7 @@ class VMEventHandler extends Thread
                                 addToSuspendCount = false;
                                 // a step and breakpoint can be hit at the same
                                 // time - make sure to only suspend once
+                                gotBPEvent |= (ev instanceof BreakpointEvent);
                             }
                         }
                     }
@@ -167,7 +168,7 @@ class VMEventHandler extends Thread
                     
                     // do some processing with this event
                     // this calls back into VMReference
-                    handleEvent(ev, examineSaidSkipUpdates);
+                    handleEvent(ev, examineSaidSkipUpdates, gotBPEvent);
                 }
                 
                 // resume the VM
@@ -235,7 +236,7 @@ class VMEventHandler extends Thread
         return false;
     }
         
-    private void  handleEvent(Event event, boolean skipUpdate)
+    private void  handleEvent(Event event, boolean skipUpdate, boolean gotBP)
     {
         if (event instanceof VMStartEvent) {
             vm.vmStartEvent((VMStartEvent) event);
@@ -248,7 +249,11 @@ class VMEventHandler extends Thread
         } else if (event instanceof BreakpointEvent) {
             vm.breakpointEvent((LocatableEvent)event, true, skipUpdate);
         } else if (event instanceof StepEvent) {
-            vm.breakpointEvent((LocatableEvent)event, false, skipUpdate);
+            // If we get a step and hit a breakpoint at the same time,
+            // we only report the breakpoint.
+            if (! gotBP) {
+                vm.breakpointEvent((LocatableEvent)event, false, skipUpdate);
+            }
         } else if (event instanceof ThreadStartEvent) {
             vm.threadStartEvent((ThreadStartEvent)event);
         } else if (event instanceof ThreadDeathEvent) {

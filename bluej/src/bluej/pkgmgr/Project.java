@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -1632,6 +1632,7 @@ public class Project implements DebuggerListener, InspectorManager
                     // check whether a good VM just disappeared
                     if ((oldState == Debugger.IDLE) &&
                             (newState == Debugger.NOTREADY)) {
+                        removeStepMarks();
                         vmClosed();
                     }
 
@@ -1643,38 +1644,36 @@ public class Project implements DebuggerListener, InspectorManager
                     return;
                 }
 
-                if (event.getID() == DebuggerEvent.DEBUGGER_REMOVESTEPMARKS) {
-                    removeStepMarks();
-
-                    return;
-                }
-
                 DebuggerThread thr = event.getThread();
+                if (thr == null) {
+                    return; // Not a thread event
+                }
                 String packageName = JavaNames.getPrefix(thr.getClass(0));
                 Package pkg = getPackage(packageName);
 
                 if (pkg != null) {
                     switch (event.getID()) {
-                        case DebuggerEvent.THREAD_BREAKPOINT:
-                            pkg.hitBreakpoint(thr);
+                    case DebuggerEvent.THREAD_BREAKPOINT:
+                        pkg.hitBreakpoint(thr);
+                        break;
 
-                            break;
-
-                        case DebuggerEvent.THREAD_HALT:
-                            pkg.hitHalt(thr);
-
-                            break;
-
-                            //case DebuggerEvent.THREAD_CONTINUE:
-                            //  break;
-                        case DebuggerEvent.THREAD_SHOWSOURCE:
-                            pkg.showSourcePosition(thr);
-
-                            break;
+                    case DebuggerEvent.THREAD_HALT:
+                        pkg.hitHalt(thr);
+                        break;
                     }
                 }
             }
         });
+    }
+    
+    /**
+     * Show the source code corresponding to the top of the given thread stack.
+     */
+    public void showSource(DebuggerThread thread)
+    {
+        String packageName = JavaNames.getPrefix(thread.getClass(0));
+        Package pkg = getPackage(packageName);
+        pkg.showSourcePosition(thread);
     }
 
     // ---- end of DebuggerListener interface ----
