@@ -94,7 +94,7 @@ import com.sun.jdi.request.EventRequestManager;
  * machine, which gets started from here via the JDI interface.
  * 
  * @author Michael Kolling
- * @version $Id: VMReference.java 7980 2010-08-04 04:47:47Z davmac $
+ * @version $Id: VMReference.java 8047 2010-08-11 01:44:04Z davmac $
  * 
  * The startup process is as follows:
  * 
@@ -1085,42 +1085,19 @@ class VMReference
      */
     public void exceptionEvent(ExceptionEvent exc)
     {
-        ObjectReference remoteException = exc.exception();
+        // ObjectReference remoteException = exc.exception();
 
         // get the exception text
         // attention: the following depends on the (undocumented) fact that
         // the internal exception message field is named "detailMessage".
-        Field msgField = remoteException.referenceType().fieldByName("detailMessage");
-        StringReference msgVal = (StringReference) remoteException.getValue(msgField);
+        
+        // Field msgField = remoteException.referenceType().fieldByName("detailMessage");
+        // StringReference msgVal = (StringReference) remoteException.getValue(msgField);
 
-        String exceptionText = (msgVal == null ? null : msgVal.value());
-        String excClass = exc.exception().type().name();
+        // String exceptionText = (msgVal == null ? null : msgVal.value());
+        // String excClass = exc.exception().type().name();
 
-        // PENDING: to be removed after exit scheme is tested
-        // if (excClass.equals("bluej.runtime.ExitException")) {
-        // 
-        // // this was a "System.exit()", not a real exception!
-        // exitStatus = Debugger.FORCED_EXIT;
-        // owner.raiseStateChangeEvent(Debugger.RUNNING, Debugger.IDLE);
-        // lastException = new ExceptionDescription(exceptionText);
-        // }
-        // else {
-        // real exception
-
-        //Location loc = exc.location();
-        //String sourceClass = loc.declaringType().name();
-        //String fileName;
-        //try {
-        //    fileName = loc.sourceName();
-        //} catch (AbsentInformationException e) {
-        //    fileName = null;
-        //}
-        //int lineNumber = loc.lineNumber();
-
-        List<SourceLocation> stack = JdiThread.getStack(exc.thread());
-        //exitStatus = Debugger.EXCEPTION;
-        //lastException = new ExceptionDescription(excClass, exceptionText, stack);
-        //        }
+        // List<SourceLocation> stack = JdiThread.getStack(exc.thread());
     }
 
     /**

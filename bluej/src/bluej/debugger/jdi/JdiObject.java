@@ -114,8 +114,10 @@ public class JdiObject extends DebuggerObject
     private JdiObject(ObjectReference obj)
     {
         this.obj = obj;
-        obj.disableCollection();
-        getRemoteFields();
+        if (obj != null) {
+            obj.disableCollection();
+            getRemoteFields();
+        }
     }
 
     private JdiObject(ObjectReference obj, GenTypeClass expectedType)
@@ -123,9 +125,7 @@ public class JdiObject extends DebuggerObject
         this.obj = obj;
         if (obj != null) {
             obj.disableCollection();
-        }
-        getRemoteFields();
-        if( obj != null ) {
+            getRemoteFields();
             Reflective reflective = new JdiReflective(obj.referenceType());
             if( expectedType.isGeneric() ) {
                 genType = expectedType.mapToDerived(reflective);

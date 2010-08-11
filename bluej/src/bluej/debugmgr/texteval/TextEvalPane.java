@@ -281,7 +281,7 @@ public class TextEvalPane extends JEditorPane
             autoInitializedVars.clear();
         }
         
-        if (result != null) {
+        if (result != null && !result.isNullObject()) {
             //Debug.message("type:"+result.getFieldValueTypeString(0));
             
             String resultString = result.getFieldValueString(0);
