@@ -340,6 +340,12 @@ public class TextParserTest extends TestCase
 
         r = tp.parseCommand("\"string\" + new Object()");
         assertEquals("java.lang.String", r);
+        
+        r = tp.parseCommand("4 + \"a string\"");
+        assertEquals("java.lang.String", r);
+        
+        r = tp.parseCommand("new int[3] + \" a string!\"");
+        assertEquals("java.lang.String", r);
     }
     
     public void testUnboxing()
@@ -687,5 +693,4 @@ public class TextParserTest extends TestCase
         String r = tp.parseCommand("(new Object()) instanceof String");
         assertEquals("boolean", r);
     }
-
 }
