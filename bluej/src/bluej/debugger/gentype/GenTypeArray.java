@@ -166,7 +166,8 @@ public class GenTypeArray extends GenTypeSolid
     @Override
     public GenTypeClass[] getReferenceSupertypes()
     {
-        throw new UnsupportedOperationException();
+        // There's not really much we can do here
+        return new GenTypeClass[0];
     }
     
     @Override

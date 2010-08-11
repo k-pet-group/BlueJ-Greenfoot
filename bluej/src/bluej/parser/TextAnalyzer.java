@@ -169,19 +169,19 @@ public class TextAnalyzer
         
         // Check if it's an expression
         parser = new TextParser(resolver, command, accessType, true);
-        try {
-            parser.parseExpression();
-            if (parser.atEnd()) {
-                JavaEntity exprType = parser.getExpressionType();
-                if (exprType == null) {
-                    return "";
-                }
-                else {
-                    return exprType.resolveAsValue().getType().toString();
+        parser.parseExpression();
+        if (parser.atEnd()) {
+            JavaEntity exprType = parser.getExpressionType();
+            if (exprType == null) {
+                return "";
+            }
+            else {
+                JavaEntity rval =  exprType.resolveAsValue();
+                if (rval != null) {
+                    return rval.getType().toString();
                 }
             }
         }
-        catch (Exception e) {}
 
         return null;
     }

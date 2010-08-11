@@ -486,14 +486,22 @@ public class TextParser extends JavaParser
         int ttype = op.getType();
         switch (ttype) {
         case JavaTokenTypes.PLUS:
-            if (! a1type.isNumeric() && !(TextAnalyzer.unBox(a1type).isNumeric())) {
+            // either the first or second argument might be a String,
+            // in which case the result will be a String also.
+            GenTypeSolid a2solid = a2type.asSolid();
+            if (!TextAnalyzer.unBox(a1type).isNumeric()) {
                 GenTypeClass [] rstypes = a1type.asSolid().getReferenceSupertypes();
-                if (rstypes != null && rstypes[0].getReflective().getName().equals("java.lang.String")) {
+                if (rstypes.length != 0 && rstypes[0].getReflective().getName().equals("java.lang.String")) {
                     valueStack.push(new ValueEntity(rstypes[0]));
                     return;
                 }
-                valueStack.push(new ErrorEntity());
-                return;
+            }
+            if (a2solid != null) {
+                GenTypeClass [] rstypes = a2solid.getReferenceSupertypes();
+                if (rstypes.length != 0 && rstypes[0].getReflective().getName().equals("java.lang.String")) {
+                    valueStack.push(new ValueEntity(rstypes[0]));
+                    return;
+                }
             }
         case JavaTokenTypes.MINUS:
         case JavaTokenTypes.STAR:
