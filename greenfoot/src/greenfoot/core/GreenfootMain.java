@@ -38,6 +38,8 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.lang.reflect.Field;
 import java.rmi.RemoteException;
+import java.rmi.ServerError;
+import java.rmi.ServerException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -56,6 +58,7 @@ import bluej.extensions.ProjectNotOpenException;
 import bluej.pkgmgr.Project;
 import bluej.runtime.ExecServer;
 import bluej.utility.Debug;
+import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 import bluej.utility.Utility;
 import bluej.views.View;
@@ -66,7 +69,7 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 8046 2010-08-10 08:13:43Z davmac $
+ * @version $Id: GreenfootMain.java 8051 2010-08-11 02:21:04Z davmac $
  */
 public class GreenfootMain extends Thread implements CompileListener, RProjectListener
 {
@@ -428,17 +431,28 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                 false, true);
         if (newFile != null) {
             try {
-                rBlueJ.newProject(newFile);
-                // The rest of the project preparation will be done by the
-                // ProjectManager on the BlueJ VM.
+                if (rBlueJ.newProject(newFile) != null) {
+                    // The rest of the project preparation will be done by the
+                    // ProjectManager on the BlueJ VM.
 
-                // if the project that is already open is the dummy startup project, close it now.
-                if (isStartupProject()) {
-                    project.close();
+                    // if the project that is already open is the dummy startup project, close it now.
+                    if (isStartupProject()) {
+                        project.close();
+                    }
+                }
+                else {
+                    String errMsg = Config.getString("greenfoot.cannotCreateProject");
+                    DialogManager.showErrorText(frame, errMsg);
                 }
             }
-            catch (Exception exc) {
-                Debug.reportError("Problems when trying to create new scenario...", exc);
+            catch (ServerError se) {
+                Debug.reportError("Problems when trying to create new scenario...", se);
+            }
+            catch (ServerException se) {
+                Debug.reportError("Problems when trying to create new scenario...", se);
+            }
+            catch (RemoteException re) {
+                Debug.reportError("Problems when trying to create new scenario...", re);
             }
         }
     }

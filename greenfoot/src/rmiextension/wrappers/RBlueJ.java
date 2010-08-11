@@ -94,8 +94,10 @@ public interface RBlueJ
 
     /**
      * Create and open a new Project
+     * 
      * @param directory  The directory to create the project in
-     * @return   A reference to the newly created project
+     * @return   A reference to the newly created project, or null
+     *           if the project could not be created.
      */
     public RProject newProject(File directory)
         throws RemoteException;

@@ -219,12 +219,14 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
                 {
                     ProjectManager.instance().addNewProject(directory);
                     BProject wrapped = blueJ.newProject(directory);
-                    GreenfootDebugHandler.addDebuggerListener(wrapped);
-                    try {
-                        wrapper.rProject = WrapperPool.instance().getWrapper(wrapped);
-                    }
-                    catch (RemoteException e) {
-                        Debug.reportError("Error creating RMI project wrapper", e);
+                    if (wrapped != null) {
+                        GreenfootDebugHandler.addDebuggerListener(wrapped);
+                        try {
+                            wrapper.rProject = WrapperPool.instance().getWrapper(wrapped);
+                        }
+                        catch (RemoteException e) {
+                            Debug.reportError("Error creating RMI project wrapper", e);
+                        }
                     }
                     ProjectManager.instance().removeNewProject(directory);
                 }
