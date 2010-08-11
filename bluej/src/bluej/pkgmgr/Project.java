@@ -1668,7 +1668,9 @@ public class Project implements DebuggerListener, InspectorManager
     {
         String packageName = JavaNames.getPrefix(thread.getClass(0));
         Package pkg = getPackage(packageName);
-        pkg.showSourcePosition(thread);
+        if (pkg != null) {
+            pkg.showSourcePosition(thread);
+        }
     }
 
     // ---- end of DebuggerListener interface ----
