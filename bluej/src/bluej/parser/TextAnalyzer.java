@@ -811,7 +811,7 @@ public class TextAnalyzer
             List<JavaType> expandedParams = new ArrayList<JavaType>(args.length);
             expandedParams.addAll(mparams);
             for (int i = mparams.size(); i < args.length; i++) {
-                expandedParams.set(i, vaType);
+                expandedParams.add(vaType);
             }
             mparams = expandedParams;
         }
