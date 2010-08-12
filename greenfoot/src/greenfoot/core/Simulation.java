@@ -232,12 +232,16 @@ public class Simulation extends Thread
         outerLoop:
         while (!abort) {
             runQueuedTasks();
-            checkStopping();
 
             // Wait loop that waits until no longer pause or if we need to run the
             // simulation once because the user pressed 'Act'
 
             synchronized (this) {
+                checkStopping();
+                if (runOnce) {
+                    runOnce = false;
+                    return;
+                }
                 if (! enabled || (paused && !runOnce)) {
                     // Stopping/stopped.
                     // Make sure we repaint before pausing.
@@ -248,7 +252,7 @@ public class Simulation extends Thread
                     }
                     catch (InterruptedException e1) {
                         // Swallow the interrupt
-                    }
+                    }                    
                 }
                 else {
                     if (!paused && !isRunning && enabled && !abort) {
@@ -279,7 +283,7 @@ public class Simulation extends Thread
                     }
                 }
             }
-
+            
             runQueuedTasks();
         }
     }
