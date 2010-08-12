@@ -914,7 +914,7 @@ public abstract class CallDialog extends EscapeDialog
         // Map type parameter names in arguments to the corresponding types
         JavaType[] params = method.getParamTypes(raw);
         for (int i = 0; i < params.length; i++) {
-            params[i] = params[i].mapTparsToTypes(typeMap);
+            params[i] = params[i].mapTparsToTypes(typeMap).getUpperBound();
         }
         
         // handle varargs expansion

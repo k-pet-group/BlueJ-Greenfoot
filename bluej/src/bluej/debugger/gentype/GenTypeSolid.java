@@ -400,5 +400,9 @@ public abstract class GenTypeSolid extends JavaType
         return this;
     }
     
-    abstract public GenTypeSolid mapTparsToTypes(Map<String, ? extends GenTypeParameter> tparams);
+    @Override
+    public boolean isWildcard()
+    {
+        return false;
+    }
 }

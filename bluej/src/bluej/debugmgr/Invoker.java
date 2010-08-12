@@ -363,7 +363,7 @@ public class Invoker
     {
         final JavaType[] argTypes = member.getParamTypes(false);
         for (int i = 0; i < argTypes.length; i++) {
-            argTypes[i] = argTypes[i].mapTparsToTypes(typeMap);
+            argTypes[i] = argTypes[i].mapTparsToTypes(typeMap).getUpperBound();
         }
         
         doInvocation(params, argTypes, null);

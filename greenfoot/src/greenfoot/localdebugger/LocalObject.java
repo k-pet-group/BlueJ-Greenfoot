@@ -607,12 +607,9 @@ public class LocalObject extends DebuggerObject
                 }
             }
             
-            JavaType fieldType = JavaUtils.getJavaUtils().getFieldType(fields[i]);
-            GenTypeClass fieldClassType = fieldType.asClass();
-            if (fieldClassType != null) {
-                GenTypeClass fieldDeclType = getGenType().mapToSuper(fields[i].getDeclaringClass().getName());
-                fieldType = fieldType.mapTparsToTypes(fieldDeclType.getMap());
-            }
+            GenTypeParameter fieldType = JavaUtils.getJavaUtils().getFieldType(fields[i]);
+            GenTypeClass fieldDeclType = getGenType().mapToSuper(fields[i].getDeclaringClass().getName());
+            fieldType = fieldType.mapTparsToTypes(fieldDeclType.getMap());
             desc += fieldType.toString(true) + " ";
             desc += fields[i].getName();
             

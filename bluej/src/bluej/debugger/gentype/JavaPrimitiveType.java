@@ -253,9 +253,9 @@ public class JavaPrimitiveType
     }
     
     @Override
-    public GenTypeSolid getUpperBound()
+    public JavaPrimitiveType getUpperBound()
     {
-        return null;
+        return this;
     }
     
     @Override
@@ -277,5 +277,11 @@ public class JavaPrimitiveType
             return false;
         }
         return other.typeIs(myIndex);
+    }
+    
+    @Override
+    public boolean isWildcard()
+    {
+        return false;
     }
 }

@@ -861,7 +861,7 @@ public class TextAnalyzer
                     continue;
                 
                 GenTypeSolid mparam = (GenTypeSolid) mparams.get(i);
-                mparam = mparam.mapTparsToTypes(tparMap);
+                mparam = mparam.mapTparsToTypes(tparMap).getCapture().asSolid();
                 processAtoFConstraint(args[i], mparam, tlbConstraints, teqConstraints);
             }
             
@@ -926,7 +926,7 @@ public class TextAnalyzer
             JavaType givenParam = args[i];
             
             // Substitute type arguments.
-            formalArg = formalArg.mapTparsToTypes(tparMap);
+            formalArg = formalArg.mapTparsToTypes(tparMap).getUpperBound();
             
             // check if the given parameter doesn't match the formal argument
             if (! formalArg.isAssignableFrom(givenParam)) {
@@ -941,7 +941,7 @@ public class TextAnalyzer
             }
         }
         
-        JavaType rType = m.getReturnType().mapTparsToTypes(tparMap);
+        JavaType rType = m.getReturnType().mapTparsToTypes(tparMap).getUpperBound();
         return new MethodCallDesc(m, mparams, varargs, boxingRequired, rType);
     }
 

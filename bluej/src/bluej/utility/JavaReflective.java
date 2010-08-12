@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,6 +21,7 @@
  */
 package bluej.utility;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -232,9 +233,20 @@ public class JavaReflective extends Reflective {
         for (Method method : methods) {
             JavaType rtype = JavaUtils.getJavaUtils().getReturnType(method);
             List<GenTypeDeclTpar> tpars = JavaUtils.getJavaUtils().getTypeParams(method);
+            
+            // We need to create a map from each type parameter name to its type
+            // as a GenTypeDeclTpar
+            Map<String,GenTypeDeclTpar> tparMap = new HashMap<String,GenTypeDeclTpar>();
+            storeTparMappings(tpars, tparMap);
+            if (! Modifier.isStatic(method.getModifiers())) {
+                getTparMapping(method.getDeclaringClass(), tparMap);
+            }
+            
             JavaType [] paramTypes = JavaUtils.getJavaUtils().getParamGenTypes(method, false);
             List<JavaType> paramTypesList = new ArrayList<JavaType>(paramTypes.length);
-            Collections.addAll(paramTypesList, paramTypes);
+            for (JavaType paramType : paramTypes) {
+                paramTypesList.add(paramType.mapTparsToTypes(tparMap).getUpperBound());
+            }
             
             String name = method.getName();
             MethodReflective mr = new MethodReflective(name, rtype, tpars, paramTypesList,
@@ -249,6 +261,50 @@ public class JavaReflective extends Reflective {
             rset.add(mr);
         }
         return rmap;
+    }
+    
+    private void getTparMapping(Class<?> c, Map<String,GenTypeDeclTpar> tparMap)
+    {
+        JavaUtils ju = JavaUtils.getJavaUtils();
+        List<GenTypeDeclTpar> tpars = ju.getTypeParams(c);
+        storeTparMappings(tpars, tparMap);
+        
+        Method m = c.getEnclosingMethod();
+        Constructor<?> cc = c.getEnclosingConstructor();
+        c = c.getEnclosingClass();
+        
+        while (c != null && m != null && cc != null) {
+            if (c != null) {
+                tpars = ju.getTypeParams(c);
+                storeTparMappings(tpars, tparMap);
+                c = c.getEnclosingClass();
+                m = c.getEnclosingMethod();
+                cc = c.getEnclosingConstructor();
+            }
+            else if (m != null) {
+                tpars = ju.getTypeParams(m);
+                storeTparMappings(tpars, tparMap);
+                if (! Modifier.isStatic(m.getModifiers())) {
+                    c = m.getDeclaringClass();
+                }
+                m = null;
+            }
+            else if (cc != null) {
+                tpars = ju.getTypeParams(cc);
+                storeTparMappings(tpars, tparMap);
+                c = cc.getDeclaringClass();
+                cc = null;
+            }
+        }
+    }
+    
+    private void storeTparMappings(List<GenTypeDeclTpar> tpars, Map<String, ? super GenTypeDeclTpar> map)
+    {
+        for (GenTypeDeclTpar tpar : tpars) {
+            if (! map.containsKey(tpar.getTparName())) {
+                map.put(tpar.getTparName(), tpar);
+            }
+        }
     }
     
     @Override

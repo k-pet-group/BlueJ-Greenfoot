@@ -346,7 +346,7 @@ public abstract class JavaUtils
         Map<String,GenTypeSolid> rmap = new HashMap<String,GenTypeSolid>();
         for( Iterator<GenTypeDeclTpar> i = tparams.iterator(); i.hasNext(); ) {
             GenTypeDeclTpar n = i.next();
-            rmap.put(n.getTparName(), n.getBound().mapTparsToTypes(rmap));
+            rmap.put(n.getTparName(), n.getBound().mapTparsToTypes(rmap).getUpperBound().asSolid());
         }
         return rmap;
     }

@@ -95,7 +95,7 @@ public class GenTypeArray extends GenTypeSolid
     @Override
     public void erasedSuperTypes(Set<Reflective> s)
     {
-        GenTypeSolid baseSolid = baseType.getUpperBound();
+        GenTypeSolid baseSolid = baseType.getUpperBound().asSolid();
         if (baseSolid != null) {
             Set<Reflective> bSupers = new HashSet<Reflective>();
             baseSolid.erasedSuperTypes(bSupers);
@@ -171,11 +171,20 @@ public class GenTypeArray extends GenTypeSolid
     }
     
     @Override
-    public GenTypeSolid mapTparsToTypes(Map<String, ? extends GenTypeParameter> tparams)
+    public GenTypeParameter mapTparsToTypes(Map<String, ? extends GenTypeParameter> tparams)
     {
-        JavaType mappedBase = baseType.mapTparsToTypes(tparams);
+        GenTypeParameter mappedBase = baseType.mapTparsToTypes(tparams);
         if (mappedBase != baseType) {
-            return new GenTypeArray(mappedBase);
+            if (mappedBase.isWildcard()) {
+                // An array of wildcard should be represented instead as a wildcard
+                // with array bounds.
+                GenTypeSolid ubound = mappedBase.getUpperBound().asSolid();
+                ubound = (ubound == null) ? ubound : ubound.getArray();
+                GenTypeSolid lbound = mappedBase.getLowerBound();
+                lbound = (lbound == null) ? lbound : lbound.getArray();
+                new GenTypeWildcard(ubound, lbound);
+            }
+            return new GenTypeArray(mappedBase.getUpperBound());
         }
         return this;
     }

@@ -94,12 +94,7 @@ public class GenTypeWildcard extends GenTypeParameter
         return getErasedType().arrayComponentName();
     }
     
-    /*
-     * Do not create abominations such as "? extends ? extends ...".
-     *   "? extends ? super ..."    => "?" (ie. the bounds is eliminated).
-     *   "? extends ? extends X"    => "? extends X".
-     *   "? super ? super X"        => "? super X".
-     */
+    @Override
     public GenTypeWildcard mapTparsToTypes(Map<String, ? extends GenTypeParameter> tparams)
     {
         GenTypeSolid newUpper = null;
@@ -112,7 +107,7 @@ public class GenTypeWildcard extends GenTypeParameter
             
             // find the new upper bounds
             for (int i = 0; i < upperBounds.length; i++) {
-                GenTypeParameter newBound = (GenTypeParameter) upperBounds[i].mapTparsToTypes(tparams);
+                GenTypeParameter newBound = upperBounds[i].mapTparsToTypes(tparams);
                 if (newBound instanceof GenTypeWildcard) {
                     GenTypeWildcard newWcBound = (GenTypeWildcard) newBound;
                     newUppers.add(newWcBound.upperBound);
@@ -129,7 +124,7 @@ public class GenTypeWildcard extends GenTypeParameter
         // This is easier. If the lower bound is an intersection type, it comes from
         // lub() and therefore contains no immediate type parameters.
         if (lowerBound != null) {
-            GenTypeParameter newLowerP = (GenTypeParameter) lowerBound.mapTparsToTypes(tparams);
+            GenTypeParameter newLowerP = lowerBound.mapTparsToTypes(tparams);
             newLower = newLowerP.getLowerBound();
         }
         
@@ -141,8 +136,12 @@ public class GenTypeWildcard extends GenTypeParameter
         if (this == other)
             return true;
         
+        if (! other.isWildcard()) {
+            return false;
+        }
+        
         GenTypeSolid otherLower = other.getLowerBound();
-        GenTypeSolid otherUpper = other.getUpperBound();
+        JavaType otherUpper = other.getUpperBound();
         
         if (upperBound != null && ! upperBound.equals(otherUpper))
             return false;
@@ -186,6 +185,12 @@ public class GenTypeWildcard extends GenTypeParameter
     {
         // This shouldn't be called.
         return false;
+    }
+    
+    @Override
+    public boolean isWildcard()
+    {
+        return true;
     }
     
     /**

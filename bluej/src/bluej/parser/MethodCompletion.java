@@ -178,8 +178,7 @@ public class MethodCompletion extends AssistContent
     {
         if (! type.isPrimitive()) {
             if (typeArgs != null) {
-                type = type.mapTparsToTypes(typeArgs);
-                type = type.getUpperBound();
+                type = type.mapTparsToTypes(typeArgs).getUpperBound();
             }
             else {
                 type = type.getErasedType();

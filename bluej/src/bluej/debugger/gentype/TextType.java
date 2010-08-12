@@ -174,4 +174,10 @@ public class TextType extends JavaType
     {
         throw new UnsupportedOperationException();
     }
+    
+    @Override
+    public boolean isWildcard()
+    {
+        throw new UnsupportedOperationException();
+    }
 }

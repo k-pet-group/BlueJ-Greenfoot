@@ -95,7 +95,10 @@ public abstract class GenTypeParameter
      */
     public GenTypeParameter precisify(GenTypeParameter other)
     {
-        GenTypeSolid upperBound = getUpperBound();
+        GenTypeSolid upperBound = getUpperBound().asSolid();
+        if (upperBound == null) {
+            return this;
+        }
         GenTypeSolid lowerBound = getLowerBound();
         
         // Calculate new upper bounds
@@ -136,7 +139,7 @@ public abstract class GenTypeParameter
     /**
      * Get the upper bounds (possibly as an intersection).
      */
-    abstract public GenTypeSolid getUpperBound();
+    abstract public JavaType getUpperBound();
 
     /**
      * Get the lower bounds of this type. For a solid type the lower bounds are the
@@ -155,10 +158,10 @@ public abstract class GenTypeParameter
     public final boolean contains(GenTypeParameter other)
     {
         GenTypeSolid myLower = getLowerBound();
-        GenTypeSolid myUpper = getUpperBound();
+        JavaType myUpper = getUpperBound();
         
         GenTypeSolid otherLower = other.getLowerBound();
-        GenTypeSolid otherUpper = other.getUpperBound();
+        JavaType otherUpper = other.getUpperBound();
         
         return myUpper.isAssignableFrom(otherUpper) && otherLower.isAssignableFrom(myLower);
     }
@@ -229,6 +232,8 @@ public abstract class GenTypeParameter
         return false;
     }
 
+    public abstract boolean isWildcard();
+    
     public GenTypeParameter getArrayComponent()
     {
         return null;
