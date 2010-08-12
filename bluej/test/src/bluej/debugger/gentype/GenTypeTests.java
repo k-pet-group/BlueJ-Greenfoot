@@ -30,7 +30,6 @@ import bluej.utility.JavaReflective;
  * Tests for the GenType classes.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeTests.java 8067 2010-08-12 03:29:03Z davmac $
  */
 public class GenTypeTests extends TestCase
 {
@@ -56,7 +55,7 @@ public class GenTypeTests extends TestCase
         TestReflective derivedR2 = new TestReflective("derived2");
         
         // Create genType for java.lang.Object
-        Class c = Object.class;
+        Class<?> c = Object.class;
         JavaReflective objectR = new JavaReflective(c);
         GenTypeSolid oBound = new GenTypeClass(objectR);
 
@@ -65,12 +64,12 @@ public class GenTypeTests extends TestCase
         derivedR2.typeParams.add(new GenTypeDeclTpar("T", new GenTypeSolid [] {oBound}));
         baseReflective.typeParams.add(new GenTypeDeclTpar("T", new GenTypeSolid[] {oBound}));
         
-        List tpars = new ArrayList();
+        List<GenTypeParameter> tpars = new ArrayList<GenTypeParameter>();
         tpars.add(new GenTypeTpar("T"));
         derivedR.superTypes.add(new GenTypeClass(baseReflective, tpars));
         derivedR2.superTypes.add(new GenTypeClass(derivedR, tpars));
         
-        List basePars = new ArrayList();
+        List<GenTypeParameter> basePars = new ArrayList<GenTypeParameter>();
         basePars.add(oBound);
         GenTypeClass baseClass = new GenTypeClass(baseReflective, basePars);
         //Map m = baseClass.mapToDerived(derivedR2);
@@ -117,7 +116,7 @@ public class GenTypeTests extends TestCase
         TestReflective derivedR = new TestReflective("derived1");
 
         // Create genType for java.lang.Object
-        Class c = Object.class;
+        Class<?> c = Object.class;
         JavaReflective objectR = new JavaReflective(c);
         GenTypeSolid oBound = new GenTypeClass(objectR);
 
@@ -125,7 +124,7 @@ public class GenTypeTests extends TestCase
         derivedR.typeParams.add(new GenTypeDeclTpar("T", new GenTypeSolid [] {oBound}));
 
         // derived inherits from base
-        List noTpars = new ArrayList();
+        List<GenTypeParameter> noTpars = new ArrayList<GenTypeParameter>();
         derivedR.superTypes.add(new GenTypeClass(baseReflective, noTpars));
 
         // Make a raw version of the derived type
@@ -155,7 +154,7 @@ public class GenTypeTests extends TestCase
         aReflective.superTypes.add(new GenTypeClass(bReflective));
         
         // BClass<T> derives from CClass<T>
-        List l = new ArrayList();
+        List<GenTypeParameter> l = new ArrayList<GenTypeParameter>();
         l.add(tparT);
         bReflective.superTypes.add(new GenTypeClass(cReflective, l));
         
