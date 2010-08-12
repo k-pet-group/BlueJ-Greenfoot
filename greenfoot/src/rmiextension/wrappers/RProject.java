@@ -124,7 +124,7 @@ public interface RProject
      * @throws RemoteException
      */
     public abstract void showExecControls()
-        throws ProjectNotOpenException, RemoteException;
+        throws RemoteException;
     
     public abstract RObject getRemoteObject()
         throws RemoteException;

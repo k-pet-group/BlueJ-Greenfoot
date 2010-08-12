@@ -23,6 +23,7 @@ package rmiextension.wrappers;
 
 import greenfoot.util.DebugUtil;
 
+import java.awt.EventQueue;
 import java.io.File;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
@@ -234,12 +235,20 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
      * @see rmiextension.wrappers.RProject#showExecControls()
      */
     public void showExecControls()
-        throws ProjectNotOpenException
     {
-        Project thisProject = Project.getProject(bProject.getDir());
-        ExecControls execControls = thisProject.getExecControls();
-        execControls.showHide(true);
-        execControls.setRestrictedClasses(DebugUtil.restrictedClassesAsNames());
+        EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                try {
+                    Project thisProject = Project.getProject(bProject.getDir());
+                    ExecControls execControls = thisProject.getExecControls();
+                    execControls.showHide(true);
+                    execControls.setRestrictedClasses(DebugUtil.restrictedClassesAsNames());
+                }
+                catch (ProjectNotOpenException pnoe) {
+                    // This really can't happen.
+                }
+            }
+        });
     }
     
     /*
