@@ -22,10 +22,12 @@
 package bluej.pkgmgr;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -41,6 +43,7 @@ import bluej.parser.InfoParser;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.PackageResolver;
 import bluej.parser.symtab.ClassInfo;
+import bluej.utility.Debug;
 import bluej.utility.JavaNames;
 import bluej.views.Comment;
 import bluej.views.MethodView;
@@ -130,9 +133,11 @@ public class ProjectJavadocResolver implements JavadocResolver
         List<DocPathEntry> sourcePath = project.getSourcePath();
         String pkg = JavaNames.getPrefix(target);
         String entName = target.replace('.', '/') + ".java";
+        String entNameFs = target.replace('.', File.separatorChar) + ".java";
+        EntityResolver resolver = new PackageResolver(project.getEntityResolver(), pkg);
         
         for (DocPathEntry pathEntry : sourcePath) {
-            File jarFile = pathEntry.getJarFile();
+            File jarFile = pathEntry.getFile();
             if (jarFile.isFile()) {
                 String fullEntryName = pathEntry.getPathPrefix();
                 if (fullEntryName.length() != 0 && !fullEntryName.endsWith("/")) {
@@ -146,8 +151,6 @@ public class ProjectJavadocResolver implements JavadocResolver
                     if (zipEnt != null) {
                         InputStream zeis = zipFile.getInputStream(zipEnt);
                         r = new InputStreamReader(zeis);
-                        EntityResolver resolver = new PackageResolver(project.getEntityResolver(),
-                                pkg);
                         ClassInfo info = InfoParser.parse(r, resolver, null);
                         if (info == null) {
                             return null;
@@ -164,6 +167,52 @@ public class ProjectJavadocResolver implements JavadocResolver
                         catch (IOException e) {}
                     }
                 }
+            }
+            else if (jarFile.isDirectory()) {
+                File base = jarFile;
+                String prefix = pathEntry.getPathPrefix();
+                if (prefix != null && !prefix.isEmpty()) {
+                    base = new File(base, prefix);
+                }
+                
+                File srcFile = new File(base, entNameFs);
+                Reader r = null;
+                try {
+                    if (srcFile.canRead()) {
+                        r = new FileReader(srcFile);
+                        ClassInfo info = InfoParser.parse(r, resolver, null);
+                        r.close();
+                        if (info == null) {
+                            return null;
+                        }
+                        return info.getComments();
+                    }
+                }
+                catch (IOException ioe) {
+                    if (r != null) {
+                        try {
+                            r.close();
+                        }
+                        catch (IOException e) {}
+                    }
+                }
+            }
+        }
+        
+        // Try and load the source from the class path. This allows source to be bundled in
+        // with the classes.
+        String targetName = target.replace('.', '/') + ".java";
+        URL srcUrl = project.getClassLoader().findResource(targetName);
+        if (srcUrl != null) {
+            try {
+                Reader r = new InputStreamReader(srcUrl.openStream());
+                ClassInfo info = InfoParser.parse(r, resolver, null);
+                if (info != null) {
+                    return info.getComments();
+                }
+            }
+            catch (IOException ioe) {
+                Debug.message("I/O exception while trying to retrieve javadoc for " + target);
             }
         }
         

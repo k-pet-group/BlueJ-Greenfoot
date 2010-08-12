@@ -98,6 +98,16 @@
     <fileset id="tutorial.files" dir="resources/tutorial/">
         <include name="**"/>
     </fileset>
+	
+	<!-- Source files that make up the Greenfoot API -->
+    <fileset id="api-source.files" dir="${src}" defaultexcludes="yes">
+          <include name="greenfoot/Actor.java" />
+          <include name="greenfoot/World.java" />
+          <include name="greenfoot/GreenfootImage.java" />
+          <include name="greenfoot/GreenfootSound.java" />
+          <include name="greenfoot/Greenfoot.java" />
+          <include name="greenfoot/MouseInfo.java" />
+	</fileset>
 
     <!-- scenarios to be included in standard distribution -->
     <patternset id="distribution.scenarios">
@@ -252,19 +262,15 @@ target="1.5">
     <target name="create-api-doc">
         <mkdir dir="${apidoc}"/>
         <javadoc destdir="${apidoc}"
-   Windowtitle="Greenfoot API"
-   Doctitle="Greenfoot API"
-   bottom="&lt;a href=http://www.greenfoot.org/&gt;Greenfoot homepage&lt;/a&gt;">
-
-            <fileset dir="${src}" defaultexcludes="yes">
-                <include name="greenfoot/Actor.java" />
-                <include name="greenfoot/World.java" />
-                <include name="greenfoot/GreenfootImage.java" />
-                <include name="greenfoot/GreenfootSound.java" />
-                <include name="greenfoot/Greenfoot.java" />
-                <include name="greenfoot/MouseInfo.java" />
-            </fileset>
+                 Windowtitle="Greenfoot API"
+                 Doctitle="Greenfoot API"
+                 bottom="&lt;a href=http://www.greenfoot.org/&gt;Greenfoot homepage&lt;/a&gt;">
+            <fileset refid="api-source.files"/>
         </javadoc>
+    	<mkdir dir="${bluej.projectdir}/lib/english/greenfoot/api"/>
+    	<copy todir="${bluej.projectdir}/lib/english/greenfoot/api">
+            <fileset refid="api-source.files"/>
+    	</copy>
     </target>
 
     <target name="copy-projects" description="Copies the startupProject to bluej" >

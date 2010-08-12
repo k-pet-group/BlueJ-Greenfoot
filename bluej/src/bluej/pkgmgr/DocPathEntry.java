@@ -24,25 +24,29 @@ package bluej.pkgmgr;
 import java.io.File;
 
 /**
- * Represents an entry on the Javadoc search path. This can include both a jar/zip file,
- * and a path prefix which specifies where the source root within the jar/zip really is.
+ * Represents an entry on the Javadoc search path. This can include both a jar/zip file/directory,
+ * and a path prefix which specifies where the source root within the jar/zip/directory really is.
  * 
  * @author Davin McCall
  */
 public class DocPathEntry
 {
-    private File jarFile;
+    private File file;
     private String pathPrefix;
     
-    public DocPathEntry(File jarFile, String pathPrefix)
+    /**
+     * Create a new DocPathEntry, for the given file (either a jar, zip, or a directory), and
+     * with sources in the given prefix.
+     */
+    public DocPathEntry(File file, String pathPrefix)
     {
-        this.jarFile = jarFile;
+        this.file = file;
         this.pathPrefix = pathPrefix;
     }
     
-    public File getJarFile()
+    public File getFile()
     {
-        return jarFile;
+        return file;
     }
     
     public String getPathPrefix()

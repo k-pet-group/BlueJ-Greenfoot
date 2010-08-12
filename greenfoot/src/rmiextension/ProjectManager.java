@@ -46,7 +46,9 @@ import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.extensions.event.PackageEvent;
 import bluej.extensions.event.PackageListener;
+import bluej.pkgmgr.DocPathEntry;
 import bluej.pkgmgr.PkgMgrFrame;
+import bluej.pkgmgr.Project;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
@@ -127,6 +129,24 @@ public class ProjectManager
                     project.getPackage("").reload();
                 }
                 openGreenfoot(project);
+                
+                // Add Greenfoot API sources to project source path
+                Project bjProject = Project.getProject(project.getDir());
+                List<DocPathEntry> sourcePath = bjProject.getSourcePath();
+
+                String language = Config.getPropString("bluej.language");
+
+                if (! language.equals("english")) {
+                    // Add the native language sources first
+                    File langlib = new File(Config.getBlueJLibDir(), language);
+                    File apiDir = new File(new File(langlib, "greenfoot"), "api");
+                    sourcePath.add(new DocPathEntry(apiDir, ""));
+                }
+
+                File langlib = new File(Config.getBlueJLibDir(), "english");
+                File apiDir = new File(new File(langlib, "greenfoot"), "api");
+                sourcePath.add(new DocPathEntry(apiDir, ""));
+                
             } catch (Exception e) {
                 Debug.reportError("Could not create greenfoot launcher.", e);
                 // This is bad, lets exit.
