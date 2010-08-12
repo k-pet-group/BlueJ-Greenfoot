@@ -30,7 +30,7 @@ import bluej.utility.JavaReflective;
  * Tests for the GenType classes.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeTests.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: GenTypeTests.java 8067 2010-08-12 03:29:03Z davmac $
  */
 public class GenTypeTests extends TestCase
 {
@@ -98,7 +98,7 @@ public class GenTypeTests extends TestCase
         GenTypeExtends wildcard2 = new GenTypeExtends(object);
         
         // create a mapping "T -> wildcard2"
-        Map m = new HashMap();
+        Map<String,GenTypeParameter> m = new HashMap<String,GenTypeParameter>();
         m.put("T", wildcard2);
         
         // Apply mapping to wildcard1
