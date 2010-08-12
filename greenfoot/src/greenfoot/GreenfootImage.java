@@ -113,7 +113,11 @@ public class GreenfootImage
                 throw ile;
             }
         }
-        GreenfootUtil.addCachedImage(filename, new GreenfootImage(this));
+        //if the image was successfully cached, ensure that the image is copyOnWrite
+        boolean success= GreenfootUtil.addCachedImage(filename, new GreenfootImage(this));
+        if (success){
+            copyOnWrite=true;
+        }
     }
        
     /**
@@ -202,7 +206,6 @@ public class GreenfootImage
         }
         try {
             image = GraphicsUtilities.loadCompatibleTranslucentImage(imageURL);
-            copyOnWrite = true;
         } catch (IOException ex) {
             throw new IllegalArgumentException("Could not load image from: " + imageFileName);
         }

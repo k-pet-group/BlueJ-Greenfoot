@@ -82,11 +82,12 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
     }
    
 
-    public void addCachedImage(String fileName, GreenfootImage image)
+    public boolean addCachedImage(String fileName, GreenfootImage image)
     {
         synchronized (classImages) {
             classImages.put(fileName, image);
         }
+        return true;
     }
     
     public GreenfootImage getCachedImage(String fileName)

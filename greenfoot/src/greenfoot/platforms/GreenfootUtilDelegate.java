@@ -55,9 +55,10 @@ public interface GreenfootUtilDelegate
     public void removeCachedImage(String fileName);
 
     /**
-     * Adds a filename with the associated image into the cache. . Thread-safe
+     * Adds a filename with the associated image into the cache. 
+     * Returns whether the image was cached. Thread-safe
      */
-    public void addCachedImage(String fileName, GreenfootImage image);
+    public boolean addCachedImage(String fileName, GreenfootImage image);
 
     /**
      * Gets the cached image of the requested fileName. Thread-safe
