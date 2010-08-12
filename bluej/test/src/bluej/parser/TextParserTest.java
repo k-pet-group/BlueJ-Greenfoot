@@ -686,6 +686,14 @@ public class TextParserTest extends TestCase
         assertEquals("java.lang.String", r);
     }
     
+    public void testMethodResolution6()
+    {
+        TextAnalyzer tp = new TextAnalyzer(resolver, "", objectBench);
+        
+        String r = tp.parseCommand("java.util.Arrays.asList(\"one\", \"two\", \"three\")");
+        assertEquals("java.util.List<java.lang.String>", r);
+    }
+    
     public void testInstanceof()
     {
         TextAnalyzer tp = new TextAnalyzer(resolver, "", objectBench);
