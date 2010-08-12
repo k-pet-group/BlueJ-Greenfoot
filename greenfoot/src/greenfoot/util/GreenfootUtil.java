@@ -69,7 +69,7 @@ import bluej.utility.Utility;
  * General utility methods for Greenfoot.
  * 
  * @author Davin McCall
- * @version $Id: GreenfootUtil.java 8065 2010-08-12 00:42:53Z marionz $
+ * @version $Id: GreenfootUtil.java 8072 2010-08-12 04:42:11Z davmac $
  */
 public class GreenfootUtil
 {
@@ -247,8 +247,22 @@ public class GreenfootUtil
             int xoffs = (w - neww) / 2;
             int yoffs = (h - newh) / 2;
             // graphics.drawImage(inputImage, xoffs, yoffs, neww, newh, null);
-            waiter.drawWait(graphics, xoffs, yoffs, neww, newh);
+            
+            // This can throw an exception if the image is too big:
+            try {
+                waiter.drawWait(graphics, xoffs, yoffs, neww, newh);
+            }
+            catch (java.lang.OutOfMemoryError oome) {
+                // draw a white background overlaid with a red cross
+                graphics.setColor(Color.white);
+                graphics.fillRect(1, 1, w - 2, h - 2);
+                graphics.setColor(Color.red);
+                graphics.drawRect(0, 0, w - 1, h - 1);
+                graphics.drawLine(0, 0, w, h);
+                graphics.drawLine(0, h, w, 0);
+            }
         }
+        graphics.dispose();
         return rImage;
     }
     
