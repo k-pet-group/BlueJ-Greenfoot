@@ -89,8 +89,7 @@ public class GreenfootRecorder
     {
         String actorObjectName = objectNames.get(actor);
         if (null == actorObjectName) {
-            //oops!
-            Debug.reportError("WorldRecorder.addActorToWorld called with unknown actor");
+            //An actor that we don't know about is being added to the world: ignore
             return;
         }
         code.add("addObject(" + actorObjectName + ", " + x + ", " + y + ");");
@@ -99,7 +98,7 @@ public class GreenfootRecorder
     public void callActorMethod(Object obj, String actorName, String name, String[] args)
     {
         if (null == objectNames.get(obj)) {
-            Debug.reportError("GreenfootRecorder.callActorMethod called with unknown actor");
+            //Method is being called on an actor we don't know about: ignore
             return;
         }
         if (world != null && world == obj) {
@@ -139,7 +138,7 @@ public class GreenfootRecorder
         if (null == actorObjectName) {
             // This could happen with programmatically generated actors (e.g. in a World's method)
             // if the user drags them around afterwards.
-            Debug.reportError("WorldRecorder.moveActor called with unknown actor: " + actor + " " + objectNames.size());
+            // We'll just have to ignore it
             return;
         }
         code.add(actorObjectName + ".setLocation(" + xCell + ", " + yCell + ");");
@@ -150,8 +149,8 @@ public class GreenfootRecorder
         String actorObjectName = objectNames.get(obj);
         if (null == actorObjectName) {
             // This could happen with programmatically generated actors (e.g. in a World's method)
-            // if the user tries to remove them afterwards:
-            Debug.reportError("WorldRecorder.removeActor called with unknown actor (created programmatically?)");
+            // if the user tries to remove them afterwards.
+         // We'll just have to ignore it
             return;
         }
         code.add("removeObject(" + actorObjectName + ");");
