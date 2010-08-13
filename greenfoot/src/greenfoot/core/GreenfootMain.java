@@ -45,6 +45,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 
 import rmiextension.wrappers.RBlueJ;
 import rmiextension.wrappers.RPackage;
@@ -52,6 +53,7 @@ import rmiextension.wrappers.RProject;
 import rmiextension.wrappers.event.RCompileEvent;
 import rmiextension.wrappers.event.RInvocationListener;
 import rmiextension.wrappers.event.RProjectListener;
+import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.debugmgr.CallHistory;
 import bluej.extensions.ProjectNotOpenException;
@@ -69,7 +71,7 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 8051 2010-08-11 02:21:04Z davmac $
+ * @version $Id: GreenfootMain.java 8079 2010-08-13 15:48:01Z plcs $
  */
 public class GreenfootMain extends Thread implements CompileListener, RProjectListener
 {
@@ -251,11 +253,9 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
 
         // Display msg dialog of project does not exist.
         if (!projectDirFile.exists()) {
-            JButton[] buttons = new JButton[]{new JButton(Config.getString("greenfoot.continue"))};
-            MessageDialog confirmRemove = new MessageDialog(frame, Config.getString("noproject.dialog.msg")
-                    + System.getProperty("line.separator") + projectDir, Config.getString("noproject.dialog.title"),
-                    200, buttons);
-            confirmRemove.display();
+            JOptionPane.showMessageDialog(frame, 
+            		Config.getString("noproject.dialog.msg") + System.getProperty("line.separator") + projectDir,
+            		Config.getString("noproject.dialog.title"), JOptionPane.WARNING_MESSAGE);
             return;
         }
 
