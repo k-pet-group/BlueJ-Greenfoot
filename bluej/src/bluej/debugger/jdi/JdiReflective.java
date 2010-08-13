@@ -208,7 +208,7 @@ public class JdiReflective extends Reflective
                 Debug.message("getTypeParams : no ':' following type parameter name in super signature?? got "
                         + s.current());
                 Debug.message("signature was: " + s.getString());
-                return null;
+                return Collections.emptyList();
             }
             // '::' indicates lower bound is an interface. Ignore.
             if (s.peek() == ':')

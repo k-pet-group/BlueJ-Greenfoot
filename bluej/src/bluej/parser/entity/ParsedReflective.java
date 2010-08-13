@@ -170,7 +170,7 @@ public class ParsedReflective extends Reflective
     {
         List<TparEntity> tparEntList = pnode.getTypeParams();
         if (tparEntList == null) {
-            return null;
+            return Collections.emptyList();
         }
         
         List<GenTypeDeclTpar> tparList = new ArrayList<GenTypeDeclTpar>(tparEntList.size());
