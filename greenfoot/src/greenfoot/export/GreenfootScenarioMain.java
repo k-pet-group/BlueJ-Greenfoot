@@ -70,10 +70,10 @@ public class GreenfootScenarioMain
             System.err.println("Wrong number of arguments");
         }
         
+        GreenfootScenarioMain.args = args; 
         initProperties(); // discover scenario name
         System.setProperty("com.apple.mrj.application.apple.menu.about.name", scenarioName);
         
-        GreenfootScenarioMain.args = args; 
         EventQueue.invokeLater(new Runnable() {
             public void run()
             {
