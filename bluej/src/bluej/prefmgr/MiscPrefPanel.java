@@ -21,22 +21,27 @@
  */
 package bluej.prefmgr;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
-import java.io.File;
-
 import bluej.Config;
 import bluej.BlueJTheme;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.utility.filefilter.DirectoryFilter;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.IOException;
+import java.util.StringTokenizer;
+import java.util.jar.Attributes;
+import java.util.jar.JarFile;
 
 /**
  * A PrefPanel subclass to allow the user to interactively edit
  * various miscellaneous settings
  *
  * @author  Andrew Patterson
- * @version $Id: MiscPrefPanel.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: MiscPrefPanel.java 8083 2010-08-16 19:52:09Z iau $
  */
 public class MiscPrefPanel extends JPanel 
                            implements PrefPanelListener, ItemListener, ActionListener
@@ -244,10 +249,21 @@ public class MiscPrefPanel extends JPanel
         {       
             enableToolkitPanel( true );
             String toolkitDirectory = tryToFindToolkit( );
-            if ( toolkitDirectory.equals( "" ) ) 
+            if ( toolkitDirectory.equals( "" ) )
+            {
                 letUserChooseToolkitDir( );
-            else //we found a toolkit
+                toolkitDirectory = toolkitDirField.getText().trim();
+            }
+            else
+            {   //we found a toolkit
                 toolkitDirField.setText( toolkitDirectory );
+            }
+
+            /* Check that names of core library Jar files are valid.
+             * Interim fix for #266. We should really provide a GUI to
+             * select needed libraries by API-name on a per-project basis.
+             */
+            checkCoreLibraryJars(toolkitDirectory);
         } 
         else  //checkbox was deselected
         {
@@ -350,5 +366,81 @@ public class MiscPrefPanel extends JPanel
                 enableToolkitPanel( false );
             }
         }
+    }
+
+    /**
+     * Check that the Jar files named in the Java ME corelibraries property
+     * actually exist in the selected toolkit (the names vary with toolkit). If
+     * they don't exist, use the Jar files' Manifest properties to find the Jar
+     * containing the MIDP 2.0 and CLDC 1.1 libraries, which are the documented
+     * default core libraries, and write the Jar file names back into the property.
+     * @param tkdir The root folder name for the Wireless toolkit
+     */
+    private void checkCoreLibraryJars(String tkdir)
+    {
+        String libs = Config.getPropString("bluej.javame.corelibraries", null);
+
+        // Check to see that all of the Jar files named in the
+        // corelibraries property exist
+        String libDir = tkdir + File.separator + "lib" + File.separator;
+        StringTokenizer st = new StringTokenizer( libs );
+        boolean allFilesExist = true; // so far
+        while ( st.hasMoreTokens( ) && allFilesExist) {
+            allFilesExist = new File( libDir + st.nextToken( ) ).exists();
+        }
+
+        // If they do, assume that they are correct
+        if(allFilesExist) return;
+
+        // Look at all the Jar files in the toolkit's lib folder
+        // To find the ones which implement CLDC 1.1 and MIDP 2.0
+
+        File [] list = new File(libDir).listFiles(
+            new FileFilter() {
+                public boolean accept(File pathname) { return pathname.getName().endsWith(".jar"); }
+            }
+        );
+
+        File theCLDCJar = null;
+        File theMIDPJar = null;
+        for(File f : list) {
+            Attributes manifest;
+            try {
+                manifest = new JarFile(f).getManifest().getMainAttributes();
+            } catch (IOException ex) {
+                continue;   // Malformed Jar?
+            }
+            String API = manifest.getValue("API");
+            String version = manifest.getValue("API-Specification-Version");
+            if(API == null || version == null) continue;
+
+            if(API.equals("CLDC") && version.equals("1.1"))
+            {
+                theCLDCJar = f;
+                if(theMIDPJar != null) break;
+            }
+            else if(API.equals("MIDP") && version.equals("2.0"))
+            {
+                theMIDPJar = f;
+                if(theCLDCJar != null) break;
+            }
+        }
+
+        if(theMIDPJar == null || theCLDCJar == null)
+        {
+            /* Oops. Can't find the needed Jars. Just leave things as they are
+             * so that the (wrong) names in the property are the thing that needs
+             * fixing-by-hand.
+             */
+            return;
+        }
+
+        /* Write the newly discovered names back into the property string
+         * Anyone caching these values won't get the update, but that's currently
+         * only the BPClassLoader, and hence only open projects. That's acceptable
+         * as this action is a global setting.
+         */
+        String prop = theCLDCJar.getName() + " " + theMIDPJar.getName();
+        Config.putPropString("bluej.javame.corelibraries", prop);
     }
 } 
