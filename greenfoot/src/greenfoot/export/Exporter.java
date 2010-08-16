@@ -133,6 +133,7 @@ public class Exporter
         jarCreator.putManifestEntry("short-description", pane.getShortDescription());
         jarCreator.putManifestEntry("description", pane.getDescription());
         jarCreator.putManifestEntry("url", pane.getURL());
+        jarCreator.putManifestEntry("update-description", pane.getUpdateDescription());
 
         jarCreator.putManifestEntry("greenfoot-version", Boot.GREENFOOT_VERSION);
         jarCreator.putManifestEntry("java-version", System.getProperty("java.version"));
@@ -169,21 +170,22 @@ public class Exporter
             JarCreator zipCreator = new JarCreator(project, exportDir, zipName);            
             zipCreator.create();
         }
-            
-        
-        // Create image file      
-        String formatName = "png";
-        try {
-            tmpImgFile = File.createTempFile("greenfoot", "." + formatName, null);
-            BufferedImage img = pane.getImage();
-            ImageIO.write(img, formatName, tmpImgFile);
-            // make sure it is deleted on exit (should be deleted right after
-            // the publish finish - but just in case...)
-            tmpImgFile.deleteOnExit();              
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-            return;
+                  
+        // Create image file     
+        if (!pane.keepSavedScenarioScreenshot()){
+            String formatName = "png";
+            try {
+                tmpImgFile = File.createTempFile("greenfoot", "." + formatName, null);
+                BufferedImage img = pane.getImage();
+                ImageIO.write(img, formatName, tmpImgFile);
+                // make sure it is deleted on exit (should be deleted right after
+                // the publish finish - but just in case...)
+                tmpImgFile.deleteOnExit();              
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+                return;
+            }
         }
         
         String login = pane.getUserName();
@@ -208,6 +210,8 @@ public class Exporter
             info.setTitle(scenarioName);
             info.setShortDescription(pane.getShortDescription());
             info.setLongDescription(pane.getDescription());
+            info.setUpdateDescription(pane.getUpdateDescription());
+            info.setKeepScenarioImage(pane.keepSavedScenarioScreenshot());
             info.setTags(pane.getTags());
             info.setUrl(pane.getURL());
             

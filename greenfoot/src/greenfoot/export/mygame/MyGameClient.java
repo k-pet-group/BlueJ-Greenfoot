@@ -76,6 +76,7 @@ public abstract class MyGameClient
         String gameName = info.getTitle();
         String shortDescription = info.getShortDescription();
         String longDescription = info.getLongDescription();
+        String updateDescription = info.getUpdateDescription();
         String gameUrl = info.getUrl();
         
         HttpClient httpClient = getHttpClient();
@@ -105,7 +106,7 @@ public abstract class MyGameClient
         // Send the scenario and associated info
         List<String> tagsList = info.getTags();
         boolean hasSource = sourceFile != null;
-        Part [] parts = new Part[9 + tagsList.size() + (hasSource ? 1 : 0)];
+        Part [] parts = new Part[10 + tagsList.size() + (hasSource ? 1 : 0)];
         
         parts[0] = new StringPart("scenario[title]", gameName);
         parts[1] = new StringPart("scenario[main_class]", "greenfoot.export.GreenfootScenarioViewer");
@@ -115,11 +116,13 @@ public abstract class MyGameClient
         parts[5] = new StringPart("scenario[long_description]", longDescription);
         parts[6] = new StringPart("scenario[url]", gameUrl);
         parts[7] = new ProgressTrackingPart("scenario[uploaded_data]", new File(jarFileName), this);
+ 
         parts[8] = new ProgressTrackingPart("scenario[screenshot_data]", screenshotFile, this);
-        int tagindex = 9;
+	parts[9] = new StringPart("scenario[update_description]", updateDescription);       
+        int tagindex = 10;
         if (hasSource) {
-            parts[9] = new ProgressTrackingPart("scenario[source_data]", sourceFile, this);
-            tagindex = 10;
+            parts[tagindex] = new ProgressTrackingPart("scenario[source_data]", sourceFile, this);
+            tagindex = 11;
         }
         
         int tagNum = 0;

@@ -37,10 +37,24 @@ public class ScenarioInfo
     private String title;
     private String shortDescription;
     private String longDescription;
+    private String updateDescription;
     private List<String> tags;
     private String url;
     private boolean hasSource;
     private boolean isLocked;
+    private boolean keepScenarioImage;
+    
+    private static final String PUBLISH_TITLE = "publish.title";
+    private static final String PUBLISH_SHORT_DESC = "publish.shortDesc";
+    private static final String PUBLISH_LONG_DESC = "publish.longDesc";
+    private static final String PUBLISH_URL = "publish.url";
+    private static final String PUBLISH_TAGS = "publish.tags";
+    private static final String PUBLISH_HAS_SOURCE = "publish.hasSource";
+    private static final String PUBLISH_LOCKED = "publish.locked";
+    //added this new property so in order to make it backwards compatible with 
+    //previously exported image
+    private static final String PUBLISH_KEEP_IMAGE = "publish.keepScenarioImage";
+    private static final String PUBLISH_UPDATE_DESC = "publish.updateDesc";
     
     public void setTitle(String title)
     {
@@ -116,13 +130,17 @@ public class ScenarioInfo
      */
     public void store(ProjectProperties properties)
     {
-        properties.setString("publish.title", getTitle());
-        properties.setString("publish.shortDesc", getShortDescription());
-        properties.setString("publish.longDesc", getLongDescription());
-        properties.setString("publish.url", getUrl());
-        properties.setString("publish.tags", getTagsAsString());
-        properties.setBoolean("publish.hasSource", getHasSource());
-        properties.setBoolean("publish.locked", isLocked());
+        properties.setString(PUBLISH_TITLE, getTitle());
+        properties.setString(PUBLISH_SHORT_DESC, getShortDescription());
+        properties.setString(PUBLISH_LONG_DESC, getLongDescription());
+        properties.setString(PUBLISH_URL, getUrl());
+        properties.setString(PUBLISH_TAGS, getTagsAsString());
+        properties.setBoolean(PUBLISH_HAS_SOURCE, getHasSource());
+        properties.setBoolean(PUBLISH_LOCKED, isLocked());
+        //added this new property so in order to make it backwards compatible with 
+        //previously exported image
+        properties.setBoolean(PUBLISH_KEEP_IMAGE, keepScenarioImage());
+        properties.setString(PUBLISH_UPDATE_DESC, getUpdateDescription());
     }
 
     private String getTagsAsString()
@@ -151,11 +169,11 @@ public class ScenarioInfo
             return false;
         }
         
-        setTitle(properties.getString("publish.title"));
-        setShortDescription(properties.getString("publish.shortDesc"));
-        setLongDescription(properties.getString("publish.longDesc"));
-        setUrl(properties.getString("publish.url"));
-        String tags = properties.getString("publish.tags");
+        setTitle(properties.getString(PUBLISH_TITLE));
+        setShortDescription(properties.getString(PUBLISH_SHORT_DESC));
+        setLongDescription(properties.getString(PUBLISH_LONG_DESC));
+        setUrl(properties.getString(PUBLISH_URL));
+        String tags = properties.getString(PUBLISH_TAGS);
         String[] tagArray = tags.split(" ");
 
         List<String> tagList = new LinkedList<String>();
@@ -164,8 +182,38 @@ public class ScenarioInfo
             tagList.add(string);
         }
         setTags(tagList);
-        setHasSource(properties.getBoolean("publish.hasSource"));
-        setLocked(properties.getBoolean("publish.locked"));
+        setHasSource(properties.getBoolean(PUBLISH_HAS_SOURCE));
+        setLocked(properties.getBoolean(PUBLISH_LOCKED));
+        //need to catch this null pointer in order to make it  
+        //backwards compatible with previously loaded scenarios
+        try { 
+            setKeepScenarioImage(properties.getBoolean(PUBLISH_KEEP_IMAGE));
+        } catch(NullPointerException ne){
+            setKeepScenarioImage(true);
+        }
+        setUpdateDescription(properties.getString(PUBLISH_UPDATE_DESC));
         return true;
     }
+
+    public String getUpdateDescription()
+    {
+        return updateDescription;
+    }
+
+    public void setUpdateDescription(String updateDescription)
+    {
+        this.updateDescription = updateDescription;
+    }
+
+    public boolean keepScenarioImage()
+    {
+        return keepScenarioImage;
+    }
+
+    public void setKeepScenarioImage(boolean keepScenarioImage)
+    {
+        this.keepScenarioImage = keepScenarioImage;
+    }
+
+ 
 }
