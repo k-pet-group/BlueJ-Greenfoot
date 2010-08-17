@@ -213,22 +213,10 @@ public class ProjectProperties
     }
     
     /**
-     * Gets a boolean property as in Java's Properties class. Thread-safe.
-     */
-    public synchronized boolean getBoolean(String key) throws NullPointerException
-    {
-        String bool = properties.getProperty(key);
-        if (bool == null) {
-            throw new NullPointerException("Key does not exist: " + key);
-        }
-        return Boolean.parseBoolean(bool);
-    }
-    
-    /**
      * Gets a boolean property as in Java's Properties class. 
      * Allows the specification of a default value. Thread-safe.
      */
-    public synchronized boolean getBoolean(String key, String defaultValue) throws NullPointerException
+    public synchronized boolean getBoolean(String key, String defaultValue)
     {
         String bool = properties.getProperty(key, defaultValue);
         return Boolean.parseBoolean(bool);
