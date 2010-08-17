@@ -2953,7 +2953,9 @@ public class JavaParser
                     tokenStream.pushBack(token);
                     endExprNew(token, false);
                 }
-                gotNewArrayDeclarator(withDimension);
+                else {
+                    gotNewArrayDeclarator(withDimension);
+                }
                 if (tokenStream.LA(1).getType() != JavaTokenTypes.LBRACK) {
                     break;
                 }

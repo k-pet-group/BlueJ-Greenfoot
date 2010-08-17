@@ -626,6 +626,7 @@ public class CompletionTest extends TestCase
         CodeSuggestions suggests = aNode.getExpressionType(61, doc);
         assertNotNull(suggests);
         assertEquals("A", suggests.getSuggestionType().toString());
+        assertEquals("s", suggests.getSuggestionToken().getText());
     }
     
     // Yet to do:
