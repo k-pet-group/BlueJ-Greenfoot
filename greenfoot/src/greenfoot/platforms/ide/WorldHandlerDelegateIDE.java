@@ -432,7 +432,7 @@ public class WorldHandlerDelegateIDE
             {
                 try {
                     Constructor<?> cons = icls.getConstructor(new Class<?>[0]);
-                    World w = (World) cons.newInstance((Object[]) null);
+                    World w = (World) Simulation.newInstance(cons);
                     worldHandler.setWorld(w);
                 }
                 catch (LinkageError e) { }

@@ -55,7 +55,7 @@ public class GreenfootDebugHandler implements DebuggerListener
 {  
     private static final String INVOKE_CLASS = Simulation.class.getName();
     
-    private static final String[] INVOKE_METHODS = {Simulation.ACT_WORLD, Simulation.ACT_ACTOR, Simulation.RUN_TASK};
+    private static final String[] INVOKE_METHODS = {Simulation.ACT_WORLD, Simulation.ACT_ACTOR, Simulation.NEW_INSTANCE};
     
     /**
      * The scheduledTasks collection exists to solve some tricky issues with timing and deadlock

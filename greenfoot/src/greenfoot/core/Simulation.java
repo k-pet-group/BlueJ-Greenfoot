@@ -31,6 +31,8 @@ import greenfoot.event.WorldListener;
 import greenfoot.platforms.SimulationDelegate;
 import greenfoot.util.HDTimer;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -344,7 +346,7 @@ public class Simulation extends Thread
         }
         
         while (r != null) {
-            runTask(r);
+            r.run();
             synchronized (this) {
                 r = queuedTasks.poll();
             }
@@ -438,12 +440,14 @@ public class Simulation extends Thread
         world.act();
     }
     
-    public static final String RUN_TASK = "runTask";
-    private void runTask(Runnable r)
+    public static final String NEW_INSTANCE = "newInstance";
+    public static Object newInstance(Constructor<?> constructor)
+        throws InvocationTargetException, IllegalArgumentException, InstantiationException, IllegalAccessException
     {
-        r.run();
+        return constructor.newInstance((Object[])null);
     }
-
+    
+    
     /**
      * Repaints the world if needed to obtain the desired frame rate.
      */

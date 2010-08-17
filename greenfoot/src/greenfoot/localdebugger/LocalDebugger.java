@@ -153,7 +153,7 @@ public class LocalDebugger extends Debugger
             try {
                 final Constructor<?> cons = c.getDeclaredConstructor(new Class[0]);
                 cons.setAccessible(true);
-                Object o = cons.newInstance((Object[]) null);
+                Object o = Simulation.newInstance(cons);
                 result = new DebuggerResult(LocalObject.getLocalObject(o));
             }
             catch (InstantiationException ite) {
