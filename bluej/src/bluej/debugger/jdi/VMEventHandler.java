@@ -54,7 +54,22 @@ class VMEventHandler extends Thread
     private VMReference vm;
     private EventQueue queue;
     private boolean queueEmpty;
-    private Queue<JdiThread> haltedThreads = new LinkedList<JdiThread>();
+    
+    /**
+     * A class to represent a thread halted/resumed event.
+     */
+    private class ThreadEvent
+    {
+        ThreadEvent(JdiThread thread, boolean state)
+        {
+            this.thread = thread;
+            this.state = state;
+        }
+        JdiThread thread;
+        boolean state; // true for halted, false for continued
+    }
+    
+    private Queue<ThreadEvent> haltedThreads = new LinkedList<ThreadEvent>();
     
     volatile boolean exiting = false;
     
@@ -184,25 +199,31 @@ class VMEventHandler extends Thread
      */
     private synchronized void handleThreadEvents()
     {
-        JdiThread halted = haltedThreads.poll();
+        ThreadEvent halted = haltedThreads.poll();
         while (halted != null) {
-            if (halted.isSuspended()) {
-                vm.threadHaltedEvent(halted);
+            if (halted.state) {
+                vm.threadHaltedEvent(halted.thread);
             }
             else {
-                vm.threadResumedEvent(halted);
+                vm.threadResumedEvent(halted.thread);
             }
             halted = haltedThreads.poll();
         }
     }
     
     /**
-     * Emit a thread halted/resumed event (depending on the actual
-     * running state of the thread).
+     * Emit a thread halted/resumed event.
+     * 
+     * <p>A "thread resumed" event must be emitted before the thread
+     * is actually resumed, in order to guarantee that the continue
+     * event comes before any thread death event. 
+     * 
+     * @param thr   The thread for which the event occurred
+     * @param halted  True if the thread was halted, false if resumed
      */
-    public synchronized void emitThreadEvent(JdiThread thr)
+    public synchronized void emitThreadEvent(JdiThread thr, boolean halted)
     {
-        haltedThreads.add(thr);
+        haltedThreads.add(new ThreadEvent(thr, halted));
         if (queueEmpty) {
             // The VM event handler thread is either waiting for an event,
             // or it has just pulled one but has yet to set queueEmpty = false,
@@ -236,7 +257,7 @@ class VMEventHandler extends Thread
         return false;
     }
         
-    private void  handleEvent(Event event, boolean skipUpdate, boolean gotBP)
+    private void handleEvent(Event event, boolean skipUpdate, boolean gotBP)
     {
         if (event instanceof VMStartEvent) {
             vm.vmStartEvent((VMStartEvent) event);
@@ -257,6 +278,8 @@ class VMEventHandler extends Thread
         } else if (event instanceof ThreadStartEvent) {
             vm.threadStartEvent((ThreadStartEvent)event);
         } else if (event instanceof ThreadDeathEvent) {
+            // DAV
+            System.out.println("VMEH thread death.");
             vm.threadDeathEvent((ThreadDeathEvent)event);
         } else if (event instanceof ClassPrepareEvent) {
             classPrepareEvent(event);

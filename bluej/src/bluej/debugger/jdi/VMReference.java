@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -90,35 +90,36 @@ import com.sun.jdi.request.EventRequestManager;
 /**
  * A class implementing the execution and debugging primitives needed by BlueJ.
  * 
- * Execution and debugging is implemented here on a second ("remote") virtual
+ * <p>Execution and debugging is implemented here on a second ("remote") virtual
  * machine, which gets started from here via the JDI interface.
  * 
- * @author Michael Kolling
- * @version $Id: VMReference.java 8047 2010-08-11 01:44:04Z davmac $
+ * <p>The startup process is as follows:
  * 
- * The startup process is as follows:
- * 
- * 1. Debugger spawns a MachineLoaderThread which begins to load the debug vm
+ * <ol>
+ * <li>Debugger spawns a MachineLoaderThread which begins to load the debug vm
  *    Any access to the debugger during this time uses getVM() which waits
  *    for the machine to be loaded.
  *    (see JdiDebugger.MachineLoaderThread).
- * 2. The MachineLoaderThread creates a VMReference representing the vm. The
+ * <li>The MachineLoaderThread creates a VMReference representing the vm. The
  *    VMReference in turn creates a VMEventHandler to receive events from the
  *    debug VM.
- * 3. A "ClassPrepared" event is received telling BlueJ that the ExecServer
+ * <li>A "ClassPrepared" event is received telling BlueJ that the ExecServer
  *    class has been loaded. At this point, breakpoints are set in certain
  *    places within the server class. Execution in the debug VM continues.
- * 4. The ExecServer "main" method spawns two threads. One is the "server"
+ * <li>The ExecServer "main" method spawns two threads. One is the "server"
  *    thread used to run user code. The "worker" thread is used for helper
  *    functions which do not execute user code paths. Both threads hit the
  *    breakpoints which have been set. This causes a breakpoint event to occur.
- * 5. The breakpoint events are trapped. When the server thread hits the
+ * <li>The breakpoint events are trapped. When the server thread hits the
  *    "vmStarted" breakpoint, the VM is considered to be started.
+ * </ol>
  * 
- * We can now execute commands on the remote VM by invoking methods using the
+ * <p>We can now execute commands on the remote VM by invoking methods using the
  * server thread (which is suspended at the breakpoint). 
  * 
- * Non-user code used by BlueJ is run a seperate "worker" thread.
+ * <p>Non-user code used by BlueJ is run a seperate "worker" thread.
+ * 
+ * @author Michael Kolling
  */
 class VMReference
 {
@@ -164,6 +165,7 @@ class VMReference
     private ThreadReference workerThread = null;
     private boolean workerThreadReady = false;
     private BreakpointRequest workerBreakpoint;
+    private boolean workerThreadReserved = false;
 
     // a record of the threads we start up for
     // redirecting ExecServer streams
@@ -715,6 +717,7 @@ class VMReference
     {
         synchronized(workerThread) {
             workerThreadReadyWait();
+            workerThreadReserved = true;
             setStaticFieldValue(serverClass, ExecServer.WORKER_ACTION_NAME, machine.mirrorOf(ExecServer.NEW_LOADER));
             
             StringBuffer newcpath = new StringBuffer(200);
@@ -727,9 +730,11 @@ class VMReference
             
             workerThreadReady = false;
             workerThread.resume();
-            workerThreadReadyWait();
+            workerThreadFinishWait();
             
             currentLoader = (ClassLoaderReference) getStaticFieldObject(serverClass, ExecServer.WORKER_RETURN_NAME);
+            workerThreadReserved = false;
+            workerThread.notify();
             
             return currentLoader;
         }
@@ -752,50 +757,47 @@ class VMReference
      * this function never returns null.
      * 
      * @return a Reference to the class mirrored in the remote VM
-     * @throws ClassNotFoundException
+     * @throws ClassNotFoundException  if the remote class can't be loaded
      */
     ReferenceType loadClass(String className)
         throws ClassNotFoundException
     {
-        synchronized(workerThread) {
-            workerThreadReadyWait();
-            setStaticFieldValue(serverClass, ExecServer.WORKER_ACTION_NAME, machine.mirrorOf(ExecServer.LOAD_CLASS));
-            
-            setStaticFieldObject(serverClass, ExecServer.CLASSNAME_NAME, className);
-            
-            workerThreadReady = false;
-            workerThread.resume();
-            workerThreadReadyWait();
-            
-            ClassObjectReference robject = (ClassObjectReference) getStaticFieldObject(serverClass, ExecServer.WORKER_RETURN_NAME);
-            if (robject == null)
-                throw new ClassNotFoundException(className);
-            
-            return robject.reflectedType();
+        ReferenceType rt = loadClass(className, null);
+        if (rt == null) {
+            throw new ClassNotFoundException(className);
         }
-        
+        return rt;
     }
     
     /**
      * Load a class in the remote VM using the given class loader.
      * @param className  The name of the class to load
-     * @param clr        The remote classloader reference to use
+     * @param clr        The remote classloader reference to use, or null to use
+     *                   the current established project classloader
      * @return     A reference to the loaded class, or null if the class could not be loaded.
      */
     ReferenceType loadClass(String className, ClassLoaderReference clr)
     {
         synchronized(workerThread) {
             workerThreadReadyWait();
+            workerThreadReserved = true;
             setStaticFieldValue(serverClass, ExecServer.CLASSLOADER_NAME, clr);
+            setStaticFieldValue(serverClass, ExecServer.WORKER_ACTION_NAME, machine.mirrorOf(ExecServer.LOAD_CLASS));
+            setStaticFieldObject(serverClass, ExecServer.CLASSNAME_NAME, className);
             
-            try {
-                ReferenceType rt = loadClass(className);
-                return rt;
-            }
-            catch (Exception cnfe) {
-                // ClassNotFoundException or VMDisconnectedException
+            workerThreadReady = false;
+            workerThread.resume();
+            workerThreadFinishWait();
+            
+            ClassObjectReference robject = (ClassObjectReference) getStaticFieldObject(serverClass, ExecServer.WORKER_RETURN_NAME);
+            workerThreadReserved = false;
+            workerThread.notify();
+            
+            if (robject == null) {
                 return null;
             }
+            
+            return robject.reflectedType();
         }
     }
     
@@ -973,9 +975,9 @@ class VMReference
     /**
      * Emit a thread halted/resumed event for the given thread.
      */
-    public void emitThreadEvent(JdiThread thread)
+    public void emitThreadEvent(JdiThread thread, boolean halted)
     {
-        eventHandler.emitThreadEvent(thread);
+        eventHandler.emitThreadEvent(thread, halted);
     }
     
     /**
@@ -1021,8 +1023,9 @@ class VMReference
             // restart in this VM; the method waiting for it to start will hang
             // indefinitely unless we kick it here.
             exitStatus = Debugger.TERMINATED;
-            if (!serverThreadStarted)
+            if (!serverThreadStarted) {
                 notifyAll();
+            }
         }
         
         if (workerThread != null) {
@@ -1306,6 +1309,7 @@ class VMReference
         try {
             synchronized(workerThread) {
                 workerThreadReadyWait();
+                workerThreadReserved = true;
                 setStaticFieldValue(serverClass, ExecServer.WORKER_ACTION_NAME, machine.mirrorOf(ExecServer.LOAD_ALL));
                 
                 // parameters
@@ -1314,8 +1318,11 @@ class VMReference
                 workerThreadReady = false;
                 workerThread.resume();
                 
-                workerThreadReadyWait();
+                workerThreadFinishWait();
                 ObjectReference or = getStaticFieldObject(serverClass, ExecServer.WORKER_RETURN_NAME);
+                workerThreadReserved = false;
+                workerThread.notify();
+                
                 ArrayReference inners = (ArrayReference) or;
                 Iterator<Value> i = inners.getValues().iterator();
                 while (i.hasNext()) {
@@ -1591,13 +1598,36 @@ class VMReference
     /**
      * Wait until the "worker" thread is ready for use. This method should
      * be called with the workerThread monitor held.
+     * 
+     * @throws VMDisconnectedException  if the VM terminates.
      */
     private void workerThreadReadyWait()
     {
         try {
-            while (!workerThreadReady) {
-                if (exitStatus == Debugger.TERMINATED)
+            while (!workerThreadReady || workerThreadReserved) {
+                if (exitStatus == Debugger.TERMINATED) {
                     throw new VMDisconnectedException();
+                }
+                workerThread.wait();
+            }
+        }
+        catch(InterruptedException ie) {}
+    }
+    
+    /**
+     * Wait until the "worker" thread has finished executing. This
+     * should be called only if workerThreadReserved has been set to
+     * true by the current thread.
+     * 
+     * @throws VMDisconnectedException  if the VM terminates.
+     */
+    private void workerThreadFinishWait()
+    {
+        try {
+            while (!workerThreadReady) {
+                if (exitStatus == Debugger.TERMINATED) {
+                    throw new VMDisconnectedException();
+                }
                 workerThread.wait();
             }
         }

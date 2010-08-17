@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -486,8 +486,11 @@ class JdiThread extends DebuggerThread
      */
     public void halt()
     {
-        rt.suspend();
-        debugger.emitThreadHaltEvent(this);
+        try {
+            rt.suspend();
+            debugger.emitThreadHaltEvent(this);
+        }
+        catch (VMDisconnectedException vmde) {}
     }
 
     /**
@@ -495,8 +498,14 @@ class JdiThread extends DebuggerThread
      */
     public void cont()
     {
-        rt.resume();
-        debugger.emitThreadResumedEvent(this);
+        try {
+            // Note we must emit the even before actually resuming the thread; otherwise, the
+            // thread may finish (resulting in a thread death event) before the continue event
+            // is received.
+            debugger.emitThreadResumedEvent(this);
+            rt.resume();
+        }
+        catch (VMDisconnectedException vmde) {}
     }
 
     /**

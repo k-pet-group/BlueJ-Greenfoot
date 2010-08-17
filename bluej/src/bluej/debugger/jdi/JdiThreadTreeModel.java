@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -41,7 +41,7 @@ import com.sun.jdi.ThreadReference;
  * JdiThread object (for actual threads).
  * 
  * @author Andrew Patterson
- * @version $Id: JdiThreadTreeModel.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: JdiThreadTreeModel.java 8085 2010-08-17 03:21:40Z davmac $
  */
 public class JdiThreadTreeModel extends DefaultTreeModel
     implements DebuggerThreadTreeModel
@@ -107,7 +107,6 @@ public class JdiThreadTreeModel extends DefaultTreeModel
     public TreePath findNodeForThread(DebuggerThread thr)
     {
         return new TreePath(findThreadNode(((JdiThread) thr).getRemoteThread()).getPath());
-
     }
 
     /**
@@ -127,7 +126,7 @@ public class JdiThreadTreeModel extends DefaultTreeModel
      */
     JdiThreadNode findThreadNode(ThreadGroupReference tgr)
     {
-        Enumeration en = getThreadRoot().breadthFirstEnumeration();
+        Enumeration<?> en = getThreadRoot().breadthFirstEnumeration();
 
         while (en.hasMoreElements()) {
             JdiThreadNode n = (JdiThreadNode) en.nextElement();
@@ -152,7 +151,7 @@ public class JdiThreadTreeModel extends DefaultTreeModel
      */
     JdiThreadNode findThreadNode(ThreadReference tr)
     {
-        Enumeration en = getThreadRoot().breadthFirstEnumeration();
+        Enumeration<?> en = getThreadRoot().breadthFirstEnumeration();
 
         while (en.hasMoreElements()) {
             JdiThreadNode n = (JdiThreadNode) en.nextElement();

@@ -1600,8 +1600,9 @@ public class Project implements DebuggerListener, InspectorManager
      */
     public void processDebuggerEvent(final DebuggerEvent event, boolean skipUpdate)
     {
-        if (skipUpdate)
+        if (skipUpdate) {
             return;
+        }
         
         EventQueue.invokeLater(new Runnable() {
             public void run() {

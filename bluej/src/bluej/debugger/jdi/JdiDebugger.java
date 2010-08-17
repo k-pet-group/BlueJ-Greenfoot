@@ -840,8 +840,9 @@ public class JdiDebugger extends Debugger
                         JdiThreadNode root = treeModel.getThreadRoot();
                         treeModel.insertNodeInto(new JdiThreadNode(breakThread), root, 0);
                     }
-                    else
+                    else {
                         treeModel.nodeChanged(jtn);
+                    }
                 }
             });
 
@@ -1107,7 +1108,7 @@ public class JdiDebugger extends Debugger
      */
     void emitThreadHaltEvent(JdiThread thread)
     {
-        vmRef.emitThreadEvent(thread);
+        vmRef.emitThreadEvent(thread, true);
     }
     
     /**
@@ -1115,7 +1116,7 @@ public class JdiDebugger extends Debugger
      */
     void emitThreadResumedEvent(JdiThread thread)
     {
-        vmRef.emitThreadEvent(thread);
+        vmRef.emitThreadEvent(thread, false);
     }
     
     /**
