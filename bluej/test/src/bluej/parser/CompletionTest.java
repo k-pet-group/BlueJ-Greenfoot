@@ -609,6 +609,25 @@ public class CompletionTest extends TestCase
         assertNull(stoken);
     }
     
+    public void testCompletionInArrayElement() throws Exception
+    {
+        String aClassSrc =
+            "class A {\n" +   // 0 - 10 
+            "  public void m() {\n" +  // 10 - 30
+            "    short[] array = new short[s\n" +  // 30 - 62
+            "  }\n" +
+            "}\n";
+        
+        PlainDocument doc = new PlainDocument();
+        doc.insertString(0, aClassSrc, null);
+        ParsedCUNode aNode = cuForSource(aClassSrc, "");
+        resolver.addCompilationUnit("", aNode);
+        
+        CodeSuggestions suggests = aNode.getExpressionType(61, doc);
+        assertNotNull(suggests);
+        assertEquals("A", suggests.getSuggestionType().toString());
+    }
+    
     // Yet to do:
     
     // Test that multiple fields defined in a single statement are handled correctly,
