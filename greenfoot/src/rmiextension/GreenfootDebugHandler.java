@@ -21,15 +21,11 @@
  */
 package rmiextension;
 
-import java.awt.EventQueue;
-
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
-import greenfoot.Actor;
-import greenfoot.World;
 import greenfoot.core.Simulation;
 import rmiextension.wrappers.WrapperPool;
 import bluej.debugger.Debugger;
@@ -125,15 +121,16 @@ public class GreenfootDebugHandler implements DebuggerListener
                 
                 // This method can be safely invoked without needing to talk to the worker thread:
                 debugger.removeBreakpointsForClass(INVOKE_CLASS);
-                
                         
                 // If they have just hit the breakpoint and are in InvokeAct itself,
                 // step-into the World/Actor:
                 if (atInvokeBreakpoint(e.getBreakpointProperties())) {
                     // Avoid tricky re-entrant issues:
-                    scheduledTasks.put(e.getThread(), new Runnable() { public void run() {
-                        e.getThread().stepInto();
-                    }});
+                    scheduledTasks.put(e.getThread(), new Runnable() {
+                        public void run() {
+                            e.getThread().stepInto();
+                        }
+                    });
                     return true;
                 } else if (inInvokeMethods(stack, 0)) {
                     // Finished calling act() and have stepped out; run to next one:
@@ -168,14 +165,14 @@ public class GreenfootDebugHandler implements DebuggerListener
             
             Runnable task = scheduledTasks.remove(e.getThread());
             if (task != null) {
-                EventQueue.invokeLater(task);
+                new Thread(task).start();
             }
             
         } else if (e.getNewState() == Debugger.NOTREADY && e.getOldState() == Debugger.IDLE) {           
             //It is important to have this code run at a later time.
             //If it runs from this thread, it tries to notify the VM event handler,
             //which is currently calling us and we get a deadlock between the two VMs.
-            java.awt.EventQueue.invokeLater(new Runnable() {
+            new Thread() {
                 public void run()
                 {
                     try { 
@@ -188,7 +185,7 @@ public class GreenfootDebugHandler implements DebuggerListener
                         // Project closed, so no need to relaunch
                     }
                 }
-            });
+            }.start();
             
         } else if (e.getID() == DebuggerEvent.THREAD_BREAKPOINT || e.getID() == DebuggerEvent.THREAD_HALT) {
             threadHalted((Debugger)e.getSource(), e.getThread(), e.getBreakpointProperties());
@@ -199,9 +196,9 @@ public class GreenfootDebugHandler implements DebuggerListener
      * Decides what to do when the debugger has stopped the simulation thread
      * (which includes the possibility that the user hit Suspend in the GUI)
      * 
-     * Has roughly similar logic to examineDebuggerEvent but is called in different circumstances
+     * <p>Has roughly similar logic to examineDebuggerEvent but is called in different circumstances
      */
-    public boolean threadHalted(final Debugger debugger, final DebuggerThread thread, BreakpointProperties props)
+    private void threadHalted(final Debugger debugger, final DebuggerThread thread, BreakpointProperties props)
     {
         final List<SourceLocation> stack = thread.getStack();
         
@@ -210,33 +207,11 @@ public class GreenfootDebugHandler implements DebuggerListener
                 // It's okay, they are in an act method, make sure the breakpoints are cleared:
                 debugger.removeBreakpointsForClass(INVOKE_CLASS);
                 //This method ^ can be safely invoked without needing to talk to the worker thread
-                        
-                // If they have just hit the breakpoint and are in InvokeAct itself,
-                // step-into the World/Actor:
-                if (atInvokeBreakpoint(props)) {
-                    // Avoid tricky re-entrant issues:
-                    EventQueue.invokeLater(new Runnable() { public void run() {
-                        thread.stepInto();
-                    }});
-                    return true;
-                } else if (inInvokeMethods(stack, 1) && "act".equals(stack.get(0).getMethodName())
-                        && (World.class.getName().equals(stack.get(0).getClassName())
-                            || Actor.class.getName().equals(stack.get(0).getClassName())
-                          )) {
-                    //The InvokeAct class has called directly into World/Actor
-                    // This means the user hasn't provided any code for that world/actor.
-                    // Rather than show them being stuck in the Greenfoot classes, let's continue
-                    // to find some user code:
-                    EventQueue.invokeLater(runToInternalBreakpoint(debugger, thread));
-                }
-            } else { 
+            } else {
                 // Set this going now; we are not the examine method:
-                EventQueue.invokeLater(runToInternalBreakpoint(debugger, thread));
-                return true;
+                new Thread(runToInternalBreakpoint(debugger, thread)).start();
             }
         }
-        
-        return false;
     }
 
     /**
