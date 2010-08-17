@@ -278,8 +278,6 @@ class VMEventHandler extends Thread
         } else if (event instanceof ThreadStartEvent) {
             vm.threadStartEvent((ThreadStartEvent)event);
         } else if (event instanceof ThreadDeathEvent) {
-            // DAV
-            System.out.println("VMEH thread death.");
             vm.threadDeathEvent((ThreadDeathEvent)event);
         } else if (event instanceof ClassPrepareEvent) {
             classPrepareEvent(event);
