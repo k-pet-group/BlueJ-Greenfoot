@@ -232,8 +232,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <macrodef name="compile-scenario">
             <attribute name="scenario" />
             <sequential>
-                <javac srcdir="scenarios/@{scenario}" debug="true"
-target="1.5">
+                <javac srcdir="scenarios/@{scenario}" debug="true" target="1.5">
                     <classpath>
                         <path refid="greenfoot.class.path"/>
                         <path refid="bluej.class.path"/>
