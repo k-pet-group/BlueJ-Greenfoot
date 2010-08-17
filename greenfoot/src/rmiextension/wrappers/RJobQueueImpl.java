@@ -23,10 +23,13 @@ package rmiextension.wrappers;
 
 import java.io.File;
 import java.rmi.RemoteException;
+import java.rmi.ServerError;
+import java.rmi.ServerException;
 
 import bluej.compiler.CompileObserver;
 import bluej.compiler.JobQueue;
 import bluej.pkgmgr.Package;
+import bluej.utility.Debug;
 
 /**
  * Implementation of a remote compiler queue.
@@ -51,13 +54,17 @@ public class RJobQueueImpl extends java.rmi.server.UnicastRemoteObject
             throws RemoteException
     {
         CompileObserver cobserver = new CompileObserver() {
-            // DAV handle and report exceptions which occur at the other end
-            // (ServerError, ServerException).
             @Override
             public void startCompile(File[] sources)
             {
                 try {
                     observer.startCompile(sources);
+                }
+                catch (ServerError se) {
+                    Debug.reportError("Server error in RMI call: " + se.getCause());
+                }
+                catch (ServerException se) {
+                    Debug.reportError("Server error in RMI call: " + se.getCause());
                 }
                 catch (RemoteException re) {
                     // probably, connection broken
@@ -69,6 +76,12 @@ public class RJobQueueImpl extends java.rmi.server.UnicastRemoteObject
                 try {
                     observer.endCompile(sources, successful);
                 }
+                catch (ServerError se) {
+                    Debug.reportError("Server error in RMI call: " + se.getCause());
+                }
+                catch (ServerException se) {
+                    Debug.reportError("Server error in RMI call: " + se.getCause());
+                }
                 catch (RemoteException re) {
                     // probably, connection broken
                 }
@@ -78,6 +91,12 @@ public class RJobQueueImpl extends java.rmi.server.UnicastRemoteObject
             {
                 try {
                     observer.errorMessage(filename, lineNo, message);
+                }
+                catch (ServerError se) {
+                    Debug.reportError("Server error in RMI call: " + se.getCause());
+                }
+                catch (ServerException se) {
+                    Debug.reportError("Server error in RMI call: " + se.getCause());
                 }
                 catch (RemoteException re) {
                     // probably, connection broken
@@ -89,6 +108,12 @@ public class RJobQueueImpl extends java.rmi.server.UnicastRemoteObject
             {
                 try {
                     observer.warningMessage(filename, lineNo, message);
+                }
+                catch (ServerError se) {
+                    Debug.reportError("Server error in RMI call: " + se.getCause());
+                }
+                catch (ServerException se) {
+                    Debug.reportError("Server error in RMI call: " + se.getCause());
                 }
                 catch (RemoteException re) {
                     // probably, connection broken
