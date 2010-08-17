@@ -68,7 +68,7 @@ import bluej.utility.SwingWorker;
  * 
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: ExportPublishPane.java 8080 2010-08-16 04:30:53Z marionz $
+ * @version $Id: ExportPublishPane.java 8087 2010-08-17 03:24:48Z marionz $
  */
 public class ExportPublishPane extends ExportPane
 {
@@ -106,7 +106,6 @@ public class ExportPublishPane extends ExportPane
     private JTextArea tagArea;
     private GProject project;
     private boolean firstActivation = true;
-    private boolean keepSavedScenarioScreenshot=true;
 
     private ScenarioInfo publishedScenarioInfo;
     private String publishedUserName;
@@ -114,7 +113,6 @@ public class ExportPublishPane extends ExportPane
     private ExistingScenarioChecker scenarioChecker;
     private JButton continueButton;
     private Font font;
-    private BufferedImage scenarioSnapshot;
 
     /** Creates a new instance of ExportPublishPane */
     public ExportPublishPane(GProject project)
@@ -219,18 +217,7 @@ public class ExportPublishPane extends ExportPane
         if (keepScenarioScreenshot!=null){
             return keepScenarioScreenshot.isSelected();
         }
-        return keepSavedScenarioScreenshot;
-    }
-
-    private void setKeepSavedScenarioScreenshot(boolean keep)
-    {
-        if (keepScenarioScreenshot!=null)
-        {
-            keepScenarioScreenshot.setSelected(keep);
-        }
-        else{
-            keepSavedScenarioScreenshot=keep;
-        }
+        return false;
     }
 
     private void setLocked(boolean locked)
@@ -339,7 +326,8 @@ public class ExportPublishPane extends ExportPane
      * Creates a login panel with a username and password and a create account option
      * @return Login panel Component
      */
-    private JComponent getLoginPanel(){
+    private JComponent getLoginPanel()
+    {
         JComponent loginPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 8, 4));
 
         loginPanel.setBackground(background);
@@ -394,7 +382,8 @@ public class ExportPublishPane extends ExportPane
      * Build a help box with a link to appropriate help
      * @return help box
      */
-    private Box getHelpBox(){
+    private Box getHelpBox()
+    {
         Box helpBox = new Box(BoxLayout.X_AXIS);
         helpBox.setAlignmentX(LEFT_ALIGNMENT);
         JLabel helpText1 = new JLabel(helpLine1 + " (");
@@ -470,12 +459,6 @@ public class ExportPublishPane extends ExportPane
             setTags(info.getTags());
             setLocked(info.isLocked());
             setHasSource(info.getHasSource());
-            boolean keepImage=false;
-            try {
-                keepImage=info.keepScenarioImage();
-            }
-            catch (NullPointerException ne){ }
-            setKeepSavedScenarioScreenshot(false);
         }
     }
 
@@ -492,7 +475,6 @@ public class ExportPublishPane extends ExportPane
         scenarioInfo.setTags(getTags());
         scenarioInfo.setLocked(lockScenario());
         scenarioInfo.setHasSource(includeSourceCode());
-        scenarioInfo.setKeepScenarioImage(keepSavedScenarioScreenshot());
         scenarioInfo.setUpdateDescription(getUpdateDescription());
     }
 
@@ -721,16 +703,12 @@ public class ExportPublishPane extends ExportPane
             titleAndDescPanel.add(text);
             
             keepScenarioScreenshot=new JCheckBox();
-            //set it from the saved values
-            setKeepSavedScenarioScreenshot(keepSavedScenarioScreenshot);
+            //always default it to true
+            keepScenarioScreenshot.setSelected(true);
             keepScenarioScreenshot.setName(Config.getString("export.publish.keepScenario"));
             keepScenarioScreenshot.setOpaque(false);
             titleAndDescPanel.add(keepScenarioScreenshot);      
-        }
-        else {
-            setKeepSavedScenarioScreenshot(false);
-        }
-            
+        }   
 
         text = new JLabel(Config.getString("export.publish.title"), SwingConstants.TRAILING);
         text.setFont(font);
@@ -817,8 +795,8 @@ public class ExportPublishPane extends ExportPane
     /**
      * Removes the scenario information display
      */
-    private void removeLeftPanel(){
-        scenarioSnapshot=imagePanel.getImage();
+    private void removeLeftPanel()
+    {
         leftPanel.removeAll();
         infoPanel.remove(leftPanel);
     }
@@ -826,7 +804,8 @@ public class ExportPublishPane extends ExportPane
     /**
      * Adds the scenario information to the display
      */
-    private void addLeftPanel(){
+    private void addLeftPanel()
+    {
         infoPanel.add(leftPanel, BorderLayout.CENTER);
     }
     

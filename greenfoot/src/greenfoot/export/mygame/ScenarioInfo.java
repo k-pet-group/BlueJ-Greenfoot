@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009, 2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -42,7 +42,6 @@ public class ScenarioInfo
     private String url;
     private boolean hasSource;
     private boolean isLocked;
-    private boolean keepScenarioImage;
     
     private static final String PUBLISH_TITLE = "publish.title";
     private static final String PUBLISH_SHORT_DESC = "publish.shortDesc";
@@ -51,9 +50,6 @@ public class ScenarioInfo
     private static final String PUBLISH_TAGS = "publish.tags";
     private static final String PUBLISH_HAS_SOURCE = "publish.hasSource";
     private static final String PUBLISH_LOCKED = "publish.locked";
-    //added this new property so in order to make it backwards compatible with 
-    //previously exported image
-    private static final String PUBLISH_KEEP_IMAGE = "publish.keepScenarioImage";
     private static final String PUBLISH_UPDATE_DESC = "publish.updateDesc";
     
     public void setTitle(String title)
@@ -137,9 +133,6 @@ public class ScenarioInfo
         properties.setString(PUBLISH_TAGS, getTagsAsString());
         properties.setBoolean(PUBLISH_HAS_SOURCE, getHasSource());
         properties.setBoolean(PUBLISH_LOCKED, isLocked());
-        //added this new property so in order to make it backwards compatible with 
-        //previously exported image
-        properties.setBoolean(PUBLISH_KEEP_IMAGE, keepScenarioImage());
         properties.setString(PUBLISH_UPDATE_DESC, getUpdateDescription());
     }
 
@@ -162,13 +155,12 @@ public class ScenarioInfo
      */
     public boolean load(ProjectProperties properties)
     {
-        try {
+   	try {
             properties.getBoolean("publish.hasSource");
         }
         catch (NullPointerException e) {
             return false;
         }
-        
         setTitle(properties.getString(PUBLISH_TITLE));
         setShortDescription(properties.getString(PUBLISH_SHORT_DESC));
         setLongDescription(properties.getString(PUBLISH_LONG_DESC));
@@ -184,13 +176,6 @@ public class ScenarioInfo
         setTags(tagList);
         setHasSource(properties.getBoolean(PUBLISH_HAS_SOURCE));
         setLocked(properties.getBoolean(PUBLISH_LOCKED));
-        //need to catch this null pointer in order to make it  
-        //backwards compatible with previously loaded scenarios
-        try { 
-            setKeepScenarioImage(properties.getBoolean(PUBLISH_KEEP_IMAGE));
-        } catch(NullPointerException ne){
-            setKeepScenarioImage(true);
-        }
         setUpdateDescription(properties.getString(PUBLISH_UPDATE_DESC));
         return true;
     }
@@ -204,16 +189,5 @@ public class ScenarioInfo
     {
         this.updateDescription = updateDescription;
     }
-
-    public boolean keepScenarioImage()
-    {
-        return keepScenarioImage;
-    }
-
-    public void setKeepScenarioImage(boolean keepScenarioImage)
-    {
-        this.keepScenarioImage = keepScenarioImage;
-    }
-
  
 }

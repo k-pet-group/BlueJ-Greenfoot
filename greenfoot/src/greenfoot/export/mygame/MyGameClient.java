@@ -106,12 +106,15 @@ public abstract class MyGameClient
         // Send the scenario and associated info
         List<String> tagsList = info.getTags();
         boolean hasSource = sourceFile != null;
-        int numParts=9;
-        if (screenshotFile!=null){
-            numParts=10;
+        int index=7;
+        if (updateDescription!=null) {
+            index=index+1;
         }
-        Part [] parts = new Part[numParts + tagsList.size() + (hasSource ? 1 : 0)];
-        
+        if (screenshotFile!=null) {
+            index=index+1;
+        }
+        int tagindex = index+1;
+        Part [] parts = new Part[index+1 + tagsList.size() + (hasSource ? 1 : 0)];
         parts[0] = new StringPart("scenario[title]", gameName);
         parts[1] = new StringPart("scenario[main_class]", "greenfoot.export.GreenfootScenarioViewer");
         parts[2] = new StringPart("scenario[width]", "" + width);
@@ -120,16 +123,33 @@ public abstract class MyGameClient
         parts[5] = new StringPart("scenario[long_description]", longDescription);
         parts[6] = new StringPart("scenario[url]", gameUrl);
         parts[7] = new ProgressTrackingPart("scenario[uploaded_data]", new File(jarFileName), this);
-        parts[8] = new StringPart("scenario[update_description]", updateDescription); 
-        if (screenshotFile!=null){
-            parts[9] = new ProgressTrackingPart("scenario[screenshot_data]", screenshotFile, this);      
+        switch (index){
+            case 7:
+                //no update desc or scenario screenshoot
+                break;
+            case 8:
+                //could be either a update desc or a screenshot
+                if (updateDescription!=null ){
+                    parts[8] = new StringPart("scenario[update_description]", updateDescription); 
+                }
+                else {
+                    parts[8] = new ProgressTrackingPart("scenario[screenshot_data]", screenshotFile, this); 
+                }  
+                break;
+            case 9:
+                //both a update desc or a screenshot
+                parts[8] = new StringPart("scenario[update_description]", updateDescription); 
+                parts[9] = new ProgressTrackingPart("scenario[screenshot_data]", screenshotFile, this);
+                break;
+            default:
+                 
+            break;
         }
-        int tagindex = numParts;
         if (hasSource) {
-            parts[numParts] = new ProgressTrackingPart("scenario[source_data]", sourceFile, this);
-            tagindex = numParts+1;
+            parts[tagindex] = new ProgressTrackingPart("scenario[source_data]", sourceFile, this);
+            tagindex++;
         }
-        
+
         int tagNum = 0;
         for (Iterator<String> i = tagsList.iterator(); i.hasNext(); ) {
             parts[tagindex++] = new StringPart("scenario[tag" + tagNum++ + "]", i.next());

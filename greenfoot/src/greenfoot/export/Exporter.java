@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009, 2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -133,7 +133,6 @@ public class Exporter
         jarCreator.putManifestEntry("short-description", pane.getShortDescription());
         jarCreator.putManifestEntry("description", pane.getDescription());
         jarCreator.putManifestEntry("url", pane.getURL());
-        jarCreator.putManifestEntry("update-description", pane.getUpdateDescription());
 
         jarCreator.putManifestEntry("greenfoot-version", Boot.GREENFOOT_VERSION);
         jarCreator.putManifestEntry("java-version", System.getProperty("java.version"));
@@ -211,7 +210,6 @@ public class Exporter
             info.setShortDescription(pane.getShortDescription());
             info.setLongDescription(pane.getDescription());
             info.setUpdateDescription(pane.getUpdateDescription());
-            info.setKeepScenarioImage(pane.keepSavedScenarioScreenshot());
             info.setTags(pane.getTags());
             info.setUrl(pane.getURL());
             
