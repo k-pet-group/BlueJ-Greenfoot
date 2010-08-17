@@ -107,7 +107,7 @@ public abstract class MyGameClient
         List<String> tagsList = info.getTags();
         boolean hasSource = sourceFile != null;
         int index=7;
-        if (updateDescription!=null) {
+        if (updateDescription!=null && updateDescription.length()>0) {
             index=index+1;
         }
         if (screenshotFile!=null) {

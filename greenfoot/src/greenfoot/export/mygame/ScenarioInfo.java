@@ -54,7 +54,9 @@ public class ScenarioInfo
     
     public void setTitle(String title)
     {
-        this.title = title.trim();
+        if (title!=null) {
+            this.title = title.trim();
+        }
     }
     
     public String getTitle()
@@ -155,27 +157,22 @@ public class ScenarioInfo
      */
     public boolean load(ProjectProperties properties)
     {
-   	try {
-            properties.getBoolean("publish.hasSource");
-        }
-        catch (NullPointerException e) {
-            return false;
-        }
         setTitle(properties.getString(PUBLISH_TITLE));
         setShortDescription(properties.getString(PUBLISH_SHORT_DESC));
         setLongDescription(properties.getString(PUBLISH_LONG_DESC));
         setUrl(properties.getString(PUBLISH_URL));
-        String tags = properties.getString(PUBLISH_TAGS);
-        String[] tagArray = tags.split(" ");
-
         List<String> tagList = new LinkedList<String>();
-        for (int i = 0; i < tagArray.length; i++) {
-            String string = tagArray[i];
-            tagList.add(string);
+        String tags = properties.getString(PUBLISH_TAGS);
+        if (tags!=null){
+            String[] tagArray = tags.split(" ");
+            for (int i = 0; i < tagArray.length; i++) {
+                String string = tagArray[i];
+                tagList.add(string);
+            }
         }
         setTags(tagList);
-        setHasSource(properties.getBoolean(PUBLISH_HAS_SOURCE));
-        setLocked(properties.getBoolean(PUBLISH_LOCKED));
+        setHasSource(properties.getBoolean(PUBLISH_HAS_SOURCE, "false"));
+        setLocked(properties.getBoolean(PUBLISH_LOCKED, "true"));
         setUpdateDescription(properties.getString(PUBLISH_UPDATE_DESC));
         return true;
     }

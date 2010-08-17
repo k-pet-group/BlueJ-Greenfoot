@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009, 2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -33,8 +33,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
 
@@ -223,6 +221,16 @@ public class ProjectProperties
         if (bool == null) {
             throw new NullPointerException("Key does not exist: " + key);
         }
+        return Boolean.parseBoolean(bool);
+    }
+    
+    /**
+     * Gets a boolean property as in Java's Properties class. 
+     * Allows the specification of a default value. Thread-safe.
+     */
+    public synchronized boolean getBoolean(String key, String defaultValue) throws NullPointerException
+    {
+        String bool = properties.getProperty(key, defaultValue);
         return Boolean.parseBoolean(bool);
     }
     
