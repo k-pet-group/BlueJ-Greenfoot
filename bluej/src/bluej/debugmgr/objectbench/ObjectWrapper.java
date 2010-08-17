@@ -776,7 +776,7 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
                 ob.addInteraction(ir);
                 
                 // a void result returns a name of null
-                if (result != null) {
+                if (result != null && ! result.isNullObject()) {
                     pkg.getProject().getResultInspectorInstance(result, name, pkg,
                             ir, expressionInformation, pmf);
                 }
