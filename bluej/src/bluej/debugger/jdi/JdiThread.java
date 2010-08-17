@@ -54,14 +54,16 @@ class JdiThread extends DebuggerThread
     /** a list of classes to exclude from source display */
     private static List<String> excludes;
 
-    static private List<String> getExcludes() {
+    private static List<String> getExcludes()
+    {
         if (excludes == null) {
             setExcludes("java.*, javax.*, sun.*, com.sun.*");
         }
         return excludes;
     }
 
-    static void setExcludes(String excludeString) {
+    private static void setExcludes(String excludeString)
+    {
         StringTokenizer t = new StringTokenizer(excludeString, " ,;");
         List<String> list = new ArrayList<String>();
         while (t.hasMoreTokens()) {
@@ -70,7 +72,8 @@ class JdiThread extends DebuggerThread
         excludes = list;
     }
 
-    static void addExcludesToRequest(StepRequest request) {
+    static void addExcludesToRequest(StepRequest request)
+    {
         Iterator<String> iter = getExcludes().iterator();
         while (iter.hasNext()) {
             String pattern = iter.next();
@@ -83,21 +86,16 @@ class JdiThread extends DebuggerThread
     
     // stores a stack frame that was selected for this
     // thread (selection is done for debugging)
-    int selectedFrame;
+    private int selectedFrame;
    
-    // the TreeModel that we are being stored in. This reference
-    // lets us propogate changes to our state into the TreeModel.
-    JdiThreadTreeModel jttm;
-	
-    EventRequestManager eventReqMgr;
+    private EventRequestManager eventReqMgr;
     
-    JdiDebugger debugger;
+    private JdiDebugger debugger;
 
     // ---- instance: ----
 
-    public JdiThread(JdiDebugger debugger, JdiThreadTreeModel jttm, ThreadReference rt)
+    public JdiThread(JdiDebugger debugger, ThreadReference rt)
     {
-        this.jttm = jttm;
         this.rt = rt;
         this.debugger = debugger;
 
@@ -521,6 +519,14 @@ class JdiThread extends DebuggerThread
         doStep(StepRequest.STEP_INTO);
     }
 
+    /**
+     * Return the JDI ThreadReference which this JdiThread wraps.
+     */
+    public ThreadReference getThreadReference()
+    {
+        return rt;
+    }
+    
     private void doStep(int depth)
     {
         clearPreviousStep(rt);
@@ -530,15 +536,10 @@ class JdiThread extends DebuggerThread
 
         // Make sure the step event is done only once
         request.addCountFilter(1);
-		request.putProperty(VMEventHandler.DONT_RESUME, "yes");
+        request.putProperty(VMEventHandler.DONT_RESUME, "yes");
         request.enable();
 
         rt.resume();
-
-        JdiThreadNode jtn = jttm.findThreadNode(rt);
-
-        if (jtn != null)
-            jttm.nodeChanged(jtn);		
     }
 
     /**

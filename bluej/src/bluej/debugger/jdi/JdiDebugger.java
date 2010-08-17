@@ -928,7 +928,7 @@ public class JdiDebugger extends Debugger
      */
     void threadStart(final ThreadReference tr)
     {
-        final JdiThread newThread = new JdiThread(this, treeModel, tr);
+        final JdiThread newThread = new JdiThread(this, tr);
         allThreads.add(newThread);
         treeModel.syncExec(new Runnable() {
             public void run()
