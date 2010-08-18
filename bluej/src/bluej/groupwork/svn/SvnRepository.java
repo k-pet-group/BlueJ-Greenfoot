@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,15 +23,22 @@ package bluej.groupwork.svn;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
 import org.tigris.subversion.javahl.ClientException;
-import org.tigris.subversion.javahl.NodeKind;
+import org.tigris.subversion.javahl.Depth;
 import org.tigris.subversion.javahl.SVNClientInterface;
 import org.tigris.subversion.javahl.Status;
+import org.tigris.subversion.javahl.StatusCallback;
 
-import bluej.groupwork.*;
+import bluej.groupwork.LogHistoryListener;
+import bluej.groupwork.Repository;
+import bluej.groupwork.StatusListener;
+import bluej.groupwork.TeamSettings;
+import bluej.groupwork.TeamworkCommand;
+import bluej.groupwork.TeamworkCommandResult;
 import bluej.utility.Debug;
 
 /**
@@ -79,33 +86,38 @@ public class SvnRepository
         return new SvnCheckoutCommand(this, projectPath);
     }
 
-    /* (non-Javadoc)
+    /*
      * @see bluej.groupwork.Repository#commitAll(java.util.Set, java.util.Set, java.util.Set, java.util.Set, java.lang.String)
      */
-    public TeamworkCommand commitAll(Set newFiles, Set binaryNewFiles, Set deletedFiles, Set files, String commitComment)
+    public TeamworkCommand commitAll(Set<File> newFiles, Set<File> binaryNewFiles,
+            Set<File> deletedFiles, Set<File> files, String commitComment)
     {
         return new SvnCommitAllCommand(this, newFiles, binaryNewFiles, deletedFiles,
                 files, commitComment);
     }
 
-    /* (non-Javadoc)
+    /*
      * @see bluej.groupwork.Repository#getAllLocallyDeletedFiles(java.util.Set)
      */
-    public void getAllLocallyDeletedFiles(Set files)
+    public void getAllLocallyDeletedFiles(final Set<File> files)
     {
         synchronized (clientLock) {
             try {
-                Status [] status = client.status(projectPath.getAbsolutePath(),
-                        true, false, false);
-                for (int i = 0; i < status.length; i++) {
-                    File file = new File(status[i].getPath());
-                    if (! file.exists()) {
-                        files.add(file);
+                client.status(projectPath.getAbsolutePath(), Depth.infinity,
+                        false, false, false, false, null,
+                        new StatusCallback() {
+                    @Override
+                    public void doStatus(Status status)
+                    {
+                        File file = new File(status.getPath());
+                        if (! file.exists()) {
+                            files.add(file);
+                        }
                     }
-                }
+                });
             }
             catch (ClientException ce) {
-                
+                Debug.reportError("Subversion: ClientException when getting local status", ce);
             }
         }
     }
@@ -129,15 +141,14 @@ public class SvnRepository
     }
 
     /*
-     * (non-Javadoc)
      * @see bluej.groupwork.Repository#getModules(java.util.List)
      */
-    public TeamworkCommand getModules(List modules)
+    public TeamworkCommand getModules(List<String> modules)
     {
         return new SvnModulesCommand(this, modules);
     }
 
-    /* (non-Javadoc)
+    /*
      * @see bluej.groupwork.Repository#getStatus(bluej.groupwork.StatusListener, java.util.Set, boolean)
      */
     public TeamworkCommand getStatus(StatusListener listener, FileFilter filter, boolean includeRemote)
@@ -145,31 +156,43 @@ public class SvnRepository
         return new SvnStatusCommand(this, listener, filter, includeRemote);
     }
 
-    /* (non-Javadoc)
+    /*
      * @see bluej.groupwork.Repository#prepareCreateDir(java.io.File)
      */
-    public void prepareCreateDir(File dir)
+    public void prepareCreateDir(final File dir)
     {
         try {
-            Status stat = client.singleStatus(dir.getAbsolutePath(), false);
-            if (!stat.isManaged()) {
-                client.add(dir.getAbsolutePath(), false);
-            }
+            client.status(dir.getAbsolutePath(), Depth.empty, false, true, true, false, null,
+                    new StatusCallback() {
+                @Override
+                public void doStatus(Status stat)
+                {
+                    if (! stat.isManaged()) {
+                        try {
+                            client.add(dir.getAbsolutePath(), Depth.empty, true, false, true);
+                        }
+                        catch (ClientException ce) {
+                            Debug.message("Exception while doing svn add on directory: "
+                                    + ce.getLocalizedMessage());
+                        }
+                    }
+                }
+            });
         }
         catch (ClientException ce) {
-            Debug.message("Exception while doing svn add on directory: "
+            Debug.message("Exception while doing svn status on new directory: "
                     + ce.getLocalizedMessage());
         }
     }
 
-    /* (non-Javadoc)
+    /*
      * @see bluej.groupwork.Repository#prepareDeleteDir(java.io.File)
      */
     public boolean prepareDeleteDir(File dir)
     {
         synchronized (clientLock) {
             try {
-                client.remove(new String[] {dir.getAbsolutePath()}, "", true);
+                client.remove(new String[] {dir.getAbsolutePath()}, "", true, true, Collections.emptyMap());
             }
             catch (ClientException ce) {
                 Debug.message("Exception while doing svn remove on directory: "
@@ -180,7 +203,7 @@ public class SvnRepository
         return false;
     }
 
-    /* (non-Javadoc)
+    /*
      * @see bluej.groupwork.Repository#shareProject()
      */
     public TeamworkCommand shareProject()

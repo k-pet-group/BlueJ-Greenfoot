@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -33,7 +33,10 @@ public interface StatusHandle
      * an intermediate commit has occurred. 
      *
      * @param newFiles Files to be committed which are not presently in the repository
-     *                 (text files only)
+     *                 (text files only). If the version management system versions
+     *                 directories, this should also contain directories, and must be
+     *                 an ordered set such that any directories precede files which
+     *                 they contain.
      * @param binaryNewFiles Files to be committed which are not presently in the
      *                       repository and which are to be treated as binary
      * @param deletedFiles Files which have been deleted locally but which exist

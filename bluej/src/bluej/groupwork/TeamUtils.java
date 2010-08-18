@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -66,6 +66,9 @@ public class TeamUtils
         Iterator<File> i = files.iterator();
         while (i.hasNext()) {
             File f = i.next();
+            if (f.isDirectory()) {
+                continue;
+            }
             String fname = f.getName();
             if (! fname.endsWith(".txt") && ! fname.endsWith(".java")) {
                 binFiles.add(f);

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -54,7 +54,9 @@ public interface Repository
      * Commits the files and directories in the project.
      *
      * @param newFiles Files to be committed which are not presently in the repository
-     *                 (text files only)
+     *                 (text files only). If the version control system versions directories,
+     *                 this must be an ordered set where directories precede the files they
+     *                 contain.
      * @param binaryNewFiles Files to be committed which are not presently in the
      *                       repository and which are to be treated as binary
      * @param deletedFiles Files which have been deleted locally but which exist
@@ -77,7 +79,9 @@ public interface Repository
      * Get status of all the given files.
      * Returns a List of TeamStatusInfo.
      *
-     * @param listener  A listener to be notified of the status of each requested file
+     * @param listener  A listener to be notified of the status of each requested file.
+     *                For version management systems which version directories, the status
+     *                of directories will be reported before files they contain.
      * @param filter  A file filter to determine which files and directories to include
      *                in the returned statuses
      * @param includeRemote  Whether to include remote files (files which do not exist

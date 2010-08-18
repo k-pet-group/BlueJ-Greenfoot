@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,6 +24,7 @@ package bluej.groupwork.svn;
 import java.io.File;
 
 import org.tigris.subversion.javahl.ClientException;
+import org.tigris.subversion.javahl.Depth;
 import org.tigris.subversion.javahl.Revision;
 import org.tigris.subversion.javahl.SVNClientInterface;
 
@@ -56,7 +57,7 @@ public class SvnCheckoutCommand extends SvnCommand
         
         try {
             client.checkout(reposUrl, checkoutPath.getAbsolutePath(),
-                Revision.HEAD, true);
+                Revision.HEAD, Revision.HEAD, Depth.infinity, true, true);
             if (! isCancelled()) {
                 return new TeamworkCommandResult();
             }

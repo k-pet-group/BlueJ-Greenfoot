@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,7 +25,7 @@ import java.awt.EventQueue;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import bluej.Config;
@@ -105,7 +105,7 @@ public class ImportAction extends TeamAction
                 if (! result.isError()) {
                     project.setTeamSettingsController(tsc);
                     Set<File> files = tsc.getProjectFiles(true);
-                    Set<File> newFiles = new HashSet<File>(files);
+                    Set<File> newFiles = new LinkedHashSet<File>(files);
                     Set<File> binFiles = TeamUtils.extractBinaryFilesFromSet(newFiles);
                     command = repository.commitAll(newFiles, binFiles, Collections.<File>emptySet(),
                             files, Config.getString("team.import.initialMessage"));
