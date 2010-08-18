@@ -847,7 +847,13 @@ public class TextEvalPane extends JEditorPane
                     textParser = new TextAnalyzer(frame.getProject().getEntityResolver(),
                             frame.getPackage().getQualifiedName(), TextEvalPane.this);
                 }
-                String retType = textParser.parseCommand(currentCommand);
+                String retType;
+                try {
+                    retType = textParser.parseCommand(currentCommand);
+                } catch (RuntimeException e) {
+                    putError(e.getMessage(), null);
+                    return;
+                }
                 wrappedResult = (retType != null && retType.length() != 0);
                 
                 // see if any variables were declared
