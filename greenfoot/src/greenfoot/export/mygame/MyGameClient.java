@@ -124,25 +124,25 @@ public abstract class MyGameClient
         parts[6] = new StringPart("scenario[url]", gameUrl);
         parts[7] = new ProgressTrackingPart("scenario[uploaded_data]", new File(jarFileName), this);
         switch (index){
-            case 7:
-                //no update desc or scenario screenshoot
-                break;
-            case 8:
-                //could be either a update desc or a screenshot
-                if (updateDescription!=null ){
-                    parts[8] = new StringPart("scenario[update_description]", updateDescription); 
-                }
-                else {
-                    parts[8] = new ProgressTrackingPart("scenario[screenshot_data]", screenshotFile, this); 
-                }  
-                break;
-            case 9:
-                //both a update desc or a screenshot
+        case 7:
+            //no update desc or scenario screenshoot
+            break;
+        case 8:
+            //could be either a update desc or a screenshot
+            if (updateDescription!=null && updateDescription.length()>0 ){
                 parts[8] = new StringPart("scenario[update_description]", updateDescription); 
-                parts[9] = new ProgressTrackingPart("scenario[screenshot_data]", screenshotFile, this);
-                break;
-            default:
-                 
+            }
+            else {
+                parts[8] = new ProgressTrackingPart("scenario[screenshot_data]", screenshotFile, this); 
+            }  
+            break;
+        case 9:
+            //both a update desc or a screenshot
+            parts[8] = new StringPart("scenario[update_description]", updateDescription); 
+            parts[9] = new ProgressTrackingPart("scenario[screenshot_data]", screenshotFile, this);
+            break;
+        default:
+
             break;
         }
         if (hasSource) {

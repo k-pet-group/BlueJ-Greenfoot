@@ -68,7 +68,7 @@ import bluej.utility.SwingWorker;
  * 
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: ExportPublishPane.java 8087 2010-08-17 03:24:48Z marionz $
+ * @version $Id: ExportPublishPane.java 8103 2010-08-18 06:14:13Z marionz $
  */
 public class ExportPublishPane extends ExportPane
 {
@@ -145,7 +145,11 @@ public class ExportPublishPane extends ExportPane
 
     public String getTitle()
     {
-        return titleField.getText();
+        if (titleField!=null)
+        {
+            return titleField.getText();
+        }
+        return null;
     }
 
     /**
@@ -462,6 +466,7 @@ public class ExportPublishPane extends ExportPane
         }
     }
 
+
     /**
      * Updates the given scenarioInfo with the current values typed into the
      * dialog.
@@ -713,8 +718,13 @@ public class ExportPublishPane extends ExportPane
         text = new JLabel(Config.getString("export.publish.title"), SwingConstants.TRAILING);
         text.setFont(font);
         titleAndDescPanel.add(text);
-
-        titleField = new JTextField(project.getName());
+        
+        String title=project.getName();
+        if (getTitle()!=null) 
+        {
+           title=getTitle();
+        }
+        titleField = new JTextField(title);
         titleField.setInputVerifier(new InputVerifier() {
             @Override
             public boolean verify(JComponent input)

@@ -157,6 +157,10 @@ public class ScenarioInfo
      */
     public boolean load(ProjectProperties properties)
     {
+        //if it is a saved scenario it should have at least a title set
+        if (properties.getString(PUBLISH_TITLE)==null){
+            return false;
+        }
         setTitle(properties.getString(PUBLISH_TITLE));
         setShortDescription(properties.getString(PUBLISH_SHORT_DESC));
         setLongDescription(properties.getString(PUBLISH_LONG_DESC));
