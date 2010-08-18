@@ -210,7 +210,10 @@ public class CodeCompletionDisplay extends JFrame
                 }
                 Object actionName = super.get(keyStroke);
                 if (actionName == null && keyStroke.getKeyEventType() == KeyEvent.KEY_TYPED) {
-                    if (keyStroke.getKeyChar() >= 32) {
+                    char keyChar = keyStroke.getKeyChar();
+                    // Ignore < 32, and range between 0x7F and 0x9F which are unicode
+                    // control characters. 0x7F is "delete".
+                    if (keyChar >= 32 && keyChar < 0x7F || keyChar > 0x9F) {
                         return new AbstractAction() {
                             public void actionPerformed(ActionEvent e)
                             {
