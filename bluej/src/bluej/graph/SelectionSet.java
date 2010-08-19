@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,9 +23,8 @@ package bluej.graph;
 
 import java.awt.Point;
 import java.awt.event.MouseEvent;
-import java.util.*;
-
-import javax.swing.SwingUtilities;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * SelectionSet holds a set of selected graph elements. By inserting an
@@ -33,12 +32,10 @@ import javax.swing.SwingUtilities;
  * 
  * @author fisker
  * @author Michael Kolling
- * 
- * @version $Id: SelectionSet.java 6422 2009-07-09 06:32:47Z davmac $
  */
 public final class SelectionSet
 {
-    private Set elements = new HashSet();
+    private Set<SelectableGraphElement> elements = new HashSet<SelectableGraphElement>();
 
     /**
      * 
@@ -78,8 +75,8 @@ public final class SelectionSet
     {
         if (element != null) {
             element.setSelected(false);
+            elements.remove(element);
         }
-        elements.remove(element);
     }
 
     /**
@@ -88,8 +85,7 @@ public final class SelectionSet
      */
     public void clear()
     {
-        for (Iterator i = elements.iterator(); i.hasNext();) {
-            SelectableGraphElement element = (SelectableGraphElement) i.next();
+        for (SelectableGraphElement element : elements) {
             element.setSelected(false);
         }
         elements.clear();
@@ -103,15 +99,8 @@ public final class SelectionSet
     public void doubleClick(MouseEvent evt)
     {
         final MouseEvent event = evt;
-        for (Iterator i = elements.iterator(); i.hasNext();) {
-            final GraphElement element = (GraphElement) i.next();
-            Runnable sendClick = new Runnable() {
-                public void run() {
-                    element.doubleClick(event);
-                }
-            };
-
-            SwingUtilities.invokeLater(sendClick);
+        for (SelectableGraphElement element : elements) {
+            element.doubleClick(event);
         }        
     }
     
@@ -120,8 +109,7 @@ public final class SelectionSet
      */
     public void move(int deltaX, int deltaY)
     {
-        for (Iterator i = elements.iterator(); i.hasNext();) {
-            GraphElement element = (GraphElement) i.next();
+        for (GraphElement element : elements) {
             if(element instanceof Moveable) {
                 Moveable target = (Moveable) element;
                 if (target.isMoveable()) {
@@ -138,16 +126,16 @@ public final class SelectionSet
      */
     private Point restrictDelta(int deltaX, int deltaY)
     {
-        for (Iterator i = elements.iterator(); i.hasNext();) {
-            GraphElement element = (GraphElement) i.next();
-
+        for (GraphElement element : elements) {
             if(element instanceof Moveable) {
                 Moveable target = (Moveable) element;
 
-                if(target.getX() + deltaX < 0)
+                if(target.getX() + deltaX < 0) {
                     deltaX = -target.getX();
-                if(target.getY() + deltaY < 0)
+                }
+                if(target.getY() + deltaY < 0) {
                     deltaY = -target.getY();
+                }
             }
         }
         return new Point(deltaX, deltaY);
@@ -160,8 +148,7 @@ public final class SelectionSet
      */
     public void moveStopped()
     {
-        for (Iterator i = elements.iterator(); i.hasNext();) {
-            GraphElement element = (GraphElement) i.next();
+        for (GraphElement element : elements) {
             if(element instanceof Moveable) {
                 Moveable moveable = (Moveable) element;
                 moveable.setPositionToGhost();
@@ -179,8 +166,7 @@ public final class SelectionSet
      */
     public void resize(int deltaX, int deltaY)
     {
-        for (Iterator i = elements.iterator(); i.hasNext();) {
-            GraphElement element = (GraphElement) i.next();
+        for (GraphElement element : elements) {
             if(element instanceof Moveable) {
                 Moveable target = (Moveable) element;
                 if (target.isResizable()) {
@@ -202,16 +188,6 @@ public final class SelectionSet
     }
     
     /**
-     * Tell whether we have a single selection (only one element selected).
-     * 
-     * @return  true, is exactly one element is selected.
-     */
-    public boolean isSingle()
-    {
-        return elements.size() == 1;
-    }
-    
-    /**
      * Change the selection to contain only the specified element.
      * 
      * @param element  The single element to hold in the selection. 
@@ -228,10 +204,10 @@ public final class SelectionSet
      */
     public Vertex getAnyVertex()
     {
-        for (Iterator i = elements.iterator(); i.hasNext();) {
-            GraphElement element = (GraphElement) i.next();
-            if(element instanceof Vertex)
+        for (GraphElement element : elements) {
+            if(element instanceof Vertex) {
                 return (Vertex) element;
+            }
         }
         return null;
     }
@@ -243,60 +219,11 @@ public final class SelectionSet
      */
     public Edge getAnyEdge()
     {
-        for (Iterator i = elements.iterator(); i.hasNext();) {
-            GraphElement element = (GraphElement) i.next();
-            if(element instanceof Edge)
+        for (GraphElement element : elements) {
+            if(element instanceof Edge) {
                 return (Edge) element;
+            }
         }
         return null;
-    }
-
-    
-    /**
-     * Return the single selected element from this selection. The selection can be 
-     * forced to become a single selection by passing 'true' to forceSingle. If the selection
-     * is not single, and not forced to be single, null will be returned.
-     * 
-     * @param forceSingle  If true, reduce this selection to a single selection by selecting
-     *                     a random element before proceeding.
-     * @return The single element, if this selection is single, or null if the selection
-     *         is empty or not single.
-     */
-    public SelectableGraphElement getSingleElement(boolean forceSingle)
-    {
-        if(elements.isEmpty())
-            return null;
-
-        if(isSingle())
-            return (SelectableGraphElement) elements.iterator().next();
-        
-        if(forceSingle) {
-            SelectableGraphElement tmp = (SelectableGraphElement) elements.iterator().next();
-            selectOnly(tmp);
-            return tmp;
-        }
-        else {   // not a single selection
-            return null;
-        }
-    }
-    
-    /**
-     * Return an iterator over the selected elements.
-     * 
-     * @return  The iterator for the selection elements.
-     */
-    public Iterator iterator()
-    {
-        return elements.iterator();
-    }
-
-    /**
-     * Get the number of graphElements in this graphElementManager
-     * 
-     * @return the number of elements
-     */
-    public int getSize()
-    {
-        return elements.size();
     }
 }
