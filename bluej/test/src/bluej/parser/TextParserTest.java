@@ -701,4 +701,12 @@ public class TextParserTest extends TestCase
         String r = tp.parseCommand("(new Object()) instanceof String");
         assertEquals("boolean", r);
     }
+    
+    public void testArrayLength()
+    {
+        TextAnalyzer tp = new TextAnalyzer(resolver, "", objectBench);
+        
+        String r = tp.parseCommand("new String[5].length");
+        assertEquals("int", r);
+    }
 }
