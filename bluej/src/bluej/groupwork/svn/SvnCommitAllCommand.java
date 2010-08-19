@@ -106,7 +106,6 @@ public class SvnCommitAllCommand extends SvnCommand
                 File file = (File) i.next();
                 commitFiles[j] = file.getAbsolutePath();
             }
-            for (String s : commitFiles) { System.out.println(s); } // DAV
             client.commit(commitFiles, commitComment, false);
             
             if (! isCancelled()) {
