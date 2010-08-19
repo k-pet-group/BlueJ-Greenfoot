@@ -488,9 +488,10 @@ public class TextParser extends JavaParser
         case JavaTokenTypes.PLUS:
             // either the first or second argument might be a String,
             // in which case the result will be a String also.
+            GenTypeSolid a1solid = a1type.asSolid();
             GenTypeSolid a2solid = a2type.asSolid();
-            if (!TextAnalyzer.unBox(a1type).isNumeric()) {
-                GenTypeClass [] rstypes = a1type.asSolid().getReferenceSupertypes();
+            if (a1solid != null && !TextAnalyzer.unBox(a1type).isNumeric()) {
+                GenTypeClass [] rstypes = a1solid.getReferenceSupertypes();
                 if (rstypes.length != 0 && rstypes[0].getReflective().getName().equals("java.lang.String")) {
                     valueStack.push(new ValueEntity(rstypes[0]));
                     return;

@@ -55,6 +55,7 @@ import bluej.parser.entity.PackageEntity;
 import bluej.parser.entity.PackageOrClass;
 import bluej.parser.entity.TypeEntity;
 import bluej.parser.entity.ValueEntity;
+import bluej.utility.Debug;
 import bluej.utility.JavaNames;
 import bluej.utility.JavaReflective;
 import bluej.utility.JavaUtils;
@@ -117,7 +118,6 @@ public class TextAnalyzer
         importCandidate = "";
         amendedCommand = command;
         declVars = Collections.emptyList();
-        //AST rootAST;
         
         EntityResolver resolver = getResolver(); 
         
@@ -125,62 +125,76 @@ public class TextAnalyzer
         TypeEntity accessType = new TypeEntity(accessRef);
         TextParser parser = new TextParser(resolver, command, accessType, true);
         
-        // check if it's an import statement
         try {
-            parser.parseImportStatement();
-            if (parser.atEnd()) {
-                amendedCommand = "";
-                importCandidate = command;
-                return null;
+
+            // check if it's an import statement
+            try {
+                parser.parseImportStatement();
+                if (parser.atEnd()) {
+                    amendedCommand = "";
+                    importCandidate = command;
+                    return null;
+                }
             }
-        }
-        catch (Exception e) {}
-        
-        CodepadVarParser vparser = new CodepadVarParser(resolver, command);
-        try {
-            if (vparser.parseVariableDeclarations() != null) {
-                declVars = vparser.getVariables();
-                if (! declVars.isEmpty()) {
-                    for (DeclaredVar var : declVars) {
-                        if (! var.isInitialized() && ! var.isFinal()) {
-                            amendedCommand += "\n" + var.getName();
-                            String text;
-                            JavaType declVarType = var.getDeclaredType();
-                            if (declVarType.isPrimitive()) {
-                                if (declVarType.isNumeric()) {
-                                    text = " = 0";
+            catch (ParseFailure e) {}
+
+            CodepadVarParser vparser = new CodepadVarParser(resolver, command);
+            try {
+                if (vparser.parseVariableDeclarations() != null) {
+                    declVars = vparser.getVariables();
+                    if (! declVars.isEmpty()) {
+                        for (DeclaredVar var : declVars) {
+                            if (! var.isInitialized() && ! var.isFinal()) {
+                                amendedCommand += "\n" + var.getName();
+                                String text;
+                                JavaType declVarType = var.getDeclaredType();
+                                if (declVarType.isPrimitive()) {
+                                    if (declVarType.isNumeric()) {
+                                        text = " = 0";
+                                    }
+                                    else {
+                                        text = " = false";
+                                    }
                                 }
                                 else {
-                                    text = " = false";
+                                    // reference type
+                                    text = " = null";
                                 }
+                                amendedCommand += text + ";\n";
                             }
-                            else {
-                                // reference type
-                                text = " = null";
-                            }
-                            amendedCommand += text + ";\n";
+                        }
+                        return null; // not an expression
+                    }
+                }
+            }
+            catch (ParseFailure e) {}
+
+            // Check if it's an expression
+            parser = new TextParser(resolver, command, accessType, true);
+            try {
+                // Note the TextParser will throw an exception if a parse error occurs.
+                // We must catch it.
+                parser.parseExpression();
+                if (parser.atEnd()) {
+                    JavaEntity exprType = parser.getExpressionType();
+                    if (exprType == null) {
+                        return "";
+                    }
+                    else {
+                        JavaEntity rval =  exprType.resolveAsValue();
+                        if (rval != null) {
+                            return rval.getType().toString();
                         }
                     }
-                    return null; // not an expression
                 }
             }
+            catch (ParseFailure e) {}
         }
-        catch (Exception e) {}
-        
-        // Check if it's an expression
-        parser = new TextParser(resolver, command, accessType, true);
-        parser.parseExpression();
-        if (parser.atEnd()) {
-            JavaEntity exprType = parser.getExpressionType();
-            if (exprType == null) {
-                return "";
-            }
-            else {
-                JavaEntity rval =  exprType.resolveAsValue();
-                if (rval != null) {
-                    return rval.getType().toString();
-                }
-            }
+        catch (Throwable t) {
+            // It's best at this stage if an exception (other than a parse failure) occurs that
+            // we still do a normal return from this method (so the codepad continues to function).
+            // However we'll log the problem.
+            Debug.reportError("Exception in parser", t);
         }
 
         return null;

@@ -74,9 +74,8 @@ public class JavaParser
      */
     protected void error(String msg)
     {
-        //throw new RuntimeException("Parse error: (" + lexer.getLine() + ":" + lexer.getColumn() + ") " + msg);
         LocatableToken next = tokenStream.LA(1);
-        throw new RuntimeException("Parse error: (" + next.getLine() + ":" + next.getColumn() + ") :" + msg);
+        throw new ParseFailure("Parse error: (" + next.getLine() + ":" + next.getColumn() + ") :" + msg);
     }
 
     /**
