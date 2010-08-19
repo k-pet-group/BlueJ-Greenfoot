@@ -719,6 +719,19 @@ public class TextParser extends JavaParser
     {
         String ident = token.getText();
         JavaEntity top = valueStack.pop();
+        
+        // handle array "length" member
+        if (token.getText().equals("length")) {
+            JavaEntity topVal = top.resolveAsValue();
+            if (topVal != null) {
+                if (topVal.getType().getArrayComponent() != null) {
+                    // This is an array
+                    valueStack.push(new ValueEntity(JavaPrimitiveType.getInt()));
+                    return;
+                }
+            }
+        }
+        
         JavaEntity newTop = top.getSubentity(ident, getAccessSource());
         if (newTop != null) {
             valueStack.push(newTop);

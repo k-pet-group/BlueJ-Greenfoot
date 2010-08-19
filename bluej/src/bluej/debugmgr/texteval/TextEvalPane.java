@@ -829,8 +829,9 @@ public class TextEvalPane extends JEditorPane
          */
         final public void actionPerformed(ActionEvent event)
         {
-            if (busy)
+            if (busy) {
                 return;
+            }
             
             String line = getCurrentLine();
             currentCommand = (currentCommand + line).trim();
