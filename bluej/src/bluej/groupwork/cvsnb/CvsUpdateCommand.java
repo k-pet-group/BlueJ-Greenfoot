@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,6 +21,7 @@
  */
 package bluej.groupwork.cvsnb;
 
+import java.io.File;
 import java.util.Set;
 
 import org.netbeans.lib.cvsclient.command.CommandAbortedException;
@@ -37,11 +38,11 @@ import bluej.groupwork.UpdateListener;
 public class CvsUpdateCommand extends CvsCommand
 {
     private UpdateListener listener; // may be null
-    private Set theFiles;
-    private Set forceFiles;
+    private Set<File> theFiles;
+    private Set<File> forceFiles;
     
     public CvsUpdateCommand(CvsRepository repository, UpdateListener listener,
-            Set theFiles, Set forceFiles)
+            Set<File> theFiles, Set<File> forceFiles)
     {
         super(repository);
         this.listener = listener;

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -172,11 +172,6 @@ public class SelectionController
             if (evt.getClickCount() > 1) {
                 selection.doubleClick(evt);
             }
-//            else {
-//                SelectableGraphElement clickedElement = graph.findGraphElement(evt.getX(), evt.getY());
-//                if(clickedElement != null)
-//                    selection.selectOnly(clickedElement);
-//            }
         }
     }
 
@@ -430,9 +425,6 @@ public class SelectionController
         return evt.getKeyChar() == '+' || evt.getKeyChar() == '-';
     }
 
-    /**
-     * @param evt
-     */
     private void resizeWithFixedRatio(KeyEvent evt)
     {
         int delta = (evt.getKeyChar() == '+' ? GraphEditor.GRID_SIZE : -GraphEditor.GRID_SIZE);
@@ -440,17 +432,14 @@ public class SelectionController
         selection.moveStopped();
     }
     
-    /**
-     * @param evt
-     */
     private void selectDependency(KeyEvent evt)
     {
         Vertex vertex = selection.getAnyVertex();
-        if(vertex != null) {
+        if(vertex != null && vertex instanceof DependentTarget) {
             selection.selectOnly(vertex);
-            List dependencies = ((DependentTarget) vertex).dependentsAsList();
+            List<Dependency> dependencies = ((DependentTarget) vertex).dependentsAsList();
 
-            Dependency currentDependency = (Dependency) dependencies.get(currentDependencyIndex);
+            Dependency currentDependency = dependencies.get(currentDependencyIndex);
             if (currentDependency != null) {
                 selection.remove(currentDependency);
             }
@@ -489,7 +478,8 @@ public class SelectionController
      * @param x
      * @param y
      */
-    private void postMenu(int x, int y){
+    private void postMenu(int x, int y)
+    {
         graphEditor.popupMenu(x,y);
     }
     
@@ -558,17 +548,15 @@ public class SelectionController
         selection.clear();
     }
 
-
     /** 
      * Select all graph vertices.
      */
     private void selectAll()
     {
-        for(Iterator i = graph.getVertices(); i.hasNext(); ) {
-            selection.add((SelectableGraphElement) i.next());
+        for(Iterator<? extends Vertex> i = graph.getVertices(); i.hasNext(); ) {
+            selection.add(i.next());
         }
     }
-    
     
     /**
      * Clear the current selection.
@@ -590,13 +578,12 @@ public class SelectionController
     /**
      * Check whether this mouse event was from button one.
      * (Ctrl-button one on MacOS does not count - that posts the menu
-     * se we consider that button two.)
+     * so we consider that button two.)
      */
     private boolean isButtonOne(MouseEvent evt)
     {
-        return !evt.isPopupTrigger() && ((evt.getModifiers() & MouseEvent.BUTTON1_MASK) != 0);
+        return !evt.isPopupTrigger() && ((evt.getModifiers() & MouseEvent.BUTTON1_DOWN_MASK) != 0);
     }
-    
 
     /**
      * Check whether the key used for multiple selections is down.
@@ -612,7 +599,6 @@ public class SelectionController
 
     }
 
-
     /**
      * Modify the given point to be one of the deined grid points.
      * 
@@ -627,27 +613,6 @@ public class SelectionController
         return new_x;
     }
 
-    /*
-    // dead code
-    keypressed:
-    //init dependencies
-    if (currentTarget instanceof DependentTarget) {
-        dependencies = ((DependentTarget) currentTarget).dependentsAsList();
-    }
-    else {
-        dependencies = new LinkedList();//dummy empty list
-    }
-    
-    navigate:
-    
-        currentDependencyIndex = 0;
-        if (currentDependency != null) {
-            graphElementManager.remove(currentDependency);
-            currentDependency = null;
-        }
-
-*/
-    
     /**
      * Return the rubber band of this graph.
      * @return  The rubber band instance, or null if no rubber band is currently in use.

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -34,18 +34,17 @@ import org.netbeans.lib.cvsclient.event.FileInfoEvent;
  * This class is used for registering and storing cvs status request information. 
  *
  * @author bquig
- * @version $Id: StatusServerResponse.java 6215 2009-03-30 13:28:25Z polle $
  */
 public class StatusServerResponse extends BasicServerResponse
 {
-    private List infoEvents;
+    private List<StatusInformation> infoEvents;
 
     /**
      * Creates a new instance of StatusServerResponse
      */
     public StatusServerResponse()
     {
-        infoEvents = new ArrayList();
+        infoEvents = new ArrayList<StatusInformation>();
     }
 
     /**
@@ -54,17 +53,13 @@ public class StatusServerResponse extends BasicServerResponse
     public void fileInfoGenerated(FileInfoEvent infoEvent)
     {
         FileInfoContainer info = infoEvent.getInfoContainer();
-        //StatusInformation statusInfo;
 
         if (info instanceof StatusInformation) {
-            //File rfile = info.getFile();
-            infoEvents.add(info);
-            //statusInfo = (StatusInformation) info;
-            //Debug.message("StatusInformation = " + statusInfo);
+            infoEvents.add((StatusInformation) info);
         }
     }
 
-    public List getStatusInformation()
+    public List<StatusInformation> getStatusInformation()
     {
         return infoEvents;
     }

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -36,7 +36,7 @@ import org.netbeans.lib.cvsclient.command.GlobalOptions;
  * An admin handler which pretends that nothing exists.
  * 
  * @author Davin McCall
- * @version $Id: EmptyAdminHandler.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: EmptyAdminHandler.java 8116 2010-08-20 03:29:52Z davmac $
  */
 public class EmptyAdminHandler
     implements AdminHandler
@@ -57,6 +57,7 @@ public class EmptyAdminHandler
         return null;
     }
 
+    @SuppressWarnings("unchecked")
     public Iterator getEntries(File directory)
         throws IOException
     {
@@ -79,10 +80,10 @@ public class EmptyAdminHandler
     {
     }
 
-    public Set getAllFiles(File directory)
+    public Set<File> getAllFiles(File directory)
         throws IOException
     {
-        return new HashSet();
+        return new HashSet<File>();
     }
 
     public String getStickyTagForDirectory(File directory)
@@ -94,5 +95,4 @@ public class EmptyAdminHandler
     {
         return false;
     }
-
 }

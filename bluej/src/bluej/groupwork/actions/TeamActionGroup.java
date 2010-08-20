@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,14 +21,12 @@
  */
 package bluej.groupwork.actions;
 
-import bluej.pkgmgr.actions.PkgMgrAction;
 
 /**
  * A class to group team actions for a project, and manage enable/disable
  * of the actions.
  * 
  * @author Davin McCall
- * @version $Id: TeamActionGroup.java 6215 2009-03-30 13:28:25Z polle $
  */
 public class TeamActionGroup
 {

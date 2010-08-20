@@ -40,9 +40,9 @@ import bluej.groupwork.TeamworkCommandResult;
  */
 public class SvnModulesCommand extends SvnCommand
 {
-    private List modulesList;
+    private List<String> modulesList;
     
-    public SvnModulesCommand(SvnRepository repository, List modulesList)
+    public SvnModulesCommand(SvnRepository repository, List<String> modulesList)
     {
         super(repository);
         this.modulesList = modulesList;

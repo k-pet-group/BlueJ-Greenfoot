@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -34,9 +34,9 @@ import org.netbeans.lib.cvsclient.connection.AuthenticationException;
  */
 public class CvsModulesCommand extends CvsCommand
 {
-    private List modules;
+    private List<String> modules;
     
-    public CvsModulesCommand(CvsRepository repository, List modules)
+    public CvsModulesCommand(CvsRepository repository, List<String> modules)
     {
         super(repository);
         this.modules = modules;

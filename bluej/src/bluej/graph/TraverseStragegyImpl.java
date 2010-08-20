@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -66,7 +66,7 @@ public class TraverseStragegyImpl
         double currentDistance;
         Vertex closestVertex = null;
         boolean left, right, up, down, notSelf, inRightRegion;
-        for (Iterator i = graph.getVertices(); i.hasNext();) {
+        for (Iterator<? extends Vertex> i = graph.getVertices(); i.hasNext();) {
             v = (Vertex) i.next();
             x = v.getX() + v.getWidth() / 2 - currentVertexCenterX;
             y = v.getY() + v.getHeight() / 2 - currentVertexCenterY;

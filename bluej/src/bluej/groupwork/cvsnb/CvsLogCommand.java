@@ -36,7 +36,6 @@ import org.netbeans.lib.cvsclient.connection.AuthenticationException;
 
 import bluej.groupwork.HistoryInfo;
 import bluej.groupwork.LogHistoryListener;
-import bluej.groupwork.LogServerResponse;
 import bluej.utility.FileUtility;
 
 /**
@@ -54,6 +53,7 @@ public class CvsLogCommand extends CvsCommand
         this.listener = listener;
     }
     
+    @SuppressWarnings("unchecked")
     protected BasicServerResponse doCommand()
         throws CommandAbortedException, CommandException, AuthenticationException
     {
@@ -65,24 +65,25 @@ public class CvsLogCommand extends CvsCommand
             // to the internal structure used by BlueJ
             
             // map revision to List of files
-            Map commits = new HashMap();
+            Map<bluej.groupwork.Revision,List<String>> commits = new HashMap<bluej.groupwork.Revision,
+                    List<String>>();
             
-            List infoList = response.getInfoList();
-            for (Iterator i = infoList.iterator(); i.hasNext(); ) {
-                LogInformation cvsInfo = (LogInformation) i.next();
+            List<LogInformation> infoList = response.getInfoList();
+            for (Iterator<LogInformation> i = infoList.iterator(); i.hasNext(); ) {
+                LogInformation cvsInfo = i.next();
                 
                 // Translate the revision list
-                List cvsRevisionList = cvsInfo.getRevisionList();
-                for (Iterator j = cvsRevisionList.iterator(); j.hasNext(); ) {
-                    Revision cvsRev = (Revision) j.next();
+                List<Revision> cvsRevisionList = cvsInfo.getRevisionList();
+                for (Iterator<Revision> j = cvsRevisionList.iterator(); j.hasNext(); ) {
+                    Revision cvsRev = j.next();
                     bluej.groupwork.Revision rev = new bluej.groupwork.Revision(
                             cvsRev.getAuthor(), cvsRev.getDateString(),
                             cvsRev.getMessage());
                     // cvsRev.getNumber(); // revision number
                     
-                    List files = (List) commits.get(rev);
+                    List<String> files = commits.get(rev);
                     if (files == null) {
-                        files = new ArrayList();
+                        files = new ArrayList<String>();
                     }
                     files.add(FileUtility.makeRelativePath(repository.getProjectPath(),
                             cvsInfo.getFile()));
@@ -91,10 +92,10 @@ public class CvsLogCommand extends CvsCommand
                 }
             }
             
-            for (Iterator i = commits.entrySet().iterator(); i.hasNext(); ) {
-                Map.Entry entry = (Map.Entry) i.next();
+            for (Iterator<Map.Entry<bluej.groupwork.Revision,List<String>>> i = commits.entrySet().iterator(); i.hasNext(); ) {
+                Map.Entry<bluej.groupwork.Revision,List<String>> entry = i.next();
                 bluej.groupwork.Revision rev = (bluej.groupwork.Revision) entry.getKey();
-                List filesList = (List) entry.getValue();
+                List<String> filesList = entry.getValue();
                 String [] files = (String []) filesList.toArray(new String[filesList.size()]);
                 HistoryInfo hinfo = new HistoryInfo(files, "", rev.getDateString(), rev.getAuthor(), rev.getMessage());
                 listener.logInfoAvailable(hinfo);

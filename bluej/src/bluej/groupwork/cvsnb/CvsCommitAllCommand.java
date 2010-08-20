@@ -40,14 +40,14 @@ import org.netbeans.lib.cvsclient.connection.AuthenticationException;
  */
 public class CvsCommitAllCommand extends CvsCommand
 {
-    private Set newFiles;
-    private Set binaryNewFiles;
-    private Set deletedFiles;
-    private Set files;
+    private Set<File> newFiles;
+    private Set<File> binaryNewFiles;
+    private Set<File> deletedFiles;
+    private Set<File> files;
     private String commitComment;
     
-    public CvsCommitAllCommand(CvsRepository repository, Set newFiles, Set binaryNewFiles,
-            Set deletedFiles, Set files, String commitComment)
+    public CvsCommitAllCommand(CvsRepository repository, Set<File> newFiles, Set<File> binaryNewFiles,
+            Set<File> deletedFiles, Set<File> files, String commitComment)
     {
         super(repository);
         this.newFiles = newFiles;
@@ -68,10 +68,10 @@ public class CvsCommitAllCommand extends CvsCommand
         // a list of directories to add.
         
         // Note, we need to use a LinkedHashSet to preserve order.
-        Set dirs = new LinkedHashSet();
-        LinkedList stack = new LinkedList();
-        for (Iterator i = newFiles.iterator(); i.hasNext(); ) {
-            File file = (File) i.next();
+        Set<File> dirs = new LinkedHashSet<File>();
+        LinkedList<File> stack = new LinkedList<File>();
+        for (Iterator<File> i = newFiles.iterator(); i.hasNext(); ) {
+            File file = i.next();
             
             File parent = file.getParentFile();
             while (! repository.isDirectoryUnderCVS(parent) && ! dirs.contains(parent)) {
@@ -87,7 +87,7 @@ public class CvsCommitAllCommand extends CvsCommand
         }
         
         // The list of directories must include those containing binary files
-        for (Iterator i = binaryNewFiles.iterator(); i.hasNext(); ) {
+        for (Iterator<File> i = binaryNewFiles.iterator(); i.hasNext(); ) {
             File file = (File) i.next();
             
             File parent = file.getParentFile();
@@ -141,16 +141,8 @@ public class CvsCommitAllCommand extends CvsCommand
      *
      * @param fileList
      */
-    private static File[] listToFileArray(Collection fileList)
+    private static File[] listToFileArray(Collection<? extends File> fileList)
     {
-        File[] files = new File[fileList.size()];
-        int j = 0;
-
-        for (Iterator i = fileList.iterator(); i.hasNext();) {
-            File file = (File) i.next();
-            files[j++] = file;
-        }
-
-        return files;
+        return fileList.toArray(new File[fileList.size()]);
     }
 }
