@@ -95,7 +95,7 @@ public class MIDletDeploymentDialog extends EscapeDialog implements ListSelectio
     private File jadFile;
     private File jarFile;
     private File midletsFile;  //The midlet.defs file.    
-    private List midlets; //List of midlets in project to display in this dialog.
+    private List<String> midlets; //List of midlets in project to display in this dialog.
     
     private Manifest          manifest;    
     private PkgMgrFrame       frame;
@@ -113,7 +113,7 @@ public class MIDletDeploymentDialog extends EscapeDialog implements ListSelectio
      * @param midlets    The current list of midlets in the project. 
      *                   These midlets appear in the dialog table.
      */
-    public MIDletDeploymentDialog( PkgMgrFrame parent, File verified, List midlets )
+    public MIDletDeploymentDialog( PkgMgrFrame parent, File verified, List<String> midlets )
     {      
         super( parent, Config.getString( "midlet.deployment.title" ), true );
         frame = parent;

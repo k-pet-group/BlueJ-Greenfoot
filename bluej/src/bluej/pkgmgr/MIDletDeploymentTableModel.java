@@ -40,7 +40,7 @@ import javax.swing.table.AbstractTableModel;
  */
 public class MIDletDeploymentTableModel extends AbstractTableModel
 {   
-    private List       midlets;     //List of MIDletTableEntry's to display in table
+    private List<MIDletTableEntry> midlets;     //List of MIDletTableEntry's to display in table
     private File       projectDir;
     private ImageIcon  defaultIcon; //Default icon for midlets
     private boolean[ ] exclude;     //Whether to exclude a midlet in the dialog.  
@@ -50,11 +50,11 @@ public class MIDletDeploymentTableModel extends AbstractTableModel
             Config.getString( "midlet.deployment.midlets.name"     ) ,
             Config.getString( "midlet.deployment.midlets.icon"     ) };
       
-    public MIDletDeploymentTableModel( List currentList, File proj, SortedProperties props )
+    public MIDletDeploymentTableModel(List<String> currentList, File proj, SortedProperties props)
     {
         projectDir = proj;
-        defaultIcon = getDefaultIcon( );
-        fillInTable( currentList, props );
+        defaultIcon = getDefaultIcon();
+        fillInTable(currentList, props);
     }
     
     public int     getColumnCount( )      { return 3; }
@@ -63,7 +63,7 @@ public class MIDletDeploymentTableModel extends AbstractTableModel
 
     public String  getColumnName( int c ) { return columnNames[ c ]; }
     
-    public Class   getColumnClass(int c ) { return getValueAt( 0, c ).getClass( ); }   
+    public Class<?>  getColumnClass(int c ) { return getValueAt( 0, c ).getClass( ); }   
     
     public boolean isCellEditable( int r, int c ) { return c == 1; } //only name is editable
 
@@ -116,13 +116,13 @@ public class MIDletDeploymentTableModel extends AbstractTableModel
      * whether a midlet is to be excluded or not in the dialog. Excluded midlets
      * appear in the dialog as disabled and are excluded from the jad file.
      * 
-     * Note: icon file names in midlet.defs are in URL format, for example:
+     * <p>Note: icon file names in midlet.defs are in URL format, for example:
      * file\:/C\:/BlueJProjects/MEprojects/WTKdemo/res/icons/myicon.gif
      * 
      * @param current  List of current midlets in the project. 
      * @param props    Properties that were loaded from the midlet.defs file
      */ 
-    private void fillInTable( List current, SortedProperties props )
+    private void fillInTable(List<String> current, SortedProperties props)
     {   
         String    cl;    // Fully qualified name of the MIDlet class.
         String    icon;  // Name of the icon file.
@@ -130,11 +130,12 @@ public class MIDletDeploymentTableModel extends AbstractTableModel
         String    excl;  // Whether to exclude the midlet from the deployed suite.
         ImageIcon image; // ImageIcon object created from the icon file.
 
-        midlets = new ArrayList( );  //List to fill in.        
+        midlets = new ArrayList<MIDletTableEntry>();  //List to fill in.        
 
         exclude = new boolean[ current.size( ) ];
-        for ( int i = 0; i < exclude.length ; i++ )  
+        for ( int i = 0; i < exclude.length ; i++ ) {
             exclude[ i ] = false;
+        }
                             
         int j = 0;
         for ( int i = 1; ( cl = props.getProperty( "midlet" + i + ".class" ) ) != null; i++ )
@@ -201,7 +202,7 @@ public class MIDletDeploymentTableModel extends AbstractTableModel
     void saveTableToProps( SortedProperties props )
     {
         int i = 1;
-        for( Iterator iterator = midlets.iterator(); iterator.hasNext(); ) {
+        for (Iterator<MIDletTableEntry> iterator = midlets.iterator(); iterator.hasNext();) {
             MIDletTableEntry entry = ( MIDletTableEntry ) iterator.next();    
             props.setProperty( "midlet" + i + ".name",  entry.getName() );
             props.setProperty( "midlet" + i + ".class", entry.getClassName() );
@@ -221,7 +222,7 @@ public class MIDletDeploymentTableModel extends AbstractTableModel
     {
         int i = 1; 
         int j = 0;
-        for( Iterator iterator = midlets.iterator(); iterator.hasNext(); )
+        for (Iterator<MIDletTableEntry> iterator = midlets.iterator(); iterator.hasNext();)
         {
             MIDletTableEntry entry = ( MIDletTableEntry ) iterator.next(); 
             if ( ! exclude[ j ] ) {                
@@ -288,7 +289,6 @@ public class MIDletDeploymentTableModel extends AbstractTableModel
         public ImageIcon getIcon( )      { return icon;      }    
         
         public void setName     ( String name )    { this.name = name; }
-        public void setClassName( String cn )      { className = cn;   }
         public void setIcon     ( ImageIcon icon ) { this.icon = icon; }   
         
         public String toString( ) {

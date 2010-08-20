@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -37,9 +37,7 @@ import bluej.utility.EscapeDialog;
  * Dialog for generating HTML and running applets.
  * 
  * @author Bruce Quig
- * @version $Id: RunAppletDialog.java 6215 2009-03-30 13:28:25Z polle $
  */
-
 public class RunAppletDialog extends EscapeDialog
     implements ListSelectionListener
 {
@@ -427,7 +425,7 @@ public class RunAppletDialog extends EscapeDialog
     public String[] getAppletParameters()
     {
         String[] paramStringArray = new String[appletParameters.size()];
-        Enumeration e = appletParameters.elements();
+        Enumeration<?> e = appletParameters.elements();
         for (int i = 0; e.hasMoreElements() && i < paramStringArray.length; i++) {
             AppletParam ap = (AppletParam) e.nextElement();
             paramStringArray[i] = ap.toString();
@@ -436,17 +434,13 @@ public class RunAppletDialog extends EscapeDialog
     }
 
     /**
-     * .
-     * 
-     * @return applet parameters as an array of Strings or null if no parameters
+     * Set applet parameters as an array of Strings or null if no parameters
      */
     public void setAppletParameters(String[] parameters)
     {
         if (parameters != null) {
             for (int i = 0; i < parameters.length; i++) {
-
                 appletParameters.addElement(new AppletParam(parameters[i]));
-
             }
         }
     }
@@ -458,12 +452,15 @@ public class RunAppletDialog extends EscapeDialog
      */
     public int getAppletExecutionOption()
     {
-        if (runAppletViewer.isSelected())
+        if (runAppletViewer.isSelected()) {
             return EXEC_APPLETVIEWER;
-        else if (runWebBrowser.isSelected())
+        }
+        else if (runWebBrowser.isSelected()) {
             return EXEC_WEBBROWSER;
-        else
+        }
+        else {
             return GENERATE_PAGE_ONLY;
+        }
     }
 
     // ----- ListSelectionListener interface -----

@@ -63,10 +63,10 @@ public class FileTransferHandler extends TransferHandler
      * @param t The item being dropped.
      * @return true iff we can import the item
      */
+    @SuppressWarnings("unchecked")
     public boolean importData(JComponent c, Transferable t) 
     {
         try {
-
             if (!canImport(c, t.getTransferDataFlavors())) {
                 return false;
             }
@@ -85,14 +85,16 @@ public class FileTransferHandler extends TransferHandler
      * Check whether we can import the given data flavours into this component.
      * This will be true if the data items are files.
      */
-    public boolean canImport(JComponent c, DataFlavor[] flavours) {
+    public boolean canImport(JComponent c, DataFlavor[] flavours)
+    {
         return hasFileFlavor(flavours);
     }
 
     /**
      * Check whether the data can be received as a file.
      */
-    private boolean hasFileFlavor(DataFlavor[] flavours) {
+    private boolean hasFileFlavor(DataFlavor[] flavours)
+    {
         for (int i = 0; i < flavours.length; i++) {
             if (fileFlavour.equals(flavours[i])) {
                 return true;

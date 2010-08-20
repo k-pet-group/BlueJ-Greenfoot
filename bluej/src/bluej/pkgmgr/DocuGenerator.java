@@ -46,23 +46,23 @@ import bluej.utility.Utility;
  * As the documentation for a single class serves merely as a preview option,
  * it is generated in a temporary directory.
  *
- * Information in this class belongs to one of three categories: <BR>
- * <BR>
- * Static information - valid for all runs of a generator (e.g. the name
+ * <p>Information in this class belongs to one of three categories:
+ * 
+ * <ol>
+ * <li>Static information - valid for all runs of a generator (e.g. the name
  * (not the path!) of the directory where project documentation is written
- * to).<BR>
- * <BR>
- * Instance information - valid for all generator runs for one project (e.g.
- * the path of the project directory). <BR>
- * <BR>
- * Run-specific information - generated on each run (e.g. the names of the
- * targets, as these might change between several runs). <BR>
- * <BR>
+ * to).
+ * 
+ * <li>Instance information - valid for all generator runs for one project (e.g.
+ * the path of the project directory).
+ * 
+ * <li>Run-specific information - generated on each run (e.g. the names of the
+ * targets, as these might change between several runs).
+ * 
  * Each of these categories can again be divided into tool-dependent (e.g.
  * the name of the documentation generating tool) and tool-independent.
  *
  * @author  Axel Schmolitzky
- * @version $ $
  */
 public class DocuGenerator
 {
@@ -78,10 +78,6 @@ public class DocuGenerator
     /** Header for log file when generating documentation for classes. */
     private static String classLogHeader =
                                 Config.getPropString("Class documentation");
-
-    /** The directory where temporary documentation for a single class is
-     *  written to. This name is unique for every instantiation of BlueJ.*/
-    private static File docTempDir;
 
     // static fields - tool-dependent
     /** The name (including path) of the documentation tool used. */
@@ -133,7 +129,7 @@ public class DocuGenerator
                 BlueJEvent.raiseEvent(BlueJEvent.DOCU_ABORTED, null);
 
         // build the call string
-        ArrayList call = new ArrayList();
+        ArrayList<String> call = new ArrayList<String>();
         call.add(docCommand);
         addParams(call, fixedJavadocParams);
         String majorVersion = System.getProperty("java.specification.version");        
@@ -167,32 +163,6 @@ public class DocuGenerator
         if (filename.endsWith(".java"))
             filename = filename.substring(0, filename.indexOf(".java"));
         return docDirPath + filename + ".html";
-    }
-
-    /**
-     * Create a temporary directory. The name of the directory is unique for
-     * every BlueJ instantiation.
-     * @return the file instance if successful, null otherwise.
-     */
-    private static File getDocTempDir()
-    {
-        if (docTempDir == null) {  // first time called, create File instance
-            try {
-                docTempDir = File.createTempFile("bluej","tmp"); 
-            }
-            catch (IOException e) {
-                return null;
-            }
-
-            docTempDir.delete(); // it's a file, remove it first to allow mkdir
-            docTempDir.mkdir();
-        }
-        else {  // not the first call, remove previous content
-            FileUtility.deleteDir(docTempDir);
-            docTempDir.mkdir();
-        }
-            
-        return docTempDir;
     }
 
     /**
@@ -276,7 +246,7 @@ public class DocuGenerator
                     // Call Javadoc
                     Method executeMethod = null;
                     try {
-                        Class javadocClass = Class.forName("com.sun.tools.javadoc.Main");
+                        Class<?> javadocClass = Class.forName("com.sun.tools.javadoc.Main");
                         executeMethod = javadocClass.getMethod("execute",
                                 new Class [] {String.class, PrintWriter.class, PrintWriter.class,
                                 PrintWriter.class, String.class, String[].class});
@@ -379,7 +349,6 @@ public class DocuGenerator
     {
         private InputStream   readStream;
         private OutputStream outStream;
-        private byte[] lastBuf;
         
         public EchoThread(InputStream r,OutputStream out) {
             readStream = r;
@@ -454,7 +423,7 @@ public class DocuGenerator
         // documentation to the API documentation
         String linkParam = getLinkParam();
 
-        ArrayList call = new ArrayList();
+        ArrayList<String> call = new ArrayList<String>();
         call.add(docCommand);
         call.add("-sourcepath");
         call.add(projectDirPath);
@@ -474,8 +443,8 @@ public class DocuGenerator
 
         // add the names of all the targets for the documentation tool.
         // first: get the names of all packages that contain java sources.
-        List packageNames = project.getPackageNames();
-        for (Iterator names=packageNames.iterator(); names.hasNext(); ) {
+        List<String> packageNames = project.getPackageNames();
+        for (Iterator<String> names = packageNames.iterator(); names.hasNext(); ) {
             String packageName = (String)names.next();
             // as javadoc doesn't like packages with no java-files, we have to
             // pass only names of packages that really contain java files.
@@ -488,9 +457,9 @@ public class DocuGenerator
         }
 
         // second: get class names of classes in unnamed package, if any
-        List classNames = project.getPackage("").getAllClassnamesWithSource();
+        List<String> classNames = project.getPackage("").getAllClassnamesWithSource();
         String dirName = project.getProjectDir().getAbsolutePath();
-        for (Iterator names = classNames.iterator();names.hasNext(); ) {
+        for (Iterator<String> names = classNames.iterator();names.hasNext(); ) {
             call.add(dirName + "/" + names.next() + ".java");
         }
         String[] javadocCall = (String[])call.toArray(new String[0]);
@@ -502,7 +471,7 @@ public class DocuGenerator
     /**
      * Add all string tokens from s into list.
      */
-    private static void addParams(List list, String s)
+    private static void addParams(List<String> list, String s)
     {
         StringTokenizer st = new StringTokenizer(s);
         while (st.hasMoreTokens()) {

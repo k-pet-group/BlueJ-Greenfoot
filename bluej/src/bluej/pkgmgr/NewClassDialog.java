@@ -38,7 +38,7 @@ import bluej.utility.*;
  *
  * @author  Justin Tan
  * @author  Michael Kolling
- * @version $Id: NewClassDialog.java 7163 2010-02-22 23:22:44Z marionz $
+ * @version $Id: NewClassDialog.java 8121 2010-08-20 04:20:13Z davmac $
  */
 class NewClassDialog extends EscapeDialog
 {
@@ -163,10 +163,11 @@ class NewClassDialog extends EscapeDialog
         String templateString = Config.getPropString("bluej.classTemplates");
 
         StringTokenizer t = new StringTokenizer(templateString);
-        List templates = new ArrayList();
+        List<String> templates = new ArrayList<String>();
 
-        while (t.hasMoreTokens())
+        while (t.hasMoreTokens()) {
             templates.add(t.nextToken());
+        }
 
         // next, get templates from files in template directory and
         // merge them in
@@ -203,21 +204,13 @@ class NewClassDialog extends EscapeDialog
         JRadioButton previousButton = null;
         templateButtons = new ButtonGroup();
 
-        for(Iterator i=templates.iterator(); i.hasNext(); ) {
-            String template = (String)i.next();
-            
-            //Avoid <enum> when we are not running 1.5
-            if(template.equals("enum") && ! Config.isJava15()) {
-                continue;
-            }
-            
+        for(Iterator<String> i=templates.iterator(); i.hasNext(); ) {
+            String template = i.next();
             String label = Config.getString("pkgmgr.newClass." + template, template);
             button = new JRadioButton(label, (previousButton==null));  // enable first
             button.setActionCommand(template);
             templateButtons.add(button);
             panel.add(button);
-//            if(previousButton != null)
-//                previousButton.setNextFocusableComponent(button);
             previousButton = button;
         }
     }

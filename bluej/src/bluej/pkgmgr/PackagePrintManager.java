@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -106,10 +106,10 @@ public class PackagePrintManager extends Thread
      */
     public void printSourceCode(PrinterJob printJob)
     {
-        List classes = pkg.getAllClassnamesWithSource();
+        List<String> classes = pkg.getAllClassnamesWithSource();
 
-        for (Iterator it = classes.iterator(); it.hasNext();) {
-            String className = (String) it.next();
+        for (Iterator<String> it = classes.iterator(); it.hasNext();) {
+            String className = it.next();
             ClassTarget target = (ClassTarget) pkg.getTarget(className);
             Editor editor = target.getEditor();
             editor.print(printJob);

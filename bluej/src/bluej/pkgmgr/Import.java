@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -66,7 +66,7 @@ public class Import
     {
         // find all sub directories with Java files in them
         // then find all the Java files in those directories
-        List interestingDirs = Import.findInterestingDirectories(path);
+        List<File> interestingDirs = Import.findInterestingDirectories(path);
 
         // check to make sure the path contains some java source files
         if (interestingDirs.size() == 0) {
@@ -74,20 +74,20 @@ public class Import
             return false;
         }
 
-        List javaFiles = Import.findJavaFiles(interestingDirs);
+        List<File> javaFiles = Import.findJavaFiles(interestingDirs);
 
         // for each Java file, lets check its package line against the
         // package line we think that it should have
         // for each mismatch we collect the file, the package line it had,
         // and what we want to convert it to
-        List mismatchFiles = new ArrayList();
-        List mismatchPackagesOriginal = new ArrayList();
-        List mismatchPackagesChanged = new ArrayList();
+        List<File> mismatchFiles = new ArrayList<File>();
+        List<String> mismatchPackagesOriginal = new ArrayList<String>();
+        List<String> mismatchPackagesChanged = new ArrayList<String>();
 
-        Iterator it = javaFiles.iterator();
+        Iterator<File> it = javaFiles.iterator();
 
         while (it.hasNext()) {
-            File f = (File) it.next();
+            File f = it.next();
 
             try {
                 ClassInfo info = InfoParser.parse(f);
@@ -175,19 +175,20 @@ public class Import
      * Find all Java files contained in a list of
      * directory paths.
      */
-    public static List findJavaFiles(List dirs)
+    public static List<File> findJavaFiles(List<File> dirs)
     {
-        List interesting = new LinkedList();
+        List<File> interesting = new LinkedList<File>();
 
-        Iterator it = dirs.iterator();
+        Iterator<File> it = dirs.iterator();
 
         while(it.hasNext()) {
-            File dir = (File) it.next();
+            File dir = it.next();
 
             File[] files = dir.listFiles();
 
-            if (files == null)
+            if (files == null) {
                 continue;
+            }
 
             for (int i=0; i<files.length; i++) {
                 if (files[i].isFile() && files[i].getName().endsWith(".java")) {
@@ -203,12 +204,12 @@ public class Import
      * Convert an existing directory structure to one
      * that BlueJ can open as a project.
      */
-    public static void convertDirectory(List dirs)
+    public static void convertDirectory(List<File> dirs)
     {
         // create a BlueJ package file in every directory that
         // we have determined to be interesting
 
-        Iterator i = dirs.iterator();
+        Iterator<File> i = dirs.iterator();
 
         while(i.hasNext()) {
             File f = (File) i.next();

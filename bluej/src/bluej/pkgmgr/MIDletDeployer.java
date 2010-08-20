@@ -49,10 +49,10 @@ final class MIDletDeployer
                                               "me-default-icon.gif"; 
     private String      toolkitBinDir; //Wireless toolkit's bin subdirectory.
     private File        verified;      //Destination directory of preverify command.   
-    private List        args;          //To pass arguments to commands.    
+    private List<String> args;          //To pass arguments to commands.    
     private PkgMgrFrame frame;    
     private Project     proj;
-    private List        midlets;      //Midlets to pass to the dialog for display.   
+    private List<String> midlets;      //Midlets to pass to the dialog for display.   
     
     public MIDletDeployer( PkgMgrFrame pmf )
     {
@@ -137,7 +137,7 @@ final class MIDletDeployer
      */         
     private boolean buildPreverifyCommand( )
     {
-        args = new ArrayList( );        
+        args = new ArrayList<String>();        
         args.add( toolkitBinDir + "preverify" );     
         args.add( "-classpath" );
         args.add( proj.getClassLoader( ).getJavaMElibsAsPath( ) );
@@ -166,22 +166,22 @@ final class MIDletDeployer
       */      
      private boolean getAndCheckClassTargets( )
      {
-         midlets = new ArrayList( );
-         List packageNames = proj.getPackageNames();
+         midlets = new ArrayList<String>();
+         List<String> packageNames = proj.getPackageNames();
          String dot = ""; //first package is the unnamed one, so no dot
          
          for ( Object pkgName : packageNames ) {             
              Package pkg = proj.getPackage( (String) pkgName ); 
-             List classTargets = pkg.getClassTargets();   
+             List<ClassTarget> classTargets = pkg.getClassTargets();   
              
-             for ( Object ct : classTargets ) {
-                  ClassTarget target = ( ClassTarget ) ct;
+             for ( ClassTarget target : classTargets ) {
                   if ( ! target.upToDate( ) ) {
                       DialogManager.showMessage( frame, "not-all-compiled" );
                       return false;
                   }                    
-                  if ( target.getRole( ) instanceof  MIDletClassRole )
+                  if ( target.getRole( ) instanceof  MIDletClassRole ) {
                       midlets.add( (String) pkgName + dot + target );
+                  }
              }
              dot = ".";
              getClassFiles( pkg );  //put all .class files in package into args
@@ -219,7 +219,7 @@ final class MIDletDeployer
      */         
     private void launchEmulator( File jadFile )
     {
-        args = new ArrayList( );
+        args = new ArrayList<String>( );
         args.add( toolkitBinDir + "emulator" );
         args.add( "-Xdescriptor:" + jadFile.getName() );
         getUserSpecifiedOptions( "bluej.javame.emulator.options" );

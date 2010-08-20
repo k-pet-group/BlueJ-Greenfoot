@@ -21,7 +21,6 @@
  */
 package bluej.pkgmgr; 
 
-import java.util.StringTokenizer;
 
 /**
  * Holds an Applet param entry for use in generating HTML page for Applet.
@@ -29,7 +28,7 @@ import java.util.StringTokenizer;
  * saved project properties.
  *
  * @author  Bruce Quig
- * @version $Id: AppletParam.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: AppletParam.java 8121 2010-08-20 04:20:13Z davmac $
  */
 public final class AppletParam 
 {

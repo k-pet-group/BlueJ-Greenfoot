@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -43,11 +43,10 @@ import bluej.testmgr.TestDisplayFrame;
  * and run all tests for a series of ClassTargets.
  * 
  * @author Davin McCall
- * @version $Id$
  */
 public class TestRunnerThread extends Thread
 {
-    private Iterator testIterator;
+    private Iterator<ClassTarget> testIterator;
     private DebuggerTestResult lastResult = null;
     private PkgMgrFrame pmf;
 
@@ -60,7 +59,7 @@ public class TestRunnerThread extends Thread
     /**
      * Construct a test runner thread for running multiple tests.
      */
-    public TestRunnerThread(PkgMgrFrame pmf, Iterator i)
+    public TestRunnerThread(PkgMgrFrame pmf, Iterator<ClassTarget> i)
     {
         this.pmf = pmf;
         testIterator = i;
@@ -73,7 +72,7 @@ public class TestRunnerThread extends Thread
     public TestRunnerThread(PkgMgrFrame pmf, ClassTarget ct, String methodName)
     {
         this.pmf = pmf;
-        List l = new ArrayList(1);
+        List<ClassTarget> l = new ArrayList<ClassTarget>(1);
         l.add(ct);
         testIterator = l.iterator();
         this.methodName = methodName;

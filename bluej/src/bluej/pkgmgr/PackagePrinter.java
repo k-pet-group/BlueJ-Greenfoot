@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -30,11 +30,10 @@ import bluej.utility.Utility;
 import bluej.Config;
 
 /**
- * Provides the ability to print a package as a seperate thread 
+ * Provides the ability to print a package as a separate thread 
  * (typically as a low priority background task)
  *
  * @author Bruce Quig
- *
  */
 public class PackagePrinter extends Thread implements Printable
 {
@@ -74,10 +73,8 @@ public class PackagePrinter extends Thread implements Printable
 
     private void printPackage()
     {
-
         PrinterJob printerJob = PrinterJob.getPrinterJob();
 
-        Dimension graphSize = pkg.getMinimumSize();
         printerJob.setPrintable(this, pageFormat);
 
         if (printerJob.printDialog()) {
@@ -93,11 +90,8 @@ public class PackagePrinter extends Thread implements Printable
         }
     }
 
- 
     private void calculatePages()
     {
-        Dimension pageSize = new Dimension((int)pageFormat.getImageableWidth(),
-                                           (int)pageFormat.getImageableHeight());
         Dimension graphSize = pkg.getMinimumSize();
         Rectangle printArea = getPrintArea(pageFormat);
         
@@ -105,11 +99,7 @@ public class PackagePrinter extends Thread implements Printable
         pageRows = (graphSize.height + printArea.height - 1) / printArea.height;
         pages = pageColumns * pageRows;
         currentColumn = currentRow = 0;
-
     }
-
-
-
 
     /**
      * Method that implements Printable interface and does that actual printing of

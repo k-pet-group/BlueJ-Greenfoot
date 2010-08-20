@@ -42,7 +42,7 @@ import bluej.utility.*;
  * creation options can be specified.
  *
  * @author  Michael Kolling
- * @version $Id: ExportDialog.java 7055 2010-01-27 13:58:55Z plcs $
+ * @version $Id: ExportDialog.java 8121 2010-08-20 04:20:13Z davmac $
  */
 class ExportDialog extends EscapeDialog
 {
@@ -61,7 +61,6 @@ class ExportDialog extends EscapeDialog
     private JComboBox classSelect;
     private JCheckBox sourceBox;
     private JCheckBox pkgFilesBox;
-    private JCheckBox otherFilesBox;
     private UserLibInfo[] userLibs;
     
     private boolean ok;		// result: which button?
