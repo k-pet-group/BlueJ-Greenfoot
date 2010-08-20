@@ -582,7 +582,7 @@ public class SelectionController
      */
     private boolean isButtonOne(MouseEvent evt)
     {
-        return !evt.isPopupTrigger() && ((evt.getModifiers() & MouseEvent.BUTTON1_MASK) != 0);
+        return !evt.isPopupTrigger() && ((evt.getModifiers() & MouseEvent.BUTTON1_DOWN_MASK) != MouseEvent.BUTTON1_DOWN_MASK);
     }
 
     /**
