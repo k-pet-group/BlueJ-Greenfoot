@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -41,8 +41,6 @@ import javax.swing.*;
  * @author Clive Miller, University of Kent at Canterbury, 2002
  * @author Damiano Bolla, University of Kent at Canterbury, 2003
  * @author Michael Kolling
- * 
- * @version $Id: ExtensionsManager.java 6319 2009-05-08 15:05:53Z polle $
  */
 public class ExtensionsManager
     implements BlueJEventListener
@@ -63,7 +61,7 @@ public class ExtensionsManager
 
     // ============== instance part ==============
 
-    private List extensions;
+    private List<ExtensionWrapper> extensions;
     private ExtensionPrefManager prefManager = null;
 
     /**
@@ -73,7 +71,7 @@ public class ExtensionsManager
     private ExtensionsManager()
     {
         // Sync issues should be clear...
-        extensions = Collections.synchronizedList(new ArrayList());
+        extensions = new ArrayList<ExtensionWrapper>();
 
         // This must be here, after all has been initialized.
         BlueJEvent.addListener(this);
@@ -90,8 +88,9 @@ public class ExtensionsManager
         String dirPath = Config.getPropString("bluej.extensions.systempath", null);
         // But we allow one to override the default location of system
         // extension.
-        if (dirPath != null)
+        if (dirPath != null) {
             systemDir = new File(dirPath);
+        }
 
         // Now we try to load the extensions from the BlueJ system repository.
         loadDirectoryExtensions(systemDir, null);
@@ -107,10 +106,9 @@ public class ExtensionsManager
     public void unloadExtensions()
     {
         synchronized(extensions) {
-            for (Iterator iter = extensions.iterator(); iter.hasNext();) {
-                ExtensionWrapper aWrapper = (ExtensionWrapper) iter.next();
-    
-                aWrapper.terminate(); // The following terminated the Extension
+            for (Iterator<ExtensionWrapper> iter = extensions.iterator(); iter.hasNext();) {
+                ExtensionWrapper aWrapper = iter.next();
+                aWrapper.terminate();
                 iter.remove();
             }
         }
@@ -121,22 +119,21 @@ public class ExtensionsManager
      * extension. If it finds a loadable extension it will add it to the loaded
      * extensions. This IS the function that should be called to load extensions
      * 
-     * NOTE: This one will either ADD or delete stuffe from the list of
-     * extensions so it must be syncronized....
+     * NOTE: This one will either ADD or delete stuff from the list of
+     * extensions so it must be synchronized....
      * 
      * @param directory
      *            Where to look for extensions
      * @param project
-     *            A project this extension is bound to
+     *            A project this extension is bound to, or null if
+     *            the extension is not bound to a specific project.
      */
     private void loadDirectoryExtensions(File directory, Project project)
     {
-        if (directory == null)
-            return;
-
         File[] files = directory.listFiles();
-        if (files == null)
+        if (files == null) {
             return;
+        }
 
         for (int index = 0; index < files.length; index++) {
             File thisFile = files[index];
@@ -150,28 +147,27 @@ public class ExtensionsManager
                 continue;
 
             // Ok, lets try to get a wrapper up and running
-            ExtensionWrapper aWrapper = new ExtensionWrapper(this, getPrefManager(), thisFile);
+            ExtensionWrapper aWrapper = new ExtensionWrapper(getPrefManager(), thisFile);
 
-            // Loading this warpper failed miserably, too bad...
-            if (!aWrapper.isJarValid())
+            // Loading this wrapper failed miserably, too bad...
+            if (!aWrapper.isJarValid()) {
                 continue;
+            }
 
             // Let me see if I already have this extension loaded
-            if (isWrapperAlreadyLoaded(aWrapper))
+            if (isWrapperAlreadyLoaded(aWrapper)) {
                 continue;
-
-            // This MUST be here in ANY case since otherwise this wrapper is NOT
-            // on the list..
-            extensions.add(aWrapper);
+            }
 
             // Now that all is nice and clean I can safely try to instantiate
             // the extension
             aWrapper.newExtension(project);
 
-            // but wait, it is not finished. If the wrapper is invalid we got to
-            // remove it
-            if (!aWrapper.isValid())
-                extensions.remove(aWrapper);
+            if (aWrapper.isValid()) {
+                synchronized (extensions) {
+                    extensions.add(aWrapper);
+                }
+            }
         }
     }
 
@@ -183,22 +179,15 @@ public class ExtensionsManager
      */
     private boolean isWrapperAlreadyLoaded(ExtensionWrapper thisWrapper)
     {
-        if (thisWrapper == null)
-            return false;
-
-        if (!thisWrapper.isJarValid())
-            return false;
-
         String thisClassName = thisWrapper.getExtensionClassName();
         String thisJarName = thisWrapper.getExtensionFileName();
 
         synchronized(extensions) {            
-            for (Iterator iter = extensions.iterator(); iter.hasNext();) {
-                ExtensionWrapper aWrapper = (ExtensionWrapper) iter.next();
-    
+            for (ExtensionWrapper aWrapper : extensions) {
                 String aClassName = aWrapper.getExtensionClassName();
-                if (aClassName == null)
+                if (aClassName == null) {
                     continue;
+                }
     
                 // Found it, this wrapper is already loaded...
                 if (thisClassName.equals(aClassName)) {
@@ -230,7 +219,11 @@ public class ExtensionsManager
      */
     public void showHelp(JFrame parentFrame)
     {
-        new HelpDialog(Collections.unmodifiableList(extensions), parentFrame);
+        List<ExtensionWrapper> extensionsList = new ArrayList<ExtensionWrapper>();
+        synchronized (extensions) {
+            extensionsList.addAll(extensions);
+        }
+        new HelpDialog(extensionsList, parentFrame);
     }
 
     /**
@@ -269,29 +262,34 @@ public class ExtensionsManager
 
         // Shurelly I cannot release anything if I don't know what I am talking
         // about...
-        if (thisProject == null)
+        if (thisProject == null) {
             return;
+        }
 
         // The following CAN return null....
         PkgMgrFrame[] frameArray = PkgMgrFrame.getAllProjectFrames(thisProject);
-        if (frameArray == null)
+        if (frameArray == null) {
             invalidateExtension = true;
-        else
+        }
+        else {
             invalidateExtension = frameArray.length <= 1;
+        }
 
         // Nothing to do....
-        if (!invalidateExtension)
+        if (!invalidateExtension) {
             return;
+        }
 
         synchronized(extensions) {            
             // I am closing the last frame of the project, time to invalidate the
             // right extensions
-            for (Iterator iter = extensions.iterator(); iter.hasNext();) {
-                ExtensionWrapper aWrapper = (ExtensionWrapper) iter.next();
+            for (Iterator<ExtensionWrapper> iter = extensions.iterator(); iter.hasNext();) {
+                ExtensionWrapper aWrapper = iter.next();
     
                 // If the extension did not got loaded with this project skip it...
-                if (thisProject != aWrapper.getProject())
+                if (thisProject != aWrapper.getProject()) {
                     continue;
+                }
     
                 // The following terminated the Extension
                 aWrapper.terminate();
@@ -330,23 +328,24 @@ public class ExtensionsManager
     /**
      * Returns a List of menues currently provided by extensions.
      */
-    LinkedList getMenuItems(Object attachedObject, Project onThisProject)
+    LinkedList<JMenuItem> getMenuItems(Object attachedObject, Project onThisProject)
     {
-        LinkedList menuItems = new LinkedList();
+        LinkedList<JMenuItem> menuItems = new LinkedList<JMenuItem>();
 
         synchronized(extensions) {                
-            for (Iterator iter = extensions.iterator(); iter.hasNext();) {
-                ExtensionWrapper aWrapper = (ExtensionWrapper) iter.next();
-    
-                if (!aWrapper.isValid())
+            for (ExtensionWrapper aWrapper : extensions) {
+                if (!aWrapper.isValid()) {
                     continue;
+                }
     
-                if (skipThisMenu(onThisProject, aWrapper.getProject()))
+                if (skipThisMenu(onThisProject, aWrapper.getProject())) {
                     continue;
+                }
     
                 JMenuItem anItem = aWrapper.safeGetMenuItem(attachedObject);
-                if (anItem == null)
+                if (anItem == null) {
                     continue;
+                }
     
                 anItem.putClientProperty("bluej.extmgr.ExtensionWrapper", aWrapper);
     
@@ -363,8 +362,7 @@ public class ExtensionsManager
     public void delegateEvent(ExtensionEvent event)
     {
         synchronized(extensions) {            
-            for (Iterator it = extensions.iterator(); it.hasNext();) {
-                ExtensionWrapper wrapper = (ExtensionWrapper) it.next();
+            for (ExtensionWrapper wrapper : extensions) {
                 wrapper.safeEventOccurred(event);
             }
         }
@@ -381,12 +379,10 @@ public class ExtensionsManager
      */
     public void blueJEvent(int eventId, Object arg)
     {
-
         if (eventId == BlueJEvent.EXECUTION_RESULT) {
             ExecutionEvent exevent = (ExecutionEvent) arg;
             delegateEvent(new InvocationEvent(exevent));
             return;
         }
     }
-
-} // End of class
+}

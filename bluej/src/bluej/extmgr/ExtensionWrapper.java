@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -34,34 +34,30 @@ import javax.swing.*;
 import java.lang.ClassNotFoundException;
 
 /**
- * <PRE>
- *  This is the wrapper for an extension. Its duties are 
- *  - Keep track of an extension class, this is to allow loading and unloading 
- *  - Given a jar try to load an extension that is in it (if any) 
- *  - Hold all state that is needed to get the whole system working 
+ * This is the wrapper for an extension. Its duties are: 
+ * <ul>
+ * <li>Keep track of an extension class, this is to allow loading and unloading 
+ * <li>Given a jar try to load an extension that is in it (if any) 
+ * <li>Hold all state that is needed to get the whole system working
+ * </ul> 
  *  
- *  NOTE: - When an extension is loaded a BlueJ object is given to it This object MUST
- *  be fully usable by the extension AND all associate components ! This means
- *  the following 
+ * <p>Note: When an extension is loaded a BlueJ object is given to it. This object MUST
+ * be fully usable by the extension AND all associated components !
+ * 
+ * <p>The creation of an extension Wrapper is disjoint from the loading of an extension.
  *  
- *  - The creation of an extension Wrapper is disjoint from the "creation" of an extension 
- *  In ANY case we create a wrapper for the given filename 
- *  We then load the extension ONLY if somebody else requests it...
- *  </PRE>
- *  
- *  Author: Damiano Bolla: 2002,2003,2004
+ * @author Damiano Bolla, 2002,2003,2004
  */
 public class ExtensionWrapper
 {
-    private final ExtensionsManager extensionsManager;
     private final ExtensionPrefManager prefManager;
 
     private File extensionJarFileName;
 
-    // If != null the jar is good. DO NOT expose this unless REALLY needed
-    private Class extensionClass;
+    // If != null the jar is good.
+    private Class<?> extensionClass;
 
-    // If != null the extension is loaded. do NOT expose this unless REALLY needed
+    // If != null the extension is loaded
     private Extension extensionInstance;
 
     private BlueJ   extensionBluej;
@@ -69,39 +65,39 @@ public class ExtensionWrapper
     private Project project;
 
     /**
-     *  We try to load the given jar, there is nothing wrong if it is NOT a good
-     *  one Simply the extension will be marked as invalid and nobody will be
-     *  able to use SInce it is not static if nobody is usin it will be garbage
-     *  collected...
-     *
-     * @param  extensionsManager  Description of the Parameter
-     * @param  prefManager        Description of the Parameter
-     * @param  jarFile            Description of the Parameter
+     * Construct a new ExtensionWrapper for the given jar file.
+     * 
+     * <p>This may fail; in that case isJarValid() will return false.
+     * 
+     * <p>The extension is not actually loaded: call newExtension() for that.
      */
-    public ExtensionWrapper(ExtensionsManager extensionsManager, ExtensionPrefManager prefManager, File jarFile)
+    public ExtensionWrapper(ExtensionPrefManager prefManager, File jarFile)
     {
-        this.extensionsManager = extensionsManager;
         this.prefManager = prefManager;
 
         // Let me try to load the extension class
-        if ((extensionClass = getExtensionClass(jarFile)) == null)  return;
+        extensionClass = getExtensionClass(jarFile);
+        if (extensionClass == null) {
+            return;
+        }
 
         extensionJarFileName  = jarFile;
     }
 
 
     /**
-     *  This is in charge of returning a valid extension class, if any in the
-     *  given jar file, it will return the Class or null if none is found
-     *  NOTE: I am showing some messages in case of failure since otherwise a user may never
-     *  understand WHY his lovely extension is not loaded.
+     * Get the extension class for an extension .jar file. Return the Class or
+     * null if none is found.
+     * 
+     * <p>Some messages are logged in case of failure since otherwise a user may never
+     * understand why his lovely extension was not loaded.
      *
-     * @param  jarFileName  I want a jar file name to load
-     * @return              The extension class, NOT an instance of it !
+     * @param  jarFileName  The name of the (potential) extension jar file name to load
+     * @return              The extension class.
      */
-    private Class getExtensionClass(File jarFileName)
+    private Class<?> getExtensionClass(File jarFileName)
     {
-        Class classRisul = null;
+        Class<?> extensionClass = null;
         extensionStatusString = Config.getString("extmgr.status.loading");
 
         // It may happen, no reason to core dump for this...
@@ -132,8 +128,8 @@ public class ExtensionWrapper
             FirewallLoader fireLoader = new FirewallLoader(getClass().getClassLoader());
             URLClassLoader ucl = new URLClassLoader(urlList,fireLoader);
 
-            classRisul = ucl.loadClass(className);
-            if (!Extension.class.isAssignableFrom(classRisul)) {
+            extensionClass = ucl.loadClass(className);
+            if (!Extension.class.isAssignableFrom(extensionClass)) {
                 Debug.message(errorPrefix+Config.getString("extmgr.error.notsubclass"));
                 return null;
             }
@@ -143,7 +139,7 @@ public class ExtensionWrapper
             return null;
         }
 
-        return classRisul;
+        return extensionClass;
     }
 
     /**
@@ -164,14 +160,12 @@ public class ExtensionWrapper
             myParent = parent;
         }
 
-        public Class findClass(String name) throws ClassNotFoundException
+        public Class<?> findClass(String name) throws ClassNotFoundException
         {
             if ( name.startsWith("bluej.") ) {
-//              Debug.message("Firewall OK: "+name);
                 return myParent.loadClass(name);
             }
 
-//          if ( name.startsWith("antlr.") ) System.out.println ("Firewall =="+name);
             throw new ClassNotFoundException();
         }
     }
@@ -211,8 +205,6 @@ public class ExtensionWrapper
         safeStartup(extensionBluej);
         extensionStatusString = Config.getString("extmgr.status.loaded");
     }
-
-
 
 
     /**
@@ -258,8 +250,6 @@ public class ExtensionWrapper
      */
     void terminate()
     {
-//        Debug.message("Extension.terminate(): class="+getExtensionClassName());
-
         safeTerminate();
 
         // Needed to signal to the revalidate that this instance is no longer here.            
@@ -290,8 +280,9 @@ public class ExtensionWrapper
      */
     public String getExtensionClassName()
     {
-        if (extensionClass == null) 
+        if (extensionClass == null) {
             return null;
+        }
 
         return extensionClass.getName();
     }
@@ -299,7 +290,7 @@ public class ExtensionWrapper
 
     /**
      * Tries to return a reasonable Properties instance of the extension labels
-     * It MAY return null if nothing reasonable can be found in the EXTENSION jar
+     * It may return null if nothing reasonable can be found in the extension jar
      * 
      * @return the properties or null if nothing can be found
      */
@@ -308,15 +299,13 @@ public class ExtensionWrapper
         String localLanguage = Config.getPropString("bluej.language", Config.DEFAULT_LANGUAGE);
 
         // Let me try to get the properties using the local language
-        Properties risulProp = getLabelProperties (localLanguage);
-        if ( risulProp != null ) return risulProp;
+        Properties extensionsProps = getLabelProperties (localLanguage);
+        if ( extensionsProps != null ) return extensionsProps;
 
         // Nothing found, let me try to get them using the default one...
-        risulProp = getLabelProperties (Config.DEFAULT_LANGUAGE);
-        if ( risulProp != null ) return risulProp;
+        extensionsProps = getLabelProperties (Config.DEFAULT_LANGUAGE);
 
-        // Hmmm, this is debatable, should I return null or an empty instance ?
-        return null;
+        return extensionsProps;
     }
 
     
@@ -328,8 +317,6 @@ public class ExtensionWrapper
     private Properties getLabelProperties (String language)
     {
         if ( extensionClass == null ) {
-            // This is really not normal, better say that it is not normal.
-            Debug.message("ExtensionWrapper.getLabelProperties(): ERROR: extensionClass==null");
             return null;
         }
 
@@ -338,30 +325,30 @@ public class ExtensionWrapper
         InputStream inStream = extensionClass.getClassLoader().getResourceAsStream (languageFileName);
         if ( inStream == null ) return null;
 
-        Properties risul = new Properties();
+        Properties props = new Properties();
 
         try {
-            risul.load(inStream);
+            props.load(inStream);
         } catch(Exception ex) {
             // Really it should never happen, if it does there is really something weird going on
             Debug.message("ExtensionWrapper.getLabelProperties(): Exception="+ex.getMessage());
         } 
         closeInputStream ( inStream );
-        return risul;
+        return props;
     }
 
 
     /**
-     * UFF, this is here but it really aught to be in a public util 
+     * UFF, this is here but it really ought to be in a public util.
      * Simply close a stream without complaining too much.
      * Just to avoid the Nth level of try catch with no value added
      */
-    public static void closeInputStream ( InputStream aStream )
+    public static void closeInputStream(InputStream aStream)
     {
         try {
             aStream.close();
         } catch ( Exception ee ) {
-        // Do nothing, really
+            // Do nothing, really
         }
     }
 
@@ -398,9 +385,10 @@ public class ExtensionWrapper
         return "ExtensionWrapper: "+ extensionClass.getName();
     }
 
-    /* ====================== ERROR WRAPPED CALLS HERE =========================
-     * I need to wrapp ALL calls from BlueJ to the Extension into a try/catch
-     * Othervise an error in the extension will render BlueJ unusable. Damiano
+    /* 
+     * ====================== ERROR WRAPPED CALLS HERE =========================
+     * We need to wrap all calls from BlueJ to the Extension into a try/catch;
+     * otherwise an error in the extension will render BlueJ unusable.
      */
 
     /**
@@ -408,8 +396,9 @@ public class ExtensionWrapper
      */
     public void safeEventOccurred(ExtensionEvent event)
     {
-        if (!isValid()) 
+        if (!isValid()) {
             return;
+        }
 
         try {
             ExtensionBridge.delegateEvent(extensionBluej,event);
@@ -427,8 +416,9 @@ public class ExtensionWrapper
      */
     public String safeGetExtensionDescription()
     {
-        if (extensionInstance == null) 
+        if (extensionInstance == null) {
             return null;
+        }
 
         try {
             return extensionInstance.getDescription();

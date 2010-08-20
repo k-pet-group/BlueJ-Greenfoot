@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -31,12 +31,13 @@ import javax.swing.event.*;
 
 
 /**
- * Manages the menues being added by extensions.
+ * Manages the menus being added by extensions.
  * An instance of this class is attached to each popup menu that needs to be aware of extensions menu.
  *
- * Author: Damiano Bolla, University of Kent at Canterbury, 2003,2004,2005
+ * @author Damiano Bolla, University of Kent at Canterbury, 2003,2004,2005
  */
-public final class MenuManager implements PopupMenuListener {
+public final class MenuManager implements PopupMenuListener
+{
     private final ExtensionsManager extMgr;
     private final JPopupMenu.Separator menuSeparator;
     private final JPopupMenu popupMenu;
@@ -47,7 +48,8 @@ public final class MenuManager implements PopupMenuListener {
      *
      * @param  aPopupMenu  The menu that extensions are attaching to.
      */
-    public MenuManager(JPopupMenu aPopupMenu) {
+    public MenuManager(JPopupMenu aPopupMenu)
+    {
         extMgr = ExtensionsManager.getInstance();
         popupMenu = aPopupMenu;
         popupMenu.addPopupMenuListener(this);
@@ -60,9 +62,10 @@ public final class MenuManager implements PopupMenuListener {
      *
      * @param  onThisProject  a specific project to look for, or null for all projects.
      */
-    public void addExtensionMenu(Project onThisProject) {
+    public void addExtensionMenu(Project onThisProject)
+    {
         // Get all menus that can be possibly be generated now.
-        LinkedList menuItems = extMgr.getMenuItems(attachedObject, onThisProject);
+        List<JMenuItem> menuItems = extMgr.getMenuItems(attachedObject, onThisProject);
 
         // Retrieve all the items from the current menu
         MenuElement[] elements = popupMenu.getSubElements();
@@ -97,8 +100,9 @@ public final class MenuManager implements PopupMenuListener {
 
         popupMenu.add(menuSeparator);
 
-        for (Iterator iter = menuItems.iterator(); iter.hasNext();)
-            popupMenu.add((JComponent) iter.next());
+        for (JMenuItem menuItem : menuItems) {
+            popupMenu.add(menuItem);
+        }
     }
 
     /**
@@ -106,7 +110,8 @@ public final class MenuManager implements PopupMenuListener {
      *
      * @param  attachedTo  The new attachedObject value
      */
-    public void setAttachedObject(Object attachedTo) {
+    public void setAttachedObject(Object attachedTo)
+    {
         attachedObject = attachedTo;
     }
 
@@ -115,7 +120,8 @@ public final class MenuManager implements PopupMenuListener {
      *
      * @param  event  The associated event
      */
-    public void popupMenuWillBecomeVisible(PopupMenuEvent event) {
+    public void popupMenuWillBecomeVisible(PopupMenuEvent event)
+    {
         int itemsCount = 0;
 
         JPopupMenu aPopup = (JPopupMenu) event.getSource();
@@ -156,15 +162,13 @@ public final class MenuManager implements PopupMenuListener {
         }
     }
 
-    /**
-     *  Dummy to saisfy the implements PopupMenuListener.
+    /*
+     * Satisfy PopupMenuListener interface
      */
-    public void popupMenuWillBecomeInvisible(PopupMenuEvent event) {
-    }
+    public void popupMenuWillBecomeInvisible(PopupMenuEvent event) { }
 
-    /**
-     *  Dummy to saisfy the implements PopupMenuListener.
+    /*
+     * Satisfy PopupMenuListener interface
      */
-    public void popupMenuCanceled(PopupMenuEvent event) {
-    }
+    public void popupMenuCanceled(PopupMenuEvent event) { }
 }

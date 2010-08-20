@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,14 +29,13 @@ import java.net.*;
 import javax.swing.*;
 
 /**
- *  This class can display info on a particular extension. It is not really
- *  bound to the HelpDialog and may be useful in the future.
+ * This class can display info on a particular extension. It is not really
+ * bound to the HelpDialog and may be useful in the future.
  *  
- *  Author: Damiano Bolla: University of Kent at Canterbury, 2002,2003,2004
+ * @author Damiano Bolla, University of Kent at Canterbury, 2002,2003,2004
  */
 class HelpDetailDialog extends EscapeDialog implements ActionListener
 {
-    private final String extensionsTag = Config.getString("extmgr.extensions");
     private final String detailsTag = Config.getString("extmgr.details");
     private final String systemString = Config.getString("extmgr.systemExtensionLong");
     private final String projectString = Config.getString("extmgr.projectExtensionLong");

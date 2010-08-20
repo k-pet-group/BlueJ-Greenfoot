@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,12 +21,17 @@
  */
 package bluej.extmgr;
 
-import bluej.prefmgr.*;
-import java.awt.*;
-import java.util.*;
+import java.awt.BorderLayout;
+import java.awt.EventQueue;
 import java.util.List;
-import javax.swing.*;
-import javax.swing.border.*;
+
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.border.EmptyBorder;
+
+import bluej.prefmgr.PrefPanelListener;
 
 /**
  * This manages the whole preference pane for Extensions
@@ -34,12 +39,10 @@ import javax.swing.border.*;
  * 
  * @author  Damiano Bolla: University of Kent at Canterbury
  * @author  Michael Kolling
- * 
- * @version $Id: ExtensionPrefManager.java 6319 2009-05-08 15:05:53Z polle $
  */
 public class ExtensionPrefManager implements PrefPanelListener
 {
-    private List extensionsList;
+    private List<ExtensionWrapper> extensionsList;
 
     private final int DO_panelUpdate=1;
     private final int DO_loadValues=2;
@@ -51,7 +54,7 @@ public class ExtensionPrefManager implements PrefPanelListener
     /**
      * The manager needs to know the installed extensions
      */
-    public ExtensionPrefManager(List i_extensionsList) 
+    public ExtensionPrefManager(List<ExtensionWrapper> i_extensionsList) 
     {
         extensionsList = i_extensionsList;
 
@@ -96,8 +99,8 @@ public class ExtensionPrefManager implements PrefPanelListener
             drawPanel.removeAll();
       
         synchronized (extensionsList) {
-            for (Iterator iter=extensionsList.iterator(); iter.hasNext(); ) {
-                doWorkItem ((ExtensionWrapper)iter.next(),doAction);
+            for (ExtensionWrapper wrapper : extensionsList) {
+                doWorkItem (wrapper, doAction);
             }            
         }
     }
@@ -134,8 +137,9 @@ public class ExtensionPrefManager implements PrefPanelListener
     private void addUserPanel(ExtensionWrapper aWrapper, String extensionName) 
     {
         JPanel aPanel = aWrapper.safePrefGenGetPanel();
-        if (aPanel == null) 
+        if (aPanel == null) {
             return;
+        }
 
         // The panel that the user gives me goes into a container pane
         JPanel framePanel = new JPanel(new BorderLayout());
@@ -150,13 +154,16 @@ public class ExtensionPrefManager implements PrefPanelListener
 
 
     /**
-     * To start the revalidation of the panels associated to the extensions you
-     * use this one. NOTE that swing will be accessing the extensions generated objects
-     * in a NON syncronized way, there is a sort of risk here.
+     * Start the revalidation of the panels associated to the extensions.
      */
     public void panelRevalidate() 
     {
-        EventQueue.invokeLater(new ExtensionPrefManager.DoPanelUpdate());
+        if (EventQueue.isDispatchThread()) {
+            doWorkLoop(DO_panelUpdate);
+        }
+        else {
+            EventQueue.invokeLater(new ExtensionPrefManager.DoPanelUpdate());
+        }
     }
     
     /**
@@ -170,13 +177,13 @@ public class ExtensionPrefManager implements PrefPanelListener
         }
     }
 
-    /**
+    /*
      * Needed only to satisfy the implements
      */
     public void beginEditing()  {  }
     
     
-    /**
+    /*
      * Called by the system when it is time to reload the panel values
      */
     public void revertEditing() 
@@ -184,7 +191,7 @@ public class ExtensionPrefManager implements PrefPanelListener
         doWorkLoop(DO_loadValues);
     }
 
-    /**
+    /*
      * Called by the system when the user has pressed the OK buton
      */
     public void commitEditing()

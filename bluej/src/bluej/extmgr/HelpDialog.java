@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -33,14 +33,9 @@ import javax.swing.table.*;
 /**
  * The Extensions Manager help panel allows the user to view current extensions.
  *
- * @version    $Id: HelpDialog.java 6215 2009-03-30 13:28:25Z polle $
+ * @author Clive Millaer, University of Kent at Canterbury, 2002
+ * @author Damiano Bolla, University of Kent at Canterbury, 2003
  */
-
- /*
-  * Author Clive Millaer, University of Kent at Canterbury, 2002
-  * Author Damiano Bolla, University of Kent at Canterbury, 2003
-  */
-  
 public class HelpDialog implements ActionListener
 {
     private final String systemString = Config.getString("extmgr.systemExtensionShort");
@@ -52,13 +47,13 @@ public class HelpDialog implements ActionListener
     private JButton closeButton;
     private JTable extensionsTable;
     private ExtensionsTableModel extensionsTableModel;
-    private List extensionsList;
+    private List<ExtensionWrapper> extensionsList;
 
     /**
      * Setup the UI for the dialog and event handlers for the dialog's buttons.
-     * This new version is guaranetee to have a valid extension manager.
+     * This new version is guarantee to have a valid extension manager.
      */
-    HelpDialog(List i_extensionsList, JFrame parent)
+    HelpDialog(List<ExtensionWrapper> i_extensionsList, JFrame parent)
     {
         extensionsList = i_extensionsList;
     
@@ -189,6 +184,12 @@ public class HelpDialog implements ActionListener
         }
     }
 
+    private final static String columnNames[] = {
+            " ",
+            Config.getString("extmgr.statuscolumn"),
+            Config.getString("extmgr.namecolumn"),
+            Config.getString("extmgr.typecolumn")
+    };
 
     /**
      *  This models the data of the table. Basically the JTable ask this class
@@ -197,12 +198,6 @@ public class HelpDialog implements ActionListener
     class ExtensionsTableModel extends AbstractTableModel
     {
         // It does not matter very much if it is not static, it is created once only
-        private String columnNames[] = {
-                " ",
-                Config.getString("extmgr.statuscolumn"),
-                Config.getString("extmgr.namecolumn"),
-                Config.getString("extmgr.typecolumn")};
-
 
         /**
          *  Returns the rowCount attribute of the ExtensionsTableModel object
@@ -212,7 +207,6 @@ public class HelpDialog implements ActionListener
             return extensionsList.size();
         }
 
-
         /**
          * Returns the columnCount attribute of the ExtensionsTableModel object
          */
@@ -221,9 +215,8 @@ public class HelpDialog implements ActionListener
             return columnNames.length;
         }
 
-
         /**
-         *  Gets the columnName attribute of the ExtensionsTableModel object
+         * Gets the columnName attribute of the ExtensionsTableModel object
          *
          * @param  col  Description of the Parameter
          * @return      The columnName value
@@ -232,7 +225,6 @@ public class HelpDialog implements ActionListener
         {
             return columnNames[col];
         }
-
 
         /**
          *  Gets the cellEditable attribute of the ExtensionsTableModel object
@@ -246,9 +238,8 @@ public class HelpDialog implements ActionListener
             return false;
         }
 
-
         /**
-         *  Gets the valueAt attribute of the ExtensionsTableModel object
+         * Gets the valueAt attribute of the ExtensionsTableModel object
          *
          * @param  row  Description of the Parameter
          * @param  col  Description of the Parameter
@@ -256,43 +247,44 @@ public class HelpDialog implements ActionListener
          */
         public Object getValueAt(int row, int col)
         {
-            if (col == 0)
+            if (col == 0) {
                 return infoIcon;
+            }
 
-            // I really need to sort this out... Do I need to call it every time ?
             ExtensionWrapper wrapper = getWrapper(row);
-            if (wrapper == null)
+            if (wrapper == null) {
                 return "getValueAt: ERROR: no wrapper at row=" + row + " col=" + col;
+            }
 
-            if (col == 1)
+            if (col == 1) {
                 return wrapper.getExtensionStatus();
+            }
 
-            if (col == 2) 
-              return wrapper.safeGetExtensionName();
+            if (col == 2) { 
+                return wrapper.safeGetExtensionName();
+            }
 
-            if (col == 3)
+            if (col == 3) {
                 return (wrapper.getProject() != null) ? projectString : systemString;
+            }
 
             // If I throw an exception all will stop. This instead keeps going
             return "getValueAt: ERROR at row=" + row + " col=" + col;
         }
 
-
         /**
-         *  Gets the columnClass attribute of the ExtensionsTableModel object
+         * Gets the columnClass attribute of the ExtensionsTableModel object
          *
          * @param  col  Description of the Parameter
          * @return      The columnClass value
          */
-        public Class getColumnClass(int col)
+        public Class<?> getColumnClass(int col)
         {
-            if (col == 0)
+            if (col == 0) {
                 return new ImageIcon().getClass();
+            }
 
             return new String().getClass();
         }
-
-
-
     }
 }
