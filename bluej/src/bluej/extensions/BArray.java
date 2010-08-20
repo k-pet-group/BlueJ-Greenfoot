@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,11 +28,7 @@ import com.sun.jdi.*;
  * A wrapper for an array object in BlueJ.
  * Behaviour is similar to the Java reflection API.
  * 
- * @version $Id: BArray.java 6215 2009-03-30 13:28:25Z polle $
- */
-
-/*
- * Author Damiano Bolla, University of Kent at Canterbury, 2003
+ * @author Damiano Bolla, University of Kent at Canterbury, 2003
  */
 public class BArray 
 {
@@ -50,21 +46,18 @@ public class BArray
    * @throws ProjectNotOpenException if the project to which this array belongs has been closed by the user.
    * @throws PackageNotFoundException if the package to which this array belongs has been deleted by the user.
    */
-  public static Object getValue ( BObject thisArray, int itemIndex )
+    public static Object getValue ( BObject thisArray, int itemIndex )
     throws ProjectNotOpenException, PackageNotFoundException
     {
-    ObjectReference objRef = thisArray.getObjectReference();
+        ObjectReference objRef = thisArray.getObjectReference();
 
-    if ( ! ( objRef instanceof ArrayReference ) ) return null;
+        if ( ! ( objRef instanceof ArrayReference ) ) return null;
 
-    ArrayReference array = (ArrayReference)objRef;
-    ReferenceType type = objRef.referenceType();
-    
-    Value val = array.getValue(itemIndex);
+        ArrayReference array = (ArrayReference)objRef;
 
-    PkgMgrFrame aFrame = thisArray.getPackageFrame();
-    return BField.doGetVal(aFrame, "Array", val);
+        Value val = array.getValue(itemIndex);
+
+        PkgMgrFrame aFrame = thisArray.getPackageFrame();
+        return BField.doGetVal(aFrame, "Array", val);
     }
-
-
 }
