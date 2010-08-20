@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -36,7 +36,6 @@ import bluej.utility.*;
  * @author  Michael Kolling
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: JavacCompilerInternal.java 7103 2010-02-09 02:22:41Z davmac $
  */
 class JavacCompilerInternal extends Compiler
 {
@@ -51,7 +50,7 @@ class JavacCompilerInternal extends Compiler
 
     public boolean compile(File[] sources, CompileObserver watcher, boolean internal)
     {
-        List args = new ArrayList();		
+        List<String> args = new ArrayList<String>();		
 
         args.addAll(getCompileOptions());      
 
@@ -62,7 +61,7 @@ class JavacCompilerInternal extends Compiler
         String[] params = new String[length];
         args.toArray(params);
 
-        Class compiler = null;
+        Class<?> compiler = null;
         Method compileMethod = null;
 
         /* problem number one is that between 1.3 and 1.4 the compile
@@ -70,18 +69,19 @@ class JavacCompilerInternal extends Compiler
            use reflection to fix this.
            based on an idea from the JDEE code by jslopez@alum.mit.edu */
 
-        // There are two "compile" methods, one which takes a printwriter as an
+        // There are two "compile" methods, one which takes a PrintWriter as an
         // argument. We'd prefer to use that one if we can find it.
         boolean compileMethodTakesPrintWriter = false;
 
         try {
             compiler = Class.forName("com.sun.tools.javac.Main");
 
-            if (compiler == null)
+            if (compiler == null) {
                 return false;
+            }
 
-            Class[] ppw = new Class[] {String[].class, PrintWriter.class};
-            Class[] p = new Class[] {String[].class};
+            Class<?>[] ppw = new Class[] {String[].class, PrintWriter.class};
+            Class<?>[] p = new Class[] {String[].class};
 
             try {
                 compileMethod = compiler.getMethod("compile", ppw);
@@ -99,8 +99,9 @@ class JavacCompilerInternal extends Compiler
             return false;
         }
 
-        if (compileMethod == null)
+        if (compileMethod == null) {
             return false;
+        }
 
         PrintStream systemErr = System.err;
         JavacErrorWriter output = new JavacErrorWriter(internal);
