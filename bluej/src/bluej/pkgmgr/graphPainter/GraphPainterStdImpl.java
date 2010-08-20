@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -35,16 +35,10 @@ import bluej.pkgmgr.Package;
  * Paints a Graph using TargetPainters
  * 
  * @author fisker
- * @version $Id: GraphPainterStdImpl.java 6215 2009-03-30 13:28:25Z polle $
  */
 public class GraphPainterStdImpl
     implements GraphPainter
 {
-    public static final Color[] shadowColours = { new Color(242, 242, 242), 
-                                                  new Color(211, 211, 211),
-                                                  new Color(189, 189, 189),
-                                                  new Color(83, 83, 83)
-                                                };
     static final int TEXT_HEIGHT = Integer.parseInt(Config.getPropString("bluej.target.fontsize")) + 4;
     static final int TEXT_BORDER = 4;
     static final float alpha = (float) 0.5;
@@ -70,7 +64,7 @@ public class GraphPainterStdImpl
     {
         // Use system settings for text rendering (Java 6 only)
         Toolkit tk = Toolkit.getDefaultToolkit(); 
-        Map desktopHints = (Map) (tk.getDesktopProperty("awt.font.desktophints")); 
+        Map<?,?> desktopHints = (Map<?,?>) (tk.getDesktopProperty("awt.font.desktophints")); 
         if (desktopHints != null) { 
             g.addRenderingHints(desktopHints); 
         } 
@@ -93,8 +87,8 @@ public class GraphPainterStdImpl
     {
         Edge edge;
         //Paint the edges
-        for (Iterator it = graph.getEdges(); it.hasNext();) {
-            edge = (Edge) it.next();
+        for (Iterator<? extends Edge> it = graph.getEdges(); it.hasNext();) {
+            edge = it.next();
             paintEdge(g, edge);
         }
     }
@@ -111,8 +105,8 @@ public class GraphPainterStdImpl
      */
     private void paintVertices(Graphics2D g, Graph graph)
     {
-        for (Iterator it = graph.getVertices(); it.hasNext();) {
-            Vertex vertex = (Vertex) it.next();
+        for (Iterator<? extends Vertex> it = graph.getVertices(); it.hasNext();) {
+            Vertex vertex = it.next();
             paintVertex(g, vertex);
         }
     }
@@ -126,8 +120,8 @@ public class GraphPainterStdImpl
      */
     private void paintGhosts(Graphics2D g, Graph graph)
     {
-        for (Iterator it = graph.getVertices(); it.hasNext();) {
-            Object vertex = it.next();
+        for (Iterator<? extends Vertex> it = graph.getVertices(); it.hasNext();) {
+            Vertex vertex = it.next();
             if (vertex instanceof Moveable) {
                 Moveable moveable = (Moveable) vertex;
                 if (moveable.isDragging()) {

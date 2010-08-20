@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,7 +23,6 @@ package bluej.pkgmgr.target.role;
 
 import java.awt.Color;
 import java.awt.Paint;
-import java.util.Properties;
 import bluej.Config;
 
 /**
@@ -31,7 +30,6 @@ import bluej.Config;
  * built from Java source code.
  *
  * @author Cecilia Vargas
- * @version $Id: AppletClassRole.java 4746 2006-12-07 02:26:53Z davmac $
  */
 public class MIDletClassRole extends ClassRole
 {

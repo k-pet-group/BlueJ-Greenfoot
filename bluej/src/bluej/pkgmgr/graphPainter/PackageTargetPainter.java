@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -32,7 +32,6 @@ import bluej.utility.Utility;
  * Paints a packageTarget
  * 
  * @author fisker
- * @version $Id: PackageTargetPainter.java 7658 2010-05-21 08:14:36Z mik $
  */
 public class PackageTargetPainter
 {
@@ -44,13 +43,12 @@ public class PackageTargetPainter
 
     private static final int TEXT_HEIGHT = GraphPainterStdImpl.TEXT_HEIGHT;
     private static final int TEXT_BORDER = GraphPainterStdImpl.TEXT_BORDER;
-    private static final Color[] shadowColours = GraphPainterStdImpl.shadowColours;
     private static final AlphaComposite alphaComposite = GraphPainterStdImpl.alphaComposite;
     private static Composite oldComposite;
     private int tabWidth;
 
     /**
-     *  
+     * Construct a new PackageTargetPainter.
      */
     public PackageTargetPainter()
     {
@@ -153,5 +151,4 @@ public class PackageTargetPainter
     {
         return PrefMgr.getTargetFont();
     }
-
 }

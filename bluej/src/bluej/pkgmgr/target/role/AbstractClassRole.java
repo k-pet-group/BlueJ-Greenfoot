@@ -31,7 +31,7 @@ import bluej.pkgmgr.target.*;
  * A role object to represent the behaviour of abstract classes.
  *
  * @author  Andrew Patterson 
- * @version $Id: AbstractClassRole.java 7594 2010-05-18 14:39:08Z nccb $
+ * @version $Id: AbstractClassRole.java 8123 2010-08-20 04:29:01Z davmac $
  */
 public class AbstractClassRole extends ClassRole
 {
@@ -70,13 +70,13 @@ public class AbstractClassRole extends ClassRole
     /**
      * Creates a class menu containing any constructors.
      *
-     * Because we are an abstract class we cannot have any constructors
+     * <p>Because we are an abstract class we cannot have any constructors
      * so we override this method to do nothing.
      *
      * @param menu the popup menu to add the class menu items to
      * @param cl Class object associated with this class target
      */
-    public boolean createClassConstructorMenu(JPopupMenu menu, ClassTarget ct, Class cl)
+    public boolean createClassConstructorMenu(JPopupMenu menu, ClassTarget ct, Class<?> cl)
     {
         return false;
     }

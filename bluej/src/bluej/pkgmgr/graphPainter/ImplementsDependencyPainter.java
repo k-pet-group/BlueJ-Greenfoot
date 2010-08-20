@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,15 +27,12 @@ import java.awt.Graphics2D;
 import bluej.Config;
 import bluej.pkgmgr.dependency.Dependency;
 import bluej.pkgmgr.dependency.ImplementsDependency;
-import bluej.pkgmgr.target.DependentTarget;
 
 /**
  * Paintes ImplementsDependencies
  * 
  * @author fisker
  * @author Michael Kolling
- * @version $Id: ImplementsDependencyPainter.java,v 1.6 2004/07/07 15:52:12 mik
- *          Exp $
  */
 public class ImplementsDependencyPainter
     implements DependencyPainter

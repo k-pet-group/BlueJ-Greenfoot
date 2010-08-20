@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,22 +21,23 @@
  */
 package bluej.pkgmgr.graphPainter;
 
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.RenderingHints;
+import java.awt.Stroke;
 
 import bluej.Config;
-import bluej.graph.SelectionController;
 import bluej.graph.RubberBand;
 import bluej.pkgmgr.dependency.Dependency;
 import bluej.pkgmgr.dependency.UsesDependency;
-import bluej.pkgmgr.target.DependentTarget;
 
 /**
  * Paints usesDependencies
  * 
  * @author fisker
  * @author Michael Kolling
- * @version $Id: UsesDependencyPainter.java 6215 2009-03-30 13:28:25Z polle $
  */
 public class UsesDependencyPainter
     implements DependencyPainter

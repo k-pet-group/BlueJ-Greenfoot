@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -33,7 +33,6 @@ import bluej.prefmgr.PrefMgr;
  * A role object to represent the behaviour of enums.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: EnumClassRole.java 7594 2010-05-18 14:39:08Z nccb $
  */
 public class EnumClassRole extends ClassRole
 {
@@ -78,7 +77,7 @@ public class EnumClassRole extends ClassRole
      * @param menu the popup menu to add the class menu items to
      * @param cl Class object associated with this class target
      */
-    public boolean createClassConstructorMenu(JPopupMenu menu, ClassTarget ct, Class cl)
+    public boolean createClassConstructorMenu(JPopupMenu menu, ClassTarget ct, Class<?> cl)
     {
         return false;
     }

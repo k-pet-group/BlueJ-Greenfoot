@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -34,13 +34,11 @@ import bluej.graph.GraphEditor;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.graphPainter.ReadmeTargetPainter;
 import bluej.prefmgr.PrefMgr;
-import bluej.utility.Utility;
 
 /**
  * A parent package
  *
  * @author  Andrew Patterson
- * @version $Id: ReadmeTarget.java 7651 2010-05-20 14:02:51Z nccb $
  */
 public class ReadmeTarget extends EditableTarget
     implements ActionListener 
@@ -215,7 +213,7 @@ public class ReadmeTarget extends EditableTarget
     /**
      * Construct a popup menu which displays all our parent packages.
      */
-    private JPopupMenu createMenu(Class cl)
+    private JPopupMenu createMenu(Class<?> cl)
     {
         JPopupMenu menu = new JPopupMenu();
         JMenuItem item;
@@ -226,11 +224,10 @@ public class ReadmeTarget extends EditableTarget
         item.setFont(PrefMgr.getPopupMenuFont());
         item.setForeground(envOpColour);
         return menu;
-       }
+    }
 
     private class OpenAction extends AbstractAction
     {
-
         public OpenAction(String menu)
         {
             super(menu);

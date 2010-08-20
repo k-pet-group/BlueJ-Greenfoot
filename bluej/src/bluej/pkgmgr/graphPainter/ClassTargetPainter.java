@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -37,9 +37,7 @@ import bluej.utility.Utility;
  * Paints a ClassTarget
  * 
  * @author fisker
- * @version $Id: ClassTargetPainter.java 7710 2010-05-24 13:52:48Z mik $
  */
-
 public class ClassTargetPainter
 {
     private static final int HANDLE_SIZE = 20;
@@ -47,7 +45,6 @@ public class ClassTargetPainter
     private static final String STEREOTYPE_CLOSE = ">>";
     private static final Color textcolor = Config.getItemColour("colour.text.fg");
     private static final Color borderColor = Config.getItemColour("colour.target.border");
-    private static final Color compileColor = Config.getItemColour("colour.target.bg.compiling");
     private static final Color stripeColor = Config.getItemColour("colour.target.stripes");
     private static final Image brokenImage = Config.getFixedImageAsIcon("broken-symbol.png").getImage();
     private static final Font targetFont = PrefMgr.getTargetFont();
