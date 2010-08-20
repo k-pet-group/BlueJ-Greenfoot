@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -33,7 +33,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
-import java.rmi.RemoteException;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -48,7 +47,6 @@ import java.util.zip.ZipException;
 import java.util.zip.ZipOutputStream;
 
 import bluej.Config;
-import bluej.extensions.ProjectNotOpenException;
 import bluej.pkgmgr.Project;
 import bluej.utility.BlueJFileReader;
 import bluej.utility.Debug;
@@ -142,15 +140,7 @@ public class JarCreator
         this(exportDir, jarName);
         
         // get the project directory        
-        try {
-            projectDir = project.getDir();
-        }
-        catch (ProjectNotOpenException e) {
-            e.printStackTrace();
-        }
-        catch (RemoteException e) {
-            e.printStackTrace();
-        }
+        projectDir = project.getDir();
         
         String scenarioName = project.getName();
         
@@ -232,17 +222,7 @@ public class JarCreator
         
         isZip = true;
         
-        // get the project directory        
-        try {
-            projectDir = project.getDir();
-        }
-        catch (ProjectNotOpenException e) {
-            e.printStackTrace();
-        }
-        catch (RemoteException e) {
-            e.printStackTrace();
-        }
-        
+        projectDir = project.getDir();
         
         addFile(projectDir);        
         

@@ -53,7 +53,6 @@ import rmiextension.wrappers.RProject;
 import rmiextension.wrappers.event.RCompileEvent;
 import rmiextension.wrappers.event.RInvocationListener;
 import rmiextension.wrappers.event.RProjectListener;
-import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.debugmgr.CallHistory;
 import bluej.extensions.ProjectNotOpenException;
@@ -71,7 +70,7 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 8079 2010-08-13 15:48:01Z plcs $
+ * @version $Id: GreenfootMain.java 8126 2010-08-20 05:30:44Z davmac $
  */
 public class GreenfootMain extends Thread implements CompileListener, RProjectListener
 {
@@ -231,15 +230,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
      */
     private boolean isStartupProject()
     {
-        try {
-            return project.getDir().equals(startupProject);
-        }
-        catch (ProjectNotOpenException pnoe) {
-            return false;
-        }
-        catch (RemoteException re) {
-            return false;
-        }
+        return project.getDir().equals(startupProject);
     }
 
     /**
@@ -259,19 +250,17 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             return;
         }
 
-        try {
-            // It's possible that the user re-opened a project which they previously closed,
-            // resulting in an empty frame (because no other open projects). In that case the
-            // project is actually still running, behind the scenes; so just re-display it.
-            if (project.getDir().equals(projectDirFile)) {
-                frame.openProject(project);
-                return;
-            }
+        // It's possible that the user re-opened a project which they previously closed,
+        // resulting in an empty frame (because no other open projects). In that case the
+        // project is actually still running, behind the scenes; so just re-display it.
+        if (project.getDir().equals(projectDirFile)) {
+            frame.openProject(project);
+            return;
         }
-        catch (ProjectNotOpenException pnoe) {}
 
-        if (!projectDirFile.isDirectory() && !Project.isProject(projectDirFile.toString()))
+        if (!projectDirFile.isDirectory() && !Project.isProject(projectDirFile.toString())) {
             projectDirFile = Utility.maybeExtractArchive(projectDirFile, frame);
+        }
                 
         int versionStatus = GreenfootMain.updateApi(projectDirFile, frame);
         boolean doOpen = versionStatus != VERSION_BAD;

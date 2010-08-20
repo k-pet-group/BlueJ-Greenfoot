@@ -48,7 +48,6 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.UnknownHostException;
-import java.rmi.RemoteException;
 import java.util.Set;
 
 import javax.imageio.ImageIO;
@@ -56,7 +55,6 @@ import javax.swing.SwingUtilities;
 
 import bluej.Boot;
 import bluej.Config;
-import bluej.extensions.ProjectNotOpenException;
 import bluej.pkgmgr.Project;
 
 public class Exporter 
@@ -291,17 +289,13 @@ public class Exporter
     private File[] getJarsInPlusLib(GProject project)
     {
         File[] jarFiles = null;
-        try {
-            File plusLibsDir = new File(project.getDir(), Project.projectLibDirName);
-            jarFiles = plusLibsDir.listFiles(new FilenameFilter() {
-                public boolean accept(File dir, String name)
-                {
-                    return name.toLowerCase().endsWith(".jar");
-                }
-            });
-        }
-        catch (ProjectNotOpenException e) {}
-        catch (RemoteException e) {}
+        File plusLibsDir = new File(project.getDir(), Project.projectLibDirName);
+        jarFiles = plusLibsDir.listFiles(new FilenameFilter() {
+            public boolean accept(File dir, String name)
+            {
+                return name.toLowerCase().endsWith(".jar");
+            }
+        });
         return jarFiles;
     }
         

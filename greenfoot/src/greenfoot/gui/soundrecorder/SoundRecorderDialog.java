@@ -40,7 +40,6 @@ import java.awt.event.MouseMotionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.File;
-import java.rmi.RemoteException;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -60,15 +59,12 @@ import javax.swing.event.DocumentListener;
 
 import bluej.BlueJTheme;
 import bluej.Config;
-import bluej.extensions.ProjectNotOpenException;
-import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 
 /**
  * The GUI class for the sound recorder.
  * 
  * @author neil
- *
  */
 public class SoundRecorderDialog extends JDialog implements WindowListener
 {
@@ -302,17 +298,7 @@ public class SoundRecorderDialog extends JDialog implements WindowListener
     // Gets the sounds directory for the given project, or null if there is a problem
     private static String getSoundDir(GProject project)
     {
-        String projectSoundDir = null;
-        try {
-            projectSoundDir = project.getDir() + "/sounds/";
-        }
-        catch (RemoteException e) {
-            Debug.reportError("Remote exception querying project directory when recording sounds", e);
-        }
-        catch (ProjectNotOpenException e) {
-            Debug.reportError("Project not open when recording sounds", e);
-        }
-        return projectSoundDir;
+        return project.getDir() + File.separator + "sounds" + File.separator;
     }
     
     // Updates trim and play buttons based on whether the selection is active

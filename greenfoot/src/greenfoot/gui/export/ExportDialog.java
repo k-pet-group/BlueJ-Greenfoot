@@ -36,7 +36,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.rmi.RemoteException;
 import java.util.HashMap;
 
 import javax.swing.JButton;
@@ -47,7 +46,6 @@ import javax.swing.SwingUtilities;
 
 import bluej.BlueJTheme;
 import bluej.Config;
-import bluej.extensions.ProjectNotOpenException;
 import bluej.utility.DialogManager;
 import bluej.utility.EscapeDialog;
 
@@ -60,8 +58,6 @@ public class ExportDialog extends EscapeDialog
     private static final String noWorldDialogTitle = Config.getString("export.noworld.dialog.title");
     private static final String noWorldDialogMsg = Config.getString("export.noworld.dialog.msg");
     
-    private static final Color backgroundColor = new Color(220, 220, 220);
-
     private Frame parent;
     private GProject project;
     private JPanel contentPane;
@@ -81,18 +77,7 @@ public class ExportDialog extends EscapeDialog
         
         project = parent.getProject();
         
-        File projectDir = null;
-        try {
-            projectDir = project.getDir();
-        }
-        catch (ProjectNotOpenException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
-        catch (RemoteException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
+        File projectDir = project.getDir();
         
         createPanes(project, projectDir.getParentFile());
         makeDialog();

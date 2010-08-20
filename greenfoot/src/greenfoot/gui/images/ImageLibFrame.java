@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program.
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -81,7 +81,6 @@ import javax.swing.event.ListSelectionListener;
 import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.extensions.ProjectNotOpenException;
-import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.EscapeDialog;
 import bluej.utility.FileUtility;
@@ -91,7 +90,6 @@ import bluej.utility.FileUtility;
  * project image library, or the greenfoot library, or an external location.
  *
  * @author Davin McCall
- * @version $Id: ImageLibFrame.java 7935 2010-07-27 09:54:39Z plcs $
  */
 public class ImageLibFrame extends EscapeDialog implements ListSelectionListener, WindowListener, MouseListener
 {
@@ -210,15 +208,11 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
 
                 imageScrollPane = new JScrollPane();
 
-                try {
-                    File projDir = project.getDir();
-                    projImagesDir = new File(projDir, "images");
-                    projImageList = new ImageLibList(projImagesDir, false);
-                    projImageList.addMouseListener(this);
-                    imageScrollPane.getViewport().setView(projImageList);
-                }
-                catch (ProjectNotOpenException pnoe) {}
-                catch (RemoteException re) { re.printStackTrace(); }
+                File projDir = project.getDir();
+                projImagesDir = new File(projDir, "images");
+                projImageList = new ImageLibList(projImagesDir, false);
+                projImageList.addMouseListener(this);
+                imageScrollPane.getViewport().setView(projImageList);
 
                 imageScrollPane.setBorder(Config.normalBorder);
                 imageScrollPane.setViewportBorder(BorderFactory.createLineBorder(projImageList.getBackground(), 4));
@@ -462,25 +456,6 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
 
         classDetailsPanel.setAlignmentX(0.0f);
         return classDetailsPanel;
-    }
-
-     /**
-      * Copy an image to the project's images directory.
-      * @file the image file to copy
-      */
-    private File copyToProject(File file) throws IOException
-    {
-        File imageDir = null;
-        try {
-            imageDir = gclass.getPackage().getProject().getImageDir();
-        }
-        catch (ProjectNotOpenException e) {
-            e.printStackTrace();
-        }
-        if(file.getParentFile().equals(imageDir)) return file;
-        File newFile = new File(imageDir, file.getName());
-        GreenfootUtil.copyFile(file, newFile);
-        return newFile;
     }
 
     /**

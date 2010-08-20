@@ -24,7 +24,6 @@ package greenfoot.core;
 import greenfoot.event.CompileListener;
 
 import java.io.File;
-import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,7 +32,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import rmiextension.wrappers.RClass;
 import rmiextension.wrappers.RPackage;
 import rmiextension.wrappers.RProject;
 import rmiextension.wrappers.event.RCompileEvent;
@@ -71,13 +69,13 @@ public class GProject extends RProjectListenerImpl
     public GProject(RProject rmiProject) throws RemoteException
     {
         this.rProject = rmiProject;
-        rmiProject.addListener(this);
         try {
+            rmiProject.addListener(this);
             projectProperties = new ProjectProperties(getDir());
         }
-        catch (Exception exc) {
-            Debug.reportError("Could not open greenfoot scenario properties");
-            exc.printStackTrace();
+        catch (RemoteException re) {
+            Debug.reportError("Could not instantiate Greenfoot project", re);
+            throw new InternalGreenfootError(re);
         }
     }
     
@@ -139,49 +137,21 @@ public class GProject extends RProjectListenerImpl
             return ret;
         }
     }
-    
-    /**
-     * Get a remote reference to a class in this project. Thread-safe.
-     * 
-     * @param fullyQualifiedName  The fully-qualified class name
-     * @return  A remote reference to the class
-     */
-    public RClass getRClass(String fullyQualifiedName)
-    {
-        try {
-            int lastDotIndex = fullyQualifiedName.lastIndexOf('.');
-            RPackage pkg;
-            String className;
-            if (lastDotIndex == -1) {
-                pkg = rProject.getPackage("");
-                className = fullyQualifiedName;
-            }
-            else {
-                pkg = rProject.getPackage(fullyQualifiedName.substring(0, lastDotIndex));
-                className = fullyQualifiedName.substring(lastDotIndex + 1);
-            }
-            if (pkg == null) {
-                return null;
-            }
-            return pkg.getRClass(className);
-        }
-        catch (RemoteException re) {
-            throw new InternalGreenfootError(re);
-        }
-        catch (ProjectNotOpenException pnoe) {
-            throw new InternalGreenfootError(pnoe);
-        }
-        catch (PackageNotFoundException pnfe) {
-            throw new InternalGreenfootError(pnfe);
-        }
-    }
 
     public File getDir()
-        throws ProjectNotOpenException,RemoteException
     {
-        return rProject.getDir();
+        try { 
+            return rProject.getDir();
+        }
+        catch (ProjectNotOpenException pnoe) {
+            Debug.reportError("Couldn't get project directory", pnoe);
+            throw new InternalGreenfootError(pnoe);
+        }
+        catch (RemoteException re) {
+            Debug.reportError("Couldn't get project directory", re);
+            throw new InternalGreenfootError(re);
+        }
     }
-
     
     /**
      * Get the project name (the name of the directory containing it).
@@ -203,12 +173,6 @@ public class GProject extends RProjectListenerImpl
         return null;
     }
         
-    public boolean inTestMode()
-    {
-        //Greenfoot does not support testing:
-        return false;
-    }
-    
     /**
      * Retrieve the properties for a package. Loads the properties if necessary.
      */
@@ -226,10 +190,12 @@ public class GProject extends RProjectListenerImpl
             rProject.openReadmeEditor();
         }
         catch (RemoteException re) {
-            re.printStackTrace();
+            Debug.reportError("Opening Readme", re);
+            throw new InternalGreenfootError(re);
         }
         catch (ProjectNotOpenException pnoe) {
-            pnoe.printStackTrace();
+            Debug.reportError("Opening Readme", pnoe);
+            throw new InternalGreenfootError(pnoe);
         }
     }
     
@@ -241,7 +207,7 @@ public class GProject extends RProjectListenerImpl
         return rProject;
     }
     
-    /* (non-Javadoc)
+    /*
      * @see rmiextension.wrappers.event.RProjectListener#projectClosing()
      */
     public void projectClosing()
@@ -282,9 +248,9 @@ public class GProject extends RProjectListenerImpl
                 }
             }
         }
-        catch (Exception e2) {
-            e2.printStackTrace();
-            return false;
+        catch (Exception e) {
+            Debug.reportError("Checking class compiled state", e);
+            throw new InternalGreenfootError(e);
         }
         return true;
     }
@@ -364,13 +330,17 @@ public class GProject extends RProjectListenerImpl
             }
         }
         catch (ProjectNotOpenException e) {
+            Debug.reportError("Reloading project classes", e);
+            throw new InternalGreenfootError(e);
         }
         catch (RemoteException e) {
-            e.printStackTrace();
+            Debug.reportError("Reloading project classes", e);
+            throw new InternalGreenfootError(e);
         }
         catch (PackageNotFoundException e) {
+            Debug.reportError("Reloading project classes", e);
+            throw new InternalGreenfootError(e);
         }
-        
     }
     
     private void delegateCompileEvent(RCompileEvent event)
@@ -413,20 +383,10 @@ public class GProject extends RProjectListenerImpl
      */
     public File getImageDir()
     {
-        File projDir;
-        try {
-            projDir = getDir().getAbsoluteFile();
-            File projImagesDir = new File(projDir, "images");
-            projImagesDir.mkdir();
-            return projImagesDir;
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-        catch (ProjectNotOpenException e) {
-            e.printStackTrace();
-        }
-        return null;
+        File projDir = getDir().getAbsoluteFile();
+        File projImagesDir = new File(projDir, "images");
+        projImagesDir.mkdir();
+        return projImagesDir;
     }
 
     /**
@@ -435,27 +395,17 @@ public class GProject extends RProjectListenerImpl
      */
     public File getSoundDir()
     {
-        File projDir;
-        try {
-            projDir = getDir().getAbsoluteFile();
-            File projSoundsDir = new File(projDir, "sounds");
-            projSoundsDir.mkdir();
-            return projSoundsDir;
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-        catch (ProjectNotOpenException e) {
-            e.printStackTrace();
-        }
-        return null;
+        File projDir = getDir().getAbsoluteFile();
+        File projSoundsDir = new File(projDir, "sounds");
+        projSoundsDir.mkdir();
+        return projSoundsDir;
     }
 
     public void showExecControls()
     {
         try {
             rProject.showExecControls();
-        } catch (Exception ex) {
+        } catch (RemoteException ex) {
             Debug.reportError("Error showing debugger", ex);
         }
     }
