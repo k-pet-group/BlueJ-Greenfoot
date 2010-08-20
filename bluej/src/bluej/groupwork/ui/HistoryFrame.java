@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -44,7 +44,6 @@ import bluej.utility.SwingWorker;
  * and commit comments.
  * 
  * @author Davin McCall
- * @version $Id: HistoryFrame.java 6215 2009-03-30 13:28:25Z polle $
  */
 public class HistoryFrame extends EscapeDialog
 {
@@ -56,7 +55,7 @@ public class HistoryFrame extends EscapeDialog
     HistoryListRenderer renderer = new HistoryListRenderer(listModel);
     JList historyList;
     JScrollPane historyPane;
-    List historyInfoList;
+    List<HistoryInfo> historyInfoList;
     
     JComboBox fileFilterCombo;
     JComboBox userFilterCombo;
@@ -101,14 +100,14 @@ public class HistoryFrame extends EscapeDialog
         contentPane.add(historyPane);
         
         // Find a suitable size for the history list
-        List tempList = new ArrayList(5);
+        List<HistoryInfo> tempList = new ArrayList<HistoryInfo>(5);
         HistoryInfo tempInfo = new HistoryInfo(new String[] {"somepath/abcdefg.java"}, "1.1", "2006/11/34 12:34:56", "abraham", "this is the expected comment length of comments");
         for (int i = 0; i < 8; i++) {
             tempList.add(tempInfo);
         }
         listModel.setListData(tempList);
         Dimension size = historyList.getPreferredSize();
-        listModel.setListData(Collections.EMPTY_LIST);
+        listModel.setListData(Collections.<HistoryInfo>emptyList());
         historyList.setPreferredSize(size);
         
         contentPane.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
@@ -203,13 +202,13 @@ public class HistoryFrame extends EscapeDialog
             file = (String) fileFilterCombo.getItemAt(fileIndex);
         }
         
-        List displayList;
+        List<HistoryInfo> displayList;
         if (user == null && file == null) {
             displayList = historyInfoList;
         }
         else {
-            displayList = new ArrayList();
-            for (Iterator i = historyInfoList.iterator(); i.hasNext(); ) {
+            displayList = new ArrayList<HistoryInfo>();
+            for (Iterator<HistoryInfo> i = historyInfoList.iterator(); i.hasNext(); ) {
                 HistoryInfo info = (HistoryInfo) i.next();
                 if (user != null && ! info.getUser().equals(user)) {
                     continue;
@@ -245,11 +244,11 @@ public class HistoryFrame extends EscapeDialog
      */
     private void resetFilterBoxes()
     {
-        Set users = new HashSet();
-        Set files = new HashSet();
+        Set<String> users = new HashSet<String>();
+        Set<String> files = new HashSet<String>();
         
-        for (Iterator i = historyInfoList.iterator(); i.hasNext(); ) {
-            HistoryInfo info = (HistoryInfo) i.next();
+        for (Iterator<HistoryInfo> i = historyInfoList.iterator(); i.hasNext(); ) {
+            HistoryInfo info = i.next();
             String [] infoFiles = info.getFiles();
             for (int j = 0; j < infoFiles.length; j++) {
                 files.add(infoFiles[j]);
@@ -257,14 +256,14 @@ public class HistoryFrame extends EscapeDialog
             users.add(info.getUser());
         }
         
-        List usersList = new ArrayList(users);
+        List<String> usersList = new ArrayList<String>(users);
         Collections.sort(usersList);
-        List filesList = new ArrayList(files);
+        List<String> filesList = new ArrayList<String>(files);
         Collections.sort(filesList);
         
         userFilterCombo.removeAllItems();
         userFilterCombo.addItem(Config.getString("team.history.allUsers"));
-        Iterator i = usersList.iterator();
+        Iterator<String> i = usersList.iterator();
         while (i.hasNext()) {
             userFilterCombo.addItem(i.next());
         }
@@ -289,13 +288,13 @@ public class HistoryFrame extends EscapeDialog
      */
     private class HistoryWorker extends SwingWorker implements LogHistoryListener
     {
-        private List responseList;
+        private List<HistoryInfo> responseList;
         private TeamworkCommand command;
         private TeamworkCommandResult response;
         
         public HistoryWorker(Repository repository)
         {
-            this.responseList = new ArrayList();
+            this.responseList = new ArrayList<HistoryInfo>();
             
             command = repository.getLogHistory(this);
         }
@@ -353,13 +352,10 @@ public class HistoryFrame extends EscapeDialog
  * 
  * @author Davin McCall
  */
-class DateCompare implements Comparator
+class DateCompare implements Comparator<HistoryInfo>
 {
-    public int compare(Object arg0, Object arg1)
+    public int compare(HistoryInfo hi0, HistoryInfo hi1)
     {
-        HistoryInfo hi0 = (HistoryInfo) arg0;
-        HistoryInfo hi1 = (HistoryInfo) arg1;
-        
         return hi1.getDate().compareTo(hi0.getDate());
     }
 }

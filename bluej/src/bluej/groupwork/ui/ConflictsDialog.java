@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -54,8 +54,8 @@ import javax.swing.JScrollPane;
 public class ConflictsDialog extends JDialog
 {
     private JLabel heading;
-    private List bluejConflicts;
-    private List nonBluejConflicts;
+    private List<String> bluejConflicts;
+    private List<String> nonBluejConflicts;
     private Project project;
 
     /**
@@ -63,8 +63,8 @@ public class ConflictsDialog extends JDialog
      * @param blueJconflicts
      * @param nonBlueJConflicts
      */
-    public ConflictsDialog(Project project, List bluejConflicts,
-        List nonBlueJConflicts)
+    public ConflictsDialog(Project project, List<String> bluejConflicts,
+        List<String> nonBlueJConflicts)
     {
         super();
         this.project = project;
@@ -105,7 +105,7 @@ public class ConflictsDialog extends JDialog
         pack();
     }
 
-    private JPanel makeConflictsPanel(String headline, List conflicts)
+    private JPanel makeConflictsPanel(String headline, List<String> conflicts)
     {
         JPanel labelPanel = new JPanel();
 
@@ -132,8 +132,8 @@ public class ConflictsDialog extends JDialog
             conflictsPanel.setAlignmentX(LEFT_ALIGNMENT);
 
             //the conflicting files labels
-            for (Iterator i = conflicts.iterator(); i.hasNext();) {
-                String conflict = (String) i.next();
+            for (Iterator<String> i = conflicts.iterator(); i.hasNext();) {
+                String conflict = i.next();
                 conflictsPanel.add(new JLabel(conflict));
             }
 

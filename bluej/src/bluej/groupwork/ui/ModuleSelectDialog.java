@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -49,7 +49,6 @@ import bluej.utility.SwingWorker;
  * A dialog for selecting a module to checkout.
  * 
  * @author Davin McCall
- * @version $Id: ModuleSelectDialog.java 6215 2009-03-30 13:28:25Z polle $
  */
 public class ModuleSelectDialog extends EscapeDialog implements ListSelectionListener
 {
@@ -102,7 +101,7 @@ public class ModuleSelectDialog extends EscapeDialog implements ListSelectionLis
         progressBar.setRunning(false);
     }
     
-    private void setModuleList(List modules)
+    private void setModuleList(List<String> modules)
     {
         Object [] listData = modules.toArray();
         moduleList.setListData(listData);
@@ -180,7 +179,7 @@ public class ModuleSelectDialog extends EscapeDialog implements ListSelectionLis
             {
                 listButton.setEnabled(false);
                 startProgressBar();
-                worker = new ModuleListerThread(repository);
+                worker = new ModuleListerThread();
                 worker.start();
             }
         });
@@ -253,15 +252,13 @@ public class ModuleSelectDialog extends EscapeDialog implements ListSelectionLis
      */
     private class ModuleListerThread extends SwingWorker
     {
-        private Repository repository;
         private TeamworkCommand command;
         private TeamworkCommandResult result;
-        private List modules;
+        private List<String> modules;
         
-        public ModuleListerThread(Repository repository)
+        public ModuleListerThread()
         {
-            this.repository = repository;
-            modules = new ArrayList();
+            modules = new ArrayList<String>();
             command = repository.getModules(modules);
         }
         

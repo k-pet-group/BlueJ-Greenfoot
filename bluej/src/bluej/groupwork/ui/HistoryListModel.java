@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,6 +26,8 @@ import java.util.List;
 
 import javax.swing.AbstractListModel;
 
+import bluej.groupwork.HistoryInfo;
+
 /**
  * A list model for the history list.
  * 
@@ -35,17 +37,16 @@ import javax.swing.AbstractListModel;
  * the height changes.
  * 
  * @author Davin McCall
- * @version $Id: HistoryListModel.java 6215 2009-03-30 13:28:25Z polle $
  */
 public class HistoryListModel extends AbstractListModel
 {
-    private List listData;
+    private List<HistoryInfo> listData;
     private int [] cellHeights;
     
     public HistoryListModel()
     {
         super();
-        listData = Collections.EMPTY_LIST;
+        listData = Collections.emptyList();
     }
     
     /**
@@ -53,7 +54,7 @@ public class HistoryListModel extends AbstractListModel
      * 
      * @param newData A list of HistoryInfo objects.
      */
-    public void setListData(List newData)
+    public void setListData(List<HistoryInfo> newData)
     {
         int endIndex = listData.size() - 1;
         if (endIndex >= 0) {
