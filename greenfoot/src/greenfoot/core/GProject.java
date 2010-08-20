@@ -164,11 +164,11 @@ public class GProject extends RProjectListenerImpl
         }
         catch (ProjectNotOpenException pnoe) {
             // this exception should never happen
-            pnoe.printStackTrace();
+            Debug.reportError("Getting project name", pnoe);
         }
         catch (RemoteException re) {
             // this should also not happen
-            re.printStackTrace();
+            Debug.reportError("Getting project name", re);
         }
         return null;
     }
@@ -268,8 +268,8 @@ public class GProject extends RProjectListenerImpl
                 cls.closeEditor();
             }
         }
-        catch (Exception e2) {
-            e2.printStackTrace();
+        catch (Exception e) {
+            Debug.reportError("Closing all editors", e);
         }
     }
     
@@ -371,7 +371,7 @@ public class GProject extends RProjectListenerImpl
                     }
                 }
                 catch (RemoteException re) {
-                    re.printStackTrace();
+                    Debug.reportError("Determining compilation event type", re);
                 }
             }
         }
