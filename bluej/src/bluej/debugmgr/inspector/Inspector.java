@@ -30,7 +30,6 @@ import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.GridLayout;
 import java.awt.Point;
-import java.awt.Shape;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -569,8 +568,9 @@ public abstract class Inspector extends JFrame
 
        private static Class<?> awtUtilitiesClass;
        private static Class<?> translucencyClass;
-       private static Method mIsTranslucencySupported,  mIsTranslucencyCapable,  mSetWindowShape,  mSetWindowOpacity,  mSetWindowOpaque;
-       public static Object PERPIXEL_TRANSPARENT,  TRANSLUCENT,  PERPIXEL_TRANSLUCENT;
+       // private static Method mIsTranslucencySupported,  mSetWindowShape,  mSetWindowOpacity;
+       private static Method mIsTranslucencyCapable, mSetWindowOpaque;
+       //public static Object PERPIXEL_TRANSPARENT,  TRANSLUCENT,  PERPIXEL_TRANSLUCENT;
 
        static void init() {
            try {
@@ -579,15 +579,15 @@ public abstract class Inspector extends JFrame
                if (translucencyClass.isEnum()) {
                    Object[] kinds = translucencyClass.getEnumConstants();
                    if (kinds != null) {
-                       PERPIXEL_TRANSPARENT = kinds[0];
-                       TRANSLUCENT = kinds[1];
-                       PERPIXEL_TRANSLUCENT = kinds[2];
+                       //PERPIXEL_TRANSPARENT = kinds[0];
+                       //TRANSLUCENT = kinds[1];
+                       //PERPIXEL_TRANSLUCENT = kinds[2];
                    }
                }
-               mIsTranslucencySupported = awtUtilitiesClass.getMethod("isTranslucencySupported", translucencyClass);
+               // mIsTranslucencySupported = awtUtilitiesClass.getMethod("isTranslucencySupported", translucencyClass);
                mIsTranslucencyCapable = awtUtilitiesClass.getMethod("isTranslucencyCapable", GraphicsConfiguration.class);
-               mSetWindowShape = awtUtilitiesClass.getMethod("setWindowShape", Window.class, Shape.class);
-               mSetWindowOpacity = awtUtilitiesClass.getMethod("setWindowOpacity", Window.class, float.class);
+               // mSetWindowShape = awtUtilitiesClass.getMethod("setWindowShape", Window.class, Shape.class);
+               // mSetWindowOpacity = awtUtilitiesClass.getMethod("setWindowOpacity", Window.class, float.class);
                mSetWindowOpaque = awtUtilitiesClass.getMethod("setWindowOpaque", Window.class, boolean.class);
            } catch (Exception ex) {
                Debug.reportError("Couldn't support AWTUtilities", ex);
@@ -615,12 +615,14 @@ public abstract class Inspector extends JFrame
            return false;
        }
        
+       /*
        public static boolean isTranslucencySupported(Object kind) {
            if (translucencyClass == null) {
                return false;
            }
            return isSupported(mIsTranslucencySupported, kind);
        }
+       */
        
        public static boolean isTranslucencyCapable(GraphicsConfiguration gc) {
            return isSupported(mIsTranslucencyCapable, gc);
@@ -639,6 +641,7 @@ public abstract class Inspector extends JFrame
            }
        }
        
+       /*
        public static void setWindowShape(Window window, Shape shape) {
            set(mSetWindowShape, window, shape);
        }
@@ -646,6 +649,7 @@ public abstract class Inspector extends JFrame
        public static void setWindowOpacity(Window window, float opacity) {
            set(mSetWindowOpacity, window, Float.valueOf(opacity));
        }
+       */
        
        public static void setWindowOpaque(Window window, boolean opaque) {
            set(mSetWindowOpaque, window, Boolean.valueOf(opaque));
