@@ -70,7 +70,7 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 8126 2010-08-20 05:30:44Z davmac $
+ * @version $Id: GreenfootMain.java 8128 2010-08-20 06:04:27Z davmac $
  */
 public class GreenfootMain extends Thread implements CompileListener, RProjectListener
 {
@@ -147,11 +147,11 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             }
             catch (ProjectNotOpenException pnoe) {
                 // can't happen
-                pnoe.printStackTrace();
+                Debug.reportError("Getting remote project", pnoe);
             }
             catch (RemoteException re) {
                 // shouldn't happen
-                re.printStackTrace();
+                Debug.reportError("Getting remote project", re);
             }
         }
     }
@@ -220,7 +220,6 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
         catch (Exception exc) {
             Debug.reportError("could not create greenfoot main", exc);
         }
-
     }
 
     /**
@@ -262,7 +261,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             projectDirFile = Utility.maybeExtractArchive(projectDirFile, frame);
         }
                 
-        int versionStatus = GreenfootMain.updateApi(projectDirFile, frame);
+        int versionStatus = GreenfootMain.updateApi(projectDirFile, frame, getAPIVersion().toString());
         boolean doOpen = versionStatus != VERSION_BAD;
         if (doOpen) {
             rBlueJ.openProject(projectDirFile);
@@ -303,7 +302,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
     /**
      * Closes this greenfoot frame, or handle it closing.
      * 
-     * If this is called with the windowClosing parameter false, and there is only one project open,
+     * <p>If this is called with the windowClosing parameter false, and there is only one project open,
      * then the frame won't be closed but will instead be turned into an empty frame.
      */
     private void closeThisInstance(boolean windowClosing)
@@ -315,14 +314,12 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                     rBlueJ.exit();
                 } else {
                     frame.closeProject();
-                    // getInstance().openProject(startupProject.getPath());
-                    // project.close();
                 }
             } else {
                 project.close();
             }
         } catch (RemoteException re) {
-            re.printStackTrace();
+            Debug.reportError("Error while closing", re);
         }
     }
 
@@ -336,7 +333,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
         instance.closeThisInstance(windowClosing);
     }
 
-    /* (non-Javadoc)
+    /*
      * @see rmiextension.wrappers.event.RProjectListener#projectClosing()
      */
     public void projectClosing()
@@ -352,7 +349,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             }
         }
         catch (RemoteException re) {
-            re.printStackTrace();
+            Debug.reportError("Closing project", re);
         }
     }
 
@@ -365,7 +362,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             getInstance().rBlueJ.exit();
         }
         catch (RemoteException re) {
-            re.printStackTrace();
+            Debug.reportError("Closing all projects", re);
         }
     }
 
@@ -435,13 +432,13 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                 }
             }
             catch (ServerError se) {
-                Debug.reportError("Problems when trying to create new scenario...", se);
+                Debug.reportError("Problems when trying to create new scenario", se);
             }
             catch (ServerException se) {
-                Debug.reportError("Problems when trying to create new scenario...", se);
+                Debug.reportError("Problems when trying to create new scenario", se);
             }
             catch (RemoteException re) {
-                Debug.reportError("Problems when trying to create new scenario...", re);
+                Debug.reportError("Problems when trying to create new scenario", re);
             }
         }
     }
@@ -478,7 +475,8 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
      *            be deleted. If true, they will be deleted and appear as
      *            needing a recompile in the Greenfoot class browser.
      */
-    private static void prepareGreenfootProject(File greenfootLibDir, File projectDir, ProjectProperties p, boolean deleteClassFiles)
+    private static void prepareGreenfootProject(File greenfootLibDir, File projectDir,
+            ProjectProperties p, boolean deleteClassFiles, String greenfootApiVersion)
     {
         if (isStartupProject(greenfootLibDir, projectDir)) {
             return;
@@ -519,11 +517,10 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             sounds.mkdir();
         }
         catch (SecurityException e) {
-            e.printStackTrace();
-            // If we don't have permission to create them, just throw exception and continue, since this is an unlikely situation.
+            Debug.reportError("SecurityException when trying to create images/sounds directories", e);
         }   
         
-        p.setApiVersion(getAPIVersion().toString());
+        p.setApiVersion(greenfootApiVersion);
         p.save();
     }
 
@@ -591,9 +588,8 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
      * @param project The project in question.
      * @param parent Frame that should be used to place dialogs.
      * @return One of VERSION_OK, VERSION_UPDATED or VERSION_BAD
-     * @throws RemoteException
      */
-    public static int updateApi(File projectDir, Frame parent)
+    public static int updateApi(File projectDir, Frame parent, String greenfootApiVersion)
     {
         File greenfootLibDir = Config.getGreenfootLibDir();
         ProjectProperties newProperties = new ProjectProperties(projectDir);
@@ -617,7 +613,8 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                     new JButton[]{continueButton});
             dialog.displayModal();
             Debug.message("Bad version number in project: " + greenfootLibDir);
-            GreenfootMain.prepareGreenfootProject(greenfootLibDir, projectDir, newProperties, true);
+            GreenfootMain.prepareGreenfootProject(greenfootLibDir, projectDir,
+                    newProperties, true, greenfootApiVersion);
             return VERSION_UPDATED;
         }
         else if (projectVersion.isOlderAndBreaking(apiVersion)) {
@@ -626,7 +623,8 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             MessageDialog dialog = new MessageDialog(parent, message, Config.getString("project.version.mismatch"), 80,
                     new JButton[]{continueButton});
             dialog.displayModal();
-            GreenfootMain.prepareGreenfootProject(greenfootLibDir, projectDir, newProperties, true);
+            GreenfootMain.prepareGreenfootProject(greenfootLibDir, projectDir,
+                    newProperties, true, greenfootApiVersion);
 
             return VERSION_UPDATED;
         }
@@ -643,20 +641,24 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                 return VERSION_BAD;
             }
             else {
-                prepareGreenfootProject(greenfootLibDir, projectDir, newProperties, true);
+                prepareGreenfootProject(greenfootLibDir, projectDir,
+                        newProperties, true, greenfootApiVersion);
                 return VERSION_UPDATED;
             }
         }
         else if (projectVersion.isNonBreaking(apiVersion) ) {
-            prepareGreenfootProject(greenfootLibDir, projectDir, newProperties, true);
+            prepareGreenfootProject(greenfootLibDir, projectDir,
+                    newProperties, true, greenfootApiVersion);
             return VERSION_UPDATED;
         }
         else if (projectVersion.isInternal(apiVersion)) {
-            prepareGreenfootProject(greenfootLibDir, projectDir, newProperties, false);
+            prepareGreenfootProject(greenfootLibDir, projectDir,
+                    newProperties, false, greenfootApiVersion);
             return VERSION_UPDATED;
         }
         else {       
-            prepareGreenfootProject(greenfootLibDir, projectDir, newProperties, false);
+            prepareGreenfootProject(greenfootLibDir, projectDir,
+                    newProperties, false, greenfootApiVersion);
             return VERSION_OK;            
         }
     }
@@ -694,7 +696,6 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
 
     /**
      * Gets the version number of the Greenfoot API for this Greenfoot release.
-     * 
      */
     public static Version getAPIVersion()
     {
@@ -706,24 +707,24 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                 version = new Version(versionStr);
             }
             catch (ClassNotFoundException e) {
-                version = new Version("0.0.0");
-                // It's fine - running in standalone.
+                Debug.reportError("Could not get Greenfoot API version", e);
+                throw new InternalGreenfootError(e);
             }
             catch (SecurityException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                Debug.reportError("Could not get Greenfoot API version", e);
+                throw new InternalGreenfootError(e);
             }
             catch (NoSuchFieldException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                Debug.reportError("Could not get Greenfoot API version", e);
+                throw new InternalGreenfootError(e);
             }
             catch (IllegalArgumentException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                Debug.reportError("Could not get Greenfoot API version", e);
+                throw new InternalGreenfootError(e);
             }
             catch (IllegalAccessException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                Debug.reportError("Could not get Greenfoot API version", e);
+                throw new InternalGreenfootError(e);
             }
         }
 

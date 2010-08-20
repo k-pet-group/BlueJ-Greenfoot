@@ -34,6 +34,7 @@ import java.util.Map;
 
 import rmiextension.wrappers.RProjectImpl;
 import rmiextension.wrappers.WrapperPool;
+import bluej.Boot;
 import bluej.Config;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.ExceptionDescription;
@@ -251,10 +252,10 @@ public class ProjectManager
     {
         if(isNewProject(projectDir)) {
             ProjectProperties newProperties = new ProjectProperties(projectDir);
-            newProperties.setApiVersion(GreenfootMain.getAPIVersion().toString());
+            newProperties.setApiVersion(Boot.GREENFOOT_API_VERSION);
             newProperties.save();
         }        
-        return GreenfootMain.updateApi(projectDir, null); 
+        return GreenfootMain.updateApi(projectDir, null, Boot.GREENFOOT_API_VERSION); 
     }
 
     /**
