@@ -28,8 +28,6 @@ import java.awt.EventQueue;
 import java.rmi.RemoteException;
 
 import rmiextension.wrappers.RClass;
-import rmiextension.wrappers.RConstructor;
-import rmiextension.wrappers.RField;
 import bluej.extensions.*;
 import bluej.extensions.ClassNotFoundException;
 import bluej.parser.InfoParser;
@@ -45,7 +43,6 @@ import bluej.utility.Debug;
  * have not been compiled.
  * 
  * @author Poul Henriksen
- * @version $Id$
  */
 public class GClass
 {
@@ -248,42 +245,6 @@ public class GClass
         rmiClass.remove();
     }
     
-    public RConstructor getConstructor(Class<?>[] signature)
-        throws ProjectNotOpenException, ClassNotFoundException, RemoteException
-    {
-        return rmiClass.getConstructor(signature);
-    }
-
-    public RConstructor[] getConstructors()
-        throws ProjectNotOpenException, ClassNotFoundException, RemoteException
-    {
-        return rmiClass.getConstructors();
-    }
-
-    public BMethod getDeclaredMethod(String methodName, Class<?>[] params)
-        throws ProjectNotOpenException, ClassNotFoundException, RemoteException
-    {
-        return rmiClass.getDeclaredMethod(methodName, params);
-    }
-
-    public BMethod[] getDeclaredMethods()
-        throws ProjectNotOpenException, ClassNotFoundException, RemoteException
-    {
-        return rmiClass.getDeclaredMethods();
-    }
-
-    public RField getField(String fieldName)
-        throws ProjectNotOpenException, ClassNotFoundException, RemoteException
-    {
-        return rmiClass.getField(fieldName);
-    }
-
-    public BField[] getFields()
-        throws ProjectNotOpenException, ClassNotFoundException, RemoteException
-    {
-        return rmiClass.getFields();
-    }
-
     /**
      * Get the java.lang.Class object representing this class. Returns null if
      * the class cannot be loaded (including if the class is not compiled).
