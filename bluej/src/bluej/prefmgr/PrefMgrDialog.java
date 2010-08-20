@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,6 +23,7 @@ package bluej.prefmgr;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
@@ -31,9 +32,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.ListIterator;
 
-import javax.swing.Action;
 import javax.swing.JButton;
-import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
@@ -43,21 +42,18 @@ import bluej.Config;
 import bluej.classmgr.ClassMgrPrefPanel;
 import bluej.editor.moe.EditorPrefPanel;
 import bluej.editor.moe.KeyBindingsPanel;
-import bluej.editor.moe.MoeActions;
 import bluej.extmgr.ExtensionPrefManager;
 import bluej.extmgr.ExtensionsManager;
 import bluej.utility.DialogManager;
-import java.awt.Image;
 
 /**
  * A JDialog subclass to allow the user to interactively edit
  * preferences.
  *
- * A singleton.
+ * <p>A singleton.
  *
  * @author  Andrew Patterson
  * @author  Michael Kolling
- * @version $Id: PrefMgrDialog.java 7712 2010-05-24 14:09:58Z mik $
  */
 public class PrefMgrDialog extends JFrame
 {
@@ -121,9 +117,9 @@ public class PrefMgrDialog extends JFrame
     }
 
 
-    private ArrayList listeners = new ArrayList();
-    private ArrayList tabs = new ArrayList();
-    private ArrayList titles = new ArrayList();
+    private ArrayList<PrefPanelListener> listeners = new ArrayList<PrefPanelListener>();
+    private ArrayList<JPanel> tabs = new ArrayList<JPanel>();
+    private ArrayList<String> titles = new ArrayList<String>();
 
     private JTabbedPane tabbedPane = null;
 
@@ -185,8 +181,8 @@ public class PrefMgrDialog extends JFrame
 
     private void startEditing()
     {
-        for (Iterator i = listeners.iterator(); i.hasNext(); ) {
-            PrefPanelListener ppl = (PrefPanelListener)i.next();
+        for (Iterator<PrefPanelListener> i = listeners.iterator(); i.hasNext(); ) {
+            PrefPanelListener ppl = i.next();
             ppl.beginEditing();
         }        
     }
@@ -206,10 +202,10 @@ public class PrefMgrDialog extends JFrame
 
         tabbedPane = new JTabbedPane();
 
-        for (ListIterator i = tabs.listIterator(); i.hasNext(); ) {
+        for (ListIterator<JPanel> i = tabs.listIterator(); i.hasNext(); ) {
             int index = i.nextIndex();
-            JPanel p = (JPanel)i.next();
-            tabbedPane.addTab((String)titles.get(index), null, p);
+            JPanel p = i.next();
+            tabbedPane.addTab(titles.get(index), null, p);
         }
 
         JPanel contentPanel = (JPanel)getContentPane();
@@ -225,8 +221,8 @@ public class PrefMgrDialog extends JFrame
                 {
                     okButton.addActionListener(new ActionListener() {
                         public void actionPerformed(ActionEvent e) {
-                            for (Iterator i = listeners.iterator(); i.hasNext(); ) {
-                                PrefPanelListener ppl = (PrefPanelListener)i.next();
+                            for (Iterator<PrefPanelListener> i = listeners.iterator(); i.hasNext(); ) {
+                                PrefPanelListener ppl = i.next();
                                 ppl.commitEditing();
                             }
                             setVisible(false);
@@ -240,8 +236,8 @@ public class PrefMgrDialog extends JFrame
                 {
                     cancelButton.addActionListener(new ActionListener() {
                         public void actionPerformed(ActionEvent e) {
-                            for (Iterator i = listeners.iterator(); i.hasNext(); ) {
-                                PrefPanelListener ppl = (PrefPanelListener)i.next();
+                            for (Iterator<PrefPanelListener> i = listeners.iterator(); i.hasNext(); ) {
+                                PrefPanelListener ppl = i.next();
                                 ppl.revertEditing();
                             }
                             setVisible(false);

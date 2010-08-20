@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -30,22 +30,12 @@ import java.io.*;
  *  so much clashing)
  *
  * @author  Andrew Patterson
- * @version $Id: SortedProperties.java 6215 2009-03-30 13:28:25Z polle $
  */
 public class SortedProperties extends Properties
 {
-    private static final String keyValueSeparators = "=: \t\r\n\f";
-    private static final String strictKeyValueSeparators = "=:";
     private static final String specialSaveChars = "=: \t\r\n\f#!";
-    private static final String whiteSpaceChars = " \t\r\n\f";
 
     /**
-     * These functions from the JDK1.2 source (I'm sure Sun won't mind)
-     *
-     * Copyright 1995-1998 by Sun Microsystems, Inc.,
-     * 901 San Antonio Road, Palo Alto, California, 94303, U.S.A.
-     * All rights reserved.
-     *
      * Converts unicodes to encoded \\uxxxx
      * and writes out any of the characters in specialSaveChars
      * with a preceding slash
@@ -59,30 +49,36 @@ public class SortedProperties extends Properties
         for(int x=0; x<len; ) {
             aChar = theString.charAt(x++);
             switch(aChar) {
-                case '\\':outBuffer.append('\\'); outBuffer.append('\\');
-                          continue;
-                case '\t':outBuffer.append('\\'); outBuffer.append('t');
-                          continue;
-                case '\n':outBuffer.append('\\'); outBuffer.append('n');
-                          continue;
-                case '\r':outBuffer.append('\\'); outBuffer.append('r');
-                          continue;
-                case '\f':outBuffer.append('\\'); outBuffer.append('f');
-                          continue;
-                default:
-                    if ((aChar < 20) || (aChar > 127)) {
+            case '\\':
+                outBuffer.append('\\'); outBuffer.append('\\');
+                continue;
+            case '\t':
+                outBuffer.append('\\'); outBuffer.append('t');
+                continue;
+            case '\n':
+                outBuffer.append('\\'); outBuffer.append('n');
+                continue;
+            case '\r':
+                outBuffer.append('\\'); outBuffer.append('r');
+                continue;
+            case '\f':
+                outBuffer.append('\\'); outBuffer.append('f');
+                continue;
+            default:
+                if ((aChar < 20) || (aChar > 127)) {
+                    outBuffer.append('\\');
+                    outBuffer.append('u');
+                    outBuffer.append(toHex((aChar >> 12) & 0xF));
+                    outBuffer.append(toHex((aChar >> 8) & 0xF));
+                    outBuffer.append(toHex((aChar >> 4) & 0xF));
+                    outBuffer.append(toHex((aChar >> 0) & 0xF));
+                }
+                else {
+                    if (specialSaveChars.indexOf(aChar) != -1) {
                         outBuffer.append('\\');
-                        outBuffer.append('u');
-                        outBuffer.append(toHex((aChar >> 12) & 0xF));
-                        outBuffer.append(toHex((aChar >> 8) & 0xF));
-                        outBuffer.append(toHex((aChar >> 4) & 0xF));
-                        outBuffer.append(toHex((aChar >> 0) & 0xF));
                     }
-                    else {
-                        if (specialSaveChars.indexOf(aChar) != -1)
-                            outBuffer.append('\\');
-                        outBuffer.append(aChar);
-                    }
+                    outBuffer.append(aChar);
+                }
             }
 
         }
@@ -93,7 +89,8 @@ public class SortedProperties extends Properties
      * Convert a nibble to a hex character
      * @param   nibble  the nibble to convert.
      */
-    private static char toHex(int nibble) {
+    private static char toHex(int nibble)
+    {
         return hexDigit[(nibble & 0xF)];
     }
 
@@ -102,6 +99,7 @@ public class SortedProperties extends Properties
         '0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'
     };
 
+    @SuppressWarnings("unchecked")
     public void store(OutputStream out, String header) throws IOException
     {
         BufferedWriter awriter;
@@ -111,16 +109,16 @@ public class SortedProperties extends Properties
             awriter.newLine();
         }
 
-        TreeMap tm = new TreeMap(this);
+        TreeMap<String,String> tm = new TreeMap(this);
 
-        Iterator it = tm.entrySet().iterator();
+        Iterator<Map.Entry<String,String>> it = tm.entrySet().iterator();
 
         while(it.hasNext())
         {
-            Map.Entry mapEntry = (Map.Entry) it.next();
+            Map.Entry<String,String> mapEntry = it.next();
 
-            String key = saveConvert((String)mapEntry.getKey());
-            String val = saveConvert((String)mapEntry.getValue());
+            String key = saveConvert(mapEntry.getKey());
+            String val = saveConvert(mapEntry.getValue());
 
             awriter.write(key + "=" + val);
             awriter.newLine();
