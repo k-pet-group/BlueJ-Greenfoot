@@ -15,7 +15,6 @@ import javax.swing.JPanel;
 
 import bluej.BlueJTheme;
 import bluej.Config;
-import bluej.pkgmgr.PkgMgrFrame;
 import bluej.utility.DialogManager;
 import bluej.utility.EscapeDialog;
 
