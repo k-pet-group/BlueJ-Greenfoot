@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -30,11 +30,10 @@ import java.util.ArrayList;
  * FreeCallHistory).
  *
  * @author Michael Kolling
- *
  */
 public class History
 {
-    protected List history = null;
+    protected List<String> history = null;
     protected int maxLength;
     private boolean blankAtStart;
     
@@ -50,7 +49,7 @@ public class History
     protected History(int maxLength, boolean blankDefault)
     {
         this.maxLength = maxLength;
-        history = new ArrayList(maxLength+1);
+        history = new ArrayList<String>(maxLength+1);
         history.add("");
         blankAtStart = blankDefault;
     }
@@ -68,7 +67,7 @@ public class History
     /**
      * Return the history of used classes.
      */	
-    public List getHistory()
+    public List<String> getHistory()
     {
         return history;
     }
