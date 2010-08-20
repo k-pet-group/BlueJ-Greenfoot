@@ -308,6 +308,8 @@ public class Simulation extends Thread
                 ReentrantReadWriteLock lock = WorldVisitor.getLock(world);
                 lock.writeLock().lockInterruptibly();
                 try {
+                    // TODO it would be better to call this from a context
+                    // where the simulation monitor wasn't held.
                     world.stopped(); // may un-pause
                 }
                 catch (ActInterruptedException aie) {
