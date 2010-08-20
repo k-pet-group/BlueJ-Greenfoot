@@ -51,7 +51,6 @@ import bluej.utility.Debug;
  * with a pool of GClass objects representing the classes in the package. 
  * 
  * @author Poul Henriksen
- * 
  */
 public class GPackage
 {
@@ -191,16 +190,16 @@ public class GPackage
             newClass.loadSavedSuperClass();
         }
         catch (RemoteException re) {
-            re.printStackTrace();
+            Debug.reportError("Creating new class", re);
         }
         catch (ProjectNotOpenException pnoe) {
-            pnoe.printStackTrace();
+            Debug.reportError("Creating new class", pnoe);
         }
         catch (PackageNotFoundException pnfe) {
-            pnfe.printStackTrace();
+            Debug.reportError("Creating new class", pnfe);
         }
         catch (MissingJavaFileException mjfe) {
-            mjfe.printStackTrace();
+            Debug.reportError("Creating new class", mjfe);
         }
         return newClass;
     }
@@ -215,13 +214,13 @@ public class GPackage
             return getGClass(rClass);
         }
         catch (RemoteException re) {
-            re.printStackTrace();
+            Debug.reportError("Getting class", re);
         }
         catch (ProjectNotOpenException pnoe) {
-            pnoe.printStackTrace();
+            Debug.reportError("Creating new class", pnoe);
         }
         catch (PackageNotFoundException pnfe) {
-            pnfe.printStackTrace();
+            Debug.reportError("Creating new class", pnfe);
         }
         
         return null;
