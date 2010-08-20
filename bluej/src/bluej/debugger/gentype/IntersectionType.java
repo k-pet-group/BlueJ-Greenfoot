@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,7 +24,12 @@ package bluej.debugger.gentype;
 
 import java.util.*;
 
-
+/**
+ * Represents an intersection type, eg. I1&I2&I3 as specified in the Java Language
+ * Specification. 
+ * 
+ * @author Davin McCall
+ */
 public class IntersectionType extends GenTypeSolid
 {
     private GenTypeSolid [] intersectTypes;
@@ -245,7 +250,7 @@ public class IntersectionType extends GenTypeSolid
         return false;
     }
     
-    public void erasedSuperTypes(Set s)
+    public void erasedSuperTypes(Set<Reflective> s)
     {
         for (int i = 0; i < intersectTypes.length; i++) {
             intersectTypes[i].erasedSuperTypes(s);
@@ -254,14 +259,14 @@ public class IntersectionType extends GenTypeSolid
     
     public GenTypeClass [] getReferenceSupertypes()
     {
-        ArrayList rsupTypes = new ArrayList();
+        ArrayList<GenTypeClass> rsupTypes = new ArrayList<GenTypeClass>();
         for (int i = 0; i < intersectTypes.length; i++) {
             GenTypeClass [] isTypes = intersectTypes[i].getReferenceSupertypes();
             for (int j = 0; j < isTypes.length; j++) {
                 rsupTypes.add(isTypes[j]);
             }
         }
-        return (GenTypeClass[]) rsupTypes.toArray(new GenTypeClass[rsupTypes.size()]);
+        return rsupTypes.toArray(new GenTypeClass[rsupTypes.size()]);
     }
     
     @Override
