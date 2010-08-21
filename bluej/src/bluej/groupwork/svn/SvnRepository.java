@@ -106,7 +106,6 @@ public class SvnRepository
                 client.status(projectPath.getAbsolutePath(), Depth.infinity,
                         false, false, false, false, null,
                         new StatusCallback() {
-                    @Override
                     public void doStatus(Status status)
                     {
                         File file = new File(status.getPath());
@@ -164,7 +163,6 @@ public class SvnRepository
         try {
             client.status(dir.getAbsolutePath(), Depth.empty, false, true, true, false, null,
                     new StatusCallback() {
-                @Override
                 public void doStatus(Status stat)
                 {
                     if (! stat.isManaged()) {
