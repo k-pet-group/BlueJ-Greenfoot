@@ -331,28 +331,41 @@ public class WorldHandler
         // Grab a snapshot of world to avoid concurrency issues
         World world = this.world;
 
-        if (world == null)
-            return null;
-
-        Collection<?> objectsThere = WorldVisitor.getObjectsAtPixel(world, x, y);
-        if (objectsThere.isEmpty()) {
+        if (world == null) {
             return null;
         }
+        
+        ReentrantReadWriteLock lock = WorldVisitor.getLock(world);
+        int timeout = WorldVisitor.getReadLockTimeout(world);
+        try {
+            if (lock.readLock().tryLock(timeout, TimeUnit.MILLISECONDS)) {
 
-        Iterator<?> iter = objectsThere.iterator();
-        Actor topmostActor = (Actor) iter.next();
-        int seq = ActorVisitor.getLastPaintSeqNum(topmostActor);
+                Collection<?> objectsThere = WorldVisitor.getObjectsAtPixel(world, x, y);
+                if (objectsThere.isEmpty()) {
+                    lock.readLock().unlock();
+                    return null;
+                }
 
-        while (iter.hasNext()) {
-            Actor actor = (Actor) iter.next();
-            int actorSeq = ActorVisitor.getLastPaintSeqNum(actor);
-            if (actorSeq > seq) {
-                topmostActor = actor;
-                seq = actorSeq;
+                Iterator<?> iter = objectsThere.iterator();
+                Actor topmostActor = (Actor) iter.next();
+                int seq = ActorVisitor.getLastPaintSeqNum(topmostActor);
+
+                while (iter.hasNext()) {
+                    Actor actor = (Actor) iter.next();
+                    int actorSeq = ActorVisitor.getLastPaintSeqNum(actor);
+                    if (actorSeq > seq) {
+                        topmostActor = actor;
+                        seq = actorSeq;
+                    }
+                }
+                
+                lock.readLock().unlock();
+                return topmostActor;
             }
         }
+        catch (InterruptedException ie) {}
 
-        return topmostActor;
+        return null;
     }
 
     /*
