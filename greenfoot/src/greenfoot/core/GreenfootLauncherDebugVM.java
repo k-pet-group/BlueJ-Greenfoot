@@ -44,7 +44,7 @@ import bluej.utility.Debug;
  * When a new object of the launcher is created, the constructor looks up the
  * BlueJService in the RMI registry and starts the initialisation of Greenfoot.
  * 
- * @author Poul Henriksen <polle@mip.sdu.dk>
+ * @author Poul Henriksen
  */
 public class GreenfootLauncherDebugVM
 {
@@ -91,9 +91,11 @@ public class GreenfootLauncherDebugVM
             });
             
             GreenfootUtil.initialise(new GreenfootUtilDelegateIDE());
-            
-            ImageIcon icon = new ImageIcon(GreenfootUtil.getGreenfootLogoPath());
-            BlueJTheme.setIconImage(icon.getImage());
+
+// I don't think this is needed anymore - but needs to be tested on all systems before removing
+// mik - 23.8.2010
+//            ImageIcon icon = Config.getFixedImageAsIcon("greenfoot-icon-128.png");
+//            BlueJTheme.setIconImage(icon.getImage());
 
             GreenfootMain.initialize(blueJ, client.getPackage());
         }

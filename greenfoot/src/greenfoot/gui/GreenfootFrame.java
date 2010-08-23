@@ -21,6 +21,7 @@
  */
 package greenfoot.gui;
 
+import bluej.BlueJTheme;
 import greenfoot.Actor;
 import greenfoot.World;
 import greenfoot.actions.AboutGreenfootAction;
@@ -123,6 +124,7 @@ import bluej.utility.DBox;
 import com.apple.eawt.Application;
 import com.apple.eawt.ApplicationAdapter;
 import com.apple.eawt.ApplicationEvent;
+import java.awt.Image;
 
 /**
  * The main frame for a Greenfoot project (one per project)
@@ -201,8 +203,10 @@ public class GreenfootFrame extends JFrame
         super("Greenfoot");
         
         LocationTracker.instance(); //force initialisation
-        ImageIcon icon = new ImageIcon(GreenfootUtil.getGreenfootLogoPath());
-        setIconImage(icon.getImage());
+        Image icon = BlueJTheme.getApplicationIcon("greenfoot");
+        if (icon != null) {
+            setIconImage(icon);
+        }
 
         makeFrame();
         addWindowListener(this);
