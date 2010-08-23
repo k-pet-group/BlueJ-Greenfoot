@@ -487,10 +487,10 @@ public class TextParserTest extends TestCase
         assertEquals("boolean", r);
         
         r = tp.parseCommand("new Integer(7) < null");
-        assertNull(r);
+        assertEquals("", r); // expression form, but invalid
         
         r = tp.parseCommand("3 < null");
-        assertNull(r);
+        assertEquals("", r); // expression form, but invalid
         
         r = tp.parseCommand("3.0f < (Integer)null");
         assertEquals("boolean", r);
