@@ -54,6 +54,9 @@ public class Simulation extends Thread
     // accessed from the simulation thread itself. "repaintLock" protects paintPending and
     // lastRepaintTime.
     
+    // All user code should generally be run on the simulation thread. The simulation monitor
+    // should not be held while executing user code (though the world lock should be held).
+    
     // The following two constants control repainting of the world while the simulation is
     // running. We skip repaints if the simulation is running faster than the MAX_FRAME_RATE.
     // This makes the high speeds run faster, since we avoid repaints that can't be seen
@@ -294,35 +297,48 @@ public class Simulation extends Thread
      * If simulation was running but is now stopped, notify the listeners and
      * the world itself.
      */
-    private synchronized void checkStopping() throws InterruptedException
+    private void checkStopping() throws InterruptedException
     {
-        if ((paused || !enabled) && isRunning) {
-            // This code will be executed when:
-            //  runOnce is over  or
-            //  setPaused(true)   or
-            //  setEnabled(false)  or
-            //  abort() (sometimes, depending on timing)
-            World world = worldHandler.getWorld();
-            if (world != null) {
-                // We need to sync to avoid ConcurrentModificationException
-                ReentrantReadWriteLock lock = WorldVisitor.getLock(world);
-                lock.writeLock().lockInterruptibly();
-                try {
-                    // TODO it would be better to call this from a context
-                    // where the simulation monitor wasn't held.
-                    world.stopped(); // may un-pause
-                }
-                catch (ActInterruptedException aie) {
+        World world;
+        synchronized (this) {
+            if ((!paused && enabled) || !isRunning) {
+                return;
+            }
+            
+            world = worldHandler.getWorld();
+        }
+        
+        // This code will be executed when:
+        //  runOnce is over  or
+        //  setPaused(true)   or
+        //  setEnabled(false)  or
+        //  abort() (sometimes, depending on timing)
+        if (world != null) {
+            // We need to sync to avoid ConcurrentModificationException
+            ReentrantReadWriteLock lock = WorldVisitor.getLock(world);
+            lock.writeLock().lockInterruptibly();
+            try {
+                world.stopped(); // may un-pause
+            }
+            catch (ActInterruptedException aie) {
+                synchronized (this) {
                     paused = true;
-                    throw aie;
                 }
-                catch (Throwable t) {
-                    // If any exceptions occur, halt the simulation
+                throw aie;
+            }
+            catch (Throwable t) {
+                // If any exceptions occur, halt the simulation
+                synchronized (this) {
                     paused = true;
-                    t.printStackTrace();
                 }
+                t.printStackTrace();
+            }
+            finally {
                 lock.writeLock().unlock();
             }
+        }
+        
+        synchronized (this) {
             runOnce = false;
 
             if (paused) {
