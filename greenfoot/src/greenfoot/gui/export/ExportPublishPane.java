@@ -68,7 +68,7 @@ import bluej.utility.SwingWorker;
  * 
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: ExportPublishPane.java 8103 2010-08-18 06:14:13Z marionz $
+ * @version $Id: ExportPublishPane.java 8136 2010-08-23 05:44:50Z marionz $
  */
 public class ExportPublishPane extends ExportPane
 {
@@ -185,11 +185,14 @@ public class ExportPublishPane extends ExportPane
     }
     
     /**
-     * Return the changes to update string.
+     * Return the changes to update string (if applicable)
      */
     public String getUpdateDescription()
     {
-        return updateArea.getText();
+        if (updateArea!=null){
+            return updateArea.getText();
+        }
+        return null;
     }
 
     /**
@@ -673,11 +676,7 @@ public class ExportPublishPane extends ExportPane
     {
         leftPanel = new Box(BoxLayout.Y_AXIS);
         JLabel text;
-        int numRows=6;
-        if (update){
-            numRows=8;
-        }
-        MiksGridLayout titleAndDescLayout = new MiksGridLayout(numRows, 2, 8, 8);
+        MiksGridLayout titleAndDescLayout = new MiksGridLayout(6, 2, 8, 8);
         titleAndDescLayout.setVerticallyExpandingRow(3);
 
         titleAndDescPanel = new JPanel(titleAndDescLayout);
@@ -741,40 +740,41 @@ public class ExportPublishPane extends ExportPane
             }
         });
         titleAndDescPanel.add(titleField);
-
-        text = new JLabel(Config.getString("export.publish.shortDescription"), SwingConstants.TRAILING);
-        text.setFont(font);
-        titleAndDescPanel.add(text);
-
-        shortDescriptionField = new JTextField();
-        titleAndDescPanel.add(shortDescriptionField);
-
-        text = new JLabel(Config.getString("export.publish.longDescription"), SwingConstants.TRAILING);
-        text.setVerticalAlignment(SwingConstants.TOP);
-        text.setFont(font);
-        titleAndDescPanel.add(text);
-
-        descriptionArea = new JTextArea();
-        descriptionArea.setRows(6);
-        descriptionArea.setLineWrap(true);
-        descriptionArea.setWrapStyleWord(true);
-        JScrollPane description = new JScrollPane(descriptionArea);
-        titleAndDescPanel.add(description);
-
-        JLabel updateLabel = new JLabel(Config.getString("export.publish.update"), SwingConstants.TRAILING);
-        updateLabel.setVerticalAlignment(SwingConstants.TOP);
-        updateLabel.setFont(font);
-     
-        updateArea = new JTextArea();
-        updateArea.setRows(6);
-        updateArea.setLineWrap(true);
-        updateArea.setWrapStyleWord(true);
-        JScrollPane updatePane = new JScrollPane(updateArea);
- 
+        
+        //if there is an update there is a changes description area
+        //if not there is a short description and long description area
         if (update){
+            JLabel updateLabel = new JLabel(Config.getString("export.publish.update"), SwingConstants.TRAILING);
+            updateLabel.setVerticalAlignment(SwingConstants.TOP);
+            updateLabel.setFont(font);
+         
+            updateArea = new JTextArea();
+            updateArea.setRows(6);
+            updateArea.setLineWrap(true);
+            updateArea.setWrapStyleWord(true);
+            JScrollPane updatePane = new JScrollPane(updateArea);
+            
             titleAndDescPanel.add(updateLabel);
             titleAndDescPanel.add(updatePane);
             titleAndDescLayout.setVerticallyExpandingRow(4);
+        }
+        else {
+            text = new JLabel(Config.getString("export.publish.shortDescription"), SwingConstants.TRAILING);
+            text.setFont(font);
+            shortDescriptionField = new JTextField();
+            titleAndDescPanel.add(text);
+            titleAndDescPanel.add(shortDescriptionField);
+            text = new JLabel(Config.getString("export.publish.longDescription"), SwingConstants.TRAILING);
+            text.setVerticalAlignment(SwingConstants.TOP);
+            text.setFont(font);
+            
+            descriptionArea = new JTextArea();
+            descriptionArea.setRows(6);
+            descriptionArea.setLineWrap(true);
+            descriptionArea.setWrapStyleWord(true);
+            JScrollPane description = new JScrollPane(descriptionArea);
+            titleAndDescPanel.add(text);
+            titleAndDescPanel.add(description);
         }
 
         text = new JLabel(Config.getString("export.publish.url"), SwingConstants.TRAILING);

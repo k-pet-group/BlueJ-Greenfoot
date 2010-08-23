@@ -129,13 +129,21 @@ public class ScenarioInfo
     public void store(ProjectProperties properties)
     {
         properties.setString(PUBLISH_TITLE, getTitle());
-        properties.setString(PUBLISH_SHORT_DESC, getShortDescription());
-        properties.setString(PUBLISH_LONG_DESC, getLongDescription());
+        if (getShortDescription()!=null)
+        {
+            properties.setString(PUBLISH_SHORT_DESC, getShortDescription());
+        }
+        if (getLongDescription()!=null) 
+        {
+            properties.setString(PUBLISH_LONG_DESC, getLongDescription());
+        }
         properties.setString(PUBLISH_URL, getUrl());
         properties.setString(PUBLISH_TAGS, getTagsAsString());
         properties.setBoolean(PUBLISH_HAS_SOURCE, getHasSource());
         properties.setBoolean(PUBLISH_LOCKED, isLocked());
-        properties.setString(PUBLISH_UPDATE_DESC, getUpdateDescription());
+        if (getUpdateDescription() !=null){
+            properties.setString(PUBLISH_UPDATE_DESC, getUpdateDescription());
+        }
     }
 
     private String getTagsAsString()

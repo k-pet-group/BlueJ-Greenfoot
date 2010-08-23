@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009, 2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -106,12 +106,19 @@ public abstract class MyGameClient
         // Send the scenario and associated info
         List<String> tagsList = info.getTags();
         boolean hasSource = sourceFile != null;
-        int index=7;
+        //determining the number of parts to send through
+        boolean update=false;
+        int index=5;
         if (updateDescription!=null && updateDescription.length()>0) {
             index=index+1;
+            update=true;
         }
         if (screenshotFile!=null) {
             index=index+1;
+        }
+        //Initial export ->there is a short and long descrp 
+        if (!update){
+            index=index+2;
         }
         int tagindex = index+1;
         Part [] parts = new Part[index+1 + tagsList.size() + (hasSource ? 1 : 0)];
@@ -119,28 +126,35 @@ public abstract class MyGameClient
         parts[1] = new StringPart("scenario[main_class]", "greenfoot.export.GreenfootScenarioViewer");
         parts[2] = new StringPart("scenario[width]", "" + width);
         parts[3] = new StringPart("scenario[height]", "" + height);
-        parts[4] = new StringPart("scenario[short_description]", shortDescription);
-        parts[5] = new StringPart("scenario[long_description]", longDescription);
-        parts[6] = new StringPart("scenario[url]", gameUrl);
-        parts[7] = new ProgressTrackingPart("scenario[uploaded_data]", new File(jarFileName), this);
+        parts[4] = new StringPart("scenario[url]", gameUrl);
+        parts[5] = new ProgressTrackingPart("scenario[uploaded_data]", new File(jarFileName), this);
         switch (index){
-        case 7:
-            //no update desc or scenario screenshoot
-            break;
-        case 8:
+        case 6:
+            //can't be a initial export as that index is exactly 7
             //could be either a update desc or a screenshot
             if (updateDescription!=null && updateDescription.length()>0 ){
-                parts[8] = new StringPart("scenario[update_description]", updateDescription); 
+                parts[6] = new StringPart("scenario[update_description]", updateDescription); 
             }
             else {
-                parts[8] = new ProgressTrackingPart("scenario[screenshot_data]", screenshotFile, this); 
+                parts[6] = new ProgressTrackingPart("scenario[screenshot_data]", screenshotFile, this); 
             }  
             break;
-        case 9:
-            //both a update desc or a screenshot
-            parts[8] = new StringPart("scenario[update_description]", updateDescription); 
-            parts[9] = new ProgressTrackingPart("scenario[screenshot_data]", screenshotFile, this);
+        case 7:
+            if (update)
+            {
+                //both a update desc or a screenshot
+                parts[6] = new StringPart("scenario[update_description]", updateDescription); 
+                parts[7] = new ProgressTrackingPart("scenario[screenshot_data]", screenshotFile, this);
+            }
+            else {
+                parts[6] = new StringPart("scenario[short_description]", shortDescription);
+                parts[7] = new StringPart("scenario[long_description]", longDescription);
+            }
             break;
+        case 8:
+            parts[6] = new StringPart("scenario[short_description]", shortDescription);
+            parts[7] = new StringPart("scenario[long_description]", longDescription);
+            parts[8] = new ProgressTrackingPart("scenario[screenshot_data]", screenshotFile, this);
         default:
 
             break;
