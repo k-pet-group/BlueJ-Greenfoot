@@ -303,7 +303,7 @@ public class Invoker
                 }
                 else {
                     mDialog.setInstanceInfo(instanceName, typeMap);
-                    mDialog.setCallLabel(instanceName);
+                    mDialog.setCallLabel(mmember.isStatic() ? mmember.getClassName() : instanceName);
                 }
                 cDialog = mDialog;
             }
