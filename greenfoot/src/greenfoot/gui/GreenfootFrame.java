@@ -91,8 +91,6 @@ import java.util.Map;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -222,7 +220,7 @@ public class GreenfootFrame extends JFrame
     private void restoreFrameState()
     {
         if (project == null) {
-        	// We don't have a project yet: just use default size
+            // We don't have a project yet: just use default size
             setBounds(40, 40, 700, 500);
             setResizeWhenPossible(true);
             return;
@@ -239,11 +237,13 @@ public class GreenfootFrame extends JFrame
             
             Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
             
-            if (x > (d.width - 50))
+            if (x > (d.width - 50)) {
                 x = d.width - 50;
+            }
 
-            if (y > (d.height - 50))
+            if (y > (d.height - 50)) {
                 y = d.height - 50;
+            }
 
             setBounds(x, y, width, height);
             setResizeWhenPossible(false);
@@ -301,7 +301,7 @@ public class GreenfootFrame extends JFrame
             setTitle("Greenfoot: " + project.getName());
             enableProjectActions();
 
-            worldCanvas.setVisible(true);
+            worldCanvas.setVisible(false);
 
             // Class browser
             buildClassBrowser();
@@ -373,6 +373,7 @@ public class GreenfootFrame extends JFrame
         // Some first-time initializations
         worldCanvas = new WorldCanvas(null);
         worldCanvas.setWorldSize(200, 100);
+        worldCanvas.setVisible(false);
         
         worldHandlerDelegate = new WorldHandlerDelegateIDE(this);
         WorldHandler.initialise(worldCanvas, worldHandlerDelegate);
@@ -412,16 +413,12 @@ public class GreenfootFrame extends JFrame
 
         sim.addSimulationListener(SoundFactory.getInstance().getSoundCollection());
         
-        // Panel that contains the border so that borders are not drawn on our
-        // canvas, but just outside it.
-        Box borderPanel = new Box(BoxLayout.LINE_AXIS);
-        borderPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-        borderPanel.add(worldCanvas);
+        worldCanvas.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         
         JPanel canvasPanel = new JPanel(new CenterLayout());
         canvasPanel.setBorder(BorderFactory.createEtchedBorder());        
         
-        JScrollPane worldScrollPane = new JScrollPane(borderPanel);
+        JScrollPane worldScrollPane = new JScrollPane(worldCanvas);
         DBox worldBox = new DBox(DBox.Y_AXIS, 0.5f); // world title and scroll pane
         worldBox.addAligned(worldHandlerDelegate.getWorldTitle());
         worldBox.addAligned(worldScrollPane);
@@ -536,7 +533,8 @@ public class GreenfootFrame extends JFrame
      * Return the preferred size for the frame. The preferred size adds a bit of
      * spacing to the default size to get a margin around the world display.
      */
-    public  Dimension getPreferredSize() {
+    public  Dimension getPreferredSize()
+    {
         Dimension dim = super.getPreferredSize();
         dim.setSize(dim.width + WORLD_MARGIN, dim.height + WORLD_MARGIN);
         return dim;
@@ -618,10 +616,6 @@ public class GreenfootFrame extends JFrame
         projectMenu.addSeparator();
         addMenuItem(exportProjectAction, projectMenu, KeyEvent.VK_E, false, KeyEvent.VK_E);
 
-//        addMenuItem(new NYIAction("Save As...", this), projectMenu, KeyEvent.VK_S, true, -1);
-//        projectMenu.addSeparator();
-//        addMenuItem(new NYIAction("Page Setup...", this), projectMenu, KeyEvent.VK_P, true, -1);
-//        addMenuItem(new NYIAction("Print...", this), projectMenu, KeyEvent.VK_P, false, KeyEvent.VK_P);
         if(! Config.isMacOS()) {
             projectMenu.addSeparator();
             addMenuItem(QuitAction.getInstance(), projectMenu, KeyEvent.VK_Q, false, KeyEvent.VK_Q);
@@ -644,8 +638,6 @@ public class GreenfootFrame extends JFrame
         addMenuItem(RunSimulationAction.getInstance(), ctrlMenu, KeyEvent.VK_R, false, KeyEvent.VK_R);
         addMenuItem(PauseSimulationAction.getInstance(), ctrlMenu, KeyEvent.VK_R, true, KeyEvent.VK_P);
         addMenuItem(ResetWorldAction.getInstance(), ctrlMenu, KeyEvent.VK_T, false, KeyEvent.VK_T);
-//        addMenuItem(new NYIAction("Increase Speed", this), ctrlMenu, KeyEvent.VK_PLUS, false, KeyEvent.VK_PLUS);
-//        addMenuItem(new NYIAction("Decrease Speed", this), ctrlMenu, KeyEvent.VK_MINUS, false, KeyEvent.VK_MINUS);
         
         ctrlMenu.addSeparator();
         addMenuItem(new AbstractAction(Config.getString("menu.debugger")) {
@@ -688,8 +680,9 @@ public class GreenfootFrame extends JFrame
     private JMenu addMenu(String name, JMenuBar menubar, char mnemonic)
     {
         JMenu menu = new JMenu(name);
-        if(!Config.isMacOS())
+        if(!Config.isMacOS()) {
             menu.setMnemonic(mnemonic);
+        }
         menubar.add(menu);
         return menu;
     }
@@ -700,13 +693,16 @@ public class GreenfootFrame extends JFrame
     private void addMenuItem(Action action, JMenu menu, int accelKey, boolean shift, int mnemonicKey)
     {
         if(accelKey != -1) {
-            if(shift)
+            if(shift) {
                 action.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(accelKey, shiftAccelModifier));
-            else
+            }
+            else {
                 action.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(accelKey, accelModifier));
+            }
         }
-        if(!Config.isMacOS() && mnemonicKey != -1)
+        if(!Config.isMacOS() && mnemonicKey != -1) {
             action.putValue(Action.MNEMONIC_KEY, Integer.valueOf(mnemonicKey));
+        }
         menu.add(action);
     }
     
@@ -742,7 +738,7 @@ public class GreenfootFrame extends JFrame
         
         // Disable simulation buttons
         if (state == false) {
-        	WorldHandler.getInstance().discardWorld();
+            WorldHandler.getInstance().discardWorld();
             removeSelectedClassAction.setEnabled(false);
         }
         
@@ -811,7 +807,8 @@ public class GreenfootFrame extends JFrame
      * <p>
      * Should be run on the event thread.
      */
-    private void resize() {
+    private void resize()
+    {
         setResizeWhenPossible(false);
         pack();
     }
@@ -895,6 +892,7 @@ public class GreenfootFrame extends JFrame
         if (needsResize() && newWorld != null) {
             resize();
         }
+        worldCanvas.setVisible(true);
         centrePanel.revalidate();
         worldDimensions = worldCanvas.getPreferredSize();
         project.setLastWorldClassName(newWorld.getClass().getName());
@@ -903,6 +901,7 @@ public class GreenfootFrame extends JFrame
     public void worldRemoved(WorldEvent e)
     {
         removeAllInspectors();
+        worldCanvas.setVisible(false);
     }
 
     // ------------- end of WorldListener interface ------------
@@ -925,7 +924,7 @@ public class GreenfootFrame extends JFrame
             }
     	}
     	else {
-    		removeSelectedClassAction.setEnabled(false);
+    	    removeSelectedClassAction.setEnabled(false);
     	}
     }
     
@@ -945,13 +944,13 @@ public class GreenfootFrame extends JFrame
 
         final Inspector insp = inspector;
         EventQueue.invokeLater(new Runnable() {
-                public void run() {
-                    insp.update();
-                    insp.updateLayout();
-                    insp.setVisible(true);
-                    insp.bringToFront();
-                }
-            });
+            public void run() {
+                insp.update();
+                insp.updateLayout();
+                insp.setVisible(true);
+                insp.bringToFront();
+            }
+        });
 
         return inspector;
     }
@@ -991,11 +990,11 @@ public class GreenfootFrame extends JFrame
         insp.update();
         insp.updateLayout();
         EventQueue.invokeLater(new Runnable() {
-                public void run() {
-                    insp.setVisible(true);
-                    insp.bringToFront();
-        }
-            });
+            public void run() {
+                insp.setVisible(true);
+                insp.bringToFront();
+            }
+        });
 
         return inspector;
     }
