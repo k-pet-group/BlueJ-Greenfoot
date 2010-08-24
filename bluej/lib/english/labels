@@ -482,7 +482,7 @@ error.methodCall.illegalName=The instance name must be a Java identifier.
 error.methodCall.duplicateName=An object with this name already exists.\nPlease choose a unique name.
 
 # Debugger dialog (ExecControls.java)
-debugger.execControls.windowTitle = BlueJ:  Debugger
+debugger.execControls.windowTitle = Debugger
 debugger.execControls.stackTitle = Call Sequence
 debugger.execControls.staticTitle = Static variables
 debugger.execControls.instanceTitle = Instance variables

@@ -172,7 +172,7 @@ public class ExecControls extends JFrame
      */
     public ExecControls(Project project, Debugger debugger)
     {
-        super(Config.getString("debugger.execControls.windowTitle"));
+        super(Config.getApplicationName() + ":  " + Config.getString("debugger.execControls.windowTitle"));
 
         if (project == null || debugger == null)
             throw new NullPointerException("project or debugger null in ExecControls");
