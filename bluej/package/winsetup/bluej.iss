@@ -3,7 +3,7 @@
 
 [Setup]
 AppName=BlueJ
-AppVerName=BlueJ 3.0.1
+AppVerName=BlueJ 3.0.2
 AppPublisher=La Trobe University
 AppPublisherURL=http://www.bluej.org
 AppSupportURL=http://www.bluej.org
@@ -12,7 +12,7 @@ UninstallFilesDir={app}\uninst
 DefaultDirName={sd}\BlueJ
 DefaultGroupName=BlueJ
 Compression=bzip/9
-OutputBaseFilename=BlueJ-windows-301
+OutputBaseFilename=BlueJ-windows-302
 OutputDir=.
 PrivilegesRequired=none
 ChangesAssociations=yes
