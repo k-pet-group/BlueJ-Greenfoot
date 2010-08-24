@@ -15,6 +15,7 @@ Compression=bzip/9
 OutputBaseFilename=BlueJ-windows-301
 OutputDir=.
 PrivilegesRequired=none
+ChangesAssociations=yes
 
 [Messages]
 SetupWindowTitle=BlueJ Installer

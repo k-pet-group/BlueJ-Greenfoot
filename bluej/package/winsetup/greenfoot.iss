@@ -3,8 +3,8 @@
 
 [Setup]
 AppName=Greenfoot
-AppVerName=Greenfoot 1.5.6
-AppPublisher=Deakin University
+AppVerName=Greenfoot 2.0.0
+AppPublisher=La Trobe University
 AppPublisherURL=http://www.greenfoot.org
 AppSupportURL=http://www.greenfoot.org
 AppUpdatesURL=http://www.greenfoot.org
@@ -12,7 +12,7 @@ UninstallFilesDir={app}\uninst
 DefaultDirName={sd}\Greenfoot
 DefaultGroupName=Greenfoot
 Compression=bzip/9
-OutputBaseFilename=Greenfoot-windows-1.5.6
+OutputBaseFilename=Greenfoot-windows-2.0.0
 OutputDir=.
 PrivilegesRequired=none
 ChangesAssociations=yes
@@ -35,14 +35,24 @@ Name: "{group}\Select VM"; Filename: "{app}\greenfoot.exe"; WorkingDir: "{app}";
 Name: "{app}\Select VM"; Filename: "{app}\greenfoot.exe"; WorkingDir: "{app}"; Parameters: "/select";
 
 [Registry]
-Root: HKCR; Subkey: ".greenfoot"; ValueType: string; ValueName: ""; ValueData: "GreenfootProject"; Flags: uninsdeletevalue; Tasks: associations
-Root: HKCR; Subkey: ".gfar"; ValueType: string; ValueName: ""; ValueData: "GreenfootArchive"; Flags: uninsdeletevalue; Tasks: associations
-Root: HKCR; Subkey: "GreenfootProject"; ValueType: string; ValueName: ""; ValueData: "Greenfoot project file"; Flags: uninsdeletekey; Tasks: associations
-Root: HKCR; Subkey: "GreenfootArchive"; ValueType: string; ValueName: ""; ValueData: "Greenfoot project archive"; Flags: uninsdeletekey; Tasks: associations
-Root: HKCR; Subkey: "GreenfootProject\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\greenfoot.exe,0"; Flags: uninsdeletekey; Tasks: associations
-Root: HKCR; Subkey: "GreenfootArchive\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\greenfoot.exe,0"; Flags: uninsdeletekey; Tasks: associations
-Root: HKCR; Subkey: "GreenfootProject\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\greenfoot.exe"" ""%1"""; Flags: uninsdeletekey; Tasks: associations
-Root: HKCR; Subkey: "GreenfootArchive\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\greenfoot.exe"" ""%1"""; Flags: uninsdeletekey; Tasks: associations
+; For admin
+Root: HKCR; Subkey: ".greenfoot"; ValueType: string; ValueName: ""; ValueData: "GreenfootProject"; Flags: uninsdeletevalue; Tasks: associations; Check: isAdminLoggedOn
+Root: HKCR; Subkey: ".gfar"; ValueType: string; ValueName: ""; ValueData: "GreenfootArchive"; Flags: uninsdeletevalue; Tasks: associations; Check: isAdminLoggedOn
+Root: HKCR; Subkey: "GreenfootProject"; ValueType: string; ValueName: ""; ValueData: "Greenfoot project file"; Flags: uninsdeletekey; Tasks: associations; Check: isAdminLoggedOn
+Root: HKCR; Subkey: "GreenfootArchive"; ValueType: string; ValueName: ""; ValueData: "Greenfoot project archive"; Flags: uninsdeletekey; Tasks: associations; Check: isAdminLoggedOn
+Root: HKCR; Subkey: "GreenfootProject\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\greenfoot.exe,0"; Flags: uninsdeletekey; Tasks: associations; Check: isAdminLoggedOn
+Root: HKCR; Subkey: "GreenfootArchive\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\greenfoot.exe,0"; Flags: uninsdeletekey; Tasks: associations; Check: isAdminLoggedOn
+Root: HKCR; Subkey: "GreenfootProject\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\greenfoot.exe"" ""%1"""; Flags: uninsdeletekey; Tasks: associations; Check: isAdminLoggedOn
+Root: HKCR; Subkey: "GreenfootArchive\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\greenfoot.exe"" ""%1"""; Flags: uninsdeletekey; Tasks: associations; Check: isAdminLoggedOn
+; For non-admin
+Root: HKCU; Subkey: ".greenfoot"; ValueType: string; ValueName: ""; ValueData: "GreenfootProject"; Flags: uninsdeletevalue; Tasks: associations; Check: not isAdminLoggedOn
+Root: HKCU; Subkey: ".gfar"; ValueType: string; ValueName: ""; ValueData: "GreenfootArchive"; Flags: uninsdeletevalue; Tasks: associations; Check: not isAdminLoggedOn
+Root: HKCU; Subkey: "GreenfootProject"; ValueType: string; ValueName: ""; ValueData: "Greenfoot project file"; Flags: uninsdeletekey; Tasks: associations; Check: not isAdminLoggedOn
+Root: HKCU; Subkey: "GreenfootArchive"; ValueType: string; ValueName: ""; ValueData: "Greenfoot project archive"; Flags: uninsdeletekey; Tasks: associations; Check: not isAdminLoggedOn
+Root: HKCU; Subkey: "GreenfootProject\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\greenfoot.exe,0"; Flags: uninsdeletekey; Tasks: associations; Check: not isAdminLoggedOn
+Root: HKCU; Subkey: "GreenfootArchive\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\greenfoot.exe,0"; Flags: uninsdeletekey; Tasks: associations; Check: not isAdminLoggedOn
+Root: HKCU; Subkey: "GreenfootProject\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\greenfoot.exe"" ""%1"""; Flags: uninsdeletekey; Tasks: associations; Check: not isAdminLoggedOn
+Root: HKCU; Subkey: "GreenfootArchive\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\greenfoot.exe"" ""%1"""; Flags: uninsdeletekey; Tasks: associations; Check: not isAdminLoggedOn
 
 [InstallDelete]
 Type: files; Name: "{app}\lib\extensions\submission.jar"
