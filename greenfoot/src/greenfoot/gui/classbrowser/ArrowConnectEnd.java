@@ -24,14 +24,11 @@ package greenfoot.gui.classbrowser;
 import java.awt.Dimension;
 import java.awt.Graphics;
 
-import javax.swing.JComponent;
-
 /**
  * Graphics for the end line part of an arrow. With a connector to the right.
  *  | |__
  * 
  * @author Poul Henriksen
- * @version $Id: ArrowConnectEnd.java 6216 2009-03-30 13:41:07Z polle $
  */
 public class ArrowConnectEnd extends ArrowElement
 {

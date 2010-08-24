@@ -23,7 +23,6 @@ package greenfoot.gui.classbrowser;
 
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Polygon;
 
 import javax.swing.JComponent;
 
@@ -32,7 +31,6 @@ import javax.swing.JComponent;
  *  ^ | |__ | |
  * 
  * @author mik
- * @version $Id: ArrowElement.java 6216 2009-03-30 13:41:07Z polle $
  */
 public abstract class ArrowElement extends JComponent
 {
