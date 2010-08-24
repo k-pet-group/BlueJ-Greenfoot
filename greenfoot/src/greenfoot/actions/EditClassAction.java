@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,22 +21,18 @@
  */
 package greenfoot.actions;
 
-import bluej.Config;
 import greenfoot.core.GClass;
 import greenfoot.gui.classbrowser.ClassBrowser;
 import greenfoot.gui.classbrowser.ClassView;
 
 import java.awt.event.ActionEvent;
-import java.rmi.RemoteException;
 
 import javax.swing.AbstractAction;
 
-import bluej.extensions.PackageNotFoundException;
-import bluej.extensions.ProjectNotOpenException;
+import bluej.Config;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: EditClassAction.java 6216 2009-03-30 13:41:07Z polle $
  */
 public class EditClassAction extends AbstractAction
 {
@@ -59,21 +55,8 @@ public class EditClassAction extends AbstractAction
     	ClassView selectedView = (ClassView) classBrowser.getSelectionManager().getSelected();
     	GClass selectedClass = selectedView.getGClass();
     	
-        try {
-            if (selectedClass != null) {
-                selectedClass.edit();
-            }
-
-        }
-        catch (RemoteException e1) {
-            e1.printStackTrace();
-        }
-        catch (ProjectNotOpenException e1) {
-            e1.printStackTrace();
-        }
-        catch (PackageNotFoundException e1) {
-            e1.printStackTrace();
-        }
+    	if (selectedClass != null) {
+    	    selectedClass.edit();
+    	}
     }
-
 }

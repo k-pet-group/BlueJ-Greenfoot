@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -39,7 +39,6 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.LinkedList;
-import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.swing.DefaultCellEditor;
@@ -66,7 +65,6 @@ import bluej.Config;
  * 
  * @author Davin McCall
  * @author Poul Henriksen
- * @version $Id: ImageLibList.java 7924 2010-07-26 12:57:15Z nccb $
  */
 public class ImageLibList extends EditableList<ImageLibList.ImageListEntry> implements Selectable<File>
 {   
@@ -194,7 +192,6 @@ public class ImageLibList extends EditableList<ImageLibList.ImageListEntry> impl
 
     /**
      * If the given file exists in this list, it will be selected.
-     * 
      */
     public void select(File imageFile)
     {
@@ -215,8 +212,6 @@ public class ImageLibList extends EditableList<ImageLibList.ImageListEntry> impl
         
     }
     
-   
-    @SuppressWarnings("unchecked")
     public ImageListEntry[] getSelectedValues()
     {
         Object[] list = super.getSelectedValues();

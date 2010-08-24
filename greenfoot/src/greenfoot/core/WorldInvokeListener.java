@@ -47,9 +47,6 @@ import bluej.debugmgr.inspector.InspectorManager;
 import bluej.debugmgr.inspector.ResultInspector;
 import bluej.debugmgr.objectbench.InvokeListener;
 import bluej.debugmgr.objectbench.ObjectBenchInterface;
-import bluej.extensions.ClassNotFoundException;
-import bluej.extensions.PackageNotFoundException;
-import bluej.extensions.ProjectNotOpenException;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.Debug;
 import bluej.views.CallableView;
@@ -118,17 +115,7 @@ public class WorldInvokeListener
             try {
                 rObj = ObjectTracker.getRObject(obj);
             }
-            catch (ProjectNotOpenException e) {
-                return null;
-            }
-            catch (PackageNotFoundException e) {
-                return null;
-            }
             catch (RemoteException e) {
-                Debug.reportError("Error getting remote object", e);
-                return null;
-            }
-            catch (ClassNotFoundException e) {
                 Debug.reportError("Error getting remote object", e);
                 return null;
             }
@@ -212,9 +199,6 @@ public class WorldInvokeListener
         catch (RemoteException re) {
             Debug.reportError("Error getting invoker instance", re);
             return null;
-        }
-        catch (ProjectNotOpenException pnoe) {
-            return null; // should never happen
         }
     }
 

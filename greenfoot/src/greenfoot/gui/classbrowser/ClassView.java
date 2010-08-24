@@ -45,7 +45,6 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.rmi.RemoteException;
 
 import javax.swing.BorderFactory;
 import javax.swing.JPopupMenu;
@@ -53,15 +52,13 @@ import javax.swing.JRootPane;
 import javax.swing.JToggleButton;
 
 import bluej.Config;
-import bluej.extensions.ClassNotFoundException;
-import bluej.extensions.PackageNotFoundException;
-import bluej.extensions.ProjectNotOpenException;
 import bluej.utility.DialogManager;
 import bluej.utility.Utility;
 
 /**
+ * A class visualisation.
+ * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 8098 2010-08-17 14:16:08Z nccb $
  */
 public class ClassView extends JToggleButton
     implements Selectable, MouseListener
@@ -501,15 +498,10 @@ public class ClassView extends JToggleButton
             newClass.setSuperclassGuess(this.getQualifiedClassName());
             return newClass;
         }
-        catch (ProjectNotOpenException e) {
-            e.printStackTrace();
-        }
-        catch (RemoteException e) {
-            e.printStackTrace();
-        }
-        catch (IOException e3) {
+        catch (IOException ioe) {
             DialogManager.showErrorText(this,
-                    Config.getString("greenfoot.cannotCreateClass" + ": " + e3.getLocalizedMessage()));
+                    Config.getString("greenfoot.cannotCreateClass") +
+                    ": " + ioe.getLocalizedMessage());
         }
         return null;
     }
@@ -532,21 +524,7 @@ public class ClassView extends JToggleButton
     public void mouseClicked(MouseEvent e)
     {
         if (e.getClickCount() > 1 && ((e.getModifiers() & MouseEvent.BUTTON1_MASK) != 0)) {
-            try {
-                gClass.edit();
-            }
-            catch (ProjectNotOpenException e1) {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
-            }
-            catch (PackageNotFoundException e1) {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
-            }
-            catch (RemoteException e1) {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
-            }
+            gClass.edit();
         }
     }
 
@@ -589,25 +567,7 @@ public class ClassView extends JToggleButton
     	WorldHandler.getInstance().removeWorldListener(this.role);
     	role.remove();
         classBrowser.removeClass(this);
-        try {
-            gClass.remove();
-        }
-        catch (ProjectNotOpenException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch (PackageNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch (ClassNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch (RemoteException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        gClass.remove();
         gClass = null;
     }
 

@@ -30,13 +30,11 @@ import greenfoot.gui.images.ImageLibFrame;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
-import java.rmi.RemoteException;
 
 import javax.swing.AbstractAction;
 import javax.swing.JFrame;
 
 import bluej.Config;
-import bluej.extensions.ProjectNotOpenException;
 import bluej.utility.Debug;
 import bluej.utility.FileUtility;
 
@@ -70,31 +68,25 @@ public class SelectImageAction extends AbstractAction
 
     public static void setClassImage(ClassView classView, ImageClassRole gclassRole, File imageFile)
     {
-        try {
-            GClass gclass = classView.getGClass();
-        	File projImagesDir = gclass.getPackage().getProject().getImageDir();            
-            if (imageFile != null) {
-                if (! imageFile.getParentFile().getAbsoluteFile().equals(projImagesDir)) {
-                    // An image was selected from an external dir. We need
-                    // to copy it into the project images directory first.
-                    File destFile = new File(projImagesDir, imageFile.getName());
-                    try {
-                        FileUtility.copyFile(imageFile, destFile);
-                        imageFile = destFile;
-                    }
-                    catch (IOException e) {
-                        Debug.reportError("Error when copying file: " + imageFile + " to: " + destFile, e);
-                    }
+        GClass gclass = classView.getGClass();
+        File projImagesDir = gclass.getPackage().getProject().getImageDir();            
+        if (imageFile != null) {
+            if (! imageFile.getParentFile().getAbsoluteFile().equals(projImagesDir)) {
+                // An image was selected from an external dir. We need
+                // to copy it into the project images directory first.
+                File destFile = new File(projImagesDir, imageFile.getName());
+                try {
+                    FileUtility.copyFile(imageFile, destFile);
+                    imageFile = destFile;
                 }
-                
-                gclass.setClassProperty("image", imageFile.getName());
-                gclassRole.changeImage();
-                gclass.getPackage().getProject().getProjectProperties().save();
+                catch (IOException e) {
+                    Debug.reportError("Error when copying file: " + imageFile + " to: " + destFile, e);
+                }
             }
+
+            gclass.setClassProperty("image", imageFile.getName());
+            gclassRole.changeImage();
+            gclass.getPackage().getProject().getProjectProperties().save();
         }
-        catch (RemoteException re) {
-            re.printStackTrace();
-        }
-        catch (ProjectNotOpenException pnoe) {}
     }
 }

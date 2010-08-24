@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,13 +26,8 @@ import greenfoot.core.GProject;
 import greenfoot.core.Simulation;
 
 import java.awt.event.ActionEvent;
-import java.rmi.RemoteException;
 
 import javax.swing.AbstractAction;
-
-import bluej.extensions.CompilationNotStartedException;
-import bluej.extensions.PackageNotFoundException;
-import bluej.extensions.ProjectNotOpenException;
 
 /**
  * Action that compiles all classes that needs compilation.
@@ -61,23 +56,13 @@ public class CompileAllAction extends AbstractAction
      */
     public void actionPerformed(ActionEvent e)
     {
-        try {
-            int numOfClasses = project.getDefaultPackage().getClasses().length;
-            // we only want to compile if there are classes in the project
-            if(numOfClasses < 1) {
-                return;
-            }
-            Simulation.getInstance().setPaused(true);
-            project.getDefaultPackage().compileAll();
+        int numOfClasses = project.getDefaultPackage().getClasses().length;
+        // we only want to compile if there are classes in the project
+        if(numOfClasses < 1) {
+            return;
         }
-        catch (ProjectNotOpenException pnoe) {}
-        catch (PackageNotFoundException pnfe) {}
-        catch (RemoteException re) {
-        	re.printStackTrace();
-        }
-        catch (CompilationNotStartedException cnse) {
-        	cnse.printStackTrace();
-        }
+        Simulation.getInstance().setPaused(true);
+        project.getDefaultPackage().compileAll();
         
         // Disable the action until the compilation is finished, when it
         // will be re-enabled.

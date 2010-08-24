@@ -52,7 +52,6 @@ import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.rmi.RemoteException;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -80,7 +79,6 @@ import javax.swing.event.ListSelectionListener;
 
 import bluej.BlueJTheme;
 import bluej.Config;
-import bluej.extensions.ProjectNotOpenException;
 import bluej.utility.DialogManager;
 import bluej.utility.EscapeDialog;
 import bluej.utility.FileUtility;
@@ -130,15 +128,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
         super(owner, Config.getString("imagelib.title") + " " + classView.getClassName(), true);
 
         this.gclass = classView.getGClass();
-        try {
-            this.proj = gclass.getPackage().getProject();
-        }
-        catch (ProjectNotOpenException ex) {
-            ex.printStackTrace();
-        }
-        catch (RemoteException ex) {
-            ex.printStackTrace();
-        }
+        this.proj = gclass.getPackage().getProject();
         defaultIcon = getPreviewIcon(new File(GreenfootUtil.getGreenfootLogoPath()));
 
         buildUI(proj, false);       
@@ -154,15 +144,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
     {
         super(owner, Config.getString("imagelib.newClass"), true);
         this.gclass = superClass;
-        try {
-            this.proj = gclass.getPackage().getProject();
-        }
-        catch (ProjectNotOpenException ex) {
-            ex.printStackTrace();
-        }
-        catch (RemoteException ex) {
-            ex.printStackTrace();
-        }
+        this.proj = gclass.getPackage().getProject();
         defaultIcon = getClassIcon(superClass, getPreviewIcon(new File(GreenfootUtil.getGreenfootLogoPath())));
         
         buildUI(proj, true);        
@@ -182,15 +164,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
         okAction = getOkAction();
 
         // Class details - name, current icon
-        try {
-            contentPane.add(buildClassDetailsPanel(includeClassNameField, project.getDefaultPackage()));
-        }
-        catch (ProjectNotOpenException e1) {
-            e1.printStackTrace();
-        }
-        catch (RemoteException e1) {
-            e1.printStackTrace();
-        }
+        contentPane.add(buildClassDetailsPanel(includeClassNameField, project.getDefaultPackage()));
 
         // Image selection panels - project and greenfoot image library
         {

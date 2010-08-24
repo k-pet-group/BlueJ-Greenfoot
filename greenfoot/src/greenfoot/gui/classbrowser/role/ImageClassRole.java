@@ -30,14 +30,12 @@ import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.util.GreenfootUtil;
 
 import java.awt.Image;
-import java.rmi.RemoteException;
 import java.util.Hashtable;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
 
-import bluej.extensions.ProjectNotOpenException;
 
 /**
  * Base class for class roles with associated images.
@@ -96,17 +94,8 @@ public abstract class ImageClassRole extends ClassRole
         while (gclass != null) {
             String className = gclass.getQualifiedName();
             GreenfootImage gfImage = null;
-            try {
-                GProject project = gclass.getPackage().getProject();
-                gfImage = project.getProjectProperties().getImage(className);
-            }
-            catch (ProjectNotOpenException pnoe) {}
-            catch (RemoteException re) {
-                re.printStackTrace();
-            }
-            catch (IllegalArgumentException e) {
-                e.printStackTrace();
-            }
+            GProject project = gclass.getPackage().getProject();
+            gfImage = project.getProjectProperties().getImage(className);
             if (gfImage != null) {
                 break;
             }
@@ -119,22 +108,13 @@ public abstract class ImageClassRole extends ClassRole
     {
         gclass = getClassThatHasImage(gclass);
 
-        if(gclass == null) return null;
+        if(gclass == null) {
+            return null;
+        }
         
         String className = gclass.getQualifiedName();
-        try {
-            GProject project = gclass.getPackage().getProject();
-            return project.getProjectProperties().getImage(className);
-        }
-        catch (ProjectNotOpenException pnoe) {}
-        catch (RemoteException re) {
-            re.printStackTrace();
-        }
-        catch (IllegalArgumentException e) {
-            e.printStackTrace();
-        }
-
-        return null;
+        GProject project = gclass.getPackage().getProject();
+        return project.getProjectProperties().getImage(className);
     }
     
     private ImageIcon getImageIcon() {

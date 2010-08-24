@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -33,17 +33,13 @@ import bluej.extensions.ProjectNotOpenException;
 import bluej.extensions.editor.Editor;
 
 /**
+ * Remote BlueJ class interface.
+ * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RClass.java 7888 2010-07-21 01:25:12Z marionz $
  */
 public interface RClass
     extends java.rmi.Remote
 {
-    /**
-     * @return
-     * @throws ProjectNotOpenException
-     * @throws PackageNotFoundException
-     */
     public abstract void compile(boolean waitCompileEnd)
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException, CompilationNotStartedException;
 
@@ -59,118 +55,60 @@ public interface RClass
     public abstract void insertMethodCallInConstructor(String methodName)
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException;
     
-    /**
-     * @param signature
-     * @return
-     * @throws ProjectNotOpenException
-     * @throws ClassNotFoundException
-     */
     public abstract RConstructor getConstructor(Class<?>[] signature)
         throws ProjectNotOpenException, ClassNotFoundException, RemoteException;
 
-    /**
-     * @return
-     * @throws ProjectNotOpenException
-     * @throws ClassNotFoundException
-     */
     public abstract RConstructor[] getConstructors()
         throws ProjectNotOpenException, ClassNotFoundException, RemoteException;
 
-    /**
-     * @param methodName
-     * @param params
-     * @return
-     * @throws ProjectNotOpenException
-     * @throws ClassNotFoundException
-     */
     public abstract BMethod getDeclaredMethod(String methodName, Class<?>[] params)
         throws ProjectNotOpenException, ClassNotFoundException, RemoteException;
 
-    /**
-     * @return
-     * @throws ProjectNotOpenException
-     * @throws ClassNotFoundException
-     */
     public abstract BMethod[] getDeclaredMethods()
         throws ProjectNotOpenException, ClassNotFoundException, RemoteException;
 
-    /**
-     * @param fieldName
-     * @return
-     * @throws ProjectNotOpenException
-     * @throws ClassNotFoundException
-     */
     public abstract RField getField(String fieldName)
         throws ProjectNotOpenException, ClassNotFoundException, RemoteException;
 
-    /**
-     * @return
-     * @throws ProjectNotOpenException
-     * @throws ClassNotFoundException
-     */
     public abstract BField[] getFields()
         throws ProjectNotOpenException, ClassNotFoundException, RemoteException;
 
-    /**
-     * @return
-     * @throws ProjectNotOpenException
-     * @throws PackageNotFoundException
-     */
     public abstract RPackage getPackage()
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException;
 
-    /**
-     * @return
-     * @throws ProjectNotOpenException
-     * @throws PackageNotFoundException
-     * @throws ClassNotFoundException
-     */
     public abstract RClass getSuperclass()
         throws ProjectNotOpenException, PackageNotFoundException, ClassNotFoundException, RemoteException;
 
-    /**
-     * @return
-     * @throws ProjectNotOpenException
-     * @throws PackageNotFoundException
-     */
     public abstract boolean isCompiled()
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException;
 
-    /**
-     * This should actually have been the toString() method, but we cannot add
-     * an exception to an inherited method. And to get RMI to work, it must
-     * throw RemoteException.
-     * 
-     * @return
-     * @throws ClassNotFoundException 
-     * @throws ProjectNotOpenException 
-     */
-    public String getToString()
-        throws RemoteException, ProjectNotOpenException, ClassNotFoundException;
-
-    /**
-     * @return
-     * @throws ClassNotFoundException 
-     * @throws ProjectNotOpenException 
-     */
     public abstract String getQualifiedName()
         throws RemoteException;
 
   
     public File getJavaFile()
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException;
-    //public MenuSerializer getMenu()
-    //    throws RemoteException;
 
-    public abstract void remove() throws ProjectNotOpenException, PackageNotFoundException, ClassNotFoundException, RemoteException;
+    public abstract void remove()
+        throws ProjectNotOpenException, PackageNotFoundException, ClassNotFoundException, RemoteException;
 
     /**
+     * Put the editor for this class in or out of read-only mode.
      * 
      * @see Editor#setReadOnly(boolean)
      */
-    public abstract void setReadOnly(boolean b) throws RemoteException, ProjectNotOpenException, PackageNotFoundException ;
+    public abstract void setReadOnly(boolean b)
+        throws RemoteException, ProjectNotOpenException, PackageNotFoundException ;
 
-    public abstract void showMessage(String message) throws RemoteException, ProjectNotOpenException, PackageNotFoundException;
+    /**
+     * Show a message in the editor status area for this class.
+     */
+    public abstract void showMessage(String message)
+        throws RemoteException, ProjectNotOpenException, PackageNotFoundException;
 
-    public abstract boolean hasSourceCode() throws RemoteException, ProjectNotOpenException, PackageNotFoundException;
+    /**
+     * Check whether this class has a source file.
+     */
+    public abstract boolean hasSourceCode()
+        throws RemoteException, ProjectNotOpenException, PackageNotFoundException;
 }

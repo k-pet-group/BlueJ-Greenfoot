@@ -39,7 +39,6 @@ import greenfoot.localdebugger.LocalClass;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,8 +49,6 @@ import javax.swing.JPopupMenu;
 import bluej.Config;
 import bluej.debugmgr.ConstructAction;
 import bluej.debugmgr.objectbench.ObjectBenchInterface;
-import bluej.extensions.PackageNotFoundException;
-import bluej.extensions.ProjectNotOpenException;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
 import bluej.views.ConstructorView;
@@ -126,13 +123,7 @@ public abstract class ClassRole implements WorldListener
         GClass gClass = classView.getGClass();
         JPopupMenu popupMenu = new JPopupMenu();
         GProject project = null;
-        try {
-            project = gClass.getPackage().getProject();
-        }
-        catch (ProjectNotOpenException pnoe) {}
-        catch (RemoteException re) {
-            re.printStackTrace();
-        }
+        project = gClass.getPackage().getProject();
 
         Class<?> realClass = gClass.getJavaClass();
         if (realClass != null) {
@@ -170,15 +161,9 @@ public abstract class ClassRole implements WorldListener
 
         if (!classView.isCoreClass()) {
             
-            try {
-                if (gClass.hasSourceCode()) {
-                    popupMenu.add(createMenuItem(new EditClassAction(classBrowser)));
-                }
+            if (gClass.hasSourceCode()) {
+                popupMenu.add(createMenuItem(new EditClassAction(classBrowser)));
             }
-            // If there is a problem, don't add the menu item:
-            catch (ProjectNotOpenException e) {}
-            catch (PackageNotFoundException e) {}
-            catch (RemoteException e) {}
 
             addPopupMenuItems(popupMenu, false);
 

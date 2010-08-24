@@ -68,8 +68,6 @@ import bluej.debugmgr.objectbench.ObjectBenchEvent;
 import bluej.debugmgr.objectbench.ObjectBenchInterface;
 import bluej.debugmgr.objectbench.ObjectBenchListener;
 import bluej.debugmgr.objectbench.ObjectWrapper;
-import bluej.extensions.PackageNotFoundException;
-import bluej.extensions.ProjectNotOpenException;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
 
@@ -105,8 +103,6 @@ public class WorldHandlerDelegateIDE
     public WorldHandlerDelegateIDE(GreenfootFrame frame)
     {
         worldTitle = new WorldLabel();
-        //worldTitle.setBorder(BorderFactory.createEmptyBorder(18, 0, 4, 0));
-        //worldTitle.setHorizontalAlignment(SwingConstants.CENTER);
         this.frame = frame;
         saveWorldAction = new SaveWorldAction(this);
         greenfootRecorder = new GreenfootRecorder(saveWorldAction);
@@ -158,20 +154,12 @@ public class WorldHandlerDelegateIDE
                 String instanceName = "";
                 try {
                     RObject rObject = ObjectTracker.getRObject(obj);
-                    if (rObject != null)
+                    if (rObject != null) {
                         instanceName = rObject.getInstanceName();
-                }
-                catch (ProjectNotOpenException e1) {
-                    e1.printStackTrace();
-                }
-                catch (PackageNotFoundException e1) {
-                    e1.printStackTrace();
+                    }
                 }
                 catch (RemoteException e1) {
-                    e1.printStackTrace();
-                }
-                catch (bluej.extensions.ClassNotFoundException e1) {
-                    e1.printStackTrace();
+                    Debug.reportError("Could not get instance name for inspection", e1);
                 }
                 frame.getInspectorInstance(dObj, instanceName, null, null, parent);
             }
@@ -296,24 +284,12 @@ public class WorldHandlerDelegateIDE
         GNamedValue value =null;
         try {
             RObject rObj = ObjectTracker.getRObject(actor);
-            if (rObj != null)
+            if (rObj != null) {
                 value =  new GNamedValue(rObj.getInstanceName(), null);
+            }
         }
         catch (RemoteException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch (ProjectNotOpenException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch (PackageNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch (bluej.extensions.ClassNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            Debug.reportError("Error when trying to get object instance name", e);
         }
         
         if (value != null) {
@@ -409,20 +385,11 @@ public class WorldHandlerDelegateIDE
         
         cls = getLastWorldClass();
         if(cls == null) {
-            try {
-                List<Class<? extends World>> worldClasses = project.getDefaultPackage().getWorldClasses();
-                if(worldClasses.isEmpty() ) {
-                        return;
-                }
-                cls = worldClasses.get(0);
-            }
-            catch (ProjectNotOpenException pnoe) {
+            List<Class<? extends World>> worldClasses = project.getDefaultPackage().getWorldClasses();
+            if(worldClasses.isEmpty() ) {
                 return;
             }
-            catch (RemoteException re) {
-                re.printStackTrace();
-                return;
-            }
+            cls = worldClasses.get(0);
         }
         
         final Class<? extends World> icls = cls;

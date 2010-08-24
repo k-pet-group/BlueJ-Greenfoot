@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,17 +22,16 @@
 package greenfoot.actions;
 
 import bluej.Config;
-import bluej.prefmgr.PrefMgrDialog;
 import greenfoot.core.GreenfootMain;
 
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
-import javax.swing.JFrame;
 
 /**
+ * Action to display preferences.
+ * 
  * @author Michael Kolling
- * @version $Id: PreferencesAction.java 7545 2010-05-12 15:20:21Z nccb $
  */
 public class PreferencesAction extends AbstractAction
 {
@@ -47,7 +46,6 @@ public class PreferencesAction extends AbstractAction
             instance = new PreferencesAction();
         return instance;
     }
-    
     
     private PreferencesAction()
     {

@@ -29,7 +29,6 @@ import java.io.IOException;
 import java.rmi.RemoteException;
 
 import bluej.Config;
-import bluej.extensions.ClassNotFoundException;
 import bluej.extensions.CompilationNotStartedException;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
@@ -64,8 +63,7 @@ public class GCoreClass extends GClass
     }
 
     @Override
-    public void edit() throws ProjectNotOpenException,
-    PackageNotFoundException, RemoteException
+    public void edit()
     {
         String page = isWorldClass() ? "greenfoot/World.html" : "greenfoot/Actor.html";
         try {
@@ -162,8 +160,7 @@ public class GCoreClass extends GClass
     }
 
     @Override
-    public void remove() throws ProjectNotOpenException,
-    PackageNotFoundException, ClassNotFoundException, RemoteException
+    public void remove()
     {
         return;
     }

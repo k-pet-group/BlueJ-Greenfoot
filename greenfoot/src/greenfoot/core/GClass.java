@@ -83,8 +83,14 @@ public class GClass
                 loadRealClass();
             }
         }
-        catch (Exception re) {
-            Debug.reportError("Getting remote class information", re);
+        catch (PackageNotFoundException e) {
+            Debug.reportError("Problem checking class compiled state", e);
+        }
+        catch (ProjectNotOpenException e) {
+            Debug.reportError("Problem checking class compiled state", e);
+        }
+        catch (RemoteException e) {
+            Debug.reportError("Problem checking class compiled state", e);
         }
     }
     
@@ -151,15 +157,7 @@ public class GClass
      */
     public String getClassProperty(String propertyName)
     {
-        try {
-            return pkg.getProject().getProjectProperties().getString("class." + getName() + "." + propertyName);
-        }
-        catch (ProjectNotOpenException e) {
-            return null;
-        }
-        catch (RemoteException e) {
-            return null;
-        }    
+        return pkg.getProject().getProjectProperties().getString("class." + getName() + "." + propertyName);
     }
     
     /**
@@ -194,55 +192,139 @@ public class GClass
      * Open the editor for this class.
      */
     public void edit()
-        throws ProjectNotOpenException, PackageNotFoundException, RemoteException
     {
-        rmiClass.edit();
+        try {
+            rmiClass.edit();
+        }
+        catch (ProjectNotOpenException e) {
+            Debug.reportError("Could not open editor", e);
+        }
+        catch (PackageNotFoundException e) {
+            Debug.reportError("Could not open editor", e);
+        }
+        catch (RemoteException e) {
+            Debug.reportError("Could not open editor", e);
+        }
     }
     
     /**
      * Close the editor for this class.
      */
     public void closeEditor()
-        throws ProjectNotOpenException, PackageNotFoundException, RemoteException
     {
-        rmiClass.closeEditor();
+        try {
+            rmiClass.closeEditor();
+        }
+        catch (ProjectNotOpenException e) {
+            Debug.reportError("Could not close editor", e);
+        }
+        catch (PackageNotFoundException e) {
+            Debug.reportError("Could not close editor", e);
+        }
+        catch (RemoteException e) {
+            Debug.reportError("Could not close editor", e);
+        }
     }
     
-    public boolean hasSourceCode() throws ProjectNotOpenException, PackageNotFoundException, RemoteException
+    public boolean hasSourceCode()
     {
-        return rmiClass.hasSourceCode();
+        try {
+            return rmiClass.hasSourceCode();
+        }
+        catch (ProjectNotOpenException e) {
+            Debug.reportError("Could not close editor", e);
+            return false;
+        }
+        catch (PackageNotFoundException e) {
+            Debug.reportError("Could not close editor", e);
+            return false;
+        }
+        catch (RemoteException e) {
+            Debug.reportError("Could not close editor", e);
+            return false;
+        }
     }
     
     /**
      * Used for adding code to a void method with no parameters -- creating it if necessary
      * 
-     * Comment should include the delimiters and be fully formed (and end in a newline)
-     * Method name should have no parameters, it should just be "foo" or similar
-     * Method body should have no curly braces, it should just be "foo.bar();\n        if(true) return;\n" or similar, and should end in a newline
+     * <p>Comment should include the delimiters and be fully formed (and end in a newline).
+     * Method name should have no parameters, it should just be "foo" or similar.
+     * Method body should have no curly braces, it should just be
+     * "foo.bar();\n        if(true) return;\n" or similar, and should end in a newline
      */
-    public void insertAppendMethod(String comment, String methodName, String methodBody) throws ProjectNotOpenException, PackageNotFoundException, RemoteException
+    public void insertAppendMethod(String comment, String methodName, String methodBody)
     {
-        rmiClass.insertAppendMethod(comment, methodName, methodBody);
+        try {
+            rmiClass.insertAppendMethod(comment, methodName, methodBody);
+        }
+        catch (ProjectNotOpenException e) {
+            Debug.reportError("Could not insert code", e);
+        }
+        catch (PackageNotFoundException e) {
+            Debug.reportError("Could not insert code", e);
+        }
+        catch (RemoteException e) {
+            Debug.reportError("Could not insert code", e);
+        }
     }
     
-    public void insertMethodCallInConstructor(String methodName) throws ProjectNotOpenException, PackageNotFoundException, RemoteException
+    public void insertMethodCallInConstructor(String methodName)
     {
-        rmiClass.insertMethodCallInConstructor(methodName);
+        try {
+            rmiClass.insertMethodCallInConstructor(methodName);
+        }
+        catch (ProjectNotOpenException e) {
+            Debug.reportError("Could not insert code", e);
+        }
+        catch (PackageNotFoundException e) {
+            Debug.reportError("Could not insert code", e);
+        }
+        catch (RemoteException e) {
+            Debug.reportError("Could not insert code", e);
+        }
     }
     
-    public void showMessage(String message) throws ProjectNotOpenException, PackageNotFoundException, RemoteException
+    /**
+     * Display a message in the status area of the editor window for this class.
+     */
+    public void showMessage(String message)
     {
-        rmiClass.showMessage(message);
+        try {
+            rmiClass.showMessage(message);
+        }
+        catch (ProjectNotOpenException e) {
+            Debug.reportError("Could not display editor message", e);
+        }
+        catch (PackageNotFoundException e) {
+            Debug.reportError("Could not display editor message", e);
+        }
+        catch (RemoteException e) {
+            Debug.reportError("Could not display editor message", e);
+        }
     }
 
-
-    public void remove() throws ProjectNotOpenException, PackageNotFoundException, ClassNotFoundException, RemoteException
+    public void remove()
     {
         ProjectProperties props = pkg.getProject().getProjectProperties();
         props.removeProperty("class." + getName() + ".superclass");
         props.removeProperty("class." + getName() + ".image");
         props.removeCachedImage(getName());
-        rmiClass.remove();
+        try {
+            rmiClass.remove();
+        }
+        catch (ProjectNotOpenException e) {
+            Debug.reportError("Could not remove class", e);
+        }
+        catch (PackageNotFoundException e) {
+            Debug.reportError("Could not remove class", e);
+        }
+        catch (ClassNotFoundException e) {
+            Debug.reportError("Could not remove class", e);
+        }
+        catch (RemoteException e) {
+            Debug.reportError("Could not remove class", e);
+        }
     }
     
     /**
@@ -436,6 +518,7 @@ public class GClass
             }
         }
         catch (RemoteException e) {
+            // TODO log errors
         }
         catch (ProjectNotOpenException e) {
         }

@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -70,7 +70,7 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 8128 2010-08-20 06:04:27Z davmac $
+ * @version $Id: GreenfootMain.java 8145 2010-08-24 04:33:41Z davmac $
  */
 public class GreenfootMain extends Thread implements CompileListener, RProjectListener
 {
@@ -182,7 +182,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             startupProj = new File(startupProj, "greenfoot");
             startupProject = new File(startupProj, "startupProject");
 
-            this.project = new GProject(proj);
+            this.project = GProject.newGProject(proj);
             addCompileListener(project);
             this.pkg = project.getDefaultPackage();
             ActorDelegateIDE.setupAsActorDelegate(project);

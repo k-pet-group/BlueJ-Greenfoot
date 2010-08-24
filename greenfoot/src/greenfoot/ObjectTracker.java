@@ -33,7 +33,6 @@ import rmiextension.wrappers.RObject;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugmgr.NamedValue;
 import bluej.debugmgr.ValueCollection;
-import bluej.extensions.ClassNotFoundException;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.runtime.BJMap;
@@ -54,13 +53,9 @@ public class ObjectTracker
      * Gets the remote reference to an object. If there is currently no remote reference,
      * one is created.
      *  
-     * @throws ClassNotFoundException 
-     * @throws RemoteException 
-     * @throws PackageNotFoundException 
-     * @throws ProjectNotOpenException 
-     * 
+     * @throws RemoteException  if an exception occurred in the remote VM
      */
-    public static RObject getRObject(Object obj) throws ProjectNotOpenException, PackageNotFoundException, RemoteException, ClassNotFoundException
+    public static RObject getRObject(Object obj) throws RemoteException
     {
         synchronized (cachedObjects) {
             RObject rObject = cachedObjects.get(obj);

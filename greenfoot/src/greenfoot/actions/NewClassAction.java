@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -39,13 +39,11 @@ import javax.swing.AbstractAction;
 import javax.swing.JFrame;
 
 import bluej.Config;
-import bluej.extensions.ProjectNotOpenException;
 
 /**
  * An action for creating a new (non-Actor, non-World) class.
  * 
- * @author dam
- * @version $Id: NewClassAction.java 6216 2009-03-30 13:41:07Z polle $
+ * @author Davin McCall
  */
 public class NewClassAction extends AbstractAction
 {
@@ -64,18 +62,7 @@ public class NewClassAction extends AbstractAction
         JFrame f = gfFrame;
         ClassBrowser classBrowser = gfFrame.getClassBrowser();
         GPackage pkg = null;
-        try {
-            pkg = classBrowser.getProject().getDefaultPackage();
-        }
-        catch (ProjectNotOpenException e) {
-            e.printStackTrace();
-            return;
-        }
-        catch (RemoteException e) {
-            e.printStackTrace();
-            return;
-        }
-   
+        pkg = classBrowser.getProject().getDefaultPackage();
         
         NewClassDialog dialog = new NewClassDialog(f, pkg);
         dialog.setVisible(true);
@@ -103,9 +90,6 @@ public class NewClassAction extends AbstractAction
         catch (IOException ioe) {
             // TODO definitely should report an error condition via dialog
             ioe.printStackTrace();
-        }
-        catch (ProjectNotOpenException pnoe) {
-            pnoe.printStackTrace();
         }
     }
 }

@@ -36,7 +36,6 @@ import rmiextension.wrappers.RPackage;
 import rmiextension.wrappers.RProject;
 import rmiextension.wrappers.event.RCompileEvent;
 import rmiextension.wrappers.event.RProjectListenerImpl;
-import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.extensions.event.CompileEvent;
 import bluej.utility.Debug;
@@ -59,6 +58,20 @@ public class GProject extends RProjectListenerImpl
     
     private List<CompileListener> compileListeners = new LinkedList<CompileListener>();
     
+    /**
+     * Factor method for creating GProjects. The caller is responsible for
+     * setting up the returned project as a compile listener.
+     */
+    public static GProject newGProject(RProject rmiProject)
+    {
+        try {
+            return new GProject(rmiProject);
+        }
+        catch (RemoteException re) {
+            Debug.reportError("Error constructing Greenfoot Project", re);
+            throw new InternalGreenfootError(re);
+        }
+    }
     
     /**
      * Create a G(reenfoot)Project object. This is a singleton for every
@@ -66,7 +79,7 @@ public class GProject extends RProjectListenerImpl
      * 
      * <p>The creator is responsible for setting up the GProject as a compile listener.
      */
-    public GProject(RProject rmiProject) throws RemoteException
+    private GProject(RProject rmiProject) throws RemoteException
     {
         this.rProject = rmiProject;
         try {
@@ -103,7 +116,7 @@ public class GProject extends RProjectListenerImpl
     /**
      * Returns the default package. This method is thread-safe.
      */
-    public GPackage getDefaultPackage() throws ProjectNotOpenException, RemoteException
+    public GPackage getDefaultPackage()
     {
         return getPackage("");
     }
@@ -111,15 +124,24 @@ public class GProject extends RProjectListenerImpl
     /**
      * Returns the named package. This method is thread-safe.
      */
-    public GPackage getPackage(String packageName) throws ProjectNotOpenException, RemoteException
+    public GPackage getPackage(String packageName)
     {
-        RPackage rPkg = rProject.getPackage(packageName);
-        if (rPkg == null) {
-            return null;
+        try {
+            RPackage rPkg = rProject.getPackage(packageName);
+            if (rPkg == null) {
+                return null;
+            }
+            else {
+                return getPackage(rPkg);
+            }
         }
-        else {
-            return getPackage(rPkg);
+        catch (ProjectNotOpenException pnoe) {
+            Debug.reportError("Error retrieving remote package", pnoe);
         }
+        catch (RemoteException re) {
+            Debug.reportError("Error retrieving remote package", re);
+        }
+        return null;
     }
 
     /**
@@ -322,24 +344,10 @@ public class GProject extends RProjectListenerImpl
     
     private void reloadClasses()
     {
-        try {
-            GPackage pkg = getDefaultPackage();  
-            GClass[] classes = pkg.getClasses();
-            for (GClass cls : classes) {
-                cls.reload();
-            }
-        }
-        catch (ProjectNotOpenException e) {
-            Debug.reportError("Reloading project classes", e);
-            throw new InternalGreenfootError(e);
-        }
-        catch (RemoteException e) {
-            Debug.reportError("Reloading project classes", e);
-            throw new InternalGreenfootError(e);
-        }
-        catch (PackageNotFoundException e) {
-            Debug.reportError("Reloading project classes", e);
-            throw new InternalGreenfootError(e);
+        GPackage pkg = getDefaultPackage();  
+        GClass[] classes = pkg.getClasses();
+        for (GClass cls : classes) {
+            cls.reload();
         }
     }
     
