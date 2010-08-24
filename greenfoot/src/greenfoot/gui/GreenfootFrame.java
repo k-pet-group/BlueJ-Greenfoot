@@ -420,6 +420,7 @@ public class GreenfootFrame extends JFrame
         
         JScrollPane worldScrollPane = new JScrollPane(worldCanvas);
         DBox worldBox = new DBox(DBox.Y_AXIS, 0.5f); // world title and scroll pane
+        worldHandlerDelegate.getWorldTitle().setVisible(false);
         worldBox.addAligned(worldHandlerDelegate.getWorldTitle());
         worldBox.addAligned(worldScrollPane);
 
@@ -552,32 +553,30 @@ public class GreenfootFrame extends JFrame
 
     /**
      * Read the classes from a given project and display them in the class browser.
-     * <br>
-     * Call only from the event thread.
      */
     private void populateClassBrowser(ClassBrowser classBrowser, GProject project)
     {
-    	if (project != null) {
-    		try {
-    			GPackage pkg = project.getDefaultPackage();
+        if (project != null) {
+            try {
+                GPackage pkg = project.getDefaultPackage();
 
-    			GClass[] classes = pkg.getClasses();
-    			//add the system classes
-    			classBrowser.quickAddClass(new ClassView(classBrowser, new GCoreClass(World.class, project)));
-    			classBrowser.quickAddClass(new ClassView(classBrowser, new GCoreClass(Actor.class, project)));
-    			
-    			for (int i = 0; i < classes.length; i++) {
-    				GClass gClass = classes[i];
-    				classBrowser.quickAddClass(new ClassView(classBrowser, gClass));
-    			}
+                GClass[] classes = pkg.getClasses();
+                //add the system classes
+                classBrowser.quickAddClass(new ClassView(classBrowser, new GCoreClass(World.class, project)));
+                classBrowser.quickAddClass(new ClassView(classBrowser, new GCoreClass(Actor.class, project)));
 
-    			classBrowser.updateLayout();
-    		}
-    		catch (Exception exc) {
-    			//Debug.reportError("Could not open classes in scenario", exc);
-    			exc.printStackTrace();
-    		}
-    	}
+                for (int i = 0; i < classes.length; i++) {
+                    GClass gClass = classes[i];
+                    classBrowser.quickAddClass(new ClassView(classBrowser, gClass));
+                }
+
+                classBrowser.updateLayout();
+            }
+            catch (Exception exc) {
+                //Debug.reportError("Could not open classes in scenario", exc);
+                exc.printStackTrace();
+            }
+        }
     }
 
     private void setupActions()
@@ -892,6 +891,7 @@ public class GreenfootFrame extends JFrame
         if (needsResize() && newWorld != null) {
             resize();
         }
+        worldHandlerDelegate.getWorldTitle().setVisible(true);
         worldCanvas.setVisible(true);
         centrePanel.revalidate();
         worldDimensions = worldCanvas.getPreferredSize();
