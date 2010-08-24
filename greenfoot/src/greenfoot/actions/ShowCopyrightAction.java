@@ -66,7 +66,7 @@ public class ShowCopyrightAction extends AbstractAction
     public void actionPerformed(ActionEvent e)
     {
             JOptionPane.showMessageDialog(parent, new String[]{
-                "Greenfoot \u00a9 2005-2009 Michael K\u00F6lling, Poul Henriksen.", " ",
+                "Greenfoot \u00a9 2005-2010 Michael K\u00F6lling, Poul Henriksen.", " ",
                 "Greenfoot is available under the GNU General Public License",
                 "version 2 with Classpath exception.",
                 "For more information please see the files LICENSE.txt",
