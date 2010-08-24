@@ -29,12 +29,9 @@ import java.io.IOException;
 import java.io.Writer;
 import java.rmi.RemoteException;
 
-import javax.swing.ImageIcon;
-
 import rmiextension.BlueJRMIClient;
 import rmiextension.wrappers.RBlueJ;
 import rmiextension.wrappers.RPrintStream;
-import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.utility.Debug;
 
@@ -66,6 +63,10 @@ public class GreenfootLauncherDebugVM
         BlueJRMIClient client = new BlueJRMIClient(prjDir, rmiServiceName);
         
         RBlueJ blueJ = client.getBlueJ();
+        if (blueJ == null) {
+            System.exit(1);
+        }
+        
         try {            
             File libdir = blueJ.getSystemLibDir();
             Config.initializeVMside(libdir, blueJ.getInitialCommandLineProperties(), true, client);
@@ -91,12 +92,6 @@ public class GreenfootLauncherDebugVM
             });
             
             GreenfootUtil.initialise(new GreenfootUtilDelegateIDE());
-
-// I don't think this is needed anymore - but needs to be tested on all systems before removing
-// mik - 23.8.2010
-//            ImageIcon icon = Config.getFixedImageAsIcon("greenfoot-icon-128.png");
-//            BlueJTheme.setIconImage(icon.getImage());
-
             GreenfootMain.initialize(blueJ, client.getPackage());
         }
         catch (RemoteException re) {
