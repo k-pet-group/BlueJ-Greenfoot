@@ -51,7 +51,6 @@ import bluej.testmgr.record.ConstructionInvokerRecord;
 import bluej.testmgr.record.ExpressionInvokerRecord;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.testmgr.record.MethodInvokerRecord;
-import bluej.testmgr.record.StaticVoidMainMethodInvokerRecord;
 import bluej.testmgr.record.VoidMethodInvokerRecord;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
@@ -477,17 +476,7 @@ public class Invoker
             }
 
             if (isVoid) {
-                if (method.isMain()) {
-                    // if we are calling a main method then we want to simulate a
-                    // new launch of an application, so first of all we unload all our
-                    // classes (prevents problems with static variables not being
-                    // reinitialised because the class hangs around from a previous
-                    // call)
-                    ir = new StaticVoidMainMethodInvokerRecord();
-                } 
-                else {
-                    ir = new VoidMethodInvokerRecord(command + actualArgString, args);
-                }
+                ir = new VoidMethodInvokerRecord(command + actualArgString, args);
                 objName = null;
             }
             else {
