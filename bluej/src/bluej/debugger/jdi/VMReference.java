@@ -1218,24 +1218,24 @@ class VMReference
             // breakpoint set by user in user code
             if (serverThread.equals(event.thread())) {
                 owner.raiseStateChangeEvent(Debugger.SUSPENDED);
+            }
+            
+            Location location = event.location();
+            String className = location.declaringType().name();
+            String fileName;
+            try {
+                fileName = location.sourceName();
+            }
+            catch (AbsentInformationException e) {
+                fileName = null;
+            }
 
-                Location location = event.location();
-                String className = location.declaringType().name();
-                String fileName;
-                try {
-                    fileName = location.sourceName();
-                }
-                catch (AbsentInformationException e) {
-                    fileName = null;
-                }
-
-                // A breakpoint in the shell class or a BlueJ runtime class means that
-                // the user has stepped past the end of their own code
-                if (fileName != null && fileName.startsWith("__SHELL")
-                        || className != null && className.startsWith("bluej.runtime.")) {
-                    serverThread.resume();
-                    return;
-                }
+            // A breakpoint in the shell class or a BlueJ runtime class means that
+            // the user has stepped past the end of their own code
+            if (fileName != null && fileName.startsWith("__SHELL")
+                    || className != null && className.startsWith("bluej.runtime.")) {
+                event.thread().resume();
+                return;
             }
 
             // signal the breakpoint/step to the user
