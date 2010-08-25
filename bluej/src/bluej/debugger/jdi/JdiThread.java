@@ -249,22 +249,27 @@ class JdiThread extends DebuggerThread
     public boolean isKnownSystemThread()
     {
         // A finished thread will have a null thread group.
-        ThreadGroupReference tgr = rt.threadGroup();
-        if(tgr == null || ! tgr.name().equals(MAIN_THREADGROUP))
-            return true;
+        try {
+            ThreadGroupReference tgr = rt.threadGroup();
+            if(tgr == null || ! tgr.name().equals(MAIN_THREADGROUP))
+                return true;
 
-        String name = rt.name();
-        if(name.startsWith("AWT-") ||
-           name.equals("DestroyJavaVM") ||
-           name.equals("BlueJ worker thread") ||
-           name.equals("Timer Queue") ||
-           name.equals("Screen Updater") ||
-           name.startsWith("SunToolkit.") ||
-           name.startsWith("Native Carbon") ||
-           name.equals("Java2D Disposer"))
-            return true;
+            String name = rt.name();
+            if(name.startsWith("AWT-") ||
+                    name.equals("DestroyJavaVM") ||
+                    name.equals("BlueJ worker thread") ||
+                    name.equals("Timer Queue") ||
+                    name.equals("Screen Updater") ||
+                    name.startsWith("SunToolkit.") ||
+                    name.startsWith("Native Carbon") ||
+                    name.equals("Java2D Disposer"))
+                return true;
 
-        return false;
+            return false;
+        }
+        catch (VMDisconnectedException vmde) {
+            return false;
+        }
     }
 
     /**
