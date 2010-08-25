@@ -469,6 +469,7 @@ public class WorldHandler
      * will notify the worldhandler that it is fully created. (with setWorld)
      * </ol>
      * 
+     * @param world  The new world. Must not be null.
      * @see #setInitialisingWorld(World)
      */
     public synchronized void setWorld(final World world)
@@ -482,9 +483,7 @@ public class WorldHandler
                 if(worldCanvas != null) {
                     worldCanvas.setWorld(world);
                 }                
-                if (world != null) {
-                    fireWorldCreatedEvent(world);
-                }
+                fireWorldCreatedEvent(world);
             }
         });
     }
@@ -494,10 +493,12 @@ public class WorldHandler
      */
     public synchronized World getWorld()
     {
-        if (world == null)
+        if (world == null) {
             return initialisingWorld;
-        else
+        }
+        else {
             return world;
+        }
     }
 
     /**
@@ -650,13 +651,13 @@ public class WorldHandler
         handlerDelegate.dragFinished(o);
     }
 
-    protected void fireWorldCreatedEvent(World discardedWorld)
+    protected void fireWorldCreatedEvent(World newWorld)
     {
         // Guaranteed to return a non-null array
         Object[] listeners = listenerList.getListenerList();
         // Process the listeners last to first, notifying
         // those that are interested in this event
-        WorldEvent worldEvent = new WorldEvent(this, discardedWorld);
+        WorldEvent worldEvent = new WorldEvent(newWorld);
         for (int i = listeners.length - 2; i >= 0; i -= 2) {
             if (listeners[i] == WorldListener.class) {
                 ((WorldListener) listeners[i + 1]).worldCreated(worldEvent);
@@ -670,7 +671,7 @@ public class WorldHandler
         Object[] listeners = listenerList.getListenerList();
         // Process the listeners last to first, notifying
         // those that are interested in this event
-        WorldEvent worldEvent = new WorldEvent(this, discardedWorld);
+        WorldEvent worldEvent = new WorldEvent(discardedWorld);
         for (int i = listeners.length - 2; i >= 0; i -= 2) {
             if (listeners[i] == WorldListener.class) {
                 ((WorldListener) listeners[i + 1]).worldRemoved(worldEvent);

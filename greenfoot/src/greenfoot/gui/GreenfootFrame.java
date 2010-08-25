@@ -887,7 +887,7 @@ public class GreenfootFrame extends JFrame
     
     public void worldCreated(WorldEvent e)
     {
-        World newWorld = worldHandler.getWorld();
+        World newWorld = e.getWorld();
         if (needsResize() && newWorld != null) {
             resize();
         }

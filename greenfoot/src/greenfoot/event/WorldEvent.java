@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,22 +23,21 @@ package greenfoot.event;
 
 import greenfoot.World;
 
-import java.util.EventObject;
-
 /**
- * A world event
+ * A world event, fired when a world is created or removed.
  * 
  * @author Poul Henriksen
- * @version $Id$
  */
-public class WorldEvent extends EventObject
+public class WorldEvent
 {
-    private int type;
     private World world;
 
-    public WorldEvent(Object source, World world)
+    /**
+     * Construct a world event for the given world.
+     * @param world  The world which was created or removed (non-null).
+     */
+    public WorldEvent(World world)
     {
-        super(source);
         this.world = world;
     }
     
