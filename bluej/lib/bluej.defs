@@ -566,7 +566,9 @@ bluej.javame.corelibraries=midpapi20.jar cldcapi11.jar
 ##            abcde\\\\fg => 1 argument: 'abcde\fg'
 #####################################################################
 
-bluej.vm.args=
+bluej.vm.args=-ea
+
+# -ea : enable assertions
 
 #####################################################################
 ## bluej.windows.vm.args provides arguments to the Java VM that 
