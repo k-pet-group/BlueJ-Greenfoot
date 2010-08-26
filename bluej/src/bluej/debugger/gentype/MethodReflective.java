@@ -22,6 +22,7 @@
 package bluej.debugger.gentype;
 
 import java.lang.reflect.Modifier;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -137,9 +138,13 @@ public class MethodReflective
         return paramTypes;
     }
     
+    /**
+     * Get the method type parameters. If the method has no type parameters,
+     * returns an empty list.
+     */
     public List<GenTypeDeclTpar> getTparTypes()
     {
-        return tparTypes;
+        return tparTypes == null ? Collections.<GenTypeDeclTpar>emptyList() : tparTypes;
     }
     
     public JavaType getReturnType()
