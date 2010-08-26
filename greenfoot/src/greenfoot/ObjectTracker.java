@@ -33,8 +33,6 @@ import rmiextension.wrappers.RObject;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugmgr.NamedValue;
 import bluej.debugmgr.ValueCollection;
-import bluej.extensions.PackageNotFoundException;
-import bluej.extensions.ProjectNotOpenException;
 import bluej.runtime.BJMap;
 import bluej.runtime.ExecServer;
 import bluej.utility.Debug;
@@ -150,32 +148,6 @@ public class ObjectTracker
         return null;
     }
 
-    /**
-     * "Forget" about a remote object reference. This is needed to avoid memory
-     * leaks (worlds are otherwise never forgotten).
-     * @param obj  The object to forget
-     */
-    public static void forgetRObject(Object obj)
-    {
-        synchronized (cachedObjects) {
-            RObject rObject = cachedObjects.remove(obj);
-            if (rObject != null) {
-                try {
-                    rObject.removeFromBench();
-                }
-                catch (RemoteException re) {
-                    throw new Error(re);
-                }
-                catch (ProjectNotOpenException pnoe) {
-                    // shouldn't happen
-                }
-                catch (PackageNotFoundException pnfe) {
-                    // shouldn't happen
-                }
-            }
-        }
-    }
-    
     /**
      * Clear the cache of remote objects.
      */
