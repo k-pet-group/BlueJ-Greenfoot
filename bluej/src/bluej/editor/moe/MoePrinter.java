@@ -100,7 +100,7 @@ public class MoePrinter
             // Get each line element, get its text and put it in the string list
             for (int i = 0; i < count; i++) {
                 Element lineElement = (Element)root.getElement(i);
-                lines.add(removeNewLines(new PrintLine(document, lineElement, i)));
+                lines.add(removeNewLines(new PrintLine(document, lineElement, i+1)));
             }
         }
         // make sure that read lock is removed
