@@ -81,7 +81,7 @@ import bluej.views.ViewFilter;
 /**
  * A wrapper around a Java object that handles calling methods, inspecting, etc.
  *
- * The wrapper is represented by the red oval that is visible on the
+ * <p>The wrapper is represented by the red oval that is visible on the
  * object bench.
  *
  * @author  Michael Kolling
@@ -609,10 +609,10 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
     /**
      * Draw the text onto an object wrapper (objectname: classname).
      */
-	protected void drawUMLObjectText(Graphics2D g, int x, int y, int w, int shad, 
-                                     String objName, String className)
+    protected void drawUMLObjectText(Graphics2D g, int x, int y, int w, int shad, 
+            String objName, String className)
     {
-	    g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g.setColor(textColour);
         g.setFont(PrefMgr.getTargetFont());
 
@@ -628,8 +628,9 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
         
         // draw top string (normally instance name)
         int aWidth = fm.stringWidth(objName);
-        if(aWidth > maxWidth)
+        if(aWidth > maxWidth) {
             aWidth = maxWidth;
+        }
 
         Utility.drawCentredText(g, objName, x+2, y+start, maxWidth, fontHeight);
 
