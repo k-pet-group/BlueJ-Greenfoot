@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -1132,7 +1132,9 @@ public class TextParser extends JavaParser
     @Override
     protected void endArgument()
     {
-        // processHigherPrecedence(getPrecedence(JavaTokenTypes.COMMA));
+        // Each argument is an expression delimited by beginExpression()/
+        // endExpression(), so it should leave just a single value on the
+        // stack.
         if (! valueStack.isEmpty()) {
             argumentStack.peek().add(valueStack.pop());
         }
