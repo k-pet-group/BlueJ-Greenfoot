@@ -25,6 +25,7 @@ import greenfoot.util.DebugUtil;
 
 import java.awt.EventQueue;
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -263,16 +264,33 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
             }
             BClass bClass = transportObject.getBClass();
             BField field = bClass.getField("transportField");
-            BObject value = (BObject) field.getValue(transportObject);
-            String cName = value.getBClass().getName();
-            cName = cName.toLowerCase();
-            value.addToBench(cName);
+            final BObject value = (BObject) field.getValue(transportObject);
+            
+            EventQueue.invokeAndWait(new Runnable() {
+                @Override
+                public void run()
+                {
+                    try {
+                        String cName = value.getBClass().getName();
+                        cName = cName.toLowerCase();
+                        value.addToBench(cName);
+                    }
+                    catch (bluej.extensions.ClassNotFoundException cnfe) { }
+                    catch (PackageNotFoundException pnfe) { }
+                    catch (ProjectNotOpenException pnoe) { }
+                }
+            });
+            
+            value.getInstanceName();
             return WrapperPool.instance().getWrapper(value);
         }
         catch (InterruptedException ie) { }
         catch (bluej.extensions.ClassNotFoundException cnfe) { }
         catch (PackageNotFoundException pnfe) { }
         catch (ProjectNotOpenException pnoe) { }
+        catch (InvocationTargetException ite) {
+            Debug.reportError("Error adding object to bench", ite);
+        }
         return null;
     }
 }
