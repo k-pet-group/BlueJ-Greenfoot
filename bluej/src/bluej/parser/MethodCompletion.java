@@ -22,10 +22,12 @@
 package bluej.parser;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import bluej.debugger.gentype.GenTypeDeclTpar;
 import bluej.debugger.gentype.GenTypeParameter;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.MethodReflective;
@@ -54,7 +56,21 @@ public class MethodCompletion extends AssistContent
             JavadocResolver javadocResolver)
     {
         this.method = method;
-        this.typeArgs = typeArgs;
+        if (typeArgs != null) {
+            List<GenTypeDeclTpar> mtpars = method.getTparTypes();
+            if (! mtpars.isEmpty()) {
+                // The method has its own type parameters - these override the class parameters.
+                Map<String,GenTypeParameter> fullArgMap = new HashMap<String,GenTypeParameter>();
+                fullArgMap.putAll(typeArgs);
+                for (GenTypeDeclTpar mtpar : mtpars) {
+                    fullArgMap.put(mtpar.getTparName(), mtpar);
+                }
+                this.typeArgs = fullArgMap;
+            }
+            else {
+                this.typeArgs = typeArgs;
+            }
+        }
         this.javadocResolver = javadocResolver;
     }
     
