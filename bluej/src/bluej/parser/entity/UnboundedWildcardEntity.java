@@ -20,6 +20,7 @@
  */
 package bluej.parser.entity;
 
+import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeParameter;
 import bluej.debugger.gentype.GenTypeUnbounded;
 
@@ -30,9 +31,19 @@ import bluej.debugger.gentype.GenTypeUnbounded;
  */
 public class UnboundedWildcardEntity extends TypeArgumentEntity
 {
+    private GenTypeClass objClass;
+    
+    public UnboundedWildcardEntity(EntityResolver resolver)
+    {
+        TypeEntity objEntity = resolver.resolveQualifiedClass("java.lang.Object");
+        if (objEntity != null) {
+            objClass = objEntity.getClassType();
+        }
+    }
+    
     @Override
     public GenTypeParameter getType()
     {
-        return new GenTypeUnbounded();
+        return new GenTypeUnbounded(objClass);
     }
 }

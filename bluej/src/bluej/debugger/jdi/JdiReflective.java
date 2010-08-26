@@ -487,7 +487,9 @@ public class JdiReflective extends Reflective
             // '*' represents an unbounded '?'. For instance, List<?>
             // has signature: Ljava/lang/list<*>;
             i.next();
-            return new GenTypeUnbounded();
+            JdiReflective objRef = new JdiReflective("java.lang.Object", parent);
+            GenTypeClass objClass = new GenTypeClass(objRef);
+            return new GenTypeUnbounded(objClass);
         }
         if (c == '+') {
             // ? extends ...

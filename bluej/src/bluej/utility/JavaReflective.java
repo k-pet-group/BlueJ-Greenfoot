@@ -248,6 +248,8 @@ public class JavaReflective extends Reflective {
                 paramTypesList.add(paramType.mapTparsToTypes(tparMap).getUpperBound());
             }
             
+            rtype = rtype.mapTparsToTypes(tparMap).getUpperBound();
+            
             String name = method.getName();
             MethodReflective mr = new MethodReflective(name, rtype, tpars, paramTypesList,
                     this,

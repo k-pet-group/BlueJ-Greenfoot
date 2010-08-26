@@ -112,8 +112,10 @@ public class ParseUtils
                                     method.getModifiers(), suggests.isStatic())) {
                                 continue;
                             }
+                            Map<String,GenTypeParameter> declMap =
+                                    exprType.mapToSuper(method.getDeclaringType().getName()).getMap();
                             MethodCompletion completion = new MethodCompletion(method,
-                                    typeArgs, javadocResolver);
+                                    declMap, javadocResolver);
                             String sig = completion.getDisplayName();
                             if (contentSigs.add(sig)) {
                                 completions.add(new MethodCompletion(method, typeArgs, javadocResolver));
@@ -335,7 +337,7 @@ public class ParseUtils
                     taList.add(new WildcardExtendsEntity(taEnt));
                 }
                 else {
-                    taList.add(new UnboundedWildcardEntity());
+                    taList.add(new UnboundedWildcardEntity(resolver));
                     i.previous();
                 }
             }

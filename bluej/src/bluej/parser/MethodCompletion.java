@@ -45,7 +45,8 @@ public class MethodCompletion extends AssistContent
     /**
      * Construct a new method completion
      * @param method    The method to represent
-     * @param typeArgs   The type arguments (may be null if there are none)
+     * @param typeArgs   The type arguments applied to the declaring class. For a method
+     *                   call on a raw expression, will be null.
      * @param javadocResolver  The javadoc resolver to use
      */
     public MethodCompletion(MethodReflective method,
@@ -181,6 +182,7 @@ public class MethodCompletion extends AssistContent
                 type = type.mapTparsToTypes(typeArgs).getUpperBound();
             }
             else {
+                // null indicates a raw type.
                 type = type.getErasedType();
             }
         }

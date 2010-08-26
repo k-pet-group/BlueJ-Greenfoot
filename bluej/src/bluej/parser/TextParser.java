@@ -1075,7 +1075,7 @@ public class TextParser extends JavaParser
                     taList.add(new WildcardExtendsEntity(taEnt));
                 }
                 else {
-                    taList.add(new UnboundedWildcardEntity());
+                    taList.add(new UnboundedWildcardEntity(resolver));
                     i.previous();
                 }
             }
