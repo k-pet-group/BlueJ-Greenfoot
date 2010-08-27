@@ -428,12 +428,12 @@ public class TextParserTest extends TestCase
         assertEquals("int", r);
         r = tp.parseCommand("~4l");
         assertEquals("long", r);
-        r = tp.parseCommand("4 & 5");
-        assertEquals("int", r);
-        r = tp.parseCommand("4 | 5");
-        assertEquals("int", r);
-        r = tp.parseCommand("4 ^ 5"); // xor
-        assertEquals("int", r);
+        r = tp.parseCommand("4l & 5");
+        assertEquals("long", r);
+        r = tp.parseCommand("4l | 5");
+        assertEquals("long", r);
+        r = tp.parseCommand("4l ^ 5"); // xor
+        assertEquals("long", r);
     }
     
     public void testOperators2()

@@ -264,6 +264,9 @@ public class TextParser extends JavaParser
         case JavaTokenTypes.BSR_ASSIGN:
         case JavaTokenTypes.MOD_ASSIGN:
         case JavaTokenTypes.BXOR_ASSIGN:
+        case JavaTokenTypes.BAND:
+        case JavaTokenTypes.BOR:
+        case JavaTokenTypes.BXOR:
             arg2 = popValueStack();
             arg1 = popValueStack();
             checkArgs(arg1, arg2, token);
@@ -513,6 +516,9 @@ public class TextParser extends JavaParser
         case JavaTokenTypes.STAR:
         case JavaTokenTypes.DIV:
         case JavaTokenTypes.MOD:
+        case JavaTokenTypes.BAND:
+        case JavaTokenTypes.BOR:
+        case JavaTokenTypes.BXOR:
             JavaType resultType = TextAnalyzer.binaryNumericPromotion(a1type, a2type);
             if (resultType == null) {
                 valueStack.push(new ErrorEntity());
