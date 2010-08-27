@@ -1279,12 +1279,19 @@ public class ClassTarget extends DependentTarget
     /**
      * Set the superclass. This adds an extends dependency to the appropriate class.
      * The old extends dependency (if any) must be removed separately.
+     * 
+     * @param superName  the fully-qualified name of the superclass
      */
     private void setSuperClass(String superName)
     {
         String pkgPrefix = getPackage().getQualifiedName();
         if (superName.startsWith(pkgPrefix)) {
-            superName = superName.substring(pkgPrefix.length());
+            // Must account for the final "." in the fully qualified name, if the package is
+            // not the default package:
+            int prefixLen = pkgPrefix.length();
+            prefixLen = prefixLen == 0 ? 0 : prefixLen + 1;
+            
+            superName = superName.substring(prefixLen);
             DependentTarget superclass = getPackage().getDependentTarget(superName);
             if (superclass != null) {
                 getPackage().addDependency(new ExtendsDependency(getPackage(), this, superclass), false);
