@@ -709,4 +709,19 @@ public class TextParserTest extends TestCase
         String r = tp.parseCommand("new String[5].length");
         assertEquals("int", r);
     }
+    
+    public void testArrayVarDecl()
+    {
+        TextAnalyzer tp = new TextAnalyzer(resolver, "", objectBench);
+        
+        tp.parseCommand("String [] a;");
+        List<DeclaredVar> vars = tp.getDeclaredVars();
+        assertEquals(1, vars.size());
+        assertEquals("java.lang.String[]", vars.get(0).getDeclaredType().toString());
+        
+        tp.parseCommand("String a[];");
+        vars = tp.getDeclaredVars();
+        assertEquals(1, vars.size());
+        assertEquals("java.lang.String[]", vars.get(0).getDeclaredType().toString());
+    }
 }
