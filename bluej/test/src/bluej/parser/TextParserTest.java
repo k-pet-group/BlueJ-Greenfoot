@@ -241,6 +241,37 @@ public class TextParserTest extends TestCase
         var = declaredVars.get(0);
         assertEquals("iaa", var.getName());
         assertEquals("int[][]", var.getDeclaredType().toString());
+        
+        // Simple reference-type array with no initializer
+        tp.parseCommand("String [] a;");
+        List<DeclaredVar> vars = tp.getDeclaredVars();
+        assertEquals(1, vars.size());
+        assertEquals("java.lang.String[]", vars.get(0).getDeclaredType().toString());
+        
+        // Array with array declarators after the name instead of before it
+        tp.parseCommand("String a[];");
+        vars = tp.getDeclaredVars();
+        assertEquals(1, vars.size());
+        assertEquals("java.lang.String[]", vars.get(0).getDeclaredType().toString());
+        
+        // Multiple declaration
+        tp.parseCommand("int a, b[], c, d[][], e[];");
+        vars = tp.getDeclaredVars();
+        assertEquals(5, vars.size());
+        assertEquals("int", vars.get(0).getDeclaredType().toString());
+        assertEquals("int[]", vars.get(1).getDeclaredType().toString());
+        assertEquals("int", vars.get(2).getDeclaredType().toString());
+        assertEquals("int[][]", vars.get(3).getDeclaredType().toString());
+        assertEquals("int[]", vars.get(4).getDeclaredType().toString());
+        
+        // Multiple declarations 2
+        tp.parseCommand("int [] a, b[], c, d[][];");
+        vars = tp.getDeclaredVars();
+        assertEquals(4, vars.size());
+        assertEquals("int[]", vars.get(0).getDeclaredType().toString());
+        assertEquals("int[][]", vars.get(1).getDeclaredType().toString());
+        assertEquals("int[]", vars.get(2).getDeclaredType().toString());
+        assertEquals("int[][][]", vars.get(3).getDeclaredType().toString());
     }
     
     public void testAnonymousInnerClass()
@@ -708,20 +739,5 @@ public class TextParserTest extends TestCase
         
         String r = tp.parseCommand("new String[5].length");
         assertEquals("int", r);
-    }
-    
-    public void testArrayVarDecl()
-    {
-        TextAnalyzer tp = new TextAnalyzer(resolver, "", objectBench);
-        
-        tp.parseCommand("String [] a;");
-        List<DeclaredVar> vars = tp.getDeclaredVars();
-        assertEquals(1, vars.size());
-        assertEquals("java.lang.String[]", vars.get(0).getDeclaredType().toString());
-        
-        tp.parseCommand("String a[];");
-        vars = tp.getDeclaredVars();
-        assertEquals(1, vars.size());
-        assertEquals("java.lang.String[]", vars.get(0).getDeclaredType().toString());
     }
 }
