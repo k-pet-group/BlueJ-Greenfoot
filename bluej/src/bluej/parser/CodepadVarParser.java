@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -96,8 +96,13 @@ public class CodepadVarParser extends JavaParser
     {
         gotFirstVar = true;
         if (baseType != null) {
+            JavaType vtype = baseType;
+            while (arrayCount > 0) {
+                vtype = vtype.getArray();
+                arrayCount--;
+            }
             variables.add(new DeclaredVar(inited, Modifier.isFinal(modifiers),
-                    baseType, idToken.getText()));
+                    vtype, idToken.getText()));
         }
     }
     
@@ -107,7 +112,7 @@ public class CodepadVarParser extends JavaParser
         if (baseType != null) {
             JavaType vtype = baseType;
             while (arrayCount > 0) {
-                vtype = baseType.getArray();
+                vtype = vtype.getArray();
                 arrayCount--;
             }
             variables.add(new DeclaredVar(inited, Modifier.isFinal(modifiers),
