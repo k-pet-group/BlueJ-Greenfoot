@@ -709,12 +709,31 @@ public class Invoker
 
         // build the invocation string
         
-        // A sample of the code generated (for a method call)
-        //  __bluej_runtime_result = makeObj(2+new String("ap").length());
+        // A sample of the code generated:
+        //
+        // Result type not known:
+        //    try {
+        //      return makeObj(2+new String("ap").length());
+        //    }
+        //    finally {
+        //    }
+        //
+        // Result type known:
+        //    return new java.lang.Object() {
+        //       int result;
+        //       try {
+        //           result = 2+new String("ap").length();
+        //       }
+        //       finally {
+        //       }
+        //    }
+        //
+        // Note that codepad local variable values, if any, are saved in the finally block.
 
         if (!isVoid) {
             if (constype == null) {
                 buffer.append(paramInit);
+                buffer.append("try {" + Config.nl);
                 buffer.append("return makeObj(");
             }
             else {
@@ -725,12 +744,15 @@ public class Invoker
                 if (localVars != null) {
                     writeVariables("lv:", buffer, false, localVars.getValueIterator(), nameTransform);
                 }
+                buffer.append("try {" + Config.nl);
                 buffer.append("result=(");
             }
             buffer.append(callString);
             // Append a new line, as the call string may end with a //-style comment
             buffer.append(Config.nl);
-            buffer.append(");");
+            buffer.append(");}");
+            buffer.append(Config.nl);
+            buffer.append("finally {" + Config.nl);
         }
         else {
             buffer.append(paramInit);
@@ -738,8 +760,6 @@ public class Invoker
             // Append a new line, as the call string may end with a //-style comment
             buffer.append(Config.nl);
         }
-
-        buffer.append(Config.nl);
 
         String invocation = buffer.toString();
         
@@ -787,11 +807,15 @@ public class Invoker
             shell.newLine();
             shell.write(invocation);
             shell.write(scopeSave);
-            if (! isVoid && constype != null) {
-                shell.write("} };"); // end block, anonymous inner object
+            if (! isVoid) {
+                shell.write("}"); // end finally block
+                if (constype != null) {
+                    shell.write("} };"); // end block, anonymous inner object
+                }
             }
             shell.newLine();
             shell.write("}}"); // end method, class
+            shell.newLine();
             shell.close();
         }
         catch (IOException e) {
