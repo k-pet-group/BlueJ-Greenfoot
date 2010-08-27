@@ -217,7 +217,7 @@ public class JavaReflective extends Reflective {
         Field [] fields = c.getDeclaredFields();
         Map<String,FieldReflective> rmap = new HashMap<String,FieldReflective>();
         for (int i = 0; i < fields.length; i++) {
-            JavaType fieldType = JavaUtils.getJavaUtils().genTypeFromClass(fields[i].getType());
+            JavaType fieldType = JavaUtils.getJavaUtils().getFieldType(fields[i]);
             FieldReflective fref = new FieldReflective(fields[i].getName(), fieldType,
                     fields[i].getModifiers());
             rmap.put(fields[i].getName(), fref);

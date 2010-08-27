@@ -100,7 +100,7 @@ public class ObjectTracker
                 synchronized (map) {
                     Object o = map.get(name);
                     if (o != null) {
-                        JavaType type = JavaUtils.getJavaUtils().genTypeFromClass(o.getClass());
+                        JavaType type = JavaUtils.genTypeFromClass(o.getClass());
                         return new GNamedValue(name, type);
                     }
                     return new GNamedValue(name, JavaUtils.getJavaUtils().genTypeFromClass(Object.class));

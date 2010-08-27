@@ -21,11 +21,6 @@
  */
 package bluej.utility;
 
-import bluej.debugger.gentype.GenTypeArray;
-import bluej.debugger.gentype.GenTypeClass;
-import bluej.debugger.gentype.JavaPrimitiveType;
-import bluej.debugger.gentype.JavaType;
-
 /**
  * Java 1.4 version of JavaUtils
  * 
@@ -53,38 +48,5 @@ public class JavaUtils14
     public static String getTypeName(Class<?> type)
     {
         return JavaNames.stripPrefix(JavaUtils.getFQTypeName(type));
-    }
-    
-    /**
-     * Get a GenType corresponding to the (raw) class c
-     */
-    public static JavaType genTypeFromClass14(Class<?> c)
-    {
-        if (c.isPrimitive()) {
-            if (c == boolean.class)
-                return JavaPrimitiveType.getBoolean();
-            if (c == char.class)
-                return JavaPrimitiveType.getChar();
-            if (c == byte.class)
-                return JavaPrimitiveType.getByte();
-            if (c == short.class)
-                return JavaPrimitiveType.getShort();
-            if (c == int.class)
-                return JavaPrimitiveType.getInt();
-            if (c == long.class)
-                return JavaPrimitiveType.getLong();
-            if (c == float.class)
-                return JavaPrimitiveType.getFloat();
-            if (c == double.class)
-                return JavaPrimitiveType.getDouble();
-            if (c == void.class)
-                return JavaPrimitiveType.getVoid();
-            Debug.message("getReturnType: Unknown primitive type");
-        }
-        if (c.isArray()) {
-            JavaType componentT = genTypeFromClass14(c.getComponentType());
-            return new GenTypeArray(componentT);
-        }
-        return new GenTypeClass(new JavaReflective(c));
     }
 }

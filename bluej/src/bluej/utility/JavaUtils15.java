@@ -178,7 +178,7 @@ public class JavaUtils15 extends JavaUtils
     public JavaType getRawReturnType(Method method)
     {
         Class<?> c = method.getReturnType();
-        return JavaUtils14.genTypeFromClass14(c);
+        return JavaUtils.genTypeFromClass(c);
     }
     
     public JavaType getFieldType(Field field)
@@ -189,7 +189,7 @@ public class JavaUtils15 extends JavaUtils
     public JavaType getRawFieldType(Field field)
     {
         Class<?> c = field.getType();
-        return JavaUtils14.genTypeFromClass14(c);
+        return JavaUtils.genTypeFromClass(c);
     }
     
     public List<GenTypeDeclTpar> getTypeParams(Method method)
@@ -264,14 +264,6 @@ public class JavaUtils15 extends JavaUtils
         return gentypes;
     }
 
-    /**
-     * Build a GenType structure from a "Type" object.
-     */
-    public JavaType genTypeFromClass(Class<?> t)
-    {
-        return new GenTypeClass(new JavaReflective(t));
-    }
-    
     /* -------------- Internal methods ---------------- */
     
     /**
@@ -497,7 +489,7 @@ public class JavaUtils15 extends JavaUtils
     private static GenTypeParameter genTypeFromType(Type t, Map<String,? extends GenTypeParameter> tvars)
     {
         if (t instanceof Class<?>) {
-            return JavaUtils14.genTypeFromClass14((Class<?>)t);
+            return JavaUtils.genTypeFromClass((Class<?>)t);
         }
         
         if (t instanceof TypeVariable<?>) {

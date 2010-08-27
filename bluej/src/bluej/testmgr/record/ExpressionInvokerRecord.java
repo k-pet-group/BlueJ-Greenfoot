@@ -38,7 +38,7 @@ public class ExpressionInvokerRecord extends MethodInvokerRecord
      */
     public ExpressionInvokerRecord(String command) 
     {
-        super(JavaUtils.getJavaUtils().genTypeFromClass(Object.class), command, null);
+        super(JavaUtils.genTypeFromClass(Object.class), command, null);
     }
 
     /*

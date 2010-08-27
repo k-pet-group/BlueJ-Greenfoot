@@ -37,10 +37,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import bluej.debugger.gentype.GenTypeArray;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeDeclTpar;
 import bluej.debugger.gentype.GenTypeParameter;
 import bluej.debugger.gentype.GenTypeSolid;
+import bluej.debugger.gentype.JavaPrimitiveType;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.Reflective;
 
@@ -294,11 +296,6 @@ public abstract class JavaUtils
      */
     abstract public JavaType[] getParamGenTypes(Constructor<?> constructor);
 
-    /**
-     * Build a JavaType structure from a "Class" object.
-     */
-    abstract public JavaType genTypeFromClass(Class<?> t);
-    
     /**
      * Open a web browser to show the given URL. On Java 6+ we can use
      * the desktop integration functionality of the JDK to do this. On
@@ -634,5 +631,38 @@ public abstract class JavaUtils
             }
         }
         return s;
+    }
+    
+    /**
+     * Get a GenType corresponding to the (raw) class c
+     */
+    public static JavaType genTypeFromClass(Class<?> c)
+    {
+        if (c.isPrimitive()) {
+            if (c == boolean.class)
+                return JavaPrimitiveType.getBoolean();
+            if (c == char.class)
+                return JavaPrimitiveType.getChar();
+            if (c == byte.class)
+                return JavaPrimitiveType.getByte();
+            if (c == short.class)
+                return JavaPrimitiveType.getShort();
+            if (c == int.class)
+                return JavaPrimitiveType.getInt();
+            if (c == long.class)
+                return JavaPrimitiveType.getLong();
+            if (c == float.class)
+                return JavaPrimitiveType.getFloat();
+            if (c == double.class)
+                return JavaPrimitiveType.getDouble();
+            if (c == void.class)
+                return JavaPrimitiveType.getVoid();
+            Debug.message("getReturnType: Unknown primitive type");
+        }
+        if (c.isArray()) {
+            JavaType componentT = genTypeFromClass(c.getComponentType());
+            return new GenTypeArray(componentT);
+        }
+        return new GenTypeClass(new JavaReflective(c));
     }
 }
