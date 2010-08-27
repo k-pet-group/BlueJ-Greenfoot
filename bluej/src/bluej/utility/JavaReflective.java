@@ -46,8 +46,8 @@ import bluej.debugger.gentype.Reflective;
  * 
  * @author Davin McCall
  */
-public class JavaReflective extends Reflective {
-
+public class JavaReflective extends Reflective
+{
     private Class<?> c;
     
     public int hashCode()

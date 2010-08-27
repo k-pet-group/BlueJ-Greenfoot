@@ -22,6 +22,7 @@
 package bluej.parser;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -58,19 +59,19 @@ public class DummyReflective extends Reflective
     @Override
     public Map<String, FieldReflective> getDeclaredFields()
     {
-        return null;
+        return Collections.emptyMap();
     }
 
     @Override
     public Map<String, Set<MethodReflective>> getDeclaredMethods()
     {
-        return null;
+        return Collections.emptyMap();
     }
 
     @Override
     public List<GenTypeClass> getInners()
     {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
@@ -104,7 +105,7 @@ public class DummyReflective extends Reflective
     @Override
     public List<GenTypeDeclTpar> getTypeParams()
     {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
