@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -661,6 +661,27 @@ public class CompletionTest extends TestCase
         for (AssistContent assist : assists) {
             assist.getJavadoc();
         }
+    }
+    
+    /**
+     * Regression test for bug #288
+     */
+    public void testInterNewCompletion() throws Exception
+    {
+        String aClassSrc =
+            "class A {\n" +   // 0 - 10 
+            "  public void m() {\n" +  // 10 - 30
+            "    callMe(new Runnable() { });\n" +  // 30 -    53 <- Runnable[HERE]()
+            "  }\n" +
+            "}\n";
+        
+        PlainDocument doc = new PlainDocument();
+        doc.insertString(0, aClassSrc, null);
+        ParsedCUNode aNode = cuForSource(aClassSrc, "");
+        resolver.addCompilationUnit("", aNode);
+        
+        CodeSuggestions suggests = aNode.getExpressionType(53, doc);
+        assertNotNull(suggests);
     }
     
     // Yet to do:

@@ -153,6 +153,8 @@ public class TextParser extends JavaParser
     {
         switch (tokenType) {
         case PAREN_OPERATOR:
+            return -2;
+        case JavaTokenTypes.LITERAL_new:
             return -1;
         case JavaTokenTypes.ASSIGN:
         case JavaTokenTypes.BAND_ASSIGN:
@@ -294,8 +296,11 @@ public class TextParser extends JavaParser
         case JavaTokenTypes.QUESTION:
             processQuestionOperator();
             break;
+        case JavaTokenTypes.LITERAL_new:
+            processNewOperator(token);
+            break;
         }
-        // TODO logical not, bitwise not/and/or/xor
+        // TODO bitwise and/or/xor
     }
     
     @Override
