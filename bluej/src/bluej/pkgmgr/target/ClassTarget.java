@@ -661,6 +661,16 @@ public class ClassTarget extends DependentTarget
     {
         return (getRole() instanceof UnitTestClassRole);
     }
+    
+    /**
+     * Verify whether this class target represents an Enum
+     * 
+     * @return true if class target represents an Enum, else false
+     */
+    public boolean isEnum()
+    {
+        return (getRole() instanceof EnumClassRole);
+    }
 
     /**
      * Check whether this class target represents an abstract class. This
