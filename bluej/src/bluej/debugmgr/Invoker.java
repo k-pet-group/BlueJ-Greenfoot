@@ -606,15 +606,13 @@ public class Invoker
      * invocation. Returns the written file, or null if the file cannot be written
      * (an error dialog will be shown in this case).
      * 
-     * <p>A shell file has the following form:
+     * <p>A shell file has, very roughly, the following form:
      * 
      * <p><pre>
      * $PKGLINE
      * $IMPORTS
      * public class $CLASSNAME extends bluej.runtime.Shell
      * {
-     *   $VARDECL
-     * 
      *   public static void run() throws Throwable
      *   {
      *     $SCOPEINIT
@@ -627,23 +625,18 @@ public class Invoker
      * PARAMINIT and INVOCATION correspond directly to the parameters
      * 'paramInit' and 'callString' as passed to this method.<p>
      * 
-     * VARDECL declares a static member variable, __bluej_runtime_result,
-     * whose type depends on 'constructing' and 'constype' parameters. Only
-     * present if 'isVoid' is false.<p>
-     * 
      * SCOPEINIT declares a Map, __bluej_runtime_scope, which maps object
      * names to their values (allowing objects from the object bench to be
      * accessed).
      * 
      *  
-     * @param pkg   the Package in which scope to execute
      * @param paramInit  java code which initializes parameter variables
      * @param callString java code which executes requested method/code
-     * @param constructing  true to store the result directly, false to wrap
-     *                      it in an ObjectResultWrapper
      * @param isVoid   true if no result is returned
      * @param constype  the exact type of the object being constructed. Only
-     *                  needed if 'constructing' is true.
+     *                  needed if 'constructing' is true, but can be supplied in other
+     *                  cases to yield a more accurate result type (when generic types
+     *                  are involved).
      */
     private File writeInvocationFile(String paramInit, String callString,
             boolean isVoid, String constype)
@@ -657,20 +650,16 @@ public class Invoker
             packageLine = "package " + pkgName + ";";
         }
 
-        // add variable declaration for a (possible) result
-
         StringBuffer buffer = new StringBuffer();
         
-        // Build scope, ie. add one line for every object on the object
+        // Build scope, i.e. add one line for every object on the object
         // bench that gets the object and makes it available for use as
-        // a parameter. Then add one line for each parameter setting the
-        // parameter value.
-
+        // a parameter.
+        
         // A sample of the code generated
         //  java.util.Map __bluej_runtime_scope = getScope("BJIDC:\\aproject");
-        //  JavaType instnameA = (JavaType) __bluej_runtime_scope("instnameA");
-        //  OtherJavaType instnameB = (OtherJavaType)
-        // __bluej_runtime_scope("instnameB");
+        //  JavaType instnameA = (JavaType) __bluej_runtime_scope.get("instnameA");
+        //  OtherJavaType instnameB = (OtherJavaType) __bluej_runtime_scope.get("instnameB");
 
         String scopeId = Utility.quoteString(pkgScopeId);
         Iterator<? extends NamedValue> wrappers = objectBenchVars.getValueIterator();
@@ -679,8 +668,6 @@ public class Invoker
         
         if (wrappers.hasNext() || localVars != null) {
             buffer.append("final bluej.runtime.BJMap __bluej_runtime_scope = getScope(\"" + scopeId + "\");" + Config.nl);
-        
-            // writeVariables("", buffer, false, wrappers, cqtTransform);
             while (wrappers.hasNext()) {
                 NamedValue objBenchVar = wrappers.next();
                 objBenchVarsMap.put(objBenchVar.getName(), getVarDeclString("", false, objBenchVar, nameTransform));
@@ -691,7 +678,6 @@ public class Invoker
         // the result type, we put the local variables inside the result wrapper object
         // later on.
         if (localVars != null && constype == null) {
-            // writeVariables("lv:", buffer, false, localVars.getValueIterator(), cqtTransform);
             Iterator<? extends NamedValue> i = localVars.getValueIterator();
             while (i.hasNext()) {
                 NamedValue localVar = i.next();
@@ -849,10 +835,12 @@ public class Invoker
                 String type = wrapper.getGenType().toString(nt);
                 String instname = wrapper.getName();
                 
-                if (wrapper.isFinal())
+                if (wrapper.isFinal()) {
                     buffer.append("final ");
-                if (isStatic)
+                }
+                if (isStatic) {
                     buffer.append("static ");
+                }
                 
                 buffer.append(type);
                 
@@ -879,10 +867,12 @@ public class Invoker
             String instname = wrapper.getName();
             StringBuffer buffer = new StringBuffer();
             
-            if (wrapper.isFinal())
+            if (wrapper.isFinal()) {
                 buffer.append("final ");
-            if (isStatic)
+            }
+            if (isStatic) {
                 buffer.append("static ");
+            }
             
             buffer.append(type);
             
