@@ -1245,21 +1245,28 @@ public final class Package extends Graph
             return;
         }
 
+        // Saving a class target can change its name; we need to copy the set of targets
+        // first, and iterate through the copied list, to avoid "concurrent" modification
+        // problems.
         List<ClassTarget> compileTargets = new ArrayList<ClassTarget>();
+        for (Iterator<Target> it = targets.iterator(); it.hasNext();) {
+            Target target = it.next();
+            if (target instanceof ClassTarget) {
+                compileTargets.add((ClassTarget) target);
+            }
+        }
 
         try {
-            for (Iterator<Target> it = targets.iterator(); it.hasNext();) {
-                Target target = it.next();
-                
-                if (target instanceof ClassTarget) {
-                    ClassTarget ct = (ClassTarget) target;
-                    // we don't want to try and compile if it is a class target without src
-                    if (ct.hasSourceCode()) {
-                        ct.ensureSaved();
-                        ct.setState(ClassTarget.S_INVALID);
-                        ct.setQueued(true);
-                        compileTargets.add(ct);
-                    }
+            for (Iterator<ClassTarget> i = compileTargets.iterator(); i.hasNext(); ) {
+                ClassTarget ct = i.next();
+                // we don't want to try and compile if it is a class target without src
+                if (ct.hasSourceCode()) {
+                    ct.ensureSaved();
+                    ct.setState(ClassTarget.S_INVALID);
+                    ct.setQueued(true);
+                }
+                else {
+                    i.remove();
                 }
             }
             project.removeClassLoader();
