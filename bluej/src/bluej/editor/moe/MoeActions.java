@@ -1950,13 +1950,13 @@ public final class MoeActions
     }
 
     /**
-     * Perform an action on all selected lines.
+     * Perform an action on all selected lines in the source document.
      */
     private void blockAction(MoeEditor editor, LineAction lineAction)
     {
         editor.setCaretActive(false);
         
-        Caret caret = editor.currentTextPane.getCaret();
+        Caret caret = editor.getSourcePane().getCaret();
         int selectionStart = caret.getMark();
         int selectionEnd = caret.getDot();
         if (selectionStart > selectionEnd) {

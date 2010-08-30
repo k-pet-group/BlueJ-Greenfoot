@@ -119,7 +119,7 @@ public class CodeCompletionDisplay extends JFrame
             public void windowGainedFocus(WindowEvent e)
             {
                 methodList.requestFocusInWindow();
-                editor.currentTextPane.getCaret().setVisible(true);
+                editor.getSourcePane().getCaret().setVisible(true);
             }
 
             public void windowLostFocus(WindowEvent e)
