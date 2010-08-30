@@ -79,7 +79,6 @@ public class JavaUtilTests extends TestCase
     /**
      * Test that method/constructor signatures are constructed correctly.
      */
-    @SuppressWarnings("unchecked")
     public void testSignatures()
     {
         JavaUtils jutils = JavaUtils.getJavaUtils();
@@ -102,7 +101,7 @@ public class JavaUtilTests extends TestCase
         
         if (onjava5) {
             // test a varargs method
-            Class<Class> clazz = Class.class;
+            Class<?> clazz = Class.class;
             try {
                 sampleMeth = clazz.getMethod("getConstructor", new Class [] {Class [].class});
             }
