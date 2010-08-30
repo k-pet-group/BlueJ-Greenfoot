@@ -147,17 +147,6 @@ public abstract class World
     }
 
     /**
-     * Sets the size of the world.
-     */
-    private void initialize(int width, int height, int cellSize)
-    {
-        this.width = width;
-        this.height = height;
-        this.cellSize = cellSize;
-        collisionChecker.initialize(width, height, cellSize, false);
-    }
-
-    /**
      * Set a background image for the world. If the image size is larger than
      * the world in pixels, it is clipped. If it is smaller than the world, it
      * is tiled. A pattern showing the cells can easily be shown by setting a
@@ -335,11 +324,16 @@ public abstract class World
     {
         if (classes == null) {
             // Allow null as an argument, to specify no paint order
-            if(objectsInPaintOrder != null) {
-                classes = new Class[0];
-                objectsInPaintOrder.setClassOrder(true, classes);
-                objectsInPaintOrder = null;
+            if(objectsInPaintOrder == objectsDisordered) {
+                if (objectsInActOrder == null) {
+                    classes = new Class[0];
+                    objectsDisordered.setClassOrder(true, classes);
+                }
+                else {
+                    objectsDisordered = objectsInActOrder;
+                }
             }
+            objectsInPaintOrder = null;
             return;
         }
         
@@ -350,7 +344,9 @@ public abstract class World
             // Use new set because existing disordered set is in use
             // already.
             objectsInPaintOrder = new TreeActorSet();
+            objectsInPaintOrder.setClassOrder(true, classes);
             objectsInPaintOrder.addAll(objectsDisordered);
+            return;
         }
         else {
             // Reuse disordered set, since it is not already in use by the
@@ -365,13 +361,14 @@ public abstract class World
      * by class: objects of one class will always act before objects
      * of some other class. The order of objects of the same class cannot be 
      * specified.
-     * Objects of classes listed first in the parameter list will 
+     * 
+     * <p>Objects of classes listed first in the parameter list will 
      * act before any objects of classes listed later.
-     * <p>
-     * Objects of a class not explicitly specified inherit the act
+     * 
+     * <p>Objects of a class not explicitly specified inherit the act
      * order from their superclass.
-     * <p>
-     * Objects of classes not listed will act after all objects whose classes
+     * 
+     * <p>Objects of classes not listed will act after all objects whose classes
      * have been specified.
      * 
      * @param classes
@@ -382,11 +379,16 @@ public abstract class World
     {
         if (classes == null) {
             // Allow null as an argument, to specify no paint order
-            if(objectsInActOrder != null) {
-                classes = new Class[0];
-                objectsInActOrder.setClassOrder(false, classes);
-                objectsInActOrder = null;
+            if (objectsInActOrder == objectsDisordered) {
+                if (objectsInPaintOrder == null) {
+                    classes = new Class[0];
+                    objectsDisordered.setClassOrder(false, classes);
+                }
+                else {
+                    objectsDisordered = objectsInPaintOrder;
+                }
             }
+            objectsInActOrder = null;
             return;
         }
         
@@ -397,7 +399,9 @@ public abstract class World
             // Use new set because existing disordered set is in use
             // already.
             objectsInActOrder = new TreeActorSet();
+            objectsInActOrder.setClassOrder(false, classes);
             objectsInActOrder.addAll(objectsDisordered);
+            return;
         }
         else {
             // Reuse disordered set, since it is not already in use by the
@@ -431,34 +435,6 @@ public abstract class World
         object.addedToWorld(this);
         
         WorldHandler.getInstance().objectAddedToWorld(object);
-    }
-
-    private void addInActOrder(Actor object)
-    {
-        if(objectsInActOrder != null) {
-            objectsInActOrder.add(object);
-        }
-    }
-
-    private void addInPaintOrder(Actor object)
-    {
-        if(objectsInPaintOrder != null) {
-            objectsInPaintOrder.add(object);
-        }
-    }
-
-    private void removeInActOrder(Actor object)
-    {
-        if(objectsInActOrder != null) {
-            objectsInActOrder.remove(object);
-        }
-    }
-
-    private void removeInPaintOrder(Actor object)
-    {
-        if(objectsInPaintOrder != null) {
-            objectsInPaintOrder.remove(object);
-        }
     }
 
     /**
@@ -562,21 +538,7 @@ public abstract class World
             }
         }
     }
-    
-    /**
-     * The world has been painted.
-     */
-    void repainted()
-    {
-        synchronized (repaintLock) {
-            if (isRepaintPending) {
-                isRepaintPending = false;
-                repaintLock.notify();
-            }
-        }
-        Simulation.getInstance().worldRepainted();
-    }
-    
+        
     /**
      * Act method for world. The act method is called by the greenfoot framework
      * at each action step in the environment. The world's act method is called
@@ -636,6 +598,26 @@ public abstract class World
     public List getObjectsAt(int x, int y, Class cls)
     {
         return collisionChecker.getObjectsAt(x, y, cls);
+    }
+
+    // =================================================
+    // PACKAGE-PROTECTED METHODS
+    //
+    // used by other classes internally in Greenfoot
+    // =================================================
+
+    /**
+     * The world has been painted.
+     */
+    void repainted()
+    {
+        synchronized (repaintLock) {
+            if (isRepaintPending) {
+                isRepaintPending = false;
+                repaintLock.notify();
+            }
+        }
+        Simulation.getInstance().worldRepainted();
     }
 
     /**
@@ -707,13 +689,6 @@ public abstract class World
 
         return collisionChecker.getObjectsInDirection(x0, y0, angle, length, cls);
     }
-
-    // =================================================
-    //
-    // PROTECTED MEHTHODS
-    //
-    // used by other classes internally in greenfoot
-    // =================================================
 
     /**
      * Get the height of the world in pixels.
@@ -794,11 +769,85 @@ public abstract class World
         collisionChecker.updateObjectSize(object);
     }
 
+    /**
+     * Used to indicate the start of an animation sequence. For use in the
+     * collision checker.
+     * 
+     * @see greenfoot.collision.CollisionChecker#startSequence()
+     */
+    void startSequence()
+    {
+        collisionChecker.startSequence();
+    }
+
+    @SuppressWarnings("unchecked")
+    Actor getOneObjectAt(Actor object, int dx, int dy, Class cls)
+    {
+        return collisionChecker.getOneObjectAt(object, dx, dy, cls);
+    }
+
+    @SuppressWarnings("unchecked")
+    Actor getOneIntersectingObject(Actor object, Class cls)
+    {
+        return collisionChecker.getOneIntersectingObject(object, cls);
+    }
+    
+    /**
+     * Get the list of all objects in the world. This returns a live list which
+     * should not be modified by the caller. If iterating over this list, it
+     * should be synchronized on itself or the World to avoid concurrent
+     * modifications.
+     */
+    TreeActorSet getObjectsListInPaintOrder()
+    {
+        if (objectsInPaintOrder != null) {
+            return objectsInPaintOrder;
+        }
+        else {
+            return objectsDisordered;
+        }
+    }
+
+    /**
+     * Get the list of all objects in the world. This returns a live list which
+     * should not be modified by the caller. The world lock must be held while iterating
+     * over this list.
+     */
+    TreeActorSet getObjectsListInActOrder()
+    {
+        if (objectsInActOrder != null) {
+            return objectsInActOrder;
+        }
+        else {
+            return objectsDisordered;
+        }
+    }
+    
+    void paintDebug(Graphics g)
+    {
+        /*
+         * g.setColor(Color.BLACK); g.drawString("# of Objects: " + objects.size(),
+         * 50,50);
+         */
+        //collisionChecker.paintDebug(g); 
+    }
+    
     // =================================================
     //
     // PRIVATE MEHTHODS
     //
     // =================================================
+
+    /**
+     * Sets the size of the world.
+     */
+    private void initialize(int width, int height, int cellSize)
+    {
+        this.width = width;
+        this.height = height;
+        this.cellSize = cellSize;
+        collisionChecker.initialize(width, height, cellSize, false);
+    }
 
     /**
      * Get the default image for objects of this class. May return null.
@@ -856,68 +905,32 @@ public abstract class World
             throw new IndexOutOfBoundsException("The x-coordinate is: " + y + ". It must be larger than: 0");
         }
     }
-
-    /**
-     * Used to indicate the start of an animation sequence. For use in the
-     * collision checker.
-     * 
-     * @see greenfoot.collision.CollisionChecker#startSequence()
-     */
-    void startSequence()
+    
+    private void addInActOrder(Actor object)
     {
-        collisionChecker.startSequence();
+        if(objectsInActOrder != null) {
+            objectsInActOrder.add(object);
+        }
     }
 
-    @SuppressWarnings("unchecked")
-    Actor getOneObjectAt(Actor object, int dx, int dy, Class cls)
+    private void addInPaintOrder(Actor object)
     {
-        return collisionChecker.getOneObjectAt(object, dx, dy, cls);
+        if(objectsInPaintOrder != null) {
+            objectsInPaintOrder.add(object);
+        }
     }
 
-    @SuppressWarnings("unchecked")
-    Actor getOneIntersectingObject(Actor object, Class cls)
+    private void removeInActOrder(Actor object)
     {
-        return collisionChecker.getOneIntersectingObject(object, cls);
-    }
-    
-    /**
-     * Get the list of all objects in the world. This returns a live list which
-     * should not be modified by the caller. If iterating over this list, it
-     * should be synchronized on itself or the World to avoid concurrent
-     * modifications.
-     */
-    TreeActorSet getObjectsListInPaintOrder()
-    {
-        if (objectsInPaintOrder != null) {
-            return objectsInPaintOrder;
-        }
-        else {
-            return objectsDisordered;
+        if(objectsInActOrder != null) {
+            objectsInActOrder.remove(object);
         }
     }
-    
-    /**
-     * Get the list of all objects in the world. This returns a live list which
-     * should not be modified by the caller. If iterating over this list, it
-     * should be synchronized on itself or the World to avoid concurrent
-     * modifications.
-     */
-    TreeActorSet getObjectsListInActOrder()
+
+    private void removeInPaintOrder(Actor object)
     {
-        if (objectsInActOrder != null) {
-            return objectsInActOrder;
+        if(objectsInPaintOrder != null) {
+            objectsInPaintOrder.remove(object);
         }
-        else {
-            return objectsDisordered;
-        }
-    }
-    
-    void paintDebug(Graphics g)
-    {
-        /*
-         * g.setColor(Color.BLACK); g.drawString("# of Objects: " + objects.size(),
-         * 50,50);
-         */
-        //collisionChecker.paintDebug(g); 
     }
 }
