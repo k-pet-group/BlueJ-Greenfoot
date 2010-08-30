@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009, 2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -181,6 +181,9 @@ public class ImageEditPanel extends JPanel
 
     public void mouseDragged(MouseEvent e)
     {
+        if (!imageCanvas.isEnabled()){
+            return;
+        }
         if ( (e.getModifiersEx() & MouseEvent.BUTTON1_DOWN_MASK) != 0) {
             imageCanvas.setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
             int dx = e.getX() - lastX;
@@ -205,6 +208,9 @@ public class ImageEditPanel extends JPanel
 
     public void mousePressed(MouseEvent e)
     {
+        if (!imageCanvas.isEnabled()){
+            return;   
+        }
         if (e.getButton() == MouseEvent.BUTTON1) {
             lastX = e.getX();
             lastY = e.getY();
@@ -213,6 +219,9 @@ public class ImageEditPanel extends JPanel
 
     public void mouseReleased(MouseEvent e)
     {
+        if (!imageCanvas.isEnabled()){
+            return;
+        } 
         if (e.getButton() == MouseEvent.BUTTON1) {
             imageCanvas.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         }
@@ -220,6 +229,9 @@ public class ImageEditPanel extends JPanel
 
     public void mouseWheelMoved(MouseWheelEvent e)
     {
+        if (!imageCanvas.isEnabled()){
+            return;
+        }      
         int scroll = e.getUnitsToScroll();
         zoomSlider.setValue(zoomSlider.getValue() - scroll);
     }
@@ -238,5 +250,21 @@ public class ImageEditPanel extends JPanel
         g.dispose();
         return newImage;
     }
-
+    
+    /**
+     * Sets the zoom slider to be enabled or disabled 
+     */
+    private void setZoomSlider(boolean enabled)
+    {
+        zoomSlider.setEnabled(enabled);
+    }
+    
+    /**
+     * Sets the slider and the image canvas to be enabled/disabled 
+     */
+    public void enableImageEditPanel (boolean enabled)
+    {
+        setZoomSlider(enabled);
+        imageCanvas.setEnabled(enabled);
+    }
 }

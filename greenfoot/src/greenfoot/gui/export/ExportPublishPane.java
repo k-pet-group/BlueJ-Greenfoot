@@ -34,6 +34,8 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.UnknownHostException;
@@ -68,9 +70,8 @@ import bluej.utility.SwingWorker;
  * 
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: ExportPublishPane.java 8136 2010-08-23 05:44:50Z marionz $
  */
-public class ExportPublishPane extends ExportPane
+public class ExportPublishPane extends ExportPane implements MouseListener
 {
     public static final int IMAGE_WIDTH = 120;
     public static final int IMAGE_HEIGHT = 70;
@@ -709,9 +710,12 @@ public class ExportPublishPane extends ExportPane
             keepScenarioScreenshot=new JCheckBox();
             //always default it to true
             keepScenarioScreenshot.setSelected(true);
+            imagePanel.enableImageEditPanel(false);
             keepScenarioScreenshot.setName(Config.getString("export.publish.keepScenario"));
             keepScenarioScreenshot.setOpaque(false);
-            titleAndDescPanel.add(keepScenarioScreenshot);      
+            keepScenarioScreenshot.addMouseListener(this);
+            titleAndDescPanel.add(keepScenarioScreenshot);   
+            
         }   
 
         text = new JLabel(Config.getString("export.publish.title"), SwingConstants.TRAILING);
@@ -864,4 +868,29 @@ public class ExportPublishPane extends ExportPane
         }
         return tagPanel;
     }
+
+
+    public void mouseClicked(MouseEvent e)
+    {
+        //enable or disable the screenshot snapshot according to whether the checkbox is selected
+        if (e.getSource().equals(keepScenarioScreenshot)){
+            if (keepScenarioScreenshot.isSelected())
+            {
+                imagePanel.enableImageEditPanel(false);
+            }
+            else {
+                imagePanel.enableImageEditPanel(true);
+            }
+        }
+        
+    }
+
+    public void mouseEntered(MouseEvent e) { }
+
+    public void mouseExited(MouseEvent e)  { }
+
+    public void mousePressed(MouseEvent e)  { }
+
+    public void mouseReleased(MouseEvent e)  { }
+
 }
