@@ -23,6 +23,7 @@ package greenfoot.gui.images;
 
 import greenfoot.GreenfootImage;
 import greenfoot.World;
+import greenfoot.WorldVisitor;
 import greenfoot.actions.BrowseImagesAction;
 import greenfoot.core.GClass;
 import greenfoot.core.GPackage;
@@ -471,7 +472,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                 World world = WorldHandler.getInstance().getWorld();
                 if(world != null) {
                     if(originalImage == null) {
-                        originalImage = world.getBackground();
+                        originalImage = WorldVisitor.getBackgroundImage(world);
                     }
                     world.setBackground(new GreenfootImage(imageFile.toString()));
                     WorldHandler.getInstance().repaint();
