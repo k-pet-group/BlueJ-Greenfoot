@@ -391,7 +391,7 @@ public abstract class Actor
         int xCell = world.toCellFloor(x);
         int yCell = world.toCellFloor(y);
 
-        if (xCell == x && yCell == y) {
+        if (xCell == this.x && yCell == this.y) {
             return;
         }
 
@@ -657,7 +657,7 @@ public abstract class Actor
      *            objects).
      * @return A list of all neighbours found.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     protected List getNeighbours(int distance, boolean diagonal, Class cls)
     {
         failIfNotInWorld();
@@ -675,7 +675,7 @@ public abstract class Actor
      * @param cls Class of objects to look for (passing 'null' will find all
      *            objects).
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     protected List getObjectsAtOffset(int dx, int dy, Class cls)
     {
         failIfNotInWorld();
@@ -694,7 +694,7 @@ public abstract class Actor
      * @param cls Class of objects to look for (passing 'null' will find all objects).
      * @return An object at the given location, or null if none found.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     protected Actor getOneObjectAtOffset(int dx, int dy, Class cls)
     {
         failIfNotInWorld();
@@ -709,7 +709,7 @@ public abstract class Actor
      * @param radius Radius of the circle (in cells)
      * @param cls Class of objects to look for (passing 'null' will find all objects).
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     protected List getObjectsInRange(int radius, Class cls)
     {
         failIfNotInWorld();
@@ -726,7 +726,7 @@ public abstract class Actor
      * 
      * @param cls Class of objects to look for (passing 'null' will find all objects).
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     protected List getIntersectingObjects(Class cls)
     {
         failIfNotInWorld();
@@ -743,7 +743,7 @@ public abstract class Actor
      * 
      * @param cls Class of objects to look for (passing 'null' will find all objects).
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     protected Actor getOneIntersectingObject(Class cls)
     {
         failIfNotInWorld();

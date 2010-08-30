@@ -565,11 +565,10 @@ public class WorldHandler
     public boolean drag(Object o, Point p)
     {
         if (o instanceof Actor && world != null) {
-            int x = WorldVisitor.toCellFloor(getWorld(), (int) p.getX());
-            int y = WorldVisitor.toCellFloor(getWorld(), (int) p.getY());
+            int x = WorldVisitor.toCellFloor(getWorld(), (int) p.getX() + dragOffsetX);
+            int y = WorldVisitor.toCellFloor(getWorld(), (int) p.getY() + dragOffsetY);
             Actor actor = (Actor) o;
             try {
-
                 int oldX = ActorVisitor.getX(actor);
                 int oldY = ActorVisitor.getY(actor);
 
@@ -795,7 +794,9 @@ public class WorldHandler
     public void mouseMoved(MouseEvent e)
     {
         objectDropped = false;
-        drag(dragActor, e.getPoint());
+        if (dragActor != null) {
+            drag(dragActor, e.getPoint());
+        }
         handlerDelegate.mouseMoved(e);
     }
 
