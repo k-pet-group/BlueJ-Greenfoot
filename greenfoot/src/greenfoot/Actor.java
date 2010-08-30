@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -38,13 +38,13 @@ import java.util.List;
  * Every Actor has a location in the world, and an appearance (that is:
  * an icon).
  * 
- * An Actor is not normally instantiated, but instead used as a superclass
+ * <p>An Actor is not normally instantiated, but instead used as a superclass
  * to more specific objects in the world. Every object that is intended to appear
  * in the world must extend Actor. Subclasses can then define their own
  * appearance and behaviour.
  * 
- * One of the most important aspects of this class is the 'act' method. This method
- * is called when the 'Act' or 'Play' buttons are activated in the Greenfoot interface.
+ * <p>One of the most important aspects of this class is the 'act' method. This method
+ * is called when the 'Act' or 'Run' buttons are activated in the Greenfoot interface.
  * The method here is empty, and subclasses normally provide their own implementations.
  * 
  * @author Poul Henriksen
@@ -52,7 +52,6 @@ import java.util.List;
  */
 public abstract class Actor
 {
-
     /** Error message to display when trying to use methods that requires a world. */
     private static final String NO_WORLD = "An actor is trying to access the world, when no world has been instantiated.";
 
@@ -60,7 +59,7 @@ public abstract class Actor
     private static final String ACTOR_NOT_IN_WORLD = "The actor has not been inserted into a world so it has no location yet. You might want to look at the method addedToWorld on the Actor class.";
 
     /** Counter of number of actors constructed, used as a hash value */
-    static int sequenceNumber = 0;
+    private static int sequenceNumber = 0;
 
     /**
      * x-coordinate of the object's location in the world. The object is
@@ -70,7 +69,7 @@ public abstract class Actor
 
     /**
      * y-coordinate of the object's location in the world. The object is
-     * centered aroudn this location.
+     * centered around this location.
      */
     int y;
 
@@ -229,7 +228,7 @@ public abstract class Actor
      * always calls this method (setLocationDrag) so that it never calls the 
      * potentially-overridden setLocation method.
      * 
-     * setLocation is then called once after the drag, by WorldHandler, so that actors
+     * <p>setLocation is then called once after the drag, by WorldHandler, so that actors
      * that do override setLocation only see the method called once at the end of the drag
      * (even though the stored location is changing during the drag). 
      */
@@ -473,12 +472,20 @@ public abstract class Actor
         }
     }
 
-    
-    void setData(Object o) {
+    /**
+     * Set collision-checker-private data for this actor.
+     */
+    void setData(Object o)
+    {
         this.data = o;
     }
     
-    Object getData() {
+    /**
+     * Get the collision-checker-private data for this actor.
+     * @return
+     */
+    Object getData()
+    {
         return data;
     }
     
@@ -588,7 +595,7 @@ public abstract class Actor
     /**
      * Check whether this object intersects with another given object.
      * 
-     * NOTE: When rotated, it only uses the axis alligned bounds of the rotated image.
+     * NOTE: When rotated, it only uses the axis aligned bounds of the rotated image.
      * 
      * @return True if the object's intersect, false otherwise.
      */
@@ -731,8 +738,8 @@ public abstract class Actor
      * 
      * NOTE: No longer public,
      * since no scenarios have used it so far, and we might want to do it
-     * sligthly different if we want collision checkers to only do most of the
-     * computation once pr. act.
+     * slightly different if we want collision checkers to only do most of the
+     * computation once per act.
      * 
      * @param dx The x-position relative to the location of the object
      * @param dy The y-position relative to the location of the object
@@ -745,21 +752,18 @@ public abstract class Actor
         if (image == null) {
             return false;
         }
-        int cellSize = getWorld().getCellSize();
+        int cellSize = world.getCellSize();
 
         Shape rotatedImageBounds = getRotatedShape();
         Rectangle cellBounds = new Rectangle(dx * cellSize - cellSize / 2, dy * cellSize - cellSize / 2, cellSize,
                 cellSize);       
         
-        // Rectangle cellBounds = new Rectangle(dx * cellSize - (int) Math.floor(cellSize / 2d), dy * cellSize - (int) Math.floor(cellSize / 2d), cellSize, cellSize);
-        // System.out.println("dx, dy: " + dx + ", " + dy);
-        // System.out.println("Cell: " + cellBounds);
         return rotatedImageBounds.intersects(cellBounds);
     }
 
     /**
-     * Get the shape of the image after it has been rotated.
-     * 
+     * Get the shape of the image after it has been rotated. The shape is relative to the
+     * actor (i.e. it is not translated according to the actor position).
      */
     private Shape getRotatedShape()
     {

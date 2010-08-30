@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,23 +29,24 @@ import greenfoot.ActorVisitor;
  *
  * @author Poul Henriksen
  */
-public class PointCollisionQuery implements CollisionQuery{
+public class PointCollisionQuery implements CollisionQuery
+{
     private int x;
     private int y;
-    private Class cls;
+    private Class<?> cls;
     
-    public void init(int x, int y, Class cls) {
+    public void init(int x, int y, Class<?> cls)
+    {
         this.x = x;
         this.y = y;
         this.cls = cls;
     }
 
-    public boolean checkCollision(Actor actor) {
-        if(cls != null && !cls.isInstance(actor)) {
+    public boolean checkCollision(Actor actor)
+    {
+        if (cls != null && !cls.isInstance(actor)) {
             return false;
         }
         return ActorVisitor.contains(actor, x - actor.getX(), y - actor.getY());
-        
     }
-    
 }
