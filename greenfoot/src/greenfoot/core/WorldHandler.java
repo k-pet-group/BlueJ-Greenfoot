@@ -605,12 +605,9 @@ public class WorldHandler
     }
 
     /**
-     * Adds the object where the mouse event occured.
+     * Adds the object where the mouse event occurred.
      * 
-     * @return true if location changed
-     * @throws IndexOutOfBoundsException
-     *             If the coordinates are outside the bounds of the world. Note
-     *             that a wrapping world has no bounds.
+     * @return true if successful, or false if the mouse event was outside the world bounds.
      */
     public synchronized boolean addObjectAtEvent(Actor actor, MouseEvent e)
     {
@@ -623,6 +620,14 @@ public class WorldHandler
         return addActorAtPixel(actor, xPixel, yPixel);
     }
 
+    /**
+     * Add an actor at the given pixel co-ordinates. The co-ordinates are translated
+     * into cell co-ordinates, and the actor is added at those cell co-ordinates, if they
+     * are within the world.
+     * 
+     * @return  true if the Actor was added into the world; false if the co-ordinates were
+     *          outside the world.
+     */
     private boolean addActorAtPixel(Actor actor, int xPixel, int yPixel)
     {
         World world = getWorld();

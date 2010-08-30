@@ -98,7 +98,7 @@ public abstract class Actor
 
     static GreenfootImage greenfootImage;
 
-    /** Bounding rectangle of the object. In pixels. */
+    /** Axis-aligned bounding rectangle of the object, in pixels. */
     private Rect boundingRect;
 
     static {
