@@ -86,7 +86,6 @@ import javax.swing.event.HyperlinkListener;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Caret;
-import javax.swing.text.Document;
 import javax.swing.text.EditorKit;
 import javax.swing.text.Element;
 import javax.swing.text.Highlighter;
@@ -123,7 +122,7 @@ import bluej.utility.Utility;
  * Moe is the editor of the BlueJ environment. This class is the main class of
  * this editor and implements the top-level functionality.
  * 
- * MoeEditor implements the Editor interface, which defines the interface to the
+ * <p>MoeEditor implements the Editor interface, which defines the interface to the
  * rest of the BlueJ system.
  * 
  * @author Michael Kolling
@@ -1402,11 +1401,13 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         //if it is not open, it should do a single find forward or backwards
         if (finder.isVisible()){
             finder.setSearchString(selection);
-            if (backwards)
+            if (backwards) {
                 finder.getPrev();
-            else
+            }
+            else {
                 finder.getNext();
-        }else {
+            }
+        } else {
             removeSearchHighlights();
             removeSelection(currentTextPane);
             findString(selection, backwards, !finder.getMatchCase(), true);
@@ -1437,22 +1438,29 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
 
         StringBuffer msg = new StringBuffer(Config.getString("editor.find.find.label") + " ");
         msg.append(backward ? Config.getString("editor.find.backward") : Config.getString("editor.find.forward"));
-        if (ignoreCase || wrap)
+        if (ignoreCase || wrap) {
             msg.append(" (");
-        if (ignoreCase)
+        }
+        if (ignoreCase) {
             msg.append(Config.getString("editor.find.ignoreCase").toLowerCase() + ", ");
-        if (wrap) 
+        }
+        if (wrap) { 
             msg.append(Config.getString("editor.find.wrapAround").toLowerCase() + ", ");
-        if (ignoreCase || wrap) 
+        }
+        if (ignoreCase || wrap) { 
             msg.replace(msg.length() - 2, msg.length(), "): ");
-        else 
+        }
+        else { 
             msg.append(": ");
+        }
 
         msg.append(s);
-        if (found)
+        if (found) {
             info.message(msg.toString());
-        else
+        }
+        else {
             info.warning(msg.toString(), Config.getString("editor.info.notFound"));
+        }
 
         return found;
     }
@@ -1513,7 +1521,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
             }
         }
         catch (BadLocationException ex) {
-            Debug.message("error in editor find operation");
+            Debug.reportError("Error in editor find operation", ex);
         }
         return found;
     }
@@ -1569,8 +1577,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
             }
         }
         catch (BadLocationException ex) {
-            Debug.reportError("error in editor find operation");
-            ex.printStackTrace();
+            Debug.reportError("Error in editor find operation", ex);
         }
         return found;
     }
@@ -2316,7 +2323,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     private boolean positionHasBreakpoint(int pos)
     {
-        Element line = getLineAt(pos);
+        Element line = getSourceLineAt(pos);
         return Boolean.TRUE.equals(line.getAttributes().getAttribute(MoeSyntaxView.BREAKPOINT));
     }
     
@@ -3327,15 +3334,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     {
         return currentTextPane;
     }    
-    
-    /**
-     * Get the currently displayed document - either the source document,
-     * or the documentation document (HTML).
-     */
-    public Document getDisplayedDocument()
-    {
-        return document;
-    }
     
     /**
      * Get the source document that this editor is editing.
