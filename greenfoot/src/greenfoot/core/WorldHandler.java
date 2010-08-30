@@ -282,8 +282,8 @@ public class WorldHandler
     {
         dragActor = actor;
         dragActorMoved = false;
-        dragBeginX = actor.getX() * world.getCellSize() + world.getCellSize() / 2;
-        dragBeginY = actor.getY() * world.getCellSize() + world.getCellSize() / 2;
+        dragBeginX = ActorVisitor.getX(actor) * world.getCellSize() + world.getCellSize() / 2;
+        dragBeginY = ActorVisitor.getY(actor) * world.getCellSize() + world.getCellSize() / 2;
         dragOffsetX = dragBeginX - p.x;
         dragOffsetY = dragBeginY - p.y;
         objectDropped = false;
@@ -308,8 +308,10 @@ public class WorldHandler
                 // This makes sure that a single (final) setLocation
                 // call is received by the actor when dragging ends.
                 // This matters if the actor has overridden setLocation
-                dragActor.setLocation(dragActor.getX(), dragActor.getY());
-                notifyMovedActor(dragActor, dragActor.getX(), dragActor.getY());
+                int ax = ActorVisitor.getX(dragActor);
+                int ay = ActorVisitor.getY(dragActor);
+                dragActor.setLocation(ax, ay);
+                notifyMovedActor(dragActor, ax, ay);
             }
             dragActor = null;
             worldCanvas.setCursor(defaultCursor);
@@ -568,8 +570,8 @@ public class WorldHandler
             Actor actor = (Actor) o;
             try {
 
-                int oldX = actor.getX();
-                int oldY = actor.getY();
+                int oldX = ActorVisitor.getX(actor);
+                int oldY = ActorVisitor.getY(actor);
 
                 if (oldX != x || oldY != y) {
                     if (x < world.getWidth() && y < world.getHeight() && x >= 0 && y >= 0) {
@@ -847,8 +849,10 @@ public class WorldHandler
         // If the obj is not null, it means we have to activate the dragging of that object.
         if (obj != null && obj != dragActor && obj instanceof Actor) {
             Actor actor = (Actor) obj;
-            int x = (int) Math.floor(WorldVisitor.getCellCenter(world, actor.getX()));
-            int y = (int) Math.floor(WorldVisitor.getCellCenter(world, actor.getY()));
+            int ax = ActorVisitor.getX(actor);
+            int ay = ActorVisitor.getY(actor);
+            int x = (int) Math.floor(WorldVisitor.getCellCenter(world, ax));
+            int y = (int) Math.floor(WorldVisitor.getCellCenter(world, ay));
             Point p = new Point(x, y);
             startDrag(actor, p);
         }

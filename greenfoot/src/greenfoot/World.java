@@ -231,25 +231,7 @@ public abstract class World
         }
         return backgroundImage;
     }
-    
-    /**
-     * Return the world's background image but without initialising it first
-     * 
-     * @return The background image or null if not initialised yet.
-     */
-    GreenfootImage getBackgroundNoInit()
-    {
-        return backgroundImage;
-    }
-    
-    /**
-     * Test whether this world is bounded. 
-     */
-    boolean isBounded()
-    {
-        return isBounded;
-    }
-    
+        
     /**
      * Return the color at the centre of the cell. To paint a color, you need to
      * get the background image for the world and paint on that.
@@ -607,6 +589,24 @@ public abstract class World
     // =================================================
 
     /**
+     * Return the world's background image but without initialising it first
+     * 
+     * @return The background image or null if not initialised yet.
+     */
+    GreenfootImage getBackgroundNoInit()
+    {
+        return backgroundImage;
+    }
+    
+    /**
+     * Test whether this world is bounded. 
+     */
+    boolean isBounded()
+    {
+        return isBounded;
+    }
+
+    /**
      * The world has been painted.
      */
     void repainted()
@@ -655,10 +655,8 @@ public abstract class World
      * Returns the neighbours to the given location. This method only looks at
      * the logical location and not the extent of objects. Hence it is most
      * useful in scenarios where objects only span one cell.
-     * 
-     * 
-     * @param x Location
-     * @param y Location
+     *
+     * @param actor  The actor whose neighbours to locate
      * @param distance Distance in which to look for other objects
      * @param diag Is the distance also diagonal?
      * @param cls Class of objects to look for (null or Object.class will find
@@ -668,6 +666,9 @@ public abstract class World
     @SuppressWarnings("unchecked")
     List getNeighbours(Actor actor, int distance, boolean diag, Class cls)
     {
+        if(distance < 0) {
+            throw new IllegalArgumentException("Distance must not be less than 0. It was: " + distance);
+        }
         return collisionChecker.getNeighbours(actor, distance, diag, cls);
     }
 
@@ -750,7 +751,7 @@ public abstract class World
             if(bounds != null && x >= bounds.getX()  && x <= bounds.getRight() && y>=bounds.getY() && y<= bounds.getTop()) {
                 int xClickCell = toCellFloor(x);
                 int yClickCell = toCellFloor(y);
-                if(actor.contains(xClickCell - actor.getX(), yClickCell - actor.getY())){
+                if(actor.contains(xClickCell - actor.x, yClickCell - actor.y)){
                    result.add(actor);
                 }
             }

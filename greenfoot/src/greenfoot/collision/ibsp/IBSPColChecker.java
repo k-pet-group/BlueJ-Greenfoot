@@ -729,8 +729,8 @@ public class IBSPColChecker implements CollisionChecker
     public <T extends Actor> List<T> getNeighbours(Actor actor, int distance,
             boolean diag, Class<T> cls)
     {
-        int x = actor.getX();
-        int y = actor.getY();
+        int x = ActorVisitor.getX(actor);
+        int y = ActorVisitor.getY(actor);
         int xPixel = x * cellSize;
         int yPixel = y * cellSize;
         int dPixel = distance * cellSize;

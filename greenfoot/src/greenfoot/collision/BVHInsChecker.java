@@ -788,7 +788,9 @@ public class BVHInsChecker
 
     public synchronized void updateObjectLocation(Actor object, int oldX, int oldY)
     {
-        if(object.getX() == oldX && object.getY() == oldY) {
+        int ax = ActorVisitor.getX(object);
+        int ay = ActorVisitor.getY(object);
+        if(ax == oldX && ay == oldY) {
             return;
         }
         Node n = (Node) ActorVisitor.getData(object);
@@ -852,8 +854,8 @@ public class BVHInsChecker
 
     public List getNeighbours(Actor a, int distance, boolean diag, Class cls)
     {
-        int x = a.getX();
-        int y = a.getY();
+        int x = ActorVisitor.getX(a);
+        int y = ActorVisitor.getY(a);
         int xPixel = x * cellSize;
         int yPixel = y * cellSize;
         int dPixel = distance * cellSize;

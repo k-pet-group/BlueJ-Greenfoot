@@ -23,7 +23,6 @@ package greenfoot.collision;
 
 import greenfoot.Actor;
 import greenfoot.ActorVisitor;
-import greenfoot.util.Circle;
 
 /**
  * A collision query to check for actors within a certain range of a certain
@@ -57,10 +56,10 @@ public class InRangeQuery
      */
     public boolean checkCollision(Actor actor)
     {
-        int actorX = ActorVisitor.toPixel(actor, actor.getX());
-        int actorY = ActorVisitor.toPixel(actor, actor.getY());   
+        int actorX = ActorVisitor.toPixel(actor, ActorVisitor.getX(actor));
+        int actorY = ActorVisitor.toPixel(actor, ActorVisitor.getY(actor));   
         
-		int dx = actorX - x;
+        int dx = actorX - x;
         int dy = actorY - y;
         int dist = (int) Math.sqrt(dx * dx + dy * dy);
 

@@ -279,32 +279,34 @@ public class GridCollisionChecker
         testBounds(thing);
 
         if (!objects.contains(thing)) {
-            Cell cell = world.get(thing.getX(), thing.getY());
+            int xpos = ActorVisitor.getX(thing);
+            int ypos = ActorVisitor.getY(thing);
+            Cell cell = world.get(xpos, ypos);
             if (cell == null) {
                 cell = new Cell();
-                world.set(thing.getX(), thing.getY(), cell);
+                world.set(xpos, ypos, cell);
             }
             cell.add(thing);
             objects.add(thing);
         }
     }
 
-    /**
-     * @param thing
-     */
     private void testBounds(Actor thing)
     {
-        if (thing.getX() >= getWidth()) {
-            throw new ArrayIndexOutOfBoundsException(thing.getX());
+        int ax = ActorVisitor.getX(thing);
+        int ay = ActorVisitor.getY(thing);
+        
+        if (ax >= getWidth()) {
+            throw new ArrayIndexOutOfBoundsException(ax);
         }
-        if (thing.getY() >= getHeight()) {
-            throw new ArrayIndexOutOfBoundsException(thing.getY());
+        if (ay >= getHeight()) {
+            throw new ArrayIndexOutOfBoundsException(ay);
         }
-        if (thing.getX() < 0) {
-            throw new ArrayIndexOutOfBoundsException(thing.getX());
+        if (ax < 0) {
+            throw new ArrayIndexOutOfBoundsException(ax);
         }
-        if (thing.getY() < 0) {
-            throw new ArrayIndexOutOfBoundsException(thing.getY());
+        if (ay < 0) {
+            throw new ArrayIndexOutOfBoundsException(ay);
         }
     }
 
@@ -327,7 +329,9 @@ public class GridCollisionChecker
         for (Iterator<Actor> iter = objects.iterator(); iter.hasNext();) {
             currentStats.incGetObjectsAt();
             Actor actor = iter.next();
-            if ((cls == null || cls.isInstance(actor)) && ActorVisitor.contains(actor,x - actor.getX(), y - actor.getY())) {
+            int ax = ActorVisitor.getX(actor);
+            int ay = ActorVisitor.getY(actor);
+            if ((cls == null || cls.isInstance(actor)) && ActorVisitor.contains(actor,x - ax, y - ay)) {
                 objectsThere.add((T) actor);
             }
         }
@@ -388,8 +392,8 @@ public class GridCollisionChecker
     private double distance(int x, int y, Actor actor)
     {
         // TODO should x,y be wrapped?
-        double gx = actor.getX();
-        double gy = actor.getY();
+        double gx = ActorVisitor.getX(actor);
+        double gy = ActorVisitor.getY(actor);
         double dx = Math.abs(gx - x);
         double dy = Math.abs(gy - y);
 
@@ -415,12 +419,13 @@ public class GridCollisionChecker
      */
     public synchronized void removeObject(Actor object)
     {
-        Cell cell = world.get(object.getX(), object.getY());
+        int ax = ActorVisitor.getX(object);
+        int ay = ActorVisitor.getY(object);
+        Cell cell = world.get(ax, ay);
         if (cell != null) {
             cell.remove(object);
             if (cell.isEmpty()) {
-                // Do we really want to do this?
-                world.set(object.getX(), object.getY(), null);
+                world.set(ax, ay, null);
             }
         } 
         objects.remove(object);
@@ -465,13 +470,14 @@ public class GridCollisionChecker
 
         }
 
-        cell = world.get(object.getX(), object.getY());
+        int ax = ActorVisitor.getX(object);
+        int ay = ActorVisitor.getY(object);
+        cell = world.get(ax, ay);
         if (cell == null) {
             cell = new Cell();
-            world.set(object.getX(), object.getY(), cell);
+            world.set(ax, ay, cell);
         }
         cell.add(object);
-
     }
 
     public void updateObjectSize(Actor object)
@@ -504,8 +510,8 @@ public class GridCollisionChecker
      */
     public <T extends Actor> List<T> getNeighbours(Actor actor, int distance, boolean diag, Class<T> cls)
     {
-        int x = actor.getX();
-        int y = actor.getY();
+        int x = ActorVisitor.getX(actor);
+        int y = ActorVisitor.getY(actor);
         List<T> c = new ArrayList<T>();
         if (diag) {
             for (int dx = x - distance; dx <= x + distance; dx++) {

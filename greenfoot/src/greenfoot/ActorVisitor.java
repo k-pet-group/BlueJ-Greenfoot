@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -31,14 +31,29 @@ import greenfoot.platforms.ActorDelegate;
  * in the public interface visible to users.
  * 
  * @author Poul Henriksen 
- * @version $Id$
  */
 public class ActorVisitor
 {
-    public static void setLocationInPixels(Actor actor, int dragBeginX, int dragBeginY) {
+    public static void setLocationInPixels(Actor actor, int dragBeginX, int dragBeginY)
+    {
         actor.setLocationInPixels(dragBeginX, dragBeginY);
     }
     
+    /**
+     * Get the X co-ordinate of an actor's position, in cells
+     */
+    public static int getX(Actor actor)
+    {
+        return actor.x;
+    }
+    
+    /**
+     * Get the Y co-ordinate of an actor's position, in cells
+     */
+    public static int getY(Actor actor)
+    {
+        return actor.y;
+    }
    
     public static boolean contains(Actor actor, int dx, int dy)
     {

@@ -122,9 +122,11 @@ public class WorldCanvas extends JPanel
 
                 AffineTransform oldTx = null;
                 try {
-                    double xCenter = thing.getX() * cellSize + cellSize / 2.;
+                    int ax = ActorVisitor.getX(thing);
+                    int ay = ActorVisitor.getY(thing);
+                    double xCenter = ax * cellSize + cellSize / 2.;
                     int paintX = (int) Math.floor(xCenter - halfWidth);
-                    double yCenter = thing.getY() * cellSize + cellSize / 2.;
+                    double yCenter = ay * cellSize + cellSize / 2.;
                     int paintY = (int) Math.floor(yCenter - halfHeight);
 
                     if (thing.getRotation() % 360 != 0) {

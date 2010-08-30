@@ -374,6 +374,7 @@ public abstract class Actor
     // PACKAGE PROTECTED METHODS
     //
     // ==================================
+    
     /**
      * 
      * Translates the given location into cell-coordinates before setting the
@@ -390,7 +391,7 @@ public abstract class Actor
         int xCell = world.toCellFloor(x);
         int yCell = world.toCellFloor(y);
 
-        if (x == getX() && y == getY()) {
+        if (xCell == x && yCell == y) {
             return;
         }
 
@@ -678,7 +679,7 @@ public abstract class Actor
     protected List getObjectsAtOffset(int dx, int dy, Class cls)
     {
         failIfNotInWorld();
-        return world.getObjectsAt(getX() + dx, getY() + dy, cls);
+        return world.getObjectsAt(x + dx, y + dy, cls);
     }
 
     /**
@@ -697,7 +698,7 @@ public abstract class Actor
     protected Actor getOneObjectAtOffset(int dx, int dy, Class cls)
     {
         failIfNotInWorld();
-        return world.getOneObjectAt(this, getX() + dx, getY() + dy, cls);        
+        return world.getOneObjectAt(this, x + dx, y + dy, cls);        
     }
     
     /**
@@ -712,7 +713,7 @@ public abstract class Actor
     protected List getObjectsInRange(int radius, Class cls)
     {
         failIfNotInWorld();
-        List inRange = world.getObjectsInRange(getX(), getY(), radius, cls);
+        List inRange = world.getObjectsInRange(x, y, radius, cls);
         inRange.remove(this);
         return inRange;
     }

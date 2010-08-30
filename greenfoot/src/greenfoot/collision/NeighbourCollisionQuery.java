@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,25 +22,32 @@
 package greenfoot.collision;
 
 import greenfoot.Actor;
+import greenfoot.ActorVisitor;
 
 /**
- *  Checks if a greenfoot object is within a specific neighbourhood.
+ * Checks if a greenfoot object is within a specific neighbourhood.
  *
  * @author Poul Henriksen
  */
-public class NeighbourCollisionQuery implements CollisionQuery{
-
+public class NeighbourCollisionQuery implements CollisionQuery
+{
     private int x;
     private int y;
     private int distance;
     private boolean diag;
-    private Class cls;
+    private Class<?> cls;
     
-    public void init(int x, int y, int distance, boolean diag, Class cls) 
+    /**
+     * Set the NeighbourCollisionQuery parameters.
+     * @param x       The X co-ordinate of the center point, in cells
+     * @param y       The Y co-ordinate of the center point, in cells
+     * @param distance  The distance, in cells, as a number of steps from the center point
+     * @param diag    Whether the distance can include diagonal steps
+     * @param cls     The class of actor to look for. If non-null, any actor not of this
+     *                class will not be found by this query. 
+     */
+    public void init(int x, int y, int distance, boolean diag, Class<?> cls) 
     {
-        if(distance < 0) {
-            throw new IllegalArgumentException("Distance must not be less than 0. It was: " + distance);
-        }
         this.x = x;
         this.y = y;
         this.distance = distance;
@@ -48,24 +55,30 @@ public class NeighbourCollisionQuery implements CollisionQuery{
         this.cls = cls;
     }
 
-    public boolean checkCollision(Actor actor) {
+    public boolean checkCollision(Actor actor)
+    {
         if(cls != null && !cls.isInstance(actor)) {
             return false;
         }
-        if(actor.getX() == x && actor.getY() == y) {
+        
+        int actorX = ActorVisitor.getX(actor);
+        int actorY = ActorVisitor.getY(actor);
+        
+        if(actorX == x && actorY == y) {
             return false;
         }       
+        int ax = ActorVisitor.getX(actor);
+        int ay = ActorVisitor.getY(actor);
         if(diag) {
             int x1 = x - distance;            
             int y1 = y - distance;            
             int x2 = x + distance;            
             int y2 = y + distance;
-            return (actor.getX() >= x1 && actor.getY() >=y1 && actor.getX() <= x2 && actor.getY() <=y2);
+            return (ax >= x1 && ay >=y1 && ax <= x2 && ay <=y2);
         } else {
-            int dx = Math.abs(actor.getX() - x);
-            int dy = Math.abs(actor.getY() - y);
+            int dx = Math.abs(ax - x);
+            int dy = Math.abs(ay - y);
             return ((dx+dy) <= distance);            
         }
     }
-
 }

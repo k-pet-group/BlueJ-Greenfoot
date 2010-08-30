@@ -47,6 +47,8 @@ public class PointCollisionQuery implements CollisionQuery
         if (cls != null && !cls.isInstance(actor)) {
             return false;
         }
-        return ActorVisitor.contains(actor, x - actor.getX(), y - actor.getY());
+        int ax = ActorVisitor.getX(actor);
+        int ay = ActorVisitor.getY(actor);
+        return ActorVisitor.contains(actor, x - ax, y - ay);
     }
 }
