@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -19,9 +19,6 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-/*
- * Created on Jun 7, 2005
- */
 package greenfoot.collision;
 
 import java.util.List;
@@ -36,7 +33,6 @@ import junit.framework.TestCase;
 public class GetAtTest extends TestCase
 {
     private World world;
-
     
     @Override
     protected void setUp()
@@ -45,13 +41,13 @@ public class GetAtTest extends TestCase
         GreenfootUtil.initialise(new TestUtilDelegate());        
     }
     
+    @SuppressWarnings("unchecked")
     public void testPixelOdd()
     {
         world = WorldCreator.createWorld(100, 100, 1);
 
         TestObject actor1 = new TestObject(21, 21);
         world.addObject(actor1, 50 , 50);
-
 
         List result = world.getObjectsAt(50, 50, TestObject.class);
         assertTrue(result.contains(actor1));
@@ -70,6 +66,7 @@ public class GetAtTest extends TestCase
 
     }
 
+    @SuppressWarnings("unchecked")
     public void testPixelEven()
     {
         world = WorldCreator.createWorld(100, 100, 1);
@@ -97,6 +94,7 @@ public class GetAtTest extends TestCase
     /**
      * Test that collision checking works when an actor is rotated.
      */
+    @SuppressWarnings("unchecked")
     public void testRotation()
     {
         world = WorldCreator.createWorld(100, 100, 1);
@@ -117,16 +115,14 @@ public class GetAtTest extends TestCase
         result = world.getObjectsAt(57, 67, TestObject.class);
         assertTrue(result.contains(actor1));
         
-        
-
         // TODO also try negative degress and odd degrees like 55 or something.
         // And some values outside the rotation
-    
     }
     
     /** 
      * Test that the IBSP collision checker can handle rotated actors. 
      */
+    @SuppressWarnings("unchecked")
     public void testIBSPDynamicRotationBug() 
     {
         // This test currently fails, but I'm not convinced it *should* pass. Do we really want rotated
@@ -161,6 +157,7 @@ public class GetAtTest extends TestCase
     /** 
      * Test that the IBSP collision checker can handle rotated actors. 
      */
+    @SuppressWarnings("unchecked")
     public void testIBSPRotationBug() 
     {
         // This test currently fails, but I'm not convinced it *should* pass. Do we really want rotated
@@ -192,6 +189,7 @@ public class GetAtTest extends TestCase
     }
     
     
+    @SuppressWarnings("unchecked")
     public void testBigCells() 
     {
         world = WorldCreator.createWorld(10, 10, 50);
@@ -213,10 +211,5 @@ public class GetAtTest extends TestCase
         assertFalse(result.contains(actor1));
         result = world.getObjectsAt(2, 1, TestObject.class);
         assertFalse(result.contains(actor1));  
-        
     }
-    
-    
-
-    
 }

@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -47,6 +47,7 @@ public class InRangeTest extends TestCase
         GreenfootUtil.initialise(new TestUtilDelegate());        
     }
 
+    @SuppressWarnings("unchecked")
     public void testNoWrap()
     {
         world = WorldCreator.createWorld(10, 10, 10);
@@ -61,7 +62,6 @@ public class InRangeTest extends TestCase
         assertTrue(inRange.contains(actor2));
         inRange = actor2.getObjectsInRangeP(3, TestObject.class);
         assertTrue(inRange.contains(actor1));
-
 
         actor2.setLocation(2, 5);
         inRange = actor1.getObjectsInRangeP(3, TestObject.class);
@@ -93,35 +93,4 @@ public class InRangeTest extends TestCase
         inRange = actor2.getObjectsInRangeP(10000, TestObject.class);
         assertTrue(inRange.contains(actor1));
     }
-    
-    
-   /* public void testWrap()
-    {
-        world = WorldCreator.createWorld(10, 10, 10){};
-        world.setWrapped(true);
-
-        TestObject actor1 = new TestObject(20, 20);
-        actor1.setLocation(0, 2);
-        world.addObject(actor1);
-
-        TestObject actor2 = new TestObject(10, 10);
-        actor2.setLocation(8, 2);
-        world.addObject(actor2);
-        
-        Collection inRange = actor1.getObjectsInRangeP(3, TestObject.class);
-        assertTrue(inRange.contains(actor2));
-        assertEquals(1, inRange.size());
-        inRange = actor2.getObjectsInRangeP(3, TestObject.class);
-        assertTrue(inRange.contains(actor1));
-
-        inRange = actor1.getObjectsInRangeP(2, TestObject.class);
-        assertTrue(inRange.contains(actor2));
-        inRange = actor2.getObjectsInRangeP(2, TestObject.class);
-        assertTrue(inRange.contains(actor1));
-
-        inRange = actor1.getObjectsInRangeP(1, TestObject.class);
-        assertFalse(inRange.contains(actor2));
-        inRange = actor2.getObjectsInRangeP(1, TestObject.class);
-        assertFalse(inRange.contains(actor1));
-    }*/
 }

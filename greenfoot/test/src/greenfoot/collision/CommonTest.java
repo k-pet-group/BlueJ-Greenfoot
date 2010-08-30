@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -32,12 +32,12 @@ import greenfoot.WorldCreator;
  * Common tests for the Collision API in greenfoot.
  * 
  * @author Poul Henriksen
- *
  */
 public class CommonTest extends TestCase
 {
     private World world;
     private TestObject obj1;
+    
     protected void setUp()        
     {
         world = WorldCreator.createWorld(10,10,10);
@@ -62,8 +62,6 @@ public class CommonTest extends TestCase
 
             obj1.getObjectsAtP(5, 5, null);
 
-         //   obj1.getObjectsInDirectionP(0, 1, null);
-
             obj1.getObjectsInRangeP(1, null);
 
             obj1.getOneIntersectingObjectP(null);
@@ -75,12 +73,12 @@ public class CommonTest extends TestCase
             npe.printStackTrace();
         }
         assertFalse(gotException);
-
     }
-     /**
-         * test if the object itself is included in results.
-         * 
-         */
+
+    /**
+     * test if the object itself is included in results.
+     */
+    @SuppressWarnings("unchecked")
     public void testSelfInclusion()
     {
         world.getObjectsAt(0, 0, TestObject.class);

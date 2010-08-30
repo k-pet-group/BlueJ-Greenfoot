@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -38,40 +38,36 @@ import junit.framework.TestCase;
  */
 public class SubClassTests extends TestCase
 {
-
-    class SuperClass extends TestObject {
-
+    class SuperClass extends TestObject
+    {
         public SuperClass(int w, int h)
         {
             super(w, h);
         }
     }
 
-    class SubClass extends SuperClass {
-
+    class SubClass extends SuperClass
+    {
         public SubClass(int w, int h)
         {
             super(w, h);
         }
-        
     }
     
-    class SubSubClass extends SubClass {
-
+    class SubSubClass extends SubClass
+    {
         public SubSubClass(int w, int h)
         {
             super(w, h);
         }
-        
     }
     
-    class IndependentClass extends TestObject {
-
+    class IndependentClass extends TestObject
+    {
         public IndependentClass(int w, int h)
         {
             super(w, h);
         }
-        
     }
 
     @Override
@@ -81,6 +77,7 @@ public class SubClassTests extends TestCase
         GreenfootUtil.initialise(new TestUtilDelegate());        
     }
     
+    @SuppressWarnings("unchecked")
     public void testHierarchy()
     {
         World world = WorldCreator.createWorld(10, 10, 10);
@@ -100,9 +97,9 @@ public class SubClassTests extends TestCase
 
         res = indepObj.getIntersectingObjectsP(SuperClass.class);
         assertEquals(2,res.size());       
-
     }  
     
+    @SuppressWarnings("unchecked")
     public void testHierarchy2()
     {
         World world = WorldCreator.createWorld(10, 10, 10);
@@ -114,8 +111,6 @@ public class SubClassTests extends TestCase
         TestObject indepObj = new IndependentClass(10, 10);
         world.addObject(indepObj, 2, 2);
         
-       
-        
         List res = superObj.getIntersectingObjectsP(IndependentClass.class);
         assertEquals(1,res.size());        
 
@@ -123,6 +118,7 @@ public class SubClassTests extends TestCase
         assertEquals(2,res.size());        
     }
 
+    @SuppressWarnings("unchecked")
     public void testSubSubClassing()
     {
         World world = WorldCreator.createWorld(10, 10, 10);
@@ -133,8 +129,6 @@ public class SubClassTests extends TestCase
         world.addObject(subSubObj, 2, 2);
         TestObject indepObj = new IndependentClass(10, 10);
         world.addObject(indepObj, 2, 2);
-        
-       
         
         List res = superObj.getIntersectingObjectsP(IndependentClass.class);
         assertEquals(1,res.size());        
@@ -147,5 +141,4 @@ public class SubClassTests extends TestCase
         res = indepObj.getIntersectingObjectsP(SuperClass.class);
         assertEquals(2,res.size());        
     }
-    
 }

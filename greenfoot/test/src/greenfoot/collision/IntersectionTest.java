@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -39,6 +39,7 @@ public class IntersectionTest extends TestCase
 {
     private World world;
 
+    @SuppressWarnings("unchecked")
     public void testIntersectingSingleCell()
     {
         world = WorldCreator.createWorld(10, 10, 10);
@@ -60,6 +61,7 @@ public class IntersectionTest extends TestCase
         assertFalse(o2.intersectsP(o1));
     }
     
+    @SuppressWarnings("unchecked")
     public void testIntersectingPixelLevelOdd()
     {
         world = WorldCreator.createWorld(70, 70, 1);
@@ -85,6 +87,7 @@ public class IntersectionTest extends TestCase
         assertFalse(o2.intersectsP(o1));
     }
     
+    @SuppressWarnings("unchecked")
     public void testIntersectingPixelLevelEven()
     {
         world = WorldCreator.createWorld(80, 80, 1);
