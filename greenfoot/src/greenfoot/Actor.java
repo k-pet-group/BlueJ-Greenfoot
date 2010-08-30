@@ -189,13 +189,35 @@ public abstract class Actor
 
     /**
      * Set the rotation of the object. Rotation is expressed as a degree
-     * value, range (0..359). Zero degrees is to the east. The angle increases 
+     * value, range (0..359). Zero degrees is to the east, and the angle increases 
      * clockwise.
      * 
      * @param rotation The rotation in degrees.
      */
     public void setRotation(int rotation)
     {
+        // First normalize
+        if (rotation >= 360) {
+            // Optimize the usual case: rotation has adjusted to a value greater than
+            // 360, but is still within the 360 - 720 bound.
+            if (rotation < 720) {
+                rotation -= 360;
+            }
+            else {
+                rotation = rotation % 360;
+            }
+        }
+        else if (rotation < 0) {
+            // Likwise, if less than 0, it's likely that the rotation was reduced by
+            // a small amount and so will be >= -360.
+            if (rotation >= -360) {
+                rotation += 360;
+            }
+            else {
+                rotation = 360 + (rotation % 360);
+            }
+        }
+        
         if (this.rotation != rotation) {
             this.rotation = rotation;
             // Recalculate the bounding rect.
@@ -209,8 +231,8 @@ public abstract class Actor
      * Assign a new location for this object. The location is specified as a cell
      * index in the world.
      * 
-     * If this method is overridden it is important to call this method with
-     * super.setLocation(x,y) from the overriding method.
+     * <p>If this method is overridden it is important to call this method as
+     * "super.setLocation(x,y)" from the overriding method, to avoid infinite recursion.
      * 
      * @param x Location index on the x-axis
      * @param y Location index on the y-axis
@@ -261,7 +283,6 @@ public abstract class Actor
 
     /**
      * Limits the value v to be less than limit and large or equal to zero.
-     * @return
      */
     private int limitValue(int v, int limit)
     {
@@ -391,20 +412,25 @@ public abstract class Actor
      */
     void addToWorld(int x, int y, World world)
     {
-        this.x = limitValue(x, world.getWidth());
-        this.y = limitValue(y, world.getHeight());
+        if (world.isBounded()) {
+            x = limitValue(x, world.getWidth());
+            y = limitValue(y, world.getHeight());
+        }
+        
+        this.x = x;
+        this.y = y;
         boundingRect = null;
         this.setWorld(world);
 
-        // This call is not necessary, however setLocation may be overriden
+        // This call is not necessary, however setLocation may be overridden
         // so it must still be called. (Asteroids scenario relies on setLocation
         // being called when the object is added to the world...)
         this.setLocation(x, y);
     }
 
     /**
-     * Get the bounding rectangle of the object. Taking into consideration that the
-     * object can rotate. 
+     * Get the axis-aligned bounding rectangle of the object, taking rotation into account.
+     * This returns a rectangle which completely covers the rotated actor's area.
      * 
      * @return A rect specified in pixels!
      */
@@ -432,12 +458,12 @@ public abstract class Actor
         }
         int cellSize = w.getCellSize();
         
-        if (getRotation() % 90 == 0) {
+        if (rotation % 90 == 0) {
             // Special fast calculation when rotated a multiple of 90
             int width = 0;
             int height = 0;
             
-            if(getRotation() % 180 == 0) {
+            if(rotation % 180 == 0) {
                 // Rotated by 180 multiple
                 width = image.getWidth();
                 height = image.getHeight();
