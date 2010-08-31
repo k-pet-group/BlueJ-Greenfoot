@@ -173,12 +173,16 @@ public class MousePollingManager implements TriggeredMouseListener, TriggeredMou
             MouseEventData newData = new MouseEventData();
             
             currentData = futureData;
-            futureData = newData;
+            
             
             potentialNewDragData = new MouseEventData();
             
             // Indicate that we have processed all current events.
             gotNewEvent = false;
+            
+            // This line must go last because it changes the reference in the futureData field that
+            // this method (and others) synchronize on:
+            futureData = newData;
         }
 
         polledInThisAct = true; 
