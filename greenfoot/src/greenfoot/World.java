@@ -748,7 +748,7 @@ public abstract class World
         TreeActorSet objects = getObjectsListInPaintOrder();
         for (Actor actor : objects) {
             Rect bounds = actor.getBoundingRect();
-            if(bounds != null && x >= bounds.getX()  && x <= bounds.getRight() && y>=bounds.getY() && y<= bounds.getTop()) {
+            if (x >= bounds.getX()  && x <= bounds.getRight() && y>=bounds.getY() && y<= bounds.getTop()) {
                 int xClickCell = toCellFloor(x);
                 int yClickCell = toCellFloor(y);
                 if(actor.contains(xClickCell - actor.x, yClickCell - actor.y)){

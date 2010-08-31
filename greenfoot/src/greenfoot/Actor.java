@@ -449,7 +449,7 @@ public abstract class Actor
     private void calcBounds()
     {
         if (image == null) {
-            boundingRect = null;
+            boundingRect = new Rect(x, y, 0, 0);
             return;
         }
         
