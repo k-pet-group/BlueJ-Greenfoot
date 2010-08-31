@@ -114,7 +114,7 @@ public class BVHInsChecker
          * @param result
          *            List to put the result in.
          */
-        public void getIntersections(Circle c, CollisionQuery checker, List result)
+        public void getIntersections(Circle c, CollisionQuery checker, List<Actor> result)
         {
             if (!c.intersects(this.circle)) {
                 return;
@@ -237,7 +237,7 @@ public class BVHInsChecker
      * 
      */
     static class CircleFringe
-        implements Comparable
+        implements Comparable<CircleFringe>
     {
         /** The sibling node for this circle fring e*/
         private Node node;
@@ -287,9 +287,8 @@ public class BVHInsChecker
             this.ancestorExpansion = ancestorExpansion;
         }
 
-        public int compareTo(Object arg0)
+        public int compareTo(CircleFringe other)
         {
-            CircleFringe other = (CircleFringe) arg0;
             return (int) (this.ancestorExpansion - other.getAncestorExpansion());
         }
 
@@ -386,47 +385,8 @@ public class BVHInsChecker
             return false;
         }
 
-        private void checkInvariant(Node n)
-        {
-            if (n == null)
-                return;
-            
-            if(n.getActor() != null && (! BVHInsChecker.this.objects.contains(n.getActor()) ) && this.contains(n) ) { // Check does NOT WORK!!! 
-                System.err.println("The node is in the tree, but should not be: " + n + "  " + n.getActor());
-                throw new RuntimeException("Invariant not true because the node is in the tree, but should not be:   Node: " + n + " #   left:"
-                        + n.left + " #   right:" + n.right  + " #   parent:" + n.parent + " #   root:" + root + " #   actor:" + n.getActor());
-            }
-            if(n.left == null && n.right == null && n.parent == null && n != root) {
-                throw new RuntimeException("Invariant not true because parents and children are null and it is not the root:   Node: " + n + " #   left:"
-                        + n.left + " #   right:" + n.right + " #   parent:" + n.parent + " #   root:" + root + " #   actor:" + n.getActor());
-
-            }
-            if (n.circle == null) {
-                throw new RuntimeException("Invariant not true because circle==null:   Node: " + n + " #   left:"
-                        + n.left + " #   right:" + n.right + " #   parent:" + n.parent + " #   root:" + root + " #   actor:" + n.getActor());
-
-            }
-            if (!(n.left == null && n.right == null) && (n.left == null || n.right == null)) {
-                throw new RuntimeException("Invariant not true:   Node: " + n + " #   left:" + n.left + " #   right:"
-                        + n.right + " #   parent:" + n.parent + " #   root:" + root + " #   actor:" + n.getActor());
-            }
-            checkInvariant(n.left);
-            checkInvariant(n.right);
-
-        }
-
-        /**
-         * For checking the consistency of the tree. It will throw an exception
-         * if the tree has nodes without a circle of with only one child.
-         */
-        private void checkInvariant()
-        {
-            //checkInvariant(root);
-        }
-
         /**
          * Find the best place to insert the new node.
-         * 
          */
         public Node bestSibling(Node newNode, Node bestGuess)
         {
@@ -456,7 +416,7 @@ public class BVHInsChecker
 
             // Priority queue ordered by ancestor expansion
             // This priority queue holds the fringe elements
-            PriorityQueue fringeQueue = new PriorityQueue();
+            PriorityQueue<CircleFringe> fringeQueue = new PriorityQueue<CircleFringe>();
             
             // Add the fringe for the root
             fringeQueue.add(rootFringe);
@@ -466,20 +426,16 @@ public class BVHInsChecker
             return best.getNode();
         }
   
-        
-    
         /**
          * Searches through the tree for the best sibling.
-         * 
-         * @param newNode
-         * @param fringeQueue
          */
-        private void bestSiblingSearch(Node newNode, final CircleFringe best, PriorityQueue fringeQueue)
+        private void bestSiblingSearch(Node newNode, final CircleFringe best,
+                PriorityQueue<CircleFringe> fringeQueue)
         {
             // Search for the best location to insert
             while (!fringeQueue.isEmpty()) {
                 // get best candidate
-                CircleFringe tf = (CircleFringe) fringeQueue.poll();
+                CircleFringe tf = fringeQueue.poll();
                 if (tf.getAncestorExpansion() >= (best.getCost())) {
                     // If the ancestorExpansion of the current fringe is larger
                     // than the best cost found so far, then we are done.
@@ -530,10 +486,9 @@ public class BVHInsChecker
         /**
          * Looks at a node and checks if it is better than the currently best
          * result. It also creates a new fringe and inserts it into the queue.
-         * 
          */
         private void processNode(Node newNode, Node childNode, double newAExp, final CircleFringe best,
-                PriorityQueue fringeQueue)
+                PriorityQueue<CircleFringe> fringeQueue)
         {
             Circle enclosingCircle = new Circle();
             enclosingCircle.merge(childNode.circle, newNode.circle);
@@ -624,8 +579,6 @@ public class BVHInsChecker
         }
 
         /**
-         * 
-         * @param n
          * @return The sibling from which it was removed.
          */
         public Node removeNode(Node n)
@@ -660,9 +613,9 @@ public class BVHInsChecker
             return sibling;
         }
 
-        public List getIntersections(Circle b, CollisionQuery c)
+        public List<Actor> getIntersections(Circle b, CollisionQuery c)
         {
-            List result = new ArrayList();
+            List<Actor> result = new ArrayList<Actor>();
             if (getRoot() == null) {
                 return result;
             }
@@ -750,13 +703,13 @@ public class BVHInsChecker
     private NeighbourCollisionQuery neighbourQuery = new NeighbourCollisionQuery();
     private PointCollisionQuery pointQuery = new PointCollisionQuery();
     private int cellSize;
-    private List objects;
+    private List<Actor> objects;
 
     public void initialize(int width, int height, int cellSize, boolean wrap)
     {
         tree = new CircleTree();
         this.cellSize = cellSize;
-        objects = new ArrayList();
+        objects = new ArrayList<Actor>();
     }
 
     public synchronized void addObject(Actor actor)
@@ -804,7 +757,7 @@ public class BVHInsChecker
 
     public synchronized void updateObjectSize(Actor object)
     {
-        Node n = (Node) ActorVisitor.getData(object);
+        // Node n = (Node) ActorVisitor.getData(object);
         throw new RuntimeException("No longer working because of missing bounding circle");
         /*Circle c = ActorVisitor.getBoundingCircle(object);
         if (c != null && n != null) {
@@ -813,22 +766,24 @@ public class BVHInsChecker
         }*/
     }
 
-    public List getObjectsAt(int x, int y, Class cls)
+    @SuppressWarnings("unchecked")
+    public <T extends Actor> List<T> getObjectsAt(int x, int y, Class<T> cls)
     {
         int halfCell = cellSize / 2;
         Circle b = new Circle(x * cellSize + halfCell, y * cellSize + halfCell, 0);
         synchronized (pointQuery) {
             pointQuery.init(x, y, cls);
-            return tree.getIntersections(b, pointQuery);
+            return (List<T>) tree.getIntersections(b, pointQuery);
         }
     }
 
-    public List getIntersectingObjects(Actor actor, Class cls)
+    @SuppressWarnings("unchecked")
+    public <T extends Actor> List<T> getIntersectingObjects(Actor actor, Class<T> cls)
     {
         Circle b = getCircle(actor);
         synchronized (actorQuery) {
             actorQuery.init(cls, actor);
-            return tree.getIntersections(b, actorQuery);
+            return (List<T>) tree.getIntersections(b, actorQuery);
         }
     }
 
@@ -843,16 +798,18 @@ public class BVHInsChecker
         return b;*/
     }
 
-    public List getObjectsInRange(int x, int y, int r, Class cls)
+    @SuppressWarnings("unchecked")
+    public <T extends Actor> List<T> getObjectsInRange(int x, int y, int r, Class<T> cls)
     {
         Circle b = new Circle(x * cellSize, y * cellSize, r * cellSize);
         synchronized (actorQuery) {
             actorQuery.init(cls, null);
-            return tree.getIntersections(b, actorQuery);
+            return (List<T>) tree.getIntersections(b, actorQuery);
         }
     }
 
-    public List getNeighbours(Actor a, int distance, boolean diag, Class cls)
+    @SuppressWarnings("unchecked")
+    public <T extends Actor> List<T> getNeighbours(Actor a, int distance, boolean diag, Class<T> cls)
     {
         int x = ActorVisitor.getX(a);
         int y = ActorVisitor.getY(a);
@@ -872,34 +829,34 @@ public class BVHInsChecker
 
         synchronized (neighbourQuery) {
             neighbourQuery.init(x, y, distance, diag, cls);
-            return tree.getIntersections(c, neighbourQuery);
+            return (List<T>) tree.getIntersections(c, neighbourQuery);
         }
 
     }
 
-    public List getObjectsInDirection(int x, int y, int angle, int length, Class cls)
+    public <T extends Actor> List<T> getObjectsInDirection(int x, int y, int angle, int length, Class<T> cls)
     {
-        // TODO Auto-generated method stub
-
+        // TODO complete
         throw new RuntimeException("NOT IMPLEMENTED YET");
     }
 
-    public List getObjects(Class cls)
+    @SuppressWarnings("unchecked")
+    public <T extends Actor> List<T> getObjects(Class<T> cls)
     {
         if (cls == null) {
-            return new ArrayList(objects);
+            return (List<T>) new ArrayList<Actor>(objects);
         }
-        List l = new ArrayList();
-        for (Iterator iter = objects.iterator(); iter.hasNext();) {
-            Actor actor = (Actor) iter.next();
+        List<T> l = new ArrayList<T>();
+        for (Iterator<Actor> iter = objects.iterator(); iter.hasNext();) {
+            Actor actor = iter.next();
             if (cls.isInstance(actor)) {
-                l.add(actor);
+                l.add((T) actor);
             }
         }
         return l;
     }
 
-    public List getObjectsList()
+    public List<Actor> getObjectsList()
     {
         return objects;
     }
@@ -907,18 +864,20 @@ public class BVHInsChecker
     public void startSequence()
     {}
 
-    public Actor getOneObjectAt(Actor actor, int x, int y, Class cls)
+    @SuppressWarnings("unchecked")
+    public <T extends Actor> T getOneObjectAt(Actor actor, int x, int y, Class<T> cls)
     {		
         int halfCell = cellSize / 2;
         Circle b = new Circle(x * cellSize + halfCell, y * cellSize + halfCell, 0);
         synchronized (pointQuery) {
             pointQuery.init(x, y, cls);
             Node node = (Node) ActorVisitor.getData(actor);
-            return tree.getOneIntersectingObject(node, b, pointQuery);
+            return (T) tree.getOneIntersectingObject(node, b, pointQuery);
         }
     }
 
-    public Actor getOneIntersectingObject(Actor object, Class cls)
+    @SuppressWarnings("unchecked")
+    public <T extends Actor> T getOneIntersectingObject(Actor object, Class<T> cls)
     {
         synchronized (actorQuery) {
             actorQuery.init(cls, object);
@@ -927,7 +886,7 @@ public class BVHInsChecker
             if(node == null) {
                 return null;
             }
-            return tree.getOneIntersectingObject(node, actorQuery);            
+            return (T) tree.getOneIntersectingObject(node, actorQuery);            
         }
 
     }
