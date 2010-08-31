@@ -50,7 +50,6 @@ public class GOCollisionQuery implements CollisionQuery
     
     /**
      * Checks if the other object collides with this object and if it is of the given class.
-     * 
      */
     public boolean checkCollision(Actor other)
     {   

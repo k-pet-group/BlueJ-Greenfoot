@@ -120,15 +120,11 @@ public class GetAtTest extends TestCase
     }
     
     /** 
-     * Test that the IBSP collision checker can handle rotated actors. 
+     * Test that the collision checker can handle rotated actors. 
      */
     @SuppressWarnings("unchecked")
-    public void testIBSPDynamicRotationBug() 
+    public void testRotation2() 
     {
-        // This test currently fails, but I'm not convinced it *should* pass. Do we really want rotated
-        // objects in a cell to overlap other cells? Does "getObjectsAt" really return all objects
-        // overlapping any part of the cell? - DM
-        
         world = WorldCreator.createWorld(10, 10, 50);
         // Test a second object forced to be on the bounds of the areas in the IBSPColChecker
 
@@ -142,23 +138,21 @@ public class GetAtTest extends TestCase
         List result = world.getObjectsAt(5, 0, TestObject.class);
         assertTrue(result.contains(actor2));
 
-        //After the rotation, it should now overlap surrounding cells.
+        //After the rotation, it should not overlap surrounding cells.
         
         result = world.getObjectsAt(6, 0, TestObject.class);
-        assertTrue(result.contains(actor2));
+        assertFalse(result.contains(actor2));
         result = world.getObjectsAt(5, 1, TestObject.class);
-        assertTrue(result.contains(actor2));
-        
-        // This one will fail if the bounding box does not consider rotation.
+        assertFalse(result.contains(actor2));
         result = world.getObjectsAt(4, 0, TestObject.class);
-        assertTrue(result.contains(actor2));
+        assertFalse(result.contains(actor2));
     }
     
     /** 
-     * Test that the IBSP collision checker can handle rotated actors. 
+     * Test that the collision checker can handle rotated actors. 
      */
     @SuppressWarnings("unchecked")
-    public void testIBSPRotationBug() 
+    public void testRotatione() 
     {
         // This test currently fails, but I'm not convinced it *should* pass. Do we really want rotated
         // objects in a cell to overlap other cells? Does "getObjectsAt" really return all objects
@@ -179,13 +173,11 @@ public class GetAtTest extends TestCase
         //After the rotation, it should now overlap surrounding cells.
         
         result = world.getObjectsAt(6, 0, TestObject.class);
-        assertTrue(result.contains(actor2));
+        assertFalse(result.contains(actor2));
         result = world.getObjectsAt(5, 1, TestObject.class);
-        assertTrue(result.contains(actor2));
-        
-        // This one will fail if the bounding box does not consider rotation.
+        assertFalse(result.contains(actor2));
         result = world.getObjectsAt(4, 0, TestObject.class);
-        assertTrue(result.contains(actor2));
+        assertFalse(result.contains(actor2));
     }
     
     

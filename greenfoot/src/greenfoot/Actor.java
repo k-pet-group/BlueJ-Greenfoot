@@ -473,11 +473,9 @@ public abstract class Actor
                 width = image.getHeight();
                 height = image.getWidth();                
             }
-            double cellCenterX = getCellCenter(this.x);
-            double cellCenterY = getCellCenter(this.y);
-            int x = (int) Math.floor(cellCenterX - width / 2.);
-            int y = (int) Math.floor(cellCenterY - height / 2.);
             
+            int x = cellSize * this.x + (cellSize - width - 1) / 2;
+            int y = cellSize * this.y + (cellSize - height - 1) / 2;
             boundingRect = new Rect(x, y, width, height);
         }
         else {
@@ -489,7 +487,7 @@ public abstract class Actor
             int width = bounds.width;
             int height = bounds.height;
             // This rect will be bit big to include all pixels that is covered.
-            // We loose a bit of precision by using integers and might get
+            // We lose a bit of precision by using integers and might get
             // collisions that wouldn't be there if using floating point. But
             // making it a big bigger, we will get all the collision that we
             // would get with floating point.
