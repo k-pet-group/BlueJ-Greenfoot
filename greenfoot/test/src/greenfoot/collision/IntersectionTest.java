@@ -159,4 +159,21 @@ public class IntersectionTest extends TestCase
         o1.setRotation(90);
         assertEquals(o1, o2.getOneIntersectingObjectP(TestObject.class));      
     }
+    
+    public void testIntersectionSmallObject()
+    {
+        world = WorldCreator.createWorld(200, 200, 1);
+        TestObject o1 = new TestObject(100,100);
+        world.addObject(o1, 55, 55);
+        TestObject o2 = new TestObject(1,1);
+        o2.setRotation(45);
+        world.addObject(o2, 56, 56);
+        
+        assertNotNull(o2.getOneIntersectingObjectP(TestObject.class));
+        
+        // Place o2 inside the axis-aligned bounding rect of o1, but not intersecting:
+        o1.setRotation(45);
+        o2.setLocation(100, 100);
+        assertNull(o2.getOneIntersectingObjectP(TestObject.class));
+    }
 }
