@@ -19,18 +19,6 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-/*
- * ExportAppPane.java
- *
- * Created on April 19, 2007, 6:15 PM
- *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
-
- * @author Michael Kolling
- * @version $Id: ExportAppPane.java 7564 2010-05-14 14:53:38Z mik $
- */
-
 package greenfoot.gui.export;
 
 import greenfoot.util.FileChoosers;
@@ -49,9 +37,13 @@ import javax.swing.JTextField;
 
 import bluej.BlueJTheme;
 import bluej.Config;
-import java.awt.Color;
 import javax.swing.JOptionPane;
 
+/**
+ * Export dialog pane for exporting to a standalone application.
+ * 
+ * @author Michael Kolling
+ */
 public class ExportAppPane extends ExportPane
 {
     public static final String FUNCTION = "APP";
