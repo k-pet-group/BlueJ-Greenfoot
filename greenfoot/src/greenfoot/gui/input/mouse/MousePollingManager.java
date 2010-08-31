@@ -316,6 +316,12 @@ public class MousePollingManager implements TriggeredMouseListener, TriggeredMou
 
     public void mouseClicked(MouseEvent e)
     {
+        // This line must go outside the synchronized block because it involves
+        // claiming a read-lock on the world, which can cause a deadlock because
+        // the simulation thread can synchronize on futureData (in freezeMouseData())
+        // while holding the world write-lock (which would leave the two threads with
+        // one lock each, both trying to claim the other):
+        Actor actor = locator.getTopMostActorAt(e);
         synchronized (futureData) {
             MouseEventData mouseData = futureData;
             // In case we already have a dragEnded and we get another
@@ -325,7 +331,6 @@ public class MousePollingManager implements TriggeredMouseListener, TriggeredMou
             }
             if(! PriorityManager.isHigherPriority(e, mouseData)) return;
             registerEventRecieved();
-            Actor actor = locator.getTopMostActorAt(e);
             int x = locator.getTranslatedX(e);
             int y = locator.getTranslatedY(e);
             int button = getButton(e);
@@ -363,6 +368,12 @@ public class MousePollingManager implements TriggeredMouseListener, TriggeredMou
 
     public void mousePressed(MouseEvent e)
     {
+        // This line must go outside the synchronized block because it involves
+        // claiming a read-lock on the world, which can cause a deadlock because
+        // the simulation thread can synchronize on futureData (in freezeMouseData())
+        // while holding the world write-lock (which would leave the two threads with
+        // one lock each, both trying to claim the other):
+        Actor actor = locator.getTopMostActorAt(e);
         synchronized(futureData) {
             MouseEventData mouseData = futureData;
             // In case we already have a dragEnded and we get another
@@ -373,7 +384,6 @@ public class MousePollingManager implements TriggeredMouseListener, TriggeredMou
         
             // This might be the beginning of a drag so we store it
             dragStartData = new MouseEventData();
-            Actor actor = locator.getTopMostActorAt(e);
             int x = locator.getTranslatedX(e);
             int y = locator.getTranslatedY(e);
             int button = getButton(e);
@@ -389,6 +399,12 @@ public class MousePollingManager implements TriggeredMouseListener, TriggeredMou
 
     public void mouseReleased(MouseEvent e)
     {
+        // This line must go outside the synchronized block because it involves
+        // claiming a read-lock on the world, which can cause a deadlock because
+        // the simulation thread can synchronize on futureData (in freezeMouseData())
+        // while holding the world write-lock (which would leave the two threads with
+        // one lock each, both trying to claim the other):
+        Actor clickActor = locator.getTopMostActorAt(e);
         synchronized(futureData) {
             // This might be the end of a drag
             if(isDragging) {
@@ -404,7 +420,6 @@ public class MousePollingManager implements TriggeredMouseListener, TriggeredMou
                 int y = locator.getTranslatedY(e);
                 int button = getButton(e);
 
-                Actor clickActor = locator.getTopMostActorAt(e);
                 futureData.mouseClicked(x, y, button, 1, clickActor);
                 
                 Actor actor = dragStartData.getActor();
@@ -433,10 +448,15 @@ public class MousePollingManager implements TriggeredMouseListener, TriggeredMou
 
     public void mouseMoved(MouseEvent e)
     {
+        // This line must go outside the synchronized block because it involves
+        // claiming a read-lock on the world, which can cause a deadlock because
+        // the simulation thread can synchronize on futureData (in freezeMouseData())
+        // while holding the world write-lock (which would leave the two threads with
+        // one lock each, both trying to claim the other):
+        Actor actor = locator.getTopMostActorAt(e);
         synchronized(futureData) {
             if(! PriorityManager.isHigherPriority(e, futureData)) return;
             registerEventRecieved();
-            Actor actor = locator.getTopMostActorAt(e);
             int x = locator.getTranslatedX(e);
             int y = locator.getTranslatedY(e);
             int button = getButton(e);
