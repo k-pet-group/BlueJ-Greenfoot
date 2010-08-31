@@ -34,8 +34,6 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.UnknownHostException;
@@ -59,6 +57,8 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import bluej.Config;
 import bluej.utility.Debug;
@@ -71,7 +71,7 @@ import bluej.utility.SwingWorker;
  * @author Michael Kolling
  * @author Poul Henriksen
  */
-public class ExportPublishPane extends ExportPane implements MouseListener
+public class ExportPublishPane extends ExportPane implements ChangeListener
 {
     public static final int IMAGE_WIDTH = 120;
     public static final int IMAGE_HEIGHT = 70;
@@ -708,12 +708,12 @@ public class ExportPublishPane extends ExportPane implements MouseListener
             titleAndDescPanel.add(text);
             
             keepScenarioScreenshot=new JCheckBox();
-            //always default it to true
+            //always default it to true and therefore the image panel should be disabled
             keepScenarioScreenshot.setSelected(true);
             imagePanel.enableImageEditPanel(false);
             keepScenarioScreenshot.setName(Config.getString("export.publish.keepScenario"));
             keepScenarioScreenshot.setOpaque(false);
-            keepScenarioScreenshot.addMouseListener(this);
+            keepScenarioScreenshot.addChangeListener(this);
             titleAndDescPanel.add(keepScenarioScreenshot);   
             
         }   
@@ -869,10 +869,12 @@ public class ExportPublishPane extends ExportPane implements MouseListener
         return tagPanel;
     }
 
-
-    public void mouseClicked(MouseEvent e)
+    /**
+     * Of interest is the state of the keep scenario checkbox as that
+     * determines whether the image panel is enabled or disabled
+     */
+    public void stateChanged(ChangeEvent e)
     {
-        //enable or disable the screenshot snapshot according to whether the checkbox is selected
         if (e.getSource().equals(keepScenarioScreenshot)){
             if (keepScenarioScreenshot.isSelected())
             {
@@ -884,13 +886,5 @@ public class ExportPublishPane extends ExportPane implements MouseListener
         }
         
     }
-
-    public void mouseEntered(MouseEvent e) { }
-
-    public void mouseExited(MouseEvent e)  { }
-
-    public void mousePressed(MouseEvent e)  { }
-
-    public void mouseReleased(MouseEvent e)  { }
 
 }
