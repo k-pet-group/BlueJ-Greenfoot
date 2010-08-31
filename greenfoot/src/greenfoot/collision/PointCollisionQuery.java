@@ -35,6 +35,12 @@ public class PointCollisionQuery implements CollisionQuery
     private int y;
     private Class<?> cls;
     
+    /**
+     * Set the point collision query parameters.
+     * @param x   The X co-ordinate (in pixels)
+     * @param y   The Y co-ordinate (in pixels)
+     * @param cls   The class of actors to locate. If null, locate any actor.
+     */
     public void init(int x, int y, Class<?> cls)
     {
         this.x = x;
@@ -42,13 +48,14 @@ public class PointCollisionQuery implements CollisionQuery
         this.cls = cls;
     }
 
+    /*
+     * @see greenfoot.collision.CollisionQuery#checkCollision(greenfoot.Actor)
+     */
     public boolean checkCollision(Actor actor)
     {
         if (cls != null && !cls.isInstance(actor)) {
             return false;
         }
-        int ax = ActorVisitor.getX(actor);
-        int ay = ActorVisitor.getY(actor);
-        return ActorVisitor.contains(actor, x - ax, y - ay);
+        return ActorVisitor.containsPoint(actor, x, y);
     }
 }

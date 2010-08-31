@@ -25,7 +25,10 @@ import greenfoot.Actor;
 import greenfoot.ActorVisitor;
 
 /**
- * Checks if a greenfoot object is within a specific neighbourhood.
+ * Checks if a Greenfoot object is within a specific neighbourhood.
+ * 
+ * <p>For the "in the neighbourhood" check, only the object's center point is considered,
+ * not its graphical extent (size).
  *
  * @author Poul Henriksen
  */

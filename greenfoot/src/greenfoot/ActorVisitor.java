@@ -59,6 +59,20 @@ public class ActorVisitor
     {
         return actor.contains(dx, dy);
     }
+    
+    /**
+     * Checks whether the specified point (specified in pixel co-ordinates) is within the area
+     * covered by the (rotated) graphical representation of the given actor.
+     * 
+     * @param actor  The relevant actor
+     * @param px  The (world relative) x pixel co-ordinate
+     * @param py  The (world relative) y pixel co-ordinate
+     * @return  true if the pixel is within the actor's bounds; false otherwise
+     */
+    public static boolean containsPoint(Actor actor, int px, int py)
+    {
+        return actor.containsPoint(px, py);
+    }
 
     public static boolean intersects(Actor actor, Actor other)
     {

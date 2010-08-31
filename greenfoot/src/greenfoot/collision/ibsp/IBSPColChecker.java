@@ -677,8 +677,10 @@ public class IBSPColChecker implements CollisionChecker
     public <T extends Actor> List<T> getObjectsAt(int x, int y, Class<T> cls)
     {
         synchronized (pointQuery) {
-            pointQuery.init(x, y, cls);
-            return (List<T>) getIntersectingObjects(new Rect(x * cellSize, y * cellSize, cellSize, cellSize), pointQuery);
+            int px = x * cellSize + cellSize / 2;
+            int py = y * cellSize + cellSize / 2;
+            pointQuery.init(px, py, cls);
+            return (List<T>) getIntersectingObjects(new Rect(px, py, 1, 1), pointQuery);
         }
     }
 
@@ -799,14 +801,16 @@ public class IBSPColChecker implements CollisionChecker
             Class<T> cls)
     {
         synchronized (pointQuery) {
-            pointQuery.init(dx, dy, cls);
+            int px = dx * cellSize + cellSize / 2;
+            int py = dy * cellSize + cellSize / 2;
+            pointQuery.init(px, py, cls);
             CollisionQuery query = pointQuery;
             if (cls != null) {
                 query = new ClassQuery(cls, pointQuery);
             }
             // Use of getOneIntersectingDown is ok, because the area is only 1x1 pixel
             // in size - it will be contained by all nodes.
-            return (T) getOneIntersectingDown(new Rect(dx * cellSize + cellSize / 2, dy * cellSize + cellSize / 2, 1, 1), query, object);
+            return (T) getOneIntersectingDown(new Rect(px, py, 1, 1), query, object);
         }
     }
 

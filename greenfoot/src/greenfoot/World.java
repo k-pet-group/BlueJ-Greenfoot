@@ -569,7 +569,7 @@ public abstract class World
      * <p>
      * 
      * An object is defined to be at that cell if its graphical representation
-     * overlaps with the cell at any point.
+     * overlaps the center of the cell.
      * 
      * @param x X-coordinate of the cell to be checked.
      * @param y Y-coordinate of the cell to be checked.
@@ -749,9 +749,7 @@ public abstract class World
         for (Actor actor : objects) {
             Rect bounds = actor.getBoundingRect();
             if (x >= bounds.getX()  && x <= bounds.getRight() && y>=bounds.getY() && y<= bounds.getTop()) {
-                int xClickCell = toCellFloor(x);
-                int yClickCell = toCellFloor(y);
-                if(actor.contains(xClickCell - actor.x, yClickCell - actor.y)){
+                if (actor.containsPoint(x, y)) {
                    result.add(actor);
                 }
             }

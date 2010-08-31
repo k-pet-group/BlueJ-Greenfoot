@@ -665,8 +665,8 @@ public abstract class Actor
     }
     
     /**
-     * Return all objects that intersect the given location (relative to this
-     * object's location). <br>
+     * Return all objects that intersect the center of the given location (relative to
+     * this object's location). <br>
      * 
      * @return List of objects at the given offset. The list will include this
      *         object, if the offset is zero.
@@ -783,9 +783,29 @@ public abstract class Actor
 
         Shape rotatedImageBounds = getRotatedShape();
         Rectangle cellBounds = new Rectangle(dx * cellSize - cellSize / 2, dy * cellSize - cellSize / 2, cellSize,
-                cellSize);       
+                cellSize);
         
         return rotatedImageBounds.intersects(cellBounds);
+    }
+    
+    /**
+     * Checks whether the specified point (specified in pixel co-ordinates) is within the area
+     * covered by the (rotated) graphical representation of this actor.
+     * 
+     * @param px  The (world relative) x pixel co-ordinate
+     * @param py  The (world relative) y pixel co-ordinate
+     * @return  true if the pixel is within the actor's bounds; false otherwise
+     */
+    boolean containsPoint(int px, int py)
+    {
+        failIfNotInWorld();
+        if (image == null) {
+            return false;
+        }
+        int cellSize = world.getCellSize();
+
+        Shape rotatedImageBounds = getRotatedShape();
+        return rotatedImageBounds.contains(px - x * cellSize - cellSize / 2, py - y * cellSize - cellSize / 2);
     }
 
     /**

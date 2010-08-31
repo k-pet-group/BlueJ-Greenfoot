@@ -44,7 +44,6 @@ public class ActorTest extends TestCase
         GreenfootUtil.initialise(new TestUtilDelegate());        
     }
     
-    
     public void testNoImage()
     {
         world = WorldCreator.createWorld(10, 10, 10);
@@ -53,7 +52,6 @@ public class ActorTest extends TestCase
         
         world.addObject(o, 0, 0);
         assertNull(o.getImage());
-        assertNull(o.getBoundingRect());
     }
     
     public void testRotatedSizeSmall()

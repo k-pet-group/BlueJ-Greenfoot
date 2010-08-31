@@ -71,10 +71,8 @@ public interface CollisionChecker
     /**
      * Returns all objects that intersects the given location.
      * 
-     * @param x
-     *            Location
-     * @param y
-     *            Location
+     * @param x   Cell X coordinate
+     * @param y   Cell y coordinate
      * @param cls
      *            Class of objects to look for (null or Object.class will find
      *            all classes)
@@ -179,6 +177,18 @@ public interface CollisionChecker
      */
     public void startSequence();
 
+    /**
+     * Find a single object which intersects the center point of the given cell.
+     * 
+     * @param <T>  The type of actor to be returned (normally inferred from cls)
+     * @param object  The actor performing the query; this actor will not be returned
+     * @param dx  The X co-ordinate of the cell to check
+     * @param dy  The Y co-ordinate of the cell to check
+     * @param cls  The type of object to return. If non-null, the returned object will be
+     *             an instance of this class.
+     * @return An actor intersecting the cell center, or null if no actor of the specified
+     *         type (other than the querying actor) intersects the cell center. 
+     */
     public <T extends Actor> T getOneObjectAt(Actor object, int dx, int dy, Class<T> cls);
 
     public <T extends Actor> T  getOneIntersectingObject(Actor object, Class<T> cls);
