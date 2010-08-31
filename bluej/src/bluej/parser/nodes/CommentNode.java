@@ -88,6 +88,11 @@ public class CommentNode extends ParsedNode
         return SL_NORMAL;
     }
     
+    public boolean isJavadocComment()
+    {
+        return type == ML_JAVADOC;
+    }
+    
     
     @Override
     public int getNodeType()

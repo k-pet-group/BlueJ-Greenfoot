@@ -186,6 +186,7 @@ editor.autoindentLabel = Auto-layout
 editor.comment-blockLabel = Comment
 editor.uncomment-blockLabel = Uncomment
 editor.insert-methodLabel = Insert method
+editor.add-javadocLabel = Add method comment
 
 editor.new-findLabel = New Find
 editor.findLabel = Find...
