@@ -183,7 +183,7 @@ public class WorldInvokeListener
                     update();
                     if (callable instanceof MethodView) {
                         MethodView m = (MethodView) callable;
-                        WorldHandler.getInstance().notifyMethodCall(obj, instanceName, m.getName(), new String[0]);
+                        WorldHandler.getInstance().notifyMethodCall(obj, instanceName, m.getName(), ir.getArgumentValues());
                     }
                 }
 
