@@ -21,10 +21,12 @@
  */
 package greenfoot.collision;
 
+import greenfoot.TestUtilDelegate;
 import greenfoot.World;
 import greenfoot.TestObject;
 import greenfoot.WorldCreator;
 import greenfoot.core.WorldHandler;
+import greenfoot.util.GreenfootUtil;
 
 import java.util.Collection;
 
@@ -39,6 +41,13 @@ public class IntersectionTest extends TestCase
 {
     private World world;
 
+    @Override
+    protected void setUp()
+        throws Exception
+    {
+        GreenfootUtil.initialise(new TestUtilDelegate());        
+    }
+    
     @SuppressWarnings("unchecked")
     public void testIntersectingSingleCell()
     {
@@ -121,16 +130,21 @@ public class IntersectionTest extends TestCase
         TestObject o2 = new TestObject(50,50);
         world.addObject(o2, 55 ,0);
 
+        // They do not touch...
         assertNull( o2.getOneIntersectingObjectP(TestObject.class));        
+
+        // But if we rotate the second one 45 degress, its corner now overlaps
+        // the first object:
         o2.setRotation(45);
         assertEquals(o1, o2.getOneIntersectingObjectP(TestObject.class));
+        
+        // Then we move the second object down a bit:
         o2.setLocation(55, 55);
-
         // Now the axis aligned bounding boxes will collide, so only a
         // intersection test that uses rotated bounding boxes will succeed here
         assertNull(o2.getOneIntersectingObjectP(TestObject.class));
         o1.setRotation(45);
-        assertEquals(o1, o2.getOneIntersectingObjectP(TestObject.class));        
+        assertNull(o2.getOneIntersectingObjectP(TestObject.class));        
     }
     
     public void testRotationIntersection90()

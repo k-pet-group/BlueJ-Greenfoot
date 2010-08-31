@@ -557,24 +557,7 @@ public abstract class Actor
         return greenfootImage;
     }
     
-    /**
-     * Gets the center location of this cell (in pixels).
-     * 
-     * @param X or Y coordinate of a cell to be translated into pixels.
-     * @returns location in pixels of the center of the cell.
-     * @throws IllegalStateException If there is no world instantiated.
-     */
-    private double getCellCenter(int cell)
-        throws IllegalStateException
-    {
-        World aWorld = getActiveWorld();
-        if (aWorld == null) {
-            // Should never happen.
-            throw new IllegalStateException(NO_WORLD);
-        }
-        return aWorld.getCellCenter(cell);
-    }
-    
+
     /**
      * Notify the world that this object's size has changed, if it in fact has changed.
      *
@@ -608,9 +591,88 @@ public abstract class Actor
             throw new IllegalStateException(ACTOR_NOT_IN_WORLD);
         }
     }
+    
+    /**
+     * Calculated the co-ordinates of the bounding rectangle after it is rotated
+     * and translated for the actor position, in pixels.
+     * 
+     * @param xs  The array to hold the four X coordinates
+     * @param ys  The array to hold the four Y coordinates
+     * @param cellSize  The world cell size
+     */
+    private void getRotatedCorners(int [] xs, int [] ys, int cellSize)
+    {
+        int width = image.getWidth();
+        int height = image.getHeight();
+        
+        xs[0] = -width / 2;
+        xs[1] = xs[0] + width - 1;
+        xs[2] = xs[1];
+        xs[3] = xs[0];
+        
+        ys[0] = -height / 2;
+        ys[1] = ys[0];
+        ys[2] = ys[1] + height - 1;
+        ys[3] = ys[2];
+        
+        double rotR = Math.toRadians(rotation);
+        double sinR = Math.sin(rotR);
+        double cosR = Math.cos(rotR);
+        
+        double xc = cellSize * x + cellSize / 2.;
+        double yc = cellSize * y + cellSize / 2.;
+        
+        // Do the actual rotation
+        for (int i = 0; i < 4; i++) {
+            int nx = (int)(xs[i] * cosR - ys[i] * sinR + xc);
+            int ny = (int)(ys[i] * cosR + xs[i] * sinR + yc);
+            xs[i] = nx;
+            ys[i] = ny;
+        }
+        
+    }
 
-   
+    /**
+     * Check whether all of the vertexes in the "other" rotated rectangle are on the
+     * outside of any one of the edges in "my" rotated rectangle.
+     *  
+     * @param myX   The x-coordinates of the corners of "my" rotated rectangle
+     * @param myY    The y-coordinates of the corners "my" rotated rectangle
+     * @param otherX  The x-coordinates of the corners of the "other" rotated rectangle
+     * @param otherY  The y-coordinates of the corners of the "other" rotated rectangle
+     * 
+     * @return  true if all corners of the "other" rectangle are on the outside of any of
+     *          the edges of "my" rectangle.
+     */
+    private static boolean checkOutside(int [] myX, int [] myY, int [] otherX, int [] otherY)
+    {
+        vloop:
+        for (int v = 0; v < 4; v++) {
+            int v1 = (v + 1) & 3; // wrap at 4 back to 0
+            int edgeX = myX[v] - myX[v1];
+            int edgeY = myY[v] - myY[v1];
+            int reX = -edgeY;
+            int reY = edgeX;
+            
+            if (reX == 0 && reY == 0) {
+                continue vloop;
+            }
 
+            for (int e = 0; e < 4; e++) {
+                int scalar = reX * (otherX[e] - myX[v1]) + reY * (otherY[e] - myY[v1]);
+                if (scalar < 0) {
+                    continue vloop;
+                }
+            }
+
+            // If we got here, we have an edge with all vertexes from the other rect
+            // on the outside:
+            return true;
+        }
+
+        return false;
+    }
+    
     // ============================
     //
     // Collision stuff
@@ -620,19 +682,57 @@ public abstract class Actor
     /**
      * Check whether this object intersects with another given object.
      * 
-     * NOTE: When rotated, it only uses the axis aligned bounds of the rotated image.
-     * 
      * @return True if the object's intersect, false otherwise.
      */
     protected boolean intersects(Actor other)
     {
-        // check p101 in collision check book. and p156     
-        // TODO: Rotation, we could just increase the bounding box, or we could
-        // deal with the rotated bounding box.
-        Rect thisBounds = getBoundingRect();
-        Rect otherBounds = other.getBoundingRect();       
-
-        return thisBounds.intersects(otherBounds);
+        if (image == null) {
+            if (other.image == null) {
+                // No images; the actors can be considered to represent points,
+                // and we'll say they intersect if they match exactly.
+                return x == other.x && y == other.y;
+            }
+            
+            int cellSize = world.getCellSize();
+            
+            // We are a point, the other actor is a rect. Rotate our relative
+            return other.containsPoint(x * cellSize + cellSize / 2, y * cellSize + cellSize / 2);
+        }
+        else if (other.image == null) {
+            // We are a rectangle, the other is a point
+            int cellSize = world.getCellSize();
+            return containsPoint(other.x * cellSize + cellSize / 2, other.y * cellSize + cellSize / 2);
+        }
+        else {
+            Rect thisBounds = getBoundingRect();
+            Rect otherBounds = other.getBoundingRect();
+            if (rotation == 0 && other.rotation == 0) {
+                return thisBounds.intersects(otherBounds);
+            }
+            else {
+                // First do a check based only on axis-aligned bounding boxes.
+                if (! thisBounds.intersects(otherBounds)) {
+                    return false;
+                }
+                
+                int cellSize = world.getCellSize();
+                int [] myX = new int[4];
+                int [] myY = new int[4];
+                int [] otherX = new int[4];
+                int [] otherY = new int[4];
+                getRotatedCorners(myX, myY, cellSize);
+                other.getRotatedCorners(otherX, otherY, cellSize);
+                
+                if (checkOutside(myX, myY, otherX, otherY)) {
+                    return false;
+                }
+                if (checkOutside(otherX, otherY, myX, myY)) {
+                    return false;
+                }
+            }
+        }
+        
+        return true;
     }
 
     /**
@@ -720,8 +820,6 @@ public abstract class Actor
      * Return all the objects that intersect this object. This takes the
      * graphical extent of objects into consideration. <br>
      * 
-     * NOTE: Does not take rotation into consideration.
-     * 
      * @param cls Class of objects to look for (passing 'null' will find all objects).
      */
     @SuppressWarnings("rawtypes")
@@ -736,8 +834,6 @@ public abstract class Actor
     /**
      * Return an object that intersects this object. This takes the
      * graphical extent of objects into consideration. <br>
-     * 
-     * NOTE: Does not take rotation into consideration.
      * 
      * @param cls Class of objects to look for (passing 'null' will find all objects).
      */
@@ -780,8 +876,8 @@ public abstract class Actor
         int cellSize = world.getCellSize();
 
         Shape rotatedImageBounds = getRotatedShape();
-        Rectangle cellBounds = new Rectangle(dx * cellSize - cellSize / 2, dy * cellSize - cellSize / 2, cellSize,
-                cellSize);
+        Rectangle cellBounds = new Rectangle(dx * cellSize - cellSize / 2,
+                dy * cellSize - cellSize / 2, cellSize, cellSize);
         
         return rotatedImageBounds.intersects(cellBounds);
     }
@@ -881,7 +977,8 @@ public abstract class Actor
      * Set the object that this actor should delegate method calls to.
      *
      */
-    static void setDelegate(ActorDelegate d) {
+    static void setDelegate(ActorDelegate d)
+    {
         delegate = d;
     }
     
