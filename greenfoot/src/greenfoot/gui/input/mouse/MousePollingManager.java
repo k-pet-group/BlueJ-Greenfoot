@@ -375,7 +375,7 @@ public class MousePollingManager implements TriggeredMouseListener, TriggeredMou
 
     /**
      * Gets the button for the mouse event. This will also translate CTRL-clicks
-     * on mac into mouse button three.
+     * on mac into mouse button three. Doesn't work for drag events.
      */
     private int getButton(MouseEvent e)
     {
@@ -474,8 +474,7 @@ public class MousePollingManager implements TriggeredMouseListener, TriggeredMou
             // Find and store the actor that relates to this drag.
             int x = locator.getTranslatedX(e);
             int y = locator.getTranslatedY(e);
-            int button = getButton(e);
-            futureData.mouseDragged(x, y, button, dragStartData.getActor());
+            futureData.mouseDragged(x, y, dragStartData.getButton(), dragStartData.getActor());
         }
     }
 
