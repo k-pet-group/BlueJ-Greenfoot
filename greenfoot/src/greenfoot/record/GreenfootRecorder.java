@@ -74,6 +74,9 @@ public class GreenfootRecorder
 
     private static String withCommas(String[] args)
     {
+        if (args == null)
+            return "";
+        
         StringBuffer commaArgs = new StringBuffer();
         
         for (int i = 0; i < args.length;i++) {
