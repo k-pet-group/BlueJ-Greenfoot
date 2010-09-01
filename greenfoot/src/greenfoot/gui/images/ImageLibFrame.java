@@ -113,7 +113,6 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
     private int result = CANCEL;
 
     private JTextField classNameField;
-    private GreenfootImage originalImage;
     private File newlyCreatedImage;
 
     private TimerTask refreshTask;
@@ -283,7 +282,6 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                 public void actionPerformed(ActionEvent e) {
                     result = CANCEL;
                     selectedImageFile = null;
-                    restoreOriginalImage();
                     setVisible(false);
                     dispose();
                 }
@@ -468,38 +466,11 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
         if(GreenfootUtil.isImage(imageFile)) {
             imageLabel.setIcon(getPreviewIcon(imageFile));
             selectedImageFile = imageFile;
-            if(gclass != null && gclass.isWorldSubclass()) {
-                World world = WorldHandler.getInstance().getWorld();
-                if(world != null) {
-                    if(originalImage == null) {
-                        originalImage = WorldVisitor.getBackgroundImage(world);
-                    }
-                    world.setBackground(new GreenfootImage(imageFile.toString()));
-                    WorldHandler.getInstance().repaint();
-                }
-            }
         }
         else if (imageFile != null) {
             JOptionPane.showMessageDialog(this, imageFile.getName() +
                     " " + Config.getString("imagelib.image.invalid.text"), Config.getString("imagelib.image.invalid.title"), JOptionPane.ERROR_MESSAGE);
         }
-    }
-
-    /**
-     * Restores the original image on the world.
-     */
-    private void restoreOriginalImage()
-    {
-        if (originalImage != null) {
-            if (gclass != null && gclass.isWorldSubclass()) {
-                World world = WorldHandler.getInstance().getWorld();
-                if (world != null) {
-                    world.setBackground(originalImage);
-                    WorldHandler.getInstance().repaint();
-                }
-            }
-        }
-        originalImage = null;
     }
 
     /**
@@ -616,7 +587,8 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
             public void actionPerformed(ActionEvent e)
             {
                 result = OK;
-                originalImage = null;
+                WorldHandler.getInstance().discardWorld();
+                gclass.setCompiledState(false);
                 setVisible(false);
                 dispose();
             }
@@ -637,13 +609,11 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
 
     public void windowClosed(WindowEvent e)
     {
-        restoreOriginalImage();
         refreshTask.cancel();
     }
 
     public void windowClosing(WindowEvent e)
     {
-        restoreOriginalImage();
         refreshTask.cancel();
     }
 
