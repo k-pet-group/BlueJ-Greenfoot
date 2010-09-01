@@ -100,7 +100,7 @@ public class GreenfootRecorder
 
     public void callActorMethod(Object obj, String actorName, String name, String[] args)
     {
-        if (null == objectNames.get(obj)) {
+        if (null == objectNames.get(obj) && obj != world) {
             //Method is being called on an actor we don't know about: ignore
             return;
         }
