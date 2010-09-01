@@ -43,8 +43,11 @@ import junit.framework.TestCase;
  * TODO drags on boundaries
  * TODO things happening outside actors
  * TODO buffering events until new ones arrive
- * @author Poul Henriksen
  *
+ * Note that Swing(/OS?) generates mouse drag events with no nominated button.
+ * These tests reflect that.
+ * 
+ * @author Poul Henriksen
  */
 public class MousePollTest extends TestCase
 {
@@ -93,9 +96,6 @@ public class MousePollTest extends TestCase
         panel.addMouseListener(mouseMan);
         panel.addMouseMotionListener(mouseMan);  
         panel.setEnabled(true);
-       
-       
-      
     }
 
 
@@ -107,7 +107,8 @@ public class MousePollTest extends TestCase
     /**
      * Test that a click was on a specific actor and no other actors.
      */
-    public void testSingleLeftClickOnActor() {
+    public void testSingleLeftClickOnActor()
+    {
         mouseMan.newActStarted();
         MouseEvent event = new MouseEvent(panel, MouseEvent.MOUSE_PRESSED,  System.currentTimeMillis(), 0, 5, 5, 1, false, MouseEvent.BUTTON1);        
         dispatch(event);     
@@ -136,7 +137,8 @@ public class MousePollTest extends TestCase
     /**
      * Test that a mouse press was on a specific actor and no other actors.
      */
-    public void testSingleLeftPressedOnActor() {
+    public void testSingleLeftPressedOnActor()
+    {
         mouseMan.newActStarted();
         MouseEvent pressedEvent = new MouseEvent(panel, MouseEvent.MOUSE_PRESSED,  System.currentTimeMillis(), 0, 5, 5, 1, false, MouseEvent.BUTTON1);        
         dispatch(pressedEvent);     
@@ -161,12 +163,13 @@ public class MousePollTest extends TestCase
     /**
      * Test mouse dragging within one act
      */
-    public void testSimpleMouseDraggedOnActor() {
+    public void testSimpleMouseDraggedOnActor()
+    {
         mouseMan.newActStarted();
         
         MouseEvent event = new MouseEvent(panel, MouseEvent.MOUSE_PRESSED,  System.currentTimeMillis(), 0, 5, 5, 1, false, MouseEvent.BUTTON1);        
         dispatch(event); 
-        event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED,  System.currentTimeMillis(), 0, 6, 6, 1, false, MouseEvent.BUTTON1);          
+        event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED,  System.currentTimeMillis(), 0, 6, 6, 1, false, 0);
         dispatch(event);         
         event = new MouseEvent(panel, MouseEvent.MOUSE_RELEASED,  System.currentTimeMillis(), 0, 7, 7, 1, false, MouseEvent.BUTTON1);        
         dispatch(event);          
@@ -193,18 +196,18 @@ public class MousePollTest extends TestCase
         
         /// New act round where we drag a bit
         mouseMan.newActStarted();
-        event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED,  System.currentTimeMillis(), 0, 6, 6, 1, false, MouseEvent.BUTTON1);  
+        event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED,  System.currentTimeMillis(), 0, 6, 6, 1, false, 0);  
         dispatch(event);          
-        event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED,  System.currentTimeMillis(), 0, 7, 7, 1, false, MouseEvent.BUTTON1);  
+        event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED,  System.currentTimeMillis(), 0, 7, 7, 1, false, 0);  
         dispatch(event);          
         assertTrue(mouseMan.isMouseDragged(actorAtClick));
         assertTrue(mouseMan.getMouseInfo().getX() == 7 && mouseMan.getMouseInfo().getY() == 7);
         
         /// New act round where we drag a bit more
         mouseMan.newActStarted();
-        event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED,  System.currentTimeMillis(), 0, 8, 8, 1, false, MouseEvent.BUTTON1);  
+        event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED,  System.currentTimeMillis(), 0, 8, 8, 1, false, 0);  
         dispatch(event);          
-        event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED,  System.currentTimeMillis(), 0, 9, 9, 1, false, MouseEvent.BUTTON1);  
+        event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED,  System.currentTimeMillis(), 0, 9, 9, 1, false, 0);  
         dispatch(event);          
         assertTrue(mouseMan.isMouseDragged(actorAtClick));
         assertTrue(mouseMan.getMouseInfo().getX() == 9 && mouseMan.getMouseInfo().getY() == 9);
@@ -230,7 +233,8 @@ public class MousePollTest extends TestCase
     /**
      * Test mouse dragging across act boundaries
      */
-    public void testLongMouseMovedOnActor() {
+    public void testLongMouseMovedOnActor()
+    {
         mouseMan.newActStarted();
         
         MouseEvent event = new MouseEvent(panel, MouseEvent.MOUSE_MOVED,  System.currentTimeMillis(), 0, 5, 5, 1, false, MouseEvent.BUTTON1);          
@@ -268,7 +272,7 @@ public class MousePollTest extends TestCase
                     false, MouseEvent.BUTTON1);
             dispatch(event);
             event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED, System.currentTimeMillis(), 0, 6, 6, 1, false,
-                    MouseEvent.BUTTON1);
+                    0);
             dispatch(event);
 
             event = new MouseEvent(panel, MouseEvent.MOUSE_PRESSED, System.currentTimeMillis(), 0, 5, 5, 1, false,
@@ -276,17 +280,17 @@ public class MousePollTest extends TestCase
             dispatch(event);
 
             event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED, System.currentTimeMillis(), 0, 6, 6, 1, false,
-                    MouseEvent.BUTTON1);
+                    0);
             dispatch(event);
             event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED, System.currentTimeMillis(), 0, 6, 6, 1, false,
-                    MouseEvent.BUTTON2);
+                    0);
             dispatch(event);
 
             event = new MouseEvent(panel, MouseEvent.MOUSE_RELEASED, System.currentTimeMillis(), 0, 7, 7, 1, false,
                     MouseEvent.BUTTON1);
             dispatch(event);
             event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED, System.currentTimeMillis(), 0, 6, 6, 1, false,
-                    MouseEvent.BUTTON2);
+                    0);
             dispatch(event);
             mouseMan.isMouseClicked(null);
             mouseMan.isMousePressed(null);
@@ -304,7 +308,8 @@ public class MousePollTest extends TestCase
         assertNull(exception);
     }
     
-    public void testButton2() {
+    public void testButton2()
+    {
         mouseMan.newActStarted();
         
         MouseEvent event = new MouseEvent(panel, MouseEvent.MOUSE_PRESSED,  System.currentTimeMillis(), 0, 5, 5, 1, false, MouseEvent.BUTTON2);        
@@ -312,14 +317,11 @@ public class MousePollTest extends TestCase
         event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED,  System.currentTimeMillis(), 0, 6, 6, 0, false, MouseEvent.BUTTON2);          
         dispatch(event);           
         assertNotNull(mouseMan.getMouseInfo());
-     //   assertFalse(mouseMan.isMouseDragged(actorAtClick));
-     //   assertTrue(mouseMan.isMousePressed(actorAtClick));
-            
         
         // act
         mouseMan.newActStarted();
         
-        event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED,  System.currentTimeMillis(), 0, 5, 5, 0, false, MouseEvent.BUTTON2);          
+        event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED,  System.currentTimeMillis(), 0, 5, 5, 0, false, 0);          
         dispatch(event);  
 
         
@@ -330,7 +332,7 @@ public class MousePollTest extends TestCase
 
         mouseMan.newActStarted();
         
-        event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED,  System.currentTimeMillis(), 0, 8, 8, 0, false, MouseEvent.BUTTON2);          
+        event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED,  System.currentTimeMillis(), 0, 8, 8, 0, false, 0);          
         dispatch(event);  
 
         assertNotNull(mouseMan.getMouseInfo());
@@ -343,11 +345,6 @@ public class MousePollTest extends TestCase
         assertTrue(mouseMan.isMouseDragEnded(actorAtClick));
     }
 
-    public void testButton3() {
-        
-    }
-    
-    
     /**
      * Test a world that has a cell size bigger than 1x1 
      */
@@ -429,7 +426,7 @@ public class MousePollTest extends TestCase
         dispatch(event);    
         event = new MouseEvent(panel, MouseEvent.MOUSE_PRESSED,  System.currentTimeMillis(), 0, 5, 2, 1, false, MouseEvent.BUTTON1);
         dispatch(event);    
-        event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED,  System.currentTimeMillis(), 0, 6, 3, 1, false, MouseEvent.BUTTON1);
+        event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED,  System.currentTimeMillis(), 0, 6, 3, 1, false, 0);
         dispatch(event);         
         // this one will trigger a dragEnd
         event = new MouseEvent(panel, MouseEvent.MOUSE_RELEASED,  System.currentTimeMillis(), 0, 7, 8, 1, false, MouseEvent.BUTTON1);
@@ -444,7 +441,7 @@ public class MousePollTest extends TestCase
         dispatch(event);    
         event = new MouseEvent(panel, MouseEvent.MOUSE_PRESSED,  System.currentTimeMillis(), 0, 3, 5, 1, false, MouseEvent.BUTTON1);
         dispatch(event);    
-        event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED,  System.currentTimeMillis(), 0, 4, 5, 1, false, MouseEvent.BUTTON1);
+        event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED,  System.currentTimeMillis(), 0, 4, 5, 1, false, 0);
         dispatch(event);
 
         MouseInfo info = mouseMan.getMouseInfo();
@@ -460,13 +457,13 @@ public class MousePollTest extends TestCase
         // Test that the last dragEnd is reported when several occurs
         event = new MouseEvent(panel, MouseEvent.MOUSE_PRESSED,  System.currentTimeMillis(), 0, 5, 5, 1, false, MouseEvent.BUTTON1);
         dispatch(event);    
-        event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED,  System.currentTimeMillis(), 0, 5, 5, 1, false, MouseEvent.BUTTON1);
+        event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED,  System.currentTimeMillis(), 0, 5, 5, 1, false, 0);
         dispatch(event);         
         event = new MouseEvent(panel, MouseEvent.MOUSE_RELEASED,  System.currentTimeMillis(), 0, 6, 6, 1, false, MouseEvent.BUTTON1);
         dispatch(event); 
         event = new MouseEvent(panel, MouseEvent.MOUSE_PRESSED,  System.currentTimeMillis(), 0, 5, 5, 1, false, MouseEvent.BUTTON1);
         dispatch(event);    
-        event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED,  System.currentTimeMillis(), 0, 5, 5, 1, false, MouseEvent.BUTTON1);
+        event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED,  System.currentTimeMillis(), 0, 5, 5, 1, false, 0);
         dispatch(event);         
         event = new MouseEvent(panel, MouseEvent.MOUSE_RELEASED,  System.currentTimeMillis(), 0, 3, 3, 1, false, MouseEvent.BUTTON1);
         dispatch(event); 
@@ -497,7 +494,7 @@ public class MousePollTest extends TestCase
         dispatch(event);    
         event = new MouseEvent(panel, MouseEvent.MOUSE_PRESSED,  System.currentTimeMillis(), 0, 5, 5, 1, false, MouseEvent.BUTTON1);
         dispatch(event);    
-        event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED,  System.currentTimeMillis(), 0, 5, 5, 1, false, MouseEvent.BUTTON1);
+        event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED,  System.currentTimeMillis(), 0, 5, 5, 1, false, 0);
         dispatch(event);    
         
         assertTrue(mouseMan.isMouseClicked(actorAtClick));
@@ -546,7 +543,7 @@ public class MousePollTest extends TestCase
         dispatch(event); 
         event = new MouseEvent(panel, MouseEvent.MOUSE_RELEASED,  System.currentTimeMillis(), 0, 5, 5, 1, false, MouseEvent.BUTTON1);
         dispatch(event);
-        event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED,  System.currentTimeMillis(), 0, 5, 5, 1, false, MouseEvent.BUTTON1);
+        event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED,  System.currentTimeMillis(), 0, 5, 5, 1, false, 0);
         dispatch(event); 
         event = new MouseEvent(panel, MouseEvent.MOUSE_MOVED,  System.currentTimeMillis(), 0, 5, 5, 1, false, MouseEvent.BUTTON1);
         dispatch(event); 
@@ -583,7 +580,8 @@ public class MousePollTest extends TestCase
         assertFalse(mouseMan.isMouseDragEnded(actorAtClick));       
     }
     
-    public void testOnlyKeepDataTillFirstClick() {
+    public void testOnlyKeepDataTillFirstClick()
+    {
         mouseMan.newActStarted();
         
         MouseEvent event = new MouseEvent(panel, MouseEvent.MOUSE_MOVED,  System.currentTimeMillis(), 0, 5, 5, 1, false, MouseEvent.BUTTON1);
@@ -611,7 +609,7 @@ public class MousePollTest extends TestCase
         dispatch(event);    
         event = new MouseEvent(panel, MouseEvent.MOUSE_PRESSED,  System.currentTimeMillis(), 0, 5, 5, 1, false, MouseEvent.BUTTON1);
         dispatch(event); 
-        event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED,  System.currentTimeMillis(), 0, 6, 6, 1, false, MouseEvent.BUTTON1);
+        event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED,  System.currentTimeMillis(), 0, 6, 6, 1, false, 0);
         dispatch(event);    
         event = new MouseEvent(panel, MouseEvent.MOUSE_RELEASED,  System.currentTimeMillis(), 0, 6, 6, 1, false, MouseEvent.BUTTON1);
         dispatch(event);
@@ -626,7 +624,7 @@ public class MousePollTest extends TestCase
         dispatch(event);    
         event = new MouseEvent(panel, MouseEvent.MOUSE_PRESSED,  System.currentTimeMillis(), 0, 5, 5, 1, false, MouseEvent.BUTTON1);
         dispatch(event); 
-        event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED,  System.currentTimeMillis(), 0, 26, 26, 1, false, MouseEvent.BUTTON1);
+        event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED,  System.currentTimeMillis(), 0, 26, 26, 1, false, 0);
         dispatch(event);    
         event = new MouseEvent(panel, MouseEvent.MOUSE_RELEASED,  System.currentTimeMillis(), 0, 26, 26, 1, false, MouseEvent.BUTTON1);
         dispatch(event);
@@ -641,7 +639,7 @@ public class MousePollTest extends TestCase
         dispatch(event);    
         event = new MouseEvent(panel, MouseEvent.MOUSE_PRESSED,  System.currentTimeMillis(), 0, 25, 25, 1, false, MouseEvent.BUTTON1);
         dispatch(event); 
-        event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED,  System.currentTimeMillis(), 0, 6, 6, 1, false, MouseEvent.BUTTON1);
+        event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED,  System.currentTimeMillis(), 0, 6, 6, 1, false, 0);
         dispatch(event);    
         event = new MouseEvent(panel, MouseEvent.MOUSE_RELEASED,  System.currentTimeMillis(), 0, 6, 6, 1, false, MouseEvent.BUTTON1);
         dispatch(event);
@@ -660,7 +658,7 @@ public class MousePollTest extends TestCase
         dispatch(event);    
         event = new MouseEvent(panel, MouseEvent.MOUSE_PRESSED,  System.currentTimeMillis(), 0, 5, 5, 1, false, MouseEvent.BUTTON1);
         dispatch(event); 
-        event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED,  System.currentTimeMillis(), 0, 26, 26, 1, false, MouseEvent.BUTTON1);
+        event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED,  System.currentTimeMillis(), 0, 26, 26, 1, false, 0);
         dispatch(event);    
         event = new MouseEvent(panel, MouseEvent.MOUSE_RELEASED,  System.currentTimeMillis(), 0, 26, 26, 1, false, MouseEvent.BUTTON1);
         dispatch(event);
@@ -673,7 +671,7 @@ public class MousePollTest extends TestCase
         dispatch(event);    
         event = new MouseEvent(panel, MouseEvent.MOUSE_PRESSED,  System.currentTimeMillis(), 0, 25, 25, 1, false, MouseEvent.BUTTON1);
         dispatch(event); 
-        event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED,  System.currentTimeMillis(), 0, 6, 6, 1, false, MouseEvent.BUTTON1);
+        event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED,  System.currentTimeMillis(), 0, 6, 6, 1, false, 0);
         dispatch(event);    
         event = new MouseEvent(panel, MouseEvent.MOUSE_RELEASED,  System.currentTimeMillis(), 0, 6, 6, 1, false, MouseEvent.BUTTON1);
         dispatch(event);
@@ -704,7 +702,7 @@ public class MousePollTest extends TestCase
         dispatch(event);    
         event = new MouseEvent(panel, MouseEvent.MOUSE_PRESSED,  System.currentTimeMillis(), 0, 5, 5, 1, false, MouseEvent.BUTTON1);
         dispatch(event); 
-        event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED,  System.currentTimeMillis(), 0, 26, 26, 1, false, MouseEvent.BUTTON1);
+        event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED,  System.currentTimeMillis(), 0, 26, 26, 1, false, 0);
         dispatch(event);    
         event = new MouseEvent(panel, MouseEvent.MOUSE_RELEASED,  System.currentTimeMillis(), 0, 26, 26, 1, false, MouseEvent.BUTTON1);
         dispatch(event);
@@ -713,7 +711,7 @@ public class MousePollTest extends TestCase
         dispatch(event);    
         event = new MouseEvent(panel, MouseEvent.MOUSE_PRESSED,  System.currentTimeMillis(), 0, 25, 25, 1, false, MouseEvent.BUTTON1);
         dispatch(event); 
-        event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED,  System.currentTimeMillis(), 0, 6, 6, 1, false, MouseEvent.BUTTON1);
+        event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED,  System.currentTimeMillis(), 0, 6, 6, 1, false, 0);
         dispatch(event);    
         event = new MouseEvent(panel, MouseEvent.MOUSE_RELEASED,  System.currentTimeMillis(), 0, 6, 6, 1, false, MouseEvent.BUTTON1);
         dispatch(event);
@@ -732,6 +730,5 @@ public class MousePollTest extends TestCase
         assertFalse(mouseMan.isMouseDragEnded(actorAtClick));
         assertFalse(mouseMan.isMouseClicked(actorAtClick));    
         assertFalse(mouseMan.isMousePressed(actorAtClick)); 
-        
     }
 }
