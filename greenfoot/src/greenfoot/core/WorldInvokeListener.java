@@ -165,8 +165,8 @@ public class WorldInvokeListener
                         }
                         else {
                             WorldHandler worldHandler = WorldHandler.getInstance();
-                            worldHandler.notifyCreatedActor(o, ir.getArgumentValues());
                             if(o instanceof Actor) {
+                                worldHandler.notifyCreatedActor(o, ir.getArgumentValues());
                                 worldHandler.addObjectAtEvent((Actor) o, event);
                                 worldHandler.repaint();
                             }
