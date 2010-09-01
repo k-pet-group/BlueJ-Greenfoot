@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,6 +22,7 @@
 package greenfoot.gui.inspector;
 
 import greenfoot.Actor;
+import greenfoot.ActorVisitor;
 import greenfoot.core.WorldHandler;
 import greenfoot.gui.input.InputManager;
 import greenfoot.localdebugger.LocalObject;
@@ -56,7 +57,7 @@ public class GreenfootInspector
         Object obj = ((LocalObject) selectedObject).getObject();
         InputManager inputManager = WorldHandler.getInstance().getInputManager();
         Actor actor = (Actor) obj;
-        if(actor.getWorld() != null) {
+        if(ActorVisitor.getWorld(actor) != null) {
             inputManager.objectMoved(actor);
         }
         else {

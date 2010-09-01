@@ -54,6 +54,22 @@ public class ActorVisitor
     {
         return actor.y;
     }
+    
+    /**
+     * Get the rotation of an actor, in degrees, from 0-359
+     */
+    public static int getRotation(Actor actor)
+    {
+        return actor.rotation;
+    }
+    
+    /**
+     * Get the world that an actor resides in (null if none).
+     */
+    public static World getWorld(Actor actor)
+    {
+        return actor.world;
+    }
    
     public static boolean contains(Actor actor, int dx, int dy)
     {

@@ -56,6 +56,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
 import javax.swing.SwingUtilities;
 import javax.swing.event.EventListenerList;
@@ -308,10 +309,17 @@ public class WorldHandler
                 // This makes sure that a single (final) setLocation
                 // call is received by the actor when dragging ends.
                 // This matters if the actor has overridden setLocation
-                int ax = ActorVisitor.getX(dragActor);
-                int ay = ActorVisitor.getY(dragActor);
-                dragActor.setLocation(ax, ay);
-                notifyMovedActor(dragActor, ax, ay);
+                Simulation.getInstance().runLater(new Runnable() {
+                    private Actor dragActor = WorldHandler.this.dragActor;
+                    @Override
+                    public void run()
+                    {
+                        int ax = ActorVisitor.getX(dragActor);
+                        int ay = ActorVisitor.getY(dragActor);
+                        dragActor.setLocation(ax, ay);
+                        notifyMovedActor(dragActor, ax, ay);
+                    }
+                });
             }
             dragActor = null;
             worldCanvas.setCursor(defaultCursor);
@@ -385,8 +393,17 @@ public class WorldHandler
     {
         if (dragActor != null) {
             dragActorMoved = false;
-            ActorVisitor.setLocationInPixels(dragActor, dragBeginX, dragBeginY);
-            repaint();
+            Simulation.getInstance().runLater(new Runnable() {
+                private Actor dragActor = WorldHandler.this.dragActor;
+                private int dragBeginX = WorldHandler.this.dragBeginX;
+                private int dragBeginY = WorldHandler.this.dragBeginY;
+                @Override
+                public void run()
+                {
+                    ActorVisitor.setLocationInPixels(dragActor, dragBeginX, dragBeginY);
+                    repaint();
+                }
+            });
         }
     }
 
@@ -510,25 +527,31 @@ public class WorldHandler
      */
     public boolean drop(Object o, Point p)
     {
-        World world = this.world;
+        final World world = this.world;
         
         int maxHeight = WorldVisitor.getHeightInPixels(world);
         int maxWidth = WorldVisitor.getWidthInPixels(world);
-        int x = (int) p.getX();
-        int y = (int) p.getY();
+        final int x = (int) p.getX();
+        final int y = (int) p.getY();
 
-        if (x >= maxWidth || y >= maxHeight) {
+        if (x >= maxWidth || y >= maxHeight || x < 0 || y < 0) {
             return false;
         }
         else if (o instanceof ObjectDragProxy) {
             // create the real object
-            ObjectDragProxy to = (ObjectDragProxy) o;
+            final ObjectDragProxy to = (ObjectDragProxy) o;
             to.createRealObject();
-            world.removeObject(to);
+            Simulation.getInstance().runLater(new Runnable() {
+                @Override
+                public void run()
+                {
+                    world.removeObject(to);
+                }
+            });
             objectDropped = true;
             return true;
         }
-        else if (o instanceof Actor && ((Actor) o).getWorld() == null) {
+        else if (o instanceof Actor && ActorVisitor.getWorld((Actor) o) == null) {
             // object received from the inspector via the Get button.
             Actor actor = (Actor) o;
             addActorAtPixel(actor, x, y);
@@ -536,22 +559,22 @@ public class WorldHandler
             return true;
         }
         else if (o instanceof Actor) {
-            Actor actor = (Actor) o;
-            if (actor.getWorld() == null) {
+            final Actor actor = (Actor) o;
+            if (ActorVisitor.getWorld(actor) == null) {
                 // Under some strange circumstances the world can be null here.
                 // This can happen in the GridWorld scenario because it
                 // overrides World.addObject().
                 return false;
             }
-            try {
-                ActorVisitor.setLocationInPixels(actor, x, y);
-                dragActorMoved = true;
-                objectDropped = true;
-            }
-            catch (IndexOutOfBoundsException e) {
-                // it happens...
-                return false;
-            }
+            Simulation.getInstance().runLater(new Runnable() {
+                @Override
+                public void run()
+                {
+                    ActorVisitor.setLocationInPixels(actor, x, y);
+                }
+            });
+            dragActorMoved = true;
+            objectDropped = true;
             return true;
         }
         else {
@@ -567,28 +590,41 @@ public class WorldHandler
         if (o instanceof Actor && world != null) {
             int x = WorldVisitor.toCellFloor(getWorld(), (int) p.getX() + dragOffsetX);
             int y = WorldVisitor.toCellFloor(getWorld(), (int) p.getY() + dragOffsetY);
-            Actor actor = (Actor) o;
+            final Actor actor = (Actor) o;
             try {
                 int oldX = ActorVisitor.getX(actor);
                 int oldY = ActorVisitor.getY(actor);
 
                 if (oldX != x || oldY != y) {
                     if (x < world.getWidth() && y < world.getHeight() && x >= 0 && y >= 0) {
-                        ActorVisitor.setLocationInPixels(actor, (int) p.getX() + dragOffsetX, (int) p.getY()
-                                + dragOffsetY);
-                        dragActorMoved = true;
-
-                        repaint();
+                        WriteLock writeLock = WorldVisitor.getLock(world).writeLock();
+                        // The only reason we would fail to obtain the lock is if a repaint
+                        // is happening at this very instant. That shouldn't be too much of
+                        // a problem; it will mean a slight glitch in the drag, probably not
+                        // noticeable.
+                        if (writeLock.tryLock()) {
+                            ActorVisitor.setLocationInPixels(actor,
+                                    (int) p.getX() + dragOffsetX,
+                                    (int) p.getY() + dragOffsetY);
+                            writeLock.unlock();
+                            dragActorMoved = true;
+                            repaint();
+                        }
                     }
                     else {
-                        ActorVisitor.setLocationInPixels(actor, dragBeginX, dragBeginY);
-                        dragActorMoved = false; // Pinged back to where it was
-                        
-                        x = WorldVisitor.toCellFloor(getWorld(), dragBeginX);
-                        y = WorldVisitor.toCellFloor(getWorld(), dragBeginY);
-                        notifyMovedActor(actor, x, y);
-                        
-                        repaint();
+                        WriteLock writeLock = WorldVisitor.getLock(world).writeLock();
+                        if (writeLock.tryLock()) {
+                            ActorVisitor.setLocationInPixels(actor, dragBeginX, dragBeginY);
+                            writeLock.unlock();
+                            
+                            dragActorMoved = false; // Pinged back to where it was
+
+                            x = WorldVisitor.toCellFloor(getWorld(), dragBeginX);
+                            y = WorldVisitor.toCellFloor(getWorld(), dragBeginY);
+                            notifyMovedActor(actor, x, y);
+
+                            repaint();
+                        }
                         return false;
                     }
                 }
@@ -629,13 +665,19 @@ public class WorldHandler
      * @return  true if the Actor was added into the world; false if the co-ordinates were
      *          outside the world.
      */
-    private boolean addActorAtPixel(Actor actor, int xPixel, int yPixel)
+    private boolean addActorAtPixel(final Actor actor, int xPixel, int yPixel)
     {
-        World world = getWorld();
-        int x = WorldVisitor.toCellFloor(world, xPixel);
-        int y = WorldVisitor.toCellFloor(world, yPixel);
-        if (x < world.getWidth() && y < world.getHeight()) {
-            world.addObject(actor, x, y);
+        final World world = getWorld();
+        final int x = WorldVisitor.toCellFloor(world, xPixel);
+        final int y = WorldVisitor.toCellFloor(world, yPixel);
+        if (x < world.getWidth() && y < world.getHeight() && x >= 0 && y >= 0) {
+            Simulation.getInstance().runLater(new Runnable() {
+                @Override
+                public void run()
+                {
+                    world.addObject(actor, x, y);
+                }
+            });
             handlerDelegate.addActor(actor, x, y);
             return true;
         }
@@ -647,8 +689,14 @@ public class WorldHandler
     public void dragEnded(Object o)
     {
         if (o instanceof Actor && world != null) {
-            Actor actor = (Actor) o;
-            world.removeObject(actor);
+            final Actor actor = (Actor) o;
+            Simulation.getInstance().runLater(new Runnable() {
+                @Override
+                public void run()
+                {
+                    world.removeObject(actor);
+                }
+            });
         }
     }
 
@@ -749,10 +797,16 @@ public class WorldHandler
         // if the operation was cancelled, add the object back into the
         // world at its original position
         if (!isObjectDropped() && o instanceof Actor) {
-            Actor actor = (Actor) o;
+            final Actor actor = (Actor) o;
             setObjectDropped(true);
             dragActorMoved = false;
-            ActorVisitor.setLocationInPixels(actor, dragBeginX, dragBeginY);
+            Simulation.getInstance().runLater(new Runnable() {
+                @Override
+                public void run()
+                {
+                    ActorVisitor.setLocationInPixels(actor, dragBeginX, dragBeginY);
+                }
+            });
         }
     }
 
@@ -882,10 +936,14 @@ public class WorldHandler
             interactionListener.staticMethodCall(className, name, args);
     }
 
+    /**
+     * Notify the interaction listener that an actor was moved (by dragging it with the mouse).
+     */
     private void notifyMovedActor(Actor actor, int xCell, int yCell)
     {
-        if (interactionListener != null)
-            interactionListener.movedActor(actor, xCell, yCell);        
+        if (interactionListener != null) {
+            interactionListener.movedActor(actor, xCell, yCell);
+        }
     }
 
     public void notifyRemovedActor(Actor obj)

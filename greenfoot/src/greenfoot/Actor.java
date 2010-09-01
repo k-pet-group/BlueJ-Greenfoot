@@ -85,7 +85,7 @@ public abstract class Actor
     private int lastPaintSequenceNumber;
 
     /** Rotation in degrees (0-359) */
-    private int rotation = 0;
+    int rotation = 0;
 
     /** Reference to the world that this actor is a part of. */
     World world;
@@ -387,7 +387,6 @@ public abstract class Actor
      */
     void setLocationInPixels(int x, int y)
     {
-        failIfNotInWorld();
         int xCell = world.toCellFloor(x);
         int yCell = world.toCellFloor(y);
 
@@ -913,7 +912,7 @@ public abstract class Actor
         int xMin = - (width / 2);
         int yMin = - (height / 2);        
         
-        if(getRotation() != 0) {
+        if(rotation != 0) {
             int xMax = xMin + width;
             int yMax = yMin + height;
             // Create polygon representing the bounding box of the unrotated image
@@ -928,7 +927,7 @@ public abstract class Actor
             double xOrigin = xMin + image.getWidth() / 2.;
             double yOrigin = yMin + image.getHeight() / 2.;
             
-            AffineTransform transform = AffineTransform.getRotateInstance(Math.toRadians(getRotation()), xOrigin, yOrigin);       
+            AffineTransform transform = AffineTransform.getRotateInstance(Math.toRadians(rotation), xOrigin, yOrigin);       
             Shape rotatedImageBounds = transform.createTransformedShape(imageBounds);
 
             return rotatedImageBounds;

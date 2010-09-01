@@ -22,6 +22,7 @@
 package greenfoot.core;
 
 import greenfoot.Actor;
+import greenfoot.ActorVisitor;
 import greenfoot.World;
 import greenfoot.WorldVisitor;
 import greenfoot.event.SimulationEvent;
@@ -410,7 +411,7 @@ public class Simulation extends Thread
                     if (!enabled) {
                         return;
                     }
-                    if (actor.getWorld() != null) {
+                    if (ActorVisitor.getWorld(actor) != null) {
                         try {
                             actActor(actor);
                         }

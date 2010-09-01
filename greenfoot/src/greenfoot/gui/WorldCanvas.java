@@ -129,11 +129,12 @@ public class WorldCanvas extends JPanel
                     double yCenter = ay * cellSize + cellSize / 2.;
                     int paintY = (int) Math.floor(yCenter - halfHeight);
 
-                    if (thing.getRotation() % 360 != 0) {
+                    int rotation = ActorVisitor.getRotation(thing);
+                    if (rotation != 0) {
                         // don't bother transforming if it is not rotated at
                         // all.
                         oldTx = g.getTransform();
-                        g.rotate(Math.toRadians(thing.getRotation()), xCenter, yCenter);
+                        g.rotate(Math.toRadians(rotation), xCenter, yCenter);
                     }
 
                     ImageVisitor.drawImage(image, g, paintX, paintY, this, true);
@@ -279,7 +280,7 @@ public class WorldCanvas extends JPanel
      */
     public boolean drag(Object o, Point p)
     {
-        if(o instanceof Actor && ((Actor) o).getWorld() == null) {   
+        if(o instanceof Actor && ActorVisitor.getWorld((Actor) o) == null) {   
             if(!getVisibleRect().contains(p)) {
                 return false;
             }
