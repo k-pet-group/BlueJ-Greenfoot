@@ -32,7 +32,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import bluej.Config;
 import bluej.debugger.DebuggerClass;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.gentype.JavaType;
@@ -132,12 +131,15 @@ public class LocalClass extends DebuggerClass
                 }
                 else {
                     Object fieldval = fields[i].get(null);
-                    if (fieldval instanceof String)
+                    if (fieldval instanceof String) {
                         desc += '\"' + fieldval.toString() + '\"';
-                    else if (fieldval == null)
-                        desc += Config.getString("debugger.null");
-                    else
+                    }
+                    else if (fieldval == null) {
+                        desc += "null";
+                    }
+                    else {
                         desc += DebuggerObject.OBJECT_REFERENCE;
+                    }
                 }
             }
             catch (IllegalAccessException iae) {

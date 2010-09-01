@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import bluej.Config;
 import bluej.debugger.DebuggerClass;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.gentype.GenTypeClass;
@@ -539,8 +538,9 @@ public class LocalObject extends DebuggerObject
 
             // Reference types are handled specially            
             if (! f.getType().isPrimitive()) {
-                if (v == null)
-                    v = Config.getString("debugger.null");
+                if (v == null) {
+                    v = "null";
+                }
                 else if (v instanceof String) {
                     return "\"" + v + "\"";
                 }
@@ -630,7 +630,7 @@ public class LocalObject extends DebuggerObject
                         desc += '\"' + fieldval.toString() + '\"';
                     }
                     else if (fieldval == null) {
-                        desc += Config.getString("debugger.null");
+                        desc += "null";
                     }
                     else {
                         desc += OBJECT_REFERENCE;
