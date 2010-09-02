@@ -65,14 +65,12 @@ import javax.swing.SpinnerNumberModel;
  */
 public class NewImageDialog extends EscapeDialog
 {
-    private static final int DEFAULT_HEIGHT = Config.getPropInteger("greenfoot.image.create.height", 100);
-    private static final int DEFAULT_WIDTH = Config.getPropInteger("greenfoot.image.create.width", 100);
-    private static final String DEFAULT_IMAGE_TYPE = Config.getPropString("greenfoot.image.create.type", "png");
+    private static final int DEFAULT_HEIGHT = 100;
+    private static final int DEFAULT_WIDTH = 100;
     
     private JTextField name;
     private JSpinner width;
     private JSpinner height;
-    private JComboBox type;
     private JButton okButton;
     
     private File projImagesDir;
@@ -82,7 +80,6 @@ public class NewImageDialog extends EscapeDialog
     
     private int imageWidth;
     private int imageHeight;
-    private String imageType;
 
     /**
      * Create a new image dialog. This is used for specifying the properties for
@@ -98,7 +95,6 @@ public class NewImageDialog extends EscapeDialog
 
         imageWidth = Config.getPropInteger("greenfoot.image.create.width", DEFAULT_WIDTH);
         imageHeight = Config.getPropInteger("greenfoot.image.create.height", DEFAULT_HEIGHT);
-        imageType = Config.getPropString("greenfoot.image.create.type", DEFAULT_IMAGE_TYPE);
         buildUI(rootName);
     }
 
@@ -115,7 +111,7 @@ public class NewImageDialog extends EscapeDialog
 
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 
-        JPanel detailsPanel = new JPanel(new GridLayout(4, 2, BlueJTheme.componentSpacingSmall,
+        JPanel detailsPanel = new JPanel(new GridLayout(3, 2, BlueJTheme.componentSpacingSmall,
                 BlueJTheme.componentSpacingSmall));
         detailsPanel.add(new JLabel(Config.getString("imagelib.new.image.name") + " "));
         name = new JTextField(10);
@@ -134,7 +130,12 @@ public class NewImageDialog extends EscapeDialog
             }
         });
         
-        detailsPanel.add(name);
+        JPanel fileNamePanel = new JPanel();
+        fileNamePanel.setLayout(new BoxLayout(fileNamePanel, BoxLayout.X_AXIS));
+        fileNamePanel.add(name);
+        fileNamePanel.add(new JLabel(".png"));
+        
+        detailsPanel.add(fileNamePanel);
 
         //mainPanel.add(fixHeight(Box.createVerticalStrut(BlueJTheme.componentSpacingLarge)));
 
@@ -149,11 +150,6 @@ public class NewImageDialog extends EscapeDialog
         detailsPanel.add(height);        
 
         //mainPanel.add(fixHeight(Box.createVerticalStrut(BlueJTheme.componentSpacingLarge)));
-        
-        detailsPanel.add(new JLabel(Config.getString("imagelib.new.image.type")));
-        type = new JComboBox(getImageTypes());
-        type.setSelectedItem(imageType);
-        detailsPanel.add(type);
 
         detailsPanel.setMaximumSize(new Dimension(Short.MAX_VALUE, detailsPanel.getPreferredSize().height));
         
@@ -258,9 +254,7 @@ public class NewImageDialog extends EscapeDialog
         BufferedImage im = new BufferedImage((Integer) width.getValue(), (Integer) height.getValue(),
                 BufferedImage.TYPE_INT_ARGB);
         String fileName = name.getText();
-        if (!fileName.endsWith("." + type.getSelectedItem())) {
-            fileName += "." + type.getSelectedItem();
-        }
+        fileName += ".png";
         file = new File(projImagesDir, fileName);
 
         if (file.exists()) {
@@ -281,12 +275,12 @@ public class NewImageDialog extends EscapeDialog
     private void writeAndEdit(BufferedImage im)
     {
         try {
-            if (ImageIO.write(im, type.getSelectedItem().toString(), file)) {
+            if (ImageIO.write(im, "png", file)) {
                 ExternalAppLauncher.editImage(file);
                 setVisible(false);
             } else {
-                JOptionPane.showMessageDialog(this, type.getSelectedItem().toString() +
-                        " " + Config.getString("imagelib.image.unsupportedformat.text"), Config.getString("imagelib.image.unsupportedformat.title"), JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "png " +
+                        Config.getString("imagelib.image.unsupportedformat.text"), Config.getString("imagelib.image.unsupportedformat.title"), JOptionPane.ERROR_MESSAGE);
             }
         }
         catch (IOException ex) {
