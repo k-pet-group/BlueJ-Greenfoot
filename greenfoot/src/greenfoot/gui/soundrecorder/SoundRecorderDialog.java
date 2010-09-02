@@ -393,6 +393,7 @@ public class SoundRecorderDialog extends JDialog implements WindowListener
             addMouseMotionListener(this);
         }
         
+        @SuppressWarnings("cast")
         protected void paintComponent(Graphics g)
         {
             int width = getWidth();
@@ -536,14 +537,16 @@ public class SoundRecorderDialog extends JDialog implements WindowListener
     private int getSelectionStartOffset()
     {
         float start = Math.min(selectionBegin, selectionEnd);
-        return (int)(start * (float)recorder.getRawSound().length);
+        float length = recorder.getRawSound().length;
+        return (int)(start * length);
     }
     
     // Gets the finish of the selection as an index into the raw sound array
     private int getSelectionFinishOffset()
     {
         float finish = Math.max(selectionBegin, selectionEnd);
-        return (int)(finish * (float)recorder.getRawSound().length);
+        float length = recorder.getRawSound().length;
+        return (int)(finish * length);
     }
     
     

@@ -213,8 +213,9 @@ public class SoundRecorder
     {
         if (recorded != null)
         {
-            int beginIndex = (int)(begin * (float)recorded.length);
-            int endIndex = (int)(end * (float)recorded.length);
+            float length = recorded.length;
+            int beginIndex = (int)(begin * length);
+            int endIndex = (int)(end * length);
             
             recorded = Arrays.copyOfRange(recorded, beginIndex, endIndex);
         }
