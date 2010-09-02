@@ -63,10 +63,9 @@ public class ActorTest extends TestCase
         
         //Width and height should now be sqrt(800) = 28.2842
         Rect r = o.getBoundingRect();
-        assertEquals(30, r.getWidth());
-        assertEquals(30, r.getHeight());
+        assertTrue(r.getWidth() >= 28 && r.getWidth() <= 29);
+        assertTrue(r.getHeight() >= 28 && r.getWidth() <= 29);
     }
-    
     
     public void testOutOfBounds()
     {

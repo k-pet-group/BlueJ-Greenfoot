@@ -69,7 +69,7 @@ import bluej.utility.Utility;
  * General utility methods for Greenfoot.
  * 
  * @author Davin McCall
- * @version $Id: GreenfootUtil.java 8072 2010-08-12 04:42:11Z davmac $
+ * @version $Id: GreenfootUtil.java 8226 2010-09-02 03:35:59Z davmac $
  */
 public class GreenfootUtil
 {
@@ -593,11 +593,11 @@ public class GreenfootUtil
     }
 
     /**
-     * 
      * Creates the skeleton for a new class
-     * 
      */
-    public static void createSkeleton(String className, String superClassName, File file, String templateFileName) throws IOException   {
+    public static void createSkeleton(String className, String superClassName, File file,
+            String templateFileName) throws IOException
+    {
         delegate.createSkeleton(className, superClassName, file, templateFileName);
     }
 

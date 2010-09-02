@@ -30,7 +30,6 @@ import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Rectangle2D;
 import java.util.List;
 
 /**
@@ -100,14 +99,18 @@ public abstract class Actor
 
     /** Axis-aligned bounding rectangle of the object, in pixels. */
     private Rect boundingRect;
+    /** X-coordinates of the rotated bounding rectangle's corners */
+    private int[] boundingXs = new int[4];
+    /** Y-coordinates of the rotated bounding rectangle's corners */
+    private int[] boundingYs = new int[4];
 
     static {
-        //Do this in a 'try' since a failure at this point will crash greenfoot.
+        //Do this in a 'try' since a failure at this point will crash Greenfoot.
         try {
             greenfootImage = new GreenfootImage(GreenfootUtil.getGreenfootLogoPath());
         }
         catch (Exception e) {
-            // Should not happen unless the greenfoot installation is seriously broken.
+            // Should not happen unless the Greenfoot installation is seriously broken.
             e.printStackTrace();
             System.err.println("Greenfoot installation is broken - reinstalling Greenfoot might help.");
         }
@@ -268,15 +271,20 @@ public abstract class Actor
             this.x = x;
             this.y = y;
         }
-        if (boundingRect != null) {
-            int dx = (this.x - oldX) * world.getCellSize();
-            int dy = (this.y - oldY) * world.getCellSize();
-
-            boundingRect.setX(boundingRect.getX() + dx);
-            boundingRect.setY(boundingRect.getY() + dy);
-        }
         
         if (this.x != oldX || this.y != oldY) {
+            if (boundingRect != null) {
+                int dx = (this.x - oldX) * world.getCellSize();
+                int dy = (this.y - oldY) * world.getCellSize();
+
+                boundingRect.setX(boundingRect.getX() + dx);
+                boundingRect.setY(boundingRect.getY() + dy);
+                
+                for (int i = 0; i < 4; i++) {
+                    boundingXs[i] += dx;
+                    boundingYs[i] += dy;
+                }
+            }
             locationChanged(oldX, oldY);
         }
     }
@@ -449,6 +457,10 @@ public abstract class Actor
     {
         if (image == null) {
             boundingRect = new Rect(x, y, 0, 0);
+            for (int i = 0; i < 4; i++) {
+                boundingXs[i] = x;
+                boundingYs[i] = y;
+            }
             return;
         }
         
@@ -476,23 +488,34 @@ public abstract class Actor
             int x = cellSize * this.x + (cellSize - width - 1) / 2;
             int y = cellSize * this.y + (cellSize - height - 1) / 2;
             boundingRect = new Rect(x, y, width, height);
+            boundingXs[0] = x; boundingYs[0] = y;
+            boundingXs[1] = x + width - 1; boundingYs[1] = y;
+            boundingXs[2] = boundingXs[1]; boundingYs[2] = y + height - 1;
+            boundingXs[3] = x; boundingYs[3] = boundingYs[2];
         }
         else {
-            Shape rotatedImageBounds = getRotatedShape();
-            Rectangle2D bounds2d = rotatedImageBounds.getBounds2D();
-            Rectangle bounds = bounds2d.getBounds();
-            int x = this.x * cellSize + bounds.x;
-            int y = this.y * cellSize + bounds.y;
-            int width = bounds.width;
-            int height = bounds.height;
-            // This rect will be bit big to include all pixels that is covered.
+            getRotatedCorners(boundingXs, boundingYs, cellSize);
+            
+            int minX = Integer.MAX_VALUE;
+            int maxX = Integer.MIN_VALUE;
+            int minY = Integer.MAX_VALUE;
+            int maxY = Integer.MIN_VALUE;
+            
+            for (int i = 0; i < 4; i++) {
+                minX = Math.min(boundingXs[i] - 1, minX);
+                maxX = Math.max(boundingXs[i] + 1, maxX);
+                minY = Math.min(boundingYs[i] - 1, minY);
+                maxY = Math.max(boundingYs[i] + 1, maxY);
+            }
+            
+            // This rect will be bit big to include all pixels that are covered.
             // We lose a bit of precision by using integers and might get
             // collisions that wouldn't be there if using floating point. But
             // making it a big bigger, we will get all the collision that we
             // would get with floating point.
             // For instance, if something has the width 28.2, it might cover 30
             // pixels.
-            boundingRect = new Rect(x, y, width, height);
+            boundingRect = new Rect(minX, minY, maxX - minX + 1, maxY - minY + 1);
         }
     }
 
@@ -628,7 +651,6 @@ public abstract class Actor
             xs[i] = nx;
             ys[i] = ny;
         }
-        
     }
 
     /**
@@ -714,13 +736,10 @@ public abstract class Actor
                     return false;
                 }
                 
-                int cellSize = world.getCellSize();
-                int [] myX = new int[4];
-                int [] myY = new int[4];
-                int [] otherX = new int[4];
-                int [] otherY = new int[4];
-                getRotatedCorners(myX, myY, cellSize);
-                other.getRotatedCorners(otherX, otherY, cellSize);
+                int [] myX = boundingXs;
+                int [] myY = boundingYs;
+                int [] otherX = other.boundingXs;
+                int [] otherY = other.boundingYs;
                 
                 if (checkOutside(myX, myY, otherX, otherY)) {
                     return false;
