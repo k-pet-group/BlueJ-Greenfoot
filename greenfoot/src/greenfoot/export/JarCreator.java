@@ -569,7 +569,7 @@ public class JarCreator
     private void copyLibsToDir(List<File> userLibs, File destDir)
     {
         for (Iterator<File> it = userLibs.iterator(); it.hasNext();) {
-            File lib = (File) it.next();
+            File lib = it.next();
 
             // Ignore files that do not exist
             if(lib.exists()) {

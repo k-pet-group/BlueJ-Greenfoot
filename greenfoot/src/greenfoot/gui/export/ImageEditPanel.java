@@ -147,7 +147,7 @@ public class ImageEditPanel extends JPanel
             public void stateChanged(ChangeEvent e)
             {
                 JSlider source = (JSlider) e.getSource();
-                int scale = (int) source.getValue();
+                int scale = source.getValue();
                 imageCanvas.setScale(scale / 100.);
             }
         });

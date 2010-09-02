@@ -79,7 +79,7 @@ import javax.swing.SwingUtilities;
  * dragFinished() is sent to the drag listener
  * 
  * @author Poul Henriksen
- * @version $Id: DragGlassPane.java 7399 2010-04-23 14:49:22Z nccb $
+ * @version $Id: DragGlassPane.java 8232 2010-09-02 10:06:20Z nccb $
  * 
  */
 public class DragGlassPane extends JComponent
@@ -290,8 +290,8 @@ public class DragGlassPane extends JComponent
 
         // We use original image proportions, to get the icon in the middle when
         // not considering the shadow.
-        int x = (int) ((image.getWidth() - noParkingIcon.getIconWidth()) / 2);
-        int y = (int) ((image.getHeight() - noParkingIcon.getIconHeight()) / 2);
+        int x = (image.getWidth() - noParkingIcon.getIconWidth()) / 2;
+        int y = (image.getHeight() - noParkingIcon.getIconHeight()) / 2;
         g.setColor(Color.RED);
         noParkingIcon.paintIcon(this, g, x, y);
         g.dispose();

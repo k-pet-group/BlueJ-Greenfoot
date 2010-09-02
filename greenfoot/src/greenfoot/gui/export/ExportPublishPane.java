@@ -238,7 +238,7 @@ public class ExportPublishPane extends ExportPane implements ChangeListener
         StringBuilder newTags = new StringBuilder();
         boolean isFirstNewTag = true;;
         for (Iterator<String> iterator = tags.iterator(); iterator.hasNext();) {
-            String tag = (String) iterator.next();
+            String tag = iterator.next();
             if(WITH_SOURCE_TAG.equals(tag)) {
                 // we never want the with-source tag to show up.
                 continue;

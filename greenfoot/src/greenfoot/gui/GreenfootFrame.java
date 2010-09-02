@@ -1024,14 +1024,14 @@ public class GreenfootFrame extends JFrame
     public void removeAllInspectors()
     {
         for (Iterator<Inspector> it = objectInspectors.values().iterator(); it.hasNext();) {
-            Inspector inspector = (Inspector) it.next();
+            Inspector inspector = it.next();
             inspector.setVisible(false);
             inspector.dispose();
         }
         objectInspectors.clear();
         
         for (Iterator<Inspector> it = classInspectors.values().iterator(); it.hasNext();) {
-            Inspector inspector = (Inspector) it.next();
+            Inspector inspector = it.next();
             inspector.setVisible(false);
             inspector.dispose();
         }

@@ -27,7 +27,6 @@ import greenfoot.util.Circle;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -899,7 +898,7 @@ public class BVHInsChecker
         int missing = 0;
         synchronized (this) {
             missing = (objects.size() - tree.size());
-            tree.paintDebug((Graphics2D) g);
+            tree.paintDebug(g);
         }
         if (missing > 0) {
             System.out.println("Objects missing: " + missing);

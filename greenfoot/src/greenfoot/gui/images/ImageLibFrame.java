@@ -21,9 +21,6 @@
  */
 package greenfoot.gui.images;
 
-import greenfoot.GreenfootImage;
-import greenfoot.World;
-import greenfoot.WorldVisitor;
 import greenfoot.actions.BrowseImagesAction;
 import greenfoot.core.GClass;
 import greenfoot.core.GPackage;

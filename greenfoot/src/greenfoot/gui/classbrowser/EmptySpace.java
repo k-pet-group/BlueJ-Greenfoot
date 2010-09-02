@@ -21,14 +21,13 @@
  */
 package greenfoot.gui.classbrowser;
 
-import java.awt.Dimension;
 import java.awt.Graphics;
 
 /**
  * Graphics for arrow drawing. Emprt space, same size as other arrow elements.
  * 
  * @author mik
- * @version $Id: EmptySpace.java 6216 2009-03-30 13:41:07Z polle $
+ * @version $Id: EmptySpace.java 8232 2010-09-02 10:06:20Z nccb $
  */
 public class EmptySpace extends ArrowElement
 {

@@ -37,7 +37,7 @@ import java.util.TreeSet;
  * A forest of trees. The roots are sorted alphabetically on their keys
  * 
  * @author Poul Henriksen
- * @version $Id: ClassForest.java 6478 2009-08-04 11:12:45Z polle $
+ * @version $Id: ClassForest.java 8232 2010-09-02 10:06:20Z nccb $
  */
 public class ClassForest
 {
@@ -237,12 +237,12 @@ public class ClassForest
     private void addEntryToTree(ClassView clsView)
     {
         String superName = clsView.getSuperclass();
-        TreeEntry child = (TreeEntry) treeEntryMap.get(clsView.getClassName());
+        TreeEntry child = treeEntryMap.get(clsView.getClassName());
         if(superName == null || superName.equals("")) {
             roots.add(child);
         } else {
             superName = GreenfootUtil.extractClassName(superName);
-            TreeEntry parent = (TreeEntry) treeEntryMap.get(superName);
+            TreeEntry parent = treeEntryMap.get(superName);
             if(parent != null) {
                 parent.addChild(child);
             } else {

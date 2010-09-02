@@ -60,7 +60,7 @@ public class CompileListenerForwarder extends RCompileListenerImpl
     {
         synchronized (compileListeners) {
             for (Iterator<? extends CompileListener> iter = compileListeners.iterator(); iter.hasNext();) {
-                CompileListener element = (CompileListener) iter.next();
+                CompileListener element = iter.next();
                 element.compileStarted(event);
             }
         }
@@ -71,7 +71,7 @@ public class CompileListenerForwarder extends RCompileListenerImpl
     {
         synchronized (compileListeners) {
             for (Iterator<? extends CompileListener> iter = compileListeners.iterator(); iter.hasNext();) {
-                CompileListener element = (CompileListener) iter.next();
+                CompileListener element = iter.next();
                 element.compileError(event);
             }
         }
@@ -82,7 +82,7 @@ public class CompileListenerForwarder extends RCompileListenerImpl
     {
         synchronized (compileListeners) {
             for (Iterator<? extends CompileListener> iter = compileListeners.iterator(); iter.hasNext();) {
-                CompileListener element = (CompileListener) iter.next();
+                CompileListener element = iter.next();
                 element.compileWarning(event);
             }
         }
@@ -109,7 +109,7 @@ public class CompileListenerForwarder extends RCompileListenerImpl
     {
         synchronized (compileListeners) {
             for (Iterator<? extends CompileListener> iter = compileListeners.iterator(); iter.hasNext();) {
-                CompileListener element = (CompileListener) iter.next();
+                CompileListener element = iter.next();
                 element.compileFailed(event);
             }
         }
