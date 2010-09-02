@@ -409,6 +409,12 @@ public abstract class JavaUtils
                             return true;
                         }
                     }
+                } else {
+                    // We need to check super classes of our super-classes
+                    // as if the method is protected we will be allowed access 
+                    for (Reflective rParent : r.getSuperTypesR()) {
+                        supers.add(rParent);
+                    }
                 }
             }
         }
