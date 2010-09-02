@@ -122,7 +122,7 @@ public class WorldInvokeListener
         }
 
         ValueCollection objectBenchVars = ObjectTracker.getObjects();
-        Debugger debugger = new LocalDebugger(); // DAV probably can use a single static instance
+        Debugger debugger = new LocalDebugger();
         CallHistory ch = GreenfootMain.getInstance().getCallHistory();
         final MouseEvent event = LocationTracker.instance().getMouseButtonEvent();
         try {
