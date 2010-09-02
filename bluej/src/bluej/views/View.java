@@ -38,12 +38,12 @@ import bluej.utility.JavaUtils;
  * <p>The methods in this class are generally thread-safe.
  *
  * @author  Michael Cahill
- * @version $Id: View.java 6727 2009-09-19 05:59:52Z davmac $
+ * @version $Id: View.java 8244 2010-09-02 16:23:03Z nccb $
  */
 public class View
 {
-    private final String classIgnore = "class$";
-    private final String accessIgnore = "access$";
+    public final static String classIgnore = "class$";
+    public final static String accessIgnore = "access$";
 
     /** The class that this view is for **/
     protected Class<?> cl;

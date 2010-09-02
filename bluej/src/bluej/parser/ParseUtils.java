@@ -54,6 +54,7 @@ import bluej.parser.lexer.LocatableToken;
 import bluej.pkgmgr.JavadocResolver;
 import bluej.utility.JavaReflective;
 import bluej.utility.JavaUtils;
+import bluej.views.View;
 
 /**
  * Utilities for parsers.
@@ -112,7 +113,9 @@ public class ParseUtils
                 Map<String,GenTypeParameter> typeArgs = exprType.getMap();
 
                 for (String name : methods.keySet()) {
-                    if (name.startsWith(prefix)) {
+                    // Make sure to hide access$ synthetic methods
+                    // (see http://forums.sun.com/thread.jspa?threadID=5434924&tstart=1):
+                    if (!name.startsWith(View.accessIgnore) && name.startsWith(prefix)) {
                         Set<MethodReflective> mset = methods.get(name);
                         for (MethodReflective method : mset) {
                             if (accessReflective != null &&
