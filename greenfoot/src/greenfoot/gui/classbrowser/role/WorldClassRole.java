@@ -21,7 +21,6 @@
  */
 package greenfoot.gui.classbrowser.role;
 
-import greenfoot.actions.SaveWorldAction;
 import greenfoot.actions.SelectImageAction;
 import greenfoot.actions.ShowApiDocAction;
 import greenfoot.core.GClass;
@@ -34,7 +33,7 @@ import bluej.Config;
 
 /**
  * @author Poul Henriksen
- * @version $Id: WorldClassRole.java 7762 2010-06-14 13:22:44Z nccb $
+ * @version $Id: WorldClassRole.java 8233 2010-09-02 10:13:46Z nccb $
  */
 public class WorldClassRole extends ImageClassRole
 {

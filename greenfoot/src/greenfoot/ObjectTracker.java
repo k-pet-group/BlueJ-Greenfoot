@@ -103,7 +103,7 @@ public class ObjectTracker
                         JavaType type = JavaUtils.genTypeFromClass(o.getClass());
                         return new GNamedValue(name, type);
                     }
-                    return new GNamedValue(name, JavaUtils.getJavaUtils().genTypeFromClass(Object.class));
+                    return new GNamedValue(name, JavaUtils.genTypeFromClass(Object.class));
                 }
             }
             

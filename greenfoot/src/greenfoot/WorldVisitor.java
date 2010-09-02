@@ -134,6 +134,6 @@ public class WorldVisitor
     
     public static int getReadLockTimeout(World world) 
     {
-        return world.READ_LOCK_TIMEOUT;    
+        return World.READ_LOCK_TIMEOUT;    
     }
 }

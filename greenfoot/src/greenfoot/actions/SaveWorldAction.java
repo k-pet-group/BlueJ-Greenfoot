@@ -22,7 +22,6 @@
 package greenfoot.actions;
 
 import greenfoot.core.GClass;
-import greenfoot.gui.GreenfootFrame;
 import greenfoot.platforms.ide.WorldHandlerDelegateIDE;
 import greenfoot.record.GreenfootRecorder;
 
