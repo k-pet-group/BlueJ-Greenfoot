@@ -207,7 +207,7 @@ public class LocalClass extends DebuggerClass
                 }
             }
             
-            declFields = (Field []) sfields.toArray(noFields);
+            declFields = sfields.toArray(noFields);
             AccessibleObject.setAccessible(declFields, true);
             allFields.addAll(Arrays.asList(declFields));
             c = c.getSuperclass();

@@ -52,7 +52,7 @@ public class WorldVisitor
     
     public static Collection<Actor> getObjectsAtPixel(World w, int x, int y)
     {
-        return (Collection<Actor>) w.getObjectsAtPixel(x, y);
+        return w.getObjectsAtPixel(x, y);
     }
 
     /**

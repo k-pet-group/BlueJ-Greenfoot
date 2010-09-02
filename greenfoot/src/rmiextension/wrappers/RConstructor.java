@@ -31,15 +31,15 @@ import bluej.extensions.ProjectNotOpenException;
 
 /**
  * @author Poul Henriksen
- * @version $Id: RConstructor.java 6216 2009-03-30 13:41:07Z polle $
+ * @version $Id: RConstructor.java 8234 2010-09-02 10:17:24Z nccb $
  */
 public interface RConstructor
     extends Remote
 {
-    public Class[] getParameterTypes()
+    public Class<?>[] getParameterTypes()
         throws RemoteException;
 
-    public boolean matches(Class[] parameter)
+    public boolean matches(Class<?>[] parameter)
         throws RemoteException;
 
     public RObject newInstance(Object[] initargs)

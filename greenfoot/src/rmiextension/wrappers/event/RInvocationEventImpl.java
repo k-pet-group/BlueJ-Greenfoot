@@ -30,7 +30,7 @@ import bluej.extensions.event.InvocationEvent;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RInvocationEventImpl.java 6216 2009-03-30 13:41:07Z polle $
+ * @version $Id: RInvocationEventImpl.java 8234 2010-09-02 10:17:24Z nccb $
  */
 public class RInvocationEventImpl extends java.rmi.server.UnicastRemoteObject
     implements RInvocationEvent
@@ -123,7 +123,7 @@ public class RInvocationEventImpl extends java.rmi.server.UnicastRemoteObject
     /**
      * @return
      */
-    public Class[] getSignature()
+    public Class<?>[] getSignature()
         throws RemoteException
     {
         return invocationEvent.getSignature();

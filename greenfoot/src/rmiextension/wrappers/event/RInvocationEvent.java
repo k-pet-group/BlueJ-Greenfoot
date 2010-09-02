@@ -28,7 +28,7 @@ import bluej.extensions.BPackage;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RInvocationEvent.java 6216 2009-03-30 13:41:07Z polle $
+ * @version $Id: RInvocationEvent.java 8234 2010-09-02 10:17:24Z nccb $
  */
 public interface RInvocationEvent
     extends Remote
@@ -78,6 +78,6 @@ public interface RInvocationEvent
     /**
      * @return
      */
-    public Class[] getSignature()
+    public Class<?>[] getSignature()
         throws RemoteException;
 }

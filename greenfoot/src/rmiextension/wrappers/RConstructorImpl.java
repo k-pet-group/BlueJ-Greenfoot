@@ -32,7 +32,7 @@ import bluej.extensions.ProjectNotOpenException;
 
 /**
  * @author Poul Henriksen
- * @version $Id: RConstructorImpl.java 6216 2009-03-30 13:41:07Z polle $
+ * @version $Id: RConstructorImpl.java 8234 2010-09-02 10:17:24Z nccb $
  */
 public class RConstructorImpl extends java.rmi.server.UnicastRemoteObject
     implements RConstructor
@@ -42,7 +42,7 @@ public class RConstructorImpl extends java.rmi.server.UnicastRemoteObject
     /**
      * @return
      */
-    public Class[] getParameterTypes()
+    public Class<?>[] getParameterTypes()
         throws RemoteException
     {
         return bConstructor.getParameterTypes();
@@ -52,7 +52,7 @@ public class RConstructorImpl extends java.rmi.server.UnicastRemoteObject
      * @param parameter
      * @return
      */
-    public boolean matches(Class[] parameter)
+    public boolean matches(Class<?>[] parameter)
         throws RemoteException
     {
         return bConstructor.matches(parameter);
