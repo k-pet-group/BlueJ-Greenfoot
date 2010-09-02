@@ -1299,7 +1299,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         setVisible(false);
         if (watcher != null) {
         	//setting the naviview visible property when an editor is closed
-        	watcher.setProperty(watcher.NAVIVIEW_EXPANDED_PROPERTY, String.valueOf(dividerPanel.isExpanded()));
+        	watcher.setProperty(EditorWatcher.NAVIVIEW_EXPANDED_PROPERTY, String.valueOf(dividerPanel.isExpanded()));
             watcher.closeEvent(this);
         }
     }

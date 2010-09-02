@@ -251,7 +251,7 @@ public abstract class BlueJSyntaxView extends PlainView
             Graphics g, MoeSyntaxDocument document, 
             Color def)
     {
-        Color[] colors = document.getColors();
+        Color[] colors = MoeSyntaxDocument.getColors();
         Token tokens = document.getTokensForLine(lineIndex);
         int offset = 0;
         for(;;) {

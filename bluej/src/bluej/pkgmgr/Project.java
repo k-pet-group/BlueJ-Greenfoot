@@ -1462,7 +1462,7 @@ public class Project implements DebuggerListener, InspectorManager
         // The userlib location may be specified in bluej.defs
         String userLibSetting = Config.getPropString("bluej.userlibLocation", null);
         if (userLibSetting == null) {
-            userLibDir = new File(Boot.getInstance().getBluejLibDir(), "userlib");
+            userLibDir = new File(Boot.getBluejLibDir(), "userlib");
         }
         else {
             userLibDir = new File(userLibSetting);
