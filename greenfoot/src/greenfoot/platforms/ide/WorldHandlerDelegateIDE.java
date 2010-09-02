@@ -64,6 +64,7 @@ import javax.swing.SwingUtilities;
 import rmiextension.wrappers.RObject;
 import bluej.Config;
 import bluej.debugger.DebuggerObject;
+import bluej.debugger.gentype.JavaType;
 import bluej.debugmgr.objectbench.ObjectBenchEvent;
 import bluej.debugmgr.objectbench.ObjectBenchInterface;
 import bluej.debugmgr.objectbench.ObjectBenchListener;
@@ -481,19 +482,19 @@ public class WorldHandlerDelegateIDE
         greenfootRecorder.addActorToWorld(actor, x, y);
     }
 
-    public void createdActor(Object actor, String[] args)
+    public void createdActor(Object actor, String[] args, JavaType[] argTypes)
     {
-        greenfootRecorder.createActor(actor, args);
+        greenfootRecorder.createActor(actor, args, argTypes);
     }
 
-    public void methodCall(Object obj, String actorName, String name, String[] args)
+    public void methodCall(Object obj, String actorName, String name, String[] args, JavaType[] argTypes)
     {
-        greenfootRecorder.callActorMethod(obj, actorName, name, args);        
+        greenfootRecorder.callActorMethod(obj, actorName, name, args, argTypes);        
     }
 
-    public void staticMethodCall(String className, String name, String[] args)
+    public void staticMethodCall(String className, String name, String[] args, JavaType[] argTypes)
     {
-        greenfootRecorder.callStaticMethod(className, name, args);        
+        greenfootRecorder.callStaticMethod(className, name, args, argTypes);        
     }
 
     public void movedActor(Actor actor, int xCell, int yCell)

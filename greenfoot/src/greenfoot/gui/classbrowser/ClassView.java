@@ -428,7 +428,7 @@ public class ClassView extends JToggleButton
                     constructor.setAccessible(true);
 
                     Object newObject = Simulation.newInstance(constructor);
-                    WorldHandler.getInstance().notifyCreatedActor(newObject, new String [0]);            
+                    WorldHandler.getInstance().notifyCreatedActor(newObject, new String [0], null);            
                     ActorInstantiationListener invocationListener = GreenfootMain.getInstance().getInvocationListener();
                     if(invocationListener != null) {
                         invocationListener.localObjectCreated(newObject, LocationTracker.instance().getMouseButtonEvent());

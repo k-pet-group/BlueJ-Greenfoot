@@ -61,6 +61,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 import javax.swing.SwingUtilities;
 import javax.swing.event.EventListenerList;
 
+import bluej.debugger.gentype.JavaType;
 import bluej.debugmgr.objectbench.ObjectBenchInterface;
 
 /**
@@ -918,22 +919,22 @@ public class WorldHandler
      * @param actor   The actor object
      * @param String[] args   The constructor arguments (as Java expressions)
      */
-    public void notifyCreatedActor(Object actor, String[] args)
+    public void notifyCreatedActor(Object actor, String[] args, JavaType[] argTypes)
     {
         if (interactionListener != null)
-            interactionListener.createdActor(actor, args);
+            interactionListener.createdActor(actor, args, argTypes);
     }
 
-    public void notifyMethodCall(Object obj, String instanceName, String name, String[] args)
+    public void notifyMethodCall(Object obj, String instanceName, String name, String[] args, JavaType[] argTypes)
     {
         if (interactionListener != null)
-            interactionListener.methodCall(obj, instanceName, name, args);
+            interactionListener.methodCall(obj, instanceName, name, args, argTypes);
     }
     
-    public void notifyStaticMethodCall(String className, String name, String[] args)
+    public void notifyStaticMethodCall(String className, String name, String[] args, JavaType[] argTypes)
     {
         if (interactionListener != null)
-            interactionListener.staticMethodCall(className, name, args);
+            interactionListener.staticMethodCall(className, name, args, argTypes);
     }
 
     /**

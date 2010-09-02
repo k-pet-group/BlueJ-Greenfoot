@@ -37,6 +37,7 @@ import rmiextension.wrappers.RObject;
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.ExceptionDescription;
+import bluej.debugger.gentype.JavaType;
 import bluej.debugmgr.CallHistory;
 import bluej.debugmgr.ExpressionInformation;
 import bluej.debugmgr.Invoker;
@@ -148,6 +149,7 @@ public class WorldInvokeListener
                 public void putResult(DebuggerObject result, String name,
                         InvokerRecord ir)
                 {
+                	JavaType[] paramTypes = callable.getParamTypes(false);
                     if (result instanceof LocalObject) {
                         Object o = ((LocalObject) result).getObject();
 
@@ -166,7 +168,7 @@ public class WorldInvokeListener
                         else {
                             WorldHandler worldHandler = WorldHandler.getInstance();
                             if(o instanceof Actor) {
-                                worldHandler.notifyCreatedActor(o, ir.getArgumentValues());
+                                worldHandler.notifyCreatedActor(o, ir.getArgumentValues(), paramTypes);
                                 worldHandler.addObjectAtEvent((Actor) o, event);
                                 worldHandler.repaint();
                             }
@@ -183,7 +185,7 @@ public class WorldInvokeListener
                     update();
                     if (callable instanceof MethodView) {
                         MethodView m = (MethodView) callable;
-                        WorldHandler.getInstance().notifyMethodCall(obj, instanceName, m.getName(), ir.getArgumentValues());
+                        WorldHandler.getInstance().notifyMethodCall(obj, instanceName, m.getName(), ir.getArgumentValues(), paramTypes);
                     }
                 }
 

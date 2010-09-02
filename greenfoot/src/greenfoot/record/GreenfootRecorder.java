@@ -26,6 +26,7 @@ import java.util.IdentityHashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import bluej.debugger.gentype.JavaType;
 import bluej.utility.Debug;
 
 import greenfoot.Actor;
@@ -50,11 +51,11 @@ public class GreenfootRecorder
         this.action.setRecordingValid(false);
     }
 
-    public void createActor(Object actor, String[] args)
+    public void createActor(Object actor, String[] args, JavaType[] argTypes)
     {
         Class<?> theClass = actor.getClass();
         String name = nameActor(actor);
-        code.add(theClass.getCanonicalName() + " " + name + " = new " + theClass.getCanonicalName() + "(" + withCommas(args) + ");");
+        code.add(theClass.getCanonicalName() + " " + name + " = new " + theClass.getCanonicalName() + "(" + withCommas(args, argTypes) + ");");
     }
     
     // Called when the prepare method is replayed to indicate that the actor's name should be recorded
@@ -71,8 +72,8 @@ public class GreenfootRecorder
             return null;
         }
     }
-
-    private static String withCommas(String[] args)
+    
+    private static String withCommas(String[] args, JavaType[] paramArgs)
     {
         if (args == null)
             return "";
@@ -80,7 +81,11 @@ public class GreenfootRecorder
         StringBuffer commaArgs = new StringBuffer();
         
         for (int i = 0; i < args.length;i++) {
-            commaArgs.append(args[i]);
+        	String arg = args[i].trim();
+        	if (arg.startsWith("{") && arg.endsWith("}")) {
+        		arg = "new " + paramArgs[i] + " " + arg;
+        	}
+            commaArgs.append(arg);
             if (i != args.length - 1) {
                 commaArgs.append(", ");
             }
@@ -98,7 +103,7 @@ public class GreenfootRecorder
         code.add("addObject(" + actorObjectName + ", " + x + ", " + y + ");");
     }
 
-    public void callActorMethod(Object obj, String actorName, String name, String[] args)
+    public void callActorMethod(Object obj, String actorName, String name, String[] args, JavaType[] argTypes)
     {
         if (null == objectNames.get(obj) && obj != world) {
             //Method is being called on an actor we don't know about: ignore
@@ -106,16 +111,16 @@ public class GreenfootRecorder
         }
         if (world != null && world == obj) {
             // Called on the world, so don't use the world's object name before the call:
-            code.add(name + "(" + withCommas(args) + ");");
+            code.add(name + "(" + withCommas(args, argTypes) + ");");
         } else {
-            code.add(actorName + "." + name + "(" + withCommas(args) + ");");
+            code.add(actorName + "." + name + "(" + withCommas(args, argTypes) + ");");
         }
     }
 
-    public void callStaticMethod(String className, String name, String[] args)
+    public void callStaticMethod(String className, String name, String[] args, JavaType[] argTypes)
     {
         // No difference in syntax, so no need to replicate the code:
-        callActorMethod(null, className, name, args);
+        callActorMethod(null, className, name, args, argTypes);
     }
     
     public void clearCode(boolean simulationStarted)

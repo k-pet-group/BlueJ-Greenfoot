@@ -21,6 +21,7 @@
  */
 package greenfoot.record;
 
+import bluej.debugger.gentype.JavaType;
 import greenfoot.Actor;
 
 /**
@@ -28,11 +29,11 @@ import greenfoot.Actor;
  */
 public interface InteractionListener
 {
-    public void createdActor(Object actor, String[] args);
+    public void createdActor(Object actor, String[] args, JavaType[] argTypes);
 
-    public void methodCall(Object obj, String actorName, String name, String[] args);
+    public void methodCall(Object obj, String actorName, String name, String[] args, JavaType[] argTypes);
 
-    public void staticMethodCall(String className, String name, String[] args);
+    public void staticMethodCall(String className, String name, String[] args, JavaType[] argTypes);
 
     public void movedActor(Actor actor, int xCell, int yCell);
 
