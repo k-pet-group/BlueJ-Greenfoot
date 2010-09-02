@@ -29,7 +29,6 @@ import greenfoot.gui.input.InputManager;
 import greenfoot.platforms.WorldHandlerDelegate;
 import greenfoot.record.InteractionListener;
 
-import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 
 
@@ -56,11 +55,6 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
         worldHandler.finishDrag(o);
     }
 
-    public void keyReleased(KeyEvent e)
-    {
-        // Not used in standalone
-    }
-
     public boolean maybeShowPopup(MouseEvent e)
     {
         // Not used in standalone
@@ -73,11 +67,6 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
     }
     
     public void mouseMoved(MouseEvent e)
-    {
-        // Not used in standalone
-    }
-
-    public void processKeyEvent(KeyEvent e)
     {
         // Not used in standalone
     }

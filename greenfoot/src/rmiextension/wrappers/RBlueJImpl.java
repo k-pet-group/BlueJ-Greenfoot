@@ -154,7 +154,7 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
      */
     public void addInvocationListener(RInvocationListener listener)
     {
-        RInvocationListenerWrapper wrapper = new RInvocationListenerWrapper(this, listener);
+        RInvocationListenerWrapper wrapper = new RInvocationListenerWrapper(listener);
         invocationListeners.put(listener, wrapper);
         blueJ.addInvocationListener(wrapper);
     }

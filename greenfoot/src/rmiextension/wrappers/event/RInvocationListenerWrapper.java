@@ -42,7 +42,7 @@ public class RInvocationListenerWrapper
     private RInvocationListener remoteListener;
     private RBlueJImpl blueJ;
 
-    public RInvocationListenerWrapper(RBlueJImpl bluej, RInvocationListener remoteListener)
+    public RInvocationListenerWrapper(RInvocationListener remoteListener)
     {
         this.remoteListener = remoteListener;
     }

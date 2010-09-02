@@ -49,7 +49,7 @@ import bluej.utility.Debug;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RClassImpl.java 7888 2010-07-21 01:25:12Z marionz $
+ * @version $Id: RClassImpl.java 8238 2010-09-02 11:04:59Z nccb $
  */
 public class RClassImpl extends java.rmi.server.UnicastRemoteObject
     implements RClass
@@ -463,7 +463,7 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
         }
     }
 
-    public String getToString() throws ProjectNotOpenException, ClassNotFoundException
+    public String getToString()
     {
         return bClass.getName();
     }

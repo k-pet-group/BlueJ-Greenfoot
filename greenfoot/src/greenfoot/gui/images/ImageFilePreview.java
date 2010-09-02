@@ -47,7 +47,7 @@ import javax.swing.JLabel;
  * An image preview box accessory for a file chooser
  * 
  * @author Davin McCall
- * @version $Id: ImageFilePreview.java 6764 2009-09-30 12:29:11Z polle $
+ * @version $Id: ImageFilePreview.java 8238 2010-09-02 11:04:59Z nccb $
  */
 public class ImageFilePreview extends JLabel
     implements PropertyChangeListener
@@ -84,7 +84,6 @@ public class ImageFilePreview extends JLabel
 
         //If the directory changed, don't show an image.
         if (JFileChooser.DIRECTORY_CHANGED_PROPERTY.equals(prop)) {
-            file = null;
             update = true;
 
         //If a file became selected, find out which one.

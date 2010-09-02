@@ -202,9 +202,6 @@ public abstract class ExistingScenarioChecker
         catch (IOException e) {
             exception = e;
         }
-        catch (InterruptedException e) {
-            // We were probably interrupted for aborting
-        }
 
         return exception;
     }
