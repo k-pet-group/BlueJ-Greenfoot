@@ -257,6 +257,14 @@ editor.replacePanel.replaceLabel=Replace:
 editor.replacePanel.replaceOnce=Once
 editor.replacePanel.replaceAll=All
 
+# "Add javadoc" function
+editor.addjavadoc.notAMethod=Not in a method.
+editor.addjavadoc.hasJavadoc=This method already has a Javadoc comment.
+editor.addjavadoc.constructor=Constructor
+editor.addjavadoc.method=Method
+editor.addjavadoc.parameter=A parameter
+editor.addjavadoc.returnValue=The return value
+
 # Messages shown as a result of a search with replace all
 editor.replaceAll.replaced=Replaced 
 editor.replaceAll.intancesOf=\ instances of 

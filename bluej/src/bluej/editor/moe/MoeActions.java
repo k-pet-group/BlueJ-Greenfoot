@@ -824,7 +824,7 @@ public final class MoeActions
                 node = node.getNode().findNodeAt(caretPos, node.getPosition());
             }
             if (node == null || !(node.getNode() instanceof MethodNode)) {
-                editor.writeMessage("Not in a method");
+                editor.writeMessage(Config.getString("editor.addjavadoc.notAMethod"));
             } else {
                 MethodNode methodNode = ((MethodNode)node.getNode());
                 
@@ -838,7 +838,7 @@ public final class MoeActions
                 }
                 
                 if (hasJavadocComment) {
-                    editor.writeMessage("Method already has a Javadoc comment");
+                    editor.writeMessage(Config.getString("editor.addjavadoc.hasJavadoc"));
                 } else {
                     StringBuilder indent = new StringBuilder();
                     int column = editor.getLineColumnFromOffset(node.getPosition()).getColumn();
@@ -851,21 +851,26 @@ public final class MoeActions
                     
                     if (retTypeEntity == null) {
                         // It's a constructor:
-                        newComment.append(indent).append(" * " + methodNode.getName() + " Constructor\n");
+                        newComment.append(indent).append(" * " + methodNode.getName() + " " +
+                                Config.getString("editor.addjavadoc.constructor") + "\n");
                     } else {
                         // It's a method:
-                        newComment.append(indent).append(" * Method " + methodNode.getName() + "\n");
+                        newComment.append(indent).append(" * " +
+                                Config.getString("editor.addjavadoc.method") + " " +
+                                methodNode.getName() + "\n");
                     }
                     newComment.append(indent).append(" *\n");
 
                     for (String s: methodNode.getParamNames()) {
-                        newComment.append(indent).append(" * @param " + s + " A parameter\n");
+                        newComment.append(indent).append(" * @param " + s + " " +
+                                Config.getString("editor.addjavadoc.parameter") + "\n");
                     }
                     
                     if (retTypeEntity != null) {
                         JavaType retType = retTypeEntity.resolveAsType().getType();
                         if (retType != null && !retType.isVoid()) {
-                            newComment.append(indent).append(" * @return The return value\n");
+                            newComment.append(indent).append(" * @return " +
+                                    Config.getString("editor.addjavadoc.returnValue") + "\n");
                         }
                     }
                     

@@ -72,7 +72,7 @@ public class MethodNode extends JavaParentNode
     /**
      * Set the return type of this method.
      * 
-     * (If the returnType is unresolved, it must resolve against type parameters for
+     * <p>(If the returnType is unresolved, it must resolve against type parameters for
      * this actual method).
      */
     public void setReturnType(JavaEntity returnType)
@@ -177,7 +177,8 @@ public class MethodNode extends JavaParentNode
     
     /**
      * Get the return type of the method represented by this node.
-     * Returns a possibly unresolved JavaEntity.
+     * Returns a possibly unresolved JavaEntity. For a constructor,
+     * returns null.
      */
     public JavaEntity getReturnType()
     {
