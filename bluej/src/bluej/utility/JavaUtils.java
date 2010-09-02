@@ -529,51 +529,51 @@ public abstract class JavaUtils
             }
         }
         
-        // Process the block tags
-        if (i < javadocString.length()) {
-            String header = javadocString.substring(0, i);
-            String blocksText = javadocString.substring(i);
-            String[] lines = Utility.splitLines(blocksText);
-            
-            List<String> blocks = getBlockTags(lines);
-            
-            StringBuilder rest = new StringBuilder();
-            StringBuilder params = new StringBuilder();
-            params.append("<h3>Parameters</h3>").append("<table border=0>");
-            boolean hasParamDoc = false;
-            
-            for (String block : blocks) {
-                if (block.startsWith("param ")) {
-                    int p = "param".length();
-                    // Find the parameter name
-                    while (Character.isWhitespace(block.charAt(p))) {
-                        p++;
-                    }
-                    int k = p;
-                    while (k < block.length() && !Character.isWhitespace(block.charAt(k))) {
-                        k++;
-                    }
-                    String paramName = block.substring(p, k);
-                    String paramDesc = block.substring(k);
-                    
-                    params.append("<tr><td valign=\"top\">&nbsp;&nbsp;&nbsp;");
-                    params.append(makeCommentColour(paramName));
-                    params.append("</td><td>");
-                    params.append(makeCommentColour(" - " + paramDesc));
-                    params.append("</td></tr>");
-                    hasParamDoc = true;
-                } else {
-                    rest.append(convertBlockTag(block)).append("<br>");
-                }
-            }           
-            
-            params.append("</table><p>");
-            
-            String result = makeCommentColour(header) + (hasParamDoc ? params.toString() : "<p>") + rest.toString();
-            return result;
+        if (i >= javadocString.length()) {
+            return makeCommentColour(javadocString);
         }
         
-        return makeCommentColour(javadocString);
+        // Process the block tags
+        String header = javadocString.substring(0, i);
+        String blocksText = javadocString.substring(i);
+        String[] lines = Utility.splitLines(blocksText);
+
+        List<String> blocks = getBlockTags(lines);
+
+        StringBuilder rest = new StringBuilder();
+        StringBuilder params = new StringBuilder();
+        params.append("<h3>Parameters</h3>").append("<table border=0>");
+        boolean hasParamDoc = false;
+
+        for (String block : blocks) {
+            if (block.startsWith("param ")) {
+                int p = "param".length();
+                // Find the parameter name
+                while (Character.isWhitespace(block.charAt(p))) {
+                    p++;
+                }
+                int k = p;
+                while (k < block.length() && !Character.isWhitespace(block.charAt(k))) {
+                    k++;
+                }
+                String paramName = block.substring(p, k);
+                String paramDesc = block.substring(k);
+
+                params.append("<tr><td valign=\"top\">&nbsp;&nbsp;&nbsp;");
+                params.append(makeCommentColour(paramName));
+                params.append("</td><td>");
+                params.append(makeCommentColour(" - " + paramDesc));
+                params.append("</td></tr>");
+                hasParamDoc = true;
+            } else {
+                rest.append(convertBlockTag(block)).append("<br>");
+            }
+        }           
+
+        params.append("</table><p>");
+
+        String result = makeCommentColour(header) + (hasParamDoc ? params.toString() : "<p>") + rest.toString();
+        return result;
     }
     
     private static String makeCommentColour(String text)
@@ -581,6 +581,11 @@ public abstract class JavaUtils
         return "<font color='#994400'>" + text + "</font>";
     }
 
+    /**
+     * For a set of text lines representing block tags in a a javadoc comment, with some block
+     * tags potentially flowing over more than one line, return a list of Strings corresponding
+     * to each block tag with its complete text.
+     */
     private static List<String> getBlockTags(String[] lines)
     {
         LinkedList<String> blocks = new LinkedList<String>();
@@ -594,7 +599,7 @@ public abstract class JavaUtils
                 cur = line.substring(1);
             } else {
                 //If it doesn't start with an at, it's part of the previous tag
-                cur += line + " ";
+                cur += " " + line;
             }
         }
         blocks.addLast(cur);
