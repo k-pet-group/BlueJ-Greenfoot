@@ -68,7 +68,7 @@ public class IBSPColChecker implements CollisionChecker
         this.cellSize = cellSize;
     }
 
-    /* (non-Javadoc)
+    /*
      * @see greenfoot.collision.CollisionChecker#addObject(greenfoot.Actor)
      */
     public void addObject(Actor actor)
@@ -95,15 +95,13 @@ public class IBSPColChecker implements CollisionChecker
         }
         else {
             Rect treeArea = bspTree.getArea();
-            if (treeArea.contains(bounds)) {
-                insertObject(actor, bounds, bounds, treeArea, bspTree);
-            }
-            else {
-                // Our current tree won't contain the actor; need to expand the tree, up to
-                // four times...
+            while (! treeArea.contains(bounds)) {
+                // We increase the tree area in up to four directions:
                 if (bounds.getX() < treeArea.getX()) {
-                    Rect newArea = new Rect(bounds.getX(), treeArea.getY(),
-                            treeArea.getRight() - bounds.getX(), treeArea.getHeight());
+                    // double the width out to the left
+                    int bx = treeArea.getX() - treeArea.getWidth();
+                    Rect newArea = new Rect(bx, treeArea.getY(),
+                            treeArea.getRight() - bx, treeArea.getHeight());
                     BSPNode newTop = BSPNodeCache.getBSPNode();
                     newTop.getArea().copyFrom(newArea);
                     newTop.setSplitAxis(X_AXIS);
@@ -113,8 +111,10 @@ public class IBSPColChecker implements CollisionChecker
                     treeArea = newArea;
                 }
                 if (bounds.getRight() > treeArea.getRight()) {
+                    // double the width out to the right
+                    int bx = treeArea.getRight() + treeArea.getWidth();
                     Rect newArea = new Rect(treeArea.getX(), treeArea.getY(),
-                            bounds.getRight() - treeArea.getX(), treeArea.getHeight());
+                            bx - treeArea.getX(), treeArea.getHeight());
                     BSPNode newTop = BSPNodeCache.getBSPNode();
                     newTop.getArea().copyFrom(newArea);
                     newTop.setSplitAxis(X_AXIS);
@@ -124,8 +124,10 @@ public class IBSPColChecker implements CollisionChecker
                     treeArea = newArea;
                 }
                 if (bounds.getY() < treeArea.getY()) {
-                    Rect newArea = new Rect(treeArea.getX(), bounds.getY(),
-                            treeArea.getWidth(), treeArea.getTop() - bounds.getY());
+                    // double the height out the top
+                    int by = treeArea.getY() - treeArea.getHeight();
+                    Rect newArea = new Rect(treeArea.getX(), by,
+                            treeArea.getWidth(), treeArea.getTop() - by);
                     BSPNode newTop = BSPNodeCache.getBSPNode();
                     newTop.getArea().copyFrom(newArea);
                     newTop.setSplitAxis(Y_AXIS);
@@ -135,8 +137,10 @@ public class IBSPColChecker implements CollisionChecker
                     treeArea = newArea;
                 }
                 if (bounds.getTop() > treeArea.getTop()) {
+                    // double the height out the bottom
+                    int by = treeArea.getTop() + treeArea.getHeight();
                     Rect newArea = new Rect(treeArea.getX(), treeArea.getY(),
-                            treeArea.getWidth(), bounds.getTop() - treeArea.getY());
+                            treeArea.getWidth(), by - treeArea.getY());
                     BSPNode newTop = BSPNodeCache.getBSPNode();
                     newTop.getArea().copyFrom(newArea);
                     newTop.setSplitAxis(Y_AXIS);
@@ -145,8 +149,9 @@ public class IBSPColChecker implements CollisionChecker
                     bspTree = newTop;
                     treeArea = newArea;
                 }
-                bspTree.addActor(actor);
             }
+            
+            insertObject(actor, bounds, bounds, treeArea, bspTree);
         }
         // checkConsistency();
     }
