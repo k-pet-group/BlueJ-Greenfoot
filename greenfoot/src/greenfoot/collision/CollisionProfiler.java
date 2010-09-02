@@ -132,47 +132,47 @@ public class CollisionProfiler
         
     }
 
-    public List getObjectsAt(int x, int y, Class cls)
+    public <T extends Actor> List<T> getObjectsAt(int x, int y, Class<T> cls)
     {
         long t1 = System.nanoTime();
-        List l  = checker.getObjectsAt(x, y, cls);
+        List<T> l  = checker.getObjectsAt(x, y, cls);
         long t2 = System.nanoTime();
         getObjectsAtTime += t2 - t1;
         return l;
     }
 
-    public List getIntersectingObjects(Actor actor, Class cls)
+    public <T extends Actor> List<T> getIntersectingObjects(Actor actor, Class<T> cls)
     {
 
         long t1 = System.nanoTime();
-        List l = checker.getIntersectingObjects(actor, cls);
+        List<T> l = checker.getIntersectingObjects(actor, cls);
         long t2 = System.nanoTime();
         getIntersectingObjectsTime += t2 - t1;
         return l;
     }
 
-    public List getObjectsInRange(int x, int y, int r, Class cls)
+    public <T extends Actor> List<T> getObjectsInRange(int x, int y, int r, Class<T> cls)
     {
         long t1 = System.nanoTime();
-        List l = checker.getObjectsInRange(x, y, r, cls);
+        List<T> l = checker.getObjectsInRange(x, y, r, cls);
         long t2 = System.nanoTime();
         getObjectsInRangeTime += t2 - t1;
         return l;
     }
 
-    public List getNeighbours(Actor actor, int distance, boolean diag, Class cls)
+    public <T extends Actor> List<T> getNeighbours(Actor actor, int distance, boolean diag, Class<T> cls)
     {
         long t1 = System.nanoTime();
-        List l = checker.getNeighbours(actor, distance, diag, cls);
+        List<T> l = checker.getNeighbours(actor, distance, diag, cls);
         long t2 = System.nanoTime();
         getNeighboursTime += t2 - t1;
         return l;
     }
 
-    public List getObjectsInDirection(int x, int y, int angle, int length, Class cls)
+    public <T extends Actor> List<T> getObjectsInDirection(int x, int y, int angle, int length, Class<T> cls)
     {
         long t1 = System.nanoTime();
-        List l = checker.getObjectsInDirection(x, y, angle, length, cls);
+        List<T> l = checker.getObjectsInDirection(x, y, angle, length, cls);
         long t2 = System.nanoTime();
         getObjectsInDirectionTime += t2 - t1;
         return l;
@@ -273,19 +273,19 @@ public class CollisionProfiler
         fileStream.println("========================");
     }
 
-    public Actor getOneObjectAt(Actor actor, int dx, int dy, Class cls)
+    public <T extends Actor> T getOneObjectAt(Actor actor, int dx, int dy, Class<T> cls)
     {
         long t1 = System.nanoTime();
-        Actor o = checker.getOneObjectAt(actor, dx, dy, cls);
+        T o = checker.getOneObjectAt(actor, dx, dy, cls);
         long t2 = System.nanoTime();
         getOneObjectAtTime += t2 - t1;
         return o;
     }
 
-    public Actor getOneIntersectingObject(Actor object, Class cls)
+    public <T extends Actor> T getOneIntersectingObject(Actor object, Class<T> cls)
     {
         long t1 = System.nanoTime();
-        Actor o = checker.getOneIntersectingObject(object, cls);
+        T o = checker.getOneIntersectingObject(object, cls);
         long t2 = System.nanoTime();
         getOneIntersectingObjectTime += t2 - t1;
         return o;
