@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -30,15 +30,14 @@ import rmiextension.wrappers.event.RCompileListenerImpl;
 
 /**
  * Class that forwards compile events to all the compile listeners registered
- * with greenfoot. This is for performance reasons. Many objects are interested
+ * with Greenfoot. This is for performance reasons. Many objects are interested
  * in compile events, and if all these should use remote listeners it might be
  * to heavy. Consider using non remote compile events as well.
- * <p>
- * Another feature of this class is that the events will be delegated to the compileListeners int he order in which they appear in the list.
+ * 
+ * <p>Another feature of this class is that the events will be delegated to the compileListeners in
+ * the order in which they appear in the list.
  * 
  * @author Poul Henriksen
- * @version $Id: CompileListenerForwarder.java,v 1.4 2004/11/18 09:43:52 polle
- *          Exp $
  */
 public class CompileListenerForwarder extends RCompileListenerImpl
 {
@@ -60,7 +59,7 @@ public class CompileListenerForwarder extends RCompileListenerImpl
         throws RemoteException
     {
         synchronized (compileListeners) {
-            for (Iterator iter = compileListeners.iterator(); iter.hasNext();) {
+            for (Iterator<? extends CompileListener> iter = compileListeners.iterator(); iter.hasNext();) {
                 CompileListener element = (CompileListener) iter.next();
                 element.compileStarted(event);
             }
@@ -71,7 +70,7 @@ public class CompileListenerForwarder extends RCompileListenerImpl
         throws RemoteException
     {
         synchronized (compileListeners) {
-            for (Iterator iter = compileListeners.iterator(); iter.hasNext();) {
+            for (Iterator<? extends CompileListener> iter = compileListeners.iterator(); iter.hasNext();) {
                 CompileListener element = (CompileListener) iter.next();
                 element.compileError(event);
             }
@@ -82,7 +81,7 @@ public class CompileListenerForwarder extends RCompileListenerImpl
         throws RemoteException
     {
         synchronized (compileListeners) {
-            for (Iterator iter = compileListeners.iterator(); iter.hasNext();) {
+            for (Iterator<? extends CompileListener> iter = compileListeners.iterator(); iter.hasNext();) {
                 CompileListener element = (CompileListener) iter.next();
                 element.compileWarning(event);
             }
@@ -109,7 +108,7 @@ public class CompileListenerForwarder extends RCompileListenerImpl
         throws RemoteException
     {
         synchronized (compileListeners) {
-            for (Iterator iter = compileListeners.iterator(); iter.hasNext();) {
+            for (Iterator<? extends CompileListener> iter = compileListeners.iterator(); iter.hasNext();) {
                 CompileListener element = (CompileListener) iter.next();
                 element.compileFailed(event);
             }

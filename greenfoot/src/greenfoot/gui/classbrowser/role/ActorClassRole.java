@@ -62,7 +62,7 @@ public class ActorClassRole extends ImageClassRole
      * Need to overide this method in order to delay the invocation of the
      * constructor until the object is placed into the world.
      */
-    public List<Action> createConstructorActions(Class realClass, GProject project)
+    public List<Action> createConstructorActions(Class<?> realClass, GProject project)
     {
         List<Action> realActions = super.createConstructorActions(realClass, project);
         constructorItems = new ArrayList<Action>();

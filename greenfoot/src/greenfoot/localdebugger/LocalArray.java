@@ -127,7 +127,7 @@ public class LocalArray extends LocalObject
         if (value instanceof String) {
             return "\"" + value + "\"";
         }
-        else if (value instanceof Enum) {
+        else if (value instanceof Enum<?>) {
             Enum<?> enumv = (Enum<?>) value;
             return enumv.name();
         }

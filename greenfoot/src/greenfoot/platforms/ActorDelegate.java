@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,14 +22,12 @@
 package greenfoot.platforms;
 
 import greenfoot.GreenfootImage;
-import greenfoot.World;
 
 /**
  * Interface to classes that contain specialized behaviour for the Actors
  * depending on where and how the greenfoot project is running.
  * 
  * @author Poul Henriksen
- * 
  */
 public interface ActorDelegate
 {
@@ -37,5 +35,4 @@ public interface ActorDelegate
      * Get the default image for objects of this class. May return null.
      */
     public GreenfootImage getImage(String name);
-
 }
