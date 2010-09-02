@@ -26,13 +26,10 @@ import java.io.IOException;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import bluej.utility.Debug;
-
 /**
  * An implementation of GreenfootAudioInputStream that reads from a memory buffer
  * 
  * @author neil
- *
  */
 public class MemoryAudioInputStream implements GreenfootAudioInputStream
 {
