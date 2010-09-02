@@ -52,6 +52,7 @@ import bluej.parser.entity.WildcardSuperEntity;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
 import bluej.pkgmgr.JavadocResolver;
+import bluej.utility.JavaReflective;
 import bluej.utility.JavaUtils;
 
 /**
@@ -78,7 +79,15 @@ public class ParseUtils
         if (suggests != null) {
             GenTypeClass exprType = suggests.getSuggestionType().asClass();
             if (exprType == null) {
-                return null;
+                JavaType arrayComponent = suggests.getSuggestionType().getArrayComponent();
+                if (arrayComponent != null && arrayComponent.isPrimitive()) {
+                    // Array of primitives:
+                    // For code completion purposes, consider this as an array of object:
+                    exprType = new GenTypeClass(new JavaReflective(Object.class)).getArray();
+                }
+                else {
+                    return null;
+                }
             }
             
             GenTypeClass accessType = suggests.getAccessType();
