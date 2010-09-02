@@ -119,12 +119,11 @@ public abstract class Actor
     /**
      * Construct an Actor.
      * The object will have a default image.
-     * 
      */
     public Actor()
     {
         // Use the class image, if one is defined, as the default image, or the
-        // greenfoot logo image otherwise
+        // Greenfoot logo image otherwise
         mySequenceNumber = sequenceNumber++;
         GreenfootImage image = getClassImage();
         if (image == null) {
@@ -143,8 +142,8 @@ public abstract class Actor
      * chance to perform some action. At each action step in the environment,
      * each object's act method is invoked, in unspecified order.
      * 
-     * This method does nothing. It should be overridden in subclasses to
-     * implement an object's action.
+     * <p>The default implementation does nothing. This method should be overridden in
+     * subclasses to implement an object's action.
      */
     public void act()
     {
