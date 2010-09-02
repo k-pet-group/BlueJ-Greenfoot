@@ -234,6 +234,7 @@ public class GridCollisionChecker
     private boolean wrap;
 
     private GridWorld world;
+    private int cellSize;
     
     private Statistics currentStats = new Statistics();
     private List<Statistics> allStats = new ArrayList<Statistics>();
@@ -243,6 +244,7 @@ public class GridCollisionChecker
     public void initialize(int width, int height, int cellSize, boolean wrap)
     {
         this.wrap = wrap;
+        this.cellSize = cellSize;
         objects = null;
         if (PRINT_STATS) {
             System.out.println(Statistics.headerString());
@@ -310,9 +312,7 @@ public class GridCollisionChecker
         }
     }
 
-    /**
-     * Returns all objects that contains the given location.
-     * 
+    /*
      * TODO: Bad performance. Can be improved MUCH if we only handle worlds
      * wehre objects spans a single cell.
      * 
@@ -329,9 +329,9 @@ public class GridCollisionChecker
         for (Iterator<Actor> iter = objects.iterator(); iter.hasNext();) {
             currentStats.incGetObjectsAt();
             Actor actor = iter.next();
-            int ax = ActorVisitor.getX(actor);
-            int ay = ActorVisitor.getY(actor);
-            if ((cls == null || cls.isInstance(actor)) && ActorVisitor.contains(actor,x - ax, y - ay)) {
+            int ax = x * cellSize + cellSize / 2;
+            int ay = y * cellSize + cellSize / 2;
+            if ((cls == null || cls.isInstance(actor)) && ActorVisitor.containsPoint(actor, ax, y - ay)) {
                 objectsThere.add((T) actor);
             }
         }

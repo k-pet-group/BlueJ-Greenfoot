@@ -152,7 +152,7 @@ public class GetAtTest extends TestCase
      * Test that the collision checker can handle rotated actors. 
      */
     @SuppressWarnings("unchecked")
-    public void testRotatione() 
+    public void testRotation3() 
     {
         // This test currently fails, but I'm not convinced it *should* pass. Do we really want rotated
         // objects in a cell to overlap other cells? Does "getObjectsAt" really return all objects

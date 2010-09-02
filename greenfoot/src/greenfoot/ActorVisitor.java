@@ -71,11 +71,6 @@ public class ActorVisitor
         return actor.world;
     }
    
-    public static boolean contains(Actor actor, int dx, int dy)
-    {
-        return actor.contains(dx, dy);
-    }
-    
     /**
      * Checks whether the specified point (specified in pixel co-ordinates) is within the area
      * covered by the (rotated) graphical representation of the given actor.

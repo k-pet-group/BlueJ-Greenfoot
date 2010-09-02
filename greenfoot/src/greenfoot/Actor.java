@@ -861,44 +861,6 @@ public abstract class Actor
         failIfNotInWorld();
         return world.getOneIntersectingObject(this, cls);
     }
-
-    /**
-     * Checks whether the specified relative cell-location is considered to be
-     * inside this object.
-     * <p>
-     * 
-     * A location is considered to be inside an object, if the object's image
-     * overlaps at least partially with that cell.
-     * <p>
-     * 
-     * This method is used by collision checking methods. Therefore, this method
-     * can be overridden if, for example, other than rectangular image shapes
-     * should be considered. <p>
-     * 
-     * NOTE: No longer public,
-     * since no scenarios have used it so far, and we might want to do it
-     * slightly different if we want collision checkers to only do most of the
-     * computation once per act.
-     * 
-     * @param dx The x-position relative to the location of the object
-     * @param dy The y-position relative to the location of the object
-     * @return True if the image contains the cell. If the object has no image,
-     *         false will be returned.
-     */
-    boolean contains(int dx, int dy)
-    {
-        failIfNotInWorld();
-        if (image == null) {
-            return false;
-        }
-        int cellSize = world.getCellSize();
-
-        Shape rotatedImageBounds = getRotatedShape();
-        Rectangle cellBounds = new Rectangle(dx * cellSize - cellSize / 2,
-                dy * cellSize - cellSize / 2, cellSize, cellSize);
-        
-        return rotatedImageBounds.intersects(cellBounds);
-    }
     
     /**
      * Checks whether the specified point (specified in pixel co-ordinates) is within the area
@@ -914,10 +876,39 @@ public abstract class Actor
         if (image == null) {
             return false;
         }
-        int cellSize = world.getCellSize();
 
-        Shape rotatedImageBounds = getRotatedShape();
-        return rotatedImageBounds.contains(px - x * cellSize - cellSize / 2, py - y * cellSize - cellSize / 2);
+        if (boundingRect == null) {
+            calcBounds(); // Make sure bounds are up-to-date
+        }
+        
+        if (rotation == 0 || rotation == 90 || rotation == 270) {
+            // We can just check the bounding rectangle
+            return (px >= boundingRect.getX() && px < boundingRect.getRight()
+                    && py >= boundingRect.getY() && py < boundingRect.getTop());
+        }
+        
+        vloop: for (int v = 0; v < 4; v++) {
+            int v1 = (v + 1) & 3; // wrap at 4 back to 0
+            int edgeX = boundingXs[v] - boundingXs[v1];
+            int edgeY = boundingYs[v] - boundingYs[v1];
+            int reX = -edgeY;
+            int reY = edgeX;
+
+            if (reX == 0 && reY == 0) {
+                continue vloop;
+            }
+
+            int scalar = reX * (px - boundingXs[v1]) + reY * (py - boundingYs[v1]);
+            if (scalar < 0) {
+                continue vloop;
+            }
+
+            // If we got here, we have an edge with all vertexes from the other rect
+            // on the outside:
+            return false;
+        }
+        
+        return true;
     }
 
     /**
