@@ -276,6 +276,7 @@ public final class JavaLexer implements TokenStream
             ch = (char) rval;
         }
         else {
+            rval = readNextChar();
             while (Character.isDigit((char) rval)) {
                 textBuffer.append((char) rval);
                 rval = readNextChar();
