@@ -162,5 +162,5 @@ public abstract class Reflective
     /**
      * Get the inner classes of the type represented by this Reflective.
      */
-    abstract public List<GenTypeClass> getInners();
+    abstract public List<Reflective> getInners();
 }

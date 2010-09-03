@@ -30,6 +30,7 @@ import java.util.Map;
 
 import bluej.Config;
 import bluej.debugger.gentype.GenTypeClass;
+import bluej.debugger.gentype.Reflective;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.PackageOrClass;
 import bluej.parser.entity.TypeEntity;
@@ -204,12 +205,12 @@ public class ImportsCollection
             }
             GenTypeClass clType = importEntity.getClassType();
             if (clType != null) {
-                List<GenTypeClass> inners = clType.getReflective().getInners();
-                for (GenTypeClass inner : inners) {
-                    String innerName = inner.getReflective().getName();
+                List<Reflective> inners = clType.getReflective().getInners();
+                for (Reflective inner : inners) {
+                    String innerName = inner.getName();
                     innerName = innerName.substring(innerName.lastIndexOf('$'));
                     if (name.equals(innerName)) {
-                        return new TypeEntity(inner);
+                        return new TypeEntity(new GenTypeClass(inner));
                     }
                 }
             }

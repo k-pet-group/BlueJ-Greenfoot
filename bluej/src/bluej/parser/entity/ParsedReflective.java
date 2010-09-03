@@ -280,7 +280,7 @@ public class ParsedReflective extends Reflective
     }
     
     @Override
-    public List<GenTypeClass> getInners()
+    public List<Reflective> getInners()
     {
         // TODO fix
         return Collections.emptyList();

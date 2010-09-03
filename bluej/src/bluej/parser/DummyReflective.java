@@ -69,7 +69,7 @@ public class DummyReflective extends Reflective
     }
 
     @Override
-    public List<GenTypeClass> getInners()
+    public List<Reflective> getInners()
     {
         return Collections.emptyList();
     }
