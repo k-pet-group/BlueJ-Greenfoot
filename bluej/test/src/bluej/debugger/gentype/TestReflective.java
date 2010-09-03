@@ -41,6 +41,7 @@ public class TestReflective extends Reflective
     public String name;
     public List<GenTypeDeclTpar> typeParams;
     public List<GenTypeClass> superTypes; // list of GenTypeClass
+    public Map<String,FieldReflective> fields = Collections.emptyMap();
     
     public TestReflective(String name)
     {
