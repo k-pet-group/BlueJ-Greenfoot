@@ -94,8 +94,7 @@ public class ParsedArrayReflective extends Reflective
     @Override
     public List<Reflective> getSuperTypesR()
     {
-        // TODO Auto-generated method stub
-        return null;
+        return Collections.emptyList();
     }
     
     @Override
