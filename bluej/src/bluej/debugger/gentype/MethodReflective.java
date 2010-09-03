@@ -109,11 +109,19 @@ public class MethodReflective
         return name;
     }
     
+    /**
+     * Check whether the method is a static method.
+     */
     public boolean isStatic()
     {
         return Modifier.isStatic(modifiers);
     }
     
+    /**
+     * Get the method modifiers as a bitmask.
+     * 
+     * @see java.lang.reflect.Modifier
+     */
     public int getModifiers()
     {
         return modifiers;

@@ -145,7 +145,9 @@ public abstract class Reflective
     
     /**
      * Get the methods declared in the type represented by this Reflective.
-     * This does not include methods declared in the superclass(es).
+     * This does not include methods declared in the superclass(es), nor does
+     * it include synthetic methods.
+     * 
      * @return a map which maps method names to a set of methods
      *    (represented by MethodReflective objects) 
      */

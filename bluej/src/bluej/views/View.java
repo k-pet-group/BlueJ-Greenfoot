@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -38,13 +38,9 @@ import bluej.utility.JavaUtils;
  * <p>The methods in this class are generally thread-safe.
  *
  * @author  Michael Cahill
- * @version $Id: View.java 8244 2010-09-02 16:23:03Z nccb $
  */
 public class View
 {
-    public final static String classIgnore = "class$";
-    public final static String accessIgnore = "access$";
-
     /** The class that this view is for **/
     protected Class<?> cl;
 
@@ -325,21 +321,11 @@ public class View
 
     private int addMembers(HashMap<String,MemberElement> h, MemberView[] members, int num)
     {
-        //Debug.message("Started addMembers for " + cl);
-
         for(int i = members.length - 1; i >= 0; i--) {
-            //Debug.message("Adding ->" + members[i].toString() + "<-");
             h.put(members[i].toString(), new MemberElement(num++, members[i]));
         }
 
-        //Debug.message("Ended addMembers for " + cl);
         return num;
-    }
-
-    private boolean hideMethodName(Method method)
-    {
-        String name = method.getName();
-        return (name.startsWith(classIgnore) || name.startsWith(accessIgnore) || JavaUtils.getJavaUtils().isSynthetic(method));
     }
 
     public MethodView[] getDeclaredMethods()
@@ -350,14 +336,14 @@ public class View
                 Method[] cl_methods = cl.getDeclaredMethods();
                 
                 for(int i = 0; i < cl_methods.length; i++) {
-                    if (!hideMethodName(cl_methods[i]))
+                    if (!cl_methods[i].isSynthetic())
                         count++;
                 }
                 methods = new MethodView[count];
                 
                 count = 0;
                 for(int i = 0; i < cl_methods.length; i++) {
-                    if (!hideMethodName(cl_methods[i])) {
+                    if (!cl_methods[i].isSynthetic()) {
                         methods[count] = new MethodView(this, cl_methods[i]);
                         count++;
                     }

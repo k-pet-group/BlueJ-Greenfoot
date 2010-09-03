@@ -899,6 +899,10 @@ public class JdiReflective extends Reflective
         Map<String,Set<MethodReflective>> methodMap = new HashMap<String,Set<MethodReflective>>();
         
         for (Method method : methods) {
+            if (method.isSynthetic()) {
+                continue;
+            }
+            
             // Process the string signature to determine return and param types
             String genSig = method.genericSignature();
             if (genSig == null) {

@@ -231,6 +231,10 @@ public class JavaReflective extends Reflective
         Method [] methods = c.getDeclaredMethods();
         Map<String,Set<MethodReflective>> rmap = new HashMap<String,Set<MethodReflective>>();
         for (Method method : methods) {
+            if (method.isSynthetic()) {
+                continue;
+            }
+            
             JavaType rtype = JavaUtils.getJavaUtils().getReturnType(method);
             List<GenTypeDeclTpar> tpars = JavaUtils.getJavaUtils().getTypeParams(method);
             
