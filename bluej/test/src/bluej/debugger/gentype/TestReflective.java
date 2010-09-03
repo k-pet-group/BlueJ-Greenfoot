@@ -49,6 +49,12 @@ public class TestReflective extends Reflective
         superTypes = new ArrayList<GenTypeClass>();
     }
     
+    public TestReflective(String name, Reflective superClass)
+    {
+        this(name);
+        superTypes.add(new GenTypeClass(superClass));
+    }
+    
     public String getName()
     {
         return name;

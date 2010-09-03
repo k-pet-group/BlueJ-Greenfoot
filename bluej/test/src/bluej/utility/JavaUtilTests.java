@@ -22,6 +22,7 @@
 package bluej.utility;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -34,6 +35,7 @@ import bluej.debugger.gentype.GenTypeParameter;
 import bluej.debugger.gentype.GenTypeSolid;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.Reflective;
+import bluej.debugger.gentype.TestReflective;
 
 public class JavaUtilTests extends TestCase
 {
@@ -53,7 +55,7 @@ public class JavaUtilTests extends TestCase
      * Test that types with infinite recursion don't cause us to bomb out.
      * In this case we use Enum, as Enum&lt;E&gt; has E extend Enum&lt;E&gt;.
      */
-    public void test1()
+    public void testEnumInfiniteRecursion()
     {
         JavaUtils ju = JavaUtils.getJavaUtils();
         try {
@@ -172,5 +174,22 @@ public class JavaUtilTests extends TestCase
         }
         
         assertTrue(foundComparable);
+    }
+    
+    /**
+     * Test that a class can access protected members of its superclass, and of its
+     * superclass' superclass and so on.
+     */
+    public void testAccessCheck()
+    {
+        TestReflective baseR = new TestReflective("Base");
+        TestReflective subR = new TestReflective("Sub", baseR);
+        TestReflective subsubR = new TestReflective("SubSub", subR);
+        
+        assertTrue(JavaUtils.checkMemberAccess(subR, subsubR, Modifier.PROTECTED, false));
+        assertFalse(JavaUtils.checkMemberAccess(subR, subsubR, Modifier.PRIVATE, false));
+        
+        assertTrue(JavaUtils.checkMemberAccess(subR, baseR, Modifier.PROTECTED, false));
+        assertFalse(JavaUtils.checkMemberAccess(subR, baseR, Modifier.PRIVATE, false));
     }
 }
