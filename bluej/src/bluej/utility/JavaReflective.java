@@ -26,7 +26,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -316,6 +315,11 @@ public class JavaReflective extends Reflective
     @Override
     public List<Reflective> getInners()
     {
-        return Collections.emptyList(); // not implemented
+        Class<?>[] inners = c.getDeclaredClasses();
+        List<Reflective> innersR = new ArrayList<Reflective>(inners.length);
+        for (Class<?> inner : inners) {
+            innersR.add(new JavaReflective(inner));
+        }
+        return innersR;
     }
 }
