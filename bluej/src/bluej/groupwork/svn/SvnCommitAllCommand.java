@@ -22,10 +22,12 @@
 package bluej.groupwork.svn;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Set;
 
 import org.tigris.subversion.javahl.ClientException;
+import org.tigris.subversion.javahl.Depth;
 import org.tigris.subversion.javahl.SVNClientInterface;
 import org.tigris.subversion.javahl.Status;
 
@@ -69,7 +71,7 @@ public class SvnCommitAllCommand extends SvnCommand
                 
                 Status status = client.singleStatus(newFile.getAbsolutePath(), false);
                 if (! status.isManaged()) {
-                    client.add(newFile.getAbsolutePath(), 0, false, false, false);
+                    client.add(newFile.getAbsolutePath(), Depth.empty, false, false, true);
                     if (! newFile.isDirectory()) {
                         client.propertySet(newFile.getAbsolutePath(), "svn:eol-style",
                                 "native", false);
@@ -84,7 +86,7 @@ public class SvnCommitAllCommand extends SvnCommand
                 
                 Status status = client.singleStatus(newFile.getAbsolutePath(), false);
                 if (! status.isManaged()) {
-                    client.add(newFile.getAbsolutePath(), 0, false, false, false);
+                    client.add(newFile.getAbsolutePath(), Depth.empty, false, false, true);
                     if (! newFile.isDirectory()) {
                         client.propertySet(newFile.getAbsolutePath(), "svn:mime-type",
                                 "application/octet-stream", false);
@@ -96,7 +98,7 @@ public class SvnCommitAllCommand extends SvnCommand
             i = deletedFiles.iterator();
             while (i.hasNext()) {
                 File newFile = (File) i.next();
-                client.remove(new String[] {newFile.getAbsolutePath()}, "", true, false, null);
+                client.remove(new String[] {newFile.getAbsolutePath()}, "", true, false, Collections.emptyMap());
             }
             
             // now do the commit
@@ -106,7 +108,7 @@ public class SvnCommitAllCommand extends SvnCommand
                 File file = (File) i.next();
                 commitFiles[j] = file.getAbsolutePath();
             }
-            client.commit(commitFiles, commitComment, 0, false, false, null, null);
+            client.commit(commitFiles, commitComment, Depth.empty, false, false, null, Collections.emptyMap());
             
             if (! isCancelled()) {
                 return new TeamworkCommandResult();
