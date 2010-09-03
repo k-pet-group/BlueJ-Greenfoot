@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,15 +21,20 @@
  */
 package bluej.parser;
 
+import java.util.List;
+
 import javax.swing.text.BadLocationException;
 
 import junit.framework.TestCase;
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.entity.ClassLoaderResolver;
 import bluej.parser.entity.EntityResolver;
+import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.PackageResolver;
+import bluej.parser.entity.TypeEntity;
 import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.nodes.ParsedNode;
+import bluej.parser.nodes.ParsedTypeNode;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 
 public class IncrementalParseTest extends TestCase
@@ -587,4 +592,61 @@ public class IncrementalParseTest extends TestCase
         // The field following was removed, or is at a suitable place
         assertTrue(nnap == null || nnap.getPosition() >= nap.getEnd());
     }
+    
+    public void testChangeSuper() throws Exception
+    {
+        String aSrc = "class A {\n" +         // 0 - 10
+            "  public void someFunc() {\n" +  // 10 - 37
+            "  \n" +                          // 37 - 40  
+            "  }\n" +                         // 40 - 44
+            "}\n";                            // 44 - 46
+
+        MoeSyntaxDocument aDoc = docForSource(aSrc, "");
+        ParsedCUNode aNode = aDoc.getParser();
+        NodeAndPosition<ParsedNode> nap = aNode.findNodeAt(0, 0);
+
+        assertNotNull(nap);
+        assertEquals(0, nap.getPosition());
+        assertEquals(45, nap.getSize());
+        
+        // Typedef node
+        nap = aNode.findNodeAt(0, 0);
+        assertNotNull(nap);
+        
+        ParsedNode pn = nap.getNode();
+        List<JavaEntity> etypes = ((ParsedTypeNode) pn).getExtendedTypes();
+        assertTrue(etypes.isEmpty());
+        
+        // Now make it extend String
+        aDoc.insertString(7, " extends String", null);
+        aNode = aDoc.getParser();
+        
+        nap = aNode.findNodeAt(0,0);
+        assertNotNull(nap);
+        
+        pn = nap.getNode();
+        etypes = ((ParsedTypeNode) pn).getExtendedTypes();
+        assertEquals(1, etypes.size());
+        
+        TypeEntity tent = etypes.get(0).resolveAsType();
+        assertNotNull(tent);
+        assertEquals("java.lang.String", tent.getType().toString());
+        
+        // Now make it extend Object
+        aDoc.remove(16, 6);  // "String"
+        aDoc.insertString(16, "Object", null);
+        aNode = aDoc.getParser();
+        
+        nap = aNode.findNodeAt(0,0);
+        assertNotNull(nap);
+        
+        pn = nap.getNode();
+        etypes = ((ParsedTypeNode) pn).getExtendedTypes();
+        assertEquals(1, etypes.size());
+        
+        tent = etypes.get(0).resolveAsType();
+        assertNotNull(tent);
+        assertEquals("java.lang.Object", tent.getType().toString());
+    }
+
 }
