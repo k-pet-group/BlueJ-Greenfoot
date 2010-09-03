@@ -186,10 +186,43 @@ public class JavaUtilTests extends TestCase
         TestReflective subR = new TestReflective("Sub", baseR);
         TestReflective subsubR = new TestReflective("SubSub", subR);
         
-        assertTrue(JavaUtils.checkMemberAccess(subR, subsubR, Modifier.PROTECTED, false));
-        assertFalse(JavaUtils.checkMemberAccess(subR, subsubR, Modifier.PRIVATE, false));
+        assertTrue(JavaUtils.checkMemberAccess(subR, new GenTypeClass(subsubR), subsubR, Modifier.PROTECTED, false));
+        assertFalse(JavaUtils.checkMemberAccess(subR, new GenTypeClass(subsubR), subsubR, Modifier.PRIVATE, false));
         
-        assertTrue(JavaUtils.checkMemberAccess(subR, baseR, Modifier.PROTECTED, false));
-        assertFalse(JavaUtils.checkMemberAccess(subR, baseR, Modifier.PRIVATE, false));
+        assertTrue(JavaUtils.checkMemberAccess(subR, new GenTypeClass(baseR), baseR, Modifier.PROTECTED, false));
+        assertFalse(JavaUtils.checkMemberAccess(subR, new GenTypeClass(baseR), baseR, Modifier.PRIVATE, false));
+    }
+    
+    /**
+     * Test that we can't access a package-private member from a class which isn't
+     * a superclass, even if a superclass is in the same package.
+     */
+    public void testAccessCheck2()
+    {
+        TestReflective baseR = new TestReflective("Base");
+        TestReflective subR = new TestReflective("somepkg.Sub", baseR);
+        TestReflective otherR = new TestReflective("Other");
+        
+        assertFalse(JavaUtils.checkMemberAccess(otherR, new GenTypeClass(subR), subR, 0, false));
+    }
+    
+    /**
+     * Test that a subclass can only access a protected member from the superclass via an expression
+     * of subclass type.
+     */
+    public void testAccessCheck3()
+    {
+        TestReflective baseR = new TestReflective("Base");
+        TestReflective subR = new TestReflective("somepkg.Sub", baseR);
+        TestReflective subsubR = new TestReflective("somepkg.SubSub", subR);
+        
+        assertFalse(JavaUtils.checkMemberAccess(baseR, new GenTypeClass(baseR),
+                subR, Modifier.PROTECTED, false));
+        
+        assertTrue(JavaUtils.checkMemberAccess(baseR, new GenTypeClass(subR),
+                subR, Modifier.PROTECTED, false));
+
+        assertTrue(JavaUtils.checkMemberAccess(baseR, new GenTypeClass(subsubR),
+                subR, Modifier.PROTECTED, false));
     }
 }

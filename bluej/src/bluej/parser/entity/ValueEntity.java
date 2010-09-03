@@ -27,6 +27,7 @@ import java.util.Map;
 import bluej.debugger.gentype.FieldReflective;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeParameter;
+import bluej.debugger.gentype.GenTypeSolid;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.Reflective;
 import bluej.utility.JavaUtils;
@@ -61,13 +62,19 @@ public class ValueEntity extends JavaEntity
     @Override
     public JavaEntity getSubentity(String name, Reflective accessor)
     {
-        GenTypeClass ctype = type.asClass();
+        GenTypeSolid [] ubounds = type.getUpperBounds();
+        if (ubounds == null || ubounds.length == 0) {
+            return null;
+        }
+        
+        GenTypeClass ctype = ubounds[0].asClass();
+        
         if (ctype != null) {
             Map<String,FieldReflective> fields = ctype.getReflective().getDeclaredFields();
             FieldReflective field = fields.get(name);
             
             if (field != null) {
-                if (JavaUtils.checkMemberAccess(ctype.getReflective(), accessor,
+                if (JavaUtils.checkMemberAccess(ctype.getReflective(), type.asSolid(), accessor,
                         field.getModifiers(), false)) {
                     JavaType fieldType = field.getType();
                     Map<String,GenTypeParameter> tparMap = ctype.getMap();

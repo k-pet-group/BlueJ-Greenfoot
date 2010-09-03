@@ -110,6 +110,17 @@ public class TestReflective extends Reflective
     
     public boolean isAssignableFrom(Reflective r)
     {
+        if (r == this) {
+            return true;
+        }
+        
+        List<Reflective> supers = r.getSuperTypesR();
+        for (Reflective superR : supers) {
+            if (isAssignableFrom(superR)) {
+                return true;
+            }
+        }
+        
         return false;
     }
     

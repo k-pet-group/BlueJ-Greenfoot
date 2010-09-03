@@ -353,12 +353,15 @@ public abstract class JavaUtils
      * according to its modifiers.
      * 
      * @param container  The type containing the member to which access is being checked
+     * @param targetType The type of the expression from which the member is accessed
      * @param accessor   The type trying to access the member
      * @param modifiers  The modifiers of the member
      * @param isStatic   True if the access is a in static context; false if not
+     * 
      * @return  true if the access is allowed, false otherwise
      */
-    public static boolean checkMemberAccess(Reflective container, Reflective accessor, int modifiers, boolean isStatic)
+    public static boolean checkMemberAccess(Reflective container, GenTypeSolid targetType,
+            Reflective accessor, int modifiers, boolean isStatic)
     {
         // Access from a static context can only access static members
         if (isStatic && !Modifier.isStatic(modifiers))
@@ -387,27 +390,30 @@ public abstract class JavaUtils
         if (outer != null) {
             // Inner classes can access outer class members with outer class privileges
             isStatic |= accessor.isStatic();
-            if (checkMemberAccess(container, outer, modifiers, isStatic)) {
+            if (checkMemberAccess(container, targetType, outer, modifiers, isStatic)) {
                 return true;
+            }
+        }
+        
+        // Protected access is allowed if the targetType is a subtype of the acessType
+        Set<Reflective> targetSupers = new HashSet<Reflective>();
+        targetType.erasedSuperTypes(targetSupers);
+        boolean allowProtected = false;
+        for (Reflective ref : targetSupers) {
+            if (accessor.isAssignableFrom(ref)) {
+                allowProtected = true;
+                break;
             }
         }
         
         List<Reflective> supers = accessor.getSuperTypesR();
         Set<String> done = new HashSet<String>();
-        String cpackage = JavaNames.getPrefix(container.getName());
         while (! supers.isEmpty()) {
             Reflective r = supers.remove(0);
             if (done.add(r.getName())) {
                 if (r.getName().equals(container.getName())) {
                     if (Modifier.isProtected(modifiers)) {
-                        return true;
-                    }
-                    if (! Modifier.isPrivate(modifiers)) {
-                        if (accessor.getName().startsWith(cpackage)
-                                && accessor.getName().indexOf('.', cpackage.length() + 1) == -1) {
-                            // Classes are in the same package, and the member is not private: access allowed
-                            return true;
-                        }
+                        return allowProtected;
                     }
                 } else {
                     // We need to check super classes of our super-classes

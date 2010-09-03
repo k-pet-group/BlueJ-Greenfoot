@@ -101,6 +101,7 @@ public class ParseUtils
 
             LinkedList<GenTypeClass> typeQueue = new LinkedList<GenTypeClass>();
             typeQueue.add(exprType);
+            GenTypeClass origExprType = exprType;
             
             while (! typeQueue.isEmpty()) {
                 exprType = typeQueue.removeFirst();
@@ -116,6 +117,7 @@ public class ParseUtils
                     for (MethodReflective method : mset) {
                         if (accessReflective != null &&
                                 ! JavaUtils.checkMemberAccess(method.getDeclaringType(),
+                                        origExprType,
                                         suggests.getAccessType().getReflective(),
                                         method.getModifiers(), suggests.isStatic())) {
                             continue;

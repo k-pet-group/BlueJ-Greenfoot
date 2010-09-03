@@ -1313,7 +1313,7 @@ public class TextAnalyzer
             for (MethodReflective method : methods) {
 
                 // Check accessibility
-                if (!JavaUtils.checkMemberAccess(method.getDeclaringType(), accessType,
+                if (!JavaUtils.checkMemberAccess(method.getDeclaringType(), targetType, accessType,
                         method.getModifiers(), false)) {
                     continue;
                 }

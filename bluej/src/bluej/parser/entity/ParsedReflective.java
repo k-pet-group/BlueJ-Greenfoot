@@ -187,7 +187,20 @@ public class ParsedReflective extends Reflective
     @Override
     public boolean isAssignableFrom(Reflective r)
     {
-        // TODO Auto-generated method stub
+        Set<String> done = new HashSet<String>();
+        LinkedList<Reflective> todo = new LinkedList<Reflective>();
+        
+        while (r != null) {
+            String rname = r.getName();
+            if (rname.equals(getName())) {
+                return true;
+            }
+            if (done.add(r.getName())) {
+                todo.addAll(r.getSuperTypesR());
+            }
+            r = todo.poll();
+        }
+        
         return false;
     }
 

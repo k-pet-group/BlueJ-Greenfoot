@@ -93,7 +93,7 @@ public class TypeEntity extends PackageOrClass
         FieldReflective field = m.get(name);
         if (field != null) {
             boolean accessAllowed = JavaUtils.checkMemberAccess(thisClass.getReflective(),
-                    accessor, field.getModifiers(), true);
+                    thisClass, accessor, field.getModifiers(), true);
             if (accessAllowed) {
                 return new ValueEntity(name, field.getType());
             }
