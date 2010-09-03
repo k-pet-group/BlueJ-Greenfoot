@@ -141,7 +141,7 @@ public class ParsedReflective extends Reflective
             }
         }
         
-        if (rlist.isEmpty()) {
+        if (rlist.isEmpty() && ! isInterface()) {
             // Object is always a supertype
             TypeEntity objEntity = pnode.resolveQualifiedClass("java.lang.Object");
             if (objEntity != null) {
