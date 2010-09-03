@@ -45,6 +45,15 @@ public abstract class Reflective
     public abstract String getName();
     
     /**
+     * Get the name of the class or interface represented by the reflective.
+     * The name is in a form that can be presented nicely to the user.
+     */
+    public String getSimpleName()
+    {
+        return getName();
+    }
+    
+    /**
      * Get the formal type parameters of the class/interface this reflective
      * represents. Note that this does not give the type parameters from
      * outer classes which may still parameterize this reflective's class.

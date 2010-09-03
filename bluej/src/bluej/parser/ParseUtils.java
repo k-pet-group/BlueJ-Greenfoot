@@ -32,6 +32,7 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
+import bluej.debugger.gentype.GenTypeArrayClass;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeParameter;
 import bluej.debugger.gentype.JavaPrimitiveType;
@@ -41,6 +42,7 @@ import bluej.debugger.gentype.Reflective;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.ImportedEntity;
 import bluej.parser.entity.JavaEntity;
+import bluej.parser.entity.ParsedArrayReflective;
 import bluej.parser.entity.SolidTargEntity;
 import bluej.parser.entity.TypeArgumentEntity;
 import bluej.parser.entity.TypeEntity;
@@ -79,11 +81,18 @@ public class ParseUtils
         if (suggests != null) {
             GenTypeClass exprType = suggests.getSuggestionType().asClass();
             if (exprType == null) {
-                JavaType arrayComponent = suggests.getSuggestionType().getArrayComponent();
+                final JavaType arrayComponent = suggests.getSuggestionType().getArrayComponent();
                 if (arrayComponent != null && arrayComponent.isPrimitive()) {
                     // Array of primitives:
-                    // For code completion purposes, consider this as an array of object:
-                    exprType = new GenTypeClass(new JavaReflective(Object.class)).getArray();
+                    // For code completion purposes, consider this as an array of object with a tweaked name:
+                    exprType = new GenTypeArrayClass(new ParsedArrayReflective(new JavaReflective(Object.class),"Object")
+                    {
+                        public String getSimpleName()
+                        {
+                            return arrayComponent.toString() + "[]";
+                        }
+                        
+                    }, arrayComponent);
                 }
                 else {
                     return null;

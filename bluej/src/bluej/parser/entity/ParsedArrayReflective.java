@@ -21,6 +21,8 @@
  */
 package bluej.parser.entity;
 
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
@@ -30,8 +32,11 @@ import java.util.Set;
 import bluej.debugger.gentype.FieldReflective;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeDeclTpar;
+import bluej.debugger.gentype.JavaPrimitiveType;
+import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.MethodReflective;
 import bluej.debugger.gentype.Reflective;
+import bluej.utility.JavaReflective;
 
 public class ParsedArrayReflective extends Reflective
 {
@@ -50,22 +55,29 @@ public class ParsedArrayReflective extends Reflective
         return "[L" + component.getName() + ";";
     }
     
+    public String getSimpleName()
+    {
+        return component.getName() + "[]";
+    }
+    
     @Override
     public Reflective getArrayOf()
     {
         return new ParsedArrayReflective(this, className);
     }
     
+    // See JLS section 10.7: arrays have a "public final int length" field
     @Override
     public Map<String,FieldReflective> getDeclaredFields()
     {
-        return Collections.emptyMap();
+        return Collections.singletonMap("length", new FieldReflective("length", JavaPrimitiveType.getInt(), Modifier.PUBLIC | Modifier.FINAL)); 
     }
     
+    // See JLS section 10.7: arrays have a "public Object clone()" method
     @Override
     public Map<String, Set<MethodReflective>> getDeclaredMethods()
     {
-        return Collections.emptyMap();
+        return Collections.singletonMap("clone", Collections.singleton(new MethodReflective("clone", new GenTypeClass(new JavaReflective(Object.class)), new ArrayList<GenTypeDeclTpar>(), new ArrayList<JavaType>(), this, false, Modifier.PUBLIC)));
     }
     
     @Override
@@ -88,13 +100,15 @@ public class ParsedArrayReflective extends Reflective
         for (ListIterator<GenTypeClass> i = componentSupers.listIterator(); i.hasNext(); ) {
             i.set(i.next().getArray());
         }
+        componentSupers.add(new GenTypeClass(new JavaReflective(Object.class)));
         return componentSupers;
     }
     
     @Override
     public List<Reflective> getSuperTypesR()
     {
-        return Collections.emptyList();
+        Reflective obj = new JavaReflective(Object.class);
+        return Collections.singletonList(obj);
     }
     
     @Override

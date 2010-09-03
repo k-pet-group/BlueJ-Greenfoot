@@ -26,6 +26,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -36,6 +37,7 @@ import java.util.Set;
 import bluej.debugger.gentype.FieldReflective;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeDeclTpar;
+import bluej.debugger.gentype.JavaPrimitiveType;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.MethodReflective;
 import bluej.debugger.gentype.Reflective;
@@ -71,6 +73,14 @@ public class JavaReflective extends Reflective
     public String getName()
     {
         return c.getName();
+    }
+    
+    public String getSimpleName()
+    {
+        if (c.isArray())
+            return c.getComponentType().getName().replace('$', '.') + "[]";
+        else
+            return c.getName().replace('$', '.');
     }
 
     @Override
@@ -221,6 +231,12 @@ public class JavaReflective extends Reflective
                     fields[i].getModifiers());
             rmap.put(fields[i].getName(), fref);
         }
+        
+        // See JLS section 10.7: arrays have a "public final int length" field
+        if (c.isArray()) {
+            rmap.put("length", new FieldReflective("length", JavaPrimitiveType.getInt(), Modifier.PUBLIC | Modifier.FINAL));
+        }
+        
         return rmap;
     }
     
@@ -265,6 +281,12 @@ public class JavaReflective extends Reflective
             }
             rset.add(mr);
         }
+        
+        // See JLS section 10.7: arrays have a "public Object clone()" method
+        if (c.isArray()) {
+            rmap.put("clone", Collections.singleton(new MethodReflective("clone", new GenTypeClass(new JavaReflective(Object.class)), new ArrayList<GenTypeDeclTpar>(), new ArrayList<JavaType>(), this, false, Modifier.PUBLIC)));
+        }
+        
         return rmap;
     }
     

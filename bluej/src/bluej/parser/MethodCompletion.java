@@ -77,9 +77,7 @@ public class MethodCompletion extends AssistContent
     @Override
     public String getDeclaringClass()
     {
-        String dname = method.getDeclaringType().getName();
-        dname = dname.replace('$', '.');
-        return dname;
+        return method.getDeclaringType().getSimpleName();
     }
     
     @Override
