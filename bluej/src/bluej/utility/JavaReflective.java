@@ -322,4 +322,14 @@ public class JavaReflective extends Reflective
         }
         return innersR;
     }
+    
+    @Override
+    public Reflective getOuterClass()
+    {
+        Class<?> declaring = c.getDeclaringClass();
+        if (declaring != null) {
+            return new JavaReflective(declaring);
+        }
+        return null;
+    }
 }

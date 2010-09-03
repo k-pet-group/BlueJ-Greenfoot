@@ -97,6 +97,19 @@ public class ParsedReflective extends Reflective
                 }
             }
         }
+        
+        if (! isInterface()) {
+            if (rval.isEmpty()) {
+                // All classes extend Object implicitly
+                TypeEntity tent = pnode.resolveQualifiedClass("java.lang.Object");
+                if (tent != null) {
+                    GenTypeClass ct = tent.getType().asClass();
+                    if (ct != null) {
+                        rval.add(ct);
+                    }
+                }
+            }
+        }
 
         for (JavaEntity etype : pnode.getImplementedTypes()) {
             TypeEntity tent = etype.resolveAsType();
@@ -108,16 +121,6 @@ public class ParsedReflective extends Reflective
             }
         }
         
-        if (rval.size() == 0 && !isInterface()) {
-            TypeEntity tent = pnode.resolveQualifiedClass("java.lang.Object");
-            if (tent != null) {
-                GenTypeClass ct = tent.getType().asClass();
-                if (ct != null) {
-                    rval.add(ct);
-                }
-            }
-        }
-
         return rval;
     }
 
