@@ -2323,7 +2323,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     private boolean positionHasBreakpoint(int pos)
     {
-        Element line = getSourceLineAt(pos);
+        Element line = getSourceLineAt(getLineNumberAt(pos));
         return Boolean.TRUE.equals(line.getAttributes().getAttribute(MoeSyntaxView.BREAKPOINT));
     }
     
