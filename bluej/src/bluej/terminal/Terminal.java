@@ -411,7 +411,7 @@ public final class Terminal extends JFrame
                         result += "(new instance of " + object.getGenClassName() + ")";
                     }
                     else {
-                    	// do not return anything if it is void
+                    	// if the method returns a void, we must handle it differently
                         if (object.isNullObject()) {
                         	result = "void result";
                         }
