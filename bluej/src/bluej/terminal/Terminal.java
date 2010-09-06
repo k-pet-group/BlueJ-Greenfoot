@@ -388,14 +388,14 @@ public final class Terminal extends JFrame
     
     private void methodResult(ExecutionEvent event)
     {
-        if(recordMethodCalls) {
+        if (recordMethodCalls) {
             try {
-                if(text.getCaretPosition() !=
+                if (text.getCaretPosition() !=
                    text.getLineStartOffset(text.getLineCount())) {
                     writeToTerminal("\n");
                 }
             }
-            catch(BadLocationException exc) {
+            catch (BadLocationException exc) {
                 writeToTerminal("\n");
             }
             
@@ -411,9 +411,15 @@ public final class Terminal extends JFrame
                         result += "(new instance of " + object.getGenClassName() + ")";
                     }
                     else {
-                        // other - the result object is a wrapper with a single result field
-                        result = object.getFieldValueTypeString(0) + " result = ";
-                        result += object.getFieldValueString(0);
+                    	// do not return anything if it is void
+                        if (object.isNullObject()) {
+                        	result = "void result";
+                        }
+                        else {
+                            // other - the result object is a wrapper with a single result field
+                            result = object.getFieldValueTypeString(0) + " result = ";
+                            result += object.getFieldValueString(0);
+                        }
                     }
                 }
             }
@@ -424,7 +430,7 @@ public final class Terminal extends JFrame
                 result = "VM terminated.";
             }
             
-            if(result != null) {
+            if (result != null) {
                 writeToTerminal("[ ");
                 writeToTerminal(result);
                 writeToTerminal(" ]\n");
