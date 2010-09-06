@@ -261,17 +261,13 @@ public abstract class BlueJSyntaxView extends PlainView
 
             int length = tokens.length;
             Color color;
-            if(id == Token.NULL)
-                color = def;
-            else {
-                // check we are within the array bounds
-                // safeguard for updated syntax package
-                if(id < colors.length)
-                    color = colors[id];
-                else color = def;
+            if (id == Token.NULL || id >= colors.length) {
+            	color = def;
             }
-            g.setColor(color == null ? def : color);
-
+            else {
+            	color = colors[id];
+            }
+            g.setColor(color);
             line.count = length;
             x = Utilities.drawTabbedText(line,x,y,g,this,offset);
             line.offset += length;
