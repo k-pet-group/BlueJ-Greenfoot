@@ -539,7 +539,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     {
         switchToSourceView();
 
-        Element line = getSourceLineAt(lineNumber);
+        Element line = getSourceLine(lineNumber);
         int pos = line.getStartOffset();
 
         if (setStepMark) {
@@ -577,7 +577,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     public void setSelection(int lineNumber, int columnNumber, int len)
     {
-        Element line = getSourceLineAt(lineNumber);
+        Element line = getSourceLine(lineNumber);
 
         sourcePane.select(line.getStartOffset() + columnNumber - 1, 
                 line.getStartOffset() + columnNumber + len - 1);
@@ -597,8 +597,8 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
          * if (lineNumber2 < lineNumber1) return; if (lineNumber2 == lineNumber1 &&
          * (columnNumber2 < columnNumber1)) return;
          */
-        Element line1 = getSourceLineAt(lineNumber1);
-        Element line2 = getSourceLineAt(lineNumber2);
+        Element line1 = getSourceLine(lineNumber1);
+        Element line2 = getSourceLine(lineNumber2);
 
         sourcePane.select(line1.getStartOffset() + columnNumber1 - 1, line2.getStartOffset() + columnNumber2 - 1);
     }
@@ -2323,7 +2323,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     private boolean positionHasBreakpoint(int pos)
     {
-        Element line = getSourceLineAt(getLineNumberAt(pos));
+        Element line = getSourceLine(getLineNumberAt(pos));
         return Boolean.TRUE.equals(line.getAttributes().getAttribute(MoeSyntaxView.BREAKPOINT));
     }
     
@@ -2332,7 +2332,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     private boolean lineHasBreakpoint(int lineNo)
     {
-        Element line = getSourceLineAt(lineNo);
+        Element line = getSourceLine(lineNo);
         return (Boolean.TRUE.equals(line.getAttributes().getAttribute(MoeSyntaxView.BREAKPOINT)));
     }
 
@@ -2417,7 +2417,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     /**
      * Find and return a line (by line number) in the source document
      */
-    private Element getSourceLineAt(int lineNo)
+    private Element getSourceLine(int lineNo)
     {
         return sourceDocument.getDefaultRootElement().getElement(lineNo - 1);
     }
@@ -2437,7 +2437,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     private int getPositionInLine(int lineNo)
     {
-        return getSourceLineAt(lineNo).getStartOffset();
+        return getSourceLine(lineNo).getStartOffset();
     }
 
     // --------------------------------------------------------------------
