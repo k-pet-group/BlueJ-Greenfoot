@@ -225,6 +225,16 @@ public class Simulation extends Thread
         }
     }
     
+    public final static String PAUSED = "simulationWait";
+    /**
+     * A special method recognised by the debugger as indicating that the simulation
+     * is pausing.
+     */
+    private void simulationWait() throws InterruptedException
+    {
+        this.wait();
+    }
+    
     /**
      * Block if the simulation is paused. This will block until the simulation
      * is resumed. It should only be called on the simulation thread.
@@ -254,7 +264,7 @@ public class Simulation extends Thread
                     worldHandler.repaint();
                     try {
                         System.gc();
-                        this.wait();
+                        simulationWait();
                     }
                     catch (InterruptedException e1) {
                         // Swallow the interrupt

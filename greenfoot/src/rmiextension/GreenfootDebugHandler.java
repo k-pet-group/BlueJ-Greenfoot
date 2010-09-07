@@ -56,6 +56,7 @@ public class GreenfootDebugHandler implements DebuggerListener
     private static final String INVOKE_CLASS = Simulation.class.getName();
     
     private static final String[] INVOKE_METHODS = {Simulation.ACT_WORLD, Simulation.ACT_ACTOR, Simulation.NEW_INSTANCE};
+    private static final String[] SPECIAL_METHODS = {Simulation.ACT_WORLD, Simulation.ACT_ACTOR, Simulation.NEW_INSTANCE, Simulation.PAUSED};
     
     /**
      * The scheduledTasks collection exists to solve some tricky issues with timing and deadlock
@@ -137,6 +138,12 @@ public class GreenfootDebugHandler implements DebuggerListener
                     scheduledTasks.put(e.getThread(), runToInternalBreakpoint(debugger, e.getThread()));
                     return true;                    
                 } //otherwise they are in their own code
+            } else if (atPauseMethod(stack)) {
+                // They are going to pause; remove all special breakpoints and set them going
+                // (so that they actually hit the pause):
+                debugger.removeBreakpointsForClass(INVOKE_CLASS);
+                e.getThread().cont();
+                return true;
             } else {
                 // They are not in an act() method; run until they get there:
                 scheduledTasks.put(e.getThread(), runToInternalBreakpoint(debugger, e.getThread()));
@@ -188,7 +195,7 @@ public class GreenfootDebugHandler implements DebuggerListener
             }.start();
             
         } else if (e.getID() == DebuggerEvent.THREAD_BREAKPOINT || e.getID() == DebuggerEvent.THREAD_HALT) {
-            threadHalted((Debugger)e.getSource(), e.getThread(), e.getBreakpointProperties());
+            threadHalted((Debugger)e.getSource(), e.getThread());
         }
     }
 
@@ -198,7 +205,7 @@ public class GreenfootDebugHandler implements DebuggerListener
      * 
      * <p>Has roughly similar logic to examineDebuggerEvent but is called in different circumstances
      */
-    private void threadHalted(final Debugger debugger, final DebuggerThread thread, BreakpointProperties props)
+    private void threadHalted(final Debugger debugger, final DebuggerThread thread)
     {
         final List<SourceLocation> stack = thread.getStack();
         
@@ -234,7 +241,7 @@ public class GreenfootDebugHandler implements DebuggerListener
         return new Runnable () {
             public void run () {
                 // Set a break point where we want them to be:
-                setInvokeBreakpoints(debugger);
+                setSpecialBreakpoints(debugger);
 
                 // Then set them running again:
                 thread.cont();
@@ -267,6 +274,15 @@ public class GreenfootDebugHandler implements DebuggerListener
         }
         return false;
     }
+    
+    /**
+     * Works out if they are currently in the Simulation.PAUSED method by looking at the call stack.
+     */
+    private static boolean atPauseMethod(List<SourceLocation> stack)
+    {
+        SourceLocation frame = stack.get(0);
+        return (INVOKE_CLASS.equals(frame.getClassName()) && Simulation.PAUSED.equals(frame.getMethodName()));
+    }
    
     /**
      * Works out if the specified frame in the call-stack is in one of the special invoke-act
@@ -293,27 +309,29 @@ public class GreenfootDebugHandler implements DebuggerListener
     /**
      * Checks if the given breakpoint was set by the setInvokeActBreakpoints call, below  
      */
-    private boolean atInvokeBreakpoint(BreakpointProperties props)
+    private static boolean atInvokeBreakpoint(BreakpointProperties props)
     {
         return props != null && props.get(INTERNAL_INVOKE_BREAKPOINT) != null;
     }
     
     /**
      * Sets breakpoints in the special invoke-act methods that call the World and Actor's
-     * act() methods.  These breakpoints will thus be encountered immediately before control
-     * would descend into the World and Actor's act() methods or other tasks (i.e. potential user code)
+     * act() methods, and the method that constructs new objects, and the method called when
+     * the simulation will pause.  These breakpoints will thus be encountered immediately before control
+     * would descend into the World and Actor's act() methods or other tasks (i.e. potential user code),
+     * or if the simulation is going to wait for the user to click the controls (e.g. end of an
+     * Act, or because the simulation is now going to be Paused).
      */
-    private static void setInvokeBreakpoints(final Debugger debugger)
+    private static void setSpecialBreakpoints(final Debugger debugger)
     {
         Map<String, String> properties = new HashMap<String, String>();
         properties.put(INTERNAL_INVOKE_BREAKPOINT, "yes");
         
-        for (String method : INVOKE_METHODS) {
+        for (String method : SPECIAL_METHODS) {
             String err = debugger.toggleBreakpoint(INVOKE_CLASS, method, true, properties);
             if (err != null) {
-                Debug.reportError("Problem setting breakpoint: " + err);
+                Debug.reportError("Problem setting special breakpoint: " + err);
             }
         }
     }
-
 }
