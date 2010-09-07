@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009, 2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,18 +21,18 @@
  */
 package greenfoot.actions;
 
-import bluej.Config;
-import java.awt.EventQueue;
-import java.awt.event.ActionEvent;
-
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
 import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
 
+import java.awt.EventQueue;
+import java.awt.event.ActionEvent;
+
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 
+import bluej.Config;
 import bluej.utility.Debug;
 
 public class ResetWorldAction extends AbstractAction implements SimulationListener
@@ -65,13 +65,21 @@ public class ResetWorldAction extends AbstractAction implements SimulationListen
         simulation.addSimulationListener(this);
     }
     
+    /**
+     * If the simulation is not null, it disables the simulation, discards the world
+     * and instantiates a new world
+     */
     public void actionPerformed(ActionEvent e)
     {
-        if(simulation == null)
+        if(simulation == null) 
+        {
             Debug.reportError("attempt to reset a simulation while none exists.");
-        else
+        }
+        else {
             simulation.setEnabled(false);
-        WorldHandler.getInstance().instantiateNewWorld();
+            WorldHandler.getInstance().discardWorld();
+            WorldHandler.getInstance().instantiateNewWorld();
+        }
     }
 
     /**
