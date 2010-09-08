@@ -320,7 +320,6 @@ public class GreenfootFrame extends JFrame
             }
             
             worldHandler.instantiateNewWorld();
-            worldHandlerDelegate.getWorldTitle().setVisible(true);
             if (needsResize()) {
                 pack();
             }
@@ -338,7 +337,6 @@ public class GreenfootFrame extends JFrame
         project.closeEditors();
         worldCanvas.setVisible(false);
         classBrowser.setVisible(false);
-        worldHandlerDelegate.getWorldTitle().setVisible(false);
         project = null;
         enableProjectActions();
         repaint();
@@ -415,13 +413,11 @@ public class GreenfootFrame extends JFrame
         
         worldCanvas.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         
-        JPanel canvasPanel = new JPanel(new CenterLayout());
+        JPanel canvasPanel = new JPanel(new IDECenterLayout(worldHandlerDelegate));
         canvasPanel.setBorder(BorderFactory.createEtchedBorder());        
         
         JScrollPane worldScrollPane = new JScrollPane(worldCanvas);
-        DBox worldBox = new DBox(DBox.Y_AXIS, 0.5f); // world title and scroll pane
-        worldHandlerDelegate.getWorldTitle().setVisible(false);
-        worldBox.addAligned(worldHandlerDelegate.getWorldTitle());
+        DBox worldBox = new DBox(DBox.Y_AXIS, 0.5f); // scroll pane
         worldBox.addAligned(worldScrollPane);
 
         canvasPanel.add(worldBox);
@@ -892,7 +888,6 @@ public class GreenfootFrame extends JFrame
         if (needsResize() && newWorld != null) {
             resize();
         }
-        worldHandlerDelegate.getWorldTitle().setVisible(true);
         worldCanvas.setVisible(true);
         centrePanel.revalidate();
         worldDimensions = worldCanvas.getPreferredSize();

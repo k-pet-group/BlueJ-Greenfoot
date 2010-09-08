@@ -43,19 +43,15 @@ import greenfoot.util.GreenfootUtil;
 
 import java.awt.Color;
 import java.awt.Cursor;
-import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.rmi.RemoteException;
 import java.util.List;
 
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
@@ -92,8 +88,6 @@ public class WorldHandlerDelegateIDE
     private GProject project;
     
     private GreenfootFrame frame;
-
-    private WorldLabel worldTitle;
     
     // Records actions manually performed on the world:
     private GreenfootRecorder greenfootRecorder;
@@ -103,7 +97,6 @@ public class WorldHandlerDelegateIDE
 
     public WorldHandlerDelegateIDE(GreenfootFrame frame)
     {
-        worldTitle = new WorldLabel();
         this.frame = frame;
         saveWorldAction = new SaveWorldAction(this);
         greenfootRecorder = new GreenfootRecorder(saveWorldAction);
@@ -113,7 +106,7 @@ public class WorldHandlerDelegateIDE
      * Make a popup menu suitable for calling methods on, inspecting and
      * removing an object in the world.
      */
-    private JPopupMenu makePopupMenu(final Actor obj)
+    private JPopupMenu makeActorPopupMenu(final Actor obj)
     {
         JPopupMenu menu = new JPopupMenu();
 
@@ -138,6 +131,32 @@ public class WorldHandlerDelegateIDE
         m.setFont(PrefMgr.getStandoutMenuFont());
         m.setForeground(envOpColour);
         menu.add(m);
+        return menu;
+    }
+
+    /**
+     * Create a pop-up allowing the user to call methods, inspect and "Save the World"
+     * on the World object.
+     */
+    private JPopupMenu makeWorldPopupMenu(final World world)
+    {
+        JPopupMenu menu = new JPopupMenu();
+        
+        ObjectWrapper.createMethodMenuItems(menu, world.getClass(),
+                new WorldInvokeListener(frame, world, WorldHandlerDelegateIDE.this,
+                        frame, project),
+                LocalObject.getLocalObject(world), null, false);
+        // "inspect" menu item
+        JMenuItem m = getInspectMenuItem(world);
+
+        // "save the world" menu item
+        JMenuItem saveTheWorld = new JMenuItem(Config.getString("save.world"));
+        saveTheWorld.addActionListener(saveWorldAction);
+        saveTheWorld.setFont(PrefMgr.getStandoutMenuFont());
+        saveTheWorld.setForeground(envOpColour);
+        
+        menu.add(m);
+        menu.add(saveTheWorld);
         return menu;
     }
 
@@ -171,34 +190,49 @@ public class WorldHandlerDelegateIDE
     }
 
     /**
-     * Shows the popup menu if the mouseevent is a popup trigger.
+     * Shows a pop-up menu if the MouseEvent is a pop-up trigger.
+     * Pop-up menu depends on if the MouseEvent occurred on an Actor
+     * or the world.
      */
     public boolean maybeShowPopup(MouseEvent e)
     {
         if (e.isPopupTrigger()) {
+            JPopupMenu menu;
             Actor obj = worldHandler.getObject(e.getX(), e.getY());
-            if (obj != null) {
-                JPopupMenu menu = makePopupMenu(obj);
-                // JPopupMenu menu = new JPopupMenu();
-                // ObjectWrapper.createMenuItems(menu, ...);
-                // new ObjectWrapper();
-                // JPopupMenu menu = ObjectTracker.instance().getJPopupMenu(obj,
-                // e);
-                // menu.setVisible(true);
-                menu.show(worldHandler.getWorldCanvas(), e.getX(), e.getY());
+            // if null then the user clicked on the world
+            if (obj == null) {
+            	menu = makeWorldPopupMenu(worldHandler.getWorld());
+            } else {
+                menu = makeActorPopupMenu(obj);
             }
+            menu.show(worldHandler.getWorldCanvas(), e.getX(), e.getY());
             return true;
 
         }
         return false;
     }
+    
+    /**
+     * Displays the world pop-up menu in the location specified
+     * by the parameter MouseEvent.
+     * @param e	Used to get the component to display in as well as the x
+     * and y coordinates.
+     */
+    public void showWorldPopupMenu(MouseEvent e) {
+    	JPopupMenu menu = makeWorldPopupMenu(worldHandler.getWorld());
+    	menu.show(e.getComponent(), e.getX(), e.getY());
+    }
 
+    /**
+     * Clear the world from the cache.
+     * @param world		World to discard
+     */
     public void discardWorld(World world)
     {        
         ObjectTracker.clearRObjectCache();
     }
     
-    //It is important that we reset the recorder here in this method, which is called at the start of the world's constructor.
+    // It is important that we reset the recorder here in this method, which is called at the start of the world's constructor.
     // Doing it in setWorld is too late, as we will miss the recording/naming needed
     // that happens when the prepare method creates new actors -- prepare is invoked from the world's constructor.
     public void initialisingWorld(World world)
@@ -213,61 +247,6 @@ public class WorldHandlerDelegateIDE
         if (oldWorld != null) {
             discardWorld(oldWorld);
         }
-
-        EventQueue.invokeLater(new Runnable() {
-            public void run()
-            {
-                createWorldTitle(newWorld);
-                MouseListener listeners[] = worldTitle.getMouseListeners();
-                for (int i = 0; i < listeners.length; i++) {
-                    worldTitle.removeMouseListener(listeners[i]);
-                }
-
-                worldTitle.addMouseListener(new MouseAdapter() {
-                    public void mouseReleased(MouseEvent e)
-                    {
-                        maybeShowPopup(e);
-                    }
-
-                    public void mousePressed(MouseEvent e)
-                    {
-                        maybeShowPopup(e);
-                    }
-
-                    private void maybeShowPopup(MouseEvent e)
-                    {
-                        if (e.isPopupTrigger() && worldHandler.getWorld() != null) {
-                            JPopupMenu menu = new JPopupMenu();
-
-                            ObjectWrapper.createMethodMenuItems(menu, newWorld.getClass(),
-                                    new WorldInvokeListener(frame, newWorld, WorldHandlerDelegateIDE.this,
-                                            frame, project),
-                                    LocalObject.getLocalObject(newWorld), null, false);
-                            // "inspect" menu item
-                            JMenuItem m = getInspectMenuItem(newWorld);
-                            menu.add(m);
-                            menu.show(worldTitle, e.getX(), e.getY());
-                        }
-                    }
-                });
-            }
-        });
-    }
-    
-    /**
-     * Creates and sets the title of the world in the UI.
-     * 
-     * @param newWorld The world for which a title should be set
-     */
-    private void createWorldTitle(final World newWorld)
-    {
-        if (newWorld == null) {
-            return;
-        }
-        String className = newWorld.getClass().getName();
-        String objName = className.substring(0, 1).toLowerCase() + className.substring(1);
-        worldTitle.setText(objName);
-        worldTitle.setEnabled(true);
     }
     
     public void dragFinished(Object o)
@@ -365,14 +344,6 @@ public class WorldHandlerDelegateIDE
     public void attachProject(Object project)
     {
         this.project = (GProject) project;
-    }
-
-    /**
-     * Get the component displaying the world title.
-     */
-    public JComponent getWorldTitle()
-    {
-        return worldTitle;
     }
 
     public void setWorldHandler(WorldHandler handler)

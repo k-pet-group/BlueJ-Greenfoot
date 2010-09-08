@@ -36,14 +36,11 @@ import java.awt.Insets;
  */
 
 public class CenterLayout extends FlowLayout
-{
-    /**
-     * Creates a new instance of CenterLayout.
-     */
-    public CenterLayout()
-    {
+{	
+	public CenterLayout()
+	{
         super(FlowLayout.LEFT, 0, 0);
-    }
+	}
     
     /**
      * Layout the target container.
