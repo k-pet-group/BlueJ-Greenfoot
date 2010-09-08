@@ -145,13 +145,13 @@ public class ClassView extends JToggleButton
             classRole = new ActorClassRole(project);
         }
         else if (gClass.isWorldClass()) {
-            classRole = new WorldClassRole(project, classBrowser.getIDE());
+            classRole = new WorldClassRole(project);
         }
         else if (gClass.isActorSubclass()) {
             classRole = new ActorClassRole(project);
         }
         else if (gClass.isWorldSubclass()) {
-            classRole = new WorldClassRole(project, classBrowser.getIDE());
+            classRole = new WorldClassRole(project);
         }
         else {
             // everything else

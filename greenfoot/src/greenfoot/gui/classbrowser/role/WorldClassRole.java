@@ -23,9 +23,7 @@ package greenfoot.gui.classbrowser.role;
 
 import greenfoot.actions.SelectImageAction;
 import greenfoot.actions.ShowApiDocAction;
-import greenfoot.core.GClass;
 import greenfoot.core.GProject;
-import greenfoot.platforms.ide.WorldHandlerDelegateIDE;
 
 import javax.swing.JPopupMenu;
 
@@ -33,17 +31,15 @@ import bluej.Config;
 
 /**
  * @author Poul Henriksen
- * @version $Id: WorldClassRole.java 8266 2010-09-08 11:18:15Z plcs $
+ * @version $Id: WorldClassRole.java 8267 2010-09-08 11:54:19Z plcs $
  */
 public class WorldClassRole extends ImageClassRole
 {
     private String template = "worldclass.tmpl";
-    private WorldHandlerDelegateIDE ide;
 
-    public WorldClassRole(GProject project, WorldHandlerDelegateIDE ide)
+    public WorldClassRole(GProject project)
     {
     	super(project);
-    	this.ide = ide;
     }
     
     @Override
