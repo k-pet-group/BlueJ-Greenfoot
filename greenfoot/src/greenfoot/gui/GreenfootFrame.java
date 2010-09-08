@@ -651,6 +651,7 @@ public class GreenfootFrame extends JFrame
                 new SoundRecorderDialog(GreenfootFrame.this, project);                
             }
         }, ctrlMenu, -1, false, KeyEvent.VK_S);
+        addMenuItem(saveWorldAction, ctrlMenu, -1, false, KeyEvent.VK_W);
         ctrlMenu.addSeparator();
         addMenuItem(compileAllAction, ctrlMenu, KeyEvent.VK_K, false, -1);
         
