@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -117,6 +117,14 @@ public class EditorParser extends JavaParser
         this.document = document;
         this.scopeStack = scopeStack;
         pcuNode = (ParsedCUNode) scopeStack.get(0);
+    }
+    
+    /**
+     * Get the types following the "extends" keyword, if we have some. Used in incremental parsing.
+     */
+    public List<JavaEntity> getExtendedTypes()
+    {
+        return extendedTypes;
     }
     
     @Override

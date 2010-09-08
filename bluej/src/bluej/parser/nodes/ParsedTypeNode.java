@@ -218,6 +218,8 @@ public class ParsedTypeNode extends IncrementalParsingNode
             }
             last = token;
             params.tokenStream.pushBack(token);
+            params.parser.getExtendedTypes();
+            setExtendedTypes(params.parser.getExtendedTypes());
             return PP_BEGINS_NEXT_STATE;
         }
         else if (state == 1) {
