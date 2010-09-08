@@ -21,16 +21,18 @@
  */
 package rmiextension;
 
+import greenfoot.core.Simulation;
+
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
-import greenfoot.core.Simulation;
 import rmiextension.wrappers.WrapperPool;
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerEvent;
 import bluej.debugger.DebuggerListener;
+import bluej.debugger.DebuggerObject;
 import bluej.debugger.DebuggerThread;
 import bluej.debugger.SourceLocation;
 import bluej.debugger.DebuggerEvent.BreakpointProperties;
@@ -93,7 +95,10 @@ public class GreenfootDebugHandler implements DebuggerListener
     public static void addDebuggerListener(BProject project)
     {
         try {
+            // Technically I could collapse the two listeners into one, but they
+            // perform orthogonal tasks so it's nicer to keep the code separate:
             ExtensionBridge.addDebuggerListener(project, new GreenfootDebugHandler(project));
+            ExtensionBridge.addDebuggerListener(project, new GreenfootDebugControlsLink());
         } catch (ProjectNotOpenException ex) {
             Debug.reportError("Project not open when adding debugger listener in Greenfoot", ex);
         }
@@ -333,5 +338,62 @@ public class GreenfootDebugHandler implements DebuggerListener
                 Debug.reportError("Problem setting special breakpoint: " + err);
             }
         }
+    }
+    
+    /**
+     * A second debug listener that only worries about enabling and disabling the
+     * Act/Run/Pause buttons according to whether the Simulation thread is currently at
+     * a breakpoint.
+     */
+    private static class GreenfootDebugControlsLink implements DebuggerListener
+    {
+        public boolean examineDebuggerEvent(DebuggerEvent e)
+        {
+            return false;
+        }
+
+        @Override
+        public void processDebuggerEvent(DebuggerEvent e, boolean skipUpdate)
+        {
+            List<SourceLocation> stack = e.getThread().getStack();
+            if (isSimulationThread(stack)) {
+                final Debugger debugger = (Debugger)e.getSource();
+                final String stateVar;
+                if (e.getID() == DebuggerEvent.THREAD_BREAKPOINT || e.getID() == DebuggerEvent.THREAD_HALT) {
+                    stateVar = "NOT_RUNNING";
+                } else if (e.getID() == DebuggerEvent.THREAD_CONTINUE) {
+                    stateVar = "RUNNING";
+                } else {
+                    return;
+                }
+                
+                /* We are on the BlueJ VM, but we need to adjust the state of the buttons
+                 * on the Greenfoot VM (aka Debug VM).  We use this slight hack of constructing
+                 * a class on the Greenfoot VM that will do the work for us there.
+                 * 
+                 * For a parameter, we pass one of the static objects that the class holds
+                 * (this was more obviously do-able than passing a boolean constant, fix it if you know how)
+                 * 
+                 * We must do this in a new thread because we'll deadlock if we try to directly
+                 * create the object from a debug handler as we are. 
+                 */
+        
+                new Thread(new Runnable() {
+                    
+                    @Override
+                    public void run()
+                    {
+                        try {
+                            debugger.getClass("greenfoot.actions.RunActionsAdjuster");
+                            debugger.instantiateClass("greenfoot.actions.RunActionsAdjuster", new String[] {"java.lang.Object"}, new DebuggerObject[] {debugger.getStaticValue("greenfoot.actions.RunActionsAdjuster", stateVar)});
+                        } catch (ClassNotFoundException ex) {
+                            Debug.reportError("Could not find internal class RunActionsAdjuster", ex);
+                        }
+                    }
+                }).start();                
+            }
+            
+        }
+        
     }
 }
