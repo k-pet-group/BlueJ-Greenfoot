@@ -30,7 +30,6 @@ import java.util.Hashtable;
 import java.util.Map;
 import java.util.Properties;
 
-import rmiextension.GreenfootDebugHandler;
 import rmiextension.ProjectManager;
 import rmiextension.wrappers.event.RClassListener;
 import rmiextension.wrappers.event.RClassListenerWrapper;
@@ -244,7 +243,6 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
                     ProjectManager.instance().addNewProject(directory);
                     BProject wrapped = blueJ.newProject(directory);
                     if (wrapped != null) {
-                        GreenfootDebugHandler.addDebuggerListener(wrapped);
                         try {
                             wrapper.rProject = WrapperPool.instance().getWrapper(wrapped);
                         }
@@ -279,7 +277,6 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
                 {
                     BProject bProject = blueJ.openProject(directory);
                     if (bProject != null) {
-                        GreenfootDebugHandler.addDebuggerListener(bProject);
                         try {
                             projectRef.rProject = WrapperPool.instance().getWrapper(bProject);
                         }

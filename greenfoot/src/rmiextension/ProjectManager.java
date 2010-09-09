@@ -172,6 +172,8 @@ public class ProjectManager
     public void openGreenfoot(final BProject project)
     {
         try {
+            GreenfootDebugHandler.addDebuggerListener(project);
+                        
             final BPackage pkg = project.getPackage("");
             ResultWatcher watcher = new ResultWatcher() {
                 @Override

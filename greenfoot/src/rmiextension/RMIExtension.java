@@ -92,8 +92,6 @@ public class RMIExtension extends Extension implements ApplicationListener
         BProject project = theBlueJ.openProject(projectPath);
         if (project == null) {
             Debug.reportError("Could not open scenario: " + projectPath);
-        } else {
-            GreenfootDebugHandler.addDebuggerListener(project);
         }
     }
 
@@ -108,8 +106,6 @@ public class RMIExtension extends Extension implements ApplicationListener
         BProject project = theBlueJ.newProject(projectPath);
         if (project == null) {
             Debug.reportError("Could not open scenario: " + projectPath);
-        } else {
-            GreenfootDebugHandler.addDebuggerListener(project);
         }
         ProjectManager.instance().removeNewProject(projectPath);
 
@@ -164,9 +160,6 @@ public class RMIExtension extends Extension implements ApplicationListener
     public void blueJReady(ApplicationEvent event)
     {
         GreenfootLauncherBlueJVM.getInstance().launch(this);
-        for (BProject project : theBlueJ.getOpenProjects()) {
-            GreenfootDebugHandler.addDebuggerListener(project);
-        }
     }
 
 }
