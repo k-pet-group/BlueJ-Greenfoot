@@ -82,21 +82,31 @@ public class TypeEntity extends PackageOrClass
             return null;
         }
         else if (thisClass.getArrayComponent() != null) {
-            // Hmm, should we handle array.length here?
+            // Arrays have no static fields/subtypes
             return null;
         }
         
         // subentity of a class could be a member type or field
         // Is it a field?
         
-        Map<String,FieldReflective> m = thisClass.getReflective().getDeclaredFields();
-        FieldReflective field = m.get(name);
-        if (field != null) {
-            boolean accessAllowed = JavaUtils.checkMemberAccess(thisClass.getReflective(),
-                    thisClass, accessor, field.getModifiers(), true);
-            if (accessAllowed) {
-                return new ValueEntity(name, field.getType());
+        LinkedList<Reflective> stypes = new LinkedList<Reflective>();
+        Reflective ctypeRef = thisClass.getReflective();
+        stypes.add(ctypeRef);
+        
+        while (! stypes.isEmpty()) {
+            ctypeRef = stypes.poll();
+            Map<String,FieldReflective> m = ctypeRef.getDeclaredFields();
+            FieldReflective field = m.get(name);
+            if (field != null) {
+                boolean accessAllowed = JavaUtils.checkMemberAccess(ctypeRef,
+                        thisClass, accessor, field.getModifiers(), true);
+                if (accessAllowed) {
+                    thisClass = thisClass.mapToSuper(ctypeRef.getName());
+                    JavaType fieldType = field.getType().mapTparsToTypes(thisClass.getMap()).getUpperBound();
+                    return new ValueEntity(name, fieldType);
+                }
             }
+            stypes.addAll(ctypeRef.getSuperTypesR());
         }
 
         // Is it a member type?
@@ -106,10 +116,27 @@ public class TypeEntity extends PackageOrClass
     public TypeEntity getPackageOrClassMember(String name)
     {
         GenTypeClass thisClass = thisType.getCapture().asClass();
-        if (thisClass == null) {
+        if (thisClass == null || thisClass.getArrayComponent() != null) {
             return null;
         }
 
+        LinkedList<Reflective> stypes = new LinkedList<Reflective>();
+        stypes.add(thisClass.getReflective());
+        
+        while (! stypes.isEmpty()) {
+            Reflective thisRef = stypes.poll();
+            Reflective member = thisRef.getRelativeClass(thisRef.getName() + '$' + name);
+            if (member != null) {
+                // TODO check access
+                //boolean accessAllowed = JavaUtils.checkMemberAccess(thisRef,
+                //        thisClass, accessor, member.getModifiers(), true);
+                GenTypeClass inner = new GenTypeClass(member,
+                    Collections.<GenTypeParameter>emptyList(), thisClass);
+                return new TypeEntity(inner);
+            }
+            stypes.addAll(thisRef.getSuperTypesR());
+        }
+        
         Reflective thisRef = thisClass.getReflective();
         if (thisRef != null) {
             Reflective member = thisRef.getRelativeClass(thisRef.getName() + '$' + name);
@@ -128,7 +155,7 @@ public class TypeEntity extends PackageOrClass
         return getType().toString();
     }
     
-    /* (non-Javadoc)
+    /*
      * @see bluej.parser.entity.ClassEntity#setTypeParams(java.util.List)
      */
     public TypeEntity setTypeArgs(List<TypeArgumentEntity> tparams)

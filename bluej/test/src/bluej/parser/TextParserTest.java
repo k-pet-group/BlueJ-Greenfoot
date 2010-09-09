@@ -445,7 +445,13 @@ public class TextParserTest extends TestCase
         r = tp.parseCommand("true ? \"a string\" : \"b string\"");
         assertEquals("java.lang.String", r);
         r = tp.parseCommand("true ? \"a string\" : 4");
-        assertEquals("java.lang.Object", r);
+        // The result in this case is really:
+        //   java.lang.Object & java.io.Serializable & java.lang.Comparable<? extends [recursive]>
+        boolean correct = r.equals("java.lang.Object");
+        correct |= r.equals("java.io.Serializable");
+        correct |= r.equals("java.lang.Comparable<? extends java.lang.Comparable<?>>");
+        System.out.println(r);
+        assertTrue(correct);
         
         // If one side is a byte and the other is a constant which could be narrowed to
         // a byte, then the result type should be byte:

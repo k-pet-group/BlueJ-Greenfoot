@@ -74,6 +74,6 @@ public class EntityTests extends junit.framework.TestCase
         assertNotNull(aFieldEnt);
         aFieldEnt = aFieldEnt.resolveAsValue();
         assertNotNull(aFieldEnt);
-        assertEquals("int", aFieldEnt.getType().toString());
+        assertEquals("double", aFieldEnt.getType().toString());
     }
 }
