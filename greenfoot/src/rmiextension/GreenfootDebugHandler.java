@@ -21,8 +21,10 @@
  */
 package rmiextension;
 
+import greenfoot.actions.RunActionsAdjuster;
 import greenfoot.core.Simulation;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -60,6 +62,8 @@ public class GreenfootDebugHandler implements DebuggerListener
     private static final String[] INVOKE_METHODS = {Simulation.ACT_WORLD, Simulation.ACT_ACTOR, Simulation.NEW_INSTANCE};
     private static final String[] SPECIAL_METHODS = {Simulation.ACT_WORLD, Simulation.ACT_ACTOR, Simulation.NEW_INSTANCE, Simulation.PAUSED};
     
+    private static final String SIMULATION_THREAD_RUN_KEY = "SIMULATION_THREAD_RUN";
+    
     /**
      * The scheduledTasks collection exists to solve some tricky issues with timing and deadlock
      * among the VMs.  Here's the scenario:
@@ -83,6 +87,7 @@ public class GreenfootDebugHandler implements DebuggerListener
     private IdentityHashMap<DebuggerThread, Runnable> scheduledTasks = new IdentityHashMap<DebuggerThread, Runnable>();
     
     private BProject project;
+    private DebuggerThread simulationThread;
     
     private GreenfootDebugHandler(BProject project)
     {
@@ -92,16 +97,23 @@ public class GreenfootDebugHandler implements DebuggerListener
     /**
      * This is the publicly-visible way to add a debugger listener for a particular project.    
      */
-    public static void addDebuggerListener(BProject project)
+    static void addDebuggerListener(BProject project)
     {
         try {
+            ExtensionBridge.addBreakpoint(project, Simulation.class.getCanonicalName(), "run", Collections.singletonMap(SIMULATION_THREAD_RUN_KEY, "TRUE"));
             // Technically I could collapse the two listeners into one, but they
             // perform orthogonal tasks so it's nicer to keep the code separate:
-            ExtensionBridge.addDebuggerListener(project, new GreenfootDebugHandler(project));
-            ExtensionBridge.addDebuggerListener(project, new GreenfootDebugControlsLink());
+            GreenfootDebugHandler handler = new GreenfootDebugHandler(project);
+            ExtensionBridge.addDebuggerListener(project, handler);
+            ExtensionBridge.addDebuggerListener(project, handler.new GreenfootDebugControlsLink());
         } catch (ProjectNotOpenException ex) {
             Debug.reportError("Project not open when adding debugger listener in Greenfoot", ex);
         }
+    }
+    
+    private boolean isSimulationThread(DebuggerThread dt)
+    {
+        return dt != null && simulationThread != null && simulationThread.sameThread(dt);
     }
 
     // ------------- DebuggerListener interface ------------
@@ -120,8 +132,17 @@ public class GreenfootDebugHandler implements DebuggerListener
         Debugger debugger = (Debugger)e.getSource();
         List<SourceLocation> stack = e.getThread().getStack();
         
-        if ((e.getID() == DebuggerEvent.THREAD_BREAKPOINT || e.getID() == DebuggerEvent.THREAD_HALT)
-                && isSimulationThread(stack)) {
+        if (e.getID() == DebuggerEvent.THREAD_BREAKPOINT
+            && e.getThread() != null && simulationThread == null &&
+            e.getBreakpointProperties().get(SIMULATION_THREAD_RUN_KEY) != null) {
+            // This is the breakpoint at the very beginning of the simulation thread;
+            // record this thread as being the simulation thread and set it running again:
+            simulationThread = e.getThread();
+            e.getThread().cont();
+            return true;
+            
+        } else if ((e.getID() == DebuggerEvent.THREAD_BREAKPOINT || e.getID() == DebuggerEvent.THREAD_HALT)
+                && isSimulationThread(e.getThread())) {
             if (insideUserCode(stack)) {
                 // They are in an act method, make sure the breakpoints are cleared:
                 
@@ -212,10 +233,8 @@ public class GreenfootDebugHandler implements DebuggerListener
      */
     private void threadHalted(final Debugger debugger, final DebuggerThread thread)
     {
-        final List<SourceLocation> stack = thread.getStack();
-        
-        if (isSimulationThread(stack)) {
-            if (insideUserCode(stack)) {
+        if (isSimulationThread(thread)) {
+            if (insideUserCode(thread.getStack())) {
                 // It's okay, they are in an act method, make sure the breakpoints are cleared:
                 debugger.removeBreakpointsForClass(INVOKE_CLASS);
                 //This method ^ can be safely invoked without needing to talk to the worker thread
@@ -255,19 +274,6 @@ public class GreenfootDebugHandler implements DebuggerListener
     }
     
     /**
-     * Works out if the given call-stack is the simulation thread
-     * (by examining the bottom of the stack to see which class it is from)
-     */
-    private static boolean isSimulationThread(List<SourceLocation> stack)
-    {
-        if (stack.isEmpty())
-            return false;
-        SourceLocation root = stack.get(stack.size() - 1);
-        
-        return root.getClassName().equals("greenfoot.core.Simulation");
-    }
-    
-    /**
      * Works out if we are currently in a call to the World or Actor act() methods
      * by looking in the call stack for them. Strictly speaking, we might not be
      * truly inside the user code: it might be we are about to enter or have just
@@ -288,8 +294,12 @@ public class GreenfootDebugHandler implements DebuggerListener
      */
     private static boolean atPauseMethod(List<SourceLocation> stack)
     {
-        SourceLocation frame = stack.get(0);
-        return (INVOKE_CLASS.equals(frame.getClassName()) && Simulation.PAUSED.equals(frame.getMethodName()));
+        if (stack.isEmpty()) {
+            return false;
+        } else {
+            SourceLocation frame = stack.get(0);
+            return (INVOKE_CLASS.equals(frame.getClassName()) && Simulation.PAUSED.equals(frame.getMethodName()));
+        }
     }
    
     /**
@@ -348,10 +358,8 @@ public class GreenfootDebugHandler implements DebuggerListener
      * Act/Run/Pause buttons according to whether the Simulation thread is currently at
      * a breakpoint.
      */
-    private static class GreenfootDebugControlsLink implements DebuggerListener
+    private class GreenfootDebugControlsLink implements DebuggerListener
     {
-        private DebuggerThread simulationThread;
-        
         public boolean examineDebuggerEvent(DebuggerEvent e)
         {
             return false;
@@ -362,9 +370,7 @@ public class GreenfootDebugHandler implements DebuggerListener
         {
             final String stateVar;
             if (e.getID() == DebuggerEvent.THREAD_BREAKPOINT || e.getID() == DebuggerEvent.THREAD_HALT) {
-                List<SourceLocation> stack = e.getThread().getStack();
-                if (isSimulationThread(stack)) {
-                    simulationThread = e.getThread();
+                if (isSimulationThread(e.getThread())) {
                     stateVar = "NOT_RUNNING";
                 }
                 else {
@@ -372,7 +378,7 @@ public class GreenfootDebugHandler implements DebuggerListener
                 }
             }
             else if (e.getID() == DebuggerEvent.THREAD_CONTINUE) {
-                if (e.getThread() == simulationThread) {
+                if (isSimulationThread(e.getThread())) {
                     stateVar = "RUNNING";
                 }
                 else {
@@ -400,11 +406,12 @@ public class GreenfootDebugHandler implements DebuggerListener
                 @Override
                 public void run()
                 {
+                    String className = RunActionsAdjuster.class.getCanonicalName();
                     try {
-                        debugger.getClass("greenfoot.actions.RunActionsAdjuster");
-                        debugger.instantiateClass("greenfoot.actions.RunActionsAdjuster", new String[] {"java.lang.Object"}, new DebuggerObject[] {debugger.getStaticValue("greenfoot.actions.RunActionsAdjuster", stateVar)});
+                        debugger.getClass(className);
+                        debugger.instantiateClass(className, new String[] {"java.lang.Object"}, new DebuggerObject[] {debugger.getStaticValue(className, stateVar)});
                     } catch (ClassNotFoundException ex) {
-                        Debug.reportError("Could not find internal class RunActionsAdjuster", ex);
+                        Debug.reportError("Could not find internal class " + className, ex);
                     }
                 }
             }).start();                

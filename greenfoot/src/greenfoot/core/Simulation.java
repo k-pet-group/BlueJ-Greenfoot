@@ -174,6 +174,17 @@ public class Simulation extends Thread
      */
     public void run()
     {
+        /* It is important this redirects to another method.
+         * The debugger sets a breakpoint on the first line of this method, and if
+         * that is a loop (as is the case for the first line of runContent at the time of writing)
+         * then it hits the breakpoint every time.  By putting it all in a separate
+         * method, we avoid that happening:
+         */
+        runContent();
+    }
+    
+    private void runContent()
+    {
         while (!abort) {
             try {
                 maybePause();
