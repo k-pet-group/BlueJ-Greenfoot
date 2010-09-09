@@ -402,8 +402,6 @@ public class GreenfootDebugHandler implements DebuggerListener
                 {
                     try {
                         debugger.getClass("greenfoot.actions.RunActionsAdjuster");
-                        //DAV
-                        System.out.println("Calling into greenfoot VM with state: " + stateVar);
                         debugger.instantiateClass("greenfoot.actions.RunActionsAdjuster", new String[] {"java.lang.Object"}, new DebuggerObject[] {debugger.getStaticValue("greenfoot.actions.RunActionsAdjuster", stateVar)});
                     } catch (ClassNotFoundException ex) {
                         Debug.reportError("Could not find internal class RunActionsAdjuster", ex);
