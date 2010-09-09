@@ -25,7 +25,6 @@ import greenfoot.actions.BrowseImagesAction;
 import greenfoot.core.GClass;
 import greenfoot.core.GPackage;
 import greenfoot.core.GProject;
-import greenfoot.core.WorldHandler;
 import greenfoot.event.ValidityEvent;
 import greenfoot.event.ValidityListener;
 import greenfoot.gui.ClassNameVerifier;
@@ -584,8 +583,6 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
             public void actionPerformed(ActionEvent e)
             {
                 result = OK;
-                WorldHandler.getInstance().discardWorld();
-                gclass.setCompiledState(false);
                 setVisible(false);
                 dispose();
             }
