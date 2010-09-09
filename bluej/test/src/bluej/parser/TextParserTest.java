@@ -450,7 +450,6 @@ public class TextParserTest extends TestCase
         boolean correct = r.equals("java.lang.Object");
         correct |= r.equals("java.io.Serializable");
         correct |= r.equals("java.lang.Comparable<? extends java.lang.Comparable<?>>");
-        System.out.println(r);
         assertTrue(correct);
         
         // If one side is a byte and the other is a constant which could be narrowed to
