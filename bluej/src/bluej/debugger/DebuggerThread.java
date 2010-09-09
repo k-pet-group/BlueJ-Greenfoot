@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,7 +26,6 @@ import java.util.List;
 /**
  * A class defining the debugger thread primitives needed by BlueJ.
  *
- * Objects of this class can only be constructed 
  * @author  Michael Cahill
  * @author  Michael Kolling
  * @author  Andrew Patterson
@@ -45,7 +44,12 @@ public abstract class DebuggerThread
     public abstract int getLineNumber(int frameNo);
     public abstract boolean isKnownSystemThread();
 
+    /**
+     * Get the current execution of the stack. This is only reliable if the
+     * thread is currently halted.
+     */
     public abstract List<SourceLocation> getStack();
+    
     public abstract List<String> getLocalVariables(int frameNo);
     public abstract boolean varIsObject(int frameNo, int index);
     public abstract DebuggerObject getStackObject(int frameNo, int index);

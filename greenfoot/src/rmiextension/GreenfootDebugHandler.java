@@ -350,6 +350,8 @@ public class GreenfootDebugHandler implements DebuggerListener
      */
     private static class GreenfootDebugControlsLink implements DebuggerListener
     {
+        private DebuggerThread simulationThread;
+        
         public boolean examineDebuggerEvent(DebuggerEvent e)
         {
             return false;
@@ -358,50 +360,56 @@ public class GreenfootDebugHandler implements DebuggerListener
         @Override
         public void processDebuggerEvent(DebuggerEvent e, boolean skipUpdate)
         {
-            DebuggerThread eventThread = e.getThread();
-            if (eventThread == null) {
+            final String stateVar;
+            if (e.getID() == DebuggerEvent.THREAD_BREAKPOINT || e.getID() == DebuggerEvent.THREAD_HALT) {
+                List<SourceLocation> stack = e.getThread().getStack();
+                if (isSimulationThread(stack)) {
+                    simulationThread = e.getThread();
+                    stateVar = "NOT_RUNNING";
+                }
+                else {
+                    return;
+                }
+            }
+            else if (e.getID() == DebuggerEvent.THREAD_CONTINUE) {
+                if (e.getThread() == simulationThread) {
+                    stateVar = "RUNNING";
+                }
+                else {
+                    return;
+                }
+            } else {
                 return;
             }
             
-            List<SourceLocation> stack = e.getThread().getStack();
-            if (isSimulationThread(stack)) {
-                final Debugger debugger = (Debugger)e.getSource();
-                final String stateVar;
-                if (e.getID() == DebuggerEvent.THREAD_BREAKPOINT || e.getID() == DebuggerEvent.THREAD_HALT) {
-                    stateVar = "NOT_RUNNING";
-                } else if (e.getID() == DebuggerEvent.THREAD_CONTINUE) {
-                    stateVar = "RUNNING";
-                } else {
-                    return;
-                }
-                
-                /* We are on the BlueJ VM, but we need to adjust the state of the buttons
-                 * on the Greenfoot VM (aka Debug VM).  We use this slight hack of constructing
-                 * a class on the Greenfoot VM that will do the work for us there.
-                 * 
-                 * For a parameter, we pass one of the static objects that the class holds
-                 * (this was more obviously do-able than passing a boolean constant, fix it if you know how)
-                 * 
-                 * We must do this in a new thread because we'll deadlock if we try to directly
-                 * create the object from a debug handler as we are. 
-                 */
-        
-                new Thread(new Runnable() {
-                    
-                    @Override
-                    public void run()
-                    {
-                        try {
-                            debugger.getClass("greenfoot.actions.RunActionsAdjuster");
-                            debugger.instantiateClass("greenfoot.actions.RunActionsAdjuster", new String[] {"java.lang.Object"}, new DebuggerObject[] {debugger.getStaticValue("greenfoot.actions.RunActionsAdjuster", stateVar)});
-                        } catch (ClassNotFoundException ex) {
-                            Debug.reportError("Could not find internal class RunActionsAdjuster", ex);
-                        }
-                    }
-                }).start();                
-            }
+            final Debugger debugger = (Debugger) e.getSource();
             
+            /* We are on the BlueJ VM, but we need to adjust the state of the buttons
+             * on the Greenfoot VM (aka Debug VM).  We use this slight hack of constructing
+             * a class on the Greenfoot VM that will do the work for us there.
+             * 
+             * For a parameter, we pass one of the static objects that the class holds
+             * (this was more obviously do-able than passing a boolean constant, fix it if you know how)
+             * 
+             * We must do this in a new thread because we'll deadlock if we try to directly
+             * create the object from a debug handler as we are. 
+             */
+
+            new Thread(new Runnable() {
+
+                @Override
+                public void run()
+                {
+                    try {
+                        debugger.getClass("greenfoot.actions.RunActionsAdjuster");
+                        //DAV
+                        System.out.println("Calling into greenfoot VM with state: " + stateVar);
+                        debugger.instantiateClass("greenfoot.actions.RunActionsAdjuster", new String[] {"java.lang.Object"}, new DebuggerObject[] {debugger.getStaticValue("greenfoot.actions.RunActionsAdjuster", stateVar)});
+                    } catch (ClassNotFoundException ex) {
+                        Debug.reportError("Could not find internal class RunActionsAdjuster", ex);
+                    }
+                }
+            }).start();                
         }
-        
     }
 }
