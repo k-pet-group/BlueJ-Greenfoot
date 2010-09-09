@@ -21,6 +21,7 @@
  */
 package bluej.parser.entity;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -70,10 +71,24 @@ public class ValueEntity extends JavaEntity
         GenTypeClass ctype = ubounds[0].asClass();
         
         if (ctype != null) {
-            Map<String,FieldReflective> fields = ctype.getReflective().getDeclaredFields();
-            FieldReflective field = fields.get(name);
+            Reflective ctypeRef = ctype.getReflective();
+            LinkedList<Reflective> stypes = new LinkedList<Reflective>();
+            stypes.add(ctypeRef);
+            
+            FieldReflective field = null;
+            
+            while (! stypes.isEmpty()) {
+                ctypeRef = stypes.poll();
+                Map<String,FieldReflective> fields = ctypeRef.getDeclaredFields();
+                field = fields.get(name);
+                if (field != null) {
+                    break;
+                }
+                stypes.addAll(ctypeRef.getSuperTypesR());
+            }
             
             if (field != null) {
+                ctype = ctype.mapToSuper(ctypeRef.getName());
                 if (JavaUtils.checkMemberAccess(ctype.getReflective(), type.asSolid(), accessor,
                         field.getModifiers(), false)) {
                     JavaType fieldType = field.getType();

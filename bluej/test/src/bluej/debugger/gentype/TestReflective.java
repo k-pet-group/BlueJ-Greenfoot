@@ -128,7 +128,7 @@ public class TestReflective extends Reflective
     @Override
     public Map<String,FieldReflective> getDeclaredFields()
     {
-        return Collections.emptyMap();
+        return fields;
     }
     
     @Override
