@@ -21,6 +21,11 @@
  */
 package greenfoot.actions;
 
+import java.awt.EventQueue;
+import java.lang.reflect.InvocationTargetException;
+
+import bluej.utility.Debug;
+
 /**
  * A dummy class that adjusts the details of the Run/Act/Pause actions when constructed.
  * It is solely designed for use by the GreenfootDebugHandler class,
@@ -44,19 +49,50 @@ public class RunActionsAdjuster
     {
         synchronized (RUNNING) {
             if (NOT_RUNNING == running && isRunning) {
-                runEnabled = RunSimulationAction.getInstance().isEnabled();
-                runOnceEnabled = RunOnceSimulationAction.getInstance().isEnabled();
-                pauseEnabled = PauseSimulationAction.getInstance().isEnabled();
+                try {
+                    // Note, we must "invokeAndWait" rather than "invokeLater"
+                    // as the 
+                    EventQueue.invokeAndWait(new Runnable() {
+                        @Override
+                        public void run()
+                        {
+                            runEnabled = RunSimulationAction.getInstance().isEnabled();
+                            runOnceEnabled = RunOnceSimulationAction.getInstance().isEnabled();
+                            pauseEnabled = PauseSimulationAction.getInstance().isEnabled();
+
+                            RunSimulationAction.getInstance().setEnabled(false);
+                            RunOnceSimulationAction.getInstance().setEnabled(false);
+                            PauseSimulationAction.getInstance().setEnabled(false);
+                        }
+                    });
+                }
+                catch (InterruptedException e) {
+                    // I really don't think this should happen at all.
+                }
+                catch (InvocationTargetException e) {
+                    Debug.reportError("Unexpected error: " + e);
+                }
                 isRunning = false;
                 
-                RunSimulationAction.getInstance().setEnabled(false);
-                RunOnceSimulationAction.getInstance().setEnabled(false);
-                PauseSimulationAction.getInstance().setEnabled(false);
             } else if (RUNNING == running && !isRunning) {
+                try {
+                    EventQueue.invokeAndWait(new Runnable() {
+                        @Override
+                        public void run()
+                        {
+                            RunSimulationAction.getInstance().setEnabled(runEnabled);
+                            RunOnceSimulationAction.getInstance().setEnabled(runOnceEnabled);
+                            PauseSimulationAction.getInstance().setEnabled(pauseEnabled);
+                        }
+                    });
+                }
+                catch (InterruptedException e) {
+                    // I really don't think this should happen at all.
+                }
+                catch (InvocationTargetException e) {
+                    Debug.reportError("Unexpected error: " + e);
+                }
                 isRunning = true;
-                RunSimulationAction.getInstance().setEnabled(runEnabled);
-                RunOnceSimulationAction.getInstance().setEnabled(runOnceEnabled);
-                PauseSimulationAction.getInstance().setEnabled(pauseEnabled);
             }
         }
     }
