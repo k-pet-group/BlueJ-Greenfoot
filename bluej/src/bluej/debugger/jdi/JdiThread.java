@@ -593,4 +593,13 @@ class JdiThread extends DebuggerThread
     	    return "collected";
     	}
     }
+    
+    public boolean sameThread(DebuggerThread dt)
+    {
+        if (dt != null && dt instanceof JdiThread) {
+            return getThreadReference().uniqueID() == ((JdiThread)dt).getThreadReference().uniqueID();
+        } else {
+            return false;
+        }
+    }
 }

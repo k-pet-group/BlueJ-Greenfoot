@@ -64,4 +64,6 @@ public abstract class DebuggerThread
 
     public abstract void step();
     public abstract void stepInto();
+    
+    public abstract boolean sameThread(DebuggerThread thread);
 }
