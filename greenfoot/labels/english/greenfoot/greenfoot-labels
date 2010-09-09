@@ -247,7 +247,7 @@ menu.controls=Controls
 
 menu.debugger=Show Debugger
 
-menu.soundRecorder=Sound Recorder
+menu.soundRecorder=Show Sound Recorder
 
 menu.help=Help
 menu.help.about=About Greenfoot...
