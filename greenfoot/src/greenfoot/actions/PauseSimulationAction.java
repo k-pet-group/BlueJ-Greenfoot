@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -36,7 +36,7 @@ import bluej.utility.Debug;
 
 /**
  * @author Poul Henriksen
- * @version $Id: PauseSimulationAction.java 6216 2009-03-30 13:41:07Z polle $
+ * @version $Id: PauseSimulationAction.java 8280 2010-09-09 05:29:12Z davmac $
  */
 public class PauseSimulationAction extends AbstractAction
     implements SimulationListener
@@ -73,31 +73,35 @@ public class PauseSimulationAction extends AbstractAction
      */
     public void actionPerformed(ActionEvent e)
     {
-        if(simulation == null)
+        if(simulation == null) {
             Debug.reportError("attempt to pause a simulation while none exists.");
-        else
+        }
+        else {
             simulation.setPaused(true);
+        }
     }
 
     /**
-     * Observing for the simulation state so we can dis/en-able us appropiately
+     * Observing for the simulation state so we can dis/en-able us appropriately
      */
     public void simulationChanged(final SimulationEvent e)
     {
-        EventQueue.invokeLater(new Runnable() {
-            public void run()
-            {
-                int eventType = e.getType();
-                if (eventType == SimulationEvent.STOPPED) {
-                    setEnabled(false);
-                }
-                else if (eventType == SimulationEvent.STARTED) {
-                    setEnabled(true);
-                }
-                else if (eventType == SimulationEvent.DISABLED) {
-                    setEnabled(false);
-                }
-            }            
-        });
+        if (e.getType() != SimulationEvent.NEW_ACT) {
+            EventQueue.invokeLater(new Runnable() {
+                public void run()
+                {
+                    int eventType = e.getType();
+                    if (eventType == SimulationEvent.STOPPED) {
+                        setEnabled(false);
+                    }
+                    else if (eventType == SimulationEvent.STARTED) {
+                        setEnabled(true);
+                    }
+                    else if (eventType == SimulationEvent.DISABLED) {
+                        setEnabled(false);
+                    }
+                }            
+            });
+        }
     }
 }

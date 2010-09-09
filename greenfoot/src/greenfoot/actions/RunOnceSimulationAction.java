@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -35,9 +35,9 @@ import javax.swing.ImageIcon;
 import bluej.utility.Debug;
 
 /**
+ * An action to "act once" all the actors in the world.
+ * 
  * @author Poul Henriksen
- * @version $Id: RunOnceSimulationAction.java,v 1.10 2004/11/18 09:43:46 polle
- *          Exp $
  */
 public class RunOnceSimulationAction extends AbstractAction
     implements SimulationListener
@@ -91,20 +91,22 @@ public class RunOnceSimulationAction extends AbstractAction
      */
     public void simulationChanged(final SimulationEvent e)
     {
-        EventQueue.invokeLater(new Runnable() {
-            public void run()
-            {
-                int eventType = e.getType();
-                if (eventType == SimulationEvent.STOPPED) {
-                    setEnabled(true);
+        if (e.getType() != SimulationEvent.NEW_ACT) {
+            EventQueue.invokeLater(new Runnable() {
+                public void run()
+                {
+                    int eventType = e.getType();
+                    if (eventType == SimulationEvent.STOPPED) {
+                        setEnabled(true);
+                    }
+                    else if (eventType == SimulationEvent.STARTED) {
+                        setEnabled(false);
+                    }
+                    else if (eventType == SimulationEvent.DISABLED) {
+                        setEnabled(false);
+                    }
                 }
-                else if (eventType == SimulationEvent.STARTED) {
-                    setEnabled(false);
-                }
-                else if (eventType == SimulationEvent.DISABLED) {
-                    setEnabled(false);
-                }
-            }
-        });
+            });
+        }
     }
 }
