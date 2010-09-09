@@ -21,6 +21,8 @@
  */
 package bluej.extensions;
 
+import java.util.Map;
+
 import bluej.debugger.DebuggerListener;
 import bluej.debugmgr.objectbench.ObjectWrapper;
 
@@ -103,5 +105,10 @@ public final class ExtensionBridge {
     public static boolean hasSourceCode(BClass bClass) throws ProjectNotOpenException, PackageNotFoundException
     {
         return bClass.hasSourceCode();
+    }
+
+    public static void addBreakpoint(BProject proj, String className, String method, Map<String, String> properties) throws ProjectNotOpenException
+    {
+        proj.addBreakpoint(className, method, properties);        
     }
 }

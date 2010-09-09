@@ -25,11 +25,13 @@ import java.io.File;
 import java.net.URLClassLoader;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 
 import bluej.debugger.DebuggerListener;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
+import bluej.utility.Debug;
 
 /**
  * A wrapper for a BlueJ project.
@@ -220,5 +222,14 @@ public class BProject
     {
         Project thisProject = projectId.getBluejProject();
         thisProject.getDebugger().addDebuggerListener(listener);
+    }
+    
+    void addBreakpoint(String className, String method, Map<String, String> properties) throws ProjectNotOpenException
+    {
+        Project thisProject = projectId.getBluejProject();
+        String result = thisProject.getDebugger().toggleBreakpoint(className, method, true, properties);
+        if (result != null) {
+            Debug.reportError("Problem setting breakpoint in " + className + "." + method + ": " + result);
+        }
     }
 }
