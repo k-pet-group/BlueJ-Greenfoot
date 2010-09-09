@@ -269,7 +269,10 @@ public class GreenfootDebugHandler implements DebuggerListener
     
     /**
      * Works out if we are currently in a call to the World or Actor act() methods
-     * by looking in the call stack for them
+     * by looking in the call stack for them. Strictly speaking, we might not be
+     * truly inside the user code: it might be we are about to enter or have just
+     * left the act() method. It is only valid to call this for the simulation
+     * thread.
      */
     private static boolean insideUserCode(List<SourceLocation> stack)
     {
@@ -355,6 +358,11 @@ public class GreenfootDebugHandler implements DebuggerListener
         @Override
         public void processDebuggerEvent(DebuggerEvent e, boolean skipUpdate)
         {
+            DebuggerThread eventThread = e.getThread();
+            if (eventThread == null) {
+                return;
+            }
+            
             List<SourceLocation> stack = e.getThread().getStack();
             if (isSimulationThread(stack)) {
                 final Debugger debugger = (Debugger)e.getSource();
