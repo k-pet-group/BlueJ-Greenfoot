@@ -134,9 +134,6 @@ public class ClassView extends JToggleButton
 
     /**
      * Determines the role of this class based on the backing GClass.
-     * 
-     * @param gClass
-     * @return
      */
     private ClassRole determineRole(GProject project)
     {
@@ -327,7 +324,7 @@ public class ClassView extends JToggleButton
     }
 
     /**
-     *  
+     * Get the class role for this class view.  
      */
     public ClassRole getRole()
     {
@@ -348,8 +345,6 @@ public class ClassView extends JToggleButton
     }
 
     /*
-     * (non-Javadoc)
-     * 
      * @see greenfoot.gui.classbrowser.Selectable#select()
      */
     public void select()
@@ -359,8 +354,6 @@ public class ClassView extends JToggleButton
     }
 
     /*
-     * (non-Javadoc)
-     * 
      * @see greenfoot.gui.classbrowser.Selectable#deselect()
      */
     public boolean deselect()
