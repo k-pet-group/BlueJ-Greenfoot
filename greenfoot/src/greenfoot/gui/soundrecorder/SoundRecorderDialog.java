@@ -21,6 +21,7 @@
  */
 package greenfoot.gui.soundrecorder;
 
+import greenfoot.actions.ToggleSoundAction;
 import greenfoot.core.GProject;
 import greenfoot.sound.MemoryAudioInputStream;
 import greenfoot.sound.Sound;
@@ -101,17 +102,20 @@ public class SoundRecorderDialog extends JDialog implements WindowListener
 
     private boolean changedSinceSave = false;
     
+    private ToggleSoundAction toggleAction;
+    
     /**
      * Creates a SoundRecorderDialog that will save the sounds
      * in the sounds directory of the given project.
      */
-    public SoundRecorderDialog(JFrame owner, GProject project)
+    public SoundRecorderDialog(JFrame owner, GProject project, ToggleSoundAction toggleAction)
     {
         super(owner, true);
         
         playLabel = Config.getString("soundRecorder.play");
         playSelectionLabel = Config.getString("soundRecorder.playSelection");
         stopPlayLabel = Config.getString("soundRecorder.stopPlay");
+        this.toggleAction = toggleAction;
         
         setTitle(Config.getString("soundRecorder.title"));
         buildUI(project);
@@ -577,7 +581,8 @@ public class SoundRecorderDialog extends JDialog implements WindowListener
             }
         } else {
             setVisible(false);
-        }        
+        }     
+    	toggleAction.setClosed();   
     }
 
     public void windowActivated(WindowEvent e) {}
@@ -590,6 +595,9 @@ public class SoundRecorderDialog extends JDialog implements WindowListener
     
     public void windowIconified(WindowEvent e) {}
     
-    public void windowOpened(WindowEvent e) {}
+    public void windowOpened(WindowEvent e) 
+    {
+    	toggleAction.setOpen();
+	}
 
 }

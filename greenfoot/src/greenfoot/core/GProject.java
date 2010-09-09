@@ -409,12 +409,33 @@ public class GProject extends RProjectListenerImpl
         return projSoundsDir;
     }
 
-    public void showExecControls()
+    /**
+     * Tries to toggle the debugger window to either set it to
+     * visible or not.
+     */
+    public void toggleExecControls()
     {
         try {
-            rProject.showExecControls();
+            rProject.toggleExecControls();
         } catch (RemoteException ex) {
-            Debug.reportError("Error showing debugger", ex);
-        }
+            Debug.reportError("RemoteException showing debugger", ex);
+        } catch (ProjectNotOpenException ex) {
+            Debug.reportError("ProjectNotOpenException showing debugger", ex);
+		}
     }
+
+    /**
+     * @return	Whether or not the debugger window is currently visible.
+     */
+	public boolean isExecControlVisible() 
+	{
+		try {
+			return rProject.isExecControlVisible();
+		} catch (RemoteException ex) {
+            Debug.reportError("RemoteException checking ExecControl state", ex);
+		} catch (ProjectNotOpenException ex) {
+            Debug.reportError("ProjectNotOpenException checking ExecControl state", ex);
+		}
+		return false;
+	}
 }

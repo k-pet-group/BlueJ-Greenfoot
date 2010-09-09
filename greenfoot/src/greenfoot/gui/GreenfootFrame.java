@@ -27,6 +27,7 @@ import greenfoot.World;
 import greenfoot.actions.AboutGreenfootAction;
 import greenfoot.actions.CloseProjectAction;
 import greenfoot.actions.CompileAllAction;
+import greenfoot.actions.ToggleDebuggerAction;
 import greenfoot.actions.ExportProjectAction;
 import greenfoot.actions.NewClassAction;
 import greenfoot.actions.NewProjectAction;
@@ -46,6 +47,8 @@ import greenfoot.actions.ShowApiDocAction;
 import greenfoot.actions.ShowCopyrightAction;
 import greenfoot.actions.ShowReadMeAction;
 import greenfoot.actions.ShowWebsiteAction;
+import greenfoot.actions.ToggleAction;
+import greenfoot.actions.ToggleSoundAction;
 import greenfoot.core.GClass;
 import greenfoot.core.GCoreClass;
 import greenfoot.core.GPackage;
@@ -67,7 +70,6 @@ import greenfoot.gui.input.mouse.LocationTracker;
 import greenfoot.gui.inspector.GreenfootClassInspector;
 import greenfoot.gui.inspector.GreenfootObjectInspector;
 import greenfoot.gui.inspector.GreenfootResultInspector;
-import greenfoot.gui.soundrecorder.SoundRecorderDialog;
 import greenfoot.platforms.ide.SimulationDelegateIDE;
 import greenfoot.platforms.ide.WorldHandlerDelegateIDE;
 import greenfoot.sound.SoundFactory;
@@ -78,8 +80,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.HeadlessException;
+import java.awt.Menu;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
@@ -88,11 +90,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
+import javax.swing.ButtonModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -118,10 +121,10 @@ import bluej.prefmgr.PrefMgr;
 import bluej.testmgr.record.ClassInspectInvokerRecord;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.DBox;
-
 import com.apple.eawt.Application;
 import com.apple.eawt.ApplicationAdapter;
 import com.apple.eawt.ApplicationEvent;
+
 import java.awt.Image;
 
 /**
@@ -167,6 +170,9 @@ public class GreenfootFrame extends JFrame
     private RemoveSelectedClassAction removeSelectedClassAction;
     private CompileAllAction compileAllAction;
     private SaveWorldAction saveWorldAction;
+    
+    private ToggleDebuggerAction toggleDebuggerAction;
+	private ToggleSoundAction toggleSoundAction;
     
     private JMenu recentProjectsMenu;
     
@@ -323,6 +329,9 @@ public class GreenfootFrame extends JFrame
             if (needsResize()) {
                 pack();
             }
+            // set our project to be this possibly new project
+            toggleDebuggerAction.setProject(project);
+            toggleSoundAction.setProject(project);
             isClosedProject = false;
         }
     }
@@ -635,18 +644,11 @@ public class GreenfootFrame extends JFrame
         addMenuItem(ResetWorldAction.getInstance(), ctrlMenu, KeyEvent.VK_T, false, KeyEvent.VK_T);
         
         ctrlMenu.addSeparator();
-        addMenuItem(new AbstractAction(Config.getString("menu.debugger")) {
-            public void actionPerformed(ActionEvent e)
-            {
-                project.showExecControls();
-            }}, ctrlMenu, KeyEvent.VK_D, false, KeyEvent.VK_D);
+        toggleDebuggerAction = new ToggleDebuggerAction(Config.getString("menu.debugger"), project);
+        createCheckboxMenuItem(toggleDebuggerAction, false, ctrlMenu, KeyEvent.VK_D, false, KeyEvent.VK_D);
         
-        addMenuItem(new AbstractAction(Config.getString("menu.soundRecorder")) {
-            public void actionPerformed(ActionEvent e)
-            {
-                new SoundRecorderDialog(GreenfootFrame.this, project);                
-            }
-        }, ctrlMenu, -1, false, KeyEvent.VK_S);
+        toggleSoundAction = new ToggleSoundAction(Config.getString("menu.soundRecorder"), project, this);
+        createCheckboxMenuItem(toggleSoundAction, false, ctrlMenu, -1, false, KeyEvent.VK_S);
         addMenuItem(saveWorldAction, ctrlMenu, -1, false, KeyEvent.VK_W);
         ctrlMenu.addSeparator();
         addMenuItem(compileAllAction, ctrlMenu, KeyEvent.VK_K, false, -1);
@@ -700,6 +702,41 @@ public class GreenfootFrame extends JFrame
             action.putValue(Action.MNEMONIC_KEY, Integer.valueOf(mnemonicKey));
         }
         menu.add(action);
+    }
+
+    /**
+     * Adds a new checkbox menu item to the {@link Menu} menu provided. 
+     * Uses the {@link ToggleAction} action to setup the changing 
+     * selected state of the action, often determined by events elsewhere 
+     * in the BlueJ/Greenfoot code.
+     * @param action		To be added to the {@link Menu}.
+     * @param selected		Default state of the action if its {@link ButtonModel} is null.
+     * @param menu			That the {@link ToggleAction} will be added to.
+     * @param accelKey		Quick keyboard shortcut for this action.
+     * @param shift			Used to determine if the accelKey needs shift pressed to happen
+     * @param mnemonicKey	Quick keyboard shortcut via the menu for this action.
+     */
+    private void createCheckboxMenuItem(ToggleAction action, boolean selected, JMenu menu, int accelKey, boolean shift, int mnemonicKey)
+    {
+        if(accelKey != -1) {
+            if(shift) {
+                action.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(accelKey, shiftAccelModifier));
+            }
+            else {
+                action.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(accelKey, accelModifier));
+            }
+        }
+        if(!Config.isMacOS() && mnemonicKey != -1) {
+            action.putValue(Action.MNEMONIC_KEY, Integer.valueOf(mnemonicKey));
+        }
+        JCheckBoxMenuItem item = new JCheckBoxMenuItem(action);
+        ButtonModel bm = action.getToggleModel();
+        if (bm == null) {
+        	item.setSelected(selected);
+        } else {
+            item.setModel(bm);
+        }
+        menu.add(item);
     }
     
     /**

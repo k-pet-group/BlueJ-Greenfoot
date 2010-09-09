@@ -116,16 +116,23 @@ public interface RProject
      */
     public abstract void removeListener(RProjectListener listener)
         throws RemoteException;
-
-    /**
-     * Shows the BlueJ debugger
-     * 
-     * @throws ProjectNotOpenException
-     * @throws RemoteException
-     */
-    public abstract void showExecControls()
-        throws RemoteException;
     
     public abstract RObject getRemoteObject()
         throws RemoteException;
+
+    /**
+     * Toggles the BlueJ debugger (Shows/Hides)
+     * @throws RemoteException
+     * @throws ProjectNotOpenException
+     */
+    public abstract void toggleExecControls()
+        throws RemoteException, ProjectNotOpenException;
+
+    /**
+     * @return	Whether or not the debugger window is currently visible
+     * @throws RemoteException
+     * @throws ProjectNotOpenException
+     */
+	public abstract boolean isExecControlVisible()
+		throws RemoteException, ProjectNotOpenException;
 }

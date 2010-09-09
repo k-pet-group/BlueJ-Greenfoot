@@ -233,26 +233,6 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
     }
     
     /*
-     * @see rmiextension.wrappers.RProject#showExecControls()
-     */
-    public void showExecControls()
-    {
-        EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                try {
-                    Project thisProject = Project.getProject(bProject.getDir());
-                    ExecControls execControls = thisProject.getExecControls();
-                    execControls.showHide(true);
-                    execControls.setRestrictedClasses(DebugUtil.restrictedClassesAsNames());
-                }
-                catch (ProjectNotOpenException pnoe) {
-                    // This really can't happen.
-                }
-            }
-        });
-    }
-    
-    /*
      * @see rmiextension.wrappers.RProject#getRemoteObject()
      */
     @Override
@@ -293,4 +273,30 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
         }
         return null;
     }
+
+    /*
+     * (non-Javadoc)
+     * @see rmiextension.wrappers.RProject#isExecControlVisible()
+     */
+	@Override
+	public boolean isExecControlVisible() throws RemoteException, ProjectNotOpenException 
+	{
+        Project thisProject = Project.getProject(bProject.getDir());
+        ExecControls execControls = thisProject.getExecControls();
+        execControls.setRestrictedClasses(DebugUtil.restrictedClassesAsNames());
+        return execControls.isVisible();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see rmiextension.wrappers.RProject#toggleExecControls()
+	 */
+	@Override
+	public void toggleExecControls() throws RemoteException, ProjectNotOpenException 
+	{
+        Project thisProject = Project.getProject(bProject.getDir());
+        ExecControls execControls = thisProject.getExecControls();
+        execControls.showHide(!execControls.isVisible());
+        execControls.setRestrictedClasses(DebugUtil.restrictedClassesAsNames());
+	}
 }
