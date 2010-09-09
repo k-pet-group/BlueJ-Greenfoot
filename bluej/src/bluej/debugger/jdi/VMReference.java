@@ -1372,6 +1372,7 @@ class VMReference
     String setBreakpoint(String className, String methodName, Map<String, String> properties)
     {
         try {
+            loadClass(className);
             ClassType classType = (ClassType)findClassByName(className);
             Location loc = findMethodLocation(classType, methodName);
             return setBreakpoint(className, loc.lineNumber(), properties);
