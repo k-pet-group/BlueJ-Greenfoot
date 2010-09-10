@@ -171,10 +171,10 @@ public class ExtensionWrapper
     }
   
     /**
-     *  Now, assume you have the class and you want to "instantiate" the
-     *  extension You have to call this. NOTE that the extension wrapper is
-     *  ALREADY UP and running. I do not return a value, you may check
-     *  how this went by using the isValid() method...
+     * Now, assume you have the class and you want to "instantiate" the
+     * extension You have to call this. NOTE that the extension wrapper is
+     * ALREADY UP and running. I do not return a value, you may check
+     * how this went by using the isValid() method...
      *
      * @param  project  The project this extension is linked to, null if none
      */
@@ -208,9 +208,9 @@ public class ExtensionWrapper
 
 
     /**
-     *  Gets the project this extension is associated with.
-     *  This happens in case of extensions loaded with a Project.
-     *  If it is a system wide extension this will be null.
+     * Gets the project this extension is associated with.
+     * This happens in case of extensions loaded with a Project.
+     * If it is a system wide extension this will be null.
      *
      * @return    the project owning this extension.
      */
@@ -232,7 +232,7 @@ public class ExtensionWrapper
 
 
     /**
-     *  Gets the jarValid attribute of the ExtensionWrapper object
+     * Gets the jarValid attribute of the ExtensionWrapper object
      *
      * @return    The jarValid value
      */
@@ -243,19 +243,19 @@ public class ExtensionWrapper
 
 
     /**
-     *  Kills off this extension as much as possible
-     *  items and making access to BlueJ no longer possible.
-     *  Not only ! we are even going to release the wrapper after this.
-     *  So it can be loaded again, hopefully from a clean environment
+     * Kills off this extension as much as possible
+     * items and making access to BlueJ no longer possible.
+     * Not only ! we are even going to release the wrapper after this.
+     * So it can be loaded again, hopefully from a clean environment
      */
     void terminate()
     {
         safeTerminate();
 
-        // Needed to signal to the revalidate that this instance is no longer here.            
+        // Needed to signal to the revalidate (below) that this instance is no longer here.            
         extensionInstance = null;
 
-        // Time to clean up things from the visul point of view.
+        // Time to clean up things from the visual point of view.
         prefManager.panelRevalidate();
 
         // Ok, I am ready to get erased from the world.
@@ -263,7 +263,7 @@ public class ExtensionWrapper
 
 
     /**
-     *  Gets the current status of this extension.
+     * Gets the current status of this extension.
      *
      * @return    something like 'Loaded' or 'Error'.
      */
@@ -274,7 +274,7 @@ public class ExtensionWrapper
 
 
     /**
-     *  Gets the fully-qualified name of this extension class.
+     * Gets the fully-qualified name of this extension class.
      *
      * @return This extension class name or null if nothing is loaded
      */
@@ -354,8 +354,8 @@ public class ExtensionWrapper
 
     
     /**
-     *  Gets a String representation of the path to the <CODE>.jar</CODE> file
-     *  containing the extension.
+     * Gets a String representation of the path to the <CODE>.jar</CODE> file
+     * containing the extension.
      *
      * @return    String like <CODE>C:/bluej/lib/extensions/fun.jar</CODE> or null 
      */
@@ -380,7 +380,9 @@ public class ExtensionWrapper
      */
     public String toString()
     {
-        if ( ! isValid() ) return "ExtensionWrapper: invalid";
+        if (! isValid()) {
+            return "ExtensionWrapper: invalid";
+        }
 
         return "ExtensionWrapper: "+ extensionClass.getName();
     }
@@ -433,7 +435,6 @@ public class ExtensionWrapper
     
     /**
      * Returns the extension's name.
-     * It would be far more reliable to use the full class name of the extension. Damiano
      */
     public String safeGetExtensionName()
     {
@@ -452,7 +453,7 @@ public class ExtensionWrapper
 
     
     /**
-     *  Gets the extension's 'further information' URL
+     * Gets the extension's 'further information' URL
      *
      * @return    the extension's URL, or <CODE>null</CODE>.
      */
@@ -473,7 +474,7 @@ public class ExtensionWrapper
 
 
     /**
-     *  Gets the formal version of this extension.
+     * Gets the formal version of this extension.
      *
      * @return  the version of the extension
      */
@@ -494,7 +495,7 @@ public class ExtensionWrapper
 
 
     /**
-     *  Ask the extension if it thinks it is compatible.
+     * Ask the extension if it thinks it is compatible.
      *
      * @return  true if it is, false otherwise
      */
@@ -516,14 +517,13 @@ public class ExtensionWrapper
 
     
     /**
-     *  Call the startup method in a safe way
-     *
-     * @return  true if it is, false otherwise
+     * Call the startup method in a safe way
      */
     private void safeStartup(BlueJ bluejProxy)
     {
-        if (extensionInstance == null) 
+        if (extensionInstance == null) {
             return;
+        }
 
         try {
             extensionInstance.startup(bluejProxy);
@@ -536,14 +536,13 @@ public class ExtensionWrapper
 
 
     /**
-     *  Call the terminate method in a safe way
-     *
-     * @return  true if it is, false otherwise
+     * Call the terminate method in a safe way
      */
     private void safeTerminate()
     {
-        if (extensionInstance == null) 
+        if (extensionInstance == null) {
             return;
+        }
 
         try {
             // Give a chance to extension to clear up after itself.
@@ -557,17 +556,19 @@ public class ExtensionWrapper
 
 
     /**
-     *  Calls the EXTENSION preference panel loadValues in a sfe way
+     * Calls the EXTENSION preference panel loadValues in a safe way
      */
     public void safePrefGenLoadValues()
     {
-        if (extensionBluej == null) 
+        if (extensionBluej == null) { 
             return;
+        }
 
         PreferenceGenerator aPrefGen = extensionBluej.getPreferenceGenerator();
-        // The above is dafe. An extension may not have a preference panel
-        if (aPrefGen == null) 
+        // The above is safe. An extension may not have a preference panel
+        if (aPrefGen == null)  {
             return;
+        }
 
         try {
             aPrefGen.loadValues();
@@ -580,7 +581,7 @@ public class ExtensionWrapper
 
     
     /**
-     *  Calls the EXTENSION preference panel saveValues in a sfe way
+     * Calls the EXTENSION preference panel saveValues in a safe way
      */
     public void safePrefGenSaveValues()
     {
@@ -660,8 +661,4 @@ public class ExtensionWrapper
             exc.printStackTrace();
         }
     }
-
-
-
-
 }
