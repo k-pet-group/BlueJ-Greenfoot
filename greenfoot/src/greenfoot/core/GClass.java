@@ -28,10 +28,10 @@ import java.awt.EventQueue;
 import java.rmi.RemoteException;
 
 import rmiextension.wrappers.RClass;
-import bluej.extensions.*;
 import bluej.extensions.ClassNotFoundException;
-import bluej.parser.InfoParser;
-import bluej.parser.symtab.ClassInfo;
+import bluej.extensions.CompilationNotStartedException;
+import bluej.extensions.PackageNotFoundException;
+import bluej.extensions.ProjectNotOpenException;
 import bluej.runtime.ExecServer;
 import bluej.utility.Debug;
 
@@ -438,9 +438,7 @@ public class GClass
      * Sets the superclass guess that will be returned if it is not possible to
      * find it in another way.
      * 
-     * This name will be stripped of any qualifications.
-     * 
-     * If this guess results in a cyclic hierarchy, it will not be set.
+     * <p>If this guess results in a cyclic hierarchy, it will not be set.
      * 
      * @return True if it was a valid name. False if invalid and something else
      *         should be tried (for instance if the guess is the same as the
@@ -448,9 +446,7 @@ public class GClass
      */
     public boolean setSuperclassGuess(final String superclassName)
     {
-        String superName = GreenfootUtil.extractClassName(superclassName);
-       
-        if (superName.equals(getName()) ) {
+        if (superclassName.equals(getQualifiedName())) {
             return false;
         }
         
@@ -479,21 +475,11 @@ public class GClass
     /**
      * This method tries to guess which class is the superclass. This can be used for non
      * compilable and non parseable classes.
-     * <p>
-     * If the class is compiled, it will return the real superclass.
-     * <br>
-     * If the class is parseable this information will be used to extract the superclass.
-     * <br>
-     * If the is not parseable it will use the last superclass that was known.
-     * <br>
+     * 
+     * <p>If the class is compiled, it will return the real superclass.<br>
+     * If the class is parseable this information will be used to extract the superclass.<br>
+     * If the is not parseable it will use the last superclass that was known.<br>
      * In general, we will try to remember the last known superclass, and report that back.
-     * <p>
-     * 
-     * The meethod will only find superclasses that is part of this project or is one of the
-     * greenfoot API class (World or Actor).
-     * 
-     * OBS: This method can be very slow and shouldn't be called unless needed. Especially if the
-     * class isn't compiled it can be very slow.
      * 
      * @return Best guess of the name of the superclass (NOT the qualified name).
      */
@@ -502,76 +488,43 @@ public class GClass
         // TODO This should be called each time the source file is saved. However,
         // this is not possible at the moment, so we just do it when it is
         // compiled.
-        String name = this.getName();
-        if(name.equals("World") || name.equals("Actor")) {
+        String name = this.getQualifiedName();
+        if(name.equals("greenfoot.World") || name.equals("greenfoot.Actor")) {
             //We do not want to waste time on guessing the name of the superclass for these two classes.
             if(setSuperclassGuess("")) {
                 return;
             }
         }
         
-        //First, try to get the real super class.
-        String realSuperclass = null;
-        try {
-            if(isCompiled()) {                
-                realSuperclass = rmiClass.getSuperclass().getQualifiedName();
-            }
-        }
-        catch (RemoteException e) {
-            // TODO log errors
-        }
-        catch (ProjectNotOpenException e) {
-        }
-        catch (PackageNotFoundException e) {
-        }
-        catch (ClassNotFoundException e) {
-        }
-        catch (NullPointerException e) {
-        }
-
-        if(realSuperclass != null && setSuperclassGuess(realSuperclass)) {
-            return;
-        }
-        
-        // If the class is compiled, but we did not get a superclass back, then
-        // the superclass is not from this project, but we can get it from the
-        // real class
-        if (realSuperclass == null && isCompiled()) {
+        if (isCompiled()) {
             Class<?> superclass = realClass.getSuperclass();
-            if (superclass != null && setSuperclassGuess(superclass.getName())) {
-                return;
-            }
-            else {
+            if (superclass == null || !setSuperclassGuess(superclass.getName())) {
                 setSuperclassGuess("");
             }
+            return;
         }
         
-        //Second, try to parse the file
-        String parsedSuperclass = null;
         try {
-            ClassInfo info = InfoParser.parse(rmiClass.getJavaFile());//, classes);
-            parsedSuperclass = info.getSuperclass();
-           
-            // TODO hack! If the superclass is Actor or World,
-            // put it in the right package... parsing does not resolve references...
-            if (parsedSuperclass.equals("Actor")) {
-                parsedSuperclass = "greenfoot.Actor";
-            }
-            if (parsedSuperclass.equals("World")) {
-                parsedSuperclass = "greenfoot.World";
+            RClass sclass = rmiClass.getSuperclass();
+            if (sclass != null) {
+                setSuperclassGuess(sclass.getQualifiedName());
+                return;
             }
         }
-        catch (ProjectNotOpenException e) {}
-        catch (PackageNotFoundException e) {}
-        catch (RemoteException e) {}
-        catch (Exception e) {}
-
-        if(parsedSuperclass != null && setSuperclassGuess(parsedSuperclass)) {
-            return;
+        catch (ProjectNotOpenException e) {
+            Debug.reportError("Couldn't get superclass", e);
+        }
+        catch (PackageNotFoundException e) {
+            Debug.reportError("Couldn't get superclass", e);
+        }
+        catch (ClassNotFoundException e) {
+            Debug.reportError("Couldn't get superclass", e);
+        }
+        catch (RemoteException e) {
+            Debug.reportError("Couldn't get superclass", e);
         }
         
         //Ok, nothing more to do. We just let the superclassGuess be whatever it is.
-        // It can produce incorrect hierarchies if a class named Object inherits Class A, and then that inheritance is removed. It will then stay as a subclass of A because it has the same name as its superclass (java.lang.Object). 
     }
     
     /**
