@@ -29,10 +29,12 @@ import java.util.WeakHashMap;
 import bluej.compiler.JobQueue;
 import bluej.extensions.editor.Editor;
 import bluej.extensions.editor.EditorBridge;
+import bluej.parser.symtab.ClassInfo;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.Target;
+import bluej.utility.JavaNames;
 import bluej.views.ConstructorView;
 import bluej.views.FieldView;
 import bluej.views.MethodView;
@@ -280,6 +282,29 @@ public class BClass
              throws ProjectNotOpenException, PackageNotFoundException, ClassNotFoundException
     {
         Project bluejPrj = classId.getBluejProject();
+        
+        ClassTarget ct = classId.getClassTarget();
+        if (ct != null && ! ct.isCompiled()) {
+            // Class is not compiled: we can still know the superclass!
+            ClassInfo info = ct.getSourceInfo().getInfo(getJavaFile(), ct.getPackage());
+            if (info != null) {
+                String superClass = info.getSuperclass();
+                String pkgString = JavaNames.getPrefix(superClass);
+                Package bjPkg = bluejPrj.getPackage(pkgString);
+                if (bjPkg != null) {
+                    Target sct = bjPkg.getTarget(JavaNames.getBase(superClass));
+                    if (sct instanceof ClassTarget) {
+                        return ((ClassTarget) sct).getBClass();
+                    }
+                }
+                
+                // Superclass isn't in the project?
+                Identifier sid = new Identifier(bluejPrj, null, superClass);
+                return BClass.getBClass(sid);
+            }
+            
+            return null; 
+        }
 
         View bluejView = classId.getBluejView();
         View superView = bluejView.getSuper();
