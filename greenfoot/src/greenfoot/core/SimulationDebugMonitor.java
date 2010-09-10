@@ -21,16 +21,6 @@
  */
 package greenfoot.core;
 
-import greenfoot.actions.PauseSimulationAction;
-import greenfoot.actions.RunOnceSimulationAction;
-import greenfoot.actions.RunSimulationAction;
-import greenfoot.event.SimulationEvent;
-
-import java.awt.EventQueue;
-import java.lang.reflect.InvocationTargetException;
-
-import bluej.utility.Debug;
-
 /**
  * A dummy class that adjusts the details of the Run/Act/Pause actions when constructed.
  * It is solely designed for use by the GreenfootDebugHandler class,
@@ -50,11 +40,9 @@ public class SimulationDebugMonitor
     {
         synchronized (RUNNING) {
             if (running == RUNNING && !isRunning) {
-                Debug.message("Firing resumed event");
                 Simulation.fireSimulationEvent(Simulation.debuggerResumedEvent);
                 isRunning = true;
             } else if (running == NOT_RUNNING && isRunning) {
-                Debug.message("Firing paused event");
                 Simulation.fireSimulationEvent(Simulation.debuggerPausedEvent);
                 isRunning = false;
             }
