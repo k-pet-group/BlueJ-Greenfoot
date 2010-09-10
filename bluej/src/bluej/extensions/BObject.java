@@ -176,11 +176,12 @@ public class BObject
         ClassTarget classTarget = wrapperId.getClassTarget();
         
         if (classTarget == null) {
+            // Not a project class; exists in a library or the Java runtime
             wrapperId.getJavaClass(); // will throw ClassNotFoundException if not loadable
             return BClass.getBClass(wrapperId);
         }
         
-        // There is only one instance of BClass foer each ClassTarget
+        // There is only one instance of BClass for each ClassTarget
         return classTarget.getBClass();
     }
 
