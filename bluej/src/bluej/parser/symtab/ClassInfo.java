@@ -74,6 +74,8 @@ public final class ClassInfo
     private boolean isUnitTest = false;
     private boolean isEnum = false;
     private boolean isMIDlet = false;
+    
+    private boolean hadParseError = false;
 
     private class SavedComment
     {
@@ -107,13 +109,16 @@ public final class ClassInfo
         }
     }
 
+    /**
+     * Check whether a public class (interface, enum) was found.
+     */
     public boolean foundPublicClass()
     {
         return foundPublicClass;
     }
 
     /**
-     * Set the name of the class.
+     * Set the name of the class/interface/enum.
      */
     public void setName(String name, boolean pub)
     {
@@ -126,26 +131,31 @@ public final class ClassInfo
 
     public void setSuperclass(String name)
     {
-        if(name.equals(this.name))
+        if(name.equals(this.name)) {
             return;
+        }
 
         superclass = name;
-        if(used.contains(name))
+        if(used.contains(name)) {
             used.remove(name);
+        }
 
         for (int i = 0; i < appletClasses.length; i++) {
-            if(name.equals(appletClasses[i]))
+            if(name.equals(appletClasses[i])) {
                 isApplet = true;
+            }
         }
 
         for (int i = 0; i < unitTestClasses.length; i++) {
-            if(name.equals(unitTestClasses[i]))
+            if(name.equals(unitTestClasses[i])) {
                 isUnitTest = true;
+            }
         }
         
         for (int i = 0; i < midletClasses.length; i++) {
-            if(name.equals(midletClasses[i]))
+            if(name.equals(midletClasses[i])) {
                 isMIDlet = true;
+            }
         }
     }
     
@@ -230,6 +240,11 @@ public final class ClassInfo
         isAbstract = b;
     }
 
+    public void setParseError(boolean err)
+    {
+        hadParseError = err;
+    }
+    
     /**
      * Where we would insert the string "extends" in a class/interface
      */
@@ -507,6 +522,10 @@ public final class ClassInfo
         return this.isEnum;
     }
 
+    public boolean hadParseError()
+    {
+        return hadParseError;
+    }
 
     public void print()
     {

@@ -33,7 +33,7 @@ import bluej.parser.symtab.ClassInfo;
  * automatic editing of the source.
  *
  * @author  Michael Kolling
- * @version $Id: SourceInfo.java 7512 2010-05-06 04:49:57Z davmac $
+ * @version $Id: SourceInfo.java 8295 2010-09-10 06:03:56Z davmac $
  */
 public final class SourceInfo
 {
@@ -62,7 +62,7 @@ public final class SourceInfo
         {
             try {
                 info = InfoParser.parse(sourceFile, pkg);
-                valid = info != null;
+                valid = info != null && ! info.hadParseError();
             }
             catch (FileNotFoundException fnfe) {
                 info = null;

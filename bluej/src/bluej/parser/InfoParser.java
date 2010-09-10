@@ -60,6 +60,10 @@ import bluej.utility.JavaNames;
  * <li> Constructor and method signatures, including parameter names and javadoc comments
  * </ul>
  * 
+ * <p>For most of the useful information that the InfoParser discovers, it needs to resolve
+ * names against an EntityResolver which must be supplied. If no resolver is supplied the InfoParser
+ * does little other than check for parse failure.
+ * 
  * @author Davin McCall
  */
 public class InfoParser extends EditorParser
@@ -83,7 +87,6 @@ public class InfoParser extends EditorParser
     
     private List<JavaEntity> interfaceEntities;
     //private List<Selection> interfaceSelections;
-    
     
     /** Represents a method description */
     class MethodDesc
@@ -118,16 +121,27 @@ public class InfoParser extends EditorParser
     private List<LocatableToken> packageTokens;
     private LocatableToken pkgSemiToken;
 
+    /**
+     * Construct an InfoParser which reads Java source using the given reader, and resolves
+     * reference via the given resolver.
+     */
     public InfoParser(Reader r, EntityResolver resolver)
     {
         super(r, resolver);
     }
 
+    /**
+     * Attempt to parse the specified source file. Returns null if the file could not be parsed.
+     */
     public static ClassInfo parse(File f) throws FileNotFoundException
     {
         return parse(f, new ClassLoaderResolver(InfoParser.class.getClassLoader()));
     }
     
+    /**
+     * Attempt to parse the specified source file, and resolve references via the specified
+     * resolver. Returns null if the file could not be parsed.
+     */
     public static ClassInfo parse(File f, EntityResolver resolver) throws FileNotFoundException
     {
         FileInputStream fis = new FileInputStream(f);
@@ -139,6 +153,10 @@ public class InfoParser extends EditorParser
         return info;
     }
     
+    /**
+     * Attempt to parse the specified source file, and resolve references via the specified
+     * package (and its project). Returns null if the file could not be parsed.
+     */
     public static ClassInfo parse(File f, Package pkg) throws FileNotFoundException
     {
         FileInputStream fis = new FileInputStream(f);
@@ -152,6 +170,11 @@ public class InfoParser extends EditorParser
         return info;
     }
 
+    /**
+     * Attempt to parse the specified source file, and resolve references via the specified
+     * resolver. The source should be assumed to reside in the specified package.
+     * Returns null if the source could not be parsed.
+     */
     public static ClassInfo parse(Reader r, EntityResolver resolver, String targetPkg)
     {
         InfoParser infoParser = null;
@@ -159,7 +182,8 @@ public class InfoParser extends EditorParser
         infoParser.targetPkg = targetPkg;
         infoParser.parseCU();
 
-        if (infoParser.info != null && !infoParser.hadError) {
+        if (infoParser.info != null) {
+            infoParser.info.setParseError(infoParser.hadError);
             infoParser.resolveComments();
             return infoParser.info;
         }

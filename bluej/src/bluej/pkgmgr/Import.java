@@ -22,6 +22,7 @@
 package bluej.pkgmgr;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -91,16 +92,18 @@ public class Import
 
             try {
                 ClassInfo info = InfoParser.parse(f);
+                if (info != null && ! info.hadParseError()) {
 
-                String qf = JavaNames.convertFileToQualifiedName(path, f);
+                    String qf = JavaNames.convertFileToQualifiedName(path, f);
 
-                if (!JavaNames.getPrefix(qf).equals(info.getPackage())) {
-                    mismatchFiles.add(f);
-                    mismatchPackagesOriginal.add(info.getPackage());
-                    mismatchPackagesChanged.add(qf);
+                    if (!JavaNames.getPrefix(qf).equals(info.getPackage())) {
+                        mismatchFiles.add(f);
+                        mismatchPackagesOriginal.add(info.getPackage());
+                        mismatchPackagesChanged.add(qf);
+                    }
                 }
             }
-            catch (Exception e) {}
+            catch (FileNotFoundException fnfe) {}
         }
 
         // now ask if they want to continue if we have detected mismatches
