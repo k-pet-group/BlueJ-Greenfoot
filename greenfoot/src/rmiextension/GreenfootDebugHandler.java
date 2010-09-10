@@ -21,7 +21,7 @@
  */
 package rmiextension;
 
-import greenfoot.actions.RunActionsAdjuster;
+import greenfoot.core.SimulationDebugMonitor;
 import greenfoot.core.Simulation;
 
 import java.util.Collections;
@@ -406,7 +406,7 @@ public class GreenfootDebugHandler implements DebuggerListener
                 @Override
                 public void run()
                 {
-                    String className = RunActionsAdjuster.class.getCanonicalName();
+                    String className = SimulationDebugMonitor.class.getCanonicalName();
                     try {
                         debugger.getClass(className);
                         debugger.instantiateClass(className, new String[] {"java.lang.Object"}, new DebuggerObject[] {debugger.getStaticValue(className, stateVar)});

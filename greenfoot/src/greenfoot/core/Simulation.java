@@ -91,6 +91,8 @@ public class Simulation extends Thread
     private SimulationEvent disabledEvent;
     private SimulationEvent speedChangeEvent;
     private SimulationEvent newActEvent;
+    static SimulationEvent debuggerPausedEvent;
+    static SimulationEvent debuggerResumedEvent;
     private static Simulation instance;
 
     /** for timing the animation */
@@ -144,6 +146,8 @@ public class Simulation extends Thread
         speedChangeEvent = new SimulationEvent(this, SimulationEvent.CHANGED_SPEED);
         disabledEvent = new SimulationEvent(this, SimulationEvent.DISABLED);
         newActEvent = new SimulationEvent(this, SimulationEvent.NEW_ACT);
+        debuggerPausedEvent = new SimulationEvent(this, SimulationEvent.DEBUGGER_PAUSED);
+        debuggerResumedEvent = new SimulationEvent(this, SimulationEvent.DEBUGGER_RESUMED);
         setPriority(Thread.MIN_PRIORITY);
         paused = true;
         speed = 50;
@@ -640,19 +644,19 @@ public class Simulation extends Thread
         }
     }
 
-    private void fireSimulationEvent(SimulationEvent event)
+    static void fireSimulationEvent(SimulationEvent event)
     {
         // Guaranteed to return a non-null array
         Object[] listeners;
-        synchronized (this) {
-            listeners = listenerList.getListenerList();
-        }
-        
-        // Process the listeners last to first, notifying
-        // those that are interested in this event
-        for (int i = listeners.length - 2; i >= 0; i -= 2) {
-            if (listeners[i] == SimulationListener.class) {
-                ((SimulationListener) listeners[i + 1]).simulationChanged(event);
+        synchronized (instance.listenerList) {
+            listeners = instance.listenerList.getListenerList();
+
+            // Process the listeners last to first, notifying
+            // those that are interested in this event
+            for (int i = listeners.length - 2; i >= 0; i -= 2) {
+                if (listeners[i] == SimulationListener.class) {
+                    ((SimulationListener) listeners[i + 1]).simulationChanged(event);
+                }
             }
         }
     }
@@ -665,7 +669,9 @@ public class Simulation extends Thread
      */
     public void addSimulationListener(SimulationListener l)
     {
-        listenerList.add(SimulationListener.class, l);
+        synchronized (listenerList) {
+            listenerList.add(SimulationListener.class, l);
+        }
     }
 
     /**
@@ -676,7 +682,9 @@ public class Simulation extends Thread
      */
     public void removeSimulationListener(SimulationListener l)
     {
-        listenerList.remove(SimulationListener.class, l);
+        synchronized (listenerList) {
+            listenerList.remove(SimulationListener.class, l);
+        }
     }
 
     /**
