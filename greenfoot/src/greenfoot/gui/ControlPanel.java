@@ -51,7 +51,7 @@ import bluej.Config;
  * Panel that holds the buttons that controls the simulation.
  * 
  * @author Poul Henriksen
- * @version $Id: ControlPanel.java 6216 2009-03-30 13:41:07Z polle $
+ * @version $Id: ControlPanel.java 8296 2010-09-10 10:54:46Z nccb $
  */
 public class ControlPanel extends Box
     implements ChangeListener, SimulationListener
@@ -180,7 +180,9 @@ public class ControlPanel extends Box
     {
 
         final int etype = e.getType();
-        if (etype == SimulationEvent.NEW_ACT) {
+        if (etype == SimulationEvent.NEW_ACT
+              || etype == SimulationEvent.DEBUGGER_PAUSED
+              || etype == SimulationEvent.DEBUGGER_RESUMED) {
             // we don't care about these events here so we want to avoid
             // creating a new thread below.
             return;

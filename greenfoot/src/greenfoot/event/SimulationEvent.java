@@ -30,7 +30,7 @@ import java.util.EventObject;
  * A simulation event
  * 
  * @author Poul Henriksen
- * @version $Id: SimulationEvent.java 6216 2009-03-30 13:41:07Z polle $
+ * @version $Id: SimulationEvent.java 8296 2010-09-10 10:54:46Z nccb $
  */
 public class SimulationEvent extends EventObject
 {
@@ -51,6 +51,23 @@ public class SimulationEvent extends EventObject
 
     /** The simulation is about to start a new act round */
     public final static int NEW_ACT = 4;
+    
+    /** The simulation thread is paused because it hit a breakpoint,
+     *  or the debugger has otherwise stopped its execution.
+     *  
+     *  Obviously, this event will not be processed in the
+     *  Simulation thread.
+     */
+    public final static int DEBUGGER_PAUSED = 5;
+    
+    /** The opposite of DEBUGGER_PAUSED; the debugger has set
+     * the Simulation going again.
+     * 
+     * Like DEBUGGER_PAUSED, this will not be processed in the Simulation
+     * thread.
+     */
+    public final static int DEBUGGER_RESUMED = 6;
+    
 
     private int type;
 
@@ -76,7 +93,11 @@ public class SimulationEvent extends EventObject
             case DISABLED:
                 return "DISABLED";
             case NEW_ACT:
-                return "NEW_ACT";                
+                return "NEW_ACT";
+            case DEBUGGER_PAUSED:
+                return "DEBUGGER_PAUSED";
+            case DEBUGGER_RESUMED:
+                return "DEBUGGER_RESUMED";
         }
         return super.toString();
         

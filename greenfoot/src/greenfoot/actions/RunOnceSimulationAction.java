@@ -55,6 +55,7 @@ public class RunOnceSimulationAction extends AbstractAction
     
 
     private Simulation simulation;
+    protected boolean stateOnDebugResume;
 
     private RunOnceSimulationAction()
     {
@@ -97,13 +98,20 @@ public class RunOnceSimulationAction extends AbstractAction
                 {
                     int eventType = e.getType();
                     if (eventType == SimulationEvent.STOPPED) {
-                        setEnabled(true);
+                        setEnabled(stateOnDebugResume = true);
                     }
                     else if (eventType == SimulationEvent.STARTED) {
-                        setEnabled(false);
+                        setEnabled(stateOnDebugResume = false);
                     }
                     else if (eventType == SimulationEvent.DISABLED) {
-                        setEnabled(false);
+                        setEnabled(stateOnDebugResume = false);
+                    }
+                    else if (eventType == SimulationEvent.DEBUGGER_PAUSED) {
+                        stateOnDebugResume = isEnabled();
+                        setEnabled(false);                        
+                    }
+                    else if (eventType == SimulationEvent.DEBUGGER_RESUMED) {
+                        setEnabled(stateOnDebugResume);
                     }
                 }
             });

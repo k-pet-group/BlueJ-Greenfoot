@@ -36,7 +36,7 @@ import bluej.utility.Debug;
 
 /**
  * @author Poul Henriksen
- * @version $Id: PauseSimulationAction.java 8280 2010-09-09 05:29:12Z davmac $
+ * @version $Id: PauseSimulationAction.java 8296 2010-09-10 10:54:46Z nccb $
  */
 public class PauseSimulationAction extends AbstractAction
     implements SimulationListener
@@ -53,6 +53,7 @@ public class PauseSimulationAction extends AbstractAction
     }
     
     private Simulation simulation;
+    protected boolean stateOnDebugResume;
 
     private PauseSimulationAction()
     {
@@ -92,13 +93,20 @@ public class PauseSimulationAction extends AbstractAction
                 {
                     int eventType = e.getType();
                     if (eventType == SimulationEvent.STOPPED) {
-                        setEnabled(false);
+                        setEnabled(stateOnDebugResume = false);
                     }
                     else if (eventType == SimulationEvent.STARTED) {
-                        setEnabled(true);
+                        setEnabled(stateOnDebugResume = true);
                     }
                     else if (eventType == SimulationEvent.DISABLED) {
-                        setEnabled(false);
+                        setEnabled(stateOnDebugResume = false);
+                    }
+                    else if (eventType == SimulationEvent.DEBUGGER_PAUSED) {
+                        stateOnDebugResume = isEnabled();
+                        setEnabled(false);                        
+                    }
+                    else if (eventType == SimulationEvent.DEBUGGER_RESUMED) {
+                        setEnabled(stateOnDebugResume);
                     }
                 }            
             });
