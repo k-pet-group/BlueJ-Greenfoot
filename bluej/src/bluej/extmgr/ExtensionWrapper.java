@@ -162,7 +162,7 @@ public class ExtensionWrapper
 
         public Class<?> findClass(String name) throws ClassNotFoundException
         {
-            if ( name.startsWith("bluej.") ) {
+            if ( name.startsWith("bluej.") || name.startsWith("rmiextension.") || name.startsWith("greenfoot.")) {
                 return myParent.loadClass(name);
             }
 

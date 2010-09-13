@@ -169,6 +169,11 @@ public class ExtensionsManager
                 }
             }
         }
+        
+        // The last extension may have added a preference panel, but due to the way that is
+        // implemented the panel won't be visible as the extension wasn't in the list of
+        // valid extensions at that stage.
+        getPrefManager().panelRevalidate();
     }
 
     /**
