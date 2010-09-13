@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -36,7 +36,6 @@ import java.awt.event.MouseEvent;
  * Implementation for running scenarios in a standalone application or applet.
  * 
  * @author Poul Henriksen
- *
  */
 public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
 {    
@@ -50,11 +49,6 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
         this.lockScenario = lockScenario;
     }
     
-    public void dragFinished(Object o)
-    {
-        worldHandler.finishDrag(o);
-    }
-
     public boolean maybeShowPopup(MouseEvent e)
     {
         // Not used in standalone
@@ -73,7 +67,7 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
 
     public void setWorld(final World oldWorld, final World newWorld)
     {
-        ActorDelegateStandAlone.initWorld(newWorld);
+        // Not needed
     }
 
     public void setWorldHandler(WorldHandler handler)

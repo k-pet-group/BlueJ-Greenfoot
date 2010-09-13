@@ -249,11 +249,6 @@ public class WorldHandlerDelegateIDE
         }
     }
     
-    public void dragFinished(Object o)
-    {
-        worldHandler.finishDrag(o);
-    }
-    
     /**
      * Fire an object event for the named object. This will
      * notify all listeners that have registered interest for

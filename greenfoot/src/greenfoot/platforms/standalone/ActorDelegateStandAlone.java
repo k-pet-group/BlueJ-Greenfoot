@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,7 +23,6 @@ package greenfoot.platforms.standalone;
 
 import greenfoot.ActorVisitor;
 import greenfoot.GreenfootImage;
-import greenfoot.World;
 import greenfoot.core.ProjectProperties;
 import greenfoot.platforms.ActorDelegate;
 
@@ -32,13 +31,11 @@ import greenfoot.platforms.ActorDelegate;
  * the "export" functionality in Greenfoot.
  * 
  * @author Poul Henriksen <polle@polle.org>
- * 
  */
 public class ActorDelegateStandAlone
     implements ActorDelegate
 {
     private static ActorDelegateStandAlone instance = new ActorDelegateStandAlone();
-    private World world;
     private ProjectProperties properties;
     
     /**
@@ -54,12 +51,6 @@ public class ActorDelegateStandAlone
     {
         instance.properties = properties;
     }
-
-    public static void initWorld(World world)
-    {
-        instance.world = world;        
-    }
-    
 
     public GreenfootImage getImage(String name)
     {

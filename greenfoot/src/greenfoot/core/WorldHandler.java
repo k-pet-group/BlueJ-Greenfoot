@@ -136,10 +136,6 @@ public class WorldHandler
             {                
             }
 
-            public void dragFinished(Object o)
-            {
-            }
-
             public InputManager getInputManager()
             {
                 return null;
@@ -703,7 +699,7 @@ public class WorldHandler
 
     public void dragFinished(Object o)
     {
-        handlerDelegate.dragFinished(o);
+        finishDrag(o);
     }
 
     protected void fireWorldCreatedEvent(World newWorld)
@@ -790,7 +786,7 @@ public class WorldHandler
 
     /**
      * Method that cleans up after a drag, and re-enables the worldhandler to
-     * recieve events. It also puts the object back in its original place if it
+     * receive events. It also puts the object back in its original place if it
      * was not dropped.
      */
     public void finishDrag(Object o)
