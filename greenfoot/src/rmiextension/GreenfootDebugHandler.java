@@ -25,11 +25,9 @@ import greenfoot.core.SimulationDebugMonitor;
 import greenfoot.core.Simulation;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import rmiextension.wrappers.WrapperPool;
 import bluej.debugger.Debugger;
@@ -58,11 +56,13 @@ import bluej.utility.Debug;
  */
 public class GreenfootDebugHandler implements DebuggerListener
 {  
-    private static final String INVOKE_CLASS = Simulation.class.getName();
-    
+    private static final String SIMULATION_CLASS = Simulation.class.getName();   
     private static final String[] INVOKE_METHODS = {Simulation.ACT_WORLD, Simulation.ACT_ACTOR, Simulation.NEW_INSTANCE};
-    private static final String[] SPECIAL_METHODS = {Simulation.ACT_WORLD, Simulation.ACT_ACTOR, Simulation.NEW_INSTANCE, Simulation.PAUSED};
+    private static final String SIMULATION_INVOKE_KEY = SIMULATION_CLASS + "INTERNAL";
     
+    private static final String PAUSED_METHOD = Simulation.PAUSED;
+    private static final String SIMULATION_THREAD_PAUSED_KEY = "SIMULATION_THREAD_PAUSED"; 
+        
     private static final String SIMULATION_THREAD_RUN_KEY = "SIMULATION_THREAD_RUN";
     
     /**
@@ -148,7 +148,7 @@ public class GreenfootDebugHandler implements DebuggerListener
                 // They are in an act method, make sure the breakpoints are cleared:
                 
                 // This method can be safely invoked without needing to talk to the worker thread:
-                debugger.removeBreakpointsForClass(INVOKE_CLASS);
+                debugger.removeBreakpointsForClass(SIMULATION_CLASS);
                         
                 // If they have just hit the breakpoint and are in InvokeAct itself,
                 // step-into the World/Actor:
@@ -165,10 +165,10 @@ public class GreenfootDebugHandler implements DebuggerListener
                     scheduledTasks.put(e.getThread(), runToInternalBreakpoint(debugger, e.getThread()));
                     return true;                    
                 } //otherwise they are in their own code
-            } else if (atPauseMethod(stack)) {
+            } else if (atPauseBreakpoint(e.getBreakpointProperties())) {
                 // They are going to pause; remove all special breakpoints and set them going
                 // (so that they actually hit the pause):
-                debugger.removeBreakpointsForClass(INVOKE_CLASS);
+                debugger.removeBreakpointsForClass(SIMULATION_CLASS);
                 e.getThread().cont();
                 return true;
             } else {
@@ -237,7 +237,7 @@ public class GreenfootDebugHandler implements DebuggerListener
         if (isSimulationThread(thread)) {
             if (insideUserCode(thread.getStack())) {
                 // It's okay, they are in an act method, make sure the breakpoints are cleared:
-                debugger.removeBreakpointsForClass(INVOKE_CLASS);
+                debugger.removeBreakpointsForClass(SIMULATION_CLASS);
                 //This method ^ can be safely invoked without needing to talk to the worker thread
             } else {
                 // Set this going now; we are not the examine method:
@@ -289,19 +289,6 @@ public class GreenfootDebugHandler implements DebuggerListener
         }
         return false;
     }
-    
-    /**
-     * Works out if they are currently in the Simulation.PAUSED method by looking at the call stack.
-     */
-    private static boolean atPauseMethod(List<SourceLocation> stack)
-    {
-        if (stack.isEmpty()) {
-            return false;
-        } else {
-            SourceLocation frame = stack.get(0);
-            return (INVOKE_CLASS.equals(frame.getClassName()) && Simulation.PAUSED.equals(frame.getMethodName()));
-        }
-    }
    
     /**
      * Works out if the specified frame in the call-stack is in one of the special invoke-act
@@ -311,7 +298,7 @@ public class GreenfootDebugHandler implements DebuggerListener
     private static boolean inInvokeMethods(List<SourceLocation> stack, int frame)
     {
         if (frame < stack.size()) {
-            if (stack.get(frame).getClassName().equals(INVOKE_CLASS)) {
+            if (stack.get(frame).getClassName().equals(SIMULATION_CLASS)) {
                 String methodName = stack.get(frame).getMethodName();
                 for (String actMethod : INVOKE_METHODS) {
                     if (actMethod.equals(methodName))
@@ -322,15 +309,22 @@ public class GreenfootDebugHandler implements DebuggerListener
         
         return false;
     }
-    
-    private static final String INTERNAL_INVOKE_BREAKPOINT = INVOKE_CLASS + "INTERNAL";
+
+    /**
+     * Works out if they are currently in the Simulation.PAUSED method by looking 
+     * for the special breakpoint property
+     */
+    private static boolean atPauseBreakpoint(BreakpointProperties props)
+    {
+        return props != null && props.get(SIMULATION_THREAD_PAUSED_KEY) != null;
+    }
     
     /**
      * Checks if the given breakpoint was set by the setInvokeActBreakpoints call, below  
      */
     private static boolean atInvokeBreakpoint(BreakpointProperties props)
     {
-        return props != null && props.get(INTERNAL_INVOKE_BREAKPOINT) != null;
+        return props != null && props.get(SIMULATION_INVOKE_KEY) != null;
     }
     
     /**
@@ -343,14 +337,16 @@ public class GreenfootDebugHandler implements DebuggerListener
      */
     private static void setSpecialBreakpoints(final Debugger debugger)
     {
-        Map<String, String> properties = new HashMap<String, String>();
-        properties.put(INTERNAL_INVOKE_BREAKPOINT, "yes");
-        
-        for (String method : SPECIAL_METHODS) {
-            String err = debugger.toggleBreakpoint(INVOKE_CLASS, method, true, properties);
+        for (String method : INVOKE_METHODS) {
+            String err = debugger.toggleBreakpoint(SIMULATION_CLASS, method, true, Collections.singletonMap(SIMULATION_INVOKE_KEY, "yes"));
             if (err != null) {
                 Debug.reportError("Problem setting special breakpoint: " + err);
             }
+        }
+        
+        String err = debugger.toggleBreakpoint(SIMULATION_CLASS, PAUSED_METHOD, true, Collections.singletonMap(SIMULATION_THREAD_PAUSED_KEY, "yes"));
+        if (err != null) {
+            Debug.reportError("Problem setting special breakpoint: " + err);
         }
     }
     
