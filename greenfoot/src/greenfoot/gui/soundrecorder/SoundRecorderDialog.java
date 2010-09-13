@@ -101,6 +101,7 @@ public class SoundRecorderDialog extends JDialog implements WindowListener
     private final String stopPlayLabel;
 
     private boolean changedSinceSave = false;
+    private String lastSaveName = null;
     
     private ToggleSoundAction toggleAction;
     
@@ -110,7 +111,7 @@ public class SoundRecorderDialog extends JDialog implements WindowListener
      */
     public SoundRecorderDialog(JFrame owner, GProject project, ToggleSoundAction toggleAction)
     {
-        super(owner, true);
+        super(owner, false);
         
         playLabel = Config.getString("soundRecorder.play");
         playSelectionLabel = Config.getString("soundRecorder.playSelection");
@@ -154,11 +155,11 @@ public class SoundRecorderDialog extends JDialog implements WindowListener
                     //Stop recording
                     recorder.stopRecording();
                     playStop.setEnabled(true);
+                    changedSinceSave = true;
                     updateSaveButton();
                     soundPanel.repaint();
                     recordStop.setText(recordLabel);
                     recording = false;
-                    changedSinceSave = true;
                 }
             }
         });
@@ -170,6 +171,7 @@ public class SoundRecorderDialog extends JDialog implements WindowListener
             {
                 recorder.trim(Math.min(selectionBegin, selectionEnd), Math.max(selectionBegin, selectionEnd));
                 changedSinceSave = true;
+                updateSaveButton();
                 selectionActive = false;
                 updateButtons();
                 repaint();
@@ -248,11 +250,14 @@ public class SoundRecorderDialog extends JDialog implements WindowListener
                           options, options[overwrite])) {
                             recorder.writeWAV(destination);
                             changedSinceSave = false;
+                            lastSaveName = filenameField.getText();
                         }
                     } else {
                         recorder.writeWAV(destination);
                         changedSinceSave = false;
+                        lastSaveName = filenameField.getText();
                     }
+                    updateSaveButton();
                 }
             }
         });
@@ -315,7 +320,8 @@ public class SoundRecorderDialog extends JDialog implements WindowListener
     // Updates the save button based on whether the filename field is blank (and whether a recording exists)
     private void updateSaveButton()
     {
-        saveButton.setEnabled(recorder.getRawSound() != null && !filenameField.getText().isEmpty());
+        saveButton.setEnabled(recorder.getRawSound() != null && !filenameField.getText().isEmpty()
+                  && (!filenameField.getText().equals(lastSaveName) || changedSinceSave));
     }
     
     /**
