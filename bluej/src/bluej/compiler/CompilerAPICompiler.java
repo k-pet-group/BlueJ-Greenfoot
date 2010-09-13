@@ -153,7 +153,12 @@ public class CompilerAPICompiler extends Compiler
             Diagnostic<? extends JavaFileObject> diagnostic = diagnosticList.get(diagnosticErrorPosition);
             if (diagnostic.getSource() != null)
             {
-                src = diagnostic.getSource().toUri().getPath();       
+                if (Config.isJava17())
+                {
+                    src = diagnostic.getSource().getName();  
+                } else {
+                    src = diagnostic.getSource().toString();
+                }
             }
             pos = (int)diagnostic.getLineNumber();
 
@@ -188,9 +193,7 @@ public class CompilerAPICompiler extends Compiler
     }
 
     /**
-     * @param  String msg representing the message retrieved from the diagnostic tool
-     * processDiagnosticMessage tidies up the message returned from the diagnostic tool 
-     * @return message String
+     * processDiagnosticMessage tidies up the message returned from the diagnostic tool
      */
     protected String processDiagnosticMessage(String src, int pos, String msg)
     {
@@ -221,6 +224,9 @@ public class CompilerAPICompiler extends Compiler
         }
     }
 
+    /**
+     * Processes message returned from the compiler where the Java version is 1.6 or lower
+     */
     protected String processMessage(String src, int pos, String msg)
     {
         // The message is in this format: 
