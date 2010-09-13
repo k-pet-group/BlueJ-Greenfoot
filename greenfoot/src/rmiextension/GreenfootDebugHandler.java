@@ -27,6 +27,7 @@ import greenfoot.core.Simulation;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -360,6 +361,49 @@ public class GreenfootDebugHandler implements DebuggerListener
      */
     private class GreenfootDebugControlsLink implements DebuggerListener
     {
+        private LinkedList<String> queuedStateVars = new LinkedList<String>();
+        private Object SEND_EVENT = new Object();
+        private String CLASS_NAME = SimulationDebugMonitor.class.getCanonicalName();
+        
+        private void simplifyEvents()
+        {
+            // If there is more than one event, it must be made redundant by the latest
+            // event:
+            while (queuedStateVars.size() > 1) {
+                queuedStateVars.removeFirst();
+            }
+        }
+        
+        private class SendNextEvent implements Runnable
+        {
+            private Debugger debugger;
+            
+            public SendNextEvent(Debugger debugger)
+            {
+                this.debugger = debugger;
+            }
+
+            public void run()
+            {
+                // We hold the monitor until the object has been instantiated, to prevent race hazards:
+                synchronized (SEND_EVENT) {
+                    String stateVar;
+                    synchronized (queuedStateVars) {
+                        simplifyEvents();
+                        if (queuedStateVars.isEmpty())
+                            return;
+                        stateVar = queuedStateVars.removeFirst();
+                    }
+                    try {
+                        debugger.getClass(CLASS_NAME);
+                        debugger.instantiateClass(CLASS_NAME, new String[] {"java.lang.Object"}, new DebuggerObject[] {debugger.getStaticValue(CLASS_NAME, stateVar)});
+                    } catch (ClassNotFoundException ex) {
+                        Debug.reportError("Could not find internal class " + CLASS_NAME, ex);
+                    }
+                }
+            }
+        }
+        
         public boolean examineDebuggerEvent(DebuggerEvent e)
         {
             return false;
@@ -401,20 +445,10 @@ public class GreenfootDebugHandler implements DebuggerListener
              * create the object from a debug handler as we are. 
              */
 
-            new Thread(new Runnable() {
-
-                @Override
-                public void run()
-                {
-                    String className = SimulationDebugMonitor.class.getCanonicalName();
-                    try {
-                        debugger.getClass(className);
-                        debugger.instantiateClass(className, new String[] {"java.lang.Object"}, new DebuggerObject[] {debugger.getStaticValue(className, stateVar)});
-                    } catch (ClassNotFoundException ex) {
-                        Debug.reportError("Could not find internal class " + className, ex);
-                    }
-                }
-            }).start();                
+            synchronized (queuedStateVars) {
+                queuedStateVars.addLast(stateVar);
+                new Thread (new SendNextEvent(debugger)).start();
+            }                
         }
     }
 }
