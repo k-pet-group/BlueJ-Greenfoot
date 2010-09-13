@@ -528,19 +528,6 @@ public class GClass
     }
     
     /**
-     * Strips the name of a class for its qualified part.
-     */
-    private String removeQualification(String classname)
-    {
-        int lastDotIndex = classname.lastIndexOf(".");
-        if(lastDotIndex != -1) {
-            return classname.substring(lastDotIndex+1);
-        } else {
-            return classname;
-        }
-    }
-
-    /**
      * Check whether this class is compiled (thread-safe).
      */
     public boolean isCompiled()
@@ -570,34 +557,26 @@ public class GClass
     /**
      * Returns true if this class is a subclass of the given class.
      * 
-     * A class is not considered a subclass of itself. So, if the two classes
+     * <p>A class is not considered a subclass of itself. So, if the two classes
      * are same it returns false.
      * 
-     * It only looks at the name of class and not the fully qualified name.
-     * 
-     * @param className
-     * @return
+     * <p>It only looks at the name of class and not the fully qualified name.
      */
     public boolean isSubclassOf(String className)
     {    
-        className = removeQualification(className);
-        GClass superclass = this;
-        if(this.getName().equals(className)) {
+        if (this.getQualifiedName().equals(className)) {
             return false;
         }
+        
         //Recurse through superclasses
-        while (superclass != null) {
-            String superclassName = superclass.getSuperclassGuess();
-            //TODO Fix this hack. Should be done when non-greenfoot classes gets support.
-            //HACK to ensure that a class with no superclass has "" as superclass. This is becuase of the ClassForest building which then allows the class to show up even though it doesn't have any superclass.
-            if(superclassName == null) {
-                superclassName = "";
-            }
-            if (superclassName != null && (className.equals(removeQualification(superclassName)))) {
+        GClass currentClass = this;
+        do {
+            String superclassName = currentClass.getSuperclassGuess();
+            if (className.equals(superclassName)) {
                 return true;
             }
-            superclass = superclass.getSuperclass();
-        }
+            currentClass = currentClass.getSuperclass();
+        } while (currentClass != null);
         return false;
     }   
 
