@@ -21,6 +21,7 @@
  */
 package rmiextension;
 
+import greenfoot.actions.ResetWorldAction;
 import greenfoot.core.SimulationDebugMonitor;
 import greenfoot.core.Simulation;
 
@@ -65,6 +66,10 @@ public class GreenfootDebugHandler implements DebuggerListener
         
     private static final String SIMULATION_THREAD_RUN_KEY = "SIMULATION_THREAD_RUN";
     
+    private static final String RESET_CLASS = ResetWorldAction.class.getName();
+    private static final String RESET_METHOD = ResetWorldAction.RESET_WORLD;
+    private static final String RESET_KEY = "RESET_WORLD";
+    
     /**
      * The scheduledTasks collection exists to solve some tricky issues with timing and deadlock
      * among the VMs.  Here's the scenario:
@@ -90,6 +95,8 @@ public class GreenfootDebugHandler implements DebuggerListener
     private BProject project;
     private DebuggerThread simulationThread;
     
+    private boolean currentlyResetting;
+    
     private GreenfootDebugHandler(BProject project)
     {
         this.project = project;
@@ -102,6 +109,8 @@ public class GreenfootDebugHandler implements DebuggerListener
     {
         try {
             ExtensionBridge.addBreakpoint(project, Simulation.class.getCanonicalName(), "run", Collections.singletonMap(SIMULATION_THREAD_RUN_KEY, "TRUE"));
+            ExtensionBridge.addBreakpoint(project, RESET_CLASS, RESET_METHOD, Collections.singletonMap(RESET_KEY, "yes"));
+                        
             // Technically I could collapse the two listeners into one, but they
             // perform orthogonal tasks so it's nicer to keep the code separate:
             GreenfootDebugHandler handler = new GreenfootDebugHandler(project);
@@ -130,7 +139,7 @@ public class GreenfootDebugHandler implements DebuggerListener
      */
     public boolean examineDebuggerEvent(final DebuggerEvent e)
     {
-        Debugger debugger = (Debugger)e.getSource();
+        final Debugger debugger = (Debugger)e.getSource();
         List<SourceLocation> stack = e.getThread().getStack();
         
         if (e.getID() == DebuggerEvent.THREAD_BREAKPOINT
@@ -142,9 +151,35 @@ public class GreenfootDebugHandler implements DebuggerListener
             e.getThread().cont();
             return true;
             
+        } else if (e.getID() == DebuggerEvent.THREAD_BREAKPOINT && atResetBreakpoint(e.getBreakpointProperties())) {
+            // The user has clicked reset:
+            currentlyResetting = true;
+            
+            scheduledTasks.put(e.getThread(), new Runnable() { public void run() {
+                setSpecialBreakpoints(debugger);
+                // Set the simulation thread going if it's suspended:
+                if (simulationThread.isSuspended()) {
+                    simulationThread.cont();
+                }
+                // Run the GUI thread on:
+                e.getThread().cont();
+            }});
+            return true;
         } else if ((e.getID() == DebuggerEvent.THREAD_BREAKPOINT || e.getID() == DebuggerEvent.THREAD_HALT)
                 && isSimulationThread(e.getThread())) {
-            if (insideUserCode(stack)) {
+            if (atPauseBreakpoint(e.getBreakpointProperties())) {
+                // They are going to pause; remove all special breakpoints and set them going
+                // (so that they actually hit the pause):
+                debugger.removeBreakpointsForClass(SIMULATION_CLASS);
+                e.getThread().cont();
+                // We also hit pause when a reset has completed:
+                currentlyResetting = false;
+                return true;
+            } else if (currentlyResetting) {
+                // Run through all breakpoints:
+                e.getThread().cont();
+                return true;
+            } else if (insideUserCode(stack)) {
                 // They are in an act method, make sure the breakpoints are cleared:
                 
                 // This method can be safely invoked without needing to talk to the worker thread:
@@ -165,13 +200,7 @@ public class GreenfootDebugHandler implements DebuggerListener
                     scheduledTasks.put(e.getThread(), runToInternalBreakpoint(debugger, e.getThread()));
                     return true;                    
                 } //otherwise they are in their own code
-            } else if (atPauseBreakpoint(e.getBreakpointProperties())) {
-                // They are going to pause; remove all special breakpoints and set them going
-                // (so that they actually hit the pause):
-                debugger.removeBreakpointsForClass(SIMULATION_CLASS);
-                e.getThread().cont();
-                return true;
-            } else {
+            } else  {
                 // They are not in an act() method; run until they get there:
                 scheduledTasks.put(e.getThread(), runToInternalBreakpoint(debugger, e.getThread()));
                 return true;
@@ -229,8 +258,6 @@ public class GreenfootDebugHandler implements DebuggerListener
     /**
      * Decides what to do when the debugger has stopped the simulation thread
      * (which includes the possibility that the user hit Suspend in the GUI)
-     * 
-     * <p>Has roughly similar logic to examineDebuggerEvent but is called in different circumstances
      */
     private void threadHalted(final Debugger debugger, final DebuggerThread thread)
     {
@@ -309,7 +336,16 @@ public class GreenfootDebugHandler implements DebuggerListener
         
         return false;
     }
-
+    
+    /**
+     * Works out if they are at the breakpoint triggered by the user clicking
+     * the Reset button.
+     */
+    private static boolean atResetBreakpoint(BreakpointProperties props)
+    {
+        return props != null && props.get(RESET_KEY) != null;
+    }
+    
     /**
      * Works out if they are currently in the Simulation.PAUSED method by looking 
      * for the special breakpoint property
@@ -320,7 +356,8 @@ public class GreenfootDebugHandler implements DebuggerListener
     }
     
     /**
-     * Checks if the given breakpoint was set by the setInvokeActBreakpoints call, below  
+     * Checks if the given breakpoint is an invoke breakpoint set by 
+     * the setSpecialBreakpoints call, below  
      */
     private static boolean atInvokeBreakpoint(BreakpointProperties props)
     {
