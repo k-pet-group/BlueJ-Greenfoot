@@ -155,8 +155,12 @@ public class CompilerAPICompiler extends Compiler
             {
                 if (Config.isJava17())
                 {
+                    //in Java 7 this returns the full path, where in earlier versions
+                    //it only returns the base class
                     src = diagnostic.getSource().getName();  
                 } else {
+                    //in Java 7 this returns a JavaFileObject toString (as you expect)
+                    //whereas in earlier versions this returns the full path
                     src = diagnostic.getSource().toString();
                 }
             }
@@ -225,7 +229,7 @@ public class CompilerAPICompiler extends Compiler
     }
 
     /**
-     * Processes message returned from the compiler where the Java version is 1.6 or lower
+     * Processes messages returned from the compiler where the Java version is 1.6 or earlier
      */
     protected String processMessage(String src, int pos, String msg)
     {
