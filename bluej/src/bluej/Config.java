@@ -466,6 +466,14 @@ public final class Config
     }
     
     /**
+     * Tell us whether we are running on a Java VM that supports Java 7 features.
+     */
+    public static boolean isJava17()
+    {
+        return System.getProperty("java.specification.version").compareTo("1.7") >= 0;
+    }
+    
+    /**
      * Tell use whether java 1.5 features are to be used. This allows
      * suppressing 1.5 features when running on a 1.5 VM (for instance to
      * suppress the "unchecked" warnings which occur when compiling legacy
