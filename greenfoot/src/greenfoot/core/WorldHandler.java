@@ -593,7 +593,8 @@ public class WorldHandler
                 int oldY = ActorVisitor.getY(actor);
 
                 if (oldX != x || oldY != y) {
-                    if (x < world.getWidth() && y < world.getHeight() && x >= 0 && y >= 0) {
+                    if (x < WorldVisitor.getWidthInCells(world) && y < WorldVisitor.getHeightInCells(world)
+                            && x >= 0 && y >= 0) {
                         WriteLock writeLock = WorldVisitor.getLock(world).writeLock();
                         // The only reason we would fail to obtain the lock is if a repaint
                         // is happening at this very instant. That shouldn't be too much of
@@ -667,7 +668,8 @@ public class WorldHandler
         final World world = getWorld();
         final int x = WorldVisitor.toCellFloor(world, xPixel);
         final int y = WorldVisitor.toCellFloor(world, yPixel);
-        if (x < world.getWidth() && y < world.getHeight() && x >= 0 && y >= 0) {
+        if (x < WorldVisitor.getWidthInCells(world) && y < WorldVisitor.getHeightInCells(world)
+                && x >= 0 && y >= 0) {
             Simulation.getInstance().runLater(new Runnable() {
                 @Override
                 public void run()

@@ -35,6 +35,16 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 public class WorldVisitor
 {
+    public static int getWidthInCells(World w)
+    {
+        return w.width;
+    }
+    
+    public static int getHeightInCells(World w)
+    {
+        return w.height;
+    }
+    
     public static int getWidthInPixels(World w)
     {
         return w.getWidthInPixels();
@@ -47,7 +57,7 @@ public class WorldVisitor
 
     public static int getCellSize(World w)
     {
-        return w.getCellSize();
+        return w.cellSize;
     }
     
     public static Collection<Actor> getObjectsAtPixel(World w, int x, int y)

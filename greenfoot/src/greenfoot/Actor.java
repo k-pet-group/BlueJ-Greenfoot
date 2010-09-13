@@ -258,13 +258,16 @@ public abstract class Actor
      */
     private void setLocationDrag(int x, int y)
     {
+        // Note this should not call user code - because it is called off the
+        // simulation thread. We must access world fields (width, height, cellSize) directly.
+        
         failIfNotInWorld();
         int oldX = this.x;
         int oldY = this.y;
 
         if (world.isBounded()) {
-            this.x = limitValue(x, world.getWidth());
-            this.y = limitValue(y, world.getHeight());
+            this.x = limitValue(x, world.width);
+            this.y = limitValue(y, world.height);
         }
         else {
             this.x = x;
@@ -273,8 +276,8 @@ public abstract class Actor
         
         if (this.x != oldX || this.y != oldY) {
             if (boundingRect != null) {
-                int dx = (this.x - oldX) * world.getCellSize();
-                int dy = (this.y - oldY) * world.getCellSize();
+                int dx = (this.x - oldX) * world.cellSize;
+                int dy = (this.y - oldY) * world.cellSize;
 
                 boundingRect.setX(boundingRect.getX() + dx);
                 boundingRect.setY(boundingRect.getY() + dy);

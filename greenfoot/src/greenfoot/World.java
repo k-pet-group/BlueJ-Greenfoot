@@ -79,11 +79,11 @@ public abstract class World
     private TreeActorSet objectsInActOrder;
 
     /** The size of the cell in pixels. */
-    private int cellSize = 1;
+    int cellSize = 1;
 
     /** Size of the world */
-    private int width;
-    private int height;
+    int width;
+    int height;
 
     /** Image painted in the background. */
     private GreenfootImage backgroundImage;
@@ -110,7 +110,6 @@ public abstract class World
      * @param worldWidth The width of the world (in cells).
      * @param worldHeight The height of the world (in cells).
      * @param cellSize Size of a cell in pixels.
-     * 
      */
     public World(int worldWidth, int worldHeight, int cellSize)
     {
@@ -127,7 +126,6 @@ public abstract class World
      * @param worldHeight The height of the world (in cells).
      * @param cellSize    Size of a cell in pixels.
      * @param bounded     Should actors be restricted to the world boundary?
-     * 
      */
     public World(int worldWidth, int worldHeight, int cellSize, boolean bounded)
     {
@@ -401,7 +399,7 @@ public abstract class World
      * @param x The x coordinate of the location where the object is added.
      * @param y The y coordinate of the location where the object is added.
      */
-    public synchronized void addObject(Actor object, int x, int y)
+    public void addObject(Actor object, int x, int y)
     {
         if (! objectsDisordered.add(object)) {
             // Actor is already in the world
@@ -424,7 +422,7 @@ public abstract class World
      * 
      * @param object the object to remove
      */
-    public synchronized void removeObject(Actor object)
+    public void removeObject(Actor object)
     {
         if (objectsDisordered.remove(object)) {
             // we only want to remove it once.
@@ -441,7 +439,7 @@ public abstract class World
      * @param objects A list of Actors to remove.
      */
     @SuppressWarnings("unchecked")
-    public synchronized void removeObjects(Collection objects)
+    public void removeObjects(Collection objects)
     {
         for (Iterator iter = objects.iterator(); iter.hasNext();) {
             Actor actor = (Actor) iter.next();
@@ -687,7 +685,6 @@ public abstract class World
     @SuppressWarnings("unchecked")
     List getObjectsInDirection(int x0, int y0, int angle, int length, Class cls)
     {
-
         return collisionChecker.getObjectsInDirection(x0, y0, angle, length, cls);
     }
 
@@ -696,7 +693,7 @@ public abstract class World
      */
     int getHeightInPixels()
     {
-        return getHeight() * getCellSize();
+        return height * cellSize;
     }
 
     /**
@@ -704,7 +701,7 @@ public abstract class World
      */
     int getWidthInPixels()
     {
-        return getWidth() * getCellSize();
+        return width * cellSize;
     }
 
     /**
