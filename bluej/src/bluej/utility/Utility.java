@@ -59,7 +59,7 @@ import bluej.Config;
  * 
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Utility.java 7944 2010-07-28 14:21:35Z nccb $
+ * @version $Id: Utility.java 8323 2010-09-14 20:14:07Z mik $
  */
 public class Utility
 {
@@ -769,7 +769,7 @@ public class Utility
         button.putClientProperty("JButton.buttonType", "square");
 
         if (oldBorder == button.getBorder()) {
-            // if the border didn't change the "textured" type probably doesn't
+            // if the border didn't change the "square" type probably doesn't
             // exist, which means we are running on MacOS < 10.5. This means we
             // should use the old pre-10.5 "toolbar" style instead.
             button.putClientProperty("JButton.buttonType", "toolbar");
