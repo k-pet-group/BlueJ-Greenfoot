@@ -216,7 +216,7 @@ public class BClass
      * @throws  PackageNotFoundException        if the package to which this class belongs has been deleted by the user.
      * @throws  CompilationNotStartedException  if BlueJ is currently executing Java code.
      */
-    public void compile(boolean waitCompileEnd)
+    public void compile(boolean waitCompileEnd, boolean forceQuiet)
              throws ProjectNotOpenException, PackageNotFoundException, CompilationNotStartedException
     {
         Package bluejPkg = classId.getBluejPackage();
@@ -230,7 +230,7 @@ public class BClass
         }
 
         // Ask for compilation of this target
-        bluejPkg.compile(aTarget);
+        bluejPkg.compile(aTarget, forceQuiet);
 
         // if requested wait for the compilation to finish.
         if (waitCompileEnd) {

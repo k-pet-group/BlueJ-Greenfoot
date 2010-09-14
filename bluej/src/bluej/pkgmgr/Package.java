@@ -1176,11 +1176,18 @@ public final class Package extends Graph
         }
     }
     
-    
     /**
      * Compile a single class.
      */
     public void compile(ClassTarget ct)
+    {
+        compile(ct, false);
+    }
+    
+    /**
+     * Compile a single class.
+     */
+    public void compile(ClassTarget ct, boolean forceQuiet)
     {
         if (!checkCompile()) {
             return;
@@ -1212,8 +1219,13 @@ public final class Package extends Graph
             bluej.compiler.CompilerWarningDialog.getDialog().reset();
 
             if (ct != null) {
-                searchCompile(ct, 1, new Stack<ClassTarget>(),
-                        new PackageCompileObserver());
+                CompileObserver observer;
+                if (forceQuiet) {
+                    observer = new QuietPackageCompileObserver();
+                } else {
+                    observer = new PackageCompileObserver();
+                }
+                searchCompile(ct, 1, new Stack<ClassTarget>(), observer);
             }
 
             if (assocTarget != null) {
