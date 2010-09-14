@@ -22,6 +22,8 @@
 package greenfoot.core;
 
 import java.rmi.RemoteException;
+import java.util.LinkedList;
+import java.util.List;
 
 import rmiextension.wrappers.RClass;
 import rmiextension.wrappers.RProject;
@@ -37,11 +39,12 @@ import bluej.extensions.event.ClassEvent;
  * for each GClass to be a ClassListener.
  * 
  * @author Davin McCall
- * @version $Id: ClassStateManager.java 6216 2009-03-30 13:41:07Z polle $
+ * @version $Id: ClassStateManager.java 8321 2010-09-14 15:05:24Z nccb $
  */
 public class ClassStateManager extends RClassListenerImpl
 {
 	private GProject project;
+	private List<CompiledStateListener> listeners = new LinkedList<CompiledStateListener>();
 	
     /**
      * Construct a ClassStateManager.
@@ -75,6 +78,9 @@ public class ClassStateManager extends RClassListenerImpl
             if (eventId == ClassEvent.STATE_CHANGED) {
                 boolean compiled = event.isClassCompiled();
                 gClass.setCompiledState(compiled);
+                for (CompiledStateListener listener : listeners) {
+                    listener.compiledStateChanged(gClass, compiled);
+                }
             }
             else if (eventId == ClassEvent.CHANGED_NAME) {
                 gClass.nameChanged(event.getOldName());
@@ -82,5 +88,15 @@ public class ClassStateManager extends RClassListenerImpl
         }
         catch (PackageNotFoundException pnfe) {}
         catch (ProjectNotOpenException pnoe) {}
+    }
+    
+    public static interface CompiledStateListener
+    {
+        public void compiledStateChanged(GClass gclass, boolean compiled);
+    }
+    
+    public void addCompiledStateListener(CompiledStateListener listener)
+    {
+        listeners.add(listener);
     }
 }

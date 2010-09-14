@@ -25,6 +25,7 @@ import greenfoot.Actor;
 import greenfoot.ObjectTracker;
 import greenfoot.World;
 import greenfoot.actions.SaveWorldAction;
+import greenfoot.core.ClassStateManager;
 import greenfoot.core.GClass;
 import greenfoot.core.GNamedValue;
 import greenfoot.core.GProject;
@@ -95,10 +96,10 @@ public class WorldHandlerDelegateIDE
 
     private boolean worldInitialising;
 
-    public WorldHandlerDelegateIDE(GreenfootFrame frame)
+    public WorldHandlerDelegateIDE(GreenfootFrame frame, ClassStateManager classStateManager)
     {
         this.frame = frame;
-        saveWorldAction = new SaveWorldAction(this);
+        saveWorldAction = new SaveWorldAction(this, classStateManager);
         greenfootRecorder = new GreenfootRecorder(saveWorldAction);
     }
 

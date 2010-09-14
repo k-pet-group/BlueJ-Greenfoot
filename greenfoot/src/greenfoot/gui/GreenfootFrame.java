@@ -49,6 +49,7 @@ import greenfoot.actions.ShowReadMeAction;
 import greenfoot.actions.ShowWebsiteAction;
 import greenfoot.actions.ToggleAction;
 import greenfoot.actions.ToggleSoundAction;
+import greenfoot.core.ClassStateManager;
 import greenfoot.core.GClass;
 import greenfoot.core.GCoreClass;
 import greenfoot.core.GPackage;
@@ -192,16 +193,17 @@ public class GreenfootFrame extends JFrame
     
     private static GreenfootFrame instance;
     
-    public static GreenfootFrame getGreenfootFrame(final RBlueJ blueJ)
+    public static GreenfootFrame getGreenfootFrame(final RBlueJ blueJ, ClassStateManager classStateManager)
     {
-    	instance = new GreenfootFrame(blueJ);                        
+    	instance = new GreenfootFrame(blueJ, classStateManager);                        
         return instance;
     }
     
     /**
      * Creates a new top level frame with all the GUI components.
+     * @param classStateManager 
      */
-    private GreenfootFrame(RBlueJ blueJ)
+    private GreenfootFrame(RBlueJ blueJ, ClassStateManager classStateManager)
         throws HeadlessException
     {
         super("Greenfoot");
@@ -212,7 +214,7 @@ public class GreenfootFrame extends JFrame
             setIconImage(icon);
         }
 
-        makeFrame();
+        makeFrame(classStateManager);
         addWindowListener(this);
         
         restoreFrameState();
@@ -372,8 +374,9 @@ public class GreenfootFrame extends JFrame
     /**
      * Create the GUI components for this project in the top level frame.
      * This includes opening the project and displaying the project classes.
+     * @param classStateManager 
      */
-    private void makeFrame()
+    private void makeFrame(ClassStateManager classStateManager)
     {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
@@ -382,7 +385,7 @@ public class GreenfootFrame extends JFrame
         worldCanvas.setWorldSize(200, 100);
         worldCanvas.setVisible(false);
         
-        worldHandlerDelegate = new WorldHandlerDelegateIDE(this);
+        worldHandlerDelegate = new WorldHandlerDelegateIDE(this, classStateManager);
         WorldHandler.initialise(worldCanvas, worldHandlerDelegate);
         worldHandler = WorldHandler.getInstance();
         worldHandler.addWorldListener(this);

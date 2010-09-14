@@ -70,7 +70,7 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 8145 2010-08-24 04:33:41Z davmac $
+ * @version $Id: GreenfootMain.java 8321 2010-09-14 15:05:24Z nccb $
  */
 public class GreenfootMain extends Thread implements CompileListener, RProjectListener
 {
@@ -189,7 +189,15 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
 
             EventQueue.invokeLater(new Runnable() {
                 public void run() {
-                    frame = GreenfootFrame.getGreenfootFrame(rBlueJ);
+                    if (!isStartupProject()) {
+                        try {
+                            classStateManager = new ClassStateManager(project);
+                        } catch (RemoteException exc) {
+                            Debug.reportError("Error when opening scenario", exc);
+                        }
+                    }
+                    
+                    frame = GreenfootFrame.getGreenfootFrame(rBlueJ, classStateManager);
 
                     // Config is initialized in GreenfootLauncherDebugVM
 
@@ -204,7 +212,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                             compileListenerForwarder = new CompileListenerForwarder(compileListeners);
                             GreenfootMain.this.rBlueJ.addCompileListener(compileListenerForwarder, pkg.getProject().getDir());
 
-                            classStateManager = new ClassStateManager(project);
+                            
                             rBlueJ.addClassListener(classStateManager);
                         }
                         catch (Exception exc) {
