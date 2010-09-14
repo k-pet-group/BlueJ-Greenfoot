@@ -64,6 +64,8 @@ import javax.swing.SpinnerNumberModel;
  */
 public class NewImageDialog extends EscapeDialog
 {
+    private static final int MAX_IMAGE_HEIGHT = 2000;
+    private static final int MAX_IMAGE_WIDTH = 2000;
     private static final int DEFAULT_HEIGHT = 100;
     private static final int DEFAULT_WIDTH = 100;
     
@@ -139,13 +141,13 @@ public class NewImageDialog extends EscapeDialog
         //mainPanel.add(fixHeight(Box.createVerticalStrut(BlueJTheme.componentSpacingLarge)));
 
         detailsPanel.add(new JLabel(Config.getString("imagelib.new.image.width")));
-        width = new JSpinner(new SpinnerNumberModel(imageWidth, 1, 1000, 1));
+        width = new JSpinner(new SpinnerNumberModel(imageWidth, 1, MAX_IMAGE_WIDTH, 1));
         detailsPanel.add(width);
 
         //mainPanel.add(fixHeight(Box.createVerticalStrut(BlueJTheme.componentSpacingLarge)));
 
         detailsPanel.add(new JLabel(Config.getString("imagelib.new.image.height")));
-        height = new JSpinner(new SpinnerNumberModel(imageHeight, 1, 1000, 1));
+        height = new JSpinner(new SpinnerNumberModel(imageHeight, 1, MAX_IMAGE_HEIGHT, 1));
         detailsPanel.add(height);        
 
         //mainPanel.add(fixHeight(Box.createVerticalStrut(BlueJTheme.componentSpacingLarge)));
