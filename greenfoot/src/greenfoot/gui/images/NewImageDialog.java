@@ -169,9 +169,7 @@ public class NewImageDialog extends EscapeDialog
                 createAndEdit();
             }            
         });
-        okButton.setAlignmentY(1.0f);
-        buttonBox.add(okButton);
-        buttonBox.add(Box.createHorizontalStrut(10));
+        okButton.setAlignmentY(1.0f);        
         
         JButton cancelButton = BlueJTheme.getCancelButton();
         cancelButton.addActionListener(new ActionListener() {
@@ -181,7 +179,16 @@ public class NewImageDialog extends EscapeDialog
             }
         });
         cancelButton.setAlignmentY(1.0f);
-        buttonBox.add(cancelButton);
+        
+        if (Config.isMacOS()) {
+            buttonBox.add(cancelButton);
+            buttonBox.add(Box.createHorizontalStrut(10));
+            buttonBox.add(okButton);
+        } else {
+            buttonBox.add(okButton);
+            buttonBox.add(Box.createHorizontalStrut(10));
+            buttonBox.add(cancelButton);
+        }
         
         mainPanel.add(buttonBox);
 
