@@ -99,9 +99,12 @@ bluej.compiler.options=-source 1.5 -target 1.5
 bluej.vm.args=-Xincgc -Dapple.awt.graphics.UseQuartz=true
 
 #####################################################################
-## External program used for editing images 
+## External program used for editing images.
+## If this is commented out, Greenfoot will try to use a default set
+## for your system if it exists. If defined here, this overrides the
+## default.
 #####################################################################
-greenfoot.editor.image=/Applications/Adobe Photoshop CS3/Adobe Photoshop CS3.app
+#greenfoot.editor.image=/Applications/Adobe Photoshop CS3/Adobe Photoshop CS3.app
 
 #####################################################################
 ## Default settings used when creating new images.
