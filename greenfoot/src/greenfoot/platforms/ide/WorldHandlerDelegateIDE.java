@@ -153,8 +153,7 @@ public class WorldHandlerDelegateIDE
         JMenuItem m = getInspectMenuItem(world);
 
         // "save the world" menu item
-        JMenuItem saveTheWorld = new JMenuItem(Config.getString("save.world"));
-        saveTheWorld.addActionListener(saveWorldAction);
+        JMenuItem saveTheWorld = new JMenuItem(saveWorldAction);
         saveTheWorld.setFont(PrefMgr.getStandoutMenuFont());
         saveTheWorld.setForeground(envOpColour);
         
