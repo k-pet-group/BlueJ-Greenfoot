@@ -61,6 +61,12 @@ import javax.swing.event.DocumentListener;
 import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.utility.DialogManager;
+import bluej.utility.Utility;
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import javax.swing.SwingConstants;
+import javax.swing.border.*;
 
 /**
  * The GUI class for the sound recorder.
@@ -86,6 +92,7 @@ public class SoundRecorderDialog extends JDialog implements WindowListener
     private JButton recordStop;
     private JTextField filenameField;
     private JButton saveButton;
+    private JLabel messageLabel;
     
     private boolean playing = false;
     //Position will only be valid when "playing" is true:
@@ -123,12 +130,14 @@ public class SoundRecorderDialog extends JDialog implements WindowListener
     }
     
     // Builds the controls: record/trim/play
-    private Box buildControlBox()
+    private JPanel buildControlBox()
     {
         final String recordLabel = Config.getString("soundRecorder.record");
         final String stopRecordLabel = Config.getString("soundRecorder.stopRecord");
         
         recordStop = new JButton(recordLabel);
+        Utility.changeToMacButton(recordStop);
+        recordStop.setFocusable(false);
         recordStop.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
@@ -166,6 +175,8 @@ public class SoundRecorderDialog extends JDialog implements WindowListener
         
         trim = new JButton(Config.getString("soundRecorder.trim"));
         trim.setEnabled(false);
+        trim.setFocusable(false);
+        Utility.changeToMacButton(trim);
         trim.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
@@ -179,18 +190,16 @@ public class SoundRecorderDialog extends JDialog implements WindowListener
         });
         
         playStop = new JButton(playLabel);
-        playStop.setEnabled(false);
+        Utility.changeToMacButton(playStop);
+        playStop.setFocusable(false);
         playStop.addActionListener(new Player());
-        
-        Box box = new Box(BoxLayout.X_AXIS);
-        
-        box.add(recordStop);
-        box.add(Box.createHorizontalGlue());
-        box.add(trim);
-        box.add(Box.createHorizontalGlue());
-        box.add(playStop);
-        
-        return box;
+
+        JPanel controls = new JPanel(new FlowLayout(FlowLayout.CENTER, 2, 0));
+        controls.add(recordStop);
+        controls.add(playStop);
+        controls.add(trim);
+
+        return controls;
     }
     
     // Builds the save row: a filename field and save button
@@ -272,20 +281,34 @@ public class SoundRecorderDialog extends JDialog implements WindowListener
         this.setContentPane(contentPane);
         contentPane.setLayout(new BoxLayout(this.getContentPane(), BoxLayout.Y_AXIS));
         contentPane.setBorder(BlueJTheme.dialogBorder);
-              
+
         soundPanel = new SoundPanel();
-        contentPane.add(soundPanel);
+
+        messageLabel = new JLabel("Saved");
+            messageLabel.setForeground(Color.GRAY);
+            messageLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+            Font font = messageLabel.getFont();
+            font = font.deriveFont(10.0f);
+            messageLabel.setFont(font);
+
+        JPanel soundAndControls = new JPanel(new BorderLayout(0,0));
         
-        contentPane.add(Box.createVerticalStrut(12));
-        
-        contentPane.add(buildControlBox());
+            soundAndControls.add(soundPanel, BorderLayout.CENTER);
+
+            JPanel controls = new JPanel(new BorderLayout(0,0));
+                controls.add(buildControlBox(), BorderLayout.CENTER);
+                controls.add(messageLabel, BorderLayout.SOUTH);
+            soundAndControls.add(controls, BorderLayout.SOUTH);
+            soundAndControls.setBorder(new SoftBevelBorder(BevelBorder.LOWERED));
+ 
+        contentPane.add(soundAndControls);
         
         contentPane.add(Box.createVerticalStrut(12));      
         
         contentPane.add(buildSaveBox(getSoundDir(project)));
         
         contentPane.add(Box.createVerticalStrut(12));
-        
+
         JButton done = new JButton(Config.getString("soundRecorder.done"));
         done.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
