@@ -140,6 +140,9 @@ public class WorldHandlerDelegateIDE
      */
     private JPopupMenu makeWorldPopupMenu(final World world)
     {
+        if (world == null)
+            return null;
+        
         JPopupMenu menu = new JPopupMenu();
         
         ObjectWrapper.createMethodMenuItems(menu, world.getClass(),
@@ -205,7 +208,9 @@ public class WorldHandlerDelegateIDE
             } else {
                 menu = makeActorPopupMenu(obj);
             }
-            menu.show(worldHandler.getWorldCanvas(), e.getX(), e.getY());
+            if (menu != null) {
+                menu.show(worldHandler.getWorldCanvas(), e.getX(), e.getY());
+            }
             return true;
 
         }
@@ -220,7 +225,9 @@ public class WorldHandlerDelegateIDE
      */
     public void showWorldPopupMenu(MouseEvent e) {
     	JPopupMenu menu = makeWorldPopupMenu(worldHandler.getWorld());
-    	menu.show(e.getComponent(), e.getX(), e.getY());
+    	if (menu != null) {
+    	    menu.show(e.getComponent(), e.getX(), e.getY());
+    	}
     }
 
     /**
@@ -397,6 +404,9 @@ public class WorldHandlerDelegateIDE
     
     public GClass getLastWorldGClass()
     {
+        if (project == null)
+            return null;
+        
         String lastWorldClass = project.getLastWorldClassName();
         if(lastWorldClass == null) {
             return null;
