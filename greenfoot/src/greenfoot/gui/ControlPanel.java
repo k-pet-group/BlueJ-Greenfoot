@@ -51,7 +51,7 @@ import bluej.Config;
  * Panel that holds the buttons that controls the simulation.
  * 
  * @author Poul Henriksen
- * @version $Id: ControlPanel.java 8296 2010-09-10 10:54:46Z nccb $
+ * @version $Id: ControlPanel.java 8322 2010-09-14 20:10:47Z mik $
  */
 public class ControlPanel extends Box
     implements ChangeListener, SimulationListener
@@ -113,7 +113,6 @@ public class ControlPanel extends Box
             Config.getString("controls.run.shortDescription"));
         runSimulationAction.setEnabled(false);
         runButton = GreenfootUtil.createButton(runSimulationAction);
-        runButton.setFocusable(false);
 
         pauseSimulationAction = PauseSimulationAction.getInstance();
         pauseSimulationAction.attachSimulation(simulation);
@@ -123,7 +122,6 @@ public class ControlPanel extends Box
             Config.getString("controls.pause.shortDescription"));
         pauseSimulationAction.setEnabled(false);
         pauseButton = GreenfootUtil.createButton(pauseSimulationAction);
-        pauseButton.setFocusable(false);
         
         // Make buttons the same size
         if(pauseButton.getPreferredSize().getWidth() > runButton.getPreferredSize().getWidth()) {
@@ -144,7 +142,6 @@ public class ControlPanel extends Box
         resetWorldAction.attachSimulation(simulation);
         resetWorldAction.setEnabled(false);
         AbstractButton resetButton = GreenfootUtil.createButton(resetWorldAction);
-        resetButton.setFocusable(false);
         buttonPanel.add(resetButton);
         
         return buttonPanel;
