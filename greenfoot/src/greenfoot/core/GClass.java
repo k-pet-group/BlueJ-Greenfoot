@@ -182,10 +182,10 @@ public class GClass
         }
     }
     
-    public void compile(boolean waitCompileEnd)
+    public void compile(boolean waitCompileEnd, boolean forceQuiet)
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException, CompilationNotStartedException
     {
-        rmiClass.compile(waitCompileEnd);
+        rmiClass.compile(waitCompileEnd, forceQuiet);
     }
 
     /**

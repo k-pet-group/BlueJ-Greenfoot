@@ -40,7 +40,7 @@ import bluej.extensions.editor.Editor;
 public interface RClass
     extends java.rmi.Remote
 {
-    public abstract void compile(boolean waitCompileEnd)
+    public abstract void compile(boolean waitCompileEnd, boolean forceQuiet)
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException, CompilationNotStartedException;
 
     public abstract void edit()

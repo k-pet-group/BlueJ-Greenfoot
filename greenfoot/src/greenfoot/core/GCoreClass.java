@@ -55,7 +55,7 @@ public class GCoreClass extends GClass
     }
 
     @Override
-    public void compile(boolean waitCompileEnd) throws ProjectNotOpenException,
+    public void compile(boolean waitCompileEnd, boolean forceQuiet) throws ProjectNotOpenException,
     PackageNotFoundException, RemoteException,
     CompilationNotStartedException
     {

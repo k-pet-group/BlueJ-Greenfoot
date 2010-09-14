@@ -77,6 +77,8 @@ public class SaveWorldAction extends AbstractAction
             // (by inserting code depending on objects no longer there) but that
             // seems less likely:
             ide.clearRecorderCode();
+            
+            lastWorld.compile(false, true);
         }
         catch (Exception e) {
             Debug.reportError("Error trying to get editor for world class and insert method (with call)", e);

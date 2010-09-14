@@ -49,7 +49,7 @@ import bluej.utility.Debug;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RClassImpl.java 8238 2010-09-02 11:04:59Z nccb $
+ * @version $Id: RClassImpl.java 8313 2010-09-14 13:02:19Z nccb $
  */
 public class RClassImpl extends java.rmi.server.UnicastRemoteObject
     implements RClass
@@ -84,10 +84,10 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
      * @throws ProjectNotOpenException
      * @throws PackageNotFoundException
      */
-    public void compile(boolean waitCompileEnd)
+    public void compile(boolean waitCompileEnd, boolean forceQuiet)
         throws ProjectNotOpenException, PackageNotFoundException, CompilationNotStartedException
     {
-        bClass.compile(waitCompileEnd);
+        bClass.compile(waitCompileEnd, forceQuiet);
     }
     
     public boolean hasSourceCode() throws ProjectNotOpenException, PackageNotFoundException

@@ -35,7 +35,7 @@ import bluej.extensions.ProjectNotOpenException;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: CompileClassAction.java 6216 2009-03-30 13:41:07Z polle $
+ * @version $Id: CompileClassAction.java 8313 2010-09-14 13:02:19Z nccb $
  */
 public class CompileClassAction extends ClassAction
 {
@@ -57,7 +57,7 @@ public class CompileClassAction extends ClassAction
         Simulation.getInstance().setPaused(true);
         try {
             if (selectedClass != null) {
-                selectedClass.compile(false);
+                selectedClass.compile(false, false);
             }
         }
         catch (RemoteException e1) {
