@@ -208,12 +208,37 @@ public class BClass
 
     /**
      * Compile this class, and any dependents.
-     * After the compilation has finished the method isCompiled() can be used to determined the class status.
-     * A single CompileEvent with all dependent files listed will be generated.
+     * 
+     * <p>After the compilation has finished the method isCompiled() can be used to determined the class
+     * status.
+     * 
+     * <p>A single CompileEvent will be generated with all dependent files listed.
+     * 
+     * <p>A call to this method is equivalent to: <code>compile(waitCompileEnd, false)</code>.
      *
      * @param  waitCompileEnd                   <code>true</code> waits for the compilation to be finished.
-     * @throws  ProjectNotOpenException         if the project to which this class belongs has been closed by the user.
-     * @throws  PackageNotFoundException        if the package to which this class belongs has been deleted by the user.
+     * @throws  ProjectNotOpenException         if the project to which this class belongs has been closed.
+     * @throws  PackageNotFoundException        if the package to which this class belongs has been deleted.
+     * @throws  CompilationNotStartedException  if BlueJ is currently executing Java code.
+     */
+    public void compile(boolean waitCompileEnd)
+             throws ProjectNotOpenException, PackageNotFoundException, CompilationNotStartedException
+    {
+        compile(waitCompileEnd, false);
+    }
+
+    /**
+     * Compile this class, and any dependents, optionally without showing compilation errors to the user.
+     * 
+     * <p>After the compilation has finished the method isCompiled() can be used to determined the class
+     * status.
+     * 
+     * <p>A single CompileEvent with all dependent files listed will be generated.
+     *
+     * @param  waitCompileEnd                   <code>true</code> waits for the compilation to be finished.
+     * @param  forceQuiet                       if true, compilation errors will not be shown/highlighted to the user.
+     * @throws  ProjectNotOpenException         if the project to which this class belongs has been closed.
+     * @throws  PackageNotFoundException        if the package to which this class belongs has been deleted.
      * @throws  CompilationNotStartedException  if BlueJ is currently executing Java code.
      */
     public void compile(boolean waitCompileEnd, boolean forceQuiet)
