@@ -369,11 +369,11 @@ public class DialogManager
     public static int askQuestion(Component parent, String msgID, int numOptions)
     {
         String message = getMessage(msgID);
-        String buttonName;
-        int btnIndex=message.length()+1;
-        int prevBtnIndex=message.length(); 
-        String[] options=new String[numOptions];
         if(message != null) {
+            String buttonName;
+            int btnIndex=message.length()+1;
+            int prevBtnIndex=message.length(); 
+            String[] options=new String[numOptions];
             for (int i=0; i < numOptions; i++) {
                 btnIndex=message.lastIndexOf("\n", btnIndex-1);
                 buttonName=message.substring(btnIndex+1, prevBtnIndex);
