@@ -361,16 +361,18 @@ public class SoundRecorderControls extends JFrame implements WindowListener
                 //Everything will be done in the stop callback, below
             } else {
                 MemoryAudioInputStream memoryStream;
+                final int start;
                 if (selectionActive) {
-                    int start = getSelectionStartOffset();
+                    start = getSelectionStartOffset();
                     int len = getSelectionFinishOffset() - start;
                     memoryStream = new MemoryAudioInputStream(recorder.getRawSound(), start, len, recorder.getFormat());
                 } else {
+                    start = 0;
                     memoryStream = new MemoryAudioInputStream(recorder.getRawSound(), recorder.getFormat());
                 }
                 stream = new SoundStream(memoryStream, this);
                 playing = true;
-                playbackPosition = 0;
+                playbackPosition = start;
                 stream.play();
                 playStop.setText(stopPlayLabel);
                 recordStop.setEnabled(false);
@@ -378,8 +380,8 @@ public class SoundRecorderControls extends JFrame implements WindowListener
                 repaintWhilePlaying = new TimerTask() {
                     public void run()
                     {
-                        playbackPosition = stream.getLongFramePosition();
-                        soundPanel.repaint();               
+                        playbackPosition = start + stream.getLongFramePosition();
+                        soundPanel.repaint();
                     }
                 }; 
                 tim.scheduleAtFixedRate(repaintWhilePlaying, 50, 100);
@@ -402,6 +404,7 @@ public class SoundRecorderControls extends JFrame implements WindowListener
             recordStop.setEnabled(true);
             repaintWhilePlaying.cancel();
             playing = false;
+            soundPanel.repaint();
         }
 
         public void soundClosed(Sound sound)
