@@ -402,23 +402,21 @@ public class WorldHandlerDelegateIDE
         msgDialog.display();
     }
     
+    /**
+     * Get the last-instantiated world class if known and possible. May return null.
+     */
     public GClass getLastWorldGClass()
     {
-        if (project == null)
+        if (project == null) {
             return null;
+        }
         
         String lastWorldClass = project.getLastWorldClassName();
         if(lastWorldClass == null) {
             return null;
         }
         
-        try {
-            return project.getDefaultPackage().getClass(lastWorldClass);
-        }
-        catch (Exception e) {
-            Debug.reportError("Error trying to get world class", e);
-            return null;
-        }
+        return project.getDefaultPackage().getClass(lastWorldClass);
     }
 
     @SuppressWarnings("unchecked")
