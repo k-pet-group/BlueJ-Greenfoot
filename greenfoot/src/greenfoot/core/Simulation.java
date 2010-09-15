@@ -644,12 +644,12 @@ public class Simulation extends Thread
         }
     }
 
-    static void fireSimulationEvent(SimulationEvent event)
+    private void fireSimulationEvent(SimulationEvent event)
     {
         // Guaranteed to return a non-null array
         Object[] listeners;
-        synchronized (instance.listenerList) {
-            listeners = instance.listenerList.getListenerList();
+        synchronized (listenerList) {
+            listeners = listenerList.getListenerList();
 
             // Process the listeners last to first, notifying
             // those that are interested in this event
@@ -658,6 +658,20 @@ public class Simulation extends Thread
                     ((SimulationListener) listeners[i + 1]).simulationChanged(event);
                 }
             }
+        }
+    }
+    
+    /**
+     * Notify that the simulation thread has been halted or resumed by the debugger.
+     */
+    public void notifyThreadStatus(boolean halted)
+    {
+        if (halted) {
+            fireSimulationEvent(debuggerPausedEvent);
+        }
+        else {
+            // resumed
+            fireSimulationEvent(debuggerResumedEvent);
         }
     }
 

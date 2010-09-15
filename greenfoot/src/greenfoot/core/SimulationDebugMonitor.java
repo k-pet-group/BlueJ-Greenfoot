@@ -40,10 +40,10 @@ public class SimulationDebugMonitor
     {
         synchronized (RUNNING) {
             if (running == RUNNING && !isRunning) {
-                Simulation.fireSimulationEvent(Simulation.debuggerResumedEvent);
+                Simulation.getInstance().notifyThreadStatus(false);
                 isRunning = true;
             } else if (running == NOT_RUNNING && isRunning) {
-                Simulation.fireSimulationEvent(Simulation.debuggerPausedEvent);
+                Simulation.getInstance().notifyThreadStatus(true);
                 isRunning = false;
             }
         }
