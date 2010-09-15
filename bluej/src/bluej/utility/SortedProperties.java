@@ -109,6 +109,9 @@ public class SortedProperties extends Properties
             awriter.newLine();
         }
 
+        // Properties maps String to String, but unfortunately doesn't implement
+        // Map<String,String> - so we need to use the raw TreeMap constructor.
+        @SuppressWarnings("rawtypes")
         TreeMap<String,String> tm = new TreeMap(this);
 
         Iterator<Map.Entry<String,String>> it = tm.entrySet().iterator();
