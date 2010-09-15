@@ -53,7 +53,6 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.SoftBevelBorder;
@@ -99,6 +98,8 @@ public class SoundRecorderControls extends JFrame implements WindowListener
     private final String playLabel;
     private final String playSelectionLabel;
     private final String stopPlayLabel;
+    private final String recordLabel;
+    private final String stopRecordLabel;
     
     /**
      * Creates a SoundRecorderDialog that will save the sounds
@@ -109,6 +110,8 @@ public class SoundRecorderControls extends JFrame implements WindowListener
         playLabel = Config.getString("soundRecorder.play");
         playSelectionLabel = Config.getString("soundRecorder.playSelection");
         stopPlayLabel = Config.getString("soundRecorder.stopPlay");
+        recordLabel = Config.getString("soundRecorder.record");
+        stopRecordLabel = Config.getString("soundRecorder.stopRecord");
         setTitle(Config.getString("soundRecorder.title"));
         buildUI(project);
         
@@ -121,9 +124,6 @@ public class SoundRecorderControls extends JFrame implements WindowListener
     // Builds the controls: record/trim/play
     private JPanel buildControlBox()
     {
-        final String recordLabel = Config.getString("soundRecorder.record");
-        final String stopRecordLabel = Config.getString("soundRecorder.stopRecord");
-        
         recordStop = new JButton(recordLabel);
         Utility.changeToMacButton(recordStop);
         recordStop.setFocusable(false);
@@ -151,12 +151,7 @@ public class SoundRecorderControls extends JFrame implements WindowListener
                     }, 100, 200);
                 } else {
                     //Stop recording
-                    recorder.stopRecording();
-                    playStop.setEnabled(true);
-                    saveState.changed();
-                    soundPanel.repaint();
-                    recordStop.setText(recordLabel);
-                    recording = false;
+                    stopRecording();
                 }
             }
         });
@@ -225,7 +220,7 @@ public class SoundRecorderControls extends JFrame implements WindowListener
         done.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
-                attemptClose();
+                closeAndStopRecording();
             }
         });
         done.setAlignmentX(CENTER_ALIGNMENT);
@@ -494,40 +489,14 @@ public class SoundRecorderControls extends JFrame implements WindowListener
     
     public void windowClosing(WindowEvent e)
     {
-        attemptClose();
+        closeAndStopRecording();
     }
 
-    public void attemptClose()
+    public void closeAndStopRecording()
     {
-        if (checkClose()) {
-             setVisible(false);
-        }
-    }
-
-    // Returns true if it's okay to close, false if we shouldn't close
-    private boolean checkClose()
-    {
-        if (saveState.hasChangedSinceSave()) {
-            String[] options = null;
-            final int close = 0;
-            options = new String[] { Config.getString("soundRecorder.closeAnyway"), BlueJTheme.getCancelLabel() };
-            
-            if (close == JOptionPane.showOptionDialog(SoundRecorderControls.this,
-              Config.getString("soundRecorder.closeQuestion"),
-              Config.getString("soundRecorder.closeTitle"),
-              JOptionPane.YES_NO_OPTION,
-              JOptionPane.QUESTION_MESSAGE,
-              null,
-              options, options[close])) {
-                return true;
-            }
-            else {
-                return false;
-            }
-            
-        } else {
-            return true;
-        }
+        stopRecording();
+        setVisible(false);
+        
     }
 
     public void windowActivated(WindowEvent e) {}
@@ -541,5 +510,17 @@ public class SoundRecorderControls extends JFrame implements WindowListener
     public void windowIconified(WindowEvent e) {}
     
     public void windowOpened(WindowEvent e) {}
+
+    private void stopRecording()
+    {
+        if (recording) {
+            recorder.stopRecording();
+            playStop.setEnabled(true);
+            saveState.changed();
+            soundPanel.repaint();
+            recordStop.setText(recordLabel);
+            recording = false;
+        }
+    }
 
 }

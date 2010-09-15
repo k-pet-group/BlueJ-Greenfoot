@@ -40,7 +40,7 @@ public class ToggleSoundAction extends ToggleAction
 			        }
 			        recorder.setVisible(true);
 			    } else if (recorder != null) {
-				    recorder.attemptClose();
+				    recorder.closeAndStopRecording();
 			    }
 		    }
 		};
