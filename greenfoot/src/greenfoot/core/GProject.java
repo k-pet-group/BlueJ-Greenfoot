@@ -239,7 +239,7 @@ public class GProject extends RProjectListenerImpl
     
     /**
      * Get the name of the last world class which was instantiated in
-     * this project. May return null.
+     * this project. May return null. This method is thread-safe.
      */
     public String getLastWorldClassName()
     {

@@ -205,7 +205,7 @@ public class GPackage
     }
     
     /**
-     * Get the named class.
+     * Get the named class (null if it cannot be found).
      */
     public GClass getClass(String className)
     {
