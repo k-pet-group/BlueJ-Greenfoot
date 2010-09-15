@@ -21,8 +21,6 @@
  */
 package greenfoot.sound;
 
-import greenfoot.core.GreenfootMain;
-
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
@@ -72,7 +70,7 @@ public class SoundExceptionHandler
         if (!lineUnavailableHandled) {
             lineUnavailableHandled = true;
             String errMsg = Config.getString("sound-line-unavailable");
-            DialogManager.showErrorText(GreenfootMain.getInstance().getFrame(), errMsg);
+            DialogManager.showErrorText(null, errMsg);
         }
     }
 
