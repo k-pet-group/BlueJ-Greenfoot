@@ -441,6 +441,8 @@ public final class ClassInfo
 
     /**
      * Get the (fully-qualified) name of the superclass of the represented class.
+     * Returns null if the superclass is not established or unspecified (i.e. is
+     * "java.lang.Object").
      */
     public String getSuperclass()
     {
