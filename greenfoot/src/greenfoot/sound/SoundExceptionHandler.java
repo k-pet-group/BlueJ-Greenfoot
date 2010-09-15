@@ -21,11 +21,16 @@
  */
 package greenfoot.sound;
 
+import greenfoot.core.GreenfootMain;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.sampled.UnsupportedAudioFileException;
+
+import bluej.Config;
+import bluej.utility.DialogManager;
 
 /**
  * This class should be forwarded some of the common sound exceptions. It keeps
@@ -66,10 +71,8 @@ public class SoundExceptionHandler
         // We only want to print this error message once.
         if (!lineUnavailableHandled) {
             lineUnavailableHandled = true;
-            System.err.println("Cannot get access to the sound card. "
-                    + "If you have a sound card installed, check your system settings, "
-                    + "and close down any other programs that might be using the sound card.");
-            e.printStackTrace();
+            String errMsg = Config.getString("sound-line-unavailable");
+            DialogManager.showErrorText(GreenfootMain.getInstance().getFrame(), errMsg);
         }
     }
 
