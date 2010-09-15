@@ -509,9 +509,9 @@ debugger.threadRunning = <html><center>Thread is running.<br>Threads must be sto
 
 # DialogManager labels
 
-dialogmgr.error = BlueJ:  Error
-dialogmgr.question = BlueJ:  Question
-dialogmgr.message = BlueJ:  Message
+dialogmgr.error = Error
+dialogmgr.question = Question
+dialogmgr.message = Message
 
 #Terminal Window
 terminal.options = Options

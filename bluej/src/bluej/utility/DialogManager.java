@@ -56,6 +56,7 @@ public class DialogManager
         String message = getMessage(msgID);
         if(message != null)
             JOptionPane.showMessageDialog(parent, message,
+                                          Config.getApplicationName() + ":  " +
                                           Config.getString("dialogmgr.message"),
                                           JOptionPane.INFORMATION_MESSAGE);
     }
@@ -141,6 +142,7 @@ public class DialogManager
     public static void showErrorText(Component parent, String message)
     {
         JOptionPane.showMessageDialog(parent, message,
+                Config.getApplicationName() + ":  " +
                 Config.getString("dialogmgr.error"),
                 JOptionPane.ERROR_MESSAGE);
     }
@@ -184,6 +186,7 @@ public class DialogManager
             }
 
             return JOptionPane.showOptionDialog(parent, message,
+                                                Config.getApplicationName() + ":  " +
                                                 Config.getString("dialogmgr.question"),
                                                 JOptionPane.DEFAULT_OPTION,
                                                 JOptionPane.WARNING_MESSAGE,
@@ -222,6 +225,7 @@ public class DialogManager
             }
 
             return JOptionPane.showOptionDialog(parent, message,
+                                                Config.getApplicationName() + ":  " +
                                                 Config.getString("dialogmgr.question"),
                                                 JOptionPane.DEFAULT_OPTION,
                                                 JOptionPane.WARNING_MESSAGE,
@@ -370,16 +374,17 @@ public class DialogManager
         int prevBtnIndex=message.length(); 
         String[] options=new String[numOptions];
         if(message != null) {
-        	for (int i=0; i < numOptions; i++){
-        		btnIndex=message.lastIndexOf("\n", btnIndex-1);
-        		buttonName=message.substring(btnIndex+1, prevBtnIndex);
-        		options[numOptions-i-1]=buttonName; //just to ensure they go in, in the correct order
-        		prevBtnIndex=btnIndex;
-        	}
+                for (int i=0; i < numOptions; i++){
+                        btnIndex=message.lastIndexOf("\n", btnIndex-1);
+                        buttonName=message.substring(btnIndex+1, prevBtnIndex);
+                        options[numOptions-i-1]=buttonName; //just to ensure they go in, in the correct order
+                        prevBtnIndex=btnIndex;
+                }
             message = message.substring(0, btnIndex);
           
 
             return JOptionPane.showOptionDialog(parent, message,
+                                                Config.getApplicationName() + ":  " +
                                                 Config.getString("dialogmgr.question"),
                                                 JOptionPane.DEFAULT_OPTION,
                                                 JOptionPane.WARNING_MESSAGE,
