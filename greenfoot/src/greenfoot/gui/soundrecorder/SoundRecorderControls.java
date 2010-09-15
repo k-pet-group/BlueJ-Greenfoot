@@ -32,7 +32,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Point;
@@ -56,12 +55,8 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.SoftBevelBorder;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 
 import bluej.BlueJTheme;
 import bluej.Config;
@@ -74,7 +69,7 @@ import bluej.utility.Utility;
  */
 public class SoundRecorderControls extends JFrame implements WindowListener
 {
-    private SoundRecorder recorder = new SoundRecorder();
+    SoundRecorder recorder = new SoundRecorder();
     
     // Indicates whether the selection is currently in use (and should be displayed/used)
     // If the selection is zero width, this will be false
@@ -89,9 +84,6 @@ public class SoundRecorderControls extends JFrame implements WindowListener
     private JButton trim;
     private JButton playStop;
     private JButton recordStop;
-    private JTextField filenameField;
-    private JButton saveButton;
-    private JLabel messageLabel;
     
     private boolean playing = false;
     //Position will only be valid when "playing" is true:
@@ -102,12 +94,11 @@ public class SoundRecorderControls extends JFrame implements WindowListener
 
     private SoundPanel soundPanel;
     
+    private SaveState saveState = new SaveState(this, recorder);
+    
     private final String playLabel;
     private final String playSelectionLabel;
     private final String stopPlayLabel;
-
-    private boolean changedSinceSave = false;
-    private String lastSaveName = null;
     
     /**
      * Creates a SoundRecorderDialog that will save the sounds
@@ -162,8 +153,7 @@ public class SoundRecorderControls extends JFrame implements WindowListener
                     //Stop recording
                     recorder.stopRecording();
                     playStop.setEnabled(true);
-                    changedSinceSave = true;
-                    updateSaveButton();
+                    saveState.changed();
                     soundPanel.repaint();
                     recordStop.setText(recordLabel);
                     recording = false;
@@ -179,8 +169,7 @@ public class SoundRecorderControls extends JFrame implements WindowListener
             public void actionPerformed(ActionEvent e)
             {
                 recorder.trim(Math.min(selectionBegin, selectionEnd), Math.max(selectionBegin, selectionEnd));
-                changedSinceSave = true;
-                updateSaveButton();
+                saveState.changed();
                 selectionActive = false;
                 updateButtons();
                 repaint();
@@ -200,78 +189,7 @@ public class SoundRecorderControls extends JFrame implements WindowListener
         return controls;
     }
     
-    // Builds the save row: a filename field and save button
-    private Box buildSaveBox(final String projectSoundDir)
-    {
-        Box saveBox = new Box(BoxLayout.X_AXIS);
-        saveBox.add(new JLabel(Config.getString("soundRecorder.filename") + ": "));
-        filenameField = new JTextField();
-        filenameField.setMaximumSize(new Dimension(Short.MAX_VALUE, filenameField.getPreferredSize().height));
-        filenameField.getDocument().addDocumentListener(new DocumentListener() {
-            
-            public void removeUpdate(DocumentEvent e)
-            {
-                updateSaveButton();
-                
-            }
-            
-            public void insertUpdate(DocumentEvent e)
-            {
-                updateSaveButton();                
-            }
-            
-            public void changedUpdate(DocumentEvent e)
-            {                
-            }
-        });
-        saveBox.add(filenameField);
-        saveBox.add(new JLabel(".wav"));
-        
-        saveBox.add(Box.createHorizontalStrut(12));
-        
-        saveButton = new JButton(Config.getString("soundRecorder.save"));
-        saveButton.setEnabled(false);
-        saveButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            {
-                if (projectSoundDir != null) {
-                    File destination = new File(projectSoundDir + filenameField.getText() + ".wav");
-                    if (destination.exists()) {
-                        String[] options = null;
-                        int overwrite;
-                        if (Config.isMacOS()) {
-                            options = new String[] { BlueJTheme.getCancelLabel(), Config.getString("soundRecorder.overwrite") };
-                            overwrite = 1;
-                        }
-                        else {
-                            options = new String[] { Config.getString("soundRecorder.overwrite"), BlueJTheme.getCancelLabel() };
-                            overwrite = 0;
-                        }
-                        
-                        if (overwrite == JOptionPane.showOptionDialog(SoundRecorderControls.this,
-                          Config.getString("soundRecorder.overwrite.part1") + destination.getName() + Config.getString("soundRecorder.overwrite.part2"),
-                          Config.getString("soundRecorder.overwrite.title"),
-                          JOptionPane.YES_NO_OPTION,
-                          JOptionPane.QUESTION_MESSAGE,
-                          null,
-                          options, options[overwrite])) {
-                            recorder.writeWAV(destination);
-                            changedSinceSave = false;
-                            lastSaveName = filenameField.getText();
-                        }
-                    } else {
-                        recorder.writeWAV(destination);
-                        changedSinceSave = false;
-                        lastSaveName = filenameField.getText();
-                    }
-                    updateSaveButton();
-                }
-            }
-        });
-        saveBox.add(saveButton);
-        
-        return saveBox;
-    }
+    
     
     private void buildUI(GProject project)
     {
@@ -282,12 +200,7 @@ public class SoundRecorderControls extends JFrame implements WindowListener
 
         soundPanel = new SoundPanel();
 
-        messageLabel = new JLabel("Saved");
-            messageLabel.setForeground(Color.GRAY);
-            messageLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-            Font font = messageLabel.getFont();
-            font = font.deriveFont(10.0f);
-            messageLabel.setFont(font);
+        JLabel messageLabel = saveState.createLabel();
 
         JPanel soundAndControls = new JPanel(new BorderLayout(0,0));
         
@@ -303,7 +216,7 @@ public class SoundRecorderControls extends JFrame implements WindowListener
         
         contentPane.add(Box.createVerticalStrut(12));      
         
-        contentPane.add(buildSaveBox(getSoundDir(project)));
+        contentPane.add(saveState.buildSaveBox(getSoundDir(project)));
         
         contentPane.add(Box.createVerticalStrut(12));
 
@@ -323,7 +236,7 @@ public class SoundRecorderControls extends JFrame implements WindowListener
         pack();
         setVisible(true);
     }
-    
+
     // Gets the sounds directory for the given project, or null if there is a problem
     private static String getSoundDir(GProject project)
     {
@@ -335,13 +248,6 @@ public class SoundRecorderControls extends JFrame implements WindowListener
     {
         trim.setEnabled(selectionActive);
         playStop.setText(selectionActive ? playSelectionLabel : playLabel);
-    }
-    
-    // Updates the save button based on whether the filename field is blank (and whether a recording exists)
-    private void updateSaveButton()
-    {
-        saveButton.setEnabled(recorder.getRawSound() != null && !filenameField.getText().isEmpty()
-                  && (!filenameField.getText().equals(lastSaveName) || changedSinceSave));
     }
     
     /**
@@ -600,7 +506,7 @@ public class SoundRecorderControls extends JFrame implements WindowListener
     // Returns true if it's okay to close, false if we shouldn't close
     private boolean checkClose()
     {
-        if (changedSinceSave) {
+        if (saveState.hasChangedSinceSave()) {
             String[] options = null;
             int close;
             if (Config.isMacOS()) {
