@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -107,9 +107,12 @@ public class SaveWorldAction extends AbstractAction implements CompiledStateList
     
     private void updateEnabledStatus(final boolean oldEnabled)
     {
-        EventQueue.invokeLater(new Runnable() { public void run () {
-            firePropertyChange("enabled", Boolean.valueOf(oldEnabled), Boolean.valueOf(isEnabled()));
-        }});
+        EventQueue.invokeLater(new Runnable() {
+            public void run ()
+            {
+                firePropertyChange("enabled", Boolean.valueOf(oldEnabled), Boolean.valueOf(isEnabled()));
+            }
+        });
     }
 
     public void compiledStateChanged(final GClass gclass, boolean compiled)
@@ -117,10 +120,14 @@ public class SaveWorldAction extends AbstractAction implements CompiledStateList
         // We must use a thread here to avoid an inter-VM deadlock;
         // we are called by RPackageImpl remotely while it holds the lock,
         // but getLastWorldGClass() calls back to the other VM and needs that lock:        
-        new Thread(new Runnable() { public void run() {
-            if (gclass.getQualifiedName().equals(ide.getLastWorldGClass().getQualifiedName())) {            
-                updateEnabledStatus(!isEnabled());
+        new Thread(new Runnable() {
+            public void run()
+            {
+                GClass lastClass = ide.getLastWorldGClass();
+                if (lastClass != null && gclass.getQualifiedName().equals(lastClass.getQualifiedName())) {            
+                    updateEnabledStatus(!isEnabled());
+                }
             }
-        }}).start();
+        }).start();
     } 
 }
