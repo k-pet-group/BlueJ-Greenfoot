@@ -21,7 +21,6 @@
  */
 package greenfoot.gui.soundrecorder;
 
-import greenfoot.actions.ToggleSoundAction;
 import greenfoot.core.GProject;
 import greenfoot.sound.MemoryAudioInputStream;
 import greenfoot.sound.Sound;
@@ -29,9 +28,13 @@ import greenfoot.sound.SoundPlaybackListener;
 import greenfoot.sound.SoundRecorder;
 import greenfoot.sound.SoundStream;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -49,31 +52,27 @@ import java.util.concurrent.atomic.AtomicReference;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.SoftBevelBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import bluej.BlueJTheme;
 import bluej.Config;
-import bluej.utility.DialogManager;
 import bluej.utility.Utility;
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import javax.swing.SwingConstants;
-import javax.swing.border.*;
 
 /**
  * The GUI class for the sound recorder.
  * 
  * @author neil
  */
-public class SoundRecorderDialog extends JDialog implements WindowListener
+public class SoundRecorderControls extends JFrame implements WindowListener
 {
     private SoundRecorder recorder = new SoundRecorder();
     
@@ -110,23 +109,22 @@ public class SoundRecorderDialog extends JDialog implements WindowListener
     private boolean changedSinceSave = false;
     private String lastSaveName = null;
     
-    private ToggleSoundAction toggleAction;
-    
     /**
      * Creates a SoundRecorderDialog that will save the sounds
      * in the sounds directory of the given project.
      */
-    public SoundRecorderDialog(JFrame owner, GProject project, ToggleSoundAction toggleAction)
-    {
-        super(owner, false);
-        
+    public SoundRecorderControls(GProject project)
+    {        
         playLabel = Config.getString("soundRecorder.play");
         playSelectionLabel = Config.getString("soundRecorder.playSelection");
         stopPlayLabel = Config.getString("soundRecorder.stopPlay");
-        this.toggleAction = toggleAction;
-        
         setTitle(Config.getString("soundRecorder.title"));
         buildUI(project);
+        
+        Image icon = BlueJTheme.getApplicationIcon("greenfoot");
+        if (icon != null) {
+            setIconImage(icon);
+        }
     }
     
     // Builds the controls: record/trim/play
@@ -250,7 +248,7 @@ public class SoundRecorderDialog extends JDialog implements WindowListener
                             overwrite = 0;
                         }
                         
-                        if (overwrite == JOptionPane.showOptionDialog(SoundRecorderDialog.this,
+                        if (overwrite == JOptionPane.showOptionDialog(SoundRecorderControls.this,
                           Config.getString("soundRecorder.overwrite.part1") + destination.getName() + Config.getString("soundRecorder.overwrite.part2"),
                           Config.getString("soundRecorder.overwrite.title"),
                           JOptionPane.YES_NO_OPTION,
@@ -313,7 +311,7 @@ public class SoundRecorderDialog extends JDialog implements WindowListener
         done.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
-                setVisible(false);           
+                attemptClose();
             }
         });
         done.setAlignmentX(CENTER_ALIGNMENT);
@@ -323,7 +321,6 @@ public class SoundRecorderDialog extends JDialog implements WindowListener
         addWindowListener(this);
         
         pack();
-        DialogManager.centreDialog(this);
         setVisible(true);
     }
     
@@ -587,6 +584,19 @@ public class SoundRecorderDialog extends JDialog implements WindowListener
     
     public void windowClosing(WindowEvent e)
     {
+        attemptClose();
+    }
+
+    public void attemptClose()
+    {
+        if (checkClose()) {
+             setVisible(false);
+        }
+    }
+
+    // Returns true if it's okay to close, false if we shouldn't close
+    private boolean checkClose()
+    {
         if (changedSinceSave) {
             String[] options = null;
             int close;
@@ -599,19 +609,22 @@ public class SoundRecorderDialog extends JDialog implements WindowListener
                 close = 0;
             }
             
-            if (close == JOptionPane.showOptionDialog(SoundRecorderDialog.this,
+            if (close == JOptionPane.showOptionDialog(SoundRecorderControls.this,
               Config.getString("soundRecorder.closeQuestion"),
               Config.getString("soundRecorder.closeTitle"),
               JOptionPane.YES_NO_OPTION,
               JOptionPane.QUESTION_MESSAGE,
               null,
               options, options[close])) {
-                setVisible(false);
+                return true;
             }
+            else {
+                return false;
+            }
+            
         } else {
-            setVisible(false);
-        }     
-    	toggleAction.setClosed();   
+            return true;
+        }
     }
 
     public void windowActivated(WindowEvent e) {}
@@ -624,9 +637,6 @@ public class SoundRecorderDialog extends JDialog implements WindowListener
     
     public void windowIconified(WindowEvent e) {}
     
-    public void windowOpened(WindowEvent e) 
-    {
-    	toggleAction.setOpen();
-	}
+    public void windowOpened(WindowEvent e) {}
 
 }

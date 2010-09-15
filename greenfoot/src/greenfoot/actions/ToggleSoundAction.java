@@ -1,29 +1,19 @@
 package greenfoot.actions;
 
-import java.awt.event.ActionEvent;
-
 import greenfoot.core.GProject;
-import greenfoot.gui.GreenfootFrame;
-import greenfoot.gui.soundrecorder.SoundRecorderDialog;
+import greenfoot.gui.soundrecorder.SoundRecorderControls;
 
 import javax.swing.ButtonModel;
 import javax.swing.JToggleButton;
 
 public class ToggleSoundAction extends ToggleAction 
 {
-	private GreenfootFrame frame;
-	private boolean state;
-
-	public ToggleSoundAction(String title, GProject project, GreenfootFrame frame) {
-		super(title, project);
-		this.frame = frame;
-	}
-
-	public void actionPerformed(ActionEvent e)
-	{
-		new SoundRecorderDialog(frame, project, this);   
-	}
+	private SoundRecorderControls recorder;
 	
+    public ToggleSoundAction(String title, GProject project) {
+		super(title, project);
+	}
+
 	@Override
 	public ButtonModel getToggleModel() 
 	{
@@ -35,7 +25,7 @@ public class ToggleSoundAction extends ToggleAction
 			@Override
 		    public boolean isSelected()
 		    {
-		    	return state;
+		    	return recorder != null && recorder.isVisible();
 		    }
 
 		    /**
@@ -44,18 +34,15 @@ public class ToggleSoundAction extends ToggleAction
 			@Override
 		    public void setSelected(boolean b)
 		    {
-				state = b;
+			    if (b) {
+			        if (recorder == null) {
+			            recorder = new SoundRecorderControls(project);
+			        }
+			        recorder.setVisible(true);
+			    } else if (recorder != null) {
+				    recorder.attemptClose();
+			    }
 		    }
 		};
 	}
-	
-	public void setOpen() {
-		state = true;
-	}
-
-	public void setClosed() {
-		state = false;
-	}
-
-
 }

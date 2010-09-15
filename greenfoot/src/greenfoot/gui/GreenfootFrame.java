@@ -650,7 +650,7 @@ public class GreenfootFrame extends JFrame
         toggleDebuggerAction = new ToggleDebuggerAction(Config.getString("menu.debugger"), project);
         createCheckboxMenuItem(toggleDebuggerAction, false, ctrlMenu, KeyEvent.VK_D, false, KeyEvent.VK_D);
         
-        toggleSoundAction = new ToggleSoundAction(Config.getString("menu.soundRecorder"), project, this);
+        toggleSoundAction = new ToggleSoundAction(Config.getString("menu.soundRecorder"), project);
         createCheckboxMenuItem(toggleSoundAction, false, ctrlMenu, -1, false, KeyEvent.VK_S);
         addMenuItem(saveWorldAction, ctrlMenu, -1, false, KeyEvent.VK_W);
         ctrlMenu.addSeparator();
