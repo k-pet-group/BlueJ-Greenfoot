@@ -77,10 +77,12 @@ public class JavaReflective extends Reflective
     
     public String getSimpleName()
     {
-        if (c.isArray())
+        if (c.isArray()) {
             return c.getComponentType().getName().replace('$', '.') + "[]";
-        else
+        }
+        else {
             return c.getName().replace('$', '.');
+        }
     }
 
     @Override
@@ -187,8 +189,9 @@ public class JavaReflective extends Reflective
         }
 
         GenTypeClass superclass = JavaUtils.getJavaUtils().getSuperclass(c);
-        if( superclass != null )
+        if( superclass != null ) {
             l.add(superclass);
+        }
         
         GenTypeClass[] interfaces = JavaUtils.getJavaUtils().getInterfaces(c);
         for( int i = 0; i < interfaces.length; i++ ) {
@@ -196,8 +199,9 @@ public class JavaReflective extends Reflective
         }
 
         // Interfaces with no direct superinterfaces have a supertype of Object
-        if (superclass == null && interfaces.length == 0 && c.isInterface())
+        if (superclass == null && interfaces.length == 0 && c.isInterface()) {
             l.add(new GenTypeClass(new JavaReflective(Object.class)));
+        }
         
         return l;
     }
@@ -216,78 +220,91 @@ public class JavaReflective extends Reflective
         if (r instanceof JavaReflective) {
             return c.isAssignableFrom(((JavaReflective)r).getUnderlyingClass());
         }
-        else
+        else {
             return false;
+        }
     }
     
     @Override
     public Map<String,FieldReflective> getDeclaredFields()
     {
-        Field [] fields = c.getDeclaredFields();
-        Map<String,FieldReflective> rmap = new HashMap<String,FieldReflective>();
-        for (int i = 0; i < fields.length; i++) {
-            JavaType fieldType = JavaUtils.getJavaUtils().getFieldType(fields[i]);
-            FieldReflective fref = new FieldReflective(fields[i].getName(), fieldType,
-                    fields[i].getModifiers());
-            rmap.put(fields[i].getName(), fref);
+        try {
+            Field [] fields = c.getDeclaredFields();
+            Map<String,FieldReflective> rmap = new HashMap<String,FieldReflective>();
+            for (int i = 0; i < fields.length; i++) {
+                JavaType fieldType = JavaUtils.getJavaUtils().getFieldType(fields[i]);
+                FieldReflective fref = new FieldReflective(fields[i].getName(), fieldType,
+                        fields[i].getModifiers());
+                rmap.put(fields[i].getName(), fref);
+            }
+
+            // See JLS section 10.7: arrays have a "public final int length" field
+            if (c.isArray()) {
+                rmap.put("length", new FieldReflective("length", JavaPrimitiveType.getInt(), Modifier.PUBLIC | Modifier.FINAL));
+            }
+
+            return rmap;
         }
-        
-        // See JLS section 10.7: arrays have a "public final int length" field
-        if (c.isArray()) {
-            rmap.put("length", new FieldReflective("length", JavaPrimitiveType.getInt(), Modifier.PUBLIC | Modifier.FINAL));
+        catch (LinkageError le) {
+            // getDeclaredFields() can throw a LinkageError
+            return Collections.emptyMap();
         }
-        
-        return rmap;
     }
     
     @Override
     public Map<String,Set<MethodReflective>> getDeclaredMethods()
     {
-        Method [] methods = c.getDeclaredMethods();
-        Map<String,Set<MethodReflective>> rmap = new HashMap<String,Set<MethodReflective>>();
-        for (Method method : methods) {
-            if (method.isSynthetic()) {
-                continue;
+        try {
+            Method [] methods = c.getDeclaredMethods();
+            Map<String,Set<MethodReflective>> rmap = new HashMap<String,Set<MethodReflective>>();
+            for (Method method : methods) {
+                if (method.isSynthetic()) {
+                    continue;
+                }
+
+                JavaType rtype = JavaUtils.getJavaUtils().getReturnType(method);
+                List<GenTypeDeclTpar> tpars = JavaUtils.getJavaUtils().getTypeParams(method);
+
+                // We need to create a map from each type parameter name to its type
+                // as a GenTypeDeclTpar
+                Map<String,GenTypeDeclTpar> tparMap = new HashMap<String,GenTypeDeclTpar>();
+                storeTparMappings(tpars, tparMap);
+                if (! Modifier.isStatic(method.getModifiers())) {
+                    getTparMapping(method.getDeclaringClass(), tparMap);
+                }
+
+                JavaType [] paramTypes = JavaUtils.getJavaUtils().getParamGenTypes(method, false);
+                List<JavaType> paramTypesList = new ArrayList<JavaType>(paramTypes.length);
+                for (JavaType paramType : paramTypes) {
+                    paramTypesList.add(paramType.mapTparsToTypes(tparMap).getUpperBound());
+                }
+
+                rtype = rtype.mapTparsToTypes(tparMap).getUpperBound();
+
+                String name = method.getName();
+                MethodReflective mr = new MethodReflective(name, rtype, tpars, paramTypesList,
+                        this,
+                        JavaUtils.getJavaUtils().isVarArgs(method),
+                        method.getModifiers());
+                Set<MethodReflective> rset = rmap.get(method.getName());
+                if (rset == null) {
+                    rset = new HashSet<MethodReflective>();
+                    rmap.put(method.getName(), rset);
+                }
+                rset.add(mr);
             }
-            
-            JavaType rtype = JavaUtils.getJavaUtils().getReturnType(method);
-            List<GenTypeDeclTpar> tpars = JavaUtils.getJavaUtils().getTypeParams(method);
-            
-            // We need to create a map from each type parameter name to its type
-            // as a GenTypeDeclTpar
-            Map<String,GenTypeDeclTpar> tparMap = new HashMap<String,GenTypeDeclTpar>();
-            storeTparMappings(tpars, tparMap);
-            if (! Modifier.isStatic(method.getModifiers())) {
-                getTparMapping(method.getDeclaringClass(), tparMap);
+
+            // See JLS section 10.7: arrays have a "public Object clone()" method
+            if (c.isArray()) {
+                rmap.put("clone", Collections.singleton(new MethodReflective("clone", new GenTypeClass(new JavaReflective(Object.class)), new ArrayList<GenTypeDeclTpar>(), new ArrayList<JavaType>(), this, false, Modifier.PUBLIC)));
             }
-            
-            JavaType [] paramTypes = JavaUtils.getJavaUtils().getParamGenTypes(method, false);
-            List<JavaType> paramTypesList = new ArrayList<JavaType>(paramTypes.length);
-            for (JavaType paramType : paramTypes) {
-                paramTypesList.add(paramType.mapTparsToTypes(tparMap).getUpperBound());
-            }
-            
-            rtype = rtype.mapTparsToTypes(tparMap).getUpperBound();
-            
-            String name = method.getName();
-            MethodReflective mr = new MethodReflective(name, rtype, tpars, paramTypesList,
-                    this,
-                    JavaUtils.getJavaUtils().isVarArgs(method),
-                    method.getModifiers());
-            Set<MethodReflective> rset = rmap.get(method.getName());
-            if (rset == null) {
-                rset = new HashSet<MethodReflective>();
-                rmap.put(method.getName(), rset);
-            }
-            rset.add(mr);
+
+            return rmap;
         }
-        
-        // See JLS section 10.7: arrays have a "public Object clone()" method
-        if (c.isArray()) {
-            rmap.put("clone", Collections.singleton(new MethodReflective("clone", new GenTypeClass(new JavaReflective(Object.class)), new ArrayList<GenTypeDeclTpar>(), new ArrayList<JavaType>(), this, false, Modifier.PUBLIC)));
+        catch (LinkageError le) {
+            // getDeclaredMethods() can cause a LinkageError
+            return Collections.emptyMap();
         }
-        
-        return rmap;
     }
     
     private void getTparMapping(Class<?> c, Map<String,GenTypeDeclTpar> tparMap)
@@ -300,7 +317,7 @@ public class JavaReflective extends Reflective
         Constructor<?> cc = c.getEnclosingConstructor();
         c = c.getEnclosingClass();
         
-        while (c != null && m != null && cc != null) {
+        while (c != null || m != null || cc != null) {
             if (c != null) {
                 tpars = ju.getTypeParams(c);
                 storeTparMappings(tpars, tparMap);
