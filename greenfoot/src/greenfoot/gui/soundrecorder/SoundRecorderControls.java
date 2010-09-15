@@ -179,6 +179,7 @@ public class SoundRecorderControls extends JFrame implements WindowListener
         playStop = new JButton(playLabel);
         Utility.changeToMacButton(playStop);
         playStop.setFocusable(false);
+        playStop.setEnabled(false);
         playStop.addActionListener(new Player());
 
         JPanel controls = new JPanel(new FlowLayout(FlowLayout.CENTER, 2, 0));
@@ -508,15 +509,8 @@ public class SoundRecorderControls extends JFrame implements WindowListener
     {
         if (saveState.hasChangedSinceSave()) {
             String[] options = null;
-            int close;
-            if (Config.isMacOS()) {
-                options = new String[] { BlueJTheme.getCancelLabel(), Config.getString("soundRecorder.closeAnyway") };
-                close = 1;
-            }
-            else {
-                options = new String[] { Config.getString("soundRecorder.closeAnyway"), BlueJTheme.getCancelLabel() };
-                close = 0;
-            }
+            final int close = 0;
+            options = new String[] { Config.getString("soundRecorder.closeAnyway"), BlueJTheme.getCancelLabel() };
             
             if (close == JOptionPane.showOptionDialog(SoundRecorderControls.this,
               Config.getString("soundRecorder.closeQuestion"),
