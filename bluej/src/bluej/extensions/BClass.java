@@ -314,6 +314,7 @@ public class BClass
             ClassInfo info = ct.getSourceInfo().getInfo(getJavaFile(), ct.getPackage());
             if (info != null) {
                 String superClass = info.getSuperclass();
+                superClass = (superClass == null) ? "" : superClass;
                 String pkgString = JavaNames.getPrefix(superClass);
                 Package bjPkg = bluejPrj.getPackage(pkgString);
                 if (bjPkg != null) {
