@@ -119,4 +119,10 @@ public final class ExtensionBridge {
         project.setSimulationThread(simulationThread);
         
     }
+
+    public static void clearObjectBench(BProject project) throws ProjectNotOpenException
+    {
+        project.clearObjectBench();
+        
+    }
 }

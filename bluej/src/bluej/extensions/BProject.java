@@ -239,4 +239,10 @@ public class BProject
         Project thisProject = projectId.getBluejProject();
         thisProject.setSimulationThread(simulationThread);        
     }
+
+    void clearObjectBench() throws ProjectNotOpenException
+    {
+        Project thisProject = projectId.getBluejProject();
+        thisProject.clearObjectBenches();
+    }
 }
