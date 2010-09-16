@@ -173,6 +173,11 @@ public class GreenfootDebugHandler implements DebuggerListener
                 if (simulationThread.isSuspended()) {
                     simulationThread.cont();
                 }
+                
+                try {
+                    ExtensionBridge.clearObjectBench(project);
+                } catch (ProjectNotOpenException ex) { }
+                
                 // Run the GUI thread on:
                 e.getThread().cont();
             }});
