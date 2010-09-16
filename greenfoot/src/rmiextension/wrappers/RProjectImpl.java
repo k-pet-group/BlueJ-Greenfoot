@@ -246,23 +246,25 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
             BField field = bClass.getField("transportField");
             final BObject value = (BObject) field.getValue(transportObject);
             
-            EventQueue.invokeAndWait(new Runnable() {
-                @Override
-                public void run()
-                {
-                    try {
-                        String cName = value.getBClass().getName();
-                        cName = cName.toLowerCase();
-                        value.addToBench(cName);
+            if (value != null) {
+                EventQueue.invokeAndWait(new Runnable() {
+                    @Override
+                    public void run()
+                    {
+                        try {
+                            String cName = value.getBClass().getName();
+                            cName = cName.toLowerCase();
+                            value.addToBench(cName);
+                        }
+                        catch (bluej.extensions.ClassNotFoundException cnfe) { }
+                        catch (PackageNotFoundException pnfe) { }
+                        catch (ProjectNotOpenException pnoe) { }
                     }
-                    catch (bluej.extensions.ClassNotFoundException cnfe) { }
-                    catch (PackageNotFoundException pnfe) { }
-                    catch (ProjectNotOpenException pnoe) { }
-                }
-            });
-            
-            value.getInstanceName();
-            return WrapperPool.instance().getWrapper(value);
+                });
+                
+                value.getInstanceName();
+                return WrapperPool.instance().getWrapper(value);
+            }
         }
         catch (InterruptedException ie) { }
         catch (bluej.extensions.ClassNotFoundException cnfe) { }

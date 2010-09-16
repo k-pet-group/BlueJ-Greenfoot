@@ -26,6 +26,8 @@ import java.util.IdentityHashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import rmiextension.wrappers.RObject;
+
 import bluej.debugger.gentype.JavaType;
 import bluej.utility.Debug;
 
@@ -55,7 +57,9 @@ public class GreenfootRecorder
     {
         Class<?> theClass = actor.getClass();
         String name = nameActor(actor);
-        code.add(theClass.getCanonicalName() + " " + name + " = new " + theClass.getCanonicalName() + "(" + withCommas(args, argTypes) + ");");
+        if (name != null) {
+            code.add(theClass.getCanonicalName() + " " + name + " = new " + theClass.getCanonicalName() + "(" + withCommas(args, argTypes) + ");");
+        }
     }
     
     // Called when the prepare method is replayed to indicate that the actor's name should be recorded
@@ -63,9 +67,14 @@ public class GreenfootRecorder
     public String nameActor(Object actor)
     {
         try {
-            String name = ObjectTracker.getRObject(actor).getInstanceName();
-            objectNames.put(actor, name);
-            return name;
+            RObject rObject = ObjectTracker.getRObject(actor);
+            if (rObject != null) {
+                String name = rObject.getInstanceName();
+                objectNames.put(actor, name);
+                return name;
+            } else {
+                return null;
+            }
         }
         catch (Exception e) {
             Debug.reportError("Error naming actor", e);
