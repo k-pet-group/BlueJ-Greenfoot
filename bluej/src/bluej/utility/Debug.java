@@ -31,7 +31,7 @@ import bluej.Config;
  * Class to handle debugging messages.
  * 
  * @author Michael Kolling
- * @version $Id: Debug.java 7866 2010-07-15 07:18:29Z davmac $
+ * @version $Id: Debug.java 8358 2010-09-16 13:28:53Z nccb $
  */
 
 public class Debug
@@ -128,5 +128,16 @@ public class Debug
         PrintWriter pwriter = new PrintWriter(debugStream);
         exc.printStackTrace(pwriter);
         pwriter.flush();
+    }
+    
+    public static void printCallStack(String msg)
+    {
+        message(msg + "; call stack:");
+        StackTraceElement[] stack = Thread.currentThread().getStackTrace();
+        // Miss out first line (getStackTrace()) and second line (printCallStack, us)
+        // as that will always be the same and irrelevant:
+        for (int i = 2; i < stack.length; i++) {
+            message("  " + stack[i].toString());
+        }
     }
 }
