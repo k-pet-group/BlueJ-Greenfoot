@@ -50,6 +50,7 @@ import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -132,7 +133,7 @@ public class ExecControls extends JFrame
     private DebuggerThreadTreeModel threadModel;
 	
     
-    private JSplitPane mainPanel;
+    private JComponent mainPanel;
     private JList stackList, staticList, instanceList, localList;
     private JButton stopButton, stepButton, stepIntoButton, continueButton,
         terminateButton;
@@ -349,8 +350,9 @@ public class ExecControls extends JFrame
      * @param dt  the thread to select or null if the thread
      *            selection has been cleared
      */
-    private void setSelectedThread(DebuggerThread dt)
+    public void setSelectedThread(DebuggerThread dt)
     {
+        Debug.message("Selecting thread: " + (dt == null ? "null" : dt.getName()));
         selectedThread = dt;
 
         if (dt == null) {
@@ -682,12 +684,15 @@ public class ExecControls extends JFrame
             flipPanel.add(tempPanel, "blank");
         }
 
+        if (Config.isGreenfoot()) {
+            mainPanel = flipPanel;
+        } else {
         /* JSplitPane */ mainPanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
                                               threadPanel, flipPanel);
-
-        mainPanel.setDividerSize(6);
-        mainPanel.setOpaque(false);
-
+            ((JSplitPane)mainPanel).setDividerSize(6);
+            mainPanel.setOpaque(false);
+        }
+        
         contentPane.add(mainPanel, BorderLayout.CENTER);
 
         // Close Action when close button is pressed

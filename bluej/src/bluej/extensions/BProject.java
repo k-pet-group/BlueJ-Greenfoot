@@ -28,6 +28,7 @@ import java.util.ListIterator;
 import java.util.Map;
 
 import bluej.debugger.DebuggerListener;
+import bluej.debugger.DebuggerThread;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
@@ -231,5 +232,11 @@ public class BProject
         if (result != null) {
             Debug.reportError("Problem setting breakpoint in " + className + "." + method + ": " + result);
         }
+    }
+
+    void setSimulationThread(DebuggerThread simulationThread) throws ProjectNotOpenException
+    {
+        Project thisProject = projectId.getBluejProject();
+        thisProject.setSimulationThread(simulationThread);        
     }
 }

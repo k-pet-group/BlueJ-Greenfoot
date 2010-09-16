@@ -841,6 +841,7 @@ public class Project implements DebuggerListener, InspectorManager
 
 
     private BProject singleBProject;  // Every Project has none or one BProject
+    private DebuggerThread simulationThread;
     
     /**
      * Return the extensions BProject associated with this Project.
@@ -1309,6 +1310,7 @@ public class Project implements DebuggerListener, InspectorManager
     public ExecControls getExecControls() {
         if (execControls == null) {
             execControls = new ExecControls(this, getDebugger());
+            execControls.setSelectedThread(simulationThread);
         }
 
         return execControls;
@@ -1923,5 +1925,13 @@ public class Project implements DebuggerListener, InspectorManager
     public boolean examineDebuggerEvent(DebuggerEvent e)
     {
         return false;
+    }
+
+    public void setSimulationThread(DebuggerThread simulationThread)
+    {
+        this.simulationThread = simulationThread;
+        if (execControls != null) {
+            execControls.setSelectedThread(simulationThread);
+        }
     }
 }
