@@ -200,25 +200,7 @@ public class WorldHandler
 
         this.worldCanvas = worldCanvas;
         
-        mousePollingManager = new MousePollingManager(new WorldLocator() {
-            public Actor getTopMostActorAt(MouseEvent e)
-            {
-                Point p = SwingUtilities.convertPoint(e.getComponent(), e.getX(), e.getY(), worldCanvas);
-                return WorldHandler.this.getObject(p.x, p.y);
-            }
-
-            public int getTranslatedX(MouseEvent e)
-            {
-                Point p = SwingUtilities.convertPoint(e.getComponent(), e.getX(), e.getY(), worldCanvas);
-                return WorldVisitor.toCellFloor(getWorld(), p.x);
-            }
-
-            public int getTranslatedY(MouseEvent e)
-            {
-                Point p = SwingUtilities.convertPoint(e.getComponent(), e.getX(), e.getY(), worldCanvas);
-                return WorldVisitor.toCellFloor(getWorld(), p.y);
-            }
-        });
+        mousePollingManager = new MousePollingManager(null);
 
         worldCanvas.setDropTargetListener(this);
 
@@ -491,6 +473,28 @@ public class WorldHandler
     public synchronized void setWorld(final World world)
     {
         handlerDelegate.setWorld(this.world, world);
+        mousePollingManager.setWorldLocator(new WorldLocator() {
+            @Override
+            public Actor getTopMostActorAt(MouseEvent e)
+            {
+                Point p = SwingUtilities.convertPoint(e.getComponent(), e.getX(), e.getY(), worldCanvas);
+                return WorldHandler.this.getObject(p.x, p.y);
+            }
+
+            @Override
+            public int getTranslatedX(MouseEvent e)
+            {
+                Point p = SwingUtilities.convertPoint(e.getComponent(), e.getX(), e.getY(), worldCanvas);
+                return WorldVisitor.toCellFloor(world, p.x);
+            }
+
+            @Override
+            public int getTranslatedY(MouseEvent e)
+            {
+                Point p = SwingUtilities.convertPoint(e.getComponent(), e.getX(), e.getY(), worldCanvas);
+                return WorldVisitor.toCellFloor(world, p.y);
+            }
+        });
         this.world = world;
         initialisingWorld = null;
         EventQueue.invokeLater(new Runnable() {

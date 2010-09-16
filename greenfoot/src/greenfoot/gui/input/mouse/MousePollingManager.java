@@ -159,9 +159,18 @@ public class MousePollingManager implements TriggeredMouseListener, TriggeredMou
      * 
      * @param locator
      *            Used to locate things (actors and coordinates) within the
-     *            World.
+     *            World. May be null, but in that case the locator must be set
+     *            later.
      */
     public MousePollingManager(WorldLocator locator) 
+    {
+        this.locator = locator;
+    }
+    
+    /**
+     * Set the locator to be used by this mouse polling manager.
+     */
+    public void setWorldLocator(WorldLocator locator)
     {
         this.locator = locator;
     }
