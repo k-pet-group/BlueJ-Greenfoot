@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -30,70 +30,69 @@ import javax.swing.JToggleButton;
  * Creates the debugger window when called, also setting
  * the checkbox of its menu item to its current state
  * (visible or not).
+ * 
  * @author Philip Stevens
  */
 public class ToggleDebuggerAction extends ToggleAction 
 {
+    public ToggleDebuggerAction(String title, GProject project) 
+    {
+        super(title, project);
+    }
 
-	public ToggleDebuggerAction(String title, GProject project) 
-	{
-		super(title, project);
-	}
-	
-	/**
-	 * @param project	Set the debuggers project to be this parameter
-	 */
-	@Override
-	public void setProject(GProject project)
-	{
-		this.project = project;
-	}
+    /**
+     * @param project	Set the debuggers project to be this parameter
+     */
+    @Override
+    public void setProject(GProject project)
+    {
+        this.project = project;
+    }
 
-	/**
-	 * Creates a new {@link ExecControlButtonModel} to
-	 * determine the state of the debugger window,
-	 * in terms of visibility.
-	 */
-	@Override
-	public ButtonModel getToggleModel() 
-	{
-		return new ExecControlButtonModel();
-	}
-	
-	/**
-	 * Subclass that updates the check box field and also
-	 * opens the debugger or closes it depending on its
-	 * current state.
-	 * @author Philip Stevens
-	 */
-	public class ExecControlButtonModel extends JToggleButton.ToggleButtonModel
-	{
+    /**
+     * Creates a new {@link ExecControlButtonModel} to
+     * determine the state of the debugger window,
+     * in terms of visibility.
+     */
+    @Override
+    public ButtonModel getToggleModel() 
+    {
+        return new ExecControlButtonModel();
+    }
 
-	    /**
-	     * Returns whether or not the debugger window is currently visible.
-	     */
-		@Override
-	    public boolean isSelected()
-	    {
-	    	if (project != null) {
-				return project.isExecControlVisible();
-	    	}
-	    	return false;
-	    }
+    /**
+     * Subclass that updates the check box field and also
+     * opens the debugger or closes it depending on its
+     * current state.
+     * 
+     * @author Philip Stevens
+     */
+    public class ExecControlButtonModel extends JToggleButton.ToggleButtonModel
+    {
+        /**
+         * Returns whether or not the debugger window is currently visible.
+         */
+        @Override
+        public boolean isSelected()
+        {
+            if (project != null) {
+                return project.isExecControlVisible();
+            }
+            return false;
+        }
 
-	    /**
-	     * Updates the visibility of the debugger window, and
-	     * sets the checkbox to the parameter.
-	     * @param b	State to set the checkbox to.
-	     */
-		@Override
-	    public void setSelected(boolean b)
-	    {
-			if (project != null && b != isSelected()) {
-				super.setSelected(b);
-				project.toggleExecControls();
-			}
-	    }
-	}
-
+        /**
+         * Updates the visibility of the debugger window, and
+         * sets the checkbox to the parameter.
+         * @param b	State to set the checkbox to.
+         */
+        @Override
+        public void setSelected(boolean b)
+        {
+            if (project != null && b != isSelected()) {
+                super.setSelected(b);
+                project.toggleExecControls();
+            }
+        }
+    }
 }
