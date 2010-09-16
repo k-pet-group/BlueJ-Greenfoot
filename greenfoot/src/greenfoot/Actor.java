@@ -456,21 +456,23 @@ public abstract class Actor
      * Calculates the bounds.
      */
     private void calcBounds()
-    {
-        if (image == null) {
-            boundingRect = new Rect(x, y, 0, 0);
-            for (int i = 0; i < 4; i++) {
-                boundingXs[i] = x;
-                boundingYs[i] = y;
-            }
-            return;
-        }
-        
+    {        
         World w = getActiveWorld();
         if(w == null) {
             return;
         }
         int cellSize = w.getCellSize();
+        
+        if (image == null) {
+            int wx = x * cellSize + cellSize / 2;
+            int wy = y * cellSize + cellSize / 2;
+            boundingRect = new Rect(wx, wy, 0, 0);
+            for (int i = 0; i < 4; i++) {
+                boundingXs[i] = wx;
+                boundingYs[i] = wy;
+            }
+            return;
+        }
         
         if (rotation % 90 == 0) {
             // Special fast calculation when rotated a multiple of 90
