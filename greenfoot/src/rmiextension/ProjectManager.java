@@ -129,7 +129,7 @@ public class ProjectManager
                 if (versionOK == GreenfootMain.VERSION_UPDATED) {
                     project.getPackage("").reload();
                 }
-                openGreenfoot(project);
+                openGreenfoot(project, true);
                 
                 // Add Greenfoot API sources to project source path
                 Project bjProject = Project.getProject(project.getDir());
@@ -168,11 +168,15 @@ public class ProjectManager
     /**
      * Launch the Greenfoot debug VM code (and tell it where to connect to for RMI purposes).
      * @param project  A just-opened project
+     * @param addDebugListener Whether to add a new debug listener.
+     * Pass false for a freshly opened project.
      */
-    public void openGreenfoot(final BProject project)
+    public void openGreenfoot(final BProject project, boolean addDebugListener)
     {
         try {
-            GreenfootDebugHandler.addDebuggerListener(project);
+            if (addDebugListener) {
+                GreenfootDebugHandler.addDebuggerListener(project);
+            }
                         
             final BPackage pkg = project.getPackage("");
             ResultWatcher watcher = new ResultWatcher() {
