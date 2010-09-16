@@ -130,6 +130,7 @@ public class WorldHandler
     private WorldHandler() 
     {
         instance = this;
+        mousePollingManager = new MousePollingManager(null);
         handlerDelegate = new WorldHandlerDelegate() {
 
             public void discardWorld(World world)
@@ -317,9 +318,21 @@ public class WorldHandler
      */
     public Actor getObject(int x, int y)
     {
-        // Grab a snapshot of world to avoid concurrency issues
-        World world = this.world;
-
+        return getObject(this.world, x, y);
+    }
+    
+    /**
+     * Returns an object from the given world at the given pixel location. If multiple objects
+     * exist at the one location, this method returns the top-most one according to
+     * paint order.
+     * 
+     * @param x
+     *            The x-coordinate
+     * @param y
+     *            The y-coordinate
+     */
+    private static Actor getObject(World world, int x, int y)
+    {
         if (world == null) {
             return null;
         }
@@ -478,7 +491,7 @@ public class WorldHandler
             public Actor getTopMostActorAt(MouseEvent e)
             {
                 Point p = SwingUtilities.convertPoint(e.getComponent(), e.getX(), e.getY(), worldCanvas);
-                return WorldHandler.this.getObject(p.x, p.y);
+                return getObject(world, p.x, p.y);
             }
 
             @Override
