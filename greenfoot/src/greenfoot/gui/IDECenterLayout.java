@@ -27,13 +27,13 @@ import java.awt.Container;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-/*
+/**
  * This is a subclass of CenterLayout but which works for the IDE, not the
  * stand alone. It'll allow right clicking of the border/background
  * around the World Canvas to enable right clicking to bring up world
  * methods, inspection and "Save the world" options.
  *
- * @author plcs
+ * @author Philip Stevens
  * @version 0.1
  */
 public class IDECenterLayout extends CenterLayout
