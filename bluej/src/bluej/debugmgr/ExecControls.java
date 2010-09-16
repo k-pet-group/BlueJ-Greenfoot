@@ -352,7 +352,6 @@ public class ExecControls extends JFrame
      */
     public void setSelectedThread(DebuggerThread dt)
     {
-        Debug.message("Selecting thread: " + (dt == null ? "null" : dt.getName()));
         selectedThread = dt;
 
         if (dt == null) {
