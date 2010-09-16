@@ -39,6 +39,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -377,13 +378,21 @@ public class ExecControls extends JFrame
     /**
      * Display the details for the currently selected thread.
      * These details include showing the threads stack, and displaying 
-     * the details for the top stack frome.
+     * the details for the top stack frame.
      */
     private void setThreadDetails()
     {
         stackList.setFixedCellWidth(-1);
-        List<SourceLocation> stack = selectedThread.getStack();
+        //Copy the list because we may alter it:
+        LinkedList<SourceLocation> stack = new LinkedList<SourceLocation>(selectedThread.getStack());
         if(stack.size() > 0) {
+            if (Config.isGreenfoot()) {
+                // Conceal 
+                while (!stack.isEmpty() && stack.getLast().getClassName().startsWith("greenfoot.core")) {
+                    stack.removeLast();
+                }
+            }
+            
             stackList.setListData(stack.toArray());
             // show details of top frame
             autoSelectionEvent = true;
