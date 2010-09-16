@@ -76,6 +76,8 @@ public class ImageLibList extends EditableList<ImageLibList.ImageListEntry> impl
     
     private LinkedList<ImageListEntry> data;
     
+    private static final String NO_IMAGE_PATH = ImageLibList.class.getClassLoader().getResource("no-image.png").getPath();
+    
     /**
      * Construct an empty ImageLibList.
      */
@@ -139,6 +141,7 @@ public class ImageLibList extends EditableList<ImageLibList.ImageListEntry> impl
         }
                 
         data = new LinkedList<ImageListEntry>();
+        data.add(new ImageListEntry(new File(NO_IMAGE_PATH)));
         
         for (int i = 0; i < imageFiles.length; i++) {
             ImageListEntry entry = new ImageListEntry(imageFiles[i]);
@@ -276,7 +279,7 @@ public class ImageLibList extends EditableList<ImageLibList.ImageListEntry> impl
 
     private static class MyCellRenderer extends DefaultTableCellRenderer         
     {
-        protected static Border noFocusBorder = new EmptyBorder(1, 1, 1, 1); 
+		protected static Border noFocusBorder = new EmptyBorder(1, 1, 1, 1); 
 
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
                 boolean hasFocus, int row, int column)
@@ -284,8 +287,11 @@ public class ImageLibList extends EditableList<ImageLibList.ImageListEntry> impl
             JLabel item = this;
             if(value != null) {
                 ImageListEntry entry = (ImageListEntry) value;
-                
-                item.setText(entry.imageFile.getName());
+                if (entry.imageFile.getPath() == NO_IMAGE_PATH) {
+                	item.setText("No image");
+                } else {
+                    item.setText(entry.imageFile.getName());
+                }
                 item.setIcon(entry.imageIcon);
             }
             if (isSelected) {
