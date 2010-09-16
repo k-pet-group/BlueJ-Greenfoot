@@ -42,8 +42,6 @@ import java.awt.Font;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
@@ -66,7 +64,6 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
@@ -76,6 +73,7 @@ import javax.swing.event.ListSelectionListener;
 
 import bluej.BlueJTheme;
 import bluej.Config;
+import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.EscapeDialog;
 import bluej.utility.FileUtility;
@@ -86,7 +84,7 @@ import bluej.utility.FileUtility;
  *
  * @author Davin McCall
  */
-public class ImageLibFrame extends EscapeDialog implements ListSelectionListener, WindowListener, MouseListener
+public class ImageLibFrame extends EscapeDialog implements ListSelectionListener, WindowListener
 {
     /** Label displaying the currently selected image. */
     private JLabel imageLabel;
@@ -181,7 +179,6 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                 File projDir = project.getDir();
                 projImagesDir = new File(projDir, "images");
                 projImageList = new ImageLibList(projImagesDir, false);
-                projImageList.addMouseListener(this);
                 imageScrollPane.getViewport().setView(projImageList);
 
                 imageScrollPane.setBorder(Config.normalBorder);
@@ -212,6 +209,48 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
             projImageList.addListSelectionListener(this);
             greenfootImageList.addListSelectionListener(this);
             imageCategorySelector.setImageLibList(greenfootImageList);
+        }
+        
+        {
+        	final JPanel flowPanel = new JPanel();
+        	FlowLayout layout = new FlowLayout();
+        	layout.setAlignment(FlowLayout.LEFT);
+        	flowPanel.setLayout(layout);
+        	
+        	JButton editButton = new JButton(Config.getString("imagelib.edit"));
+        	editButton.setFont(new Font("dialog", Font.BOLD, 10));
+        	editButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e)
+                {
+                    ImageListEntry[] editedEntries = projImageList.getSelectedValues();
+                    for (ImageListEntry entry : editedEntries) {
+                        ExternalAppLauncher.editImage(entry.imageFile);
+                    }
+                }
+            });
+        	JButton duplicateButton = new JButton(Config.getString("imagelib.dupl"));
+        	duplicateButton.setFont(new Font("dialog", Font.BOLD, 10));
+        	duplicateButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e)
+                {
+                    duplicateSelected();
+                }
+            });
+        	JButton deleteButton = new JButton(Config.getString("imagelib.del"));
+        	deleteButton.setFont(new Font("dialog", Font.BOLD, 10));
+        	deleteButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e)
+                {
+                    confirmDelete(projImageList.getSelectedValues());
+                }
+            });
+        	
+            flowPanel.setAlignmentX(0.0f);
+            flowPanel.add(fixHeight(editButton));
+            flowPanel.add(fixHeight(duplicateButton));
+            flowPanel.add(fixHeight(deleteButton));
+
+            contentPane.add(fixHeight(flowPanel));
         }
 
         // Browse and new panel. Select image file from arbitrary location.
@@ -611,86 +650,25 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
         refreshTask.cancel();
     }
 
-    public void windowDeactivated(WindowEvent e)
-    {
-    }
+	public void windowDeactivated(WindowEvent e) {
+		
+	}
 
-    public void windowDeiconified(WindowEvent e)
-    {
-    }
+	public void windowDeiconified(WindowEvent e) {
+		
+	}
 
-    public void windowIconified(WindowEvent e)
-    {
-    }
-
-    public void windowOpened(WindowEvent e)
-    {
-    }
-
-    public void mouseClicked(MouseEvent e)
-    {       
-    }
-
-    public void mouseEntered(MouseEvent e)
-    {
-    }
-
-    public void mouseExited(MouseEvent e)
-    {
-    }
-
-    public void mousePressed(MouseEvent e)
-    {
-        maybeShowPopup(e);
-    }
-
-    public void mouseReleased(MouseEvent e)
-    {
-        maybeShowPopup(e);
-    }
-
-    private void maybeShowPopup(MouseEvent e)
-    {
-        if (e.isPopupTrigger() && e.getComponent() == projImageList) {
-            final int row = projImageList.rowAtPoint(e.getPoint());
-            
-            if (false == projImageList.isRowSelected(row)) {
-                projImageList.setSelectedRow(row);
-                greenfootImageList.clearSelection();
-            }
-            
-            JPopupMenu menu = new JPopupMenu();
-            menu.setInvoker(this);
-            menu.setLocation(e.getXOnScreen(), e.getYOnScreen());
-            
-            menu.add(Config.getString("imagelib.edit")).addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e)
-                {
-                    ImageListEntry[] editedEntries = projImageList.getSelectedValues();
-                    for (ImageListEntry entry : editedEntries) {
-                        ExternalAppLauncher.editImage(entry.imageFile);
-                    }
-                }
-            });
-            
-            menu.add(Config.getString("imagelib.duplicate")).addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e)
-                {
-                    duplicateSelected();
-                }
-            });
-            
-            menu.add(Config.getString("imagelib.delete")).addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e)
-                {
-                    confirmDelete(projImageList.getSelectedValues());
-                }
-            });
-            
-            menu.setVisible(true);
-        }
-    }
-    
+	public void windowIconified(WindowEvent e) {
+		
+	}
+	
+	public void windowOpened(WindowEvent e) {
+		
+	}
+	
+	/**
+	 * 
+	 */
     protected void duplicateSelected()
     {
         ImageListEntry[] srcEntries = projImageList.getSelectedValues();
@@ -733,10 +711,12 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
     
     /**
      * Confirms whether to delete a file or not.
+     * Instantly return if no entries.
      * @param imageListEntries the file to delete
      */
     private void confirmDelete(ImageListEntry[] imageListEntries)
     {
+    	if (imageListEntries.length == 0) return;
         String text = Config.getString("imagelib.delete.confirm.text") + " ";
         
         int count = 0;
