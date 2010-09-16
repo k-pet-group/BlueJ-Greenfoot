@@ -59,6 +59,11 @@ import bluej.debugger.jdi.JdiDebugger;
  */
 public abstract class Debugger
 {
+    // Set this key with a non-null value on any breakpoints that you want to
+    // persist through calls to removeBreakpointsForClass, and through the clear-all breakpoint
+    // removal that happens, for example, when a new class loader is added to the VM
+    public static final String PERSIST_BREAKPOINT_PROPERTY = "VMReference.PERSIST_BREAKPOINT";    
+    
     public static final int NORMAL_EXIT = 0;
     public static final int EXCEPTION = 2;
     public static final int TERMINATED = 3;

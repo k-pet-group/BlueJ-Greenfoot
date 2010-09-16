@@ -159,12 +159,10 @@ class VMReference
     // the thread running inside the ExecServer
     private ThreadReference serverThread = null;
     private boolean serverThreadStarted = false;
-    private BreakpointRequest serverBreakpoint;
 
     // the worker thread running inside the ExecServer
     private ThreadReference workerThread = null;
     private boolean workerThreadReady = false;
-    private BreakpointRequest workerBreakpoint;
     private boolean workerThreadReserved = false;
 
     // a record of the threads we start up for
@@ -651,18 +649,19 @@ class VMReference
 
         // set a breakpoint in the vm started method
         {
-            serverBreakpoint = erm.createBreakpointRequest(findMethodLocation(serverClass, SERVER_STARTED_METHOD_NAME));
+            BreakpointRequest serverBreakpoint = erm.createBreakpointRequest(findMethodLocation(serverClass, SERVER_STARTED_METHOD_NAME));
             serverBreakpoint.setSuspendPolicy(EventRequest.SUSPEND_EVENT_THREAD);
             // the presence of this property indicates to breakEvent that we are
             // a special type of breakpoint
             serverBreakpoint.putProperty(SERVER_STARTED_METHOD_NAME, "yes");
             serverBreakpoint.putProperty(VMEventHandler.DONT_RESUME, "yes");
+            serverBreakpoint.putProperty(Debugger.PERSIST_BREAKPOINT_PROPERTY, "yes");
             serverBreakpoint.enable();
         }
 
         // set a breakpoint in the suspend method
         {
-            workerBreakpoint = erm.createBreakpointRequest(findMethodLocation(serverClass, SERVER_SUSPEND_METHOD_NAME));
+            BreakpointRequest workerBreakpoint = erm.createBreakpointRequest(findMethodLocation(serverClass, SERVER_SUSPEND_METHOD_NAME));
             workerBreakpoint.setSuspendPolicy(EventRequest.SUSPEND_EVENT_THREAD);
             // the presence of this property indicates to breakEvent that we are
             // a special type of breakpoint
@@ -670,6 +669,7 @@ class VMReference
             // the presence of this property indicates that we should not
             // be restarted after receiving this event
             workerBreakpoint.putProperty(VMEventHandler.DONT_RESUME, "yes");
+            workerBreakpoint.putProperty(Debugger.PERSIST_BREAKPOINT_PROPERTY, "yes");
             workerBreakpoint.enable();
         }
 
@@ -1463,7 +1463,7 @@ class VMReference
 
         while (it.hasNext()) {
             BreakpointRequest bp = (BreakpointRequest) it.next();
-            if (bp != serverBreakpoint && bp != workerBreakpoint) {
+            if (bp.getProperty(Debugger.PERSIST_BREAKPOINT_PROPERTY) == null) {
                 breaks.add(bp);
             }
         }
@@ -1486,7 +1486,7 @@ class VMReference
             BreakpointRequest bp = it.next();
 
             ReferenceType bpType = bp.location().declaringType();
-            if (bpType.name().equals(className)) {
+            if (bpType.name().equals(className) && bp.getProperty(Debugger.PERSIST_BREAKPOINT_PROPERTY) == null) {
                 toDelete.add(bp);
             }
         }
