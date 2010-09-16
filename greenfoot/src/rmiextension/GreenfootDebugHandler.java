@@ -148,6 +148,9 @@ public class GreenfootDebugHandler implements DebuggerListener
             // This is the breakpoint at the very beginning of the simulation thread;
             // record this thread as being the simulation thread and set it running again:
             simulationThread = e.getThread();
+            try {
+                ExtensionBridge.setSimulationThread(project, simulationThread);
+            } catch (ProjectNotOpenException ex) { }
             e.getThread().cont();
             return true;
             
