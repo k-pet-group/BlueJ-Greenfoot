@@ -1246,13 +1246,7 @@ public class Project implements DebuggerListener, InspectorManager
             return;
         }
         
-        // remove bench objects for all frames in this project
-        PkgMgrFrame[] frames = PkgMgrFrame.getAllProjectFrames(this);
-
-        for (int i = 0; i < frames.length; i++) {
-            frames[i].getObjectBench().removeAllObjects(getUniqueId());
-            frames[i].clearTextEval();
-        }
+        clearObjectBenches();
 
         // get rid of any inspectors that are open that were not cleaned up
         // as part of removing objects from the bench
@@ -1272,6 +1266,21 @@ public class Project implements DebuggerListener, InspectorManager
         }
 
         currentClassLoader = null;
+    }
+
+    /**
+     * Clears the objects from all object benches belonging to this project.
+     */
+    public void clearObjectBenches()
+    {
+        // remove bench objects for all frames in this project
+        PkgMgrFrame[] frames = PkgMgrFrame.getAllProjectFrames(this);
+
+        Debug.message("Number of project frames: " + frames.length);
+        for (int i = 0; i < frames.length; i++) {
+            frames[i].getObjectBench().removeAllObjects(getUniqueId());
+            frames[i].clearTextEval();
+        }
     }
 
     /**
