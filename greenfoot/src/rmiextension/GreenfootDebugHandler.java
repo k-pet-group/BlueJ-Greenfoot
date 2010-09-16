@@ -26,9 +26,11 @@ import greenfoot.core.SimulationDebugMonitor;
 import greenfoot.core.Simulation;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import rmiextension.wrappers.WrapperPool;
 import bluej.debugger.Debugger;
@@ -108,9 +110,16 @@ public class GreenfootDebugHandler implements DebuggerListener
     static void addDebuggerListener(BProject project)
     {
         try {
-            ExtensionBridge.addBreakpoint(project, Simulation.class.getCanonicalName(), "run", Collections.singletonMap(SIMULATION_THREAD_RUN_KEY, "TRUE"));
-            ExtensionBridge.addBreakpoint(project, RESET_CLASS, RESET_METHOD, Collections.singletonMap(RESET_KEY, "yes"));
-                        
+            Map<String, String> simulationRunBreakpointProperties = new HashMap<String, String>();
+            simulationRunBreakpointProperties.put(SIMULATION_THREAD_RUN_KEY, "TRUE");
+            simulationRunBreakpointProperties.put(Debugger.PERSIST_BREAKPOINT_PROPERTY, "TRUE");
+            ExtensionBridge.addBreakpoint(project, Simulation.class.getCanonicalName(), "run", simulationRunBreakpointProperties);
+            
+            Map<String, String> resetBreakpointProperties = new HashMap<String, String>();
+            resetBreakpointProperties.put(RESET_KEY, "yes");
+            resetBreakpointProperties.put(Debugger.PERSIST_BREAKPOINT_PROPERTY, "TRUE");
+            ExtensionBridge.addBreakpoint(project, RESET_CLASS, RESET_METHOD, resetBreakpointProperties);
+
             // Technically I could collapse the two listeners into one, but they
             // perform orthogonal tasks so it's nicer to keep the code separate:
             GreenfootDebugHandler handler = new GreenfootDebugHandler(project);
@@ -143,7 +152,7 @@ public class GreenfootDebugHandler implements DebuggerListener
         List<SourceLocation> stack = e.getThread().getStack();
         
         if (e.getID() == DebuggerEvent.THREAD_BREAKPOINT
-            && e.getThread() != null && simulationThread == null &&
+            && e.getThread() != null &&
             e.getBreakpointProperties().get(SIMULATION_THREAD_RUN_KEY) != null) {
             // This is the breakpoint at the very beginning of the simulation thread;
             // record this thread as being the simulation thread and set it running again:
