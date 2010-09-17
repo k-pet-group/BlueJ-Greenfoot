@@ -355,7 +355,7 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
                 {
                     if (thisProject.hasExecControls()) {
                         ExecControls execControls = thisProject.getExecControls();
-                        execControls.setSelectedThread(RProjectImpl.this.simulationThread);
+                        execControls.makeSureThreadIsSelected(RProjectImpl.this.simulationThread);
                     }
                 }
             });
