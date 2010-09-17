@@ -49,7 +49,7 @@ import bluej.utility.Debug;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RClassImpl.java 8317 2010-09-14 13:29:03Z nccb $
+ * @version $Id: RClassImpl.java 8378 2010-09-17 09:50:44Z nccb $
  */
 public class RClassImpl extends java.rmi.server.UnicastRemoteObject
     implements RClass
@@ -172,7 +172,7 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
         });
     }
 
-    public void insertAppendMethod(final String comment, final String methodName, final String methodBody, final boolean showEditorOnCreate, final boolean showEditorOnAppend) throws ProjectNotOpenException, PackageNotFoundException, RemoteException
+    public void insertAppendMethod(final String comment, final String access, final String methodName, final String methodBody, final boolean showEditorOnCreate, final boolean showEditorOnAppend) throws ProjectNotOpenException, PackageNotFoundException, RemoteException
     {
         final Editor e = bClass.getEditor();
         EventQueue.invokeLater(new Runnable() {
@@ -194,7 +194,7 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
                         e.setVisible(true);
                 } else {
                     //Make a new method:
-                    String fullMethod = comment + "    public void " + methodName + "()\n    {\n" + methodBody + "    }\n";
+                    String fullMethod = comment + "    " + access + " void " + methodName + "()\n    {\n" + methodBody + "    }\n";
                     appendTextToNode(e, bje, classNode, fullMethod);
                     if (showEditorOnCreate)
                         e.setVisible(true);

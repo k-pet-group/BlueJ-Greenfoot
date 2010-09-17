@@ -72,7 +72,7 @@ public class SaveWorldAction extends AbstractAction implements CompiledStateList
         try {
             GClass lastWorld = ide.getLastWorldGClass();
             lastWorld.insertMethodCallInConstructor(methodName, false);
-            lastWorld.insertAppendMethod(comment.toString(), methodName, method.toString(), true, false);
+            lastWorld.insertAppendMethod(comment.toString(), "private", methodName, method.toString(), true, false);
             lastWorld.showMessage(Config.getString("record.saved.message"));
             // Now that we've inserted the code, we must reset the recorder,
             // so that if the user saves the world again before re-compiling,

@@ -49,7 +49,7 @@ public interface RClass
     public abstract void closeEditor()
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException;
     
-    public abstract void insertAppendMethod(String comment, String methodName, String methodBody, boolean showEditorOnCreate, boolean showEditorOnAppend)
+    public abstract void insertAppendMethod(String comment, String access, String methodName, String methodBody, boolean showEditorOnCreate, boolean showEditorOnAppend)
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException;
 
     public abstract void insertMethodCallInConstructor(String methodName, boolean showEditor)
