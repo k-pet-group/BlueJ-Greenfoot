@@ -73,7 +73,6 @@ import javax.swing.event.ListSelectionListener;
 
 import bluej.BlueJTheme;
 import bluej.Config;
-import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.EscapeDialog;
 import bluej.utility.FileUtility;
