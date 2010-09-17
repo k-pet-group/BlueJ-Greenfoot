@@ -108,7 +108,7 @@ public class SoundRecorder
                             keepRecording.set(false);
                         } else {
                             frames.addLast(buffer);
-                            partialResult.set((List<byte[]>)frames.clone());
+                            partialResult.set(new LinkedList<byte[]>(frames));
                         }
                     }
                     
