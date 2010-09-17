@@ -755,12 +755,14 @@ public class ExecControls extends JFrame
         JMenuBar menubar = new JMenuBar();
         JMenu menu = new JMenu(Config.getString("terminal.options"));
 
-        systemThreadItem = new JCheckBoxMenuItem(new HideSystemThreadAction());
-        systemThreadItem.setSelected(true);
+        
+        if (!Config.isGreenfoot()) {
+            systemThreadItem = new JCheckBoxMenuItem(new HideSystemThreadAction());
+            systemThreadItem.setSelected(true);
+            menu.add(systemThreadItem);
+            menu.add(new JSeparator());
+        }
         debugger.hideSystemThreads(true);
-        menu.add(systemThreadItem);
-
-        menu.add(new JSeparator());
 
         menu.add(new CloseAction());
 
