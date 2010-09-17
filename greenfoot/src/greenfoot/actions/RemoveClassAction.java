@@ -63,16 +63,8 @@ public class RemoveClassAction extends AbstractAction
     
     public static boolean confirmRemoveClass(ClassView cls, JFrame frame)
     {
-        String[] options = null;
-        int remove;
-        if (Config.isMacOS()) {
-            options = new String[] { BlueJTheme.getCancelLabel(), Config.getString("remove.class") };
-            remove = 1;
-        }
-        else {
-            options = new String[] { Config.getString("remove.class"), BlueJTheme.getCancelLabel() };
-            remove = 0;
-        }
+        String[] options = new String[] { Config.getString("remove.class"), BlueJTheme.getCancelLabel() };
+        int remove = 0;
         int response = JOptionPane.showOptionDialog(frame,
                 confirmRemoveText1 + " " + cls.getClassName() + ". " + confirmRemoveText2,
                 confirmRemoveTitle,
