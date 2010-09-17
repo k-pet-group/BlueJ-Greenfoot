@@ -538,7 +538,6 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
             if (imageName != null) {
                 File imageFile = new File(new File("images"), imageName);
                 if (imageFile.canRead()) {
-                    Debug.message("can read");
                     return getPreviewIcon(imageFile);
                 }
             }
