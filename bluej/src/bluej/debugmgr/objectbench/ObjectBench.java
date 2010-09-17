@@ -43,7 +43,7 @@ import bluej.testmgr.record.InvokerRecord;
  * at the bottom of the package manager.
  * @author  Michael Cahill
  * @author  Andrew Patterson
- * @version $Id: ObjectBench.java 7952 2010-07-29 07:17:55Z davmac $
+ * @version $Id: ObjectBench.java 8376 2010-09-17 09:34:46Z nccb $
  */
 public class ObjectBench extends JPanel implements ValueCollection,
     FocusListener, KeyListener, MouseListener, ObjectBenchInterface
@@ -84,7 +84,7 @@ public class ObjectBench extends JPanel implements ValueCollection,
 
         while(hasObject(newname)) {
             count++;
-            newname = wrapper.getName() + "_" + count;
+            newname = wrapper.getName() + count;
         }
         wrapper.setName(newname);
 
