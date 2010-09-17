@@ -277,28 +277,26 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
     }
 
     /*
-     * (non-Javadoc)
      * @see rmiextension.wrappers.RProject#isExecControlVisible()
      */
-	@Override
-	public boolean isExecControlVisible() throws RemoteException, ProjectNotOpenException 
-	{
+    @Override
+    public boolean isExecControlVisible() throws RemoteException, ProjectNotOpenException 
+    {
         Project thisProject = Project.getProject(bProject.getDir());
         ExecControls execControls = thisProject.getExecControls();
         execControls.setRestrictedClasses(DebugUtil.restrictedClassesAsNames());
         return execControls.isVisible();
-	}
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * @see rmiextension.wrappers.RProject#toggleExecControls()
-	 */
-	@Override
-	public void toggleExecControls() throws RemoteException, ProjectNotOpenException 
-	{
+    /*
+     * @see rmiextension.wrappers.RProject#toggleExecControls()
+     */
+    @Override
+    public void toggleExecControls() throws RemoteException, ProjectNotOpenException 
+    {
         Project thisProject = Project.getProject(bProject.getDir());
         ExecControls execControls = thisProject.getExecControls();
         execControls.showHide(!execControls.isVisible());
         execControls.setRestrictedClasses(DebugUtil.restrictedClassesAsNames());
-	}
+    }
 }
