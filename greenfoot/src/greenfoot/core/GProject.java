@@ -419,23 +419,21 @@ public class GProject extends RProjectListenerImpl
             rProject.toggleExecControls();
         } catch (RemoteException ex) {
             Debug.reportError("RemoteException showing debugger", ex);
-        } catch (ProjectNotOpenException ex) {
-            Debug.reportError("ProjectNotOpenException showing debugger", ex);
-		}
+        }
     }
 
     /**
      * @return	Whether or not the debugger window is currently visible.
      */
-	public boolean isExecControlVisible() 
-	{
-		try {
-			return rProject.isExecControlVisible();
-		} catch (RemoteException ex) {
+    public boolean isExecControlVisible() 
+    {
+        try {
+            return rProject.isExecControlVisible();
+        } catch (RemoteException ex) {
             Debug.reportError("RemoteException checking ExecControl state", ex);
-		} catch (ProjectNotOpenException ex) {
+        } catch (ProjectNotOpenException ex) {
             Debug.reportError("ProjectNotOpenException checking ExecControl state", ex);
-		}
-		return false;
-	}
+        }
+        return false;
+    }
 }

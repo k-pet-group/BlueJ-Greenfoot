@@ -24,7 +24,6 @@ package bluej.extensions;
 import java.util.Map;
 
 import bluej.debugger.DebuggerListener;
-import bluej.debugger.DebuggerThread;
 import bluej.debugmgr.objectbench.ObjectWrapper;
 
 import bluej.extensions.event.ExtensionEvent;
@@ -111,13 +110,6 @@ public final class ExtensionBridge {
     public static void addBreakpoint(BProject proj, String className, String method, Map<String, String> properties) throws ProjectNotOpenException
     {
         proj.addBreakpoint(className, method, properties);        
-    }
-
-    public static void setSimulationThread(BProject project,
-            DebuggerThread simulationThread) throws ProjectNotOpenException
-    {
-        project.setSimulationThread(simulationThread);
-        
     }
 
     public static void clearObjectBench(BProject project) throws ProjectNotOpenException

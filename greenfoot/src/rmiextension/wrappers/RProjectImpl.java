@@ -32,6 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import rmiextension.wrappers.event.RProjectListener;
+import bluej.debugger.DebuggerThread;
 import bluej.debugmgr.ExecControls;
 import bluej.extensions.BClass;
 import bluej.extensions.BField;
@@ -55,6 +56,9 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
 {
     /** The BlueJ-package (from extensions) that is wrapped */
     private BProject bProject;
+    
+    /** The Greenfoot simulation thread */
+    private DebuggerThread simulationThread;
     
     /**
      * A launcher object with a field called "transportField", used to
@@ -280,23 +284,82 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
      * @see rmiextension.wrappers.RProject#isExecControlVisible()
      */
     @Override
-    public boolean isExecControlVisible() throws RemoteException, ProjectNotOpenException 
+    public boolean isExecControlVisible() throws RemoteException
     {
-        Project thisProject = Project.getProject(bProject.getDir());
-        ExecControls execControls = thisProject.getExecControls();
-        execControls.setRestrictedClasses(DebugUtil.restrictedClassesAsNames());
-        return execControls.isVisible();
+        class ExecControlsChecker implements Runnable
+        {
+            public boolean visible;
+            
+            @Override
+            public void run()
+            {
+                try {
+                    Project thisProject = Project.getProject(bProject.getDir());
+                    ExecControls execControls = thisProject.getExecControls();
+                    execControls.setRestrictedClasses(DebugUtil.restrictedClassesAsNames());
+                    visible = execControls.isVisible();
+                }
+                catch (ProjectNotOpenException pnoe) {
+                    // This is ignorable.
+                }
+            }
+        }
+        
+        ExecControlsChecker checker = new ExecControlsChecker();
+        try {
+            EventQueue.invokeAndWait(checker);
+        }
+        catch (InvocationTargetException ite) {
+            Debug.reportError("Error checking exec controls visibility", ite);
+        }
+        catch (InterruptedException ie) { }
+        
+        return checker.visible;
     }
 
     /*
      * @see rmiextension.wrappers.RProject#toggleExecControls()
      */
     @Override
-    public void toggleExecControls() throws RemoteException, ProjectNotOpenException 
+    public void toggleExecControls() throws RemoteException 
     {
-        Project thisProject = Project.getProject(bProject.getDir());
-        ExecControls execControls = thisProject.getExecControls();
-        execControls.showHide(!execControls.isVisible());
-        execControls.setRestrictedClasses(DebugUtil.restrictedClassesAsNames());
+        EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run()
+            {
+                try {
+                    Project thisProject = Project.getProject(bProject.getDir());
+                    ExecControls execControls = thisProject.getExecControls();
+                    execControls.makeSureThreadIsSelected(simulationThread);
+                    execControls.showHide(!execControls.isVisible());
+                    execControls.setRestrictedClasses(DebugUtil.restrictedClassesAsNames());
+                }
+                catch (ProjectNotOpenException pnoe) {
+                    // This is ignorable.
+                }
+            } 
+        });
+    }
+    
+    /**
+     * Set the Greenfoot simulation thread.
+     */
+    public void setSimulationThread(DebuggerThread simulationThread)
+    {
+        this.simulationThread = simulationThread;
+        try {
+            final Project thisProject = Project.getProject(bProject.getDir());
+            EventQueue.invokeLater(new Runnable() {
+                @Override
+                public void run()
+                {
+                    if (thisProject.hasExecControls()) {
+                        ExecControls execControls = thisProject.getExecControls();
+                        execControls.setSelectedThread(RProjectImpl.this.simulationThread);
+                    }
+                }
+            });
+        }
+        catch (ProjectNotOpenException pnoe) { }
     }
 }

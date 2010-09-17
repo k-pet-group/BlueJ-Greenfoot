@@ -83,7 +83,6 @@ import bluej.debugger.DebuggerThreadTreeModel;
 import bluej.debugger.SourceLocation;
 import bluej.debugger.DebuggerThreadTreeModel.SyncMechanism;
 import bluej.pkgmgr.Project;
-import bluej.utility.Debug;
 import bluej.utility.GradientFillPanel;
 import bluej.utility.JavaNames;
 
@@ -327,26 +326,22 @@ public class ExecControls extends JFrame
                 threadTree.clearSelection();
                 threadTree.addSelectionPath(tp);
             }
+            
+            // There seems to be a swing glitch causing the thread-tree scrollpane
+            // to be reduced to a very small size by the divider. Doing a paint
+            // here seems to fix it.
+            mainPanel.paintImmediately(0,0,mainPanel.getSize().width,mainPanel.getSize().height);
         }
-        else {
-            Debug.message("Thread " + dt + " no longer available for selection");
-        }
-
-        // There seems to be a swing glitch causing the thread-tree scrollpane
-        // to be reduced to a very small size by the divider. Doing a paint
-        // here seems to fix it.
-        mainPanel.paintImmediately(0,0,mainPanel.getSize().width,mainPanel.getSize().height);
     }
 
     /**
      * Set our internally selected thread and update the
      * UI to reflect its status.
+     *
+     * <p>This does not actually highlight the selected thread - use makeSureThreadIsSelected()
+     * for that.
      * 
-     * It is currently true that this thread will be
-     * selected in the tree view before this method is called.
-     * At the moment, this method does not rely on this fact
-     * but if the method is changed _to_ rely on it, this
-     * comment should be fixed.
+     * @see #makeSureThreadIsSelected(DebuggerThread)
      * 
      * @param dt  the thread to select or null if the thread
      *            selection has been cleared

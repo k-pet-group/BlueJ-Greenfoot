@@ -28,7 +28,6 @@ import java.util.ListIterator;
 import java.util.Map;
 
 import bluej.debugger.DebuggerListener;
-import bluej.debugger.DebuggerThread;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
@@ -107,7 +106,6 @@ public class BProject
     {
         projectId.getBluejProject().restartVM();
     }
-            
     
     /**
      * Create and return a new package with the given fully qualified name.
@@ -122,24 +120,29 @@ public class BProject
     {
         Project bluejProject = projectId.getBluejProject();
 
-        int risul=bluejProject.newPackage(fullyQualifiedName);
+        int result = bluejProject.newPackage(fullyQualifiedName);
 
-        if ( risul == Project.NEW_PACKAGE_BAD_NAME )
+        if ( result == Project.NEW_PACKAGE_BAD_NAME ) {
             throw new IllegalArgumentException("newPackage: Bad package name '"+fullyQualifiedName+"'");
+        }
             
-        if ( risul == Project.NEW_PACKAGE_EXIST )
+        if ( result == Project.NEW_PACKAGE_EXIST ) {
             throw new PackageAlreadyExistsException("newPackage: Package '"+fullyQualifiedName+"' already exists");
+        }
 
-        if ( risul == Project.NEW_PACKAGE_NO_PARENT )
+        if ( result == Project.NEW_PACKAGE_NO_PARENT ) {
             throw new IllegalStateException("newPackage: Package '"+fullyQualifiedName+"' has no parent package");
+        }
 
-        if ( risul != Project.NEW_PACKAGE_DONE )
-            throw new IllegalStateException("newPackage: Unknown result code="+risul);
+        if ( result != Project.NEW_PACKAGE_DONE ) {
+            throw new IllegalStateException("newPackage: Unknown result code="+result);
+        }
 
         Package pkg = bluejProject.getPackage(fullyQualifiedName);
 
-        if ( pkg == null ) 
+        if ( pkg == null ) {
             throw new Error("newPackage: getPackage '"+fullyQualifiedName+"' returned null");
+        }
 
         Package reloadPkg = pkg;
         for(int index=0; index<10 && reloadPkg != null; index++) {
@@ -232,12 +235,6 @@ public class BProject
         if (result != null) {
             Debug.reportError("Problem setting breakpoint in " + className + "." + method + ": " + result);
         }
-    }
-
-    void setSimulationThread(DebuggerThread simulationThread) throws ProjectNotOpenException
-    {
-        Project thisProject = projectId.getBluejProject();
-        thisProject.setSimulationThread(simulationThread);        
     }
 
     void clearObjectBench() throws ProjectNotOpenException

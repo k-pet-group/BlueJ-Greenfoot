@@ -126,7 +126,7 @@ public interface RProject
      * @throws ProjectNotOpenException
      */
     public abstract void toggleExecControls()
-        throws RemoteException, ProjectNotOpenException;
+        throws RemoteException;
 
     /**
      * @return	Whether or not the debugger window is currently visible

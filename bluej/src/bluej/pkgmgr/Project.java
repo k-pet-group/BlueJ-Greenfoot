@@ -841,7 +841,6 @@ public class Project implements DebuggerListener, InspectorManager
 
 
     private BProject singleBProject;  // Every Project has none or one BProject
-    private DebuggerThread simulationThread;
     
     /**
      * Return the extensions BProject associated with this Project.
@@ -1276,7 +1275,6 @@ public class Project implements DebuggerListener, InspectorManager
         // remove bench objects for all frames in this project
         PkgMgrFrame[] frames = PkgMgrFrame.getAllProjectFrames(this);
 
-        Debug.message("Number of project frames: " + frames.length);
         for (int i = 0; i < frames.length; i++) {
             frames[i].getObjectBench().removeAllObjects(getUniqueId());
             frames[i].clearTextEval();
@@ -1316,20 +1314,22 @@ public class Project implements DebuggerListener, InspectorManager
         return execControls != null;
     }
 
-    public ExecControls getExecControls() {
+    public ExecControls getExecControls()
+    {
         if (execControls == null) {
             execControls = new ExecControls(this, getDebugger());
-            execControls.setSelectedThread(simulationThread);
         }
 
         return execControls;
     }
 
-    public boolean hasTerminal() {
+    public boolean hasTerminal()
+    {
         return terminal != null;
     }
 
-    public Terminal getTerminal() {
+    public Terminal getTerminal()
+    {
         if (terminal == null) {
             terminal = new Terminal(this);
         }
@@ -1362,8 +1362,6 @@ public class Project implements DebuggerListener, InspectorManager
     {
         inTestMode = mode;
     }
-
-
   
     /**
      * Return a list of URL of the Java ME libraries specified in the 
@@ -1931,16 +1929,11 @@ public class Project implements DebuggerListener, InspectorManager
         }
     }
 
+    /*
+     * @see bluej.debugger.DebuggerListener#examineDebuggerEvent(bluej.debugger.DebuggerEvent)
+     */
     public boolean examineDebuggerEvent(DebuggerEvent e)
     {
         return false;
-    }
-
-    public void setSimulationThread(DebuggerThread simulationThread)
-    {
-        this.simulationThread = simulationThread;
-        if (execControls != null) {
-            execControls.setSelectedThread(simulationThread);
-        }
     }
 }

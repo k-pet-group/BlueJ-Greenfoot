@@ -22,9 +22,10 @@
 package rmiextension;
 
 import greenfoot.actions.ResetWorldAction;
-import greenfoot.core.SimulationDebugMonitor;
 import greenfoot.core.Simulation;
+import greenfoot.core.SimulationDebugMonitor;
 
+import java.rmi.RemoteException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
@@ -32,6 +33,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import rmiextension.wrappers.RProjectImpl;
 import rmiextension.wrappers.WrapperPool;
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerEvent;
@@ -161,8 +163,12 @@ public class GreenfootDebugHandler implements DebuggerListener
             // record this thread as being the simulation thread and set it running again:
             simulationThread = e.getThread();
             try {
-                ExtensionBridge.setSimulationThread(project, simulationThread);
-            } catch (ProjectNotOpenException ex) { }
+                RProjectImpl rproj = WrapperPool.instance().getWrapper(project);
+                rproj.setSimulationThread(simulationThread);
+            }
+            catch (RemoteException re) {
+                Debug.reportError("Unexpected exception getting project wrapper: ", re);
+            }
             e.getThread().cont();
             return true;
             
