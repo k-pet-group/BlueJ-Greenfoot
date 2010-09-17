@@ -41,8 +41,6 @@ import javax.imageio.ImageIO;
 
 import java.io.IOException;
 import java.io.File;
-import java.util.Set;
-import java.util.TreeSet;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -196,24 +194,6 @@ public class NewImageDialog extends EscapeDialog
         getRootPane().setDefaultButton(okButton);
         pack();
         checkName();
-    }
-
-    /**
-     * Get available writable image types. If both jpg and jpeg is represented
-     * jpeg will be filtered out.
-     * 
-     */
-    private String[] getImageTypes()
-    {
-        String[] suffixes = ImageIO.getWriterFileSuffixes();      
-        Set<String> suffixSet= new TreeSet<String>();
-        for (String string : suffixes) {
-            suffixSet.add(string.toLowerCase());
-        }        
-        if(suffixSet.contains("jpeg") && suffixSet.contains("jpg")) {
-            suffixSet.remove("jpeg");
-        }
-        return suffixSet.toArray(new String[suffixSet.size()]);
     }
     
     public File displayModal()
