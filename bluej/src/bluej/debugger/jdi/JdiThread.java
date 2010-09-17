@@ -27,7 +27,6 @@ import bluej.Config;
 import bluej.debugger.*;
 import bluej.debugger.gentype.JavaType;
 import bluej.utility.Debug;
-import bluej.utility.JavaNames;
 
 import com.sun.jdi.*;
 import com.sun.jdi.request.EventRequestManager;
@@ -290,12 +289,9 @@ class JdiThread extends DebuggerThread
      * Get strings showing the current stack frames. Ignore everything
      * including the __SHELL class and below.
      *
-     * The thread must be suspended to do this. Otherwise an empty list
+     * <p>The thread must be suspended to do this. Otherwise an empty list
      * is returned.
      * 
-     * If the fileName for a source location is unavailable, the location
-     * will not be added to the stack.
-     *
      * @return  A List of SourceLocations
      */
     public static List<SourceLocation> getStack(ThreadReference thr)
@@ -310,23 +306,11 @@ class JdiThread extends DebuggerThread
                     Location loc = f.location();
                     String className = loc.declaringType().name();
                     
-                    // ensure that the bluej.runtime.ExecServer frames are not shown
-                    if(className.startsWith("bluej.runtime"))
-                        break;
-                    
-                    // must getBase on classname so that we find __SHELL
-                    // classes in other packages ie a.b.__SHELL
-					// if it is a __SHELL class, stop processing the stack
-                    if(JavaNames.getBase(className).startsWith("__SHELL"))
-                        break;
-
                     String fileName = null;
                     try {
                         fileName = loc.sourceName();
                     }
-                    catch(AbsentInformationException e) {
-                        continue;
-                    }
+                    catch(AbsentInformationException e) { }
                     String methodName = loc.method().name();
                     int lineNumber = loc.lineNumber();
 

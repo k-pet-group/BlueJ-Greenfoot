@@ -85,6 +85,7 @@ import bluej.debugger.DebuggerThreadTreeModel.SyncMechanism;
 import bluej.pkgmgr.Project;
 import bluej.utility.Debug;
 import bluej.utility.GradientFillPanel;
+import bluej.utility.JavaNames;
 
 /**
  * Window for controlling the debugger
@@ -386,20 +387,56 @@ public class ExecControls extends JFrame
         stackList.setFixedCellWidth(-1);
         //Copy the list because we may alter it:
         LinkedList<SourceLocation> stack = new LinkedList<SourceLocation>(selectedThread.getStack());
-        if(stack.size() > 0) {
-            if (Config.isGreenfoot()) {
-                // Conceal 
-                while (!stack.isEmpty() && stack.getLast().getClassName().startsWith("greenfoot.core")) {
-                    stack.removeLast();
-                }
-            }
-            
-            stackList.setListData(stack.toArray());
+        SourceLocation[] filtered = getFilteredStack(stack);
+        if(filtered.length > 0) {
+            stackList.setListData(filtered);
             // show details of top frame
             autoSelectionEvent = true;
             selectStackFrame(0);
             autoSelectionEvent = false;
         }
+    }
+    
+    private SourceLocation [] getFilteredStack(List<SourceLocation> stack)
+    {
+        int first = -1;
+        int i;
+        for (i = 0; i < stack.size(); i++) {
+            SourceLocation loc = stack.get(i);
+            String className = loc.getClassName();
+
+            // ensure that the bluej.runtime.ExecServer frames are not shown
+            if (className.startsWith("bluej.runtime.")) {
+                break;
+            }
+
+            // must getBase on classname so that we find __SHELL
+            // classes in other packages ie a.b.__SHELL
+            // if it is a __SHELL class, stop processing the stack
+            if (JavaNames.getBase(className).startsWith("__SHELL")) {
+                break;
+            }
+            
+            if (Config.isGreenfoot() && className.startsWith("greenfoot.core.")) {
+                break;
+            }
+            
+            // Topmost stack location shown will have source available!
+            if (first == -1 && loc.getFileName() != null) {
+                first = i;
+            }
+        }
+        
+        if (first == -1 || i == 0) {
+            return new SourceLocation[0];
+        }
+        
+        SourceLocation[] filtered = new SourceLocation[i - first];
+        for (int j = first; j < i; j++) {
+            filtered[j - first] = stack.get(j);
+        }
+        
+        return filtered;
     }
     
     /**
