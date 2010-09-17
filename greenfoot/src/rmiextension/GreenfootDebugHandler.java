@@ -40,11 +40,13 @@ import bluej.debugger.DebuggerObject;
 import bluej.debugger.DebuggerThread;
 import bluej.debugger.SourceLocation;
 import bluej.debugger.DebuggerEvent.BreakpointProperties;
+import bluej.debugmgr.Invoker;
 import bluej.extensions.BPackage;
 import bluej.extensions.BProject;
 import bluej.extensions.ExtensionBridge;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.utility.Debug;
+import bluej.utility.JavaNames;
 
 /**
  * A class that does several things.
@@ -60,7 +62,8 @@ import bluej.utility.Debug;
 public class GreenfootDebugHandler implements DebuggerListener
 {  
     private static final String SIMULATION_CLASS = Simulation.class.getName();   
-    private static final String[] INVOKE_METHODS = {Simulation.ACT_WORLD, Simulation.ACT_ACTOR, Simulation.NEW_INSTANCE};
+    private static final String[] INVOKE_METHODS = {Simulation.ACT_WORLD, Simulation.ACT_ACTOR,
+        Simulation.NEW_INSTANCE, Simulation.RUN_QUEUED_TAKS};
     private static final String SIMULATION_INVOKE_KEY = SIMULATION_CLASS + "INTERNAL";
     
     private static final String PAUSED_METHOD = Simulation.PAUSED;
@@ -342,12 +345,16 @@ public class GreenfootDebugHandler implements DebuggerListener
     private static boolean inInvokeMethods(List<SourceLocation> stack, int frame)
     {
         if (frame < stack.size()) {
-            if (stack.get(frame).getClassName().equals(SIMULATION_CLASS)) {
+            String className = stack.get(frame).getClassName();
+            if (className.equals(SIMULATION_CLASS)) {
                 String methodName = stack.get(frame).getMethodName();
                 for (String actMethod : INVOKE_METHODS) {
                     if (actMethod.equals(methodName))
                         return true;
                 }
+            }
+            else if (JavaNames.getBase(className).startsWith(Invoker.SHELLNAME)) {
+                return true;
             }
         }
         

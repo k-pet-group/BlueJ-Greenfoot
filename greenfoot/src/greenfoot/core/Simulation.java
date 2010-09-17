@@ -378,6 +378,9 @@ public class Simulation extends Thread
         }
     }
 
+    /** This must match the method name below! */
+    public static String RUN_QUEUED_TAKS = "runQueuedTasks";
+    
     /**
      * Run all tasks that have been schedule to run on the simulation thread.
      * Of course, this should only be called from the simulation thread...
