@@ -25,6 +25,8 @@ import greenfoot.actions.ResetWorldAction;
 import greenfoot.core.Simulation;
 import greenfoot.core.SimulationDebugMonitor;
 
+import java.awt.EventQueue;
+import java.lang.reflect.InvocationTargetException;
 import java.rmi.RemoteException;
 import java.util.Collections;
 import java.util.HashMap;
@@ -172,24 +174,41 @@ public class GreenfootDebugHandler implements DebuggerListener
             e.getThread().cont();
             return true;
             
-        } else if (e.getID() == DebuggerEvent.THREAD_BREAKPOINT && atResetBreakpoint(e.getBreakpointProperties())) {
+        } else if (e.getID() == DebuggerEvent.THREAD_BREAKPOINT
+                && atResetBreakpoint(e.getBreakpointProperties())) {
             // The user has clicked reset:
             currentlyResetting = true;
             
-            scheduledTasks.put(e.getThread(), new Runnable() { public void run() {
-                setSpecialBreakpoints(debugger);
-                // Set the simulation thread going if it's suspended:
-                if (simulationThread.isSuspended()) {
-                    simulationThread.cont();
+            scheduledTasks.put(e.getThread(), new Runnable() {
+                public void run() {
+                    setSpecialBreakpoints(debugger);
+                    // Set the simulation thread going if it's suspended:
+                    if (simulationThread.isSuspended()) {
+                        simulationThread.cont();
+                    }
+                
+                    try {
+                        EventQueue.invokeAndWait(new Runnable() {
+                            public void run()
+                            {
+                                try {
+                                    ExtensionBridge.clearObjectBench(project);
+                                }
+                                catch (ProjectNotOpenException e) { }
+                            };
+                        });
+                    }
+                    catch (InterruptedException e) {
+                        // Not sure what would cause this - we'll just ignore it.
+                    }
+                    catch (InvocationTargetException e) {
+                        Debug.reportError("Internal error", e);
+                    }
+                
+                    // Run the GUI thread on:
+                    e.getThread().cont();
                 }
-                
-                try {
-                    ExtensionBridge.clearObjectBench(project);
-                } catch (ProjectNotOpenException ex) { }
-                
-                // Run the GUI thread on:
-                e.getThread().cont();
-            }});
+            });
             return true;
         } else if ((e.getID() == DebuggerEvent.THREAD_BREAKPOINT || e.getID() == DebuggerEvent.THREAD_HALT)
                 && isSimulationThread(e.getThread())) {
