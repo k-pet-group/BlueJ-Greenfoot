@@ -73,6 +73,7 @@ import javax.swing.event.ListSelectionListener;
 
 import bluej.BlueJTheme;
 import bluej.Config;
+import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.EscapeDialog;
 import bluej.utility.FileUtility;
@@ -109,6 +110,9 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
     private File newlyCreatedImage;
 
     private TimerTask refreshTask;
+    
+    /** Suffix used when creating a copy of an existing image (duplicate) */
+    private static final String COPY_SUFFIX = "Copy"; //TODO move to labels
 
     /**
      * Construct an ImageLibFrame for changing the image of an existing class.
@@ -223,7 +227,9 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                 {
                     ImageListEntry[] editedEntries = projImageList.getSelectedValues();
                     for (ImageListEntry entry : editedEntries) {
-                        ExternalAppLauncher.editImage(entry.imageFile);
+                        if (entry.imageFile != null) {
+                            ExternalAppLauncher.editImage(entry.imageFile);
+                        }
                     }
                 }
             });
@@ -240,7 +246,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
         	deleteButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e)
                 {
-                    confirmDelete(projImageList.getSelectedValues());
+                    confirmDelete(projImageList.getSelectedValue());
                 }
             });
         	
@@ -482,7 +488,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
             }
         }
 
-        if(lse.getValueIsAdjusting() && source instanceof ImageLibList) {
+        if (lse.getValueIsAdjusting() && source instanceof ImageLibList) {
             if(lse.getSource()==projImageList) {
                 greenfootImageList.clearSelection();
             }
@@ -493,11 +499,13 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
     }
 
     /**
-     * Selects the given file for use in the preview.
+     * Selects the given file for use in the preview. If the
+     * file is null, then handle as if it worked, the methods will
+     * display the default icon when the actor is placed on the world.
      */
     private void selectImage(File imageFile)
     {
-        if(GreenfootUtil.isImage(imageFile)) {
+        if (imageFile == null || GreenfootUtil.isImage(imageFile)) {
             imageLabel.setIcon(getPreviewIcon(imageFile));
             selectedImageFile = imageFile;
         }
@@ -530,6 +538,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
             if (imageName != null) {
                 File imageFile = new File(new File("images"), imageName);
                 if (imageFile.canRead()) {
+                    Debug.message("can read");
                     return getPreviewIcon(imageFile);
                 }
             }
@@ -548,7 +557,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
     {
         int dpi = Toolkit.getDefaultToolkit().getScreenResolution();
 
-        if(fname==null) {
+        if (fname == null) {
             BufferedImage bi = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
             return new ImageIcon(bi);
         }
@@ -564,7 +573,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
     }
 
     /**
-     * Fix the maxiumum height of the component equal to its preferred size, and
+     * Fix the maximum height of the component equal to its preferred size, and
      * return the component.
      */
     private static Component fixHeight(Component src)
@@ -632,7 +641,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
      */
     public void windowActivated(WindowEvent e)
     {
-        if(newlyCreatedImage != null) {
+        if (newlyCreatedImage != null) {
             projImageList.select(newlyCreatedImage);
             selectImage(newlyCreatedImage);
             newlyCreatedImage = null;
@@ -666,78 +675,59 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
 	}
 	
 	/**
-	 * 
+	 * Create a new file which is a copy of the selected entry,
+	 * unless it is null.
 	 */
     protected void duplicateSelected()
     {
-        ImageListEntry[] srcEntries = projImageList.getSelectedValues();
-        for (ImageListEntry srcEntry : srcEntries) {
-            File srcFile = srcEntry.imageFile;
-            File dstFile = null;
-            if(srcFile != null) {
-                File dir = srcFile.getParentFile();
-                String fileName = srcFile.getName();
-                int index = fileName.indexOf('.');
-                
-                String baseName = null;
-                String ext = null;
-                if(index != -1) {
-                    baseName = fileName.substring(0, index);
-                    ext = fileName.substring(index + 1);
-                } else {
-                    baseName = fileName;
-                    ext = "";
-                }
-                baseName += COPY_SUFFIX;
-                
-                try {
-                    dstFile = GreenfootUtil.createNumberedFile(dir, baseName, ext);
-                    FileUtility.copyFile(srcFile, dstFile);
-                }
-                catch (IOException e) {
-                    e.printStackTrace();
-                }
+        ImageListEntry srcEntry = projImageList.getSelectedValue();
+        File srcFile = srcEntry.imageFile;
+        File dstFile = null;
+        if (srcFile != null) {
+            File dir = srcFile.getParentFile();
+            String fileName = srcFile.getName();
+            int index = fileName.indexOf('.');
+            
+            String baseName = null;
+            String ext = null;
+            if (index != -1) {
+                baseName = fileName.substring(0, index);
+                ext = fileName.substring(index + 1);
+            } 
+            else {
+                baseName = fileName;
+                ext = "";
             }
-            if(dstFile != null) {
-                projImageList.select(dstFile);
+            baseName += COPY_SUFFIX;
+            
+            try {
+                dstFile = GreenfootUtil.createNumberedFile(dir, baseName, ext);
+                FileUtility.copyFile(srcFile, dstFile);
+            }
+            catch (IOException e) {
+                e.printStackTrace();
             }
         }
-       
+        if (dstFile != null) {
+            projImageList.select(dstFile);
+        }
     }
     
-    /** Suffix used when creating a copy of an existing image (duplicate) */
-    private static final String COPY_SUFFIX = "Copy"; //TODO move to labels
-    
     /**
-     * Confirms whether to delete a file or not.
-     * Instantly return if no entries.
-     * @param imageListEntries the file to delete
+     * Confirms whether or not to delete the selected file.
+     * @param imageListEntry the file to delete
      */
-    private void confirmDelete(ImageListEntry[] imageListEntries)
+    private void confirmDelete(ImageListEntry imageListEntry)
     {
-    	if (imageListEntries.length == 0) return;
-        String text = Config.getString("imagelib.delete.confirm.text") + " ";
-        
-        int count = 0;
-        for (ImageListEntry imageListEntry : imageListEntries) {
-            count++;
-            if(count < imageListEntries.length) {
-                text += imageListEntry.imageFile.getName() + ", ";
+        if (imageListEntry != null && imageListEntry.imageFile != null) {
+            String text = Config.getString("imagelib.delete.confirm.text") + 
+                          " " + imageListEntry.imageFile.getName() + "?";
+            int result = JOptionPane.showConfirmDialog(this, text,
+                  Config.getString("imagelib.delete.confirm.title"), JOptionPane.YES_NO_OPTION);
+            if (result == JOptionPane.YES_OPTION) {
+              imageListEntry.imageFile.delete();
+              projImageList.refresh();
             }
-            else {
-                text += imageListEntry.imageFile.getName();
-            }
-        }
-        text += "?";
-            
-        int result = JOptionPane.showConfirmDialog(this,text,
-                Config.getString("imagelib.delete.confirm.title"), JOptionPane.YES_NO_OPTION);
-        
-        if(result==JOptionPane.YES_OPTION) {
-            for (ImageListEntry imageListEntry : imageListEntries) {
-                imageListEntry.imageFile.delete();
-            }
-            projImageList.refresh();
         }
     }
 }

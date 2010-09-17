@@ -120,7 +120,7 @@ public abstract class ImageClassRole extends ClassRole
     private ImageIcon getImageIcon() {
         GClass gCls = getClassThatHasImage(gClass);
         ImageIcon icon = imageIcons.get(gCls);
-        if(icon == null) {
+        if (icon == null) {
             Image image = getImage(gCls);
             Image scaledImage = GreenfootUtil.getScaledImage(image, iconSize.width, iconSize.height);
             icon = new ImageIcon(scaledImage);
@@ -159,6 +159,9 @@ public abstract class ImageClassRole extends ClassRole
             ImageIcon icon = getImageIcon();
             icon.setImage(scaledImage);
             classView.setIcon(icon);
+        } 
+        else {
+            classView.setIcon(null);
         }
         //resets the pop up menu to ensure that a new one is created when next it is requested
         //this is required because the constructor action images are out of date because of the

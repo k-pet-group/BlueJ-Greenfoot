@@ -85,8 +85,12 @@ public class SelectImageAction extends AbstractAction
             }
 
             gclass.setClassProperty("image", imageFile.getName());
-            gclassRole.changeImage();
-            gclass.getPackage().getProject().getProjectProperties().save();
+        } 
+        else {
+            imageFile = null;
+            gclass.setClassProperty("image", null);
         }
+        gclassRole.changeImage();
+        gclass.getPackage().getProject().getProjectProperties().save();
     }
 }

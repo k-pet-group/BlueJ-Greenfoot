@@ -76,8 +76,6 @@ public class ImageLibList extends EditableList<ImageLibList.ImageListEntry> impl
     
     private LinkedList<ImageListEntry> data;
     
-    private static final String NO_IMAGE_PATH = ImageLibList.class.getClassLoader().getResource("no-image.png").getPath();
-    
     /**
      * Construct an empty ImageLibList.
      */
@@ -141,7 +139,7 @@ public class ImageLibList extends EditableList<ImageLibList.ImageListEntry> impl
         }
                 
         data = new LinkedList<ImageListEntry>();
-        data.add(new ImageListEntry(new File(NO_IMAGE_PATH)));
+        data.add(new ImageListEntry(null));
         
         for (int i = 0; i < imageFiles.length; i++) {
             ImageListEntry entry = new ImageListEntry(imageFiles[i]);
@@ -215,6 +213,10 @@ public class ImageLibList extends EditableList<ImageLibList.ImageListEntry> impl
         
     }
     
+    /*
+     * (non-Javadoc)
+     * @see greenfoot.gui.EditableList#getSelectedValues()
+     */
     public ImageListEntry[] getSelectedValues()
     {
         Object[] list = super.getSelectedValues();
@@ -287,7 +289,7 @@ public class ImageLibList extends EditableList<ImageLibList.ImageListEntry> impl
             JLabel item = this;
             if(value != null) {
                 ImageListEntry entry = (ImageListEntry) value;
-                if (entry.imageFile.getPath() == NO_IMAGE_PATH) {
+                if (null == entry.imageFile) {
                 	item.setText("No image");
                 } else {
                     item.setText(entry.imageFile.getName());
@@ -363,7 +365,8 @@ public class ImageLibList extends EditableList<ImageLibList.ImageListEntry> impl
          */
         public boolean refreshPreview()
         {
-            if (imageFile.lastModified() != lastModified)
+            if (imageFile != null &&
+                imageFile.lastModified() != lastModified)
             {
                 loadPreview();
                 return true;
@@ -382,18 +385,20 @@ public class ImageLibList extends EditableList<ImageLibList.ImageListEntry> impl
 
         private void loadPreview()
         {
-            lastModified = imageFile.lastModified();
-            int dpi = Toolkit.getDefaultToolkit().getScreenResolution();
-
-            try {
-                BufferedImage image = ImageIO.read(imageFile);
-                if (image != null) {
-                    Image scaledImage = GreenfootUtil.getScaledImage(image, dpi / 3, dpi / 3);
-                    imageIcon = new ImageIcon(scaledImage);
+            if (imageFile != null) {
+                lastModified = imageFile.lastModified();
+                int dpi = Toolkit.getDefaultToolkit().getScreenResolution();
+    
+                try {
+                    BufferedImage image = ImageIO.read(imageFile);
+                    if (image != null) {
+                        Image scaledImage = GreenfootUtil.getScaledImage(image, dpi / 3, dpi / 3);
+                        imageIcon = new ImageIcon(scaledImage);
+                    }
                 }
+                catch (MalformedURLException mfue) {}
+                catch (IOException ioe) {}
             }
-            catch (MalformedURLException mfue) {}
-            catch (IOException ioe) {}
         }
         
         public boolean equals(Object other) 
@@ -402,7 +407,13 @@ public class ImageLibList extends EditableList<ImageLibList.ImageListEntry> impl
                 return false;
             }
             ImageListEntry otherEntry = (ImageListEntry) other;
-            return otherEntry.imageFile.equals(this.imageFile);
+            if (otherEntry == null || otherEntry.imageFile == null ||
+                this == null || this.imageFile == null) {
+                return false;
+            }
+            else {
+                return otherEntry.imageFile.equals(this.imageFile);
+            }
         }
         
         public int hashCode() 
