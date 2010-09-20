@@ -86,10 +86,8 @@ public class ColManager
     
                 // Add all the objects to the collision checker
                 // TODO: bulk add could be faster if implemented in collision checker?
-                if (classSet != null) {
-                    for (Actor actor : classSet) {
-                        collisionChecker.addObject(actor);
-                    }
+                for (Actor actor : classSet) {
+                    collisionChecker.addObject(actor);
                 }
             }
         }

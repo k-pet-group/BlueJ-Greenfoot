@@ -406,8 +406,8 @@ public class ImageLibList extends EditableList<ImageLibList.ImageListEntry> impl
                 return false;
             }
             ImageListEntry otherEntry = (ImageListEntry) other;
-            if (otherEntry == null || otherEntry.imageFile == null ||
-                this == null || this.imageFile == null) {
+            //other cannot be null here because it passed the instanceof check above:
+            if (otherEntry.imageFile == null || this.imageFile == null) {
                 return false;
             }
             else {

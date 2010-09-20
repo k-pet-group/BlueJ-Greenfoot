@@ -102,10 +102,7 @@ public abstract class ClassRole implements WorldListener
 
                 String prefix = "new ";
                 Action callAction = new ConstructAction(m, invocListener, prefix + m.getLongDesc());
-
-                if (callAction != null) {
-                    actions.add(callAction);
-                }
+                actions.add(callAction);
             }
             catch (Exception e) {
                 Debug.reportError("Exception accessing methods: " + e);
