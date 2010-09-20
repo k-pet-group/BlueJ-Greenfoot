@@ -117,15 +117,7 @@ public class GreenfootDebugHandler implements DebuggerListener
     static void addDebuggerListener(BProject project)
     {
         try {
-            Map<String, String> simulationRunBreakpointProperties = new HashMap<String, String>();
-            simulationRunBreakpointProperties.put(SIMULATION_THREAD_RUN_KEY, "TRUE");
-            simulationRunBreakpointProperties.put(Debugger.PERSIST_BREAKPOINT_PROPERTY, "TRUE");
-            ExtensionBridge.addBreakpoint(project, Simulation.class.getCanonicalName(), "run", simulationRunBreakpointProperties);
-            
-            Map<String, String> resetBreakpointProperties = new HashMap<String, String>();
-            resetBreakpointProperties.put(RESET_KEY, "yes");
-            resetBreakpointProperties.put(Debugger.PERSIST_BREAKPOINT_PROPERTY, "TRUE");
-            ExtensionBridge.addBreakpoint(project, RESET_CLASS, RESET_METHOD, resetBreakpointProperties);
+            addRunResetBreakpoints(project);
 
             // Technically I could collapse the two listeners into one, but they
             // perform orthogonal tasks so it's nicer to keep the code separate:
@@ -135,6 +127,20 @@ public class GreenfootDebugHandler implements DebuggerListener
         } catch (ProjectNotOpenException ex) {
             Debug.reportError("Project not open when adding debugger listener in Greenfoot", ex);
         }
+    }
+
+    private static void addRunResetBreakpoints(BProject project)
+            throws ProjectNotOpenException
+    {
+        Map<String, String> simulationRunBreakpointProperties = new HashMap<String, String>();
+        simulationRunBreakpointProperties.put(SIMULATION_THREAD_RUN_KEY, "TRUE");
+        simulationRunBreakpointProperties.put(Debugger.PERSIST_BREAKPOINT_PROPERTY, "TRUE");
+        ExtensionBridge.addBreakpoint(project, Simulation.class.getCanonicalName(), "run", simulationRunBreakpointProperties);
+        
+        Map<String, String> resetBreakpointProperties = new HashMap<String, String>();
+        resetBreakpointProperties.put(RESET_KEY, "yes");
+        resetBreakpointProperties.put(Debugger.PERSIST_BREAKPOINT_PROPERTY, "TRUE");
+        ExtensionBridge.addBreakpoint(project, RESET_CLASS, RESET_METHOD, resetBreakpointProperties);
     }
     
     private boolean isSimulationThread(DebuggerThread dt)
@@ -287,6 +293,7 @@ public class GreenfootDebugHandler implements DebuggerListener
                         WrapperPool.instance().remove(project);
                         BPackage bPackage = project.getPackages()[0];
                         WrapperPool.instance().remove(bPackage);
+                        addRunResetBreakpoints(bPackage.getProject());
                         ProjectManager.instance().openGreenfoot(bPackage.getProject(), false);
                     }
                     catch (ProjectNotOpenException e) {
