@@ -80,8 +80,17 @@ class JdiThread extends DebuggerThread
         }
     }
 
-    // the reference to the remote thread
+    /** the reference to the remote thread */
     private ThreadReference rt;
+    
+    /** We track suspension status internally */
+    private boolean isSuspended;
+    
+    /*
+     * Note that we have to track suspension status internally, because JDI will happily
+     * tell us that a thread is suspended when, in fact, it is suspended only because of some
+     * VM event which suspends every thread (ThreadStart / ThreadDeath).
+     */
     
     // stores a stack frame that was selected for this
     // thread (selection is done for debugging)
@@ -184,12 +193,7 @@ class JdiThread extends DebuggerThread
      */
     public boolean isSuspended()
     {
-        try {
-            return rt.isSuspended();
-        }
-        catch (VMDisconnectedException vmde) {
-            return false;
-        }
+        return isSuspended;
     }
 
     /** 
@@ -471,11 +475,14 @@ class JdiThread extends DebuggerThread
     /**
      * Halt this thread.
      */
-    public void halt()
+    public synchronized void halt()
     {
         try {
-            rt.suspend();
-            debugger.emitThreadHaltEvent(this);
+            if (! isSuspended) {
+                rt.suspend();
+                debugger.emitThreadHaltEvent(this);
+                isSuspended = true;
+            }
         }
         catch (VMDisconnectedException vmde) {}
     }
@@ -483,18 +490,27 @@ class JdiThread extends DebuggerThread
     /**
      * Continue a previously halted thread.
      */
-    public void cont()
+    public synchronized void cont()
     {
         try {
-            // Note we must emit the even before actually resuming the thread; otherwise, the
-            // thread may finish (resulting in a thread death event) before the continue event
-            // is received.
-            debugger.emitThreadResumedEvent(this);
-            rt.resume();
+            if (isSuspended) {
+                debugger.emitThreadResumedEvent(this);
+                rt.resume();
+                isSuspended = false;
+            }
         }
         catch (VMDisconnectedException vmde) {}
     }
 
+    /**
+     * Inform the JdiThread that the underlying thread has been suspended due to
+     * (for example) hitting a breakpoint.
+     */
+    public void stopped()
+    {
+        isSuspended = true;
+    }
+    
     /**
      * Make this thread step a single line.
      */

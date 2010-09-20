@@ -854,15 +854,29 @@ public class JdiDebugger extends Debugger
         }
     }
     
-
-    public boolean screenBreakpoint(ThreadReference thread, boolean breakpoint, DebuggerEvent.BreakpointProperties props)
+    /**
+     * Screen a breakpoint/step event through interested listeners.
+     * 
+     * @param thread  The thread which hit the breakpoint/step event.
+     * @param breakpoint  True if this is a breakpoint; false if a step. Note that both can occur
+     *                    simultaneously, in which case both are screened individually.
+     * @param props   The breakpoint properties (if any).
+     * @return   true if the event is screened, that is, the GUI should not be updated because the
+     *                result of the event is temporary.
+     */
+    public boolean screenBreakpoint(ThreadReference thread, boolean breakpoint,
+            DebuggerEvent.BreakpointProperties props)
     {
         JdiThread breakThread = allThreads.find(thread);
+        breakThread.stopped();
+        
         DebuggerEvent event;
-        if (breakpoint)
+        if (breakpoint) {
             event = new DebuggerEvent(this, DebuggerEvent.THREAD_BREAKPOINT, breakThread, props);
-        else
+        }
+        else {
             event = new DebuggerEvent(this, DebuggerEvent.THREAD_HALT, breakThread, props);
+        }
         
         boolean done = false;
         // Guaranteed to return a non-null array
