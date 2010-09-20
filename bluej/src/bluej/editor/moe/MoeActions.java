@@ -810,7 +810,6 @@ public final class MoeActions
             super ("add-javadoc");
         }
 
-        @Override
         public void actionPerformed(ActionEvent e)
         {
             MoeEditor editor = getEditor(e);
