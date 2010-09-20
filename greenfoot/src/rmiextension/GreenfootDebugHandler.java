@@ -132,7 +132,6 @@ public class GreenfootDebugHandler implements DebuggerListener
     }
 
     private static void addRunResetBreakpoints(Debugger debugger)
-            throws ProjectNotOpenException
     {
         Map<String, String> simulationRunBreakpointProperties = new HashMap<String, String>();
         simulationRunBreakpointProperties.put(SIMULATION_THREAD_RUN_KEY, "TRUE");
