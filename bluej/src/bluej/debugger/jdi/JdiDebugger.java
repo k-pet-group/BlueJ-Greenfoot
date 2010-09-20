@@ -829,7 +829,7 @@ public class JdiDebugger extends Debugger
     public void breakpoint(final ThreadReference tr, final boolean bp, boolean skipUpdate, DebuggerEvent.BreakpointProperties props)
     {
         final JdiThread breakThread = allThreads.find(tr);
-        if (false == skipUpdate)
+        if (false == skipUpdate) {
             treeModel.syncExec(new Runnable() {
                 public void run()
                 {
@@ -845,6 +845,7 @@ public class JdiDebugger extends Debugger
                     }
                 }
             });
+        }
 
         if (bp) {
             fireTargetEvent(new DebuggerEvent(this, DebuggerEvent.THREAD_BREAKPOINT, breakThread, props), skipUpdate);

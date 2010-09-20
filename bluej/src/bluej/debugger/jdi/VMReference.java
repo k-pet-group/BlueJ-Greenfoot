@@ -124,7 +124,7 @@ import com.sun.jdi.request.EventRequestManager;
 class VMReference
 {
     // the class name of the execution server class running on the remote VM
-    static final String SERVER_CLASSNAME = "bluej.runtime.ExecServer";
+    static final String SERVER_CLASSNAME = ExecServer.class.getName();
 
     // the field name of the static field within that class
     // the name of the method used to signal a System.exit()
