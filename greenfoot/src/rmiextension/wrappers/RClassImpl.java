@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -48,13 +48,13 @@ import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.utility.Debug;
 
 /**
+ * Implementation of the remote class interface.
+ * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RClassImpl.java 8378 2010-09-17 09:50:44Z nccb $
  */
 public class RClassImpl extends java.rmi.server.UnicastRemoteObject
     implements RClass
 {
-
     BClass bClass;
     
     private static ProjectNotOpenException pnoe;
