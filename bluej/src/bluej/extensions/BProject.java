@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,13 +25,11 @@ import java.io.File;
 import java.net.URLClassLoader;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Map;
 
 import bluej.debugger.DebuggerListener;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
-import bluej.utility.Debug;
 
 /**
  * A wrapper for a BlueJ project.
@@ -228,15 +226,6 @@ public class BProject
         thisProject.getDebugger().addDebuggerListener(listener);
     }
     
-    void addBreakpoint(String className, String method, Map<String, String> properties) throws ProjectNotOpenException
-    {
-        Project thisProject = projectId.getBluejProject();
-        String result = thisProject.getDebugger().toggleBreakpoint(className, method, true, properties);
-        if (result != null) {
-            Debug.reportError("Problem setting breakpoint in " + className + "." + method + ": " + result);
-        }
-    }
-
     void clearObjectBench() throws ProjectNotOpenException
     {
         Project thisProject = projectId.getBluejProject();

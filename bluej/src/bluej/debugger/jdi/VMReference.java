@@ -41,11 +41,11 @@ import bluej.Config;
 import bluej.classmgr.BPClassLoader;
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerEvent;
+import bluej.debugger.DebuggerEvent.BreakpointProperties;
 import bluej.debugger.DebuggerResult;
 import bluej.debugger.DebuggerTerminal;
 import bluej.debugger.ExceptionDescription;
 import bluej.debugger.SourceLocation;
-import bluej.debugger.DebuggerEvent.BreakpointProperties;
 import bluej.runtime.ExecServer;
 import bluej.utility.Debug;
 
@@ -424,8 +424,14 @@ class VMReference
         EventRequestManager erm = machine.eventRequestManager();
         erm.createExceptionRequest(null, false, true).enable();
         erm.createClassPrepareRequest().enable();
-        erm.createThreadStartRequest().enable();
-        erm.createThreadDeathRequest().enable();
+        
+        EventRequest tsr = erm.createThreadStartRequest();
+        tsr.setSuspendPolicy(EventRequest.SUSPEND_NONE);
+        tsr.enable();
+        
+        tsr = erm.createThreadDeathRequest();
+        tsr.setSuspendPolicy(EventRequest.SUSPEND_NONE);
+        tsr.enable();
 
         // start the VM event handler (will handle the VMStartEvent
         // which will set the machine running)

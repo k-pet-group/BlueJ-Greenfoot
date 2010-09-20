@@ -49,15 +49,16 @@ import bluej.extensions.BPackage;
 import bluej.extensions.BProject;
 import bluej.extensions.ExtensionBridge;
 import bluej.extensions.ProjectNotOpenException;
+import bluej.pkgmgr.Project;
 import bluej.utility.Debug;
 import bluej.utility.JavaNames;
 
 /**
- * A class that does several things.
+ * A class that does several things:
  * 
- * Firstly, it listens for the debugger terminating the Greenfoot VM, and relaunches Greenfoot.
+ * <p>Firstly, it listens for the debugger terminating the Greenfoot VM, and relaunches Greenfoot.
  * 
- * Secondly, it tries to make sure that the debugger never stops the code
+ * <p>Secondly, it tries to make sure that the debugger never stops the code
  * entirely outside the user's code (i.e. there should always be some user code
  * somewhere in the call stack) 
  * 
@@ -83,12 +84,12 @@ public class GreenfootDebugHandler implements DebuggerListener
      * The scheduledTasks collection exists to solve some tricky issues with timing and deadlock
      * among the VMs.  Here's the scenario:
      * 
-     * The VM event handler calls examineDebuggerEvent as part of handling an event.
+     * <p>The VM event handler calls examineDebuggerEvent as part of handling an event.
      * The examineDebuggerEvent method realises that it wants to set the VM going again.
      * It can't make a direct call to stepInfo & co, because that requires some back-and-forth
      * with the VM event handler, which is calling us (and so would lead to deadlock).
      * 
-     * So it needs to run the task later on, when the VM event handler is able to do the
+     * <p>So it needs to run the task later on, when the VM event handler is able to do the
      * interactions necessary, hence the idea of running the task later.  But -- if we
      * straight away call EventQueue.invokeLater, the task can execute before the VM event
      * handler has finished processing the event.  This causes problems because the VM event
@@ -117,7 +118,8 @@ public class GreenfootDebugHandler implements DebuggerListener
     static void addDebuggerListener(BProject project)
     {
         try {
-            addRunResetBreakpoints(project);
+            Project proj = Project.getProject(project.getDir());
+            addRunResetBreakpoints(proj.getDebugger());
 
             // Technically I could collapse the two listeners into one, but they
             // perform orthogonal tasks so it's nicer to keep the code separate:
@@ -129,18 +131,18 @@ public class GreenfootDebugHandler implements DebuggerListener
         }
     }
 
-    private static void addRunResetBreakpoints(BProject project)
+    private static void addRunResetBreakpoints(Debugger debugger)
             throws ProjectNotOpenException
     {
         Map<String, String> simulationRunBreakpointProperties = new HashMap<String, String>();
         simulationRunBreakpointProperties.put(SIMULATION_THREAD_RUN_KEY, "TRUE");
         simulationRunBreakpointProperties.put(Debugger.PERSIST_BREAKPOINT_PROPERTY, "TRUE");
-        ExtensionBridge.addBreakpoint(project, Simulation.class.getCanonicalName(), "run", simulationRunBreakpointProperties);
-        
+        debugger.toggleBreakpoint(Simulation.class.getName(), "run", true, simulationRunBreakpointProperties);
+        		
         Map<String, String> resetBreakpointProperties = new HashMap<String, String>();
         resetBreakpointProperties.put(RESET_KEY, "yes");
         resetBreakpointProperties.put(Debugger.PERSIST_BREAKPOINT_PROPERTY, "TRUE");
-        ExtensionBridge.addBreakpoint(project, RESET_CLASS, RESET_METHOD, resetBreakpointProperties);
+        debugger.toggleBreakpoint(RESET_CLASS, RESET_METHOD, true, resetBreakpointProperties);
     }
     
     private boolean isSimulationThread(DebuggerThread dt)
@@ -270,7 +272,7 @@ public class GreenfootDebugHandler implements DebuggerListener
      * This is also the method where we check to see if we need to relaunch Greenfoot after
      * the VM has been terminated, and we call threadHalted if necessary.
      */
-    public void processDebuggerEvent(DebuggerEvent e, boolean skipUpdate)
+    public void processDebuggerEvent(final DebuggerEvent e, boolean skipUpdate)
     {
         if (skipUpdate) {
             // Now is the time to schedule running the action that will restart the VM.
@@ -293,7 +295,7 @@ public class GreenfootDebugHandler implements DebuggerListener
                         WrapperPool.instance().remove(project);
                         BPackage bPackage = project.getPackages()[0];
                         WrapperPool.instance().remove(bPackage);
-                        addRunResetBreakpoints(bPackage.getProject());
+                        addRunResetBreakpoints((Debugger) e.getSource());
                         ProjectManager.instance().openGreenfoot(bPackage.getProject(), false);
                     }
                     catch (ProjectNotOpenException e) {
