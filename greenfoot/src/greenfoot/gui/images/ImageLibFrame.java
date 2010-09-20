@@ -214,14 +214,14 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
         }
         
         {
-        	final JPanel flowPanel = new JPanel();
-        	FlowLayout layout = new FlowLayout();
-        	layout.setAlignment(FlowLayout.LEFT);
-        	flowPanel.setLayout(layout);
-        	
-        	JButton editButton = new JButton(Config.getString("imagelib.edit"));
-        	editButton.setFont(new Font("dialog", Font.BOLD, 10));
-        	editButton.addActionListener(new ActionListener() {
+            final JPanel flowPanel = new JPanel();
+            FlowLayout layout = new FlowLayout();
+            layout.setAlignment(FlowLayout.LEFT);
+            flowPanel.setLayout(layout);
+
+            JButton editButton = new JButton(Config.getString("imagelib.edit"));
+            editButton.setFont(new Font("dialog", Font.BOLD, 10));
+            editButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e)
                 {
                     ImageListEntry[] editedEntries = projImageList.getSelectedValues();
@@ -232,17 +232,17 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                     }
                 }
             });
-        	JButton duplicateButton = new JButton(Config.getString("imagelib.dupl"));
-        	duplicateButton.setFont(new Font("dialog", Font.BOLD, 10));
-        	duplicateButton.addActionListener(new ActionListener() {
+            JButton duplicateButton = new JButton(Config.getString("imagelib.dupl"));
+            duplicateButton.setFont(new Font("dialog", Font.BOLD, 10));
+            duplicateButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e)
                 {
                     duplicateSelected();
                 }
             });
-        	JButton deleteButton = new JButton(Config.getString("imagelib.del"));
-        	deleteButton.setFont(new Font("dialog", Font.BOLD, 10));
-        	deleteButton.addActionListener(new ActionListener() {
+            JButton deleteButton = new JButton(Config.getString("imagelib.del"));
+            deleteButton.setFont(new Font("dialog", Font.BOLD, 10));
+            deleteButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e)
                 {
                     confirmDelete(projImageList.getSelectedValue());
@@ -282,12 +282,13 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                     final File file = newImage.displayModal();
                     if(file != null) {
                         projImageList.refresh();
-                        SwingUtilities.invokeLater(new Runnable(){
+                        SwingUtilities.invokeLater(new Runnable() {
                             @Override
                             public void run()
                             {
                                 newlyCreatedImage = file;
-                            }});
+                            }
+                        });
                     }                                           
                 }                
             });
@@ -360,8 +361,6 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
         setVisible(true);
     }
 
-
-
     /**
      * Build the class details panel.
      *
@@ -369,7 +368,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
      *                              specifying the class name.
      * @param pkg
      */
-     private JPanel buildClassDetailsPanel(boolean includeClassNameField, GPackage pkg)
+    private JPanel buildClassDetailsPanel(boolean includeClassNameField, GPackage pkg)
     {
         JPanel classDetailsPanel = new JPanel();
         classDetailsPanel.setLayout(new BoxLayout(classDetailsPanel, BoxLayout.Y_AXIS));
@@ -396,7 +395,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                 errorMsgLabel.setForeground(Color.RED);
 
                 final ClassNameVerifier classNameVerifier = new ClassNameVerifier(classNameField, pkg);
-                classNameVerifier.addValidityListener(new ValidityListener(){
+                classNameVerifier.addValidityListener(new ValidityListener() {
                     public void changedToInvalid(ValidityEvent e)
                     {
                         errorMsgLabel.setText(e.getReason());
@@ -408,8 +407,8 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                     {
                         errorMsgLabel.setVisible(false);
                         okAction.setEnabled(true);
-                    }});
-
+                    }
+                });
 
                 b.add(Box.createHorizontalStrut(spacingLarge));
 
@@ -656,26 +655,26 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
         refreshTask.cancel();
     }
 
-	public void windowDeactivated(WindowEvent e) {
-		
-	}
+    public void windowDeactivated(WindowEvent e) {
 
-	public void windowDeiconified(WindowEvent e) {
-		
-	}
+    }
 
-	public void windowIconified(WindowEvent e) {
-		
-	}
-	
-	public void windowOpened(WindowEvent e) {
-		
-	}
-	
-	/**
-	 * Create a new file which is a copy of the selected entry,
-	 * unless it is null.
-	 */
+    public void windowDeiconified(WindowEvent e) {
+
+    }
+
+    public void windowIconified(WindowEvent e) {
+
+    }
+
+    public void windowOpened(WindowEvent e) {
+
+    }
+
+    /**
+     * Create a new file which is a copy of the selected entry,
+     * unless it is null.
+     */
     protected void duplicateSelected()
     {
         ImageListEntry srcEntry = projImageList.getSelectedValue();
@@ -723,8 +722,8 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
             int result = JOptionPane.showConfirmDialog(this, text,
                   Config.getString("imagelib.delete.confirm.title"), JOptionPane.YES_NO_OPTION);
             if (result == JOptionPane.YES_OPTION) {
-              imageListEntry.imageFile.delete();
-              projImageList.refresh();
+                imageListEntry.imageFile.delete();
+                projImageList.refresh();
             }
         }
     }

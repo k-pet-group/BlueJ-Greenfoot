@@ -214,7 +214,6 @@ public class ImageLibList extends EditableList<ImageLibList.ImageListEntry> impl
     }
     
     /*
-     * (non-Javadoc)
      * @see greenfoot.gui.EditableList#getSelectedValues()
      */
     public ImageListEntry[] getSelectedValues()
@@ -281,7 +280,7 @@ public class ImageLibList extends EditableList<ImageLibList.ImageListEntry> impl
 
     private static class MyCellRenderer extends DefaultTableCellRenderer         
     {
-		protected static Border noFocusBorder = new EmptyBorder(1, 1, 1, 1); 
+        protected static Border noFocusBorder = new EmptyBorder(1, 1, 1, 1); 
 
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
                 boolean hasFocus, int row, int column)
@@ -290,7 +289,7 @@ public class ImageLibList extends EditableList<ImageLibList.ImageListEntry> impl
             if(value != null) {
                 ImageListEntry entry = (ImageListEntry) value;
                 if (null == entry.imageFile) {
-                	item.setText("No image");
+                    item.setText("No image");
                 } else {
                     item.setText(entry.imageFile.getName());
                 }
@@ -421,6 +420,5 @@ public class ImageLibList extends EditableList<ImageLibList.ImageListEntry> impl
             return imageFile.hashCode();
         }
     }
-       
 
 }
