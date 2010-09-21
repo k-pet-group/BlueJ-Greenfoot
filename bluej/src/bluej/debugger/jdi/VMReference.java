@@ -1217,7 +1217,7 @@ class VMReference
             
             synchronized (workerThread) {
                 workerThreadReady = true;
-                workerThread.notify();
+                workerThread.notifyAll();
             }
         }
         else {
@@ -1918,7 +1918,7 @@ class VMReference
      * Remove an object from the object map on the debug vm.
      * @param instanceName   the name of the object to remove
      */
-    synchronized void removeObject(String scopeId, String instanceName)
+    void removeObject(String scopeId, String instanceName)
     {
         synchronized(workerThread) {
             try {
