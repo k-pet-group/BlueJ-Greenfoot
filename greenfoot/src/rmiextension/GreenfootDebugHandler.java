@@ -177,8 +177,7 @@ public class GreenfootDebugHandler implements DebuggerListener
                 simulationThread.cont();
             }
 
-            try {
-                EventQueue.invokeAndWait(new Runnable() {
+                EventQueue.invokeLater(new Runnable() {
                     public void run()
                     {
                         try {
@@ -187,14 +186,7 @@ public class GreenfootDebugHandler implements DebuggerListener
                         catch (ProjectNotOpenException e) { }
                     };
                 });
-            }
-            catch (InterruptedException ex) {
-                // Not sure what would cause this - we'll just ignore it.
-            }
-            catch (InvocationTargetException ex) {
-                Debug.reportError("Internal error", ex);
-            }
-
+            
             // Run the GUI thread on:
             e.getThread().cont();
             return true;
