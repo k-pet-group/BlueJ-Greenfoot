@@ -34,10 +34,10 @@ import greenfoot.util.ExternalAppLauncher;
 import greenfoot.util.GraphicsUtilities;
 import greenfoot.util.GreenfootUtil;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -62,8 +62,10 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
@@ -112,6 +114,9 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
     
     /** Suffix used when creating a copy of an existing image (duplicate) */
     private static final String COPY_SUFFIX = "Copy"; //TODO move to labels
+    
+    /** JPopupMenu icon */
+    private static final String DROPDOWN_ICON_FILE = "menu-button.png";
 
     /**
      * Construct an ImageLibFrame for changing the image of an existing class.
@@ -154,8 +159,8 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
         contentPane.setLayout(new BoxLayout(this.getContentPane(), BoxLayout.Y_AXIS));
         contentPane.setBorder(BlueJTheme.dialogBorder);
 
+        // int spacingSmall = BlueJTheme.componentSpacingSmall;
         int spacingLarge = BlueJTheme.componentSpacingLarge;
-        int spacingSmall = BlueJTheme.componentSpacingSmall;
 
         okAction = getOkAction();
 
@@ -213,74 +218,62 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
             imageCategorySelector.setImageLibList(greenfootImageList);
         }
         
+        // Creates the PopupMenuButton, adding the edit, duplicate, delete and new
+        // menu items, along with their actions to it. Also creates the browse button
+        // and adds both of these components to a flow panel to display in the content
+        // panel.
         {
-            final JPanel flowPanel = new JPanel();
-            FlowLayout layout = new FlowLayout();
-            layout.setAlignment(FlowLayout.LEFT);
-            flowPanel.setLayout(layout);
-
-            JButton editButton = new JButton(Config.getString("imagelib.edit"));
-            editButton.setFont(new Font("dialog", Font.BOLD, 10));
-            editButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e)
-                {
-                    ImageListEntry[] editedEntries = projImageList.getSelectedValues();
-                    for (ImageListEntry entry : editedEntries) {
-                        if (entry.imageFile != null) {
-                            ExternalAppLauncher.editImage(entry.imageFile);
-                        }
-                    }
-                }
-            });
-            JButton duplicateButton = new JButton(Config.getString("imagelib.dupl"));
-            duplicateButton.setFont(new Font("dialog", Font.BOLD, 10));
-            duplicateButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e)
-                {
-                    duplicateSelected();
-                }
-            });
-            JButton deleteButton = new JButton(Config.getString("imagelib.del"));
-            deleteButton.setFont(new Font("dialog", Font.BOLD, 10));
-            deleteButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e)
-                {
-                    confirmDelete(projImageList.getSelectedValue());
-                }
-            });
-        	
-            flowPanel.setAlignmentX(0.0f);
-            flowPanel.add(fixHeight(editButton));
-            flowPanel.add(fixHeight(duplicateButton));
-            flowPanel.add(fixHeight(deleteButton));
-
-            contentPane.add(fixHeight(flowPanel));
-        }
-
-        // Browse and new panel. Select image file from arbitrary location.
-        {
-            final JPanel flowPanel = new JPanel();
-            FlowLayout layout = new FlowLayout();
-            layout.setAlignment(FlowLayout.LEFT);
-            flowPanel.setLayout(layout);
-
-            JButton newButton = new JButton(Config.getString("imagelib.create.button"));
-            newButton.setToolTipText(Config.getString("imagelib.create.tooltip")); 
+            JPanel borderPanel = new JPanel();
+            BorderLayout layout = new BorderLayout();
+            borderPanel.setLayout(layout);
             
-            newButton.addActionListener(new ActionListener() {
+            JPopupMenu popupMenu = new JPopupMenu();
+            
+            JMenuItem editItem = new JMenuItem(Config.getString("imagelib.edit"));
+            editItem.setToolTipText(Config.getString("imagelib.edit.tooltip")); 
+            editItem.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e)
                 {
-                    String name = null;
-                    if(includeClassNameField) {
-                        name = getClassName();
+                    ImageListEntry entry = projImageList.getSelectedValue();
+                    if (entry != null && entry.imageFile != null) {
+                        ExternalAppLauncher.editImage(entry.imageFile);
                     }
-                    else {
-                        name = gclass.getName();
+                }
+            });
+            
+            JMenuItem duplicateItem = new JMenuItem(Config.getString("imagelib.duplicate"));
+            duplicateItem.setToolTipText(Config.getString("imagelib.duplicate.tooltip")); 
+            duplicateItem.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e)
+                {
+                    ImageListEntry entry = projImageList.getSelectedValue();
+                    if (entry != null && entry.imageFile != null) {
+                        duplicateSelected(entry);
                     }
-                    
+                }
+            });
+            
+            JMenuItem deleteItem = new JMenuItem(Config.getString("imagelib.delete"));
+            deleteItem.setToolTipText(Config.getString("imagelib.delete.tooltip")); 
+            deleteItem.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e)
+                {
+                    ImageListEntry entry = projImageList.getSelectedValue();
+                    if (entry != null && entry.imageFile != null) {
+                        confirmDelete(entry);
+                    }
+                }
+            });
+
+            JMenuItem newImageItem = new JMenuItem(Config.getString("imagelib.create.button"));
+            newImageItem.setToolTipText(Config.getString("imagelib.create.tooltip")); 
+            newImageItem.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e)
+                {
+                    String name = includeClassNameField ? getClassName() : gclass.getName();
                     NewImageDialog newImage = new NewImageDialog(ImageLibFrame.this, projImagesDir, name);
                     final File file = newImage.displayModal();
-                    if(file != null) {
+                    if (file != null) {
                         projImageList.refresh();
                         SwingUtilities.invokeLater(new Runnable() {
                             @Override
@@ -292,18 +285,26 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                     }                                           
                 }                
             });
-
-            JButton browseButton = new JButton(new BrowseImagesAction(Config.getString("imagelib.browse.button"), this,
-                    projImagesDir, projImageList));           
+            
+            popupMenu.add(fixHeight(editItem));
+            popupMenu.add(fixHeight(duplicateItem));
+            popupMenu.add(fixHeight(deleteItem));
+            popupMenu.add(fixHeight(newImageItem));
+            
+            JButton dropDownButton = new PopupMenuButton(
+                    new ImageIcon(ImageLibFrame.class.getClassLoader().getResource(DROPDOWN_ICON_FILE)), 
+                    popupMenu);
+            JButton browseButton = new JButton(
+                    new BrowseImagesAction(Config.getString("imagelib.browse.button"), this,
+                    projImagesDir, projImageList));
+        
            
+            borderPanel.setAlignmentX(0.0f);
+            borderPanel.add(fixHeight(dropDownButton), BorderLayout.LINE_START);
+            borderPanel.add(fixHeight(browseButton), BorderLayout.LINE_END);
+
             contentPane.add(fixHeight(Box.createVerticalStrut(spacingLarge)));
-            flowPanel.setAlignmentX(0.0f);
-            flowPanel.add(fixHeight(newButton));
-            flowPanel.add(GreenfootUtil.createSpacer(GreenfootUtil.X_AXIS, spacingSmall));
-            flowPanel.add(fixHeight(browseButton));
-
-            contentPane.add(fixHeight(flowPanel));
-
+            contentPane.add(fixHeight(borderPanel));
             contentPane.add(fixHeight(Box.createVerticalStrut(spacingLarge)));
             contentPane.add(fixHeight(new JSeparator()));
         }
@@ -655,55 +656,54 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
         refreshTask.cancel();
     }
 
-    public void windowDeactivated(WindowEvent e) {
-
+    public void windowDeactivated(WindowEvent e) 
+    {
     }
 
-    public void windowDeiconified(WindowEvent e) {
-
+    public void windowDeiconified(WindowEvent e) 
+    {
     }
 
-    public void windowIconified(WindowEvent e) {
-
+    public void windowIconified(WindowEvent e) 
+    {
     }
 
-    public void windowOpened(WindowEvent e) {
-
+    public void windowOpened(WindowEvent e) 
+    {
     }
 
     /**
-     * Create a new file which is a copy of the selected entry,
-     * unless it is null.
+     * Create a new file which is an exact copy of the
+     * parameter image and select it if successful in creating
+     * it.
+     * @param entry Cannot be null, nor can its imageFile.
      */
-    protected void duplicateSelected()
+    protected void duplicateSelected(ImageListEntry entry)
     {
-        ImageListEntry srcEntry = projImageList.getSelectedValue();
-        File srcFile = srcEntry.imageFile;
+        File srcFile = entry.imageFile;
         File dstFile = null;
-        if (srcFile != null) {
-            File dir = srcFile.getParentFile();
-            String fileName = srcFile.getName();
-            int index = fileName.indexOf('.');
-            
-            String baseName = null;
-            String ext = null;
-            if (index != -1) {
-                baseName = fileName.substring(0, index);
-                ext = fileName.substring(index + 1);
-            } 
-            else {
-                baseName = fileName;
-                ext = "";
-            }
-            baseName += COPY_SUFFIX;
-            
-            try {
-                dstFile = GreenfootUtil.createNumberedFile(dir, baseName, ext);
-                FileUtility.copyFile(srcFile, dstFile);
-            }
-            catch (IOException e) {
-                e.printStackTrace();
-            }
+        File dir = srcFile.getParentFile();
+        String fileName = srcFile.getName();
+        int index = fileName.indexOf('.');
+        
+        String baseName = null;
+        String ext = null;
+        if (index != -1) {
+            baseName = fileName.substring(0, index);
+            ext = fileName.substring(index + 1);
+        } 
+        else {
+            baseName = fileName;
+            ext = "";
+        }
+        baseName += COPY_SUFFIX;
+        
+        try {
+            dstFile = GreenfootUtil.createNumberedFile(dir, baseName, ext);
+            FileUtility.copyFile(srcFile, dstFile);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
         }
         if (dstFile != null) {
             projImageList.select(dstFile);
@@ -712,19 +712,17 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
     
     /**
      * Confirms whether or not to delete the selected file.
-     * @param imageListEntry the file to delete
+     * @param entry Cannot be null, nor can its imageFile.
      */
-    private void confirmDelete(ImageListEntry imageListEntry)
+    private void confirmDelete(ImageListEntry entry)
     {
-        if (imageListEntry != null && imageListEntry.imageFile != null) {
-            String text = Config.getString("imagelib.delete.confirm.text") + 
-                          " " + imageListEntry.imageFile.getName() + "?";
-            int result = JOptionPane.showConfirmDialog(this, text,
-                  Config.getString("imagelib.delete.confirm.title"), JOptionPane.YES_NO_OPTION);
-            if (result == JOptionPane.YES_OPTION) {
-                imageListEntry.imageFile.delete();
-                projImageList.refresh();
-            }
+        String text = Config.getString("imagelib.delete.confirm.text") + 
+                      " " + entry.imageFile.getName() + "?";
+        int result = JOptionPane.showConfirmDialog(this, text,
+              Config.getString("imagelib.delete.confirm.title"), JOptionPane.YES_NO_OPTION);
+        if (result == JOptionPane.YES_OPTION) {
+            entry.imageFile.delete();
+            projImageList.refresh();
         }
     }
 }
