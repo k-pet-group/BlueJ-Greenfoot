@@ -26,7 +26,11 @@ import greenfoot.util.DebugUtil;
 import java.awt.EventQueue;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
+import java.rmi.ConnectException;
+import java.rmi.ConnectIOException;
 import java.rmi.RemoteException;
+import java.rmi.ServerError;
+import java.rmi.ServerException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -121,15 +125,36 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
      */
     public void notifyClosing()
     {
-        List<RProjectListener> listeners = new ArrayList<RProjectListener>(this.listeners);
+        List<RProjectListener> listeners;
+        synchronized (this.listeners) {
+            listeners = new ArrayList<RProjectListener>(this.listeners);
+        }
+        
         Iterator<RProjectListener> i = listeners.iterator();
         while (i.hasNext()) {
             RProjectListener listener = i.next();
             try {
                 listener.projectClosing();
             }
+            catch (ServerError se) {
+                Debug.reportError("Error when scenario closing: ", se);
+            }
+            catch (ServerException se) {
+                Debug.reportError("Error when scenario closing: ", se);
+            }
+            catch (ConnectException ce) {
+                // Almost certainly due to the other VM having already terminated:
+                // So we'll ignore it.
+                removeListener(listener);
+            }
+            catch (ConnectIOException cioe) {
+                // Almost certainly due to the other VM having already terminated:
+                // So we'll ignore it.
+                removeListener(listener);
+            }
             catch (RemoteException re) {
                 Debug.reportError("Error when scenario closing: ", re);
+                removeListener(listener);
             }
         }
     }
@@ -224,16 +249,19 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
     public void addListener(RProjectListener listener)
         throws RemoteException
     {
-        listeners.add(listener);
+        synchronized (listeners) {
+            listeners.add(listener);
+        }
     }
     
     /*
      * @see rmiextension.wrappers.RProject#removeListener(rmiextension.wrappers.event.RProjectListener)
      */
     public void removeListener(RProjectListener listener)
-        throws RemoteException
     {
-        listeners.remove(listener);
+        synchronized (listeners) {
+            listeners.remove(listener);
+        }
     }
     
     /*
