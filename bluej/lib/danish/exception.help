@@ -14,26 +14,26 @@ beregning, s\u00E5som en division med 0 eller
 lignende.
 
 StringIndexOutOfBoundsException*
-Du har pr\u00F8vet at tilg\u00E5 en karakter eller en substreng
+Du har pr\u00F8vet at tilg\u00E5 et tegn eller en delstreng
 i en streng , og indekset du brugte, eksisterer ikke
-i den streng. For eksempel, du kan have pr\u00F8vet at
-tilg\u00E5 den femte karakter i en streng der kun er
-tre karakterer lang.
-For substreng operationen, husk at den anden parameter
-er slut-indekset af substrengen, ikke
+i den streng. For eksempel kan du have pr\u00F8vet at
+tilg\u00E5 det femte tegn i en streng der kun er
+tre tegn lang.
+For delstreng-operationer, husk at den anden parameter
+er slut-indekset af delstrengen, ikke
 l\u00E6ngden.
 
 ClassCastException*
-Du brugte en "cast" - dvs. en instruktion der tildeler
-en anden statisk type til et objekt, som i dette
+Du brugte en "cast" - en typekonvertering, dvs. en instruktion
+der tildeler en anden type til et objekt, som i dette
 eksempel:
        (String)etObjekt
-Her bliver "etObjekt" cast'et til "String". Dette er kun tilladt
-hvis objektet lagret i etObjekt virkelig er af 
-typen String.
-Med andre ord: du kan kun cast'e til typen T hvis
-objektet du cast'er er af typen T eller en af dens
-subtyper. Det var den ikke i dit tilf\u00E6lde.
+Her bliver "etObjekt" typekonverteret til "String". Dette er kun
+tilladt hvis objektet lagret i etObjekt virkelig er af typen 
+String.
+Med andre ord: du kan kun typekonvertere til typen T hvis
+objektet du typekonverterer er af typen T eller en af dens
+nedarvinger. Det var den ikke i dette tilf\u00E6lde.
 
 IndexOutOfBoundsException*
 Et indeks af en slags (s\u00E5som til en liste, til en streng,

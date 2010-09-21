@@ -11,7 +11,7 @@ afrikaans       2.0.0                x                         Petri Jooste     
 chinese         2.0.4                                          sent email to Xiaoke Hu <go2study@gmail.com> asking for a new contact
 catalan         2.0.0                x          only labels    Santiago Manrique   
 czech           3.0preview1          x          tmpl in UTF8   Rudolf Pecinovsky   Rudolf: <rudolf.pecinovsky@i.cz> (or rudolf@pecinovsky.cz )
-danish          2.2.0preview         x                         Kenneth Johnson     <kenneth@kennethjohnsen.dk>
+danish          3.0.3                x                         Jacob Nordfalk      <jacob.nordfalk@gmail.com>
 dutch           2.0.0                x                        
 english         2.0.5                x      
 french          2.2.0                x                         

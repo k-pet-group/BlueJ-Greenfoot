@@ -51,8 +51,8 @@ stream-incomplete
 Overs\u00E6tter fejl. Fejlstr\u00F8m ukomplet.
 
 out-of-bounds
-Specificerede element er ikke
-inden for liste-gr\u00E6nserne.
+Elementet er ikke inden
+for liste-gr\u00E6nserne.
 
 cannot-access-element
 Kan ikke tilg\u00E5 det specificerede
@@ -80,10 +80,10 @@ defineres med egenskaben "bluej.templatePath" i
 <bluej-home>/lib/bluej.defs. Check og ret denne egenskab.
 
 skeleton-error
-Standard skelettet for klassen kunne ikke
+Standardskelettet for klassen kunne ikke
 genereres. Det kan v\u00E6re p\u00E5 grund af konfigurations-
-fejl i ops\u00E6tningen af BlueJ, eller p\u00E5 grund af fil-
-system adgangs-problemer.
+fejl i ops\u00E6tningen af BlueJ, eller p\u00E5 grund af 
+adgangs-problemer til filsystemet.
 
 error-open-source
 Kan ikke \u00E5bne kildekoden
@@ -96,7 +96,7 @@ Der opstod en fejl ved \u00E6ndring af denne fil.
 
 error-writing-jar
 jar filen kunne ikke skrives korrekt.
-(Check fil-systemet for adgangs-rettigheder og
+(Check filsystemet for adgangsrettigheder og
 tilg\u00E6ngelig diskplads.)
 
 error-jar-exists
@@ -107,10 +107,10 @@ Fortryd
 null
 
 invalid-class-name
-Ugyldigt klasse-navn.
+Ugyldigt klassenavn.
 
 invalid-package-name
-Ugyldigt pakke-navn.
+Ugyldigt pakkenavn.
 
 must-be-identifier
 Navnet er ikke gyldigt. Det
@@ -126,8 +126,7 @@ pakke-filerne. Pakken blev ikke
 skrevet, eller den var ukomplet.
 
 file-does-not-exist
-Den specificerede fil
-eksisterer ikke.
+Filen findes ikke.
 
 cannot-import
 Kan ikke importere filen. Filen skal
@@ -176,13 +175,13 @@ fundet i denne mappe.
 
 duplicate-name
 En klasse eller en pakke med dette navn eksisterer
-allerede i dette projekt. Du kan ikke have to
+allerede i projektet. Du kan ikke have to
 klasser eller pakker med samme navn.
 
 error-in-import
 En fejl opstod under fors\u00F8get p\u00E5 at
-importere filen. Check adgangs-rettigheder og
-disk-plads.
+importere filen. Check adgangsrettigheder og
+diskplads.
 
 no-class-selected-compile
 Ingen klasse valgt til overs\u00E6ttelse.
@@ -196,7 +195,7 @@ den f\u00F8r sletning.
 
 really-remove-class
 Sletning af klasser vil permanent
-slette deres kildekode-fil(er).
+slette filen/filerne med deres kildekode.
 Vil du forts\u00E6tte?
 Slet
 Fortryd
@@ -204,7 +203,7 @@ null
 
 really-remove-package
 Sletning af denne pakke vil permanent
-slette pakke-mappen (inklusive ALT
+slette mappen med pakken (inklusive ALT
 indhold i mappen).
 Vil du forts\u00E6tte?
 Slet
@@ -216,7 +215,7 @@ Pakken du har valgt til sletning
 har nogle under-pakker \u00E5bnet
 i BlueJ. Du skal lukke disse
 pakker f\u00F8r du kan
-slette denne pakke.
+slette pakken.
 
 package-does-not-exist
 Fejl ved \u00E5bning af pakken.
@@ -228,11 +227,11 @@ Filen/mappen er ikke
 en BlueJ pakke:
 
 applet-height-width
-Applet h\u00F8jde og bredde
-skal angives.
+H\u00F8jde og bredde for
+appletten skal angives.
 
 cannot-read-help
-Kan ikke l\u00E6se hj\u00E6lpe-fil:
+Kan ikke l\u00E6se hj\u00E6lpefil:
 
 not-yet-implemented
 Ikke implementeret endnu - desv\u00E6rre.
@@ -252,8 +251,8 @@ null
 
 changed-on-disk
 Kildekode-filen er \u00E6ndret p\u00E5 disken. Vil du
-genindl\u00E6se den fra disk? Dette vil smide \u00E6ndringer bort
-her i editoren.
+genindl\u00E6se den fra disk? Dette vil smide \u00E6ndringer
+her i editoren bort.
 Genindl\u00E6s
 Fortryd
 null
@@ -272,7 +271,7 @@ Mappen du har valgt er allerede
 et BlueJ projekt.
 
 open-non-bluej-no-java
-Ingen Java kildekode filer blev
+Ingen filer med Java kildekode blev
 fundet i denne mappe.
 
 open-non-bluej-invalid
@@ -365,7 +364,7 @@ Fortryd
 null
 
 no-search-string
-Ingen s\u00F8ge-streng defineret.
+Ingen s\u00F8gestreng defineret.
 (Marker noget tekst eller brug 'Find' f\u00F8rst.)
 
 default-keys

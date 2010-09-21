@@ -57,7 +57,7 @@ Som det f\u00F8rste i hver klasse, der har en
 superklasse, skal du kalde superklassen's 
 konstrukt\u00F8r. Du g\u00F8r dette ved at tilf\u00F8je
     super(...);
-som den f\u00F8rste linie i din konstrukt\u00F8r (hvor du
+som den f\u00F8rste linje i din konstrukt\u00F8r (hvor du
 erstatter prikkerne med de korrekte parametre).
 Fors\u00F8g p\u00E5 at kalde medlems-metoderne af superklassen f\u00F8r
 dens konstrukt\u00F8r, skal g\u00E5 galt!
@@ -94,7 +94,7 @@ Du skal kalde superklassens konstrukt\u00F8r som det
 allerf\u00F8rste i enhver klasse der har en superklasse.
 Du g\u00F8r dette ved at tilf\u00F8je:
     super(...);
-som den f\u00F8rste linie i din konstrukt\u00F8r (hvor du
+som den f\u00F8rste linje i din konstrukt\u00F8r (hvor du
 erstatter punktummerne med de n\u00F8dvendige parametre).
 Fors\u00F8g p\u00E5 at kalde medlemmer af superklassen f\u00F8r
 kald af dens konstrukt\u00F8r, skal g\u00E5 galt!
@@ -190,19 +190,19 @@ kr\u00F8lle-parenteser, s\u00E5ledes:
    }
 
 empty character literal
-Du har skrevet en karakter der er tom.
-Du kan ikke skrive ''.  En karakter-konstant er en enkelt 
-karakter omsluttet af apostrof'er, for eksempel 'a'. 
-For det meste kan der kun v\u00E6re en enkelt karakter 
-mellem apostrof'erne. Den eneste undtagelse er hvis den f\u00F8rste  
-karakter er "backslash" (kaldet "escape karakteren") 
-til at specificere specielle karakterer f.eks. '\n' or '\t'.  
+Du har lavet en char der er tom.
+Du kan ikke skrive ''.  En char-konstant er et enkelt 
+tegn omsluttet af apostroffer, for eksempel 'a'. 
+For det meste kan der kun v\u00E6re et enkelt tegn 
+mellem apostrofferne. Den eneste undtagelse er hvis det f\u00F8rste  
+tegn er "backslash" (kaldet "escape-tegnet") 
+til at angive specielle tegn som f.eks. '\n' eller '\t'.  
 
 * has already been caught
-Denne "catch" s\u00E6tning er ubrugelig. Den kan
+Denne catch-s\u00E6tning er ubrugelig. Den kan
 aldrig k\u00F8res, fordi alle undtagelser
 som den er erkl\u00E6ret til at fange, allerede 
-fanges af en anden "catch" s\u00E6tning oven over.
+fanges af en anden catch-s\u00E6tning oven over.
 
 * is never thrown in body of corresponding try statement
 Du har erkl\u00E6ret at du vil fange
@@ -212,7 +212,7 @@ Der er ingen s\u00E6tninger i "try" blokken
 der laver denne undtagelse.
 
 'finally' without 'try'
-"finally" er et Java n\u00F8gleord der kun kan optr\u00E6de efter en
+"finally" er et n\u00F8gleord der kun kan optr\u00E6de efter en
 "try" blok. Det korrekte m\u00F8nster er
    try {
       s\u00E6tninger;
@@ -240,7 +240,7 @@ type her, s\u00E5 erkl\u00E6r den i den ydre klasse.
 illegal character:*
 Der er en ulovlig karakter her i kildekode-
 filen. Denne karakter kan v\u00E6re usynlig. Hvis du ikke kan
-finde den, s\u00E5 slet hele linien og indtast
+finde den, s\u00E5 slet hele linjen og indtast
 den igen.
 
 illegal combination of modifiers: *
@@ -267,9 +267,9 @@ illegal initializer for *
 Ingen tilg\u00E6ngelig hj\u00E6lp
 
 illegal line end in character literal
-Du har et linieskift hvor der burde v\u00E6re specificeret
+Du har et linjeskift hvor der burde v\u00E6re specificeret
 en karakter. Det kan du ikke g\u00F8re. Hvis du vil specificere
-karakteren for et linieskift ("newline"), s\u00E5 skriv det som '\n'.
+karakteren for et linjeskift ("newline"), s\u00E5 skriv det som '\n'.
 
 illegal qualifier; {0} is not an inner class
 Ingen tilg\u00E6ngelig hj\u00E6lp
@@ -280,7 +280,7 @@ Ingen tilg\u00E6ngelig hj\u00E6lp
 illegal start of type
 P\u00E5 en position i kildekoden, hvor navnet p\u00E5
 en type var ventet, var der noget andet
-(h\u00F8jst sandsynligt et Java n\u00F8gleord). Check denne linie
+(h\u00F8jst sandsynligt et Java n\u00F8gleord). Check denne linje
 for ukorrekte type definitioner.
 
 illegal unicode escape
@@ -439,7 +439,7 @@ l\u00F8kken). Det m\u00E6rke du har n\u00F8vnt her, er ikke p\u00E5 det rigtige
 sted - den markerer ikke en l\u00F8kke.
 
 not a statement
-Du har skrevet en linie kode her, der ikke er en
+Du har skrevet en linje kode her, der ikke er en
 hel s\u00E6tning. Overvej igen hvad du ville g\u00F8re,
 og hvordan du vil g\u00F8re det.
 
@@ -579,7 +579,7 @@ lukket den rigtigt: */
 unclosed string literal
 Det er sandsynligt at du har erkl\u00E6ret en streng 
 (startende med anf\u00F8rselstegn) og glemt at lukke den 
-med anf\u00F8rselstegn: ". Strengen skal lukkes p\u00E5 samme linie
+med anf\u00F8rselstegn: ". Strengen skal lukkes p\u00E5 samme linje
 som den startede p\u00E5.
 
 undefined label: *
@@ -681,8 +681,8 @@ dokumentationen for flere detaljer
 
 ';' expected
 Der mangler et semikolon i slutningen af 
-en linie. Det kan v\u00E6re linien, der er markeret i
-editoren, eller linien ovenover.
+en linje. Det kan v\u00E6re linjen, der er markeret i
+editoren, eller linjen ovenover.
 
 'case', 'default' or '}' expected
 Ingen tilg\u00E6ngelig hj\u00E6lp
