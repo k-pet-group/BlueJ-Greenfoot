@@ -1090,43 +1090,45 @@ public class JdiDebugger extends Debugger
 
             // wake any internal getVM() calls that
             // are waiting for us to finish
-            synchronized(this) {
-                notifyAll();
+            synchronized(JdiDebugger.this) {
+                JdiDebugger.this.notifyAll();
             }
         }
 
-        private synchronized VMReference getVM()
+        private VMReference getVM()
         {
-            // We can't just rely on synchronization, since it's possible that
-            // getVM() may creep in before run() begins execution. That's why
-            // we use notify()/wait().
-            while (!vmRunning) {
-                synchronized (JdiDebugger.this) {
+            synchronized (JdiDebugger.this) {
+                // We can't just rely on synchronization, since it's possible that
+                // getVM() may creep in before run() begins execution. That's why
+                // we use notify()/wait().
+                while (!vmRunning) {
                     if (! autoRestart) {
                         // VM launch was aborted.
                         break;
                     }
+                    try {
+                        JdiDebugger.this.wait();
+                    }
+                    catch (InterruptedException e) {}
                 }
-                try {
-                    wait();
-                }
-                catch (InterruptedException e) {}
+                    
+                return vmRef;
             }
-                
-            return vmRef;
         }
         
         /**
          * Get the VM reference, without waiting for it to start. If no VM has started,
          * this returns null.
          */
-        private synchronized VMReference getVMNoWait()
+        private VMReference getVMNoWait()
         {
-            if (! vmRunning) {
-                return null;
-            }
-            else {
-                return vmRef;
+            synchronized (JdiDebugger.this) {
+                if (! vmRunning) {
+                    return null;
+                }
+                else {
+                    return vmRef;
+                }
             }
         }
     }
