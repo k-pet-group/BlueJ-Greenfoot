@@ -94,9 +94,6 @@ public class ProjectManager
         if (bluej == null) {
             throw new IllegalStateException("Projectmanager has not been initialised.");
         }
-        if (instance == null) {
-            instance = new ProjectManager();
-        }
         return instance;
     }
 
@@ -106,6 +103,7 @@ public class ProjectManager
     public static void init(BlueJ bluej)
     {
         ProjectManager.bluej = bluej;
+        instance = new ProjectManager();
     }
 
     /**
