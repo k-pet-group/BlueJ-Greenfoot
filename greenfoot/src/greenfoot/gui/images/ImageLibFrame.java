@@ -322,7 +322,15 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
             cancelButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     result = CANCEL;
-                    selectedImageFile = null;
+                    // when cancelling see if there is an existing image
+                    // for this actor, and if so set it to that again.
+                    String imageName = gclass.getClassProperty("image");
+                    if (imageName == null) {
+                        selectedImageFile = null;
+                    }
+                    else {
+                        selectedImageFile = new File(new File("images"), imageName);
+                    }
                     setVisible(false);
                     dispose();
                 }
@@ -583,16 +591,11 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
     }
 
     /**
-     * Get the selected image file (null if dialog was canceled)
+     * Get the selected image file
      */
     public File getSelectedImageFile()
     {
-        if (result == OK) {
-            return selectedImageFile;
-        }
-        else {
-            return null;
-        }
+        return selectedImageFile;
     }
 
     /**
@@ -718,9 +721,9 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
     {
         String text = Config.getString("imagelib.delete.confirm.text") + 
                       " " + entry.imageFile.getName() + "?";
-        int result = JOptionPane.showConfirmDialog(this, text,
+        int optionResult = JOptionPane.showConfirmDialog(this, text,
               Config.getString("imagelib.delete.confirm.title"), JOptionPane.YES_NO_OPTION);
-        if (result == JOptionPane.YES_OPTION) {
+        if (optionResult == JOptionPane.YES_OPTION) {
             entry.imageFile.delete();
             projImageList.refresh();
         }
