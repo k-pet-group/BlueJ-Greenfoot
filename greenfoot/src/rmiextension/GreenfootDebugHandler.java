@@ -26,7 +26,6 @@ import greenfoot.core.Simulation;
 import greenfoot.core.SimulationDebugMonitor;
 
 import java.awt.EventQueue;
-import java.lang.reflect.InvocationTargetException;
 import java.rmi.RemoteException;
 import java.util.Collections;
 import java.util.HashMap;
@@ -177,18 +176,19 @@ public class GreenfootDebugHandler implements DebuggerListener
                 simulationThread.cont();
             }
 
-                EventQueue.invokeLater(new Runnable() {
-                    public void run()
-                    {
-                        try {
-                            ExtensionBridge.clearObjectBench(project);
-                        }
-                        catch (ProjectNotOpenException e) { }
-                    };
-                });
+            EventQueue.invokeLater(new Runnable() {
+                public void run()
+                {
+                    try {
+                        ExtensionBridge.clearObjectBench(project);
+                    }
+                    catch (ProjectNotOpenException e) { }
+
+                    // Run the GUI thread on:
+                    e.getThread().cont();
+                };
+            });
             
-            // Run the GUI thread on:
-            e.getThread().cont();
             return true;
         } else if ((e.getID() == DebuggerEvent.THREAD_BREAKPOINT || e.getID() == DebuggerEvent.THREAD_HALT)
                 && isSimulationThread(e.getThread())) {
