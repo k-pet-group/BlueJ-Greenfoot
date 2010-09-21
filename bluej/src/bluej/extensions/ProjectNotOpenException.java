@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,11 +26,7 @@ package bluej.extensions;
  * is no longer valid. The most likely reason is that the 
  * user has closed the project from the GUI.
  * 
- * @version $Id: ProjectNotOpenException.java 6215 2009-03-30 13:28:25Z polle $
- */
-
-/*
- * Author: Damiano Bolla, University of Kent at Canterbury, 2003
+ * @author Damiano Bolla, University of Kent at Canterbury, 2003
  */
 public class ProjectNotOpenException extends ExtensionException 
 {

@@ -295,7 +295,7 @@ public class GreenfootDebugHandler implements DebuggerListener
                         BPackage bPackage = project.getPackages()[0];
                         WrapperPool.instance().remove(bPackage);
                         addRunResetBreakpoints((Debugger) e.getSource());
-                        ProjectManager.instance().openGreenfoot(bPackage.getProject(), false);
+                        ProjectManager.instance().openGreenfoot(bPackage.getProject());
                     }
                     catch (ProjectNotOpenException e) {
                         // Project closed, so no need to relaunch
