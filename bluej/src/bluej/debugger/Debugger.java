@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -98,8 +98,7 @@ public abstract class Debugger
     /**
      * Start debugging.
      * 
-     * This can be a lengthy process so this should be executed
-     * in a sub thread.
+     * <p>This can be a lengthy process so this should be executed in a sub thread.
      */
     public abstract void launch();
 
@@ -174,7 +173,6 @@ public abstract class Debugger
      */
     public abstract String guessNewName(DebuggerObject obj);
 
-
     /**
      * Return the machine status; one of the "machine state" constants:
      * (IDLE, RUNNING, SUSPENDED, NOTREADY).
@@ -228,18 +226,19 @@ public abstract class Debugger
     public abstract DebuggerResult instantiateClass(String className, String [] paramTypes, DebuggerObject [] args);
     
     /**
-     * Get a class from the virtual machine, using the current classloader. The class will be
-     * initialized if possible. This can cause execution of user code.
+     * Get a class from the virtual machine, using the current classloader.
+     * 
+     * @param className   The name of the class to load
+     * @param initialize  Whether to initialize the class. Initialization causes execution
+     *                    of user code, which may take an arbitrary amount of time.
+     *                    Initialization will not be performed if the debugger is already
+     *                    running user code (i.e. the state is RUNNING).
+     * 
+     * @throws ClassNotFoundException if the class couldn't be located.
      */
-    public abstract DebuggerClass getClass(String className)
+    public abstract DebuggerClass getClass(String className, boolean initialize)
 		throws ClassNotFoundException;
 
-    /**
-     * Get the value of a static field in a class
-     */
-    public abstract DebuggerObject getStaticValue(String className, String fieldName)
-        throws ClassNotFoundException;
-    
     /**
      * Get a reference to a string in the remote machine whose value is the
      * same as the given value. Returns null if the remote VM terminates
@@ -264,15 +263,36 @@ public abstract class Debugger
     public abstract String toggleBreakpoint(String className, int line,
                                             boolean set, Map<String, String> properties);
 
-
     /**
-     * As the other toggleBreakpoint method, but sets it in the specified method rather than at a particular line.
+     * Set/clear a breakpoint at a specified method in a class (specified by name).
+     *
+     * @param className  The class in which to set the breakpoint.
+     * @param line       The line number of the breakpoint.
+     * @param set        True to set, false to clear a breakpoint.
+     * @param properties Extra properties to set on the breakpoint.  Can (and usually should) be null.
+     * @return           a string of the error message generated performing
+     *                   this operation or null
      */
-    public abstract String toggleBreakpoint(String className, String method, boolean set, Map<String, String> properties);
+    public abstract String toggleBreakpoint(String className, String method, boolean set,
+                                            Map<String,String> properties);
     
     /**
-     * A tree model representing the threads running in
-     * the debug VM.
+     * Set/clear a breakpoint at a specified method in a class.
+     * It is safe to call this method from a debugger event listener (unlike
+     * the other toggleBreakpoint() methods).
+     *
+     * @param className  The class in which to set the breakpoint.
+     * @param line       The line number of the breakpoint.
+     * @param set        True to set, false to clear a breakpoint.
+     * @param properties Extra properties to set on the breakpoint.  Can (and usually should) be null.
+     * @return           a string of the error message generated performing
+     *                   this operation or null
+     */
+    public abstract String toggleBreakpoint(DebuggerClass debuggerClass, String method, boolean set,
+            Map<String, String> properties);
+    
+    /**
+     * A tree model representing the threads running in the debug VM.
      *  
      * @return  a TreeModel with DebuggerThread objects
      *          as the leaves.

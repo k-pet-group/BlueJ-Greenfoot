@@ -894,7 +894,7 @@ public class ClassTarget extends DependentTarget
                     // This is the intial state. Try and load the class.
                     case 0:
                         try {
-                            clss = getPackage().getDebugger().getClass(getQualifiedName());
+                            clss = getPackage().getDebugger().getClass(getQualifiedName(), true);
                             state = 1;
                             EventQueue.invokeLater(this);
                         }

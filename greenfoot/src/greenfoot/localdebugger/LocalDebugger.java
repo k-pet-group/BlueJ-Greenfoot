@@ -51,7 +51,6 @@ import bluej.utility.Debug;
  */
 public class LocalDebugger extends Debugger
 {
-
     @Override
     public void addDebuggerListener(DebuggerListener l)
     {
@@ -78,7 +77,7 @@ public class LocalDebugger extends Debugger
     }
 
     @Override
-    public DebuggerClass getClass(String className)
+    public DebuggerClass getClass(String className, boolean initialize)
             throws ClassNotFoundException
     {
         throw new UnsupportedOperationException();
@@ -92,13 +91,6 @@ public class LocalDebugger extends Debugger
 
     @Override
     public Map<String, DebuggerObject> getObjects()
-    {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public DebuggerObject getStaticValue(String className, String fieldName)
-            throws ClassNotFoundException
     {
         throw new UnsupportedOperationException();
     }
@@ -329,6 +321,13 @@ public class LocalDebugger extends Debugger
 
     @Override
     public String toggleBreakpoint(String className, String method,
+            boolean set, Map<String, String> properties)
+    {
+        throw new UnsupportedOperationException();
+    }
+    
+    @Override
+    public String toggleBreakpoint(DebuggerClass debuggerClass, String method,
             boolean set, Map<String, String> properties)
     {
         throw new UnsupportedOperationException();

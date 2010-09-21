@@ -634,7 +634,7 @@ class VMReference
         serverClassAddBreakpoints();
     }
     
-    private Location findMethodLocation(ClassType classType, String methodName)
+    private Location findMethodLocation(ReferenceType classType, String methodName)
     {
         Method method = findMethodByName(classType, methodName);
         if (method == null) {
@@ -1373,6 +1373,36 @@ class VMReference
 
         return null;
     }
+
+    String setBreakpoint(ReferenceType classType, int line, Map<String, String> properties)
+    {
+        try {
+            List<Location> locations = classType.locationsOfLine(line);
+            if (locations.isEmpty()) {
+                return Config.getString("debugger.jdiDebugger.noCodeMsg");
+            }
+
+            setBreakpoint(locations.get(0), properties);
+            return null;
+        }
+        catch (AbsentInformationException aie) {
+            return Config.getString("debugger.jdiDebugger.noCodeMsg");
+        }
+    }
+    
+    void setBreakpoint(Location location, Map<String,String> properties)
+    {
+        EventRequestManager erm = machine.eventRequestManager();
+        BreakpointRequest bpreq = erm.createBreakpointRequest(location);
+        bpreq.setSuspendPolicy(EventRequest.SUSPEND_EVENT_THREAD);
+        bpreq.putProperty(VMEventHandler.DONT_RESUME, "yes");
+        if (properties != null) {
+            for (Map.Entry<String, String> property : properties.entrySet()) {
+                bpreq.putProperty(property.getKey(), property.getValue());
+            }
+        }
+        bpreq.enable();
+    }
     
     // As above but sets the breakpoint on the first line of a given method
     String setBreakpoint(String className, String methodName, Map<String, String> properties)
@@ -1386,6 +1416,14 @@ class VMReference
             return "Could not find class: " + className; 
         }
     }
+    
+    String setBreakpoint(ReferenceType classType, String methodName, Map<String, String> properties)
+    {
+        Location loc = findMethodLocation(classType, methodName);
+        setBreakpoint(loc, properties);
+        return null;
+    }    
+    
 
     /**
      * Clear all the breakpoints at a specified line in a class.
@@ -1403,6 +1441,29 @@ class VMReference
             return Config.getString("debugger.jdiDebugger.noCodeMsg");
         }
 
+        return clearBreakpoint(location);
+    }
+    
+    // As above but clears the breakpoint in a given method (as set by the corresponding setBreakpoint method that takes a method name)
+    String clearBreakpoint(String className, String methodName)
+    {
+        try {
+            ClassType classType = (ClassType)findClassByName(className);
+            Location loc = findMethodLocation(classType, methodName);
+            return clearBreakpoint(loc);
+        }  catch (ClassNotFoundException e) {
+            return "Could not find class: " + className; 
+        }
+    }
+    
+    String clearBreakpoint(ReferenceType classType, String methodName)
+    {
+        Location loc = findMethodLocation(classType, methodName);
+        return clearBreakpoint(loc);
+    }
+    
+    String clearBreakpoint(Location location)
+    {
         EventRequestManager erm = machine.eventRequestManager();
         boolean found = false;
         List<BreakpointRequest> list = erm.breakpointRequests();
@@ -1414,21 +1475,11 @@ class VMReference
             }
         }
         // bp not found
-        if (found)
+        if (found) {
             return null;
-        else
+        }
+        else {
             return Config.getString("debugger.jdiDebugger.noBreakpointMsg");
-    }
-    
-    // As above but clears the breakpoint in a given method (as set by the corresponding setBreakpoint method that takes a method name)
-    String clearBreakpoint(String className, String methodName)
-    {
-        try {
-            ClassType classType = (ClassType)findClassByName(className);
-            Location loc = findMethodLocation(classType, methodName);
-            return clearBreakpoint(className, loc.lineNumber());
-        }  catch (ClassNotFoundException e) {
-            return "Could not find class: " + className; 
         }
     }
 
@@ -2012,7 +2063,7 @@ class VMReference
      * The method is expected to exist. We expect only one single method to
      * exist with this name and report an error if more than one is found.
      */
-    Method findMethodByName(ClassType type, String methodName)
+    Method findMethodByName(ReferenceType type, String methodName)
     {
         List<Method> list = type.methodsByName(methodName);
         if (list.size() != 1) {

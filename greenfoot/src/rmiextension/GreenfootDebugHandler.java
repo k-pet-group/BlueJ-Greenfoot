@@ -30,7 +30,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.rmi.RemoteException;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.IdentityHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +37,7 @@ import java.util.Map;
 import rmiextension.wrappers.RProjectImpl;
 import rmiextension.wrappers.WrapperPool;
 import bluej.debugger.Debugger;
+import bluej.debugger.DebuggerClass;
 import bluej.debugger.DebuggerEvent;
 import bluej.debugger.DebuggerListener;
 import bluej.debugger.DebuggerObject;
@@ -45,7 +45,6 @@ import bluej.debugger.DebuggerThread;
 import bluej.debugger.SourceLocation;
 import bluej.debugger.DebuggerEvent.BreakpointProperties;
 import bluej.debugmgr.Invoker;
-import bluej.extensions.BPackage;
 import bluej.extensions.BProject;
 import bluej.extensions.ExtensionBridge;
 import bluej.extensions.ProjectNotOpenException;
@@ -68,7 +67,7 @@ public class GreenfootDebugHandler implements DebuggerListener
 {  
     private static final String SIMULATION_CLASS = Simulation.class.getName();   
     private static final String[] INVOKE_METHODS = {Simulation.ACT_WORLD, Simulation.ACT_ACTOR,
-        Simulation.NEW_INSTANCE, Simulation.RUN_QUEUED_TAKS};
+            Simulation.NEW_INSTANCE, Simulation.RUN_QUEUED_TAKS};
     private static final String SIMULATION_INVOKE_KEY = SIMULATION_CLASS + "INTERNAL";
     
     private static final String PAUSED_METHOD = Simulation.PAUSED;
@@ -80,30 +79,9 @@ public class GreenfootDebugHandler implements DebuggerListener
     private static final String RESET_METHOD = ResetWorldAction.RESET_WORLD;
     private static final String RESET_KEY = "RESET_WORLD";
     
-    /**
-     * The scheduledTasks collection exists to solve some tricky issues with timing and deadlock
-     * among the VMs.  Here's the scenario:
-     * 
-     * <p>The VM event handler calls examineDebuggerEvent as part of handling an event.
-     * The examineDebuggerEvent method realises that it wants to set the VM going again.
-     * It can't make a direct call to stepInfo & co, because that requires some back-and-forth
-     * with the VM event handler, which is calling us (and so would lead to deadlock).
-     * 
-     * <p>So it needs to run the task later on, when the VM event handler is able to do the
-     * interactions necessary, hence the idea of running the task later.  But -- if we
-     * straight away call EventQueue.invokeLater, the task can execute before the VM event
-     * handler has finished processing the event.  This causes problems because the VM event
-     * handler makes some crucial suspend() calls that need to happen before our tasks
-     * (VMEventHandler, line 122, at the time of writing), and we don't want to be vulnerable
-     * to subtle timing issues.  So we store the tasks in scheduledTasks until
-     * examineDebuggerEvent has completed and the suspend() calls made, and only schedule
-     * them to run on the EventQueue in the later-called processDebuggerEvent. 
-     * 
-     */
-    private IdentityHashMap<DebuggerThread, Runnable> scheduledTasks = new IdentityHashMap<DebuggerThread, Runnable>();
-    
     private BProject project;
     private DebuggerThread simulationThread;
+    private DebuggerClass simulationClass;
     
     private boolean currentlyResetting;
     
@@ -119,11 +97,11 @@ public class GreenfootDebugHandler implements DebuggerListener
     {
         try {
             Project proj = Project.getProject(project.getDir());
-            addRunResetBreakpoints(proj.getDebugger());
 
             // Technically I could collapse the two listeners into one, but they
             // perform orthogonal tasks so it's nicer to keep the code separate:
             GreenfootDebugHandler handler = new GreenfootDebugHandler(project);
+            handler.addRunResetBreakpoints(proj.getDebugger());
             ExtensionBridge.addDebuggerListener(project, handler);
             ExtensionBridge.addDebuggerListener(project, handler.new GreenfootDebugControlsLink());
         } catch (ProjectNotOpenException ex) {
@@ -131,17 +109,24 @@ public class GreenfootDebugHandler implements DebuggerListener
         }
     }
 
-    private static void addRunResetBreakpoints(Debugger debugger)
+    private void addRunResetBreakpoints(Debugger debugger)
     {
-        Map<String, String> simulationRunBreakpointProperties = new HashMap<String, String>();
-        simulationRunBreakpointProperties.put(SIMULATION_THREAD_RUN_KEY, "TRUE");
-        simulationRunBreakpointProperties.put(Debugger.PERSIST_BREAKPOINT_PROPERTY, "TRUE");
-        debugger.toggleBreakpoint(Simulation.class.getName(), "run", true, simulationRunBreakpointProperties);
-        		
-        Map<String, String> resetBreakpointProperties = new HashMap<String, String>();
-        resetBreakpointProperties.put(RESET_KEY, "yes");
-        resetBreakpointProperties.put(Debugger.PERSIST_BREAKPOINT_PROPERTY, "TRUE");
-        debugger.toggleBreakpoint(RESET_CLASS, RESET_METHOD, true, resetBreakpointProperties);
+        try {
+            simulationClass = debugger.getClass(SIMULATION_CLASS, false);
+
+            Map<String, String> simulationRunBreakpointProperties = new HashMap<String, String>();
+            simulationRunBreakpointProperties.put(SIMULATION_THREAD_RUN_KEY, "TRUE");
+            simulationRunBreakpointProperties.put(Debugger.PERSIST_BREAKPOINT_PROPERTY, "TRUE");
+            debugger.toggleBreakpoint(simulationClass, "run", true, simulationRunBreakpointProperties);
+
+            Map<String, String> resetBreakpointProperties = new HashMap<String, String>();
+            resetBreakpointProperties.put(RESET_KEY, "yes");
+            resetBreakpointProperties.put(Debugger.PERSIST_BREAKPOINT_PROPERTY, "TRUE");
+            debugger.toggleBreakpoint(RESET_CLASS, RESET_METHOD, true, resetBreakpointProperties);
+        }
+        catch (ClassNotFoundException cnfe) {
+            Debug.reportError("Simulation class could not be located. Possible installation problem.", cnfe);
+        }
     }
     
     private boolean isSimulationThread(DebuggerThread dt)
@@ -186,36 +171,32 @@ public class GreenfootDebugHandler implements DebuggerListener
             // The user has clicked reset:
             currentlyResetting = true;
             
-            scheduledTasks.put(e.getThread(), new Runnable() {
-                public void run() {
-                    setSpecialBreakpoints(debugger);
-                    // Set the simulation thread going if it's suspended:
-                    if (simulationThread.isSuspended()) {
-                        simulationThread.cont();
-                    }
-                
-                    try {
-                        EventQueue.invokeAndWait(new Runnable() {
-                            public void run()
-                            {
-                                try {
-                                    ExtensionBridge.clearObjectBench(project);
-                                }
-                                catch (ProjectNotOpenException e) { }
-                            };
-                        });
-                    }
-                    catch (InterruptedException e) {
-                        // Not sure what would cause this - we'll just ignore it.
-                    }
-                    catch (InvocationTargetException e) {
-                        Debug.reportError("Internal error", e);
-                    }
-                
-                    // Run the GUI thread on:
-                    e.getThread().cont();
-                }
-            });
+            setSpecialBreakpoints(debugger);
+            // Set the simulation thread going if it's suspended:
+            if (simulationThread.isSuspended()) {
+                simulationThread.cont();
+            }
+
+            try {
+                EventQueue.invokeAndWait(new Runnable() {
+                    public void run()
+                    {
+                        try {
+                            ExtensionBridge.clearObjectBench(project);
+                        }
+                        catch (ProjectNotOpenException e) { }
+                    };
+                });
+            }
+            catch (InterruptedException ex) {
+                // Not sure what would cause this - we'll just ignore it.
+            }
+            catch (InvocationTargetException ex) {
+                Debug.reportError("Internal error", ex);
+            }
+
+            // Run the GUI thread on:
+            e.getThread().cont();
             return true;
         } else if ((e.getID() == DebuggerEvent.THREAD_BREAKPOINT || e.getID() == DebuggerEvent.THREAD_HALT)
                 && isSimulationThread(e.getThread())) {
@@ -240,21 +221,16 @@ public class GreenfootDebugHandler implements DebuggerListener
                 // If they have just hit the breakpoint and are in InvokeAct itself,
                 // step-into the World/Actor:
                 if (atInvokeBreakpoint(e.getBreakpointProperties())) {
-                    // Avoid tricky re-entrant issues:
-                    scheduledTasks.put(e.getThread(), new Runnable() {
-                        public void run() {
-                            e.getThread().stepInto();
-                        }
-                    });
+                    e.getThread().stepInto();
                     return true;
                 } else if (inInvokeMethods(stack, 0)) {
                     // Finished calling act() and have stepped out; run to next one:
-                    scheduledTasks.put(e.getThread(), runToInternalBreakpoint(debugger, e.getThread()));
+                    runToInternalBreakpoint(debugger, e.getThread());
                     return true;                    
                 } //otherwise they are in their own code
             } else  {
                 // They are not in an act() method; run until they get there:
-                scheduledTasks.put(e.getThread(), runToInternalBreakpoint(debugger, e.getThread()));
+                runToInternalBreakpoint(debugger, e.getThread());
                 return true;
             }
         }
@@ -266,63 +242,23 @@ public class GreenfootDebugHandler implements DebuggerListener
      * Processes a debugger event.  This is called after examineDebuggerEvent, with a second
      * parameter that effectively corresponds to the return result of examineDebuggerEvent.
      * 
-     * Thus, if the parameter is true, we look for a scheduled task to run.
+     * <p>Thus, if the parameter is true, we look for a scheduled task to run.
      * 
-     * This is also the method where we check to see if we need to relaunch Greenfoot after
-     * the VM has been terminated, and we call threadHalted if necessary.
+     * <p>We call threadHalted if necessary.
      */
     public void processDebuggerEvent(final DebuggerEvent e, boolean skipUpdate)
     {
-        if (skipUpdate) {
-            // Now is the time to schedule running the action that will restart the VM.
-            // We didn't do this earlier because we needed to wait for the thread to be suspended again
-            // during the event handling
-            
-            Runnable task = scheduledTasks.remove(e.getThread());
-            if (task != null) {
-                new Thread(task).start();
-            }
-            
-        } else if (e.getNewState() == Debugger.NOTREADY && e.getOldState() == Debugger.IDLE) {           
+        if (e.getNewState() == Debugger.NOTREADY && e.getOldState() == Debugger.IDLE) {           
             //It is important to have this code run at a later time.
             //If it runs from this thread, it tries to notify the VM event handler,
             //which is currently calling us and we get a deadlock between the two VMs.
             new Thread() {
                 public void run()
                 {
-                    try { 
-                        WrapperPool.instance().remove(project);
-                        BPackage bPackage = project.getPackages()[0];
-                        WrapperPool.instance().remove(bPackage);
-                        addRunResetBreakpoints((Debugger) e.getSource());
-                        ProjectManager.instance().openGreenfoot(bPackage.getProject());
-                    }
-                    catch (ProjectNotOpenException e) {
-                        // Project closed, so no need to relaunch
-                    }
+                    addRunResetBreakpoints((Debugger) e.getSource());
+                    ProjectManager.instance().openGreenfoot(project);
                 }
             }.start();
-            
-        } else if (e.getID() == DebuggerEvent.THREAD_BREAKPOINT || e.getID() == DebuggerEvent.THREAD_HALT) {
-            threadHalted((Debugger)e.getSource(), e.getThread());
-        }
-    }
-
-    /**
-     * Decides what to do when the debugger has stopped the simulation thread
-     * (which includes the possibility that the user hit Suspend in the GUI)
-     */
-    private void threadHalted(final Debugger debugger, final DebuggerThread thread)
-    {
-        if (isSimulationThread(thread)) {
-            if (insideUserCode(thread.getStack())) {
-                // It's okay, they are in an act method, make sure the breakpoints are cleared:
-                debugger.removeBreakpointsForClass(SIMULATION_CLASS);
-                //This method ^ can be safely invoked without needing to talk to the worker thread
-            } else {
-                // Set this going now; we are not the examine method:
-                new Thread(runToInternalBreakpoint(debugger, thread)).start();
-            }
         }
     }
 
@@ -334,24 +270,13 @@ public class GreenfootDebugHandler implements DebuggerListener
      * 
      * Returns a task that will run them onwards, which can be scheduled as you like
      */
-    private static Runnable runToInternalBreakpoint(final Debugger debugger, final DebuggerThread thread)
+    private void runToInternalBreakpoint(final Debugger debugger, final DebuggerThread thread)
     {
-        //This method is called (via several others) from the thread that handles VM events
-        //If we directly toggle breakpoints from this thread, it tries to wake up
-        //the worker thread to do the toggling.  But that only works if it can send events
-        //to the VM-event-handling-thread and get a response -- but that would be us!
-        
-        //To avoid that nasty re-entrant deadlock, we must run this method in a different thread:
-        
-        return new Runnable () {
-            public void run () {
-                // Set a break point where we want them to be:
-                setSpecialBreakpoints(debugger);
+        // Set a break point where we want them to be:
+        setSpecialBreakpoints(debugger);
 
-                // Then set them running again:
-                thread.cont();
-            }
-        };
+        // Then set them running again:
+        thread.cont();
     }
     
     /**
@@ -429,16 +354,16 @@ public class GreenfootDebugHandler implements DebuggerListener
      * or if the simulation is going to wait for the user to click the controls (e.g. end of an
      * Act, or because the simulation is now going to be Paused).
      */
-    private static void setSpecialBreakpoints(final Debugger debugger)
+    private void setSpecialBreakpoints(final Debugger debugger)
     {
         for (String method : INVOKE_METHODS) {
-            String err = debugger.toggleBreakpoint(SIMULATION_CLASS, method, true, Collections.singletonMap(SIMULATION_INVOKE_KEY, "yes"));
+            String err = debugger.toggleBreakpoint(simulationClass, method, true, Collections.singletonMap(SIMULATION_INVOKE_KEY, "yes"));
             if (err != null) {
                 Debug.reportError("Problem setting special breakpoint: " + err);
             }
         }
         
-        String err = debugger.toggleBreakpoint(SIMULATION_CLASS, PAUSED_METHOD, true, Collections.singletonMap(SIMULATION_THREAD_PAUSED_KEY, "yes"));
+        String err = debugger.toggleBreakpoint(simulationClass, PAUSED_METHOD, true, Collections.singletonMap(SIMULATION_THREAD_PAUSED_KEY, "yes"));
         if (err != null) {
             Debug.reportError("Problem setting special breakpoint: " + err);
         }
@@ -453,7 +378,7 @@ public class GreenfootDebugHandler implements DebuggerListener
     {
         private LinkedList<String> queuedStateVars = new LinkedList<String>();
         private Object SEND_EVENT = new Object();
-        private String CLASS_NAME = SimulationDebugMonitor.class.getCanonicalName();
+        private String CLASS_NAME = SimulationDebugMonitor.class.getName();
         
         private void simplifyEvents()
         {
@@ -480,13 +405,22 @@ public class GreenfootDebugHandler implements DebuggerListener
                     String stateVar;
                     synchronized (queuedStateVars) {
                         simplifyEvents();
-                        if (queuedStateVars.isEmpty())
+                        if (queuedStateVars.isEmpty()) {
                             return;
+                        }
                         stateVar = queuedStateVars.removeFirst();
                     }
                     try {
-                        debugger.getClass(CLASS_NAME);
-                        debugger.instantiateClass(CLASS_NAME, new String[] {"java.lang.Object"}, new DebuggerObject[] {debugger.getStaticValue(CLASS_NAME, stateVar)});
+                        DebuggerClass simMonClass = debugger.getClass(CLASS_NAME, true);
+                        DebuggerObject stateObject = null;
+                        for (int i = 0; ; i++) {
+                            if (simMonClass.getStaticFieldName(i).equals(stateVar)) {
+                                stateObject = simMonClass.getStaticFieldObject(i);
+                                break;
+                            }
+                        }
+                        debugger.instantiateClass(CLASS_NAME, new String[] {"java.lang.Object"},
+                                new DebuggerObject[] {stateObject});
                     } catch (ClassNotFoundException ex) {
                         Debug.reportError("Could not find internal class " + CLASS_NAME, ex);
                     }

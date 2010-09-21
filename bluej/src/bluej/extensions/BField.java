@@ -159,11 +159,11 @@ public class BField
 
         DebuggerClass debuggerClass;
         try {
-            debuggerClass = bluejPkg.getDebugger().getClass(className);
+            debuggerClass = bluejPkg.getDebugger().getClass(className, true);
         }
         catch (java.lang.ClassNotFoundException cnfe) {
             // This may not be an error, the class name may be wrong...
-            Debug.message("BField.getStatucField: Class=" + className + " Field=" + wantFieldName + " WARNING: cannod get debuggerClass");
+            Debug.message("BField.getStaticField: Class=" + className + " Field=" + wantFieldName + " WARNING: cannod get debuggerClass");
             return null;
         }
 

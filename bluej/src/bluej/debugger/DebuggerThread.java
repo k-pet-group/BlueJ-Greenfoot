@@ -62,7 +62,16 @@ public abstract class DebuggerThread
     public abstract void halt();
     public abstract void cont();
 
+    /**
+     * Step to the next line in the current method. This is only valid when the thread is
+     * suspended. It is safe to call this from a DebuggerListener.
+     */
     public abstract void step();
+
+    /**
+     * Step to the next executed line (which might be in a called method). This is only valid when the
+     * thread is suspended. It is safe to call this from a DebuggerListener.
+     */
     public abstract void stepInto();
     
     public abstract boolean sameThread(DebuggerThread thread);

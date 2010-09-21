@@ -43,13 +43,11 @@ import bluej.debugger.DebuggerTestResult;
 import bluej.debugger.DebuggerThreadTreeModel;
 import bluej.debugger.ExceptionDescription;
 import bluej.debugger.SourceLocation;
-import bluej.debugger.gentype.JavaType;
 import bluej.debugmgr.Invoker;
 import bluej.utility.Debug;
 import bluej.utility.JavaNames;
 
 import com.sun.jdi.ArrayReference;
-import com.sun.jdi.ClassType;
 import com.sun.jdi.Field;
 import com.sun.jdi.InvocationException;
 import com.sun.jdi.ObjectReference;
@@ -136,7 +134,7 @@ public class JdiDebugger extends Debugger
     /**
      * Construct an instance of the debugger.
      * 
-     * This constructor should not be used by the main part of BlueJ. Access
+     * <p>This constructor should not be used by the main part of BlueJ. Access
      * should be through Debugger.getDebuggerImpl().
      * 
      * @param startingDirectory
@@ -166,14 +164,16 @@ public class JdiDebugger extends Debugger
         // latter case, there's no need to create a new machine loader, as
         // that's pre-done in close(), below.
 
-        if (vmRunning)
+        if (vmRunning) {
             throw new IllegalStateException("JdiDebugger.launch() was called but the debugger was already loaded");
+        }
 
-        if (machineLoader != null && !selfRestart)
+        if (machineLoader != null && !selfRestart) {
             // Attempt to restart VM while already restarting - ignored,
             // except when self-restarting, seeing as the new machine loader
             // has already been created in that case.
             return;
+        }
 
         autoRestart = true;
 
@@ -221,13 +221,13 @@ public class JdiDebugger extends Debugger
             // possibly to then restart it).
             autoRestart = restart;
             selfRestart = restart;
-            // vmRunning = false;
 
             // Create the new machine loader thread. That way any operation
             // on the VM between now and the time the new machine has finished
             // loading, can sleep until the new machine is ready.
-            if (selfRestart)
+            if (selfRestart) {
                 machineLoader = new MachineLoaderThread();
+            }
 
             // kill the remote debugger process
             vmRef.close();
@@ -422,34 +422,7 @@ public class JdiDebugger extends Debugger
         return machineState;
     }
     
-    /**
-     * Get the value of a static field in a class. Return null if the field could
-     * not be found. Throws ClassNotFoundException if the class cannot be found.
-     */
-    public DebuggerObject getStaticValue(String className, String fieldName)
-        throws ClassNotFoundException
-    {
-        // Debug.message("[getStaticValue] " + className + ", " + fieldName);
-        try {
-            VMReference vmr = getVMNoWait();
-            if (vmr != null) {
-                ClassType rt = (ClassType) vmr.findClassByName(className);
-                Field f = rt.fieldByName(fieldName);
-                if (f == null)
-                    return null;
-                
-                ObjectReference ob = vmr.getStaticFieldObject(rt, fieldName);
-                JavaType expectedType = JdiReflective.fromField(f, rt);
-                
-                if (ob != null)
-                    return JdiObject.getDebuggerObject(ob, expectedType);
-            }
-        }
-        catch (VMDisconnectedException vde) {}
-        return null;
-    }
-    
-    /* (non-Javadoc)
+    /*
      * @see bluej.debugger.Debugger#getMirror(java.lang.String)
      */
     public DebuggerObject getMirror(String value)
@@ -684,20 +657,20 @@ public class JdiDebugger extends Debugger
         }
     }
     
-    /**
-     * Get a class from the virtual machine. Throws ClassNotFoundException
-     * if the class cannot be found.
+    /*
+     * @see bluej.debugger.Debugger#getClass(java.lang.String, boolean)
      */
-    public DebuggerClass getClass(String className)
+    public DebuggerClass getClass(String className, boolean initialize)
         throws ClassNotFoundException
     {
         VMReference vmr = getVM();
-        if (vmr == null)
+        if (vmr == null) {
             throw new ClassNotFoundException("Virtual machine terminated.");
+        }
             
         ReferenceType classMirror;
         synchronized (serverThreadLock) {
-            if (machineState != Debugger.RUNNING) {
+            if (initialize && machineState != Debugger.RUNNING) {
                 classMirror = vmr.loadInitClass(className);
             }
             else {
@@ -796,6 +769,9 @@ public class JdiDebugger extends Debugger
         }
     }
     
+    /*
+     * @see bluej.debugger.Debugger#toggleBreakpoint(java.lang.String, java.lang.String, boolean, java.util.Map)
+     */
     public String toggleBreakpoint(String className, String method, boolean set, Map<String, String> properties)
     {
         VMReference vmr = getVM();
@@ -818,6 +794,34 @@ public class JdiDebugger extends Debugger
             return Config.getString("debugger.jdiDebugger.internalErrorMsg");
         }
     }
+    
+    /*
+     * @see bluej.debugger.Debugger#toggleBreakpoint(bluej.debugger.DebuggerClass, java.lang.String, boolean, java.util.Map)
+     */
+    public String toggleBreakpoint(DebuggerClass debuggerClass, String method, boolean set, Map<String, String> properties)
+    {
+        VMReference vmr = getVM();
+        try {
+            if (vmr != null) {
+                JdiClass jdiClass = (JdiClass) debuggerClass;
+                if (set) {
+                    return vmr.setBreakpoint(jdiClass.remoteClass, method, properties);
+                }
+                else {
+                    return vmr.clearBreakpoint(jdiClass.remoteClass, method);
+                }
+            }
+            else {
+                return "VM terminated.";
+            }
+        }
+        catch (Exception e) {
+            Debug.reportError("breakpoint error: " + e);
+            e.printStackTrace(System.out);
+            return Config.getString("debugger.jdiDebugger.internalErrorMsg");
+        }
+    }
+
 
     /**
      * Called by VMReference when a breakpoint/step is encountered in the
@@ -911,8 +915,9 @@ public class JdiDebugger extends Debugger
                 //
                 // In the case of a self-restart, a new machine loader has only
                 // just been set-up, so don't trash it now!
-                if (!selfRestart)
+                if (!selfRestart) {
                     machineLoader = new MachineLoaderThread();
+                }
                 vmRunning = false;
                 selfRestart = true;
                 
@@ -1015,13 +1020,6 @@ public class JdiDebugger extends Debugger
 
     // -- support methods --
 
-    /*
-    public void dumpThreadInfo()
-    {
-        getVM().dumpThreadInfo();
-    }
-    */
-
     /**
      * Get the VM, waiting for it to finish loading first (if necessary). In
      * rare cases, when the project has been closed, this may return null.
@@ -1031,10 +1029,12 @@ public class JdiDebugger extends Debugger
     private VMReference getVM()
     {
         MachineLoaderThread mlt = machineLoader;
-        if (mlt == null)
+        if (mlt == null) {
             return null;
-        else
+        }
+        else {
             return mlt.getVM();
+        }
     }
     
     /**
@@ -1064,9 +1064,10 @@ public class JdiDebugger extends Debugger
         public void run()
         {
             try {
-                vmRef = new VMReference(JdiDebugger.this, terminal, startingDirectory);
+                VMReference newVM = new VMReference(JdiDebugger.this, terminal, startingDirectory);
                 
                 synchronized(JdiDebugger.this) {
+                    vmRef = newVM;
                     if (vmRef.getExitStatus() != Debugger.TERMINATED) {
                         if (autoRestart) {
                             // We now have a running VM.
@@ -1100,21 +1101,33 @@ public class JdiDebugger extends Debugger
             // getVM() may creep in before run() begins execution. That's why
             // we use notify()/wait().
             while (!vmRunning) {
+                synchronized (JdiDebugger.this) {
+                    if (! autoRestart) {
+                        // VM launch was aborted.
+                        break;
+                    }
+                }
                 try {
                     wait();
                 }
                 catch (InterruptedException e) {}
             }
                 
-            return autoRestart ? vmRef : null;
+            return vmRef;
         }
         
+        /**
+         * Get the VM reference, without waiting for it to start. If no VM has started,
+         * this returns null.
+         */
         private synchronized VMReference getVMNoWait()
         {
-            if (! vmRunning)
+            if (! vmRunning) {
                 return null;
-            else
+            }
+            else {
                 return vmRef;
+            }
         }
     }
 

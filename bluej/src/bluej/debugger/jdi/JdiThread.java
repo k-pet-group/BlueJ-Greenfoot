@@ -544,6 +544,9 @@ class JdiThread extends DebuggerThread
         request.putProperty(VMEventHandler.DONT_RESUME, "yes");
         request.enable();
 
+        synchronized (this) {
+            isSuspended = false;
+        }
         rt.resume();
     }
 

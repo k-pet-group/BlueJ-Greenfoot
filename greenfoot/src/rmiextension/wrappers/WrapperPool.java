@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -34,15 +34,16 @@ import bluej.extensions.BProject;
 /**
  * This class has a pool of RMI-wrappers that have been created. This is used to
  * avoid getting more than one RMI-wrapper for each object. Doing this, makes it
- * possible to use == to test if two objects are the same.
+ * possible to use reference equality ('==' operator) to test if two objects are the same.
  * 
- * Remember to "release" objects when they are no longer needed.
+ * <p>Remember to "release" objects when they are no longer needed.
+ * 
+ * <p>This class is thread-safe.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
  */
 public class WrapperPool
 {
-
     static private WrapperPool instance = new WrapperPool();
 
     private WeakHashMap<Object,Object> pool = new WeakHashMap<Object,Object>();
