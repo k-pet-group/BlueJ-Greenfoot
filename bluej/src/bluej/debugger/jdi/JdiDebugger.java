@@ -242,7 +242,10 @@ public class JdiDebugger extends Debugger
         else if (!restart) {
             autoRestart = false;
             selfRestart = false;
-            machineLoader = null;
+            if (machineLoader != null) {
+                machineLoader.abortLaunch();
+                machineLoader = null;
+            }
         }
     }
 
@@ -1047,17 +1050,21 @@ public class JdiDebugger extends Debugger
         // Store a single value of machineLoader in a local variable to avoid
         // synchronization issues.
         MachineLoaderThread mlt = machineLoader;
-        if (mlt == null)
+        if (mlt == null) {
             return null;
-        else
+        }
+        else {
             return mlt.getVMNoWait();
+        }
     }
 
     /**
      * A thread which loads a new instance of the debugger.
      */
-    class MachineLoaderThread extends Thread
+    private class MachineLoaderThread extends Thread
     {
+        private boolean aborted; 
+        
         MachineLoaderThread()
         {}
 
@@ -1090,46 +1097,47 @@ public class JdiDebugger extends Debugger
 
             // wake any internal getVM() calls that
             // are waiting for us to finish
-            synchronized(JdiDebugger.this) {
-                JdiDebugger.this.notifyAll();
+            synchronized(this) {
+                notifyAll();
             }
         }
 
-        private VMReference getVM()
+        private synchronized VMReference getVM()
         {
-            synchronized (JdiDebugger.this) {
-                // We can't just rely on synchronization, since it's possible that
-                // getVM() may creep in before run() begins execution. That's why
-                // we use notify()/wait().
-                while (!vmRunning) {
-                    if (! autoRestart) {
-                        // VM launch was aborted.
-                        break;
-                    }
-                    try {
-                        JdiDebugger.this.wait();
-                    }
-                    catch (InterruptedException e) {}
+            // We can't just rely on synchronization, since it's possible that
+            // getVM() may creep in before run() begins execution. That's why
+            // we use notify()/wait().
+            while (!vmRunning && !aborted) {
+                try {
+                    wait();
                 }
-                    
-                return vmRef;
+                catch (InterruptedException e) {}
             }
+                
+            return vmRef;
         }
         
         /**
          * Get the VM reference, without waiting for it to start. If no VM has started,
          * this returns null.
          */
-        private VMReference getVMNoWait()
+        private synchronized VMReference getVMNoWait()
         {
-            synchronized (JdiDebugger.this) {
-                if (! vmRunning) {
-                    return null;
-                }
-                else {
-                    return vmRef;
-                }
+            if (! vmRunning) {
+                return null;
             }
+            else {
+                return vmRef;
+            }
+        }
+        
+        /**
+         * VM launch should be aborted.
+         */
+        public synchronized void abortLaunch()
+        {
+            aborted = true;
+            notifyAll();
         }
     }
 
