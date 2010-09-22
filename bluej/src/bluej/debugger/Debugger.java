@@ -96,7 +96,8 @@ public abstract class Debugger
     }
 
     /**
-     * Start debugging.
+     * Launch a VM for running user code, which will be controlled by this debugger instance.
+     * This should be called only once.
      * 
      * <p>This can be a lengthy process so this should be executed in a sub thread.
      */

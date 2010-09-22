@@ -81,9 +81,6 @@ public class JdiDebugger extends Debugger
 {
     private static final int loaderPriority = Thread.NORM_PRIORITY - 2;
 
-    // indicates whether the debug VM has been successfully loaded and started
-    volatile private boolean vmRunning = false;
-
     // If false, specifies that a new VM should be started when the old one dies
     private boolean autoRestart = true;
 
@@ -91,7 +88,10 @@ public class JdiDebugger extends Debugger
     // method that a new loader thread doesn't need to be re-created.
     private boolean selfRestart = false;
 
-    // the reference to the current remote VM handler
+    /**
+     * The reference to the current remote VM handler. Will be null if the remote VM is not
+     * currently running.
+     */
     private VMReference vmRef;
 
     // the thread that we spawn to load the current remote VM
@@ -164,7 +164,7 @@ public class JdiDebugger extends Debugger
         // latter case, there's no need to create a new machine loader, as
         // that's pre-done in close(), below.
 
-        if (vmRunning) {
+        if (vmRef != null) {
             throw new IllegalStateException("JdiDebugger.launch() was called but the debugger was already loaded");
         }
 
@@ -176,8 +176,6 @@ public class JdiDebugger extends Debugger
         }
 
         autoRestart = true;
-
-        raiseStateChangeEvent(Debugger.NOTREADY);
 
         // start the MachineLoader (a separate thread) to load the
         // remote virtual machine in the background
@@ -216,7 +214,7 @@ public class JdiDebugger extends Debugger
         // Launching: vmRunning = false. selfRestart = false.
         //              machineLoader != null.
 
-        if (vmRunning) {
+        if (vmRef != null) {
             // The process is already started. We want to stop it (and
             // possibly to then restart it).
             autoRestart = restart;
@@ -242,10 +240,7 @@ public class JdiDebugger extends Debugger
         else if (!restart) {
             autoRestart = false;
             selfRestart = false;
-            if (machineLoader != null) {
-                machineLoader.abortLaunch();
-                machineLoader = null;
-            }
+            machineLoader = null;
         }
     }
 
@@ -912,7 +907,7 @@ public class JdiDebugger extends Debugger
             // It's possible to receive vmDisconnect before we're even aware that
             // we're running. We can ignore it in that case. Synchronization insures
             // that valid disconnect events are never lost.
-            if (vmRunning) {
+            if (vmRef != null) {
                 // Indicate to the launch procedure that we are not in a launch 
                 // (see launch()).
                 //
@@ -921,15 +916,14 @@ public class JdiDebugger extends Debugger
                 if (!selfRestart) {
                     machineLoader = new MachineLoaderThread();
                 }
-                vmRunning = false;
                 selfRestart = true;
                 
                 vmRef.closeIO();
                 vmRef = null;
                 
-                launch();
-                
                 raiseStateChangeEvent(Debugger.NOTREADY);
+
+                launch();
                 
                 usedNames.clear();
                 treeModel.syncExec(new Runnable() {
@@ -1050,21 +1044,17 @@ public class JdiDebugger extends Debugger
         // Store a single value of machineLoader in a local variable to avoid
         // synchronization issues.
         MachineLoaderThread mlt = machineLoader;
-        if (mlt == null) {
+        if (mlt == null)
             return null;
-        }
-        else {
+        else
             return mlt.getVMNoWait();
-        }
     }
 
     /**
      * A thread which loads a new instance of the debugger.
      */
-    private class MachineLoaderThread extends Thread
+    class MachineLoaderThread extends Thread
     {
-        private boolean aborted; 
-        
         MachineLoaderThread()
         {}
 
@@ -1072,24 +1062,24 @@ public class JdiDebugger extends Debugger
         {
             try {
                 VMReference newVM = new VMReference(JdiDebugger.this, terminal, startingDirectory);
+
+                BPClassLoader lastLoader;
+                synchronized(JdiDebugger.this) {
+                    if (! autoRestart) {
+                        newVM.close();
+                        JdiDebugger.this.notifyAll();
+                        return;
+                    }
+                    lastLoader = lastProjectClassLoader;
+                }
                 
+                // Do this outside of the synchronized blocks, mainly to avoid holding
+                // the monitor unnecessarily:
+                newVM.newClassLoader(lastLoader.getURLs());
+
                 synchronized(JdiDebugger.this) {
                     vmRef = newVM;
-                    if (vmRef.getExitStatus() != Debugger.TERMINATED) {
-                        if (autoRestart) {
-                            // We now have a running VM.
-                            vmRef.newClassLoader(lastProjectClassLoader.getURLs());
-                            vmRunning = true;
-                        }
-                        else {
-                            // autoRestart is false - a call to JdiDebugger.close(false)
-                            // occurred (to shut down debugger). So we should just close
-                            // the launched VM.
-                            vmRef.close();
-                        }
-                    }
                 }
-
             }
             catch (JdiVmCreationException e) {
                 raiseStateChangeEvent(Debugger.LAUNCH_FAILED);
@@ -1097,47 +1087,37 @@ public class JdiDebugger extends Debugger
 
             // wake any internal getVM() calls that
             // are waiting for us to finish
-            synchronized(this) {
-                notifyAll();
+            synchronized(JdiDebugger.this) {
+                JdiDebugger.this.notifyAll();
             }
         }
 
-        private synchronized VMReference getVM()
+        private VMReference getVM()
         {
-            // We can't just rely on synchronization, since it's possible that
-            // getVM() may creep in before run() begins execution. That's why
-            // we use notify()/wait().
-            while (!vmRunning && !aborted) {
-                try {
-                    wait();
+            synchronized (JdiDebugger.this) {
+                // We can't just rely on synchronization, since it's possible that
+                // getVM() may creep in before run() begins execution. That's why
+                // we use notify()/wait().
+                while (vmRef == null && autoRestart) {
+                    try {
+                        JdiDebugger.this.wait();
+                    }
+                    catch (InterruptedException e) {}
                 }
-                catch (InterruptedException e) {}
+                    
+                return vmRef;
             }
-                
-            return vmRef;
         }
         
         /**
          * Get the VM reference, without waiting for it to start. If no VM has started,
          * this returns null.
          */
-        private synchronized VMReference getVMNoWait()
+        private VMReference getVMNoWait()
         {
-            if (! vmRunning) {
-                return null;
-            }
-            else {
+            synchronized (JdiDebugger.this) {
                 return vmRef;
             }
-        }
-        
-        /**
-         * VM launch should be aborted.
-         */
-        public synchronized void abortLaunch()
-        {
-            aborted = true;
-            notifyAll();
         }
     }
 
