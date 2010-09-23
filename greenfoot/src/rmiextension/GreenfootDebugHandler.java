@@ -221,8 +221,13 @@ public class GreenfootDebugHandler implements DebuggerListener
                     return true;                    
                 } //otherwise they are in their own code
             } else  {
-                // They are not in an act() method; run until they get there:
-                runToInternalBreakpoint(debugger, e.getThread());
+                if (inPauseMethod(stack)) {
+                    // They are paused, just set them running again and forget it:
+                    e.getThread().cont();
+                } else {
+                    // They are not in an act() method and not paused; run until they get to an act() method:
+                    runToInternalBreakpoint(debugger, e.getThread());
+                }
                 return true;
             }
         }
@@ -327,6 +332,20 @@ public class GreenfootDebugHandler implements DebuggerListener
     private static boolean atPauseBreakpoint(BreakpointProperties props)
     {
         return props != null && props.get(SIMULATION_THREAD_PAUSED_KEY) != null;
+    }
+    
+    /**
+     * Works out if they are currently paused by looking at the call stack
+     * while they are suspended.
+     */
+    private static boolean inPauseMethod(List<SourceLocation> stack)
+    {
+        for (SourceLocation loc : stack) {
+            if (loc.getClassName().equals(SIMULATION_CLASS) && loc.getMethodName().equals(PAUSED_METHOD)) {
+                return true;
+            }
+        }
+        return false;
     }
     
     /**
