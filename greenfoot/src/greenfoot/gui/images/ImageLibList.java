@@ -76,12 +76,17 @@ public class ImageLibList extends EditableList<ImageLibList.ImageListEntry> impl
     
     private LinkedList<ImageListEntry> data;
     
+    /** The frame containing this ImageLibList */
+    private ImageLibFrame imageLibFrame;
+    
     /**
      * Construct an empty ImageLibList.
      */
-    public ImageLibList(final boolean editable)
+    public ImageLibList(final boolean editable, ImageLibFrame imageLibFrame)
     {      
         super(editable);
+        this.imageLibFrame = imageLibFrame;
+        
         TableColumn tableColumn = getColumnModel().getColumn(0);
         tableColumn.setCellRenderer(new MyCellRenderer());
         
@@ -109,9 +114,9 @@ public class ImageLibList extends EditableList<ImageLibList.ImageListEntry> impl
      * 
      * @param directory  The directory to retrieve images from
      */
-    public ImageLibList(File directory, final boolean editable)
+    public ImageLibList(File directory, final boolean editable, ImageLibFrame imageLibFrame)
     {
-        this(editable);
+        this(editable, imageLibFrame);
         setDirectory(directory);
     }
 
@@ -153,7 +158,6 @@ public class ImageLibList extends EditableList<ImageLibList.ImageListEntry> impl
             }
         }
         setListData(data);
-         
     }
 
     /**
@@ -187,8 +191,9 @@ public class ImageLibList extends EditableList<ImageLibList.ImageListEntry> impl
             anyReloaded |= reloaded;
         }
         
-        if (anyReloaded)
+        if (anyReloaded) {
             repaint();
+        }
     }
 
     /**
@@ -345,7 +350,7 @@ public class ImageLibList extends EditableList<ImageLibList.ImageListEntry> impl
     }
     
     
-    public static class ImageListEntry
+    public class ImageListEntry
     {
         public File imageFile;
         public Icon imageIcon;
@@ -394,6 +399,8 @@ public class ImageLibList extends EditableList<ImageLibList.ImageListEntry> impl
                         Image scaledImage = GreenfootUtil.getScaledImage(image, dpi / 3, dpi / 3);
                         imageIcon = new ImageIcon(scaledImage);
                     }
+                    
+                    imageLibFrame.imageFileRefreshed(imageFile, image);
                 }
                 catch (MalformedURLException mfue) {}
                 catch (IOException ioe) {}

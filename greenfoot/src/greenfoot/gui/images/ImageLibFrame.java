@@ -47,8 +47,7 @@ import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Timer;
-import java.util.TimerTask;
+import javax.swing.Timer;
 
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
@@ -69,18 +68,16 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import bluej.BlueJTheme;
 import bluej.Config;
-import bluej.utility.DialogManager;
 import bluej.utility.EscapeDialog;
 import bluej.utility.FileUtility;
 
 /**
- * A dialog for selecting a class image. The image can be selected from either the
+ * A (modal) dialog for selecting a class image. The image can be selected from either the
  * project image library, or the greenfoot library, or an external location.
  *
  * @author Davin McCall
@@ -95,7 +92,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
     /** The default image icon - the greenfoot logo */
     private Icon defaultIcon;
     private JScrollPane imageScrollPane;
-
+    
     private ImageLibList projImageList;
     private ImageLibList greenfootImageList;
     private Action okAction;
@@ -108,9 +105,8 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
     private int result = CANCEL;
 
     private JTextField classNameField;
-    private File newlyCreatedImage;
 
-    private TimerTask refreshTask;
+    private Timer refreshTimer;
     
     /** Suffix used when creating a copy of an existing image (duplicate) */
     private static final String COPY_SUFFIX = "Copy"; //TODO move to labels
@@ -169,8 +165,6 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
 
         // Image selection panels - project and greenfoot image library
         {
-            //JPanel imageSelPanels = new JPanel();
-            //imageSelPanels.setLayout(new GridLayout(1, 2, BlueJTheme.componentSpacingSmall, 0));
             Box imageSelPanels = new Box(BoxLayout.X_AXIS);
 
             // Project images panel
@@ -185,7 +179,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
 
                 File projDir = project.getDir();
                 projImagesDir = new File(projDir, "images");
-                projImageList = new ImageLibList(projImagesDir, false);
+                projImageList = new ImageLibList(projImagesDir, false, this);
                 imageScrollPane.getViewport().setView(projImageList);
 
                 imageScrollPane.setBorder(Config.normalBorder);
@@ -203,12 +197,11 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
             ImageCategorySelector imageCategorySelector = new ImageCategorySelector(imageDir);
 
             // List of images
-            greenfootImageList = new ImageLibList(false);
+            greenfootImageList = new ImageLibList(false, this);
             
             JComponent greenfootLibPanel = new GreenfootImageLibPanel(imageCategorySelector, greenfootImageList);
             
             imageSelPanels.add(greenfootLibPanel);
-            
             
             imageSelPanels.setAlignmentX(0.0f);
             contentPane.add(imageSelPanels);
@@ -275,13 +268,8 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                     final File file = newImage.displayModal();
                     if (file != null) {
                         projImageList.refresh();
-                        SwingUtilities.invokeLater(new Runnable() {
-                            @Override
-                            public void run()
-                            {
-                                newlyCreatedImage = file;
-                            }
-                        });
+                        projImageList.select(file);
+                        selectImage(file);
                     }                                           
                 }                
             });
@@ -322,15 +310,6 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
             cancelButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     result = CANCEL;
-                    // when cancelling see if there is an existing image
-                    // for this actor, and if so set it to that again.
-                    String imageName = gclass.getClassProperty("image");
-                    if (imageName == null) {
-                        selectedImageFile = null;
-                    }
-                    else {
-                        selectedImageFile = new File(new File("images"), imageName);
-                    }
                     setVisible(false);
                     dispose();
                 }
@@ -357,17 +336,17 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
             getRootPane().setDefaultButton(okButton);
         }
         
-        refreshTask = new TimerTask() {
-            public void run()
+        ActionListener refreshTask = new ActionListener() {
+            public void actionPerformed(ActionEvent e)
             {
                 projImageList.refreshPreviews();
-            }
+            };
         };
-        new Timer().schedule(refreshTask, 2000, 2000);
+            
+        refreshTimer = new Timer(2000, refreshTask);
+        refreshTimer.start();
 
         pack();
-        DialogManager.centreDialog(this);
-        setVisible(true);
     }
 
     /**
@@ -506,9 +485,10 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
     }
 
     /**
-     * Selects the given file for use in the preview. If the
-     * file is null, then handle as if it worked, the methods will
-     * display the default icon when the actor is placed on the world.
+     * Selects the given file (or no file) for use in the preview.
+     * 
+     * @param imageFile  The file to select, and to show in the small preview box in the
+     *                   ImageLibFrame. If null, then "no image" is selected.
      */
     private void selectImage(File imageFile)
     {
@@ -577,6 +557,12 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
             return new ImageIcon(bi);
         }
     }
+    
+    private static Icon getHalfinchScaledImage(BufferedImage bi)
+    {
+        int dpi = Toolkit.getDefaultToolkit().getScreenResolution();
+        return new ImageIcon(GreenfootUtil.getScaledImage(bi, dpi/2, dpi/2));
+    }
 
     /**
      * Fix the maximum height of the component equal to its preferred size, and
@@ -607,19 +593,21 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
     }
 
     /**
+     * Notification that a file changed on disk.
+     */
+    public void imageFileRefreshed(File f, BufferedImage image)
+    {
+        if (f.equals(selectedImageFile)) {
+            imageLabel.setIcon(getHalfinchScaledImage(image));
+        }
+    }
+    
+    /**
      * Get the name of the class as entered in the dialog.
      */
     public String getClassName()
     {
         return classNameField.getText();
-    }
-
-    /**
-     * Refresh the content of the project image list.
-     */
-    public void refresh()
-    {
-        projImageList.refresh();
     }
 
     /**
@@ -642,21 +630,16 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
      */
     public void windowActivated(WindowEvent e)
     {
-        if (newlyCreatedImage != null) {
-            projImageList.select(newlyCreatedImage);
-            selectImage(newlyCreatedImage);
-            newlyCreatedImage = null;
-        }
     }
 
     public void windowClosed(WindowEvent e)
     {
-        refreshTask.cancel();
+        refreshTimer.stop();
     }
 
     public void windowClosing(WindowEvent e)
     {
-        refreshTask.cancel();
+        refreshTimer.stop();
     }
 
     public void windowDeactivated(WindowEvent e) 
