@@ -1,0 +1,10 @@
+[Desktop Entry]
+Encoding=UTF-8
+Version=1.0
+Name=BlueJ
+Comment=A simple Java IDE and animation framework
+Categories=Application;Development;
+Exec=greenfoot
+Icon=greenfoot
+Terminal=false
+Type=Application

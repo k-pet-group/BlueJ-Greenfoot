@@ -1,0 +1,14 @@
+#!/bin/sh
+if [ -e /usr/lib/jvm/java-6-sun ]; then
+	JAVAPATH="/usr/lib/jvm/java-6-sun"
+elif [ -e /usr/lib/jvm/java-6-openjdk ]; then
+	JAVAPATH="/usr/lib/jvm/java-6-openjdk"
+elif [ -e /usr/lib/jvm/java-5-sun ]; then
+	JAVAPATH="/usr/lib/jvm/java-5-sun"
+else
+	echo "A suitable JDK couldn't be located. You may need to edit the"
+	echo "/usr/bin/greenfoot launch script."
+fi
+	
+CP="/usr/share/bluej/bluej.jar:$JAVAPATH/lib/tools.jar"
+"$JAVAPATH/bin/java" -cp "$CP" bluej.Boot -greenfoot=true -bluej.compiler.showunchecked=false "$@"

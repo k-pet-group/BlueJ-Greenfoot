@@ -1,0 +1,10 @@
+Package: bluej
+Priority: extra
+Section: Programming
+Installed-Size: 7000
+Maintainer: Davin McCall <davmac@bluej.org>
+Architecture: all
+Version: VERSION
+Depends: sun-java6-jdk | sun-java5-jdk | openjdk-6-jdk
+Description: A simple but powerful Java IDE.
+  Go to <bluej.org> for more details.
