@@ -372,12 +372,14 @@ public class JdiDebugger extends Debugger
      * @return true if the object could be added with this name, false if there
      *         was a name clash.
      */
-    public synchronized boolean addObject(String scopeId, String newInstanceName, DebuggerObject dob)
+    public boolean addObject(String scopeId, String newInstanceName, DebuggerObject dob)
     {
         VMReference vmr = getVMNoWait();
         if (vmr != null) {
             vmr.addObject(scopeId, newInstanceName, ((JdiObject) dob).getObjectReference());
-            usedNames.add(newInstanceName);
+            synchronized (this) {
+                usedNames.add(newInstanceName);
+            }
         }
         return true;
     }
