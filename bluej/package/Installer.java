@@ -23,14 +23,9 @@ import javax.swing.*;
 import javax.swing.text.Keymap;
 
 /**
-  * Usage:
-  * java Installer build <properties_file>
-  *
-  * This modifes the Installer.class file, which can then be run as
-  *
-  *   java Installer
-  *
-  * @version $Id: Installer.java 5896 2008-09-23 04:01:17Z davmac $
+  * Java installer. This is a GUI for unpacking an application (BlueJ or
+  * Greenfoot) bundled inside a jar file. A properties file also bundled
+  * in the jar file controls the installation.
   *
   * @author  Michael Kolling
   * @author  based partly on code by Andrew Hunt, Toolshed Technologies Inc.
@@ -40,9 +35,8 @@ import javax.swing.text.Keymap;
   * the Free Software Foundation; either version 2 of the License, or
   * (at your option) any later version.
   * 
-  * Modified by Davin McCall, 2005-09-06.
+  * Modified by Davin McCall, 2005-09-06, and 2010-09-24
   */
-
 public class Installer extends JFrame
 	implements ActionListener
 {
