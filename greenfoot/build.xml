@@ -189,9 +189,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
                 destdir="${build}" 
                 classpathref="bluej.class.path" 
                 debug="true">
-            <compilerarg line="-target 1.5" />
-            <exclude name="greenfoot/util/ExternalAppLauncher.java"/>
-           
+            <compilerarg line="-target 1.6" />
         </javac>
         <!-- Compile the RMI-classes -->
         <rmic base="${build}" includes="**/*Impl.class" excludes="bluej/**">
@@ -232,7 +230,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <macrodef name="compile-scenario">
             <attribute name="scenario" />
             <sequential>
-                <javac srcdir="scenarios/@{scenario}" debug="true" target="1.5">
+                <javac srcdir="scenarios/@{scenario}" debug="true" target="1.6">
                     <classpath>
                         <path refid="greenfoot.class.path"/>
                         <path refid="bluej.class.path"/>
@@ -309,13 +307,6 @@ LICENSE.txt file that accompanied this code.${line.separator}
             <fileset dir="labels"/>
         </copy>
     </target>
-
-
-    <!--target name="copy-templates" description="Copies the templates for new class files to bluej">
-        <copy todir="${bluej.lib.greenfoot}/templates">
-            <fileset dir="resources/templates"/>
-        </copy>
-    </target-->
 
     <target name="update-images" description="Copies the images from the resource directory out into the various places where the images are required.">
         <!-- Installer image windows: greenfoot-install.bmp -->
@@ -527,7 +518,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
             classpathref="bluej.class.path" 
             debug="true"
             sourcepath=""            
-            target="1.5"
+            target="1.6"
         >
             <src path="${src}"/>
 
