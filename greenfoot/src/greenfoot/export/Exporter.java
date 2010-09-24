@@ -111,7 +111,7 @@ public class Exporter
         
         boolean  lockScenario = pane.lockScenario();
         
-        JarCreator jarCreator = new JarCreator(project, exportDir, jarName, worldClass, lockScenario);            
+        JarCreator jarCreator = new JarCreator(project, exportDir, jarName, worldClass, lockScenario, true);            
         
         // do not include source
         jarCreator.includeSource(false);
@@ -248,7 +248,7 @@ public class Exporter
         
         boolean  includeControls = pane.lockScenario();
         String jarName = project.getName() + ".jar";
-        JarCreator jarCreator = new JarCreator(project, exportDir, jarName, worldClass, includeControls);            
+        JarCreator jarCreator = new JarCreator(project, exportDir, jarName, worldClass, includeControls, true);            
         
         // do not include source
         jarCreator.includeSource(false);        
@@ -313,7 +313,7 @@ public class Exporter
         
         boolean  includeControls = pane.lockScenario();
         
-        JarCreator jarCreator = new JarCreator(project, exportDir, jarName, worldClass, includeControls); 
+        JarCreator jarCreator = new JarCreator(project, exportDir, jarName, worldClass, includeControls, false); 
         // do not include source
         jarCreator.includeSource(false);  
         

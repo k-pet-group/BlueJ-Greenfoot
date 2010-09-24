@@ -134,8 +134,9 @@ public class JarCreator
      * @param worldClass Name of the main class.
      * @param lockScenario Should the exported scenario include 'act'
      *            and speedslider.
+     * @param applet Whether the export is for an applet on a webpage (true) or for a stand-alone JAR (false) 
      */
-    public JarCreator(GProject project, File exportDir, String jarName, String worldClass, boolean lockScenario) 
+    public JarCreator(GProject project, File exportDir, String jarName, String worldClass, boolean lockScenario, boolean applet) 
     {   
         this(exportDir, jarName);
         
@@ -174,7 +175,7 @@ public class JarCreator
         addSkipDir(Project.projectLibDirName);
         
         // Set the main class
-        String mainClass = "greenfoot.export.GreenfootScenarioMain";
+        String mainClass = (applet ? GreenfootScenarioViewer.class : GreenfootScenarioMain.class).getCanonicalName();
         setMainClass(mainClass);
         
         // Add the properties read by the GreenfootScenarioViewer
