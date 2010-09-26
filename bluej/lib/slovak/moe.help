@@ -1,0 +1,114 @@
+#
+# Moe user function help texts.
+#
+# Part of the BlueJ program development environment.
+#
+
+## edit functions
+
+delete-previous=\n Zmaza\u0165 znak v\u013eavo pred kurzorom.
+delete-next=\n Zmaza\u0165 znak vpravo za kurzorom.
+copy-to-clipboard=\n Kop\u00edrova\u0165 vybran\u00fd text do schr\u00e1nky. \nOdtia\u013e m\u00f4\u017ee by\u0165 nesk\u00f4r prilepen\u00fd na in\u00e9 miesto.
+cut-to-clipboard=\n Vystrihn\u00fa\u0165 vybran\u00fd text a\u00a0umiestni\u0165 do schr\u00e1nky.\nOdtia\u013e m\u00f4\u017ee by\u0165 nesk\u00f4r prilepen\u00fd na in\u00e9 miesto.
+copy-line=\n Kop\u00edrova\u0165 aktu\u00e1lny riadok do schr\u00e1nky.
+cut-line=\n Vystrihn\u00fa\u0165 vybran\u00fd riadok a\u00a0vlo\u017ei\u0165 ho do schr\u00e1nky.
+cut-end-of-line=\n Vystrihn\u00fa\u0165 zvy\u0161ok riadka a\u00a0vlo\u017ei\u0165 ho do schr\u00e1nky.
+cut-word=\n Vystrihn\u00fa\u0165 slovo a\u00a0vlo\u017ei\u0165 ho do schr\u00e1nky.
+cut-end-of-word=\n Vystrihn\u00fa\u0165 text od kurzora do konca slova a\u00a0vlo\u017ei\u0165 ho do schr\u00e1nky.
+paste-from-clipboard=\n Prilepi\u0165 text zo schr\u00e1nky na aktu\u00e1lny poz\u00edciu kurzora.
+indent=\n Ak je v\u00a0predvo\u013eb\u00e1ch zapnut\u00e1 vo\u013eba \u201eautomatick\u00e9 odsadenie\u201c,\n odsad\u00ed riadok pod\u013ea predch\u00e1dzaj\u00faceho riadka. \n V\u00a0opa\u010dnom pr\u00edpade vlo\u017e\u00ed m\u00e4kk\u00fd TAB (medzerami).
+insert-tab=\n Vlo\u017ei\u0165 znak TAB.
+new-line=\n Vlo\u017ei\u0165 koniec riadka. Ak je v\u00a0predvo\u013eb\u00e1ch zapnut\u00e1 vo\u013eba\n \u201eautomatick\u00e9 odsadenie\u201c, odsad\u00ed riadok pod\u013ea predch\u00e1dzaj\u00faceho riadka.
+insert-break=\n Vlo\u017ei\u0165 koniec riadka bez odsadenia nov\u00e9ho riadka.
+insert-method=\n Vlo\u017ei\u0165 kostru met\u00f3dy.
+comment-block=\n Ozna\u010di\u0165 vybran\u00e9 riadky ako koment\u00e1r. Zakomentovanie m\u00f4\u017ee by\u0165 zru\u0161en\u00e9\n pr\u00edkazom uncomment-block (odkomentova\u0165 blok).
+uncomment-block=\n Odkomentova\u0165 vybran\u00e9 riadky. Pozri tie\u017e comment-block (zakomentova\u0165 blok).
+indent-block=\n Zv\u00e4\u010d\u0161i\u0165 odsadenie vybran\u00fdch riadkov o\u00a0jednu \u00farove\u0148.
+deindent-block=\n Zmen\u0161i\u0165 odsadenie vybran\u00fdch riadkov o\u00a0jednu \u00farove\u0148.
+increase-font=\n Zv\u00e4\u010d\u0161i\u0165 ve\u013ekos\u0165 p\u00edsma o\u00a01
+decrease-font=\n Zmen\u0161i\u0165 ve\u013ekos\u0165 p\u00edsma o\u00a01
+code-completion=\n Pom\u00f4c\u0165 pri doplnen\u00ed k\u00f3du
+
+select-word=\n Ozna\u010di\u0165 aktu\u00e1lne slovo (priraden\u00e9 tie\u017e \n k\u00a0left-mouse-button: double-click).
+select-line=\n Ozna\u010di\u0165 aktu\u00e1lny riadok (priraden\u00e9 tie\u017e \n k\u00a0left-mouse-button: triple-click).
+select-paragraph=\n Ozna\u010di\u0165 aktu\u00e1lny odsek.
+select-all=\n Ozna\u010di\u0165 cel\u00fd text.
+selection-backward=\n Posun\u00fa\u0165 koniec v\u00fdberu o\u00a0jeden znak sp\u00e4\u0165.
+selection-forward=\n Posun\u00fa\u0165 koniec v\u00fdberu o\u00a0jeden znak dopredu.
+selection-up=\n Posun\u00fa\u0165 koniec v\u00fdberu o\u00a0jeden riadok hore.
+selection-down=\n Posun\u00fa\u0165 koniec v\u00fdberu o\u00a0jeden riadok dole.
+selection-begin-word=\n Posun\u00fa\u0165 koniec v\u00fdberu na za\u010diatok aktu\u00e1lneho slova.
+selection-end-word=\n Posun\u00fa\u0165 koniec v\u00fdberu na koniec aktu\u00e1lneho slova.
+selection-previous-word=\n Posun\u00fa\u0165 koniec v\u00fdberu na za\u010diatok predch\u00e1dzaj\u00faceho slova.
+selection-next-word=\n Posun\u00fa\u0165 koniec v\u00fdberu na za\u010diatok nasleduj\u00faceho slova.
+selection-begin-line=\n Posun\u00fa\u0165 koniec v\u00fdberu na za\u010diatok aktu\u00e1lneho riadka.
+selection-end-line=\n Posun\u00fa\u0165 koniec v\u00fdberu na koniec aktu\u00e1lneho riadka.
+selection-begin-paragraph=\n Posun\u00fa\u0165 koniec v\u00fdberu na za\u010diatok aktu\u00e1lneho odseku.
+selection-end-paragraph=\n Posun\u00fa\u0165 koniec v\u00fdberu na koniec aktu\u00e1lneho odseku.
+selection-page-up=\n Posun\u00fa\u0165 koniec v\u00fdberu o\u00a0jednu str\u00e1nku hore.
+selection-page-down=\n Posun\u00fa\u0165 koniec v\u00fdberu o\u00a0jednu str\u00e1nku dole.
+selection-begin=\n Posun\u00fa\u0165 koniec v\u00fdberu na za\u010diatok textu.
+selection-end=\n Posun\u00fa\u0165 koniec v\u00fdberu na koniec textu.
+unselect=\n Zru\u0161i\u0165 ozna\u010denie textu.
+
+## move and scroll functions
+
+caret-backward=\n Posun\u00fa\u0165 kurzor o\u00a0jeden znak sp\u00e4\u0165.
+caret-forward=\n Posun\u00fa\u0165 kurzor o\u00a0jeden znak dopredu.
+caret-up=\n Posun\u00fa\u0165 kurzor o\u00a0jeden riadok hore.
+caret-down=\n Posun\u00fa\u0165 kurzor o\u00a0jeden riadok dole.
+caret-begin-word=\n Posun\u00fa\u0165 kurzor na za\u010diatok aktu\u00e1lneho slova.
+caret-end-word=\n Posun\u00fa\u0165 kurzor na koniec aktu\u00e1lneho slova.
+caret-previous-word=\n Posun\u00fa\u0165 kurzor na za\u010diatok predch\u00e1dzaj\u00faceho slova.
+caret-next-word=\n Posun\u00fa\u0165 kurzor na za\u010diatok nasleduj\u00faceho slova.
+caret-begin-line=\n Posun\u00fa\u0165 kurzor na za\u010diatok aktu\u00e1lneho riadka.
+caret-end-line=\n Posun\u00fa\u0165 kurzor na koniec aktu\u00e1lneho riadka.
+caret-begin-paragraph=\n Posun\u00fa\u0165 kurzor na za\u010diatok aktu\u00e1lneho odseku.
+caret-end-paragraph=\n Posun\u00fa\u0165 kurzor na koniec aktu\u00e1lneho odseku.
+page-up=\n Posun\u00fa\u0165 kurzor o\u00a0str\u00e1nku hore.
+page-down=\n Posun\u00fa\u0165 kurzor o\u00a0str\u00e1nku dole.
+caret-begin=\n Posun\u00fa\u0165 kurzor na za\u010diatok textu.
+caret-end=\n Posun\u00fa\u0165 kurzor na koniec textu.
+
+## class functions
+
+save=\n Ulo\u017ei\u0165 t\u00fato triedu. Za norm\u00e1lnych okolnost\u00ed nie je potrebn\u00e9 triedu uklada\u0165 ru\u010dne,\n trieda je ulo\u017een\u00e1 automaticky pred prekladom a\u00a0pri zatvoren\u00ed editora.
+reload=\n Nahra\u0165 triedu sp\u00e4tne zo s\u00faboru. Pri tejto oper\u00e1cii\n bud\u00fa zru\u0161en\u00e9 v\u0161etky zmeny od posledn\u00e9ho ulo\u017eenia (automatick\u00e9ho alebo ru\u010dn\u00e9ho).
+close=\n Zavrie\u0165 t\u00fato triedu. Zdrojov\u00fd k\u00f3d je automaticky ulo\u017een\u00fd.
+print=\n Otvori\u0165 tla\u010dov\u00fd dial\u00f3g pre zah\u00e1jenie tla\u010de.
+page-setup=\n Otvori\u0165 dial\u00f3g s\u00a0nastaven\u00edm vzh\u013eadu tla\u010dovej str\u00e1nky.
+
+
+## customisation functions
+
+key-bindings=\n Prezrie\u0165 a\u00a0nastavi\u0165 priradenie kl\u00e1vesov\u00fdch skratiek Moe editora.
+preferences=\n Nastavi\u0165 predvo\u013eby editora.
+
+
+## help functions
+
+describe-key=\n Po vyvolan\u00ed tejto akcie a\u00a0n\u00e1slednom stla\u010den\u00ed kl\u00e1vesovej skratky\n je zobrazen\u00fd opis funkcie priradenej tejto kl\u00e1vesovej skratke.
+help-mouse=\n Zobrazi\u0165 priradenie tla\u010didiel my\u0161i.
+show-manual=\n Otvori\u0165 prehliada\u010d a\u00a0zobrazi\u0165 n\u00e1vod k\u00a0editoru Moe.
+about-editor=\n Zobrazi\u0165 kr\u00e1tku pozn\u00e1mku k\u00a0Moe editoru.
+
+
+## misc functions
+
+undo=\n Sp\u00e4\u0165 \u2013 vr\u00e1ti\u0165 sp\u00e4\u0165 posledn\u00fa akciu. (Toto m\u00f4\u017ee by\u0165 zru\u0161en\u00e9 pr\u00edkazom \u201eZnova\u201c.)
+redo=\n Znova \u2013 zru\u0161i\u0165 predch\u00e1dzaj\u00faci pr\u00edkaz Sp\u00e4\u0165.
+
+find=\n Otvori\u0165 dial\u00f3g pre h\u013eadanie textu. Dial\u00f3g dovo\u013euje\n h\u013eadanie textu dopredu aj dozadu.
+find-next=\n Vyh\u013eada\u0165 \u010fal\u0161\u00ed v\u00fdskyt h\u013eadan\u00e9ho textu.
+find-next-backward=\n Vyh\u013eada\u0165 predo\u0161l\u00fd v\u00fdskyt h\u013eadan\u00e9ho textu.
+replace=\n Nahradi\u0165 \u010das\u0165 textu in\u00fdm.
+
+compile=\n Prelo\u017ei\u0165 aktu\u00e1lnu triedu. Pred prekladom s\u00fa zmeny\n automaticky ulo\u017een\u00e9 na disk.
+toggle-interface-view=\n Prepn\u00fa\u0165 zobrazenie medzi zdrojov\u00fdm k\u00f3dom a\u00a0opisom\n rozhrania. Opis rozhrania je zobrazen\u00fd vo form\u00e1te Javadoc.
+toggle-breakpoint=\n Nastavi\u0165 alebo odstr\u00e1ni\u0165 bod preru\u0161enia.
+
+## help texts for adding key bindings
+
+press-key=\n Stla\u010dte kl\u00e1vesov\u00fa skratku, ktor\u00fa chcete priradi\u0165\u2026
+cannot-redefine=\n Kl\u00e1vesy pre p\u00edsanie be\u017en\u00fdch znakov nem\u00f4\u017eu by\u0165 priraden\u00e9 kl\u00e1vesov\u00fdm skratk\u00e1m.
+

@@ -1,0 +1,12 @@
+Tento priečinok obsahuje niektoré šablóny, ktoré BlueJ používa pre generovanie
+súborov. Zmenou týchto šablón dosiahnete zmenu obsahu generovaných súborov.
+
+ - Šablóny „readme“ a „readmeexp“ môžete slobodne upravovať.
+ - Zmeny v „html“ šablónach vykonávajte opatrne, pretože ak porušíte štruktúru
+   html kódu, môžu nastať problémy.
+ - Rovnako opatrne vykonávajte zmeny v šablóne „method“, pretože tú editor
+   používa pri vkladaní nových metód.
+
+Podpriečinok „newclass“ obsahuje šablóny pro generovanie nových tried a rozhraní
+pomocou položky ponuky „Nová trieda…“.
+

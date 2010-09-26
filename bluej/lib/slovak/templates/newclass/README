@@ -1,0 +1,48 @@
+README – <bluej-home>/lib/<language>/templates/newclass/README
+--------------------------------------------------------------
+
+Tento priečinok obsahuje šablóny tried BlueJ.
+
+Tieto šablóny tried sú zobrazené v zozname dialógu zobrazeného pri vytváraní
+nových tried v prostredí BlueJ – položka ponuky „Úpravy/Nová trieda…“
+
+
+Zmeny šablón
+------------
+Editovaním týchto súborov vykonáte potrebné zmeny šablón.
+
+
+Pridávanie šablón
+-----------------
+Vytvorte v tomto priečinku súbor s koncovkou „.tmpl“ (napr.: „mainclass.tmpl“).
+
+Ak bude meno triedy začínať niektorou zo špeciálnych predpôn, bude súbor
+považovaný za šablónu príslušného typu triedy, resp. rozhrania. Špeciálnymi
+predponami sú:
+
+abstract   – označuje šablónu abstraktnej triedy
+applet     – označuje šablónu apletu
+enum       – označuje šablónu vymenovacieho typu
+interface  – označuje šablónu rozhrania
+unittest   – označuje šablónu testovacej triedy
+
+Ak bude názov začínať akokoľvek inak, bude súbor považovaný za šablónu
+štandardnej triedy.
+
+Všetky pridané šablóny budú uvedené na konci zoznamu v dialógu „Nová trieda…“
+pod menom zhodujúcim sa s názvom súboru šablóny bez prípony (napr. „mainclass“).
+
+Meno zobrazené v tomto zozname môže byť upravené prostredníctvom vlastnosti
+„pkgmgr.newClass.<názov-šablóny>“ v konfiguračnom súbore „labels“ (umiestnenom
+v <bluej-home>/lib/<language>/labels).
+
+Príklad:
+    pkgmgr.newClass.mainclass=Trieda s metódou main
+
+spôsobí, že sa v zozname objaví položka „Trieda s metódou main“.
+
+Poradie, v ktorom budú názvy šablón v zozname zobrazené môže byť špecifikované
+v konfiguračnom súbore <bluej-home>/lib/bluej.defs pomocou položky
+„bluej.classTemplates“. Názvy šablón uvedené v tomto zozname budú zobrazené pred
+ostatnými šablónami a to v zadanom poradí.
+
