@@ -27,7 +27,7 @@ persian                              x                         M. Shahdoost     
 russian         2.2.0preview         x            
 russian         3.0preview1          x          labels+dialog  Sergey Zemlyannikov <serveren@mail.ru>
 serbian                                                        Omer Djokic         <omer@itdirect.net>
-slovak														   Roman Horváth       <rhorvath@truni.sk>
+slovak			3.0					 x					       Roman Horváth       <rhorvath@truni.sk>
 spanish         1.2.x                                                
 swedish         1.3.5                x          later          
 trad. chinese                        ?                         Ma Wing Ho          <mawingho@netvigator.com>
