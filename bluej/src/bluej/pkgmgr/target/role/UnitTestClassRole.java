@@ -319,9 +319,9 @@ public class UnitTestClassRole extends ClassRole
 
         // and they must be a valid Java identifier
         if (!JavaNames.isIdentifier(newTestName)) {
-			pmf.setStatus(Config.getString("pkgmgr.test.invalidTestName"));
-			return;
-		}
+            pmf.setStatus(Config.getString("pkgmgr.test.invalidTestName"));
+            return;
+        }
 
         // find out if the method already exists in the unit test src
         try {
