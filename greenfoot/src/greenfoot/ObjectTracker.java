@@ -79,12 +79,13 @@ public class ObjectTracker
     {
         return new ValueCollection()
         {
-            BJMap<String,Object> map = ExecServer.getObjectMap();
+            BJMap<String,Object> map;
             String [] names;
             
             private void initNames()
             {
                 if (names == null) {
+                    map = ExecServer.getObjectMap();
                     synchronized (map) {
                         Object [] keys = map.getKeys();
                         names = new String[keys.length];
