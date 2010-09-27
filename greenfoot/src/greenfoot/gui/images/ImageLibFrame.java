@@ -105,6 +105,12 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
     private int result = CANCEL;
 
     private JTextField classNameField;
+    
+    /** Menu items that are in the drop down button,
+     *  which we want to alter the enabled state of. */
+    private JMenuItem editItem;
+    private JMenuItem duplicateItem;
+    private JMenuItem deleteItem;
 
     private Timer refreshTimer;
     
@@ -226,8 +232,9 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
             
             JPopupMenu popupMenu = new JPopupMenu();
             
-            JMenuItem editItem = new JMenuItem(Config.getString("imagelib.edit"));
+            editItem = new JMenuItem(Config.getString("imagelib.edit"));
             editItem.setToolTipText(Config.getString("imagelib.edit.tooltip")); 
+            editItem.setEnabled(false);
             editItem.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e)
                 {
@@ -238,8 +245,9 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                 }
             });
             
-            JMenuItem duplicateItem = new JMenuItem(Config.getString("imagelib.duplicate"));
+            duplicateItem = new JMenuItem(Config.getString("imagelib.duplicate"));
             duplicateItem.setToolTipText(Config.getString("imagelib.duplicate.tooltip")); 
+            duplicateItem.setEnabled(false);
             duplicateItem.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e)
                 {
@@ -250,8 +258,9 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                 }
             });
             
-            JMenuItem deleteItem = new JMenuItem(Config.getString("imagelib.delete"));
-            deleteItem.setToolTipText(Config.getString("imagelib.delete.tooltip")); 
+            deleteItem = new JMenuItem(Config.getString("imagelib.delete"));
+            deleteItem.setToolTipText(Config.getString("imagelib.delete.tooltip"));
+            deleteItem.setEnabled(false);
             deleteItem.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e)
                 {
@@ -472,10 +481,15 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
             ImageLibList sourceList = (ImageLibList) source;
             ImageLibList.ImageListEntry ile = sourceList.getSelectedValue();
 
-            if (ile != null) {
+            // handle the no-image image entry.
+            if (ile != null && ile.imageFile != null) {
                 File imageFile = ile.imageFile;
                 selectImage(imageFile);
+                setItemButtons(true);
+            } else {
+                setItemButtons(false);
             }
+            
         }
 
         if (lse.getValueIsAdjusting() && source instanceof ImageLibList) {
@@ -486,6 +500,18 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                 projImageList.clearSelection();
             }
         }
+    }
+
+    /**
+     * Change the three selection based menu items to the
+     * parameter provided.
+     * @param state To enable or disable the menu item buttons.
+     */
+    private void setItemButtons(boolean state)
+    {
+        editItem.setEnabled(state);
+        duplicateItem.setEnabled(state);
+        deleteItem.setEnabled(state);
     }
 
     /**
