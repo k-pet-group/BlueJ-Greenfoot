@@ -85,12 +85,9 @@ public class GreenfootImage
     /**
      * Create an image from an image file. Supported file formats are JPEG, GIF
      * and PNG.
-     * <p>
      * 
-     * The file name may be an absolute path, a base name for a file located in
+     * <p>The file name may be an absolute path, or a base name for a file located in
      * the project directory.
-     * Firstly, checks the cache of images and if it already exists, it returns
-     * a clone of the image. If not, it attempts to load the image and adds it to the cache 
      * 
      * @param filename Typically the name of a file in the images directory within
      *            the project directory.
@@ -99,11 +96,12 @@ public class GreenfootImage
     public GreenfootImage(String filename)
         throws IllegalArgumentException
     {
-        GreenfootImage gImage=GreenfootUtil.getCachedImage(filename);
-        if (gImage!=null)
+        GreenfootImage gImage = GreenfootUtil.getCachedImage(filename);
+        if (gImage != null)
         {
             createClone(gImage);
-        } else 
+        }
+        else 
         {
             try{
                 loadFile(filename);
@@ -114,9 +112,9 @@ public class GreenfootImage
             }
         }
         //if the image was successfully cached, ensure that the image is copyOnWrite
-        boolean success= GreenfootUtil.addCachedImage(filename, new GreenfootImage(this));
+        boolean success = GreenfootUtil.addCachedImage(filename, new GreenfootImage(this));
         if (success){
-            copyOnWrite=true;
+            copyOnWrite = true;
         }
     }
        
