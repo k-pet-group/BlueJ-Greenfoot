@@ -117,22 +117,33 @@ public interface RProject
     public abstract void removeListener(RProjectListener listener)
         throws RemoteException;
     
+    /**
+     * Get a remote reference to the object in the launcher "transport" field. The purpose
+     * of this is to allow obtaining a remote reference to a local object, by means of:
+     * 
+     * <ol>
+     * <li>(in the user VM) Storing a reference to the object into the transport field
+     * <li>Calling this method.
+     * </ul>
+     * 
+     * @return  A remote reference to the transport field object.
+     * @throws RemoteException  If an RMI exception occurs.
+     */
     public abstract RObject getRemoteObject()
         throws RemoteException;
 
     /**
      * Toggles the BlueJ debugger (Shows/Hides)
-     * @throws RemoteException
-     * @throws ProjectNotOpenException
+     * @throws RemoteException  if an RMI error occurs
      */
     public abstract void toggleExecControls()
         throws RemoteException;
 
     /**
      * @return	Whether or not the debugger window is currently visible
-     * @throws RemoteException
-     * @throws ProjectNotOpenException
+     * @throws RemoteException   if an RMI error occurs
+     * @throws ProjectNotOpenException   if the project is no longer open
      */
-	public abstract boolean isExecControlVisible()
-		throws RemoteException, ProjectNotOpenException;
+    public abstract boolean isExecControlVisible()
+        throws RemoteException, ProjectNotOpenException;
 }
