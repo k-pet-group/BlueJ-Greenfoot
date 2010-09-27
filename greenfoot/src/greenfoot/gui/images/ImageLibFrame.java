@@ -73,6 +73,7 @@ import javax.swing.event.ListSelectionListener;
 
 import bluej.BlueJTheme;
 import bluej.Config;
+import bluej.prefmgr.PrefMgr;
 import bluej.utility.EscapeDialog;
 import bluej.utility.FileUtility;
 
@@ -235,6 +236,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
             editItem = new JMenuItem(Config.getString("imagelib.edit"));
             editItem.setToolTipText(Config.getString("imagelib.edit.tooltip")); 
             editItem.setEnabled(false);
+            editItem.setFont(PrefMgr.getPopupMenuFont());
             editItem.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e)
                 {
@@ -248,6 +250,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
             duplicateItem = new JMenuItem(Config.getString("imagelib.duplicate"));
             duplicateItem.setToolTipText(Config.getString("imagelib.duplicate.tooltip")); 
             duplicateItem.setEnabled(false);
+            duplicateItem.setFont(PrefMgr.getPopupMenuFont());
             duplicateItem.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e)
                 {
@@ -261,6 +264,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
             deleteItem = new JMenuItem(Config.getString("imagelib.delete"));
             deleteItem.setToolTipText(Config.getString("imagelib.delete.tooltip"));
             deleteItem.setEnabled(false);
+            deleteItem.setFont(PrefMgr.getPopupMenuFont());
             deleteItem.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e)
                 {
@@ -273,6 +277,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
 
             JMenuItem newImageItem = new JMenuItem(Config.getString("imagelib.create.button"));
             newImageItem.setToolTipText(Config.getString("imagelib.create.tooltip")); 
+            newImageItem.setFont(PrefMgr.getPopupMenuFont());
             newImageItem.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e)
                 {
