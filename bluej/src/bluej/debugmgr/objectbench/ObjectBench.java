@@ -37,6 +37,7 @@ import bluej.debugmgr.NamedValue;
 import bluej.debugmgr.ValueCollection;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.testmgr.record.InvokerRecord;
+import bluej.utility.JavaNames;
 
 /**
  * The class responsible for the panel that displays objects
@@ -80,6 +81,10 @@ public class ObjectBench extends JPanel implements ValueCollection,
 
         String newname = wrapper.getName();
         int count = 1;
+        
+        if (JavaNames.isJavaKeyword(newname)) {
+            newname = "x" + newname;
+        }
 
         while(hasObject(newname)) {
             count++;
