@@ -113,6 +113,9 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
     
     /** JPopupMenu icon */
     private static final String DROPDOWN_ICON_FILE = "menu-button.png";
+    
+    /** A watcher that goes notified when an image is selected, to allow for previewing. May be null */
+    private ImageSelectionWatcher selectionWatcher;
 
     /**
      * Construct an ImageLibFrame for changing the image of an existing class.
@@ -120,10 +123,11 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
      * @param owner      The parent frame
      * @param classView  The ClassView of the existing class
      */
-    public ImageLibFrame(JFrame owner, ClassView classView)
+    public ImageLibFrame(JFrame owner, ClassView classView, ImageSelectionWatcher watcher)
     {
         super(owner, Config.getString("imagelib.title") + " " + classView.getClassName(), true);
 
+        this.selectionWatcher = watcher;
         this.gclass = classView.getGClass();
         this.proj = gclass.getPackage().getProject();
         defaultIcon = getPreviewIcon(new File(GreenfootUtil.getGreenfootLogoPath()));
@@ -495,6 +499,9 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
         if (imageFile == null || GreenfootUtil.isImage(imageFile)) {
             imageLabel.setIcon(getPreviewIcon(imageFile));
             selectedImageFile = imageFile;
+            if (selectionWatcher != null) {
+                selectionWatcher.imageSelected(selectedImageFile);
+            }
         }
         else if (imageFile != null) {
             JOptionPane.showMessageDialog(this, imageFile.getName() +

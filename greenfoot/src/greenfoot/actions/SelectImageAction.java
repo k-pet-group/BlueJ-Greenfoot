@@ -21,11 +21,17 @@
  */
 package greenfoot.actions;
 
+import greenfoot.GreenfootImage;
+import greenfoot.World;
+import greenfoot.WorldVisitor;
 import greenfoot.core.GClass;
 import greenfoot.core.GreenfootMain;
+import greenfoot.core.Simulation;
+import greenfoot.core.WorldHandler;
 import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.gui.classbrowser.role.ImageClassRole;
 import greenfoot.gui.images.ImageLibFrame;
+import greenfoot.gui.images.ImageSelectionWatcher;
 
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -59,7 +65,31 @@ public class SelectImageAction extends AbstractAction
     public void actionPerformed(ActionEvent e)
     {
         JFrame gfFrame = GreenfootMain.getInstance().getFrame();
-        ImageLibFrame imageLibFrame = new ImageLibFrame(gfFrame, classView);
+        
+        ImageSelectionWatcher watcher = null;
+        final World currentWorld = WorldHandler.getInstance().getWorld();
+        GreenfootImage originalBackground = null;
+        if (currentWorld != null &&
+                currentWorld.getClass().getName().equals(classView.getGClass().getQualifiedName())) {
+            originalBackground = WorldVisitor.getBackgroundImage(currentWorld);
+            watcher = new ImageSelectionWatcher() {
+                @Override
+                public void imageSelected(final File imageFile)
+                {
+                    Simulation.getInstance().runLater(new Runnable() {
+                        @Override
+                        public void run()
+                        {
+                            if (WorldHandler.getInstance().getWorld() == currentWorld) {
+                                currentWorld.setBackground(imageFile.getAbsolutePath());
+                            }
+                        }
+                    });
+                }
+            };
+        }
+        
+        ImageLibFrame imageLibFrame = new ImageLibFrame(gfFrame, classView, watcher);
         DialogManager.centreDialog(imageLibFrame);
         imageLibFrame.setVisible(true);
 
@@ -68,6 +98,16 @@ public class SelectImageAction extends AbstractAction
         
             setClassImage(classView, gclassRole, currentImageFile);
             gfFrame.repaint();
+        }
+        else if (currentWorld != null) {
+            final GreenfootImage background = originalBackground;
+            Simulation.getInstance().runLater(new Runnable() {
+                @Override
+                public void run()
+                {
+                    currentWorld.setBackground(background);
+                }
+            });
         }
     }
 
