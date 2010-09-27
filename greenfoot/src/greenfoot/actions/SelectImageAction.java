@@ -36,6 +36,7 @@ import javax.swing.JFrame;
 
 import bluej.Config;
 import bluej.utility.Debug;
+import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 
 /**
@@ -59,11 +60,15 @@ public class SelectImageAction extends AbstractAction
     {
         JFrame gfFrame = GreenfootMain.getInstance().getFrame();
         ImageLibFrame imageLibFrame = new ImageLibFrame(gfFrame, classView);
+        DialogManager.centreDialog(imageLibFrame);
+        imageLibFrame.setVisible(true);
+
+        if (imageLibFrame.getResult() == ImageLibFrame.OK) {
+            File currentImageFile = imageLibFrame.getSelectedImageFile();
         
-        File currentImageFile = imageLibFrame.getSelectedImageFile();
-        
-        setClassImage(classView, gclassRole, currentImageFile);
-        gfFrame.repaint();
+            setClassImage(classView, gclassRole, currentImageFile);
+            gfFrame.repaint();
+        }
     }
 
     public static void setClassImage(ClassView classView, ImageClassRole gclassRole, File imageFile)

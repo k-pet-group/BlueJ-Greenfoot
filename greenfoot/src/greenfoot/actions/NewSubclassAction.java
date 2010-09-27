@@ -36,6 +36,7 @@ import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
 import bluej.Config;
+import bluej.utility.DialogManager;
 
 
 /**
@@ -82,6 +83,8 @@ public class NewSubclassAction extends AbstractAction
         JFrame f = (JFrame) SwingUtilities.getWindowAncestor(classBrowser);
         
         ImageLibFrame dialog = new ImageLibFrame(f, superclass.getGClass());
+        DialogManager.centreDialog(dialog);
+        dialog.setVisible(true);
         if (! (dialog.getResult() == ImageLibFrame.OK)) {
             return;
         }
