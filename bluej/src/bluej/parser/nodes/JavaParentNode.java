@@ -95,7 +95,9 @@ public abstract class JavaParentNode extends ParentParsedNode
     public void insertVariable(FieldNode varNode, int pos, int size)
     {
         super.insertNode(varNode, pos, size);
-        variables.put(varNode.getName(), varNode);
+        if (! variables.containsKey(varNode.getName())) {
+            variables.put(varNode.getName(), varNode);
+        }
     }
     
     /**
