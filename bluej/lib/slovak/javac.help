@@ -1024,16 +1024,15 @@ Ak chcete pou\u017ei\u0165 vybran\u00fa in\u0161tanciu, mus\u00edte pou\u017ei\u
 Podrobnej\u0161\u00ed pomocn\u00edk nie je k\u00a0dispoz\u00edcii.
 
 *cannot be referenced from a static context
-\u2026\u2026\u2026
+\u00ab\u2026\u00bb nem\u00f4\u017ee by\u0165 odkazovan\u00e9 v\u00a0statickom kontexte
 \u00a0
-\u2026\u2026\u2026
-You are trying to access an instance field or instance
-method from a static method. That is not allowed. The
-instance fields and methods belong to an object, while
-you have no active object in static methods.
-Static methods can only call other static methods in 
-their class (or they need to use an explicit object
-for the call).
+Pok\u00fa\u0161ate sa pristupova\u0165 k\u00a0atrib\u00fatu alebo met\u00f3de
+zo statickej met\u00f3dy. To nie je povolen\u00e9. Atrib\u00faty
+a\u00a0met\u00f3dy patria akt\u00edvnemu objektu. V\u00a0statickej
+met\u00f3de nie je predvolene akt\u00edvny \u017eiadny objekt.
+Statick\u00e9 met\u00f3dy m\u00f4\u017eu preto vola\u0165 v\u00a0r\u00e1mci objektu
+len in\u00e9 statick\u00e9 met\u00f3dy (alebo m\u00f4\u017eu vyu\u017ei\u0165 na volanie
+explicitn\u00e9 zadan\u00fd objekt).
 
 cannot find symbol*
 Nedok\u00e1\u017eem n\u00e1js\u0165 symbol \u00ab\u2026\u00bb.
