@@ -684,6 +684,26 @@ public class CompletionTest extends TestCase
         assertNotNull(suggests);
     }
     
+    public void testPartialExpressionCompletion() throws Exception
+    {
+        String aClassSrc =
+            "class A {\n" +             // 0 - 10
+            "  public void g() {\n" +   // 10 - 30
+            "    String s = \"\";\n" +  // 30 - 49
+            "    s.l\n" +               //   s.l <---  56 
+            "    s.length();\n" +
+            "  }\n" +
+            "}\n";
+        
+        PlainDocument doc = new PlainDocument();
+        doc.insertString(0, aClassSrc, null);
+        ParsedCUNode aNode = cuForSource(aClassSrc, "");
+        resolver.addCompilationUnit("", aNode);
+        
+        CodeSuggestions suggests = aNode.getExpressionType(56, doc);
+        assertNotNull(suggests);
+    }
+    
     // Yet to do:
     
     // Test that multiple fields defined in a single statement are handled correctly,
