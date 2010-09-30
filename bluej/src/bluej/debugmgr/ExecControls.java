@@ -176,8 +176,9 @@ public class ExecControls extends JFrame
     {
         super(Config.getApplicationName() + ":  " + Config.getString("debugger.execControls.windowTitle"));
 
-        if (project == null || debugger == null)
+        if (project == null || debugger == null) {
             throw new NullPointerException("project or debugger null in ExecControls");
+        }
 
         this.project = project;
         this.debugger = debugger;
@@ -208,14 +209,13 @@ public class ExecControls extends JFrame
     public void valueChanged(ListSelectionEvent event)
     {
         // ignore mouse down, dragging, etc.
-		if(event.getValueIsAdjusting())
+        if(event.getValueIsAdjusting()) {
             return;
+        }
 
         if(event.getSource() == stackList) {
             selectStackFrame(stackList.getSelectedIndex());
         }
-        // staticList, instanceList and localList are ignored
-        // a single click doesn't do anything
     }
 
     // ----- end of ListSelectionListener interface -----
@@ -242,8 +242,9 @@ public class ExecControls extends JFrame
             DefaultMutableTreeNode node =
                 (DefaultMutableTreeNode) threadTree.getLastSelectedPathComponent();
 
-            if (node == null)
+            if (node == null) {
                 return;
+            }
 
             DebuggerThread dt = threadModel.getNodeAsDebuggerThread(node);        
 
@@ -263,17 +264,20 @@ public class ExecControls extends JFrame
      */
     public void treeNodesChanged(TreeModelEvent e)
     {
-        if (selectedThread == null)
+        if (selectedThread == null) {
             return;
+        }
 
         Object nodes[] = e.getChildren();
 
         for(int i=0; i<nodes.length; i++) {
-            if (nodes[i] == null)
+            if (nodes[i] == null) {
                 continue;
+            }
 
-            if (selectedThread.equals(threadModel.getNodeAsDebuggerThread(nodes[i])))
+            if (selectedThread.equals(threadModel.getNodeAsDebuggerThread(nodes[i]))) {
                 setSelectedThread(selectedThread);
+            }
         }	
     }
 
@@ -454,9 +458,9 @@ public class ExecControls extends JFrame
     {
         // if the UI isn't up to date, make sure the correct frame is
         // selected in the list
-        if (stackList.getSelectedIndex() != index)
+        if (stackList.getSelectedIndex() != index) {
             stackList.setSelectedIndex(index);
-
+        }
         else if (index >= 0) {
             setStackFrameDetails(index);
             selectedThread.setSelectedFrame(index);
@@ -479,17 +483,15 @@ public class ExecControls extends JFrame
         currentObject = selectedThread.getCurrentObject(frameNo);
         if(currentClass != null) {
             staticList.setFixedCellWidth(-1);
-            staticList.setListData(
-                currentClass.getStaticFields(false, restrictedClasses).toArray(new Object[0]));
+            staticList.setListData(currentClass.getStaticFields(false, restrictedClasses).toArray());
         }
         if(currentObject != null) {
             instanceList.setFixedCellWidth(-1);
-            instanceList.setListData(
-               currentObject.getInstanceFields(false, restrictedClasses).toArray(new Object[0]));
+            instanceList.setListData(currentObject.getInstanceFields(false, restrictedClasses).toArray());
         }
         if(selectedThread != null) {
             localList.setFixedCellWidth(-1);
-            localList.setListData(selectedThread.getLocalVariables(frameNo).toArray(new Object[0]));
+            localList.setListData(selectedThread.getLocalVariables(frameNo).toArray());
         }
     }
 
