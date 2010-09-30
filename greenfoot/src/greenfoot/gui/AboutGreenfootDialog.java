@@ -48,7 +48,7 @@ import bluej.utility.MultiLineLabel;
  * The BlueJ about box.
  * 
  * @author Poul Henriksen
- * @version $Id: AboutGreenfootDialog.java 6769 2009-10-02 02:06:58Z davmac $
+ * @version $Id: AboutGreenfootDialog.java 8442 2010-09-30 12:19:12Z mik $
  */
 public class AboutGreenfootDialog extends JDialog
 {
@@ -65,7 +65,7 @@ public class AboutGreenfootDialog extends JDialog
         aboutPanel.setBackground(Color.white);
 
         // insert logo
-        URL splashURL = this.getClass().getClassLoader().getResource("greenfoot-about.png");
+        URL splashURL = this.getClass().getClassLoader().getResource("greenfoot-about.jpg");
         Icon icon = new ImageIcon(splashURL);
         JLabel logoLabel = new JLabel(icon);
         aboutPanel.add(logoLabel, BorderLayout.WEST);
