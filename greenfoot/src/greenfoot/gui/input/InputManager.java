@@ -271,9 +271,7 @@ public class InputManager
     {
         checkShift(e);
         activeMouseListener.mouseReleased(e);
-        if (SwingUtilities.isLeftMouseButton(e)) {
-            state.switchToNextState(State.Event.MOUSE_RELEASED, null);
-        }
+        state.switchToNextState(State.Event.MOUSE_RELEASED, null);
     }
 
     public void mouseEntered(MouseEvent e)
