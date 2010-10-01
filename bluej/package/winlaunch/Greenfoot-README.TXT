@@ -1,4 +1,4 @@
-Greenfoot version: 2.0.0 preview       --        README.TXT
+Greenfoot version: 2.0.0       --        README.TXT
 
 Information about Greenfoot
 -----------------------
@@ -11,6 +11,6 @@ The Greenfoot Team
 --------------
 Greenfoot is being developed by:
 University of Kent at Canterbury: Michael Kolling, Poul Henriksen
-Deakin University: John Rosenberg, Bruce Quig, Davin McCall
+La Trobe University: John Rosenberg, Davin McCall, Marion Zalk
 
 The copyright (c) for Greenfoot is held by P. Henriksen and M. Kolling.
