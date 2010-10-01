@@ -293,7 +293,6 @@
 	    </replaceregexp>
 		
 		<!-- you must do this as root, sigh -->
-		<!--
 		<chown owner="root">
 			<fileset dir="gfdeb">
 				<patternset includes="**" />
@@ -304,7 +303,6 @@
 				<patternset includes="**" />
 			</fileset>
 		</chgrp>
-		-->
 		
 		<chmod perm="+x" file="gfdeb/DEBIAN/postinst" />
 		<chmod perm="+x" file="gfdeb/DEBIAN/postrm" />
@@ -314,9 +312,7 @@
 		    <arg value="greenfoot-${greenfoot.version}.deb" />
 		</exec>
 		
-        <!--
         <delete dir="gfdeb" />
-        -->
     </target>
 	
     <target name="clean">
