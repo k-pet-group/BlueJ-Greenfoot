@@ -492,6 +492,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                 selectImage(imageFile);
                 setItemButtons(true);
             } else {
+                selectImage(null);
                 setItemButtons(false);
             }
             
