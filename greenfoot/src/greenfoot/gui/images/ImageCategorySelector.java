@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -46,7 +46,6 @@ import javax.swing.event.ListSelectionListener;
  * the contents of that category.
  * 
  * @author davmac
- * @version $Id: ImageCategorySelector.java 6764 2009-09-30 12:29:11Z polle $
  */
 public class ImageCategorySelector extends JList
     implements ListSelectionListener
@@ -150,14 +149,12 @@ public class ImageCategorySelector extends JList
             super(BoxLayout.X_AXIS);
 
             iconLabel = new JLabel(openRightIcon);
-            iconLabel.setOpaque(true);
             Dimension iconSize = iconLabel.getPreferredSize();
             // Set maximum size on the icon label so that the category
             // name label uses up all the extra space
             iconLabel.setMaximumSize(iconSize);
             
             categoryNameLabel = new JLabel(" ");
-            categoryNameLabel.setOpaque(true);
             // name label height the same as the icon height (for selection painting)
             Dimension preferredSize = categoryNameLabel.getPreferredSize();
             preferredSize.height = iconSize.height;
@@ -202,6 +199,8 @@ public class ImageCategorySelector extends JList
             categoryNameLabel.setForeground(foregroundColor);
             iconLabel.setBackground(backgroundColor);
             iconLabel.setForeground(foregroundColor);
+            categoryNameLabel.setOpaque(isSelected);
+            iconLabel.setOpaque(isSelected);
             
             item.setEnabled(list.isEnabled());
             item.setFont(list.getFont());

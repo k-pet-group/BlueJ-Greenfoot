@@ -79,6 +79,9 @@ public class ImageLibList extends EditableList<ImageLibList.ImageListEntry> impl
     /** The frame containing this ImageLibList */
     private ImageLibFrame imageLibFrame;
     
+    /** The minimum width we'd like */
+    private int minWidth;
+    
     /**
      * Construct an empty ImageLibList.
      */
@@ -86,6 +89,9 @@ public class ImageLibList extends EditableList<ImageLibList.ImageListEntry> impl
     {      
         super(editable);
         this.imageLibFrame = imageLibFrame;
+        
+        JLabel widthCalc = new JLabel("XXXXXXXXXXXXXXXXXXXXXXX");
+        minWidth = widthCalc.getPreferredSize().width;
         
         TableColumn tableColumn = getColumnModel().getColumn(0);
         tableColumn.setCellRenderer(new MyCellRenderer());
@@ -206,7 +212,6 @@ public class ImageLibList extends EditableList<ImageLibList.ImageListEntry> impl
         ensureIndexIsVisible(row);
     }
         
-
     public Dimension getPreferredScrollableViewportSize()
     {
         // Limit the preferred viewport height to the preferred height
@@ -215,7 +220,14 @@ public class ImageLibList extends EditableList<ImageLibList.ImageListEntry> impl
             d.height = prefHeight;
         }
         return d;
-        
+    }
+    
+    @Override
+    public Dimension getPreferredSize()
+    {
+        Dimension d = super.getPreferredSize();
+        d.width = Math.max(d.width, minWidth);
+        return d;
     }
     
     /*
