@@ -10,5 +10,5 @@ else
 	echo "/usr/bin/greenfoot launch script."
 fi
 	
-CP="/usr/share/bluej/bluej.jar:$JAVAPATH/lib/tools.jar"
+CP="/usr/share/greenfoot/bluej.jar:$JAVAPATH/lib/tools.jar"
 "$JAVAPATH/bin/java" -cp "$CP" bluej.Boot -greenfoot=true -bluej.compiler.showunchecked=false "$@"
