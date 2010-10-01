@@ -356,6 +356,10 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <echo message="The greenfoot Mac-installer is in ${package}/Greenfoot-mac-${greenfoot.version.nodots}.zip"/>
         <echo message="And don't forget to copy this to the gallery: ${package}/Greenfoot-core-${greenfoot.apiversion}.jar"/>
     </target>
+	
+	<target name="debian-dist">
+        <ant dir="${bluej.projectdir}/package" antfile="greenfoot-build.xml" target="debian-dist" />
+	</target>
 
     <target name="clean" description="clean up" >
         <!-- Installer image windows: greenfoot-install.bmp -->
