@@ -1,19 +1,20 @@
 # Make file - BlueJ/Greenfoot Windows launcher
 #
-# Must set below, and edit version in bjlaunch.rc
+# Must set below, and edit version in bjlaunch.rc and in bjmanifest.xml or gfmanifest.xml
 
 # For BlueJ
-APPNAME=\"BlueJ\"
-GREENFOOTDEF=
-EXECNAME=bjlaunch.exe
+#APPNAME=\"BlueJ\"
+#GREENFOOTDEF=
+#EXECNAME=bjlaunch.exe
+#REQUIREDJAVA=\"1.5\"
 
 # For Greenfoot
-#APPNAME=\"Greenfoot\"
-#GREENFOOTDEF=-DGREENFOOT
-#EXECNAME=gflaunch.exe
+APPNAME=\"Greenfoot\"
+GREENFOOTDEF=-DGREENFOOT
+EXECNAME=gflaunch.exe
+REQUIREDJAVA=\"1.6\"
 
 JDKDIR=/c/Program Files/Java/jdk1.6.0_05
-REQUIREDJAVA=\"1.5\"
 
 OBJECTS = resources.o bjlaunch.o javatest.o javaprops.o bjdialog.o
 

@@ -46,11 +46,11 @@ END
 
 1 VERSIONINFO
 #ifdef GREENFOOT
-FILEVERSION 1,5,6,0
-PRODUCTVERSION 1,5,6,0
+FILEVERSION 2,0,0,1
+PRODUCTVERSION 2,0,0,1
 #else
-FILEVERSION 2,9,9,0
-PRODUCTVERSION 2,9,9,0
+FILEVERSION 3,0,2,0
+PRODUCTVERSION 3,0,2,0
 #endif
 FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
 FILEFLAGS 0
@@ -65,11 +65,11 @@ BEGIN
 		BEGIN
 			VALUE "CompanyName", "BlueJ group"
 			VALUE "FileDescription", "BlueJ Launcher"
-			VALUE "FileVersion", "3.0.0"
+			VALUE "FileVersion", "3.0.2"
 			VALUE "InternalName", "bluej"
 			VALUE "OriginalFilename", "bluej.exe"
 			VALUE "ProductName", "BlueJ"
-			VALUE "ProductVersion", "3.0.0"
+			VALUE "ProductVersion", "3.0.2"
 		END
 	END
 END
@@ -81,11 +81,11 @@ BEGIN
 		BEGIN
 			VALUE "CompanyName", "BlueJ group"
 			VALUE "FileDescription", "Greenfoot Launcher"
-			VALUE "FileVersion", "1.5.6"
+			VALUE "FileVersion", "2.0.0"
 			VALUE "InternalName", "greenfoot"
 			VALUE "OriginalFilename", "greenfoot.exe"
 			VALUE "ProductName", "Greenfoot"
-			VALUE "ProductVersion", "1.5.6"
+			VALUE "ProductVersion", "2.0.0"
 		END
 	END
 END
