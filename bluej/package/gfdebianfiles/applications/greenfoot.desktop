@@ -1,7 +1,7 @@
 [Desktop Entry]
 Encoding=UTF-8
 Version=1.0
-Name=BlueJ
+Name=Greenfoot
 Comment=A simple Java IDE and animation framework
 Categories=Application;Development;
 Exec=greenfoot
