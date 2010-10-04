@@ -49,6 +49,7 @@ import bluej.utility.FileUtility;
  * Action to select an image for a class.
  * 
  * @author Davin McCall
+ * @author Philip Stevens
  */
 public class SelectImageAction extends AbstractAction
 {
@@ -62,16 +63,25 @@ public class SelectImageAction extends AbstractAction
         this.gclassRole = gcr;
     }
     
+    /**
+     * Will save the currently selected image as the image of the class
+     * if OK is pressed.
+     * 
+     * If performed on the current world this will allow for previewing of
+     * the currently selected image, but revert to the original background
+     * image of cancelled.
+     * @param e ignored
+     */
     public void actionPerformed(ActionEvent e)
     {
-        JFrame gfFrame = GreenfootMain.getInstance().getFrame();
-        
-        ImageSelectionWatcher watcher = null;
         final World currentWorld = WorldHandler.getInstance().getWorld();
-        GreenfootImage originalBackground = null;
-        if (currentWorld != null &&
-                currentWorld.getClass().getName().equals(classView.getGClass().getQualifiedName())) {
-            originalBackground = WorldVisitor.getBackgroundImage(currentWorld);
+        // save the original background if possible
+        final GreenfootImage originalBackground = ((currentWorld == null) ? 
+                null : WorldVisitor.getBackgroundImage(currentWorld));
+
+        // allow the previewing if we are setting the image of the current world.
+        ImageSelectionWatcher watcher = null;
+        if (currentWorld != null && currentWorld.getClass().getName().equals(classView.getGClass().getQualifiedName())) {
             watcher = new ImageSelectionWatcher() {
                 @Override
                 public void imageSelected(final File imageFile)
@@ -89,23 +99,26 @@ public class SelectImageAction extends AbstractAction
             };
         }
         
+        // initialise our image library frame
+        JFrame gfFrame = GreenfootMain.getInstance().getFrame();
         ImageLibFrame imageLibFrame = new ImageLibFrame(gfFrame, classView, watcher);
         DialogManager.centreDialog(imageLibFrame);
         imageLibFrame.setVisible(true);
 
+        // set the image of the class to the selected file
         if (imageLibFrame.getResult() == ImageLibFrame.OK) {
             File currentImageFile = imageLibFrame.getSelectedImageFile();
-        
             setClassImage(classView, gclassRole, currentImageFile);
             gfFrame.repaint();
         }
-        else if (currentWorld != null) {
-            final GreenfootImage background = originalBackground;
+        // or if cancelled reset the world background to the original format
+        // to avoid white screens or preview images being left there. 
+        else if (currentWorld != null && imageLibFrame.getResult() == ImageLibFrame.CANCEL) {
             Simulation.getInstance().runLater(new Runnable() {
                 @Override
                 public void run()
                 {
-                    currentWorld.setBackground(background);
+                    currentWorld.setBackground(originalBackground);
                 }
             });
         }
