@@ -129,7 +129,8 @@ publish.event.status=Status:
 world.handlerDelegate.inspect=Inspect
 world.handlerDelegate.remove=Remove
 
-record.method.comment=Prepare the world for the start of the program. That is: create the initial objects and add them to the world.
+record.method.comment1=Prepare the world for the start of the program. That is: create the initial
+record.method.comment2=objects and add them to the world.
 
 record.saved.message=Saved world setup in prepare() method.  
 

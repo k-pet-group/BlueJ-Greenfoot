@@ -61,7 +61,8 @@ public class SaveWorldAction extends AbstractAction implements CompiledStateList
         
         StringBuffer comment = new StringBuffer();
         comment.append("\n").append(oneIndent).append("/**\n");
-        comment.append(oneIndent).append("* ").append(Config.getString("record.method.comment")).append("\n");
+        comment.append(oneIndent).append("* ").append(Config.getString("record.method.comment1")).append("\n");
+        comment.append(oneIndent).append("* ").append(Config.getString("record.method.comment2")).append("\n");
         comment.append(oneIndent).append("*/\n");
         
         StringBuffer method = new StringBuffer();
