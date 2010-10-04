@@ -280,7 +280,7 @@
 
 		<!-- desktop app extras -->
 		<copy todir="gfdeb/usr/share">
-			<fileset dir="debianfiles">
+			<fileset dir="gfdebianfiles">
 				<patternset includes="applications/**,icons/**,pixmaps/**" />
 			</fileset>
 		</copy>
