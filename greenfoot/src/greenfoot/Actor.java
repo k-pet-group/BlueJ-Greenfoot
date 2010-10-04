@@ -26,10 +26,6 @@ import greenfoot.core.WorldHandler;
 import greenfoot.platforms.ActorDelegate;
 import greenfoot.util.GreenfootUtil;
 
-import java.awt.Polygon;
-import java.awt.Rectangle;
-import java.awt.Shape;
-import java.awt.geom.AffineTransform;
 import java.util.List;
 
 /**
@@ -913,41 +909,6 @@ public abstract class Actor
         }
         
         return true;
-    }
-
-    /**
-     * Get the shape of the image after it has been rotated. The shape is relative to the
-     * actor (i.e. it is not translated according to the actor position).
-     */
-    private Shape getRotatedShape()
-    {
-        int width = image.getWidth();
-        int height = image.getHeight();
-        int xMin = - (width / 2);
-        int yMin = - (height / 2);        
-        
-        if(rotation != 0) {
-            int xMax = xMin + width;
-            int yMax = yMin + height;
-            // Create polygon representing the bounding box of the unrotated image
-            // in pixels.
-            int[] xCoords = new int[]{xMin, xMin, xMax, xMax};
-            int[] yCoords = new int[]{yMin, yMax, yMax, yMin};
-            Polygon imageBounds = new Polygon(xCoords, yCoords, 4);
-
-            // The location around which the object should be rotated
-            // This will be either 0.0 or 0.5 for even and odd sizes
-            // respectively.
-            double xOrigin = xMin + image.getWidth() / 2.;
-            double yOrigin = yMin + image.getHeight() / 2.;
-            
-            AffineTransform transform = AffineTransform.getRotateInstance(Math.toRadians(rotation), xOrigin, yOrigin);       
-            Shape rotatedImageBounds = transform.createTransformedShape(imageBounds);
-
-            return rotatedImageBounds;
-        } else {
-            return new Rectangle(xMin, yMin, width, height);
-        }
     }
     
     /**
