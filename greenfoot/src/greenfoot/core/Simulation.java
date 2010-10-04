@@ -393,7 +393,29 @@ public class Simulation extends Thread
         }
         
         while (r != null) {
-            r.run();
+            World world = worldHandler.getInstance().getWorld();
+            try {
+                ReentrantReadWriteLock lock  = null;
+                if (world != null) {
+                    lock = WorldVisitor.getLock(world);
+                    lock.writeLock().lock();
+                }
+                
+                try {
+                    // This may run user code, which might throw an exception.
+                    r.run();
+                }
+                catch (Throwable t) {
+                    t.printStackTrace();
+                }
+                
+                if (world != null) {
+                    lock.writeLock().unlock();
+                }
+            }
+            finally {
+                
+            }
             synchronized (this) {
                 r = queuedTasks.poll();
             }
