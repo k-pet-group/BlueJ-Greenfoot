@@ -47,6 +47,7 @@ import bluej.extensions.event.CompileListener;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.prefmgr.PrefMgrDialog;
 import bluej.utility.Debug;
+import bluej.utility.Utility;
 
 /**
  * Implements the RBlueJ RMI interface.
@@ -388,7 +389,8 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
            @Override
            public void run()
            {
-               PrefMgrDialog.showDialog();        
+               PrefMgrDialog.showDialog();
+               Utility.bringToFront(PrefMgrDialog.getInstance());
            }
         });
     }
