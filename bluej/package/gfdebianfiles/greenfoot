@@ -15,4 +15,5 @@ CP="/usr/share/greenfoot/bluej.jar:$JAVAPATH/lib/tools.jar"
 	-greenfoot.scenarios=/usr/share/doc/Greenfoot/scenarios \
 	-greenfoot.tutorial=/usr/share/doc/Greenfoot/tutorial/tutorial.html \
 	-greenfoot.tutorial.scenario=wombats \
+	-greenfoot.url.javadoc=/usr/share/doc/Greenfoot/API/index.html \
 	 "$@"

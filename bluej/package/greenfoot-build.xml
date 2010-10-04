@@ -274,7 +274,24 @@
                 <patternset includes="**" />
             </fileset>
         </move>
-		<delete dir="bluej-examples-tmp" />
+    	<delete dir="gf-examples-tmp" />
+    	
+    	<mkdir dir="gf-apidoc-tmp" />
+    	<copy todir="gf-apidoc-tmp">
+    		<fileset dir="${bluej_home}">
+    			<patternset refid="bluej.docfiles" />
+    		</fileset>
+    	</copy>
+    	<mkdir dir="gfdeb/usr/share/doc/Greenfoot/API" />
+    	<move todir="gfdeb/usr/share/doc/Greenfoot/API">
+    		<fileset dir="gf-apidoc-tmp/doc/API">
+    	    	<patternset includes="**" />
+    	    </fileset>
+    	</move>
+    	
+    	<delete dir="gf-apidoc-tmp" />	
+    		
+		
 		<copy todir="gfdeb/usr/share/doc/Greenfoot" file="${greenfoot.projectdir}/doc/LICENSE.txt" />
 		<copy todir="gfdeb/usr/share/doc/Greenfoot" file="${greenfoot.projectdir}/doc/THIRDPARTYLICENSE.txt" />
 
