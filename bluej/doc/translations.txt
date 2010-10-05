@@ -10,7 +10,7 @@ language        last update     next update    comment         translator
 afrikaans       2.0.0                x                         Petri Jooste        <RKWJPJ@puknet.puk.ac.za>
 chinese         2.0.4                                          sent email to Xiaoke Hu <go2study@gmail.com> asking for a new contact
 catalan         2.0.0                x          only labels    Santiago Manrique   
-czech           3.0preview1          x          tmpl in UTF8   Rudolf Pecinovsky   Rudolf: <rudolf.pecinovsky@i.cz> (or rudolf@pecinovsky.cz )
+czech           3.0preview1          x          tmpl in UTF8   Rudolf Pecinovský   Rudolf: <rudolf.pecinovsky@i.cz> (or rudolf@pecinovsky.cz )
 danish          3.0.3                x                         Jacob Nordfalk      <jacob.nordfalk@gmail.com>
 dutch           2.0.0                x                        
 english         2.0.5                x      
@@ -27,7 +27,7 @@ persian                              x                         M. Shahdoost     
 russian         2.2.0preview         x            
 russian         3.0preview1          x          labels+dialog  Sergey Zemlyannikov <serveren@mail.ru>
 serbian                                                        Omer Djokic         <omer@itdirect.net>
-slovak			3.0					 x					       Roman Horv�th       <rhorvath@truni.sk>
+slovak			3.0					 x					       Roman Horváth       <rhorvath@truni.sk>
 spanish         1.2.x                                                
 swedish         1.3.5                x          later          
 trad. chinese                        ?                         Ma Wing Ho          <mawingho@netvigator.com>
