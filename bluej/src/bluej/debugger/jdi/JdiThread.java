@@ -254,8 +254,9 @@ class JdiThread extends DebuggerThread
         // A finished thread will have a null thread group.
         try {
             ThreadGroupReference tgr = rt.threadGroup();
-            if(tgr == null || ! tgr.name().equals(MAIN_THREADGROUP))
+            if(tgr == null || ! tgr.name().equals(MAIN_THREADGROUP)) {
                 return true;
+            }
 
             String name = rt.name();
             if(name.startsWith("AWT-") ||
@@ -265,13 +266,17 @@ class JdiThread extends DebuggerThread
                     name.equals("Screen Updater") ||
                     name.startsWith("SunToolkit.") ||
                     name.startsWith("Native Carbon") ||
-                    name.equals("Java2D Disposer"))
+                    name.equals("Java2D Disposer")) {
                 return true;
+            }
 
             return false;
         }
         catch (VMDisconnectedException vmde) {
             return false;
+        }
+        catch (ObjectCollectedException oce) {
+            return true;
         }
     }
 
@@ -279,7 +284,7 @@ class JdiThread extends DebuggerThread
      * Get strings showing the current stack frames. Ignore everything
      * including the __SHELL class and below.
      *
-     * The thread must be suspended to do this. Otherwise an empty list
+     * <p>The thread must be suspended to do this. Otherwise an empty list
      * is returned.
      *
      * @return  A List of SourceLocations
