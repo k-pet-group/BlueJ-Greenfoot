@@ -156,7 +156,7 @@ public class CompilerAPICompiler extends Compiler
                 if (Config.isJava17())
                 {
                     //in Java 7 this returns the full path, where in earlier versions
-                    //it only returns the base class
+                    //it only returns the base filename
                     src = diagnostic.getSource().getName();  
                 } else {
                     //in Java 7 this returns a JavaFileObject toString (as you expect)
@@ -201,7 +201,7 @@ public class CompilerAPICompiler extends Compiler
      */
     protected String processDiagnosticMessage(String src, int pos, String msg)
     {
-        if (Config.isJava17())
+        if (Config.isJava17() || Config.isOpenJDK())
         {
             int lastIndex = msg.lastIndexOf('\n');            
             if (lastIndex == -1)
@@ -239,7 +239,7 @@ public class CompilerAPICompiler extends Compiler
         String expected = src + ":" + pos + ": ";
         if (! msg.startsWith(expected)) 
         {
-            // Hmm, it's not a format we recgonize
+            // Hmm, it's not a format we recognize
             return src;
         }
         

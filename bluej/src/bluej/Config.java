@@ -474,6 +474,14 @@ public final class Config
     }
     
     /**
+     * Tell us whether we are running OpenJDK.
+     */
+    public static boolean isOpenJDK()
+    {
+        return System.getProperty("java.home").contains("openjdk");
+    }
+    
+    /**
      * Tell use whether java 1.5 features are to be used. This allows
      * suppressing 1.5 features when running on a 1.5 VM (for instance to
      * suppress the "unchecked" warnings which occur when compiling legacy
