@@ -478,7 +478,7 @@ public final class Config
      */
     public static boolean isOpenJDK()
     {
-        return System.getProperty("java.home").contains("openjdk");
+        return System.getProperty("java.runtime.name").startsWith("OpenJDK");
     }
     
     /**
