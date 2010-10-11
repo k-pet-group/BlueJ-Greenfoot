@@ -86,15 +86,17 @@ public class SelectImageAction extends AbstractAction
                 @Override
                 public void imageSelected(final File imageFile)
                 {
-                    Simulation.getInstance().runLater(new Runnable() {
-                        @Override
-                        public void run()
-                        {
-                            if (WorldHandler.getInstance().getWorld() == currentWorld) {
-                                currentWorld.setBackground(imageFile.getAbsolutePath());
+                    if (imageFile != null) {
+                        Simulation.getInstance().runLater(new Runnable() {
+                            @Override
+                            public void run()
+                            {
+                                if (WorldHandler.getInstance().getWorld() == currentWorld) {
+                                    currentWorld.setBackground(imageFile.getAbsolutePath());
+                                }
                             }
-                        }
-                    });
+                        });
+                    }
                 }
             };
         }
