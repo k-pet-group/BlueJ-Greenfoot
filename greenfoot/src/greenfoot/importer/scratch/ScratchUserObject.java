@@ -27,6 +27,10 @@ import java.util.List;
 
 class ScratchUserObject extends ScratchObject
 {
+    // See the table in Scratch-Object IO.ObjStream.<class>.userClasses
+    private static final int SCRATCH_SPRITE_MORPH = 124;
+    private static final int SCRATCH_STAGE_MORPH = 125;
+    
     private int id;
     private int version;
     private List<ScratchObject> scratchObjects;
@@ -48,69 +52,39 @@ class ScratchUserObject extends ScratchObject
         return this;
     }
 
-    @Override
-    public String toString()
-    {
-        StringBuilder builder = new StringBuilder();
-        builder.append("SObject [id=");
-        builder.append(id);
-        builder.append(", members=[");
-        for (ScratchObject m : scratchObjects) {
-            if (m != null) {
-                builder.append(m.toString()).append(",");
-            } else {
-                builder.append("null,");
-            }
-            
-        }
-        builder.append("], version=");
-        builder.append(version);
-        builder.append("]");
-        /*if (id == 125) {
-            builder.append("\n");
-            Member[] blocks = (Member[])members.get(morphFields() + 2).getValue();
-            for (Member m : blocks) {
-                builder.append(m).append(",");
-            }
-        }
-        */
-        return builder.toString();
-    }
-    
+    // Number of fields in the Morph class
     public static int morphFields()
     {
         return 6; //bounds (Rectangle), owner (?), submorphs (array), color (Color), flags (int), placeholder (null)
     }
     
+    // Number of fields in the ScriptableScratchMorph class (including those from the Morph super-class)
     public static int scriptableScratchMorphFields()
     {
         return morphFields() + 6; //objName (String), vars (?), blocksBin (array), isClone (boolean), media (array), costume (SObject, 162)
     }
     
+ // Number of fields in the ScratchStageMorph class (including those from the ScriptableScratchMorph super-class)
     public static int scratchStageMorphFields()
     {
         return scriptableScratchMorphFields() + 9;
           // zoom (int), hPan (int), vPan (int), obsoleteSavedState (?), sprites (array), volume (int), tempoBPM (int), sceneStates (?), lists(?) 
     }
-    
-    public static int mediaFields()
-    {
-        return 1; //mediaName
-    }
            
     public ScratchUserObject getStage()
     {
-        return id == 125 ? this : null;
+        return id == SCRATCH_STAGE_MORPH ? this : null;
     }
     
     public ScratchUserObject getSprite()
     {
-        return id == 124 ? this : null;
+        return id == SCRATCH_SPRITE_MORPH ? this : null;
     }
     
     public ScratchObjectArray getBlocks()
     {
         if (getStage() != null || getSprite() != null) {
+            // blocksBin is at the same index for both:
             return (ScratchObjectArray)scratchObjects.get(morphFields() + 2);
         } else {
             return null;
