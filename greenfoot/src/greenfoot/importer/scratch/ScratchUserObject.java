@@ -81,7 +81,7 @@ class ScratchUserObject extends ScratchObject
         return id == SCRATCH_SPRITE_MORPH ? this : null;
     }
     
-    public ScratchObjectArray getBlocks()
+    public ScratchObjectArray getScripts()
     {
         if (getStage() != null || getSprite() != null) {
             // blocksBin is at the same index for both:

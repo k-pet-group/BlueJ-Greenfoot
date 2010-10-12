@@ -44,7 +44,7 @@ class ScratchObjectArray extends ScratchObject
         this.value = value;
     }
     
-    public Object getValue()
+    @Override public ScratchObject[] getValue()
     {
         return value;
     }

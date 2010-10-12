@@ -307,6 +307,15 @@ public class ScratchImport
             readHeader(input);
             List<ScratchObject> objects = readObjectStore(input);
             
+            List<ScratchUserObject> scripted = findSprites(objects);
+            scripted.add(findStage(objects));
+            StringBuilder acc = new StringBuilder();
+            for (ScratchUserObject s : scripted) {
+                codeForScripts(s.getScripts(), acc);
+            }
+            print(acc.toString());
+            
+            /* Shows images:
             for (ScratchObject m : objects) {
                 if (m instanceof ScratchImage) {
                     BufferedImage bimg = ((ScratchImage)m).getBufferedImage();
@@ -317,8 +326,75 @@ public class ScratchImport
                     }
                 }
             }
+            */
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private static void codeForScripts(ScratchObjectArray scripts, StringBuilder acc)
+    {
+        acc.append("public void act()\n{\n");
+        // Each item in the array of blocks is a separate script chunk in
+        // the scripts window in Scratch:
+        for (ScratchObject scriptChunk : scripts.getValue()) {
+            ScratchObject[] info = (ScratchObject[])scriptChunk.getValue();
+            //First entry is always a ScratchPrimitive with a Point
+            //  (location in the Scratch script window; we can ignore)
+            //Second entry is the actual block array:
+            
+            for (ScratchObject block : (ScratchObject[])info[1].getValue()) {
+                // Each item in this array is a separate block:
+                codeForBlock(block, acc);
+            }
+        }
+        acc.append("}\n");
+    }
+    
+    private static void codeForBlock(ScratchObject block, StringBuilder acc)
+    {
+        // Each block is an array of entries.  For example, if you have
+        // a repeat block, that will be an array of three things:
+        // [doRepeat, <the number of counts>, <the block to repeat>]
+        // The block to repeat will in turn be an array and so on!
+        ScratchObject[] blockContents = (ScratchObject[])block.getValue();
+        
+        if ("doRepeat".equals(blockContents[0].getValue())) {
+            acc.append("int loopCount = ");
+            codeForBlock(blockContents[1], acc);
+            acc.append(";\n");
+            acc.append("for (int i = 0; i < loopCount;i++)\n{\n");
+            codeForBlock(blockContents[2], acc);
+            acc.append("}\n");
+        }
+        else if ("MouseClickEventHatMorph".equals(blockContents[0].getValue())) {
+            if ("Scratch-MouseClickEvent".equals(blockContents[1].getValue())) {
+                acc.append("if (Greenfoot.mouseClicked(this))");
+                //TODO put curly brackets in properly
+            }
+        }
+        else if ("randomFrom:to:".equals(blockContents[0].getValue())) {
+            int from = (Integer)blockContents[1].getValue();
+            int to = (Integer)blockContents[2].getValue();
+            if (from == 0) {
+                acc.append("Greenfoot.randomNumber(").append(to).append(")");
+            } else {
+                acc.append("(Greenfoot.randomNumber(").append(to - from).append(") + ").append(from).append(")");
+            }
+        }
+        else if ("turnRight:".equals(blockContents[0].getValue())) {
+            String degrees = blockContents[1].getValue().toString();
+            acc.append("setRotation(getRotation() - ").append(degrees).append(");\n");
+        }
+        else if (blockContents[0] instanceof ScratchObjectArray) {
+            codeForBlock(blockContents[0], acc);
+        }
+        else {
+            StringBuilder tmp = new StringBuilder();
+            for (ScratchObject o : blockContents) {
+                tmp.append(o).append(",");
+            }
+            print("Unknown code: " + tmp.toString());
         }
     }
 }
