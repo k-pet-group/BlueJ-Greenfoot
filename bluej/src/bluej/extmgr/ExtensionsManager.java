@@ -219,7 +219,7 @@ public class ExtensionsManager
 
     /**
      * Ask for extension manager to show the help dialog for extensions. This is
-     * here to be shure that the help dialog is called when extension manager is
+     * here to be sure that the help dialog is called when extension manager is
      * valid.
      */
     public void showHelp(JFrame parentFrame)
