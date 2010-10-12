@@ -96,10 +96,10 @@ public class ScratchImage extends ScratchObject
         for (int rawN = decodeLen(bitsInput);rawN != -1;rawN = decodeLen(bitsInput)) {
             // Lowest two bits contain a 0-3 code
             // Rest of bits contain a count of (4-byte) words:
-            int wordCount = (rawN & (~0x3)) >> 2;
+            int wordCount = rawN >> 2;
             switch (rawN & 0x3) {
             case 0: // Skip that many words
-                bitmapPos += wordCount * 4;
+                bitmapPos += wordCount;
             break;
             case 1: { // Replicate next byte to all 4 bytes to wordCount words:
                 int b = bitsInput.read();
@@ -145,7 +145,7 @@ public class ScratchImage extends ScratchObject
     {
         final int pixelsPerWord = 32 / d;
         for (int i = 0; i < pixelsPerWord;i++) {
-            int index = val & ((1 << d) - 1);
+            int index = d == 32 ? val : val & ((1 << d) - 1);
             
             // Number of pixels per row divided by pixels-per-word gives number of words per row:
             int realWidth = (w + (pixelsPerWord - 1)) / pixelsPerWord;
@@ -158,7 +158,11 @@ public class ScratchImage extends ScratchObject
             int y = pos / realWidth;
             // Some bits can be beyond the image due to aligning the images to nice 2^n sizes:
             if (x < w && y < h) {
-                img.setRGB(x, y, palette[index].getRGB());
+                if (palette != null) {
+                    img.setRGB(x, y, palette[index].getRGB());
+                } else {
+                    img.setRGB(x, y, index);
+                }
             }
             
             val >>= d;
@@ -174,7 +178,17 @@ public class ScratchImage extends ScratchObject
     {
         int x = 0;
         int first = bitsInput.read();
-        if (first >= 0xE0) {
+        
+        if (first == -1) //EOF
+            return -1;
+        
+        if (first == 0xFF) {
+            for (int i = 0; i < 4; i++) {
+                x <<= 8;
+                x |= bitsInput.read();
+            }
+            return x;
+        } else if (first >= 0xE0) {
             x = (first & 0x1F) << 8;
             x |= bitsInput.read();
         } else {
