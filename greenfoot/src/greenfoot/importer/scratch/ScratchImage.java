@@ -23,6 +23,7 @@ package greenfoot.importer.scratch;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 
 /**
@@ -46,12 +47,6 @@ public class ScratchImage extends ScratchObject
     // When it is resolved, the actual image will be stored in the "palette" field
     private ScratchObject paletteRef;
     private Color[] palette;
-    
-    // The byte array with the raw (compressed) data, and current pointer into it
-    // This is shared between methods, so is a member.
-    // TODO refactor this to a ByteArrayInputStream
-    private byte[] bits;
-    private int bitsPos;
     
     /**
      * Constructs a ScratchImage using the data read from the file
@@ -77,7 +72,7 @@ public class ScratchImage extends ScratchObject
      */
     public ScratchObject resolve(ArrayList<ScratchObject> objects) {
         ScratchObject resolved = bitsRef.resolve(objects);
-        bits = (byte[]) resolved.getValue();
+        ByteArrayInputStream bitsInput = new ByteArrayInputStream((byte[]) resolved.getValue());
         
         if (paletteRef != null) {
             resolved = paletteRef.resolve(objects);
@@ -93,21 +88,21 @@ public class ScratchImage extends ScratchObject
         // Graphics-Primitives.Bitmap.compress:toByteArray: method
         
         img = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
-        bitsPos = 0;
 
         int bitmapPos = 0;
-        decodeLen();
-        while (bitsPos < bits.length) {
-            final int len = decodeLen();
+        // Skip the length at the very beginning of the image
+        // It tells us final size but we already know that:
+        decodeLen(bitsInput);
+        for (int rawN = decodeLen(bitsInput);rawN != -1;rawN = decodeLen(bitsInput)) {
             // Lowest two bits contain a 0-3 code
             // Rest of bits contain a count of (4-byte) words:
-            int wordCount = (len & (~0x3)) >> 2;
-            switch (len & 0x3) {
+            int wordCount = (rawN & (~0x3)) >> 2;
+            switch (rawN & 0x3) {
             case 0: // Skip that many words
                 bitmapPos += wordCount * 4;
             break;
             case 1: { // Replicate next byte to all 4 bytes to wordCount words:
-                int b = bits[bitsPos++]&0xFF;
+                int b = bitsInput.read();
                 int x = (b << 24) | (b << 16) | (b << 8) | b;
                 int end = bitmapPos + wordCount;
                 while (bitmapPos < end) {
@@ -119,7 +114,7 @@ public class ScratchImage extends ScratchObject
                 int x = 0;
                 for (int i = 0; i < 4; i++) {
                     x <<= 8;
-                    x |= bits[bitsPos++]&0xFF;
+                    x |= bitsInput.read();
                 }
                 int end = bitmapPos + wordCount;
                 while (bitmapPos < end) {
@@ -133,7 +128,7 @@ public class ScratchImage extends ScratchObject
                     int x = 0;
                     for (int i = 0; i < 4; i++) {
                         x <<= 8;
-                        x |= bits[bitsPos++]&0xFF;
+                        x |= bitsInput.read();
                     }
                     
                     setBitmapEntry(bitmapPos++, x);
@@ -175,16 +170,15 @@ public class ScratchImage extends ScratchObject
      * Decodes a count field.
      * Anything above 0xE0 has its low bits (& 0x1F) merged with the next number
      */
-    private int decodeLen()
+    private int decodeLen(ByteArrayInputStream bitsInput)
     {
-        // The b & 0xFF trick (where b is a byte) turns a byte into
-        // an int by treating the byte as *unsigned* which is crucial here.
         int x = 0;
-        if ((bits[bitsPos]&0xFF) >= 0xE0) {
-            x = ((bits[bitsPos++]&0xFF) & 0x1F) << 8;
-            x |= bits[bitsPos++]&0xFF;
+        int first = bitsInput.read();
+        if (first >= 0xE0) {
+            x = (first & 0x1F) << 8;
+            x |= bitsInput.read();
         } else {
-            x = bits[bitsPos++]&0xFF;
+            x = first;
         }
         return x;
     }
