@@ -40,13 +40,13 @@ import bluej.utility.Debug;
 class ScratchUserObject extends ScratchObject
 {
     // See the table in Scratch-Object IO.ObjStream.<class>.userClasses
-    private static final int SCRATCH_SPRITE_MORPH = 124;
-    private static final int SCRATCH_STAGE_MORPH = 125;
-    private static final int IMAGE_MEDIA = 162;
+    protected static final int SCRATCH_SPRITE_MORPH = 124;
+    protected static final int SCRATCH_STAGE_MORPH = 125;
+    protected static final int IMAGE_MEDIA = 162;
     
     private int id;
     private int version;
-    private List<ScratchObject> scratchObjects;
+    protected List<ScratchObject> scratchObjects;
     public ScratchUserObject(int id, int version, List<ScratchObject> scratchObjects)
     {
         this.id = id;
@@ -65,109 +65,9 @@ class ScratchUserObject extends ScratchObject
         return this;
     }
 
-    // Number of fields in the Morph class
-    public static int morphFields()
+    public int fields()
     {
-        return 6; //bounds (Rectangle), owner (?), submorphs (array), color (Color), flags (int), placeholder (null)
-    }
-    
-    // Number of fields in the ScriptableScratchMorph class (including those from the Morph super-class)
-    public static int scriptableScratchMorphFields()
-    {
-        return morphFields() + 6; //objName (String), vars (?), blocksBin (array), isClone (boolean), media (array), costume (SObject, 162)
-    }
-    
- // Number of fields in the ScratchStageMorph class (including those from the ScriptableScratchMorph super-class)
-    public static int scratchStageMorphFields()
-    {
-        return scriptableScratchMorphFields() + 9;
-          // zoom (int), hPan (int), vPan (int), obsoleteSavedState (?), sprites (array), volume (int), tempoBPM (int), sceneStates (?), lists(?) 
-    }
-    
-    public static int mediaFields()
-    {
-        return 1; //mediaName
-    }
-
-    private boolean isScriptable()
-    {
-        return id == SCRATCH_STAGE_MORPH || id == SCRATCH_SPRITE_MORPH;
-    }
-    
-    @Override public String saveInto(GProject project) throws IOException
-    {
-        if (isScriptable()) {
-            // blocksBin is at the same index for all scriptable things:
-            ScratchObjectArray scripts = (ScratchObjectArray)scratchObjects.get(morphFields() + 2);
-            ScratchObject imageMedia = scratchObjects.get(morphFields() + 5);            
-            String className = scratchObjects.get(morphFields()).toString();
-            StringBuilder acc = new StringBuilder();
-            acc.append("import greenfoot.*;\npublic class " + className);
-            
-            if (id == SCRATCH_STAGE_MORPH) {
-                acc.append(" extends World");
-            } else if (id == SCRATCH_SPRITE_MORPH) {
-                acc.append(" extends Actor");
-            }
-            
-            acc.append("\n{\n");
-            if (id == SCRATCH_STAGE_MORPH) {
-                ScratchImage image = (ScratchImage)((ScratchUserObject)imageMedia).scratchObjects.get(mediaFields() + 0);
-                acc.append("public " + className + "()\n{\n");
-                acc.append("super(").append(image.getWidth()).append(", ").append(image.getHeight()).append(", 1);\n");
-                
-                ScratchObjectArray sprites = (ScratchObjectArray)scratchObjects.get(scriptableScratchMorphFields() + 4);
-                for (ScratchObject o : sprites.getValue()) {
-                    ScratchUserObject sprite = (ScratchUserObject)o;
-                    String spriteName = sprite.scratchObjects.get(morphFields() + 0).toString();
-                    acc.append("addObject(new ").append(spriteName).append("(), ");
-                    acc.append((int)((Rectangle)sprite.scratchObjects.get(0).getValue()).getCenterX());
-                    acc.append(", ");
-                    acc.append((int)((Rectangle)sprite.scratchObjects.get(0).getValue()).getCenterY());
-                    acc.append(");\n");
-                }
-                
-                acc.append("}\n");
-            } else if (id == SCRATCH_SPRITE_MORPH) {
-                acc.append("public " + className + "()\n{\n");
-                acc.append("GreenfootImage img = getImage();\n");
-                acc.append("img.scale(")
-                   .append(((Rectangle)scratchObjects.get(0).getValue()).width)
-                   .append(", ")
-                   .append(((Rectangle)scratchObjects.get(0).getValue()).height)
-                   .append(");\n");
-                acc.append("}\n");
-            } 
-            codeForScripts(scripts, acc);
-            acc.append("}\n");
-            
-            File javaFile = new File(project.getDefaultPackage().getDir(), className + ".java");
-            FileWriter javaFileWriter = new FileWriter(javaFile);
-            javaFileWriter.write(acc.toString());
-            javaFileWriter.close();
-            
-            GClass gcls = project.getDefaultPackage().newClass(className);
-            
-            javaFileWriter = new FileWriter(javaFile);
-            javaFileWriter.write(acc.toString());
-            javaFileWriter.close();
-            
-            
-            String imageFile = imageMedia.saveInto(project);
-            gcls.setClassProperty("image", imageFile);
-            
-            return javaFile.getName();
-        } else if (id == IMAGE_MEDIA) {
-            // Save the image that we are wrapping:
-            String imageFileName = scratchObjects.get(mediaFields() + 0).saveInto(project);
-            
-            Debug.message("ImageMedia wrapping: " + imageFileName);
-            
-            return imageFileName;
-            
-            //TODO use mediaName and do the saving here rather than in SImage
-        }
-        return null;
+        return 0;
     }
 
     private static void codeForBlock(ScratchObject block, StringBuilder acc)
@@ -222,7 +122,7 @@ class ScratchUserObject extends ScratchObject
         }
     }
 
-    private static void codeForScripts(ScratchObjectArray scripts, StringBuilder acc)
+    protected static void codeForScripts(ScratchObjectArray scripts, StringBuilder acc)
     {
         acc.append("public void act()\n{\n");
         // Each item in the array of blocks is a separate script chunk in

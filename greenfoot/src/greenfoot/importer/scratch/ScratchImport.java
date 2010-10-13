@@ -138,12 +138,21 @@ public class ScratchImport
     // See Scratch Object IO.ObjStream.readObjectRecord
     private static ScratchUserObject readUserObject(int id, FileInputStream input) throws IOException
     {
-        int classVersion = input.read();
+        int version = input.read();
         int fieldAmount = input.read();
         
-        ScratchObject[] scratchObjects = readFields(input, fieldAmount);
+        List<ScratchObject> scratchObjects = Arrays.asList(readFields(input, fieldAmount));
         
-        return new ScratchUserObject(id, classVersion, Arrays.asList(scratchObjects));
+        switch (id) {
+        case ScratchUserObject.IMAGE_MEDIA:
+            return new ImageMedia(version, scratchObjects);
+        case ScratchUserObject.SCRATCH_STAGE_MORPH:
+            return new ScratchStageMorph(version, scratchObjects);
+        case ScratchUserObject.SCRATCH_SPRITE_MORPH:
+            return new ScratchSpriteMorph(version, scratchObjects);
+        default: 
+            return new ScratchUserObject(id, version, scratchObjects);
+        }
     }
     
     private static ScratchObject readPrimitiveOrReference(FileInputStream input) throws IOException
