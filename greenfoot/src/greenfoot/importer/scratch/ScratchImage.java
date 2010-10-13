@@ -35,7 +35,7 @@ import javax.imageio.ImageIO;
 import bluej.utility.Debug;
 
 /**
- * A Scratch image resource.
+ * A Scratch image resource, loaded from the Scratch Form class.
  * 
  * @author neil
  *

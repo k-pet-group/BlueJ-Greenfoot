@@ -22,21 +22,14 @@
 package greenfoot.importer.scratch;
 
 
-import greenfoot.core.GClass;
-import greenfoot.core.GProject;
-
-import java.awt.Rectangle;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
-import bluej.extensions.PackageNotFoundException;
-import bluej.extensions.ProjectNotOpenException;
-import bluej.utility.Debug;
-
+/**
+ * A Scratch user-defined object (as opposed to an array or primitive type).
+ * @author neil
+ *
+ */
 class ScratchUserObject extends ScratchObject
 {
     // See the table in Scratch-Object IO.ObjStream.<class>.userClasses
@@ -65,6 +58,11 @@ class ScratchUserObject extends ScratchObject
         return this;
     }
 
+    /**
+     * The number of fields that this class loads from the file in total.
+     * 
+     * This should usually be implemented as super.fields() + N.
+     */
     public int fields()
     {
         return 0;
