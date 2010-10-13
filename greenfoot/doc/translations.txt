@@ -1,4 +1,4 @@
-BlueJ interface translations and translators
+Greenfoot interface translations and translators
 
 The next update column indicates whether it is likely that the translator will do the next update.
 
@@ -6,7 +6,7 @@ language        last update     next update    comment         translator
 --------------------------------------------------------------------------------------------------------------
 brazilian                            x          tutorial       Herodoto Bento-DeMello <herodotomello@yahoo.com.br>
 french          1.5.0                x          labels         Guillaume Baudoin <gbaudoin@gmail.com>
-german          1.4?                                           Michael Kolling
+german          2.0.0preview         x          labels         Matthias Taulien <mail@m-taulien.de> ; Michael Kolling
 greek           1.5.0                x                         Dragon Turtle <super_provato@hotmail.com>
 indian?                              x                         Kiran Kumar D <mail2dkiran@gmail.com>
 italian         1.5.0                x                         Stefano Federici <s_federici@yahoo.com>
