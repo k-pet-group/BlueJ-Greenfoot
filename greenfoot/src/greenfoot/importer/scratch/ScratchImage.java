@@ -229,7 +229,7 @@ public class ScratchImage extends ScratchObject
         return w;
     }
 
-    public Object getHeight()
+    public int getHeight()
     {
         return h;
     }

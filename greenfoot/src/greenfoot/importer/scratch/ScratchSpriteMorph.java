@@ -21,6 +21,7 @@
  */
 package greenfoot.importer.scratch;
 
+import java.awt.Point;
 import java.util.List;
 
 /**
@@ -58,6 +59,13 @@ public class ScratchSpriteMorph extends ScriptableScratchMorph
     protected String greenfootSuperClass()
     {
         return "Actor";
+    }
+
+    public Point getGreenfootCentre()
+    {
+        return new Point(getBounds().x + (getCostume().getImage().getWidth() / 2)
+                        ,getBounds().y + (getCostume().getImage().getHeight() / 2));
+                
     }
 
 }
