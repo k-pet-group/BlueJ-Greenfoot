@@ -35,7 +35,7 @@ import bluej.utility.Debug;
 import javax.swing.*;
 
 /**
- * Manages extensions and provides the main interface to PkgMgrFrame. A
+ * Manages extensions and provides the main interface to them. A
  * singleton.
  * 
  * @author Clive Miller, University of Kent at Canterbury, 2002
@@ -65,8 +65,8 @@ public class ExtensionsManager
     private ExtensionPrefManager prefManager = null;
 
     /**
-     * Constructor for the ExtensionsManager object. It is private to be a
-     * singleton.
+     * Constructor for the ExtensionsManager object. It is private, as the
+     * ExtensionsManager is a singleton.
      */
     private ExtensionsManager()
     {
@@ -100,7 +100,7 @@ public class ExtensionsManager
     }
 
     /**
-     * Unloads all extensions that are loaded. Normally called just before bluej
+     * Unloads all extensions that are loaded. Normally called just before BlueJ
      * is closing.
      */
     public void unloadExtensions()
@@ -116,11 +116,7 @@ public class ExtensionsManager
 
     /**
      * Searches through the given directory for jar files that contain a valid
-     * extension. If it finds a loadable extension it will add it to the loaded
-     * extensions. This IS the function that should be called to load extensions
-     * 
-     * NOTE: This one will either ADD or delete stuff from the list of
-     * extensions so it must be synchronized....
+     * extension. On finding a loadable extension, try to load it.
      * 
      * @param directory
      *            Where to look for extensions
@@ -177,10 +173,7 @@ public class ExtensionsManager
     }
 
     /**
-     * Checks if the loaded wrappers/extensions if is already loaded. In case of
-     * strange params we return false, meaning that the given wrapper is NOT
-     * loaded in the system. It is a reasonable response, afer all this wrapper
-     * is not loaded...
+     * Checks if the loaded wrappers/extensions if is already loaded.
      */
     private boolean isWrapperAlreadyLoaded(ExtensionWrapper thisWrapper)
     {
@@ -241,7 +234,7 @@ public class ExtensionsManager
     }
 
     /**
-     * Informs extension that a package has been opened
+     * Inform extensions that a package has been opened
      */
     public void packageOpened(Package pkg)
     {
@@ -250,12 +243,11 @@ public class ExtensionsManager
 
     /**
      * This package frame is about to be closed. The issue here is to remove the
-     * extension if this is the right time to do it. NOTA: This must be
-     * syncronized since it changes the extensionslist
+     * extension if this is the right time to do it.
      */
     public void packageClosing(Package pkg)
     {
-        // Before removing the extension let signl that this package is closing
+        // Before removing the extension, signal that this package is closing
         delegateEvent(new PackageEvent(PackageEvent.PACKAGE_CLOSING, pkg));
 
         // Let's assume we are NOT going to delete the extension...
@@ -265,7 +257,7 @@ public class ExtensionsManager
         // wrapper/extension..
         Project thisProject = pkg.getProject();
 
-        // Shurelly I cannot release anything if I don't know what I am talking
+        // Surely I cannot release anything if I don't know what I am talking
         // about...
         if (thisProject == null) {
             return;
@@ -304,7 +296,12 @@ public class ExtensionsManager
     }
 
     /**
-     * Returns true if I should not ask for a menu to this extensions
+     * Check whether the menus provided by this extension should not be shown for the
+     * given project.
+     * 
+     * @param onThisProject   the project to check whether menus should be shown (may be null)
+     * @param extensionProject  the project which the extension was loaded for (may be null, for
+     *                          an extension not bound to a particular project)
      */
     private boolean skipThisMenu(Project onThisProject, Project extensionProject)
     {
@@ -331,7 +328,7 @@ public class ExtensionsManager
     }
 
     /**
-     * Returns a List of menues currently provided by extensions.
+     * Returns a List of menus currently provided by extensions.
      */
     LinkedList<JMenuItem> getMenuItems(Object attachedObject, Project onThisProject)
     {
@@ -375,12 +372,14 @@ public class ExtensionsManager
 
     /**
      * This is called back when some sort of event occurs. Depending on the
-     * event we will send it up adapted to the extension.
+     * event we will adapt it and send it up to the extension.
      * 
      * @param eventId
-     *            Get the list of event id from BlueJEvent
+     *            The event id (see BlueJEvent)
      * @param arg
      *            This really depends on that event is given
+     *            
+     * @see BlueJEvent
      */
     public void blueJEvent(int eventId, Object arg)
     {
