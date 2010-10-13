@@ -21,10 +21,18 @@
  */
 package greenfoot.importer.scratch;
 
+import greenfoot.core.GProject;
+
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+
+import javax.imageio.ImageIO;
+
+import bluej.utility.Debug;
 
 /**
  * A Scratch image resource.
@@ -47,6 +55,9 @@ public class ScratchImage extends ScratchObject
     // When it is resolved, the actual image will be stored in the "palette" field
     private ScratchObject paletteRef;
     private Color[] palette;
+    
+    // If non-null, the File that the image has been saved into
+    private File imageFile;
     
     /**
      * Constructs a ScratchImage using the data read from the file
@@ -196,10 +207,31 @@ public class ScratchImage extends ScratchObject
         }
         return x;
     }
-
-    public BufferedImage getBufferedImage()
+    
+    @Override public String saveInto(GProject project) throws IOException
     {
-        return img;
-    }   
+        if (imageFile == null) {
+            File imageDir = project.getImageDir();
+            for (int i = 0;;i++) {
+                imageFile = new File(imageDir, "image" + Integer.toString(i) + ".png");
+                if (false == imageFile.exists())
+                    break;
+            }
+            Debug.message("Saving image: " + imageFile.getName());
+            ImageIO.write(img, "png", imageFile);
+        }
+        
+        return imageFile.getName();
+    }
+
+    public int getWidth()
+    {
+        return w;
+    }
+
+    public Object getHeight()
+    {
+        return h;
+    }
     
 }

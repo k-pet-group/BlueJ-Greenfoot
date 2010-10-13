@@ -22,6 +22,9 @@
 package greenfoot.importer.scratch;
 
 
+import greenfoot.core.GProject;
+import greenfoot.core.GreenfootMain;
+
 import java.awt.Color;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -37,12 +40,14 @@ import java.util.List;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
+import bluej.extensions.ProjectNotOpenException;
+
 public class ScratchImport
 {
     /**
      * Used at the moment for debug output
      */
-    private static void print(String s)
+    static void print(String s)
     {
         System.out.println(s);
     }
@@ -86,8 +91,6 @@ public class ScratchImport
      * Reads a big-endian int using the given number of bytes
      * 
      * The Scratch format has all sorts of integer sizes, including 3 bytes.
-     * 
-     * TODO: there may be signed/unsigned issues with 4-byte integers
      */
     private static int readInt(FileInputStream input, int bytes) throws IOException
     {
@@ -97,6 +100,13 @@ public class ScratchImport
             x <<= 8;
             x |= input.read();
         }
+        
+        // Fix negative numbers when less than 4-bytes:
+        if (x >> ((8 * bytes) - 1) != 0) {
+            // When upper bit is one, perform sign extension:
+            x |= 0xFFFFFFFF << (8 * bytes); 
+        }
+        
         return x;
     }
 
@@ -275,6 +285,7 @@ public class ScratchImport
         return objects;
     }
     
+    /*
     public static ScratchUserObject findStage(List<ScratchObject> scratchObjects)
     {
         for (ScratchObject m : scratchObjects) {
@@ -297,16 +308,29 @@ public class ScratchImport
         }
         return sprites;
     }
+    */
     
     
-    public static void main(String[] args)
+    public static void importScratch()
     {
         try {
-            FileInputStream input = new FileInputStream("/home/neil/work/scratch/Projects/Simulations/1 Spinner.sb");
+            FileInputStream input = new FileInputStream("/home/neil/work/scratch/Projects/Animation/1 Playground.sb");
         
             readHeader(input);
             List<ScratchObject> objects = readObjectStore(input);
             
+            GProject proj = GProject.newGProject(GreenfootMain.getInstance().newProject());
+            
+            for (ScratchObject o : objects) {
+                o.saveInto(proj);
+            }
+            
+            // It is necessary to make this call to save the properties here, otherwise
+            // they vanish.  Not sure why, though:
+            proj.getProjectProperties().save();
+            proj.save();
+            
+            /*
             List<ScratchUserObject> scripted = findSprites(objects);
             scripted.add(findStage(objects));
             StringBuilder acc = new StringBuilder();
@@ -315,7 +339,8 @@ public class ScratchImport
             }
             print(acc.toString());
             
-            /* Shows images:
+            //Shows images:
+            
             for (ScratchObject m : objects) {
                 if (m instanceof ScratchImage) {
                     BufferedImage bimg = ((ScratchImage)m).getBufferedImage();
@@ -330,71 +355,9 @@ public class ScratchImport
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    private static void codeForScripts(ScratchObjectArray scripts, StringBuilder acc)
-    {
-        acc.append("public void act()\n{\n");
-        // Each item in the array of blocks is a separate script chunk in
-        // the scripts window in Scratch:
-        for (ScratchObject scriptChunk : scripts.getValue()) {
-            ScratchObject[] info = (ScratchObject[])scriptChunk.getValue();
-            //First entry is always a ScratchPrimitive with a Point
-            //  (location in the Scratch script window; we can ignore)
-            //Second entry is the actual block array:
-            
-            for (ScratchObject block : (ScratchObject[])info[1].getValue()) {
-                // Each item in this array is a separate block:
-                codeForBlock(block, acc);
-            }
-        }
-        acc.append("}\n");
-    }
-    
-    private static void codeForBlock(ScratchObject block, StringBuilder acc)
-    {
-        // Each block is an array of entries.  For example, if you have
-        // a repeat block, that will be an array of three things:
-        // [doRepeat, <the number of counts>, <the block to repeat>]
-        // The block to repeat will in turn be an array and so on!
-        ScratchObject[] blockContents = (ScratchObject[])block.getValue();
-        
-        if ("doRepeat".equals(blockContents[0].getValue())) {
-            acc.append("int loopCount = ");
-            codeForBlock(blockContents[1], acc);
-            acc.append(";\n");
-            acc.append("for (int i = 0; i < loopCount;i++)\n{\n");
-            codeForBlock(blockContents[2], acc);
-            acc.append("}\n");
-        }
-        else if ("MouseClickEventHatMorph".equals(blockContents[0].getValue())) {
-            if ("Scratch-MouseClickEvent".equals(blockContents[1].getValue())) {
-                acc.append("if (Greenfoot.mouseClicked(this))");
-                //TODO put curly brackets in properly
-            }
-        }
-        else if ("randomFrom:to:".equals(blockContents[0].getValue())) {
-            int from = (Integer)blockContents[1].getValue();
-            int to = (Integer)blockContents[2].getValue();
-            if (from == 0) {
-                acc.append("Greenfoot.randomNumber(").append(to).append(")");
-            } else {
-                acc.append("(Greenfoot.randomNumber(").append(to - from).append(") + ").append(from).append(")");
-            }
-        }
-        else if ("turnRight:".equals(blockContents[0].getValue())) {
-            String degrees = blockContents[1].getValue().toString();
-            acc.append("setRotation(getRotation() - ").append(degrees).append(");\n");
-        }
-        else if (blockContents[0] instanceof ScratchObjectArray) {
-            codeForBlock(blockContents[0], acc);
-        }
-        else {
-            StringBuilder tmp = new StringBuilder();
-            for (ScratchObject o : blockContents) {
-                tmp.append(o).append(",");
-            }
-            print("Unknown code: " + tmp.toString());
+        catch (ProjectNotOpenException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
     }
 }

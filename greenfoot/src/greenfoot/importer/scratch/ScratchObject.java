@@ -21,6 +21,9 @@
  */
 package greenfoot.importer.scratch;
 
+import greenfoot.core.GProject;
+
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -66,16 +69,25 @@ class ScratchObject
      * Gets a stage (akin to world) if this object represents a stage
      * @return this if it is a stage, null otherwise
      */
-    public ScratchUserObject getStage()
+    /*public ScratchUserObject getStage()
     {
         return null;
-    }
+    }*/
     
     /**
      * Gets a sprite (akin to actor) if this object represents a sprite
      * @return this if it is a sprite, null otherwise
      */
-    public ScratchUserObject getSprite()
+    /*public ScratchUserObject getSprite()
+    {
+        return null;
+    }
+    */
+ 
+    /**
+     * Saves the item (e.g. image, sound, class) in the given project
+     */
+    public String saveInto(GProject project) throws IOException
     {
         return null;
     }
