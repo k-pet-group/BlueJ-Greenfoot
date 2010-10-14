@@ -80,6 +80,7 @@ public abstract class MyGameClient
         String gameUrl = info.getUrl();
         
         HttpClient httpClient = getHttpClient();
+        httpClient.getHttpConnectionManager().getParams().setConnectionTimeout(20 * 1000); // 20s timeout
         
         // Authenticate user and initiate session
         PostMethod postMethod = new PostMethod(hostAddress + "account/authenticate");
@@ -277,16 +278,17 @@ public abstract class MyGameClient
      * @param hostAddress   The game server address
      * @param uid           The username of the user
      * @param gameName      The scenario title
-     * @param info        If not null, this will have the title, short description,
-     *                    long description and tags set to whatever the existing
-     *                    scenario has. 
-     * @return
+     * @param info        If not null, this will on return have the title, short description,
+     *                    long description and tags set to whatever the existing scenario has. 
+     * @return  true iff the scenario exists on the server
      */
     public boolean checkExistingScenario(String hostAddress, String uid,
             String gameName, ScenarioInfo info)
         throws UnknownHostException, IOException
     {
         HttpClient client = getHttpClient();
+        client.getHttpConnectionManager().getParams().setConnectionTimeout(20 * 1000);
+        // 20 second timeout is quite generous
         
         String encodedName = URLEncoder.encode(gameName, "UTF-8");
         encodedName = encodedName.replace("+", "%20");
@@ -382,11 +384,16 @@ public abstract class MyGameClient
     
     /**
      * Get a list of commonly used tags from the server.
+     * 
+     * @throws UnknownHostException if the host is unknown
+     * @throws org.apache.commons.httpclient.ConnectTimeoutException if the connection timed out
+     * @throws IOException if some other I/O exception occurs
      */
     public List<String> getCommonTags(String hostAddress, int maxNumberOfTags)
         throws UnknownHostException, IOException
     {
         HttpClient client = getHttpClient();
+        client.getHttpConnectionManager().getParams().setConnectionTimeout(20 * 1000);
         
         GetMethod getMethod = new GetMethod(hostAddress +
                 "common-tags/"+ maxNumberOfTags);
