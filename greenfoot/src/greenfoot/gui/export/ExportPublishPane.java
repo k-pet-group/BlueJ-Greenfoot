@@ -60,6 +60,8 @@ import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.apache.commons.httpclient.ConnectTimeoutException;
+
 import bluej.Config;
 import bluej.utility.Debug;
 import bluej.utility.MiksGridLayout;
@@ -404,18 +406,33 @@ public class ExportPublishPane extends ExportPane implements ChangeListener
     }
 
     /**
-     * Set the tags in the UI from the given list.
-     * <p>
-     * Should be called from event thread
+     * Set the tags in the UI from the given list (null if the server couldn't be contacted or
+     * didn't respond as expected).
+     * 
+     * <p>Should be called from event thread
      */
     private void setPopularTags(List<String> tags)
     {
+        if (tags == null) {
+            // Couldn't get the tags list.
+            popTags[0].setText("Unavailable");
+            for (int i = 1; i < popTags.length; i++) {
+                popTags[i].setText("");
+            }
+            return;
+        }
+        
         int minLength = popTags.length < tags.size() ? popTags.length : tags.size();
         for (int i = 0; i < minLength; i++) {
             JCheckBox checkBox = popTags[i];
             checkBox.setText(tags.get(i));
             checkBox.setEnabled(true);
             setTags(getTags());
+        }
+        
+        // Clear any remaining checkboxes.
+        for (int i = minLength; i < popTags.length; i++) {
+            popTags[i].setText("");
         }
     }
 
@@ -550,10 +567,9 @@ public class ExportPublishPane extends ExportPane implements ChangeListener
 
     /**
      * The first time this pane is activated we fetch the popular tags from the
-     * server (if possible). Also set the keepSavedScenarioScreenshot =false as it has not been saved before
-     * <P>
-     * And we load previously used values if they are stored.
+     * server (if possible).
      * 
+     * <p>And we load previously used values if they are stored.
      */
     @Override
     public void activated(JButton continueButton)
@@ -568,9 +584,7 @@ public class ExportPublishPane extends ExportPane implements ChangeListener
                 public void finished()
                 {
                     List<String> l = (List<String>) getValue();
-                    if (l != null) {
-                        setPopularTags(l);
-                    }
+                    setPopularTags(l);
                 }
 
                 @Override
@@ -595,6 +609,7 @@ public class ExportPublishPane extends ExportPane implements ChangeListener
                             }
                         }
                     }
+                    catch (ConnectTimeoutException ctoe) { }
                     catch (UnknownHostException e) {
                         Debug.reportError("Error while publishing scenario", e);
                     }
