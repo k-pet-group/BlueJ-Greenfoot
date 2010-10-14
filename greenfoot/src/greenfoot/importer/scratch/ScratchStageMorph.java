@@ -58,7 +58,7 @@ public class ScratchStageMorph extends ScriptableScratchMorph
         ScratchObjectArray sprites = getSprites();
         for (ScratchObject o : sprites.getValue()) {
             ScratchSpriteMorph sprite = (ScratchSpriteMorph)o;
-            String spriteName = sprite.getObjName();
+            String spriteName = sprite.getObjNameJava();
             acc.append("addObject(new ").append(spriteName).append("(), ");
             acc.append(sprite.getGreenfootCentre().x);
             acc.append(", ");

@@ -21,33 +21,23 @@
  */
 package greenfoot.importer.scratch;
 
-import java.util.List;
+import java.math.BigDecimal;
 
 /**
- * Mirrors the Scratch Morph class, the base class for a lot of things in Scratch.
- * 
- * Mainly relevant because it holds the bounds (particularly useful for sprites).
- * 
+ * As with ScratchRectangle, we use our own class because the bounds can be in any
+ * number format
  * @author neil
  *
  */
-public class Morph extends ScratchUserObject
+public class ScratchPoint extends ScratchObject
 {
-    public Morph(int id, int version, List<ScratchObject> scratchObjects)
+    public BigDecimal x, y;
+
+    public ScratchPoint(BigDecimal x, BigDecimal y)
     {
-        super(id, version, scratchObjects);
+        this.x = x;
+        this.y = y;
     }
 
-    // Fields:
-    //  bounds (Rectangle), owner (?), submorphs (array), color (Color), flags (int), placeholder (null)
     
-    public int fields()
-    {
-        return 6; 
-    }
-    
-    public ScratchRectangle getBounds()
-    {
-        return (ScratchRectangle)scratchObjects.get(0);
-    }
 }

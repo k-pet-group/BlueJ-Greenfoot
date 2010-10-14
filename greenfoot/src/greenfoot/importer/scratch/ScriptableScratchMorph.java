@@ -47,9 +47,17 @@ public abstract class ScriptableScratchMorph extends Morph
         
     }
     
-    public String getObjName()
+    // Make this private to prevent accidental use by sub-classes
+    // (most of the time we are using objName as a proxy for class name,
+    //  but objName can contain spaces so isn't always a valid Java identifier)
+    private String getObjName()
     {
         return (String)scratchObjects.get(super.fields() + 0).getValue();
+    }
+    
+    public String getObjNameJava()
+    {
+        return getObjName().replace(' ', '_');
     }
     
     public ScratchObjectArray getBlocks()
@@ -70,7 +78,7 @@ public abstract class ScriptableScratchMorph extends Morph
     {
      // blocksBin is at the same index for all scriptable things:
         ScratchObject imageMedia = getCostume();            
-        String className = getObjName();
+        String className = getObjNameJava();
         
         StringBuilder acc = new StringBuilder();
         acc.append("import greenfoot.*;\npublic class " + className);

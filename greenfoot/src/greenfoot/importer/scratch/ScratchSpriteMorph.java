@@ -21,7 +21,7 @@
  */
 package greenfoot.importer.scratch;
 
-import java.awt.Point;
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -49,9 +49,9 @@ public class ScratchSpriteMorph extends ScriptableScratchMorph
     {
         acc.append("GreenfootImage img = getImage();\n");
         acc.append("img.scale(")
-           .append(getBounds().width)
+           .append(getBounds().x2.subtract(getBounds().x))
            .append(", ")
-           .append(getBounds().height)
+           .append(getBounds().y2.subtract(getBounds().y))
            .append(");\n");
     }
 
@@ -61,10 +61,10 @@ public class ScratchSpriteMorph extends ScriptableScratchMorph
         return "Actor";
     }
 
-    public Point getGreenfootCentre()
+    public ScratchPoint getGreenfootCentre()
     {
-        return new Point(getBounds().x + (getCostume().getImage().getWidth() / 2)
-                        ,getBounds().y + (getCostume().getImage().getHeight() / 2));
+        return new ScratchPoint(getBounds().x.add(new BigDecimal(getCostume().getImage().getWidth() / 2))
+                               ,getBounds().y.add(new BigDecimal(getCostume().getImage().getHeight() / 2)));
                 
     }
 

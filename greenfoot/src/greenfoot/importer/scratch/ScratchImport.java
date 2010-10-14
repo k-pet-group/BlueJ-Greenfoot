@@ -26,11 +26,10 @@ import greenfoot.core.GProject;
 import greenfoot.core.GreenfootMain;
 
 import java.awt.Color;
-import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,6 +40,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
 import bluej.extensions.ProjectNotOpenException;
+import bluej.utility.Debug;
 
 public class ScratchImport
 {
@@ -92,19 +92,19 @@ public class ScratchImport
      * 
      * The Scratch format has all sorts of integer sizes, including 3 bytes.
      */
-    private static int readInt(FileInputStream input, int bytes) throws IOException
+    private static long readInt(FileInputStream input, int bytes) throws IOException
     {
-        int x = 0;
+        long x = 0;
         for (int i = 0; i < bytes; i++)
         {
             x <<= 8;
             x |= input.read();
         }
         
-        // Fix negative numbers when less than 4-bytes:
-        if (x >> ((8 * bytes) - 1) != 0) {
+        // Fix negative numbers when less than 8-bytes:
+        if (x >> ((8 * bytes) - 1) != 0 && bytes < 8) {
             // When upper bit is one, perform sign extension:
-            x |= 0xFFFFFFFF << (8 * bytes); 
+            x |= 0xFFFFFFFFFFFFFFFFL << (8 * bytes);
         }
         
         return x;
@@ -116,7 +116,7 @@ public class ScratchImport
     private static void readHeader(FileInputStream input) throws IOException
     {
         readVersion(input);
-        int infoSize = readInt(input, 4);
+        int infoSize = (int)readInt(input, 4);
         input.skip(infoSize);
     }
     
@@ -167,45 +167,46 @@ public class ScratchImport
         switch (id)
         {
         case 99: //Object Reference (3-byte one-based index into object table):
-            return new ScratchObjectReference(readInt(input, 3));
+            return new ScratchObjectReference((int)readInt(input, 3));
         
         case 1: return null; //Undefined -- is null okay?
         case 2: // True 
         case 3: // False
             return new ScratchPrimitive(new Boolean(id == 2));
         case 4: //4-byte integer
-            return new ScratchPrimitive(new Integer(readInt(input, 4)));
+            return new ScratchPrimitive(new BigDecimal(readInt(input, 4)));
         case 5: //2-byte integer 
-            return new ScratchPrimitive(new Integer(readInt(input, 2)));
-        case 8: /* Float, TODO */
-            readInt(input, 8);
-            return new ScratchPrimitive(new Float(0));
-        case 9:  // String
+            return new ScratchPrimitive(new BigDecimal(readInt(input, 2)));
+        case 8: { /* Float */
+            long bits = readInt(input, 8);
+            Debug.message("Bits: " + Long.toHexString(bits));
+            return new ScratchPrimitive(new BigDecimal(Double.longBitsToDouble(bits)));
+        } case 9:  // String
         case 10: { // Symbol
-            int size = readInt(input, 4);
+            int size = (int)readInt(input, 4);
             return new ScratchPrimitive(readFixedASCII(input, size));
         } case 11: { // ByteArray
-            int size = readInt(input, 4);
+            int size = (int)readInt(input, 4);
             byte[] b = new byte[size];
             input.read(b);
             return new ScratchPrimitive(b);
         } case 12: { // SoundBuf -- TODO read this properly as int16s
-            int size = readInt(input, 4);
+            int size = (int)readInt(input, 4);
             byte[] b = new byte[size * 2];
             input.read(b);
             return new ScratchPrimitive(b);
         } case 14: { // UTF8
-            int size = readInt(input, 4);
+            int size = (int)readInt(input, 4);
             return new ScratchPrimitive(readUTF8(input, size));
         } case 20: // Array
           case 21: { // OrderedCollection
-            int size = readInt(input, 4);
+            int size = (int)readInt(input, 4);
             
             ScratchObject[] scratchObjects = readFields(input, size);
             
             return new ScratchObjectArray(scratchObjects);
         } case 24: { // Dictionary
-            int size = readInt(input, 4);
+            int size = (int)readInt(input, 4);
             ScratchObject[] keyValues = readFields(input, size*2);
             HashMap<ScratchObject, ScratchObject> map = new HashMap<ScratchObject, ScratchObject>();
             for (int i = 0; i < size; i++) {
@@ -214,30 +215,30 @@ public class ScratchImport
             return new ScratchPrimitive(map);
         } case 30: // Color
           case 31: { // TranslucentColor
-            int colour = readInt(input, 4);
-            int alpha = id == 31 ? readInt(input, 1) : 255;
+            int colour =(int)readInt(input, 4);
+            int alpha = id == 31 ? (int)readInt(input, 1) : 255;
             //Smalltalk uses 10-bit colour channels, with the top 2 bits unused.
             //So we just take the high 8 bits out of each 10-bit channel:
             Color c = new Color((colour >> 22) & 255, (colour >> 12) & 255, (colour >> 2) & 255, alpha);
             return new ScratchPrimitive(c);
         } case 32: {  //Point
             ScratchObject[] fields = readFields(input, 2);
-            Number x = (Number)fields[0].getValue();
-            Number y = (Number)fields[1].getValue();
-            return new ScratchPrimitive(new Point(x.intValue(), y.intValue()));
+            BigDecimal x = (BigDecimal)fields[0].getValue();
+            BigDecimal y = (BigDecimal)fields[1].getValue();
+            return new ScratchPoint(x, y);
         } case 33: { // Rectangle
             ScratchObject[] fields = readFields(input, 4);
-            int x = (Integer)fields[0].getValue();
-            int y = (Integer)fields[1].getValue();
-            int width = (Integer)fields[2].getValue() - x;
-            int height = (Integer)fields[3].getValue() - y;
-            return new ScratchPrimitive(new Rectangle(x, y, width, height));
+            BigDecimal x = (BigDecimal)fields[0].getValue();
+            BigDecimal y = (BigDecimal)fields[1].getValue();
+            BigDecimal x2 = (BigDecimal)fields[2].getValue();
+            BigDecimal y2 = (BigDecimal)fields[3].getValue();
+            return new ScratchRectangle(x, y, x2, y2);
         } case 34: // Form (an image)
           case 35: { // ColorForm (colour image)
               ScratchObject[] fields = readFields(input, id == 35 ? 6 : 5);
-              int w = (Integer)fields[0].getValue();
-              int h = (Integer)fields[1].getValue();
-              int d = (Integer)fields[2].getValue();
+              int w = ((BigDecimal)fields[0].getValue()).intValue();
+              int h = ((BigDecimal)fields[1].getValue()).intValue();
+              int d = ((BigDecimal)fields[2].getValue()).intValue();
               int offset = fields[3] == null ? 0 : (Integer)fields[3].getValue();
               ScratchObject bits = fields[4];
               ScratchObject palette = id == 35 ? fields[5] : null;
@@ -269,7 +270,7 @@ public class ScratchImport
             return null;
         }
         
-        int numObjects = readInt(input, 4);
+        int numObjects = (int)readInt(input, 4);
         
         ArrayList<ScratchObject> objects = new ArrayList<ScratchObject>(numObjects);
         for (int i = 0; i < numObjects; i++) {
@@ -323,7 +324,7 @@ public class ScratchImport
     public static void importScratch()
     {
         try {
-            FileInputStream input = new FileInputStream("/home/neil/work/scratch/Projects/Animation/1 Playground.sb");
+            FileInputStream input = new FileInputStream("/home/neil/work/scratch/Projects/Music and Dance/1 RobotDance.sb");
         
             readHeader(input);
             List<ScratchObject> objects = readObjectStore(input);
