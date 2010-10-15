@@ -146,6 +146,8 @@ public class ScratchImport
         switch (id) {
         case ScratchUserObject.IMAGE_MEDIA:
             return new ImageMedia(version, scratchObjects);
+        case ScratchUserObject.SOUND_MEDIA:
+            return new SoundMedia(version, scratchObjects);
         case ScratchUserObject.SCRATCH_STAGE_MORPH:
             return new ScratchStageMorph(version, scratchObjects);
         case ScratchUserObject.SCRATCH_SPRITE_MORPH:

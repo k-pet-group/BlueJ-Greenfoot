@@ -36,6 +36,7 @@ class ScratchUserObject extends ScratchObject
     protected static final int SCRATCH_SPRITE_MORPH = 124;
     protected static final int SCRATCH_STAGE_MORPH = 125;
     protected static final int IMAGE_MEDIA = 162;
+    protected static final int SOUND_MEDIA = 164;
     
     private int id;
     private int version;
