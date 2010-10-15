@@ -70,7 +70,7 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 8321 2010-09-14 15:05:24Z nccb $
+ * @version $Id: GreenfootMain.java 8489 2010-10-15 10:19:12Z nccb $
  */
 public class GreenfootMain extends Thread implements CompileListener, RProjectListener
 {
@@ -417,7 +417,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
     /**
      * Creates a new project
      */
-    public void newProject()
+    public RProject newProject()
     {
         File newFile = FileUtility.getDirName(frame,
                 Config.getString("greenfoot.utilDelegate.newScenario"),
@@ -425,7 +425,8 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                 false, true);
         if (newFile != null) {
             try {
-                if (rBlueJ.newProject(newFile) != null) {
+                RProject rproj = rBlueJ.newProject(newFile);
+                if (rproj != null) {
                     // The rest of the project preparation will be done by the
                     // ProjectManager on the BlueJ VM.
 
@@ -433,6 +434,8 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                     if (isStartupProject()) {
                         project.close();
                     }
+                    
+                    return rproj;
                 }
                 else {
                     String errMsg = Config.getString("greenfoot.cannotCreateProject");
@@ -449,6 +452,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                 Debug.reportError("Problems when trying to create new scenario", re);
             }
         }
+        return null;
     }
 
     /**
