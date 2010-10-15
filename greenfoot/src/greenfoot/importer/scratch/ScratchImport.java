@@ -49,7 +49,7 @@ public class ScratchImport
      */
     static void print(String s)
     {
-        System.out.println(s);
+        Debug.message(s);
     }
     
     /**

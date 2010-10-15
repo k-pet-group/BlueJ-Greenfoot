@@ -27,6 +27,7 @@ import greenfoot.core.GProject;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 public abstract class ScriptableScratchMorph extends Morph
@@ -92,8 +93,10 @@ public abstract class ScriptableScratchMorph extends Morph
         acc.append("public " + className + "()\n{\n");
         constructorContents(acc);    
         acc.append("}\n");
-         
-        codeForScripts(getBlocks(), acc);
+        
+        addHelpers(acc);
+
+        ScriptableScratchMorph.codeForScripts(getBlocks(), acc);
         acc.append("}\n");
         
         File javaFile = new File(project.getDefaultPackage().getDir(), className + ".java");
@@ -112,6 +115,121 @@ public abstract class ScriptableScratchMorph extends Morph
         gcls.setClassProperty("image", imageFile);
         
         return javaFile.getName();
+    }
+
+    protected void addHelpers(StringBuilder acc)
+    {
+    }
+
+    private static void codeForBlock(ScratchObject block, StringBuilder decl, StringBuilder method)
+    {
+        // Each block is an array of entries.  For example, if you have
+        // a repeat block, that will be an array of three things:
+        // [doRepeat, <the number of counts>, <the block to repeat>]
+        // The block to repeat will in turn be an array and so on!
+        ScratchObject[] blockContents = (ScratchObject[])block.getValue();
+        
+        if ("doRepeat".equals(blockContents[0].getValue())) {
+            method.append("int loopCount = ");
+            codeForBlock(blockContents[1], decl, method);
+            method.append(";\n");
+            method.append("for (int i = 0; i < loopCount;i++)\n{\n");
+            codeForBlock(blockContents[2], decl, method);
+            method.append("}\n");
+        }
+        else if ("doForever".equals(blockContents[0].getValue())) {
+            // We take do forever to mean "do once per act() invocation:
+            codeForBlock(blockContents[1], decl, method);
+        }
+        else if ("doPlaySoundAndWait".equals(blockContents[0].getValue())) {
+            decl.append("GreenfootSound snd;");
+            method.append("if (snd == null || !snd.isPlaying()) {\n")
+            	  .append(" snd = new GreenfootSound(\"")
+                  .append(blockContents[1].getValue())
+                  .append(".wav\");\nsnd.play();\n}\n");
+            // TODO need a state machine to wait in the state until done playing
+        }
+        else if ("forward:".equals(blockContents[0].getValue())) {
+            method.append("move(").append(blockContents[1].getValue()).append(");\n");
+        }
+        else if ("bounceOffEdge".equals(blockContents[0].getValue())) {
+            method.append("if (atWorldEdge()) turn(180);\n");
+        }
+        else if ("randomFrom:to:".equals(blockContents[0].getValue())) {
+            int from = (Integer)blockContents[1].getValue();
+            int to = (Integer)blockContents[2].getValue();
+            if (from == 0) {
+                method.append("Greenfoot.randomNumber(").append(to).append(")");
+            } else {
+                method.append("(Greenfoot.randomNumber(").append(to - from).append(") + ").append(from).append(")");
+            }
+        }
+        else if ("turnRight:".equals(blockContents[0].getValue())) {
+            String degrees = blockContents[1].getValue().toString();
+            method.append("turn(-").append(degrees).append(");\n");
+        }
+        else if (blockContents[0] instanceof ScratchObjectArray) {
+            for (ScratchObject blockContent : blockContents) {
+                codeForBlock(blockContent, decl, method);
+            }
+        }
+        else {
+            StringBuilder tmp = new StringBuilder();
+            for (ScratchObject o : blockContents) {
+                tmp.append(o).append(",");
+            }
+            ScratchImport.print("Unknown code: " + tmp.toString());
+        }
+    }
+
+    private static void codeForScripts(ScratchObjectArray scripts, StringBuilder acc)
+    {
+        StringBuilder decl = new StringBuilder();
+        StringBuilder method = new StringBuilder();
+        method.append("public void act()\n{\n");
+        // Each item in the array of blocks is a separate script chunk in
+        // the scripts window in Scratch:
+        for (ScratchObject scriptChunk : scripts.getValue()) {
+            ScratchObject[] info = (ScratchObject[])scriptChunk.getValue();
+            //First entry is always a ScratchPrimitive with a Point
+            //  (location in the Scratch script window; we can ignore)
+            //Second entry is the actual block array.
+            
+            ScratchObject[] blocks = (ScratchObject[])info[1].getValue();
+            
+            // Each item in this array is a separate block, 
+            // taken together they are a chunk.
+            
+            // We are only interested (for now, at least) in blocks that
+            // can run automatically, either from the outset or when clicked.
+    
+            ScratchObject[] firstBlockContents = (ScratchObject[])blocks[0].getValue();
+            
+            if ("MouseClickEventHatMorph".equals(firstBlockContents[0].getValue())) {
+                if ("Scratch-MouseClickEvent".equals(firstBlockContents[1].getValue())) {
+                    method.append("if (Greenfoot.mouseClicked(this)) {");
+                    //TODO actually this should set a boolean indicating we've started and should run in future
+                    for (ScratchObject block : Arrays.copyOfRange(blocks, 1, blocks.length)) {
+                        ScriptableScratchMorph.codeForBlock(block, decl, method);
+                    }
+                    
+                    method.append("}");
+                }
+            }
+            else if ("EventHatMorph".equals(firstBlockContents[0].getValue())) {
+                if ("Scratch-StartClicked".equals(firstBlockContents[1].getValue())) {
+                    // Don't need any special code for when flag clicked:
+                    
+                    for (ScratchObject block : Arrays.copyOfRange(blocks, 1, blocks.length)) {
+                        ScriptableScratchMorph.codeForBlock(block, decl, method);
+                    }
+                }
+            }
+            // else ignore for now
+            
+        }
+        method.append("}\n");
+        acc.append(decl).append(method);
     }
     
     

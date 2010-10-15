@@ -67,5 +67,13 @@ public class ScratchSpriteMorph extends ScriptableScratchMorph
                                ,getBounds().y.add(new BigDecimal(getCostume().getImage().getHeight() / 2)));
                 
     }
+    
+    @Override
+    protected void addHelpers(StringBuilder acc)
+    {
+        acc.append("public void turn(int angle) { setRotation(getRotation() + angle); }\n");
+        acc.append("public void move(int speed) { double angle = Math.toRadians( getRotation() ); int x = (int) Math.round(getX() + Math.cos(angle) * speed); int y = (int) Math.round(getY() + Math.sin(angle) * speed); setLocation(x, y);}\n");
+        acc.append("public boolean atWorldEdge() { if(getX() < 20 || getX() > getWorld().getWidth() - 20) return true; if(getY() < 20 || getY() > getWorld().getHeight() - 20) return true; else return false; }\n");
+    }
 
 }
