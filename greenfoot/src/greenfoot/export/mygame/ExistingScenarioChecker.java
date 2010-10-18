@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -31,11 +31,10 @@ import javax.swing.SwingUtilities;
 import bluej.utility.SwingWorker;
 
 /**
- * Class that can be used to check whether a scenario already exists on the
- * publish site. Asynchronously.
+ * Abstract class that can be used to check (asynchronously) whether a scenario already exists on the
+ * publish site.
  * 
  * @author Poul Henriksen
- * 
  */
 public abstract class ExistingScenarioChecker
 {
@@ -89,8 +88,7 @@ public abstract class ExistingScenarioChecker
                     && scenarioName.equals(this.scenarioName);
             if (sameScenario && !forceRecheck) {
                 // Scenario already checked, but make sure finished is invoked
-                // to
-                // update status (continue button)
+                // to update status (continue button)
                 SwingUtilities.invokeLater(new Runnable() {
                     public void run()
                     {
@@ -100,6 +98,7 @@ public abstract class ExistingScenarioChecker
                 return;
             }
             if (checking) {
+                // Abort the current check in preparation for the new one.
                 abort();
             }
 
@@ -111,9 +110,8 @@ public abstract class ExistingScenarioChecker
             abort = false;
             finished = false;
             worker = new ScenarioWorker();
+            worker.start();
         }
-
-        worker.start();
     }
 
     /**
@@ -121,24 +119,21 @@ public abstract class ExistingScenarioChecker
      * 
      * @return True if successful abort, false if we didn't manage to abort
      *         (because it already finished the check)
+     *         
      * @throws IllegalStateException If the check has not started yet.
      */
-    public boolean abort()
+    public synchronized boolean abort()
     {
-        synchronized (this) {            
-            // pre: is checking
-            // should sync with calling the hook methods, so that they do not get
-            // called after this method has been called.
-            if (finished) {
-                return false;
-            }
-    
-            if (!checking) {
-                throw new IllegalStateException("Check not started yet. Nothing to abort.");
-            }
-    
-            abort = true;
+        // pre: is checking
+        if (finished) {
+            return false;
         }
+
+        if (!checking) {
+            throw new IllegalStateException("Check not started yet. Nothing to abort.");
+        }
+
+        abort = true;
         worker.interrupt();
         return true;
     }
