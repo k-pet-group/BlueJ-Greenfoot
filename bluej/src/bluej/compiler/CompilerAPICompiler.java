@@ -154,8 +154,9 @@ public class CompilerAPICompiler extends Compiler
             Diagnostic<? extends JavaFileObject> diagnostic = diagnosticList.get(diagnosticErrorPosition);
             if (diagnostic.getSource() != null)
             {
+                // See bug: http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6419926
                 // JDK6 returns URIs without a scheme in some cases, so always resolve against a
-                // known file:/ URI:
+                // known "file:/" URI:
                 URI srcUri = sources[0].toURI().resolve(diagnostic.getSource().toUri());
                 src = new File(srcUri).toString();
             }
