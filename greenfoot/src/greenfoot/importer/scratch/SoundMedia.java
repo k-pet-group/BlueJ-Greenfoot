@@ -93,10 +93,13 @@ public class SoundMedia extends ScratchMedia
         // The code for this method is cobbled together from the Scratch/SmallTalk code
         // and this page: http://wiki.multimedia.cx/index.php?title=IMA_ADPCM
         
-        float sampleRate = ((BigDecimal)scratchObjects.get(super.fields() + 3).getValue()).floatValue();
+        float sampleRate = getSampleRate();
         //bits per sample can be 2, 3, 4, 5
-        int bitsPerSample = ((BigDecimal)scratchObjects.get(super.fields() + 4).getValue()).intValue();
-        byte[] compressed = (byte[]) scratchObjects.get(super.fields() + 5).getValue();
+        int bitsPerSample = getBitsPerSample();
+        byte[] compressed = getCompressedSamples();
+        
+        if (compressed == null)
+            return ""; // TODO must be uncompressed?
         
         int uncompressedSamples = (compressed.length * 8) / bitsPerSample; // Length in samples
         byte[] uncompressed = new byte[uncompressedSamples * 2]; // * 2 because we use 16-bits (2 bytes) per sample
@@ -155,6 +158,36 @@ public class SoundMedia extends ScratchMedia
         }
         
         return destFile.getName();
+    }
+
+    private byte[] getCompressedSamples()
+    {
+        ScratchObject obj = scratchObjects.get(super.fields() + 5);
+        if (obj == null) {
+            return null;
+        } else {
+            return (byte[]) obj.getValue();
+        }
+    }
+
+    private int getBitsPerSample()
+    {
+        ScratchObject obj = scratchObjects.get(super.fields() + 4);
+        if (obj == null) {
+            return 0;
+        } else {
+            return ((BigDecimal)obj.getValue()).intValue();
+        }
+    }
+
+    private float getSampleRate()
+    {
+        ScratchObject obj = scratchObjects.get(super.fields() + 3);
+        if (obj == null) {
+            return 0;
+        } else {
+            return ((BigDecimal)obj.getValue()).floatValue();
+        }
     }
 
     
