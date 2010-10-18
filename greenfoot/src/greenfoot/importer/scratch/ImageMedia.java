@@ -23,6 +23,7 @@ package greenfoot.importer.scratch;
 
 import greenfoot.core.GProject;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -61,7 +62,7 @@ public class ImageMedia extends ScratchMedia
         return super.fields() + 5;
     }    
     
-    ScratchImage getImage()
+    private ScratchImage getImage()
     {
         return (ScratchImage)scratchObjects.get(super.fields() + 0);
     }
@@ -74,6 +75,34 @@ public class ImageMedia extends ScratchMedia
         } else {
             return (byte[]) obj.getValue();
         }
+    }
+    
+    public int getWidth()
+    {
+        byte[] jpegBytes = getJpegBytes();
+        if (jpegBytes != null) {
+            try {
+                return ImageIO.read(new ByteArrayInputStream(jpegBytes)).getWidth();
+            } catch (IOException e) {
+                return -1;
+            }
+        } else {
+            return getImage().getWidth();
+        }        
+    }
+    
+    public int getHeight()
+    {
+        byte[] jpegBytes = getJpegBytes();
+        if (jpegBytes != null) {
+            try {
+                return ImageIO.read(new ByteArrayInputStream(jpegBytes)).getHeight();
+            } catch (IOException e) {
+                return -1;
+            }
+        } else {
+            return getImage().getHeight();
+        }        
     }
 
     @Override public String saveInto(GProject project) throws IOException

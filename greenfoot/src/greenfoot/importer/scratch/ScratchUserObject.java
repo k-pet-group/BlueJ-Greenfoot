@@ -75,7 +75,11 @@ class ScratchUserObject extends ScratchObject
         StringBuilder builder = new StringBuilder();
         builder.append("ScratchUserObject [id=");
         builder.append(id);
-        builder.append("]");
+        builder.append("]\n  {");
+        for (ScratchObject o : scratchObjects) {
+            builder.append(o).append(",");
+        }
+        builder.append("}");
         return builder.toString();
     }
     

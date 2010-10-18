@@ -49,9 +49,9 @@ public class ScratchSpriteMorph extends ScriptableScratchMorph
     {
         acc.append("GreenfootImage img = getImage();\n");
         acc.append("img.scale(")
-           .append(getBounds().x2.subtract(getBounds().x))
+           .append(getBounds().getWidth())
            .append(", ")
-           .append(getBounds().y2.subtract(getBounds().y))
+           .append(getBounds().getHeight())
            .append(");\n");
     }
 
@@ -63,8 +63,8 @@ public class ScratchSpriteMorph extends ScriptableScratchMorph
 
     public ScratchPoint getGreenfootCentre()
     {
-        return new ScratchPoint(getBounds().x.add(new BigDecimal(getCostume().getImage().getWidth() / 2))
-                               ,getBounds().y.add(new BigDecimal(getCostume().getImage().getHeight() / 2)));
+        return new ScratchPoint(getBounds().x.add(new BigDecimal(getCostume().getWidth() / 2))
+                               ,getBounds().y.add(new BigDecimal(getCostume().getHeight() / 2)));
                 
     }
     

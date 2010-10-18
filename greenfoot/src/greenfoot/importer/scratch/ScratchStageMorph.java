@@ -51,7 +51,7 @@ public class ScratchStageMorph extends ScriptableScratchMorph
     @Override
     protected void constructorContents(StringBuilder acc)
     {
-        ScratchImage image = getCostume().getImage();
+        ImageMedia image = getCostume();
         //TODO should this actually be our bounds rather than the world's image -- can we be stretched?
         acc.append("super(").append(image.getWidth()).append(", ").append(image.getHeight()).append(", 1);\n");
         

@@ -47,5 +47,10 @@ class ScratchObjectReference extends ScratchObject
     {
         // Convert one-based index to zero-based index into the array list:
         return objects.get(index - 1);
-    }    
+    }
+    
+    public String toString()
+    {
+        return "{#" + index + "}";
+    }
 }

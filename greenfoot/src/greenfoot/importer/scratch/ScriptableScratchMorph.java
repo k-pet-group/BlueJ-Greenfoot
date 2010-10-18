@@ -27,6 +27,7 @@ import greenfoot.core.GProject;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -71,6 +72,18 @@ public abstract class ScriptableScratchMorph extends Morph
         return (ImageMedia)scratchObjects.get(super.fields() + 5);
     }
     
+    public ImageMedia[] getCostumes()
+    {
+        ArrayList<ImageMedia> imgs = new ArrayList<ImageMedia>();
+        ScratchObjectArray objArray = (ScratchObjectArray)scratchObjects.get(super.fields() + 4);
+        for (ScratchObject o : objArray.getValue()) {
+            if (o instanceof ImageMedia) {
+                imgs.add((ImageMedia)o);
+            }
+        }
+        return imgs.toArray(new ImageMedia[0]);
+    }
+    
     protected abstract String greenfootSuperClass();
     protected abstract void constructorContents(StringBuilder acc);
 
@@ -90,13 +103,27 @@ public abstract class ScriptableScratchMorph extends Morph
         }
         
         acc.append("\n{\n");
+        acc.append("private static final String[] COSTUMES = new String[] {");
+        int i = 0;
+        int curCostume = 0;
+        for (ImageMedia img : getCostumes()) {
+            if (i != 0) acc.append(", ");
+            acc.append("\"").append(img.saveInto(project)).append("\"");
+            if (img == imageMedia) {
+                curCostume = i;
+            }
+            i += 1;
+        }
+        acc.append("};\n");
+        acc.append("private int curCostume = ").append(curCostume).append(";\n");
+        
         acc.append("public " + className + "()\n{\n");
         constructorContents(acc);    
         acc.append("}\n");
         
         addHelpers(acc);
 
-        ScriptableScratchMorph.codeForScripts(getBlocks(), acc);
+        codeForScripts(getBlocks(), acc);
         acc.append("}\n");
         
         File javaFile = new File(project.getDefaultPackage().getDir(), className + ".java");
@@ -121,7 +148,7 @@ public abstract class ScriptableScratchMorph extends Morph
     {
     }
 
-    private static void codeForBlock(ScratchObject block, StringBuilder decl, StringBuilder method)
+    private void codeForBlock(ScratchObject block, StringBuilder decl, StringBuilder method)
     {
         // Each block is an array of entries.  For example, if you have
         // a repeat block, that will be an array of three things:
@@ -130,9 +157,9 @@ public abstract class ScriptableScratchMorph extends Morph
         ScratchObject[] blockContents = (ScratchObject[])block.getValue();
         
         if ("doRepeat".equals(blockContents[0].getValue())) {
-            method.append("int loopCount = ");
-            codeForBlock(blockContents[1], decl, method);
-            method.append(";\n");
+            method.append("int loopCount = ")
+                  .append(blockContents[1].getValue())
+                  .append(";\n");
             method.append("for (int i = 0; i < loopCount;i++)\n{\n");
             codeForBlock(blockContents[2], decl, method);
             method.append("}\n");
@@ -168,6 +195,15 @@ public abstract class ScriptableScratchMorph extends Morph
             String degrees = blockContents[1].getValue().toString();
             method.append("turn(-").append(degrees).append(");\n");
         }
+        else if ("nextCostume".equals(blockContents[0].getValue())) {
+            method.append("curCostume = (curCostume + 1) % COSTUMES.length;\n");
+            method.append("setImage(COSTUMES[curCostume]);\n");
+            method.append("getImage().scale(")
+            .append(getBounds().x2.subtract(getBounds().x))
+            .append(", ")
+            .append(getBounds().y2.subtract(getBounds().y))
+            .append(");\n");
+        }
         else if (blockContents[0] instanceof ScratchObjectArray) {
             for (ScratchObject blockContent : blockContents) {
                 codeForBlock(blockContent, decl, method);
@@ -182,7 +218,7 @@ public abstract class ScriptableScratchMorph extends Morph
         }
     }
 
-    private static void codeForScripts(ScratchObjectArray scripts, StringBuilder acc)
+    private void codeForScripts(ScratchObjectArray scripts, StringBuilder acc)
     {
         StringBuilder decl = new StringBuilder();
         StringBuilder method = new StringBuilder();
@@ -210,7 +246,7 @@ public abstract class ScriptableScratchMorph extends Morph
                     method.append("if (Greenfoot.mouseClicked(this)) {");
                     //TODO actually this should set a boolean indicating we've started and should run in future
                     for (ScratchObject block : Arrays.copyOfRange(blocks, 1, blocks.length)) {
-                        ScriptableScratchMorph.codeForBlock(block, decl, method);
+                        codeForBlock(block, decl, method);
                     }
                     
                     method.append("}");
@@ -221,7 +257,7 @@ public abstract class ScriptableScratchMorph extends Morph
                     // Don't need any special code for when flag clicked:
                     
                     for (ScratchObject block : Arrays.copyOfRange(blocks, 1, blocks.length)) {
-                        ScriptableScratchMorph.codeForBlock(block, decl, method);
+                        codeForBlock(block, decl, method);
                     }
                 }
             }

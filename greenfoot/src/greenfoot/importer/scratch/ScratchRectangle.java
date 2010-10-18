@@ -46,6 +46,31 @@ public class ScratchRectangle extends ScratchObject
         this.y = y;
         this.x2 = x2;
         this.y2 = y2;
-    }    
+    }
+    
+    public BigDecimal getWidth()
+    {
+        return x2.subtract(x);
+    }
+    
+    public BigDecimal getHeight()
+    {
+        return y2.subtract(y);
+    }
 
+    @Override
+    public String toString()
+    {
+        StringBuilder builder = new StringBuilder();
+        builder.append("ScratchRectangle [x=");
+        builder.append(x);
+        builder.append(", x2=");
+        builder.append(x2);
+        builder.append(", y=");
+        builder.append(y);
+        builder.append(", y2=");
+        builder.append(y2);
+        builder.append("]");
+        return builder.toString();
+    }
 }
