@@ -56,9 +56,6 @@ public class ScratchImage extends ScratchObject
     private ScratchObject paletteRef;
     private Color[] palette;
     
-    // If non-null, the File that the image has been saved into
-    private File imageFile;
-    
     /**
      * Constructs a ScratchImage using the data read from the file
      * @param w Width of image
@@ -207,22 +204,6 @@ public class ScratchImage extends ScratchObject
         }
         return x;
     }
-    
-    @Override public String saveInto(GProject project) throws IOException
-    {
-        if (imageFile == null) {
-            File imageDir = project.getImageDir();
-            for (int i = 0;;i++) {
-                imageFile = new File(imageDir, "image" + Integer.toString(i) + ".png");
-                if (false == imageFile.exists())
-                    break;
-            }
-            Debug.message("Saving image: " + imageFile.getName());
-            ImageIO.write(img, "png", imageFile);
-        }
-        
-        return imageFile.getName();
-    }
 
     public int getWidth()
     {
@@ -232,6 +213,11 @@ public class ScratchImage extends ScratchObject
     public int getHeight()
     {
         return h;
+    }
+
+    public BufferedImage getBufferedImage()
+    {
+        return img;
     }
     
 }

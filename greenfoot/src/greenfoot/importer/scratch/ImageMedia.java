@@ -23,8 +23,14 @@ package greenfoot.importer.scratch;
 
 import greenfoot.core.GProject;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
+
+import javax.imageio.ImageIO;
+
+import bluej.utility.Debug;
 
 /**
  * Equivalent of the Scratch ImageMedia class.
@@ -39,6 +45,8 @@ import java.util.List;
  */
 public class ImageMedia extends ScratchMedia
 {
+    // If non-null, the File that the image has been saved into
+    private File imageFile;
 
     public ImageMedia(int version, List<ScratchObject> scratchObjects)
     {
@@ -57,13 +65,43 @@ public class ImageMedia extends ScratchMedia
     {
         return (ScratchImage)scratchObjects.get(super.fields() + 0);
     }
+    
+    private byte[] getJpegBytes()
+    {
+        ScratchObject obj = scratchObjects.get(super.fields() + 3);
+        if (obj == null) {
+            return null;
+        } else {
+            return (byte[]) obj.getValue();
+        }
+    }
 
     @Override public String saveInto(GProject project) throws IOException
-    {
-        // Save the image that we are wrapping:
-        String imageFileName = getImage().saveInto(project);
+    {       
+        if (imageFile == null) {
+            byte[] jpegBytes = getJpegBytes();
+            
+            String extension = jpegBytes == null ? "png" : "jpg";
+            
+            File imageDir = project.getImageDir();
+            for (int i = -1;;i++) {
+                // First try without addition, then append numbers until we find a free file:
+                imageFile = new File(imageDir, getMediaName() + (i < 0 ? "" : "_" + i) + "." + extension);
+                if (false == imageFile.exists())
+                    break;
+            }
+            Debug.message("Saving image: " + imageFile.getName());
+            
+            
+            if (jpegBytes != null) {
+                FileOutputStream fos = new FileOutputStream(imageFile);
+                fos.write(jpegBytes);
+                fos.close();
+            } else {
+                ImageIO.write(getImage().getBufferedImage(), "png", imageFile);
+            }
+        }
         
-        return imageFileName;
-        //TODO use mediaName from getImage() and do the saving here rather than in ScratchImage
+        return imageFile.getName();
     }
 }

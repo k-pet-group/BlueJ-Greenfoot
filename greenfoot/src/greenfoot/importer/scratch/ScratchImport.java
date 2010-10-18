@@ -197,6 +197,14 @@ public class ScratchImport
             byte[] b = new byte[size * 2];
             input.read(b);
             return new ScratchPrimitive(b);
+        } case 13: { //Bitmap, oddly this is effectively int[] and nothing more
+                     // We read it as byte[] for simplicity
+            int size = (int)readInt(input, 4);
+            byte[] b = new byte[size*4];
+            for (int i = 0; i < size*4; i++) {
+                b[i] = (byte)(readInt(input, 1) & 0xFF);
+            }
+            return new ScratchPrimitive(b);
         } case 14: { // UTF8
             int size = (int)readInt(input, 4);
             return new ScratchPrimitive(readUTF8(input, size));
@@ -247,7 +255,7 @@ public class ScratchImport
               return new ScratchImage(w,h,d,offset,bits, palette);
           }
           default:
-              print("*** UNKNOWN FIELD ***");
+              print("*** UNKNOWN FIELD: " + id + " ***");
               return null;
         }
     }
@@ -326,7 +334,7 @@ public class ScratchImport
     public static void importScratch()
     {
         try {
-            FileInputStream input = new FileInputStream("/home/neil/work/scratch/Projects/Music and Dance/1 RobotDance.sb");
+            FileInputStream input = new FileInputStream("/home/neil/work/scratch/Projects/Animation/5 EweAndMe.sb");
         
             readHeader(input);
             List<ScratchObject> objects = readObjectStore(input);
