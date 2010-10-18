@@ -23,6 +23,7 @@ package bluej.compiler;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -153,16 +154,10 @@ public class CompilerAPICompiler extends Compiler
             Diagnostic<? extends JavaFileObject> diagnostic = diagnosticList.get(diagnosticErrorPosition);
             if (diagnostic.getSource() != null)
             {
-                if (Config.isJava17())
-                {
-                    //in Java 7 this returns the full path, where in earlier versions
-                    //it only returns the base filename
-                    src = diagnostic.getSource().getName();  
-                } else {
-                    //in Java 7 this returns a JavaFileObject toString (as you expect)
-                    //whereas in earlier versions this returns the full path
-                    src = diagnostic.getSource().toString();
-                }
+                // JDK6 returns URIs without a scheme in some cases, so always resolve against a
+                // known file:/ URI:
+                URI srcUri = sources[0].toURI().resolve(diagnostic.getSource().toUri());
+                src = new File(srcUri).toString();
             }
             pos = (int)diagnostic.getLineNumber();
 
