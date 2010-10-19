@@ -53,6 +53,7 @@
         <include name="lib/korean/" />
         <include name="lib/portuguese/" />
         <include name="lib/russian/" />
+        <include name="lib/slovak/" />
         <include name="lib/spanish/" />
         <include name="lib/swedish/" />
         <include name="lib/extensions/" />
