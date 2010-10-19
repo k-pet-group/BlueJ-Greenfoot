@@ -185,18 +185,19 @@ public abstract class Inspector extends JFrame
         // grab the key event from the fieldlist. 
         fieldList.addKeyListener(new KeyListener() {            
             public void keyPressed(KeyEvent e)
-            {                
+            {
             }
 
             public void keyReleased(KeyEvent e)
             {
-                if (e.getKeyCode() == KeyEvent.VK_ENTER || e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-                    doClose(true);
-                }    
             }
 
             public void keyTyped(KeyEvent e)
             {
+            	// Enter or escape?
+            	if (e.getKeyChar() == '\n' || e.getKeyChar() == 27) {
+                    doClose(true);
+                }    
             }
         });        
     }
