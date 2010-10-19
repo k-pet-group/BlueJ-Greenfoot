@@ -45,9 +45,12 @@ import java.lang.reflect.Method;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JRootPane;
 import javax.swing.JScrollPane;
+import javax.swing.KeyStroke;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -153,6 +156,21 @@ public abstract class Inspector extends JFrame
         fieldListBackgroundColor = valueFieldColor;
         initFieldList();
     }
+    
+    @Override
+    protected JRootPane createRootPane()
+    {
+        // Close the dialog if escape is pressed.
+        ActionListener actionListener = new ActionListener() {
+            public void actionPerformed(ActionEvent actionEvent) {
+              doClose(true);
+            }
+        };
+        JRootPane rootPane = super.createRootPane();
+        KeyStroke stroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
+        rootPane.registerKeyboardAction(actionListener, stroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
+        return rootPane;
+    }
 
     /**
      * Initializes the list of fields. This creates the component that shows the
@@ -196,7 +214,10 @@ public abstract class Inspector extends JFrame
             {
             	// Enter or escape?
             	if (e.getKeyChar() == '\n' || e.getKeyChar() == 27) {
+            	    // On MacOS, we'll never see escape here. We have set up an
+            	    // action on the root pane which will handle it instead.
                     doClose(true);
+                    e.consume();
                 }    
             }
         });        
@@ -449,17 +470,13 @@ public abstract class Inspector extends JFrame
     protected JButton createCloseButton()
     {
         JButton button = new JButton(close);
-        {
-            button.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e)
-                {
-                    doClose(true);
-                }
-            });
-        }
-
+        button.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e)
+            {
+                doClose(true);
+            }
+        });
         return button;
-
     }
 
     /**
