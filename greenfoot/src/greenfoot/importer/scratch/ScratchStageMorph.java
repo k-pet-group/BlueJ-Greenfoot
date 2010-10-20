@@ -21,6 +21,7 @@
  */
 package greenfoot.importer.scratch;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -55,6 +56,8 @@ public class ScratchStageMorph extends ScriptableScratchMorph
         //TODO should this actually be our bounds rather than the world's image -- can we be stretched?
         acc.append("super(").append(image.getWidth()).append(", ").append(image.getHeight()).append(", 1);\n");
         
+        LinkedList<String> classes = new LinkedList<String>();
+        
         ScratchObjectArray sprites = getSprites();
         for (ScratchObject o : sprites.getValue()) {
             ScratchSpriteMorph sprite = (ScratchSpriteMorph)o;
@@ -63,6 +66,20 @@ public class ScratchStageMorph extends ScriptableScratchMorph
             acc.append(sprite.getGreenfootCentre().x);
             acc.append(", ");
             acc.append(sprite.getGreenfootCentre().y);
+            acc.append(");\n");
+            
+            // Add at beginning so that later classes will get drawn first:
+            classes.addFirst(spriteName); 
+        }
+        
+        if (!classes.isEmpty()) {
+            acc.append("setPaintOrder(");
+            boolean first = true;
+            for (String cls : classes) {
+                if (!first) acc.append(", ");
+                first = false;
+                acc.append(cls).append(".class");
+            }
             acc.append(");\n");
         }
     }
