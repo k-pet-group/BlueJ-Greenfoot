@@ -21,8 +21,6 @@
  */
 package greenfoot.importer.scratch;
 
-import greenfoot.core.GProject;
-
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -31,8 +29,6 @@ import java.util.List;
 import java.util.Properties;
 
 import javax.imageio.ImageIO;
-
-import bluej.utility.Debug;
 
 /**
  * Equivalent of the Scratch ImageMedia class.
@@ -65,7 +61,11 @@ public class ImageMedia extends ScratchMedia
     
     private ScratchImage getImage()
     {
-        return (ScratchImage)scratchObjects.get(super.fields() + 0);
+        if (scratchObjects.get(super.fields() + 4) != null) {
+            return (ScratchImage) scratchObjects.get(super.fields() + 4);
+        } else {
+            return (ScratchImage)scratchObjects.get(super.fields() + 0);
+        }
     }
     
     private byte[] getJpegBytes()
@@ -121,8 +121,6 @@ public class ImageMedia extends ScratchMedia
                 if (false == imageFile.exists())
                     break;
             }
-            Debug.message("Saving image: " + imageFile.getName());
-            
             
             if (jpegBytes != null) {
                 FileOutputStream fos = new FileOutputStream(imageFile);
