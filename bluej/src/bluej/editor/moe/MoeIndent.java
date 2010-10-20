@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 2010  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -36,6 +36,9 @@ import bluej.utility.Debug;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * This class contains the "auto layout" functionality of the editor.
+ */
 public class MoeIndent
 {
     // from beginning string match any number of whitespaces or tabs.
@@ -66,11 +69,19 @@ public class MoeIndent
         }
     }
     
+    /**
+     * Perform an auto-layout - calculate the correct indent for each source line, and apply it. Return
+     * information about the applied indentation.
+     */
     public static AutoIndentInformation calculateIndentsAndApply(MoeSyntaxDocument doc, int caretPos)
     {
         return calculateIndentsAndApply(doc, 0, doc.getLength(), caretPos);
     }
     
+    /**
+     * Perform an auto-layout - calculate the correct indent for each source line between the given
+     * start and end positions, and apply it. Return information about the applied indentation.
+     */
     public static AutoIndentInformation calculateIndentsAndApply(MoeSyntaxDocument doc, int startPos, int endPos, int prevCaretPos)
     {
         int caretPos = prevCaretPos;
@@ -85,7 +96,7 @@ public class MoeIndent
         NodeAndPosition<ParsedNode> root = new NodeAndPosition<ParsedNode>(doc.getParser(), 0, doc.getParser().getSize());
 
         // examine if there are missing spaces between methods and add them.
-        // NB. proper identation of these changes later in this method.
+        // NB. proper indentation of these changes later in this method.
         checkMethodSpacing(root, rootElement, methodUpdates);
         for (DocumentAction methodUpdate : methodUpdates) {
             caretPos = methodUpdate.apply(doc, caretPos);
@@ -172,13 +183,13 @@ public class MoeIndent
     }
 
     /**
-     * Loops through the children of <link>root</link> to look for methods
+     * Loops through the children of the specified {@link root} to look for methods
      * that have no space between them, then recursively looks at the children
      * to see if they have any inner methods.
      *
-     * When it does identify two methods with no gap inbetween them it adds
-     * a new <link>DocumentAddLineAction</link> object with the current position
-     * to the <link>updates</link> list.
+     * <p>When it does identify two methods with no gap in between them it adds
+     * a new {@link DocumentAddLineAction} object with the current position
+     * to the {@link updates} list.
      * @param root      Node to look inside of.
      * @param map       Map of the document used to get the lines of the method.
      * @param updates   List to update with new actions where needed.
@@ -247,6 +258,9 @@ public class MoeIndent
         }
     }
     
+    /**
+     * An implementation of IndentCalculator for a non-root node of the document.
+     */
     private static class NodeIndentCalculator implements IndentCalculator
     {
         private final String existingIndent;
@@ -296,13 +310,21 @@ public class MoeIndent
     }
 
 
-
+    /**
+     * Interface representing some document editing action.
+     */
     private interface DocumentAction
     {
+        /**
+         * Apply the edit represented by this DocumentAction to the document, and return the
+         * adjusted caret position.
+         */
         public int apply(MoeSyntaxDocument doc, int prevCaretPos);
-
     }
 
+    /**
+     * A document action for removing a line.
+     */
     private static class DocumentRemoveLineAction implements DocumentAction
     {
         private Element lineToRemove;
@@ -388,6 +410,9 @@ public class MoeIndent
         }
     }
 
+    /**
+     * Get the textual contents of a document element (i.e. a line). 
+     */
     private static String getElementContents(MoeSyntaxDocument doc, Element el)
     {
         try {
@@ -418,6 +443,9 @@ public class MoeIndent
         return m.find() ? m.end() : 0;
     }
 
+    /**
+     * A document action for inserting a blank line in the document.
+     */
     private static class DocumentAddLineAction implements DocumentAction
     {
         private int position;
