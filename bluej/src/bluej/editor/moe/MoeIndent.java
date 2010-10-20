@@ -29,7 +29,6 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Element;
 
 import bluej.Config;
-import bluej.parser.nodes.CommentNode;
 import bluej.parser.nodes.ParsedNode;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.utility.Debug;
@@ -302,10 +301,12 @@ public class MoeIndent
 
         public String getCurIndent(char beginsWith)
         {
-            if (parent instanceof CommentNode && beginsWith == '*')
+            if (parent.getNodeType() == ParsedNode.NODETYPE_COMMENT && beginsWith == '*') {
                 return existingIndent + COMMENT_ASTERISK_INDENT;
-            else
+            }
+            else {
                 return existingIndent;
+            }
         }
     }
 
