@@ -21,13 +21,12 @@
  */
 package greenfoot.importer.scratch;
 
-import greenfoot.core.GProject;
-
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Properties;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
@@ -86,7 +85,7 @@ public class SoundMedia extends ScratchMedia
     }
 
     @Override
-    public String saveInto(GProject project) throws IOException
+    public File saveInto(File destDir, Properties props) throws IOException
     {
         String name = getMediaName();
         
@@ -99,7 +98,7 @@ public class SoundMedia extends ScratchMedia
         byte[] compressed = getCompressedSamples();
         
         if (compressed == null)
-            return ""; // TODO must be uncompressed?
+            return null; // TODO must be uncompressed?
         
         int uncompressedSamples = (compressed.length * 8) / bitsPerSample; // Length in samples
         byte[] uncompressed = new byte[uncompressedSamples * 2]; // * 2 because we use 16-bits (2 bytes) per sample
@@ -142,7 +141,9 @@ public class SoundMedia extends ScratchMedia
         }
         
         
-        File destFile = new File(project.getSoundDir(), name + ".wav");
+        File soundsDir = new File(destDir, "sounds");
+        soundsDir.mkdirs();
+        File destFile = new File(soundsDir, name + ".wav");
         
         ByteArrayInputStream baiStream = new ByteArrayInputStream(uncompressed);
         AudioFormat format = new AudioFormat(sampleRate, 16, 1, true, true);
@@ -157,7 +158,7 @@ public class SoundMedia extends ScratchMedia
             Debug.reportError("Problem writing converted sound to WAV file", e);
         }
         
-        return destFile.getName();
+        return destFile;
     }
 
     private byte[] getCompressedSamples()

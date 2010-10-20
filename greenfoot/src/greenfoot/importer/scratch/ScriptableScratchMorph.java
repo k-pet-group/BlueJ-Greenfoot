@@ -22,7 +22,6 @@
 package greenfoot.importer.scratch;
 
 import greenfoot.core.GClass;
-import greenfoot.core.GProject;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -30,6 +29,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 
 public abstract class ScriptableScratchMorph extends Morph
 {
@@ -88,7 +88,7 @@ public abstract class ScriptableScratchMorph extends Morph
     protected abstract void constructorContents(StringBuilder acc);
 
     @Override
-    public String saveInto(GProject project) throws IOException
+    public File saveInto(File destDir, Properties props) throws IOException
     {
      // blocksBin is at the same index for all scriptable things:
         ScratchObject imageMedia = getCostume();            
@@ -108,7 +108,7 @@ public abstract class ScriptableScratchMorph extends Morph
         int curCostume = 0;
         for (ImageMedia img : getCostumes()) {
             if (i != 0) acc.append(", ");
-            acc.append("\"").append(img.saveInto(project)).append("\"");
+            acc.append("\"").append(img.saveInto(destDir, props)).append("\"");
             if (img == imageMedia) {
                 curCostume = i;
             }
@@ -126,22 +126,16 @@ public abstract class ScriptableScratchMorph extends Morph
         codeForScripts(getBlocks(), acc);
         acc.append("}\n");
         
-        File javaFile = new File(project.getDefaultPackage().getDir(), className + ".java");
+        File javaFile = new File(destDir, className + ".java");
         FileWriter javaFileWriter = new FileWriter(javaFile);
         javaFileWriter.write(acc.toString());
         javaFileWriter.close();
         
-        GClass gcls = project.getDefaultPackage().newClass(className);
         
-        javaFileWriter = new FileWriter(javaFile);
-        javaFileWriter.write(acc.toString());
-        javaFileWriter.close();
+        File imageFile = imageMedia.saveInto(destDir, props);
+        props.setProperty("class." + className + ".image", imageFile.getName());
         
-        
-        String imageFile = imageMedia.saveInto(project);
-        gcls.setClassProperty("image", imageFile);
-        
-        return javaFile.getName();
+        return javaFile;
     }
 
     protected void addHelpers(StringBuilder acc)

@@ -23,8 +23,10 @@ package greenfoot.importer.scratch;
 
 import greenfoot.core.GProject;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Properties;
 
 /**
  * A Scratch object.  This can be a user-object (which includes sprites, stages, images, etc)
@@ -87,7 +89,7 @@ class ScratchObject
     /**
      * Saves the item (e.g. image, sound, class) in the given project
      */
-    public String saveInto(GProject project) throws IOException
+    public File saveInto(File destDir, Properties props) throws IOException
     {
         return null;
     }

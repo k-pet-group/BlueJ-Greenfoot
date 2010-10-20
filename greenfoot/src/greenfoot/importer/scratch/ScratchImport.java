@@ -27,6 +27,7 @@ import greenfoot.core.GreenfootMain;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -35,11 +36,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Properties;
 
-import javax.swing.ImageIcon;
-import javax.swing.JOptionPane;
-
-import bluej.extensions.ProjectNotOpenException;
+import bluej.pkgmgr.PackageFile;
+import bluej.pkgmgr.PackageFileFactory;
 import bluej.utility.Debug;
 
 public class ScratchImport
@@ -331,24 +331,23 @@ public class ScratchImport
     */
     
     
-    public static void importScratch()
+    public static void importScratch(File src, File dest)
     {
         try {
-            FileInputStream input = new FileInputStream("/home/neil/work/scratch/Projects/Animation/5 EweAndMe.sb");
+            FileInputStream input = new FileInputStream(src);
         
             readHeader(input);
             List<ScratchObject> objects = readObjectStore(input);
             
-            GProject proj = GProject.newGProject(GreenfootMain.getInstance().newProject());
-            
+            Properties props = new Properties();
+            props.setProperty("version", GreenfootMain.getAPIVersion().toString());
             for (ScratchObject o : objects) {
-                o.saveInto(proj);
+                o.saveInto(dest, props);
             }
             
-            // It is necessary to make this call to save the properties here, otherwise
-            // they vanish.  Not sure why, though:
-            proj.getProjectProperties().save();
-            proj.save();
+            PackageFile packageFile = PackageFileFactory.getPackageFile(dest);
+            packageFile.create();
+            packageFile.save(props);
             
             /*
             List<ScratchUserObject> scripted = findSprites(objects);
@@ -373,11 +372,33 @@ public class ScratchImport
             }
             */
         } catch (IOException e) {
-            e.printStackTrace();
+            Debug.reportError("Problem during Scratch import", e);
         }
-        catch (ProjectNotOpenException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+    }
+
+    public static File convert(File scratchFile)
+    {
+        String archiveName = scratchFile.getName();
+        int dotIndex = archiveName.lastIndexOf('.');
+        String strippedName = null;
+        if(dotIndex != -1) {
+            strippedName = archiveName.substring(0, dotIndex);
+        } else {
+            strippedName = archiveName;
         }
+        File dest = new File(scratchFile.getParentFile(), strippedName);
+        
+        int i = 0;
+        while (dest.exists()) {
+            dest = new File(scratchFile.getParentFile(), strippedName + i);
+            if (!dest.exists()) {
+                break;
+            }
+            i++;
+        }
+        
+        importScratch(scratchFile, dest);
+        
+        return dest;
     }
 }
