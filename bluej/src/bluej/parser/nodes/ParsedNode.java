@@ -94,6 +94,9 @@ public abstract class ParsedNode extends RBTreeNode
      * <li>NODETYPE_METHODDEF - a method defintion
      * <li>NODETYPE_ITERATION - an iteration construct (for loop etc)
      * <li>NODETYPE_SELECTION - a selection construct (if/else etc)
+     * <li>NODETYPE_FIELD     - a field or variable declaration
+     * <li>NODETYPE_EXPRESSION - an expression
+     * <li>NODETYPE_COMMENT   - a code comment
      * </ul>
      */
     public int getNodeType()
