@@ -85,7 +85,7 @@ public class SoundMedia extends ScratchMedia
     }
 
     @Override
-    public File saveInto(File destDir, Properties props) throws IOException
+    public File saveInto(File destDir, Properties props, String prefix) throws IOException
     {
         String name = getMediaName();
         
@@ -143,7 +143,7 @@ public class SoundMedia extends ScratchMedia
         
         File soundsDir = new File(destDir, "sounds");
         soundsDir.mkdirs();
-        File destFile = new File(soundsDir, name + ".wav");
+        File destFile = new File(soundsDir, prefix + name + ".wav");
         
         ByteArrayInputStream baiStream = new ByteArrayInputStream(uncompressed);
         AudioFormat format = new AudioFormat(sampleRate, 16, 1, true, true);

@@ -22,6 +22,8 @@
 package greenfoot.importer.scratch;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 
 /**
  * An array (well, collection) of ScratchObjects.
@@ -35,7 +37,7 @@ import java.util.ArrayList;
  * 
  * @author neil
  */
-class ScratchObjectArray extends ScratchObject
+class ScratchObjectArray extends ScratchObject implements Iterable<ScratchObject>
 {
     private ScratchObject[] value;
 
@@ -58,5 +60,11 @@ class ScratchObjectArray extends ScratchObject
             }
         }
         return this;
+    }
+
+    @Override
+    public Iterator<ScratchObject> iterator()
+    {
+        return Arrays.asList(value).iterator();
     }
 }

@@ -49,9 +49,9 @@ public class ScratchSpriteMorph extends ScriptableScratchMorph
     {
         acc.append("GreenfootImage img = getImage();\n");
         acc.append("img.scale(")
-           .append(getBounds().getWidth())
+           .append(getBounds().getWidth().intValue())
            .append(", ")
-           .append(getBounds().getHeight())
+           .append(getBounds().getHeight().intValue())
            .append(");\n");
     }
 

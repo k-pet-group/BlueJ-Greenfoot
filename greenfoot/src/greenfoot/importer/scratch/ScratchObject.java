@@ -89,7 +89,7 @@ class ScratchObject
     /**
      * Saves the item (e.g. image, sound, class) in the given project
      */
-    public File saveInto(File destDir, Properties props) throws IOException
+    public File saveInto(File destDir, Properties props, String prefix) throws IOException
     {
         return null;
     }

@@ -21,18 +21,20 @@
  */
 package greenfoot.importer.scratch;
 
-import greenfoot.core.GClass;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
+import bluej.utility.Debug;
+
 public abstract class ScriptableScratchMorph extends Morph
 {
+    private String[] costumes;
 
     public ScriptableScratchMorph(int id, int version,
             List<ScratchObject> scratchObjects)
@@ -59,12 +61,22 @@ public abstract class ScriptableScratchMorph extends Morph
     
     public String getObjNameJava()
     {
-        return getObjName().replace(' ', '_');
+        String munged = getObjName().replace(' ', '_');
+        if ("World".equals(munged) || "Actor".equals(munged)) {
+            return "A" + munged;
+        } else {
+            return munged;
+        }
     }
     
     public ScratchObjectArray getBlocks()
     {
         return (ScratchObjectArray)scratchObjects.get(super.fields() + 2);
+    }
+    
+    public ScratchObjectArray getMedia()
+    {
+        return (ScratchObjectArray)scratchObjects.get(super.fields() + 4);
     }
 
     public ImageMedia getCostume()
@@ -84,11 +96,16 @@ public abstract class ScriptableScratchMorph extends Morph
         return imgs.toArray(new ImageMedia[0]);
     }
     
+    public int getCostumeCount()
+    {
+        return ((ScratchObjectArray)scratchObjects.get(super.fields() + 4)).getValue().length;
+    }
+    
     protected abstract String greenfootSuperClass();
     protected abstract void constructorContents(StringBuilder acc);
 
     @Override
-    public File saveInto(File destDir, Properties props) throws IOException
+    public File saveInto(File destDir, Properties props, String prefix) throws IOException
     {
      // blocksBin is at the same index for all scriptable things:
         ScratchObject imageMedia = getCostume();            
@@ -102,13 +119,16 @@ public abstract class ScriptableScratchMorph extends Morph
             acc.append(" extends ").append(superClass);
         }
         
+        costumes = new String[getCostumeCount()];
+        
         acc.append("\n{\n");
         acc.append("private static final String[] COSTUMES = new String[] {");
         int i = 0;
         int curCostume = 0;
         for (ImageMedia img : getCostumes()) {
             if (i != 0) acc.append(", ");
-            acc.append("\"").append(img.saveInto(destDir, props)).append("\"");
+            costumes[i] = img.saveInto(destDir, props, className + "_").getName();
+            acc.append("\"").append(costumes[i]).append("\"");
             if (img == imageMedia) {
                 curCostume = i;
             }
@@ -131,8 +151,12 @@ public abstract class ScriptableScratchMorph extends Morph
         javaFileWriter.write(acc.toString());
         javaFileWriter.close();
         
+        for (ScratchObject media : getMedia()) {
+            media.saveInto(destDir, props, className + "_");
+        }
         
-        File imageFile = imageMedia.saveInto(destDir, props);
+        
+        File imageFile = imageMedia.saveInto(destDir, props, className + "_");
         props.setProperty("class." + className + ".image", imageFile.getName());
         
         return javaFile;
@@ -151,24 +175,60 @@ public abstract class ScriptableScratchMorph extends Morph
         ScratchObject[] blockContents = (ScratchObject[])block.getValue();
         
         if ("doRepeat".equals(blockContents[0].getValue())) {
-            method.append("int loopCount = ")
-                  .append(blockContents[1].getValue())
-                  .append(";\n");
-            method.append("for (int i = 0; i < loopCount;i++)\n{\n");
+            method.append("for (int i = 0; i < ").append(blockContents[1].getValue()).append(";i++)\n{\n");
             codeForBlock(blockContents[2], decl, method);
             method.append("}\n");
         }
-        else if ("doForever".equals(blockContents[0].getValue())) {
-            // We take do forever to mean "do once per act() invocation:
-            codeForBlock(blockContents[1], decl, method);
-        }
         else if ("doPlaySoundAndWait".equals(blockContents[0].getValue())) {
-            decl.append("GreenfootSound snd;");
-            method.append("if (snd == null || !snd.isPlaying()) {\n")
-            	  .append(" snd = new GreenfootSound(\"")
+            String soundName = "snd" + ((String)blockContents[1].getValue()).replace(" ", "_");
+            decl.append("GreenfootSound ").append(soundName).append(";\n");
+            method.append("if (" + soundName + " == null || !" + soundName + ".isPlaying()) {\n")
+            	  .append(soundName).append(" = new GreenfootSound(\"")
+            	  .append(getObjNameJava()).append("_")
                   .append(blockContents[1].getValue())
-                  .append(".wav\");\nsnd.play();\n}\n");
+                  .append(".wav\");\n")
+                  .append(soundName).append(".play();\n}\n");
             // TODO need a state machine to wait in the state until done playing
+        }
+        else if ("playSound:".equals(blockContents[0].getValue())) {
+            method.append("new GreenfootSound(\"")
+                  .append(getObjNameJava()).append("_")
+                  .append(blockContents[1].getValue())
+                  .append(".wav\").play();\n");
+        }
+        else if ("setGraphicEffect:to:".equals(blockContents[0].getValue())) {
+            if ("ghost".equals(blockContents[1].getValue())) {
+                method.append("getImage().setTransparency(")
+                      .append(new BigDecimal(255).subtract(((BigDecimal)blockContents[2].getValue()).multiply(new BigDecimal(255.0 / 100.0))).intValue())
+                      .append(");\n");
+            }
+        }
+        else if ("lookLike:".equals(blockContents[0].getValue())) {
+            if (blockContents[1].getValue() instanceof String) {
+                String costumeRoot = getObjNameJava() + "_" + (String)blockContents[1].getValue();
+                
+                int costumeFile = Arrays.binarySearch(costumes, costumeRoot + ".png");
+                if (costumeFile >= 0) {
+                    costumeRoot += ".png";
+                } else {
+                    costumeFile = Arrays.binarySearch(costumes, costumeRoot + ".jpg");
+                    if (costumeFile >= 0) costumeRoot += ".jpg";
+                }
+                if (costumeFile >= 0) {
+                    method.append("curCostume = ")
+                          .append(costumeFile)
+                          .append(";\n");
+                    method.append("setImage(\"").append(costumeRoot).append("\");\n");
+                    method.append("getImage().scale(")
+                          .append(getBounds().x2.subtract(getBounds().x).intValue())
+                          .append(", ")
+                          .append(getBounds().y2.subtract(getBounds().y).intValue())
+                          .append(");\n");
+                    method.append("getWorld().repaint();\n");
+                } else {
+                    Debug.message("Could not locate costume: " + costumeFile);
+                }
+            }
         }
         else if ("forward:".equals(blockContents[0].getValue())) {
             method.append("move(").append(blockContents[1].getValue()).append(");\n");
@@ -193,10 +253,17 @@ public abstract class ScriptableScratchMorph extends Morph
             method.append("curCostume = (curCostume + 1) % COSTUMES.length;\n");
             method.append("setImage(COSTUMES[curCostume]);\n");
             method.append("getImage().scale(")
-            .append(getBounds().x2.subtract(getBounds().x))
-            .append(", ")
-            .append(getBounds().y2.subtract(getBounds().y))
-            .append(");\n");
+                  .append(getBounds().x2.subtract(getBounds().x).intValue())
+                  .append(", ")
+                  .append(getBounds().y2.subtract(getBounds().y).intValue())
+                  .append(");\n");
+            method.append("getWorld().repaint();\n");
+        }
+        else if ("wait:elapsed:from:".equals(blockContents[0].getValue())) {
+            BigDecimal seconds = (BigDecimal) blockContents[1].getValue();
+            method.append("try {\n");
+            method.append("Thread.sleep(").append(seconds.scaleByPowerOfTen(3).intValue()).append(");\n");
+            method.append("} catch (InterruptedException e) { }");
         }
         else if (blockContents[0] instanceof ScratchObjectArray) {
             for (ScratchObject blockContent : blockContents) {
@@ -208,7 +275,7 @@ public abstract class ScriptableScratchMorph extends Morph
             for (ScratchObject o : blockContents) {
                 tmp.append(o).append(",");
             }
-            ScratchImport.print("Unknown code: " + tmp.toString());
+            Debug.message("Unknown Scratch block/code: " + tmp.toString());
         }
     }
 
@@ -216,7 +283,8 @@ public abstract class ScriptableScratchMorph extends Morph
     {
         StringBuilder decl = new StringBuilder();
         StringBuilder method = new StringBuilder();
-        method.append("public void act()\n{\n");
+        StringBuilder firstTimeCode = new StringBuilder();
+        
         // Each item in the array of blocks is a separate script chunk in
         // the scripts window in Scratch:
         for (ScratchObject scriptChunk : scripts.getValue()) {
@@ -248,18 +316,85 @@ public abstract class ScriptableScratchMorph extends Morph
             }
             else if ("EventHatMorph".equals(firstBlockContents[0].getValue())) {
                 if ("Scratch-StartClicked".equals(firstBlockContents[1].getValue())) {
-                    // Don't need any special code for when flag clicked:
+                    // Don't need any special code for when flag clicked, that's just the first time
+                    // that the act() method will be run anyway:
                     
-                    for (ScratchObject block : Arrays.copyOfRange(blocks, 1, blocks.length)) {
-                        codeForBlock(block, decl, method);
+                    ScratchObject[] subsequentBlocks = Arrays.copyOfRange(blocks, 1, blocks.length);
+                    
+                    if (subsequentBlocks.length == 1 && isLoop(subsequentBlocks[0])) {
+                        codeForBlock(subsequentBlocks[0], decl, method);
+                    } else {
+                        
+                        int i;
+                        for (i = 0; i < subsequentBlocks.length;i++) {
+                            ScratchObject[] blockContents = (ScratchObject[]) subsequentBlocks[i].getValue();
+                            if (!isLoop(blockContents[0])) {
+                                codeForBlock(subsequentBlocks[i], decl, firstTimeCode);
+                            } else {
+                                break;
+                            }
+                        }
+
+                        if (i < subsequentBlocks.length) {
+                            ScratchObject[] blockContents = (ScratchObject[]) subsequentBlocks[i].getValue();
+                            //Must be a loop:
+                            if ("doForever".equals(blockContents[0].getValue())) {
+                                //Just do it each time in the act method:
+                                codeForBlock(blockContents[1], decl, method);
+                            } else if ("doRepeat".equals(blockContents[0].getValue())) {
+                                decl.append("private int loopCount = 0;\n");
+                                
+                                method.append("if (loopCount < ")
+                                      .append(blockContents[1].getValue())
+                                      .append(") {\n");
+                                method.append("loopCount += 1;\n");
+                                codeForBlock(blockContents[2], decl, method);
+                                method.append("}\n");
+                            }
+                        }
                     }
                 }
+            } else if ("KeyEventHatMorph".equals(firstBlockContents[0].getValue())) {
+                String scratchKeyName = (String) firstBlockContents[1].getValue();
+                String greenfootKeyName = null;
+                if (scratchKeyName.endsWith(" arrow")) {
+                    greenfootKeyName = scratchKeyName.substring(0, scratchKeyName.length() - " arrow".length());
+                }
+                
+                if (greenfootKeyName != null) {
+                    method.append("if (Greenfoot.isKeyDown(\"" + greenfootKeyName + "\")) {\n");
+                    
+                    ScratchObject[] subsequentBlocks = Arrays.copyOfRange(blocks, 1, blocks.length);
+                    for (ScratchObject block : subsequentBlocks) {
+                        codeForBlock(block, decl, method);
+                    }
+                    method.append("}\n");
+                }
             }
-            // else ignore for now
-            
+            else {
+                // else ignore for now
+                Debug.message("Ignoring block headed: " + firstBlockContents[0].getValue());
+            }            
         }
-        method.append("}\n");
-        acc.append(decl).append(method);
+        
+        acc.append(decl);
+        if (firstTimeCode.length() > 0) {
+            acc.append("private boolean firstTime = true;\n");
+        }
+        acc.append("public void act()\n{\n");
+        if (firstTimeCode.length() > 0) {
+            acc.append("if (firstTime) {\n");
+            acc.append("firstTime = false;\n");
+            acc.append(firstTimeCode);
+            acc.append("}\n");
+        }
+        acc.append(method);
+        acc.append("}\n");
+    }
+
+    private static boolean isLoop(ScratchObject scratchObject)
+    {
+        return "doForever".equals(scratchObject.getValue()) || "doRepeat".equals(scratchObject.getValue());
     }
     
     

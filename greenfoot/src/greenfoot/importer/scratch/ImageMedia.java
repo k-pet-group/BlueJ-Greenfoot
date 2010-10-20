@@ -106,7 +106,7 @@ public class ImageMedia extends ScratchMedia
         }        
     }
 
-    @Override public File saveInto(File destDir, Properties props) throws IOException
+    @Override public File saveInto(File destDir, Properties props, String prefix) throws IOException
     {       
         if (imageFile == null) {
             byte[] jpegBytes = getJpegBytes();
@@ -117,7 +117,7 @@ public class ImageMedia extends ScratchMedia
             imageDir.mkdirs();
             for (int i = -1;;i++) {
                 // First try without addition, then append numbers until we find a free file:
-                imageFile = new File(imageDir, getMediaName() + (i < 0 ? "" : "_" + i) + "." + extension);
+                imageFile = new File(imageDir, prefix + getMediaName() + (i < 0 ? "" : "_" + i) + "." + extension);
                 if (false == imageFile.exists())
                     break;
             }

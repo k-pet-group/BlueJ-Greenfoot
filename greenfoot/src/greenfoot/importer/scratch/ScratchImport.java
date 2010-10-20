@@ -22,11 +22,9 @@
 package greenfoot.importer.scratch;
 
 
-import greenfoot.core.GProject;
 import greenfoot.core.GreenfootMain;
 
 import java.awt.Color;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -43,15 +41,7 @@ import bluej.pkgmgr.PackageFileFactory;
 import bluej.utility.Debug;
 
 public class ScratchImport
-{
-    /**
-     * Used at the moment for debug output
-     */
-    static void print(String s)
-    {
-        Debug.message(s);
-    }
-    
+{   
     /**
      * Reads a fixed number of bytes, treats them as ASCII, and returns them as a String
      */
@@ -79,11 +69,11 @@ public class ScratchImport
     {
         String ver = readFixedASCII(input, 10);
         if ("ScratchV01".equals(ver)) {
-            print("Version 01");
+            //Version 1
         } else if ("ScratchV02".equals(ver)) {
-            print("Version 02");
+            //Version 2
         } else {
-            print("Unknown version:" + ver);
+            Debug.message("Unknown Scratch version: " + ver);
         }
     }
     
@@ -181,7 +171,6 @@ public class ScratchImport
             return new ScratchPrimitive(new BigDecimal(readInt(input, 2)));
         case 8: { /* Float */
             long bits = readInt(input, 8);
-            Debug.message("Bits: " + Long.toHexString(bits));
             return new ScratchPrimitive(new BigDecimal(Double.longBitsToDouble(bits)));
         } case 9:  // String
         case 10: { // Symbol
@@ -255,7 +244,7 @@ public class ScratchImport
               return new ScratchImage(w,h,d,offset,bits, palette);
           }
           default:
-              print("*** UNKNOWN FIELD: " + id + " ***");
+              Debug.message("*** UNKNOWN SCRATCH FIELD: " + id + " ***");
               return null;
         }
     }
@@ -276,7 +265,7 @@ public class ScratchImport
     {
         String header = readFixedASCII(input, 10);
         if (!"ObjS\001Stch\001".equals(header)) {
-            print("Unknown object store header: " + header);
+            Debug.message("Unknown Scratch object store header: " + header);
             return null;
         }
         
@@ -289,11 +278,11 @@ public class ScratchImport
         
         
         // For debug; Print before resolving, otherwise we have circular references and print forever:
-        int c = 1;
-        for (ScratchObject m : objects) {
-            print(c + ": " + m);
-            c++;
-        }
+        //int c = 1;
+        //for (ScratchObject m : objects) {
+        //    Debug.message(c + ": " + m);
+        //    c++;
+        //}
         
         // Resolve all objects:
         for (int i = 0; i < objects.size(); i++) {
@@ -304,34 +293,8 @@ public class ScratchImport
         
         return objects;
     }
-    
-    /*
-    public static ScratchUserObject findStage(List<ScratchObject> scratchObjects)
-    {
-        for (ScratchObject m : scratchObjects) {
-            ScratchUserObject stage = m.getStage();
-            if (stage != null)
-                return stage;
-        }
-        return null;
-    }
-    
-    public static List<ScratchUserObject> findSprites(List<ScratchObject> scratchObjects)
-    {
-        List<ScratchUserObject> sprites = new ArrayList<ScratchUserObject>();
-        for (ScratchObject m : scratchObjects) {
-            if (m != null) {
-                ScratchUserObject sprite = m.getSprite();
-                if (sprite != null)
-                    sprites.add(sprite);
-            }
-        }
-        return sprites;
-    }
-    */
-    
-    
-    public static void importScratch(File src, File dest)
+
+    private static void importScratch(File src, File dest)
     {
         try {
             FileInputStream input = new FileInputStream(src);
@@ -342,35 +305,13 @@ public class ScratchImport
             Properties props = new Properties();
             props.setProperty("version", GreenfootMain.getAPIVersion().toString());
             for (ScratchObject o : objects) {
-                o.saveInto(dest, props);
+                o.saveInto(dest, props, null);
             }
             
             PackageFile packageFile = PackageFileFactory.getPackageFile(dest);
             packageFile.create();
             packageFile.save(props);
             
-            /*
-            List<ScratchUserObject> scripted = findSprites(objects);
-            scripted.add(findStage(objects));
-            StringBuilder acc = new StringBuilder();
-            for (ScratchUserObject s : scripted) {
-                codeForScripts(s.getScripts(), acc);
-            }
-            print(acc.toString());
-            
-            //Shows images:
-            
-            for (ScratchObject m : objects) {
-                if (m instanceof ScratchImage) {
-                    BufferedImage bimg = ((ScratchImage)m).getBufferedImage();
-                    if (bimg != null) {                       
-                        ImageIcon icon = new ImageIcon();   
-                        icon.setImage(bimg);   
-                        JOptionPane.showMessageDialog(null, icon); 
-                    }
-                }
-            }
-            */
         } catch (IOException e) {
             Debug.reportError("Problem during Scratch import", e);
         }

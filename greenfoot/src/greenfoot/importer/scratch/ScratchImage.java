@@ -21,18 +21,10 @@
  */
 package greenfoot.importer.scratch;
 
-import greenfoot.core.GProject;
-
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
-
-import javax.imageio.ImageIO;
-
-import bluej.utility.Debug;
 
 /**
  * A Scratch image resource, loaded from the Scratch Form class.
