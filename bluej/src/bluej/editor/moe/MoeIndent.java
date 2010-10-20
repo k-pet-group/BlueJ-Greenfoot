@@ -23,7 +23,10 @@ package bluej.editor.moe;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Element;
@@ -32,8 +35,6 @@ import bluej.Config;
 import bluej.parser.nodes.ParsedNode;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.utility.Debug;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * This class contains the "auto layout" functionality of the editor.
@@ -85,7 +86,7 @@ public class MoeIndent
     {
         int caretPos = prevCaretPos;
         Element rootElement = doc.getDefaultRootElement();
-        List<DocumentAction> methodUpdates = new ArrayList<DocumentAction>(rootElement.getElementCount());
+        List<DocumentAction> methodUpdates = new LinkedList<DocumentAction>();
         List<DocumentAction> updates = new ArrayList<DocumentAction>(rootElement.getElementCount());
         
         IndentCalculator ii = new RootIndentCalculator();
@@ -205,9 +206,9 @@ public class MoeIndent
                 int currentLine = map.getElementIndex(current.getEnd());
                 int nextLine = map.getElementIndex(next.getPosition());
                 if ((currentLine + 1) == nextLine) {
-                    updates.add(new DocumentAddLineAction(next.getPosition()));
+                    updates.add(0, new DocumentAddLineAction(next.getPosition()));
                 } else if ((currentLine == nextLine)) {
-                    updates.add(new DocumentAddLineAction(next.getPosition(), true));
+                    updates.add(0, new DocumentAddLineAction(next.getPosition(), true));
                 }
                     
             }
@@ -380,6 +381,12 @@ public class MoeIndent
         // everything works nicely.
         public int apply(MoeSyntaxDocument doc, int caretPos)
         {
+            int spos = el.getStartOffset();
+            int ll = doc.getDefaultRootElement().getElementIndex(spos);
+            if (doc.getDefaultRootElement().getElement(ll) != el) {
+                System.out.println("Element mismatch!!!!");
+            }
+            
             String line = getElementContents(doc, el);
             int lengthPrevWhitespace = findFirstNonIndentChar(line, true);
             boolean anyTabs = line.substring(0, lengthPrevWhitespace).indexOf("\t") != -1;
