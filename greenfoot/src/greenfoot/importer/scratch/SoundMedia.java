@@ -69,6 +69,7 @@ public class SoundMedia extends ScratchMedia
         -1, -1, -1, -1, -1, -1, -1, -1, 1, 2, 4, 6, 8, 10, 13, 16,
         -1, -1, -1, -1, -1, -1, -1, -1, 1, 2, 4, 6, 8, 10, 13, 16}
     };
+    private File destFile;
         
     public SoundMedia(int version, List<ScratchObject> scratchObjects)
     {
@@ -87,6 +88,8 @@ public class SoundMedia extends ScratchMedia
     @Override
     public File saveInto(File destDir, Properties props, String prefix) throws IOException
     {
+        if (destFile != null) return destFile;
+        
         String name = getMediaName();
         
         // The code for this method is cobbled together from the Scratch/SmallTalk code
@@ -143,7 +146,7 @@ public class SoundMedia extends ScratchMedia
         
         File soundsDir = new File(destDir, "sounds");
         soundsDir.mkdirs();
-        File destFile = new File(soundsDir, prefix + name + ".wav");
+        destFile = new File(soundsDir, prefix + name + ".wav");
         
         ByteArrayInputStream baiStream = new ByteArrayInputStream(uncompressed);
         AudioFormat format = new AudioFormat(sampleRate, 16, 1, true, true);

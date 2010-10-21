@@ -48,6 +48,8 @@ public class ScratchImage extends ScratchObject
     private ScratchObject paletteRef;
     private Color[] palette;
     
+    private boolean isResolved = false;
+    
     /**
      * Constructs a ScratchImage using the data read from the file
      * @param w Width of image
@@ -71,6 +73,8 @@ public class ScratchImage extends ScratchObject
      * Resolves the references for bits and palette, and decodes the image
      */
     public ScratchObject resolve(ArrayList<ScratchObject> objects) {
+        if (isResolved) return this;
+        
         ScratchObject resolved = bitsRef.resolve(objects);
         ByteArrayInputStream bitsInput = new ByteArrayInputStream((byte[]) resolved.getValue());
         
@@ -137,6 +141,8 @@ public class ScratchImage extends ScratchObject
             break;
             }
         }
+        
+        isResolved = true;
 
         return this;
     }

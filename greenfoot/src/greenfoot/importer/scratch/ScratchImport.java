@@ -33,8 +33,10 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import bluej.pkgmgr.PackageFile;
 import bluej.pkgmgr.PackageFileFactory;
@@ -341,5 +343,41 @@ public class ScratchImport
         importScratch(scratchFile, dest);
         
         return dest;
+    }
+    
+    private static Set<String> existingNames = new HashSet<String>();
+    {
+        existingNames.add("World");
+        existingNames.add("Actor");
+    }
+    
+    // Munges a Scratch name into a valid Java class name, also
+    // avoiding naming anything World or Actor, and taking care to avoid duplicates
+    // Therefore you should only call this method once per name you want to convert.
+    static String mungeUnique(String orig)
+    {
+        StringBuilder r = new StringBuilder();
+        if (orig.length() > 0) {
+            if (Character.isJavaIdentifierStart(orig.charAt(0))) {
+                r.append(orig.charAt(0));
+            } else {
+                r.append("C");
+            }
+            for (char c : Arrays.copyOfRange(orig.toCharArray(),1, orig.toCharArray().length)) {
+                if (Character.isJavaIdentifierPart(c)) {
+                    r.append(c);
+                }
+            }
+        }
+        String initial = r.toString();
+        if (initial.length() == 0 || existingNames.contains(initial)) {
+            int i = 0;
+            while (existingNames.contains(initial + i)) {
+                i += 1;
+            }
+            return initial + i;
+        } else {
+            return initial;
+        }
     }
 }

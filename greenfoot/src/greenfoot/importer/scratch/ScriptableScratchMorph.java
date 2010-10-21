@@ -35,6 +35,8 @@ import bluej.utility.Debug;
 public abstract class ScriptableScratchMorph extends Morph
 {
     private String[] costumes;
+    private String mungedName;
+    private File javaFile;
 
     public ScriptableScratchMorph(int id, int version,
             List<ScratchObject> scratchObjects)
@@ -61,12 +63,10 @@ public abstract class ScriptableScratchMorph extends Morph
     
     public String getObjNameJava()
     {
-        String munged = getObjName().replace(' ', '_');
-        if ("World".equals(munged) || "Actor".equals(munged)) {
-            return "A" + munged;
-        } else {
-            return munged;
+        if (mungedName == null) {
+            mungedName = ScratchImport.mungeUnique(getObjName());
         }
+        return mungedName;
     }
     
     public ScratchObjectArray getBlocks()
@@ -107,7 +107,9 @@ public abstract class ScriptableScratchMorph extends Morph
     @Override
     public File saveInto(File destDir, Properties props, String prefix) throws IOException
     {
-     // blocksBin is at the same index for all scriptable things:
+        if (javaFile != null) return javaFile;
+        
+        // blocksBin is at the same index for all scriptable things:
         ScratchObject imageMedia = getCostume();            
         String className = getObjNameJava();
         
@@ -146,7 +148,7 @@ public abstract class ScriptableScratchMorph extends Morph
         codeForScripts(getBlocks(), acc);
         acc.append("}\n");
         
-        File javaFile = new File(destDir, className + ".java");
+        javaFile = new File(destDir, className + ".java");
         FileWriter javaFileWriter = new FileWriter(javaFile);
         javaFileWriter.write(acc.toString());
         javaFileWriter.close();
@@ -207,11 +209,11 @@ public abstract class ScriptableScratchMorph extends Morph
             if (blockContents[1].getValue() instanceof String) {
                 String costumeRoot = getObjNameJava() + "_" + (String)blockContents[1].getValue();
                 
-                int costumeFile = Arrays.binarySearch(costumes, costumeRoot + ".png");
+                int costumeFile = findCostume(costumeRoot + ".png");
                 if (costumeFile >= 0) {
                     costumeRoot += ".png";
                 } else {
-                    costumeFile = Arrays.binarySearch(costumes, costumeRoot + ".jpg");
+                    costumeFile = findCostume(costumeRoot + ".jpg");
                     if (costumeFile >= 0) costumeRoot += ".jpg";
                 }
                 if (costumeFile >= 0) {
@@ -277,6 +279,16 @@ public abstract class ScriptableScratchMorph extends Morph
             }
             Debug.message("Unknown Scratch block/code: " + tmp.toString());
         }
+    }
+
+    private int findCostume(String searchFor)
+    {
+        for (int i = 0; i < costumes.length;i++) {
+            if (searchFor.equals(costumes[i])) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     private void codeForScripts(ScratchObjectArray scripts, StringBuilder acc)

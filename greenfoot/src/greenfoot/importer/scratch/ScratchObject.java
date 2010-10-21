@@ -21,8 +21,6 @@
  */
 package greenfoot.importer.scratch;
 
-import greenfoot.core.GProject;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,7 +32,7 @@ import java.util.Properties;
  * sub-classes.
  * @author neil
  */
-class ScratchObject
+public class ScratchObject
 {
     /**
      * Resolves all ScratchObjectReferences inside this object.
@@ -66,26 +64,7 @@ class ScratchObject
     {
         return this;
     }
-    
-    /**
-     * Gets a stage (akin to world) if this object represents a stage
-     * @return this if it is a stage, null otherwise
-     */
-    /*public ScratchUserObject getStage()
-    {
-        return null;
-    }*/
-    
-    /**
-     * Gets a sprite (akin to actor) if this object represents a sprite
-     * @return this if it is a sprite, null otherwise
-     */
-    /*public ScratchUserObject getSprite()
-    {
-        return null;
-    }
-    */
- 
+
     /**
      * Saves the item (e.g. image, sound, class) in the given project
      */
