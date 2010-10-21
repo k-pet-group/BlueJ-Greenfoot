@@ -111,4 +111,10 @@ public interface RClass
      */
     public abstract boolean hasSourceCode()
         throws RemoteException, ProjectNotOpenException, PackageNotFoundException;
+
+    /**
+     * Auto-indents the code for this class.
+     */
+    public abstract void autoIndent()
+        throws RemoteException, ProjectNotOpenException, PackageNotFoundException;
 }

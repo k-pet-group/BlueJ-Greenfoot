@@ -497,4 +497,19 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
         }
     }
 
+    @Override
+    public void autoIndent() throws ProjectNotOpenException, PackageNotFoundException
+    {
+        final Editor e = bClass.getEditor();
+        EventQueue.invokeLater(new Runnable() {
+            public void run()
+            {
+                MoeEditor bje = (MoeEditor)bluej.extensions.editor.EditorBridge.getEditor(e);
+                MoeSyntaxDocument doc = bje.getSourceDocument();
+                
+                MoeIndent.calculateIndentsAndApply(doc,0);
+            }
+        });        
+    }
+
 }
