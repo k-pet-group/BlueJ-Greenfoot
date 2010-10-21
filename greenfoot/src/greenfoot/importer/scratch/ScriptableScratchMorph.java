@@ -182,7 +182,7 @@ public abstract class ScriptableScratchMorph extends Morph
             method.append("}\n");
         }
         else if ("doPlaySoundAndWait".equals(blockContents[0].getValue())) {
-            String soundName = "snd" + ((String)blockContents[1].getValue()).replace(" ", "_");
+            String soundName = ScratchImport.mungeUnique("snd" + (String)blockContents[1].getValue());
             decl.append("GreenfootSound ").append(soundName).append(";\n");
             method.append("if (" + soundName + " == null || !" + soundName + ".isPlaying()) {\n")
             	  .append(soundName).append(" = new GreenfootSound(\"")
