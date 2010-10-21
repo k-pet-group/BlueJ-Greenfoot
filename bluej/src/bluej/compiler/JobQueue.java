@@ -31,7 +31,7 @@ import bluej.utility.Debug;
  * Reasonably generic interface between the BlueJ IDE and the Java compiler.
  * 
  * @author Michael Cahill
- * @version $Id: JobQueue.java 7783 2010-06-21 04:55:28Z davmac $
+ * @version $Id: JobQueue.java 8509 2010-10-21 02:44:59Z davmac $
  */
 public class JobQueue
 {
@@ -70,19 +70,12 @@ public class JobQueue
                     Debug.message("Could not instantiate the compiler API compiler implementation; defaulting to old compiler");
                     compiler = new JavacCompilerInternal();
                 }
-            }else
+            } else {
                 compiler = new JavacCompilerInternal();
-
+            }
         }
         else if (compilertype.equals("javac")) {
-
             compiler = new JavacCompiler(Config.getJDKExecutablePath("bluej.compiler.executable", "javac"));
-
-        }
-        else if (compilertype.equals("jikes")) {
-
-            compiler = new JikesCompiler(Config.getPropString("bluej.compiler.executable", "jikes"));
-
         }
         else {
             Debug.message(Config.getString("compiler.invalidcompiler"));
@@ -92,9 +85,8 @@ public class JobQueue
 
         // Lower priority to improve GUI response time during compilation
         int priority = Thread.currentThread().getPriority() - 1;
-        if (priority < Thread.MIN_PRIORITY)
-            priority = Thread.MIN_PRIORITY;
-        thread.setPriority(Thread.currentThread().getPriority() - 1);
+        priority = Math.max(priority, Thread.MIN_PRIORITY);
+        thread.setPriority(priority);
 
         thread.start();
     }

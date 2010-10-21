@@ -459,19 +459,16 @@ colour.highlight2=110,190,255
 
 #####################################################################
 ## Compiling. Commands used to execute a compiler. The first property
-## sets the type of the compiler. Currently it can be one of
-## internal, javac or jikes. The second property if it exists,
-## specifies the name of the executable to run as the compiler. This
-## can be a fully qualified path or the name of an executable in the
-## path. If it is not specified then BlueJ defaults to the standard
-## name of the specified compiler type (ie javac for type javac and
-## jikes for type jikes).
+## sets the type of the compiler. Currently it can be either
+## "internal" or "javac" (the Jikes compiler is no longer supported). 
+## 
+## The second property if it exists, specifies the name of the
+## executable to run as the compiler. This can be a fully qualified
+## path or the name of an executable in the path. If it is not
+## specified an appropriate default is used.
 #####################################################################
 
 bluej.compiler.type=internal
-
-#bluej.compiler.type=jikes
-#bluej.compiler.executable=jikes
 
 #bluej.compiler.type=javac
 #bluej.compiler.executable=javac
@@ -483,13 +480,14 @@ bluej.compiler.unchecked=true
 #####################################################################
 ## Compiler options. 
 ## 
-## Here, you can add compile options for the Java compiler (by 
-## default javac; see bluej.compiler setting above). If this attribue
-## is not specified, the compiler is run with default options.
+## Here, you can add compile options for the Java compiler.
+## If this attribute is not specified, the compiler is run with
+## default options.
 ## 
 ## The following options will ALWAYS be added internally in BlueJ. If
 ## you change these, funny things might happen (such as BlueJ not 
-## working at all)
+## working at all!):
+##
 ## -deprecation (Show description of each use of a deprecated method)
 ## -g           (Generate all debugging information)
 ## -d           (set the output directory)
