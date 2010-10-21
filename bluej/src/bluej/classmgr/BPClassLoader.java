@@ -21,14 +21,13 @@
  */
 package bluej.classmgr;
 
-import bluej.utility.Debug;
 import java.io.File;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
+
+import bluej.utility.Utility;
 
 /**
  * A Bluej Project ClassLoader that can be used to load or obtain information about classes loadable in a bluej project.
@@ -40,10 +39,8 @@ import java.util.ArrayList;
  * having a correct working version. This is the reason for this class being named BPClassLoader.
  * it will be renamed when the new classloading is refactored and tested.
  *
- * @version    $Id: BPClassLoader.java 7799 2010-06-23 10:54:27Z iau $
  * @author  Damiano Bolla
  */
-
 public final class BPClassLoader extends URLClassLoader
 {
     private boolean loadsForJavaMEproject;
@@ -114,43 +111,9 @@ public final class BPClassLoader extends URLClassLoader
      *
      * @return  The classpath as string.
      */
-    public String getClassPathAsString() {
-        return toClasspathString(getClassPathAsFiles());
-    }
-
-    /**
-     * Convert an array of files into a classpath string that can be used to start a VM.
-     * If files is null or files is empty then an empty string is returned.
-     * @param files an array of files.
-     * @return a non null string, possibly empty.
-     */
-    public static final String toClasspathString(File[] files) {
-        if ((files == null) || (files.length < 1)) {
-            return "";
-        }
-
-        boolean addSeparator = false; // Do not add a separator at the beginning
-        StringBuffer buf = new StringBuffer();
-
-        for (int index = 0; index < files.length; index++) {
-            File file = files[index];
-
-            // It may happen that one entry is null, strange, but just skip it.
-            if (file == null) {
-                continue;
-            }
-
-            if (addSeparator) {
-                buf.append(File.pathSeparatorChar);
-            }
-
-            buf.append(file.toString());
-
-            // From now on, you have to add a separator.
-            addSeparator = true;
-        }
-
-        return buf.toString();
+    public String getClassPathAsString()
+    {
+        return Utility.toClasspathString(getClassPathAsFiles());
     }
 
     /**
@@ -159,40 +122,13 @@ public final class BPClassLoader extends URLClassLoader
      * current BlueJ.
      * @return a non null array of Files, may be empty if no library at all is defined.
      */
-    public final File[] getClassPathAsFiles() {
-        return toFiles(super.getURLs());
+    public final File[] getClassPathAsFiles()
+    {
+        return Utility.urlsToFiles(getURLs());
     }
 
-    /**
-     * Transform an array of URL into an array of files.
-     * Note that if the given URL points to a "non file" then the result conversion will be null.
-     * @param urls an array or URL
-     * @return a non null array of Files, may be empty if urls is null or empty.
-     */
-    public static final File[] toFiles(URL[] urls) {
-        if ((urls == null) || (urls.length < 1)) {
-            return new File[0];
-        }
-
-        File[] risul = new File[urls.length];
-
-        for (int index = 0; index < urls.length; index++) {
-            URL url = urls[index];
-
-            // A class path is always without the qualifier file in front of it.
-            // However some characters (such as space) are encoded.
-            try {
-                risul[index] = new File(new URI(url.toString()));
-            } catch (URISyntaxException use) {
-                // Should never happend. If there is a problem with the conversion we want to know about it.
-                Debug.reportError("BPClassLoader.toFiles(urls) invalid url=" + url.getPath());
-            }
-        }
-
-        return risul;
-    }
-
-    public String toString() {
+    public String toString()
+    {
         return "BPClassLoader path=" + getClassPathAsString();
     }
     
@@ -211,7 +147,7 @@ public final class BPClassLoader extends URLClassLoader
     {
         ArrayList<URL> urls = new ArrayList<URL>(javaMEcoreLibs);
         urls.addAll(javaMEoptLibs);
-        return toFiles(urls.toArray(new URL[0]));
+        return Utility.urlsToFiles(urls.toArray(new URL[urls.size()]));
     }
 
     /**
@@ -221,6 +157,6 @@ public final class BPClassLoader extends URLClassLoader
      */
     public String getJavaMElibsAsPath( ) 
     {
-        return toClasspathString(getJavaMElibsAsFiles());
+        return Utility.toClasspathString(getJavaMElibsAsFiles());
     }
 }

@@ -47,15 +47,17 @@ class JavacCompilerInternal extends Compiler
         setDeprecation(true);
     }
 
-
-    public boolean compile(File[] sources, CompileObserver watcher, boolean internal)
+    public boolean compile(File[] sources, CompileObserver watcher, boolean internal,
+            List<String> userOptions)
     {
         List<String> args = new ArrayList<String>();		
 
-        args.addAll(getCompileOptions());      
+        args.addAll(getCompileOptions());
+        args.addAll(userOptions);
 
-        for(int i = 0; i < sources.length; i++)
+        for(int i = 0; i < sources.length; i++) {
             args.add(sources[i].getPath());
+        }
 
         int length = args.size();
         String[] params = new String[length];
@@ -154,6 +156,6 @@ class JavacCompilerInternal extends Compiler
                     output.getWarning());
         }
 
-        return result==0;
+        return result == 0;
     }
 }

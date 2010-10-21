@@ -38,16 +38,16 @@ import java.util.Map;
 
 import bluej.Boot;
 import bluej.Config;
-import bluej.classmgr.BPClassLoader;
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerEvent;
-import bluej.debugger.DebuggerEvent.BreakpointProperties;
 import bluej.debugger.DebuggerResult;
 import bluej.debugger.DebuggerTerminal;
 import bluej.debugger.ExceptionDescription;
 import bluej.debugger.SourceLocation;
+import bluej.debugger.DebuggerEvent.BreakpointProperties;
 import bluej.runtime.ExecServer;
 import bluej.utility.Debug;
+import bluej.utility.Utility;
 
 import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.ArrayReference;
@@ -205,8 +205,8 @@ class VMReference
 
         // launch the VM using the runtime classpath.
         Boot boot = Boot.getInstance();
-        File [] filesPath = BPClassLoader.toFiles(boot.getRuntimeUserClassPath());
-        String allClassPath = BPClassLoader.toClasspathString(filesPath);
+        File [] filesPath = Utility.urlsToFiles(boot.getRuntimeUserClassPath());
+        String allClassPath = Utility.toClasspathString(filesPath);
         
         ArrayList<String> paramList = new ArrayList<String>(10);
         paramList.add(Config.getJDKExecutablePath(null, "java"));

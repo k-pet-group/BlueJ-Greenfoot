@@ -21,10 +21,11 @@
  */
 package bluej.compiler;
 
-import bluej.classmgr.BPClassLoader;
 import java.io.File;
+import java.util.List;
 
 import bluej.Config;
+import bluej.classmgr.BPClassLoader;
 
 /**
  * A compiler "job". A list of filenames to compile + parameters.
@@ -43,13 +44,15 @@ class Job
     boolean internal; // true for compiling shell files, 
                       // or user files if we want to suppress 
                       // "unchecked" warnings, false otherwise
+    private List<String> userCompileOptions;
 
 	
     /**
      * Create a job with a set of sources.
      */
     public Job(File[] sourceFiles, Compiler compiler, CompileObserver observer,
-    			BPClassLoader bpClassLoader, File destDir, boolean internal)
+    			BPClassLoader bpClassLoader, File destDir, boolean internal,
+    			List<String> userCompileOptions)
     {
         this.sources = sourceFiles;
         this.compiler = compiler;
@@ -57,6 +60,7 @@ class Job
         this.bpClassLoader = bpClassLoader;
         this.destDir = destDir;
         this.internal = internal;
+        this.userCompileOptions = userCompileOptions;
     }
 	
     /**
@@ -65,15 +69,26 @@ class Job
     public void compile()
     {
         try {
-            if(observer != null)
+            if(observer != null) {
                 observer.startCompile(sources);
+            }
 
-            if(destDir != null)
+            if(destDir != null) {
                 compiler.setDestDir(destDir);
+            }
 
-            compiler.setProjectClassLoader(bpClassLoader);   // The correct class loader must always be set
+            compiler.setClasspath(bpClassLoader.getClassPathAsFiles());
+            if (bpClassLoader.loadsForJavaMEproject()) {
+                compiler.setBootClassPath(bpClassLoader.getJavaMElibsAsFiles());
+            }
+            else {
+                compiler.setBootClassPath(null);
+                String majorVersion = System.getProperty("java.specification.version"); 
+                userCompileOptions.add(0, "-source");
+                userCompileOptions.add(1, majorVersion);
+            }
 
-            boolean successful = compiler.compile(sources, observer, internal);
+            boolean successful = compiler.compile(sources, observer, internal, userCompileOptions);
 
             if(observer != null) {
                 observer.endCompile(sources, successful);

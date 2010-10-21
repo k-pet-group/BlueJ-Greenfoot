@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import javax.tools.Diagnostic;
@@ -64,7 +65,7 @@ public class CompilerAPICompiler extends Compiler
      * @return    success
      */
     public boolean compile(File[] sources, CompileObserver observer,
-            boolean internal) 
+            boolean internal, List<String> userOptions) 
     {
         boolean result = true;
         JavaCompiler jc = ToolProvider.getSystemJavaCompiler();
@@ -77,7 +78,7 @@ public class CompilerAPICompiler extends Compiler
             List<File> pathList = new ArrayList<File>();
             List<File> outputList = new ArrayList<File>();
             outputList.add(getDestDir());
-            pathList.addAll(Arrays.asList(getProjectClassLoader().getClassPathAsFiles()));
+            Collections.addAll(pathList, getClassPath());
             
             // In BlueJ, the destination directory and the source path are
             // always the same
@@ -95,14 +96,14 @@ public class CompilerAPICompiler extends Compiler
             if(isDeprecation()) {
                 optionsList.add("-deprecation");
             }
-            if(getProjectClassLoader().loadsForJavaMEproject()) {
-                // Set the "bootclasspath" and use the ME-specific compiler options
-                sjfm.setLocation(StandardLocation.PLATFORM_CLASS_PATH, Arrays.asList(getProjectClassLoader().getJavaMElibsAsFiles()));
-                addUserSpecifiedOptions(optionsList, JAVAME_COMPILER_OPTIONS);
-            } else {
-                addUserSpecifiedOptions(optionsList, COMPILER_OPTIONS);
+            
+            File[] bootClassPath = getBootClassPath();
+            if (bootClassPath != null && bootClassPath.length != 0) {
+                sjfm.setLocation(StandardLocation.PLATFORM_CLASS_PATH, Arrays.asList(bootClassPath));
             }
-
+            
+            optionsList.addAll(userOptions);
+            
             //compile
             jc.getTask(null, sjfm, diagnostics, optionsList, null, compilationUnits1).call();
             sjfm.close();            

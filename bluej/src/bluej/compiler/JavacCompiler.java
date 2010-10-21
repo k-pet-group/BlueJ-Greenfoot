@@ -34,7 +34,7 @@ import bluej.utility.DialogManager;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Bruce Quig
- * @version $Id: JavacCompiler.java 7139 2010-02-17 05:36:05Z davmac $
+ * @version $Id: JavacCompiler.java 8510 2010-10-21 04:12:29Z davmac $
  */
 class JavacCompiler extends Compiler
 {
@@ -47,16 +47,18 @@ class JavacCompiler extends Compiler
         setDeprecation(true);
     }   
 
-    public boolean compile(File[] sources, CompileObserver watcher, boolean internal)
+    public boolean compile(File[] sources, CompileObserver watcher, boolean internal, List<String> userOptions)
     {
         List<String> args = new ArrayList<String>();
 
         args.add(executable);       
 
-        args.addAll(getCompileOptions());        
+        args.addAll(getCompileOptions());
+        args.addAll(userOptions);
 
-        for(int i = 0; i < sources.length; i++)
+        for(int i = 0; i < sources.length; i++) {
             args.add(sources[i].getPath());
+        }
 
         int length = args.size();
         String[] params = new String[length];

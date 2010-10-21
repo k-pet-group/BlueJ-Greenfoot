@@ -21,17 +21,19 @@
  */
 package bluej.compiler;
 
-import bluej.classmgr.BPClassLoader;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import bluej.Config;
+import bluej.classmgr.BPClassLoader;
 import bluej.utility.Debug;
 
 /**
  * Reasonably generic interface between the BlueJ IDE and the Java compiler.
  * 
  * @author Michael Cahill
- * @version $Id: JobQueue.java 8509 2010-10-21 02:44:59Z davmac $
+ * @version $Id: JobQueue.java 8510 2010-10-21 04:12:29Z davmac $
  */
 public class JobQueue
 {
@@ -50,7 +52,7 @@ public class JobQueue
     private Compiler compiler = null;
 
     /**
-     *  
+     * Construct the JobQueue. This is private; use getJobQueue() to get the job queue instance.
      */
     private JobQueue()
     {
@@ -103,7 +105,16 @@ public class JobQueue
      */
     public void addJob(File[] sources, CompileObserver observer, BPClassLoader bpClassLoader, File destDir, boolean suppressUnchecked)
     {
-        thread.addJob(new Job(sources, compiler, observer, bpClassLoader, destDir, suppressUnchecked));
+        List<String> options = new ArrayList<String>();
+        if (bpClassLoader.loadsForJavaMEproject()) {
+            String optionString = Config.getPropString(Compiler.JAVAME_COMPILER_OPTIONS, null);
+            Compiler.tokenizeOptionString(options, optionString);
+        }
+        String optionString = Config.getPropString(Compiler.COMPILER_OPTIONS, null);
+        Compiler.tokenizeOptionString(options, optionString);
+        
+        thread.addJob(new Job(sources, compiler, observer, bpClassLoader,
+                destDir, suppressUnchecked, options));
     }
 
     /**

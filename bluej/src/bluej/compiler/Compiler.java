@@ -26,11 +26,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
-import bluej.classmgr.BPClassLoader;
-import bluej.Config;
+import bluej.utility.Utility;
 
 /**
- * Compiler class - an abstract interface to a source -> bytecode compiler. This
+ * Compiler class - an abstract interface to a source-to-bytecode compiler. This
  * can be implemented by different compiler implementations.
  * 
  * @author Michael Cahill
@@ -43,20 +42,39 @@ abstract class Compiler
     public static final String JAVAME_COMPILER_OPTIONS = "bluej.javame.compiler.options";
     
     private File destDir;
-    private BPClassLoader bpClassLoader;
+    private File[] classPath;
+    /** "boot" class path - may be null if not specified */
+    private File[] bootClassPath;
     private boolean debug;
     private boolean deprecation;
-
+    
+    /**
+     * Set the destination directory - the base directory for where the compiled class files
+     * are output to. (The final folder for a given class depends on the class' package).
+     * This currently also specifies the source path.
+     * 
+     * @param destDir  The destination directory
+     */
     public void setDestDir(File destDir)
     {
         this.destDir = destDir;
     }
 
-    public void setProjectClassLoader(BPClassLoader bpClassLoader)
+    public void setClasspath(File [] classPath)
     {
-        this.bpClassLoader = bpClassLoader;
+        this.classPath = classPath;
     }
-
+    
+    /**
+     * Specify the "boot classpath".
+     * 
+     * @param bootClassPath  The boot classpath, or null to use the default.
+     */
+    public void setBootClassPath(File[] bootClassPath)
+    {
+        this.bootClassPath = bootClassPath;
+    }
+    
     public void setDebug(boolean debug)
     {
         this.debug = debug;
@@ -65,11 +83,6 @@ abstract class Compiler
     public void setDeprecation(boolean deprecation)
     {
         this.deprecation = deprecation;
-    }
-
-    public BPClassLoader getProjectClassLoader()
-    {
-        return bpClassLoader;
     }
 
     public boolean isDebug()
@@ -86,9 +99,20 @@ abstract class Compiler
     {
         return destDir;
     }
+    
+    public File[] getClassPath()
+    {
+        return classPath;
+    }
+    
+    public File[] getBootClassPath()
+    {
+        return bootClassPath;
+    }
 
     /**
      * Creates a list of the options that should be used for the compilation.
+     * Won't include user specified options.
      * 
      * @return A list of compile options.
      */
@@ -102,18 +126,20 @@ abstract class Compiler
         }
                
         boolean isJavaMEproject = false;
-        if (getProjectClassLoader() != null) {
+        if (classPath != null && classPath.length != 0) {
             args.add("-classpath");
-            args.add(getProjectClassLoader().getClassPathAsString());
-            
-            if ( getProjectClassLoader( ).loadsForJavaMEproject( ) )
-                isJavaMEproject = true;
+            args.add(Utility.toClasspathString(classPath));
         }       
         
-       if ( isJavaMEproject ) {
-            addUserSpecifiedOptions(args, JAVAME_COMPILER_OPTIONS);
-            args.add( "-bootclasspath" );
-            args.add ( getProjectClassLoader( ).getJavaMElibsAsPath( ) ); 
+        if (bootClassPath != null && bootClassPath.length != 0) {
+            args.add("-bootclasspath");
+            args.add(Utility.toClasspathString(bootClassPath));
+        }
+        
+        if ( isJavaMEproject ) {
+            //addUserSpecifiedOptions(args, JAVAME_COMPILER_OPTIONS);
+            //args.add( "-bootclasspath" );
+            //args.add ( getProjectClassLoader( ).getJavaMElibsAsPath( ) ); 
         }
         else {
             String majorVersion = System.getProperty("java.specification.version"); 
@@ -121,28 +147,26 @@ abstract class Compiler
             args.add(majorVersion);
         }
         
-        if (isDebug())
+        if (isDebug()) {
             args.add("-g");
+        }
 
-        if (isDeprecation())
-            args.add("-deprecation");      
-
-        addUserSpecifiedOptions(args, COMPILER_OPTIONS);
+        if (isDeprecation()) {
+            args.add("-deprecation");
+        }
 
         return args;
     }
 
-    protected void addUserSpecifiedOptions(List<String> args, String options)
+    public static void tokenizeOptionString(List<String> args, String optionString)
     {
-        String compilerOptions = Config.getPropString(options, null);
-        if (compilerOptions != null) {
-            StringTokenizer st = new StringTokenizer(compilerOptions);
+        if (optionString != null) {
+            StringTokenizer st = new StringTokenizer(optionString);
             while (st.hasMoreTokens()) {
                 args.add(st.nextToken());
             }
         }
     }
-
 
     /**
      * Compile some source files.
@@ -154,8 +178,12 @@ abstract class Compiler
      * @param internal
      *            True if compiling BlueJ-generated code (shell files) False if
      *            compiling user code
-     * @return
+     * @param options
+     *            Option strings to pass to the compiler
+     * 
+     * @return  true if the compilation was successful
      */
-    public abstract boolean compile(File[] sources, CompileObserver observer, boolean internal);
+    public abstract boolean compile(File[] sources, CompileObserver observer,
+            boolean internal, List<String> options);
 
 }
