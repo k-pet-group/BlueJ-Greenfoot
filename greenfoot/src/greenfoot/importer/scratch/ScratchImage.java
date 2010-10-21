@@ -91,7 +91,7 @@ public class ScratchImage extends ScratchObject
         // The compression scheme is documented in the 
         // Graphics-Primitives.Bitmap.compress:toByteArray: method
         
-        img = new BufferedImage(w, h, palette == null ? BufferedImage.TYPE_INT_RGB : BufferedImage.TYPE_INT_ARGB);
+        img = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
 
         int bitmapPos = 0;
         // Skip the length at the very beginning of the image
@@ -167,6 +167,13 @@ public class ScratchImage extends ScratchObject
                 if (palette != null) {
                     img.setRGB(x, y, palette[index].getRGB());
                 } else {
+                    // If the alpha is zero but the other channels are not,
+                    // set alpha to 255.  I can't find any part of the Scratch code
+                    // that does this, but it's the only rule I can find
+                    // that seems to make the images work correctly.
+                    if (index >> 24 == 0 && (index & 0xFFFFFF) != 0) {
+                        index |= 0xFF000000;
+                    }
                     img.setRGB(x, y, index);
                 }
             }
