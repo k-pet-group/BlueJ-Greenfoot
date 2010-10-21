@@ -91,7 +91,7 @@ public class ScratchImage extends ScratchObject
         // The compression scheme is documented in the 
         // Graphics-Primitives.Bitmap.compress:toByteArray: method
         
-        img = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+        img = new BufferedImage(w, h, palette == null ? BufferedImage.TYPE_INT_RGB : BufferedImage.TYPE_INT_ARGB);
 
         int bitmapPos = 0;
         // Skip the length at the very beginning of the image
