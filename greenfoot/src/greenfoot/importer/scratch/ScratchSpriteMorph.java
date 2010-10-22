@@ -24,6 +24,8 @@ package greenfoot.importer.scratch;
 import java.math.BigDecimal;
 import java.util.List;
 
+import bluej.utility.Debug;
+
 /**
  * Mirrors the Scratch ScratchSpriteMorph class, which is the equivalent of an actor.
  * @author neil
@@ -60,20 +62,35 @@ public class ScratchSpriteMorph extends ScriptableScratchMorph
     {
         return "Actor";
     }
+    
+    @Override
+    public ScratchPoint getScaleAmount()
+    {
+        return (ScratchPoint) scratchObjects.get(super.fields() + 1);
+    }
 
     public ScratchPoint getGreenfootCentre()
     {
-        return new ScratchPoint(getBounds().x.add(new BigDecimal(getCostume().getWidth() / 2))
-                               ,getBounds().y.add(new BigDecimal(getCostume().getHeight() / 2)));
+        return new ScratchPoint(getBounds().getMiddle().x.subtract(
+                                    getScaleAmount().x.subtract(new BigDecimal(1)).multiply(
+                                      getCostume().getRotationCentre().x
+                                    )
+                                )
+                               ,getBounds().getMiddle().y.subtract(
+                                    getScaleAmount().y.subtract(new BigDecimal(1)).multiply(
+                                      getCostume().getRotationCentre().y
+                                    )
+                               ) );
                 
     }
     
     @Override
     protected void addHelpers(StringBuilder acc)
     {
-        acc.append("public void turn(int angle) { setRotation(getRotation() + angle); }\n");
-        acc.append("public void move(int speed) { double angle = Math.toRadians( getRotation() ); int x = (int) Math.round(getX() + Math.cos(angle) * speed); int y = (int) Math.round(getY() + Math.sin(angle) * speed); setLocation(x, y);}\n");
-        acc.append("public boolean atWorldEdge() { if(getX() < 20 || getX() > getWorld().getWidth() - 20) return true; if(getY() < 20 || getY() > getWorld().getHeight() - 20) return true; else return false; }\n");
+        acc.append("private void turn(int angle)\n{\nsetRotation(getRotation() + angle);\n}\n");
+        acc.append("private void move(int speed)\n{\ndouble angle = Math.toRadians( getRotation() );\nint x = (int) Math.round(getX() + Math.cos(angle) * speed);\nint y = (int) Math.round(getY() + Math.sin(angle) * speed);\nsetLocation(x, y);\n}\n");
+        acc.append("private boolean atWorldEdge()\n{\nif(getX() < 20 || getX() > getWorld().getWidth() - 20) return true;\nif(getY() < 20 || getY() > getWorld().getHeight() - 20) return true;\nelse return false;\n}\n");
+        //acc.append("private void setTopLeft(int x, int y)\n{setLocation(x + (getImage().getWidth()/2),y + (getImage().getHeight()/2));\n}\n");
     }
 
 }

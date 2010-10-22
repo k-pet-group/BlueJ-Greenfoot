@@ -78,6 +78,11 @@ public class ImageMedia extends ScratchMedia
         }
     }
     
+    public ScratchPoint getRotationCentre()
+    {
+        return (ScratchPoint) scratchObjects.get(super.fields() + 1);
+    }
+    
     public int getWidth()
     {
         byte[] jpegBytes = getJpegBytes();

@@ -73,4 +73,9 @@ public class ScratchRectangle extends ScratchObject
         builder.append("]");
         return builder.toString();
     }
+
+    public ScratchPoint getMiddle()
+    {
+        return new ScratchPoint(x.add(x2).divide(new BigDecimal(2)), y.add(y2).divide(new BigDecimal(2)));
+    }
 }

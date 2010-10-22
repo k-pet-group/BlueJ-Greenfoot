@@ -137,6 +137,34 @@ public abstract class ScriptableScratchMorph extends Morph
             i += 1;
         }
         acc.append("};\n");
+        acc.append("private static final int[] X_OFFSETS = new int[] {");
+        i = 0;
+        for (ImageMedia img : getCostumes()) {
+            if (i != 0) acc.append(", ");
+            acc.append(
+                  getScaleAmount().x.multiply(
+                    new BigDecimal(img.getWidth() / 2).subtract(
+                      img.getRotationCentre().x
+                    )
+                  ).intValue());
+            i++;
+        }
+        acc.append("};\n");
+        
+        acc.append("private static final int[] Y_OFFSETS = new int[] {");
+        i = 0;
+        for (ImageMedia img : getCostumes()) {
+            if (i != 0) acc.append(", ");
+            acc.append(
+                    getScaleAmount().y.multiply(
+                      new BigDecimal(img.getHeight() / 2).subtract(
+                        img.getRotationCentre().y
+                      )
+                    ).intValue());
+            i++;
+        }
+        acc.append("};\n");
+        
         acc.append("private int curCostume = ").append(curCostume).append(";\n");
         
         acc.append("public " + className + "()\n{\n");
@@ -246,6 +274,15 @@ public abstract class ScriptableScratchMorph extends Morph
             } else {
                 method.append("(Greenfoot.randomNumber(").append(to - from).append(") + ").append(from).append(")");
             }
+        }
+        else if ("gotoX:y:".equals(blockContents[0].getValue())) {
+            method.append("setLocation((getWorld().getWidth() / 2) + ")
+                  .append(((BigDecimal)blockContents[1].getValue()).intValue())
+                  .append(" + X_OFFSETS[curCostume]")
+                  .append(", (getWorld().getHeight() / 2) - ")
+                  .append(((BigDecimal)blockContents[2].getValue()).intValue())
+                  .append(" + Y_OFFSETS[curCostume]")
+                  .append(");\n");
         }
         else if ("turnRight:".equals(blockContents[0].getValue())) {
             String degrees = blockContents[1].getValue().toString();
@@ -407,6 +444,11 @@ public abstract class ScriptableScratchMorph extends Morph
     private static boolean isLoop(ScratchObject scratchObject)
     {
         return "doForever".equals(scratchObject.getValue()) || "doRepeat".equals(scratchObject.getValue());
+    }
+
+    public ScratchPoint getScaleAmount()
+    {
+        return new ScratchPoint(new BigDecimal(1), new BigDecimal(1));
     }
     
     
