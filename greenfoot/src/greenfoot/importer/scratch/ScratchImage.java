@@ -75,12 +75,9 @@ public class ScratchImage extends ScratchObject
     public ScratchObject resolve(ArrayList<ScratchObject> objects) {
         if (isResolved) return this;
         
-        ScratchObject resolved = bitsRef.resolve(objects);
-        ByteArrayInputStream bitsInput = new ByteArrayInputStream((byte[]) resolved.getValue());
-        
         if (paletteRef != null) {
-            resolved = paletteRef.resolve(objects);
-            ScratchObject[] pal = (ScratchObject[])resolved.getValue();
+            ScratchObject resolvedPalette = paletteRef.resolve(objects);
+            ScratchObject[] pal = (ScratchObject[])resolvedPalette.getValue();
             
             palette = new Color[pal.length];
             for (int i = 0;i < pal.length;i++) {
@@ -92,53 +89,69 @@ public class ScratchImage extends ScratchObject
         // Graphics-Primitives.Bitmap.compress:toByteArray: method
         
         img = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
-
-        int bitmapPos = 0;
-        // Skip the length at the very beginning of the image
-        // It tells us final size but we already know that:
-        decodeLen(bitsInput);
-        for (int rawN = decodeLen(bitsInput);rawN != -1;rawN = decodeLen(bitsInput)) {
-            // Lowest two bits contain a 0-3 code
-            // Rest of bits contain a count of (4-byte) words:
-            int wordCount = rawN >> 2;
-            switch (rawN & 0x3) {
-            case 0: // Skip that many words
-                bitmapPos += wordCount;
-            break;
-            case 1: { // Replicate next byte to all 4 bytes to wordCount words:
-                int b = bitsInput.read();
-                int x = (b << 24) | (b << 16) | (b << 8) | b;
-                int end = bitmapPos + wordCount;
-                while (bitmapPos < end) {
-                    setBitmapEntry(bitmapPos++, x);
-                }
+               
+        ScratchObject resolved = bitsRef.resolve(objects);
+        
+        if (resolved.getValue() instanceof int[]) {
+            // Uncompressed:
+            int[] values = (int[])resolved.getValue();
+            for (int pos = 0; pos < values.length;pos++) {
+                setBitmapEntry(pos, values[pos]);
             }
-            break;
-            case 2: { //Replicate next 4 bytes to wordCount words: 
-                int x = 0;
-                for (int i = 0; i < 4; i++) {
-                    x <<= 8;
-                    x |= bitsInput.read();
+            
+        } else if (resolved.getValue() instanceof byte[]) {
+            //Compressed, need to decompress:
+            ByteArrayInputStream bitsInput = new ByteArrayInputStream((byte[]) resolved.getValue());
+            
+            
+    
+            int bitmapPos = 0;
+            // Skip the length at the very beginning of the image
+            // It tells us final size but we already know that:
+            decodeLen(bitsInput);
+            for (int rawN = decodeLen(bitsInput);rawN != -1;rawN = decodeLen(bitsInput)) {
+                // Lowest two bits contain a 0-3 code
+                // Rest of bits contain a count of (4-byte) words:
+                int wordCount = rawN >> 2;
+                switch (rawN & 0x3) {
+                case 0: // Skip that many words
+                    bitmapPos += wordCount;
+                break;
+                case 1: { // Replicate next byte to all 4 bytes to wordCount words:
+                    int b = bitsInput.read();
+                    int x = (b << 24) | (b << 16) | (b << 8) | b;
+                    int end = bitmapPos + wordCount;
+                    while (bitmapPos < end) {
+                        setBitmapEntry(bitmapPos++, x);
+                    }
                 }
-                int end = bitmapPos + wordCount;
-                while (bitmapPos < end) {
-                    setBitmapEntry(bitmapPos++, x);
-                }
-            }
-            break;
-            case 3: { //Exact wordCount words follows (no repetition) 
-                int end = bitmapPos + wordCount;
-                while (bitmapPos < end) {
+                break;
+                case 2: { //Replicate next 4 bytes to wordCount words: 
                     int x = 0;
                     for (int i = 0; i < 4; i++) {
                         x <<= 8;
                         x |= bitsInput.read();
                     }
-                    
-                    setBitmapEntry(bitmapPos++, x);
+                    int end = bitmapPos + wordCount;
+                    while (bitmapPos < end) {
+                        setBitmapEntry(bitmapPos++, x);
+                    }
                 }
-            }
-            break;
+                break;
+                case 3: { //Exact wordCount words follows (no repetition) 
+                    int end = bitmapPos + wordCount;
+                    while (bitmapPos < end) {
+                        int x = 0;
+                        for (int i = 0; i < 4; i++) {
+                            x <<= 8;
+                            x |= bitsInput.read();
+                        }
+                        
+                        setBitmapEntry(bitmapPos++, x);
+                    }
+                }
+                break;
+                }
             }
         }
         

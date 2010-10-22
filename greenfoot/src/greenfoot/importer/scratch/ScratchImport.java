@@ -189,13 +189,12 @@ public class ScratchImport
             input.read(b);
             return new ScratchPrimitive(b);
         } case 13: { //Bitmap, oddly this is effectively int[] and nothing more
-                     // We read it as byte[] for simplicity
             int size = (int)readInt(input, 4);
-            byte[] b = new byte[size*4];
-            for (int i = 0; i < size*4; i++) {
-                b[i] = (byte)(readInt(input, 1) & 0xFF);
+            int[] arr = new int[size];
+            for (int i = 0; i < size; i++) {
+                arr[i] = (int)readInt(input, 4);
             }
-            return new ScratchPrimitive(b);
+            return new ScratchPrimitive(arr);
         } case 14: { // UTF8
             int size = (int)readInt(input, 4);
             return new ScratchPrimitive(readUTF8(input, size));
