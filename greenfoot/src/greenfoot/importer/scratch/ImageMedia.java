@@ -122,7 +122,7 @@ public class ImageMedia extends ScratchMedia
             imageDir.mkdirs();
             for (int i = -1;;i++) {
                 // First try without addition, then append numbers until we find a free file:
-                imageFile = new File(imageDir, prefix + getMediaName() + (i < 0 ? "" : "_" + i) + "." + extension);
+                imageFile = new File(imageDir, prefix + mungeChars(getMediaName()) + (i < 0 ? "" : "_" + i) + "." + extension);
                 if (false == imageFile.exists())
                     break;
             }
@@ -137,5 +137,11 @@ public class ImageMedia extends ScratchMedia
         }
         
         return imageFile;
+    }
+    
+    private static String mungeChars(String name)
+    {
+        // Replace special characters (colons and slashes) with underscore:
+        return name.replaceAll("[:/\\\\]", "_");
     }
 }

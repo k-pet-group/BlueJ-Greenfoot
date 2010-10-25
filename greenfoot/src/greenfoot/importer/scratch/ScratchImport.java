@@ -333,9 +333,6 @@ public class ScratchImport
         int i = 0;
         while (dest.exists()) {
             dest = new File(scratchFile.getParentFile(), strippedName + i);
-            if (!dest.exists()) {
-                break;
-            }
             i++;
         }
         
