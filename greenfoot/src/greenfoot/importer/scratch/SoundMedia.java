@@ -65,7 +65,7 @@ public class SoundMedia extends ScratchMedia
         new int[] { // 4
         -1, -1, -1, -1, 2, 4, 6, 8,
         -1, -1, -1, -1, 2, 4, 6, 8},
-        new int[] {
+        new int[] { // 8
         -1, -1, -1, -1, -1, -1, -1, -1, 1, 2, 4, 6, 8, 10, 13, 16,
         -1, -1, -1, -1, -1, -1, -1, -1, 1, 2, 4, 6, 8, 10, 13, 16}
     };
@@ -108,7 +108,7 @@ public class SoundMedia extends ScratchMedia
         
         short prev = 0;
         int stepIndex = 0;
-        float step = 0;
+        int step = 0;
         
         int byteIndex = 0;
         // Starts at 7, comes down to 0:
@@ -118,10 +118,9 @@ public class SoundMedia extends ScratchMedia
         while (byteIndex < compressed.length) {
             int unsignedCompressedVal;
             if (bitIndex > 8 - bitsPerSample) {
-                // We need bits from across two bytes -- this byte and the byte before!
-                //TODO test this when we find a sound with 3 or 5 bytes per sample
+                // We need bits from across two bytes -- this byte and the byte before!               
                 unsignedCompressedVal = (compressed[byteIndex] >> bitIndex) & ((1 << (8 - bitIndex)) - 1);
-                unsignedCompressedVal |= (compressed[byteIndex-1] & ((1 << (bitsPerSample + 8 - bitIndex)) - 1)) << (8 - bitIndex);
+                unsignedCompressedVal |= (compressed[byteIndex-1] & ((1 << (bitsPerSample - (8 - bitIndex))) - 1)) << (8 - bitIndex);
             } else {
                 unsignedCompressedVal = (compressed[byteIndex] >> bitIndex) & ((1 << bitsPerSample) - 1);
             }
@@ -130,10 +129,21 @@ public class SoundMedia extends ScratchMedia
                 bitIndex = 8 + bitIndex - bitsPerSample;
             } else {
                 bitIndex -= bitsPerSample;
-            }            
-            int signedCompressedVal = unsignedCompressedVal >= (1 << (bitsPerSample -1)) ? unsignedCompressedVal - (1 << bitsPerSample) : unsignedCompressedVal;            
+            }                        
             stepIndex = Math.max(0,Math.min(88,stepIndex + INDEX_TABLE[bitsPerSample][unsignedCompressedVal]));
-            int diff = (int) (((float)signedCompressedVal + 0.5f) * step / 4);
+            // This code is copied from the Scratch algorithm
+            // (see Sound-Synthesis.ADPCMCodec.privateDecodeMono),
+            // hence all the bit-twiddling.
+            int diff = 0;
+            for (int bit = 1 << (bitsPerSample - 2); bit != 0; bit >>= 1) {
+                if ((unsignedCompressedVal & bit) != 0) {
+                    diff += step;
+                }
+                step >>= 1;
+            }
+            // The high bit appears to be a sign bit:
+            if ((unsignedCompressedVal & (1 << (bitsPerSample - 1))) != 0)
+                diff = -diff;
             prev = (short)Math.max(-32768, Math.min(32767, (int)prev + diff));
             uncompressed[destSample * 2] = (byte)(prev >> 8);
             uncompressed[(destSample * 2) + 1] = (byte)(prev & 255);
