@@ -35,6 +35,7 @@ import java.awt.Image;
 import java.awt.MediaTracker;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
@@ -148,6 +149,58 @@ public class GreenfootImage
             copyOnWrite = true;
         }
         copyStates(image, this);
+    }
+    
+    /**
+     * Creates an image with the given string drawn as text using the given font size, with the given foreground
+     * color on the given background color.  If the string has newline characters, it
+     * is split into multiple lines which are drawn horizontally-centred.
+     * 
+     * @param string the string to be drawn
+     * @param size the requested height in pixels of each line of text (the actual height may be different by a pixel or so)
+     * @param foreground the color of the text
+     * @param background the color of the image behind the text
+     * @return the new image
+     * @since 2.1.0
+     */
+    public GreenfootImage(String string, int size, Color foreground, Color background)
+    {
+        String[] lines = string.split(System.getProperty("line.separator"));
+        image = GraphicsUtilities.createCompatibleTranslucentImage(1, 1);
+        Graphics2D g = (Graphics2D)image.getGraphics();
+        Font font = g.getFont().deriveFont((float)size);
+        g.setFont(font);
+        
+        // If you ask for a height of size 40, you may well get a font of size 48
+        // (I did on my Ubuntu system).  So we compensate if that happens by
+        // scaling down our request to one that we expect should get the right size.
+        // We don't loop because it may not converge.
+        if (g.getFontMetrics().getHeight() != size) {
+            font = g.getFont().deriveFont((float)size * (float)size / (float)g.getFontMetrics().getHeight());
+            g.setFont(font);
+        }
+        
+        Rectangle2D[] bounds = new Rectangle2D[lines.length];
+        int maxX = 1; int y = 0;
+        for (int i = 0; i < lines.length;i++) {
+            bounds[i] = g.getFontMetrics().getStringBounds(lines[i], g);
+            maxX = Math.max(maxX, (int)Math.ceil(bounds[i].getWidth()));
+            y += Math.ceil(bounds[i].getHeight());
+        }
+        y = Math.max(y, 1);
+        g.dispose();
+        image = GraphicsUtilities.createCompatibleTranslucentImage(maxX, y);
+        g = (Graphics2D)image.getGraphics();
+        g.setFont(font);
+        g.setColor(background);
+        g.fillRect(0, 0, image.getWidth(), image.getHeight());
+        g.setColor(foreground);
+        y = 0;
+        for (int i = 0; i < lines.length;i++) {
+            g.drawString(lines[i], ((maxX - (int)bounds[i].getWidth()) / 2) - (int)bounds[i].getX(), y - (int)bounds[i].getY());
+            y += Math.ceil(bounds[i].getHeight());
+        }
+        g.dispose();
     }
 
   
