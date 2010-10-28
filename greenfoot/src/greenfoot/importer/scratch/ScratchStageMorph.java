@@ -73,12 +73,9 @@ public class ScratchStageMorph extends ScriptableScratchMorph
         }
         
         if (!classes.isEmpty()) {
-            acc.append("setPaintOrder(");
-            boolean first = true;
+            acc.append("setPaintOrder(Bubble.class");
             for (String cls : classes) {
-                if (!first) acc.append(", ");
-                first = false;
-                acc.append(cls).append(".class");
+                acc.append(", ").append(cls).append(".class");
             }
             acc.append(");\n");
         }

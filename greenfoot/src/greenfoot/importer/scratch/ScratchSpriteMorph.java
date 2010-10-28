@@ -24,8 +24,6 @@ package greenfoot.importer.scratch;
 import java.math.BigDecimal;
 import java.util.List;
 
-import bluej.utility.Debug;
-
 /**
  * Mirrors the Scratch ScratchSpriteMorph class, which is the equivalent of an actor.
  * @author neil

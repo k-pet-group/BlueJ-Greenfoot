@@ -64,7 +64,9 @@ public abstract class ScriptableScratchMorph extends Morph
     public String getObjNameJava()
     {
         if (mungedName == null) {
+            Debug.message("Munging: " + getObjName());
             mungedName = ScratchImport.mungeUnique(getObjName());
+            Debug.message("Munged to: " + mungedName);
         }
         return mungedName;
     }
@@ -173,7 +175,7 @@ public abstract class ScriptableScratchMorph extends Morph
         
         addHelpers(acc);
 
-        codeForScripts(getBlocks(), acc);
+        codeForScripts(getBlocks(), acc, new LoopVarIterator());
         acc.append("}\n");
         
         javaFile = new File(destDir, className + ".java");
@@ -196,7 +198,7 @@ public abstract class ScriptableScratchMorph extends Morph
     {
     }
 
-    private void codeForBlock(ScratchObject block, StringBuilder decl, StringBuilder method)
+    private void codeForBlock(ScratchObject block, StringBuilder decl, StringBuilder method, LoopVarIterator loopVars)
     {
         // Each block is an array of entries.  For example, if you have
         // a repeat block, that will be an array of three things:
@@ -205,8 +207,9 @@ public abstract class ScriptableScratchMorph extends Morph
         ScratchObject[] blockContents = (ScratchObject[])block.getValue();
         
         if ("doRepeat".equals(blockContents[0].getValue())) {
-            method.append("for (int i = 0; i < ").append(blockContents[1].getValue()).append(";i++)\n{\n");
-            codeForBlock(blockContents[2], decl, method);
+            String var = loopVars.next();
+            method.append("for (int " + var + " = 0; " + var + " < ").append(blockContents[1].getValue()).append(";" + var + "++)\n{\n");
+            codeForBlock(blockContents[2], decl, method, new LoopVarIterator(loopVars));
             method.append("}\n");
         }
         else if ("doPlaySoundAndWait".equals(blockContents[0].getValue())) {
@@ -232,6 +235,12 @@ public abstract class ScriptableScratchMorph extends Morph
                       .append(new BigDecimal(255).subtract(((BigDecimal)blockContents[2].getValue()).multiply(new BigDecimal(255.0 / 100.0))).intValue())
                       .append(");\n");
             }
+        }
+        else if ("hide".equals(blockContents[0].getValue())) {
+            method.append("getImage().setTransparency(0);\n");
+        }
+        else if ("show".equals(blockContents[0].getValue())) {
+            method.append("getImage().setTransparency(255);\n");
         }
         else if ("lookLike:".equals(blockContents[0].getValue())) {
             if (blockContents[1].getValue() instanceof String) {
@@ -275,6 +284,17 @@ public abstract class ScriptableScratchMorph extends Morph
                 method.append("(Greenfoot.randomNumber(").append(to - from).append(") + ").append(from).append(")");
             }
         }
+        else if ("say:duration:elapsed:from:".equals(blockContents[0].getValue())) {
+            if (blockContents.length >= 3) {
+                method.append("{\nBubble bubble = new Bubble(\"")
+                      .append((String)blockContents[1].getValue())
+                      .append("\");\n");
+                method.append("getWorld().addObject(bubble, getX(), getY());");
+                method.append("getWorld().repaint();\n");
+                codeForBlock(new ScratchObjectArray(new ScratchObject[] {new ScratchPrimitive("wait:elapsed:from:"), blockContents[2]}), decl, method, loopVars);
+                method.append("getWorld().removeObject(bubble);\n}\n");
+            }
+        }
         else if ("gotoX:y:".equals(blockContents[0].getValue())) {
             method.append("setLocation((getWorld().getWidth() / 2) + ")
                   .append(((BigDecimal)blockContents[1].getValue()).intValue())
@@ -299,14 +319,16 @@ public abstract class ScriptableScratchMorph extends Morph
             method.append("getWorld().repaint();\n");
         }
         else if ("wait:elapsed:from:".equals(blockContents[0].getValue())) {
-            BigDecimal seconds = (BigDecimal) blockContents[1].getValue();
-            method.append("try {\n");
-            method.append("Thread.sleep(").append(seconds.scaleByPowerOfTen(3).intValue()).append(");\n");
-            method.append("} catch (InterruptedException e) { }");
+            if (blockContents[1].getValue() instanceof BigDecimal) {
+                BigDecimal seconds = (BigDecimal) blockContents[1].getValue();
+                method.append("try {\n");
+                method.append("Thread.sleep(").append(seconds.scaleByPowerOfTen(3).intValue()).append(");\n");
+                method.append("} catch (InterruptedException e) { }");
+            }
         }
         else if (blockContents[0] instanceof ScratchObjectArray) {
             for (ScratchObject blockContent : blockContents) {
-                codeForBlock(blockContent, decl, method);
+                codeForBlock(blockContent, decl, method, loopVars);
             }
         }
         else {
@@ -328,7 +350,7 @@ public abstract class ScriptableScratchMorph extends Morph
         return -1;
     }
 
-    private void codeForScripts(ScratchObjectArray scripts, StringBuilder acc)
+    private void codeForScripts(ScratchObjectArray scripts, StringBuilder acc, LoopVarIterator loopVars)
     {
         StringBuilder decl = new StringBuilder();
         StringBuilder method = new StringBuilder();
@@ -357,7 +379,7 @@ public abstract class ScriptableScratchMorph extends Morph
                     method.append("if (Greenfoot.mouseClicked(this)) {");
                     //TODO actually this should set a boolean indicating we've started and should run in future
                     for (ScratchObject block : Arrays.copyOfRange(blocks, 1, blocks.length)) {
-                        codeForBlock(block, decl, method);
+                        codeForBlock(block, decl, method, loopVars);
                     }
                     
                     method.append("}");
@@ -371,14 +393,14 @@ public abstract class ScriptableScratchMorph extends Morph
                     ScratchObject[] subsequentBlocks = Arrays.copyOfRange(blocks, 1, blocks.length);
                     
                     if (subsequentBlocks.length == 1 && isLoop(subsequentBlocks[0])) {
-                        codeForBlock(subsequentBlocks[0], decl, method);
+                        codeForBlock(subsequentBlocks[0], decl, method, loopVars);
                     } else {
                         
                         int i;
                         for (i = 0; i < subsequentBlocks.length;i++) {
                             ScratchObject[] blockContents = (ScratchObject[]) subsequentBlocks[i].getValue();
                             if (!isLoop(blockContents[0])) {
-                                codeForBlock(subsequentBlocks[i], decl, firstTimeCode);
+                                codeForBlock(subsequentBlocks[i], decl, firstTimeCode, loopVars);
                             } else {
                                 break;
                             }
@@ -389,7 +411,7 @@ public abstract class ScriptableScratchMorph extends Morph
                             //Must be a loop:
                             if ("doForever".equals(blockContents[0].getValue())) {
                                 //Just do it each time in the act method:
-                                codeForBlock(blockContents[1], decl, method);
+                                codeForBlock(blockContents[1], decl, method, loopVars);
                             } else if ("doRepeat".equals(blockContents[0].getValue())) {
                                 decl.append("private int loopCount = 0;\n");
                                 
@@ -397,7 +419,7 @@ public abstract class ScriptableScratchMorph extends Morph
                                       .append(blockContents[1].getValue())
                                       .append(") {\n");
                                 method.append("loopCount += 1;\n");
-                                codeForBlock(blockContents[2], decl, method);
+                                codeForBlock(blockContents[2], decl, method, loopVars);
                                 method.append("}\n");
                             }
                         }
@@ -415,7 +437,7 @@ public abstract class ScriptableScratchMorph extends Morph
                     
                     ScratchObject[] subsequentBlocks = Arrays.copyOfRange(blocks, 1, blocks.length);
                     for (ScratchObject block : subsequentBlocks) {
-                        codeForBlock(block, decl, method);
+                        codeForBlock(block, decl, method, loopVars);
                     }
                     method.append("}\n");
                 }
@@ -451,5 +473,23 @@ public abstract class ScriptableScratchMorph extends Morph
         return new ScratchPoint(new BigDecimal(1), new BigDecimal(1));
     }
     
-    
+    private static class LoopVarIterator
+    {
+        int i = 0;
+        
+        public LoopVarIterator() {}
+        public LoopVarIterator(LoopVarIterator it) { i = it.i; }
+
+        public String next()
+        {
+            switch (i++)
+            {
+            case 0: return "i";
+            case 1: return "j";
+            case 2: return "k";
+            default: return "i" + (i - 2);
+            }
+        }
+
+    }
 }

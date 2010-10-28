@@ -27,6 +27,7 @@ import greenfoot.core.GreenfootMain;
 import java.awt.Color;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
@@ -309,6 +310,15 @@ public class ScratchImport
                 o.saveInto(dest, props, null);
             }
             
+            File javaFile = new File(dest, "Bubble.java");
+            FileWriter javaFileWriter = new FileWriter(javaFile);
+            javaFileWriter.write("import greenfoot.*;\nimport java.awt.Color;\npublic class Bubble extends Actor \n{\n");
+            javaFileWriter.write("public Bubble(String s)\n{\nsetImage(new GreenfootImage(s, 15, Color.BLACK, Color.WHITE));\n}\n");
+            javaFileWriter.write("public void act()\n{\n}\n");
+            javaFileWriter.write("}\n");
+            javaFileWriter.close();
+            
+            
             PackageFile packageFile = PackageFileFactory.getPackageFile(dest);
             packageFile.create();
             packageFile.save(props);
@@ -336,16 +346,16 @@ public class ScratchImport
             i++;
         }
         
+        existingNames = new HashSet<String>();
+        existingNames.add("World");
+        existingNames.add("Actor");
+        
         importScratch(scratchFile, dest);
         
         return dest;
     }
     
-    private static Set<String> existingNames = new HashSet<String>();
-    {
-        existingNames.add("World");
-        existingNames.add("Actor");
-    }
+    private static Set<String> existingNames;
     
     // Munges a Scratch name into a valid Java class name, also
     // avoiding naming anything World or Actor, and taking care to avoid duplicates
@@ -366,14 +376,17 @@ public class ScratchImport
             }
         }
         String initial = r.toString();
+        String result;
         if (initial.length() == 0 || existingNames.contains(initial)) {
             int i = 0;
             while (existingNames.contains(initial + i)) {
                 i += 1;
             }
-            return initial + i;
+            result = initial + i;
         } else {
-            return initial;
+            result = initial;
         }
+        existingNames.add(result);
+        return result;
     }
 }
