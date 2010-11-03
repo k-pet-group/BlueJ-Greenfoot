@@ -704,6 +704,32 @@ public class CompletionTest extends TestCase
         assertNotNull(suggests);
     }
     
+    public void testRegression312() throws Exception
+    {
+        String aClassSrc =
+            "class A extends javax.swing.JFrame {\n" +   // 0 - 37
+            "  public void g() {\n" +   // 37 - 57 
+            "  }\n" +                   
+            "}\n";
+        
+        PlainDocument doc = new PlainDocument();
+        doc.insertString(0, aClassSrc, null);
+        ParsedCUNode aNode = cuForSource(aClassSrc, "");
+        resolver.addCompilationUnit("", aNode);
+        
+        CodeSuggestions suggests = aNode.getExpressionType(57, doc);
+        assertNotNull(suggests);
+        
+        AssistContent[] acontent = ParseUtils.getPossibleCompletions(suggests, "", new JavadocResolver() {
+            @Override
+            public void getJavadoc(MethodReflective method)
+            {
+            }
+        });
+        
+        assertNotNull(acontent);
+    }
+    
     // Yet to do:
     
     // Test that multiple fields defined in a single statement are handled correctly,
