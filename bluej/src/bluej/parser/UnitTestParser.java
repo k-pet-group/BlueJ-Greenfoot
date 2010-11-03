@@ -123,7 +123,7 @@ public class UnitTestParser extends JavaParser
     }
     
     @Override
-    protected void gotTypeDef(int tdType)
+    protected void gotTypeDef(LocatableToken firstToken, int tdType)
     {
         classLevel++;
         if (haveClassInfo && isPublic) {

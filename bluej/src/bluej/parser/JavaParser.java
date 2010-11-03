@@ -588,9 +588,10 @@ public class JavaParser
      */
     public final void parseTypeDef()
     {
+        LocatableToken firstToken = tokenStream.LA(1);
         int tdType = parseTypeDefBegin();
         if (tdType != TYPEDEF_EPIC_FAIL) {
-            gotTypeDef(tdType);
+            gotTypeDef(firstToken, tdType);
         }
         modifiersConsumed();
         if (tdType == TYPEDEF_EPIC_FAIL) {
@@ -826,7 +827,7 @@ public class JavaParser
      * Called when the current element is recognised as a type definition.
      * @param tdType  one of TYPEDEF_CLASS, _INTERFACE, _ANNOTATION or _ENUM
      */
-    protected void gotTypeDef(int tdType) { }
+    protected void gotTypeDef(LocatableToken firstToken, int tdType) { }
 
     /** Called when we have the identifier token for a class/interface/enum definition */
     protected void gotTypeDefName(LocatableToken nameToken) { }

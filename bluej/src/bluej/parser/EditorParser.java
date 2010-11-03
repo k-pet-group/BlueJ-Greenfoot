@@ -406,7 +406,7 @@ public class EditorParser extends JavaParser
     }
     
     @Override
-    protected void gotTypeDef(int tdType)
+    protected void gotTypeDef(LocatableToken firstToken, int tdType)
     {
         Reflective ref = currentQuerySource();
         String prefix;
@@ -419,13 +419,13 @@ public class EditorParser extends JavaParser
         
         JavaParentNode pnode = new ParsedTypeNode(scopeStack.peek(), tdType, prefix, currentModifiers);
         int curOffset = getTopNodeOffset();
-        LocatableToken hidden = pcuStmtBegin.getHiddenBefore();
+        LocatableToken hidden = firstToken.getHiddenBefore();
         if (hidden != null && hidden.getType() == JavaTokenTypes.ML_COMMENT) {
-            pcuStmtBegin = hidden;
+            firstToken = hidden;
             pnode.setCommentAttached(true);
             // TODO: make certain hidden token not already consumed by prior sibling node
         }
-        int insPos = lineColToPosition(pcuStmtBegin.getLine(), pcuStmtBegin.getColumn());
+        int insPos = lineColToPosition(firstToken.getLine(), firstToken.getColumn());
         beginNode(insPos);
         scopeStack.peek().insertNode(pnode, insPos - curOffset, 0);
         scopeStack.push(pnode);

@@ -549,11 +549,12 @@ public class InfoParser extends EditorParser
         }
     }
 
-    protected void gotTypeDef(int tdType)
+    @Override
+    protected void gotTypeDef(LocatableToken firstToken, int tdType)
     {
         isPublic = modPublic;
         isAbstract = modAbstract;
-        super.gotTypeDef(tdType);
+        super.gotTypeDef(firstToken, tdType);
         lastTdType = tdType;
     }
 
