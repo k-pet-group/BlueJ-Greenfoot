@@ -307,6 +307,14 @@ public class JavaReflective extends Reflective
         }
     }
     
+    /**
+     * Store, into the specified map, a mapping from the enclosing method/class/constructor
+     * type parameter names to the corresponding type parameters. Existing entries in the
+     * map are not overwritten.
+     * 
+     * @param c        The type, whose enclosing entities type parameters are required
+     * @param tparMap  The map, into which the mappings from name to type parameter are to be stored
+     */
     private void getTparMapping(Class<?> c, Map<String,GenTypeDeclTpar> tparMap)
     {
         JavaUtils ju = JavaUtils.getJavaUtils();
@@ -317,15 +325,12 @@ public class JavaReflective extends Reflective
         Constructor<?> cc = c.getEnclosingConstructor();
         c = c.getEnclosingClass();
         
-        while (c != null || m != null || cc != null) {
-            if (c != null) {
-                tpars = ju.getTypeParams(c);
-                storeTparMappings(tpars, tparMap);
-                c = c.getEnclosingClass();
-                m = c.getEnclosingMethod();
-                cc = c.getEnclosingConstructor();
-            }
-            else if (m != null) {
+        // Simple experimentation agrees with the documentation: the enclosing method/constructor
+        // cannot be non-null if the enclosing class is null (because the method/constructor must
+        // be enclosed by the enclosing class).
+        
+        while (c != null) {
+            if (m != null) {
                 tpars = ju.getTypeParams(m);
                 storeTparMappings(tpars, tparMap);
                 if (! Modifier.isStatic(m.getModifiers())) {
@@ -339,9 +344,26 @@ public class JavaReflective extends Reflective
                 c = cc.getDeclaringClass();
                 cc = null;
             }
+            
+            if (c != null) {
+                tpars = ju.getTypeParams(c);
+                storeTparMappings(tpars, tparMap);
+                c = c.getEnclosingClass();
+                if (c != null) {
+                    m = c.getEnclosingMethod();
+                    cc = c.getEnclosingConstructor();
+                }
+            }
         }
     }
     
+    /**
+     * Store a set of mappings from type parameter names to the type parameter (GenTypeDeclTpar).
+     * Existing mappings are not overwritten.
+     * 
+     * @param tpars  The set of type parameters to create mappings for
+     * @param map    The map of name to type parameter
+     */
     private void storeTparMappings(List<GenTypeDeclTpar> tpars, Map<String, ? super GenTypeDeclTpar> map)
     {
         for (GenTypeDeclTpar tpar : tpars) {
