@@ -607,6 +607,8 @@ public abstract class Inspector extends JFrame
                // mSetWindowShape = awtUtilitiesClass.getMethod("setWindowShape", Window.class, Shape.class);
                // mSetWindowOpacity = awtUtilitiesClass.getMethod("setWindowOpacity", Window.class, float.class);
                mSetWindowOpaque = awtUtilitiesClass.getMethod("setWindowOpaque", Window.class, boolean.class);
+           } catch (ClassNotFoundException cnfe) {
+               Debug.log("Sun AWT translucency classes not available (ClassNotFoundException).");
            } catch (Exception ex) {
                Debug.reportError("Couldn't support AWTUtilities", ex);
            }
