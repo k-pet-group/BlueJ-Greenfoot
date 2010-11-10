@@ -106,5 +106,5 @@ target7.type=ClassTarget
 target7.width=90
 target7.x=190
 target7.y=130
-version=2.1.0
+version=2.2.0
 world.lastInstantiated=BalloonWorld
