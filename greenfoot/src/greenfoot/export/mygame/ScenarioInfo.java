@@ -123,8 +123,9 @@ public class ScenarioInfo
     {
         return hasSource;
     }
+    
     /**
-     * Stores the scenario info locally.
+     * Stores the scenario information into the specified project properties.
      */
     public void store(ProjectProperties properties)
     {
@@ -166,7 +167,7 @@ public class ScenarioInfo
     public boolean load(ProjectProperties properties)
     {
         //if it is a saved scenario it should have at least a title set
-        if (properties.getString(PUBLISH_TITLE)==null){
+        if (properties.getString(PUBLISH_TITLE) == null) {
             return false;
         }
         setTitle(properties.getString(PUBLISH_TITLE));

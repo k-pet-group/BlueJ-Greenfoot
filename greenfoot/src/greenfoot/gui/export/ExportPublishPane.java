@@ -55,7 +55,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -578,6 +577,10 @@ public class ExportPublishPane extends ExportPane implements ChangeListener
         checkForExistingScenario();
         if (firstActivation) {
             firstActivation = false;
+            
+            setUserName(Config.getPropString("publish.username", ""));
+            loadStoredScenarioInfo();
+            
             commonTagsLoader = new SwingWorker() {
                 @SuppressWarnings("unchecked")
                 @Override
@@ -620,13 +623,6 @@ public class ExportPublishPane extends ExportPane implements ChangeListener
                 }
             };
             commonTagsLoader.start();
-            SwingUtilities.invokeLater(new Thread() {
-                public void run()
-                {
-                    setUserName(Config.getPropString("publish.username", ""));
-                    loadStoredScenarioInfo();
-                }
-            });
         }
     }
 
