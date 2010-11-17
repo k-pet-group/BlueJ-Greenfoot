@@ -20,6 +20,8 @@ PART I - BUILDING BLUEJ
      
  3. Make sure you have a reasonably clean project folder as almost everything
     will be included in the source bundle.
+    
+    Do a clean to ensure a clean build:    ant clean
     (Compile and) build the release with:  ant dist
     (make sure the JDK version used for the build is the lowest
      compatible JDK for BlueJ)

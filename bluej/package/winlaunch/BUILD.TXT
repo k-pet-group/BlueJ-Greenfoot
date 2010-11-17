@@ -60,7 +60,10 @@ Example settings to look for:
             VALUE "ProductName", "Greenfoot"
             VALUE "ProductVersion", "1.5.1"
 
-
+*** Also *** edit the appropriate manifest file - either bjmanifest.xml or
+gfmanifest.xml - and update the version there. It should be a four digit
+version, eg "3.0.4.0" for version 3.0.4, the last digit can be used as a
+build ID or just left at 0.
 
 Step 3.
 -------
