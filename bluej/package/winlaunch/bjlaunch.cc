@@ -400,53 +400,56 @@ bool launchVM(string jdkLocation)
 	}
 	
 	jclass cls = (*jniEnv)->FindClass(jniEnv, "bluej/Boot");
+	jmethodID mid;
 	if (cls == NULL) {
 		MessageBox (0, TEXT("Couldn't find bluej.Boot class"), TEXT("BlueJ launcher"), MB_ICONEXCLAMATION | MB_OK);
 		goto destroyvm;
 	}
 	
-	jmethodID mid = (*jniEnv)->GetStaticMethodID(jniEnv, cls, "main", "([Ljava/lang/String;)V");
+	mid = (*jniEnv)->GetStaticMethodID(jniEnv, cls, "main", "([Ljava/lang/String;)V");
 	if (mid == NULL) {
 		MessageBox (0, TEXT("Couldn't find main() method in bluej.Boot class"), TEXT("BlueJ launcher"), MB_ICONEXCLAMATION | MB_OK);
 		goto destroyvm;
 	}
 	
-	// Create the String[] argument for main
-	jclass stringClass = (*jniEnv)->FindClass(jniEnv, "java/lang/String");
-    jobjectArray args = (*jniEnv)->NewObjectArray(jniEnv, bjargs.size(), stringClass, NULL);
-	
 	{
-		int j = 0;
-		for (std::list<LPCTSTR>::iterator i = bjargs.begin(); i != bjargs.end();) {
-			jstring argString = (*jniEnv)->NewString(jniEnv, (const jchar *) *i, lstrlen(*i));
-			(*jniEnv)->SetObjectArrayElement(jniEnv, args, j, argString);
-			++j; ++i;
+		// Create the String[] argument for main
+		jclass stringClass = (*jniEnv)->FindClass(jniEnv, "java/lang/String");
+	    jobjectArray args = (*jniEnv)->NewObjectArray(jniEnv, bjargs.size(), stringClass, NULL);
+		
+		{
+			int j = 0;
+			for (std::list<LPCTSTR>::iterator i = bjargs.begin(); i != bjargs.end();) {
+				jstring argString = (*jniEnv)->NewString(jniEnv, (const jchar *) *i, lstrlen(*i));
+				(*jniEnv)->SetObjectArrayElement(jniEnv, args, j, argString);
+				++j; ++i;
+			}
 		}
+		
+		
+		// Must save the selected JDK first. Once we've let Java take over there doesn't
+		// seem to be any guarentee that further code in this program will be executed.
+		saveSelectedJdk(jdkLocation.c_str());
+		(*jniEnv)->CallStaticVoidMethod(jniEnv, cls, mid, args);
+		
+		if ((*jniEnv)->ExceptionOccurred(jniEnv)) {
+			// if an exception occurs, output to stderr (which is usually invisible, oh well...)
+	         (*jniEnv)->ExceptionDescribe(jniEnv);
+	    }
+	    
+	    // Run a windows message loop. This is a simple way to sleep while BlueJ runs.
+		MSG  msg;
+	    int status;
+	    while ((status = GetMessage (& msg, 0, 0, 0)) != 0)
+	    {
+	        if (status == -1) {
+	            return true; // shouldn't happen anyway
+			}
+	
+			TranslateMessage ( & msg );
+			DispatchMessage ( & msg );
+	    }
 	}
-	
-	
-	// Must save the selected JDK first. Once we've let Java take over there doesn't
-	// seem to be any guarentee that further code in this program will be executed.
-	saveSelectedJdk(jdkLocation.c_str());
-	(*jniEnv)->CallStaticVoidMethod(jniEnv, cls, mid, args);
-	
-	if ((*jniEnv)->ExceptionOccurred(jniEnv)) {
-		// if an exception occurs, output to stderr (which is usually invisible, oh well...)
-         (*jniEnv)->ExceptionDescribe(jniEnv);
-    }
-    
-    // Run a windows message loop. This is a simple way to sleep while BlueJ runs.
-	MSG  msg;
-    int status;
-    while ((status = GetMessage (& msg, 0, 0, 0)) != 0)
-    {
-        if (status == -1) {
-            return true; // shouldn't happen anyway
-		}
-
-		TranslateMessage ( & msg );
-		DispatchMessage ( & msg );
-    }
 	
 	destroyvm:
 	(*javaVM)->DestroyJavaVM(javaVM);

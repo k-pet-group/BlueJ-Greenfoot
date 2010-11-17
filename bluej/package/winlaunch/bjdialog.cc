@@ -137,112 +137,113 @@ INT_PTR CALLBACK MainDialogProc (HWND hwnd,
 	case WM_INITDIALOG:
 		initDialog(hwnd);
 		return TRUE;
-	case WM_COMMAND:
-		// control->Command(hwnd, LOWORD (wParam), HIWORD (wParam));
-		WORD code = HIWORD(wParam);
-		WORD ident = LOWORD(wParam);
-		HWND control = (HWND) lParam;
-		
-		if (ident == ID_JDKLISTBOX) {
-			if (code == LBN_SELCHANGE) {
-				// Enable launch button if JDK selected
-				LRESULT selIndex = SendMessage(control, LB_GETCURSEL, 0, 0);
-				if (selIndex != LB_ERR) {
-					EnableWindow(GetDlgItem(hwnd, ID_LAUNCHBUTTON), TRUE);
-				}
-				else {
-					EnableWindow(GetDlgItem(hwnd, ID_LAUNCHBUTTON), FALSE);
-				}
-				return 0;
-			}
-		}
-		
-		else if (ident == ID_LAUNCHBUTTON) {
-			if (code == BN_CLICKED) {
-				// Launch button clicked
-				HWND jdkListboxHwnd = GetDlgItem(hwnd, ID_JDKLISTBOX);
-				LRESULT selIndex = SendMessage(jdkListboxHwnd, LB_GETCURSEL, 0, 0);
-				LRESULT textLen = SendMessage(jdkListboxHwnd, LB_GETTEXTLEN, selIndex, 0);
-				// textLen doesn't include null terminator
-				TCHAR *selectedJdk = new TCHAR[textLen + 1];
-				SendDlgItemMessage(hwnd, ID_JDKLISTBOX, LB_GETTEXT, selIndex, (LPARAM) selectedJdk);
-				
-				// Cause the message loop to launch the VM
-				PostMessage(hwnd, MSG_LAUNCHVM, 0, (LPARAM) selectedJdk);
-				
-				// Don't destroy the window here - that flushes the message loop
-				// or causes us to exit before the VM is launched.
-				//DestroyWindow(hwnd);
-				
-				return 0;
-			}
-		}
-		
-		else if (ident == ID_BROWSEBUTTON) {
-			if (code == BN_CLICKED) {
-				// Browse button clicked
-				
-				LPTSTR filePath = new TCHAR[2048];
-				filePath[0] = 0;
-				
-				OPENFILENAME lpofStruc;
-				ZeroMemory(&lpofStruc, sizeof(lpofStruc));
-				lpofStruc.lStructSize = sizeof(lpofStruc);
-				lpofStruc.hwndOwner = NULL;
-				lpofStruc.lpstrFilter = TEXT("Java VM executable files\0java.exe;javaw.exe\0\0");
-				lpofStruc.lpstrFile = filePath;
-				lpofStruc.nMaxFile = 2048;
-				lpofStruc.lpstrTitle = TEXT("Choose the java executable (java.exe)");
-				lpofStruc.Flags = /* OFN_DONTADDTORECENT | */ OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_EXPLORER;
-				
-				EnableWindow(hwnd, FALSE);
-				BOOL res = GetOpenFileName(&lpofStruc);
-				EnableWindow(hwnd, TRUE);
-				SetActiveWindow(hwnd);
-				
-				if (res) {
-					string exeFile = filePath;
-					// TODO launch it!
-					string exePath = extractFilePath(exeFile);
-					string exeDir = extractFileName(exePath);
-					
-					bool launched = false;
-					
-					if (exeDir == TEXT("bin")) {
-						string exeBinPath = extractFilePath(exePath);
-						if (extractFileName(exeBinPath) == TEXT("jre")) {
-							// It's a jre/bin, possibly inside a JDK
-							string possibleJdKPath = extractFilePath(exeBinPath);
-							if (testJdkPath(possibleJdKPath, NULL)) {
-								TCHAR *selectedJdk = new TCHAR[possibleJdKPath.length() + 1];
-								lstrcpy(selectedJdk, possibleJdKPath.c_str());
-								PostMessage(hwnd, MSG_LAUNCHVM, 0, (LPARAM) selectedJdk);
-								launched = true;
-							}
-						}
-						
-						if (! launched) {
-							string reason;
-							if (testJdkPath(exeBinPath, &reason)) {
-								TCHAR *selectedJdk = new TCHAR[exeBinPath.length() + 1];
-								lstrcpy(selectedJdk, exeBinPath.c_str());
-								PostMessage(hwnd, MSG_LAUNCHVM, 0, (LPARAM) selectedJdk);
-							}
-							else {
-								MessageBox(0, reason.c_str(), TEXT(APPNAME), MB_ICONERROR | MB_OK);
-							}
-						}
+	case WM_COMMAND: 
+		{
+			// control->Command(hwnd, LOWORD (wParam), HIWORD (wParam));
+			WORD code = HIWORD(wParam);
+			WORD ident = LOWORD(wParam);
+			HWND control = (HWND) lParam;
+			
+			if (ident == ID_JDKLISTBOX) {
+				if (code == LBN_SELCHANGE) {
+					// Enable launch button if JDK selected
+					LRESULT selIndex = SendMessage(control, LB_GETCURSEL, 0, 0);
+					if (selIndex != LB_ERR) {
+						EnableWindow(GetDlgItem(hwnd, ID_LAUNCHBUTTON), TRUE);
 					}
 					else {
-						MessageBox(0, TEXT("The chosen file does not appear to be inside a Java JDK.\n"),
-								TEXT(APPNAME), MB_ICONERROR | MB_OK);
+						EnableWindow(GetDlgItem(hwnd, ID_LAUNCHBUTTON), FALSE);
 					}
+					return 0;
 				}
-				
-				delete [] filePath;
 			}
-		}
-		
+			
+			else if (ident == ID_LAUNCHBUTTON) {
+				if (code == BN_CLICKED) {
+					// Launch button clicked
+					HWND jdkListboxHwnd = GetDlgItem(hwnd, ID_JDKLISTBOX);
+					LRESULT selIndex = SendMessage(jdkListboxHwnd, LB_GETCURSEL, 0, 0);
+					LRESULT textLen = SendMessage(jdkListboxHwnd, LB_GETTEXTLEN, selIndex, 0);
+					// textLen doesn't include null terminator
+					TCHAR *selectedJdk = new TCHAR[textLen + 1];
+					SendDlgItemMessage(hwnd, ID_JDKLISTBOX, LB_GETTEXT, selIndex, (LPARAM) selectedJdk);
+					
+					// Cause the message loop to launch the VM
+					PostMessage(hwnd, MSG_LAUNCHVM, 0, (LPARAM) selectedJdk);
+					
+					// Don't destroy the window here - that flushes the message loop
+					// or causes us to exit before the VM is launched.
+					//DestroyWindow(hwnd);
+					
+					return 0;
+				}
+			}
+			
+			else if (ident == ID_BROWSEBUTTON) {
+				if (code == BN_CLICKED) {
+					// Browse button clicked
+					
+					LPTSTR filePath = new TCHAR[2048];
+					filePath[0] = 0;
+					
+					OPENFILENAME lpofStruc;
+					ZeroMemory(&lpofStruc, sizeof(lpofStruc));
+					lpofStruc.lStructSize = sizeof(lpofStruc);
+					lpofStruc.hwndOwner = NULL;
+					lpofStruc.lpstrFilter = TEXT("Java VM executable files\0java.exe;javaw.exe\0\0");
+					lpofStruc.lpstrFile = filePath;
+					lpofStruc.nMaxFile = 2048;
+					lpofStruc.lpstrTitle = TEXT("Choose the java executable (java.exe)");
+					lpofStruc.Flags = /* OFN_DONTADDTORECENT | */ OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_EXPLORER;
+					
+					EnableWindow(hwnd, FALSE);
+					BOOL res = GetOpenFileName(&lpofStruc);
+					EnableWindow(hwnd, TRUE);
+					SetActiveWindow(hwnd);
+					
+					if (res) {
+						string exeFile = filePath;
+						// TODO launch it!
+						string exePath = extractFilePath(exeFile);
+						string exeDir = extractFileName(exePath);
+						
+						bool launched = false;
+						
+						if (exeDir == TEXT("bin")) {
+							string exeBinPath = extractFilePath(exePath);
+							if (extractFileName(exeBinPath) == TEXT("jre")) {
+								// It's a jre/bin, possibly inside a JDK
+								string possibleJdKPath = extractFilePath(exeBinPath);
+								if (testJdkPath(possibleJdKPath, NULL)) {
+									TCHAR *selectedJdk = new TCHAR[possibleJdKPath.length() + 1];
+									lstrcpy(selectedJdk, possibleJdKPath.c_str());
+									PostMessage(hwnd, MSG_LAUNCHVM, 0, (LPARAM) selectedJdk);
+									launched = true;
+								}
+							}
+							
+							if (! launched) {
+								string reason;
+								if (testJdkPath(exeBinPath, &reason)) {
+									TCHAR *selectedJdk = new TCHAR[exeBinPath.length() + 1];
+									lstrcpy(selectedJdk, exeBinPath.c_str());
+									PostMessage(hwnd, MSG_LAUNCHVM, 0, (LPARAM) selectedJdk);
+								}
+								else {
+									MessageBox(0, reason.c_str(), TEXT(APPNAME), MB_ICONERROR | MB_OK);
+								}
+							}
+						}
+						else {
+							MessageBox(0, TEXT("The chosen file does not appear to be inside a Java JDK.\n"),
+									TEXT(APPNAME), MB_ICONERROR | MB_OK);
+						}
+					}
+					
+					delete [] filePath;
+				}
+			}
+		}	
 		return TRUE;
 	case WM_DESTROY:
 		return 0;
