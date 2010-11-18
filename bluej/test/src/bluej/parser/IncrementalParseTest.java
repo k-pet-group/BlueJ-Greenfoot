@@ -648,5 +648,66 @@ public class IncrementalParseTest extends TestCase
         assertNotNull(tent);
         assertEquals("java.lang.Object", tent.getType().toString());
     }
+    
+    /**
+     * Test for bug #317 regression.
+     */
+    public void testRegression317() throws Exception
+    {
+        MoeSyntaxDocument aDoc = docForSource("", "");
+        
+        aDoc.insertString(0, "class ", null);
+        aDoc.getParser(); // empty reparse queue
+        aDoc.insertString(6, "A\n", null);
+        aDoc.getParser(); // empty reparse queue
+        aDoc.insertString(8, "{\n\n}\n", null);
+        
+        ParsedCUNode aNode = aDoc.getParser();
+        NodeAndPosition<ParsedNode> nap = aNode.findNodeAt(0, 0);
 
+        assertNotNull(nap);
+        assertEquals(0, nap.getPosition());
+        assertEquals(12, nap.getSize());
+        
+        // Insert a method
+        aDoc.insertString(10, "    public void x() { }", null);
+        
+        aNode = aDoc.getParser();
+        nap = aNode.findNodeAt(0, 0);
+        
+        assertNotNull(nap);
+        assertEquals(0, nap.getPosition());
+        assertEquals(35, nap.getSize());
+        
+        nap = nap.getNode().findNodeAt(9, 0); // class inner
+        assertNotNull(nap);
+        assertEquals(9, nap.getPosition());
+        assertEquals(25, nap.getSize());
+        
+        nap = nap.getNode().findNodeAt(14, nap.getPosition()); // method
+        assertNotNull(nap);
+        assertEquals(14, nap.getPosition());
+        assertEquals(19, nap.getSize());
+        
+        
+        // Delete space before class '{'
+        aDoc.remove(7, 1);
+        
+        aNode = aDoc.getParser();
+        nap = aNode.findNodeAt(0, 0);
+
+        assertNotNull(nap);
+        assertEquals(0, nap.getPosition());
+        assertEquals(34, nap.getSize());
+        
+        nap = nap.getNode().findNodeAt(8, 0); // class inner
+        assertNotNull(nap);
+        assertEquals(8, nap.getPosition());
+        assertEquals(25, nap.getSize());
+        
+        nap = nap.getNode().findNodeAt(13, nap.getPosition()); // method
+        assertNotNull(nap);
+        assertEquals(13, nap.getPosition());
+        assertEquals(19, nap.getSize());
+    }
 }
