@@ -22,6 +22,7 @@
 package bluej.debugger.gentype;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A type for which we know the text representation, but not the structure. Ie.
@@ -32,7 +33,7 @@ import java.util.Map;
  * 
  * @author Davin McCall
  */
-public class TextType extends JavaType
+public class TextType extends GenTypeSolid
 {
     private String text;
     
@@ -160,7 +161,8 @@ public class TextType extends JavaType
     
     public GenTypeSolid getUpperBound()
     {
-        throw new UnsupportedOperationException();
+        // Maybe not correct, but good enough for our purposes.
+        return this;
     }
     
     @Override
@@ -179,5 +181,29 @@ public class TextType extends JavaType
     public boolean isWildcard()
     {
         throw new UnsupportedOperationException();
+    }
+    
+    @Override
+    public void erasedSuperTypes(Set<Reflective> s)
+    {
+        throw new UnsupportedOperationException();
+    }
+    
+    @Override
+    public GenTypeClass[] getReferenceSupertypes()
+    {
+        throw new UnsupportedOperationException();
+    }
+    
+    @Override
+    public boolean isInterface()
+    {
+        throw new UnsupportedOperationException();
+    }
+    
+    @Override
+    public String toString(NameTransform nt)
+    {
+        return text;
     }
 }

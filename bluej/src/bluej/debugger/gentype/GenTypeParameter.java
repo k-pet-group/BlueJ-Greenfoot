@@ -104,12 +104,12 @@ public abstract class GenTypeParameter
         // Calculate new upper bounds
         GenTypeSolid newUpper = null;
         GenTypeSolid otherUpper = IntersectionType.getIntersection(other.getUpperBounds());
-        if (otherUpper == null)
+        if (otherUpper == null) {
             newUpper = upperBound;
-        else if (upperBound == null)
-            newUpper = otherUpper;
-        else
+        }
+        else {
             newUpper = IntersectionType.getIntersection(new GenTypeSolid [] {otherUpper, upperBound});
+        }
         
         // Calculate new lower bounds
         GenTypeSolid newLower = null;
