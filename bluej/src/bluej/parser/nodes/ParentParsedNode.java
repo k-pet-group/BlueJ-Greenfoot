@@ -44,7 +44,7 @@ public abstract class ParentParsedNode extends ParsedNode
     }
             
     @Override
-    public int textInserted(Document document, int nodePos, int insPos,
+    public int textInserted(MoeSyntaxDocument document, int nodePos, int insPos,
             int length, NodeStructureListener listener)
     {
         // grow ourself:
@@ -60,15 +60,15 @@ public abstract class ParentParsedNode extends ParsedNode
             if (r == NODE_GREW || r == NODE_SHRUNK) {
                 newSize = child.getNode().getSize();
                 child = new NodeAndPosition<ParsedNode>(cnode, child.getPosition(), newSize);
-                childResized((MoeSyntaxDocument) document, nodePos, child);
+                childResized(document, nodePos, child);
                 //return reparseNode(document, nodePos, child.getPosition() + newSize, listener);
-                ((MoeSyntaxDocument) document).scheduleReparse(child.getPosition() + newSize, 0);
+                document.scheduleReparse(child.getPosition() + newSize, 0);
                 return ALL_OK;
             }
             else if (r == REMOVE_NODE) {
                 removeChild(child, listener);
                 //return reparseNode(document, nodePos, child.getPosition(), listener);
-                ((MoeSyntaxDocument) document).scheduleReparse(child.getPosition(), child.getSize());
+                document.scheduleReparse(child.getPosition(), child.getSize());
                 return ALL_OK;
             }
             return ALL_OK;
@@ -95,7 +95,7 @@ public abstract class ParentParsedNode extends ParsedNode
     }
     
     @Override
-    public int textRemoved(Document document, int nodePos, int delPos,
+    public int textRemoved(MoeSyntaxDocument document, int nodePos, int delPos,
             int length, NodeStructureListener listener)
     {
         // shrink ourself:
@@ -120,17 +120,15 @@ public abstract class ParentParsedNode extends ParsedNode
                 int r = child.getNode().textRemoved(document, child.getPosition(), delPos, length, listener);
                 if (r == REMOVE_NODE) {
                     removeChild(child, listener);
-                    ((MoeSyntaxDocument)document).scheduleReparse(child.getPosition(), child.getSize());
+                    document.scheduleReparse(child.getPosition(), child.getSize());
                 }
                 else if (r != ALL_OK) {
                     newSize = child.getNode().getSize();
                     if (newSize < child.getSize()) {
-                        ((MoeSyntaxDocument)document).scheduleReparse(child.getPosition() + newSize,
-                                child.getSize() - newSize);
+                        document.scheduleReparse(child.getPosition() + newSize, child.getSize() - newSize);
                     }
                     else {
-                        ((MoeSyntaxDocument)document).scheduleReparse(child.getPosition() + newSize,
-                                0);
+                        document.scheduleReparse(child.getPosition() + newSize, 0);
                     }
                 }
                 return ALL_OK;

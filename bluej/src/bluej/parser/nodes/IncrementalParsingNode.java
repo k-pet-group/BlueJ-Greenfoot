@@ -365,8 +365,10 @@ public abstract class IncrementalParsingNode extends JavaParentNode
                     
                     nextChild.slide(-slideAmount); // move, and insert text next
                     // There is some parsing to do in the child:
-                    int rr = nextChild.getNode().textInserted(document, nextChild.getPosition(),
-                            nextChild.getPosition(), slideAmount, listener);
+                    int rr = nextChild.getNode().textInserted((MoeSyntaxDocument) document,
+                            nextChild.getPosition(),
+                            nextChild.getPosition(),
+                            slideAmount, listener);
                     if (rr == ParsedNode.REMOVE_NODE) {
                         removeChild(nextChild, listener);
                     }
@@ -579,20 +581,27 @@ public abstract class IncrementalParsingNode extends JavaParentNode
     }
     
     @Override
-    public int textInserted(Document document, int nodePos, int insPos,
+    public int textInserted(MoeSyntaxDocument document, int nodePos, int insPos,
             int length, NodeStructureListener listener)
     {
         for (int i = 0; i < stateMarkers.length; i++) {
             if (stateMarkers[i] > (insPos - nodePos)
                     || (stateMarkers[i] == (insPos - nodePos) && !marksEnd[i])) {
                 stateMarkers[i] += length;
+                for (; i < stateMarkers.length; i++) {
+                    if (stateMarkers[i] >= 0) {
+                        stateMarkers[i] += length;
+                    }
+                }
+                break;
             }
         }
-        return super.textInserted(document, nodePos, insPos, length, listener);
+        int result = super.textInserted(document, nodePos, insPos, length, listener);
+        return result;
     }
     
     @Override
-    public int textRemoved(Document document, int nodePos, int delPos,
+    public int textRemoved(MoeSyntaxDocument document, int nodePos, int delPos,
             int length, NodeStructureListener listener)
     {
         for (int i = 0; i < stateMarkers.length; i++) {
@@ -602,6 +611,14 @@ public abstract class IncrementalParsingNode extends JavaParentNode
                         || (stateMarkers[i] == (delPos - nodePos) && marksEnd[i])) {
                     // The removed text straddles the state marker
                     stateMarkers[i] = -1;
+                }
+                else if (stateMarkers[i] == (delPos - nodePos)) {
+                    // The text was removed right at the end of a state;
+                    // reparse a bit before to prevent reparsing the wrong
+                    // state:
+                    int spos = (i == 0) ? 0 : stateMarkers[i-1];
+                    spos = Math.max(0, spos); // in case the stateMarker was the invalid -1 value
+                    document.scheduleReparse(spos + nodePos, stateMarkers[i] - spos);
                 }
             }
         }

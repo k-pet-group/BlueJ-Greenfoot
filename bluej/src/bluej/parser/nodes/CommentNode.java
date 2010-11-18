@@ -118,22 +118,24 @@ public class CommentNode extends ParsedNode
     }
     
     @Override
-    public int textInserted(Document document, int nodePos, int insPos, int length, NodeStructureListener listener)
+    public int textInserted(MoeSyntaxDocument document, int nodePos, int insPos, int length,
+            NodeStructureListener listener)
     {
         // grow ourself:
         int newSize = getSize() + length;
         resize(newSize);
-        ((MoeSyntaxDocument) document).scheduleReparse(insPos, length);
+        document.scheduleReparse(insPos, length);
         return ALL_OK;
     }
 
     @Override
-    public int textRemoved(Document document, int nodePos, int delPos, int length, NodeStructureListener listener)
+    public int textRemoved(MoeSyntaxDocument document, int nodePos, int delPos, int length,
+            NodeStructureListener listener)
     {
         // shrink ourself:
         int newSize = getSize() - length;
         resize(newSize);
-        ((MoeSyntaxDocument) document).scheduleReparse(delPos, 0);
+        document.scheduleReparse(delPos, 0);
         return ALL_OK;
     }
 
