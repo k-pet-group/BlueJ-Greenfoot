@@ -618,7 +618,18 @@ public abstract class IncrementalParsingNode extends JavaParentNode
                     // state:
                     int spos = (i == 0) ? 0 : stateMarkers[i-1];
                     spos = Math.max(0, spos); // in case the stateMarker was the invalid -1 value
-                    document.scheduleReparse(spos + nodePos, stateMarkers[i] - spos);
+                    NodeAndPosition<ParsedNode> nap = getNodeTree().findNodeAtOrBefore(stateMarkers[i] - 1 + nodePos, nodePos);
+                    if (nap != null && isDelimitingNode(nap)) {
+                        // Note in some cases the node will overlap the statemarker, as the node
+                        // hasn't yet been shrunk. That should be ok; the node will handle the
+                        // parse.
+                        spos = Math.max(spos, nap.getEnd() - nodePos);
+                    }
+                    if (stateMarkers[i] > spos) {
+                        // See comment above; this is conditional because the child node might
+                        // overlap the state marker.
+                        document.scheduleReparse(spos + nodePos, stateMarkers[i] - spos);
+                    }
                 }
             }
         }

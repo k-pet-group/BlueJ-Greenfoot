@@ -307,7 +307,7 @@ public class ParsedTypeNode extends IncrementalParsingNode
     @Override
     protected boolean isDelimitingNode(NodeAndPosition<ParsedNode> nap)
     {
-        return false;
+        return nap.getNode().isInner();
     }
     
     @Override
