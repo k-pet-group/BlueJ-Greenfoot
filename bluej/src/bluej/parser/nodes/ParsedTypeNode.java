@@ -218,21 +218,19 @@ public class ParsedTypeNode extends IncrementalParsingNode
             }
             last = token;
             params.tokenStream.pushBack(token);
-            params.parser.getExtendedTypes();
             setExtendedTypes(params.parser.getExtendedTypes());
             return PP_BEGINS_NEXT_STATE;
         }
         else if (state == 1) {
             // '{' and class body
-            LocatableToken token = params.tokenStream.nextToken();
-            if (token.getType() != JavaTokenTypes.LCURLY) {
-                last = token;
+            last = params.tokenStream.nextToken();
+            if (last.getType() != JavaTokenTypes.LCURLY) {
                 return PP_REGRESS_STATE;
             }
             
             if (inner == null) {
                 int oldStateMarker = stateMarkers[1];
-                last = params.parser.parseTypeBody(type, token);
+                last = params.parser.parseTypeBody(type, last);
                 if (last.getType() == JavaTokenTypes.RCURLY) {
                     inner.setComplete(true);
                 }
@@ -250,7 +248,6 @@ public class ParsedTypeNode extends IncrementalParsingNode
             }
             
             params.abortPos = lineColToPos(params.document, last.getEndLine(), last.getEndColumn());
-            last = token;
             return PP_PULL_UP_CHILD;
         }
         else if (state == 2) {
