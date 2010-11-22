@@ -156,8 +156,9 @@ public class TextEvalPane extends JEditorPane
     public void clearVars()
     {
         localVars.clear();
-        if (textParser != null)
+        if (textParser != null) {
             textParser.newClassLoader(frame.getProject().getClassLoader());
+        }
     }
 
     /**
@@ -189,11 +190,17 @@ public class TextEvalPane extends JEditorPane
     
     //   --- ValueCollection interface ---
     
+    /*
+     * @see bluej.debugmgr.ValueCollection#getValueIterator()
+     */
     public Iterator<CodepadVar> getValueIterator()
     {
         return localVars.iterator();
     }
     
+    /*
+     * @see bluej.debugmgr.ValueCollection#getNamedValue(java.lang.String)
+     */
     public NamedValue getNamedValue(String name)
     {
         NamedValue nv = getLocalVar(name);
@@ -208,6 +215,7 @@ public class TextEvalPane extends JEditorPane
     /**
      * Search for a named local variable, but do not fall back to the object
      * bench if it cannot be found (return null in this case).
+     * 
      * @param name  The name of the variable to search for
      * @return    The named variable, or null
      */
@@ -231,7 +239,7 @@ public class TextEvalPane extends JEditorPane
      */
     public void beginCompile() { }
     
-    /* (non-Javadoc)
+    /*
      * @see bluej.debugmgr.ResultWatcher#beginExecution()
      */
     public void beginExecution(InvokerRecord ir)
@@ -246,6 +254,7 @@ public class TextEvalPane extends JEditorPane
     public void putResult(final DebuggerObject result, final String name, final InvokerRecord ir)
     {
         frame.getObjectBench().addInteraction(ir);
+        frame.getPackage().getProject().updateInspectors();
         
         // Newly declared variables are now initialized
         if (newlyDeclareds != null) {
@@ -372,6 +381,7 @@ public class TextEvalPane extends JEditorPane
         executionEvent.setResult(ExecutionEvent.EXCEPTION_EXIT);
         executionEvent.setException(exception);
         BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, executionEvent);
+        frame.getPackage().getProject().updateInspectors();
         
         if (autoInitializedVars != null) {
             autoInitializedVars.clear();
