@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -131,19 +131,15 @@ public class FieldList extends JTable
         TableColumn tableColumn = getColumnModel().getColumn(column);
         int contentsMaxWidth = tableColumn.getPreferredWidth();
         for (int row = 0; row < listData.length; row++) {
-            Component n = ltcr.getTableCellRendererComponent(this, dataModel.getValueAt(row, column), false, false,
-                    row, column);
-            int labelWidth = n.getPreferredSize().width;
-            if (labelWidth > contentsMaxWidth) {
-                contentsMaxWidth = labelWidth;
-            }
+            Component n = ltcr.getTableCellRendererComponent(this, dataModel.getValueAt(row, column),
+                    false, false, row, column);
+            contentsMaxWidth = Math.max(contentsMaxWidth, n.getPreferredSize().width);
         }
         return contentsMaxWidth;
     }
 
     /**
      * Ensures that the header of the table is not shown at all!
-     *  
      */
     private void removeHeader()
     {
@@ -217,7 +213,6 @@ public class FieldList extends JTable
      * Cell renderer that makes a two column table look like a list.
      * 
      * @author Poul Henriksen
-     *  
      */
     public static class ListTableCellRenderer extends DefaultTableCellRenderer
     {
@@ -251,15 +246,22 @@ public class FieldList extends JTable
             }
             else {
                 // display some control characters in the displayed string in
-                // the
-                // correct form. This code should probably be somewhere else
+                // the correct form. This code should probably be somewhere else.
                 StringBuffer displayString = new StringBuffer(valueString);
+                replaceAll(displayString, "\\", "\\\\");
                 replaceAll(displayString, "\n", "\\n");
                 replaceAll(displayString, "\t", "\\t");
                 replaceAll(displayString, "\r", "\\r");
 
                 this.setIcon(null);
-                this.setText(displayString.toString());
+                String display = displayString.toString();
+                this.setText(display);
+                if (display.trim().startsWith("\"")) {
+                    this.setToolTipText(display.trim());
+                }
+                else {
+                    this.setToolTipText(null);
+                }
             }
 
             Color rowBackground = isSelected ? table.getSelectionBackground() : bkColor;
@@ -285,12 +287,10 @@ public class FieldList extends JTable
 
         private void replaceAll(StringBuffer sb, String orig, String replacement)
         {
-            // The call to toString is not efficient, but this method will not
-            // be called that many times anyway, so it doesn't matter that much.
-            int location = sb.toString().indexOf(orig);
+            int location = sb.indexOf(orig);
             while (location != -1) {
                 sb.replace(location, location + orig.length(), replacement);
-                location = sb.toString().indexOf(orig);
+                location = sb.indexOf(orig, location + replacement.length());
             }
         }
     }

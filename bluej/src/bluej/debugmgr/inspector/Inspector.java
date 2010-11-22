@@ -81,7 +81,6 @@ public abstract class Inspector extends JFrame
 {
     // === static variables ===
 
-
     protected final static String showClassLabel = Config.getString("debugger.inspector.showClass");
     protected final static String inspectLabel = Config.getString("debugger.inspector.inspect");
     protected final static String getLabel = Config.getString("debugger.inspector.get");
@@ -89,6 +88,7 @@ public abstract class Inspector extends JFrame
  
     // === instance variables ===
 
+    protected JScrollPane fieldListScrollPane = null;
     protected FieldList fieldList = null;
     private Color fieldListBackgroundColor;
 
@@ -112,7 +112,7 @@ public abstract class Inspector extends JFrame
 
     //The width of the list of fields
     private static final int MIN_LIST_WIDTH = 150;
-    private static final int MAX_LIST_WIDTH = 300;
+    private static final int MAX_LIST_WIDTH = 400;
 
   
     /**
@@ -313,12 +313,32 @@ public abstract class Inspector extends JFrame
     /**
      * Call this method when you want the inspector to resize to its preferred
      * size as calculated from the elements in the inspector.
-     * 
      */
     public void updateLayout()
     {
+        recalculateFieldlistSize();
+        
+        // limit the preferred size of the field list scrollpane
+        if (fieldListScrollPane != null) {
+            fieldListScrollPane.setPreferredSize(null);
+            Dimension d = fieldListScrollPane.getPreferredSize();
+            fieldListScrollPane.setMaximumSize(d);
+            d = new Dimension(d);
+            d.width = Math.min(d.width, MAX_LIST_WIDTH);
+            fieldListScrollPane.setPreferredSize(d);
+        }
+        
+        pack();
+        repaint();
+    }
+    
+    /**
+     * Re-calculate the preferred field list size according to the data in the list.
+     */
+    protected void recalculateFieldlistSize()
+    {
         final Object[] listData = getListData();
-        double height = fieldList.getPreferredSize().getHeight();
+        int height = fieldList.getPreferredSize().height;
         int rows = listData.length;
         int scrollBarWidth = 0;
         if (rows > getPreferredRows()) {
@@ -326,18 +346,10 @@ public abstract class Inspector extends JFrame
             scrollBarWidth = 32; // add some space for a scrollbar
         }
         
-        int width = (int) fieldList.getPreferredSize().getWidth();
-        if (width < MIN_LIST_WIDTH) {
-            width = MIN_LIST_WIDTH;
-        }
-        if(width > MAX_LIST_WIDTH) {
-            width = MAX_LIST_WIDTH;
-        }
+        int width = fieldList.getPreferredSize().width;
+        width = Math.max(width, MIN_LIST_WIDTH);
         
-        
-        fieldList.setPreferredScrollableViewportSize(new Dimension(width+scrollBarWidth, (int) height));
-        pack();
-        repaint();
+        fieldList.setPreferredScrollableViewportSize(new Dimension(width + scrollBarWidth, height));
     }
 
     // ----- ListSelectionListener interface -----
@@ -524,10 +536,10 @@ public abstract class Inspector extends JFrame
      */
     protected JScrollPane createFieldListScrollPane()
     {
-        JScrollPane scrollPane = new JScrollPane(fieldList);
-        scrollPane.setBorder(BorderFactory.createLineBorder(fieldListBackgroundColor, 10));
-        scrollPane.getViewport().setBackground(fieldListBackgroundColor);
-        return scrollPane;
+        fieldListScrollPane = new JScrollPane(fieldList);
+        fieldListScrollPane.setBorder(BorderFactory.createLineBorder(fieldListBackgroundColor, 10));
+        fieldListScrollPane.getViewport().setBackground(fieldListBackgroundColor);
+        return fieldListScrollPane;
     }
     
     // Allow movement of the window by dragging

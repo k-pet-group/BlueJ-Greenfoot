@@ -42,6 +42,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
+import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 
 import bluej.BlueJTheme;
@@ -84,7 +85,6 @@ public class ResultInspector extends Inspector
     private JavaType resultType; // static result type
 
     
-
     /**
      * Note: 'pkg' may be null if 'ir' is null.
      * 
@@ -174,15 +174,18 @@ public class ResultInspector extends Inspector
         String fieldString;
         if (!resultType.isPrimitive()) {
             DebuggerObject resultObject = obj.getFieldObject(0, resultType);
-            if (!resultObject.isNullObject())
+            if (!resultObject.isNullObject()) {
                 fieldString = resultObject.getGenType().toString(true);
-            else
+            }
+            else {
                 fieldString = resultType.toString(true);
+            }
         }
-        else
+        else {
             fieldString = JavaNames.stripPrefix(obj.getFieldValueTypeString(0));
+        }
+        
         fieldString += " = " + obj.getFieldValueString(0);
-
         return new Object[]{fieldString};
     }
 
@@ -218,7 +221,7 @@ public class ResultInspector extends Inspector
         sep.setBackground(new Color(0,0,0,0));
         header.add(sep);
 
-        //Create the main part that shows the expression and the result
+        // Create the main part that shows the expression and the result
 
         JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
         mainPanel.setOpaque(false);
@@ -243,7 +246,7 @@ public class ResultInspector extends Inspector
         result.add(scrollPane);
         result.add(Box.createVerticalStrut(5));
 
-        JPanel resultPanel = new JPanel () {
+        Box resultPanel = new Box(BoxLayout.Y_AXIS) {
             protected void paintComponent(Graphics g)
             {
                 super.paintComponent(g);
@@ -257,8 +260,16 @@ public class ResultInspector extends Inspector
                 g2d.fillRect(0, 0, width, height);
             }
         };
+        
+        result.setAlignmentX(CENTER_ALIGNMENT);
+        result.setAlignmentY(TOP_ALIGNMENT);
         resultPanel.add(result);
-        resultPanel.setBorder(BorderFactory.createLineBorder(new Color(101, 101, 101), 1));
+        
+        Border lineBorder = BorderFactory.createLineBorder(new Color(101, 101, 101), 1);
+        Border emptyBorder = BorderFactory.createEmptyBorder(5, 5, 5, 5);
+        Border resultPanelBorder = BorderFactory.createCompoundBorder(lineBorder, emptyBorder);
+        
+        resultPanel.setBorder(resultPanelBorder);
         mainPanel.add(resultPanel, BorderLayout.CENTER);
 
         JPanel inspectAndGetButtons = createInspectAndGetButtons();
