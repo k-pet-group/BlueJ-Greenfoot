@@ -1,0 +1,197 @@
+#i18n for greenfoot
+
+greenfoot.nyi=Nog Niet Ge\u00efmplementeerd - sorry.
+greenfoot.preferences=Eigenschappen...
+greenfoot.copyright=Auteursrecht...
+greenfoot.quit=Afsluiten
+greenfoot.continue=Verder
+greenfoot.cancel=Annuleren
+
+# About dialog
+about.title=Over Greenfoot
+about.moreInfo=Meer informatie kan gevonden worden op www.greenfoot.org
+
+# Greenfoot project version info
+project.version.none=Het project wat je probeert te openen lijkt op een oud greenfoot project (voor greenfoot versie 0.5). Dit zal waarschijnlijk resulteren in fouten die je handmatig moet oplossen.
+project.version.notGreenfoot=Dit is geen Greenfoot project: 
+project.version.mismatch=Versies komen niet overeen.
+project.version.older.part1=Het project wat je probeert te openen is een oud greenfoot project (API versie 
+# project version inserted here by Greenfoot
+project.version.older.part2=). Het project wordt geupdate naar de huidige versie (API versie 
+# api version inserted here by Greenfoot
+project.version.older.part3=). Het bereik van de snelheidsbalk is veranderd, dus je zal misschien de snelheids-instellingen voor dit project weer moeten aanpassen.
+project.version.newer.part1=Het project wat je probeert te openen schrijnt gemaakt te zijn met een nieuwe versie van de Greenfoot API (versie 
+# project version inserted here by Greenfoot
+project.version.newer.part2=). Het openen van een project met deze versie zou kunnen resulteren in fouten die je handmatig moet oplossen.\n\nWilt u verder gaan met het openen van dit project?
+project.close=Afsluiten
+
+# Actions
+greenfoot.about=Over Greenfoot...
+compile.all=Alles Compileren
+compile.class=Compileren
+edit.class=Bewerken
+new.class=Nieuwe Klasse...
+new.project=Nieuw...
+new.subclass=Nieuwe subklasse...
+open.project=Openen...
+open.recentProject=Onlangs geopenend
+remove.class=Verwijderen
+remove.selected=Verwijder Klasse
+inspect.class=Inspecteren
+reset.world=Overnieuw
+run.once=Handeling
+run.simulation=Start
+project.save=Opslaan
+project.savecopy=Opslaan als...
+select.image=Kies Afbeelding...
+show.readme=Project Informatie
+pause.simulation=Pauze
+
+# Remove class confirmation
+remove.confirm.title=Bevestig verwijdering van klasse
+remove.confirm.text1=Op het punt de klasse te verwijderen
+remove.confirm.text2=Voortzetten?
+
+
+# Save project copy dialog
+project.savecopy.title=Project-kopie opslaan
+
+# Export scenario dialog
+export.project=Exporten...
+export.progress.bundling=Bundel Project...
+export.progress.publishing=Publiceer...
+export.progress.writingHTML=Schrijf web pagina...
+export.progress.writingJar=Schrijf jar bestand...
+export.progress.complete=Export is voltooid.
+export.publish.fail=Publiceren is mislukt:
+export.publish.unknownHost=Publiceren is mislukt: Onbekende host
+export.publish.complete=Publiceren voltooid
+export.app.help=Maak een uitvoerbaar .jar bestand die op zichzelf kan afspelen..
+export.app.location=Opslaan als: 
+export.app.browse=Bladeren
+export.compile.help=Niet alle klasses en projecten zijn gecompileerd. Om door te gaan dient u nu de klasses te compileren.
+export.compile.notCompiled=Project niet gecompileerd.
+export.dialog.title=Greenfoot: Exporteren
+export.dialog.continue=Exporteren
+export.dialog.continue.update=(update)
+export.lock.label=Vergrendel project
+export.lock.description=Prevents: Speed change, Act-button, and changing of actor locations while paused.
+export.publish.help=Publiceer het project naar:
+export.publish.info=Informatie over de weergave op
+export.publish.image1=Project icoon:
+export.publish.image2=(schaal en verplaats)
+export.publish.title=Titel:
+export.publish.tags.additional1=Extra tags:
+export.publish.tags.additional2=(1 tag per regel)
+export.publish.tags.popular=Populaire tags:
+export.publish.tags.loading=laden...
+export.publish.shortDescription=Een-regel beschrijving:
+export.publish.longDescription=Langere beschrijving:
+export.publish.url=Je eigen pagina (URL):
+export.publish.login=Inloggen
+export.publish.username=Gebruikersnaam:
+export.publish.password=Wachtwoord:
+export.publish.createAccount=Maak account
+export.publish.includeSource=Publiceer broncode
+export.web.help=Maak een webpagina met een applet.
+export.web.exportLocation=Export locatie: 
+export.web.browse=Zoeken
+export.web.choose=Kies Export Directory Naam
+export.icontab.publish=Publiceren
+export.icontab.webpage=Webpagina
+export.icontab.application=Applicatie
+export.noworld.dialog.title=Fout: Geen wereld klasse gevonden.
+export.noworld.dialog.msg=Geen wereld klasse gevonden in dit project. Om te exporteren dient u een subklasse van World te maken.
+
+publish.event.error=Fout: 
+publish.event.status=Status: 
+
+world.handlerDelegate.inspect=Inspecteer
+world.handlerDelegate.remove=Verwijder
+
+greenfoot.utilDelegate.newScenario=Nieuw Project
+
+#File choosers
+chooser.newFile.button=Opslaan
+chooser.scenario.title=Open Project
+chooser.scenario.button=Openen
+
+#New Class dialog
+newclass.dialog.title=Maak nieuwe klasse
+newclass.dialog.help1=Een klasse-naam mag geen spaties en punten bevatten.
+newclass.dialog.help2=Een klasse-naam begint altijd met een hoofdletter.
+newclass.dialog.className=Nieuwe naam voor de klasse: 
+newclass.dialog.err.classExists=Een klasse met die naam bestaan al.
+newclass.dialog.err.classNameIllegal=Geen geldige Java klasse-naam.
+
+# Initial startup dialog
+startup.header=Welkom bij Greenfoot!
+startup.welcome=Greenfoot laat je werken aan projecten. Om Greenfoot te gebruiken, opent u eerst een bestaand project, of maakt een nieuw project aan. Verschillende voorbeeld-projecten zijn bijgevoegd in de standaard Greenfoot installatie.
+startup.question=Wat wil je doen?
+startup.tutorial.button=Open handleiding en handleiding-scenario
+startup.open.button=Kies een project
+startup.create.button=Maak een nieuw project
+startup.continue.button=Zet voort zonder project
+
+# Image Lib Preview
+imagelib.title=Selecteer klasse afbeelding:
+imagelib.newClass=Nieuwe klasse
+imagelib.projectImages=Project afbeeldingen:
+imagelib.categories=Categorieen:
+imagelib.images=Bibliotheek:
+imagelib.browse.button=Bladeren naar een eigen afbeelding...
+imagelib.className=Nieuwe klasse naam:
+imagelib.help.autoImage=Klik OK om de automatisch gegenereerd afbeelding te accepteren, of selecteer een afbeelding van de onderstaand lijst.
+imagelib.help.selectImage=Selecteer een afbeelding voor de klasse uit de onderstaande lijst.
+imagelib.newClass.image=Nieuwe klasse afbeelding:
+imagelib.image.autoGenerated=(automatisch gegenereerd)
+imagelib.file.noPreview=Geen voorbeeld
+imagelib.choose.button=Selecteer
+imagelib.write.exists.part1=Het bestand \"
+# Greenfoot inserts filename here
+imagelib.write.exists.part2=\" bestaat al. Wilt u het overschrijven?
+imagelib.write.exists.title=Bevestig bestand vervanging
+
+scenario.viewer.appletInfo=Applet gemaakt met Greenfoot (www.greenfoot.org). Projectnaam:
+
+# Simulation Control Panel
+controls.runonce.shortDescription=Roep 'Handeling' voor elke actor.
+controls.runonce.longDescription=Roep 'Handeling' voor elke actor.
+controls.run.shortDescription=Start de simulatie.
+controls.run.longDescription=Start de simulatie tot hij wordt gestopt.
+controls.pause.shortDescription=Pauzeer de simulatie.
+controls.pause.longDescription=Pauzeer de simulatie, laat hem in zijn huidige stand.
+controls.run.button=Start
+controls.pause.button=Pauze
+controls.reset.shortDescription=Breng een nieuwe wereld tot stand.
+controls.reset.longDescription=Breng een nieuwe wereld tot stand.
+controls.speed.label=Snelheid:
+controls.speedSlider.tooltip=Pas de snelheid aan
+
+# Class browser
+browser.border.world=Wereld klasses
+browser.border.actors=Actor klasses
+browser.border.others=Overige klasses
+
+# Menus
+
+menu.openRecent=Onlangs geopend
+
+menu.scenario=Project
+
+menu.edit=Bewerken
+
+menu.controls=Besturing
+
+menu.help=Help
+menu.help.about=Over Greenfoot...
+menu.help.classDoc=Greenfoot Klasse Documentatie
+menu.help.javadoc=Java Bibliotheek Documentatie
+menu.help.tutorial=Greenfoot Handleiding
+menu.help.website=Greenfoot Website
+menu.help.moreScenarios=Greenfoot Projecten
+
+# Project does not exist dialog
+noproject.dialog.title=Fout bij het openen van het project
+noproject.dialog.msg=Dit project bestaat niet: 
+ 
