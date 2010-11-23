@@ -975,6 +975,9 @@ public class TextParser extends JavaParser
             case JavaTokenTypes.LITERAL_boolean:
                 type = JavaPrimitiveType.getBoolean();
                 break;
+            case JavaTokenTypes.LITERAL_long:
+                type = JavaPrimitiveType.getLong();
+                break;
             case JavaTokenTypes.LITERAL_double:
                 type = JavaPrimitiveType.getDouble();
                 break;
