@@ -47,6 +47,7 @@
         <include name="lib/portuguese/" />
         <include name="lib/spanish/" />
         <include name="lib/swedish/" />
+    	<include name="lib/russian/" />
         <include name="lib/extensions/" />
         <!-- greenfoot stuff -->
         <include name="lib/greenfoot/**" />
