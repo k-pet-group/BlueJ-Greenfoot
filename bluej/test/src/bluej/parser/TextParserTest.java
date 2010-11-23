@@ -127,6 +127,28 @@ public class TextParserTest extends TestCase
         assertEquals("java.util.LinkedList<? extends javax.swing.JComponent>[]", r);
     }
     
+    /**
+     * Test casting a numeric value to a numeric primitive type.
+     */
+    public void testCasting4()
+    {
+        TextAnalyzer tp = new TextAnalyzer(resolver, "", objectBench);
+        String r = tp.parseCommand("(char) 4");
+        assertEquals("char", r);
+        r = tp.parseCommand("(byte) 4");
+        assertEquals("byte", r);        
+        r = tp.parseCommand("(short) 4");
+        assertEquals("short", r);
+        r = tp.parseCommand("(int) 4");
+        assertEquals("int", r);
+        r = tp.parseCommand("(long) 4");
+        assertEquals("long", r);
+        r = tp.parseCommand("(float) 4");
+        assertEquals("float", r);
+        r = tp.parseCommand("(double) 4");
+        assertEquals("double", r);
+    }
+    
     public void testStaticMethodCall()
     {
         TextAnalyzer tp = new TextAnalyzer(resolver, "", objectBench);
