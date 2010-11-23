@@ -28,6 +28,7 @@
 ## a new language, please send it to support@greenfoot.org
 #####################################################################
 bluej.language=english
+#bluej.language=dutch
 #bluej.language=french
 #bluej.language=german
 #bluej.language=greek
