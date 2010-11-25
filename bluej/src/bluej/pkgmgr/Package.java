@@ -2124,6 +2124,11 @@ public final class Package extends Graph
         public String calculateMessage(Editor e);
     }
     
+    /**
+     * Display an error message associated with a specific line in a class. This
+     * is done by opening the class's source, highlighting the line and showing
+     * the message in the editor's information area.
+     */
     private boolean showEditorMessage(String filename, int lineNo, final String message, boolean beep,
             boolean bringToFront, boolean setStepMark, String help)
     {
@@ -2133,35 +2138,43 @@ public final class Package extends Graph
     }
 
     /**
-     * Display an error message associated with a specific line in a class. This
-     * is done by opening the class's source, highlighting the line and showing
-     * the message in the editor's information area.
+     * Display an enhanced error message associated with a specific line in a
+     * class. This is done by opening the class's source, highlighting the line
+     * and showing the message in the editor's information area.
      */
     private boolean showEditorMessage(String filename, int lineNo, MessageCalculator messageCalc, boolean beep,
             boolean bringToFront, boolean setStepMark, String help)
     {
         String fullName = getProject().convertPathToPackageName(filename);
+        if (fullName == null) {
+            return false;
+        }
+        
         String packageName = JavaNames.getPrefix(fullName);
         String className = JavaNames.getBase(fullName);
 
-        ClassTarget t;
+        ClassTarget t = null;
 
         // check if the error is from a file belonging to another package
         if (packageName != getQualifiedName()) {
 
             Package pkg = getProject().getPackage(packageName);
-            PkgMgrFrame pmf;
+            
+            if (pkg != null) {
+                PkgMgrFrame pmf = PkgMgrFrame.findFrame(pkg);
 
-            if ((pmf = PkgMgrFrame.findFrame(pkg)) == null) {
-                pmf = PkgMgrFrame.createFrame(pkg);
+                if ((pmf = PkgMgrFrame.findFrame(pkg)) == null) {
+                    pmf = PkgMgrFrame.createFrame(pkg);
+                }
+
+                pmf.setVisible(true);
+
+                t = (ClassTarget) pkg.getTarget(className);
             }
-
-            pmf.setVisible(true);
-
-            t = (ClassTarget) pkg.getTarget(className);
         }
-        else
+        else {
             t = (ClassTarget) getTarget(className);
+        }
 
         if (t == null) {
             return false;
