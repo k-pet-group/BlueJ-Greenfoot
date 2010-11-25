@@ -301,9 +301,6 @@ public class UpdateAction extends AbstractAction
                     else {
                         int n = fileName.lastIndexOf(".");
                         String name = fileName.substring(0, n);
-                        if (pkg == null) {
-                            return;
-                        }
                         Target t = pkg.getTarget(name);
                         if (! (t instanceof ClassTarget)) {
                             return;
