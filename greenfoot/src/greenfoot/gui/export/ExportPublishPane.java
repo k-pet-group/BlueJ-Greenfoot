@@ -115,6 +115,7 @@ public class ExportPublishPane extends ExportPane implements ChangeListener
     private ExistingScenarioChecker scenarioChecker;
     private JButton continueButton;
     private Font font;
+    private boolean isUpdate=false;
 
     /** Creates a new instance of ExportPublishPane */
     public ExportPublishPane(GProject project)
@@ -725,7 +726,8 @@ public class ExportPublishPane extends ExportPane implements ChangeListener
             keepScenarioScreenshot.setName(Config.getString("export.publish.keepScenario"));
             keepScenarioScreenshot.setOpaque(false);
             keepScenarioScreenshot.addChangeListener(this);
-            titleAndDescPanel.add(keepScenarioScreenshot);   
+            titleAndDescPanel.add(keepScenarioScreenshot);  
+            setUpdate(true);
             
         }   
 
@@ -896,6 +898,23 @@ public class ExportPublishPane extends ExportPane implements ChangeListener
             }
         }
         
+    }
+
+    /**
+     * Returns true if it is an update and false if it is a first export
+     */
+    public boolean isUpdate()
+    {
+        return isUpdate;
+    }
+
+    /**
+     * If the update flag is true it indicates an update export; 
+     * false indicates that it is a first export
+     */
+    private void setUpdate(boolean isUpdate)
+    {
+        this.isUpdate = isUpdate;
     }
 
 }
