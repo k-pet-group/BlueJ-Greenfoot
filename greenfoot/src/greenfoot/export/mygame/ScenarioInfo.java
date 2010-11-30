@@ -42,6 +42,7 @@ public class ScenarioInfo
     private String url;
     private boolean hasSource;
     private boolean isLocked;
+    private boolean isUpdate = false;
     
     private static final String PUBLISH_TITLE = "publish.title";
     private static final String PUBLISH_SHORT_DESC = "publish.shortDesc";
@@ -198,6 +199,16 @@ public class ScenarioInfo
     public void setUpdateDescription(String updateDescription)
     {
         this.updateDescription = updateDescription;
+    }
+
+    public boolean isUpdate()
+    {
+        return isUpdate;
+    }
+
+    public void setUpdate(boolean isUpdate)
+    {
+        this.isUpdate = isUpdate;
     }
  
 }
