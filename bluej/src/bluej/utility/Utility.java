@@ -59,7 +59,7 @@ import bluej.Config;
  * 
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Utility.java 8510 2010-10-21 04:12:29Z davmac $
+ * @version $Id: Utility.java 8562 2010-11-30 10:47:46Z neil $
  */
 public class Utility
 {
@@ -474,7 +474,7 @@ public class Utility
     public static void bringToFront(final Window window)
     {
         // If not showing at all we return now.
-        if (!window.isShowing()) {
+        if (!window.isShowing() || !window.getFocusableWindowState()) {
             return;
         }
 
