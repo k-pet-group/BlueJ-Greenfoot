@@ -261,7 +261,8 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <javadoc destdir="${apidoc}"
                  Windowtitle="Greenfoot API"
                  Doctitle="Greenfoot API"
-                 bottom="&lt;a href=http://www.greenfoot.org/&gt;Greenfoot homepage&lt;/a&gt;">
+                 bottom="&lt;a href=http://www.greenfoot.org/&gt;Greenfoot homepage&lt;/a&gt;"
+                 classpathref="greenfoot.class.path">
             <fileset refid="api-source.files"/>
         </javadoc>
     	<mkdir dir="${bluej.projectdir}/lib/english/greenfoot/api"/>
