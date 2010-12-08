@@ -20,17 +20,17 @@
  LICENSE.txt file that accompanied this code.
  */
 package greenfoot;
+
 /**
  * This class contains information about the current status of the mouse. You
- * can get a MouseInfo object via {@link Greenfoot.#getMouseInfo()}.
+ * can get a MouseInfo object via {@link Greenfoot#getMouseInfo()}.
  * 
- * @see Greenfoot.#getMouseInfo()
+ * @see Greenfoot#getMouseInfo()
  * @author Poul Henriksen
  * @version 2.1
  */
 public class MouseInfo
 {    
-    
     private Actor actor;
     private int button;
     private int x;
@@ -39,12 +39,11 @@ public class MouseInfo
     
     /**
      * Do not create your own MouseInfo objects. Use
-     * {@link Greenfoot.#getMouseInfo()}.
+     * {@link Greenfoot#getMouseInfo() getMouseInfo()}.
      * 
-     * @see Greenfoot.#getMouseInfo()
+     * @see Greenfoot#getMouseInfo()
      */
-    MouseInfo() {        
-    }
+    MouseInfo() {  }
     
     /**
      * Return the current x position of the mouse cursor.
