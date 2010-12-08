@@ -160,8 +160,7 @@ public class GreenfootImage
      * @param size the requested height in pixels of each line of text (the actual height may be different by a pixel or so)
      * @param foreground the color of the text
      * @param background the color of the image behind the text
-     * @return the new image
-     * @since 2.1.0
+     * @since 2.0.1
      */
     public GreenfootImage(String string, int size, Color foreground, Color background)
     {
