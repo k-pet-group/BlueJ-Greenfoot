@@ -861,6 +861,9 @@ public class Simulation extends Thread
      * consideration and only pause the remaining time.
      * 
      * <p>This method is used for controlling the speed of the animation.
+     * 
+     * <p>The world lock should not be held when this method is called, so
+     * that repaints can occur.
      */
     private void delay()
     {

@@ -260,7 +260,9 @@ public class HDTimer
             sleepFromTime(nanos, tStart);
         }
         finally {
-            lock.writeLock().lockInterruptibly();
+            // Note we must NOT lock interruptibly - we must ensure the
+            // lock is regained before returning.
+            lock.writeLock().lock();
         }
     }
 }
