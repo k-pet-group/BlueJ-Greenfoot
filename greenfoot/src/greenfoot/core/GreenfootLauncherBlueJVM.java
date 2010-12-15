@@ -55,10 +55,10 @@ public class GreenfootLauncherBlueJVM
     /** The project to start up if no other project is opened. */
     private final static String STARTUP_PROJECT = "greenfoot/startupProject";
 
-    /** The tutorial project. TODO Test on mac and win */
+    /** The tutorial project. */
     private final static String TUTORIAL_SCENARIO = "wombats";
 
-    /** The HTML tutorial. Relative to the top level greenfoot dir. */
+    /** The HTML tutorial. Relative to the top level Greenfoot directory. */
     private static final String TUTORIAL_FILE = "tutorial/tutorial.html";
 
     /**
@@ -75,7 +75,7 @@ public class GreenfootLauncherBlueJVM
     /**
      * Launch greenfoot on the BlueJVM side.
      * 
-     * @param extension The extension that allows ?s to do BlueJ stuff
+     * @param extension The extension instance
      */
     public void launch(RMIExtension extension)
     {
@@ -92,7 +92,7 @@ public class GreenfootLauncherBlueJVM
     }
     
     /**
-     * Displays a dialog to the first time user of greenfoot.
+     * Displays a dialog to the first time user of Greenfoot.
      */
     private void handleFirstTime()
     {
@@ -120,7 +120,6 @@ public class GreenfootLauncherBlueJVM
 
     /**
      * Opens the tutorial and the tutorial scenario.
-     * 
      */
     private void openTutorial()
     {
@@ -179,8 +178,7 @@ public class GreenfootLauncherBlueJVM
     }
 
     /**
-     * Opens a new scenario seleceted by the user. 
-     *
+     * Opens a new scenario selected by the user. 
      */
     private void openScenario()
     {
@@ -197,7 +195,6 @@ public class GreenfootLauncherBlueJVM
 
     /**
      * Lets the user create a new scenario.
-     *
      */    
     private void createScenario()
     {
@@ -206,7 +203,7 @@ public class GreenfootLauncherBlueJVM
     }
 
     /**
-     * Starts up greenfoot by either letting BlueJ launch previously opened
+     * Starts up Greenfoot by either letting BlueJ launch previously opened
      * scenarios or opening the empty startup project.
      */
     public void openNormally()
@@ -236,7 +233,7 @@ public class GreenfootLauncherBlueJVM
     /**
      * Returns the location of the scenarios.
      * 
-     * @throws IOException If it can't read the greenfoot dir.
+     * @throws IOException If it can't read the Greenfoot directory.
      */
     private File getScenariosDir()
         throws IOException
@@ -254,10 +251,10 @@ public class GreenfootLauncherBlueJVM
     }
 
     /**
-     * Try to find the specific scenario in the greenfoot scenario dir.
+     * Try to find the specific scenario in the Greenfoot scenario dir.
      * 
      * @throws FileNotFoundException If it could not find the scenario.
-     * @throws IOException If it can't read the greenfoot dir.
+     * @throws IOException If it can't read the Greenfoot dir.
      */
     private File getScenarioDir(String scenario)
         throws FileNotFoundException, IOException
@@ -272,6 +269,5 @@ public class GreenfootLauncherBlueJVM
                     + specificScenarioDir);
         }
     }
-
 
 }
