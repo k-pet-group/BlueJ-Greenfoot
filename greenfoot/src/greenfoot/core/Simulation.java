@@ -513,6 +513,7 @@ public class Simulation extends Thread
     public static Object newInstance(Constructor<?> constructor)
         throws InvocationTargetException, IllegalArgumentException, InstantiationException, IllegalAccessException
     {
+        WorldHandler.getInstance().setFirstWorld();
         return constructor.newInstance((Object[])null);
     }
     

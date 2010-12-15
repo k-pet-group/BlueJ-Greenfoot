@@ -73,6 +73,8 @@ import bluej.debugmgr.objectbench.ObjectBenchInterface;
 public class WorldHandler
     implements TriggeredMouseListener, TriggeredMouseMotionListener, TriggeredKeyListener, DropTarget, DragListener, SimulationListener
 {
+    private boolean firstWorld;
+
     private World initialisingWorld;
     private volatile World world;
     private WorldCanvas worldCanvas;
@@ -129,6 +131,8 @@ public class WorldHandler
      */
     private WorldHandler() 
     {
+        firstWorld = true;
+        
         instance = this;
         mousePollingManager = new MousePollingManager(null);
         handlerDelegate = new WorldHandlerDelegate() {
@@ -194,6 +198,8 @@ public class WorldHandler
      */
     private WorldHandler(final WorldCanvas worldCanvas, WorldHandlerDelegate handlerDelegate)
     {
+        firstWorld = true;
+
         instance = this;
         this.handlerDelegate = handlerDelegate;
         this.handlerDelegate.setWorldHandler(this);
@@ -467,11 +473,29 @@ public class WorldHandler
             }
         });
     }
-    
+
     /**
-     * Sets a new world. A world is set in two steps:
+     * Sets the world handler to be ready to take the first world of the next run.
+     */
+    public synchronized void setFirstWorld()
+    {
+        this.firstWorld = true;
+    }
+
+    public synchronized boolean isFirstWorld()
+    {
+        return firstWorld;
+    }
+
+    /**
+     * Sets a new world. A world is set in numerous steps:
      * 
      * <ol>
+     * <li> setFirstWorld should be set to true before creating a world.
+     * Failure to set this to true will cause the World being made to not be set
+     * as the current world. That however is desirable whilst Greenfoot scenarios
+     * are running (so you can make Worlds in the background).
+     *
      * <li> When it is partially created the constructor in World will set the
      * world in world handler, so that actors can access the world early on in
      * their own constructors (with worldInitialising(World world)).
@@ -485,6 +509,9 @@ public class WorldHandler
      */
     public synchronized void setWorld(final World world)
     {
+        final boolean isFirst = isFirstWorld();
+        this.firstWorld = false;
+        
         handlerDelegate.setWorld(this.world, world);
         mousePollingManager.setWorldLocator(new WorldLocator() {
             @Override
@@ -509,14 +536,14 @@ public class WorldHandler
             }
         });
         this.world = world;
-        initialisingWorld = null;
+        
         EventQueue.invokeLater(new Runnable() {
             public void run()
             {
                 if(worldCanvas != null) {
                     worldCanvas.setWorld(world);
-                }                
-                fireWorldCreatedEvent(world);
+                }
+                fireWorldCreatedEvent(world, isFirst);
             }
         });
     }
@@ -721,13 +748,13 @@ public class WorldHandler
         finishDrag(o);
     }
 
-    protected void fireWorldCreatedEvent(World newWorld)
+    protected void fireWorldCreatedEvent(World newWorld, boolean isFirst)
     {
         // Guaranteed to return a non-null array
         Object[] listeners = listenerList.getListenerList();
         // Process the listeners last to first, notifying
         // those that are interested in this event
-        WorldEvent worldEvent = new WorldEvent(newWorld);
+        WorldEvent worldEvent = new WorldEvent(newWorld, isFirst);
         for (int i = listeners.length - 2; i >= 0; i -= 2) {
             if (listeners[i] == WorldListener.class) {
                 ((WorldListener) listeners[i + 1]).worldCreated(worldEvent);
@@ -741,7 +768,7 @@ public class WorldHandler
         Object[] listeners = listenerList.getListenerList();
         // Process the listeners last to first, notifying
         // those that are interested in this event
-        WorldEvent worldEvent = new WorldEvent(discardedWorld);
+        WorldEvent worldEvent = new WorldEvent(discardedWorld, false);
         for (int i = listeners.length - 2; i >= 0; i -= 2) {
             if (listeners[i] == WorldListener.class) {
                 ((WorldListener) listeners[i + 1]).worldRemoved(worldEvent);

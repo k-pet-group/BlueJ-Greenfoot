@@ -55,6 +55,7 @@ import javax.swing.JRootPane;
 import javax.swing.RootPaneContainer;
 
 import bluej.Config;
+import javax.swing.JScrollPane;
 
 /**
  * This class can view and run a Greenfoot scenario. It is not possible to
@@ -110,15 +111,16 @@ public class GreenfootScenarioViewer extends JApplet
             // it will be null when running as applet, so set it to the applet.
             rootPaneContainer = this;
         }
-
+        
         JPanel centerPanel = new JPanel(new CenterLayout());
-        centerPanel.add(canvas);
+        centerPanel.add( canvas );
         canvas.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         
-        centerPanel.setBorder( BorderFactory.createEmptyBorder(EMPTY_BORDER_SIZE,EMPTY_BORDER_SIZE,EMPTY_BORDER_SIZE,EMPTY_BORDER_SIZE)); 
+        JScrollPane outer = new JScrollPane( centerPanel );
+        outer.setBorder( BorderFactory.createEmptyBorder(EMPTY_BORDER_SIZE,EMPTY_BORDER_SIZE,EMPTY_BORDER_SIZE,EMPTY_BORDER_SIZE));
         controls.setBorder(BorderFactory.createCompoundBorder( BorderFactory.createEmptyBorder(0,EMPTY_BORDER_SIZE,EMPTY_BORDER_SIZE,EMPTY_BORDER_SIZE), BorderFactory.createEtchedBorder()));
         
-        rootPaneContainer.getContentPane().add(centerPanel, BorderLayout.CENTER);
+        rootPaneContainer.getContentPane().add( outer, BorderLayout.CENTER);
         rootPaneContainer.getContentPane().add(controls, BorderLayout.SOUTH);
     }
 
@@ -290,9 +292,9 @@ public class GreenfootScenarioViewer extends JApplet
     public void instantiateNewWorld() 
     {
         try {
+            WorldHandler.getInstance().setFirstWorld();
             World world = (World) worldConstructor.newInstance(new Object[]{});
-            canvas.setWorld(world);
-            WorldHandler.getInstance().setWorld(world);
+            canvas.setWorld( WorldHandler.getInstance().getWorld() );
         }
         catch (IllegalArgumentException e) {
             // TODO Auto-generated catch block

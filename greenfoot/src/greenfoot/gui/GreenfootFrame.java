@@ -821,6 +821,9 @@ public class GreenfootFrame extends JFrame
      */
     private boolean needsResize()
     {
+        // Note that worldDimensions is actually the dimensions of the canvas for the _last_ world.
+        // The dimensions of the canvas for the current world is held in 'dim'.
+
         Dimension dim = worldCanvas.getPreferredSize();
         if (resizeWhenPossible) {
             return true;
@@ -830,7 +833,7 @@ public class GreenfootFrame extends JFrame
             // size specifically when we created the frame.
             return false;
         }
-        else if (!dim.equals(worldDimensions)) {
+        else if ( worldDimensions.width < dim.width || worldDimensions.height < dim.height ) {
             return true;
         }
         else {
@@ -926,12 +929,19 @@ public class GreenfootFrame extends JFrame
     {
         World newWorld = e.getWorld();
         if (needsResize() && newWorld != null) {
-            resize();
+            // ensure we don't lose fullscreen on resize
+            final int state = getExtendedState();
+            if ( state != MAXIMIZED_BOTH ) {
+                resize();
+            }
         }
         worldCanvas.setVisible(true);
         centrePanel.revalidate();
         worldDimensions = worldCanvas.getPreferredSize();
-        project.setLastWorldClassName(newWorld.getClass().getName());
+
+        if ( e.isFirst() ) {
+            project.setLastWorldClassName(newWorld.getClass().getName());
+        }
     }
     
     public void worldRemoved(WorldEvent e)

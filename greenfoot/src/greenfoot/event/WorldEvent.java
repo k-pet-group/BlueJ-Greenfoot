@@ -30,19 +30,26 @@ import greenfoot.World;
  */
 public class WorldEvent
 {
-    private World world;
+    private final World world;
+    private final boolean isFirst;
 
     /**
      * Construct a world event for the given world.
      * @param world  The world which was created or removed (non-null).
      */
-    public WorldEvent(World world)
+    public WorldEvent(World world, boolean isFirst)
     {
         this.world = world;
+        this.isFirst = isFirst;
     }
     
-    public World getWorld() 
+    public World getWorld()
     {
         return world;
+    }
+
+    public boolean isFirst()
+    {
+        return isFirst;
     }
 }

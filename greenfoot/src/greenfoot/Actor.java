@@ -418,6 +418,11 @@ public abstract class Actor
      */
     void addToWorld(int x, int y, World world)
     {
+        final World oldWorld = getWorld();
+        if ( oldWorld != null && oldWorld != world ) {
+            oldWorld.removeObject( this );
+        }
+        
         if (world.isBounded()) {
             x = limitValue(x, world.getWidth());
             y = limitValue(y, world.getHeight());

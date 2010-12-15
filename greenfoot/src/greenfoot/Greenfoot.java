@@ -55,8 +55,23 @@ public class Greenfoot
 {
     
     private static Random randomGenerator = new Random();
-    
-    
+
+    /**
+     * Sets the World to run to the one given.
+     * This World will now be the main World that Greenfoot runs with on the
+     * next act.
+     *
+     * @param world The World to switch running to, cannot be null.
+     */
+    public static void setWorld(World world)
+    {
+        if ( world == null ) {
+            throw new NullPointerException("The given world cannot be null.");
+        }
+
+        WorldHandler.getInstance().setWorld( world );
+    }
+
     /**
      * Get the most recently pressed key, since the last time this method was
      * called. If no key was pressed since this method was last called, it

@@ -22,7 +22,6 @@
 package greenfoot.event;
 
 import greenfoot.Actor;
-import greenfoot.World;
 import greenfoot.core.WorldHandler;
 
 import java.awt.event.MouseEvent;
@@ -55,9 +54,6 @@ public class ActorInstantiationListener
         if(realObject instanceof Actor) {
             worldHandler.addObjectAtEvent((Actor) realObject, e);
             worldHandler.repaint();
-        }
-        else if(realObject instanceof greenfoot.World) {
-            worldHandler.setWorld((World) realObject);
         }
     }
 
