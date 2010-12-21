@@ -66,7 +66,7 @@ public class GreenfootDebugHandler implements DebuggerListener
 {  
     private static final String SIMULATION_CLASS = Simulation.class.getName();   
     private static final String[] INVOKE_METHODS = {Simulation.ACT_WORLD, Simulation.ACT_ACTOR,
-            Simulation.NEW_INSTANCE, Simulation.RUN_QUEUED_TAKS};
+            Simulation.NEW_INSTANCE, Simulation.RUN_QUEUED_TASKS};
     private static final String SIMULATION_INVOKE_KEY = SIMULATION_CLASS + "INTERNAL";
     
     private static final String PAUSED_METHOD = Simulation.PAUSED;

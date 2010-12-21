@@ -34,5 +34,9 @@ import java.util.EventListener;
 public interface SimulationListener
     extends EventListener
 {
+    /**
+     * The simulation state changed or a simulation event occurred. The simulation may have
+     * stopped, started, changed enabled state, begun a new act round, etc.
+     */
     public void simulationChanged(SimulationEvent e);
 }

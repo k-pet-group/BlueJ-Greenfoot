@@ -51,7 +51,7 @@ import bluej.Config;
  * Panel that holds the buttons that controls the simulation.
  * 
  * @author Poul Henriksen
- * @version $Id: ControlPanel.java 8322 2010-09-14 20:10:47Z mik $
+ * @version $Id: ControlPanel.java 8579 2010-12-21 04:59:05Z davmac $
  */
 public class ControlPanel extends Box
     implements ChangeListener, SimulationListener
@@ -169,13 +169,12 @@ public class ControlPanel extends Box
         return speedPanel;
     }
     
-    
-    /**
-     *
+    /*
+     * @see greenfoot.event.SimulationListener#simulationChanged(greenfoot.event.SimulationEvent)
      */
+    @Override
     public void simulationChanged(SimulationEvent e)
-    {
-
+    {        
         final int etype = e.getType();
         if (etype == SimulationEvent.NEW_ACT
               || etype == SimulationEvent.DEBUGGER_PAUSED

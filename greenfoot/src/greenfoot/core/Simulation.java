@@ -260,12 +260,11 @@ public class Simulation extends Thread
     private void maybePause()
         throws InterruptedException
     {
-        outerLoop:
         while (!abort) {
             runQueuedTasks();
 
-            // Wait loop that waits until no longer pause or if we need to run the
-            // simulation once because the user pressed 'Act'
+            // Wait loop that waits until such time that at least one simulation
+            // loop can be run.
 
             synchronized (this) {
                 checkStopping();
@@ -273,7 +272,7 @@ public class Simulation extends Thread
                     runOnce = false;
                     return;
                 }
-                if (! enabled || (paused && !runOnce)) {
+                if (! enabled || paused) {
                     // Stopping/stopped.
                     // Make sure we repaint before pausing.
                     worldHandler.repaint();
@@ -298,9 +297,6 @@ public class Simulation extends Thread
                             lock.writeLock().lockInterruptibly();
                             try {
                                 world.started(); // may cause us to pause
-                                if (paused) {
-                                    continue outerLoop;
-                                }
                             }
                             finally {
                                 lock.writeLock().unlock();
@@ -314,9 +310,9 @@ public class Simulation extends Thread
                     }
                 }
             }
-            
-            runQueuedTasks();
         }
+    
+        runQueuedTasks();
     }
     
     /**
@@ -328,6 +324,8 @@ public class Simulation extends Thread
         World world;
         synchronized (this) {
             if ((!paused && enabled) || !isRunning) {
+                // We're already stopped (isRunning is false)
+                // or we're not stopping (paused is false, enabled is true).
                 return;
             }
             
@@ -379,7 +377,7 @@ public class Simulation extends Thread
     }
 
     /** This must match the method name below! */
-    public static String RUN_QUEUED_TAKS = "runQueuedTasks";
+    public static String RUN_QUEUED_TASKS = "runQueuedTasks";
     
     /**
      * Run all tasks that have been schedule to run on the simulation thread.
@@ -661,10 +659,16 @@ public class Simulation extends Thread
             notifyAll();
             // fire a paused event to let listeners know we are
             // enabled again
-            fireSimulationEvent(stoppedEvent);
+            if (paused) {
+                fireSimulationEvent(stoppedEvent);
+            }
+            //else {
+            //    fireSimulationEvent(startedEvent);
+            //}
         }
         else {
             paused = true;
+            isRunning = false; // cause a started event if necessary, when the simulation is enabled again
             interrupt();
             fireSimulationEvent(disabledEvent);
         }
