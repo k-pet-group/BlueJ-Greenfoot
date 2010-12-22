@@ -56,7 +56,6 @@ import bluej.utility.FileUtility;
  * Utility class to create jar or zip files from a Greenfoot project.
  * 
  * @author Poul Henriksen <polle@polle.org>
- * 
  */
 public class JarCreator
 {
@@ -199,23 +198,21 @@ public class JarCreator
         properties.put("controls.reset.longDescription", Config.getString("controls.reset.longDescription"));
         properties.put("controls.reset.shortDescription", Config.getString("controls.reset.shortDescription"));
         properties.put("controls.speedSlider.tooltip", Config.getString("controls.speedSlider.tooltip"));
-              
+        
+        // Error messages etc
+        properties.put("sound-line-unavailable", Config.getString("sound-line-unavailable"));
     }
     
     /**
-     * 
      * Export source code. Includes all the project files. Creates a dir in the
      * zip with the same name as the project dir.
      *
-     * Convenience constructor that includes settings that are common for all
+     * <p>Convenience constructor that includes settings that are common for all
      * projects and export types.
      * 
      * @param project The project to be exported.
      * @param exportDir The directory to export to.
-     * @param jarName Name of the jar file that should be created.
-     * @param worldClass Name of the main class.
-     * @param includeExtraControls Should the exported scenario include 'act'
-     *            and speedslider.
+     * @param zipName Name of the jar file that should be created.
      */
     public JarCreator(GProject project, File exportDir, String zipName) 
     {   
@@ -255,7 +252,6 @@ public class JarCreator
     
     /**
      * Creates the jar file with the current settings.
-     * 
      */
     public void create()
     {        
@@ -306,7 +302,6 @@ public class JarCreator
         }
     }
 
-    
     /**
      * Writes the properties to the given file.
      */
@@ -343,7 +338,8 @@ public class JarCreator
      * @param key The key 
      * @param value The value
      */
-    public void putManifestEntry(String key, String value) {
+    public void putManifestEntry(String key, String value)
+    {
         Attributes attr = manifest.getMainAttributes();
         value = fixNewlines(value);
         attr.put(new Attributes.Name(key), value);
@@ -371,7 +367,6 @@ public class JarCreator
 
     /**
      * Writes entries to the manifest file.
-     *
      */
     private void writeManifest()
     {
@@ -416,9 +411,8 @@ public class JarCreator
     /**
      * Adds a jar file to be distributed together with this jar-file. It will be
      * copied into the same location as the jar-file created (the exportDir).
-     * <br>
      * 
-     * This will usually be the jars +libs dir and userlib jars
+     * <p>This will usually be the jars +libs dir and userlib jars
      * 
      * @param jar A jar file.
      */
@@ -429,9 +423,9 @@ public class JarCreator
     
     /** 
      * Add a jar to the list of extra jars whose contents should be put into the created jar 
-     * <br>
      * 
-     * This will usually be the jars +libs dir and userlib jars
+     * <p>This will usually be the jars +libs dir and userlib jars
+     * 
      * @param jar A jar file.
      */
     public void addJarToJar(File jar)
@@ -452,7 +446,6 @@ public class JarCreator
     
     /**
      * Directory or file to include in export.
-     * 
      */
     public void addFile(File file)
     {
@@ -463,7 +456,6 @@ public class JarCreator
     /**
      * Directory or file to include in export, with the given prefix added when putting
      * it into the jar.
-     * 
      */
     public void addFile(String prefix, File file)
     {
@@ -474,7 +466,8 @@ public class JarCreator
      * All dirs that end with the specified string will be skipped.
      * Be aware of platform dependent file separators.
      */
-    public void addSkipDir(String dir) {
+    public void addSkipDir(String dir)
+    {
         skipDirs.add(dir);
     }
 
@@ -511,7 +504,9 @@ public class JarCreator
      * the Jar file we are creating (to prevent including itself in the Jar
      * file). If the source file does not exist, this method will just return without 
      * doing anything.
-     * @param onlyDirContents If sourceFile is a dir, this parameter indicates that the contents of the dir should be added, not the dir itself.
+     * 
+     * @param onlyDirContents If sourceFile is a dir, this parameter indicates that
+     *           the contents of the dir should be added, not the dir itself.
      */
     private void writeFileToJar(File sourceFile, String pathPrefix, ZipOutputStream stream, File outputFile, boolean onlyDirContents)
         throws IOException
@@ -539,8 +534,8 @@ public class JarCreator
     }
     
     /**
-     * Write the contents of a jar into another jar stream. If the source file does not exist, this method will just return without 
-     * doing anything.
+     * Write the contents of a jar into another jar stream. If the source file does not exist,
+     * this method will just return without doing anything.
      */
     private void writeJarToJar(File inputJar, ZipOutputStream outputStream)
         throws IOException

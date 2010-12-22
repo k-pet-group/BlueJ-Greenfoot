@@ -23,6 +23,7 @@ package greenfoot.platforms;
 
 import greenfoot.GreenfootImage;
 
+import java.awt.Component;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -70,4 +71,14 @@ public interface GreenfootUtilDelegate
      * returns false if it exists and is not null or if it does not exist in the map
      */
     public boolean isNullCachedImage(String fileName);
+    
+    /**
+     * Display a message to the user; how the message is displayed is dependent
+     * upon the platform context. In the Greenfoot IDE, the message will be displayed
+     * in a dialog; otherwise it will be written to the terminal/console/log.
+     * 
+     * @param parent  The parent component (if a dialog is used to display the message)
+     * @param messageText   The message text itself.
+     */
+    public void displayMessage(Component parent, String messageText);
 }

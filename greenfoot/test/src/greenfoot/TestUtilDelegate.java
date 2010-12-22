@@ -96,4 +96,10 @@ public class TestUtilDelegate implements GreenfootUtilDelegate
     {
         return false;
     }
+    
+    @Override
+    public void displayMessage(Component parent, String messageText)
+    {
+        System.err.println(messageText);
+    }
 }

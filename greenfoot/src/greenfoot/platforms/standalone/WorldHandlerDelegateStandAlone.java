@@ -80,13 +80,6 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
         viewer.instantiateNewWorld();
     }
 
-    @SuppressWarnings("unchecked")
-    public Class getLastWorldClass()
-    {
-        // Not used in standalone
-        return null;
-    }
-    
     public InputManager getInputManager()
     {
         InputManager inputManager = new InputManager();

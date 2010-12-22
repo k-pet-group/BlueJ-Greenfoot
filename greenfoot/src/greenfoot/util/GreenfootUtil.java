@@ -25,6 +25,7 @@ import greenfoot.GreenfootImage;
 import greenfoot.platforms.GreenfootUtilDelegate;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -69,7 +70,6 @@ import bluej.utility.Utility;
  * General utility methods for Greenfoot.
  * 
  * @author Davin McCall
- * @version $Id: GreenfootUtil.java 8226 2010-09-02 03:35:59Z davmac $
  */
 public class GreenfootUtil
 {
@@ -863,5 +863,17 @@ public class GreenfootUtil
     {
         return delegate.isNullCachedImage(fileName);
     }
-
+    
+    /**
+     * Display a message to the user; how the message is displayed is dependent
+     * upon the platform context. In the Greenfoot IDE, the message will be displayed
+     * in a dialog; otherwise it will be written to the terminal/console/log.
+     * 
+     * @param parent  The parent component (if a dialog is used to display the message)
+     * @param messageText   The message text itself.
+     */
+    public static void displayMessage(Component parent, String messageText)
+    {
+        delegate.displayMessage(parent, messageText);
+    }
 }

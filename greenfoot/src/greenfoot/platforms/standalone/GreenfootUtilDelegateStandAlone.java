@@ -24,6 +24,7 @@ package greenfoot.platforms.standalone;
 import greenfoot.GreenfootImage;
 import greenfoot.platforms.GreenfootUtilDelegate;
 
+import java.awt.Component;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -104,5 +105,10 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
         }
         return false;
     }
-
+    
+    @Override
+    public void displayMessage(Component parent, String messageText)
+    {
+        System.err.println(messageText);
+    }
 }

@@ -24,6 +24,7 @@ package greenfoot.platforms.ide;
 import greenfoot.GreenfootImage;
 import greenfoot.platforms.GreenfootUtilDelegate;
 
+import java.awt.Component;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -34,13 +35,16 @@ import java.util.Hashtable;
 import bluej.Config;
 import bluej.runtime.ExecServer;
 import bluej.utility.BlueJFileReader;
+import bluej.utility.DialogManager;
 
 public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
 {
     /**
      * Creates the skeleton for a new class
      */
-    public void createSkeleton(String className, String superClassName, File file, String templateFileName) throws IOException   {
+    public void createSkeleton(String className, String superClassName, File file, String templateFileName)
+            throws IOException
+    {
         Dictionary<String, String> translations = new Hashtable<String, String>();
         translations.put("CLASSNAME", className);
         if(superClassName != null) {
@@ -84,9 +88,15 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
 
     public void removeCachedImage(String fileName) { }
 
+    @Override
     public boolean isNullCachedImage(String fileName)
     {
         return false;
     }
 
+    @Override
+    public void displayMessage(Component parent, String messageText)
+    {
+        DialogManager.showText(parent, messageText);
+    }
 }

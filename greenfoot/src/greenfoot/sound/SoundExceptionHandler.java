@@ -22,6 +22,7 @@
 package greenfoot.sound;
 
 import greenfoot.core.WorldHandler;
+import greenfoot.util.GreenfootUtil;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -30,7 +31,6 @@ import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import bluej.Config;
-import bluej.utility.DialogManager;
 
 /**
  * This class should be forwarded some of the common sound exceptions. It keeps
@@ -72,7 +72,7 @@ public class SoundExceptionHandler
         if (!lineUnavailableHandled) {
             lineUnavailableHandled = true;
             String errMsg = Config.getString("sound-line-unavailable");
-            DialogManager.showErrorText(WorldHandler.getInstance().getWorldCanvas(), errMsg);
+            GreenfootUtil.displayMessage(WorldHandler.getInstance().getWorldCanvas(), errMsg);
         }
     }
 
