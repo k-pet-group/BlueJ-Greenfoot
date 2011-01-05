@@ -164,7 +164,7 @@ public class GreenfootImage
      */
     public GreenfootImage(String string, int size, Color foreground, Color background)
     {
-        String[] lines = string.split(System.getProperty("line.separator"));
+        String[] lines = string.replaceAll("\r", "").split("\n");
         image = GraphicsUtilities.createCompatibleTranslucentImage(1, 1);
         Graphics2D g = (Graphics2D)image.getGraphics();
         Font font = g.getFont().deriveFont((float)size);
