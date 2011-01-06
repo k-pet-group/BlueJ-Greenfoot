@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2011  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -55,6 +55,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Properties;
 
 import javax.swing.AbstractAction;
@@ -88,9 +89,8 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Caret;
 import javax.swing.text.EditorKit;
 import javax.swing.text.Element;
-import javax.swing.text.Highlighter;
-import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.Highlighter.HighlightPainter;
+import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.HTMLFrameHyperlinkEvent;
@@ -250,6 +250,10 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     private JavadocResolver javadocResolver;
     private ReparseRunner reparseRunner;
 
+    /** Search highlight tags for both text panes */
+    private List<Object> sourceSearchHighlightTags = new ArrayList<Object>();
+    private List<Object> htmlSearchHighlightTags = new ArrayList<Object>();
+    
     /**
      * Property map, allows BlueJ extensions to associate property values with
      * this editor instance; otherwise unused.
@@ -1610,20 +1614,15 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                 while (lineText != null && lineText.length() > 0) {
                     foundPos = findSubstring(lineText, s, ignoreCase, false, foundPos);
                     if (foundPos != -1) {
+                        addSearchHighlight(start + foundPos, start + foundPos + s.length());
+                        highlightCount++;
                         if (select) {
-                            //purposely using both select and the highlight because the select sets the                         
-                            //caret correctly and the highlighter ensures the colouring is done correctly             
                             currentTextPane.select(start + foundPos, start + foundPos + s.length());
-                            currentTextPane.getHighlighter().addHighlight(start + foundPos, start + foundPos + s.length(), highlightPainter);
                             setSelectionVisible();  
-                            //reset the start position to the first caret of the selected item
+                            //reset the start position to the first selection start
                             //in order to ensure that none are missed
-                            highlightCount++;
                             startPosition=start+foundPos;
                             select=false;
-                        } else {
-                            currentTextPane.getHighlighter().addHighlight(start + foundPos, start + foundPos + s.length(), highlightPainter);                           
-                            highlightCount++;
                         }
                         foundPos=foundPos+s.length();
                     } else {
@@ -1656,7 +1655,27 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
             Debug.reportError("Error in editor find operation", ex);
         }
         return highlightCount;
-    }  
+    }
+    
+    /**
+     * Add a search highlight to the currently displayed pane.
+     */
+    private void addSearchHighlight(int startPos, int endPos)
+    {
+        try {
+            Object tag = currentTextPane.getHighlighter().addHighlight(startPos, endPos, 
+                    highlightPainter);
+            if (currentTextPane == sourcePane) {
+                sourceSearchHighlightTags.add(tag);
+            }
+            else {
+                htmlSearchHighlightTags.add(tag);
+            }
+        }
+        catch (BadLocationException ble) {
+            Debug.reportError("Error adding search highlight", ble);
+        }
+    }
 
     /**
      * Transfers caret to user specified line number location.
@@ -3349,29 +3368,15 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     public void removeSearchHighlights()
     {
-    	Highlighter hilite;
-    	if (sourcePane!=null){
-    	    hilite = sourcePane.getHighlighter();
-    	    removeSearchHighlights(hilite);
-    	}
-        if (htmlPane!=null){
-            hilite=htmlPane.getHighlighter();
-            removeSearchHighlights(hilite);
-        }  
-    }
-    
-    /**
-     * Removes the highlights on a specific pane (specified by the highlighter passed through)
-     * @param hilite the highlighter of the textpane
-     */
-    private void removeSearchHighlights(Highlighter hilite)
-    {
-    	Highlighter.Highlight[] hilites = hilite.getHighlights();
-        for (int i = 0; i < hilites.length; i++) {
-            if (hilites[i].getPainter() instanceof MoeBorderHighlighterPainter) {
-                hilite.removeHighlight(hilites[i]);
-            }
+        for (Object tag : sourceSearchHighlightTags) {
+            sourcePane.getHighlighter().removeHighlight(tag);
         }
+        sourceSearchHighlightTags.clear();
+        
+        for (Object tag : htmlSearchHighlightTags) {
+            htmlPane.getHighlighter().removeHighlight(tag);
+        }
+        htmlSearchHighlightTags.clear();
     }
     
     /**
@@ -3555,8 +3560,8 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     protected void setSelectionVisible()
     {
-        currentTextPane.getCaret().setSelectionVisible(true);
         Caret caret = currentTextPane.getCaret();
+        caret.setSelectionVisible(true);
         if (caret instanceof MoeCaret) {
             MoeCaret mcaret = (MoeCaret) caret;
             mcaret.setPersistentHighlight();
@@ -3670,7 +3675,9 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }
 
     /**
-     * Returns whether the source is code or not
+     * Returns whether the editor text represents source code, or something else
+     * (such as the README.txt file).
+     * 
      * @return true if source code; 
      *         false if not
      */
