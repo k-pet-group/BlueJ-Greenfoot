@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -30,7 +30,7 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.tools.Diagnostic;
-import javax.tools.DiagnosticCollector;
+import javax.tools.DiagnosticListener;
 import javax.tools.JavaCompiler;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
@@ -59,22 +59,71 @@ public class CompilerAPICompiler extends Compiler
      * @param observer
      *            The compilation observer
      * @param internal
-     *            True if compiling BlueJ-generated code (shell files) False if
+     *            True if compiling BlueJ-generated code (shell files); false if
      *            compiling user code
      * 
      * @return  true if successful
      */
-    public boolean compile(File[] sources, CompileObserver observer,
-            boolean internal, List<String> userOptions) 
+    public boolean compile(final File[] sources, final CompileObserver observer,
+            final boolean internal, List<String> userOptions) 
     {
         boolean result = true;
         JavaCompiler jc = ToolProvider.getSystemJavaCompiler();
         List<String> optionsList = new ArrayList<String>();
-        DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
+        
+        DiagnosticListener<JavaFileObject> diagListener = new DiagnosticListener<JavaFileObject>() {
+            @Override
+            public void report(Diagnostic<? extends JavaFileObject> diag)
+            {
+                String src = null;
+                if (diag.getSource() != null)
+                {
+                    // See bug: http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6419926
+                    // JDK6 returns URIs without a scheme in some cases, so always resolve against a
+                    // known "file:/" URI:
+                    URI srcUri = sources[0].toURI().resolve(diag.getSource().toUri());
+                    src = new File(srcUri).getPath();
+                }
+                
+                int diagType;
+                bluej.compiler.Diagnostic bjDiagnostic;
+                String message = diag.getMessage(null);
+                
+                if (diag.getKind() == Diagnostic.Kind.ERROR) {
+                    diagType = bluej.compiler.Diagnostic.ERROR;
+                    message = processMessage(src, (int) diag.getLineNumber(), message);
+                    long beginCol = diag.getColumnNumber();
+                    long endCol = diag.getEndPosition() - diag.getStartPosition() + beginCol;
+                    bjDiagnostic = new bluej.compiler.Diagnostic(diagType,
+                            message, src, diag.getLineNumber(), beginCol,
+                            diag.getLineNumber(), endCol);
+                }
+                else if (diag.getKind() == Diagnostic.Kind.WARNING) {
+                    diagType = bluej.compiler.Diagnostic.WARNING;
+                    long beginCol = diag.getColumnNumber();
+                    long endCol = diag.getEndPosition() - diag.getStartPosition() + beginCol;
+                    bjDiagnostic = new bluej.compiler.Diagnostic(diagType,
+                            message, src, diag.getLineNumber(), beginCol,
+                            diag.getLineNumber(), endCol);
+                }
+                else {
+                    diagType = bluej.compiler.Diagnostic.NOTE;
+                    bjDiagnostic = new bluej.compiler.Diagnostic(diagType, message);
+                    if (internal &&
+                            (message.endsWith(" uses unchecked or unsafe operations.") ||
+                            message.startsWith("Note: Recompile with -Xlint:unchecked "))) {
+                        return;
+                    }
+                }
+                
+                observer.compilerMessage(bjDiagnostic);
+            }
+        };
+        
         try
         {  
             //setup the filemanager
-            StandardJavaFileManager sjfm = jc.getStandardFileManager(diagnostics, null, null);
+            StandardJavaFileManager sjfm = jc.getStandardFileManager(diagListener, null, null);
             List<File> pathList = new ArrayList<File>();
             List<File> outputList = new ArrayList<File>();
             outputList.add(getDestDir());
@@ -105,7 +154,7 @@ public class CompilerAPICompiler extends Compiler
             optionsList.addAll(userOptions);
             
             //compile
-            jc.getTask(null, sjfm, diagnostics, optionsList, null, compilationUnits1).call();
+            result = jc.getTask(null, sjfm, diagListener, optionsList, null, compilationUnits1).call();
             sjfm.close();            
         }
         catch(IOException e)
@@ -114,88 +163,16 @@ public class CompilerAPICompiler extends Compiler
             return false;
         }
 
-        //Query diagnostics for error/warning messages
-        List<Diagnostic<? extends JavaFileObject>> diagnosticList = diagnostics.getDiagnostics();        
-        String src = null;
-        int pos = 0;
-        String msg = null;
-        boolean error = false;
-        boolean warning = false;
-        int diagnosticErrorPosition = -1;
-        int diagnosticWarningPosition = -1;
-        //ensure an error is printed if there is one, else use the warning/s; note/s
-        //(errors should have priority in the diagnostic list, but this is just in case not)
-        for (int i = 0; i< diagnosticList.size(); i++){
-            if (diagnosticList.get(i).getKind().equals(Diagnostic.Kind.ERROR))
-            {
-                diagnosticErrorPosition = i;
-                error = true;
-                warning = false;
-                break;
-            }
-            if (diagnosticList.get(i).getKind().equals(Diagnostic.Kind.WARNING)||
-                    diagnosticList.get(i).getKind().equals(Diagnostic.Kind.NOTE))
-            {
-                warning = true;
-                //just to ensure the first instance of the warning position is recorded 
-                //(not the last position)
-                if (diagnosticWarningPosition == -1){
-                    diagnosticWarningPosition = i;
-                }
-            }
-        }
-        //diagnosticErrorPosition can either be the warning/error
-        if (diagnosticErrorPosition < 0)
-        {
-            diagnosticErrorPosition = diagnosticWarningPosition;
-        }
-        //set the necessary values
-        if (warning || error) 
-        {
-            Diagnostic<? extends JavaFileObject> diagnostic = diagnosticList.get(diagnosticErrorPosition);
-            if (diagnostic.getSource() != null)
-            {
-                // See bug: http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6419926
-                // JDK6 returns URIs without a scheme in some cases, so always resolve against a
-                // known "file:/" URI:
-                URI srcUri = sources[0].toURI().resolve(diagnostic.getSource().toUri());
-                src = new File(srcUri).toString();
-            }
-            pos = (int)diagnostic.getLineNumber();
-
-            // Handle compiler error messages 
-            if (error) 
-            {
-                result = false;          
-                msg = processMessage(src, pos, diagnostic.getMessage(null));  
-                observer.errorMessage(src, pos, msg);
-            }
-            // Handle compiler warning messages  
-            // If it is a warning message, need to get all the messages
-            if (warning) 
-            {
-                for (int i = diagnosticErrorPosition; i < diagnosticList.size(); i++)
-                {
-                    //'display unchecked warning messages' in the preferences dialog is unchecked
-                    //therefore notes should not be displayed
-                    //warnings can still be displayed
-                    if (internal && diagnosticList.get(i).getKind().equals(Diagnostic.Kind.NOTE)){
-                        continue;
-                    }
-                    else
-                    {
-                        msg = diagnosticList.get(i).getMessage(null);
-                        observer.warningMessage(src, pos, msg);
-                    }
-                }              
-            }
-        }
         return result;
     }
 
     /**
      * Processes messages returned from the compiler. This just slightly adjusts the format of some
      * messages.
+     * 
+     * @param src  The source file path
+     * @param pos  The line number at which the error occurrs
+     * @param message  The error message
      */
     protected String processMessage(String src, int pos, String message)
     {

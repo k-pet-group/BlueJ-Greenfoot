@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -42,6 +42,7 @@ import java.util.Stack;
 
 import bluej.Config;
 import bluej.compiler.CompileObserver;
+import bluej.compiler.Diagnostic;
 import bluej.compiler.EventqueueCompileObserver;
 import bluej.compiler.JobQueue;
 import bluej.debugger.Debugger;
@@ -2410,13 +2411,25 @@ public final class Package extends Graph
             markAsCompiling(sources);
         }
 
-        public void errorMessage(String filename, int lineNo, String message)
+        public void compilerMessage(Diagnostic diagnostic)
+        {
+            if (diagnostic.getType() == Diagnostic.ERROR) {
+                errorMessage(diagnostic.getFileName(), (int) diagnostic.getStartLine(),
+                        diagnostic.getMessage());
+            }
+            else {
+                warningMessage(diagnostic.getFileName(), (int) diagnostic.getStartLine(),
+                        diagnostic.getMessage());
+            }
+        }
+        
+        private void errorMessage(String filename, int lineNo, String message)
         {
             // Send a compilation Error event to extensions.
             sendEventToExtensions(filename, lineNo, message, CompileEvent.COMPILE_ERROR_EVENT);
         }
 
-        public void warningMessage(String filename, int lineNo, String message)
+        private void warningMessage(String filename, int lineNo, String message)
         {
             // Send a compilation Error event to extensions.
             sendEventToExtensions(filename, lineNo, message, CompileEvent.COMPILE_WARNING_EVENT);
@@ -2624,6 +2637,29 @@ public final class Package extends Graph
      */
     private class PackageCompileObserver extends QuietPackageCompileObserver
     {
+        private boolean hadError;
+        
+        @Override
+        public void startCompile(File[] sources)
+        {
+            hadError = false;
+            super.startCompile(sources);
+        }
+        
+        @Override
+        public void compilerMessage(Diagnostic diagnostic)
+        {
+            super.compilerMessage(diagnostic);
+            if (diagnostic.getType() == Diagnostic.ERROR) {
+                errorMessage(diagnostic.getFileName(), (int) diagnostic.getStartLine(),
+                        diagnostic.getMessage());
+            }
+            else {
+                warningMessage(diagnostic.getFileName(), (int) diagnostic.getStartLine(),
+                        diagnostic.getMessage());
+            }
+        }
+        
         /**
          * Display an error message associated with a specific line in a class.
          * This is done by opening the class's source, highlighting the line and
@@ -2631,22 +2667,23 @@ public final class Package extends Graph
          */
         public void errorMessage(String filename, int lineNo, String message)
         {
-            super.errorMessage(filename, lineNo, message);
-            
-            boolean messageShown;
-            
-            // See if we can help the user a bit more if they've mis-spelt a method:
-            if (message.contains("cannot find symbol - method")) {
-                messageShown = showEditorMessage(filename, lineNo,
-                        new MisspeltMethodChecker(message, lineNo, project), true, true,
-                        false, Config.compilertype);
-            } else {
-                messageShown = showEditorMessage(filename, lineNo, message, true, true, false,
-                        Config.compilertype);
-            }
-            // Display the error message in the source editor
-            if (false == messageShown) {
-                showMessageWithText("error-in-file", filename + ":" + lineNo + "\n" + message);
+            if (! hadError) {
+                hadError = true;
+                boolean messageShown;
+
+                // See if we can help the user a bit more if they've mis-spelt a method:
+                if (message.contains("cannot find symbol - method")) {
+                    messageShown = showEditorMessage(filename, lineNo,
+                            new MisspeltMethodChecker(message, lineNo, project), true, true,
+                            false, Config.compilertype);
+                } else {
+                    messageShown = showEditorMessage(filename, lineNo, message, true, true, false,
+                            Config.compilertype);
+                }
+                // Display the error message in the source editor
+                if (!messageShown) {
+                    showMessageWithText("error-in-file", filename + ":" + lineNo + "\n" + message);
+                }
             }
         }
 
@@ -2660,8 +2697,6 @@ public final class Package extends Graph
          */
         public void warningMessage(String filename, int lineNo, String message)
         {
-            super.warningMessage(filename, lineNo, message);
-            
             // Add this message-fragment to, and display, the warning dialog
             bluej.compiler.CompilerWarningDialog.getDialog().addWarningMessage(message);
         }

@@ -458,26 +458,6 @@ colour.highlight=180,220,255
 colour.highlight2=110,190,255
 
 #####################################################################
-## Compiling. Commands used to execute a compiler. The first property
-## sets the type of the compiler. Currently it can be either
-## "internal" or "javac" (the Jikes compiler is no longer supported). 
-## 
-## The second property if it exists, specifies the name of the
-## executable to run as the compiler. This can be a fully qualified
-## path or the name of an executable in the path. If it is not
-## specified an appropriate default is used.
-#####################################################################
-
-bluej.compiler.type=internal
-
-#bluej.compiler.type=javac
-#bluej.compiler.executable=javac
-
-# Whether to show the "unchecked" warnings generated when using generic
-# classes in a non-typesafe manner (java 1.5+ only)
-bluej.compiler.unchecked=true
-
-#####################################################################
 ## Compiler options. 
 ## 
 ## Here, you can add compile options for the Java compiler.
@@ -498,6 +478,10 @@ bluej.compiler.unchecked=true
 #####################################################################
 
 #bluej.compiler.options=-source 1.4 -target 1.4
+
+# Whether to show the "unchecked" warnings generated when using generic
+# classes in a non-typesafe manner (java 1.5+ only)
+bluej.compiler.unchecked=true
 
 #####################################################################
 ## Compiler options to compile classes in Java ME projects. 

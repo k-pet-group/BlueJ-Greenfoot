@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -34,6 +34,7 @@ import javax.swing.JFrame;
 
 import bluej.Config;
 import bluej.compiler.CompileObserver;
+import bluej.compiler.Diagnostic;
 import bluej.compiler.EventqueueCompileObserver;
 import bluej.compiler.JobQueue;
 import bluej.debugger.Debugger;
@@ -1000,10 +1001,21 @@ public class Invoker
     public void startCompile(File[] sources)
     {}
 
+    /*
+     * @see bluej.compiler.CompileObserver#compilerMessage(bluej.compiler.Diagnostic)
+     */
+    public void compilerMessage(Diagnostic diagnostic)
+    {
+        if (diagnostic.getType() == Diagnostic.ERROR) {
+            errorMessage(diagnostic.getFileName(), diagnostic.getStartLine(), diagnostic.getMessage());
+        }
+        // We ignore warnings for shell classes
+    }
+    
     /**
      * An error was detected during compilation of the shell class.
      */
-    public void errorMessage(String filename, int lineNo, String message)
+    private void errorMessage(String filename, long lineNo, String message)
     {
         if (dialog != null) {
             dialog.setErrorMessage("Error: " + message);
@@ -1011,14 +1023,6 @@ public class Invoker
         watcher.putError(message, ir);
     }
     
-    /**
-     * A warning was detected during compilation of the shell class.
-     * For the shell class, we just ignore warnings.
-     */
-    public void warningMessage(String filename, int lineNo, String message) 
-    {
-    }
-
     /**
      * The compilation of the shell class has ended. If all went well, execute
      * now. Then clean up.

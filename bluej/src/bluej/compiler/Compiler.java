@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -176,7 +176,7 @@ abstract class Compiler
      * @param observer
      *            The compilation observer
      * @param internal
-     *            True if compiling BlueJ-generated code (shell files) False if
+     *            True if compiling BlueJ-generated code (shell files); false if
      *            compiling user code
      * @param options
      *            Option strings to pass to the compiler

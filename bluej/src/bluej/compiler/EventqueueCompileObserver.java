@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,7 +29,6 @@ import java.lang.reflect.InvocationTargetException;
  * This class adapts CompileObserver messages to run on the GUI thread.
  * 
  * @author Davin McCall
- * @version $Id$
  */
 final public class EventqueueCompileObserver
     implements CompileObserver, Runnable
@@ -38,18 +37,15 @@ final public class EventqueueCompileObserver
     private int command;
     
     private static final int COMMAND_START = 0;
-    private static final int COMMAND_ERROR = 1;
-    private static final int COMMAND_WARNING = 2;
-    private static final int COMMAND_END = 3;
+    private static final int COMMAND_DIAG = 1;
+    private static final int COMMAND_END = 2;
     
     // parameters for COMMAND_START/COMMAND_END
     private File [] sources;
     private boolean successful;  // COMMAND_END only
     
-    // parameters for COMMAND_ERROR/COMMAND_WARNING
-    private String filename;
-    private int lineNo;
-    private String message;
+    // parameters for COMMAND_DIAG
+    private Diagnostic diagnostic;
     
     /**
      * Constructor for EventqueueCompileObserver. The link parameter is a compiler
@@ -74,28 +70,17 @@ final public class EventqueueCompileObserver
     
     // ---------------- CompileObserver interface ---------------------
     
+    public synchronized void compilerMessage(Diagnostic diagnostic)
+    {
+        command = COMMAND_DIAG;
+        this.diagnostic = diagnostic;
+        runOnEventQueue();
+    }
+    
     public synchronized void startCompile(File[] csources)
     {
         command = COMMAND_START;
         this.sources = csources;
-        runOnEventQueue();
-    }
-
-    public synchronized void errorMessage(String filename, int lineNo, String message)
-    {
-        command = COMMAND_ERROR;
-        this.filename = filename;
-        this.lineNo = lineNo;
-        this.message = message;
-        runOnEventQueue();
-    }
-
-    public synchronized void warningMessage(String filename, int lineNo, String message)
-    {
-        command = COMMAND_WARNING;
-        this.filename = filename;
-        this.lineNo = lineNo;
-        this.message = message;
         runOnEventQueue();
     }
 
@@ -118,11 +103,8 @@ final public class EventqueueCompileObserver
             case COMMAND_START:
                 link.startCompile(sources);
                 break;
-            case COMMAND_ERROR:
-                link.errorMessage(filename, lineNo, message);
-                break;
-            case COMMAND_WARNING:
-                link.warningMessage(filename, lineNo, message);
+            case COMMAND_DIAG:
+                link.compilerMessage(diagnostic);
                 break;
             case COMMAND_END:
                 link.endCompile(sources, successful);

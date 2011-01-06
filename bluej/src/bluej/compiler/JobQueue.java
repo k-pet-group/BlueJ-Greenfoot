@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,13 +27,11 @@ import java.util.List;
 
 import bluej.Config;
 import bluej.classmgr.BPClassLoader;
-import bluej.utility.Debug;
 
 /**
  * Reasonably generic interface between the BlueJ IDE and the Java compiler.
  * 
  * @author Michael Cahill
- * @version $Id: JobQueue.java 8510 2010-10-21 04:12:29Z davmac $
  */
 public class JobQueue
 {
@@ -41,8 +39,9 @@ public class JobQueue
 
     public static synchronized JobQueue getJobQueue()
     {
-        if (queue == null)
+        if (queue == null) {
             queue = new JobQueue();
+        }
         return queue;
     }
 
@@ -56,33 +55,7 @@ public class JobQueue
      */
     private JobQueue()
     {
-        // determine which compiler we should be using
-        String compilertype = Config.getPropString("bluej.compiler.type");
-
-        //even though it is specified to use internal, the preferred compiler for a
-        //system running Java 6 or greater is the JavaCompiler API
-        if (compilertype.equals("internal")) {
-            if (Config.isJava16()){
-                try
-                {
-                    Class<?> c = Class.forName("bluej.compiler.CompilerAPICompiler");
-                    compiler =(Compiler)c.newInstance();
-                }
-                catch (Throwable e) {
-                    Debug.message("Could not instantiate the compiler API compiler implementation; defaulting to old compiler");
-                    compiler = new JavacCompilerInternal();
-                }
-            } else {
-                compiler = new JavacCompilerInternal();
-            }
-        }
-        else if (compilertype.equals("javac")) {
-            compiler = new JavacCompiler(Config.getJDKExecutablePath("bluej.compiler.executable", "javac"));
-        }
-        else {
-            Debug.message(Config.getString("compiler.invalidcompiler"));
-        }
-
+        compiler = new CompilerAPICompiler();
         thread = new CompilerThread();
 
         // Lower priority to improve GUI response time during compilation

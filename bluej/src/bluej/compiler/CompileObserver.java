@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,7 +29,6 @@ import java.io.File;
  * All events are generated on the compiler thread.
  *
  * @author  Michael Cahill
- * @version $Id: CompileObserver.java 6215 2009-03-30 13:28:25Z polle $
  */
 public interface CompileObserver
 {
@@ -39,15 +38,10 @@ public interface CompileObserver
     void startCompile(File[] sources);
     
     /**
-     * An error message occurred during compilation
+     * An error or warning message occurred during compilation
      */
-    void errorMessage(String filename, int lineNo, String message);
+    void compilerMessage(Diagnostic diagnostic);
     
-    /**
-     * A warning message occurred during compilation
-     */
-    void warningMessage(String filename, int lineNo, String message);
-
     /**
      * A Compilation job finished.
      */

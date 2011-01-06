@@ -7,8 +7,6 @@ main.invalidPackage=Package not found
 
 compileException=Exception during compilation
 compiler.thread.title=BlueJ compiler thread
-compiler.invalidcompiler=bluej.compiler.type is not set to a valid compiler type
-compiler.nocompiler=Compiler could not be executed
 compiler.warningDialog.title=Compiler Warnings
 compiler.warningDialog.label=Warnings from last compilation 
 compiler.warningDialog.noWarnings=No warnings
