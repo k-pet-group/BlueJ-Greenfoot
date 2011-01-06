@@ -1,6 +1,6 @@
 /*
- This file is part of the BlueJ program. 
- Copyright (C) 2010  Michael Kolling and John Rosenberg 
+ This file is part of the Greenfoot program. 
+ Copyright (C) 2010,2011  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,6 +24,8 @@ package rmiextension.wrappers;
 import java.io.File;
 import java.rmi.RemoteException;
 
+import bluej.compiler.Diagnostic;
+
 /**
  * A remote version of the CompileObserver interface.
  * 
@@ -37,15 +39,10 @@ public interface RCompileObserver extends java.rmi.Remote
     void startCompile(File[] sources) throws RemoteException;
     
     /**
-     * An error message occurred during compilation
+     * An error or warning message occurred during compilation
      */
-    void errorMessage(String filename, int lineNo, String message) throws RemoteException;
+    void compilerMessage(Diagnostic diagnostic) throws RemoteException;
     
-    /**
-     * A warning message occurred during compilation
-     */
-    void warningMessage(String filename, int lineNo, String message) throws RemoteException;
-
     /**
      * A Compilation job finished.
      */

@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2010  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2010,2011  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,6 +27,7 @@ import java.rmi.ServerError;
 import java.rmi.ServerException;
 
 import bluej.compiler.CompileObserver;
+import bluej.compiler.Diagnostic;
 import bluej.compiler.JobQueue;
 import bluej.pkgmgr.Package;
 import bluej.utility.Debug;
@@ -87,27 +88,10 @@ public class RJobQueueImpl extends java.rmi.server.UnicastRemoteObject
                 }
             }
             @Override
-            public void errorMessage(String filename, int lineNo, String message)
+            public void compilerMessage(Diagnostic diagnostic)
             {
                 try {
-                    observer.errorMessage(filename, lineNo, message);
-                }
-                catch (ServerError se) {
-                    Debug.reportError("Server error in RMI call: " + se.getCause());
-                }
-                catch (ServerException se) {
-                    Debug.reportError("Server error in RMI call: " + se.getCause());
-                }
-                catch (RemoteException re) {
-                    // probably, connection broken
-                }
-            }
-            @Override
-            public void warningMessage(String filename, int lineNo,
-                    String message)
-            {
-                try {
-                    observer.warningMessage(filename, lineNo, message);
+                    observer.compilerMessage(diagnostic);
                 }
                 catch (ServerError se) {
                     Debug.reportError("Server error in RMI call: " + se.getCause());
