@@ -6,7 +6,7 @@
 #APPNAME=\"BlueJ\"
 #GREENFOOTDEF=
 #EXECNAME=bjlaunch.exe
-#REQUIREDJAVA=\"1.5\"
+#REQUIREDJAVA=\"1.6\"
 
 # For Greenfoot
 APPNAME=\"Greenfoot\"

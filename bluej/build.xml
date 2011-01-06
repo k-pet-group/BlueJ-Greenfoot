@@ -3,7 +3,7 @@
 
     <!-- ************************************************************ -->
     <!-- set global properties for this build (and subproject builds} -->
-    <!-- ********************************************** -->
+    <!-- ************************************************************ -->
     <!-- it should not be necessary to edit any properties to build -->
 
     <!-- user specific properties that are edited to match local build environment-->
@@ -94,8 +94,8 @@ LICENSE.txt file that accompanied this code.${line.separator}
                 fork="yes"
                 srcdir="${boot.src}"
                 destdir="${boot.build}"
-                source="1.5"
-                target="1.5"
+                source="1.6"
+                target="1.6"
                 deprecation="yes"
         >
         </javac>
@@ -111,8 +111,8 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <javac
                 executable="${build_java_home}/${java_command_dir_name}/javac"
                 fork="yes"
-                source="1.5"
-                target="1.5"
+                source="1.6"
+                target="1.6"
                 srcdir="${core.src}"
                 destdir="${core.build}"
                 debug="on"
@@ -143,8 +143,8 @@ LICENSE.txt file that accompanied this code.${line.separator}
                 executable="${build_java_home}/${java_command_dir_name}/javac"
                 fork="yes"
                 srcdir="${test.src}"
-                source="1.5"
-                target="1.5"
+                source="1.6"
+                target="1.6"
                 destdir="${test.build}"
                 deprecation="yes"
                 >
