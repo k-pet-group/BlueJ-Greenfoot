@@ -141,7 +141,8 @@ public interface Editor
      * @param column        the column to move the cursor to
      * @param beep        if true, do a system beep
      * @param setStepMark    if true, set step mark (for single stepping)
-     * @param help        name of help group (may be null)
+     * @param help        name of help group (may be null); this should be the compiler
+     *                    name such as "javac".
      */
     void displayMessage(String message, int lineNumber, int column, 
                         boolean beep, boolean setStepMark, String help);

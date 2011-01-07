@@ -105,7 +105,7 @@ public final class Config
     /** The greenfoot subdirectory of the "lib"-directory*/ 
     private static File greenfootLibDir;
     
-    public static String compilertype;  // current compiler (javac, jikes)
+    public static String compilertype = "javac";  // current compiler (javac, jikes)
     public static String language;      // message language (english, ...)
 
     public static Rectangle screenBounds; // maximum dimensions of screen
@@ -241,11 +241,6 @@ public final class Config
         moeSystemProps = loadDefs("moe.defs", System.getProperties());
         moeUserProps = new Properties(moeSystemProps);
         loadProperties("moe", moeUserProps);  // add user specific editor definitions
-
-        compilertype = Config.getPropString("bluej.compiler.type");
-        if(compilertype.equals("internal")) {
-            compilertype = "javac";
-        }
 
         // Whether or not to use the screen menu bar on a Mac
         String macOSscreenMenuBar = Config.getPropString("bluej.macos.screenmenubar", "true");
