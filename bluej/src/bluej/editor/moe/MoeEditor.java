@@ -194,7 +194,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     private MoeActions actions;
     public MoeUndoManager undoManager;
 
-    JEditorPane currentTextPane;            // text component currently dislayed
+    private JEditorPane currentTextPane;    // text component currently displayed
     private JEditorPane sourcePane;         // the component holding the source text
 
     private JEditorPane htmlPane;           // the component holding the javadoc html
@@ -206,13 +206,14 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     private JComboBox interfaceToggle;
     private GoToLineDialog goToLineDialog;
 
-    // new find functionality
+    // find functionality
     private FindPanel finder;
     private ReplacePanel replacer;
 
     private JScrollPane scrollPane;
     private NaviView naviView;              // Navigation view (mini-source view)
-    private EditorDividerPanel dividerPanel;  // Divider Panel to indicate separation between the editor and navigation view
+    private EditorDividerPanel dividerPanel;  // Divider Panel to indicate separation between the
+                                            // editor and navigation view
     private JComponent toolbar;             // The toolbar
     private JPopupMenu popup;               // Popup menu options
 
