@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2011  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -76,13 +76,6 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     private JCheckBox matchCaseCheckBox;
     private JLabel replaceIconLabel;
     private JLabel closeIconLabel;
-
-    private final static String CLOSE_BUTTON_NAME ="closeBtn";
-    private final static String INPUT_QUERY_NAME ="queryText";
-    private final static String PREVIOUS_BUTTON_NAME ="prevBtn";
-    private final static String NEXT__BUTTON_NAME ="nextBtn";
-    private final static String MATCHCASE_CHECKBOX="matchCaseCheckBox";   
-    private final static String REPLACE_BUTTON_NAME ="replaceOpenCloseButton";
 
     private String searchString=""; 
     private static Font findFont;
@@ -197,7 +190,6 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         findTField.setFont(findFont);
         setSearchString("");
         setfindTextField("");
-        findTField.setName(INPUT_QUERY_NAME);
         findTField.getDocument().addDocumentListener(this);
         findTField.addActionListener(this);
     }
@@ -209,14 +201,12 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     {
         previousButton=new JButton();
         previousButton.addActionListener(this);
-        previousButton.setName(PREVIOUS_BUTTON_NAME);
         previousButton.setText(Config.getString("editor.findpanel.findPrevious")+" ");
         previousButton.setEnabled(false);
         previousButton.setFont(findFont);
 
         nextButton=new JButton();
         nextButton.addActionListener(this);
-        nextButton.setName(NEXT__BUTTON_NAME);
         nextButton.setText(Config.getString("editor.findpanel.findNext"));
         nextButton.setEnabled(false);
         nextButton.setFont(findFont);
@@ -238,7 +228,6 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         matchCaseCheckBox.setText(Config.getString("editor.findpanel.matchCase"));
         matchCaseCheckBox.setSelected(false);
         matchCaseCheckBox.setFont(findFont);
-        matchCaseCheckBox.setName(MATCHCASE_CHECKBOX);
         matchCaseCheckBox.addActionListener(this);
         matchCaseCheckBox.setOpaque(false);
     }
@@ -260,7 +249,6 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         closeIconLabel.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 10));
         closeIconLabel.setIcon(Config.getFixedImageAsIcon("cross.png"));
         closeIconLabel.addMouseListener(this);
-        closeIconLabel.setName(CLOSE_BUTTON_NAME); 
     }
 
     /**
@@ -272,7 +260,6 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         replaceIconLabel.setFont(findFont);
         replaceIconLabel.setIcon(closedIcon);
         replaceIconLabel.addMouseListener(this);
-        replaceIconLabel.setName(REPLACE_BUTTON_NAME);                            
     }
 
     /**
@@ -327,13 +314,13 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     {
         JComponent src = (JComponent) e.getSource();
 
-        if (NEXT__BUTTON_NAME.equals(src.getName()) || INPUT_QUERY_NAME.equals(src.getName())){  
+        if (src == nextButton || src == findTField) {  
             getNext();
         }
-        if (PREVIOUS_BUTTON_NAME.equals(src.getName())){
+        else if (src == previousButton) {
             getPrev();   
         }
-        if (MATCHCASE_CHECKBOX.equals(src.getName())){
+        else if (src == matchCaseCheckBox) {
             editor.setCaretPosition(editor.getCurrentTextPane().getSelectionStart());
             find(true);
         }
@@ -396,8 +383,9 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     public void displayFindPanel(String selection)
     {    
-        if (selection==null)
-            selection=getSearchString();       
+        if (selection==null) {
+            selection=getSearchString();
+        }
         setSearchString(selection);
         this.setVisible(true);
         populateFindTextfield(selection);
@@ -573,22 +561,22 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         findTField.setText(selection);
     }
 
-
     public void mouseClicked(MouseEvent e)
     {
         JComponent src = (JComponent) e.getSource();
-        if(src.getName() == CLOSE_BUTTON_NAME){
+        if (src == closeIconLabel) {
             close();
             return;
         }
-        if (src.getName()==REPLACE_BUTTON_NAME){
-            if (editor.isShowingInterface())
+        if (src == replaceIconLabel) {
+            if (editor.isShowingInterface()) {
                 return;
+            }
             editor.toggleReplacePanelVisible();
-            if (replaceIconLabel.getIcon()==openIcon){
+            if (replaceIconLabel.getIcon() == openIcon) {
                 replaceIconLabel.setIcon(closedIcon);
             }
-            else if (replaceIconLabel.getIcon()==closedIcon){
+            else if (replaceIconLabel.getIcon() == closedIcon) {
                 replaceIconLabel.setIcon(openIcon);
             }
         }
@@ -613,10 +601,12 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     protected void setFindReplaceIcon(boolean open)
     {
-        if (open)
+        if (open) {
             replaceIconLabel.setIcon(openIcon);
-        else
+        }
+        else {
             replaceIconLabel.setIcon(closedIcon);
+        }
     }
 
     /**
@@ -628,6 +618,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         editor.removeSearchHighlights();
         this.setVisible(false);
         editor.setReplacePanelVisible(false);
+        editor.getCurrentTextPane().requestFocusInWindow();
         replaceIconLabel.setIcon(closedIcon);
     }
 
