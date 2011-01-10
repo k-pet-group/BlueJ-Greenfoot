@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -33,6 +33,9 @@ import java.io.*;
 import javax.swing.border.EmptyBorder;
 
 /**
+ * An information panel, displayed at the bottom of a MoeEditor window. The panel can
+ * display error messages / notices to the user, and has a "?" button which can be
+ * used to request additional help on compiler errors.
  *
  * @author Michael Kolling
  */
@@ -54,6 +57,9 @@ public final class Info extends JPanel
 
     // ------------- METHODS --------------
 
+    /**
+     * Construct a new Info instance.
+     */
     public Info()
     {
         super();
@@ -88,19 +94,23 @@ public final class Info extends JPanel
     }
 
     /**
-     * display a one line message
+     * display a one- or two-line message (using '\n' to separate multiple lines)
      */
     public void message(String msg)
     {
         originalMsg = msg;
         int newline = msg.indexOf('\n');
-        if (newline == -1)
-            if(msg.length() <= 81)
+        if (newline == -1) {
+            if(msg.length() <= 81) {
                 message (msg, "");
-            else
+            }
+            else {
                 message (msg.substring(0, 80), msg.substring(80));
-        else
+            }
+        }
+        else {
             message (msg.substring(0, newline), msg.substring(newline+1));
+        }
     }
 
 
@@ -119,7 +129,8 @@ public final class Info extends JPanel
 
 
     /**
-     * display a one line warning (message with beep)
+     * display a one- or two-line warning (message with beep). Separate lines should
+     * be delimited with '\n'.
      */
     public void warning(String msg)
     {
@@ -151,7 +162,8 @@ public final class Info extends JPanel
 
 
     /**
-     *
+     * Set the "help group" (the name of the compiler, used to locate the additional
+     * help text for error messages)
      */
     public void setHelp(String helpGroup)
     {
@@ -160,9 +172,9 @@ public final class Info extends JPanel
     }
 
     /**
-     *
+     * Hide the "additional error message help" button.
      */
-    public void hideHelp()
+    private void hideHelp()
     {
         helpButton.setVisible(false);
     }
@@ -179,7 +191,6 @@ public final class Info extends JPanel
         File fileName = Config.getLanguageFile(helpGroup + ".help");
         int i = originalMsg.indexOf('\n');
         
-        // fix for newline bug #386 with jdk1.4.0
         String line;
         if (i<0) {
             line = originalMsg;
@@ -189,17 +200,13 @@ public final class Info extends JPanel
         
         String helpText = BlueJFileReader.readHelpText(fileName, line.trim(),
                                                        false);
-//         if(originalMsg.length() > 60) {
-//             int half = originalMsg.length() / 2;
-//             originalMsg = originalMsg.substring(0, half) + "\n" +
-//                          originalMsg.substring(half);
-//         }
 
-        if(helpText == null)
+        if(helpText == null) {
             DialogManager.showMessageWithText(null, "no-help",
                                               "\n" + originalMsg);
-        else
+        }
+        else {
             DialogManager.showText(null, originalMsg + "\n\n" + helpText);
+        }
     }
-
-}  // end class Info
+}
