@@ -99,6 +99,7 @@ import bluej.BlueJEvent;
 import bluej.BlueJEventListener;
 import bluej.BlueJTheme;
 import bluej.Config;
+import bluej.compiler.Diagnostic;
 import bluej.editor.EditorWatcher;
 import bluej.parser.AssistContent;
 import bluej.parser.CodeSuggestions;
@@ -254,6 +255,8 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     /** Search highlight tags for both text panes */
     private List<Object> sourceSearchHighlightTags = new ArrayList<Object>();
     private List<Object> htmlSearchHighlightTags = new ArrayList<Object>();
+    
+    private Object errorHighlightTag = null;
     
     /**
      * Property map, allows BlueJ extensions to associate property values with
@@ -554,9 +557,8 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         // highlight the line
 
         sourcePane.setCaretPosition(pos);
-        sourcePane.moveCaretPosition(line.getEndOffset() - 1);
+        sourcePane.moveCaretPosition(line.getEndOffset() - 1);  // w/o line break
         moeCaret.setPersistentHighlight();
-        // w/o line break
 
         // display the message
 
@@ -571,10 +573,47 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
             info.setHelp(help);
         }
     }
+    
+    /*
+     * @see bluej.editor.Editor#displayDiagnostic(bluej.compiler.Diagnostic)
+     */
+    @Override
+    public void displayDiagnostic(Diagnostic diagnostic)
+    {
+        switchToSourceView();
+        
+        Element line = getSourceLine((int) diagnostic.getStartLine());
+        int pos = line.getStartOffset();
+        
+        // highlight the line
+
+        removeErrorHighlight();
+        if (diagnostic.getStartColumn() != diagnostic.getEndColumn()) {
+            try {
+                errorHighlightTag = sourcePane.getHighlighter().addHighlight(
+                        pos + (int) diagnostic.getStartColumn() - 1,
+                        pos + (int) diagnostic.getEndColumn() - 1,
+                        new MoeBorderHighlighterPainter(Color.RED, Color.RED, Color.PINK,
+                                Color.RED, Color.PINK)
+                        );
+            }
+            catch (BadLocationException ble) {}
+        }
+        
+        sourcePane.setCaretPosition(pos);
+        sourcePane.moveCaretPosition(line.getEndOffset() - 1); // w/o line break
+        moeCaret.setPersistentHighlight();
+
+        // display the message
+
+        info.message(diagnostic.getMessage());
+        info.setHelp("javac"); // TODO the compiler name, or the additional help text,
+                               // should really be a property of the diangostic object.
+    }
 
     /**
-     * Set the selection of the editor to be a len characters on the line
-     * lineNumber, starting with column columnNumber
+     * Set the selection of the editor (in the source pane) to be {@code len} characters on
+     * line {@code lineNumber}, starting with column {@code columnNumber}.
      * 
      * @param lineNumber  the line to select characters on
      * @param columnNumber  the column to start selection at (1st column is 1 - not 0)
@@ -1131,6 +1170,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     public void insertUpdate(DocumentEvent e)
     {
         removeSearchHighlights();
+        removeErrorHighlight();
         if (!saveState.isChanged()) {
             saveState.setState(StatusLabel.CHANGED);
             setChanged();
@@ -1147,6 +1187,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     public void removeUpdate(DocumentEvent e)
     {
         removeSearchHighlights();
+        removeErrorHighlight();
         if (!saveState.isChanged()) {
             saveState.setState(StatusLabel.CHANGED);
             setChanged();
@@ -3378,6 +3419,17 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
             htmlPane.getHighlighter().removeHighlight(tag);
         }
         htmlSearchHighlightTags.clear();
+    }
+    
+    /**
+     * Remove the error highlight (if one exists).
+     */
+    private void removeErrorHighlight()
+    {
+        if (errorHighlightTag != null) {
+            sourcePane.getHighlighter().removeHighlight(errorHighlightTag);
+            errorHighlightTag = null;
+        }
     }
     
     /**

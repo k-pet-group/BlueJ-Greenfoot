@@ -2193,6 +2193,70 @@ public final class Package extends Graph
         }
         return true;
     }
+    
+    /**
+     * Display a compiler diagnostic (error or warning) in the appropriate editor window.
+     * 
+     * @param diagnostic   The diagnostic to display
+     * @param messageCalc  The message "calculator", which returns a modified version of the message;
+     *                     may be null, in which case the original message is shown unmodified.
+     */
+    private boolean showEditorDiagnostic(Diagnostic diagnostic, MessageCalculator messageCalc)
+    {
+        String fileName = diagnostic.getFileName();
+        if (fileName == null) {
+            return false;
+        }
+        
+        String fullName = getProject().convertPathToPackageName(diagnostic.getFileName());
+        if (fullName == null) {
+            return false;
+        }
+        
+        String packageName = JavaNames.getPrefix(fullName);
+        String className = JavaNames.getBase(fullName);
+
+        ClassTarget t = null;
+
+        // check if the error is from a file belonging to another package
+        if (packageName != getQualifiedName()) {
+
+            Package pkg = getProject().getPackage(packageName);
+            
+            if (pkg != null) {
+                PkgMgrFrame pmf = PkgMgrFrame.findFrame(pkg);
+
+                if ((pmf = PkgMgrFrame.findFrame(pkg)) == null) {
+                    pmf = PkgMgrFrame.createFrame(pkg);
+                }
+
+                pmf.setVisible(true);
+
+                t = (ClassTarget) pkg.getTarget(className);
+            }
+        }
+        else {
+            t = (ClassTarget) getTarget(className);
+        }
+
+        if (t == null) {
+            return false;
+        }
+
+        Editor editor = t.getEditor();
+        if (editor != null) {
+            editor.setVisible(true);
+            if (messageCalc != null) {
+                diagnostic.setMessage(messageCalc.calculateMessage(editor));
+            }
+            editor.displayDiagnostic(diagnostic);
+        }
+        else {
+            Debug.message(t.getDisplayName() + ", line" + diagnostic.getStartLine() +
+                    ": " + diagnostic.getMessage());
+        }
+        return true;
+    }
 
     /**
      * A breakpoint in this package was hit.
@@ -2651,8 +2715,7 @@ public final class Package extends Graph
         {
             super.compilerMessage(diagnostic);
             if (diagnostic.getType() == Diagnostic.ERROR) {
-                errorMessage(diagnostic.getFileName(), (int) diagnostic.getStartLine(),
-                        diagnostic.getMessage());
+                errorMessage(diagnostic);
             }
             else {
                 warningMessage(diagnostic.getFileName(), (int) diagnostic.getStartLine(),
@@ -2665,24 +2728,29 @@ public final class Package extends Graph
          * This is done by opening the class's source, highlighting the line and
          * showing the message in the editor's information area.
          */
-        public void errorMessage(String filename, int lineNo, String message)
+        private void errorMessage(Diagnostic diagnostic)
         {
             if (! hadError) {
                 hadError = true;
                 boolean messageShown;
 
+                if (diagnostic.getFileName() == null) {
+                    showMessageWithText("compiler-error", diagnostic.getMessage());
+                    return;
+                }
+                
+                String message = diagnostic.getMessage();
                 // See if we can help the user a bit more if they've mis-spelt a method:
                 if (message.contains("cannot find symbol - method")) {
-                    messageShown = showEditorMessage(filename, lineNo,
-                            new MisspeltMethodChecker(message, lineNo, project), true, true,
-                            false, Config.compilertype);
+                    messageShown = showEditorDiagnostic(diagnostic,
+                            new MisspeltMethodChecker(message, (int) diagnostic.getStartLine(), project));
                 } else {
-                    messageShown = showEditorMessage(filename, lineNo, message, true, true, false,
-                            Config.compilertype);
+                    messageShown = showEditorDiagnostic(diagnostic, null);
                 }
                 // Display the error message in the source editor
                 if (!messageShown) {
-                    showMessageWithText("error-in-file", filename + ":" + lineNo + "\n" + message);
+                    showMessageWithText("error-in-file", diagnostic.getFileName() + ":" +
+                            diagnostic.getStartLine() + "\n" + message);
                 }
             }
         }
@@ -2695,7 +2763,7 @@ public final class Package extends Graph
          * into a single dialog.
          * If searchCompile() built a single list, we wouldn't need to do this
          */
-        public void warningMessage(String filename, int lineNo, String message)
+        private void warningMessage(String filename, int lineNo, String message)
         {
             // Add this message-fragment to, and display, the warning dialog
             bluej.compiler.CompilerWarningDialog.getDialog().addWarningMessage(message);

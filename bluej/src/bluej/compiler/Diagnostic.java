@@ -104,6 +104,14 @@ public class Diagnostic
     }
     
     /**
+     * Set the diagnostic message (the message to be presented to the end user).
+     */
+    public void setMessage(String message)
+    {
+        this.message = message;
+    }
+    
+    /**
      * Get the diagnostic message which can be presented to the end user.
      */
     public String getMessage()

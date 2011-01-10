@@ -28,6 +28,7 @@ import java.io.IOException;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
+import bluej.compiler.Diagnostic;
 import bluej.parser.SourceLocation;
 import bluej.parser.nodes.ParsedCUNode;
 
@@ -84,6 +85,16 @@ public interface Editor
      */
     void setSelection(int lineNumber, int column, int len);
 
+    /**
+     * Request to the editor to mark the text between begin and end as selected.
+     *
+     * @param  begin                      where to start the selection
+     * @param  end                        where to end the selection
+     * @throws  IllegalArgumentException  if either of the specified TextLocations
+     * represent a position which does not exist in the text.
+     */
+    public void setSelection(SourceLocation begin, SourceLocation end);
+    
     /**
      * Set the selection of the editor to be a len characters on the line
      * lineNumber, starting with column columnNumber
@@ -147,6 +158,13 @@ public interface Editor
     void displayMessage(String message, int lineNumber, int column, 
                         boolean beep, boolean setStepMark, String help);
 
+    /**
+     * Display a diagnostic message from the compiler.
+     * 
+     * @param diagnostic  The diagnostic to be displayed.
+     */
+    void displayDiagnostic(Diagnostic diagnostic);
+    
     /**
      *  Display a message into the info area.
      *  The message will be cleared when the caret is moved.
@@ -300,17 +318,7 @@ public interface Editor
      */
     public void setText(SourceLocation begin, SourceLocation end, String newText)
         throws BadLocationException;
-    
-    /**
-     * Request to the editor to mark the text between begin and end as selected.
-     *
-     * @param  begin                      where to start the selection
-     * @param  end                        where to end the selection
-     * @throws  IllegalArgumentException  if either of the specified TextLocations
-     * represent a position which does not exist in the text.
-     */
-    public void setSelection(SourceLocation begin, SourceLocation end);
-    
+        
     /**
      * Returns the LineColumn object from the given offset in the text.
      *
