@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 2010,2011  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -89,8 +89,7 @@ public class ParsedArrayReflective extends Reflective
     @Override
     public Reflective getRelativeClass(String name)
     {
-        // TODO Auto-generated method stub
-        return null;
+        return component.getRelativeClass(name);
     }
     
     @Override
@@ -120,7 +119,7 @@ public class ParsedArrayReflective extends Reflective
     @Override
     public boolean isAssignableFrom(Reflective r)
     {
-        // TODO Auto-generated method stub
+        // TODO implement this
         return false;
     }
     
