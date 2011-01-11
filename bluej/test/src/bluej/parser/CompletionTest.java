@@ -69,6 +69,14 @@ public class CompletionTest extends TestCase
      */
     private ParsedCUNode cuForSource(String sourceCode, String pkg)
     {
+        return documentForSource(sourceCode, pkg).getParser();
+    }
+    
+    /**
+     * Get a MoeSyntaxDocument (with parser enabled) for the given source code.
+     */
+    private MoeSyntaxDocument documentForSource(String sourceCode, String pkg)
+    {
         EntityResolver presolver = new PackageResolver(resolver, pkg);
         MoeSyntaxDocument document = new MoeSyntaxDocument(presolver);
         document.enableParser(true);
@@ -76,7 +84,7 @@ public class CompletionTest extends TestCase
             document.insertString(0, sourceCode, null);
         }
         catch (BadLocationException ble) {}
-        return document.getParser();
+        return document;
     }
     
     /**
@@ -485,6 +493,58 @@ public class CompletionTest extends TestCase
         ParsedCUNode aNode = cuForSource(aClassSrc, "");
         resolver.addCompilationUnit("", aNode);
 
+        CodeSuggestions suggests = aNode.getExpressionType(68, doc);
+        assertNotNull(suggests);
+        assertEquals("java.lang.String", suggests.getSuggestionType().toString());
+        assertFalse(suggests.isStatic());
+    }
+    
+    public void testTparCompletion2() throws Exception
+    {
+        String aClassSrc = "class A<T extends String & Runnable> {\n" +   // 0 - 39
+        "public void m(T t) {\n" +              // 39 - 60   
+        "  (t+4).\n" +                          // 60 -   (t+4). <- 68   
+        "}\n" +
+        "}\n";
+
+        MoeSyntaxDocument doc = documentForSource(aClassSrc, "");
+        ParsedCUNode aNode = doc.getParser();
+        resolver.addCompilationUnit("", aNode);
+        
+        // Now rename the "T" tpar to "U"
+        doc.remove(8, 1);
+        doc.insertString(8, "U", null);
+        doc.getParser();
+        doc.remove(53, 1);
+        doc.insertString(53, "U", null);
+        aNode = doc.getParser();
+        
+        CodeSuggestions suggests = aNode.getExpressionType(68, doc);
+        assertNotNull(suggests);
+        assertEquals("java.lang.String", suggests.getSuggestionType().toString());
+        assertFalse(suggests.isStatic());
+    }
+    
+    public void testTparCompletion3() throws Exception
+    {
+        String aClassSrc = "class A<T extends String & Runnable> {\n" +   // 0 - 39
+        "public void m(T t) {\n" +              // 39 - 60   
+        "  (t+4).\n" +                          // 60 -   (t+4). <- 68   
+        "}\n" +
+        "}\n";
+
+        MoeSyntaxDocument doc = documentForSource(aClassSrc, "");
+        ParsedCUNode aNode = doc.getParser();
+        resolver.addCompilationUnit("", aNode);
+        
+        // Now rename the "T" tpar to "U" (in the method first)
+        doc.remove(53, 1);
+        doc.insertString(53, "U", null);
+        doc.getParser();
+        doc.remove(8, 1);
+        doc.insertString(8, "U", null);
+        aNode = doc.getParser();
+        
         CodeSuggestions suggests = aNode.getExpressionType(68, doc);
         assertNotNull(suggests);
         assertEquals("java.lang.String", suggests.getSuggestionType().toString());
