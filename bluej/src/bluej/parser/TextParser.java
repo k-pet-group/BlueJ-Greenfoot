@@ -79,6 +79,11 @@ public class TextParser extends JavaParser
     
     protected Stack<Operator> operatorStack = new Stack<Operator>();
     
+    /*
+     * Make up some operators - only for cases where there is not a token
+     * type we could use, or for where the token is ambiguos:
+     */
+    
     private static final int CAST_OPERATOR = JavaTokenTypes.INVALID + 1;
     private static final int BAD_CAST_OPERATOR = CAST_OPERATOR + 1;
     private static final int PAREN_OPERATOR = BAD_CAST_OPERATOR + 1;
@@ -89,6 +94,10 @@ public class TextParser extends JavaParser
     private static final int UNARY_PLUS_OP = CONSTRUCTOR_CALL_OP + 1;
     private static final int UNARY_MINUS_OP = UNARY_PLUS_OP + 1;
     
+    /*
+     * Parse states - mainly so we know what to do with a type specification
+     * when we seen one:
+     */
     
     private static final int STATE_NONE = 0;
     private static final int STATE_NEW = 1;  // just saw "new"
@@ -97,9 +106,18 @@ public class TextParser extends JavaParser
     
     private int state = STATE_NONE;
 
-    // Arguments for a method or constructor call are added to the list at the top of this stack
+    /** Arguments for a method or constructor call are added to the list at the top of this stack */
     private Stack<List<JavaEntity>> argumentStack = new Stack<List<JavaEntity>>();
     
+    
+    /**
+     * Construct a text parser for parsing an expression.
+     * 
+     * @param resolver   Resolver to resolve symbols
+     * @param r           Reader to read the expression source
+     * @param accessType   The containing type
+     * @param staticAccess Whether the expression occurs in a static context
+     */
     public TextParser(EntityResolver resolver, Reader r, JavaEntity accessType, boolean staticAccess)
     {
         super(r);
@@ -108,6 +126,17 @@ public class TextParser extends JavaParser
         this.staticAccess = staticAccess;
     }
     
+    /**
+     * Construct a text parser for parsing an expression, where the expression is located
+     * at a particular line and column in the source.
+     * 
+     * @param resolver   Resolver to resolve symbols
+     * @param r           Reader to read the expression source
+     * @param accessType   The containing type
+     * @param staticAccess Whether the expression occurs in a static context
+     * @param line        The line in the source where the expression occurs
+     * @param col         The column in the source where the expression occurs
+     */
     public TextParser(EntityResolver resolver, Reader r, JavaEntity accessType, boolean staticAccess,
             int line, int col)
     {
@@ -117,16 +146,34 @@ public class TextParser extends JavaParser
         this.staticAccess = staticAccess;
     }
     
+    /**
+     * Construct a text parser for parsing an expression which is represented in a String.
+     * 
+     * @param resolver   Resolver to resolve symbols
+     * @param s           A string containing the expression
+     * @param accessType   The containing type
+     * @param staticAccess Whether the expression occurs in a static context
+     */
     public TextParser(EntityResolver resolver, String s, JavaEntity accessType, boolean staticAccess)
     {
         this(resolver, new StringReader(s), accessType, staticAccess);
     }
     
+    /**
+     * Check whether the parsed expression ended at the end of the input.
+     *  
+     * @return  true iff the parsed expression ended at the end of the input (reader or string);
+     *          false otherwise.
+     */
     public boolean atEnd()
     {
         return tokenStream.LA(1).getType() == JavaTokenTypes.EOF;
     }
     
+    /**
+     * Get the type of the parsed expression. If the type is unknown or an error occurred,
+     * returns {@code null}.
+     */
     public JavaEntity getExpressionType()
     {
         processHigherPrecedence(getPrecedence(JavaTokenTypes.EOF));
