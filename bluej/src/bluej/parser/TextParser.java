@@ -305,7 +305,6 @@ public class TextParser extends JavaParser
             processNewOperator(token);
             break;
         }
-        // TODO bitwise and/or/xor
     }
     
     @Override
