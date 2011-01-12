@@ -353,6 +353,10 @@ Recording will then start.
 New Test Method
 null
 
+unittest-io-error
+An I/O error occurred when trying to read the unit
+test source file.
+
 getobject-new-name
 Enter the name for the new object on the
 object bench.

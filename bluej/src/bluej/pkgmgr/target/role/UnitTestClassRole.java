@@ -57,6 +57,7 @@ import bluej.pkgmgr.target.Target;
 import bluej.prefmgr.PrefMgr;
 import bluej.testmgr.TestDisplayFrame;
 import bluej.testmgr.record.ExistingFixtureInvokerRecord;
+import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.JavaNames;
 
@@ -330,12 +331,15 @@ public class UnitTestClassRole extends ClassRole
             SourceSpan existingSpan = uta.getMethodBlockSpan(newTestName);
 
             if (existingSpan != null) {
-                if (DialogManager.askQuestion(null, "unittest-method-present") == 1)
+                if (DialogManager.askQuestion(null, "unittest-method-present") == 1) {
                     return;
+                }
             }
         }
-        catch (IOException ioe) { ioe.printStackTrace(); }
-        // TODO better handling of above exception
+        catch (IOException ioe) { 
+            DialogManager.showErrorWithText(null, "unittest-io-error", ioe.getLocalizedMessage());
+            Debug.reportError("Error reading unit test source", ioe);
+        }
 
         pmf.testRecordingStarted(Config.getString("pkgmgr.test.recording") + " "
         						 + ct.getBaseName() + "." + newTestName + "()");
