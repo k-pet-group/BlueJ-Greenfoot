@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -369,6 +369,11 @@ public class JavaParser
      * of the current expression (for the right-hand-side).
      */
     protected void gotQuestionOperator(LocatableToken token) { }
+    
+    /**
+     * Saw the "instanceof" operator. The type spec will follow.
+     */
+    protected void gotInstanceOfOperator(LocatableToken token) { }
     
     protected void gotArrayElementAccess() { }
     
@@ -2805,6 +2810,7 @@ public class JavaParser
                     gotArrayElementAccess();
                     break;
                 case 9: // LITERAL_instanceof
+                    gotInstanceOfOperator(token);
                     parseTypeSpec(true);
                     break;
                 case 10: // DOT

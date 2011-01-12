@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -93,6 +93,7 @@ public class TextParser extends JavaParser
     private static final int STATE_NONE = 0;
     private static final int STATE_NEW = 1;  // just saw "new"
     private static final int STATE_NEW_ARGS = 2;  // expecting "new" arguments or array dimensions
+    private static final int STATE_INSTANCEOF = 3;  // just saw "instanceof", expecting type
     
     private int state = STATE_NONE;
 
@@ -171,13 +172,14 @@ public class TextParser extends JavaParser
             return 0;
         case JavaTokenTypes.QUESTION:
             return 1;
-        case JavaTokenTypes.EQUAL:
-        case JavaTokenTypes.NOT_EQUAL:
-            return 8;
         case JavaTokenTypes.LT:
         case JavaTokenTypes.LE:
         case JavaTokenTypes.GT:
         case JavaTokenTypes.GE:
+        case JavaTokenTypes.LITERAL_instanceof:
+            return 8;
+        case JavaTokenTypes.EQUAL:
+        case JavaTokenTypes.NOT_EQUAL:
             return 9;        
         case JavaTokenTypes.SL:
         case JavaTokenTypes.SR:
@@ -792,6 +794,14 @@ public class TextParser extends JavaParser
     }
     
     @Override
+    protected void gotInstanceOfOperator(LocatableToken token)
+    {
+        processHigherPrecedence(getPrecedence(token.getType()));
+        operatorStack.push(new Operator(token.getType(), token));
+        state = STATE_INSTANCEOF;
+    }
+    
+    @Override
     protected void gotQuestionOperator(LocatableToken token)
     {
         processHigherPrecedence(getPrecedence(token.getType()));
@@ -810,6 +820,18 @@ public class TextParser extends JavaParser
             }
             else {
                 state = STATE_NONE;
+                valueStack.push(new ErrorEntity());
+            }
+        }
+        else if (state == STATE_INSTANCEOF) {
+            TypeEntity entity = resolveTypeSpec(tokens);
+            if (entity != null) {
+                // TODO: check validity of instanceof check
+                popValueStack();
+                valueStack.push(new ValueEntity(JavaPrimitiveType.getBoolean()));
+            }
+            else {
+                popValueStack();
                 valueStack.push(new ErrorEntity());
             }
         }
@@ -1191,5 +1213,4 @@ public class TextParser extends JavaParser
         }
         state = STATE_NONE;
     }
-
 }
