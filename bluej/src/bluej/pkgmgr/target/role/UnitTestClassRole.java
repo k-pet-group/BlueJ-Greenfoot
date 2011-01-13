@@ -378,7 +378,7 @@ public class UnitTestClassRole extends ClassRole
                 }
                 catch (IOException ioe) {
                     // shouldn't happen
-                    ioe.printStackTrace();
+                    Debug.reportError(ioe);
                 }
             }
         }
