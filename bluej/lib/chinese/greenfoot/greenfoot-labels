@@ -1,0 +1,283 @@
+#i18n for greenfoot
+
+greenfoot.nyi=\u5c1a\u672a\u5b9e\u65bd \uff0c\u62b1\u6b49\u3002
+greenfoot.preferences=\u53c2\u6570\u8bbe\u7f6e
+greenfoot.copyright=\u7248\u6743\u8bf4\u660e
+greenfoot.quit=\u9000\u51fa
+greenfoot.continue=\u7ee7\u7eed
+greenfoot.cancel=\u53d6\u6d88
+
+greenfoot.launchFailed=Greenfoot \u542f\u52a8\u5931\u8d25\uff0c \u5230 http://greenfoot.org/programming/support/index.html\u5bfb\u6c42\u5e2e\u52a9
+
+# About dialog
+about.title=\u5173\u4e8eGreenfoot
+about.moreInfo=\u4f60\u53ef\u4ee5\u5728 www.greenfoot.org\u627e\u5230\u66f4\u591agreenfoot\u7684\u4fe1\u606f\u3002
+
+
+# Greenfoot project version info
+project.version.none=\u8fd9\u4e2a\u5267\u672c\u662f\u8001\u7248\u7684Greenfoot\uff08\u7248\u672c\u4f4e\u4e8e0.5\uff09\u521b\u5efa\u7684\uff0c\u53ef\u80fd\u4f1a\u4ea7\u751f\u4e00\u4e9b\u5fc5\u987b\u624b\u52a8\u4fee\u590d\u7684\u9519\u8bef\u3002
+project.version.notGreenfoot=\u8fd9\u4e0d\u662f\u4e00\u4e2agreenfoot\u5267\u672c: 
+project.version.mismatch=\u7248\u672c\u4e0d\u5339\u914d
+# The next 3 items will be shown if the major digit in the version number has changed. 
+# part3 should be updated to describe the changes that has happened.
+project.version.older.part1=\u8fd9\u4e2a\u5267\u672c\u662f\u8001\u7248\u7684Greenfoot (API version \u5199\u7684\u3002
+# project version inserted here by Greenfoot
+project.version.older.part2=). \u8fd9\u4e2a\u5267\u672c\u4f1a\u66f4\u65b0\u5230\u5f53\u524d\u7684\u7248\u672c (API version 
+# api version inserted here by Greenfoot
+
+#Info about changes in this new version of the API that might break existing scenarios.
+project.version.older.part3=). \u4ee5\u4e0bAPI\u7684\u6539\u52a8\u53ef\u80fd\u4e2d\u65ad\u8fd9\u4e2a\u5267\u672c:
+
+project.version.changes.1=1.5.6 \u4e2d\u7684Greenfoot \u7c7b\u4e2d\u7684\u65b9\u6cd5 'stopSimulation', 'startSimulation' \u8fd8\u6709 'setSimulationSpeed'\u540d\u5b57\u6539\u4e3a 'start', 'stop' \u548c 'setSpeed'\u3002
+project.version.changes.2=1.5.6 \u4e2d\u6267\u884c\u8005\uff08Actor\uff09\u7684\u65b9\u6cd5 'getWidth' and 'getHeight' \u6ca1\u6709\u4e86\uff0c\u7528 'getImage().getWidth()' \u548c 'getImage().getHeight()' \u4ee3\u66ff\u3002
+project.version.changes.3=1.5.6 \u4e2d\u6267\u884c\u8005\uff08Actor\uff09\u7684\u65b9\u6cd5 'getObjectsInRange' \u4e2d\u7684\u8303\u56f4\uff08range\uff09\u7684\u5355\u4f4d\u73b0\u5728\u7528\u5355\u5143\u683c\u4ee3\u66ff\u4ee5\u524d\u7684\u50cf\u7d20\u4e86\u3002
+project.version.changes.4=1.5.6 \u4e2d\u5904\u7406\u56fe\u50cf\u548c\u58f0\u97f3\u6587\u4ef6\u540d\u65f6\u662f\u533a\u5206\u5927\u5c0f\u7684\u3002
+project.version.changes.5=1.5.6 \u4e2d\u573a\u666f\uff08World\uff09\u7684\u65b9\u6cd5 'setTiled' \u548c 'getTiled' \u6ca1\u6709\u4e86\u3002
+project.version.changes.6=1.5.6 \u4e2d\u573a\u666f\uff08World\uff09\u7684\u65b9\u6cd5 'getBackground' \u8fd4\u56de\u4e00\u4e2a\u8fd9\u4e2a\u80cc\u666f\u5927\u5c0f\u7684\u56fe\u50cf\u3002
+
+project.version.newer.part1=\u8fd9\u4e2a\u5267\u672c\u662f\u8001\u7248\u7684Greenfoot (API version \u5199\u7684\u3002 
+# project version inserted here by Greenfoot
+project.version.newer.part2=). \u7528\u5f53\u524d\u7248\u672c\u7684Greenfoot\u6253\u5f00\u8fd9\u4e2a\u5267\u672c\u53ef\u80fd\u4f1a\u51fa\u73b0\u8bb8\u591a\u9519\u8bef\uff0c\u800c\u4e14\u5fc5\u987b\u624b\u52a8\u4fee\u590d\n\n \u8fd8\u8981\u6253\u5f00\u5417?
+project.close=\u5173\u95ed
+
+# Actions
+greenfoot.about=\u5173\u4e8eGreenfoot...
+compile.all=\u7f16\u8bd1\u5168\u90e8
+compile.class=\u7f16\u8bd1\u7c7b
+edit.class=\u7f16\u8f91\u4ee3\u7801
+edit.images=\u5267\u60c5\u56fe\u50cf
+new.class=\u65b0\u5efa\u7c7b
+new.project=\u65b0\u5efa\u5267\u672c
+new.subclass=\u65b0\u5efa\u5b50\u7c7b
+open.project=\u6253\u5f00\u5267\u672c
+open.recentProject=\u6253\u5f00\u8fd1\u671f\u7684\u5267\u672c
+remove.class=\u5220\u9664
+remove.selected=\u5220\u9664
+inspect.class=\u67e5\u770b
+reset.world=\u590d\u4f4d
+run.once=\u5355\u6b65
+run.simulation=\u8fd0\u884c
+project.save=\u4fdd\u5b58
+project.savecopy=\u53e6\u5b58\u4e3a
+select.image=\u8bbe\u7f6e\u56fe\u50cf
+show.readme=\u5267\u672c\u4fe1\u606f
+pause.simulation=\u6682\u505c
+show.apidoc=\u6253\u5f00\u6587\u6863
+save.world=\u4fdd\u5b58\u4f60\u7684\u573a\u666f\u73af\u5883
+
+# Remove class confirmation
+remove.confirm.title=\u786e\u8ba4\u5220\u9664\u64cd\u4f5c
+remove.confirm.text1=\u786e\u5b9a\u8981\u5220\u9664\u7c7b
+remove.confirm.text2=\u5417\uff1f
+
+# Save project copy dialog
+project.savecopy.title=\u4fdd\u5b58\u5267\u672c\u526f\u672c
+
+# Export scenario dialog
+export.project=\u5bfc\u51fa
+export.progress.bundling=\u7ed1\u5b9a\u5267\u672c
+export.progress.publishing=\u53d1\u5e03
+export.progress.writingHTML=\u7f16\u8f91\u7f51\u9875
+export.progress.writingJar=\u7f16\u8f91jar\u6587\u4ef6
+export.progress.complete=\u5bfc\u51fa\u5b8c\u6210
+export.publish.fail=\u53d1\u5e03\u5931\u8d25
+export.publish.unknownHost=\u53d1\u5e03\u5931\u8d25\uff1a\u627e\u4e0d\u5230\u4e3b\u673a
+export.publish.complete=\u53d1\u5e03\u6210\u529f
+export.app.help=\u521b\u5efa\u4e00\u4e2a\u53ef\u4ee5\u81ea\u5df1\u72ec\u7acb\u8fd0\u884c\u7684jar\u6587\u4ef6
+export.app.location=\u4fdd\u5b58\u5230\uff1a
+export.app.browse=\u6d4f\u89c8
+export.app.choose=\u4fdd\u5b58\u53ef\u6267\u884cjar\u6587\u4ef6
+export.compile.help=\u5267\u672c\u4e2d\u6709\u4e9b\u7c7b\u8fd8\u6ca1\u6709\u7f16\u8bd1\u8fc7\uff0c\u7ee7\u7eed\u524d\u5148\u7f16\u8bd1
+export.compile.notCompiled=\u5267\u672c\u8fd8\u6ca1\u6709\u7f16\u8bd1\u5462
+export.dialog.title=Greenfoot: \u5267\u672c\u5bfc\u51fa
+export.dialog.continue=\u5bfc\u51fa
+export.dialog.continue.update=(update)\u66f4\u65b0
+export.lock.label=\u9501\u5b9a\u5267\u672c
+export.snapshot.label=\u622a\u5c4f\uff1a
+export.lock.description=\u6682\u505c\u7684\u65f6\u5019\u4ee5\u4e0b\u64cd\u4f5c\u5c06\u88ab\u7981\u6b62\uff1a\u6539\u53d8\u8fd0\u884c\u901f\u5ea6\uff0c\u5355\u6b65\u8fd0\u884c\uff0c\u6539\u53d8\u6f14\u5458\u7684\u4f4d\u7f6e\u3002
+export.publish.help=\u5c06\u6b64\u5267\u672c\u53d1\u5e03\u5230:
+export.publish.info=\u4ee5\u4e0b\u4fe1\u606f\u5c06\u4f1a\u51fa\u73b0\u5728
+export.publish.image1=\u5267\u672c\u56fe\u6807:
+export.publish.image2=(\u53ef\u7f29\u653e\u548c\u79fb\u52a8)
+export.publish.title=\u6807\u9898:
+export.publish.tags.additional1=\u6dfb\u52a0\u6807\u7b7e:
+export.publish.tags.additional2=(\u4e00\u884c\u4e00\u4e2a\u6807\u7b7e)
+export.publish.tags.popular=\u5e38\u7528\u6807\u7b7e:
+export.publish.tags.loading=\u8f7d\u5165\u4e2d\u2026\u2026
+export.publish.shortDescription=\u7b80\u77ed\u8bf4\u660e:
+export.publish.longDescription=\u8be6\u7ec6\u8bf4\u660e:
+export.publish.update=\u66f4\u65b0\u8bf4\u660e:
+export.publish.url=\u4f60\u7684\u94fe\u63a5\u5730\u5740(URL):
+export.publish.login=\u767b\u9646
+export.publish.username=\u7528\u6237\u540d
+export.publish.password=\u5bc6\u7801
+export.publish.createAccount=\u521b\u5efa\u8d26\u53f7
+export.publish.includeSource=\u4e0e\u6e90\u4ee3\u7801\u4e00\u8d77\u53d1\u5e03
+export.web.help=\u521b\u5efa\u4e00\u4e2a\u5305\u542bjava applet\u7684\u7f51\u9875
+export.web.exportLocation=\u5bfc\u51fa\u5230\uff1a
+export.web.browse=\u6d4f\u89c8
+export.web.choose=\u9009\u62e9\u5bfc\u51fa\u76ee\u5f55
+export.icontab.publish=\u53d1\u5e03
+export.icontab.webpage=\u7f51\u9875
+export.icontab.application=\u5e94\u7528
+export.noworld.dialog.title=\u9519\u8bef\uff1a\u6ca1\u6709\u53d1\u73b0\u573a\u666f\u7c7b
+export.noworld.dialog.msg=\u5728\u5267\u672c\u4e2d\u6ca1\u6709\u627e\u5230\u573a\u666f\u7c7b\uff0c\u8981\u5bfc\u51fa\uff0c\u4e00\u4e2a\u573a\u666f\u7684\u5b50\u7c7b\u662f\u5fc5\u987b\u7684\u3002
+publish.event.error= \u9519\u8bef:
+publish.event.status=\u72b6\u6001:
+
+world.handlerDelegate.inspect=\u67e5\u770b
+world.handlerDelegate.remove=\u79fb\u9664
+
+record.method.comment1=\u5f00\u59cb\u524d\u5148\u4e3a\u4f60\u7684\u5267\u672c\u521b\u5efa\u573a\u666f
+record.method.comment2=\u6dfb\u52a0\u5143\u4ef6\u5230\u4f60\u7684\u573a\u666f
+
+record.saved.message=\u5728 prepare() \u65b9\u6cd5\u4e2d\u4fdd\u5b58\u4f60\u7684\u573a\u666f\u7684\u8bbe\u7f6e 
+
+greenfoot.utilDelegate.newScenario=\u65b0\u5efa\u5267\u672c
+
+#File choosers
+chooser.newFile.button=\u9009\u62e9
+chooser.scenario.title=\u9009\u62e9\u5267\u672c
+chooser.scenario.button=\u6253\u5f00
+
+#New Class dialog
+newclass.dialog.title=\u65b0\u5efa\u7c7b
+newclass.dialog.help1= \u7c7b\u540d\u4e0d\u80fd\u5305\u542b\u7a7a\u683c\u548c\u6807\u70b9\u7b26\u53f7
+newclass.dialog.help2=\u7b2c\u4e00\u4e2a\u5b57\u6bcd\u6700\u597d\u5927\u5199
+newclass.dialog.className=\u7c7b\u540d: 
+newclass.dialog.err.classExists=\u8fd9\u4e2a\u7c7b\u540d\u5df2\u7ecf\u5b58\u5728.
+newclass.dialog.err.classNameIllegal=\u4e0d\u662f\u4e00\u4e2a\u6b63\u786e\u7684java\u7c7b\u540d.
+
+# Initial startup dialog
+startup.header=\u6b22\u8fce\u4f7f\u7528Greenfoot!
+startup.welcome= \u4f7f\u7528Greenfoot, \u4f60\u9996\u5148\u5e94\u8be5\u6253\u5f00\u4e00\u4e2a\u5df2\u5b58\u5728\u7684\u5267\u672c, \u6216\u521b\u5efa\u4e00\u4e2a\u65b0\u7684\u5267\u672c\uff0c\u6807\u51c6Greenfoot\u5b89\u88c5\u76ee\u5f55\u4e2d\u5305\u542b\u51e0\u4e2a\u793a\u4f8b\u5267\u672c\u3002
+startup.question=\u4f60\u60f3\u505a\u4ec0\u4e48\uff1f
+startup.tutorial.button=\u6253\u5f00\u5165\u95e8\u6307\u5bfc\u5267\u672c
+startup.open.button=\u9009\u62e9\u4e00\u4e2a\u5267\u672c
+startup.create.button=\u521b\u5efa\u4e00\u4e2a\u65b0\u7684\u5267\u672c
+startup.continue.button=\u4e0d\u4f7f\u7528\u5267\u672c
+
+# Image Lib Preview
+imagelib.title=\u9009\u62e9\u7c7b\u56fe\u50cf:
+imagelib.newClass=\u65b0\u5efa\u7c7b
+imagelib.projectImages=\u5267\u672c\u4e2d\u7684\u56fe\u50cf:
+imagelib.categories=\u56fe\u50cf\u5206\u7c7b:
+imagelib.images=\u56fe\u50cf\u5e93:
+imagelib.browse.button=\u4ece\u8ba1\u7b97\u673a\u5bfc\u5165
+imagelib.create.button=\u65b0\u5efa\u4e00\u4e2a\u65b0\u7684\u56fe\u7247
+imagelib.edit=\u7f16\u8f91
+imagelib.edit.tooltip=\u7528\u56fe\u50cf\u7f16\u8f91\u5668\u6765\u7f16\u8f91\u6240\u9009\u56fe\u50cf
+imagelib.duplicate=\u590d\u5236
+imagelib.duplicate.tooltip=\u590d\u5236\u6240\u9009\u56fe\u50cf
+imagelib.delete=\u5220\u9664
+imagelib.delete.tooltip=\u5220\u9664\u6240\u9009\u56fe\u50cf
+imagelib.import.button=\u4ece\u5e93\u4e2d\u5bfc\u5165
+imagelib.create.tooltip=\u65b0\u5efa\u4e00\u4e2a\u9ed8\u8ba4\u5927\u5c0f\u548c\u540d\u5b57\u7684\u56fe\u50cf\uff0c\u5e76\u5728\u56fe\u50cf\u7f16\u8f91\u5668\u4e2d\u6253\u5f00
+imagelib.className=\u7c7b\u540d:
+imagelib.help.selectImage=\u4ece\u4e0b\u9762\u7684\u56fe\u50cf\u4e2d\u4e3a\u8fd9\u4e2a\u7c7b\u9009\u62e9\u4e00\u4e2a\u56fe\u50cf
+imagelib.newClass.image=\u7c7b\u7684\u56fe\u50cf:
+imagelib.file.noPreview=\u6ca1\u6709\u9884\u89c8
+imagelib.choose.button=\u9009\u62e9
+imagelib.write.exists.part1=\u6587\u4ef6 \"
+# Greenfoot inserts filename here
+imagelib.write.exists.part2=\" \u5df2\u7ecf\u5b58\u5728. \u662f\u5426\u8981\u8986\u76d6?
+imagelib.write.exists.title=\u786e\u8ba4\u6587\u4ef6\u66ff\u6362
+imagelib.greenfoot.frame.title=Greenfoot\u56fe\u50cf\u5e93
+imagelib.scenario.frame.title=\u5267\u672c\u56fe\u50cf
+imagelib.delete.confirm.title=\u786e\u8ba4
+imagelib.delete.confirm.text=\u786e\u5b9a\u8981\u5220\u9664\uff1f 
+imagelib.image.invalid.title=\u65e0\u6548\u56fe\u50cf
+imagelib.image.invalid.text=\u8fd9\u662f\u4e00\u5f20\u65e0\u6548\u7684\u56fe\u50cf
+imagelib.image.unsupportedformat.title=\u4e0d\u652f\u6301\u7684\u683c\u5f0f
+imagelib.image.unsupportedformat.text=\u5728\u4f60\u7684\u673a\u5668\u4e0a\u4e0d\u652f\u6301\u6b64\u683c\u5f0f\uff0c\u8bf7\u6362\u4e00\u4e2a\u683c\u5f0f\u518d\u8bd5
+imagelib.rename.exists.text=\u547d\u540d\u5931\u8d25\uff0c\u6709\u540c\u540d\u6587\u4ef6\u5b58\u5728\u3002
+imagelib.rename.exists.title=\u91cd\u547d\u540d\u5931\u8d25
+imagelib.new.image.title=\u65b0\u56fe\u50cf
+imagelib.new.image.name=\u540d\u79f0:
+imagelib.new.image.width=\u5bbd:
+imagelib.new.image.height=\u9ad8:  
+imagelib.new.image.type=\u7c7b\u578b:
+
+scenario.viewer.appletInfo=\u6b64Applet\u7531Greenfoot (www.greenfoot.org)\u751f\u6210\uff0c \u5267\u672c\u540d\u79f0:
+
+# Simulation Control Panel
+controls.runonce.shortDescription=\u8ba9\u6f14\u5458\u4e00\u6b65\u4e00\u6b65\u7684\u6f14
+controls.runonce.longDescription=\u8ba9\u6f14\u5458\u4e00\u6b65\u4e00\u6b65\u7684\u6f14
+controls.run.shortDescription=\u8fd0\u884c\u6a21\u62df
+controls.run.longDescription=\u8fd0\u884c\u6a21\u62df\u76f4\u5230\u88ab\u505c\u6b62
+controls.pause.shortDescription=\u6682\u505c\u6a21\u62df
+controls.pause.longDescription=\u6682\u505c\u6a21\u62df\u56de\u5230\u73b0\u573a
+controls.run.button=\u8fd0\u884c
+controls.pause.button=\u6682\u505c
+controls.reset.shortDescription=\u5b9e\u4f8b\u5316\u4e00\u4e2a\u65b0\u7684\u573a\u666f
+controls.reset.longDescription=\u5b9e\u4f8b\u5316\u4e00\u4e2a\u65b0\u7684\u573a\u666f
+controls.speed.label=\u8fd0\u884c\u901f\u5ea6:
+controls.speedSlider.tooltip=\u8c03\u8282\u8fd0\u884c\u901f\u5ea6
+
+# Class browser
+browser.border.world=\u573a\u666f\uff08world\uff09\u7c7b
+browser.border.actors=\u6f14\u5458\uff08actors\uff09\u7c7b
+browser.border.others=\u5176\u4ed6\u7c7b
+
+# Sound Recorder
+
+soundRecorder.title=\u5f55\u97f3\u673a
+soundRecorder.record=\u5f55\u97f3
+soundRecorder.stopRecord=\u505c\u6b62\u5f55\u97f3
+soundRecorder.trim=\u9009\u62e9\u58f0\u97f3\u526a\u8f91
+soundRecorder.play=\u64ad\u653e
+soundRecorder.playSelection=\u64ad\u653e\u6240\u9009\u58f0\u97f3\u526a\u8f91
+soundRecorder.stopPlay=\u505c\u6b62\u64ad\u653e
+soundRecorder.filename=\u6587\u4ef6\u540d
+soundRecorder.save=\u4fdd\u5b58
+soundRecorder.done=\u5173\u95ed
+soundRecorder.saved=\u4fdd\u5b58\u4e86
+soundRecorder.notSaved=\u8fd8\u6ca1\u6709\u4fdd\u5b58\u5462
+soundRecorder.overwrite.part1=\u6587\u4ef6 \"
+soundRecorder.overwrite.part2=\" \u5df2\u7ecf\u5b58\u5728\uff0c\u786e\u5b9a\u8981\u8986\u76d6\u5417\uff1f
+soundRecorder.overwrite.title=\u786e\u8ba4\u8986\u76d6\u64cd\u4f5c
+soundRecorder.overwrite=\u8986\u76d6
+soundRecorder.closeAnyway=\u5173\u4e86\u518d\u8bf4
+soundRecorder.closeTitle=\u4e0d\u4fdd\u5b58\u5173\u95ed
+soundRecorder.closeQuestion=\u58f0\u97f3\u6587\u4ef6\u5df2\u7ecf\u6539\u53d8\uff0c\u5982\u679c\u4f60\u5173\u95ed\u5f55\u97f3\u673a\uff0c\u6240\u6709\u7684\u6539\u53d8\u5c06\u4e22\u5931
+# Menus
+
+menu.openRecent=\u6253\u5f00\u8fd1\u671f\u7684\u5267\u672c
+
+menu.scenario=\u5267\u672c
+
+menu.edit=\u7f16\u8f91
+
+menu.controls=\u5de5\u5177
+
+menu.debugger=\u663e\u793a\u8c03\u8bd5\u5de5\u5177
+
+menu.soundRecorder=\u663e\u793a\u5f55\u97f3\u673a\u5de5\u5177
+
+menu.help=\u5e2e\u52a9
+menu.help.about=\u5173\u4e8e Greenfoot
+menu.help.classDoc=Greenfoot \u7c7b\u6587\u6863
+menu.help.javadoc=Java\u5e93\u6587\u6863
+menu.help.tutorial=Greenfoot \u5165\u95e8\u6307\u5357
+menu.help.website=Greenfoot\u5b98\u65b9\u7f51\u7ad9
+menu.help.moreScenarios=\u83b7\u53d6\u66f4\u591a\u7684\u5267\u672c
+
+# Project does not exist dialog
+noproject.dialog.title=\u6253\u5f00\u5267\u672c\u65f6\u51fa\u9519
+noproject.dialog.msg=\u5267\u672c\u4e0d\u5b58\u5728\uff1a
+ 
+# Header for the properties file
+properties.heading.greenfoot=Greenfoot \u5c5e\u6027. \u66f4\u6539\u8fd9\u4e2a\u6587\u4ef6\u7684\u540c\u65f6\u4e5f\u6539\u53d8\u4e86 \"bluej.defs\" \u548c \"greenfoot.defs\"\u8fd9\u4e24\u4e2a\u6587\u4ef6\u3002
+
+# Message to display if there is no default world constructor
+world.missing.constructor.title=\u5b9e\u4f8b\u5316\u9ed8\u8ba4\u573a\u666f\u65f6\u51fa\u9519
+world.missing.constructor.msg=\u65e0\u6cd5\u5b9e\u4f8b\u5316\u4e00\u4e2a\u65b0\u7684\u573a\u666f\uff0c\u53ef\u80fd\u539f\u56e0\u662f\u4f60\u5267\u672c\u7684\u573a\u666f\u6ca1\u6709\u4e00\u4e2a\u516c\u5171\u7684\u9ed8\u8ba4\u7684\u6784\u9020\u51fd\u6570\u6216\u6ca1\u6709\u516c\u5171\u7684\u7c7b
+# Message to display if a file cannot be created
+greenfoot.cannotCreateClass=\u8fd9\u4e2a\u7c7b\u65e0\u6cd5\u521b\u5efa\uff0c\u8bf7\u68c0\u67e5\u5267\u672c\u6240\u5728\u6587\u4ef6\u5939\u662f\u5426\u53ef\u5199\u3002
+greenfoot.cannotCreateProject=\u8fd9\u4e2a\u7c7b\u65e0\u6cd5\u521b\u5efa\uff0c\u8bf7\u68c0\u67e5\u5267\u672c\u6240\u5728\u6587\u4ef6\u5939\u662f\u5426\u53ef\u5199\u3002
+
+# General error messages
+greenfoot.cannotFindAPIDocumentation=API\u6587\u6863\u4e22\u5931\u6216\u635f\u574f
+
+# Message for sound related errors
+sound-line-unavailable=\u58f0\u5361\u6216\u9a71\u52a8\u6709\u95ee\u9898\uff0c\u4e0d\u80fd\u4f7f\u7528\uff0c\u8bf7\u68c0\u67e5
