@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -31,9 +31,7 @@ import bluej.Config;
  * Class to handle debugging messages.
  * 
  * @author Michael Kolling
- * @version $Id: Debug.java 8601 2011-01-13 02:03:09Z davmac $
  */
-
 public class Debug
 {
     private static final String eol = System.getProperty("line.separator");
@@ -147,6 +145,10 @@ public class Debug
         pwriter.flush();
     }
     
+    /**
+     * Log a stack trace with the given message.
+     * @param msg  The message to precede the stack trace.
+     */
     public static void printCallStack(String msg)
     {
         message(msg + "; call stack:");
