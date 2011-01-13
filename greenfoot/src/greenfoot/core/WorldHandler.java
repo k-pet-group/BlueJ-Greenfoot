@@ -302,6 +302,11 @@ public class WorldHandler
                     {
                         int ax = ActorVisitor.getX(dragActor);
                         int ay = ActorVisitor.getY(dragActor);
+                        // First we set the position to be the pre-drag position.
+                        // This means that if the user overrides setLocation and 
+                        // chooses not to call the inherited setLocation, the position
+                        // will be as if the drag never happened:
+                        ActorVisitor.setLocationInPixels(dragActor, dragBeginX, dragBeginY);
                         dragActor.setLocation(ax, ay);
                         notifyMovedActor(dragActor, ax, ay);
                     }
