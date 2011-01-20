@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2011  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -40,8 +40,7 @@ import java.util.Map;
  * up, down, left, right (cursor keys); enter, space, tab, escape, backspace,
  * F1-F12.
  * 
- * @author davmac
- * @version $Id$
+ * @author Davin McCall
  */
 public class KeyboardManager implements TriggeredKeyListener, FocusListener
 {
@@ -228,7 +227,7 @@ public class KeyboardManager implements TriggeredKeyListener, FocusListener
     
     // ----- KeyListener interface -----
     
-    /* (non-Javadoc)
+    /*
      * @see java.awt.event.KeyListener#keyPressed(java.awt.event.KeyEvent)
      */
     public synchronized void keyPressed(KeyEvent event)
@@ -237,15 +236,15 @@ public class KeyboardManager implements TriggeredKeyListener, FocusListener
         pressKey(keyCode);
     }
 
-	private void pressKey(int keyCode) {
-		keyCode = numLockTranslate(keyCode);
-        
+    private void pressKey(int keyCode)
+    {
+        keyCode = numLockTranslate(keyCode);
         checkKeyArrays(keyCode);
         keyLatched[keyCode] = true;
         keyDown[keyCode] = true;
-	}
+    }
     
-    /* (non-Javadoc)
+    /*
      * @see java.awt.event.KeyListener#keyReleased(java.awt.event.KeyEvent)
      */
     public synchronized void keyReleased(KeyEvent event)
@@ -254,9 +253,9 @@ public class KeyboardManager implements TriggeredKeyListener, FocusListener
         releaseKey(keyCode);
     }
 
-	private void releaseKey(int keyCode) {
-		keyCode = numLockTranslate(keyCode);
-        
+    private void releaseKey(int keyCode)
+    {
+        keyCode = numLockTranslate(keyCode);
         checkKeyArrays(keyCode);
         keyDown[keyCode] = false;
         if (keyCode < maxNamedKey) {
@@ -265,7 +264,7 @@ public class KeyboardManager implements TriggeredKeyListener, FocusListener
                 lastKeyTyped = keyName;
             }
         }
-	}
+    }
 
     public void listeningStarted(Object obj)
     {       
@@ -356,24 +355,24 @@ public class KeyboardManager implements TriggeredKeyListener, FocusListener
         }
     }
 
-	public void focusGained(FocusEvent e) {		
-	}
+    public void focusGained(FocusEvent e) { }
 
-	/**
-	 * If we loose focus, we should treat all keys as not pressed anymore
-	 */
-	public void focusLost(FocusEvent e) {
-		releaseAllKeys();
-	}
+    /**
+     * If we loose focus, we should treat all keys as not pressed anymore
+     */
+    public void focusLost(FocusEvent e)
+    {
+        releaseAllKeys();
+    }
 
-	/**
-	 * Release all the keys.
-	 */
+    /**
+     * Release all the keys.
+     */
     private synchronized void releaseAllKeys()
     {
         for (int keyCode = 0; keyCode < keyDown.length; keyCode++) {
-			keyDown[keyCode] = false;
-			keyLatched[keyCode] = false;				
-		}
+            keyDown[keyCode] = false;
+            keyLatched[keyCode] = false;				
+        }
     }
 }
