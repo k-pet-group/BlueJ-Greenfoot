@@ -14,7 +14,9 @@ malayalam                            x                         K.R.Arun <code333
 spanish         1.5.5                x                         Esteban Iglesias Manriquez <estbaniglesiasmanriquez@gmail.com>                                                  
 spanish                                                        (previously Kenneth Daly <kennethdaly@gmail.com> AND Iris Gutierrez <igutierrez@cubecorp.com.ar> AND Luis Mijangos <mijangos3@msn.com>)
 russian         1.5.5                x                         Sergey Zemlyannikov <serveren@mail.ru>
-chinese			2.0.1				 x						   Wobot Yuan <wobotyuan@qq.com>
+chinese			2.0.1				 x			labels		   Wobot Yuan <wobotyuan@qq.com>
+czech			2.0.1				 x			labels 		   Zdeněk Chalupský <chalzd@gmail.com>
+dutch			2.0.1				 x 			labels		   Erik van Veen <erikvanveen_2@hotmail.com>
 
 IMPORTANT: 
 When adding a new translation, it should be added in the build script:
