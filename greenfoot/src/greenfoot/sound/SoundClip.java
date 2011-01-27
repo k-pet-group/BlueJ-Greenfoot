@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2011  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -436,10 +436,7 @@ public class SoundClip implements Sound
                                     printDebug("Waiting for loop to finish: " + timeLeftOfPlayback);
                                     try {
                                         thisClip.wait(timeLeftOfPlayback);
-                                    } catch (InterruptedException e) {
-                                        // TODO Auto-generated catch block
-                                        e.printStackTrace();
-                                    }
+                                    } catch (InterruptedException e) { }
                                 }
                                 break;
                             case PLAYING:
@@ -448,10 +445,7 @@ public class SoundClip implements Sound
                                             + timeLeftOfPlayback);
                                     try {
                                         thisClip.wait(timeLeftOfPlayback);
-                                    } catch (InterruptedException e) {
-                                        // TODO Handle this!
-                                        e.printStackTrace();
-                                    }
+                                    } catch (InterruptedException e) { }
                                     printDebug("Wait done playback");
                                 } else {
                                     thisClip.stop();
@@ -463,10 +457,7 @@ public class SoundClip implements Sound
                                 printDebug(" waiting in pause: " + clipState);
                                 try {
                                     thisClip.wait();
-                                } catch (InterruptedException e) {
-                                    // TODO Handle this!
-                                    e.printStackTrace();
-                                }
+                                } catch (InterruptedException e) { }
                                 break;
 
                             case STOPPED:
@@ -475,10 +466,7 @@ public class SoundClip implements Sound
                                             + timeLeftToClose);
                                     try {
                                         thisClip.wait(timeLeftToClose);
-                                    } catch (InterruptedException e) {
-                                        // TODO Handle this!
-                                        e.printStackTrace();
-                                    }
+                                    } catch (InterruptedException e) { }
                                     printDebug("Wait done close");
                                 } else {	
                                     printDebug("Autoclosing clip: " + thisClip.name);
