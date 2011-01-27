@@ -86,13 +86,15 @@ public class Simulation extends Thread
 
     private EventListenerList listenerList = new EventListenerList();
 
+    /* Various simulation events */
     private SimulationEvent startedEvent;
     private SimulationEvent stoppedEvent;
     private SimulationEvent disabledEvent;
     private SimulationEvent speedChangeEvent;
     private SimulationEvent newActEvent;
-    static SimulationEvent debuggerPausedEvent;
-    static SimulationEvent debuggerResumedEvent;
+    private SimulationEvent debuggerPausedEvent;
+    private SimulationEvent debuggerResumedEvent;
+    
     private static Simulation instance;
 
     /** for timing the animation */
