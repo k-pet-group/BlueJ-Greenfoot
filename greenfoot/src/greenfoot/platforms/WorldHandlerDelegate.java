@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -47,7 +47,13 @@ public interface WorldHandlerDelegate
 
     void mouseMoved(MouseEvent e);
     
-    void setWorld(World oldWorld, World newWorld);
+    /**
+     * Set the active world.
+     * @param oldWorld   The previously active world
+     * @param newWorld   The new active world
+     * @param interactive   Whether the new active world was set via user interaction
+     */
+    void setWorld(World oldWorld, World newWorld, boolean interactive);
 
     void setWorldHandler(WorldHandler handler);
     

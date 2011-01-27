@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2010 Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2010,2011 Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -34,23 +34,23 @@ import bluej.utility.Debug;
 import greenfoot.Actor;
 import greenfoot.ObjectTracker;
 import greenfoot.World;
-import greenfoot.actions.SaveWorldAction;
 
+/**
+ * Builder for code sequences representing a recording of what the user has
+ * done interactively to the world.
+ */
 public class GreenfootRecorder
 {
     private IdentityHashMap<Object, String> objectNames;
     private LinkedList<String> code;
     private World world;
-    private SaveWorldAction action;
     
     public static final String METHOD_NAME = "prepare";
     
-    public GreenfootRecorder(SaveWorldAction action)
+    public GreenfootRecorder()
     {
         objectNames = new IdentityHashMap<Object, String>();
         code = new LinkedList<String>();
-        this.action = action;
-        this.action.setRecordingValid(false);
     }
 
     public void createActor(Object actor, String[] args, JavaType[] argTypes)
@@ -137,7 +137,6 @@ public class GreenfootRecorder
         code.clear();
         if (simulationStarted) {
             objectNames.clear();
-            action.setRecordingValid(false);
         }
     }
 
@@ -146,7 +145,6 @@ public class GreenfootRecorder
         world = newWorld;
         objectNames.clear();
         clearCode(false);
-        action.setRecordingValid(true);
     }
 
     public void moveActor(Actor actor, int xCell, int yCell)

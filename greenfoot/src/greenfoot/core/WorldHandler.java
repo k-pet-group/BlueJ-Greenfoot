@@ -137,52 +137,64 @@ public class WorldHandler
         mousePollingManager = new MousePollingManager(null);
         handlerDelegate = new WorldHandlerDelegate() {
 
+            @Override
             public void discardWorld(World world)
             {                
             }
 
+            @Override
             public InputManager getInputManager()
             {
                 return null;
             }
 
+            @Override
             public void instantiateNewWorld()
             {
             }
 
+            @Override
             public boolean maybeShowPopup(MouseEvent e)
             {
                 return false;
             }
 
+            @Override
             public void mouseClicked(MouseEvent e)
             {
             }
             
+            @Override
             public void mouseMoved(MouseEvent e)
             {
             }
 
-            public void setWorld(World oldWorld, World newWorld)
+            @Override
+            public void setWorld(World oldWorld, World newWorld, boolean interactive)
             {
             }
 
+            @Override
             public void setWorldHandler(WorldHandler handler)
             {
             }
             
+            @Override
             public void addActor(Actor actor, int x, int y)
             {
             }
 
+            @Override
             public void initialisingWorld(World world)
             {
             }
             
+            @Override
             public void simulationActive()
             {
             }
 
+            @Override
             public InteractionListener getInteractionListener()
             {
                 return null;
@@ -517,7 +529,7 @@ public class WorldHandler
         final boolean isFirst = isFirstWorld();
         this.firstWorld = false;
         
-        handlerDelegate.setWorld(this.world, world);
+        handlerDelegate.setWorld(this.world, world, isFirst);
         mousePollingManager.setWorldLocator(new WorldLocator() {
             @Override
             public Actor getTopMostActorAt(MouseEvent e)

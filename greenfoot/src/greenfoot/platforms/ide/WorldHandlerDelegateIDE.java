@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -99,8 +99,9 @@ public class WorldHandlerDelegateIDE
     public WorldHandlerDelegateIDE(GreenfootFrame frame, ClassStateManager classStateManager)
     {
         this.frame = frame;
-        saveWorldAction = new SaveWorldAction(this, classStateManager);
-        greenfootRecorder = new GreenfootRecorder(saveWorldAction);
+        greenfootRecorder = new GreenfootRecorder();
+        saveWorldAction = new SaveWorldAction(greenfootRecorder, classStateManager);
+        saveWorldAction.setRecordingValid(false);
     }
 
     /**
@@ -223,7 +224,8 @@ public class WorldHandlerDelegateIDE
      * @param e	Used to get the component to display in as well as the x
      * and y coordinates.
      */
-    public void showWorldPopupMenu(MouseEvent e) {
+    public void showWorldPopupMenu(MouseEvent e)
+    {
     	JPopupMenu menu = makeWorldPopupMenu(worldHandler.getWorld());
     	if (menu != null) {
     	    menu.show(e.getComponent(), e.getX(), e.getY());
@@ -245,14 +247,27 @@ public class WorldHandlerDelegateIDE
     public void initialisingWorld(World world)
     {
         worldInitialising = true;
-        greenfootRecorder.reset(world);        
+        greenfootRecorder.reset(world);
+        saveWorldAction.setRecordingValid(true);
     }
     
-    public void setWorld(final World oldWorld, final World newWorld)
+    public void setWorld(final World oldWorld, final World newWorld, boolean interactive)
     {
         worldInitialising = false;
         if (oldWorld != null) {
             discardWorld(oldWorld);
+        }
+        
+        if (interactive) {
+            GClass lastWorld = null;
+            if (project != null) {
+                String lastWorldClass = newWorld.getClass().getName();
+                if(lastWorldClass != null) {
+                    lastWorld = project.getDefaultPackage().getClass(lastWorldClass);
+                }
+            }
+
+            saveWorldAction.setLastWorldGClass(lastWorld);
         }
     }
     
@@ -419,19 +434,14 @@ public class WorldHandlerDelegateIDE
     }
 
     @SuppressWarnings("unchecked")
-    public Class<? extends World> getLastWorldClass()
+    private Class<? extends World> getLastWorldClass()
     {
-        try {
-            GClass gclass = getLastWorldGClass();
-            if (gclass != null) {
-                Class<? extends World> rclass = (Class<? extends World>) gclass.getJavaClass();
-                if (GreenfootUtil.canBeInstantiated(rclass)) {
-                    return  rclass;
-                }
+        GClass gclass = getLastWorldGClass();
+        if (gclass != null) {
+            Class<? extends World> rclass = (Class<? extends World>) gclass.getJavaClass();
+            if (GreenfootUtil.canBeInstantiated(rclass)) {
+                return  rclass;
             }
-        }
-        catch (Exception e) {
-            Debug.reportError("Error trying to get world class", e);
         }
 
         return null;
@@ -480,11 +490,6 @@ public class WorldHandlerDelegateIDE
         greenfootRecorder.removeActor(obj);        
     }
 
-    public List<String> getInitWorldCode()
-    {
-        return greenfootRecorder.getCode();
-    }
-
     public void objectAddedToWorld(Actor object)
     {
         if (worldInitialising) {
@@ -530,14 +535,10 @@ public class WorldHandlerDelegateIDE
         }
     }
 
-    public void clearRecorderCode()
-    {
-        greenfootRecorder.clearCode(false);        
-    }
-    
     public void simulationActive()
     {
         greenfootRecorder.clearCode(true);
+        saveWorldAction.setRecordingValid(false);
     }
 
     public SaveWorldAction getSaveWorldAction()
