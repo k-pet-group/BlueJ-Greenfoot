@@ -149,7 +149,7 @@ public class WorldInvokeListener
                 public void putResult(DebuggerObject result, String name,
                         InvokerRecord ir)
                 {
-                	JavaType[] paramTypes = callable.getParamTypes(false);
+                    JavaType[] paramTypes = callable.getParamTypes(false);
                     if (result instanceof LocalObject) {
                         Object o = ((LocalObject) result).getObject();
 

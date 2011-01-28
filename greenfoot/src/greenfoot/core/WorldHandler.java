@@ -980,20 +980,23 @@ public class WorldHandler
      */
     public void notifyCreatedActor(Object actor, String[] args, JavaType[] argTypes)
     {
-        if (interactionListener != null)
+        if (interactionListener != null) {
             interactionListener.createdActor(actor, args, argTypes);
+        }
     }
 
     public void notifyMethodCall(Object obj, String instanceName, String name, String[] args, JavaType[] argTypes)
     {
-        if (interactionListener != null)
+        if (interactionListener != null) {
             interactionListener.methodCall(obj, instanceName, name, args, argTypes);
+        }
     }
     
     public void notifyStaticMethodCall(String className, String name, String[] args, JavaType[] argTypes)
     {
-        if (interactionListener != null)
+        if (interactionListener != null) {
             interactionListener.staticMethodCall(className, name, args, argTypes);
+        }
     }
 
     /**
@@ -1008,13 +1011,15 @@ public class WorldHandler
 
     public void notifyRemovedActor(Actor obj)
     {
-        if (interactionListener != null)
-            interactionListener.removedActor(obj);        
+        if (interactionListener != null) {
+            interactionListener.removedActor(obj);
+        }
     }
 
     public void objectAddedToWorld(Actor object)
     {
-        if (interactionListener != null)
-            interactionListener.objectAddedToWorld(object);        
+        if (interactionListener != null) {
+            interactionListener.objectAddedToWorld(object);
+        }
     }
 }
