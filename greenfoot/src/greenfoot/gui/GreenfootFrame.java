@@ -173,7 +173,7 @@ public class GreenfootFrame extends JFrame
     private SaveWorldAction saveWorldAction;
     
     private ToggleDebuggerAction toggleDebuggerAction;
-	private ToggleSoundAction toggleSoundAction;
+    private ToggleSoundAction toggleSoundAction;
     
     private JMenu recentProjectsMenu;
     
@@ -550,8 +550,8 @@ public class GreenfootFrame extends JFrame
     }
 
     /**
-	 * Build a new (empty) class browser.
-	 */
+     * Build a new (empty) class browser.
+     */
     private void buildClassBrowser()
     {
         classBrowser = new ClassBrowser(project, this);
