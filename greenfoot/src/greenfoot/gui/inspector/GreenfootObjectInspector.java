@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2011  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,7 +24,6 @@ package greenfoot.gui.inspector;
 import greenfoot.util.GreenfootUtil;
 
 import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
 
 import bluej.debugger.DebuggerObject;
 import bluej.debugmgr.inspector.InspectorManager;
@@ -41,17 +40,15 @@ import bluej.testmgr.record.InvokerRecord;
  */
 public class GreenfootObjectInspector extends ObjectInspector
 {
+    /**
+     * Construct a new object inspector.
+     */
     public GreenfootObjectInspector(DebuggerObject obj, InspectorManager inspectorManager, String name, Package pkg,
             InvokerRecord ir, JFrame parent)
     {
         super(obj, inspectorManager, name, pkg, ir, parent);
         new InspectorUpdater(this);
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run()
-            {
-                GreenfootUtil.makeGreenfootTitle(GreenfootObjectInspector.this);
-            }
-        });
+        GreenfootUtil.makeGreenfootTitle(GreenfootObjectInspector.this);
     }
 
     /**
