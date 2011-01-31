@@ -78,7 +78,8 @@ public abstract class CallableView extends MemberView
     
     /**
      * Get an array of GenType objects representing the parameter types of the
-     * callable.
+     * callable. For a varargs callable, the last parameter type will be an
+     * array (and {@link #isVarArgs()} will return true).
      * 
      * @param raw  whether to return raw versions of the parameter types
      * @return  the parameter types
@@ -86,7 +87,7 @@ public abstract class CallableView extends MemberView
     public abstract JavaType[] getParamTypes(boolean raw);
 
     /**
-     * Get the type paraemters for this callable as an array of GenTypeDeclTpar
+     * Get the type parameters for this callable as an array of GenTypeDeclTpar
      */
     public abstract GenTypeDeclTpar[] getTypeParams();
     
