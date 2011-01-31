@@ -31,9 +31,17 @@ public interface InteractionListener
 {
     public void createdActor(Object actor, String[] args, JavaType[] argTypes);
 
-    public void methodCall(Object obj, String actorName, String name, String[] args, JavaType[] argTypes);
-
-    public void staticMethodCall(String className, String name, String[] args, JavaType[] argTypes);
+    /**
+     * A method was called and successfully returned (no exception was
+     * thrown).
+     * 
+     * @param obj  The target of the method call - will be null for a static method
+     * @param targetName   The name of the target object or class 
+     * @param methodName   The name of the called method
+     * @param args       The method arguments (as java expressions)
+     * @param argTypes   The argument types of the method. For a varargs method the last type will be an array.
+     */
+    public void methodCall(Object obj, String targetName, String methodName, String[] args, JavaType[] argTypes);
 
     public void movedActor(Actor actor, int xCell, int yCell);
 

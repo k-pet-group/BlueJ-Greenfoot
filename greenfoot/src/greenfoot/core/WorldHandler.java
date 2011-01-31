@@ -985,6 +985,16 @@ public class WorldHandler
         }
     }
 
+    /**
+     * A method was called and successfully returned (no exception was
+     * thrown).
+     * 
+     * @param obj  The target of the method call - will be null for a static method
+     * @param targetName   The name of the target object or class 
+     * @param methodName   The name of the called method
+     * @param args       The method arguments (as java expressions)
+     * @param argTypes   The argument types of the method. For a varargs method the last type will be an array.
+     */
     public void notifyMethodCall(Object obj, String instanceName, String name, String[] args, JavaType[] argTypes)
     {
         if (interactionListener != null) {
@@ -992,13 +1002,6 @@ public class WorldHandler
         }
     }
     
-    public void notifyStaticMethodCall(String className, String name, String[] args, JavaType[] argTypes)
-    {
-        if (interactionListener != null) {
-            interactionListener.staticMethodCall(className, name, args, argTypes);
-        }
-    }
-
     /**
      * Notify the interaction listener that an actor was moved (by dragging it with the mouse).
      */

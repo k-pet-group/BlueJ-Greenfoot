@@ -470,14 +470,15 @@ public class WorldHandlerDelegateIDE
         greenfootRecorder.createActor(actor, args, argTypes);
     }
 
+    @Override
     public void methodCall(Object obj, String actorName, String name, String[] args, JavaType[] argTypes)
     {
-        greenfootRecorder.callActorMethod(obj, actorName, name, args, argTypes);        
-    }
-
-    public void staticMethodCall(String className, String name, String[] args, JavaType[] argTypes)
-    {
-        greenfootRecorder.callStaticMethod(className, name, args, argTypes);        
+        if (obj != null) {
+            greenfootRecorder.callActorMethod(obj, actorName, name, args, argTypes);
+        }
+        else {
+            greenfootRecorder.callStaticMethod(actorName, name, args, argTypes);
+        }
     }
 
     public void movedActor(Actor actor, int xCell, int yCell)
