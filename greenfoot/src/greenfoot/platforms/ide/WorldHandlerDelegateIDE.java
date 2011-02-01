@@ -491,47 +491,50 @@ public class WorldHandlerDelegateIDE
         greenfootRecorder.removeActor(obj);        
     }
 
+    @Override
     public void objectAddedToWorld(Actor object)
     {
         if (worldInitialising) {
-            try {
-                // This code is nasty; we look at the stack trace to see if
-                // we have been called from the prepare() method of the world class.
-                //
-                // We do this so that when the prepare() method is called again from the
-                // code, we give the first names to those objects that are created in the prepare()
-                // method -- which should then be identical to the names the objects had when
-                // they were first recorded.  That way we can record additional code,
-                // and the names of the live objects will be the same as the names of the objects
-                // when the code was initially recorded.
-                //
-                // I don't know if getting the stack trace is slow, but it's probably
-                // still more efficient (in time and memory) than giving every actor a name.
-                // Also, this code only runs in the IDE, not in the stand-alone version
-                // And I've now added a check above to make sure this is only done while the 
-                // world is being initialised (which is when prepare() would be called).
-                StackTraceElement[] methods = Thread.currentThread().getStackTrace();
-                
-                boolean gonePastUs = false;
-                for (StackTraceElement item : methods) {
-    
-                    if (GreenfootRecorder.METHOD_NAME.equals(item.getMethodName()) && item.getClassName().endsWith(getLastWorldGClass().getName())) {
-                        // This call gives the object a name,
-                        // which will be necessary for appending operations with the object to the world's code:
-                        greenfootRecorder.nameActor(object);
-                        return;
-                    }
-                    
-                    if (gonePastUs && item.getClassName().startsWith("java.")) {
-                        //We won't find any java.* classes between us and the prepare method, so if
-                        //we do hit one, we know we won't find anything; this should speed things up a bit:
-                        return;
-                    }
-                    
-                    gonePastUs = gonePastUs || "objectAddedToWorld".equals(item.getMethodName());
+            // This code is nasty; we look at the stack trace to see if
+            // we have been called from the prepare() method of the world class.
+            //
+            // We do this so that when the prepare() method is called again from the
+            // code, we give the first names to those objects that are created in the prepare()
+            // method -- which should then be identical to the names the objects had when
+            // they were first recorded.  That way we can record additional code,
+            // and the names of the live objects will be the same as the names of the objects
+            // when the code was initially recorded.
+            //
+            // I don't know if getting the stack trace is slow, but it's probably
+            // still more efficient (in time and memory) than giving every actor a name.
+            // Also, this code only runs in the IDE, not in the stand-alone version
+            // And I've now added a check above to make sure this is only done while the 
+            // world is being initialised (which is when prepare() would be called).
+            StackTraceElement[] methods = Thread.currentThread().getStackTrace();
+
+            boolean gonePastUs = false;
+            GClass lastWorldGClass = getLastWorldGClass();
+            if (lastWorldGClass == null) {
+                return;
+            }
+            String lastWorldClassName = getLastWorldGClass().getName();
+            
+            for (StackTraceElement item : methods) {
+                if (GreenfootRecorder.METHOD_NAME.equals(item.getMethodName()) &&
+                        item.getClassName().equals(lastWorldClassName)) {
+                    // This call gives the object a name,
+                    // which will be necessary for appending operations with the object to the world's code:
+                    greenfootRecorder.nameActor(object);
+                    return;
                 }
-            } catch (Exception e) {
-                // Never mind then...
+
+                if (gonePastUs && item.getClassName().startsWith("java.")) {
+                    //We won't find any java.* classes between us and the prepare method, so if
+                    //we do hit one, we know we won't find anything; this should speed things up a bit:
+                    return;
+                }
+
+                gonePastUs = gonePastUs || "objectAddedToWorld".equals(item.getMethodName());
             }
         }
     }
