@@ -19,21 +19,20 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-
 package greenfoot.record;
 
+import greenfoot.Actor;
+import greenfoot.ObjectTracker;
+import greenfoot.World;
+
+import java.rmi.RemoteException;
 import java.util.IdentityHashMap;
 import java.util.LinkedList;
 import java.util.List;
 
 import rmiextension.wrappers.RObject;
-
 import bluej.debugger.gentype.JavaType;
 import bluej.utility.Debug;
-
-import greenfoot.Actor;
-import greenfoot.ObjectTracker;
-import greenfoot.World;
 
 /**
  * Builder for code sequences representing a recording of what the user has
@@ -41,29 +40,41 @@ import greenfoot.World;
  */
 public class GreenfootRecorder
 {
+    /** A map of known objects to their name as it appears in the code */
     private IdentityHashMap<Object, String> objectNames;
     private LinkedList<String> code;
     private World world;
     
     public static final String METHOD_NAME = "prepare";
     
+    /**
+     * Construct a new GreenfootRecorder instance.
+     */
     public GreenfootRecorder()
     {
         objectNames = new IdentityHashMap<Object, String>();
         code = new LinkedList<String>();
     }
 
-    public void createActor(Object actor, String[] args, JavaType[] argTypes)
+    /**
+     * Record the interactive construction of an actor object.
+     * @param actor   The newly constructed actor
+     * @param args     The arguments supplied to the actor's constructor, as Java expresssions
+     * @param paramTypes  The parameter types of the called constructor
+     */
+    public void createActor(Object actor, String[] args, JavaType[] paramTypes)
     {
         Class<?> theClass = actor.getClass();
         String name = nameActor(actor);
         if (name != null) {
-            code.add(theClass.getCanonicalName() + " " + name + " = new " + theClass.getCanonicalName() + "(" + withCommas(args, argTypes) + ");");
+            code.add(theClass.getCanonicalName() + " " + name + " = new " + theClass.getCanonicalName() + "(" + withCommas(args, paramTypes) + ");");
         }
     }
     
-    // Called when the prepare method is replayed to indicate that the actor's name should be recorded
-    // ready for its use in further manipulations:
+    /**
+     * Called when the prepare method is replayed to indicate that the actor's name should be recorded.
+     * Returns the name assigned to the actor (or null on failure).
+     */
     public String nameActor(Object actor)
     {
         try {
@@ -76,24 +87,31 @@ public class GreenfootRecorder
                 return null;
             }
         }
-        catch (Exception e) {
+        catch (RemoteException e) {
             Debug.reportError("Error naming actor", e);
             return null;
         }
     }
     
-    private static String withCommas(String[] args, JavaType[] paramArgs)
+    /**
+     * Insert commas and other necessary syntax into an argument list
+     * @param args      The arguments to a method or constructor call (as Java expressions)
+     * @param paramTypes  The parameter types of the method/constructor
+     * @return  The arguments as a comma-separated list
+     */
+    private static String withCommas(String[] args, JavaType[] paramTypes)
     {
-        if (args == null)
+        if (args == null) {
             return "";
+        }
         
         StringBuffer commaArgs = new StringBuffer();
         
         for (int i = 0; i < args.length;i++) {
-        	String arg = args[i].trim();
-        	if (arg.startsWith("{") && arg.endsWith("}")) {
-        		arg = "new " + paramArgs[i] + " " + arg;
-        	}
+            String arg = args[i].trim();
+            if (arg.startsWith("{") && arg.endsWith("}")) {
+                arg = "new " + paramTypes[i] + " " + arg;
+            }
             commaArgs.append(arg);
             if (i != args.length - 1) {
                 commaArgs.append(", ");
@@ -102,6 +120,12 @@ public class GreenfootRecorder
         return commaArgs.toString();
     }
     
+    /**
+     * An actor was interactively added to the world: record the interaction
+     * @param actor   The added actor
+     * @param x       The actor's x position
+     * @param y       The actor's y position
+     */
     public void addActorToWorld(Actor actor, int x, int y)
     {
         String actorObjectName = objectNames.get(actor);
@@ -112,7 +136,17 @@ public class GreenfootRecorder
         code.add("addObject(" + actorObjectName + ", " + x + ", " + y + ");");
     }
 
-    public void callActorMethod(Object obj, String actorName, String name, String[] args, JavaType[] argTypes)
+    /**
+     * Record an interactive method call on object (actor or world). Called after the method
+     * successfully returns.
+     * 
+     * @param obj        The object on which the method was invoked
+     * @param actorName  The assigned object name
+     * @param methodName  The method name
+     * @param args       The arguments to the method, as Java expressions
+     * @param paramTypes  The parameter types of the method
+     */
+    public void callActorMethod(Object obj, String actorName, String methodName, String[] args, JavaType[] paramTypes)
     {
         if (null == objectNames.get(obj) && obj != world) {
             //Method is being called on an actor we don't know about: ignore
@@ -120,18 +154,32 @@ public class GreenfootRecorder
         }
         if (world != null && world == obj) {
             // Called on the world, so don't use the world's object name before the call:
-            code.add(name + "(" + withCommas(args, argTypes) + ");");
+            code.add(methodName + "(" + withCommas(args, paramTypes) + ");");
         } else {
-            code.add(actorName + "." + name + "(" + withCommas(args, argTypes) + ");");
+            code.add(actorName + "." + methodName + "(" + withCommas(args, paramTypes) + ");");
         }
     }
 
+    /**
+     * Record an interactive static method call. Called after the method
+     * successfully returns.
+     * 
+     * @param className  The name of the class to which the called method belongs
+     * @param methodName  The method name
+     * @param args       The arguments to the method, as a
+     * @param argTypes
+     */
     public void callStaticMethod(String className, String name, String[] args, JavaType[] argTypes)
     {
         // No difference in syntax, so no need to replicate the code:
         callActorMethod(null, className, name, args, argTypes);
     }
     
+    /**
+     * Notify the recorder that it should clear its recording.
+     * 
+     * @param simulationStarted  Whether the simulation is now running.
+     */
     public void clearCode(boolean simulationStarted)
     {
         code.clear();
@@ -140,6 +188,9 @@ public class GreenfootRecorder
         }
     }
 
+    /**
+     * Notify the recorder that a new world is being initialised.
+     */
     public void reset(World newWorld)
     {
         world = newWorld;
@@ -147,6 +198,9 @@ public class GreenfootRecorder
         clearCode(false);
     }
 
+    /**
+     * Record a dragged actor interaction.
+     */
     public void moveActor(Actor actor, int xCell, int yCell)
     {        
         String actorObjectName = objectNames.get(actor);
@@ -159,19 +213,25 @@ public class GreenfootRecorder
         code.add(actorObjectName + ".setLocation(" + xCell + ", " + yCell + ");");
     }
 
+    /**
+     * Record a remove actor interaction.
+     */
     public void removeActor(Actor obj)
     {
         String actorObjectName = objectNames.get(obj);
         if (null == actorObjectName) {
             // This could happen with programmatically generated actors (e.g. in a World's method)
             // if the user tries to remove them afterwards.
-         // We'll just have to ignore it
+            // We'll just have to ignore it
             return;
         }
         code.add("removeObject(" + actorObjectName + ");");
         objectNames.remove(obj);
     }
 
+    /**
+     * Retrieve the Java code representing the interactions recorded up to this point.
+     */
     public List<String> getCode()
     {
         return code;
