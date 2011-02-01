@@ -62,6 +62,7 @@ import rmiextension.wrappers.RObject;
 import bluej.Config;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.gentype.JavaType;
+import bluej.debugmgr.inspector.InspectorManager;
 import bluej.debugmgr.objectbench.ObjectBenchEvent;
 import bluej.debugmgr.objectbench.ObjectBenchInterface;
 import bluej.debugmgr.objectbench.ObjectBenchListener;
@@ -89,6 +90,7 @@ public class WorldHandlerDelegateIDE
     private GProject project;
     
     private GreenfootFrame frame;
+    private InspectorManager inspectorManager;
     
     // Records actions manually performed on the world:
     private GreenfootRecorder greenfootRecorder;
@@ -96,9 +98,11 @@ public class WorldHandlerDelegateIDE
 
     private boolean worldInitialising;
 
-    public WorldHandlerDelegateIDE(GreenfootFrame frame, ClassStateManager classStateManager)
+    public WorldHandlerDelegateIDE(GreenfootFrame frame, InspectorManager inspectorManager,
+            ClassStateManager classStateManager)
     {
         this.frame = frame;
+        this.inspectorManager = inspectorManager;
         greenfootRecorder = new GreenfootRecorder();
         saveWorldAction = new SaveWorldAction(greenfootRecorder, classStateManager);
         saveWorldAction.setRecordingValid(false);
@@ -113,7 +117,7 @@ public class WorldHandlerDelegateIDE
         JPopupMenu menu = new JPopupMenu();
 
         ObjectWrapper.createMethodMenuItems(menu, obj.getClass(),
-                new WorldInvokeListener(frame, obj, this, frame, project),
+                new WorldInvokeListener(frame, obj, this, inspectorManager, project),
                 LocalObject.getLocalObject(obj), null, false);
 
         // "inspect" menu item
@@ -149,7 +153,7 @@ public class WorldHandlerDelegateIDE
         
         ObjectWrapper.createMethodMenuItems(menu, world.getClass(),
                 new WorldInvokeListener(frame, world, WorldHandlerDelegateIDE.this,
-                        frame, project),
+                        inspectorManager, project),
                 LocalObject.getLocalObject(world), null, false);
         // "inspect" menu item
         JMenuItem m = getInspectMenuItem(world);
@@ -185,7 +189,7 @@ public class WorldHandlerDelegateIDE
                 catch (RemoteException e1) {
                     Debug.reportError("Could not get instance name for inspection", e1);
                 }
-                frame.getInspectorInstance(dObj, instanceName, null, null, parent);
+                inspectorManager.getInspectorInstance(dObj, instanceName, null, null, parent);
             }
         });
         m.setFont(PrefMgr.getStandoutMenuFont());
