@@ -117,7 +117,7 @@ public class WorldHandlerDelegateIDE
         JPopupMenu menu = new JPopupMenu();
 
         ObjectWrapper.createMethodMenuItems(menu, obj.getClass(),
-                new WorldInvokeListener(frame, obj, this, inspectorManager, project),
+                new WorldInvokeListener(frame, obj, this, inspectorManager, this, project),
                 LocalObject.getLocalObject(obj), null, false);
 
         // "inspect" menu item
@@ -130,7 +130,7 @@ public class WorldHandlerDelegateIDE
             public void actionPerformed(ActionEvent e)
             {
                 worldHandler.getWorld().removeObject(obj);
-                worldHandler.notifyRemovedActor(obj);
+                removedActor(obj);
                 worldHandler.repaint();
             }
         });
@@ -153,7 +153,7 @@ public class WorldHandlerDelegateIDE
         
         ObjectWrapper.createMethodMenuItems(menu, world.getClass(),
                 new WorldInvokeListener(frame, world, WorldHandlerDelegateIDE.this,
-                        inspectorManager, project),
+                        inspectorManager, this, project),
                 LocalObject.getLocalObject(world), null, false);
         // "inspect" menu item
         JMenuItem m = getInspectMenuItem(world);
@@ -202,6 +202,7 @@ public class WorldHandlerDelegateIDE
      * Pop-up menu depends on if the MouseEvent occurred on an Actor
      * or the world.
      */
+    @Override
     public boolean maybeShowPopup(MouseEvent e)
     {
         if (e.isPopupTrigger()) {
@@ -240,6 +241,7 @@ public class WorldHandlerDelegateIDE
      * Clear the world from the cache.
      * @param world		World to discard
      */
+    @Override
     public void discardWorld(World world)
     {        
         ObjectTracker.clearRObjectCache();
@@ -248,6 +250,7 @@ public class WorldHandlerDelegateIDE
     // It is important that we reset the recorder here in this method, which is called at the start of the world's constructor.
     // Doing it in setWorld is too late, as we will miss the recording/naming needed
     // that happens when the prepare method creates new actors -- prepare is invoked from the world's constructor.
+    @Override
     public void initialisingWorld(World world)
     {
         worldInitialising = true;
@@ -255,6 +258,7 @@ public class WorldHandlerDelegateIDE
         saveWorldAction.setRecordingValid(true);
     }
     
+    @Override
     public void setWorld(final World oldWorld, final World newWorld, boolean interactive)
     {
         worldInitialising = false;
@@ -308,33 +312,25 @@ public class WorldHandlerDelegateIDE
         }
     }
     
-    /**
-     * Add listener to recieve events when objects in the world are clicked.
-     * @param listener
-     */
+    @Override
     public void addObjectBenchListener(ObjectBenchListener listener)
     {
         worldHandler.getListenerList().add(ObjectBenchListener.class, listener);
     }
     
-    
-    /**
-     * Add listener to recieve events when objects in the world are clicked.
-     * @param listener
-     */
+    @Override
     public void removeObjectBenchListener(ObjectBenchListener listener)
     {
         worldHandler.getListenerList().remove(ObjectBenchListener.class, listener);
     }
     
-    /* (non-Javadoc)
-     * @see bluej.debugmgr.objectbench.ObjectBenchInterface#hasObject(java.lang.String)
-     */
+    @Override
     public boolean hasObject(String name)
     {
         return false;
     }
 
+    @Override
     public void mouseClicked(MouseEvent e)
     {
         if (SwingUtilities.isLeftMouseButton(e)) {
@@ -345,6 +341,7 @@ public class WorldHandlerDelegateIDE
         }
     }
     
+    @Override
     public void mouseMoved(MouseEvent e)
     {
         // While dragging, other methods set the mouse cursor instead:
@@ -367,11 +364,13 @@ public class WorldHandlerDelegateIDE
         this.project = (GProject) project;
     }
 
+    @Override
     public void setWorldHandler(WorldHandler handler)
     {
         this.worldHandler = handler;
     }
 
+    @Override
     public void instantiateNewWorld()
     {
         Class<? extends World> cls = getLastWorldClass();
@@ -451,6 +450,7 @@ public class WorldHandlerDelegateIDE
         return null;
     }
 
+    @Override
     public InputManager getInputManager()
     {
         InputManager inputManager = new InputManager();       
@@ -464,11 +464,13 @@ public class WorldHandlerDelegateIDE
         return inputManager;
     }
     
+    @Override
     public void addActor(Actor actor, int x, int y)
     {
         greenfootRecorder.addActorToWorld(actor, x, y);
     }
 
+    @Override
     public void createdActor(Object actor, String[] args, JavaType[] argTypes)
     {
         greenfootRecorder.createActor(actor, args, argTypes);
@@ -484,12 +486,14 @@ public class WorldHandlerDelegateIDE
             greenfootRecorder.callStaticMethod(actorName, name, args, argTypes);
         }
     }
-
-    public void movedActor(Actor actor, int xCell, int yCell)
+    
+    @Override
+    public void actorDragged(Actor actor, int xCell, int yCell)
     {
         greenfootRecorder.moveActor(actor, xCell, yCell);
     }
 
+    @Override
     public void removedActor(Actor obj)
     {
         greenfootRecorder.removeActor(obj);        
@@ -543,6 +547,7 @@ public class WorldHandlerDelegateIDE
         }
     }
 
+    @Override
     public void simulationActive()
     {
         greenfootRecorder.clearCode(true);
@@ -553,10 +558,4 @@ public class WorldHandlerDelegateIDE
     {
         return saveWorldAction;
     }
-    
-    public InteractionListener getInteractionListener()
-    {
-        return this;
-    }
-    
 }

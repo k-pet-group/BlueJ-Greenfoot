@@ -119,4 +119,14 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
     {
         return null;
     }
+    
+    @Override
+    public void actorDragged(Actor actor, int xCell, int yCell)
+    {
+    }
+    
+    @Override
+    public void objectAddedToWorld(Actor actor)
+    {
+    }
 }

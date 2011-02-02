@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,6 +28,7 @@ import greenfoot.gui.NewClassDialog;
 import greenfoot.gui.classbrowser.ClassBrowser;
 import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.gui.classbrowser.role.NormalClassRole;
+import greenfoot.record.InteractionListener;
 import greenfoot.util.GreenfootUtil;
 
 import java.awt.event.ActionEvent;
@@ -47,14 +48,18 @@ import bluej.Config;
  */
 public class NewClassAction extends AbstractAction
 {
-    //private ClassBrowser classBrowser;
     private GreenfootFrame gfFrame;
+    private InteractionListener interactionListener;
 
-    public NewClassAction(GreenfootFrame gfFrame)
+    /**
+     * Construct a NewClassAction instance.
+     */
+    public NewClassAction(GreenfootFrame gfFrame, InteractionListener interactionListener)
     {
         super(Config.getString("new.class"));
         setEnabled(false);
         this.gfFrame = gfFrame;
+        this.interactionListener = interactionListener;
     }
 	
     public void actionPerformed(ActionEvent arg0)
@@ -81,7 +86,7 @@ public class NewClassAction extends AbstractAction
 
             GClass newClass = pkg.newClass(className);
 
-            ClassView classView = new ClassView(classBrowser, newClass);
+            ClassView classView = new ClassView(classBrowser, newClass, interactionListener);
             classBrowser.addClass(classView);
         }
         catch (RemoteException re) {

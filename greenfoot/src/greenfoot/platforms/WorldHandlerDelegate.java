@@ -25,7 +25,6 @@ import greenfoot.Actor;
 import greenfoot.World;
 import greenfoot.core.WorldHandler;
 import greenfoot.gui.input.InputManager;
-import greenfoot.record.InteractionListener;
 
 import java.awt.event.MouseEvent;
 
@@ -71,6 +70,14 @@ public interface WorldHandlerDelegate
     void initialisingWorld(World world);
     
     void simulationActive();
-
-    InteractionListener getInteractionListener();
+    
+    /**
+     * An actor was dragged to a new location.
+     */
+    public void actorDragged(Actor actor, int xCell, int yCell);
+    
+    /**
+     * An actor was added into the world (by any means, possibly programmatically).
+     */
+    public void objectAddedToWorld(Actor actor);
 }

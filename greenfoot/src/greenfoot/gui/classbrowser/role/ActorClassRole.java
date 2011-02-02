@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009, 2010  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,6 +25,7 @@ import greenfoot.actions.SelectImageAction;
 import greenfoot.actions.ShowApiDocAction;
 import greenfoot.core.GProject;
 import greenfoot.event.WorldEvent;
+import greenfoot.record.InteractionListener;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -58,13 +59,15 @@ public class ActorClassRole extends ImageClassRole
     	super(project);
     }
     
-    /**
+    /*
      * Need to overide this method in order to delay the invocation of the
      * constructor until the object is placed into the world.
      */
-    public List<Action> createConstructorActions(Class<?> realClass, GProject project)
+    @Override
+    public List<Action> createConstructorActions(Class<?> realClass, GProject project,
+            InteractionListener interactionListener)
     {
-        List<Action> realActions = super.createConstructorActions(realClass, project);
+        List<Action> realActions = super.createConstructorActions(realClass, project, interactionListener);
         constructorItems = new ArrayList<Action>();
         for (Action realAction : realActions) {
             Action tempAction = createDragProxyAction(realAction);
@@ -75,9 +78,7 @@ public class ActorClassRole extends ImageClassRole
         return constructorItems;
     }
         
-    /* (non-Javadoc)
-     * @see greenfoot.gui.classbrowser.role.ClassRole#addPopupMenuItems(javax.swing.JPopupMenu, boolean)
-     */
+    @Override
     public void addPopupMenuItems(JPopupMenu menu, boolean coreClass)
     {
         if (!coreClass) {

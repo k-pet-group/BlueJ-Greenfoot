@@ -549,12 +549,14 @@ public class GreenfootFrame extends JFrame
 
                 GClass[] classes = pkg.getClasses();
                 //add the system classes
-                classBrowser.quickAddClass(new ClassView(classBrowser, new GCoreClass(World.class, project)));
-                classBrowser.quickAddClass(new ClassView(classBrowser, new GCoreClass(Actor.class, project)));
+                classBrowser.quickAddClass(new ClassView(classBrowser,
+                        new GCoreClass(World.class, project), worldHandlerDelegate));
+                classBrowser.quickAddClass(new ClassView(classBrowser,
+                        new GCoreClass(Actor.class, project), worldHandlerDelegate));
 
                 for (int i = 0; i < classes.length; i++) {
                     GClass gClass = classes[i];
-                    classBrowser.quickAddClass(new ClassView(classBrowser, gClass));
+                    classBrowser.quickAddClass(new ClassView(classBrowser, gClass, worldHandlerDelegate));
                 }
 
                 classBrowser.updateLayout();
@@ -568,7 +570,7 @@ public class GreenfootFrame extends JFrame
 
     private void setupActions()
     {
-    	newClassAction = new NewClassAction(this);
+    	newClassAction = new NewClassAction(this, worldHandlerDelegate);
     	saveProjectAction = new SaveProjectAction(this);
     	saveCopyAction = new SaveCopyAction(this);
     	showReadMeAction = new ShowReadMeAction(this);

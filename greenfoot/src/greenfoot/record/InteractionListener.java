@@ -29,6 +29,11 @@ import greenfoot.Actor;
  */
 public interface InteractionListener
 {
+    /**
+     * Notify that an actor was constructed interactively by the user.
+     * @param actor   The actor object
+     * @param String[] args   The constructor arguments (as Java expressions)
+     */
     public void createdActor(Object actor, String[] args, JavaType[] argTypes);
 
     /**
@@ -42,8 +47,6 @@ public interface InteractionListener
      * @param argTypes   The argument types of the method. For a varargs method the last type will be an array.
      */
     public void methodCall(Object obj, String targetName, String methodName, String[] args, JavaType[] argTypes);
-
-    public void movedActor(Actor actor, int xCell, int yCell);
 
     public void removedActor(Actor obj);
 

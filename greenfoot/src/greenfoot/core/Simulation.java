@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2010  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2010,2011  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -493,7 +493,7 @@ public class Simulation extends Thread
         repaintIfNeeded();
     }
     
-    // The actActor, actWorld and runTask methods exist as a tagging mechanism
+    // The actActor, actWorld and newInstance methods exist as a tagging mechanism
     // that allows them to be found easily in the debugger when we
     // are attempting to reach the next call to user code
     

@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,6 +27,7 @@ import greenfoot.World;
 import greenfoot.gui.input.mouse.LocationTracker;
 import greenfoot.localdebugger.LocalDebugger;
 import greenfoot.localdebugger.LocalObject;
+import greenfoot.record.InteractionListener;
 
 import java.awt.event.MouseEvent;
 import java.rmi.RemoteException;
@@ -79,16 +80,18 @@ public class WorldInvokeListener
     private ObjectBenchInterface objectBench;
     private GProject project;
     private JFrame frame;
+    private InteractionListener interactionListener;
     
     /**
      * Create a WorldInvokeListener for listening to method invocations on an object.
      */
     public WorldInvokeListener(JFrame frame, Object obj, ObjectBenchInterface bench,
-            InspectorManager inspectorManager, GProject project)
+            InspectorManager inspectorManager, InteractionListener interactionListener, GProject project)
     {
         this.objectBench = bench;
         this.obj = obj;
         this.inspectorManager = inspectorManager;
+        this.interactionListener = interactionListener;
         this.project = project;
         this.frame = frame;
     }
@@ -97,12 +100,14 @@ public class WorldInvokeListener
      * Create a WorldInvokeListener for listening to static method and constructor
      * invocations.
      */
-    public WorldInvokeListener(JFrame frame, Class<?> cl, ObjectBenchInterface bench, InspectorManager inspectorManager, GProject project)
+    public WorldInvokeListener(JFrame frame, Class<?> cl, ObjectBenchInterface bench,
+            InspectorManager inspectorManager, InteractionListener interactionListener, GProject project)
     {
         this.objectBench = bench;
         this.cl = cl;
         this.project = project;
         this.inspectorManager = inspectorManager;
+        this.interactionListener = interactionListener;
         this.frame = frame;
     }
     
@@ -168,7 +173,7 @@ public class WorldInvokeListener
                         else {
                             WorldHandler worldHandler = WorldHandler.getInstance();
                             if(o instanceof Actor) {
-                                worldHandler.notifyCreatedActor(o, ir.getArgumentValues(), paramTypes);
+                                interactionListener.createdActor(o, ir.getArgumentValues(), paramTypes);
                                 worldHandler.addObjectAtEvent((Actor) o, event);
                                 worldHandler.repaint();
                             }
@@ -185,7 +190,7 @@ public class WorldInvokeListener
                     update();
                     if (callable instanceof MethodView) {
                         MethodView m = (MethodView) callable;
-                        WorldHandler.getInstance().notifyMethodCall(obj, instanceName, m.getName(), ir.getArgumentValues(), paramTypes);
+                        interactionListener.methodCall(obj, instanceName, m.getName(), ir.getArgumentValues(), paramTypes);
                     }
                 }
 

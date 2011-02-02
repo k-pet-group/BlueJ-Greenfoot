@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -33,6 +33,7 @@ import greenfoot.gui.classbrowser.role.ClassRole;
 import greenfoot.gui.classbrowser.role.NormalClassRole;
 import greenfoot.gui.classbrowser.role.WorldClassRole;
 import greenfoot.gui.input.mouse.LocationTracker;
+import greenfoot.record.InteractionListener;
 import greenfoot.util.GreenfootUtil;
 
 import java.awt.Color;
@@ -81,13 +82,15 @@ public class ClassView extends JToggleButton
     private ClassBrowser classBrowser;
     private JPopupMenu popupMenu;
     private String superclass; //Holds the current superclass. Used to determine wether the superclass has changed.
+    private InteractionListener interactionListener;
         
     /**
      * Creates a new ClassView with the role determined from gClass.
      */
-    public ClassView(ClassBrowser classBrowser, GClass gClass)
+    public ClassView(ClassBrowser classBrowser, GClass gClass, InteractionListener interactionListener)
     {
         this.classBrowser = classBrowser;
+        this.interactionListener = interactionListener;
         init(gClass);
     }    
     
@@ -194,7 +197,7 @@ public class ClassView extends JToggleButton
     private JPopupMenu getPopupMenu()
     {
         if (popupMenu == null) {
-            popupMenu = role.createPopupMenu(classBrowser, this);
+            popupMenu = role.createPopupMenu(classBrowser, this, interactionListener);
             popupMenu.setInvoker(this);
         }
         return popupMenu;
@@ -421,7 +424,7 @@ public class ClassView extends JToggleButton
                     constructor.setAccessible(true);
 
                     Object newObject = Simulation.newInstance(constructor);
-                    WorldHandler.getInstance().notifyCreatedActor(newObject, new String [0], null);            
+                    interactionListener.createdActor(newObject, new String[0], null);
                     ActorInstantiationListener invocationListener = GreenfootMain.getInstance().getInvocationListener();
                     if(invocationListener != null) {
                         invocationListener.localObjectCreated(newObject, LocationTracker.instance().getMouseButtonEvent());

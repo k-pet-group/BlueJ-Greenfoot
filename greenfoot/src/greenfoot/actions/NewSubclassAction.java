@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,6 +28,7 @@ import greenfoot.gui.classbrowser.ClassBrowser;
 import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.gui.classbrowser.role.ImageClassRole;
 import greenfoot.gui.images.ImageLibFrame;
+import greenfoot.record.InteractionListener;
 
 import java.awt.event.ActionEvent;
 
@@ -48,6 +49,7 @@ public class NewSubclassAction extends AbstractAction
 {
     private ClassView superclass;
     private ClassBrowser classBrowser;
+    private InteractionListener interactionListener;
 
     /**
      * Creates a new subclass of the class represented by the view
@@ -56,12 +58,16 @@ public class NewSubclassAction extends AbstractAction
      *            The class that is to be the superclass
      * @param name
      *            Name of the action that appears in the menu
+     * @param interactionListener
+     *            The listener to be notified of interactions (instance creation, method calls) which
+     *            occur on the new class.
      */
-    public NewSubclassAction(ClassView view, ClassBrowser classBrowser)
+    public NewSubclassAction(ClassView view, ClassBrowser classBrowser, InteractionListener interactionListener)
     {
         super(Config.getString("new.subclass"));
         this.superclass = view;
         this.classBrowser = classBrowser;
+        this.interactionListener = interactionListener;
     }
     
     public void actionPerformed(ActionEvent e)
@@ -93,7 +99,7 @@ public class NewSubclassAction extends AbstractAction
         GClass gClass = superclass.createSubclass(className);
        
         if (gClass != null) {
-            ClassView classView = new ClassView(classBrowser, gClass);
+            ClassView classView = new ClassView(classBrowser, gClass, interactionListener);
 
             SelectImageAction.setClassImage(classView,
                     (ImageClassRole) classView.getRole(),
@@ -117,7 +123,7 @@ public class NewSubclassAction extends AbstractAction
         GClass gClass = superclass.createSubclass(className);   
         
         if (gClass != null) {
-            ClassView classView = new ClassView(classBrowser, gClass);
+            ClassView classView = new ClassView(classBrowser, gClass, interactionListener);
             classBrowser.addClass(classView);
         }
     }

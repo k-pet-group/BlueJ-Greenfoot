@@ -41,7 +41,6 @@ import greenfoot.gui.input.mouse.LocationTracker;
 import greenfoot.gui.input.mouse.MousePollingManager;
 import greenfoot.gui.input.mouse.WorldLocator;
 import greenfoot.platforms.WorldHandlerDelegate;
-import greenfoot.record.InteractionListener;
 import greenfoot.util.GraphicsUtilities;
 
 import java.awt.Component;
@@ -61,7 +60,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 import javax.swing.SwingUtilities;
 import javax.swing.event.EventListenerList;
 
-import bluej.debugger.gentype.JavaType;
 import bluej.debugmgr.objectbench.ObjectBenchInterface;
 
 /**
@@ -103,7 +101,6 @@ public class WorldHandler
     private Actor dragActor;
     private boolean dragActorMoved;
     private Cursor defaultCursor;
-    private InteractionListener interactionListener;
     
     public static synchronized void initialise(WorldCanvas worldCanvas, WorldHandlerDelegate helper)
     {
@@ -195,10 +192,14 @@ public class WorldHandler
             }
 
             @Override
-            public InteractionListener getInteractionListener()
+            public void actorDragged(Actor actor, int xCell, int yCell)
             {
-                return null;
-            }           
+            }
+            
+            @Override
+            public void objectAddedToWorld(Actor actor)
+            {
+            }
         };
     }
         
@@ -215,7 +216,6 @@ public class WorldHandler
         instance = this;
         this.handlerDelegate = handlerDelegate;
         this.handlerDelegate.setWorldHandler(this);
-        interactionListener = handlerDelegate.getInteractionListener();
 
         this.worldCanvas = worldCanvas;
         
@@ -320,7 +320,7 @@ public class WorldHandler
                         // will be as if the drag never happened:
                         ActorVisitor.setLocationInPixels(dragActor, dragBeginX, dragBeginY);
                         dragActor.setLocation(ax, ay);
-                        notifyMovedActor(dragActor, ax, ay);
+                        handlerDelegate.actorDragged(dragActor, ax, ay);
                     }
                 });
             }
@@ -680,7 +680,7 @@ public class WorldHandler
 
                             x = WorldVisitor.toCellFloor(getWorld(), dragBeginX);
                             y = WorldVisitor.toCellFloor(getWorld(), dragBeginY);
-                            notifyMovedActor(actor, x, y);
+                            handlerDelegate.actorDragged(actor, x, y);
 
                             repaint();
                         }
@@ -954,9 +954,6 @@ public class WorldHandler
 
     public void listeningEnded()
     {
-        // TODO: instead of relying on mousePressed to start a drag on the world, we
-        // should initiate it in listeningStarted. Maybe by passing the event object
-        // to listening started. 
     }
 
     public void listeningStarted(Object obj)
@@ -974,55 +971,11 @@ public class WorldHandler
     }
     
     /**
-     * Notify that an actor was constructed interactively by the user.
-     * @param actor   The actor object
-     * @param String[] args   The constructor arguments (as Java expressions)
+     * This is a hook called by the World whenever an actor gets added to it. When running in the IDE,
+     * this allows names to be assigned to the actors for interaction recording purposes.
      */
-    public void notifyCreatedActor(Object actor, String[] args, JavaType[] argTypes)
-    {
-        if (interactionListener != null) {
-            interactionListener.createdActor(actor, args, argTypes);
-        }
-    }
-
-    /**
-     * A method was called and successfully returned (no exception was
-     * thrown).
-     * 
-     * @param obj  The target of the method call - will be null for a static method
-     * @param targetName   The name of the target object or class 
-     * @param methodName   The name of the called method
-     * @param args       The method arguments (as java expressions)
-     * @param argTypes   The argument types of the method. For a varargs method the last type will be an array.
-     */
-    public void notifyMethodCall(Object obj, String instanceName, String name, String[] args, JavaType[] argTypes)
-    {
-        if (interactionListener != null) {
-            interactionListener.methodCall(obj, instanceName, name, args, argTypes);
-        }
-    }
-    
-    /**
-     * Notify the interaction listener that an actor was moved (by dragging it with the mouse).
-     */
-    private void notifyMovedActor(Actor actor, int xCell, int yCell)
-    {
-        if (interactionListener != null) {
-            interactionListener.movedActor(actor, xCell, yCell);
-        }
-    }
-
-    public void notifyRemovedActor(Actor obj)
-    {
-        if (interactionListener != null) {
-            interactionListener.removedActor(obj);
-        }
-    }
-
     public void objectAddedToWorld(Actor object)
     {
-        if (interactionListener != null) {
-            interactionListener.objectAddedToWorld(object);
-        }
+        handlerDelegate.objectAddedToWorld(object);
     }
 }
