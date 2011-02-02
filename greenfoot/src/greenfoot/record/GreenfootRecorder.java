@@ -62,7 +62,7 @@ public class GreenfootRecorder
      * @param args     The arguments supplied to the actor's constructor, as Java expresssions
      * @param paramTypes  The parameter types of the called constructor
      */
-    public void createActor(Object actor, String[] args, JavaType[] paramTypes)
+    public synchronized void createActor(Object actor, String[] args, JavaType[] paramTypes)
     {
         Class<?> theClass = actor.getClass();
         String name = nameActor(actor);
@@ -74,8 +74,11 @@ public class GreenfootRecorder
     /**
      * Called when the prepare method is replayed to indicate that the actor's name should be recorded.
      * Returns the name assigned to the actor (or null on failure).
+     * 
+     * <p>This is called from the simulation thread (with the world locked), or from the createActor method
+     * above, which is called from the Swing EDT.
      */
-    public String nameActor(Object actor)
+    public synchronized String nameActor(Object actor)
     {
         try {
             RObject rObject = ObjectTracker.getRObject(actor);
@@ -126,7 +129,7 @@ public class GreenfootRecorder
      * @param x       The actor's x position
      * @param y       The actor's y position
      */
-    public void addActorToWorld(Actor actor, int x, int y)
+    public synchronized void addActorToWorld(Actor actor, int x, int y)
     {
         String actorObjectName = objectNames.get(actor);
         if (null == actorObjectName) {
@@ -146,7 +149,8 @@ public class GreenfootRecorder
      * @param args       The arguments to the method, as Java expressions
      * @param paramTypes  The parameter types of the method
      */
-    public void callActorMethod(Object obj, String actorName, String methodName, String[] args, JavaType[] paramTypes)
+    public synchronized void callActorMethod(Object obj, String actorName, String methodName,
+            String[] args, JavaType[] paramTypes)
     {
         if (null == objectNames.get(obj) && obj != world) {
             //Method is being called on an actor we don't know about: ignore
@@ -180,7 +184,7 @@ public class GreenfootRecorder
      * 
      * @param simulationStarted  Whether the simulation is now running.
      */
-    public void clearCode(boolean simulationStarted)
+    public synchronized void clearCode(boolean simulationStarted)
     {
         code.clear();
         if (simulationStarted) {
@@ -189,9 +193,10 @@ public class GreenfootRecorder
     }
 
     /**
-     * Notify the recorder that a new world is being initialised.
+     * Notify the recorder that a new world is being initialised. This is currently called from the
+     * simulation thread (with the current world locked).
      */
-    public void reset(World newWorld)
+    public synchronized void reset(World newWorld)
     {
         world = newWorld;
         objectNames.clear();
@@ -199,9 +204,10 @@ public class GreenfootRecorder
     }
 
     /**
-     * Record a dragged actor interaction.
+     * Record a dragged actor interaction. This is currently called from the simulation
+     * thread (i.e. with the world locked).
      */
-    public void moveActor(Actor actor, int xCell, int yCell)
+    public synchronized void moveActor(Actor actor, int xCell, int yCell)
     {        
         String actorObjectName = objectNames.get(actor);
         if (null == actorObjectName) {
@@ -232,8 +238,8 @@ public class GreenfootRecorder
     /**
      * Retrieve the Java code representing the interactions recorded up to this point.
      */
-    public List<String> getCode()
+    public synchronized List<String> getCode()
     {
-        return code;
+        return new LinkedList<String>(code);
     }
 }

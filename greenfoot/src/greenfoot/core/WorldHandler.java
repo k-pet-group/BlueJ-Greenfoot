@@ -674,13 +674,12 @@ public class WorldHandler
                         WriteLock writeLock = WorldVisitor.getLock(world).writeLock();
                         if (writeLock.tryLock()) {
                             ActorVisitor.setLocationInPixels(actor, dragBeginX, dragBeginY);
-                            writeLock.unlock();
-                            
-                            dragActorMoved = false; // Pinged back to where it was
-
                             x = WorldVisitor.toCellFloor(getWorld(), dragBeginX);
                             y = WorldVisitor.toCellFloor(getWorld(), dragBeginY);
                             handlerDelegate.actorDragged(actor, x, y);
+                            writeLock.unlock();
+                            
+                            dragActorMoved = false; // Pinged back to where it was
 
                             repaint();
                         }

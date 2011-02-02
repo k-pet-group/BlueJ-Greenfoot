@@ -67,17 +67,23 @@ public interface WorldHandlerDelegate
 
     void discardWorld(World world);
     
+    /**
+     * A new world is initialising. The world might not necessarily become the current world
+     * (and might not finish initialising).
+     * 
+     * This is called with the world locked.
+     */
     void initialisingWorld(World world);
     
     void simulationActive();
     
     /**
-     * An actor was dragged to a new location.
+     * An actor was dragged to a new location. Called with the world locked.
      */
     public void actorDragged(Actor actor, int xCell, int yCell);
     
     /**
-     * An actor was added into the world (by any means, possibly programmatically).
+     * An actor was added into the world (by any means, possibly programmatically). Called with the world locked.
      */
     public void objectAddedToWorld(Actor actor);
 }
