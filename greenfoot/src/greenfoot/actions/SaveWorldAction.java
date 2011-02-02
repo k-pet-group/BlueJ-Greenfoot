@@ -22,8 +22,8 @@
 package greenfoot.actions;
 
 import greenfoot.core.ClassStateManager;
-import greenfoot.core.GClass;
 import greenfoot.core.ClassStateManager.CompiledStateListener;
+import greenfoot.core.GClass;
 import greenfoot.record.GreenfootRecorder;
 
 import java.awt.EventQueue;
@@ -45,6 +45,9 @@ public class SaveWorldAction extends AbstractAction implements CompiledStateList
     private boolean recordingValid;
     private GClass lastWorldGClass;
 
+    /**
+     * Construct a new action to save the world state.
+     */
     public SaveWorldAction(GreenfootRecorder recorder, ClassStateManager classStateManager)
     {
         super(Config.getString("save.world"));
@@ -55,6 +58,7 @@ public class SaveWorldAction extends AbstractAction implements CompiledStateList
         }
     }
 
+    @Override
     public void actionPerformed(ActionEvent arg0)
     {
         final String methodName = GreenfootRecorder.METHOD_NAME;
@@ -95,57 +99,64 @@ public class SaveWorldAction extends AbstractAction implements CompiledStateList
         }
     }
 
-    public boolean isEnabled()
+    /**
+     * Check whether the action should currently be enabled.
+     */
+    private synchronized boolean shouldBeEnabled()
     {
         GClass lastWorld = getLastWorldGClass();
-        return recordingValid && super.isEnabled() && lastWorld != null && lastWorld.isCompiled();
+        return recordingValid && lastWorld != null && lastWorld.isCompiled();
     }
 
-    public void setRecordingValid(boolean valid)
+    /**
+     * Set the recording state as valid or not. If invalid, the action becomes disabled.
+     * This can be called from any thread.
+     */
+    public synchronized void setRecordingValid(boolean valid)
     {
-        boolean oldEnabled = isEnabled();
+        boolean oldValid = recordingValid;
         recordingValid = valid;
-        if (oldEnabled != isEnabled()) {
+        if (oldValid != recordingValid) {
             //This action will actually change the status of the menu
-            updateEnabledStatus(oldEnabled);
+            EventQueue.invokeLater(new Runnable() {
+                @Override
+                public void run()
+                {
+                    updateEnabledStatus();
+                }
+            });
         }        
     }
     
-    private void updateEnabledStatus(final boolean oldEnabled)
+    private void updateEnabledStatus()
     {
-        EventQueue.invokeLater(new Runnable() {
-            public void run ()
-            {
-                firePropertyChange("enabled", Boolean.valueOf(oldEnabled), Boolean.valueOf(isEnabled()));
-            }
-        });
+        setEnabled(shouldBeEnabled());
     }
 
+    @Override
     public void compiledStateChanged(final GClass gclass, boolean compiled)
     {
-        // We must use a thread here to avoid an inter-VM deadlock;
-        // we are called by RPackageImpl remotely while it holds the lock,
-        // but getLastWorldGClass() calls back to the other VM and needs that lock:        
-        new Thread(new Runnable() {
+        EventQueue.invokeLater(new Runnable() {
             public void run()
             {
                 GClass lastClass = getLastWorldGClass();
                 if (lastClass != null && gclass.getQualifiedName().equals(lastClass.getQualifiedName())) {            
-                    updateEnabledStatus(!isEnabled());
+                    updateEnabledStatus();
                 }
             }
-        }).start();
+        });
     }
     
-    private GClass getLastWorldGClass()
+    private synchronized GClass getLastWorldGClass()
     {
         return lastWorldGClass;
     }
     
     /**
      * Set the most recently interactively instantiated world class.
+     * This is currently called from any & every thread.
      */
-    public void setLastWorldGClass(GClass lastWorld)
+    public synchronized void setLastWorldGClass(GClass lastWorld)
     {
         lastWorldGClass = lastWorld;
     }
