@@ -75,8 +75,6 @@ public interface WorldHandlerDelegate
      */
     void initialisingWorld(World world);
     
-    void simulationActive();
-    
     /**
      * An actor was dragged to a new location. Called with the world locked.
      */

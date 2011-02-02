@@ -843,6 +843,14 @@ public class GreenfootFrame extends JFrame
         this.resizeWhenPossible = b;
     }
     
+    /**
+     * Notify that the simulation is active. This invalidates any recorded interaction.
+     */
+    public static void simulationActive()
+    {
+        instance.worldHandlerDelegate.simulationActive();
+    }
+    
     // ----------- WindowListener interface -----------
     
     public void windowOpened(WindowEvent e) {}

@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,6 +25,7 @@ import bluej.Config;
 import greenfoot.core.Simulation;
 import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
+import greenfoot.gui.GreenfootFrame;
 
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
@@ -78,6 +79,7 @@ public class RunSimulationAction extends AbstractAction
             return;
         }
         
+        GreenfootFrame.simulationActive();
         simulation.setPaused(false);
     }
 
@@ -86,29 +88,27 @@ public class RunSimulationAction extends AbstractAction
      */
     public void simulationChanged(final SimulationEvent e)
     {
-        if (e.getType() != SimulationEvent.NEW_ACT) {
-            EventQueue.invokeLater(new Runnable() {
-                public void run()
-                {
-                    int eventType = e.getType();
-                    if (eventType == SimulationEvent.STOPPED) {
-                        setEnabled(stateOnDebugResume = true);
-                    }
-                    else if (eventType == SimulationEvent.STARTED) {
-                        setEnabled(stateOnDebugResume = false);
-                    }
-                    else if (eventType == SimulationEvent.DISABLED) {
-                        setEnabled(stateOnDebugResume = false);
-                    }
-                    else if (eventType == SimulationEvent.DEBUGGER_PAUSED) {
-                        stateOnDebugResume = isEnabled();
-                        setEnabled(false);                        
-                    }
-                    else if (eventType == SimulationEvent.DEBUGGER_RESUMED) {
-                        setEnabled(stateOnDebugResume);
-                    }
+        EventQueue.invokeLater(new Runnable() {
+            public void run()
+            {
+                int eventType = e.getType();
+                if (eventType == SimulationEvent.STOPPED) {
+                    setEnabled(stateOnDebugResume = true);
                 }
-            });
-        }
+                else if (eventType == SimulationEvent.STARTED) {
+                    setEnabled(stateOnDebugResume = false);
+                }
+                else if (eventType == SimulationEvent.DISABLED) {
+                    setEnabled(stateOnDebugResume = false);
+                }
+                else if (eventType == SimulationEvent.DEBUGGER_PAUSED) {
+                    stateOnDebugResume = isEnabled();
+                    setEnabled(false);                        
+                }
+                else if (eventType == SimulationEvent.DEBUGGER_RESUMED) {
+                    setEnabled(stateOnDebugResume);
+                }
+            }
+        });
     }
 }

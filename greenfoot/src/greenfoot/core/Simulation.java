@@ -91,7 +91,6 @@ public class Simulation extends Thread
     private SimulationEvent stoppedEvent;
     private SimulationEvent disabledEvent;
     private SimulationEvent speedChangeEvent;
-    private SimulationEvent newActEvent;
     private SimulationEvent debuggerPausedEvent;
     private SimulationEvent debuggerResumedEvent;
     
@@ -147,7 +146,6 @@ public class Simulation extends Thread
         stoppedEvent = new SimulationEvent(this, SimulationEvent.STOPPED);
         speedChangeEvent = new SimulationEvent(this, SimulationEvent.CHANGED_SPEED);
         disabledEvent = new SimulationEvent(this, SimulationEvent.DISABLED);
-        newActEvent = new SimulationEvent(this, SimulationEvent.NEW_ACT);
         debuggerPausedEvent = new SimulationEvent(this, SimulationEvent.DEBUGGER_PAUSED);
         debuggerResumedEvent = new SimulationEvent(this, SimulationEvent.DEBUGGER_RESUMED);
         setPriority(Thread.MIN_PRIORITY);
@@ -433,8 +431,6 @@ public class Simulation extends Thread
         if (world == null) {
             return;
         }
-
-        fireSimulationEvent(newActEvent);
 
         // We don't want to be interrupted in the middle of an act-loop
         // so we remember the first interrupted exception and throw it

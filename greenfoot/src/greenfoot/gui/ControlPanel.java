@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2011  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -51,7 +51,6 @@ import bluej.Config;
  * Panel that holds the buttons that controls the simulation.
  * 
  * @author Poul Henriksen
- * @version $Id: ControlPanel.java 8579 2010-12-21 04:59:05Z davmac $
  */
 public class ControlPanel extends Box
     implements ChangeListener, SimulationListener
@@ -169,15 +168,11 @@ public class ControlPanel extends Box
         return speedPanel;
     }
     
-    /*
-     * @see greenfoot.event.SimulationListener#simulationChanged(greenfoot.event.SimulationEvent)
-     */
     @Override
     public void simulationChanged(SimulationEvent e)
     {        
         final int etype = e.getType();
-        if (etype == SimulationEvent.NEW_ACT
-              || etype == SimulationEvent.DEBUGGER_PAUSED
+        if (etype == SimulationEvent.DEBUGGER_PAUSED
               || etype == SimulationEvent.DEBUGGER_RESUMED) {
             // we don't care about these events here so we want to avoid
             // creating a new thread below.
@@ -228,6 +223,4 @@ public class ControlPanel extends Box
     {
         simulation.setSpeed(speedSlider.getValue());
     }
-
-
 }

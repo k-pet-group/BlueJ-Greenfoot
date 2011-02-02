@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2011  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -30,7 +30,6 @@ import java.util.EventObject;
  * A simulation event
  * 
  * @author Poul Henriksen
- * @version $Id: SimulationEvent.java 8296 2010-09-10 10:54:46Z nccb $
  */
 public class SimulationEvent extends EventObject
 {
@@ -49,9 +48,6 @@ public class SimulationEvent extends EventObject
      */
     public final static int DISABLED = 3; 
 
-    /** The simulation is about to start a new act round */
-    public final static int NEW_ACT = 4;
-    
     /** The simulation thread is paused because it hit a breakpoint,
      *  or the debugger has otherwise stopped its execution.
      *  
@@ -82,7 +78,9 @@ public class SimulationEvent extends EventObject
         return type;
     }
     
-    public String toString() {
+    @Override
+    public String toString()
+    {
         switch (type) {
             case STARTED:
                 return "STARTED";
@@ -92,14 +90,11 @@ public class SimulationEvent extends EventObject
                 return "CHANGED_SPEED";
             case DISABLED:
                 return "DISABLED";
-            case NEW_ACT:
-                return "NEW_ACT";
             case DEBUGGER_PAUSED:
                 return "DEBUGGER_PAUSED";
             case DEBUGGER_RESUMED:
                 return "DEBUGGER_RESUMED";
         }
         return super.toString();
-        
     }
 }

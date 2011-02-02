@@ -547,7 +547,10 @@ public class WorldHandlerDelegateIDE
         }
     }
 
-    @Override
+    /**
+     * Notify that the simulation has become active ("act" or "run" pressed). Any recorded interaction
+     * then becomes invalid.
+     */
     public void simulationActive()
     {
         greenfootRecorder.clearCode(true);

@@ -187,11 +187,6 @@ public class WorldHandler
             }
             
             @Override
-            public void simulationActive()
-            {
-            }
-
-            @Override
             public void actorDragged(Actor actor, int xCell, int yCell)
             {
             }
@@ -872,10 +867,6 @@ public class WorldHandler
     public void simulationChanged(SimulationEvent e)
     {
         inputManager.simulationChanged(e);
-        if (e.getType() == SimulationEvent.NEW_ACT) {
-            mousePollingManager.newActStarted();
-            handlerDelegate.simulationActive();
-        }
     }
 
     /**
