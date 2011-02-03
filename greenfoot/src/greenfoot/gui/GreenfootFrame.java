@@ -907,6 +907,7 @@ public class GreenfootFrame extends JFrame
     
     // ----------- WorldListener interface -------------
     
+    @Override
     public void worldCreated(WorldEvent e)
     {
         World newWorld = e.getWorld();
@@ -920,12 +921,9 @@ public class GreenfootFrame extends JFrame
         worldCanvas.setVisible(true);
         centrePanel.revalidate();
         worldDimensions = worldCanvas.getPreferredSize();
-
-        if ( e.isFirst() ) {
-            project.setLastWorldClassName(newWorld.getClass().getName());
-        }
     }
     
+    @Override
     public void worldRemoved(WorldEvent e)
     {
         inspectorManager.removeAllInspectors();

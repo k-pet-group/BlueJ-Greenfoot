@@ -182,11 +182,6 @@ public class WorldHandler
             }
 
             @Override
-            public void initialisingWorld(World world)
-            {
-            }
-            
-            @Override
             public void actorDragged(Actor actor, int xCell, int yCell)
             {
             }
@@ -464,7 +459,6 @@ public class WorldHandler
      */
     public void setInitialisingWorld(World world)
     {
-        handlerDelegate.initialisingWorld(world);
         this.initialisingWorld = world;
     }
 

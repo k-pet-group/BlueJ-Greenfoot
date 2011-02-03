@@ -69,6 +69,7 @@ import bluej.debugmgr.objectbench.ObjectBenchListener;
 import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
+import bluej.views.CallableView;
 
 
 /**
@@ -247,21 +248,12 @@ public class WorldHandlerDelegateIDE
         ObjectTracker.clearRObjectCache();
     }
     
-    // It is important that we reset the recorder here in this method, which is called at the start of the world's constructor.
-    // Doing it in setWorld is too late, as we will miss the recording/naming needed
-    // that happens when the prepare method creates new actors -- prepare is invoked from the world's constructor.
-    @Override
-    public void initialisingWorld(World world)
-    {
-        worldInitialising = true;
-        greenfootRecorder.reset(world);
-        saveWorldAction.setRecordingValid(true);
-    }
-    
     @Override
     public void setWorld(final World oldWorld, final World newWorld, boolean interactive)
     {
-        worldInitialising = false;
+        greenfootRecorder.clearCode(false);
+        greenfootRecorder.setWorld(newWorld);
+        //worldInitialising = false;
         if (oldWorld != null) {
             discardWorld(oldWorld);
         }
@@ -373,6 +365,8 @@ public class WorldHandlerDelegateIDE
     @Override
     public void instantiateNewWorld()
     {
+        greenfootRecorder.reset();
+        worldInitialising = true;
         Class<? extends World> cls = getLastWorldClass();
         
         if(cls == null) {
@@ -391,6 +385,7 @@ public class WorldHandlerDelegateIDE
                 try {
                     Constructor<?> cons = icls.getConstructor(new Class<?>[0]);
                     Simulation.newInstance(cons);
+                    saveWorldAction.setRecordingValid(true);
                 }
                 catch (LinkageError e) { }
                 catch (NoSuchMethodException nsme) {
@@ -407,6 +402,7 @@ public class WorldHandlerDelegateIDE
                     // Or for other reasons.
                     ite.getCause().printStackTrace();
                 }
+                worldInitialising = false;
             }
         });
     }
@@ -461,6 +457,23 @@ public class WorldHandlerDelegateIDE
         inputManager.setMoveListeners(worldHandler, worldHandler, worldHandler);
         
         return inputManager;
+    }
+    
+    @Override
+    public void beginCallExecution(CallableView callableView)
+    {
+        if (callableView.isConstructor() && World.class.isAssignableFrom(callableView.getDeclaringView().getViewClass())) {
+            worldInitialising = true;
+            greenfootRecorder.reset();
+            saveWorldAction.setRecordingValid(true);            
+        }
+    }
+    
+    @Override
+    public void worldConstructed(Object world)
+    {
+        worldInitialising = false;
+        project.setLastWorldClassName(world.getClass().getName());
     }
     
     @Override

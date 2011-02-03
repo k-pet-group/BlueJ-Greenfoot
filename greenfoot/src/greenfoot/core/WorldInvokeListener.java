@@ -140,6 +140,7 @@ public class WorldInvokeListener
                 
                 public void beginExecution(InvokerRecord ir)
                 {
+                    interactionListener.beginCallExecution(callable);
                 }
                 
                 public void putError(String message, InvokerRecord ir)

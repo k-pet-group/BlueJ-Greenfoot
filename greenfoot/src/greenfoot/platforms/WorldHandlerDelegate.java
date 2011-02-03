@@ -31,14 +31,14 @@ import java.awt.event.MouseEvent;
 
 /**
  * Interface to classes that contain specialized behaviour for the WorldHandler
- * depending on where and how the greenfoot project is running.
+ * depending on where and how the Greenfoot project is running.
  * 
  * @author Poul Henriksen
  */
 public interface WorldHandlerDelegate
 {
     /**
-     * Show the popup menu if the mouseevent is a popup trigger.
+     * Show the popup menu if the MouseEvent is a popup trigger.
      */
     boolean maybeShowPopup(MouseEvent e);
 
@@ -47,7 +47,7 @@ public interface WorldHandlerDelegate
     void mouseMoved(MouseEvent e);
     
     /**
-     * Set the active world.
+     * A new world has been set as the active world.
      * @param oldWorld   The previously active world
      * @param newWorld   The new active world
      * @param interactive   Whether the new active world was set via user interaction
@@ -66,14 +66,6 @@ public interface WorldHandlerDelegate
     InputManager getInputManager();
 
     void discardWorld(World world);
-    
-    /**
-     * A new world is initialising. The world might not necessarily become the current world
-     * (and might not finish initialising).
-     * 
-     * This is called with the world locked.
-     */
-    void initialisingWorld(World world);
     
     /**
      * An actor was dragged to a new location. Called with the world locked.

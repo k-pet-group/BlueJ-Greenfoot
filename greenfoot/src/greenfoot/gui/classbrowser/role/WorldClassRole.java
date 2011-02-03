@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2011  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -30,13 +30,14 @@ import javax.swing.JPopupMenu;
 import bluej.Config;
 
 /**
+ * A role for world classes.
+ * 
  * @author Poul Henriksen
- * @version $Id: WorldClassRole.java 8267 2010-09-08 11:54:19Z plcs $
  */
 public class WorldClassRole extends ImageClassRole
 {
-    private String template = "worldclass.tmpl";
-
+    private final static String template = "worldclass.tmpl";
+    
     public WorldClassRole(GProject project)
     {
     	super(project);
@@ -48,9 +49,7 @@ public class WorldClassRole extends ImageClassRole
         return template;
     }
     
-    /* (non-Javadoc)
-     * @see greenfoot.gui.classbrowser.role.ClassRole#addPopupMenuItems(javax.swing.JPopupMenu, boolean)
-     */
+    @Override
     public void addPopupMenuItems(JPopupMenu menu, boolean coreClass)
     {
         if (! coreClass) {

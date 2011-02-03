@@ -21,8 +21,9 @@
  */
 package greenfoot.record;
 
-import bluej.debugger.gentype.JavaType;
 import greenfoot.Actor;
+import bluej.debugger.gentype.JavaType;
+import bluej.views.CallableView;
 
 /**
  * An interface currently used to provide hooks for recording the save-the-world.
@@ -30,12 +31,25 @@ import greenfoot.Actor;
 public interface InteractionListener
 {
     /**
+     * An interactive method/constructor call has begun execution.
+     */
+    public void beginCallExecution(CallableView callableView);
+    
+    /**
      * Notify that an actor was constructed interactively by the user.
      * @param actor   The actor object
      * @param String[] args   The constructor arguments (as Java expressions)
      */
     public void createdActor(Object actor, String[] args, JavaType[] argTypes);
 
+    /**
+     * A world was constructed interactively. This would normally, but not necessarily,
+     * mean that the constructed world is now the current world.
+     * 
+     * @param world  The newly constructed world
+     */
+    public void worldConstructed(Object world);
+    
     /**
      * A method was called and successfully returned (no exception was
      * thrown).

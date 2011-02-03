@@ -196,11 +196,19 @@ public class GreenfootRecorder
      * Notify the recorder that a new world is being initialised. This is currently called from the
      * simulation thread (with the current world locked).
      */
-    public synchronized void reset(World newWorld)
+    public synchronized void reset()
     {
-        world = newWorld;
         objectNames.clear();
         clearCode(false);
+    }
+    
+    /**
+     * Notify the recorder that a new world has become the current world.
+     * Called from the simulation thread.
+     */
+    public synchronized void setWorld(World newWorld)
+    {
+        world = newWorld;
     }
 
     /**
