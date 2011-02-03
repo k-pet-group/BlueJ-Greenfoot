@@ -152,14 +152,16 @@ public class GreenfootRecorder
     public synchronized void callActorMethod(Object obj, String actorName, String methodName,
             String[] args, JavaType[] paramTypes)
     {
-        if (null == objectNames.get(obj) && obj != world) {
+        if (obj != null && null == objectNames.get(obj) && obj != world) {
             //Method is being called on an actor we don't know about: ignore
             return;
         }
+        
         if (world != null && world == obj) {
             // Called on the world, so don't use the world's object name before the call:
             code.add(methodName + "(" + withCommas(args, paramTypes) + ");");
-        } else {
+        }
+        else {
             code.add(actorName + "." + methodName + "(" + withCommas(args, paramTypes) + ");");
         }
     }
