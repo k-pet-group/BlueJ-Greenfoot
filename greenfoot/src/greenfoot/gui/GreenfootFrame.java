@@ -959,14 +959,6 @@ public class GreenfootFrame extends JFrame
     // ------------- end of SelectionListener interface --------
 
     /**
-     * Get a reference to the world handler delegate (IDE).
-     */
-    public WorldHandlerDelegateIDE getWorldHandlerDelegate()
-    {
-        return worldHandlerDelegate;
-    }
-    
-    /**
      * Get a reference to the inspector manager for the project shown in this frame.
      */
     public GreenfootInspectorManager getInspectorManager()

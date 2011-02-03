@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,7 +27,6 @@ import greenfoot.gui.GreenfootFrame;
 import greenfoot.gui.classbrowser.ClassForest.TreeEntry;
 import greenfoot.gui.classbrowser.role.ActorClassRole;
 import greenfoot.gui.classbrowser.role.WorldClassRole;
-import greenfoot.platforms.ide.WorldHandlerDelegateIDE;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -54,7 +53,6 @@ import javax.swing.border.TitledBorder;
  */
 public class ClassBrowser extends JPanel
 {
-
     private ButtonGroup buttonGroup = new ButtonGroup();
 
     private SelectionManager selectionManager = new SelectionManager();
@@ -67,6 +65,9 @@ public class ClassBrowser extends JPanel
 
     private GreenfootFrame frame;
 
+    /**
+     * Construct a new ClassBrowser
+     */
     public ClassBrowser(GProject project, GreenfootFrame frame)
     {
     	this.project = project;
@@ -87,7 +88,6 @@ public class ClassBrowser extends JPanel
      */
     public void quickAddClass(ClassView classView)
     {
-
         if (classView.getRole() instanceof ActorClassRole) {
             greenfootClasses.add(classView);
         }
@@ -101,7 +101,6 @@ public class ClassBrowser extends JPanel
         buttonGroup.add(classView);
         classView.addSelectionChangeListener(selectionManager);        
     }
-    
     
     /**
      * Add a new class to the class browser.
@@ -245,7 +244,6 @@ public class ClassBrowser extends JPanel
     private JComponent createClassHierarchyComponent(Collection<TreeEntry> roots,
             boolean isRecursiveCall)
     {
-
         JComponent hierarchyPanel = new JPanel();
         hierarchyPanel.setOpaque(false);
         hierarchyPanel.setLayout(new BoxLayout(hierarchyPanel, BoxLayout.Y_AXIS));
@@ -310,7 +308,6 @@ public class ClassBrowser extends JPanel
         }
 
         return hierarchyPanel;
-
     }
 
     /**
@@ -352,7 +349,6 @@ public class ClassBrowser extends JPanel
             }
         }      
         updateLayout();
-        
     }
     
     public GProject getProject()
@@ -366,10 +362,5 @@ public class ClassBrowser extends JPanel
     public GreenfootFrame getFrame()
     {
         return frame;
-    }
-
-    public WorldHandlerDelegateIDE getIDE()
-    {
-        return frame.getWorldHandlerDelegate();
     }
 }

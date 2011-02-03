@@ -375,7 +375,6 @@ public class WorldHandlerDelegateIDE
     {
         Class<? extends World> cls = getLastWorldClass();
         
-        cls = getLastWorldClass();
         if(cls == null) {
             List<Class<? extends World>> worldClasses = project.getDefaultPackage().getWorldClasses();
             if(worldClasses.isEmpty() ) {
