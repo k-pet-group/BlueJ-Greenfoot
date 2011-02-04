@@ -179,6 +179,7 @@ public class WorldInvokeListener
                                 worldHandler.repaint();
                             }
                             else if(o instanceof greenfoot.World) {
+                                interactionListener.worldConstructed(o);
                                 worldHandler.setWorld((World) o);
                             }
                             else {

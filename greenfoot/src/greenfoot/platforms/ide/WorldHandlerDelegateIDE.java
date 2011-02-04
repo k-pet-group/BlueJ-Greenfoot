@@ -473,7 +473,17 @@ public class WorldHandlerDelegateIDE
     public void worldConstructed(Object world)
     {
         worldInitialising = false;
-        project.setLastWorldClassName(world.getClass().getName());
+        Class<?> worldClass = world.getClass();
+        
+        // We want to save the world class as the last constructed class, but only if
+        // there's a no-argument constructor:
+        Constructor<?> [] cons = worldClass.getConstructors();
+        for (Constructor<?> con : cons) {
+            if (con.getParameterTypes().length == 0) {
+                project.setLastWorldClassName(world.getClass().getName());
+                break;
+            }
+        }
     }
     
     @Override
