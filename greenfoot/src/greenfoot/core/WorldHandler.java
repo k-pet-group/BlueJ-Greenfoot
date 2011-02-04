@@ -71,7 +71,8 @@ import bluej.debugmgr.objectbench.ObjectBenchInterface;
 public class WorldHandler
     implements TriggeredMouseListener, TriggeredMouseMotionListener, TriggeredKeyListener, DropTarget, DragListener, SimulationListener
 {
-    private boolean firstWorld;
+    /** A flag to check whether a world has been set. Can be tested/cleared by callers. */
+    private boolean worldIsSet;
 
     private World initialisingWorld;
     private volatile World world;
@@ -128,8 +129,6 @@ public class WorldHandler
      */
     private WorldHandler() 
     {
-        firstWorld = true;
-        
         instance = this;
         mousePollingManager = new MousePollingManager(null);
         handlerDelegate = new WorldHandlerDelegate() {
@@ -167,7 +166,7 @@ public class WorldHandler
             }
 
             @Override
-            public void setWorld(World oldWorld, World newWorld, boolean interactive)
+            public void setWorld(World oldWorld, World newWorld)
             {
             }
 
@@ -201,8 +200,6 @@ public class WorldHandler
      */
     private WorldHandler(final WorldCanvas worldCanvas, WorldHandlerDelegate handlerDelegate)
     {
-        firstWorld = true;
-
         instance = this;
         this.handlerDelegate = handlerDelegate;
         this.handlerDelegate.setWorldHandler(this);
@@ -481,44 +478,31 @@ public class WorldHandler
     }
 
     /**
-     * Sets the world handler to be ready to take the first world of the next run.
+     * Check whether a world has been set (via {@link #setWorld()}) since the "world is set" flag was last cleared.
      */
-    public synchronized void setFirstWorld()
+    public synchronized boolean checkWorldSet()
     {
-        this.firstWorld = true;
-    }
-
-    public synchronized boolean isFirstWorld()
-    {
-        return firstWorld;
+        return worldIsSet;
     }
 
     /**
-     * Sets a new world. A world is set in numerous steps:
-     * 
-     * <ol>
-     * <li> setFirstWorld should be set to true before creating a world.
-     * Failure to set this to true will cause the World being made to not be set
-     * as the current world. That however is desirable whilst Greenfoot scenarios
-     * are running (so you can make Worlds in the background).
-     *
-     * <li> When it is partially created the constructor in World will set the
-     * world in world handler, so that actors can access the world early on in
-     * their own constructors (with worldInitialising(World world)).
-     * 
-     * <li> When the world-object is fully created (finished the constructor) it
-     * will notify the worldhandler that it is fully created. (with setWorld)
-     * </ol>
+     * Clear the "world is set" flag.
+     */
+    public synchronized void clearWorldSet()
+    {
+        worldIsSet = false;
+    }
+
+    /**
+     * Sets a new world.
      * 
      * @param world  The new world. Must not be null.
-     * @see #setInitialisingWorld(World)
      */
     public synchronized void setWorld(final World world)
     {
-        final boolean isFirst = isFirstWorld();
-        this.firstWorld = false;
+        worldIsSet = true;
         
-        handlerDelegate.setWorld(this.world, world, isFirst);
+        handlerDelegate.setWorld(this.world, world);
         mousePollingManager.setWorldLocator(new WorldLocator() {
             @Override
             public Actor getTopMostActorAt(MouseEvent e)
@@ -549,7 +533,7 @@ public class WorldHandler
                 if(worldCanvas != null) {
                     worldCanvas.setWorld(world);
                 }
-                fireWorldCreatedEvent(world, isFirst);
+                fireWorldCreatedEvent(world);
             }
         });
     }
@@ -753,13 +737,13 @@ public class WorldHandler
         finishDrag(o);
     }
 
-    protected void fireWorldCreatedEvent(World newWorld, boolean isFirst)
+    protected void fireWorldCreatedEvent(World newWorld)
     {
         // Guaranteed to return a non-null array
         Object[] listeners = listenerList.getListenerList();
         // Process the listeners last to first, notifying
         // those that are interested in this event
-        WorldEvent worldEvent = new WorldEvent(newWorld, isFirst);
+        WorldEvent worldEvent = new WorldEvent(newWorld);
         for (int i = listeners.length - 2; i >= 0; i -= 2) {
             if (listeners[i] == WorldListener.class) {
                 ((WorldListener) listeners[i + 1]).worldCreated(worldEvent);
@@ -773,7 +757,7 @@ public class WorldHandler
         Object[] listeners = listenerList.getListenerList();
         // Process the listeners last to first, notifying
         // those that are interested in this event
-        WorldEvent worldEvent = new WorldEvent(discardedWorld, false);
+        WorldEvent worldEvent = new WorldEvent(discardedWorld);
         for (int i = listeners.length - 2; i >= 0; i -= 2) {
             if (listeners[i] == WorldListener.class) {
                 ((WorldListener) listeners[i + 1]).worldRemoved(worldEvent);

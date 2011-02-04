@@ -141,6 +141,7 @@ public class WorldInvokeListener
                 public void beginExecution(InvokerRecord ir)
                 {
                     interactionListener.beginCallExecution(callable);
+                    WorldHandler.getInstance().clearWorldSet();
                 }
                 
                 public void putError(String message, InvokerRecord ir)
@@ -180,7 +181,9 @@ public class WorldInvokeListener
                             }
                             else if(o instanceof greenfoot.World) {
                                 interactionListener.worldConstructed(o);
-                                worldHandler.setWorld((World) o);
+                                if (! worldHandler.checkWorldSet()) {
+                                    worldHandler.setWorld((World) o);
+                                }
                             }
                             else {
                                 inspectorManager.getInspectorInstance(result, "result", null, null,

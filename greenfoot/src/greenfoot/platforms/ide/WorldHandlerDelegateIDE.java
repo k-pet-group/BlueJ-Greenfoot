@@ -249,7 +249,7 @@ public class WorldHandlerDelegateIDE
     }
     
     @Override
-    public void setWorld(final World oldWorld, final World newWorld, boolean interactive)
+    public void setWorld(final World oldWorld, final World newWorld)
     {
         greenfootRecorder.clearCode(false);
         greenfootRecorder.setWorld(newWorld);
@@ -258,17 +258,15 @@ public class WorldHandlerDelegateIDE
             discardWorld(oldWorld);
         }
         
-        if (interactive) {
-            GClass lastWorld = null;
-            if (project != null) {
-                String lastWorldClass = newWorld.getClass().getName();
-                if(lastWorldClass != null) {
-                    lastWorld = project.getDefaultPackage().getClass(lastWorldClass);
-                }
+        GClass lastWorld = null;
+        if (project != null) {
+            String lastWorldClass = newWorld.getClass().getName();
+            if(lastWorldClass != null) {
+                lastWorld = project.getDefaultPackage().getClass(lastWorldClass);
             }
-
-            saveWorldAction.setLastWorldGClass(lastWorld);
         }
+
+        saveWorldAction.setLastWorldGClass(lastWorld);
     }
     
     /**
@@ -384,7 +382,11 @@ public class WorldHandlerDelegateIDE
             {
                 try {
                     Constructor<?> cons = icls.getConstructor(new Class<?>[0]);
-                    Simulation.newInstance(cons);
+                    WorldHandler.getInstance().clearWorldSet();
+                    World newWorld = (World) Simulation.newInstance(cons);
+                    if (! WorldHandler.getInstance().checkWorldSet()) {
+                        WorldHandler.getInstance().setWorld(newWorld);
+                    }
                     saveWorldAction.setRecordingValid(true);
                 }
                 catch (LinkageError e) { }

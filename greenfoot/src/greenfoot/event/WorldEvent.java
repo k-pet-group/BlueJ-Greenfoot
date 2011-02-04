@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -31,25 +31,21 @@ import greenfoot.World;
 public class WorldEvent
 {
     private final World world;
-    private final boolean isFirst;
 
     /**
      * Construct a world event for the given world.
      * @param world  The world which was created or removed (non-null).
      */
-    public WorldEvent(World world, boolean isFirst)
+    public WorldEvent(World world)
     {
         this.world = world;
-        this.isFirst = isFirst;
     }
     
+    /**
+     * Get the world associated with this event.
+     */
     public World getWorld()
     {
         return world;
-    }
-
-    public boolean isFirst()
-    {
-        return isFirst;
     }
 }

@@ -292,9 +292,8 @@ public class GreenfootScenarioViewer extends JApplet
     public void instantiateNewWorld() 
     {
         try {
-            WorldHandler.getInstance().setFirstWorld();
             World world = (World) worldConstructor.newInstance(new Object[]{});
-            canvas.setWorld( WorldHandler.getInstance().getWorld() );
+            WorldHandler.getInstance().setWorld(world);
         }
         catch (IllegalArgumentException e) {
             // TODO Auto-generated catch block

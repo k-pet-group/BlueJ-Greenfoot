@@ -64,7 +64,8 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
         // Not used in standalone
     }
 
-    public void setWorld(final World oldWorld, final World newWorld, boolean interactive)
+    @Override
+    public void setWorld(final World oldWorld, final World newWorld)
     {
         // Not needed
     }

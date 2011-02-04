@@ -142,10 +142,6 @@ public abstract class World
         final WorldHandler wHandler = WorldHandler.getInstance();
         if(wHandler != null) { // will be null when running unit tests.
             wHandler.setInitialisingWorld(this);
-            
-            if ( wHandler.isFirstWorld() ) {
-                wHandler.setWorld( this );
-            }
         }
     }
 

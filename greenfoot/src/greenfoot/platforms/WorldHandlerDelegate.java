@@ -50,9 +50,8 @@ public interface WorldHandlerDelegate
      * A new world has been set as the active world.
      * @param oldWorld   The previously active world
      * @param newWorld   The new active world
-     * @param interactive   Whether the new active world was set via user interaction
      */
-    void setWorld(World oldWorld, World newWorld, boolean interactive);
+    void setWorld(World oldWorld, World newWorld);
 
     void setWorldHandler(WorldHandler handler);
     
