@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2010  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2010,2011  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,7 +23,6 @@ package greenfoot;
 
 import java.awt.Graphics;
 import java.util.Collection;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Class that makes it possible for classes outside the greenfoot package to get
@@ -80,15 +79,6 @@ public class WorldVisitor
     }
     
     /**
-     * Inform the world that it has been repainted; must be called with the world
-     * lock held.
-     */
-    public static void worldPainted(World world)
-    {
-        world.repainted();
-    }
-    
-    /**
      * Convert a location in pixels into a cell location
      */
     public static int toCellFloor(World world, int x)
@@ -135,15 +125,5 @@ public class WorldVisitor
     public static GreenfootImage getBackgroundImage(World world)
     {
         return world.getBackgroundNoInit();
-    }
-
-    public static ReentrantReadWriteLock getLock(World world) 
-    {
-        return world.lock;    
-    }
-    
-    public static int getReadLockTimeout(World world) 
-    {
-        return World.READ_LOCK_TIMEOUT;    
     }
 }

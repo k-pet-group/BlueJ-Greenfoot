@@ -103,6 +103,15 @@ public class WorldHandler
     private boolean dragActorMoved;
     private Cursor defaultCursor;
     
+    /** Lock used for world manipulation */
+    private static ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+    /** Timeout used for readers attempting to acquire lock */
+    public static final int READ_LOCK_TIMEOUT = 500;
+    
+    /** Condition used to wait for repaint */
+    private Object repaintLock = new Object();
+    private boolean isRepaintPending = false;
+    
     public static synchronized void initialise(WorldCanvas worldCanvas, WorldHandlerDelegate helper)
     {
         instance = new WorldHandler(worldCanvas, helper);
@@ -347,8 +356,7 @@ public class WorldHandler
             return null;
         }
         
-        ReentrantReadWriteLock lock = WorldVisitor.getLock(world);
-        int timeout = WorldVisitor.getReadLockTimeout(world);
+        int timeout = READ_LOCK_TIMEOUT;
         try {
             if (lock.readLock().tryLock(timeout, TimeUnit.MILLISECONDS)) {
 
@@ -416,29 +424,78 @@ public class WorldHandler
     {
         worldCanvas.repaint();
     }
-
-    /*
-     * @see java.awt.event.KeyListener#keyTyped(java.awt.event.KeyEvent)
+    
+    /**
+     * Request a repaint of the world, and wait (with a timeout) until the repaint actually occurs.
      */
-    public void keyTyped(KeyEvent e)
-    {}
-
-    /*
-     * @see java.awt.event.KeyListener#keyPressed(java.awt.event.KeyEvent)
-     */
-    public void keyPressed(KeyEvent e)
+    public void repaintAndWait()
     {
+        worldCanvas.repaint();
+
+        boolean isWorldLocked = lock.isWriteLockedByCurrentThread();
+        
+        synchronized (repaintLock) {
+            // If the world lock is held, as it should be unless this method is called from
+            // a user-created thread, we should unlock it to allow the repaint to occur.
+            if (isWorldLocked) {
+                lock.writeLock().unlock();
+            }
+            
+            // When the repaint actually happens, repainted() will be called, which
+            // sets isRepaintPending false and signals repaintLock.
+            isRepaintPending = true;
+            try {
+                do {
+                    repaintLock.wait(100);
+                } while (isRepaintPending);
+            }
+            catch (InterruptedException ie) {
+                throw new ActInterruptedException();
+            }
+            finally {
+                isRepaintPending = false; // in case our wait interrupted/timed out
+                if (isWorldLocked) {
+                    lock.writeLock().lock();
+                }
+            }
+        }
     }
 
-    /*
-     * @see java.awt.event.KeyListener#keyReleased(java.awt.event.KeyEvent)
+    /**
+     * The world has been painted.
      */
+    public void repainted()
+    {
+        synchronized (repaintLock) {
+            if (isRepaintPending) {
+                isRepaintPending = false;
+                repaintLock.notify();
+            }
+        }
+        Simulation.getInstance().worldRepainted();
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) {}
+
+    @Override
+    public void keyPressed(KeyEvent e) {}
+
+    @Override
     public void keyReleased(KeyEvent e)
     {
         //TODO: is this really necessary?
         worldCanvas.requestFocus();
     }
 
+    /**
+     * Get the world lock, used to control access to the world.
+     */
+    public ReentrantReadWriteLock getWorldLock()
+    {
+        return lock;
+    }
+    
     /**
      * Instantiate a new world and do any initialisation needed to activate that
      * world.
@@ -614,7 +671,9 @@ public class WorldHandler
     }
 
     /**
-     * Handle drag on actors that are already in the world
+     * Handle drag on actors that are already in the world.
+     * 
+     * <p>This is called on the Swing event dispatch thread.
      */
     public boolean drag(Object o, Point p)
     {
@@ -629,7 +688,7 @@ public class WorldHandler
                 if (oldX != x || oldY != y) {
                     if (x < WorldVisitor.getWidthInCells(world) && y < WorldVisitor.getHeightInCells(world)
                             && x >= 0 && y >= 0) {
-                        WriteLock writeLock = WorldVisitor.getLock(world).writeLock();
+                        WriteLock writeLock = lock.writeLock();
                         // The only reason we would fail to obtain the lock is if a repaint
                         // is happening at this very instant. That shouldn't be too much of
                         // a problem; it will mean a slight glitch in the drag, probably not
@@ -644,7 +703,7 @@ public class WorldHandler
                         }
                     }
                     else {
-                        WriteLock writeLock = WorldVisitor.getLock(world).writeLock();
+                        WriteLock writeLock = lock.writeLock();
                         if (writeLock.tryLock()) {
                             ActorVisitor.setLocationInPixels(actor, dragBeginX, dragBeginY);
                             x = WorldVisitor.toCellFloor(getWorld(), dragBeginX);
@@ -902,8 +961,7 @@ public class WorldHandler
         g.fillRect(0, 0, img.getWidth(), img.getHeight());
         canvas.paintBackground(g);
 
-        ReentrantReadWriteLock lock = WorldVisitor.getLock(world);
-        int timeout = WorldVisitor.getReadLockTimeout(world);
+        int timeout = READ_LOCK_TIMEOUT;
         // We need to sync when calling the paintObjects
         try {
             if (lock.readLock().tryLock(timeout, TimeUnit.MILLISECONDS)) {

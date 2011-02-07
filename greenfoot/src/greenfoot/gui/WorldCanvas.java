@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,6 +27,7 @@ import greenfoot.GreenfootImage;
 import greenfoot.ImageVisitor;
 import greenfoot.World;
 import greenfoot.WorldVisitor;
+import greenfoot.core.WorldHandler;
 import greenfoot.util.GreenfootUtil;
 
 import java.awt.Color;
@@ -154,6 +155,7 @@ public class WorldCanvas extends JPanel
         }
     }
 
+    @Override
     public void paintComponent(Graphics g)
     {
         if (world == null) {
@@ -174,8 +176,8 @@ public class WorldCanvas extends JPanel
         // in a slightly broken look, if the user code is sleeping (with
         // Thread.sleep).
         try {
-            ReentrantReadWriteLock lock = WorldVisitor.getLock(world);
-            int timeout = WorldVisitor.getReadLockTimeout(world);
+            ReentrantReadWriteLock lock = WorldHandler.getInstance().getWorldLock();
+            int timeout = WorldHandler.READ_LOCK_TIMEOUT;
             if (lock.readLock().tryLock(timeout, TimeUnit.MILLISECONDS)) {
                 try {
                     Graphics2D g2 = (Graphics2D) g;
@@ -186,11 +188,11 @@ public class WorldCanvas extends JPanel
                 }
                 finally {
                     lock.readLock().unlock();
-                    WorldVisitor.worldPainted(world);
+                    WorldHandler.getInstance().repainted();
                 }
             }
             else {
-                WorldVisitor.worldPainted(world); // we failed, but notify waiters anyway
+                WorldHandler.getInstance().repainted(); // we failed, but notify waiters anyway
                 // (otherwise they keep waiting indefinitely...)
             }
         }

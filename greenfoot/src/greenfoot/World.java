@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,8 +25,6 @@ package greenfoot;
 import greenfoot.collision.ColManager;
 import greenfoot.collision.CollisionChecker;
 import greenfoot.collision.ibsp.Rect;
-import greenfoot.core.ActInterruptedException;
-import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
 
 import java.awt.Color;
@@ -36,7 +34,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 
 /**
@@ -90,15 +87,6 @@ public abstract class World
     
     /** Whether the backgroundImage is the class image */
     private boolean backgroundIsClassImage = true;
-
-    /** Lock used for iterating over actors. */
-    ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
-    /** Timeout used for readers attempting to acquire lock */
-    static final int READ_LOCK_TIMEOUT = 500;
-    
-    /** Condition used to wait for repaint */
-    private Object repaintLock = new Object();
-    private boolean isRepaintPending = false;
     
     /** Whether actors are bound to stay inside the world */
     private boolean isBounded;
@@ -490,34 +478,7 @@ public abstract class World
      */
     public void repaint() 
     {   
-        WorldHandler.getInstance().repaint();
-        boolean isWorldLocked = lock.isWriteLockedByCurrentThread();
-        
-        synchronized (repaintLock) {
-            // If the world lock is held, as it should be unless this method is called from
-            // a user-created thread, we should unlock it to allow the repaint to occur.
-            if (isWorldLocked) {
-                lock.writeLock().unlock();
-            }
-            
-            // When the repaint actually happens, repainted() will be called, which
-            // sets isRepaintPending false and signals repaintLock.
-            isRepaintPending = true;
-            try {
-                do {
-                    repaintLock.wait(100);
-                } while (isRepaintPending);
-            }
-            catch (InterruptedException ie) {
-                throw new ActInterruptedException();
-            }
-            finally {
-                isRepaintPending = false; // in case our wait interrupted/timed out
-                if (isWorldLocked) {
-                    lock.writeLock().lock();
-                }
-            }
-        }
+        WorldHandler.getInstance().repaintAndWait();
     }
         
     /**
@@ -603,20 +564,6 @@ public abstract class World
     boolean isBounded()
     {
         return isBounded;
-    }
-
-    /**
-     * The world has been painted.
-     */
-    void repainted()
-    {
-        synchronized (repaintLock) {
-            if (isRepaintPending) {
-                isRepaintPending = false;
-                repaintLock.notify();
-            }
-        }
-        Simulation.getInstance().worldRepainted();
     }
 
     /**

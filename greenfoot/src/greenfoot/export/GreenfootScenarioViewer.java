@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,7 +22,6 @@
 package greenfoot.export;
 
 import greenfoot.World;
-import greenfoot.WorldVisitor;
 import greenfoot.core.ProjectProperties;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
@@ -328,6 +327,6 @@ public class GreenfootScenarioViewer extends JApplet
      */
     public ReentrantReadWriteLock getWorldLock(World world)
     {
-        return WorldVisitor.getLock(world);
+        return WorldHandler.getInstance().getWorldLock();
     }
 }

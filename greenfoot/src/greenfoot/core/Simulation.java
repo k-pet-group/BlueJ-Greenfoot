@@ -293,7 +293,7 @@ public class Simulation extends Thread
                         World world = worldHandler.getWorld();
                         if (world != null) {
                             // We need to sync to avoid ConcurrentModificationException
-                            ReentrantReadWriteLock lock = WorldVisitor.getLock(world);
+                            ReentrantReadWriteLock lock = worldHandler.getWorldLock();
                             lock.writeLock().lockInterruptibly();
                             try {
                                 world.started(); // may cause us to pause
@@ -339,7 +339,7 @@ public class Simulation extends Thread
         //  abort() (sometimes, depending on timing)
         if (world != null) {
             // We need to sync to avoid ConcurrentModificationException
-            ReentrantReadWriteLock lock = WorldVisitor.getLock(world);
+            ReentrantReadWriteLock lock = worldHandler.getWorldLock();
             lock.writeLock().lockInterruptibly();
             try {
                 world.stopped(); // may un-pause
@@ -395,7 +395,7 @@ public class Simulation extends Thread
             try {
                 ReentrantReadWriteLock lock  = null;
                 if (world != null) {
-                    lock = WorldVisitor.getLock(world);
+                    lock = worldHandler.getWorldLock();
                     lock.writeLock().lock();
                 }
                 
@@ -441,7 +441,7 @@ public class Simulation extends Thread
 
         // We need to sync to avoid ConcurrentModificationException
         try {
-            ReentrantReadWriteLock lock = WorldVisitor.getLock(world);
+            ReentrantReadWriteLock lock = worldHandler.getWorldLock();
             lock.writeLock().lockInterruptibly();
             try {
                 try {
@@ -837,7 +837,7 @@ public class Simulation extends Thread
                 // The WorldCanvas may be trying to synchronize on the world in
                 // order to do a repaint. So, we use wait() here in order
                 // to release the world lock temporarily.
-                HDTimer.wait(delay, WorldVisitor.getLock(world));
+                HDTimer.wait(delay, worldHandler.getWorldLock());
             }
             else {
                 // shouldn't really happen
