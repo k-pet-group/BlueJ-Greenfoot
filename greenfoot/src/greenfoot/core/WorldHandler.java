@@ -258,17 +258,16 @@ public class WorldHandler
         handlerDelegate.mouseClicked(e);
     }
 
-    /*
-     * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
-     */
+    @Override
     public void mousePressed(MouseEvent e)
     {
+        World world = this.world;
         boolean isPopUp = handlerDelegate.maybeShowPopup(e);
-        if (SwingUtilities.isLeftMouseButton(e) && !isPopUp) {
+        if (world != null && SwingUtilities.isLeftMouseButton(e) && !isPopUp) {
             Actor actor = getObject(e.getX(), e.getY());
             if (actor != null) {
                 Point p = e.getPoint();
-                startDrag(actor, p);
+                startDrag(actor, p, world);
             }
         }
     }
@@ -276,9 +275,8 @@ public class WorldHandler
     /**
      * Drag operation starting. Called on the Swing event dispatch thread.
      */
-    private void startDrag(Actor actor, Point p)
+    private void startDrag(Actor actor, Point p, World world)
     {
-        World world = this.world;
         dragActor = actor;
         dragActorMoved = false;
         dragBeginX = ActorVisitor.getX(actor) * world.getCellSize() + world.getCellSize() / 2;
@@ -929,6 +927,7 @@ public class WorldHandler
         return inputManager;
     }
 
+    @Override
     public void mouseDragged(MouseEvent e)
     {
         if (SwingUtilities.isLeftMouseButton(e)) {
@@ -937,6 +936,7 @@ public class WorldHandler
         }
     }
 
+    @Override
     public void mouseMoved(MouseEvent e)
     {
         objectDropped = false;
@@ -991,15 +991,17 @@ public class WorldHandler
     @Override
     public void listeningStarted(Object obj)
     {
+        World world = this.world;
+        
         // If the obj is not null, it means we have to activate the dragging of that object.
-        if (obj != null && obj != dragActor && obj instanceof Actor) {
+        if (world != null && obj != null && obj != dragActor && obj instanceof Actor) {
             Actor actor = (Actor) obj;
             int ax = ActorVisitor.getX(actor);
             int ay = ActorVisitor.getY(actor);
             int x = (int) Math.floor(WorldVisitor.getCellCenter(world, ax));
             int y = (int) Math.floor(WorldVisitor.getCellCenter(world, ay));
             Point p = new Point(x, y);
-            startDrag(actor, p);
+            startDrag(actor, p, world);
         }
     }
     
