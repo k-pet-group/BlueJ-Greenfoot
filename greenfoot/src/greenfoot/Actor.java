@@ -418,7 +418,7 @@ public abstract class Actor
      */
     void addToWorld(int x, int y, World world)
     {
-        final World oldWorld = getWorld();
+        final World oldWorld = world; // don't use getWorld() as it is overridable!
         if ( oldWorld != null && oldWorld != world ) {
             oldWorld.removeObject( this );
         }
@@ -782,7 +782,8 @@ public abstract class Actor
     protected List getNeighbours(int distance, boolean diagonal, Class cls)
     {
         failIfNotInWorld();
-        return getWorld().getNeighbours(this, distance, diagonal, cls);
+        // Don't use getWorld() here, as it is overridable
+        return world.getNeighbours(this, distance, diagonal, cls);
     }
     
     /**
