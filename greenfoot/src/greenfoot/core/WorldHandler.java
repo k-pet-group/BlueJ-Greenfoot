@@ -273,8 +273,12 @@ public class WorldHandler
         }
     }
 
+    /**
+     * Drag operation starting. Called on the Swing event dispatch thread.
+     */
     private void startDrag(Actor actor, Point p)
     {
+        World world = this.world;
         dragActor = actor;
         dragActorMoved = false;
         dragBeginX = ActorVisitor.getX(actor) * world.getCellSize() + world.getCellSize() / 2;
@@ -677,6 +681,7 @@ public class WorldHandler
      */
     public boolean drag(Object o, Point p)
     {
+        World world = this.world;
         if (o instanceof Actor && world != null) {
             int x = WorldVisitor.toCellFloor(getWorld(), (int) p.getX() + dragOffsetX);
             int y = WorldVisitor.toCellFloor(getWorld(), (int) p.getY() + dragOffsetY);
@@ -978,10 +983,12 @@ public class WorldHandler
         return img;
     }
 
+    @Override
     public void listeningEnded()
     {
     }
 
+    @Override
     public void listeningStarted(Object obj)
     {
         // If the obj is not null, it means we have to activate the dragging of that object.
