@@ -683,8 +683,8 @@ public class WorldHandler
     {
         World world = this.world;
         if (o instanceof Actor && world != null) {
-            int x = WorldVisitor.toCellFloor(getWorld(), (int) p.getX() + dragOffsetX);
-            int y = WorldVisitor.toCellFloor(getWorld(), (int) p.getY() + dragOffsetY);
+            int x = WorldVisitor.toCellFloor(world, (int) p.getX() + dragOffsetX);
+            int y = WorldVisitor.toCellFloor(world, (int) p.getY() + dragOffsetY);
             final Actor actor = (Actor) o;
             try {
                 int oldX = ActorVisitor.getX(actor);
@@ -762,7 +762,7 @@ public class WorldHandler
      */
     private boolean addActorAtPixel(final Actor actor, int xPixel, int yPixel)
     {
-        final World world = getWorld();
+        final World world = this.world;
         final int x = WorldVisitor.toCellFloor(world, xPixel);
         final int y = WorldVisitor.toCellFloor(world, yPixel);
         if (x < WorldVisitor.getWidthInCells(world) && y < WorldVisitor.getHeightInCells(world)
