@@ -32,6 +32,7 @@ import greenfoot.core.GProject;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
 import greenfoot.core.WorldInvokeListener;
+import greenfoot.event.SimulationUIListener;
 import greenfoot.gui.DragGlassPane;
 import greenfoot.gui.GreenfootFrame;
 import greenfoot.gui.MessageDialog;
@@ -78,7 +79,7 @@ import bluej.views.CallableView;
  * @author Poul Henriksen
  */
 public class WorldHandlerDelegateIDE
-    implements WorldHandlerDelegate, ObjectBenchInterface, InteractionListener
+    implements WorldHandlerDelegate, ObjectBenchInterface, InteractionListener, SimulationUIListener
 {
     protected final Color envOpColour = Config.getItemColour("colour.menu.environOp");
 

@@ -626,7 +626,10 @@ public class GreenfootFrame extends JFrame
         addMenuItem(RunSimulationAction.getInstance(), ctrlMenu, KeyEvent.VK_R, false, KeyEvent.VK_R);
         addMenuItem(PauseSimulationAction.getInstance(), ctrlMenu, KeyEvent.VK_R, true, KeyEvent.VK_P);
         addMenuItem(ResetWorldAction.getInstance(), ctrlMenu, KeyEvent.VK_T, false, KeyEvent.VK_T);
-        
+
+        RunOnceSimulationAction.getInstance().attachListener(worldHandlerDelegate);
+        RunSimulationAction.getInstance().attachListener(worldHandlerDelegate);
+
         ctrlMenu.addSeparator();
         toggleDebuggerAction = new ToggleDebuggerAction(Config.getString("menu.debugger"), project);
         createCheckboxMenuItem(toggleDebuggerAction, false, ctrlMenu, KeyEvent.VK_B, false, KeyEvent.VK_B);
@@ -841,14 +844,6 @@ public class GreenfootFrame extends JFrame
     {
         worldDimensions = null;
         this.resizeWhenPossible = b;
-    }
-    
-    /**
-     * Notify that the simulation is active. This invalidates any recorded interaction.
-     */
-    public static void simulationActive()
-    {
-        instance.worldHandlerDelegate.simulationActive();
     }
     
     // ----------- WindowListener interface -----------

@@ -25,7 +25,7 @@ import bluej.Config;
 import greenfoot.core.Simulation;
 import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
-import greenfoot.gui.GreenfootFrame;
+import greenfoot.event.SimulationUIListener;
 
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
@@ -45,6 +45,10 @@ public class RunOnceSimulationAction extends AbstractAction
 {
     private static final String iconFile = "step.png";
     private static RunOnceSimulationAction instance = new RunOnceSimulationAction();
+
+    private Simulation simulation;
+    protected boolean stateOnDebugResume;
+    private SimulationUIListener listener; 
     
     /**
      * Singleton factory method for action.
@@ -54,10 +58,6 @@ public class RunOnceSimulationAction extends AbstractAction
         return instance;
     }
     
-
-    private Simulation simulation;
-    protected boolean stateOnDebugResume;
-
     private RunOnceSimulationAction()
     {
         super(Config.getString("run.once"), new ImageIcon(RunOnceSimulationAction.class.getClassLoader().getResource(iconFile)));
@@ -72,6 +72,14 @@ public class RunOnceSimulationAction extends AbstractAction
         simulation.addSimulationListener(this);
     }
     
+    /**
+     * Attach a listener to be notified when the action fires.
+     */
+    public void attachListener(SimulationUIListener listener)
+    {
+        this.listener = listener;
+    }
+    
     public void actionPerformed(ActionEvent e)
     {
         if(simulation == null) {
@@ -79,7 +87,9 @@ public class RunOnceSimulationAction extends AbstractAction
             return;
         }
         
-        GreenfootFrame.simulationActive();
+        if (listener != null) {
+            listener.simulationActive();
+        }
         simulation.runOnce();
     }
 
