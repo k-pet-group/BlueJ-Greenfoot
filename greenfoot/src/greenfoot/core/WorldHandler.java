@@ -851,7 +851,7 @@ public class WorldHandler
     }
 
     /**
-     * Used to indicate the start of an animation sequence. For use in the
+     * Used to indicate the start of a simulation round. For use in the
      * collision checker.
      * 
      * @see greenfoot.collision.CollisionChecker#startSequence()
@@ -859,6 +859,7 @@ public class WorldHandler
     public void startSequence()
     {
         WorldVisitor.startSequence(world);
+        mousePollingManager.newActStarted();
     }
 
     public WorldCanvas getWorldCanvas()

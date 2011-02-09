@@ -195,7 +195,6 @@ public class Simulation extends Thread
                 
                 World world = worldHandler.getWorld();
                 if (world != null) {
-                    WorldVisitor.startSequence(world);
                     runOneLoop();
                 }
 
@@ -427,6 +426,7 @@ public class Simulation extends Thread
      */
     private void runOneLoop()
     {
+        worldHandler.startSequence();
         World world = worldHandler.getWorld();
         if (world == null) {
             return;
