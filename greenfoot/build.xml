@@ -566,6 +566,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
             <include name="greenfoot/event/TriggeredMouseMotionAdapter.java"/>
             <include name="greenfoot/event/TriggeredKeyAdapter.java"/>
             <include name="greenfoot/event/TriggeredListener.java"/>
+        	<include name="greenfoot/event/SimulationUIListener.java"/>
 
             <include name="greenfoot/export/GreenfootScenarioViewer.java"/>
             <include name="greenfoot/export/GreenfootScenarioMain.java"/>
@@ -586,8 +587,6 @@ LICENSE.txt file that accompanied this code.${line.separator}
             <include name="greenfoot/platforms/*.java"/>
             <include name="greenfoot/platforms/standalone/*.java"/>
             
-            <include name="greenfoot/record/InteractionListener.java"/>
-
             <include name="greenfoot/sound/**/*.java"/>
             
             <include name="greenfoot/util/**/*.java"/>
