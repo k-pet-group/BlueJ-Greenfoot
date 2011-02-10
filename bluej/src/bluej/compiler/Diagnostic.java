@@ -58,11 +58,11 @@ public class Diagnostic
      * @param fileName The file associated with the diagnostic (might be null).
      * @param startLine  The line where the error/problem begins (less than 1 == unknown)
      * @param startColumn The column where the error/problem begins; must be valid if
-     *                    {@code startLine} is greater than 0
+     *                    {@code startLine} is greater than 0. Tab stops are every 8 spaces.
      * @param endLine    The line where the error/problem ends; must be valid if
      *                    {@code startLine} is greater than 0
      * @param endColumn  The column where the error/problem ends; must be valid if
-     *                    {@code startLine} is greater than 0.
+     *                    {@code startLine} is greater than 0. Tab stops are every 8 spaces.
      */
     public Diagnostic(int type, String message, String fileName,
             long startLine, long startColumn, long endLine, long endColumn)
@@ -87,7 +87,8 @@ public class Diagnostic
     /**
      * Get the end column of the error. Return is valid only if {@code getStartLine()} returns
      * a valid line number (greater than 0). Caller should be prepared for this value to be slightly
-     * inaccurate (it might extend past the actual end of the line).
+     * inaccurate (it might extend past the actual end of the line). Tab stops are every
+     * 8 spaces.
      */
     public long getEndColumn()
     {
@@ -121,7 +122,8 @@ public class Diagnostic
     
     /**
      * Get the starting column of the error/problem. Return is only valid if
-     * {@code getStartLine()} returns a valid line (greater than 0).
+     * {@code getStartLine()} returns a valid line (greater than 0). Tab stops
+     * are every 8 spaces.
      */
     public long getStartColumn()
     {

@@ -585,14 +585,25 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         Element line = getSourceLine((int) diagnostic.getStartLine());
         int pos = line.getStartOffset();
         
+        // Limit diagnostic display to a single line.
+        int startPos = getPosFromColumn(line, (int) diagnostic.getStartColumn());
+        int endPos;
+        if (diagnostic.getStartLine() != diagnostic.getEndLine()) {
+            endPos = line.getEndOffset() - 1;
+        }
+        else {
+            endPos = getPosFromColumn(line, (int) diagnostic.getEndColumn());
+        }
+        
+        // = startPos + (int)(diagnostic.getEndColumn() - diagnostic.getStartColumn());
+        
         // highlight the line
 
         removeErrorHighlight();
         if (diagnostic.getStartColumn() != diagnostic.getEndColumn()) {
             try {
                 errorHighlightTag = sourcePane.getHighlighter().addHighlight(
-                        pos + (int) diagnostic.getStartColumn() - 1,
-                        pos + (int) diagnostic.getEndColumn() - 1,
+                        startPos, endPos,
                         new MoeBorderHighlighterPainter(Color.RED, Color.RED, Color.PINK,
                                 Color.RED, Color.PINK)
                         );
@@ -609,6 +620,47 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         info.message(diagnostic.getMessage());
         info.setHelp("javac"); // TODO the compiler name, or the additional help text,
                                // should really be a property of the diangostic object.
+    }
+    
+    /**
+     * Get a position in a line from a column number, where the column number assumes
+     * tab stops are every 8 spaces.
+     */
+    private int getPosFromColumn(Element line, int column)
+    {
+        int spos = line.getStartOffset();
+        int epos = line.getEndOffset();
+        int testPos = Math.min(epos - spos - 1, column - 1);
+        if (testPos == 0) {
+            return 0;
+        }
+        
+        try {
+            int cpos = 0; // what the actual column is so far
+            int tpos = 0; // where we are in the string
+            String lineText = sourceDocument.getText(spos, testPos);
+            
+            while (true) {
+                int tabPos = lineText.indexOf(tpos, '\t');
+                if (tabPos == -1) {
+                    // No more tabs... whatever is left of the line text
+                    // also adds to the position count directly.
+                    cpos += lineText.length() - tpos;
+                    return spos + cpos;
+                }
+
+                cpos += tabPos - tpos; // track the actual "column"
+                cpos += 8; // hit tab
+                cpos -= cpos % 8;  // back to tab stop
+
+                tpos = tabPos + 1; // skip over the tab char
+            }
+        }
+        catch (BadLocationException ble) {
+            // Shouldn't happen.
+            ble.printStackTrace(); // DAV
+        }
+        return spos;
     }
 
     /**

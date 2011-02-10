@@ -93,7 +93,7 @@ public class CompilerAPICompiler extends Compiler
                     diagType = bluej.compiler.Diagnostic.ERROR;
                     message = processMessage(src, (int) diag.getLineNumber(), message);
                     long beginCol = diag.getColumnNumber();
-                    long endCol = diag.getEndPosition() - diag.getStartPosition() + beginCol;
+                    long endCol = diag.getEndPosition() - diag.getPosition() + beginCol;
                     bjDiagnostic = new bluej.compiler.Diagnostic(diagType,
                             message, src, diag.getLineNumber(), beginCol,
                             diag.getLineNumber(), endCol);
@@ -101,7 +101,7 @@ public class CompilerAPICompiler extends Compiler
                 else if (diag.getKind() == Diagnostic.Kind.WARNING) {
                     diagType = bluej.compiler.Diagnostic.WARNING;
                     long beginCol = diag.getColumnNumber();
-                    long endCol = diag.getEndPosition() - diag.getStartPosition() + beginCol;
+                    long endCol = diag.getEndPosition() - diag.getPosition() + beginCol;
                     bjDiagnostic = new bluej.compiler.Diagnostic(diagType,
                             message, src, diag.getLineNumber(), beginCol,
                             diag.getLineNumber(), endCol);
