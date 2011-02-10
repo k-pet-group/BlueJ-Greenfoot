@@ -595,8 +595,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
             endPos = getPosFromColumn(line, (int) diagnostic.getEndColumn());
         }
         
-        // = startPos + (int)(diagnostic.getEndColumn() - diagnostic.getStartColumn());
-        
         // highlight the line
 
         removeErrorHighlight();
