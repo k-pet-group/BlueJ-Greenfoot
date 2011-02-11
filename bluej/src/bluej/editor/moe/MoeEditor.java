@@ -741,6 +741,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         setCompileStatus(compiled);
         if (compiled) {
             info.message(Config.getString("editor.info.compiled"));
+            removeErrorHighlight();
         }
     }
 
