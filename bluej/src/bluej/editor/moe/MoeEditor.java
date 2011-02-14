@@ -617,7 +617,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
 
         info.message(diagnostic.getMessage());
         info.setHelp("javac"); // TODO the compiler name, or the additional help text,
-                               // should really be a property of the diangostic object.
+                               // should really be a property of the diagnostic object.
     }
     
     /**
@@ -656,7 +656,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         }
         catch (BadLocationException ble) {
             // Shouldn't happen.
-            ble.printStackTrace(); // DAV
         }
         return spos;
     }
