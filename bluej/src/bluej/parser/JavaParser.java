@@ -1307,8 +1307,8 @@ public class JavaParser
                 parseExpression();                                              
                 token = tokenStream.nextToken();
                 if (token.getType() != JavaTokenTypes.SEMI) {
-                    error("Expected ';' at end of previous statement");
                     tokenStream.pushBack(token);
+                    error("Expected ';' at end of previous statement");
                     return null;
                 }
                 return token;
@@ -1917,8 +1917,8 @@ public class JavaParser
         }
 
         if (token.getType() != JavaTokenTypes.SEMI) {
-            error("Expecting ';' at end of variable/field declaration");
             tokenStream.pushBack(token);
+            error("Expecting ';' at end of variable/field declaration");
             endDeclaration(type, token, false);
             endDeclarationStmt(type, token, false);
             return null;
@@ -2730,8 +2730,8 @@ public class JavaParser
                     parseExpression();
                     token = tokenStream.nextToken();
                     if (token.getType() != JavaTokenTypes.RPAREN) {
-                        error("Unmatched '(' in expression; expecting ')'");
                         tokenStream.pushBack(token);
+                        error("Unmatched '(' in expression; expecting ')'");
                         endExpression(token);
                         return;
                     }
