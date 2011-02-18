@@ -35,14 +35,13 @@ import bluej.parser.entity.EntityResolver;
  * 
  * @author Bruce Quig
  * @author Michael Kolling
- *
- * 
  */
 public class MoeSyntaxEditorKit extends DefaultEditorKit
         implements ViewFactory
 {
     private boolean isTextEval;
     private EntityResolver projectResolver;
+    private MoeDocumentListener documentListener;
 
     /**
      * Create a moe editor kit. There are two modes in which this can operate:
@@ -56,6 +55,18 @@ public class MoeSyntaxEditorKit extends DefaultEditorKit
         super();
         isTextEval = textEval;
         this.projectResolver = projectResolver;
+    }
+    
+    /**
+     * Create a Moe editor kit, for documents which will resolve external references
+     * using the given resolver, and send parse events to the specified listener.
+     */
+    public MoeSyntaxEditorKit(EntityResolver projectResolver, MoeDocumentListener documentListener)
+    {
+        super();
+        isTextEval = false;
+        this.projectResolver = projectResolver;
+        this.documentListener = documentListener;
     }
     
     /**
@@ -79,10 +90,12 @@ public class MoeSyntaxEditorKit extends DefaultEditorKit
      */
     public View create(Element elem)
     {
-        if(isTextEval)
+        if(isTextEval) {
             return new bluej.debugmgr.texteval.TextEvalSyntaxView(elem);
-        else
+        }
+        else {
             return new MoeSyntaxView(elem);
+        }
     }
 
     /**
@@ -93,6 +106,6 @@ public class MoeSyntaxEditorKit extends DefaultEditorKit
      */
     public Document createDefaultDocument()
     {
-        return new MoeSyntaxDocument(projectResolver);
+        return new MoeSyntaxDocument(projectResolver, documentListener);
     }
 }

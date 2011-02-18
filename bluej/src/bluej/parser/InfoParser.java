@@ -353,11 +353,8 @@ public class InfoParser extends EditorParser
         return erasedType.replace("$", ".");
     }
     
-    /* (non-Javadoc)
-     * @see bluej.parser.EditorParser#error(java.lang.String)
-     */
     @Override
-    protected void error(String msg)
+    protected void error(String msg, int beginLine, int beginColumn, int endLine, int endColumn)
     {
         hadError = true;
         // Just try and recover.

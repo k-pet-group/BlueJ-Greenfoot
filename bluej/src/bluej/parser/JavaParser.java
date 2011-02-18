@@ -72,10 +72,23 @@ public class JavaParser
      * An error occurred during parsing. Override this method to control error behaviour.
      * @param msg A message describing the error
      */
-    protected void error(String msg)
+    private void error(String msg)
     {
         LocatableToken next = tokenStream.LA(1);
-        throw new ParseFailure("Parse error: (" + next.getLine() + ":" + next.getColumn() + ") :" + msg);
+        error(msg, next.getLine(), next.getColumn(), next.getEndLine(), next.getEndColumn());
+    }
+    
+    /**
+     * An error occurred during parsing. Override this method to control error behaviour.
+     * @param msg A message describing the error
+     * @param beginLine  The line where the erroneous token begins
+     * @param beginCol   The column where the erroneous token begins
+     * @param endLine    The line where the erroneous token ends
+     * @param endCol     The column where the erroneous token ends
+     */
+    protected void error(String msg, int beginLine, int beginCol, int endLine, int endCol)
+    {
+        throw new ParseFailure("Parse error: (" + beginLine + ":" + beginCol + ") :" + msg);
     }
 
     /**
@@ -1033,8 +1046,8 @@ public class JavaParser
                 }
                 else {
                     modifiersConsumed();
-                    error("Expected ';' or '=' or '(' (in field or method declaration), got token type: " + token.getType());
                     tokenStream.pushBack(token);
+                    error("Expected ';' or '=' or '(' (in field or method declaration).");
                     endElement(token, false);
                 }
             }
@@ -1110,8 +1123,8 @@ public class JavaParser
             }
         }
         else if (token.getType() != JavaTokenTypes.SEMI) {
-            error("Expected ';' or '{' following parameter list in method declaration");
             tokenStream.pushBack(token);
+            error("Expected ';' or '{' following parameter list in method declaration");
             endMethodDecl(token, false);
         }
         else {

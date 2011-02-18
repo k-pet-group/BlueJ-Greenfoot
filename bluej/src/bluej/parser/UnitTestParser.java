@@ -84,7 +84,7 @@ public class UnitTestParser extends JavaParser
     }
     
     @Override
-    protected void error(String msg)
+    protected void error(String msg, int beginLine, int beginColumn, int endLine, int endColumn)
     {
         throw new RuntimeException("Parse error: " + msg);
     }

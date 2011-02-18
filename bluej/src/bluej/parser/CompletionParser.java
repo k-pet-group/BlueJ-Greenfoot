@@ -90,7 +90,7 @@ public class CompletionParser extends TextParser
     }
     
     @Override
-    protected void error(String msg)
+    protected void error(String msg, int beginLine, int beginCol, int endLine, int endCol)
     {
         return;
     }

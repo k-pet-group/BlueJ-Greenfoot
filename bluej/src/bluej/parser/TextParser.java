@@ -382,7 +382,6 @@ public class TextParser extends JavaParser
         if (! argumentStack.isEmpty()) {
             argumentStack.pop(); // constructor arguments
             // TODO check argument validity
-            // Don't pop the type off the stack: we would just have to push it back anyway
         }
         else {
             popValueStack();

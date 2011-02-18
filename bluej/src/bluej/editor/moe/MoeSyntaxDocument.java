@@ -60,6 +60,8 @@ public class MoeSyntaxDocument extends PlainDocument
     private EntityResolver parentResolver;
     private NodeTree<ReparseRecord> reparseRecordTree;
     
+    private MoeDocumentListener listener;
+    
     /**
      * Create an empty MoeSyntaxDocument.
      */
@@ -83,6 +85,16 @@ public class MoeSyntaxDocument extends PlainDocument
         if (parentResolver != null) {
             reparseRecordTree = new NodeTree<ReparseRecord>();
         }
+    }
+    
+    /**
+     * Create an empty MoeSyntaxDocument, which uses the given entity resolver to
+     * resolve symbols, and which sends parser events to the specified listener.
+     */
+    public MoeSyntaxDocument(EntityResolver parentResolver, MoeDocumentListener listener)
+    {
+        this(parentResolver);
+        this.listener = listener;
     }
 
     /**
@@ -258,6 +270,20 @@ public class MoeSyntaxDocument extends PlainDocument
             NodeAndPosition<ReparseRecord> next = existing.nextSibling();
             existing.getNode().remove();
             existing = next;
+        }
+    }
+    
+    /**
+     * Inform any listeners that a parse error has occurred.
+     * 
+     * @param position   The position of the parse error
+     * @param size       The size of the erroneous portion
+     * @param message    The error message
+     */
+    public void parseError(int position, int size, String message)
+    {
+        if (listener != null) {
+            listener.parseError(position, size, message);
         }
     }
     

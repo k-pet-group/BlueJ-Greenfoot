@@ -132,7 +132,8 @@ import bluej.utility.Utility;
  */
 
 public final class MoeEditor extends JFrame
-implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentListener, MouseListener
+    implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentListener, MouseListener,
+        MoeDocumentListener
 {
     // -------- CONSTANTS --------
 
@@ -2871,7 +2872,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         // create the text document
 
         if (projectResolver != null) {
-            sourceDocument = new MoeSyntaxDocument(projectResolver);
+            sourceDocument = new MoeSyntaxDocument(projectResolver, this);
         }
         else {
             sourceDocument = new MoeSyntaxDocument();  // README file
@@ -2883,7 +2884,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
 
         EditorKit kit;
         if (projectResolver != null) {
-            kit = new MoeSyntaxEditorKit(false, projectResolver);
+            kit = new MoeSyntaxEditorKit(projectResolver, this);
         }
         else {
             kit = new ReadmeEditorKit();
@@ -3787,5 +3788,27 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     protected boolean containsSourceCode() 
     {
         return sourceIsCode;
+    }
+    
+    @Override
+    public void parseError(int position, int size, String message)
+    {
+        removeErrorHighlight();
+        try {
+            errorHighlightTag = sourcePane.getHighlighter().addHighlight(
+                position, position + size,
+                new MoeBorderHighlighterPainter(Color.RED, Color.RED, Color.PINK,
+                        Color.RED, Color.PINK)
+            );
+        }
+        catch (BadLocationException ble) {
+            // Really shouldn't happen.
+        }
+    }
+    
+    @Override
+    public void reparsingRange(int position, int size)
+    {
+        // TODO Auto-generated method stub
     }
 }

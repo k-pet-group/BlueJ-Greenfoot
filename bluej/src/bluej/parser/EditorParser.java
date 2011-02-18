@@ -31,8 +31,10 @@ import java.util.ListIterator;
 import java.util.Stack;
 
 import javax.swing.text.Document;
+import javax.swing.text.Element;
 
 import bluej.debugger.gentype.Reflective;
+import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.IntersectionTypeEntity;
 import bluej.parser.entity.JavaEntity;
@@ -50,13 +52,13 @@ import bluej.parser.nodes.InnerNode;
 import bluej.parser.nodes.JavaParentNode;
 import bluej.parser.nodes.MethodBodyNode;
 import bluej.parser.nodes.MethodNode;
+import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.parser.nodes.ParentParsedNode;
 import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.nodes.ParsedNode;
 import bluej.parser.nodes.ParsedTypeNode;
 import bluej.parser.nodes.PkgStmtNode;
 import bluej.parser.nodes.TypeInnerNode;
-import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.parser.symtab.Selection;
 
 /**
@@ -128,9 +130,19 @@ public class EditorParser extends JavaParser
     }
     
     @Override
-    protected void error(String msg)
+    protected void error(String msg, int beginLine, int beginColumn, int endLine, int endColumn)
     {
-        // ignore for now
+        // DAV make a proper listener interface
+        if (document instanceof MoeSyntaxDocument) {
+            MoeSyntaxDocument mdocument = (MoeSyntaxDocument) document;
+            Element lineEl = mdocument.getDefaultRootElement().getElement(beginLine - 1);
+            int position = lineEl.getStartOffset() + beginColumn - 1;
+            if (endLine != beginLine) {
+                lineEl = mdocument.getDefaultRootElement().getElement(endLine - 1);
+            }
+            int endPos = lineEl.getStartOffset() + endColumn - 1;
+            mdocument.parseError(position, endPos - position, msg);
+        }
     }
     
     @Override
@@ -142,15 +154,6 @@ public class EditorParser extends JavaParser
         completedNode(pcuNode, 0, pcuNode.getSize());
     }
     
-    public void parseCU(ParsedCUNode pcuNode)
-    {
-        this.pcuNode = pcuNode;
-        scopeStack.push(pcuNode);
-        super.parseCU();
-        scopeStack.pop();
-        completedNode(pcuNode, 0, pcuNode.getSize());
-    }
-
     /**
      * Convert a line and column number to an absolute position within the document
      * @param line  Line number (1..N)
