@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -69,10 +69,12 @@ public final class JavaTokenFilter implements TokenStream
         // has its end column set correctly. (The end column for a token can only be set
         // when the following token is received).
         LocatableToken rval;
-        if (cachedToken == null)
+        if (cachedToken == null) {
             rval = nextToken2();
-        else
+        }
+        else {
             rval = cachedToken;
+        }
         
         cachedToken = nextToken2();
         return (LocatableToken) rval;
@@ -94,14 +96,14 @@ public final class JavaTokenFilter implements TokenStream
     public LocatableToken LA(int distance)
     {
     	if (cachedToken != null) {
-    		buffer.add(0, (LocatableToken) cachedToken);
-    		cachedToken = null;
+    	   buffer.add(0, (LocatableToken) cachedToken);
+    	   cachedToken = null;
     	}
     	
     	int numToAdd = distance - buffer.size();
     	while (numToAdd > 0) {
-    		buffer.add(0, nextToken2());
-    		numToAdd--;
+    	   buffer.add(0, nextToken2());
+    	   numToAdd--;
     	}
     
     	return buffer.get(buffer.size() - distance);
