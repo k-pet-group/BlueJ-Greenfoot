@@ -372,8 +372,9 @@ public class TextParser extends JavaParser
         if (componentType == null) {
             valueStack.push(new ErrorEntity());
         }
-        
-        valueStack.push(new ValueEntity(componentType));
+        else {
+            valueStack.push(new ValueEntity(componentType));
+        }
     }
     
     private void processNewOperator(Operator token)

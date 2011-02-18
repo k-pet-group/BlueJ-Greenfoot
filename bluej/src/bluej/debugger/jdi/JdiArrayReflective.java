@@ -42,9 +42,15 @@ public class JdiArrayReflective extends JdiReflective
         componentType = t;
     }
     
+    /**
+     * Create a new JdiArrayReflective representing an array with a certain component type.
+     * @param t            The component type
+     * @param classLoader  The classloader used to load the component type (or the array)
+     * @param vm           The virtual machine holding the type
+     */
     public JdiArrayReflective(JavaType t, ClassLoaderReference classLoader, VirtualMachine vm)
     {
-        super(null, classLoader, vm);
+        super("[" + t.arrayComponentName(), classLoader, vm);
     }
     
     public String getName()

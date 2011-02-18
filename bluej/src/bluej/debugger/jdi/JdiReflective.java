@@ -95,10 +95,12 @@ public class JdiReflective extends Reflective
     
     public Reflective getRelativeClass(String name)
     {
-        if (rclass != null)
+        if (rclass != null) {
             return new JdiReflective(name, rclass);
-        else
+        }
+        else {
             return new JdiReflective(name, sourceLoader, sourceVM);
+        }
     }
 
     /**
@@ -130,9 +132,16 @@ public class JdiReflective extends Reflective
 
     public String getName()
     {
-        if (name != null)
+        if (name != null) {
             return name;
-        return rclass.name();
+        }
+        
+        if (rclass.signature().startsWith("[")) {
+            return rclass.signature().replace('/', '.');
+        }
+        else {
+            return rclass.name();
+        }
     }
     
     @Override
@@ -456,10 +465,7 @@ public class JdiReflective extends Reflective
         char c = i.next();
         String r = new String();
         while (c != '<' && c != ';' && c != ':') {
-            if (c == '/')
-                r += '.';
-            else
-                r += c;
+            r += (c == '/') ? '.' : c;
             c = i.next();
         }
         return r;
@@ -520,6 +526,12 @@ public class JdiReflective extends Reflective
         return typeFromSignature(i, tparams, parent);
     }
     
+    /**
+     * Derive a type from a type signature.
+     * @param i   An iterator through the signature
+     * @param tparams  The type parameters of the parent type (the type from where this signature comes)
+     * @param parent   The parent type
+     */
     private static JavaType typeFromSignature(StringIterator i,
             Map<String,? extends GenTypeParameter> tparams, ReferenceType parent)
     {
@@ -527,8 +539,8 @@ public class JdiReflective extends Reflective
         if (c == '[') {
             // array
             JavaType t = typeFromSignature(i, tparams, parent);
-            t = new GenTypeArray(t);
-            return t;
+            JdiArrayReflective ar = new JdiArrayReflective(t, parent.classLoader(), parent.virtualMachine());
+            return new GenTypeArrayClass(ar, t);
         }
         if (c == 'T') {
             // type parameter
@@ -576,8 +588,9 @@ public class JdiReflective extends Reflective
             return JavaPrimitiveType.getVoid();
         }
 
-        if (c != 'L')
+        if (c != 'L') {
             Debug.message("Generic signature begins without 'L'?? (got " + c + ")");
+        }
 
         String basename = readClassName(i);
         Reflective reflective = new JdiReflective(basename, parent);
@@ -670,8 +683,15 @@ public class JdiReflective extends Reflective
             return JavaPrimitiveType.getShort();
         else {
             // The class may or may not be loaded.
-            Reflective ref;
-            ref = new JdiReflective(typeName, clr, vm);
+            String tname = t.signature();
+            if (tname.startsWith("[")) {
+                JavaType arrayType = typeFromSignature(new StringIterator(tname), null, (ReferenceType) t);
+                return arrayType;
+            }
+            else {
+                tname = t.name();
+            }
+            Reflective ref = new JdiReflective(tname, clr, vm);
             return new GenTypeClass(ref, (List<GenTypeParameter>) null);
         }
     }
