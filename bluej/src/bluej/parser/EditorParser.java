@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 2010,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -132,7 +132,7 @@ public class EditorParser extends JavaParser
     @Override
     protected void error(String msg, int beginLine, int beginColumn, int endLine, int endColumn)
     {
-        // DAV make a proper listener interface
+        // TODO make a proper listener interface
         if (document instanceof MoeSyntaxDocument) {
             MoeSyntaxDocument mdocument = (MoeSyntaxDocument) document;
             Element lineEl = mdocument.getDefaultRootElement().getElement(beginLine - 1);
@@ -426,7 +426,6 @@ public class EditorParser extends JavaParser
         if (hidden != null && hidden.getType() == JavaTokenTypes.ML_COMMENT) {
             firstToken = hidden;
             pnode.setCommentAttached(true);
-            // TODO: make certain hidden token not already consumed by prior sibling node
         }
         int insPos = lineColToPosition(firstToken.getLine(), firstToken.getColumn());
         beginNode(insPos);
@@ -855,7 +854,6 @@ public class EditorParser extends JavaParser
         String jdcomment = null;
         if (hiddenToken != null) {
             start = hiddenToken;
-            // TODO: make certain hidden token not already consumed by prior sibling node
             jdcomment = hiddenToken.getText();
         }
         
@@ -876,7 +874,6 @@ public class EditorParser extends JavaParser
         String jdcomment = null;
         if (hiddenToken != null) {
             start = hiddenToken;
-            // TODO: make certain hidden token not already consumed by prior sibling node
             jdcomment = hiddenToken.getText();
         }
 
