@@ -817,7 +817,7 @@ public final class MoeActions
             if (!editor.containsSourceCode()){
                 return;
             }
-            int caretPos = editor.getCaretPosition();
+            int caretPos = editor.getCurrentTextPane().getCaretPosition();
             NodeAndPosition<ParsedNode> node = editor.getParsedNode().findNodeAt(caretPos, 0);
             while (node != null && node.getNode().getNodeType() != ParsedNode.NODETYPE_METHODDEF) {
                 node = node.getNode().findNodeAt(caretPos, node.getPosition());
@@ -876,9 +876,9 @@ public final class MoeActions
                     newComment.append(indent).append(" */\n").append(indent);
                     
                     editor.undoManager.beginCompoundEdit();
-                    editor.setCaretPosition(node.getPosition());
+                    editor.getCurrentTextPane().setCaretPosition(node.getPosition());
                     editor.getCurrentTextPane().replaceSelection(newComment.toString());
-                    editor.setCaretPosition(caretPos + newComment.length());
+                    editor.getCurrentTextPane().setCaretPosition((caretPos + newComment.length()));
                     editor.undoManager.endCompoundEdit();
                 }
             }
@@ -1419,7 +1419,6 @@ public final class MoeActions
             if (editor != null) {
                 editor.setFindPanelVisible();
                 editor.setReplacePanelVisible(true);
-                editor.setReplaceIcon(true);
                 if (editor.getSourcePane().getSelectedText()!=null){
                     editor.setFindTextfield(editor.getSourcePane().getSelectedText());
                 }

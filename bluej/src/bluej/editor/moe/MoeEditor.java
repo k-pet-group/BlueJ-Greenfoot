@@ -1461,9 +1461,11 @@ public final class MoeEditor extends JFrame
             }
             replacer.setVisible(visible);
             finder.requestFindfieldFocus();
+            finder.setFindReplaceIcon(true);
         }
         else {
             replacer.setVisible(false);
+            finder.setFindReplaceIcon(false);
         }
     }
 
@@ -2045,7 +2047,7 @@ public final class MoeEditor extends JFrame
             finder.setSearchStart(0);
         }    
         else{
-            finder.setSearchStart(getCaretPosition());
+            finder.setSearchStart(getCurrentTextPane().getCaretPosition());
         }
         //reset the search string to null
         finder.setSearchString(null);
@@ -3424,7 +3426,7 @@ public final class MoeEditor extends JFrame
      */
     public void initFindPanel()
     {
-        finder.displayFindPanel(getCurrentTextPane().getSelectedText());
+        finder.displayFindPanel(currentTextPane.getSelectedText());
         //functionality for the replace button to be enabled/disabled according to view
         if (isShowingInterface())
         {
@@ -3723,15 +3725,6 @@ public final class MoeEditor extends JFrame
     }
 
     /**
-     * setReplaceIcon
-     * @param open is the replace open/closed
-     */
-    protected void setReplaceIcon(boolean open)
-    {
-        finder.setFindReplaceIcon(open);
-    }
-
-    /**
      * When the mouse is clicked away from the selected text, 
      * the replace buttons need to be disabled
      */
@@ -3784,24 +3777,6 @@ public final class MoeEditor extends JFrame
         }
     }
     
-    /**
-     * Returns the caret position in the currentTextPane
-     * @return the caret position in the currentTextPane
-     */
-    public int getCaretPosition()
-    {
-    	return currentTextPane.getCaretPosition();
-    }
-    
-    /**
-     * Sets the caret position in the currentTextPane
-     * @param position the position to set the caret to in the currentTextPane
-     */
-    public void setCaretPosition(int position)
-    {
-    	currentTextPane.setCaretPosition(position);
-    }
-
     /**
      * Returns whether the editor text represents source code, or something else
      * (such as the README.txt file).
