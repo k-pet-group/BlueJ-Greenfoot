@@ -48,11 +48,19 @@ public class RBTreeNode
         return containingNodeTree;
     }
     
+    /**
+     * Move the node. This also has the effect of moving all following nodes.
+     * @param offset  The amount by which to move the node
+     */
     public void slide(int amount)
     {
         getContainingNodeTree().slideNode(amount);
     }
 
+    /**
+     * Move the node's beginning, but not its end position. This shrinks or grows
+     * the node accordingly. The position of following nodes is not affected.
+     */
     public void slideStart(int offset)
     {
         getContainingNodeTree().slideStart(offset);

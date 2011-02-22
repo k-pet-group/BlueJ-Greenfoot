@@ -723,6 +723,12 @@ public class NodeTree<T extends RBTreeNode>
             return position + size;
         }
         
+        /**
+         * Find the next sibling node - that is, the sibling that occurs closest after this one in
+         * terms of position.
+         * 
+         * @return  The next sibling, or null if there is no next sibling.
+         */
         @SuppressWarnings("unchecked")
         public NodeAndPosition<T> nextSibling()
         {
@@ -731,18 +737,23 @@ public class NodeTree<T extends RBTreeNode>
             ni.next();  // skip "this" node
             if (ni.hasNext()) {
                 NodeAndPosition<T> next = ni.next();
-                // next.position += parsedNode.getContainingNodeTree().pnodeOffset;
                 return next;
             }
             return null;
         }
         
+        /**
+         * Slide the node and all following nodes by the given amount.
+         */
         public void slide(int amount)
         {
             getNode().slide(amount);
             position += amount;
         }
         
+        /**
+         * Slide the start of the node by the given amount, but leave its end in place.
+         */
         public void slideStart(int amount)
         {
             getNode().slideStart(amount);
@@ -750,6 +761,9 @@ public class NodeTree<T extends RBTreeNode>
             size -= amount;
         }
         
+        /**
+         * Resize the node. Any following nodes will move accordingly.
+         */
         public void resize(int newSize)
         {
             getNode().resize(newSize);
