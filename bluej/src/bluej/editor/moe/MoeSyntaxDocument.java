@@ -22,6 +22,9 @@
 package bluej.editor.moe;
 
 import java.awt.Color;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentEvent.EventType;
@@ -34,9 +37,9 @@ import bluej.Config;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.nodes.NodeStructureListener;
 import bluej.parser.nodes.NodeTree;
+import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.nodes.ParsedNode;
-import bluej.parser.nodes.NodeTree.NodeAndPosition;
 
 
 /**
@@ -61,6 +64,24 @@ public class MoeSyntaxDocument extends PlainDocument
     private NodeTree<ReparseRecord> reparseRecordTree;
     
     private MoeDocumentListener listener;
+    
+    private class PendingError
+    {
+        int position;
+        int size;
+        String errCode;
+        
+        PendingError(int position, int size, String errCode)
+        {
+            this.position = position;
+            this.size = size;
+            this.errCode = errCode;
+        }
+    }
+    
+    /** A list of parse errors which have been detected but not yet indicated to the listener. */
+    private List<PendingError> pendingErrors = new LinkedList<PendingError>();
+    
     
     /**
      * Create an empty MoeSyntaxDocument.
@@ -199,7 +220,7 @@ public class MoeSyntaxDocument extends PlainDocument
      *               the reparse when it occurs must parse at least this much.
      */
     public void scheduleReparse(int pos, int size)
-    {
+    {        
         NodeAndPosition<ReparseRecord> existing = reparseRecordTree.findNodeAtOrAfter(pos);
         if (existing != null) {
             if (existing.getPosition() > pos && existing.getPosition() <= (pos + size)) {
@@ -233,6 +254,20 @@ public class MoeSyntaxDocument extends PlainDocument
     public void markSectionParsed(int pos, int size)
     {
         repaintLines(pos, size);
+        
+        // We must first report the range reparsed, and then report and parse errors in the range
+        // to the listener.
+        if (listener != null) {
+            listener.reparsingRange(pos, size);
+            Iterator<PendingError> i = pendingErrors.iterator();
+            while (i.hasNext()) {
+                PendingError pe = i.next();
+                if (pe.position >= pos && pe.position <= pos + size) {
+                    listener.parseError(pe.position, pe.size, pe.errCode);
+                    i.remove();
+                }
+            }
+        }
         
         NodeAndPosition<ReparseRecord> existing = reparseRecordTree.findNodeAtOrAfter(pos);
         while (existing != null && existing.getPosition() <= pos) {
@@ -283,7 +318,7 @@ public class MoeSyntaxDocument extends PlainDocument
     public void parseError(int position, int size, String message)
     {
         if (listener != null) {
-            listener.parseError(position, size, message);
+            pendingErrors.add(new PendingError(position, size, message));
         }
     }
     
@@ -440,10 +475,10 @@ public class MoeSyntaxDocument extends PlainDocument
         }
     }
     
-    /*
-     * Override default implementation to notify the parser of text insertion
-     * @see javax.swing.text.AbstractDocument#fireInsertUpdate(javax.swing.event.DocumentEvent)
+    /* 
+     * If text was inserted, the reparse-record tree needs to be updated.
      */
+    @Override
     protected void fireInsertUpdate(DocumentEvent e)
     {
         if (reparseRecordTree != null) {
@@ -465,9 +500,10 @@ public class MoeSyntaxDocument extends PlainDocument
         super.fireInsertUpdate(mse);
     }
     
-    /* Override the default implementation to notify the parser of text removal
-     * @see javax.swing.text.AbstractDocument#fireRemoveUpdate(javax.swing.event.DocumentEvent)
+    /* 
+     * If part of the document was removed, the reparse-record tree needs to be updated.
      */
+    @Override
     protected void fireRemoveUpdate(DocumentEvent e)
     {
         NodeAndPosition<ReparseRecord> napRr = (reparseRecordTree != null) ?
