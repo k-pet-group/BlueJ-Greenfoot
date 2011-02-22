@@ -3707,8 +3707,8 @@ public final class MoeEditor extends JFrame
     }
 
     /**
-     * enableReplaceButtons calls the function in the replace panel to either 
-     * enable or disable the once and all buttons
+     * Enables/disables the once and all buttons on the replace panel
+     * @param enable  True to enable; false to disable
      */
     protected void enableReplaceButtons(boolean enable)
     {
@@ -3716,8 +3716,7 @@ public final class MoeEditor extends JFrame
     }
     
     /**
-     * Sends the request to enable buttons the replace panel and there it is
-     * determined whether it is logical to enable or disable then buttons
+	 * Enables/disables the once and all buttons on the replace panel
      */
     protected void enableReplaceButtons()
     {

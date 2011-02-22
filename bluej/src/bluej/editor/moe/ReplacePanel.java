@@ -107,15 +107,19 @@ public class ReplacePanel extends JPanel implements ActionListener, DocumentList
     }
     
     /**
-     * Determines whether the buttons should be enabled or not and 
-     * then calls enableButtons(boolean) to process the request
+     * Determines whether the buttons should be enabled 
+     *  or not and enables them accordingly
      */
     public void enableButtons()
     {
-        //only enable the once and all buttons if both find and replace are populated
-        //and if there is selected text
-        if (editor.getFindSearchString()!=null && editor.getFindSearchString().length()!=0
-                && editor.getSourcePane().getSelectedText()!=null){
+        //Only enable the once and all buttons if both find and replace are populated
+    	//(note: an empty replace string is a valid value)
+        //and if there is selected text which is the same as the find string.     	
+        //This eliminates the situation when the caret is moved and a replace in the new position 
+        //may not be the intention of the user
+        if (editor.getFindSearchString()!=null && editor.getFindSearchString().length()!=0 
+        		&& editor.getSourcePane().getSelectedText()!=null
+                && editor.getSourcePane().getSelectedText().equals(editor.getFindSearchString())){
             enableButtons(true);
         }
         else {
