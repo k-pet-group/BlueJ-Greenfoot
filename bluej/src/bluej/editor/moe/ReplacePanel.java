@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2011  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -97,7 +97,7 @@ public class ReplacePanel extends JPanel implements ActionListener, DocumentList
     }
     
     /**
-     * Populates the replacetext string and enables the buttons if there 
+     * Populates the replace string and enables the buttons if there 
      * is selected text or the find text field is populated
      */
     public void replaceEvent()
@@ -113,12 +113,12 @@ public class ReplacePanel extends JPanel implements ActionListener, DocumentList
     public void enableButtons()
     {
         //Only enable the once and all buttons if both find and replace are populated
-    	//(note: an empty replace string is a valid value)
+        //(note: an empty replace string is a valid value)
         //and if there is selected text which is the same as the find string.     	
         //This eliminates the situation when the caret is moved and a replace in the new position 
         //may not be the intention of the user
         if (editor.getFindSearchString()!=null && editor.getFindSearchString().length()!=0 
-        		&& editor.getSourcePane().getSelectedText()!=null
+                && editor.getSourcePane().getSelectedText()!=null
                 && editor.getSourcePane().getSelectedText().equals(editor.getFindSearchString())){
             enableButtons(true);
         }

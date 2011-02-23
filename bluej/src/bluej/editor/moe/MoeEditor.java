@@ -3716,7 +3716,7 @@ public final class MoeEditor extends JFrame
     }
     
     /**
-	 * Enables/disables the once and all buttons on the replace panel
+     * Enables/disables the once and all buttons on the replace panel
      */
     protected void enableReplaceButtons()
     {
