@@ -114,7 +114,7 @@ public class ReplacePanel extends JPanel implements ActionListener, DocumentList
     {
         //Only enable the once and all buttons if both find and replace are populated
         //(note: an empty replace string is a valid value)
-        //and if there is selected text which is the same as the find string.     	
+        //and if there is selected text which is the same as the find string.
         //This eliminates the situation when the caret is moved and a replace in the new position 
         //may not be the intention of the user
         if (editor.getFindSearchString()!=null && editor.getFindSearchString().length()!=0 

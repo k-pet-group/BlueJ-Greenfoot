@@ -309,7 +309,7 @@ public final class MoeEditor extends JFrame
             
             if (bounds.y > (Config.screenBounds.height - 80))
                 bounds.y = Config.screenBounds.height - 80;
-        	
+            
             if (bounds.width > 0 && bounds.height > 0) {
                 setBounds(bounds);
             }
@@ -595,7 +595,7 @@ public final class MoeEditor extends JFrame
         }
         else {
             endPos = getPosFromColumn(line, (int) diagnostic.getEndColumn());
-        }	
+        }
         
         // highlight the line
 
@@ -1346,9 +1346,9 @@ public final class MoeEditor extends JFrame
      */
     public void print(PrinterJob printerJob)
     {
-    	if (printDialog == null) {
+        if (printDialog == null) {
             printDialog = new PrintDialog(this);
-    	}
+        }
 
         if (printDialog.display()) {
             PrintHandler pt = new PrintHandler(printerJob, getPageFormat(printerJob), printDialog.printLineNumbers(), printDialog.printHighlighting());
@@ -1371,18 +1371,18 @@ public final class MoeEditor extends JFrame
      */
     public void print()
     {
-    	if (printDialog == null)
+        if (printDialog == null)
             printDialog = new PrintDialog(this);
 
         if (printDialog.display()) {
-	        // create a printjob
-	        PrinterJob job = PrinterJob.getPrinterJob();
-	        if (job.printDialog()) {
-	            PrintHandler pt = new PrintHandler(job, getPageFormat(job), printDialog.printLineNumbers(), printDialog.printHighlighting());
-	            Thread printJobThread = new Thread(pt);
-	            printJobThread.setPriority((Thread.currentThread().getPriority() - 1));
-	            printJobThread.start();
-	        }
+            // create a printjob
+            PrinterJob job = PrinterJob.getPrinterJob();
+            if (job.printDialog()) {
+                PrintHandler pt = new PrintHandler(job, getPageFormat(job), printDialog.printLineNumbers(), printDialog.printHighlighting());
+                Thread printJobThread = new Thread(pt);
+                printJobThread.setPriority((Thread.currentThread().getPriority() - 1));
+                printJobThread.start();
+            }
         }
     }
 
@@ -1408,8 +1408,8 @@ public final class MoeEditor extends JFrame
     {
         setVisible(false);
         if (watcher != null) {
-        	//setting the naviview visible property when an editor is closed
-        	watcher.setProperty(EditorWatcher.NAVIVIEW_EXPANDED_PROPERTY, String.valueOf(dividerPanel.isExpanded()));
+            //setting the naviview visible property when an editor is closed
+            watcher.setProperty(EditorWatcher.NAVIVIEW_EXPANDED_PROPERTY, String.valueOf(dividerPanel.isExpanded()));
             watcher.closeEvent(this);
         }
     }
