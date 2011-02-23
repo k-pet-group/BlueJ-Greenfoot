@@ -73,7 +73,7 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 8514 2010-10-21 10:31:51Z nccb $
+ * @version $Id: GreenfootMain.java 8662 2011-02-23 05:26:06Z marionz $
  */
 public class GreenfootMain extends Thread implements CompileListener, RProjectListener
 {
@@ -255,8 +255,8 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
         // Display msg dialog of project does not exist.
         if (!projectDirFile.exists()) {
             JOptionPane.showMessageDialog(frame, 
-            		Config.getString("noproject.dialog.msg") + System.getProperty("line.separator") + projectDir,
-            		Config.getString("noproject.dialog.title"), JOptionPane.WARNING_MESSAGE);
+                    Config.getString("noproject.dialog.msg") + System.getProperty("line.separator") + projectDir,
+                    Config.getString("noproject.dialog.title"), JOptionPane.WARNING_MESSAGE);
             return;
         }
 
@@ -454,8 +454,9 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                     // The rest of the project preparation will be done by the
                     // ProjectManager on the BlueJ VM.
 
-                    // if the project that is already open is the dummy startup project, close it now.
-                    if (isStartupProject()) {
+                    // if the project that is already open is the dummy startup project
+                    // or if there is an empty project, close it now
+                    if (isStartupProject()|| frame.isClosedProject()) {
                         project.close();
                     }
                     

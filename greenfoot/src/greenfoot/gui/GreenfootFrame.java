@@ -163,6 +163,13 @@ public class GreenfootFrame extends JFrame
     private boolean isClosedProject = true;
     
     /**
+     * @return isClosedProject  True if the project is closed and false if not
+     */
+    public boolean isClosedProject() {
+        return isClosedProject;
+    }
+
+    /**
      * Indicate whether we want to resize. 
      * 
      * @see #setResizeWhenPossible(boolean)
@@ -174,7 +181,7 @@ public class GreenfootFrame extends JFrame
     
     public static GreenfootFrame getGreenfootFrame(final RBlueJ blueJ, ClassStateManager classStateManager)
     {
-    	instance = new GreenfootFrame(blueJ, classStateManager);                        
+        instance = new GreenfootFrame(blueJ, classStateManager);                        
         return instance;
     }
     
@@ -212,8 +219,8 @@ public class GreenfootFrame extends JFrame
             setResizeWhenPossible(true);
             return;
         }
-    	
-    	ProjectProperties projectProperties = project.getProjectProperties();
+        
+        ProjectProperties projectProperties = project.getProjectProperties();
 
         try {            
             int x = projectProperties.getInt("mainWindow.x");
@@ -338,7 +345,7 @@ public class GreenfootFrame extends JFrame
      */
     public ClassBrowser getClassBrowser()
     {
-    	return classBrowser;
+        return classBrowser;
     }
     
     /**
@@ -347,7 +354,7 @@ public class GreenfootFrame extends JFrame
      */
     public GProject getProject()
     {
-    	return project;
+        return project;
     }
     
     /**
@@ -570,16 +577,16 @@ public class GreenfootFrame extends JFrame
 
     private void setupActions()
     {
-    	newClassAction = new NewClassAction(this, worldHandlerDelegate);
-    	saveProjectAction = new SaveProjectAction(this);
-    	saveCopyAction = new SaveCopyAction(this);
-    	showReadMeAction = new ShowReadMeAction(this);
-    	saveWorldAction = worldHandlerDelegate.getSaveWorldAction();
-    	exportProjectAction = new ExportProjectAction(this);
-    	closeProjectAction = new CloseProjectAction(this);
-    	removeSelectedClassAction = new RemoveSelectedClassAction(this);
-    	removeSelectedClassAction.setEnabled(false);
-    	compileAllAction = new CompileAllAction(project);
+        newClassAction = new NewClassAction(this, worldHandlerDelegate);
+        saveProjectAction = new SaveProjectAction(this);
+        saveCopyAction = new SaveCopyAction(this);
+        showReadMeAction = new ShowReadMeAction(this);
+        saveWorldAction = worldHandlerDelegate.getSaveWorldAction();
+        exportProjectAction = new ExportProjectAction(this);
+        closeProjectAction = new CloseProjectAction(this);
+        removeSelectedClassAction = new RemoveSelectedClassAction(this);
+        removeSelectedClassAction.setEnabled(false);
+        compileAllAction = new CompileAllAction(project);
     }
     
     /**
@@ -697,12 +704,12 @@ public class GreenfootFrame extends JFrame
      * selected state of the action, often determined by events elsewhere 
      * in the BlueJ/Greenfoot code.
      * 
-     * @param action		To be added to the {@link Menu}.
-     * @param selected		Default state of the action if its {@link ButtonModel} is null.
-     * @param menu			That the {@link ToggleAction} will be added to.
-     * @param accelKey		Quick keyboard shortcut for this action.
-     * @param shift			Used to determine if the accelKey needs shift pressed to happen
-     * @param mnemonicKey	Quick keyboard shortcut via the menu for this action.
+     * @param action        To be added to the {@link Menu}.
+     * @param selected      Default state of the action if its {@link ButtonModel} is null.
+     * @param menu          That the {@link ToggleAction} will be added to.
+     * @param accelKey      Quick keyboard shortcut for this action.
+     * @param shift         Used to determine if the accelKey needs shift pressed to happen
+     * @param mnemonicKey   Quick keyboard shortcut via the menu for this action.
      */
     private void createCheckboxMenuItem(ToggleAction action, boolean selected, JMenu menu, int accelKey, boolean shift, int mnemonicKey)
     {
@@ -720,7 +727,7 @@ public class GreenfootFrame extends JFrame
         JCheckBoxMenuItem item = new JCheckBoxMenuItem(action);
         ButtonModel bm = action.getToggleModel();
         if (bm == null) {
-        	item.setSelected(selected);
+            item.setSelected(selected);
         } else {
             item.setModel(bm);
         }
@@ -746,8 +753,8 @@ public class GreenfootFrame extends JFrame
      */
     private void enableProjectActions() 
     {
-    	boolean state = (project != null);
-    	
+        boolean state = (project != null);
+    
         closeProjectAction.setEnabled(state);
         saveProjectAction.setEnabled(state);
         saveCopyAction.setEnabled(state);
@@ -931,7 +938,7 @@ public class GreenfootFrame extends JFrame
     
     public void selectionChange(Selectable source)
     {
-    	if (source instanceof ClassView) {
+        if (source instanceof ClassView) {
             ClassView classView = (ClassView)source;
             if(classView.getRealClass() == null) {
                 removeSelectedClassAction.setEnabled(true);
@@ -943,10 +950,10 @@ public class GreenfootFrame extends JFrame
             else {
                 removeSelectedClassAction.setEnabled(false);
             }
-    	}
-    	else {
-    	    removeSelectedClassAction.setEnabled(false);
-    	}
+        }
+        else {
+            removeSelectedClassAction.setEnabled(false);
+        }
     }
     
     // ------------- end of SelectionListener interface --------
