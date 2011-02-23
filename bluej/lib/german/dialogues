@@ -110,7 +110,7 @@ Die jar-Datei konnte nicht richtig geschrieben werden.
 (\u00dcberpr\u00fcfen Sie das Dateisystem im Hinblick auf Zugriffs-
 rechte und freien Plattenspeicherplatz.)
 
-error-jar-exists
+error-file-exists
 Die gew\u00fcnschte jar-Datei ist bereits vorhanden.
 Wollen Sie sie \u00fcberschreiben?
 \u00dcberschreiben

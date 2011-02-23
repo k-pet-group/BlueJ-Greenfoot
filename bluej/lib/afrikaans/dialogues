@@ -102,7 +102,7 @@ error-writing-jar
 Die jar-l\u00eaer kon nie korrek uitgeskryf word nie.
 (Maak seker u het toegangsregte en oop spasie op die l\u00eaerstelsel.)
 
-error-jar-exists
+error-file-exists
 Die jar-l\u00eaer wat u gekies het, bestaan reeds.
 Wil u voortgaan?
 Oorskryf

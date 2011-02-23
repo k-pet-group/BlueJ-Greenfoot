@@ -97,7 +97,7 @@ Le fichier jar n'a pu \u00eatre enregistr\u00e9 correctement.
 Assurez-vous d'avoir les privil\u00e8ges d'acc\u00e8s
 et l'espace disque n\u00e9cessaires.
 
-error-jar-exists
+error-file-exists
 Le fichier jar s\u00e9lectionn\u00e9 existe d\u00e9j\u00e0.
 Voulez-vous continuer ?
 \u00c9craser

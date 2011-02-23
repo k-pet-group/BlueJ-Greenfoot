@@ -105,7 +105,7 @@ No s'ha pogut escriure correctament l'arxiu jar.
 (Reviseu els drets d\u0092acc\u00e9s del sistema d'arxius 
 i la disponibilitat d\u0092espai al disc dur.)
 
-error-jar-exists
+error-file-exists
 L'arxiu jar que heu seleccionat ja existeix.
 Voleu continuar?
 Sobreescriu

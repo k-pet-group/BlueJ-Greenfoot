@@ -89,7 +89,7 @@ error-writing-jar
 Het opslaan van de jar file van
 dit project is mislukt.
 
-error-jar-exists
+error-file-exists
 De file bestaat al.
 Wil je deze overschrijven?
 Overschrijven

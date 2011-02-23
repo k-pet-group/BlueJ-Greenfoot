@@ -92,7 +92,7 @@ Do souboru jar se nepoda\u0159ilo \u00FAsp\u011B\u0161n\u011B zapsat.
 Zkontrolujte p\u0159\u00EDstupov\u00E1 pr\u00E1va a voln\u00E9 m\u00EDsto
 na disku.
 
-error-jar-exists
+error-file-exists
 Vybran\u00FD soubor jar ji\u017E existuje.
 P\u0159ejete si pokra\u010Dovat?
 P\u0159epsat

@@ -95,7 +95,7 @@ The jar file could not be written correctly.
 (Check the file system for access rights and
 disk space availability.)
 
-error-jar-exists
+error-file-exists
 The jar file you have selected already exists.
 Do you want to continue?
 Overwrite

@@ -38,6 +38,7 @@ import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.print.PrinterJob;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
@@ -267,10 +268,15 @@ public final class Terminal extends JFrame
     {
         initialise();
         String fileName = FileUtility.getFileName(this,
-                                 Config.getString("terminal.save.title"),
-                                 Config.getString("terminal.save.buttonText"),
-                                 null, false);
+                Config.getString("terminal.save.title"),
+                Config.getString("terminal.save.buttonText"),
+                null, false);
         if(fileName != null) {
+            File f = new File(fileName);
+            if (f.exists()){
+                if (DialogManager.askQuestion(this, "error-file-exists") != 0)
+                    return;
+            }
             try {
                 FileWriter writer = new FileWriter(fileName);
                 text.write(writer);
@@ -411,9 +417,9 @@ public final class Terminal extends JFrame
                         result += "(new instance of " + object.getGenClassName() + ")";
                     }
                     else {
-                    	// if the method returns a void, we must handle it differently
+                        // if the method returns a void, we must handle it differently
                         if (object.isNullObject()) {
-                        	result = "void result";
+                            result = "void result";
                         }
                         else {
                             // other - the result object is a wrapper with a single result field
@@ -524,7 +530,7 @@ public final class Terminal extends JFrame
                     writeToTerminal("\n");
                     break;
 
-                case '\b':	// backspace
+                case '\b':  // backspace
                     if (buffer.backSpace()) {
                         try {
                             int length = text.getDocument().getLength();
@@ -535,8 +541,8 @@ public final class Terminal extends JFrame
                     }
                     break;
 
-                case '\r':	// carriage return
-                case '\n':	// newline
+                case '\r':  // carriage return
+                case '\n':  // newline
                     if (buffer.putChar('\n')) {
                         writeToTerminal(String.valueOf(ch));
                         buffer.notifyReaders();
@@ -552,7 +558,7 @@ public final class Terminal extends JFrame
             }
             break;
         }
-        event.consume();	// make sure the text area doesn't handle this
+        event.consume();    // make sure the text area doesn't handle this
     }
 
 

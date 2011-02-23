@@ -90,7 +90,7 @@ El archivo jar no pudo ser escrito correctamente.
 (Chequee el sistema de archivos por derechos de
 acceso y disponibilidad en espacio en disco.)
 
-error-jar-exists
+error-file-exists
 El Archivo jar que seleccion\u00f3 ya esiste.
 Desea continuar?
 Sobreescribir

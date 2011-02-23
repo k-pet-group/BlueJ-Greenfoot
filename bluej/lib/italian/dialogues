@@ -94,7 +94,7 @@ Il file jar non pu\u00f2 essere scritto correttamente.
 (Controlla l'accesso al file system e allla disponibilit\u00e0
 di spazio sul disco.)
 
-error-jar-exists
+error-file-exists
 Il file selezionato \u00e8 gi\u00e0 esistente.
 Lo vuoi sovrascrivere?
 Sovrascrivi

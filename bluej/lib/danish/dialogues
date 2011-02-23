@@ -99,7 +99,7 @@ jar filen kunne ikke skrives korrekt.
 (Check filsystemet for adgangsrettigheder og
 tilg\u00E6ngelig diskplads.)
 
-error-jar-exists
+error-file-exists
 Filen du har valgt eksisterer allerede.
 Vil du overskrive den?
 Overskriv

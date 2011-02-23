@@ -60,10 +60,10 @@ final class ExportManager
      */
     public void export()
     {
-    	if (dialog == null)
-    		dialog = new ExportDialog(frame);
-    	else
-    		dialog.updateDialog(frame);
+        if (dialog == null)
+            dialog = new ExportDialog(frame);
+        else
+            dialog.updateDialog(frame);
         boolean okay = dialog.display();
 
         if(!okay)
@@ -121,7 +121,7 @@ final class ExportManager
             jarFile = new File(fileName);
             
             if(jarFile.exists()) {
-                if (DialogManager.askQuestion(frame, "error-jar-exists") != 0)
+                if (DialogManager.askQuestion(frame, "error-file-exists") != 0)
                     return;
             }
         }
@@ -133,7 +133,7 @@ final class ExportManager
             parent = new File(fileName);
 
             if(parent.exists()) {
-                if (DialogManager.askQuestion(frame, "error-jar-exists") != 0)
+                if (DialogManager.askQuestion(frame, "error-file-exists") != 0)
                     return;
             }
             parent.mkdir();

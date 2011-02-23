@@ -97,7 +97,7 @@ O arquivo jar n\u00e3o foi gravado corretamente.
 (Cheque as permiss\u00f5es do sistema de arquivos
 e o espa\u00e7o livre em disco).
 
-error-jar-exists
+error-file-exists
 O arquivo jar selecionado j\u00e1 existe.
 Deseja continuar?
 Sobrescreve
