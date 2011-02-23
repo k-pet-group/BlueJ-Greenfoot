@@ -163,9 +163,11 @@ public class GreenfootFrame extends JFrame
     private boolean isClosedProject = true;
     
     /**
+     * Returns whether the project is closed or not
      * @return isClosedProject  True if the project is closed and false if not
      */
-    public boolean isClosedProject() {
+    public boolean isClosedProject() 
+    {
         return isClosedProject;
     }
 
