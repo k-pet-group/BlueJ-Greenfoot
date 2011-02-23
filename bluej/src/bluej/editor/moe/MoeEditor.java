@@ -595,7 +595,7 @@ public final class MoeEditor extends JFrame
         }
         else {
             endPos = getPosFromColumn(line, (int) diagnostic.getEndColumn());
-        }
+        }	
         
         // highlight the line
 
