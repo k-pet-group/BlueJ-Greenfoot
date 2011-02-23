@@ -21,12 +21,18 @@
  */
 package bluej.editor.moe;
 
+import java.awt.Color;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.event.FocusEvent;
+import java.awt.event.MouseEvent;
+
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultCaret;
+import javax.swing.text.LayeredHighlighter;
+import javax.swing.text.Position;
+
 import bluej.utility.Debug;
-
-import java.awt.*;
-import java.awt.event.*;
-
-import javax.swing.text.*;
 
 
 /**
@@ -179,6 +185,18 @@ public class MoeCaret extends DefaultCaret
         }
     }
     
+    @Override
+    protected synchronized void damage(Rectangle r)
+    {
+        // Why do we override this? Long story. Basically, the implementation from DefaultCaret is
+        // a bit broken. It uses magic values which can cause the caret to set its location to something
+        // *outside* the repainted region, which causes an endless repaint loop. Urgh.
+        this.x = r.x;
+        this.y = r.y;
+        this.width = r.width;
+        this.height = r.height;
+        getComponent().repaint(x - 1, y - 1, width + 2, height + 2);
+    }
 }
 
 

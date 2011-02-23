@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -39,18 +39,16 @@ import java.util.Stack;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentEvent.EventType;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.Document;
 import javax.swing.text.Element;
-import javax.swing.text.PlainView;
 import javax.swing.text.Position;
 import javax.swing.text.Segment;
 import javax.swing.text.Utilities;
 import javax.swing.text.ViewFactory;
 
 import bluej.editor.moe.MoeSyntaxEvent.NodeChangeRecord;
+import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.nodes.ParsedNode;
-import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.prefmgr.PrefMgr;
 
 /**
@@ -67,7 +65,7 @@ import bluej.prefmgr.PrefMgr;
  * @author Michael Kolling
  * @author Davin McCall
  */
-public abstract class BlueJSyntaxView extends PlainView
+public abstract class BlueJSyntaxView extends MoePlainView
 {
     /** (NaviView) Paint method inner scope? if false, whole method will be highlighted as a single block */
     private static final boolean PAINT_METHOD_INNER = false;
@@ -115,13 +113,10 @@ public abstract class BlueJSyntaxView extends PlainView
     private Segment line;
 
     protected Font defaultFont;
-    // protected FontMetrics metrics;  is inherited from PlainView
     private boolean initialised = false;
 
     private Map<ParsedNode,Integer> nodeIndents = new HashMap<ParsedNode,Integer>();
 
-    private int leftMargin = 0;
-    private int leftBound = 0;
 
     /**
      * Creates a new BlueJSyntaxView.
@@ -129,64 +124,19 @@ public abstract class BlueJSyntaxView extends PlainView
      */
     public BlueJSyntaxView(Element elem, int leftMargin)
     {
-        super(elem);
+        super(elem, leftMargin);
         line = new Segment();
-        this.leftMargin = leftMargin;
-
     }
 
     @Override
     public void paint(Graphics g, Shape a)
     {
-        if (a != null) {
-            leftBound = a.getBounds().x;
-        }
-        
         if (desktopHints != null && g instanceof Graphics2D) {
             Graphics2D g2d = (Graphics2D) g;
             g2d.addRenderingHints(desktopHints); 
         }
 
         super.paint(g, a);
-    }
-
-    /* Override default viewToModel translation to account for margin
-     * @see javax.swing.text.PlainView#viewToModel(float, float, java.awt.Shape, javax.swing.text.Position.Bias[])
-     */
-    @Override
-    public int viewToModel(float fx, float fy, Shape a, Position.Bias[] bias)
-    {
-        try {
-            Rectangle sbounds = a.getBounds();
-            leftBound = sbounds.x;
-            sbounds.x += leftMargin;
-            return super.viewToModel(fx, fy, sbounds, bias);
-        }
-        catch (ArrayIndexOutOfBoundsException aiobe) {
-            Rectangle alloc = a.getBounds();
-            Document document = getDocument();
-            int y = (int) fy;
-            
-            // Guard against Java bug:
-            // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6899297
-            Element map = document.getDefaultRootElement();
-            int lineIndex = Math.max((y - alloc.y) / metrics.getHeight(), 0);
-            return map.getElement(lineIndex).getEndOffset() - 1;
-        }
-    }
-
-    /*
-     * redefined from PlainView method to allow for redefinition of modelToView translation
-     */
-    protected Rectangle lineToRect(Shape a, int line)
-    {
-        Rectangle r = null;
-        if (metrics != null) {
-            Rectangle alloc = a.getBounds();
-            r = new Rectangle(alloc.x + leftMargin, alloc.y + (line * metrics.getHeight()),
-                    alloc.width - leftMargin, metrics.getHeight());
-        }
-        return r;
     }
 
     /*
@@ -197,6 +147,7 @@ public abstract class BlueJSyntaxView extends PlainView
      * @param x The x co-ordinate where the line should be painted
      * @param y The y co-ordinate (baseline) where the line should be painted
      */
+    @Override
     protected void drawLine(int lineIndex, Graphics g, int x, int y)
     {
         if(!initialised) {
@@ -217,9 +168,9 @@ public abstract class BlueJSyntaxView extends PlainView
 
             paintTaggedLine(line, lineIndex, g, x, y, document, def, lineElement);
         }
-        catch(BadLocationException bl) {
+        catch (BadLocationException bl) {
             // shouldn't happen
-            bl.printStackTrace();
+            throw new RuntimeException(bl);
         }
     }
 
@@ -262,10 +213,10 @@ public abstract class BlueJSyntaxView extends PlainView
             int length = tokens.length;
             Color color;
             if (id == Token.NULL || id >= colors.length) {
-            	color = def;
+                color = def;
             }
             else {
-            	color = colors[id];
+                color = colors[id];
             }
             g.setColor(color);
             line.count = length;
@@ -1195,33 +1146,9 @@ public abstract class BlueJSyntaxView extends PlainView
         initialised = true;
     }
 
-    // --- TabExpander interface methods -----------------------------------
-
     /*
-     * Returns the next tab stop position after a given reference position.
-     * This implementation does not support things like centering so it
-     * ignores the tabOffset argument.
-     *
-     * @param x the current position >= 0
-     * @param tabOffset the position within the text stream
-     *   that the tab occurred at >= 0.
-     * @return the tab stop, measured in points >= 0
-     */
-    public float nextTabStop(float x, int tabOffset)
-    {
-        // calculate tabsize using fontwidth and tab spaces
-        updateMetrics();
-        int tabSize = getTabSize() * metrics.charWidth('m');
-        if (tabSize == 0) {
-            return x;
-        }
-        int tabStopNumber = (int)((x - leftMargin - leftBound) / tabSize) + 1;
-        return (tabStopNumber * tabSize) + leftMargin + leftBound;
-    }
-
-    /**
-     * Need to override this method from PlainView because the PlainView version is buggy for
-     * changes (which aren't inserts/removes) of multiple lines.
+     * Need to override this method to handle node updates. If a node indentation changes,
+     * the whole node needs to be repainted.
      */
     protected void updateDamage(DocumentEvent changes, Shape a, ViewFactory f)
     {
