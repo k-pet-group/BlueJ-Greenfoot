@@ -3792,6 +3792,17 @@ public final class MoeEditor extends JFrame
     public void parseError(int position, int size, String message)
     {
         try {
+            // Don't add this error if it overlaps an existing error:
+            NodeAndPosition<ParseErrorNode> nap = parseErrors.findNodeAtOrAfter(position);
+            while (nap != null && nap.getEnd() == position && nap.getPosition() != position) {
+                nap = nap.nextSibling();
+            }
+            if (nap != null) {
+                if (nap.getEnd() <= position + size) {
+                    return;
+                }
+            }
+            
             Object highlightTag = sourcePane.getHighlighter().addHighlight(
                 position, position + size,
                 new MoeBorderHighlighterPainter(Color.RED, Color.RED, Color.PINK,
