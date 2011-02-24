@@ -268,7 +268,6 @@ editor.replaceAll.replaced=Replaced
 editor.replaceAll.intancesOf=instances of
 editor.replaceAll.string=String
 editor.replaceAll.notFoundNothingReplaced=not found. Nothing replaced.
-editor.replaceAll.invalidString=is invalid. Nothing replaced.
 
 # Messages shown as a result of a search with highlight all
 editor.highlight.found=Found
