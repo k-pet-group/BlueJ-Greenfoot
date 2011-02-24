@@ -548,7 +548,7 @@ public class JavaParser
         gotPackage(pkgTokens);
         token = tokenStream.nextToken();
         if (token.getType() != JavaTokenTypes.SEMI) {
-            error("Expecting ';' at end of package declaration");
+            error(BJ003);
             tokenStream.pushBack(token);
             return null;
         }
@@ -1142,7 +1142,7 @@ public class JavaParser
         }
         else if (token.getType() != JavaTokenTypes.SEMI) {
             tokenStream.pushBack(token);
-            error(BJ00);
+            error(BJ000);
             endMethodDecl(token, false);
         }
         else {
@@ -1258,8 +1258,8 @@ public class JavaParser
                 token = tokenStream.nextToken();
             }
             if (token.getType() != JavaTokenTypes.SEMI) {
-                error("Expecting ';' after 'return' statement");
                 tokenStream.pushBack(token);
+                error(BJ003);
                 return null;
             }
             return token;
@@ -1300,8 +1300,8 @@ public class JavaParser
                 token = tokenStream.nextToken();
             }
             if (token.getType() != JavaTokenTypes.SEMI) {
-                error("Expecting ';' at end of " + token.getText() + " statement");
                 tokenStream.pushBack(token);
+                error(BJ003);
                 return null;
             }
             return token;
@@ -1309,8 +1309,8 @@ public class JavaParser
             parseExpression();
             token = tokenStream.nextToken();
             if (token.getType() != JavaTokenTypes.SEMI) {
-                error("Expecting ';' at end of 'throw' statement");
                 tokenStream.pushBack(token);
+                error(BJ003);
                 return null;
             }
             return token;
@@ -1759,8 +1759,13 @@ public class JavaParser
         }
         token = tokenStream.nextToken();
         if (token.getType() != JavaTokenTypes.SEMI) {
-            error("Expecting ';' after test expression (in for statement)");
             tokenStream.pushBack(token);
+            if (token.getType() == JavaTokenTypes.COMMA) {
+                error(BJ003, token);  // common mistake: use ',' instead of ';'
+            }
+            else {
+                error(BJ003);
+            }
             endForLoop(token, false);
             return null;
         }
@@ -1828,10 +1833,10 @@ public class JavaParser
             if (token.getType() != LPAREN) {
                 tokenStream.pushBack(token);
                 if (token.getType() == LCURLY) {
-                    error(BJ02, token);
+                    error(BJ002, token);
                 }
                 else {
-                    error(BJ01);
+                    error(BJ001);
                 }
                 endIfStmt(token, false);
                 return null;
@@ -1954,7 +1959,7 @@ public class JavaParser
 
         if (token.getType() != JavaTokenTypes.SEMI) {
             tokenStream.pushBack(token);
-            error("Expecting ';' at end of variable/field declaration");
+            error(BJ003);
             endDeclaration(type, token, false);
             endDeclarationStmt(type, token, false);
             return null;
