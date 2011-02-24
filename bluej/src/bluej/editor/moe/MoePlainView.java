@@ -116,21 +116,14 @@ public class MoePlainView extends View implements TabExpander
         Document doc = getDocument();
         doc.getText(line.getStartOffset(), pos - line.getStartOffset(), s);
         
+        // Note that PlainView always returns a rectangle of width 1, at the start of the
+        // character position, which is what the highlight painters expect; So, even though it seems
+        // more correct to return a rectangle containing the entire character, we also just return
+        // a rectangle of width 1.
         int tpos = Utilities.getTabbedTextWidth(s, metrics, leftMargin, this, line.getStartOffset());
-        int twidth;
-        if (pos == line.getEndOffset() - 1) {
-            // The newline
-            twidth = 1;
-        }
-        else {
-            doc.getText(line.getStartOffset(), pos - line.getStartOffset() + 1, s);
-            int trpos = Utilities.getTabbedTextWidth(s, metrics, leftMargin, this, line.getStartOffset());
-            twidth = trpos - tpos;
-        }
-        
         tpos += leftMargin;
         Rectangle aBounds = a.getBounds();
-        return new Rectangle(aBounds.x + tpos, aBounds.y + lineIndex * metrics.getHeight(), twidth, metrics.getHeight());
+        return new Rectangle(aBounds.x + tpos, aBounds.y + lineIndex * metrics.getHeight(), 1, metrics.getHeight());
     }
         
     @Override
