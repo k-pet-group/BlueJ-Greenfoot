@@ -264,14 +264,15 @@ editor.addjavadoc.parameter=A parameter
 editor.addjavadoc.returnValue=The return value
 
 # Messages shown as a result of a search with replace all
-editor.replaceAll.replaced=Replaced 
-editor.replaceAll.intancesOf=\ instances of 
-editor.replaceAll.string=String 
-editor.replaceAll.notFoundNothingReplaced=\ not found. Nothing replaced.
+editor.replaceAll.replaced=Replaced
+editor.replaceAll.intancesOf=instances of
+editor.replaceAll.string=String
+editor.replaceAll.notFoundNothingReplaced=not found. Nothing replaced.
+editor.replaceAll.invalidString=is invalid. Nothing replaced.
 
 # Messages shown as a result of a search with highlight all
-editor.highlight.found=Found 
-editor.highlight.notFound=\ not found.
+editor.highlight.found=Found
+editor.highlight.notFound=not found.
 
 # Message shown in code completion pane when nothing is found
 editor.completion.noMatch=No matching completions

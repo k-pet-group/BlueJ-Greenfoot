@@ -257,14 +257,14 @@ editor.replacePanel.replaceOnce=\u0422\u043e\u043b\u044c\u043a\u043e \u0420\u043
 editor.replacePanel.replaceAll= \u0412\u0441\u0435
 
 #Messages shown as a result of a search with replace all
-editor.replaceAll.replaced=\u0417\u0430\u043c\u0435\u043d\u0435\u043d\u043d\u044b\u0439 
-editor.replaceAll.intancesOf=\ \u043e\u0431\u0440\u0430\u0437\u0446\u044b 
-editor.replaceAll.string=\u0421\u0442\u0440\u043e\u043a\u0430 
-editor.replaceAll.notFoundNothingReplaced=\ \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d\u043e. \u041d\u0435 \u0437\u0430\u043c\u0435\u043d\u0435\u043d\u043e.
+editor.replaceAll.replaced=\u0417\u0430\u043c\u0435\u043d\u0435\u043d\u043d\u044b\u0439
+editor.replaceAll.intancesOf=\u043e\u0431\u0440\u0430\u0437\u0446\u044b
+editor.replaceAll.string=\u0421\u0442\u0440\u043e\u043a\u0430
+editor.replaceAll.notFoundNothingReplaced=\u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d\u043e. \u041d\u0435 \u0437\u0430\u043c\u0435\u043d\u0435\u043d\u043e.
 
 #Messages shown as a result of a search with highlight all
-editor.highlight.found=\u041d\u0430\u0439\u0434\u0435\u043d\u043e 
-editor.highlight.notFound=\ \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d\u043e.
+editor.highlight.found=\u041d\u0430\u0439\u0434\u0435\u043d\u043e
+editor.highlight.notFound=\u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d\u043e.
 
 #Messages shown when determining what function is bound to a given key
 editor.keypressed.keyIsNotBound=\ \u0432 \u043d\u0435 \u043f\u0440\u0438\u0432\u044f\u0437\u0430\u043d\u043e \u043a \u0444\u0443\u043d\u043a\u0446\u0438\u0438.

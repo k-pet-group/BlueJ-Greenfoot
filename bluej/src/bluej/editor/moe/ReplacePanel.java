@@ -79,8 +79,8 @@ public class ReplacePanel extends JPanel implements ActionListener, DocumentList
         JComponent src = (JComponent) e.getSource();
         setReplaceString(replaceText.getText());
         if (getReplaceString()==null){
-            editor.writeMessage(Config.getString("editor.replaceAll.string") + 
-            "is Empty");
+            editor.writeMessage(Config.getString("editor.replaceAll.string").trim() + 
+            " " + Config.getString("editor.replaceAll.nullString"));
             return;
         }         
         if (src.getName()==REPLACE_BUTTON_NAME){

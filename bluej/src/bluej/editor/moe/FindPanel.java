@@ -331,7 +331,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     public void getNext()
     {
-    	editor.getCurrentTextPane().setCaretPosition((editor.getCurrentTextPane().getSelectionStart()+1));
+        editor.getCurrentTextPane().setCaretPosition((editor.getCurrentTextPane().getSelectionStart()+1));
         find(true);
         editor.enableReplaceButtons();
     }
@@ -467,15 +467,15 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
                 //move the caret to the beginning of the selected item
                 //editor.moveCaretPosition(editor.getCaretPosition()-getSearchString().length());
             }
-            editor.writeMessage(Config.getString("editor.highlight.found") +
-                    counter + Config.getString("editor.replaceAll.intancesOf") + 
+            editor.writeMessage(Config.getString("editor.highlight.found").trim() + " " +
+                    counter + " " + Config.getString("editor.replaceAll.intancesOf").trim() + " " +
                     getSearchString());
         }
         else{
             //only write msg if there was a search string
             if (counter<1 && getSearchString().length()>0) {               
-                editor.writeMessage(Config.getString("editor.replaceAll.string") + 
-                        getSearchString() + Config.getString("editor.highlight.notFound"));
+                editor.writeMessage(Config.getString("editor.replaceAll.string").trim() + " " +
+                        getSearchString()+ " " + Config.getString("editor.highlight.notFound"));
 
             }
         }

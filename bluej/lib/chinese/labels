@@ -230,7 +230,7 @@ editor.find.wrapAround=\u56de\u5377
 #Messages shown as a result of a search with replace all
 editor.replaceAll.replaced=\u66ff\u6362
 editor.replaceAll.intancesOf=\u5b9e\u4f8b
-editor.replaceAll.string=\u5b57\u7b26\u4e32 
+editor.replaceAll.string=\u5b57\u7b26\u4e32
 editor.replaceAll.notFoundNothingReplaced=\u6ca1\u6709\u53d1\u73b0\u3002\u672a\u66ff\u6362.
 
 #Messages shown when determining what function is bound to a given key

@@ -3674,14 +3674,15 @@ public final class MoeEditor extends JFrame
         removeSearchHighlights();
         sourcePane.setCaretPosition(caretPos);
 
+
         if(count > 0) {
-            writeMessage(Config.getString("editor.replaceAll.replaced") +
-                    count + Config.getString("editor.replaceAll.intancesOf") + 
+            writeMessage(Config.getString("editor.replaceAll.replaced").trim() + " " +
+                    count + " " + Config.getString("editor.replaceAll.intancesOf").trim() + " " +
                     searchString);
         }
         else {
-            writeMessage(Config.getString("editor.replaceAll.string") + 
-                    searchString + Config.getString("editor.replaceAll.notFoundNothingReplaced"));
+            writeMessage(Config.getString("editor.replaceAll.string").trim() + " " +
+                    searchString + " " + Config.getString("editor.replaceAll.notFoundNothingReplaced"));
         }
     }
 

@@ -217,13 +217,13 @@ editor.replacePanel.replaceAll=Alle
 
 #Messages shown as a result of a search with replace all
 editor.replaceAll.replaced=Ersetzen
-editor.replaceAll.intancesOf=\ Instanzen von 
-editor.replaceAll.string=String 
-editor.replaceAll.notFoundNothingReplaced=\ nicht gefunden. Nicht ersetzt.
+editor.replaceAll.intancesOf=Instanzen von
+editor.replaceAll.string=String
+editor.replaceAll.notFoundNothingReplaced=nicht gefunden. Nicht ersetzt.
 
 #Messages shown as a result of a search with highlight all
 editor.highlight.found=Gefunden
-editor.highlight.notFound=\ nicht gefunden.
+editor.highlight.notFound=nicht gefunden.
 
 #Messages shown when determining what function is bound to a given key
 editor.keypressed.keyIsNotBound=\ ist nicht an eine Funktion gebunden.

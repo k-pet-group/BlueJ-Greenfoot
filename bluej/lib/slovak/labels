@@ -262,14 +262,14 @@ editor.replacePanel.replaceOnce=Iba raz
 editor.replacePanel.replaceAll=V\u0161etko
 
 # Messages shown as a result of a search with replace all
-editor.replaceAll.replaced=Nahraden\u00fdch 
-editor.replaceAll.intancesOf=\ in\u0161tanci\u00ed 
-editor.replaceAll.string=Re\u0165azec 
-editor.replaceAll.notFoundNothingReplaced=\ nebol n\u00e1jden\u00fd. Ni\u010d nebolo nahraden\u00e9.
+editor.replaceAll.replaced=Nahraden\u00fdch
+editor.replaceAll.intancesOf=in\u0161tanci\u00ed
+editor.replaceAll.string=Re\u0165azec
+editor.replaceAll.notFoundNothingReplaced=nebol n\u00e1jden\u00fd. Ni\u010d nebolo nahraden\u00e9.
 
 # Messages shown as a result of a search with highlight all
-editor.highlight.found=N\u00e1jden\u00fdch 
-editor.highlight.notFound=\ nen\u00e1jden\u00fd.
+editor.highlight.found=N\u00e1jden\u00fdch
+editor.highlight.notFound=nen\u00e1jden\u00fd.
 
 # Message shown in code completion pane when nothing is found
 editor.completion.noMatch=\u017diadne vyhovuj\u00face doplnenie k\u00f3du

@@ -262,14 +262,14 @@ editor.replacePanel.replaceOnce=Sostituisci
 editor.replacePanel.replaceAll= Sostituisci tutti
 
 #Messages shown as a result of a search with replace all
-editor.replaceAll.replaced=Sostituisci 
-editor.replaceAll.intancesOf=\ instanza di 
+editor.replaceAll.replaced=Sostituisci
+editor.replaceAll.intancesOf=instanza di
 editor.replaceAll.string=Stringa
-editor.replaceAll.notFoundNothingReplaced=\ non trovato. Nessuna sostituzione.
+editor.replaceAll.notFoundNothingReplaced=non trovato. Nessuna sostituzione.
 
 #Messages shown as a result of a search with highlight all
-editor.highlight.found=Trovato 
-editor.highlight.notFound=\ non trovato.
+editor.highlight.found=Trovato
+editor.highlight.notFound=non trovato.
 
 #Messages shown when determining what function is bound to a given key
 editor.keypressed.keyIsNotBound=\ non legato alla funzione.
