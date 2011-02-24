@@ -139,14 +139,14 @@ public class MoePlainView extends View implements TabExpander
         }
         else if (y > aBounds.height + aBounds.y) {
             biasReturn[0] = Bias.Backward;
-            return getDocument().getLength() - 1;
+            return getDocument().getLength();
         }
         
         // Otherwise, the y-point represents a line:
         int lindex = ((int) y - aBounds.y) / metrics.getHeight();
         if (lindex >= getElement().getElementCount()) {
             biasReturn[0] = Bias.Backward;
-            return getDocument().getLength() - 1;
+            return getDocument().getLength();
         }
         else if (lindex < 0) {
             biasReturn[0] = Bias.Forward;
