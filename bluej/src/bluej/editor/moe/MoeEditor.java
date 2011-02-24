@@ -2735,7 +2735,7 @@ public final class MoeEditor extends JFrame
         int caretPos = sourcePane.getCaretPosition();
         NodeAndPosition<ParseErrorNode> nap = parseErrors.findNode(caretPos);
         if (nap != null) {
-            info.message(nap.getNode().getErrCode());
+            info.message(ParserMessageHandler.getMessageForCode(nap.getNode().getErrCode()));
         }
         else {
             clearMessage();
@@ -3615,8 +3615,9 @@ public final class MoeEditor extends JFrame
     public boolean isUpperCase(String s)
     {
         for(int i=0; i<s.length(); i++) {
-            if(! Character.isUpperCase(s.charAt(i)))
+            if(! Character.isUpperCase(s.charAt(i))) {
                 return false;
+            }
         }
         return true;
     }
@@ -3630,7 +3631,7 @@ public final class MoeEditor extends JFrame
             return false;
         }
         return Character.isUpperCase(s.charAt(0)) &&
-        Character.isLowerCase(s.charAt(1));
+                Character.isLowerCase(s.charAt(1));
     }
 
     /**
@@ -3810,6 +3811,14 @@ public final class MoeEditor extends JFrame
             );
             
             parseErrors.insertNode(new ParseErrorNode(highlightTag, message), position, size);
+            
+            // Check if the error overlaps the caret currently
+            if (! isShowingInterface()) {
+                int caretPos = sourcePane.getCaretPosition();
+                if (caretPos >= position && caretPos <= position + size) {
+                    info.message(ParserMessageHandler.getMessageForCode(message));
+                }
+            }
         }
         catch (BadLocationException ble) {
             // Really shouldn't happen.

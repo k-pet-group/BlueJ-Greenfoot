@@ -21,6 +21,9 @@
  */
 package bluej.parser;
 
+import static bluej.parser.JavaErrorCodes.*;
+import static bluej.parser.lexer.JavaTokenTypes.*;
+
 import java.io.Reader;
 import java.util.LinkedList;
 import java.util.List;
@@ -1000,8 +1003,8 @@ public class JavaParser
                 LocatableToken idToken = tokenStream.nextToken(); // identifier
                 if (idToken.getType() != JavaTokenTypes.IDENT) {
                     modifiersConsumed();
-                    error("Expected identifier (method or field name).");
                     tokenStream.pushBack(idToken);
+                    error("Expected identifier (method or field name).");
                     return;
                 }
 
@@ -1124,7 +1127,7 @@ public class JavaParser
         }
         else if (token.getType() != JavaTokenTypes.SEMI) {
             tokenStream.pushBack(token);
-            error("Expected ';' or '{' following parameter list in method declaration");
+            error(BJ00);
             endMethodDecl(token, false);
         }
         else {
@@ -1430,8 +1433,8 @@ public class JavaParser
         parseExpression();
         token = tokenStream.nextToken();
         if (token.getType() != JavaTokenTypes.SEMI) {
-            error("Expected ';' at end of previous statement");
             tokenStream.pushBack(token);
+            error("Expected ';' at end of previous statement");
             return null;
         }
         return token;
@@ -1807,9 +1810,10 @@ public class JavaParser
         mainLoop:
         while(true) {
             token = tokenStream.nextToken(); // "("
-            if (token.getType() != JavaTokenTypes.LPAREN) {
-                error("Expecting '(' after 'if'");
+            if (token.getType() != LPAREN) {
                 tokenStream.pushBack(token);
+                String errCode = token.getType() == LCURLY ? BJ02 : BJ01;
+                error(errCode);
                 endIfStmt(token, false);
                 return null;
             }
@@ -2784,8 +2788,8 @@ public class JavaParser
                 token = tokenStream.nextToken();
                 continue exprLoop;
             default:
-                error("Invalid expression token: " + token.getText());
                 tokenStream.pushBack(token);
+                error("Invalid expression token: " + token.getText());
                 endExpression(token);
                 return;
             }
@@ -2915,7 +2919,6 @@ public class JavaParser
                         break opLoop;
                     }
                     else {
-                        error("Expected operator, got '" + token.getText() + "'");
                         tokenStream.pushBack(token);
                         endExpression(token);
                         return;
@@ -2949,8 +2952,8 @@ public class JavaParser
         gotExprNew(token);
         token = tokenStream.nextToken();
         if (token.getType() != JavaTokenTypes.IDENT && !isPrimitiveType(token)) {
-            error("Expected type identifier after \"new\" (in expression)");
             tokenStream.pushBack(token);
+            error("Expected type identifier after \"new\" (in expression)");
             endExprNew(token, false);
             return;
         }
@@ -2968,8 +2971,8 @@ public class JavaParser
                 }
                 token = tokenStream.nextToken();
                 if (token.getType() != JavaTokenTypes.RBRACK) {
-                    error("Expecting ']' after array dimension (in new ... expression)");
                     tokenStream.pushBack(token);
+                    error("Expecting ']' after array dimension (in new ... expression)");
                     endExprNew(token, false);
                 }
                 else {
@@ -2994,8 +2997,8 @@ public class JavaParser
         }
 
         if (token.getType() != JavaTokenTypes.LPAREN) {
-            error("Expected '(' or '[' after type name (in 'new ...' expression)");
             tokenStream.pushBack(token);
+            error("Expected '(' or '[' after type name (in 'new ...' expression)");
             endExprNew(token, false);
             return;
         }
