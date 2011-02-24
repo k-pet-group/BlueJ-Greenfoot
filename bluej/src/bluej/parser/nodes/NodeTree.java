@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -72,7 +72,7 @@ public class NodeTree<T extends RBTreeNode>
     }
 
     public NodeAndPosition<T> findNode(int pos, int startpos)
-    {		
+    {
         if (pnode == null) {
             return null; // empty node tree
         }
@@ -139,13 +139,20 @@ public class NodeTree<T extends RBTreeNode>
         return rval;
     }
 
+    /**
+     * Find a node ending at or after the given position.
+     * 
+     * @param pos       The position to start the search from
+     */
     public NodeAndPosition<T> findNodeAtOrAfter(int pos)
     {
         return findNodeAtOrAfter(pos, 0);
     }
 
     /**
-     * Find a node at or after the given position.
+     * Find a node ending at or after the given position, accounting for this node representing
+     * a specified start position
+     * .
      * @param pos       The position to start the search from
      * @param startpos  The offset to assume the tree represents
      */
@@ -242,6 +249,9 @@ public class NodeTree<T extends RBTreeNode>
         return pnodeSize;
     }
 
+    /**
+     * Insert a node into the tree, without affecting the position of other nodes.
+     */
     public void insertNode(T newNode, int pos, int size)
     {
         if (pnode == null) {
@@ -548,7 +558,7 @@ public class NodeTree<T extends RBTreeNode>
             rotateLeft(grandparent);
         }
     }
-	
+    
     /**
      * Swap the data of two nodes. This doesn't correctly adjust the
      * pnode offset in either node.
@@ -614,7 +624,7 @@ public class NodeTree<T extends RBTreeNode>
             oldLeft.parent = n.left;
         }
     }
-	
+    
     private static <T extends RBTreeNode> void rotateRight(NodeTree<T> n)
     {
         // Left child of n becomes n's parent
@@ -651,7 +661,7 @@ public class NodeTree<T extends RBTreeNode>
         
         n.right.pnodeOffset -= (n.pnodeOffset + n.pnodeSize);
     }
-	
+    
     private NodeTree<T> getGrandparent()
     {
         if (parent != null) {

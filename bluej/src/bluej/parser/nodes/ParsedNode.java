@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 2010,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -69,12 +69,12 @@ public abstract class ParsedNode extends RBTreeNode
     protected boolean complete;
     
     private boolean isInner = false;
-	
+    
     public ParsedNode()
     {
         nodeTree = new NodeTree<ParsedNode>();
     }
-	
+    
     ParsedNode(ParsedNode parentNode)
     {
         this();
@@ -152,6 +152,9 @@ public abstract class ParsedNode extends RBTreeNode
      */
     protected abstract boolean marksOwnEnd();
     
+    /**
+     * Insert a new child node (without affecting position of other children).
+     */
     public void insertNode(ParsedNode child, int position, int size)
     {
         getNodeTree().insertNode(child, position, size);
