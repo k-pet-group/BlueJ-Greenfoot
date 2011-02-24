@@ -30,10 +30,14 @@ import bluej.utility.BlueJFileReader;
  * Wrapper for functionality around translating parser error codes to human-readable
  * error messages.
  * 
- * @author davmac
+ * @author Davin McCall
  */
 public class ParserMessageHandler
 {
+    /**
+     * Translate an error code or message from the parser into a human-readable error message
+     * in the appropriate language.
+     */
     public static String getMessageForCode(String code)
     {
         if (code.startsWith("BJ")) {
