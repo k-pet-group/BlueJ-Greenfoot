@@ -608,7 +608,7 @@ public final class MoeEditor extends JFrame
             );
         }
         catch (BadLocationException ble) {
-            ble.printStackTrace();
+            throw new RuntimeException(ble);
         }
         
         sourcePane.setCaretPosition(pos);

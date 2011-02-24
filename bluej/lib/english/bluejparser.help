@@ -1,0 +1,10 @@
+BJ00
+Method declaration should be followed by method body (or "throws", or ";")
+
+BJ01
+"(" expected; "if"/"while"/"switch" must be followed by "(" -
+did you forget to put "(" / ")" around the condition?  
+
+BJ02
+"(" expected; You must have a "(" / ")" pair around the condition
+(and "{" / "}" around the loop body).

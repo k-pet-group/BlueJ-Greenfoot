@@ -72,13 +72,28 @@ public class JavaParser
     }
 
     /**
-     * An error occurred during parsing. Override this method to control error behaviour.
-     * @param msg A message describing the error
+     * Signal a parse error, occurring because the next token in the token stream is
+     * not valid in the current context.
+     * 
+     * @param msg A message/code describing the error
      */
     private void error(String msg)
     {
         LocatableToken next = tokenStream.LA(1);
-        error(msg, next.getLine(), next.getColumn(), next.getEndLine(), next.getEndColumn());
+        error(msg, next.getLine(), next.getColumn(), next.getLine(), next.getColumn());
+    }
+    
+    /**
+     * Signal a parser error, occurring because the next token in the token stream is
+     * not valid in the current context, but for which a useful error diagnosis can be
+     * provided. The entire token will be highlighted as erroneous.
+     * 
+     * @param msg    A message/code describing the error
+     * @paran token  The invalid token
+     */
+    private void error(String msg, LocatableToken token)
+    {
+        error(msg, token.getLine(), token.getColumn(), token.getEndLine(), token.getEndColumn());
     }
     
     /**
@@ -1812,8 +1827,12 @@ public class JavaParser
             token = tokenStream.nextToken(); // "("
             if (token.getType() != LPAREN) {
                 tokenStream.pushBack(token);
-                String errCode = token.getType() == LCURLY ? BJ02 : BJ01;
-                error(errCode);
+                if (token.getType() == LCURLY) {
+                    error(BJ02, token);
+                }
+                else {
+                    error(BJ01);
+                }
                 endIfStmt(token, false);
                 return null;
             }
