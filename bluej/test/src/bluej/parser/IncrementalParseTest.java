@@ -816,4 +816,19 @@ public class IncrementalParseTest extends TestCase
         assertEquals(18, nap.getSize());        
     }
 
+    public void testImportStmt2() throws Exception
+    {
+        MoeSyntaxDocument aDoc = docForSource("import somepkg.* abc/* a comment */;", "");
+
+        ParsedCUNode aNode = aDoc.getParser();
+        
+        // Remove the 'abc'
+        aDoc.remove(17, 3);
+        
+        // Import node should exist now and extend to the ';'
+        aNode = aDoc.getParser();
+        NodeAndPosition<ParsedNode> nap = aNode.findNodeAt(0, 0);
+        assertNotNull(nap);
+        assertEquals(33, nap.getSize());        
+    }
 }
