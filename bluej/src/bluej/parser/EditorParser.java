@@ -48,6 +48,7 @@ import bluej.parser.nodes.CommentNode;
 import bluej.parser.nodes.ContainerNode;
 import bluej.parser.nodes.ExpressionNode;
 import bluej.parser.nodes.FieldNode;
+import bluej.parser.nodes.ImportNode;
 import bluej.parser.nodes.InnerNode;
 import bluej.parser.nodes.JavaParentNode;
 import bluej.parser.nodes.MethodBodyNode;
@@ -833,7 +834,7 @@ public class EditorParser extends JavaParser
         int startpos = lineColToPosition(s.getLine(), s.getColumn());
         int endpos = lineColToPosition(s.getEndLine(), s.getEndColumn());
         
-        ParentParsedNode cn = new InnerNode(pcuNode);
+        ParentParsedNode cn = new ImportNode(pcuNode);
         cn.setComplete(true);
         beginNode(startpos);
         pcuNode.insertNode(cn, startpos, endpos - startpos);
