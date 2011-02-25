@@ -148,14 +148,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
         NodeAndPosition<ParsedNode> nextNap = null;
         if (nap != null) {
             nextNap = nap.nextSibling();
-            if (nap.getEnd() > offset) {
-                // The reparse position straddles the child node. Remove the child.
-                removeChild(nap, listener);
-                offset = nap.getPosition(); // re-parse from where the removed child was
-            }
-            else {
-                offset = nap.getEnd();
-            }
+            offset = nap.getEnd();
         }
         else {
             offset = stateBoundary; // reparse from previous state marker
