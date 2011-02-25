@@ -42,7 +42,7 @@ import bluej.parser.nodes.NodeTree.NodeAndPosition;
  * 
  * @author Davin McCall
  */
-public abstract class ParsedNode extends RBTreeNode
+public abstract class ParsedNode extends RBTreeNode<ParsedNode>
 {
     public static final int NODETYPE_NONE = 0;
     public static final int NODETYPE_TYPEDEF = 1;

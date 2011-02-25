@@ -29,7 +29,7 @@ import java.util.Iterator;
  *
  * @author davmac
  */
-public class NodeTree<T extends RBTreeNode>
+public class NodeTree<T extends RBTreeNode<T>>
 {
     // The following two instance variables specify the position of the contained ParsedNode,
     // relative to the position that this NodeTree represents.
@@ -102,11 +102,18 @@ public class NodeTree<T extends RBTreeNode>
         return null;
     }
 
+    /**
+     * Find the (rightmost) node which occurs at or before the given position.
+     */
     public NodeAndPosition<T> findNodeAtOrBefore(int pos)
     {
         return findNodeAtOrBefore(pos, 0);
     }
 
+    /**
+     * Find the (rightmost) node at or before the given position (when this node's own position
+     * is given by {@code startpos}).
+     */
     public NodeAndPosition<T> findNodeAtOrBefore(int pos, int startpos)
     {
         if (pnode == null) {
@@ -122,7 +129,9 @@ public class NodeTree<T extends RBTreeNode>
             }
         }
 
-        if (startpos + pnodeSize + pnodeOffset >= pos) {
+        if (startpos + pnodeSize + pnodeOffset > pos) {
+            // This node straddles the requested position, so there can't be any other node to our
+            // right which is still at-or-before the position.
             return new NodeAndPosition<T>(pnode, startpos + pnodeOffset, pnodeSize);
         }
 
@@ -347,7 +356,7 @@ public class NodeTree<T extends RBTreeNode>
      * The "dest" node (and any of its subtrees, except "with") will then no longer be part
      * of the tree.
      */
-    private static <T extends RBTreeNode> void replace_node(NodeTree<T> dest, NodeTree<T> with)
+    private static <T extends RBTreeNode<T>> void replace_node(NodeTree<T> dest, NodeTree<T> with)
     {
         if (dest.parent != null) {
             if (dest.parent.left == dest) {
@@ -512,7 +521,7 @@ public class NodeTree<T extends RBTreeNode>
     /**
      * This node has been inserted into the tree. Fix up the tree to maintain balance.
      */
-    private static <T extends RBTreeNode> void fixupNewNode(NodeTree<T> n)
+    private static <T extends RBTreeNode<T>> void fixupNewNode(NodeTree<T> n)
     {
         if (n.parent == null) {
             n.black = true;
@@ -566,7 +575,7 @@ public class NodeTree<T extends RBTreeNode>
      * @param n  The first node
      * @param m  The second node
      */
-    private static <T extends RBTreeNode> void swapNodeData(NodeTree<T> n, NodeTree<T> m)
+    private static <T extends RBTreeNode<T>> void swapNodeData(NodeTree<T> n, NodeTree<T> m)
     {
         T pn = n.pnode;
         int offset = n.pnodeOffset;
@@ -589,7 +598,7 @@ public class NodeTree<T extends RBTreeNode>
         }
     }
 
-    private static <T extends RBTreeNode> void rotateLeft(NodeTree<T> n)
+    private static <T extends RBTreeNode<T>> void rotateLeft(NodeTree<T> n)
     {
         // Right child of n becomes n's parent
         // We swap the data to avoid actually moving node n.
@@ -625,7 +634,7 @@ public class NodeTree<T extends RBTreeNode>
         }
     }
     
-    private static <T extends RBTreeNode> void rotateRight(NodeTree<T> n)
+    private static <T extends RBTreeNode<T>> void rotateRight(NodeTree<T> n)
     {
         // Left child of n becomes n's parent
         // We swap the data to avoid actually moving node n.
@@ -700,7 +709,7 @@ public class NodeTree<T extends RBTreeNode>
     /**
      * A class to represent a [node, position] tuple.
      */
-    public static class NodeAndPosition<T extends RBTreeNode>
+    public static class NodeAndPosition<T extends RBTreeNode<T>>
     {
         private T parsedNode;
         private int position;
@@ -750,6 +759,33 @@ public class NodeTree<T extends RBTreeNode>
                 return next;
             }
             return null;
+        }
+        
+        public NodeAndPosition<T> prevSibling()
+        {
+            NodeTree<T> nt = parsedNode.getContainingNodeTree();
+            if (nt.left != null) {
+                // go left and then as far right as possible
+                int offs = position - nt.pnodeOffset;
+                nt = nt.left;
+                while (nt.right != null) {
+                    offs += nt.pnodeOffset + nt.pnodeSize;
+                    nt = nt.right;
+                }
+                return new NodeAndPosition<T>(nt.pnode, offs + nt.pnodeOffset, nt.pnodeSize);
+            }
+            
+            // Otherwise go up until we have gone up to the left
+            while (nt.parent != null) {
+                int offs = position - nt.pnodeOffset;
+                if (nt.parent.right == nt) {
+                    nt = nt.parent;
+                    return new NodeAndPosition<T>(nt.pnode, offs - nt.pnodeSize, nt.pnodeSize);
+                }
+                nt = nt.parent;
+            }
+            
+            return null; // no prior node
         }
         
         /**
@@ -805,7 +841,7 @@ public class NodeTree<T extends RBTreeNode>
     /**
      * An iterator through a node tree.
      */
-    private static class NodeTreeIterator<T extends RBTreeNode> implements Iterator<NodeAndPosition<T>>
+    private static class NodeTreeIterator<T extends RBTreeNode<T>> implements Iterator<NodeAndPosition<T>>
     {
         //Stack<NodeTree> stack;
         int pos = 0; // 0 - left, 1 = middle, 2 = right

@@ -681,30 +681,41 @@ public abstract class IncrementalParsingNode extends JavaParentNode
     protected int handleDeletion(Document document, int nodePos, int dpos,
             NodeStructureListener listener)
     {
-        // Need to check that we haven't collapsed two nodes together
-        NodeAndPosition<ParsedNode> next = null;
-        NodeAndPosition<ParsedNode> nnext = findNodeAt(dpos, nodePos);;
-        while (nnext != null && nnext.getEnd() == dpos) {
-            next = nnext;
-            nnext = nnext.nextSibling();
-        }
+        int offset = dpos;
+        int state = getCurrentState(offset - nodePos);
         
-        if (next != null && nnext != null && nnext.getPosition() == dpos) {
-            if (next.getEnd() == dpos) {
-                if (! isDelimitingNode(next)) {
-                    removeChild(next, listener);
-                    ((MoeSyntaxDocument) document).scheduleReparse(next.getPosition(),
-                            next.getSize());
+        // Find the nearest container node or state boundary prior to the reparse point.
+        int stateBoundary = (state != 0) ? stateMarkers[state - 1] + nodePos : nodePos;
+        NodeAndPosition<ParsedNode> nap = null;
+        
+        if (offset > stateBoundary) {
+            //nap = getNodeTree().findNodeAtOrBefore(offset - 1, nodePos);
+            nap = getNodeTree().findNodeAtOrBefore(offset, nodePos);
+            while (nap != null && nap.getSize() == 0) {
+                // Remove 0-size nodes at the delete position
+                NodeAndPosition<ParsedNode> pnap = nap.prevSibling();
+                removeChild(nap, listener);
+                nap = pnap;
+            }
+            
+            while (nap != null && !isDelimitingNode(nap)) {
+                if (nap.getPosition() >= stateBoundary) {
+                    NodeAndPosition<ParsedNode> pnap = nap.prevSibling();
+                    if (pnap != null && isDelimitingNode(pnap) && pnap.getEnd() == dpos && nap.getPosition() == dpos) {
+                        // Special case: two nodes have been collapsed together
+                        removeChild(nap, listener);
+                        return super.handleDeletion(document, nodePos, dpos, listener);
+                    }
+                    nap = pnap;
                 }
-                else if (! isDelimitingNode(nnext)) {
-                    removeChild(nnext, listener);
-                    ((MoeSyntaxDocument) document).scheduleReparse(nnext.getPosition(),
-                            nnext.getSize());
+                else {
+                    nap = null;
                 }
             }
         }
         
-        return super.handleDeletion(document, nodePos, dpos, listener);
+        int adjustedPos = (nap != null) ? nap.getEnd() : stateBoundary;
+        return super.handleDeletion(document, nodePos, adjustedPos, listener);
     }
     
     @Override

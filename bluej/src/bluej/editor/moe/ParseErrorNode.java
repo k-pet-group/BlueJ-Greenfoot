@@ -28,7 +28,7 @@ import bluej.parser.nodes.RBTreeNode;
  * 
  * @author Davin McCall
  */
-public class ParseErrorNode extends RBTreeNode
+public class ParseErrorNode extends RBTreeNode<ParseErrorNode>
 {
     private Object highlightTag;
     private String errCode;
