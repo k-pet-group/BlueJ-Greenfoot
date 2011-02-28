@@ -80,6 +80,9 @@ public class JavaParser
     private void error(String msg)
     {
         LocatableToken next = tokenStream.LA(1);
+        if (next.getHiddenBefore() != null) {
+            next = next.getHiddenBefore();
+        }
         error(msg, next.getLine(), next.getColumn(), next.getLine(), next.getColumn());
     }
     
@@ -163,7 +166,8 @@ public class JavaParser
     protected void reachedCUstate(int i) { }
 
     /** We've seen the semicolon at the end of an "import" statement */
-    protected void gotImportStmtSemi(LocatableToken token) {
+    protected void gotImportStmtSemi(LocatableToken token)
+    {
         endElement(token, true);
     }
 
@@ -527,7 +531,7 @@ public class JavaParser
         }
         else {
             // TODO give different diagnostic depending on state
-            error("Expected: Type definition (class, interface or enum)");
+            error("Expected: Type definition (class, interface or enum)", token);
         }
         return state;
     }
@@ -581,6 +585,13 @@ public class JavaParser
             isStatic = true;
             token = tokenStream.nextToken();
         }
+        if (token.getType() != JavaTokenTypes.IDENT) {
+            tokenStream.pushBack(token);
+            error("Expecting identifier (package containing element to be imported)");
+            endElement(token, false);
+            return;
+        }
+        
         List<LocatableToken> tokens = parseDottedIdent(token);
         if (tokenStream.LA(1).getType() == JavaTokenTypes.DOT) {
             tokenStream.nextToken();
@@ -591,8 +602,8 @@ public class JavaParser
             else if (token.getType() == JavaTokenTypes.STAR) {
                 token = tokenStream.nextToken();
                 if (token.getType() != JavaTokenTypes.SEMI) {
-                    error("Expected ';' following import statement");
                     tokenStream.pushBack(token);
+                    error("Expected ';' following import statement");
                 }
                 else {
                     gotWildcardImport(tokens, isStatic);
@@ -609,8 +620,8 @@ public class JavaParser
         else {
             token = tokenStream.nextToken();
             if (token.getType() != JavaTokenTypes.SEMI) {
-                error("Expected ';' following import statement");
                 tokenStream.pushBack(token);
+                error("Expected ';' following import statement");
             }
             else {
                 gotImport(tokens, isStatic);
