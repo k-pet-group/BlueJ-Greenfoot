@@ -864,4 +864,34 @@ public class IncrementalParseTest extends TestCase
         assertEquals(0, nap.getPosition());
         assertEquals(72, nap.getSize());
     }
+    
+    public void testRegression331p2() throws Exception
+    {
+        // Note the comment is significant in this.
+        String aSrc = "/* comment */ class A extends javax.swing.JFrame {\n" +
+            "  public void someFunc() {\n" +
+            "  \n" +  
+            "  }\n" +
+            "}\n";
+
+        MoeSyntaxDocument aDoc = docForSource(aSrc, "");
+        ParsedCUNode aNode = aDoc.getParser();
+        NodeAndPosition<ParsedNode> nap = aNode.findNodeAt(0, 0);
+
+        assertNotNull(nap);
+        assertEquals(0, nap.getPosition());
+        assertEquals(86, nap.getSize());
+        
+        aDoc.insertString(48, ".", null);  // insert "." after "JFrame" - cause error
+        aNode = aDoc.getParser();
+        
+        aDoc.remove(48, 1);  // remove it again
+        aNode = aDoc.getParser();
+        
+        nap = aNode.findNodeAt(0, 0);
+        assertNotNull(nap);
+        assertEquals(0, nap.getPosition());
+        assertEquals(86, nap.getSize());
+    }
+
 }
