@@ -475,7 +475,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
             //only write msg if there was a search string
             if (counter<1 && getSearchString().length()>0) {               
                 editor.writeMessage(Config.getString("editor.replaceAll.string").trim() + " " +
-                        getSearchString()+ " " + Config.getString("editor.highlight.notFound"));
+                        getSearchString()+ " " + Config.getString("editor.highlight.notFound").trim());
 
             }
         }

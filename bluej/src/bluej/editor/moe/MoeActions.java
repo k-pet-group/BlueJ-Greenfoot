@@ -1029,7 +1029,7 @@ public final class MoeActions
         }
 
         public void actionPerformed(ActionEvent e)
-        {        	
+        {           
             JTextComponent textPane = getTextComponent(e);
             Font textPFont= textPane.getFont();           
             int newFont=textPFont.getSize()+1;
@@ -1607,11 +1607,11 @@ public final class MoeActions
     //     class Action extends MoeAbstractAction {
     //
     //       public Action() {
-    //  	 super("");
+    //       super("");
     //       }
     //
     //       public void actionPerformed(ActionEvent e) {
-    // 	  DialogManager.NYI(editor);
+    //       DialogManager.NYI(editor);
     //       }
     //     }
 
@@ -1765,7 +1765,7 @@ public final class MoeActions
             doc.remove(lineStart, indentPos);
             String newIndent = nextIndent(indent, isOpenBrace, isCommentEndOnly);
             if (firstChar == '*')
-            	newIndent = newIndent.replace('*', ' ');
+                newIndent = newIndent.replace('*', ' ');
             doc.insertString(lineStart, newIndent, null);
             if(firstChar == '}')
                 removeTab(textPane, doc);
@@ -1838,35 +1838,35 @@ public final class MoeActions
         s = s.trim();
         if (s.endsWith("/**") || s.endsWith("/*"))
         {
-        	// The user has just pressed enter after the beginning of a comment
-        	// We must now decide if their comment was already fine
-        	// (and thus we shouldn't add the ending), or if they had, in fact,
-        	// begun a new comment (and do need the ending)
-        	
-        	// Find the comment node that corresponds to our position:
-        	NodeAndPosition<ParsedNode> curNode = doc.getParser().findNodeAt(lineStart, 0);
-        	while (curNode != null && !(curNode.getNode() instanceof CommentNode))
-        	{
-        		curNode = curNode.getNode().findNodeAt(lineStart, curNode.getPosition());
-        	}
-        	
-        	if (curNode == null)
-        		//Can't work it out; it's probably a new comment that is unterminated:
-        		return true;
-        	
-        	String comment = getNodeContents(doc, curNode);
-        	
-        	// If the comment has a comment begin inside it (after the first two characters)
-        	// it is likely a new comment that has over-run and matched an ending further
-        	// down.  If it has no comment begin inside it, it's probably a pre-existing
-        	// valid comment.
-        	comment = comment.substring(2);
-        	boolean commentHasBeginning = comment.contains("/*");
-        	
-        	return commentHasBeginning;
+            // The user has just pressed enter after the beginning of a comment
+            // We must now decide if their comment was already fine
+            // (and thus we shouldn't add the ending), or if they had, in fact,
+            // begun a new comment (and do need the ending)
+            
+            // Find the comment node that corresponds to our position:
+            NodeAndPosition<ParsedNode> curNode = doc.getParser().findNodeAt(lineStart, 0);
+            while (curNode != null && !(curNode.getNode() instanceof CommentNode))
+            {
+                curNode = curNode.getNode().findNodeAt(lineStart, curNode.getPosition());
+            }
+            
+            if (curNode == null)
+                //Can't work it out; it's probably a new comment that is unterminated:
+                return true;
+            
+            String comment = getNodeContents(doc, curNode);
+            
+            // If the comment has a comment begin inside it (after the first two characters)
+            // it is likely a new comment that has over-run and matched an ending further
+            // down.  If it has no comment begin inside it, it's probably a pre-existing
+            // valid comment.
+            comment = comment.substring(2);
+            boolean commentHasBeginning = comment.contains("/*");
+            
+            return commentHasBeginning;
         }
         else
-        	return false;
+            return false;
     }
 
     /**
@@ -2530,11 +2530,10 @@ public final class MoeActions
                 // through the keymap. we search for them explicitly here...
                 Object binding = componentInputMap.get(key);
                 if (binding == null){
-                    //editor.writeMessage(keyName + " is not bound to a function.");
-                    editor.writeMessage(keyName + Config.getString("editor.keypressed.keyIsNotBound"));
+                    editor.writeMessage(keyName + " " + Config.getString("editor.keypressed.keyIsNotBound").trim());
                 }
                 else {
-                    editor.writeMessage(keyName + Config.getString("editor.keypressed.callsTheFunction") + binding + "\"");
+                    editor.writeMessage(keyName + " " +Config.getString("editor.keypressed.callsTheFunction").trim() + binding + "\"");
                 }
             }
             else {
