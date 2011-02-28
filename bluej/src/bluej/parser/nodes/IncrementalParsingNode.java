@@ -609,8 +609,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
                     // The text was removed right at the end of a state;
                     // reparse a bit before to prevent reparsing the wrong
                     // state:
-                    int spos = (i == 0) ? 0 : stateMarkers[i-1];
-                    spos = Math.max(0, spos); // in case the stateMarker was the invalid -1 value
+                    int spos = (i == 0) ? 0 : Math.max(stateMarkers[i-1], 0);
                     NodeAndPosition<ParsedNode> nap = getNodeTree().findNodeAtOrBefore(stateMarkers[i] - 1 + nodePos, nodePos);
                     if (nap != null && isDelimitingNode(nap)) {
                         // Note in some cases the node will overlap the statemarker, as the node
@@ -689,7 +688,6 @@ public abstract class IncrementalParsingNode extends JavaParentNode
         NodeAndPosition<ParsedNode> nap = null;
         
         if (offset > stateBoundary) {
-            //nap = getNodeTree().findNodeAtOrBefore(offset - 1, nodePos);
             nap = getNodeTree().findNodeAtOrBefore(offset, nodePos);
             while (nap != null && nap.getSize() == 0) {
                 // Remove 0-size nodes at the delete position
@@ -699,6 +697,12 @@ public abstract class IncrementalParsingNode extends JavaParentNode
             }
             
             while (nap != null && !isDelimitingNode(nap)) {
+                boolean isLeadingComment = nap != null && nap.getNode().getNodeType() == ParsedNode.NODETYPE_COMMENT
+                        && nap.getPosition() == stateBoundary;
+                if (isLeadingComment) {
+                    break;
+                }
+                
                 if (nap.getPosition() >= stateBoundary) {
                     NodeAndPosition<ParsedNode> pnap = nap.prevSibling();
                     if (pnap != null && isDelimitingNode(pnap) && pnap.getEnd() == dpos && nap.getPosition() == dpos) {
