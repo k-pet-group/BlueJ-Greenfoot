@@ -762,6 +762,13 @@ public class JavaParser
                 token = tokenStream.nextToken();
             }
             while (token.getType() == JavaTokenTypes.COMMA);
+            
+            if (token.getType() == JavaTokenTypes.DOT) {
+                // Incomplete type spec
+                error("Incomplete type specificiation", token);
+                // Don't push the token back on the token stream - it really is part of the type
+                return null;
+            }
         }
 
         // implements...
@@ -772,6 +779,13 @@ public class JavaParser
                 token = tokenStream.nextToken();
             }
             while (token.getType() == JavaTokenTypes.COMMA);
+
+            if (token.getType() == JavaTokenTypes.DOT) {
+                // Incomplete type spec
+                error("Incomplete type specificiation", token);
+                // Don't push the token back on the token stream - it really is part of the type
+                return null;
+            }
         }
         
         if (token.getType() == JavaTokenTypes.LCURLY) {
