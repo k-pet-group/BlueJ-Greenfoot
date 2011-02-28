@@ -831,4 +831,31 @@ public class IncrementalParseTest extends TestCase
         assertNotNull(nap);
         assertEquals(33, nap.getSize());        
     }
+    
+    public void testRegression331() throws Exception
+    {
+        String aSrc = "class A {\n" +         // 0 - 10
+            "  public void someFunc() {\n" +  // 10 - 37
+            "  \n" +                          // 37 - 40  
+            "  }\n" +                         // 40 - 44
+            "}\n";                            // 44 - 46
+
+        MoeSyntaxDocument aDoc = docForSource(aSrc, "");
+        ParsedCUNode aNode = aDoc.getParser();
+        NodeAndPosition<ParsedNode> nap = aNode.findNodeAt(0, 0);
+
+        assertNotNull(nap);
+        assertEquals(0, nap.getPosition());
+        assertEquals(45, nap.getSize());
+        
+        // Now insert " extends javax.swing.JFrame"
+        aDoc.insertString(7, "extends javax.swing.JFrame", null);
+        
+        aNode = aDoc.getParser();
+        nap = aNode.findNodeAt(0, 0);
+        
+        assertNotNull(nap);
+        assertEquals(0, nap.getPosition());
+        assertEquals(52, nap.getSize());
+    }
 }
