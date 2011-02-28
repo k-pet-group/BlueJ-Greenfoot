@@ -849,13 +849,19 @@ public class IncrementalParseTest extends TestCase
         assertEquals(45, nap.getSize());
         
         // Now insert " extends javax.swing.JFrame"
-        aDoc.insertString(7, "extends javax.swing.JFrame", null);
+        aDoc.insertString(7, " extends javax", null);
+        aNode = aDoc.getParser();
+        
+        aDoc.insertString(21, ".", null);
+        aNode = aDoc.getParser();
+        
+        aDoc.insertString(22, "swing.JFrame", null);
         
         aNode = aDoc.getParser();
         nap = aNode.findNodeAt(0, 0);
         
         assertNotNull(nap);
         assertEquals(0, nap.getPosition());
-        assertEquals(52, nap.getSize());
+        assertEquals(72, nap.getSize());
     }
 }
