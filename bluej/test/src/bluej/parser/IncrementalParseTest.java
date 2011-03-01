@@ -893,5 +893,55 @@ public class IncrementalParseTest extends TestCase
         assertEquals(0, nap.getPosition());
         assertEquals(86, nap.getSize());
     }
+    
+    public void testNewStmt() throws Exception
+    {
+        String aSrc = "class A {\n" +         // 0 - 10 
+            "  public void someFunc() {\n" +  // 10 - 37 
+            "    A a = new \\A();\n" +        // 37 - 57
+            "  }\n" +                         // 57 - 61 
+            "}\n";                            // 61 - 63 
 
+        MoeSyntaxDocument aDoc = docForSource(aSrc, "");
+        ParsedCUNode aNode = aDoc.getParser();
+        
+        aDoc.remove(50, 1); // remove the '\' before 'A()'
+        
+        aNode = aDoc.getParser();
+        NodeAndPosition<ParsedNode> nap = aNode.findNodeAt(0, 0);
+
+        assertNotNull(nap);
+        assertEquals(0, nap.getPosition());
+        assertEquals(61, nap.getSize());
+        
+        // type inner node
+        nap = nap.getNode().findNodeAt(12, nap.getPosition());
+        assertNotNull(nap);
+        assertEquals(9, nap.getPosition());
+        assertEquals(51, nap.getSize());
+        
+        // method node
+        nap = nap.getNode().findNodeAt(12, nap.getPosition());
+        assertNotNull(nap);
+        assertEquals(12, nap.getPosition());
+        assertEquals(47, nap.getSize());
+        
+        // method inner
+        nap = nap.getNode().findNodeAt(36, nap.getPosition());
+        assertNotNull(nap);
+        assertEquals(36, nap.getPosition());
+        assertEquals(22, nap.getSize());
+        
+        // field declaration node:
+        nap = nap.getNode().findNodeAt(41, nap.getPosition());
+        assertNotNull(nap);
+        assertEquals(41, nap.getPosition());
+        assertEquals(14, nap.getSize());
+        
+        // expression node:
+        nap = nap.getNode().findNodeAt(47, nap.getPosition());
+        assertNotNull(nap);
+        assertEquals(47, nap.getPosition());
+        assertEquals(7, nap.getSize());
+    }
 }
