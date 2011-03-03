@@ -239,7 +239,7 @@ public class MoePlainView extends View implements TabExpander
         // the end of the line, we adjust it so that it's back on the previous line. That prevents the selection
         // highlight from painting as a block, while still allowing zero-width highlights at the end of the line
         // to display.
-        if (b1 == Bias.Backward && p1 > p0 && getDocument().getText(p1 - 1, 1).charAt(0) == '\n') {
+        if (p0 != p1 && b1 == Bias.Backward && p1 > p0 && getDocument().getText(p1 - 1, 1).charAt(0) == '\n') {
             p1--;
         }
         

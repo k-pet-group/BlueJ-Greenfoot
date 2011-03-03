@@ -3794,6 +3794,8 @@ public final class MoeEditor extends JFrame
     public void parseError(int position, int size, String message)
     {
         try {
+            size = Math.max(1, size); // make size at least 1
+            
             // Don't add this error if it overlaps an existing error:
             NodeAndPosition<ParseErrorNode> nap = parseErrors.findNodeAtOrAfter(position);
             while (nap != null && nap.getEnd() == position && nap.getPosition() != position) {
@@ -3810,6 +3812,12 @@ public final class MoeEditor extends JFrame
                 new MoeBorderHighlighterPainter(Color.RED, Color.RED, Color.PINK,
                         Color.RED, Color.PINK)
             );
+            
+            // DAV
+            System.out.println("Parse error at: " + position + "+" + size);
+            int li = sourceDocument.getDefaultRootElement().getElementIndex(position);
+            int ci = position - sourceDocument.getDefaultRootElement().getElement(li).getStartOffset();
+            System.out.println("  line: " + (li + 1) + " column: " + (ci + 1));
             
             parseErrors.insertNode(new ParseErrorNode(highlightTag, message), position, size);
             
@@ -3829,6 +3837,9 @@ public final class MoeEditor extends JFrame
     @Override
     public void reparsingRange(int position, int size)
     {
+        // DAV
+        System.out.println("reparsingRange: " + position + "+" + size);
+        
         // Remove any parse error highlights in the reparsed range
         int endPos = position + size;
         
