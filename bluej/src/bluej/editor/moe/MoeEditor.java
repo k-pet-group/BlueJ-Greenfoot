@@ -107,8 +107,6 @@ import bluej.parser.ParseUtils;
 import bluej.parser.SourceLocation;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.lexer.LocatableToken;
-import bluej.parser.nodes.NodeTree;
-import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.parser.nodes.ParsedCUNode;
 import bluej.pkgmgr.JavadocResolver;
 import bluej.pkgmgr.PkgMgrFrame;
@@ -134,8 +132,7 @@ import bluej.utility.Utility;
  */
 
 public final class MoeEditor extends JFrame
-    implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentListener, MouseListener,
-        MoeDocumentListener
+    implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentListener, MouseListener
 {
     // -------- CONSTANTS --------
 
@@ -259,9 +256,8 @@ public final class MoeEditor extends JFrame
     private List<Object> sourceSearchHighlightTags = new ArrayList<Object>();
     private List<Object> htmlSearchHighlightTags = new ArrayList<Object>();
     
-    private Object errorHighlightTag = null;
-    
-    private NodeTree<ParseErrorNode> parseErrors = new NodeTree<ParseErrorNode>();
+    /** Manages display of compiler and parse errors */
+    private MoeErrorManager errorManager = new MoeErrorManager(this);
     
     /**
      * Property map, allows BlueJ extensions to associate property values with
@@ -597,19 +593,10 @@ public final class MoeEditor extends JFrame
             endPos = getPosFromColumn(line, (int) diagnostic.getEndColumn());
         }
         
-        // highlight the line
+        // highlight the error and the line on which it occurs
 
-        removeErrorHighlight();
-        try {
-            errorHighlightTag = sourcePane.getHighlighter().addHighlight(
-                    startPos, endPos,
-                    new MoeBorderHighlighterPainter(Color.RED, Color.RED, Color.PINK,
-                            Color.RED, Color.PINK)
-            );
-        }
-        catch (BadLocationException ble) {
-            throw new RuntimeException(ble);
-        }
+        errorManager.removeErrorHighlight();
+        errorManager.addErrorHighlight(startPos, endPos);
         
         sourcePane.setCaretPosition(pos);
         sourcePane.moveCaretPosition(line.getEndOffset() - 1); // w/o line break
@@ -742,7 +729,7 @@ public final class MoeEditor extends JFrame
         setCompileStatus(compiled);
         if (compiled) {
             info.message(Config.getString("editor.info.compiled"));
-            removeErrorHighlight();
+            errorManager.removeErrorHighlight();
         }
     }
 
@@ -1221,13 +1208,9 @@ public final class MoeEditor extends JFrame
      */
     public void insertUpdate(DocumentEvent e)
     {
-        NodeAndPosition<ParseErrorNode> nap = parseErrors.findNodeAtOrAfter(e.getOffset());
-        if (nap != null) {
-            nap.slide(e.getLength());
-        }
-        
+        errorManager.insertUpdate(e);
         removeSearchHighlights();
-        removeErrorHighlight();
+        errorManager.removeErrorHighlight();
         if (!saveState.isChanged()) {
             saveState.setState(StatusLabel.CHANGED);
             setChanged();
@@ -1243,15 +1226,9 @@ public final class MoeEditor extends JFrame
      */
     public void removeUpdate(DocumentEvent e)
     {
-        NodeAndPosition<ParseErrorNode> nap = parseErrors.findNodeAtOrAfter(e.getOffset() + e.getLength());
-        if (nap != null) {
-            if (nap.getPosition() >= e.getOffset() + e.getLength()) {
-                nap.slide(-e.getLength());
-            }
-        }
-        
+        errorManager.removeUpdate(e);
         removeSearchHighlights();
-        removeErrorHighlight();
+        errorManager.removeErrorHighlight();
         if (!saveState.isChanged()) {
             saveState.setState(StatusLabel.CHANGED);
             setChanged();
@@ -2733,9 +2710,9 @@ public final class MoeEditor extends JFrame
     public void caretMoved()
     {
         int caretPos = sourcePane.getCaretPosition();
-        NodeAndPosition<ParseErrorNode> nap = parseErrors.findNode(caretPos);
-        if (nap != null) {
-            info.message(ParserMessageHandler.getMessageForCode(nap.getNode().getErrCode()));
+        String errCode = errorManager.getErrorAtPosition(caretPos);
+        if (errCode != null) {
+            info.message(ParserMessageHandler.getMessageForCode(errCode));
         }
         else {
             clearMessage();
@@ -2894,7 +2871,7 @@ public final class MoeEditor extends JFrame
         // create the text document
 
         if (projectResolver != null) {
-            sourceDocument = new MoeSyntaxDocument(projectResolver, this);
+            sourceDocument = new MoeSyntaxDocument(projectResolver, errorManager);
         }
         else {
             sourceDocument = new MoeSyntaxDocument();  // README file
@@ -2906,7 +2883,7 @@ public final class MoeEditor extends JFrame
 
         EditorKit kit;
         if (projectResolver != null) {
-            kit = new MoeSyntaxEditorKit(projectResolver, this);
+            kit = new MoeSyntaxEditorKit(projectResolver, errorManager);
         }
         else {
             kit = new ReadmeEditorKit();
@@ -3495,17 +3472,6 @@ public final class MoeEditor extends JFrame
     }
     
     /**
-     * Remove the error highlight (if one exists).
-     */
-    private void removeErrorHighlight()
-    {
-        if (errorHighlightTag != null) {
-            sourcePane.getHighlighter().removeHighlight(errorHighlightTag);
-            errorHighlightTag = null;
-        }
-    }
-    
-    /**
      * Removes the selection in the textpane specified
      * @param textPane specified textpane (source/html)
      */
@@ -3788,60 +3754,5 @@ public final class MoeEditor extends JFrame
     protected boolean containsSourceCode() 
     {
         return sourceIsCode;
-    }
-    
-    @Override
-    public void parseError(int position, int size, String message)
-    {
-        try {
-            size = Math.max(1, size); // make size at least 1
-            
-            // Don't add this error if it overlaps an existing error:
-            NodeAndPosition<ParseErrorNode> nap = parseErrors.findNodeAtOrAfter(position);
-            while (nap != null && nap.getEnd() == position && nap.getPosition() != position) {
-                nap = nap.nextSibling();
-            }
-            if (nap != null) {
-                if (nap.getEnd() <= position + size) {
-                    return;
-                }
-            }
-            
-            Object highlightTag = sourcePane.getHighlighter().addHighlight(
-                position, position + size,
-                new MoeBorderHighlighterPainter(Color.RED, Color.RED, Color.PINK,
-                        Color.RED, Color.PINK)
-            );
-            
-            parseErrors.insertNode(new ParseErrorNode(highlightTag, message), position, size);
-            
-            // Check if the error overlaps the caret currently
-            if (! isShowingInterface()) {
-                int caretPos = sourcePane.getCaretPosition();
-                if (caretPos >= position && caretPos <= position + size) {
-                    info.message(ParserMessageHandler.getMessageForCode(message));
-                }
-            }
-        }
-        catch (BadLocationException ble) {
-            // Really shouldn't happen.
-        }
-    }
-    
-    @Override
-    public void reparsingRange(int position, int size)
-    {
-        // Remove any parse error highlights in the reparsed range
-        int endPos = position + size;
-        
-        NodeAndPosition<ParseErrorNode> nap = parseErrors.findNodeAtOrAfter(position);
-        while (nap != null && nap.getPosition() <= endPos) {
-            ParseErrorNode pen = nap.getNode();
-            sourcePane.getHighlighter().removeHighlight(pen.getHighlightTag());
-            
-            NodeAndPosition<ParseErrorNode> nnap = nap.nextSibling();
-            pen.remove();
-            nap = nnap;
-        }
     }
 }
