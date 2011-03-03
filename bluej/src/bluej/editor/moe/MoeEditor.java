@@ -3813,12 +3813,6 @@ public final class MoeEditor extends JFrame
                         Color.RED, Color.PINK)
             );
             
-            // DAV
-            System.out.println("Parse error at: " + position + "+" + size);
-            int li = sourceDocument.getDefaultRootElement().getElementIndex(position);
-            int ci = position - sourceDocument.getDefaultRootElement().getElement(li).getStartOffset();
-            System.out.println("  line: " + (li + 1) + " column: " + (ci + 1));
-            
             parseErrors.insertNode(new ParseErrorNode(highlightTag, message), position, size);
             
             // Check if the error overlaps the caret currently
@@ -3837,9 +3831,6 @@ public final class MoeEditor extends JFrame
     @Override
     public void reparsingRange(int position, int size)
     {
-        // DAV
-        System.out.println("reparsingRange: " + position + "+" + size);
-        
         // Remove any parse error highlights in the reparsed range
         int endPos = position + size;
         
