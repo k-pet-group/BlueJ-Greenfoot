@@ -1469,6 +1469,11 @@ public class JavaParser
         }
         
         // Expression, or not valid.
+        if (! isExpressionTokenType(token.getType())) {
+            error("Not a valid statement beginning.", token);
+            return null;
+        }
+        
         tokenStream.pushBack(token);
         parseExpression();
         token = tokenStream.nextToken();
@@ -2596,6 +2601,15 @@ public class JavaParser
         expressionOpIndexes[JavaTokenTypes.GE] = 11;
         expressionOpIndexes[JavaTokenTypes.LAND] = 11;
         expressionOpIndexes[JavaTokenTypes.LOR] = 11;
+    }
+    
+    /**
+     * Check whether the given token type can lead an
+     * expression.
+     */
+    private boolean isExpressionTokenType(int ttype)
+    {
+        return expressionTokenIndexes[ttype] != 0;
     }
     
     /**

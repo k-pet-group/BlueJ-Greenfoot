@@ -905,7 +905,7 @@ public class IncrementalParseTest extends TestCase
         MoeSyntaxDocument aDoc = docForSource(aSrc, "");
         ParsedCUNode aNode = aDoc.getParser();
         
-        aDoc.remove(50, 1); // remove the '\' before 'A()'
+        aDoc.remove(51, 1); // remove the '\' before 'A()'
         
         aNode = aDoc.getParser();
         NodeAndPosition<ParsedNode> nap = aNode.findNodeAt(0, 0);

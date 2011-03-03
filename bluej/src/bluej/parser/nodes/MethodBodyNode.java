@@ -44,7 +44,8 @@ public class MethodBodyNode extends IncrementalParsingNode
     @Override
     protected boolean isDelimitingNode(NodeAndPosition<ParsedNode> nap)
     {
-        return nap.getNode().isContainer();
+        ParsedNode pn = nap.getNode();
+        return pn.isContainer() || pn.getNodeType() == ParsedNode.NODETYPE_FIELD;
     }
     
     @Override

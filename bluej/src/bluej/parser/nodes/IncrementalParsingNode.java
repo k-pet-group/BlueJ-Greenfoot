@@ -717,6 +717,10 @@ public abstract class IncrementalParsingNode extends JavaParentNode
                 nap = pnap;
             }
             
+            while (nap != null && nap.getEnd() > dpos) {
+                nap = nap.prevSibling();
+            }
+            
             while (nap != null && !isDelimitingNode(nap)) {
                 boolean isLeadingComment = nap != null && nap.getNode().getNodeType() == ParsedNode.NODETYPE_COMMENT
                         && nap.getPosition() == stateBoundary;
