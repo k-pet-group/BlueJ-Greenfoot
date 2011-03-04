@@ -27,6 +27,7 @@ import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
 import greenfoot.sound.Sound;
 import greenfoot.sound.SoundFactory;
+import greenfoot.sound.MicLevelGrabber;
 
 
 /**
@@ -163,10 +164,10 @@ public class Greenfoot
 
         if( sound != null) {
             sound.play();
-        }		
+        }
     }
-    
-    
+
+
     /**
      * True if the mouse has been pressed (changed from a non-pressed state to
      * being pressed) on the given object. If the parameter is an Actor the
