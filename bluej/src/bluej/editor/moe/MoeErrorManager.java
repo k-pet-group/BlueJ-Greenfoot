@@ -47,6 +47,7 @@ public class MoeErrorManager implements MoeDocumentListener
     
     private Object errorHighlightTag = null;
     
+    /** A timer used to delay the appearance of parse errors until the user is idle */
     private Timer timer;
     
     /** Parse errors that are currently being displayed */
@@ -201,11 +202,20 @@ public class MoeErrorManager implements MoeDocumentListener
         // Remove any parse error highlights in the reparsed range
         int endPos = position + size;
         
-        NodeAndPosition<ParseErrorNode> nap = parseErrors.findNodeAtOrAfter(position);
+        clearReparsedRange(parseErrors, position, endPos);
+        clearReparsedRange(pendingErrors, position, endPos);
+    }
+    
+    private void clearReparsedRange(NodeTree<ParseErrorNode> tree, int position, int endPos)
+    {
+        NodeAndPosition<ParseErrorNode> nap = tree.findNodeAtOrAfter(position);
         while (nap != null && nap.getPosition() <= endPos) {
             ParseErrorNode pen = nap.getNode();
             JEditorPane sourcePane = editor.getSourcePane();
-            sourcePane.getHighlighter().removeHighlight(pen.getHighlightTag());
+            Object highlightTag = pen.getHighlightTag();
+            if (highlightTag != null) {
+                sourcePane.getHighlighter().removeHighlight(highlightTag);
+            }
             
             NodeAndPosition<ParseErrorNode> nnap = nap.nextSibling();
             pen.remove();
