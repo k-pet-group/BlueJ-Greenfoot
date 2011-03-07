@@ -313,12 +313,12 @@ public class NewParserTest extends TestCase
     }
 
     /**
-     * Test the use of a package annotation
+     * Test the use of a qualified annotation
      */
     public void test21()
     {
         StringReader sr = new StringReader(
-                "@Test.RequestForEnhancement req;"
+                "@Test.RequestForEnhancement int req;"
         );
         JavaParser ip = new JavaParser(sr);
         ip.parseStatement();
