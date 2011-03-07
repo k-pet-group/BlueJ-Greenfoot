@@ -162,7 +162,10 @@ public class JavaParser
         endElement(token, included);
     }
         
-    /** reached a compilation unit state */
+    /**
+     * Reached a compilation unit state.
+     * State 1 = package statement parsed. State 2 = one or more type definitions parsed
+     */
     protected void reachedCUstate(int i) { }
 
     /** We've seen the semicolon at the end of an "import" statement */
@@ -511,13 +514,15 @@ public class JavaParser
     {
         LocatableToken token = tokenStream.nextToken();
         if (token.getType() == JavaTokenTypes.LITERAL_package) {
-            token = parsePackageStmt(token);
-            if (token != null) {
-                reachedCUstate(1); state = 1;
+            if (state != 0) {
+                error("Only one 'package' statement is allowed", token);
             }
+            token = parsePackageStmt(token);
+            reachedCUstate(1); state = 1;
         }
         else if (token.getType() == JavaTokenTypes.LITERAL_import) {
             parseImportStatement(token);
+            reachedCUstate(1); state = 1;
         }
         else if (isModifier(token) || isTypeDeclarator(token)) {
             // optional: class/interface/enum
@@ -552,8 +557,9 @@ public class JavaParser
         gotPackage(pkgTokens);
         token = tokenStream.nextToken();
         if (token.getType() != JavaTokenTypes.SEMI) {
-            error(BJ003);
             tokenStream.pushBack(token);
+            LocatableToken lastToken = pkgTokens.get(pkgTokens.size() - 1);
+            error(BJ003, lastToken.getEndLine(), lastToken.getEndColumn(), lastToken.getEndLine(), lastToken.getEndColumn());
             return null;
         }
         else {
@@ -594,16 +600,19 @@ public class JavaParser
         
         List<LocatableToken> tokens = parseDottedIdent(token);
         if (tokenStream.LA(1).getType() == JavaTokenTypes.DOT) {
-            tokenStream.nextToken();
+            LocatableToken lastToken = tokenStream.nextToken(); // DOT
             token = tokenStream.nextToken();
             if (token.getType() == JavaTokenTypes.SEMI) {
-                error("Trailing '.' in import statement");
+                error("Trailing '.' in import statement", lastToken.getLine(), lastToken.getColumn(),
+                        lastToken.getEndLine(), lastToken.getEndColumn());
             }
             else if (token.getType() == JavaTokenTypes.STAR) {
+                lastToken = token;
                 token = tokenStream.nextToken();
                 if (token.getType() != JavaTokenTypes.SEMI) {
                     tokenStream.pushBack(token);
-                    error("Expected ';' following import statement");
+                    error("Expected ';' following import statement", lastToken.getEndLine(), lastToken.getEndColumn(),
+                            lastToken.getEndLine(), lastToken.getEndColumn());
                 }
                 else {
                     gotWildcardImport(tokens, isStatic);
@@ -621,7 +630,9 @@ public class JavaParser
             token = tokenStream.nextToken();
             if (token.getType() != JavaTokenTypes.SEMI) {
                 tokenStream.pushBack(token);
-                error("Expected ';' following import statement");
+                LocatableToken lastToken = tokens.get(tokens.size() - 1);
+                error("Expected ';' following import statement", lastToken.getEndLine(), lastToken.getEndColumn(),
+                        lastToken.getEndLine(), lastToken.getEndColumn());
             }
             else {
                 gotImport(tokens, isStatic);
