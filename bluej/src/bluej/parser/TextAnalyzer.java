@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -49,6 +49,7 @@ import bluej.debugger.gentype.Reflective;
 import bluej.debugmgr.NamedValue;
 import bluej.debugmgr.ValueCollection;
 import bluej.debugmgr.texteval.DeclaredVar;
+import bluej.parser.entity.ConstantFloatValue;
 import bluej.parser.entity.ConstantIntValue;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
@@ -439,8 +440,9 @@ public class TextAnalyzer
         
         // if we don't know the type of both alternatives, we don't
         // know the result type:
-        if (trueAltType == null || falseAltType == null)
+        if (trueAltType == null || falseAltType == null) {
             return null;
+        }
         
         // Neither argument can be a void type.
         if (trueAltType.isVoid() || falseAltType.isVoid()) {
@@ -450,7 +452,7 @@ public class TextAnalyzer
         // if the second & third arguments have the same type, then
         // that is the result type:
         if (trueAltType.equals(falseAltType)) {
-            if (condition.hasConstantBooleanValue()) {
+            if (condition.hasConstantBooleanValue() && ValueEntity.isConstant(trueAlt) && ValueEntity.isConstant(falseAlt)) {
                 return condition.getConstantBooleanValue() ? trueAlt : falseAlt;
             }
             return new ValueEntity(trueAltType);
@@ -520,7 +522,19 @@ public class TextAnalyzer
         
         if (trueUnboxed.isNumeric() && falseUnboxed.isNumeric()) {
             JavaType rtype = binaryNumericPromotion(trueUnboxed, falseUnboxed);
-            if (condition.hasConstantBooleanValue() && trueAlt.hasConstantIntValue() && falseAlt.hasConstantIntValue()) {
+            if (condition.hasConstantBooleanValue() && ValueEntity.isConstant(trueAlt) && ValueEntity.isConstant(falseAlt)) {
+                ValueEntity relevantAlt = condition.getConstantBooleanValue() ? trueAlt : falseAlt;
+                if (rtype.typeIs(JavaType.JT_DOUBLE) || rtype.typeIs(JavaType.JT_FLOAT)) {
+                    double val;
+                    if (relevantAlt.getType().typeIs(JavaType.JT_DOUBLE) || relevantAlt.getType().typeIs(JavaType.JT_FLOAT)) {
+                        val = relevantAlt.getConstantFloatValue();
+                    }
+                    else {
+                        // the relevant alternative is an integer promoted to a float
+                        val = relevantAlt.getConstantIntValue();
+                    }
+                    return new ConstantFloatValue(rtype, val);
+                }
                 long val = condition.getConstantBooleanValue() ? trueAlt.getConstantIntValue()
                         : falseAlt.getConstantIntValue();
                 return new ConstantIntValue(null, rtype, val);

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,57 +21,37 @@
  */
 package bluej.parser.entity;
 
-import java.util.List;
-
-import bluej.debugger.gentype.JavaPrimitiveType;
 import bluej.debugger.gentype.JavaType;
-import bluej.debugger.gentype.Reflective;
 
 /**
- * The "null" entity. This represents the "null" value (literal).
+ * Represents a value entity with a known (constant) floating point value (single or double precision).
  * 
  * @author Davin McCall
  */
-public class NullEntity extends ValueEntity
+public class ConstantFloatValue extends ValueEntity
 {
-    public NullEntity()
+    private double value;
+    
+    /**
+     * Construct a floating-point constant value entity
+     * @param valueType  The type of the value (float or double)
+     * @param value      The known value
+     */
+    public ConstantFloatValue(JavaType valueType, double value)
     {
-        super(JavaPrimitiveType.getNull());
+        super(valueType);
+        this.value = value;
     }
     
     @Override
-    public String getName()
-    {
-        return null;
-    }
-
-    @Override
-    public JavaEntity getSubentity(String name, Reflective accessSource)
-    {
-        return null;
-    }
-
-    @Override
-    public JavaType getType()
-    {
-        return JavaPrimitiveType.getNull();
-    }
-    
-    @Override
-    public boolean isNullEntity()
+    public boolean hasConstantFloatValue()
     {
         return true;
     }
     
     @Override
-    public JavaEntity setTypeArgs(List<TypeArgumentEntity> tparams)
+    public double getConstantFloatValue()
     {
-        return null;
-    }
-
-    @Override
-    public ValueEntity resolveAsValue()
-    {
-        return this;
+        return value;
     }
 }

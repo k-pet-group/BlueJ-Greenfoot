@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -36,6 +36,15 @@ import bluej.utility.JavaUtils;
 /**
  * Represents a value entity - an unspecified value with a known type.
  * 
+ * <p>A value entity might also represent a compile-time constant value as defined by the
+ * Java Language Specification section 15.28. To satisfy the requirements of the JLS when
+ * determining an expression type is necessary then to know the actual value, so there are
+ * methods provided for checking whether a value is known and what it is.
+ * 
+ * <p>Note that integer values are all representable as a "long" so there is only a single
+ * method to retrieve the known integer value; likewise "double" can also represent all
+ * "float" values.
+ * 
  * @author Davin McCall
  */
 public class ValueEntity extends JavaEntity
@@ -43,11 +52,18 @@ public class ValueEntity extends JavaEntity
     private String name;
     private JavaType type;
     
+    /**
+     * Construct a value entity representing a value of the given type.
+     */
     public ValueEntity(JavaType type)
     {
         this.type = type;
     }
     
+    /**
+     * Construct a value entity representing a value of the given type coming from
+     * the given name (meaning not well defined...)
+     */
     public ValueEntity(String name, JavaType type)
     {
         this.name = name;
@@ -136,7 +152,7 @@ public class ValueEntity extends JavaEntity
     }
     
     /**
-     * Check whether this value entity represents a constant integer value
+     * Check whether this value entity represents a constant "float" value
      */
     public boolean hasConstantFloatValue()
     {
@@ -173,5 +189,13 @@ public class ValueEntity extends JavaEntity
     public boolean isConstantString()
     {
         return false;
+    }
+    
+    /**
+     * Check whether a value entity represents any kind of constant (knonw at compile-time as per the JLS) value.
+     */
+    public static boolean isConstant(ValueEntity ent)
+    {
+        return ent.hasConstantBooleanValue() || ent.hasConstantIntValue() || ent.hasConstantFloatValue();
     }
 }
