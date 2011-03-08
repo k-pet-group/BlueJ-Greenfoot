@@ -108,7 +108,7 @@ public class ValueEntity extends JavaEntity
     }
 
     @Override
-    public JavaEntity resolveAsValue()
+    public ValueEntity resolveAsValue()
     {
         return this;
     }
@@ -117,5 +117,61 @@ public class ValueEntity extends JavaEntity
     public JavaEntity setTypeArgs(List<TypeArgumentEntity> tparams)
     {
         return null;
+    }
+    
+    /**
+     * Check whether this value entity represents a constant integer (byte,int,long,etc) value
+     */
+    public boolean hasConstantIntValue()
+    {
+        return false;
+    }
+    
+    /**
+     * Get the constant integer value represented by this value entity
+     */
+    public long getConstantIntValue()
+    {
+        throw new RuntimeException("Attempt to get constant value for entity without constant value");
+    }
+    
+    /**
+     * Check whether this value entity represents a constant integer value
+     */
+    public boolean hasConstantFloatValue()
+    {
+        return false;
+    }
+    
+    /**
+     * Get the constant floating-point value represented by this value entity
+     */
+    public double getConstantFloatValue()
+    {
+        throw new RuntimeException("Attempt to get constant value for entity without constant value");
+    }
+    
+    /**
+     * Check whether this value entity represents a constant boolean value
+     */
+    public boolean hasConstantBooleanValue()
+    {
+        return false;
+    }
+    
+    /**
+     * Get the constant boolean value this value entity represents
+     */
+    public boolean getConstantBooleanValue()
+    {
+        throw new RuntimeException("Attempt to get constant value for entity without constant value");
+    }
+    
+    /**
+     * Check whether this value entity represents a String constant
+     */
+    public boolean isConstantString()
+    {
+        return false;
     }
 }

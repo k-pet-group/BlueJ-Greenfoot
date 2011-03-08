@@ -95,7 +95,7 @@ public class UnresolvedEntity extends JavaEntity
     }
 
     @Override
-    public JavaEntity resolveAsValue()
+    public ValueEntity resolveAsValue()
     {
         Iterator<String> i = names.iterator();
         String name = i.next();

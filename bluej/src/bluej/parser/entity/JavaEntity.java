@@ -40,7 +40,7 @@ public abstract class JavaEntity
     /**
      * If this entity is unresolved, resolve it now as a value.
      */
-    public JavaEntity resolveAsValue()
+    public ValueEntity resolveAsValue()
     {
         return null;
     }

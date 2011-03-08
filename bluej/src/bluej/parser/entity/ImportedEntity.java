@@ -79,9 +79,9 @@ public class ImportedEntity extends JavaEntity
     }
 
     @Override
-    public JavaEntity resolveAsValue()
+    public ValueEntity resolveAsValue()
     {
-        return resolveAsType();
+        return null;
     }
     
     @Override

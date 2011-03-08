@@ -32,8 +32,13 @@ import bluej.debugger.gentype.Reflective;
  * 
  * @author Davin McCall
  */
-public class NullEntity extends JavaEntity
+public class NullEntity extends ValueEntity
 {
+    public NullEntity()
+    {
+        super(JavaPrimitiveType.getNull());
+    }
+    
     @Override
     public String getName()
     {
@@ -65,10 +70,8 @@ public class NullEntity extends JavaEntity
     }
 
     @Override
-    public JavaEntity resolveAsValue()
+    public ValueEntity resolveAsValue()
     {
         return this;
     }
-    
-    
 }

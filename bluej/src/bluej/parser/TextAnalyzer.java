@@ -49,6 +49,7 @@ import bluej.debugger.gentype.Reflective;
 import bluej.debugmgr.NamedValue;
 import bluej.debugmgr.ValueCollection;
 import bluej.debugmgr.texteval.DeclaredVar;
+import bluej.parser.entity.ConstantIntValue;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.PackageEntity;
@@ -70,7 +71,6 @@ import bluej.utility.JavaUtils;
  */
 public class TextAnalyzer
 {
-    //private ClassLoader classLoader;
     private EntityResolver parentResolver;
     private String packageScope;  // evaluation package
     private ValueCollection objectBench;
@@ -404,14 +404,38 @@ public class TextAnalyzer
 //    }
     
     /**
+     * Test whether the given value fits in the range representable by byte, short or char
+     */
+    private static boolean doesValueFitIntType(long value, JavaType type)
+    {
+        if (type.typeIs(JavaType.JT_BYTE)) {
+            return value <= Byte.MAX_VALUE && value >= Byte.MIN_VALUE;
+        }
+        else if (type.typeIs(JavaType.JT_CHAR)) {
+            return value <= Character.MAX_VALUE && value >= Character.MIN_VALUE;
+        }
+        else if (type.typeIs(JavaType.JT_SHORT)) {
+            return value <= Short.MAX_VALUE && value >= Short.MIN_VALUE;
+        }
+        
+        return false;
+    }
+    
+    /**
      * Java 1.5 version of the trinary "? :" operator.
      * See JLS section 15.25. Note that JLS 3rd ed. differs extensively
      * from JLS 2nd edition. The changes are not backwards compatible.
      */
-    public static JavaType questionOperator15(JavaEntity trueAlt, JavaEntity falseAlt)
+    public static ValueEntity questionOperator15(ValueEntity condition, ValueEntity trueAlt, ValueEntity falseAlt)
     {
         JavaType trueAltType = trueAlt.getType();
         JavaType falseAltType = falseAlt.getType();
+        JavaType conditionType = condition.getType();
+        
+        // The condition must be boolean:
+        if (conditionType == null || ! conditionType.typeIs(JavaPrimitiveType.JT_BOOLEAN)) {
+            return null;
+        }
         
         // if we don't know the type of both alternatives, we don't
         // know the result type:
@@ -423,80 +447,93 @@ public class TextAnalyzer
             return null;
         }
         
-        if (trueAltType.equals(falseAltType)) {
-            return trueAltType;
-        }
-        
         // if the second & third arguments have the same type, then
         // that is the result type:
-        if (trueAltType.equals(falseAltType))
-            return trueAltType;
+        if (trueAltType.equals(falseAltType)) {
+            if (condition.hasConstantBooleanValue()) {
+                return condition.getConstantBooleanValue() ? trueAlt : falseAlt;
+            }
+            return new ValueEntity(trueAltType);
+        }
+
+        // If one of the operands is the null type and the other is a reference type,
+        // the type of the conditional expression is that of the reference type:
+        if (trueAltType.isNull() && !falseAltType.isPrimitive()) {
+            // The result cannot be a compile-time constant as expression contains a null
+            return new ValueEntity(falseAltType);
+        }
+        
+        // Otherwise:
+        String trueAltStr = trueAltType.toString();
+        String falseAltStr = falseAltType.toString();
+        
+        boolean trueIsByte = trueAltStr.equals("byte") || trueAltStr.equals("java.lang.Byte");
+        boolean falseIsShort = falseAltStr.equals("short") || falseAltStr.equals("java.lang.Short");
+        boolean falseIsByte = falseAltStr.equals("byte") || falseAltStr.equals("java.lang.Byte");
+        boolean trueIsShort = trueAltStr.equals("short") || trueAltStr.equals("java.lang.Short");
+        
+        if (trueIsByte && falseIsShort || falseIsByte && trueIsShort) {
+            if (condition.hasConstantBooleanValue() && trueAlt.hasConstantIntValue() && falseAlt.hasConstantIntValue()) {
+                long intVal = condition.getConstantBooleanValue() ? trueAlt.getConstantIntValue()
+                        : falseAlt.getConstantIntValue();
+                return new ConstantIntValue(null, JavaPrimitiveType.getShort(), intVal);
+            }
+            return new ValueEntity(JavaPrimitiveType.getShort());
+        }
+
+        // If one of the types is byte/short/char (possibly boxed) and the other is of type int, and is a constant
+        // whose value fits in the first type, then the result is of the first type (unboxed).
         
         JavaType trueUnboxed = unBox(trueAltType);
+        boolean trueIsSmallInt = trueUnboxed.typeIs(JavaType.JT_BYTE) || trueUnboxed.typeIs(JavaType.JT_SHORT)
+                || trueUnboxed.typeIs(JavaType.JT_CHAR);
+        
+        if (trueIsSmallInt && falseAltType.typeIs(JavaType.JT_INT) && falseAlt.hasConstantIntValue()) {
+            long fval = falseAlt.getConstantIntValue();
+            if (doesValueFitIntType(fval, trueAltType)) {
+                if (trueAlt.hasConstantIntValue() && condition.hasConstantBooleanValue()) {
+                    long val = condition.getConstantBooleanValue() ? trueAlt.getConstantIntValue()
+                            : falseAlt.getConstantIntValue();
+                    return new ConstantIntValue(null, trueAltType, val);
+                }
+                return new ValueEntity(trueUnboxed);
+            }
+        }
+        
         JavaType falseUnboxed = unBox(falseAltType);
+        boolean falseIsSmallInt = falseUnboxed.typeIs(JavaType.JT_BYTE) || falseUnboxed.typeIs(JavaType.JT_SHORT)
+                || falseUnboxed.typeIs(JavaType.JT_CHAR);
+
+        if (falseIsSmallInt && trueAltType.typeIs(JavaType.JT_INT) && trueAlt.hasConstantIntValue()) {
+            long fval = trueAlt.getConstantIntValue();
+            if (doesValueFitIntType(fval, falseAltType)) {
+                if (falseAlt.hasConstantIntValue() && condition.hasConstantBooleanValue()) {
+                    long val = condition.getConstantBooleanValue() ? trueAlt.getConstantIntValue()
+                            : falseAlt.getConstantIntValue();
+                    return new ConstantIntValue(null, falseUnboxed, val);
+                }
+                return new ValueEntity(falseUnboxed);
+            }
+        }
         
-        // if one the arguments is of type boolean and the other
-        // Boolean, the result type is boolean.
-        if (trueUnboxed.typeIs(JavaType.JT_BOOLEAN) && falseUnboxed.typeIs(JavaType.JT_BOOLEAN))
-            return trueUnboxed;
+        // Binary numeric promotion?
         
-        // if one type is null and the other is a reference type, the
-        // return is that reference type.
-        //   Also partially handle the final case from the JLS,
-        // involving boxing conversion & capture conversion (which
-        // is trivial when non-parameterized types such as boxed types
-        // are involved)
-        // 
-        // This precludes either type from being null later on.
-        if (trueAltType.typeIs(JavaType.JT_NULL))
-            return boxType(falseAltType);
-        if (falseAltType.typeIs(JavaType.JT_NULL))
-            return boxType(trueAltType);
-        
-        // if the two alternatives are convertible to numeric types,
-        // there are several cases:
         if (trueUnboxed.isNumeric() && falseUnboxed.isNumeric()) {
-            // If one is byte/Byte and the other is short/Short, the
-            // result type is short.
-            if (trueUnboxed.typeIs(JavaType.JT_BYTE) && falseUnboxed.typeIs(JavaType.JT_SHORT))
-                return falseUnboxed;
-            if (falseUnboxed.typeIs(JavaType.JT_BYTE) && trueUnboxed.typeIs(JavaType.JT_SHORT))
-                return trueUnboxed;
-            
-            // If one type, when unboxed, is byte/short/char, and the
-            // other is an integer constant whose value fits in the
-            // first, the result type is the (unboxed) former type. (The JLS
-            // takes four paragraphs to say this, but the result is the
-            // same).
-            //if (isMinorInteger(trueUnboxed) && falseAltType.typeIs(JavaType.JT_INT) && falseAltEv.knownValue()) {
-            //    int kval = falseAltEv.intValue();
-            //    if (trueUnboxed.couldHold(kval))
-            //        return trueUnboxed;
-            //}
-            //if (isMinorInteger(falseUnboxed) && trueAltType.typeIs(JavaType.JT_INT) && trueAltEv.knownValue()) {
-            //    int kval = trueAltEv.intValue();
-            //    if (falseUnboxed.couldHold(kval))
-            //        return falseUnboxed;
-            //}
-            
-            // Otherwise apply binary numeric promotion
-            return binaryNumericPromotion(trueAltType, falseAltType);
+            JavaType rtype = binaryNumericPromotion(trueUnboxed, falseUnboxed);
+            if (condition.hasConstantBooleanValue() && trueAlt.hasConstantIntValue() && falseAlt.hasConstantIntValue()) {
+                long val = condition.getConstantBooleanValue() ? trueAlt.getConstantIntValue()
+                        : falseAlt.getConstantIntValue();
+                return new ConstantIntValue(null, rtype, val);
+            }
+            return new ValueEntity(rtype);
         }
         
-        // Box both alternatives:
-        trueAltType = boxType(trueAltType);
-        falseAltType = boxType(falseAltType);
+        // No - reference types.
         
-        if (trueAltType.asSolid() != null && falseAltType.asSolid() != null) {
-            // apply capture conversion (JLS 5.1.10) to lub() of both
-            // alternatives (JLS 15.12.2.7).
-            GenTypeSolid [] lubArgs = new GenTypeSolid[2];
-            lubArgs[0] = trueAltType.asSolid();
-            lubArgs[1] = falseAltType.asSolid();
-            return captureConversion(GenTypeSolid.lub(lubArgs));
-        }
-        
-        return null;
+        GenTypeSolid trueBoxed = boxType(trueAltType);
+        GenTypeSolid falseBoxed = boxType(falseAltType);
+        GenTypeSolid rtype = GenTypeSolid.lub(new GenTypeSolid[] {trueBoxed, falseBoxed});
+        return new ValueEntity(rtype.getCapture());
     }
     
     /**
@@ -1375,77 +1412,79 @@ public class TextAnalyzer
         GenTypeClass c = b.asClass();
         if (c != null) {
             String cName = c.classloaderName();
-            if (cName.equals("java.lang.Integer"))
+            if (cName.equals("java.lang.Integer")) {
                 return JavaPrimitiveType.getInt();
-            else if (cName.equals("java.lang.Long"))
+            }
+            else if (cName.equals("java.lang.Long")) {
                 return JavaPrimitiveType.getLong();
-            else if (cName.equals("java.lang.Short"))
+            }
+            else if (cName.equals("java.lang.Short")) {
                 return JavaPrimitiveType.getShort();
-            else if (cName.equals("java.lang.Byte"))
+            }
+            else if (cName.equals("java.lang.Byte")) {
                 return JavaPrimitiveType.getByte();
-            else if (cName.equals("java.lang.Character"))
+            }
+            else if (cName.equals("java.lang.Character")) {
                 return JavaPrimitiveType.getChar();
-            else if (cName.equals("java.lang.Float"))
+            }
+            else if (cName.equals("java.lang.Float")) {
                 return JavaPrimitiveType.getFloat();
-            else if (cName.equals("java.lang.Double"))
+            }
+            else if (cName.equals("java.lang.Double")) {
                 return JavaPrimitiveType.getDouble();
-            else if (cName.equals("java.lang.Boolean"))
+            }
+            else if (cName.equals("java.lang.Boolean")) {
                 return JavaPrimitiveType.getBoolean();
-            else
+            }
+            else {
                 return b;
+            }
         }
-        else
+        else {
             return b;
+        }
     }
     
     /**
      * Box a type, if it is a primitive type such as "int".<p>
      * 
-     * Other types are returned unchanged.<p>
-     * 
-     * To determine whether boxing occurred, compare the result with the
-     * object which was passed in. (The same object will be returned if no
-     * boxing took place).
+     * Other types are returned unchanged, however void/null types return null.<p>
      * 
      * @param b  The type to box
      * @return  The boxed type
      */
-    private static JavaType boxType(JavaType u)
+    private static GenTypeSolid boxType(JavaType u)
     {
-        if (u instanceof JavaPrimitiveType) {
-            if (u.typeIs(JavaType.JT_INT))
+        if (u.isPrimitive()) {
+            if (u.typeIs(JavaType.JT_INT)) {
                 return new GenTypeClass(new JavaReflective(Integer.class));
-            else if (u.typeIs(JavaType.JT_LONG))
+            }
+            else if (u.typeIs(JavaType.JT_LONG)) {
                 return new GenTypeClass(new JavaReflective(Long.class));
-            else if (u.typeIs(JavaType.JT_SHORT))
+            }
+            else if (u.typeIs(JavaType.JT_SHORT)) {
                 return new GenTypeClass(new JavaReflective(Short.class));
-            else if (u.typeIs(JavaType.JT_BYTE))
+            }
+            else if (u.typeIs(JavaType.JT_BYTE)) {
                 return new GenTypeClass(new JavaReflective(Byte.class));
-            else if (u.typeIs(JavaType.JT_CHAR))
+            }
+            else if (u.typeIs(JavaType.JT_CHAR)) {
                 return new GenTypeClass(new JavaReflective(Character.class));
-            else if (u.typeIs(JavaType.JT_FLOAT))
+            }
+            else if (u.typeIs(JavaType.JT_FLOAT)) {
                 return new GenTypeClass(new JavaReflective(Float.class));
-            else if (u.typeIs(JavaType.JT_DOUBLE))
+            }
+            else if (u.typeIs(JavaType.JT_DOUBLE)) {
                 return new GenTypeClass(new JavaReflective(Double.class));
-            else if (u.typeIs(JavaType.JT_BOOLEAN))
+            }
+            else if (u.typeIs(JavaType.JT_BOOLEAN)) {
                 return new GenTypeClass(new JavaReflective(Boolean.class));
-            else
-                return u;
+            }
         }
-        else
-            return u;
+        
+        return u.asSolid();
     }
-    
-    static public boolean isBoxedBoolean(JavaType t)
-    {
-        GenTypeClass ct = t.asClass();
-        if (ct != null) {
-            return ct.classloaderName().equals("java.lang.Boolean");
-        }
-        else
-            return false;
-    }
-    
+        
     /**
      * Conditionally box a type. The type is only boxed if the boolean flag
      * passed in the second parameter is true.<p>

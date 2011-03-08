@@ -36,6 +36,7 @@ import bluej.debugger.gentype.JavaPrimitiveType;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.Reflective;
 import bluej.parser.TextAnalyzer.MethodCallDesc;
+import bluej.parser.entity.ConstantIntValue;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.ErrorEntity;
 import bluej.parser.entity.JavaEntity;
@@ -658,33 +659,28 @@ public class TextParser extends JavaParser
         JavaEntity lhs = popValueStack();
         JavaEntity condition = popValueStack();
         
-        condition = condition.resolveAsValue();
-        if (condition == null) {
+        ValueEntity conditionv = condition.resolveAsValue();
+        if (conditionv == null) {
             valueStack.push(new ErrorEntity());
             return;
         }
         
-        JavaType ctype = condition.getType();
+        JavaType ctype = conditionv.getType();
         if (!ctype.typeIs(JavaType.JT_BOOLEAN) && !ctype.toString().equals("java.lang.Boolean")) {
             // Condition is not a boolean
             valueStack.push(new ErrorEntity());
             return;
         }
         
-        rhs = rhs.resolveAsValue();
-        lhs = lhs.resolveAsValue();
-        if (rhs == null || lhs == null) {
+        ValueEntity rhsv = rhs.resolveAsValue();
+        ValueEntity lhsv = lhs.resolveAsValue();
+        if (rhsv == null || lhsv == null) {
             valueStack.push(new ErrorEntity());
             return;
         }
         
-        JavaType rtype = TextAnalyzer.questionOperator15(lhs, rhs);
-        if (rtype == null) {
-            valueStack.push(new ErrorEntity());
-        }
-        else {
-            valueStack.push(new ValueEntity(rtype));
-        }
+        ValueEntity rent = TextAnalyzer.questionOperator15(conditionv, lhsv, rhsv);
+        valueStack.push(rent);
     }
     
     @Override
@@ -708,7 +704,12 @@ public class TextParser extends JavaParser
             valueStack.push(new ValueEntity(JavaPrimitiveType.getChar()));
         }
         else if (token.getType() == JavaTokenTypes.NUM_INT) {
-            valueStack.push(new ValueEntity(JavaPrimitiveType.getInt()));
+            try {
+                valueStack.push(new ConstantIntValue(null, JavaPrimitiveType.getInt(), Integer.decode(token.getText())));
+            }
+            catch (NumberFormatException nfe) {
+                valueStack.push(new ErrorEntity());
+            }
         }
         else if (token.getType() == JavaTokenTypes.NUM_LONG) {
             valueStack.push(new ValueEntity(JavaPrimitiveType.getLong()));
