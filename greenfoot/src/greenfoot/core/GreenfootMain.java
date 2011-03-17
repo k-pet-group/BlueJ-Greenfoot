@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010, 2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -73,7 +73,7 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 8665 2011-02-23 23:24:38Z marionz $
+ * @version $Id: GreenfootMain.java 8746 2011-03-17 03:30:47Z davmac $
  */
 public class GreenfootMain extends Thread implements CompileListener, RProjectListener
 {
