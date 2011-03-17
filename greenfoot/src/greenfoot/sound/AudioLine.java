@@ -1,27 +1,28 @@
 /*
- This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
- 
- This program is free software; you can redistribute it and/or 
- modify it under the terms of the GNU General Public License 
- as published by the Free Software Foundation; either version 2 
- of the License, or (at your option) any later version. 
- 
- This program is distributed in the hope that it will be useful, 
- but WITHOUT ANY WARRANTY; without even the implied warranty of 
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
- GNU General Public License for more details. 
- 
- You should have received a copy of the GNU General Public License 
- along with this program; if not, write to the Free Software 
- Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
- This file is subject to the Classpath exception as provided in the  
- LICENSE.txt file that accompanied this code.
+This file is part of the Greenfoot program. 
+Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+
+This program is free software; you can redistribute it and/or 
+modify it under the terms of the GNU General Public License 
+as published by the Free Software Foundation; either version 2 
+of the License, or (at your option) any later version. 
+
+This program is distributed in the hope that it will be useful, 
+but WITHOUT ANY WARRANTY; without even the implied warranty of 
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+GNU General Public License for more details. 
+
+You should have received a copy of the GNU General Public License 
+along with this program; if not, write to the Free Software 
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
+
+This file is subject to the Classpath exception as provided in the  
+LICENSE.txt file that accompanied this code.
  */
 package greenfoot.sound;
 
 import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 
@@ -99,12 +100,12 @@ import javax.sound.sampled.SourceDataLine;
  */
 public class AudioLine
 {
+
     private static void printDebug(String s)
     {
         // Comment this line out if you don't want debug info.
         // System.out.println(s);
     }
-    
     /**
      * Extra delay in ms added to the sleep time before stopping the sound. This
      * is just an extra buffer of time to make sure we don't close it too soon.
@@ -112,7 +113,6 @@ public class AudioLine
      * some Linux systems.
      */
     private final static int EXTRA_SLEEP_DELAY = 50;
-
     /**
      * The actual line that we wrap. I assume this object is thread-safe,
      * because it has methods that only makes sense in a multi-threaded
@@ -120,28 +120,23 @@ public class AudioLine
      */
     private volatile SourceDataLine line;
     private AudioFormat format;
-
     /** Total bytes written since playback started. */
     private long totalWritten;
-
     /** Whether the line is open. */
     private boolean open;
-
     /** Whether the line has been started. */
     private boolean started;
-
+    private int masterVolume;
     /**
      * Whether data is currently being written to the line (or blocked on
      * write).
      */
     private boolean writing;
-    
     /**
      * Whether the line is reset. As soon as data has been written, the line is
      * no longer reset.
      */
     private boolean reset;
-
     /** Keeps track of how much time have been spend on active playback. */
     private TimeTracker timeTracker;
 
@@ -163,7 +158,7 @@ public class AudioLine
      *             restrictions
      */
     public synchronized void open()
-        throws LineUnavailableException, IllegalArgumentException, IllegalStateException, SecurityException
+            throws LineUnavailableException, IllegalArgumentException, IllegalStateException, SecurityException
     {
         if (!open) {
             line.open(format);
@@ -227,12 +222,12 @@ public class AudioLine
         printDebug("reset() start");
 
         if (open) {
-            if(started) {
+            if (started) {
                 line.stop();
             }
-            if(!reset) {
+            if (!reset) {
                 line.flush();
-            }      	
+            }
             totalWritten = 0;
             // TODO: totalWritten might be updated after this in write method.
             started = false;
@@ -271,7 +266,8 @@ public class AudioLine
             writing = false;
             if (!reset) {
                 totalWritten += written;
-            } else if (reset && open) {
+            }
+            else if (reset && open) {
                 // Flush what we just wrote to keep it reset.
                 line.flush();
             }
@@ -292,7 +288,7 @@ public class AudioLine
         printDebug("Draining start");
         printDebug(" totalWritten: " + totalWritten);
         long timeLeft = getTimeLeft();
-        while (timeLeft > 0 && open ) {
+        while (timeLeft > 0 && open) {
             printDebug(" timeLeft: " + timeLeft);
             if (started && timeLeft > 0) {
                 try {
@@ -301,7 +297,7 @@ public class AudioLine
                 catch (InterruptedException e) {
                 }
             }
-            else if (!started || writing){
+            else if (!started || writing) {
                 try {
                     // Line is stopped, or we are currently writing to the line
                     // so we wait until waken up again.
@@ -321,7 +317,7 @@ public class AudioLine
             return true;
         }
     }
-    
+
     public synchronized boolean isOpen()
     {
         return open;
@@ -337,4 +333,25 @@ public class AudioLine
         return line.getLongFramePosition();
     }
 
+    public synchronized void setVolume(int masterVolume)
+    {
+        this.masterVolume = masterVolume;
+        try {
+            open();
+            if (line != null) {
+                if (line.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
+                    FloatControl volume = (FloatControl) line.getControl(FloatControl.Type.MASTER_GAIN);
+                    volume.setValue(SoundUtils.convertMinMax(masterVolume, volume.getMinimum(), volume.getMaximum()));
+                }
+            }
+        }
+        catch (LineUnavailableException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public synchronized int getVolume()
+    {
+        return masterVolume;
+    }
 }

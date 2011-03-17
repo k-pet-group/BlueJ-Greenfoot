@@ -1,23 +1,23 @@
 /*
- This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2011  Poul Henriksen and Michael Kolling 
- 
- This program is free software; you can redistribute it and/or 
- modify it under the terms of the GNU General Public License 
- as published by the Free Software Foundation; either version 2 
- of the License, or (at your option) any later version. 
- 
- This program is distributed in the hope that it will be useful, 
- but WITHOUT ANY WARRANTY; without even the implied warranty of 
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
- GNU General Public License for more details. 
- 
- You should have received a copy of the GNU General Public License 
- along with this program; if not, write to the Free Software 
- Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
- This file is subject to the Classpath exception as provided in the  
- LICENSE.txt file that accompanied this code.
+This file is part of the Greenfoot program. 
+Copyright (C) 2005-2009,2011  Poul Henriksen and Michael Kolling 
+
+This program is free software; you can redistribute it and/or 
+modify it under the terms of the GNU General Public License 
+as published by the Free Software Foundation; either version 2 
+of the License, or (at your option) any later version. 
+
+This program is distributed in the hope that it will be useful, 
+but WITHOUT ANY WARRANTY; without even the implied warranty of 
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+GNU General Public License for more details. 
+
+You should have received a copy of the GNU General Public License 
+along with this program; if not, write to the Free Software 
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
+
+This file is subject to the Classpath exception as provided in the  
+LICENSE.txt file that accompanied this code.
  */
 package greenfoot.sound;
 
@@ -30,6 +30,7 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.DataLine;
+import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
@@ -42,17 +43,15 @@ import javax.sound.sampled.UnsupportedAudioFileException;
  */
 public class SoundClip implements Sound
 {
-    private void printDebug(String s) 
+
+    private void printDebug(String s)
     {
-          //System.out.println(s);        
+        //System.out.println(s);
     }
-    
     /** Name of the file holding the sound data. Used for debugging. */
     private final String name;
-    
     /** URL of the sound data. */
     private final URL url;
-
     /**
      * The clip that this SoundClip represents. Can be null (when state is
      * CLOSED)
@@ -60,37 +59,34 @@ public class SoundClip implements Sound
     private Clip soundClip;
 
     /** The states a clip can be in. */
-    private enum ClipState {
+    private enum ClipState
+    {
+
         STOPPED, PLAYING, PAUSED_LOOPING, PAUSED_PLAYING, CLOSED, LOOPING
     };
-
     private ClipState clipState = ClipState.CLOSED;
-    
     private TimeTracker playedTimeTracker = new TimeTracker();
-    
     private TimeTracker stoppedTimeTracker = new TimeTracker();
-    
     /** Length of this clip in ms. */
     private long clipLength;
-    
     /**
      * Thread that closes this sound clip after a timeout.
      */
     private Thread closeThread;
-    
     /**
      * How long to wait until closing the clip after playback has finished. In
      * ms.
      */
     private static final int CLOSE_TIMEOUT = 20000;
-    
-
     /**
      * Indicates that the clips should be closed as soon as playback has
      * finished. This will effectively ignore the CLOSE_TIMEOUT.
      */
     private boolean closeWhenFinished = false;
-
+    /**
+     * The master volume of the sound clip.
+     */
+    private int masterVolume;
     /**
      * Extra delay in ms added to the sleep time before closing the clip. This
      * is just an extra buffer of time to make sure we don't close it too soon.
@@ -98,10 +94,8 @@ public class SoundClip implements Sound
      * some Linux systems.
      */
     private final static int EXTRA_SLEEP_DELAY = 50;
-
     /** Listener for state changes. */
     private SoundPlaybackListener playbackListener;
-
     private boolean resumedLoop;
 
     /**
@@ -125,23 +119,29 @@ public class SoundClip implements Sound
             AudioFormat format = stream.getFormat();
             DataLine.Info info = new DataLine.Info(Clip.class, format);
             // getLine throws illegal argument exception if it can't find a line.
-            soundClip = (Clip) AudioSystem.getLine(info); 
+            soundClip = (Clip) AudioSystem.getLine(info);
             soundClip.open(stream);
             clipLength = soundClip.getMicrosecondLength() / 1000;
             setState(ClipState.STOPPED);
             return true;
-        } catch (SecurityException e) {
+        }
+        catch (SecurityException e) {
             SoundExceptionHandler.handleSecurityException(e, url.toString());
-        } catch (IllegalArgumentException e) {
+        }
+        catch (IllegalArgumentException e) {
             SoundExceptionHandler.handleIllegalArgumentException(e, url.toString());
-        } catch (FileNotFoundException e) {
+        }
+        catch (FileNotFoundException e) {
             SoundExceptionHandler.handleFileNotFoundException(e, url.toString());
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             SoundExceptionHandler.handleIOException(e, url.toString());
-        } catch (UnsupportedAudioFileException e) {
+        }
+        catch (UnsupportedAudioFileException e) {
             SoundExceptionHandler.handleUnsupportedAudioFileException(e,
                     url.toString());
-        } catch (LineUnavailableException e) {
+        }
+        catch (LineUnavailableException e) {
             SoundExceptionHandler.handleLineUnavailableException(e);
         }
         return false;
@@ -155,32 +155,32 @@ public class SoundClip implements Sound
 
         printDebug("00");
 
-        if(clipState == ClipState.PLAYING) {
+        if (clipState == ClipState.PLAYING) {
             return;
         }
 
         if (soundClip == null || clipState == ClipState.CLOSED) {
-            if(! open()) {
+            if (!open()) {
                 return;
             }
         }
 
         printDebug("1");
 
-        if(clipState == ClipState.LOOPING) {
+        if (clipState == ClipState.LOOPING) {
             // Play the current loop till the end, then stop.
             playedTimeTracker.setTimeTracked(SoundUtils.getTimeToPlayFrames(soundClip.getLongFramePosition() % soundClip.getFrameLength(), soundClip.getFormat()));
             soundClip.loop(0);
         }
-        else if (clipState == ClipState.STOPPED){
-            printDebug("a2.5");	
+        else if (clipState == ClipState.STOPPED) {
+            printDebug("a2.5");
             playedTimeTracker.reset();
             soundClip.setFramePosition(0);
             printDebug("a3");
             soundClip.start();
         }
         else {
-            printDebug("b2.5");	
+            printDebug("b2.5");
             soundClip.start();
             printDebug("b3");
         }
@@ -199,18 +199,19 @@ public class SoundClip implements Sound
      */
     public synchronized void loop()
     {
-        if(clipState == ClipState.LOOPING) {
+        if (clipState == ClipState.LOOPING) {
             return;
         }
         if (soundClip == null || clipState == ClipState.CLOSED) {
-            if(! open()) {
+            if (!open()) {
                 return;
             }
-        } else if(soundClip != null) {
+        }
+        else if (soundClip != null) {
             soundClip.stop();
-        }          
+        }
 
-        if(clipState == ClipState.PLAYING || isPaused()) {
+        if (clipState == ClipState.PLAYING || isPaused()) {
             // Clip.loop will only loop from current frame to endframe,
             // NOT from beginning frame as it should. To fix this, we have to
             // use play() once instead, then detect when that has finished, and
@@ -219,10 +220,10 @@ public class SoundClip implements Sound
             playedTimeTracker.start();
             soundClip.start();
             resumedLoop = true;
-            startCloseThread();            
+            startCloseThread();
         }
         else {
-            resumedLoop = false;  	
+            resumedLoop = false;
             notifyAll(); // Make sure the kill thread is stopped.
             soundClip.setMicrosecondPosition(0);
             soundClip.setLoopPoints(0, -1);
@@ -232,6 +233,33 @@ public class SoundClip implements Sound
         }
 
         setState(ClipState.LOOPING);
+    }
+
+    /**
+     * Set the volume level for this sound.
+     * @param level the volume level.
+     */
+    public synchronized void setVolume(int level)
+    {
+        this.masterVolume = level;
+        if (!open()) {
+            return;
+        }
+        if (soundClip != null) {
+            if (soundClip.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
+                FloatControl volume = (FloatControl) soundClip.getControl(FloatControl.Type.MASTER_GAIN);
+                volume.setValue(SoundUtils.convertMinMax(level, volume.getMinimum(), volume.getMaximum()));
+            }
+        }
+    }
+
+    /**
+     * Get the volume level.
+     * @return the volume level.
+     */
+    public synchronized int getVolume()
+    {
+        return masterVolume;
     }
 
     /**
@@ -271,7 +299,7 @@ public class SoundClip implements Sound
         printDebug("Closed: " + this);
     }
 
-    public synchronized void setCloseWhenFinished(boolean b) 
+    public synchronized void setCloseWhenFinished(boolean b)
     {
         closeWhenFinished = b;
         notifyAll();
@@ -288,10 +316,10 @@ public class SoundClip implements Sound
         if (soundClip == null || isPaused()) {
             return;
         }
-        if(clipState == ClipState.PLAYING) {
+        if (clipState == ClipState.PLAYING) {
             setState(ClipState.PAUSED_PLAYING);
         }
-        if(clipState == ClipState.LOOPING) {
+        if (clipState == ClipState.LOOPING) {
             setState(ClipState.PAUSED_LOOPING);
         }
         soundClip.stop();
@@ -310,11 +338,11 @@ public class SoundClip implements Sound
         }
         playedTimeTracker.start();
 
-        if(clipState == ClipState.PAUSED_PLAYING) {
+        if (clipState == ClipState.PAUSED_PLAYING) {
             setState(ClipState.PLAYING);
             soundClip.start();
         }
-        if(clipState == ClipState.PAUSED_LOOPING) {
+        if (clipState == ClipState.PAUSED_LOOPING) {
             setState(ClipState.LOOPING);
             // Clip.loop will only loop from current frame to endframe,
             // NOT from beginning frame as it should. To fix this, we have to
@@ -333,24 +361,24 @@ public class SoundClip implements Sound
         if (clipState != newState) {
             printDebug("Setting state to: " + newState);
             clipState = newState;
-            switch(clipState) {
-            case PLAYING :
-                playbackListener.playbackStarted(this);
-                break;
-            case STOPPED :
-                playbackListener.playbackStopped(this);
-                break;
-            case PAUSED_LOOPING :
-                playbackListener.playbackPaused(this);
-                break;
-            case PAUSED_PLAYING :
-                playbackListener.playbackPaused(this);
-                break;
-            case LOOPING :
-                playbackListener.playbackStarted(this);
-                break;
-            case CLOSED :
-                playbackListener.soundClosed(this);
+            switch (clipState) {
+                case PLAYING:
+                    playbackListener.playbackStarted(this);
+                    break;
+                case STOPPED:
+                    playbackListener.playbackStopped(this);
+                    break;
+                case PAUSED_LOOPING:
+                    playbackListener.playbackPaused(this);
+                    break;
+                case PAUSED_PLAYING:
+                    playbackListener.playbackPaused(this);
+                    break;
+                case LOOPING:
+                    playbackListener.playbackStarted(this);
+                    break;
+                case CLOSED:
+                    playbackListener.soundClosed(this);
             }
         }
 
@@ -404,7 +432,9 @@ public class SoundClip implements Sound
     private synchronized void startCloseThread()
     {
         if (closeThread == null) {
-            closeThread = new Thread("SoundClipCloseThread") {
+            closeThread = new Thread("SoundClipCloseThread")
+            {
+
                 public void run()
                 {
                     boolean stayAlive = true;
@@ -412,72 +442,84 @@ public class SoundClip implements Sound
                     SoundClip thisClip = SoundClip.this;
                     while (stayAlive && thisClip.soundClip != null) {
                         synchronized (thisClip) {
-                            long playTime = playedTimeTracker.getTimeTracked();                           
+                            long playTime = playedTimeTracker.getTimeTracked();
                             long timeLeftOfPlayback = clipLength - playTime + EXTRA_SLEEP_DELAY;
                             long timeLeftToClose = CLOSE_TIMEOUT - stoppedTimeTracker.getTimeTracked();
 
                             switch (clipState) {
-                            case LOOPING:
-                                printDebug("looping");
-                                if (resumedLoop && timeLeftOfPlayback <= 0) {
-                                    printDebug("Resuming loop in closethread.");
-                                    soundClip.stop();
-                                    soundClip.setFramePosition(0);
-                                    soundClip.setLoopPoints(0, -1);
-                                    soundClip.loop(Clip.LOOP_CONTINUOUSLY);
-                                    resumedLoop = false;		
-                                    thisClip.closeThread = null;
-                                    stayAlive = false;						
-                                } else if (!resumedLoop){
-                                    printDebug("Cancelling close thread because of loop started.");
-                                    thisClip.closeThread = null;
+                                case LOOPING:
+                                    printDebug("looping");
+                                    if (resumedLoop && timeLeftOfPlayback <= 0) {
+                                        printDebug("Resuming loop in closethread.");
+                                        soundClip.stop();
+                                        soundClip.setFramePosition(0);
+                                        soundClip.setLoopPoints(0, -1);
+                                        soundClip.loop(Clip.LOOP_CONTINUOUSLY);
+                                        resumedLoop = false;
+                                        thisClip.closeThread = null;
+                                        stayAlive = false;
+                                    }
+                                    else if (!resumedLoop) {
+                                        printDebug("Cancelling close thread because of loop started.");
+                                        thisClip.closeThread = null;
+                                        stayAlive = false;
+                                    }
+                                    else {
+                                        printDebug("Waiting for loop to finish: " + timeLeftOfPlayback);
+                                        try {
+                                            thisClip.wait(timeLeftOfPlayback);
+                                        }
+                                        catch (InterruptedException e) {
+                                        }
+                                    }
+                                    break;
+                                case PLAYING:
+                                    if (timeLeftOfPlayback > 0) {
+                                        printDebug("Waiting to stop playback: "
+                                                + timeLeftOfPlayback);
+                                        try {
+                                            thisClip.wait(timeLeftOfPlayback);
+                                        }
+                                        catch (InterruptedException e) {
+                                        }
+                                        printDebug("Wait done playback");
+                                    }
+                                    else {
+                                        thisClip.stop();
+                                    }
+                                    break;
+
+                                case PAUSED_PLAYING:
+                                case PAUSED_LOOPING:
+                                    printDebug(" waiting in pause: " + clipState);
+                                    try {
+                                        thisClip.wait();
+                                    }
+                                    catch (InterruptedException e) {
+                                    }
+                                    break;
+
+                                case STOPPED:
+                                    if (timeLeftToClose > 0 && !closeWhenFinished) {
+                                        printDebug("Waiting to close: "
+                                                + timeLeftToClose);
+                                        try {
+                                            thisClip.wait(timeLeftToClose);
+                                        }
+                                        catch (InterruptedException e) {
+                                        }
+                                        printDebug("Wait done close");
+                                    }
+                                    else {
+                                        printDebug("Autoclosing clip: " + thisClip.name);
+                                        thisClip.close();
+                                    }
+                                    break;
+                                case CLOSED:
+                                    printDebug("Closing clip: " + thisClip.name);
                                     stayAlive = false;
-                                } else {
-                                    printDebug("Waiting for loop to finish: " + timeLeftOfPlayback);
-                                    try {
-                                        thisClip.wait(timeLeftOfPlayback);
-                                    } catch (InterruptedException e) { }
-                                }
-                                break;
-                            case PLAYING:
-                                if (timeLeftOfPlayback > 0) {
-                                    printDebug("Waiting to stop playback: "
-                                            + timeLeftOfPlayback);
-                                    try {
-                                        thisClip.wait(timeLeftOfPlayback);
-                                    } catch (InterruptedException e) { }
-                                    printDebug("Wait done playback");
-                                } else {
-                                    thisClip.stop();
-                                }
-                                break;
-
-                            case PAUSED_PLAYING:
-                            case PAUSED_LOOPING:
-                                printDebug(" waiting in pause: " + clipState);
-                                try {
-                                    thisClip.wait();
-                                } catch (InterruptedException e) { }
-                                break;
-
-                            case STOPPED:
-                                if (timeLeftToClose > 0 && !closeWhenFinished) {
-                                    printDebug("Waiting to close: "
-                                            + timeLeftToClose);
-                                    try {
-                                        thisClip.wait(timeLeftToClose);
-                                    } catch (InterruptedException e) { }
-                                    printDebug("Wait done close");
-                                } else {	
-                                    printDebug("Autoclosing clip: " + thisClip.name);
-                                    thisClip.close();
-                                }
-                                break;
-                            case CLOSED:
-                                printDebug("Closing clip: " + thisClip.name);
-                                stayAlive = false;
-                                break;
-                            }                            
+                                    break;
+                            }
                         }
                     }
                 }
