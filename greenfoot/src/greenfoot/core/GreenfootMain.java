@@ -73,7 +73,7 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 8746 2011-03-17 03:30:47Z davmac $
+ * @version $Id: GreenfootMain.java 8749 2011-03-22 05:06:14Z marionz $
  */
 public class GreenfootMain extends Thread implements CompileListener, RProjectListener
 {
@@ -296,12 +296,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                 } catch(ProjectNotOpenException e) { }
                 catch (PackageNotFoundException e) { }
             }
-                
 
-            // if this is the dummy startup project, close it now.
-            if (frame.getProject() == null) {
-                project.close();
-            }
         }
     }
 
