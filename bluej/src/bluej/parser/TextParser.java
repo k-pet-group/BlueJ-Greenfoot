@@ -36,6 +36,7 @@ import bluej.debugger.gentype.JavaPrimitiveType;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.Reflective;
 import bluej.parser.TextAnalyzer.MethodCallDesc;
+import bluej.parser.entity.ConstantFloatValue;
 import bluej.parser.entity.ConstantIntValue;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.ErrorEntity;
@@ -331,16 +332,7 @@ public class TextParser extends JavaParser
             checkArg(arg1, token);
             break;
         case CAST_OPERATOR:
-            popValueStack(); // remove the value being cast, leave the cast-to type.
-            JavaEntity castType = popValueStack();
-            castType = castType.resolveAsType();
-            if (castType != null) {
-                // TODO check operand can be cast to this type
-                valueStack.push(new ValueEntity(castType.getType().getCapture()));
-            }
-            else {
-                valueStack.push(new ErrorEntity());
-            }
+            doCast();
             break;
         case BAD_CAST_OPERATOR:
             popValueStack(); // remove the value being cast
@@ -353,6 +345,139 @@ public class TextParser extends JavaParser
             processNewOperator(token);
             break;
         }
+    }
+    
+    private strictfp void doCast()
+    {
+        // Conversions allowed are specified in JLS 3rd ed. 5.5.
+        
+        ValueEntity varg1 = popValueStack().resolveAsValue(); // value being cast
+        TypeEntity castType = popValueStack().resolveAsType();  // cast-to type
+        if (varg1 == null || castType == null) {
+            valueStack.push(new ErrorEntity());
+            return;
+        }
+        
+        if (ValueEntity.isConstant(varg1)) {
+            JavaType jctype = castType.getType();
+            if (jctype.isIntegralType()) {
+                long ival;
+                if (varg1.hasConstantIntValue()) {
+                    ival = varg1.getConstantIntValue(); 
+                }
+                else if (varg1.hasConstantFloatValue()) {
+                    ival = (long) varg1.getConstantFloatValue();
+                }
+                else {
+                    // string constant
+                    valueStack.push(new ErrorEntity());
+                    return;
+                }
+                
+                if (jctype.typeIs(JavaType.JT_BYTE)) {
+                    ival = (byte) ival;
+                }
+                else if (jctype.typeIs(JavaType.JT_CHAR)) {
+                    ival = (char) ival;
+                }
+                else if (jctype.typeIs(JavaType.JT_INT)) {
+                    ival = (int) ival;
+                }
+                
+                valueStack.push(new ConstantIntValue(null, jctype, ival));
+                return;
+            }
+            else if (jctype.typeIs(JavaType.JT_FLOAT) || jctype.typeIs(JavaType.JT_DOUBLE)) {
+                double dval;
+                if (varg1.hasConstantIntValue()) {
+                    dval = varg1.getConstantIntValue();
+                }
+                else if (varg1.hasConstantFloatValue()) {
+                    dval = varg1.getConstantFloatValue();
+                }
+                else {
+                    valueStack.push(new ErrorEntity());
+                    return;
+                }
+                
+                if (jctype.typeIs(JavaType.JT_FLOAT)) {
+                    dval = (float) dval;
+                }
+                
+                valueStack.push(new ConstantFloatValue(jctype, dval));
+                return;
+            }
+            else if (jctype.toString().equals("java.lang.String")) {
+                // Argument is constant: it must be a constant string.
+                if (varg1.isConstantString()) {
+                    valueStack.push(varg1);
+                }
+                else {
+                    valueStack.push(new ErrorEntity());
+                }
+                return;
+            }
+        }
+        
+        // Argument is not a constant, or cast is to a type that won't result in
+        // a constant.
+        
+        JavaType argType = varg1.getType();
+        JavaType jctype = castType.getType();
+        
+        if (argType.isPrimitive() && ! jctype.isPrimitive()) {
+            if (argType.typeIs(JavaType.JT_NULL)) {
+                valueStack.push(new ValueEntity(jctype));
+                return;
+            }
+            
+            // The only remaining allowable case is a boxing conversion.
+            
+            String jctypeStr = jctype.toString();
+            
+            if (argType.typeIs(JavaType.JT_BOOLEAN) && jctypeStr.equals("java.lang.Boolean")
+                    || argType.typeIs(JavaType.JT_CHAR) && jctypeStr.equals("java.lang.Character")
+                    || argType.typeIs(JavaType.JT_BYTE) && jctypeStr.equals("java.lang.Byte")
+                    || argType.typeIs(JavaType.JT_SHORT) && jctypeStr.equals("java.lang.Short")
+                    || argType.typeIs(JavaType.JT_INT) && jctypeStr.equals("java.lang.Integer")
+                    || argType.typeIs(JavaType.JT_LONG) && jctypeStr.equals("java.lang.Long")
+                    || argType.typeIs(JavaType.JT_FLOAT) && jctypeStr.equals("java.lang.Float")
+                    || argType.typeIs(JavaType.JT_DOUBLE) && jctypeStr.equals("java.lang.Double")) {
+                valueStack.push(new ValueEntity(jctype));
+            }
+            else {
+                valueStack.push(new ErrorEntity());
+            }
+            return;
+        }
+        
+        JavaType argUnboxed = TextAnalyzer.unBox(argType);
+        
+        if (argUnboxed.isNumeric() && jctype.isNumeric()) {
+            // Widening or narrowing primitive conversion - allowed.
+            // NOTE: The JLS doesn't actually allow the case where the argument type is a
+            //       boxed type, but the javac compiler *does*, as does the Eclipse compiler.
+            // NOTE: Also, the JLS doesn't allow a cast from byte to char, because (JLS 5.1.4)
+            //       that requires a widening conversion *followed by* a narrowing conversion,
+            //       which isn't one of the options allowed for a cast.
+            valueStack.push(new ValueEntity(jctype));
+            return;
+        }
+        
+        if (jctype.isPrimitive()) {
+            // Note the numeric cases are handled above.
+            if (jctype.typeIs(JavaType.JT_BOOLEAN) && argUnboxed.typeIs(JavaType.JT_BOOLEAN)) {
+                valueStack.push(new ValueEntity(jctype));
+            }
+            else {
+                valueStack.push(new ErrorEntity());
+            }
+            return;
+        }
+        
+        // TODO check operand can be cast to this type - widening or narrowing
+        //      reference conversion.
+        valueStack.push(new ValueEntity(jctype));
     }
     
     @Override
