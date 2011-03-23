@@ -624,8 +624,8 @@ public class TextParser extends JavaParser
      */
     private void checkArgs(JavaEntity arg1, JavaEntity arg2, Operator op)
     {
-        JavaEntity rarg1 = arg1.resolveAsValue();
-        JavaEntity rarg2 = arg2.resolveAsValue();
+        ValueEntity rarg1 = arg1.resolveAsValue();
+        ValueEntity rarg2 = arg2.resolveAsValue();
         if (rarg1 == null || rarg2 == null) {
             valueStack.push(new ErrorEntity());
             return;
@@ -657,10 +657,162 @@ public class TextParser extends JavaParser
     }
     
     /**
+     * Cast an integer value to the given integer type, and return the resulting value.
+     * The returned value will be within the range of values representable by the type. 
+     */
+    private long limitResult(JavaType type, long value)
+    {
+        if (type.typeIs(JavaType.JT_BYTE)) {
+            return (byte) value;
+        }
+        else if (type.typeIs(JavaType.JT_CHAR)) {
+            return (char) value;
+        }
+        else if (type.typeIs(JavaType.JT_SHORT)) {
+            return (short) value;
+        }
+        else if (type.typeIs(JavaType.JT_INT)) {
+            return (int) value;
+        }
+        return value;
+    }
+    
+    /**
+     * Cast a floating-point value to the given floating-point type and return the resulting value.
+     * The result will be within the range of values representable by the selected type.
+     */
+    private strictfp double limitResult(JavaType type, double value)
+    {
+        if (type.typeIs(JavaType.JT_FLOAT)) {
+            return (float) value;
+        }
+        return value;
+    }
+    
+    private void doOpPlus(Operator op, ValueEntity arg1, ValueEntity arg2)
+    {
+        JavaType a1type = arg1.getType();
+        JavaType a2type = arg2.getType();
+        
+        // either the first or second argument might be a String,
+        // in which case the result will be a String also.
+        GenTypeSolid a1solid = a1type.asSolid();
+        GenTypeSolid a2solid = a2type.asSolid();
+        GenTypeClass a1class = null;
+        GenTypeClass a2class = null;
+        
+        // The JLS 3rd edition conflicts with actual compiler behaviour.
+        // JLS says that String concatenation is only the case if the type of
+        // either argument is String. However, if the type is a type parameter
+        // with a bound type of String, the compiler still applies concatenation.
+        if (a1solid != null) {
+            GenTypeClass [] stypes = a1solid.getReferenceSupertypes();
+            if (stypes.length > 0) {
+                a1class = a1solid.getReferenceSupertypes()[0];
+            }
+        }
+        if (a2solid != null) {
+            GenTypeClass [] stypes = a2solid.getReferenceSupertypes();
+            if (stypes.length > 0) {
+                a2class = a2solid.getReferenceSupertypes()[0];
+            }
+        }
+        
+        if (a1class != null && a1class.toString().equals("java.lang.String")) {
+            // TODO concatenation of constant string with a constant should yield a constant string
+            valueStack.push(new ValueEntity(a1class));
+            return;
+        }
+        if (a2class != null && a2class.toString().equals("java.lang.String")) {
+            // TODO concatenation of constant string with a constant should yield a constant string
+            valueStack.push(new ValueEntity(a2class));
+            return;
+        }
+        
+        doBnpOp(op, arg1, arg2);
+    }
+    
+    /**
+     * Process an operator which performs binary numeric promotion and which allows
+     * the result to be a constant expression.
+     */
+    private strictfp void doBnpOp(Operator op, ValueEntity arg1, ValueEntity arg2)
+    {
+        JavaType a1type = arg1.getType();
+        JavaType a2type = arg2.getType();
+        JavaType resultType = TextAnalyzer.binaryNumericPromotion(a1type, a2type);
+        
+        if (resultType == null) {
+            valueStack.push(new ErrorEntity());
+        }
+        
+        if ((arg1.hasConstantIntValue() || arg1.hasConstantFloatValue())
+                && (arg2.hasConstantIntValue() || arg2.hasConstantFloatValue())) {
+            if (resultType.isIntegralType()) {
+                long a1 = arg1.getConstantIntValue();
+                long a2 = arg2.getConstantIntValue();
+                long rval;
+                switch (op.type) {
+                case JavaTokenTypes.PLUS:
+                    rval = a1 + a2; break;
+                case JavaTokenTypes.MINUS:
+                    rval = a1 - a2; break;
+                case JavaTokenTypes.STAR:
+                    rval = a1 * a2; break;
+                case JavaTokenTypes.DIV:
+                    rval = a1 / a2; break;
+                case JavaTokenTypes.MOD:
+                    rval = a1 % a2; break;
+                case JavaTokenTypes.BAND:
+                    rval = a1 & a2; break;
+                case JavaTokenTypes.BOR:
+                    rval = a1 | a2; break;
+                case JavaTokenTypes.BXOR:
+                    rval = a1 ^ a2; break;
+                default:
+                    rval = 0; break;
+                }
+                rval = limitResult(resultType, rval);
+                valueStack.push(new ConstantIntValue(null, resultType, rval));
+            }
+            else {
+                // Result is a float type; one argument might still be integer.
+                double a1, a2;
+                a1 = arg1.hasConstantFloatValue() ? arg1.getConstantFloatValue() : arg1.getConstantIntValue();
+                a2 = arg2.hasConstantFloatValue() ? arg2.getConstantFloatValue() : arg2.getConstantIntValue();
+                double rval;
+                switch (op.type) {
+                case JavaTokenTypes.PLUS:
+                    rval = a1 + a2; break;
+                case JavaTokenTypes.MINUS:
+                    rval = a1 - a2; break;
+                case JavaTokenTypes.STAR:
+                    rval = a1 * a2; break;
+                case JavaTokenTypes.DIV:
+                    rval = a1 / a2; break;
+                case JavaTokenTypes.MOD:
+                    rval = a1 % a2; break;
+                case JavaTokenTypes.BAND:
+                case JavaTokenTypes.BOR:
+                case JavaTokenTypes.BXOR:
+                default:
+                    valueStack.push(new ErrorEntity());
+                    return;
+                }
+                rval = limitResult(resultType, a1 + a2);
+                valueStack.push(new ConstantFloatValue(resultType, rval));
+            }
+            return;
+        }
+
+        valueStack.push(new ValueEntity(null, resultType));
+    }
+    
+    /**
      * Process a binary operator. Arguments have been resolved as values.
      * The result is pushed back onto the value stack.
      */
-    private void doBinaryOp(JavaEntity arg1, JavaEntity arg2, Operator op)
+    private void doBinaryOp(ValueEntity arg1, ValueEntity arg2, Operator op)
     {
         JavaType a1type = arg1.getType().getCapture();
         JavaType a2type = arg2.getType().getCapture();
@@ -668,24 +820,8 @@ public class TextParser extends JavaParser
         int ttype = op.getType();
         switch (ttype) {
         case JavaTokenTypes.PLUS:
-            // either the first or second argument might be a String,
-            // in which case the result will be a String also.
-            GenTypeSolid a1solid = a1type.asSolid();
-            GenTypeSolid a2solid = a2type.asSolid();
-            if (a1solid != null && !TextAnalyzer.unBox(a1type).isNumeric()) {
-                GenTypeClass [] rstypes = a1solid.getReferenceSupertypes();
-                if (rstypes.length != 0 && rstypes[0].getReflective().getName().equals("java.lang.String")) {
-                    valueStack.push(new ValueEntity(rstypes[0]));
-                    return;
-                }
-            }
-            if (a2solid != null) {
-                GenTypeClass [] rstypes = a2solid.getReferenceSupertypes();
-                if (rstypes.length != 0 && rstypes[0].getReflective().getName().equals("java.lang.String")) {
-                    valueStack.push(new ValueEntity(rstypes[0]));
-                    return;
-                }
-            }
+            doOpPlus(op, arg1, arg2);
+            return;
         case JavaTokenTypes.MINUS:
         case JavaTokenTypes.STAR:
         case JavaTokenTypes.DIV:
@@ -693,26 +829,40 @@ public class TextParser extends JavaParser
         case JavaTokenTypes.BAND:
         case JavaTokenTypes.BOR:
         case JavaTokenTypes.BXOR:
-            JavaType resultType = TextAnalyzer.binaryNumericPromotion(a1type, a2type);
-            if (resultType == null) {
-                valueStack.push(new ErrorEntity());
-            }
-            else {
-                valueStack.push(new ValueEntity("", resultType));
-            }
+            doBnpOp(op, arg1, arg2);
             break;
         case JavaTokenTypes.SL:
         case JavaTokenTypes.SR:
         case JavaTokenTypes.BSR:
             JavaType a1typeP = TextAnalyzer.unaryNumericPromotion(a1type);
             JavaType a2typeP = TextAnalyzer.unaryNumericPromotion(a1type);
-            if (a1typeP == null || a2typeP == null) {
+            if (a1typeP == null || a2typeP == null || !a1typeP.isIntegralType()
+                    || ! a2typeP.isIntegralType()) {
                 valueStack.push(new ErrorEntity());
             }
             else {
-                // The result is the type of the LHS
-                // (see http://java.sun.com/docs/books/jls/third_edition/html/expressions.html#15.19) 
-                valueStack.push(new ValueEntity("", a1typeP));
+                // The result type is the type of the LHS
+                // See JLS 3rd ed 15.19
+                if (arg1.hasConstantIntValue() && arg2.hasConstantIntValue()) {
+                    long a1 = arg1.getConstantIntValue();
+                    long a2 = arg2.getConstantIntValue();
+                    long rval;
+                    if (ttype == JavaTokenTypes.SL) {
+                        rval = a1 << a2;
+                    }
+                    else if (ttype == JavaTokenTypes.SR) {
+                        rval = a1 >> a2;
+                    }
+                    else {
+                        // ttype == JavaTokenTypes.BSR
+                        rval = a1 >>> a2;
+                    }
+                    rval = limitResult(a1typeP, rval);
+                    valueStack.push(new ConstantIntValue(null, a1typeP, rval));
+                }
+                else {
+                    valueStack.push(new ValueEntity("", a1typeP));
+                }
             }
             break;
         case JavaTokenTypes.LT:
@@ -720,6 +870,7 @@ public class TextParser extends JavaParser
         case JavaTokenTypes.GT:
         case JavaTokenTypes.GE:
             {
+                // TODO handle constant arguments (should yield constant result)
                 JavaType promotedType = TextAnalyzer.binaryNumericPromotion(a1type, a2type);
                 if (promotedType == null) {
                     valueStack.push(new ErrorEntity());
@@ -731,6 +882,7 @@ public class TextParser extends JavaParser
             break;
         case JavaTokenTypes.EQUAL:
         case JavaTokenTypes.NOT_EQUAL:
+            // TODO handle constant arguments (should yield constant result)
             if (a1type.isNumeric() || a2type.isNumeric()) {
                 JavaType promotedType = TextAnalyzer.binaryNumericPromotion(a1type, a2type);
                 if (promotedType == null) {
