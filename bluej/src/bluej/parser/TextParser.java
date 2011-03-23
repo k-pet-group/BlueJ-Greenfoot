@@ -935,13 +935,91 @@ public class TextParser extends JavaParser
     }
     
     /**
+     * Process a relationship operator - '&lt;', '&gt;', '&lt;=', '&gt;='
+     */
+    private void doRelationshipOp(Operator op, ValueEntity arg1, ValueEntity arg2)
+    {
+        JavaType a1type = arg1.getType();
+        JavaType a2type = arg2.getType();
+        
+        // TODO handle constant arguments (should yield constant result)
+        JavaType promotedType = TextAnalyzer.binaryNumericPromotion(a1type, a2type);
+        if (promotedType == null) {
+            valueStack.push(new ErrorEntity());
+        }
+        else {
+            if (ValueEntity.isConstant(arg1) && ValueEntity.isConstant(arg2)) {
+                if (promotedType.isIntegralType()) {
+                    long a1 = arg1.getConstantIntValue();
+                    long a2 = arg2.getConstantIntValue();
+                    boolean rval;
+                    
+                    switch (op.type) {
+                    case JavaTokenTypes.LT:
+                        rval = a1 < a2; break;
+                    case JavaTokenTypes.LE:
+                        rval = a1 <= a2; break;
+                    case JavaTokenTypes.GT:
+                        rval = a1 > a2; break;
+                    default:
+                    // case JavaTokenTypes.GE:
+                        rval = a1 >= a2;
+                    }
+                    
+                    valueStack.push(new ConstantBoolValue(rval));
+                }
+                else if (promotedType.typeIs(JavaType.JT_FLOAT)) {
+                    float a1 = arg1.hasConstantFloatValue() ? (float) arg1.getConstantFloatValue() : arg1.getConstantIntValue();
+                    float a2 = arg2.hasConstantFloatValue() ? (float) arg2.getConstantFloatValue() : arg2.getConstantIntValue();
+                    boolean rval;
+                    
+                    switch (op.type) {
+                    case JavaTokenTypes.LT:
+                        rval = a1 < a2; break;
+                    case JavaTokenTypes.LE:
+                        rval = a1 <= a2; break;
+                    case JavaTokenTypes.GT:
+                        rval = a1 > a2; break;
+                    default:
+                    // case JavaTokenTypes.GE:
+                        rval = a1 >= a2;
+                    }
+                    
+                    valueStack.push(new ConstantBoolValue(rval));
+                }
+                else { // JT_DOUBLE
+                    double a1 = arg1.hasConstantFloatValue() ? arg1.getConstantFloatValue() : arg1.getConstantIntValue();
+                    double a2 = arg2.hasConstantFloatValue() ? arg2.getConstantFloatValue() : arg2.getConstantIntValue();
+                    boolean rval;
+                    
+                    switch (op.type) {
+                    case JavaTokenTypes.LT:
+                        rval = a1 < a2; break;
+                    case JavaTokenTypes.LE:
+                        rval = a1 <= a2; break;
+                    case JavaTokenTypes.GT:
+                        rval = a1 > a2; break;
+                    default:
+                    // case JavaTokenTypes.GE:
+                        rval = a1 >= a2;
+                    }
+                    
+                    valueStack.push(new ConstantBoolValue(rval));
+                }
+                return;
+            }
+            
+            valueStack.push(new ValueEntity("", JavaPrimitiveType.getBoolean()));
+        }
+    }
+    
+    /**
      * Process a binary operator. Arguments have been resolved as values.
      * The result is pushed back onto the value stack.
      */
     private void doBinaryOp(ValueEntity arg1, ValueEntity arg2, Operator op)
     {
         JavaType a1type = arg1.getType().getCapture();
-        JavaType a2type = arg2.getType().getCapture();
         
         int ttype = op.getType();
         switch (ttype) {
@@ -995,16 +1073,7 @@ public class TextParser extends JavaParser
         case JavaTokenTypes.LE:
         case JavaTokenTypes.GT:
         case JavaTokenTypes.GE:
-            {
-                // TODO handle constant arguments (should yield constant result)
-                JavaType promotedType = TextAnalyzer.binaryNumericPromotion(a1type, a2type);
-                if (promotedType == null) {
-                    valueStack.push(new ErrorEntity());
-                }
-                else {
-                    valueStack.push(new ValueEntity("", JavaPrimitiveType.getBoolean()));
-                }
-            }
+            doRelationshipOp(op, arg1, arg2);
             break;
         case JavaTokenTypes.EQUAL:
         case JavaTokenTypes.NOT_EQUAL:
@@ -1022,6 +1091,7 @@ public class TextParser extends JavaParser
         case JavaTokenTypes.BSR_ASSIGN:
         case JavaTokenTypes.MOD_ASSIGN:
         case JavaTokenTypes.BXOR_ASSIGN:
+            // TODO check valid assignment
             valueStack.push(arg1);
             break;
         case JavaTokenTypes.DOT:

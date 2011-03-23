@@ -641,7 +641,7 @@ public class TextParserTest extends TestCase
         parser.parseExpression();
         assertTrue(parser.atEnd());
         exprType = parser.getExpressionType();
-        checkConstBool(exprType, false);
+        checkConstBool(exprType, true);
         
         parser = new TextParser(resolver, "-3", null, true);
         parser.parseExpression();
