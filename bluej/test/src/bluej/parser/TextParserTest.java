@@ -528,6 +528,23 @@ public class TextParserTest extends TestCase
         assertEquals("long", r);
     }
     
+    public void testOperators4()
+    {
+        TextAnalyzer tp = new TextAnalyzer(resolver, "", objectBench);
+        
+        String r = tp.parseCommand("true | false");
+        assertEquals("boolean", r);
+        
+        r = tp.parseCommand("true & false");
+        assertEquals("boolean", r);
+        
+        r = tp.parseCommand("true ^ false");
+        assertEquals("boolean", r);
+        
+        r = tp.parseCommand("!true");
+        assertEquals("boolean", r);
+    }
+    
     /**
      * Check that an entity represents a constant with a particular integer (byte,short,char,int,long) value
      */

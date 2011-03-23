@@ -762,6 +762,7 @@ public class TextParser extends JavaParser
         
         if (resultType == null) {
             valueStack.push(new ErrorEntity());
+            return;
         }
         
         // Handle the case where the arguments are constant. We must do three cases
@@ -1029,6 +1030,7 @@ public class TextParser extends JavaParser
         case JavaTokenTypes.BAND:
         case JavaTokenTypes.BOR:
         case JavaTokenTypes.BXOR:
+            // TODO BAND, BOR and BXOR also operate on booleans
             doBnpOp(op, arg1, arg2);
             break;
         case JavaTokenTypes.SL:
