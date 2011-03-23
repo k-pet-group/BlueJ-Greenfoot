@@ -2001,6 +2001,7 @@ public class JavaParser
      */
     protected LocatableToken parseSubsequentDeclarations(int type)
     {
+        LocatableToken prevToken = lastToken;
         LocatableToken token = nextToken();
         while (token.getType() == JavaTokenTypes.COMMA) {
             endDeclaration(type, token, false);
@@ -2013,17 +2014,19 @@ public class JavaParser
             }
             parseArrayDeclarators();
             LocatableToken idtoken = token;
+            prevToken = lastToken;
             token = nextToken();
             gotSubsequentDecl(type, first, idtoken, token.getType() == JavaTokenTypes.ASSIGN);
             if (token.getType() == JavaTokenTypes.ASSIGN) {
                 parseExpression();
+                prevToken = lastToken;
                 token = nextToken();
             }
         }
 
         if (token.getType() != JavaTokenTypes.SEMI) {
             tokenStream.pushBack(token);
-            error(BJ003);
+            errorBehind(BJ003, prevToken);
             endDeclaration(type, token, false);
             endDeclarationStmt(type, token, false);
             return null;
