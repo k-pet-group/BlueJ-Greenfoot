@@ -679,6 +679,32 @@ public class TextParser extends JavaParser
     }
     
     /**
+     * Promote an integer or float to a float, return the result
+     */
+    private float promoteToFloat(ValueEntity arg1)
+    {
+        if (arg1.hasConstantFloatValue()) {
+            return (float) arg1.getConstantFloatValue();
+        }
+        else {
+            return arg1.getConstantIntValue();
+        }
+    }
+    
+    /**
+     * Promote an integer, float or double to a double, return the result.
+     */
+    private double promoteToDouble(ValueEntity arg1)
+    {
+        if (arg1.hasConstantFloatValue()) {
+            return (float) arg1.getConstantFloatValue();
+        }
+        else {
+            return arg1.getConstantIntValue();
+        }
+    }
+    
+    /**
      * Process the '+' operator
      */
     private void doOpPlus(Operator op, ValueEntity arg1, ValueEntity arg2)
@@ -772,8 +798,8 @@ public class TextParser extends JavaParser
             }
             else if (resultType.typeIs(JavaType.JT_FLOAT)) {
                 float a1, a2;
-                a1 = arg1.hasConstantFloatValue() ? (float)arg1.getConstantFloatValue() : arg1.getConstantIntValue();
-                a2 = arg2.hasConstantFloatValue() ? (float)arg2.getConstantFloatValue() : arg2.getConstantIntValue();
+                a1 = promoteToFloat(arg1);
+                a2 = promoteToFloat(arg2);
                 float rval;
                 switch (op.type) {
                 case JavaTokenTypes.PLUS:
@@ -797,9 +823,8 @@ public class TextParser extends JavaParser
             }
             else {
                 // Result type is double; one argument might still be integer.
-                double a1, a2;
-                a1 = arg1.hasConstantFloatValue() ? arg1.getConstantFloatValue() : arg1.getConstantIntValue();
-                a2 = arg2.hasConstantFloatValue() ? arg2.getConstantFloatValue() : arg2.getConstantIntValue();
+                double a1 = promoteToDouble(arg1);
+                double a2 = promoteToDouble(arg2);
                 double rval;
                 switch (op.type) {
                 case JavaTokenTypes.PLUS:
@@ -846,49 +871,20 @@ public class TextParser extends JavaParser
                 if (promotedType.isIntegralType()) {
                     long a1 = arg1.getConstantIntValue();
                     long a2 = arg2.getConstantIntValue();
-                    boolean rval;
-                    if (op.type == JavaTokenTypes.EQUAL) {
-                        rval = a1 == a2;
-                    }
-                    else {
-                        // NOT_EQUAL
-                        rval = a1 != a2;
-                    }
+                    boolean rval= (a1 == a2) ^ (op.type != JavaTokenTypes.EQUAL);
                     valueStack.push(new ConstantBoolValue(rval));
                 }
                 else if (promotedType.typeIs(JavaType.JT_FLOAT)) {
-                    float a1 = arg1.hasConstantFloatValue()
-                            ? (float) arg1.getConstantFloatValue()
-                            : arg1.getConstantIntValue();
-                    float a2 = arg2.hasConstantFloatValue()
-                            ? (float) arg1.getConstantFloatValue()
-                            : arg2.getConstantIntValue();
-                            boolean rval;
-                    if (op.type == JavaTokenTypes.EQUAL) {
-                        rval = a1 == a2;
-                    }
-                    else {
-                        // NOT_EQUAL
-                        rval = a1 != a2;
-                    }
+                    float a1 = promoteToFloat(arg1);
+                    float a2 = promoteToFloat(arg2);
+                    boolean rval= (a1 == a2) ^ (op.type != JavaTokenTypes.EQUAL);
                     valueStack.push(new ConstantBoolValue(rval));                    
                 }
                 else {
                     // JT_DOUBLE
-                    double a1 = arg1.hasConstantFloatValue()
-                            ? arg1.getConstantFloatValue()
-                            : arg1.getConstantIntValue();
-                    double a2 = arg2.hasConstantFloatValue()
-                            ? arg1.getConstantFloatValue()
-                            : arg2.getConstantIntValue();
-                    boolean rval;
-                    if (op.type == JavaTokenTypes.EQUAL) {
-                        rval = a1 == a2;
-                    }
-                    else {
-                        // NOT_EQUAL
-                        rval = a1 != a2;
-                    }
+                    double a1 = promoteToDouble(arg1);
+                    double a2 = promoteToDouble(arg2);
+                    boolean rval= (a1 == a2) ^ (op.type != JavaTokenTypes.EQUAL);
                     valueStack.push(new ConstantBoolValue(rval));                    
                 }
                 return;
@@ -969,8 +965,8 @@ public class TextParser extends JavaParser
                     valueStack.push(new ConstantBoolValue(rval));
                 }
                 else if (promotedType.typeIs(JavaType.JT_FLOAT)) {
-                    float a1 = arg1.hasConstantFloatValue() ? (float) arg1.getConstantFloatValue() : arg1.getConstantIntValue();
-                    float a2 = arg2.hasConstantFloatValue() ? (float) arg2.getConstantFloatValue() : arg2.getConstantIntValue();
+                    float a1 = promoteToFloat(arg1);
+                    float a2 = promoteToFloat(arg2);
                     boolean rval;
                     
                     switch (op.type) {
@@ -988,8 +984,8 @@ public class TextParser extends JavaParser
                     valueStack.push(new ConstantBoolValue(rval));
                 }
                 else { // JT_DOUBLE
-                    double a1 = arg1.hasConstantFloatValue() ? arg1.getConstantFloatValue() : arg1.getConstantIntValue();
-                    double a2 = arg2.hasConstantFloatValue() ? arg2.getConstantFloatValue() : arg2.getConstantIntValue();
+                    double a1 = promoteToDouble(arg1);
+                    double a2 = promoteToDouble(arg2);
                     boolean rval;
                     
                     switch (op.type) {
