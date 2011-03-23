@@ -36,6 +36,7 @@ import bluej.debugger.gentype.JavaPrimitiveType;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.Reflective;
 import bluej.parser.TextAnalyzer.MethodCallDesc;
+import bluej.parser.entity.ConstantBoolValue;
 import bluej.parser.entity.ConstantFloatValue;
 import bluej.parser.entity.ConstantIntValue;
 import bluej.parser.entity.EntityResolver;
@@ -678,17 +679,8 @@ public class TextParser extends JavaParser
     }
     
     /**
-     * Cast a floating-point value to the given floating-point type and return the resulting value.
-     * The result will be within the range of values representable by the selected type.
+     * Process the '+' operator
      */
-    private strictfp double limitResult(JavaType type, double value)
-    {
-        if (type.typeIs(JavaType.JT_FLOAT)) {
-            return (float) value;
-        }
-        return value;
-    }
-    
     private void doOpPlus(Operator op, ValueEntity arg1, ValueEntity arg2)
     {
         JavaType a1type = arg1.getType();
@@ -746,6 +738,9 @@ public class TextParser extends JavaParser
             valueStack.push(new ErrorEntity());
         }
         
+        // Handle the case where the arguments are constant. We must do three cases
+        // differently: integral types, "float" type (arguments promoted to "float")
+        // and "double" type (arguments promoted to "double").
         if ((arg1.hasConstantIntValue() || arg1.hasConstantFloatValue())
                 && (arg2.hasConstantIntValue() || arg2.hasConstantFloatValue())) {
             if (resultType.isIntegralType()) {
@@ -775,8 +770,33 @@ public class TextParser extends JavaParser
                 rval = limitResult(resultType, rval);
                 valueStack.push(new ConstantIntValue(null, resultType, rval));
             }
+            else if (resultType.typeIs(JavaType.JT_FLOAT)) {
+                float a1, a2;
+                a1 = arg1.hasConstantFloatValue() ? (float)arg1.getConstantFloatValue() : arg1.getConstantIntValue();
+                a2 = arg2.hasConstantFloatValue() ? (float)arg2.getConstantFloatValue() : arg2.getConstantIntValue();
+                float rval;
+                switch (op.type) {
+                case JavaTokenTypes.PLUS:
+                    rval = a1 + a2; break;
+                case JavaTokenTypes.MINUS:
+                    rval = a1 - a2; break;
+                case JavaTokenTypes.STAR:
+                    rval = a1 * a2; break;
+                case JavaTokenTypes.DIV:
+                    rval = a1 / a2; break;
+                case JavaTokenTypes.MOD:
+                    rval = a1 % a2; break;
+                case JavaTokenTypes.BAND:
+                case JavaTokenTypes.BOR:
+                case JavaTokenTypes.BXOR:
+                default:
+                    valueStack.push(new ErrorEntity());
+                    return;
+                }
+                valueStack.push(new ConstantFloatValue(resultType, rval));
+            }
             else {
-                // Result is a float type; one argument might still be integer.
+                // Result type is double; one argument might still be integer.
                 double a1, a2;
                 a1 = arg1.hasConstantFloatValue() ? arg1.getConstantFloatValue() : arg1.getConstantIntValue();
                 a2 = arg2.hasConstantFloatValue() ? arg2.getConstantFloatValue() : arg2.getConstantIntValue();
@@ -799,13 +819,119 @@ public class TextParser extends JavaParser
                     valueStack.push(new ErrorEntity());
                     return;
                 }
-                rval = limitResult(resultType, a1 + a2);
                 valueStack.push(new ConstantFloatValue(resultType, rval));
             }
             return;
         }
 
         valueStack.push(new ValueEntity(null, resultType));
+    }
+    
+    /**
+     * Process equality operators '==' and '!='
+     */
+    private void doEqualityOp(Operator op, ValueEntity arg1, ValueEntity arg2)
+    {
+        JavaType a1type = arg1.getType();
+        JavaType a2type = arg2.getType();
+        
+        if (ValueEntity.isConstant(arg1) && ValueEntity.isConstant(arg2)) {
+            if (a1type.isNumeric()) {
+                if (! a2type.isNumeric()) {
+                    valueStack.push(new ErrorEntity());
+                    return;
+                }
+
+                JavaType promotedType = TextAnalyzer.binaryNumericPromotion(a1type, a2type);
+                if (promotedType.isIntegralType()) {
+                    long a1 = arg1.getConstantIntValue();
+                    long a2 = arg2.getConstantIntValue();
+                    boolean rval;
+                    if (op.type == JavaTokenTypes.EQUAL) {
+                        rval = a1 == a2;
+                    }
+                    else {
+                        // NOT_EQUAL
+                        rval = a1 != a2;
+                    }
+                    valueStack.push(new ConstantBoolValue(rval));
+                }
+                else if (promotedType.typeIs(JavaType.JT_FLOAT)) {
+                    float a1 = arg1.hasConstantFloatValue()
+                            ? (float) arg1.getConstantFloatValue()
+                            : arg1.getConstantIntValue();
+                    float a2 = arg2.hasConstantFloatValue()
+                            ? (float) arg1.getConstantFloatValue()
+                            : arg2.getConstantIntValue();
+                            boolean rval;
+                    if (op.type == JavaTokenTypes.EQUAL) {
+                        rval = a1 == a2;
+                    }
+                    else {
+                        // NOT_EQUAL
+                        rval = a1 != a2;
+                    }
+                    valueStack.push(new ConstantBoolValue(rval));                    
+                }
+                else {
+                    // JT_DOUBLE
+                    double a1 = arg1.hasConstantFloatValue()
+                            ? arg1.getConstantFloatValue()
+                            : arg1.getConstantIntValue();
+                    double a2 = arg2.hasConstantFloatValue()
+                            ? arg1.getConstantFloatValue()
+                            : arg2.getConstantIntValue();
+                    boolean rval;
+                    if (op.type == JavaTokenTypes.EQUAL) {
+                        rval = a1 == a2;
+                    }
+                    else {
+                        // NOT_EQUAL
+                        rval = a1 != a2;
+                    }
+                    valueStack.push(new ConstantBoolValue(rval));                    
+                }
+                return;
+            }
+            
+            // Constants but not numeric...
+            if (arg1.hasConstantBooleanValue() && arg2.hasConstantBooleanValue()) {
+                boolean a1 = arg1.getConstantBooleanValue();
+                boolean a2 = arg2.getConstantBooleanValue();
+                boolean rval = op.type == JavaTokenTypes.EQUAL ? a1 == a2 : a1 != a2;
+                valueStack.push(new ConstantBoolValue(rval));
+                return;
+            }
+            
+            // TODO: constant strings.
+        }
+        
+        if (a1type.isNumeric() || a2type.isNumeric()) {
+            // Note we only perform binary numeric promotion if one of the arguments
+            // is already (primitive) numeric, as per the JLS 3rd ed.
+            JavaType promotedType = TextAnalyzer.binaryNumericPromotion(a1type, a2type);
+            if (promotedType == null) {
+                valueStack.push(new ErrorEntity());
+            }
+            else {
+                valueStack.push(new ValueEntity("", JavaPrimitiveType.getBoolean()));
+            }
+        }
+        else if (a1type.isNull() && a2type.isNull()
+                || a1type.isNull() && a2type.asSolid() != null
+                || a1type.asSolid() != null && a2type.isNull()) {
+            // Null compared to itself, or to a reference type
+            valueStack.push(new ValueEntity(JavaPrimitiveType.getBoolean()));
+        }
+        else if (a1type.asSolid() != null && a2type.asSolid() != null) {
+            // Reference comparison
+            // TODO identify comparisons which are invalid due to divergent
+            // inheritance hierarchies
+            valueStack.push(new ValueEntity(JavaPrimitiveType.getBoolean()));
+        }
+        else {
+            valueStack.push(new ErrorEntity());
+        }
     }
     
     /**
@@ -882,31 +1008,7 @@ public class TextParser extends JavaParser
             break;
         case JavaTokenTypes.EQUAL:
         case JavaTokenTypes.NOT_EQUAL:
-            // TODO handle constant arguments (should yield constant result)
-            if (a1type.isNumeric() || a2type.isNumeric()) {
-                JavaType promotedType = TextAnalyzer.binaryNumericPromotion(a1type, a2type);
-                if (promotedType == null) {
-                    valueStack.push(new ErrorEntity());
-                }
-                else {
-                    valueStack.push(new ValueEntity("", JavaPrimitiveType.getBoolean()));
-                }
-            }
-            else if (a1type.isNull() && a2type.isNull()
-                    || a1type.isNull() && a2type.asSolid() != null
-                    || a1type.asSolid() != null && a2type.isNull()) {
-                // Null compared to itself, or to a reference type
-                valueStack.push(new ValueEntity(JavaPrimitiveType.getBoolean()));
-            }
-            else if (a1type.asSolid() != null && a2type.asSolid() != null) {
-                // Reference comparison
-                // TODO identify comparisons which are invalid due to divergent
-                // inheritance hierarchies
-                valueStack.push(new ValueEntity(JavaPrimitiveType.getBoolean()));
-            }
-            else {
-                valueStack.push(new ErrorEntity());
-            }
+            doEqualityOp(op, arg1, arg2);
             break;
         case JavaTokenTypes.ASSIGN:
         case JavaTokenTypes.BAND_ASSIGN:
@@ -1006,7 +1108,7 @@ public class TextParser extends JavaParser
         }
         else if (token.getType() == JavaTokenTypes.LITERAL_true
                 || token.getType() == JavaTokenTypes.LITERAL_false) {
-            valueStack.push(new ValueEntity(JavaPrimitiveType.getBoolean()));
+            valueStack.push(new ConstantBoolValue(token.getType() == JavaTokenTypes.LITERAL_true));
         }
         else if (token.getType() == JavaTokenTypes.LITERAL_this) {
             if (staticAccess) {
