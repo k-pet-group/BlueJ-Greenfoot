@@ -282,9 +282,9 @@ public class TextParser extends JavaParser
      * Process an operator, take the operands from the value stack and leave the result on the
      * stack.
      */
-    private void processOperator(Operator token)
+    private void processOperator(Operator operator)
     {
-        int tokenType = token.getType();
+        int tokenType = operator.getType();
         
         JavaEntity arg1;
         JavaEntity arg2;
@@ -321,7 +321,7 @@ public class TextParser extends JavaParser
         case JavaTokenTypes.BXOR:
             arg2 = popValueStack();
             arg1 = popValueStack();
-            checkArgs(arg1, arg2, token);
+            doBinaryOp(arg1, arg2, operator);
             break;
         case JavaTokenTypes.LNOT:
         case JavaTokenTypes.BNOT:
@@ -330,7 +330,7 @@ public class TextParser extends JavaParser
         case UNARY_MINUS_OP:
         case UNARY_PLUS_OP:
             arg1 = popValueStack();
-            checkArg(arg1, token);
+            checkArg(arg1, operator);
             break;
         case CAST_OPERATOR:
             doCast();
@@ -343,7 +343,7 @@ public class TextParser extends JavaParser
             processQuestionOperator();
             break;
         case JavaTokenTypes.LITERAL_new:
-            processNewOperator(token);
+            processNewOperator(operator);
             break;
         }
     }
@@ -620,21 +620,8 @@ public class TextParser extends JavaParser
     }
     
     /**
-     * For a binary operator, check that both arguments are values, and
-     * then process the operator.
+     * Process a unary operator.
      */
-    private void checkArgs(JavaEntity arg1, JavaEntity arg2, Operator op)
-    {
-        ValueEntity rarg1 = arg1.resolveAsValue();
-        ValueEntity rarg2 = arg2.resolveAsValue();
-        if (rarg1 == null || rarg2 == null) {
-            valueStack.push(new ErrorEntity());
-            return;
-        }
-        
-        doBinaryOp(rarg1, rarg2, op);
-    }
-    
     private void doUnaryOp(JavaEntity arg, Operator op)
     {
         JavaType argType = arg.getType().getCapture();
@@ -1014,8 +1001,16 @@ public class TextParser extends JavaParser
      * Process a binary operator. Arguments have been resolved as values.
      * The result is pushed back onto the value stack.
      */
-    private void doBinaryOp(ValueEntity arg1, ValueEntity arg2, Operator op)
+    private void doBinaryOp(JavaEntity uarg1, JavaEntity uarg2, Operator op)
     {
+        // Check that arguments resolve to values
+        ValueEntity arg1 = uarg1.resolveAsValue();
+        ValueEntity arg2 = uarg2.resolveAsValue();
+        if (arg1 == null || arg2 == null) {
+            valueStack.push(new ErrorEntity());
+            return;
+        }
+        
         JavaType a1type = arg1.getType().getCapture();
         
         int ttype = op.getType();
