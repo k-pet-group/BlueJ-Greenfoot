@@ -31,6 +31,7 @@ import java.util.ListIterator;
 import java.util.Stack;
 
 import bluej.debugger.gentype.GenTypeClass;
+import bluej.debugger.gentype.GenTypeParameter;
 import bluej.debugger.gentype.GenTypeSolid;
 import bluej.debugger.gentype.JavaPrimitiveType;
 import bluej.debugger.gentype.JavaType;
@@ -81,6 +82,9 @@ public class TextParser extends JavaParser
     }
     
     protected Stack<Operator> operatorStack = new Stack<Operator>();
+    
+    /** A stack of type argument lists - one list for each method call on the operator stack */
+    protected Stack<List<LocatableToken>> typeArgStack = new Stack<List<LocatableToken>>();
     
     /*
      * Make up some operators - only for cases where there is not a token
@@ -557,7 +561,7 @@ public class TextParser extends JavaParser
         }
         
         if (op.getToken().getType() == JavaTokenTypes.IDENT) {
-            processMethodCall(targetType, op.getToken().getText());
+            processMethodCall(targetType, op.getToken().getText(), typeArgStack.pop());
         }
         else {
             valueStack.push(new ErrorEntity());
@@ -567,14 +571,15 @@ public class TextParser extends JavaParser
     private void processMethodCall(Operator op)
     {
         if (op.getToken().getType() == JavaTokenTypes.IDENT) {
-            processMethodCall(accessType.getType().asClass(), op.getToken().getText());
+            processMethodCall(accessType.getType().asClass(), op.getToken().getText(),
+                    Collections.<LocatableToken>emptyList());
         }
         else {
             valueStack.push(new ErrorEntity());
         }
     }
     
-    private void processMethodCall(GenTypeSolid targetType, String methodName)
+    private void processMethodCall(GenTypeSolid targetType, String methodName, List<LocatableToken> typeArgTokens)
     {
         GenTypeClass accessClass = accessType.getType().asClass();
         if (accessClass == null) {
@@ -593,8 +598,31 @@ public class TextParser extends JavaParser
             }
             argTypes[i] = cent.getType().getCapture();
         }
-        
-        List<GenTypeClass> typeArgs = Collections.emptyList(); // TODO!
+
+        // Determine type arguments to method invocation
+        List<GenTypeParameter> typeArgs;
+        if (! typeArgTokens.isEmpty()) {
+            DepthRef depthRef = new DepthRef();
+            ListIterator<LocatableToken> i = typeArgTokens.listIterator(1); // skip '<'
+            List<TypeArgumentEntity> typeArgEnts = readTypeArguments(i, depthRef);
+            if (typeArgEnts == null) {
+                valueStack.push(new ErrorEntity());
+                return;
+            }
+            
+            typeArgs = new ArrayList<GenTypeParameter>(typeArgEnts.size());
+            for (TypeArgumentEntity typeArgEnt : typeArgEnts) {
+                GenTypeParameter targType = typeArgEnt.getType();
+                if (targType == null) {
+                    valueStack.push(new ErrorEntity());
+                    return;
+                }
+                typeArgs.add(targType);
+            }
+        }
+        else {
+            typeArgs = Collections.emptyList();
+        }
 
         ArrayList<MethodCallDesc> suitable = TextAnalyzer.getSuitableMethods(methodName,
                 targetType, argTypes, typeArgs, accessClass.getReflective());
@@ -1417,9 +1445,10 @@ public class TextParser extends JavaParser
     }
     
     @Override
-    protected void gotMemberCall(LocatableToken token)
+    protected void gotMemberCall(LocatableToken token, List<LocatableToken> typeArgs)
     {
         operatorStack.push(new Operator(MEMBER_CALL_OP, token));
+        typeArgStack.push(typeArgs);
     }
     
     @Override
@@ -1746,9 +1775,24 @@ public class TextParser extends JavaParser
      */
     private TypeEntity processTypeArgs(TypeEntity base, ListIterator<LocatableToken> i, DepthRef depthRef)
     {
+        List<TypeArgumentEntity> taList = readTypeArguments(i, depthRef);
+        if (taList == null) {
+            return null;
+        }
+        
+        // TODO check the type arguments are actually valid
+        return base.setTypeArgs(taList);
+    }
+    
+    /**
+     * Read a list of type arguments (the opening angle-bracket has already been read) from a list of tokens.
+     * Returns null if there is an error.
+     */
+    private List<TypeArgumentEntity> readTypeArguments(ListIterator<LocatableToken> i, DepthRef depthRef)
+    {
         int startDepth = depthRef.depth;
         List<TypeArgumentEntity> taList = new LinkedList<TypeArgumentEntity>();
-        depthRef.depth++;
+        depthRef.depth++; // initial '<' already skipped
         
         mainLoop:
         while (i.hasNext() && depthRef.depth > startDepth) {
@@ -1789,7 +1833,7 @@ public class TextParser extends JavaParser
                 }
                 taList.add(new SolidTargEntity(new TypeEntity(taType)));
             }
-            
+
             if (! i.hasNext()) {
                 return null;
             }
@@ -1810,14 +1854,14 @@ public class TextParser extends JavaParser
                 token = i.next();
                 ttype = token.getType();
             }
-            
+
             if (ttype != JavaTokenTypes.COMMA) {
                 i.previous();
                 break;
             }
         }
-        // TODO check the type arguments are actually valid
-        return base.setTypeArgs(taList);
+        
+        return taList;
     }
     
     @Override

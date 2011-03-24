@@ -931,6 +931,9 @@ public class TextParserTest extends TestCase
         
         String r = tp.parseCommand("new Lala().method(\"a string\")");
         assertEquals("java.lang.String", r);
+        
+        r = tp.parseCommand("new Lala().<Thread>method(null)");
+        assertEquals("java.lang.Thread", r);
     }
     
     public void testMethodResolution6()

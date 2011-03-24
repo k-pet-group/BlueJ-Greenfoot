@@ -25,6 +25,7 @@ import static bluej.parser.JavaErrorCodes.*;
 import static bluej.parser.lexer.JavaTokenTypes.*;
 
 import java.io.Reader;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
@@ -393,7 +394,7 @@ public class JavaParser
     protected void gotMemberAccess(LocatableToken token) { }
     
     /** Saw a member method call (expr.methodName()), token is the method name; arguments to follow */
-    protected void gotMemberCall(LocatableToken token) { }
+    protected void gotMemberCall(LocatableToken token, List<LocatableToken> typeArgs) { }
     
     /** Saw a "naked" method call - "methodName(...)" */
     protected void gotMethodCall(LocatableToken token) { }
@@ -2955,7 +2956,7 @@ public class JavaParser
                     else if (token.getType() == JavaTokenTypes.IDENT) {
                         if (tokenStream.LA(1).getType() == JavaTokenTypes.LPAREN) {
                             // Method call
-                            gotMemberCall(token);
+                            gotMemberCall(token, Collections.<LocatableToken>emptyList());
                             parseArgumentList(nextToken());
                         }
                         else {
@@ -2967,6 +2968,7 @@ public class JavaParser
                         // generic method call
                         DepthRef dr = new DepthRef();
                         List<LocatableToken> ttokens = new LinkedList<LocatableToken>();
+                        ttokens.add(token);
                         dr.depth = 1;
                         if (!parseTargs(false, ttokens, dr)) {
                             continue;  // we're a bit lost now really...
@@ -2976,6 +2978,7 @@ public class JavaParser
                             error("Expecting method name (in call to generic method)");
                             continue;
                         }
+                        gotMemberCall(token, ttokens);
                         token = nextToken();
                         if (token.getType() != JavaTokenTypes.LPAREN) {
                             error("Expecting '(' after method name");

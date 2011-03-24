@@ -821,22 +821,22 @@ public class TextAnalyzer
      * 
      * @param targetType   The type of object/class to which the method is
      *                     being applied
-     * @param tpars     The explicitly specified type parameters used in the
+     * @param targs     The explicitly specified type arguments used in the
      *                  invocation of a generic method (list of GenTypeClass)
      * @param m       The method to check
      * @param args    The types of the arguments supplied to the method
      * @return   A record with information about the method call
      * @throws RecognitionException
      */
-    private static MethodCallDesc isMethodApplicable(GenTypeClass targetType, List<GenTypeClass> tpars, MethodReflective m, JavaType [] args)
+    private static MethodCallDesc isMethodApplicable(GenTypeClass targetType, List<GenTypeParameter> targs, MethodReflective m, JavaType [] args)
     {
         boolean methodIsVarargs = m.isVarArgs();
         MethodCallDesc rdesc = null;
         
         // First try without varargs expansion. If that fails, try with expansion.
-        rdesc = isMethodApplicable(targetType, tpars, m, args, false);
+        rdesc = isMethodApplicable(targetType, targs, m, args, false);
         if (rdesc == null && methodIsVarargs) {
-            rdesc = isMethodApplicable(targetType, tpars, m, args, true);
+            rdesc = isMethodApplicable(targetType, targs, m, args, true);
         }
         return rdesc;
     }
@@ -851,7 +851,7 @@ public class TextAnalyzer
      * 
      * @param targetType   The type of object/class to which the method is
      *                     being applied
-     * @param tpars     The explicitly specified type parameters used in the
+     * @param targs     The explicitly specified type parameters used in the
      *                  invocation of a generic method (list of GenTypeClass)
      * @param m       The method to check
      * @param args    The types of the arguments supplied to the method
@@ -860,7 +860,7 @@ public class TextAnalyzer
      * @throws RecognitionException
      */
     private static MethodCallDesc isMethodApplicable(GenTypeClass targetType,
-            List<GenTypeClass> tpars, MethodReflective m, JavaType [] args, boolean varargs)
+            List<GenTypeParameter> targs, MethodReflective m, JavaType [] args, boolean varargs)
     {
         boolean rawTarget = targetType.isRaw();
         boolean boxingRequired = false;
@@ -900,7 +900,7 @@ public class TextAnalyzer
         // is zero. Section 15.12.2 of the JLS, "a non generic method may be applicable
         // to an invocation which supplies type arguments" (in which case the type args
         // are ignored).
-        if (! tpars.isEmpty() && ! tparams.isEmpty() && tpars.size() != tparams.size())
+        if (! targs.isEmpty() && ! tparams.isEmpty() && targs.size() != tparams.size())
             return null;
         
         // Set up a map we can use to put actual/inferred type arguments. Initialise it
@@ -912,7 +912,7 @@ public class TextAnalyzer
             tparMap = targetType.getMap();
 
         // Perform type inference, if necessary
-        if (! tparams.isEmpty() && tpars.isEmpty()) {
+        if (! tparams.isEmpty() && targs.isEmpty()) {
             // Our initial map has the class type parameters, minus those which are
             // shadowed by the method's type parameters (map to themselves).
             for (Iterator<GenTypeDeclTpar> i = tparams.iterator(); i.hasNext(); ) {
@@ -936,7 +936,7 @@ public class TextAnalyzer
             // what we have now is a map with tpar constraints.
             // Some tpars may not have been constrained: these are inferred to be the
             // intersection of their upper bounds.
-            tpars = new ArrayList<GenTypeClass>();
+            targs = new ArrayList<GenTypeParameter>();
             Iterator<GenTypeDeclTpar> i = tparams.iterator();
             while (i.hasNext()) {
                 GenTypeDeclTpar fTpar = (GenTypeDeclTpar) i.next();
@@ -956,7 +956,7 @@ public class TextAnalyzer
                     }
                 }
                 eqConstraint = (GenTypeSolid) eqConstraint.mapTparsToTypes(tparMap);
-                tpars.add((GenTypeClass) eqConstraint);
+                targs.add((GenTypeClass) eqConstraint);
                 tparMap.put(tparName, eqConstraint);
             }
         }
@@ -964,7 +964,7 @@ public class TextAnalyzer
             // Get a map of type parameter names to types from the target type
             // complete the type parameter map with tpars of the method
             Iterator<GenTypeDeclTpar> formalI = tparams.iterator();
-            Iterator<GenTypeClass> actualI = tpars.iterator();
+            Iterator<GenTypeParameter> actualI = targs.iterator();
             while (formalI.hasNext()) {
                 GenTypeDeclTpar formalTpar = (GenTypeDeclTpar) formalI.next();
                 GenTypeSolid argTpar = (GenTypeSolid) actualI.next();
@@ -1311,7 +1311,7 @@ public class TextAnalyzer
      * @throws RecognitionException
      */
     public static ArrayList<MethodCallDesc> getSuitableMethods(String methodName,
-            GenTypeSolid targetType, JavaType [] argumentTypes, List<GenTypeClass> typeArgs,
+            GenTypeSolid targetType, JavaType [] argumentTypes, List<GenTypeParameter> typeArgs,
             Reflective accessType)
     {
         ArrayList<MethodCallDesc> suitableMethods = new ArrayList<MethodCallDesc>();
