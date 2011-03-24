@@ -319,6 +319,8 @@ public class TextParser extends JavaParser
         case JavaTokenTypes.BAND:
         case JavaTokenTypes.BOR:
         case JavaTokenTypes.BXOR:
+        case JavaTokenTypes.LOR:
+        case JavaTokenTypes.LAND:
             arg2 = popValueStack();
             arg1 = popValueStack();
             doBinaryOp(arg1, arg2, operator);
@@ -351,6 +353,7 @@ public class TextParser extends JavaParser
     private strictfp void doCast()
     {
         // Conversions allowed are specified in JLS 3rd ed. 5.5.
+        // But see: http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=7029688
         
         ValueEntity varg1 = popValueStack().resolveAsValue(); // value being cast
         TypeEntity castType = popValueStack().resolveAsType();  // cast-to type
@@ -998,6 +1001,81 @@ public class TextParser extends JavaParser
     }
     
     /**
+     * Do a bitwise operation - '&amp;', '|' or '^'
+     */
+    private void doBitwiseOp(Operator op, ValueEntity arg1, ValueEntity arg2)
+    {
+        JavaType a1type = arg1.getType();
+        if (a1type.typeIs(JavaType.JT_BOOLEAN)
+                || a1type.toString().equals("java.lang.Boolean")) {
+            JavaType a2type = arg2.getType();
+            if (a2type.typeIs(JavaType.JT_BOOLEAN)
+                    || a2type.toString().equals("java.lang.Boolean")) {
+                // Both arguments are (convertible to) boolean
+                if (arg1.hasConstantBooleanValue() && arg2.hasConstantBooleanValue()) {
+                    boolean a1 = arg1.getConstantBooleanValue();
+                    boolean a2 = arg2.getConstantBooleanValue();
+                    boolean rval;
+                    switch (op.type) {
+                    case JavaTokenTypes.BAND:
+                        rval = a1 & a2;
+                    case JavaTokenTypes.BOR:
+                        rval = a1 | a2;
+                    default:
+                        // JavaTokenTypes.BXOR:
+                        rval = a1 ^ a2;
+                    }
+                    valueStack.push(new ConstantBoolValue(rval));
+                }
+                else {
+                    valueStack.push(new ValueEntity(JavaPrimitiveType.getBoolean()));
+                }
+                return;
+            }
+        }
+        
+        doBnpOp(op, arg1, arg2);
+    }
+    
+    /**
+     * Do a logical operation - '&amp;&amp;' or '||'
+     * @param op
+     * @param arg1
+     * @param arg2
+     */
+    private void doLogicalOp(Operator op, ValueEntity arg1, ValueEntity arg2)
+    {
+        JavaType a1type = arg1.getType();
+        if (a1type.typeIs(JavaType.JT_BOOLEAN)
+                || a1type.toString().equals("java.lang.Boolean")) {
+            JavaType a2type = arg2.getType();
+            if (a2type.typeIs(JavaType.JT_BOOLEAN)
+                    || a2type.toString().equals("java.lang.Boolean")) {
+                // Both arguments are (convertible to) boolean
+                if (arg1.hasConstantBooleanValue() && arg2.hasConstantBooleanValue()) {
+                    boolean a1 = arg1.getConstantBooleanValue();
+                    boolean a2 = arg2.getConstantBooleanValue();
+                    boolean rval;
+                    switch (op.type) {
+                    case JavaTokenTypes.LAND:
+                        rval = a1 && a2;
+                    default:
+                        // JavaTokenTypes.LOR:
+                        rval = a1 || a2;
+                    }
+                    valueStack.push(new ConstantBoolValue(rval));
+                }
+                else {
+                    valueStack.push(new ValueEntity(JavaPrimitiveType.getBoolean()));
+                }
+                return;
+            }
+        }
+        
+        valueStack.push(new ErrorEntity());
+    }
+    
+    /**
      * Process a binary operator. Arguments have been resolved as values.
      * The result is pushed back onto the value stack.
      */
@@ -1022,11 +1100,16 @@ public class TextParser extends JavaParser
         case JavaTokenTypes.STAR:
         case JavaTokenTypes.DIV:
         case JavaTokenTypes.MOD:
+            doBnpOp(op, arg1, arg2);
+            break;
         case JavaTokenTypes.BAND:
         case JavaTokenTypes.BOR:
         case JavaTokenTypes.BXOR:
-            // TODO BAND, BOR and BXOR also operate on booleans
-            doBnpOp(op, arg1, arg2);
+            doBitwiseOp(op, arg1, arg2);
+            break;
+        case JavaTokenTypes.LOR:
+        case JavaTokenTypes.LAND:
+            doLogicalOp(op, arg1, arg2);
             break;
         case JavaTokenTypes.SL:
         case JavaTokenTypes.SR:
