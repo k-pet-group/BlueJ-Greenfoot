@@ -644,9 +644,8 @@ public class TextAnalyzer
     }
     
     /**
-     * Unary numeric promotion, as defined by JLS section 5.6.1
-     *  (http://java.sun.com/docs/books/jls/third_edition/html/conversions.html#5.6.1)
-     * 
+     * Unary numeric promotion, as defined by JLS 3rd ed. section 5.6.1
+     * Return is null if argument type is not convertible to a numeric type.
      */
     public static JavaType unaryNumericPromotion(JavaType a)
     {

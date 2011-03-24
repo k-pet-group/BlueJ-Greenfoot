@@ -623,26 +623,117 @@ public class TextParser extends JavaParser
     }
     
     /**
+     * Do a unary plus operation (JLS 3rd ed. 15.15.3)
+     */
+    private void doUnaryPlus(ValueEntity arg)
+    {
+        JavaType argType = arg.getType();
+        if (arg.hasConstantIntValue()) {
+            long value = arg.getConstantIntValue();
+            JavaType rtype = TextAnalyzer.unaryNumericPromotion(argType);
+            valueStack.push(new ConstantIntValue(null, rtype, value));
+        }
+        else if (arg.hasConstantFloatValue()) {
+            double value = arg.getConstantFloatValue();
+            valueStack.push(new ConstantFloatValue(argType, value));
+        }
+        else {
+            JavaType rtype = TextAnalyzer.unaryNumericPromotion(argType);
+            if (rtype != null) {
+                valueStack.push(new ValueEntity(rtype));
+            }
+            else {
+                valueStack.push(new ErrorEntity());
+            }
+        }
+    }
+    
+    /**
+     * Do a unary minus operation (JLS 3rd ed. 15.15.4)
+     */
+    private void doUnaryMinus(ValueEntity arg)
+    {
+        JavaType argType = arg.getType();
+        if (arg.hasConstantIntValue()) {
+            long value = -arg.getConstantIntValue();
+            JavaType rtype = TextAnalyzer.unaryNumericPromotion(argType);
+            valueStack.push(new ConstantIntValue(null, rtype, value));
+        }
+        else if (arg.hasConstantFloatValue()) {
+            double value = -arg.getConstantFloatValue();
+            valueStack.push(new ConstantFloatValue(argType, value));
+        }
+        else {
+            JavaType rtype = TextAnalyzer.unaryNumericPromotion(argType);
+            if (rtype != null) {
+                valueStack.push(new ValueEntity(rtype));
+            }
+            else {
+                valueStack.push(new ErrorEntity());
+            }
+        }
+    }
+    
+    /**
      * Process a unary operator.
      */
     private void doUnaryOp(JavaEntity arg, Operator op)
     {
-        JavaType argType = arg.getType().getCapture();
+        ValueEntity varg = arg.resolveAsValue();
+        if (varg == null) {
+            valueStack.push(new ErrorEntity());
+            return;
+        }
         
+        JavaType argType = varg.getType();
+
         int ttype = op.getType();
         switch (ttype) {
         case JavaTokenTypes.LNOT:
-            // TODO: check that the argument is boolean (or boxed boolean)
-            valueStack.push(new ValueEntity(JavaPrimitiveType.getBoolean()));
+            if (varg.hasConstantBooleanValue()) {
+                boolean rval = ! varg.getConstantBooleanValue();
+                valueStack.push(new ConstantBoolValue(rval));
+            }
+            else if (argType.typeIs(JavaType.JT_BOOLEAN) || argType.toString().equals("java.lang.Boolean")) {
+                valueStack.push(new ValueEntity(JavaPrimitiveType.getBoolean()));
+            }
+            else {
+                valueStack.push(new ErrorEntity());
+            }
             break;
         case JavaTokenTypes.BNOT:
-            // TODO: check type is (possibly boxed) numeric
-            valueStack.push(new ValueEntity(argType));
+            if (varg.hasConstantIntValue()) {
+                long rval = ~ varg.getConstantIntValue();
+                JavaType rtype = TextAnalyzer.unaryNumericPromotion(argType);
+                valueStack.push(new ConstantIntValue(null, rtype, rval));
+            }
+            else {
+                JavaType argTypeUnboxed = TextAnalyzer.unBox(argType);
+                if (argTypeUnboxed.isIntegralType()) {
+                    valueStack.push(new ValueEntity(TextAnalyzer.unaryNumericPromotion(argTypeUnboxed)));
+                }
+                else {
+                    valueStack.push(new ErrorEntity());
+                }
+            }
             break;
         case JavaTokenTypes.INC:
         case JavaTokenTypes.DEC:
-            // TODO: check value is a (possibly boxed) numeric
-            valueStack.push(new ValueEntity(argType));
+            // TODO: check that the argument is a variable (an "lvalue")
+            JavaType argTypeUnboxed = TextAnalyzer.unBox(argType);
+            if (argTypeUnboxed.isIntegralType()) {
+                // Note the value has the type of the variable, not the unboxed type
+                valueStack.push(new ValueEntity(argType));
+            }
+            else {
+                valueStack.push(new ErrorEntity());
+            }
+            break;
+        case UNARY_PLUS_OP:
+            doUnaryPlus(varg);
+            break;
+        case UNARY_MINUS_OP:
+            doUnaryMinus(varg);
             break;
         }
     }
