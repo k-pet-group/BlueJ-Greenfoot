@@ -1020,7 +1020,6 @@ public class TextParser extends JavaParser
         JavaType a1type = arg1.getType();
         JavaType a2type = arg2.getType();
         
-        // TODO handle constant arguments (should yield constant result)
         JavaType promotedType = TextAnalyzer.binaryNumericPromotion(a1type, a2type);
         if (promotedType == null) {
             valueStack.push(new ErrorEntity());
