@@ -25,12 +25,16 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 import java.util.Stack;
 
 import bluej.debugger.gentype.GenTypeClass;
+import bluej.debugger.gentype.GenTypeDeclTpar;
 import bluej.debugger.gentype.GenTypeParameter;
 import bluej.debugger.gentype.GenTypeSolid;
 import bluej.debugger.gentype.JavaPrimitiveType;
@@ -586,7 +590,7 @@ public class TextParser extends JavaParser
             valueStack.push(new ErrorEntity());
             return;
         }
-
+        
         // Gather the argument types.
         List<JavaEntity> argList = argumentStack.pop();
         JavaType [] argTypes = new JavaType[argList.size()];
@@ -613,7 +617,7 @@ public class TextParser extends JavaParser
             typeArgs = new ArrayList<GenTypeParameter>(typeArgEnts.size());
             for (TypeArgumentEntity typeArgEnt : typeArgEnts) {
                 GenTypeParameter targType = typeArgEnt.getType();
-                if (targType == null) {
+                if (targType == null || targType.isPrimitive() || targType.isWildcard()) {
                     valueStack.push(new ErrorEntity());
                     return;
                 }
@@ -626,13 +630,140 @@ public class TextParser extends JavaParser
 
         ArrayList<MethodCallDesc> suitable = TextAnalyzer.getSuitableMethods(methodName,
                 targetType, argTypes, typeArgs, accessClass.getReflective());
-        // TODO now we should choose a method according to JLS 15.12.2.5
         if (suitable.size() == 0) {
             valueStack.push(new ErrorEntity());
             return;
         }
+        
+        // JLS 3rd ed. 15.12.2.5. We already have a list of the maximally specific methods:
+        // - if one or more methods have non override-equivalent signatures, the call is ambiguous
+        // - otherwise, if there is exactly one non-abstract method, choose that one;
+        // - otherwise, arbitrarily choose one from the set with the most specific return type.
 
-        valueStack.push(new ValueEntity(suitable.get(0).retType));
+        int nonAbstractCount = 0;
+        MethodCallDesc nonAbstractMethod = null;
+        MethodCallDesc mostSpecificMethod = null;
+
+        Iterator<MethodCallDesc> i = suitable.iterator();
+        MethodCallDesc first = i.next();
+        if (! first.method.isAbstract()) {
+            nonAbstractCount++;
+            nonAbstractMethod = first;
+        }
+        mostSpecificMethod = first;
+        
+        if (suitable.size() > 1) {
+            List<GenTypeDeclTpar> tpars = first.method.getTparTypes();
+            List<JavaType> paramTypes = first.method.getParamTypes();
+            while (i.hasNext()) {
+                MethodCallDesc next = i.next();
+                if (!checkOverrideEquivalence(tpars, paramTypes, next.method.getTparTypes(), next.method.getParamTypes())) {
+                    // Non override equivalent signatures: ambiguous call
+                    valueStack.push(new ErrorEntity());
+                    return;
+                }
+                if (! next.method.isAbstract()) {
+                    nonAbstractCount++;
+                    nonAbstractMethod = next;
+                }
+                
+                if (mostSpecificMethod.retType.isAssignableFrom(next.retType)) {
+                    mostSpecificMethod = next;
+                }
+            }
+        }
+        
+        MethodCallDesc chosenMethod = nonAbstractMethod;
+        if (nonAbstractCount != 1) {
+            chosenMethod = mostSpecificMethod;
+        }
+        
+        // TODO check applicability of chosen method as per JLS 3rd ed. 15.12.3
+
+        valueStack.push(new ValueEntity(chosenMethod.retType));
+    }
+    
+    private static boolean checkOverrideEquivalence(List<GenTypeDeclTpar> firstTpars, List<JavaType> firstParamTypes,
+            List<GenTypeDeclTpar> secondTpars, List<JavaType> secondParamTypes)
+    {
+        if (firstTpars.size() != 0 && secondTpars.size() != 0) {
+            // Type parameters must be matchable
+            if (firstTpars.size() != secondTpars.size()) {
+                return false;
+            }
+            
+            // Create a map from second method tpar name to first method tpar
+            Map<String,GenTypeParameter> tparMap = new HashMap<String,GenTypeParameter>();
+            Iterator<GenTypeDeclTpar> i = firstTpars.iterator();
+            Iterator<GenTypeDeclTpar> j = secondTpars.iterator();
+            while (i.hasNext()) {
+                GenTypeDeclTpar firstTpar = i.next();
+                GenTypeDeclTpar secondTpar = j.next();
+                tparMap.put(secondTpar.getTparName(), firstTpar);
+                if (!secondTpar.getUpperBound().mapTparsToTypes(tparMap).equals(firstTpar.getUpperBound())) {
+                    return false;
+                }
+            }
+            
+            // Check argument types
+            Iterator<JavaType> k = firstParamTypes.iterator();
+            Iterator<JavaType> l = secondParamTypes.iterator();
+            while (k.hasNext()) {
+                if (!l.next().mapTparsToTypes(tparMap).equals(k.next())) {
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+        
+        if (firstTpars.isEmpty() && secondTpars.isEmpty()) {
+            // The parameter types might match exactly
+            boolean doMatch = true;
+            Iterator<JavaType> k = firstParamTypes.iterator();
+            Iterator<JavaType> l = secondParamTypes.iterator();
+            while (k.hasNext()) {
+                if (!l.next().equals(k.next())) {
+                    doMatch = false;
+                    break;
+                }
+            }
+            if (doMatch) {
+                return true;
+            }
+        }
+        
+        if (firstTpars.isEmpty()) {
+            // The first signature might be the erasure of the second
+            boolean doMatch = true;
+            Iterator<JavaType> k = firstParamTypes.iterator();
+            Iterator<JavaType> l = secondParamTypes.iterator();
+            while (k.hasNext()) {
+                if (!l.next().getErasedType().equals(k.next())) {
+                    doMatch = false;
+                    break;
+                }
+            }
+            if (doMatch) {
+                return true;
+            }
+        }
+        
+        if (secondTpars.isEmpty()) {
+            // The second signature might be the erasure of the first
+            boolean doMatch = true;
+            Iterator<JavaType> k = firstParamTypes.iterator();
+            Iterator<JavaType> l = secondParamTypes.iterator();
+            while (k.hasNext()) {
+                if (!l.next().equals(k.next().getErasedType())) {
+                    doMatch = false;
+                    break;
+                }
+            }
+            return doMatch;
+        }
+        
+        return false;
     }
 
     /**

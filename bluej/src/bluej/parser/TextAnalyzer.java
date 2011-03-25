@@ -874,11 +874,12 @@ public class TextAnalyzer
             if (mparams.size() > args.length + 1)
                 return null;
 
-            GenTypeSolid lastArgType = mparams.get(mparams.size() - 1).getArray();
+            GenTypeSolid lastArgType = mparams.get(mparams.size() - 1).asSolid();
             JavaType vaType = lastArgType.getArrayComponent();
             List<JavaType> expandedParams = new ArrayList<JavaType>(args.length);
             expandedParams.addAll(mparams);
-            for (int i = mparams.size(); i < args.length; i++) {
+            expandedParams.remove(expandedParams.size() - 1); // remove the vararg array
+            for (int i = mparams.size() - 1; i < args.length; i++) {
                 expandedParams.add(vaType);
             }
             mparams = expandedParams;
@@ -906,10 +907,12 @@ public class TextAnalyzer
         // Set up a map we can use to put actual/inferred type arguments. Initialise it
         // with the target type's arguments.
         Map<String,GenTypeParameter> tparMap;
-        if (rawTarget)
+        if (rawTarget) {
             tparMap = new HashMap<String,GenTypeParameter>();
-        else
+        }
+        else {
             tparMap = targetType.getMap();
+        }
 
         // Perform type inference, if necessary
         if (! tparams.isEmpty() && targs.isEmpty()) {
@@ -925,8 +928,9 @@ public class TextAnalyzer
             
             // Time for some type inference
             for (int i = 0; i < mparams.size(); i++) {
-                if (mparams.get(i).isPrimitive())
+                if (mparams.get(i).isPrimitive()) {
                     continue;
+                }
                 
                 GenTypeSolid mparam = (GenTypeSolid) mparams.get(i);
                 mparam = mparam.mapTparsToTypes(tparMap).getCapture().asSolid();
@@ -1568,10 +1572,12 @@ public class TextAnalyzer
          */
         public int compareSpecificity(MethodCallDesc other)
         {
-            if (other.vararg && ! vararg)
+            if (other.vararg && ! vararg) {
                 return 1; // we are more specific
-            if (! other.vararg && vararg)
+            }
+            if (! other.vararg && vararg) {
                 return -1; // we are less specific
+            }
             
             // I am reasonably sure this gives the same result as the algorithm
             // described in the JLS section 15.12.2.5, and it has the advantage
@@ -1589,8 +1595,9 @@ public class TextAnalyzer
                     if (! otherArg.isAssignableFrom(myArg))
                         upCount++;
                 }
-                else if (otherArg.isAssignableFrom(myArg))
+                else if (otherArg.isAssignableFrom(myArg)) {
                     downCount++;
+                }
             }
             
             if (upCount > 0 && downCount == 0) {
@@ -1601,129 +1608,6 @@ public class TextAnalyzer
             }
             
             return 0;
-        }
-    }
-    
-    /**
-     * A value (possibly unknown) with assosciated type
-     */
-    static class ExprValue
-    {
-        // default implementation has no known value
-        public JavaType type;
-        
-        public ExprValue(JavaType type)
-        {
-            this.type = type;
-        }
-        
-        public JavaType getType()
-        {
-            return type;
-        }
-        
-        public boolean knownValue()
-        {
-            return false;
-        }
-        
-        public int intValue()
-        {
-            throw new UnsupportedOperationException();
-        }
-        
-        public long longValue()
-        {
-            throw new UnsupportedOperationException();
-        }
-        
-        public float floatValue()
-        {
-            throw new UnsupportedOperationException();
-        }
-        
-        public double doubleValue()
-        {
-            throw new UnsupportedOperationException();
-        }
-        
-        public boolean booleanValue()
-        {
-            throw new UnsupportedOperationException();
-        }
-    }
-    
-    static class BooleanValue extends ExprValue
-    {
-        boolean val;
-
-        // constructor is private: use getBooleanValue instead
-        private BooleanValue(boolean val)
-        {
-            super(JavaPrimitiveType.getBoolean());
-            this.val = val;
-        }
-        
-        // cache the two values
-        public static BooleanValue trueVal = null;
-        public static BooleanValue falseVal = null;
-        
-        /**
-         * Get an instance of BooleanValue, representing either true or false.
-         */
-        public static BooleanValue getBooleanValue(boolean val)
-        {
-            if (val == true) {
-                if (trueVal == null)
-                    trueVal = new BooleanValue(true);
-                return trueVal;
-            }
-            else {
-                if (falseVal == null)
-                    falseVal = new BooleanValue(false);
-                return falseVal;
-            }
-        }
-        
-        public boolean booleanValue()
-        {
-            return val;
-        }
-    }
-    
-    class NumValue extends ExprValue
-    {
-        private Number val;
-        
-        NumValue(JavaType type, Number val)
-        {
-            super(type);
-            this.val = val;
-        }
-        
-        public boolean knownValue()
-        {
-            return true;
-        }
-        
-        public int intValue()
-        {
-            return val.intValue();
-        }
-        
-        public long longValue()
-        {
-            return val.longValue();
-        }
-        
-        public float floatValue()
-        {
-            return val.floatValue();
-        }
-        
-        public double doubleValue()
-        {
-            return val.doubleValue();
         }
     }
 }
