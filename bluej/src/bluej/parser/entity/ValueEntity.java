@@ -192,10 +192,19 @@ public class ValueEntity extends JavaEntity
     }
     
     /**
+     * Get the constant string value that this entity represents
+     */
+    public String getConstantString()
+    {
+        throw new RuntimeException("Attempt to get constant string value for an entity without such a value");
+    }
+    
+    /**
      * Check whether a value entity represents any kind of constant (knonw at compile-time as per the JLS) value.
      */
     public static boolean isConstant(ValueEntity ent)
     {
-        return ent.hasConstantBooleanValue() || ent.hasConstantIntValue() || ent.hasConstantFloatValue();
+        return ent.hasConstantBooleanValue() || ent.hasConstantIntValue()
+                || ent.hasConstantFloatValue() || ent.isConstantString();
     }
 }

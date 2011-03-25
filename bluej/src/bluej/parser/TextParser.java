@@ -44,6 +44,7 @@ import bluej.parser.TextAnalyzer.MethodCallDesc;
 import bluej.parser.entity.ConstantBoolValue;
 import bluej.parser.entity.ConstantFloatValue;
 import bluej.parser.entity.ConstantIntValue;
+import bluej.parser.entity.ConstantStringEntity;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.ErrorEntity;
 import bluej.parser.entity.JavaEntity;
@@ -1140,7 +1141,15 @@ public class TextParser extends JavaParser
                 return;
             }
             
-            // TODO: constant strings.
+            if (arg1.isConstantString() && arg2.isConstantString()) {
+                String a1 = arg1.getConstantString();
+                String a2 = arg2.getConstantString();
+                boolean rval = (op.type != JavaTokenTypes.EQUAL) ^ a1.equals(a2);
+                valueStack.push(new ConstantBoolValue(rval));
+                return;
+            }
+            
+            valueStack.push(new ErrorEntity());
         }
         
         if (a1type.isNumeric() || a2type.isNumeric()) {
@@ -1471,11 +1480,128 @@ public class TextParser extends JavaParser
         operatorStack.pop();
     }
     
+    private void gotStringLiteral(LocatableToken token)
+    {
+        String ctext = token.getText();
+        StringBuffer sb = new StringBuffer(ctext.length());
+        for (int pos = 1; pos < ctext.length(); pos++) {
+            char c = ctext.charAt(pos); // just after "'"
+            if (c == '\"') {
+                break; // end of string
+            }
+            if (c == '\\') {
+                c = ctext.charAt(2);
+                if (c == 'b') {
+                    c = '\b';
+                }
+                else if (c == 't') {
+                    c = '\t';
+                }
+                else if (c == 'n') {
+                    c = '\n';
+                }
+                else if (c == 'f') {
+                    c = '\f';
+                }
+                else if (c == 'r') {
+                    c = '\r';
+                }
+                else if (c == '\'') {
+                    c = '\'';
+                }
+                else if (c == '\"') {
+                    c = '\"';
+                }
+                else if (c == '\\') {
+                    c = '\\';
+                }
+                else if (c >= '0' && c <= '7') {
+                    // Octal escape
+                    int val = c - '0';
+                    while (++pos < ctext.length()) {
+                        char d = ctext.charAt(pos);
+                        if (d == '\'') break;
+                        if (d < '0' || d > '7') {
+                            valueStack.push(new ErrorEntity());
+                            return;
+                        }
+                        val = val * 8 + (d - '0');
+                        if (val > 0377) {
+                            valueStack.push(new ErrorEntity());
+                            return;
+                        }
+                    }
+                    c = (char) val;
+                }
+                else {
+                    valueStack.push(new ErrorEntity());
+                    return;
+                }
+            }
+            sb.append(c);
+        }
+        JavaType stringType = new GenTypeClass(new JavaReflective(String.class));
+        ValueEntity ent = new ConstantStringEntity(stringType, sb.toString());
+        valueStack.push(ent);
+    }
+    
     @Override
     protected void gotLiteral(LocatableToken token)
     {
         if (token.getType() == JavaTokenTypes.CHAR_LITERAL) {
-            valueStack.push(new ValueEntity(JavaPrimitiveType.getChar()));
+            String ctext = token.getText();
+            char c = ctext.charAt(1); // just after "'"
+            if (c == '\\') {
+                c = ctext.charAt(2);
+                if (c == 'b') {
+                    c = '\b';
+                }
+                else if (c == 't') {
+                    c = '\t';
+                }
+                else if (c == 'n') {
+                    c = '\n';
+                }
+                else if (c == 'f') {
+                    c = '\f';
+                }
+                else if (c == 'r') {
+                    c = '\r';
+                }
+                else if (c == '\'') {
+                    c = '\'';
+                }
+                else if (c == '\"') {
+                    c = '\"';
+                }
+                else if (c == '\\') {
+                    c = '\\';
+                }
+                else if (c >= '0' && c <= '7') {
+                    // Octal escape
+                    int val = c - '0';
+                    int pos = 3;
+                    while (pos < ctext.length()) {
+                        char d = ctext.charAt(pos++);
+                        if (d == '\'') break;
+                        if (d < '0' || d > '7') {
+                            valueStack.push(new ErrorEntity());
+                            return;
+                        }
+                        val = val * 8 + (d - '0');
+                        if (val > 0377) {
+                            valueStack.push(new ErrorEntity());
+                            return;
+                        }
+                    }
+                    c = (char) val;
+                }
+                else {
+                    valueStack.push(new ErrorEntity());
+                    return;
+                }
+            }
+            valueStack.push(new ConstantIntValue(null, JavaPrimitiveType.getChar(), c));
         }
         else if (token.getType() == JavaTokenTypes.NUM_INT) {
             try {
@@ -1486,20 +1612,36 @@ public class TextParser extends JavaParser
             }
         }
         else if (token.getType() == JavaTokenTypes.NUM_LONG) {
-            valueStack.push(new ValueEntity(JavaPrimitiveType.getLong()));
+            try {
+                String text = token.getText();
+                text = text.substring(0, text.length() - 1); // remove 'l' or 'L' suffix
+                valueStack.push(new ConstantIntValue(null, JavaPrimitiveType.getLong(), Long.decode(text)));
+            }
+            catch (NumberFormatException nfe) {
+                valueStack.push(new ErrorEntity());
+            }
         }
         else if (token.getType() == JavaTokenTypes.NUM_FLOAT) {
-            valueStack.push(new ValueEntity(JavaPrimitiveType.getFloat()));
+            try {
+                valueStack.push(new ConstantFloatValue(JavaPrimitiveType.getFloat(), Float.parseFloat(token.getText())));
+            }
+            catch (NumberFormatException nfe) {
+                valueStack.push(new ErrorEntity());
+            }
         }
         else if (token.getType() == JavaTokenTypes.NUM_DOUBLE) {
-            valueStack.push(new ValueEntity(JavaPrimitiveType.getDouble()));
+            try {
+                valueStack.push(new ConstantFloatValue(JavaPrimitiveType.getDouble(), Double.parseDouble(token.getText())));
+            }
+            catch (NumberFormatException nfe) {
+                valueStack.push(new ErrorEntity());
+            }
         }
         else if (token.getType() == JavaTokenTypes.LITERAL_null) {
             valueStack.push(new NullEntity());
         }
         else if (token.getType() == JavaTokenTypes.STRING_LITERAL) {
-            ValueEntity ent = new ValueEntity(new GenTypeClass(new JavaReflective(String.class)));
-            valueStack.push(ent);
+            gotStringLiteral(token);
         }
         else if (token.getType() == JavaTokenTypes.LITERAL_true
                 || token.getType() == JavaTokenTypes.LITERAL_false) {
