@@ -691,10 +691,36 @@ public class TextParserTest extends TestCase
         checkConstBool(exprType, true);
     }
     
+    public void testConstantExpressions2()
+    {
+        TextParser parser = new TextParser(resolver, "3l", null, true);
+        parser.parseExpression();
+        assertTrue(parser.atEnd());
+        JavaEntity exprType = parser.getExpressionType();
+        checkConstInt(exprType, 3);
+        
+        parser = new TextParser(resolver, "(int)4f", null, true);
+        parser.parseExpression();
+        assertTrue(parser.atEnd());
+        exprType = parser.getExpressionType();
+        checkConstInt(exprType, 4);
+        
+        parser = new TextParser(resolver, "(int)5.0", null, true);
+        parser.parseExpression();
+        assertTrue(parser.atEnd());
+        exprType = parser.getExpressionType();
+        checkConstInt(exprType, 5);
+        
+        parser = new TextParser(resolver, "\'a\'", null, true);
+        parser.parseExpression();
+        assertTrue(parser.atEnd());
+        exprType = parser.getExpressionType();
+        checkConstInt(exprType, 'a');
+    }
+    
     public void testConstantStrings()
     {
         // From JLS 15.28
-        
         TextParser parser = new TextParser(resolver, "\"hello\" == \"hello\"", null, true);
         parser.parseExpression();
         assertTrue(parser.atEnd());
@@ -702,7 +728,7 @@ public class TextParserTest extends TestCase
         checkConstBool(exprType, true);
 
         // casts to String do not remove constness
-        parser = new TextParser(resolver, "\"hello\" == (String)\"hello\"", null, true);
+        parser = new TextParser(resolver, "\"hello\" == (java.lang.String)\"hello\"", null, true);
         parser.parseExpression();
         assertTrue(parser.atEnd());
         exprType = parser.getExpressionType();
