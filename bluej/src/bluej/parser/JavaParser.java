@@ -550,7 +550,7 @@ public class JavaParser
             // optional: class/interface/enum
             beginElement(token);
             tokenStream.pushBack(token);
-            parseTypeDef();
+            parseTypeDef(token);
             reachedCUstate(2); state = 2;
         }
         else if (token.getType() == JavaTokenTypes.EOF) {
@@ -670,7 +670,18 @@ public class JavaParser
      */
     public final void parseTypeDef()
     {
-        LocatableToken firstToken = tokenStream.LA(1);
+        parseTypeDef(tokenStream.LA(1));
+    }
+    
+    /**
+     * Parse a type definition (class, interface, enum).
+     * Returns with {@code lastToken} set to the last token seen as part of the definition.
+     * 
+     * @param firstToken  the first token of the type definition, which might still be in the token
+     *                    stream, or which might be a modifier already read.
+     */
+    public final void parseTypeDef(LocatableToken firstToken)
+    {
         int tdType = parseTypeDefBegin();
         if (tdType != TYPEDEF_EPIC_FAIL) {
             gotTypeDef(firstToken, tdType);
@@ -1020,7 +1031,7 @@ public class JavaParser
                 || token.getType() == JavaTokenTypes.LITERAL_enum
                 || token.getType() == JavaTokenTypes.AT) {
             tokenStream.pushBack(token);
-            parseTypeDef();
+            parseTypeDef(firstMod != null ? firstMod : token);
         }
         else {
             // Not an inner type: should be a method/constructor or field,
@@ -1446,7 +1457,7 @@ public class JavaParser
             tokenStream.pushBack(token);
             parseModifiers();
             if (isTypeDeclarator(tokenStream.LA(1)) || tokenStream.LA(1).getType() == JavaTokenTypes.AT) {
-                parseTypeDef();
+                parseTypeDef(token);
             }
             else {
                 parseVariableDeclarations(token);
@@ -1456,7 +1467,7 @@ public class JavaParser
         case 29: // LITERAL_enum
         case 30: // LITERAL_interface
             tokenStream.pushBack(token);
-            parseTypeDef();
+            parseTypeDef(token);
             return null;
         case 31: // LITERAL_void
         case 32: // LITERAL_boolean
