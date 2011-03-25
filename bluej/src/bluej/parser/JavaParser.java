@@ -107,6 +107,11 @@ public class JavaParser
         error(msg, token.getLine(), token.getColumn(), token.getEndLine(), token.getEndColumn());
     }
     
+    private void errorBefore(String msg, LocatableToken token)
+    {
+        error(msg, token.getLine(), token.getColumn(), token.getLine(), token.getColumn());
+    }
+    
     private void errorBehind(String msg, LocatableToken token)
     {
         error(msg, token.getEndLine(), token.getEndColumn(), token.getEndLine(), token.getEndColumn());
@@ -973,10 +978,11 @@ public class JavaParser
     {
         List<LocatableToken> rval = new LinkedList<LocatableToken>();
         
-        LocatableToken token = nextToken();
+        LocatableToken token = tokenStream.nextToken();
         while (isModifier(token)) {
             if (token.getType() == JavaTokenTypes.AT) {
-                if( tokenStream.LA(1).getType() != JavaTokenTypes.LITERAL_interface) {                                  
+                if( tokenStream.LA(1).getType() == JavaTokenTypes.IDENT) {
+                    lastToken = token;
                     parseAnnotation();
                 }
                 else {
@@ -987,6 +993,7 @@ public class JavaParser
             else {
                 gotModifier(token);
             }
+            lastToken = token;
             rval.add(token);
             token = nextToken();
         }                       
@@ -1003,7 +1010,7 @@ public class JavaParser
         LocatableToken token = tokenStream.nextToken();
         while (token.getType() != JavaTokenTypes.RCURLY) {
             if (token.getType() == JavaTokenTypes.EOF) {
-                error("Unexpected end-of-file in type body; missing '}'");
+                error("Unexpected end-of-file in type body; missing '}'", token);
                 return;
             }
             parseClassElement(token);
@@ -1157,7 +1164,7 @@ public class JavaParser
         while (token.getType() == JavaTokenTypes.LBRACK) {
             token = nextToken();
             if (token.getType() != JavaTokenTypes.RBRACK) {
-                error("Expecting ']' (to match '[')");
+                errorBefore("Expecting ']' (to match '[')", token);
                 if (tokenStream.LA(1).getType() == JavaTokenTypes.RBRACK) {
                     // Try and recover
                     token = nextToken(); // ']'
@@ -1243,7 +1250,7 @@ public class JavaParser
                 endElement(tokenStream.LA(1), false);
                 if (ntoken == token) {
                     nextToken();
-                    error("Unexpected token: '" + ntoken.getText() + "'");
+                    error("Invalid beginning of statement.", token);
                     continue;
                     // TODO we can just skip the token and keep processing, but we should be
                     // context aware. For instance if token is "catch" and we are in a try block,
@@ -1609,20 +1616,28 @@ public class JavaParser
         return token;
     }
         
+    /**
+     * Parse an "assert" statement. Returns the concluding semi-colon token, or null on error.
+     * {@code lastToken} will be set to the last token which is part of the statement.
+     * 
+     * @param token   The token corresponding to the "assert" keyword.
+     */
     public LocatableToken parseAssertStatement(LocatableToken token)
     {
         parseExpression();
-        token = nextToken();
+        token = tokenStream.nextToken();
         if (token.getType() == JavaTokenTypes.COLON) {
             // Should be followed by a string
+            lastToken = token;
             parseExpression();
-            token = nextToken();
+            token = tokenStream.nextToken();
         }
         if (token.getType() != JavaTokenTypes.SEMI) {
             error("Expected ';' at end of assertion statement");
             tokenStream.pushBack(token);
             return null;
         }
+        lastToken = token;
         return token;
     }
 
@@ -1912,7 +1927,7 @@ public class JavaParser
                     error(BJ002, token);
                 }
                 else {
-                    error(BJ001);
+                    errorBefore(BJ001, token);
                 }
                 endIfStmt(token, false);
                 return null;
@@ -2499,21 +2514,16 @@ public class JavaParser
     }
 
     /**
-     * Parse an annotation (having already seen '@')
+     * Parse an annotation (having already seen '@', and having an identifier next in the token stream)
      */
     public void parseAnnotation()
     {
-        if (tokenStream.LA(1).getType() == JavaTokenTypes.IDENT) {                
-            LocatableToken token = nextToken(); // IDENT
-            parseDottedIdent(token);
-            if (tokenStream.LA(1).getType() == JavaTokenTypes.LPAREN) {
-                // arguments
-                token = tokenStream.nextToken(); // LPAREN
-                parseArgumentList(token);
-            }
-        }
-        else {
-            error("Expecting identifier after an @");
+        LocatableToken token = nextToken(); // IDENT
+        parseDottedIdent(token);
+        if (tokenStream.LA(1).getType() == JavaTokenTypes.LPAREN) {
+            // arguments
+            token = tokenStream.nextToken(); // LPAREN
+            parseArgumentList(token);
         }
     }
         
@@ -2527,7 +2537,7 @@ public class JavaParser
             LocatableToken hiddenToken = (LocatableToken) token.getHiddenBefore();
             LocatableToken idToken = nextToken(); // identifier
             if (idToken.getType() != JavaTokenTypes.IDENT) {
-                error("Expected identifier (method or field name).");
+                error("Expected identifier (method or field name).", idToken);
                 return;
             }
 
@@ -2539,7 +2549,7 @@ public class JavaParser
                 parseMethodParamsBody();
             }
             else {
-                error("Expected ';' or '=' or '(' (in field or method declaration), got token type: " + token.getType());
+                error("Expected ';' or '=' or '(' (in field or method declaration).", token);
                 tokenStream.pushBack(token);
             }
             token = nextToken();
@@ -2547,7 +2557,7 @@ public class JavaParser
                 parseExpression();
                 token = nextToken();
                 if (token.getType()!= JavaTokenTypes.SEMI){
-                    error("Expected ';' or '=' or '(' (in field or method declaration), got token type: " + token.getType());
+                    errorBefore("Expected ';' or '=' or '(' (in field or method declaration).", token);
                     tokenStream.pushBack(token);
                 }
                 token = nextToken();
@@ -2686,7 +2696,7 @@ public class JavaParser
                     token = nextToken();
                 } while (token.getType() == JavaTokenTypes.COMMA);
                 if (token.getType() != JavaTokenTypes.RCURLY) {
-                    error("Expected '}' at end of initialiser list expression");
+                    errorBefore("Expected '}' at end of initialiser list expression", token);
                     tokenStream.pushBack(token);
                 }
                 break;
@@ -3047,7 +3057,7 @@ public class JavaParser
             token = nextToken();
         } while (token.getType() == JavaTokenTypes.COMMA);
         if (token.getType() != JavaTokenTypes.RCURLY) {
-            error("Expected '}' at end of initialiser list expression");
+            errorBefore("Expected '}' at end of initialiser list expression", token);
             tokenStream.pushBack(token);
         }
         return token;
@@ -3147,7 +3157,7 @@ public class JavaParser
                 endArgument();
             } while (token.getType() == JavaTokenTypes.COMMA);
             if (token.getType() != JavaTokenTypes.RPAREN) {
-                error("Expecting ',' or ')' (in argument list)");
+                errorBefore("Expecting ',' or ')' (in argument list)", token);
                 tokenStream.pushBack(token);
             }
         }
