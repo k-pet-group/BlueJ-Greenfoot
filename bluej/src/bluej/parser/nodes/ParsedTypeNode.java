@@ -57,18 +57,20 @@ public class ParsedTypeNode extends IncrementalParsingNode
     private List<JavaEntity> extendedTypes;
     private List<JavaEntity> implementedTypes;
     private int modifiers;
+    private ParsedTypeNode containingClass;
     
     private int type; // one of JavaParser.TYPEDEF_CLASS, INTERFACE, ENUM, ANNOTATION
     
     /**
      * Construct a new ParsedTypeNode
      * @param parent  The parent node
-     * @param name    The base name of the type
+     * @param containingClass   The node representing the class containing this one
+     * @param type    The type of this type: JavaParser.{TYPEDEF_CLASS,_INTERFACE,_ENUM or _ANNOTATION}
      * @param prefix  The prefix of the name, including the final ".", to make this a full
      *                type name
      * @param modifiers  The class modifiers (see java.lang.reflect.Modifier)
      */
-    public ParsedTypeNode(JavaParentNode parent, int type, String prefix, int modifiers)
+    public ParsedTypeNode(JavaParentNode parent, ParsedTypeNode containingClass, int type, String prefix, int modifiers)
     {
         super(parent);
         stateMarkers = new int[2];
@@ -78,6 +80,7 @@ public class ParsedTypeNode extends IncrementalParsingNode
         this.type = type;
         this.prefix = prefix;
         this.modifiers = modifiers;
+        this.containingClass = containingClass;
     }
     
     /**
@@ -95,6 +98,14 @@ public class ParsedTypeNode extends IncrementalParsingNode
     public int getModifiers()
     {
         return modifiers;
+    }
+    
+    /**
+     * Get the node representing the class containing this one.
+     */
+    public ParsedTypeNode getContainingClass()
+    {
+        return containingClass;
     }
     
     public void setTypeParams(List<TparEntity> typeParams)

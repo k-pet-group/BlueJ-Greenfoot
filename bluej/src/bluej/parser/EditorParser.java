@@ -70,6 +70,7 @@ import bluej.parser.symtab.Selection;
 public class EditorParser extends JavaParser
 {
     protected Stack<JavaParentNode> scopeStack = new Stack<JavaParentNode>();
+    private ParsedTypeNode innermostType;
     
     private LocatableToken pcuStmtBegin;
     private ParsedCUNode pcuNode;
@@ -421,17 +422,17 @@ public class EditorParser extends JavaParser
             prefix = (declaredPkg.length() == 0) ? "" : (declaredPkg + ".");
         }
         
-        JavaParentNode pnode = new ParsedTypeNode(scopeStack.peek(), tdType, prefix, currentModifiers);
+        innermostType = new ParsedTypeNode(scopeStack.peek(), innermostType, tdType, prefix, currentModifiers);
         int curOffset = getTopNodeOffset();
         LocatableToken hidden = firstToken.getHiddenBefore();
         if (hidden != null && hidden.getType() == JavaTokenTypes.ML_COMMENT) {
             firstToken = hidden;
-            pnode.setCommentAttached(true);
+            innermostType.setCommentAttached(true);
         }
         int insPos = lineColToPosition(firstToken.getLine(), firstToken.getColumn());
         beginNode(insPos);
-        scopeStack.peek().insertNode(pnode, insPos - curOffset, 0);
-        scopeStack.push(pnode);
+        scopeStack.peek().insertNode(innermostType, insPos - curOffset, 0);
+        scopeStack.push(innermostType);
         initializeTypeExtras();
     }
     
@@ -785,6 +786,7 @@ public class EditorParser extends JavaParser
     protected void gotTypeDefEnd(LocatableToken token, boolean included)
     {
         endTopNode(token, included);
+        innermostType = innermostType.getContainingClass();
         gotExtends = false;
         gotImplements = false;
     }
@@ -1082,9 +1084,23 @@ public class EditorParser extends JavaParser
     }
     
     @Override
-    protected void beginAnonClassBody(LocatableToken token)
+    protected void beginAnonClassBody(LocatableToken token, boolean isEnumMember)
     {
-        ParsedTypeNode pnode = new ParsedTypeNode(scopeStack.peek(), JavaParser.TYPEDEF_CLASS, null, 0); // TODO generate Abc$1 ?
+        ParsedTypeNode pnode = new ParsedTypeNode(scopeStack.peek(), innermostType,
+                JavaParser.TYPEDEF_CLASS, null, 0); // TODO generate Abc$1 ?
+        
+        JavaEntity supert;
+        if (! isEnumMember) {
+            supert = ParseUtils.getTypeEntity(scopeStack.peek(), currentQuerySource(), lastTypeSpec);
+        }
+        else {
+            supert = new TypeEntity(new ParsedReflective(innermostType));
+        }
+        List<JavaEntity> superts = new ArrayList<JavaEntity>(1);
+        superts.add(supert);
+        pnode.setExtendedTypes(superts);
+        
+        innermostType = pnode;
         int curOffset = getTopNodeOffset();
         LocatableToken begin = token;
         int insPos = lineColToPosition(begin.getLine(), begin.getColumn());
@@ -1106,6 +1122,7 @@ public class EditorParser extends JavaParser
     {
         endTopNode(token, false);  // inner node
         endTopNode(token, included);  // outer node
+        innermostType = innermostType.getContainingClass();
     }
     
     @Override

@@ -258,8 +258,8 @@ public class JavaParser
     
     protected void endExprNew(LocatableToken token, boolean included) { }
     
-    /** An anonymous class body */
-    protected void beginAnonClassBody(LocatableToken token) { }
+    /** An anonymous class body. Preceded by a type spec (see gotTypeSpec()) except in the case of an enum member body. */
+    protected void beginAnonClassBody(LocatableToken token, boolean isEnumMember) { }
     
     protected void endAnonClassBody(LocatableToken token, boolean included) { }
     
@@ -862,7 +862,7 @@ public class JavaParser
             
             // "body"
             if (token.getType() == JavaTokenTypes.LCURLY) {
-                beginAnonClassBody(token);
+                beginAnonClassBody(token, true);
                 parseClassBody();
                 token = nextToken();
                 if (token.getType() != JavaTokenTypes.RCURLY) {
@@ -3124,7 +3124,7 @@ public class JavaParser
         if (tokenStream.LA(1).getType() == JavaTokenTypes.LCURLY) {
             // a class body (anonymous inner class)
             token = nextToken(); // LCURLY
-            beginAnonClassBody(token);
+            beginAnonClassBody(token, false);
             parseClassBody();
             token = nextToken();
             if (token.getType() != JavaTokenTypes.RCURLY) {
