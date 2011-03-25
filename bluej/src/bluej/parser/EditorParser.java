@@ -24,6 +24,7 @@ package bluej.parser;
 import java.io.Reader;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -1099,6 +1100,7 @@ public class EditorParser extends JavaParser
         List<JavaEntity> superts = new ArrayList<JavaEntity>(1);
         superts.add(supert);
         pnode.setExtendedTypes(superts);
+        pnode.setImplementedTypes(Collections.<JavaEntity>emptyList());
         
         innermostType = pnode;
         int curOffset = getTopNodeOffset();
