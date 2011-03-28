@@ -539,7 +539,8 @@ public abstract class BlueJSyntaxView extends MoePlainView
             if (node.getNodeType() == ParsedNode.NODETYPE_ITERATION) {
                 return new Color[] { I1, I2 };
             }
-            if (node.getNodeType() == ParsedNode.NODETYPE_SELECTION) {
+            if (node.getNodeType() == ParsedNode.NODETYPE_SELECTION
+                    || node.getNodeType() == ParsedNode.NODETYPE_NONE) {
                 return new Color[] { S1, S2 };
             }
             return new Color[] { C1, C2 };

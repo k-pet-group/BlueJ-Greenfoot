@@ -241,6 +241,10 @@ public class JavaParser
     
     protected void endTryCatchStmt(LocatableToken token, boolean included) { }
     
+    protected void beginSynchronizedBlock(LocatableToken token) { }
+    
+    protected void endSynchronizedBlock(LocatableToken token, boolean included) { }
+    
     /** A list of a parameters to a method or constructor */
     protected void beginArgumentList(LocatableToken token) { }
     
@@ -1424,30 +1428,38 @@ public class JavaParser
             }
         case 16: // LITERAL_synchronized
             // Synchronized block
+            beginSynchronizedBlock(token);
             token = nextToken();
             if (token.getType() == JavaTokenTypes.LPAREN) {
                 parseExpression();
                 token = nextToken();
                 if (token.getType() != JavaTokenTypes.RPAREN) {
-                    error("Expecting ')' at end of expression");
+                    errorBefore("Expecting ')' at end of expression", token);
                     tokenStream.pushBack(token);
+                    endSynchronizedBlock(token, false);
                     return null;
                 }
                 token = tokenStream.nextToken();
             }
             if (token.getType() == JavaTokenTypes.LCURLY) {
+                beginStmtblockBody(token);
                 parseStmtBlock();
                 token = nextToken();
                 if (token.getType() != JavaTokenTypes.RCURLY) {
                     error("Expecting '}' at end of synchronized block");
                     tokenStream.pushBack(token);
+                    endStmtblockBody(token, false);
+                    endSynchronizedBlock(token, false);
                     return null;
                 }
+                endStmtblockBody(token, true);
+                endSynchronizedBlock(token, true);
                 return token;
             }
             else {
                 error("Expecting statement block after 'synchronized'");
                 tokenStream.pushBack(token);
+                endSynchronizedBlock(token, false);
                 return null;
             }
         case 17: // LITERAL_public

@@ -726,7 +726,7 @@ public class EditorParser extends JavaParser
     protected void beginStmtblockBody(LocatableToken token)
     {
         int curOffset = getTopNodeOffset();
-        if (scopeStack.peek().getNodeType() == ParsedNode.NODETYPE_NONE) {
+        if (! scopeStack.peek().isContainer()) {
             // This is conditional, because the outer block may be a loop or selection
             // statement which already exists.
             JavaParentNode blockNode = new ContainerNode(scopeStack.peek(), ParsedNode.NODETYPE_NONE);
@@ -752,6 +752,17 @@ public class EditorParser extends JavaParser
         if (scopeStack.peek().getNodeType() == ParsedNode.NODETYPE_NONE) {
             endTopNode(token, included);
         }
+    }
+    
+    @Override
+    protected void beginSynchronizedBlock(LocatableToken token)
+    {
+        JavaParentNode tryNode = new ContainerNode(scopeStack.peek(), ParsedNode.NODETYPE_NONE);
+        int curOffset = getTopNodeOffset();
+        int insPos = lineColToPosition(token.getLine(), token.getColumn());
+        beginNode(insPos);
+        scopeStack.peek().insertNode(tryNode, insPos - curOffset, 0);
+        scopeStack.push(tryNode);
     }
     
     @Override
