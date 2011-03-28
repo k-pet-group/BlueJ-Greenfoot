@@ -24,6 +24,7 @@ package bluej.parser;
 import java.io.Reader;
 import java.io.StringReader;
 import java.lang.reflect.Modifier;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.text.BadLocationException;
@@ -412,6 +413,33 @@ public class CompletionTest extends TestCase
         Reflective outer = accessType.getReflective().getOuterClass();
         assertNotNull(outer);
         assertEquals("A", outer.getName());
+    }
+    
+    public void testInnerClasses4() throws Exception
+    {
+        String aClassSrc =
+            "class A {\n" +                         // 0-10
+            "  Runnable r = new Thread(new String(\"xxxx\")) {\n" +   // 10-58
+            "    String x = \"\";\n" +              // 58-77
+            "    public void run() {\n" +           // 77-101
+            "      this.run();\n" +                 //  this. <-- 112
+            "    }\n" +
+            "  };\n" +
+            "}\n";
+        
+        PlainDocument doc = new PlainDocument();
+        doc.insertString(0, aClassSrc, null);
+        
+        ParsedCUNode aNode = cuForSource(aClassSrc, "");
+        resolver.addCompilationUnit("", aNode);
+        
+        CodeSuggestions suggests = aNode.getExpressionType(109, doc);
+        assertNotNull(suggests);
+        GenTypeClass suggestsType = suggests.getSuggestionType().asClass();
+        assertNotNull(suggestsType);
+        List<GenTypeClass> supers = suggestsType.getReflective().getSuperTypes();
+        assertEquals(1, supers.size());
+        assertEquals("java.lang.Thread", supers.get(0).toString());
     }
     
     public void testPartial() throws Exception
