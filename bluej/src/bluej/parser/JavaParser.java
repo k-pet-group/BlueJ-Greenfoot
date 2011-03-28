@@ -3089,8 +3089,9 @@ public class JavaParser
                 token = nextToken();
                 if (token.getType() != JavaTokenTypes.RBRACK) {
                     tokenStream.pushBack(token);
-                    error("Expecting ']' after array dimension (in new ... expression)");
+                    errorBefore("Expecting ']' after array dimension (in new ... expression)", token);
                     endExprNew(token, false);
+                    return;
                 }
                 else {
                     gotNewArrayDeclarator(withDimension);

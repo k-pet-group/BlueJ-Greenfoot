@@ -93,6 +93,12 @@ public class EditorParser extends JavaParser
     private boolean gotExtends = false;
     private boolean gotImplements = false;
     
+    private boolean gotNewType = true;  // whether we've seen the type in a "new TYPE(..." expression,
+        // assuming we're in such an expression. (If false, we have seen new, but not the type).
+    
+    /** Stack of types instantiated via "new ...()" expression */
+    private Stack<List<LocatableToken>> newTypes = new Stack<List<LocatableToken>>();
+    
     private int currentModifiers = 0;
     
     /**
@@ -946,6 +952,22 @@ public class EditorParser extends JavaParser
     }
     
     @Override
+    protected void gotExprNew(LocatableToken token)
+    {
+        gotNewType = false;
+    }
+    
+    @Override
+    protected void endExprNew(LocatableToken token, boolean included)
+    {
+        if (gotNewType) {
+            // We have a type on the top of the stack
+            newTypes.pop();
+        }
+        gotNewType = true; // outer "new" has type
+    }
+    
+    @Override
     protected void gotTypeSpec(List<LocatableToken> tokens)
     {
         if (gotExtends) {
@@ -961,6 +983,10 @@ public class EditorParser extends JavaParser
             if (supert != null) {
                 implementedTypes.add(supert);
             }
+        }
+        else if (! gotNewType) {
+            gotNewType = true;
+            newTypes.push(tokens);
         }
         else {
             lastTypeSpec = tokens;
@@ -1092,7 +1118,7 @@ public class EditorParser extends JavaParser
         
         JavaEntity supert;
         if (! isEnumMember) {
-            supert = ParseUtils.getTypeEntity(scopeStack.peek(), currentQuerySource(), lastTypeSpec);
+            supert = ParseUtils.getTypeEntity(scopeStack.peek(), currentQuerySource(), newTypes.peek());
         }
         else {
             supert = new TypeEntity(new ParsedReflective(innermostType));
