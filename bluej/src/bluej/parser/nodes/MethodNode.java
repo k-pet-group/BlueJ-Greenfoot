@@ -213,6 +213,18 @@ public class MethodNode extends JavaParentNode
     @Override
     public JavaEntity getValueEntity(String name, Reflective querySource)
     {
+        JavaEntity paramEntity = getParameterEntity(name, querySource);
+        if (paramEntity != null) {
+            return paramEntity;
+        }
+        return super.getValueEntity(name, querySource);
+    }
+    
+    /**
+     * Look for a value entity in the method parameters.
+     */
+    private JavaEntity getParameterEntity(String name, Reflective querySource)
+    {
         Iterator<String> i = paramNames.iterator();
         Iterator<JavaEntity> j = paramTypes.iterator();
         while (i.hasNext()) {
@@ -225,7 +237,7 @@ public class MethodNode extends JavaParentNode
             }
             j.next();
         }
-        return super.getValueEntity(name, querySource);
+        return null;
     }
     
     @Override

@@ -21,6 +21,13 @@
  */
 package bluej.parser.nodes;
 
+import bluej.debugger.gentype.Reflective;
+import bluej.parser.entity.JavaEntity;
+import bluej.parser.entity.PackageOrClass;
+import bluej.parser.entity.ParsedReflective;
+import bluej.parser.entity.TypeEntity;
+import bluej.parser.entity.ValueEntity;
+
 /**
  * A generic "inner" representation (for eg. loop bodies)
  * 
@@ -37,5 +44,44 @@ public class InnerNode extends JavaParentNode
     protected boolean marksOwnEnd()
     {
         return false;
+    }
+    
+    @Override
+    public JavaEntity getValueEntity(String name, Reflective querySource, int fromPosition)
+    {
+        FieldNode var = variables.get(name);
+        if (var != null && var.getOffsetFromParent() <= fromPosition) {
+            JavaEntity fieldType = var.getFieldType().resolveAsType();
+            if (fieldType != null) {
+                return new ValueEntity(fieldType.getType());
+            }
+        }
+        
+        JavaEntity rval = null;
+        if (parentNode != null) {
+            rval = parentNode.getValueEntity(name, querySource, getOffsetFromParent());
+        }
+        
+        if (rval == null) {
+            rval = resolvePackageOrClass(name, querySource, fromPosition);
+        }
+        
+        return rval;
+    }
+    
+    @Override
+    public PackageOrClass resolvePackageOrClass(String name,
+            Reflective querySource, int fromPosition)
+    {
+        ParsedNode cnode = classNodes.get(name);
+        if (cnode != null && cnode.getOffsetFromParent() <= fromPosition) {
+            return new TypeEntity(new ParsedReflective((ParsedTypeNode) cnode));
+        }
+        
+        PackageOrClass rval = null;
+        if (parentNode != null) {
+            rval = parentNode.resolvePackageOrClass(name, querySource);
+        }
+        return rval;
     }
 }

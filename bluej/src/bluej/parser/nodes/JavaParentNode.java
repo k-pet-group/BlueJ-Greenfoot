@@ -55,14 +55,14 @@ import bluej.utility.GeneralCache;
 public abstract class JavaParentNode extends ParentParsedNode
     implements EntityResolver
 {
-    private GeneralCache<String,JavaEntity> valueEntityCache =
+    protected GeneralCache<String,JavaEntity> valueEntityCache =
         new GeneralCache<String,JavaEntity>(10);
-    private GeneralCache<String,PackageOrClass> pocEntityCache =
+    protected GeneralCache<String,PackageOrClass> pocEntityCache =
         new GeneralCache<String,PackageOrClass>(10);
 
-    private JavaParentNode parentNode;
+    protected JavaParentNode parentNode;
     
-    private Map<String,ParsedNode> classNodes = new HashMap<String,ParsedNode>();
+    protected Map<String,ParsedNode> classNodes = new HashMap<String,ParsedNode>();
     protected Map<String,FieldNode> variables = new HashMap<String,FieldNode>();
 
     public JavaParentNode(JavaParentNode parent)
@@ -187,6 +187,15 @@ public abstract class JavaParentNode extends ParentParsedNode
         return rval;
     }
     
+    /**
+     * Resolve a package or type, based on what is visible from the given position in the node.
+     * This allows for forward declarations not being visible.
+     */
+    public PackageOrClass resolvePackageOrClass(String name, Reflective querySource, int fromPosition)
+    {
+        return resolvePackageOrClass(name, querySource);
+    }
+    
     /*
      * @see bluej.parser.entity.EntityResolver#getValueEntity(java.lang.String, java.lang.String)
      */
@@ -207,15 +216,24 @@ public abstract class JavaParentNode extends ParentParsedNode
         }
         
         if (parentNode != null) {
-            rval = parentNode.getValueEntity(name, querySource);
+            rval = parentNode.getValueEntity(name, querySource, getOffsetFromParent());
         }
         
         if (rval == null) {
-            rval = resolvePackageOrClass(name, querySource);
+            rval = resolvePackageOrClass(name, querySource, getOffsetFromParent());
         }
         
         valueEntityCache.put(accessp, rval);
         return rval;
+    }
+    
+    /**
+     * Resolve a value, based on what is visible from a given position within the node.
+     * This allows for forward declarations not being visible.
+     */
+    public JavaEntity getValueEntity(String name, Reflective querySource, int fromPosition)
+    {
+        return getValueEntity(name, querySource);
     }
     
     @Override

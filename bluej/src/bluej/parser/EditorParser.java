@@ -169,7 +169,7 @@ public class EditorParser extends JavaParser
      * @param col   Column number (1..N)
      * @return   The absolute position (0..N)
      */
-    private int lineColToPosition(int line, int col)
+    protected int lineColToPosition(int line, int col)
     {
         if (document == null) {
             return 0;
@@ -249,7 +249,7 @@ public class EditorParser extends JavaParser
     /**
      * Get the start position of the top node in the scope stack.
      */
-    private int getTopNodeOffset()
+    protected int getTopNodeOffset()
     {
         Iterator<JavaParentNode> i = scopeStack.iterator();
         if (!i.hasNext()) {

@@ -46,6 +46,7 @@ import bluej.parser.entity.UnresolvedArray;
 import bluej.parser.entity.UnresolvedEntity;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
+import bluej.parser.nodes.JavaParentNode;
 import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
 import bluej.pkgmgr.Package;
@@ -102,8 +103,9 @@ public class InfoParser extends EditorParser
     class UnresolvedVal
     {
         List<LocatableToken> components;
-        EntityResolver resolver;
+        JavaParentNode resolver;
         Reflective accessSource;
+        int accessPosition;
     }
     
     private List<JavaEntity> typeReferences = new LinkedList<JavaEntity>();
@@ -251,7 +253,7 @@ public class InfoParser extends EditorParser
         for (UnresolvedVal val: valueReferences) {
             Iterator<LocatableToken> i = val.components.iterator();
             String name = i.next().getText();
-            JavaEntity entity = val.resolver.getValueEntity(name, val.accessSource);
+            JavaEntity entity = val.resolver.getValueEntity(name, val.accessSource, val.accessPosition);
             if (entity != null && entity.resolveAsValue() != null) {
                 continue refloop;
             }
@@ -455,6 +457,8 @@ public class InfoParser extends EditorParser
         currentUnresolvedVal.components.add(token);
         currentUnresolvedVal.resolver = scopeStack.peek();
         currentUnresolvedVal.accessSource = currentQuerySource();
+        int tokenPosition = lineColToPosition(token.getLine(), token.getColumn());
+        currentUnresolvedVal.accessPosition = tokenPosition - getTopNodeOffset();
     }
     
     @Override
