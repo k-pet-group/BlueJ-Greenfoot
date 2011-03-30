@@ -493,6 +493,7 @@ public class EditorParser extends JavaParser
     protected void gotTypeParamBound(List<LocatableToken> tokens)
     {
         lastTypeParBounds.add(tokens);
+        typeParams.add(new TypeParam(lastTypeParamName, lastTypeParBounds));
     }
     
     /**
@@ -501,10 +502,15 @@ public class EditorParser extends JavaParser
      * themselves before the returned type parameter entities are resolved (because
      * type parameters may have other type parameters as bounds).
      */
-    private List<TparEntity> getTparList(EntityResolver resolver)
+    public final List<TparEntity> getTparList(EntityResolver resolver)
     {
         if (typeParams == null) {
             return null;
+        }
+        
+        if (lastTypeParamName != null) {
+            typeParams.add(new TypeParam(lastTypeParamName, lastTypeParBounds));
+            lastTypeParamName = null;
         }
         
         Reflective querySource = currentQuerySource();
@@ -524,10 +530,6 @@ public class EditorParser extends JavaParser
     @Override
     protected void beginTypeBody(LocatableToken token)
     {
-        if (lastTypeParamName != null) {
-            typeParams.add(new TypeParam(lastTypeParamName, lastTypeParBounds));
-        }
-        
         ParsedTypeNode top = (ParsedTypeNode) scopeStack.peek();
         top.setTypeParams(getTparList(top));
         top.setExtendedTypes(extendedTypes);
@@ -933,11 +935,6 @@ public class EditorParser extends JavaParser
         
         int curOffset = getTopNodeOffset();
         int insPos = lineColToPosition(start.getLine(), start.getColumn());
-
-        if (lastTypeParamName != null) {
-            typeParams.add(new TypeParam(lastTypeParamName, lastTypeParBounds));
-            lastTypeParamName = null;
-        }
 
         MethodNode pnode = new MethodNode(scopeStack.peek(), token.getText(), jdcomment);
         JavaEntity returnType = ParseUtils.getTypeEntity(pnode, currentQuerySource(), lastTypeSpec);
