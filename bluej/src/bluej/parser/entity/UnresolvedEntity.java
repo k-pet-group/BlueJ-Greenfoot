@@ -97,7 +97,7 @@ public class UnresolvedEntity extends JavaEntity
     
     @Override
     public TypeEntity resolveAsType()
-    {        
+    {
         PackageOrClass entity = resolver.resolvePackageOrClass(name, querySource);
         if (entity != null) {
             TypeEntity tentity = entity.resolveAsType();

@@ -82,9 +82,21 @@ public class EditorParser extends JavaParser
     private int arrayDecls;
     private String declaredPkg = "";
     
-    private List<TparEntity> typeParams;
+    class TypeParam
+    {
+        String name;
+        List<List<LocatableToken>> bounds;
+        
+        TypeParam(String name, List<List<LocatableToken>> bounds)
+        {
+            this.name = name;
+            this.bounds = bounds;
+        }
+    }
+    
+    private List<TypeParam> typeParams;
     private String lastTypeParamName;
-    private List<JavaEntity> lastTypeParBounds;
+    private List<List<LocatableToken>> lastTypeParBounds;
     
     private List<JavaEntity> extendedTypes;
     private List<JavaEntity> implementedTypes;
@@ -449,7 +461,7 @@ public class EditorParser extends JavaParser
      */
     public final void initializeTypeExtras()
     {
-        typeParams = new LinkedList<TparEntity>();
+        typeParams = new LinkedList<TypeParam>();
         extendedTypes = new LinkedList<JavaEntity>();
         implementedTypes = new LinkedList<JavaEntity>();
     }
@@ -457,7 +469,7 @@ public class EditorParser extends JavaParser
     @Override
     protected void gotMethodTypeParamsBegin()
     {
-        typeParams = new LinkedList<TparEntity>();
+        typeParams = new LinkedList<TypeParam>();
     }
     
     @Override
@@ -471,33 +483,53 @@ public class EditorParser extends JavaParser
     protected void gotTypeParam(LocatableToken idToken)
     {
         if (lastTypeParamName != null) {
-            typeParams.add(new TparEntity(lastTypeParamName,
-                    IntersectionTypeEntity.getIntersectionEntity(lastTypeParBounds, pcuNode)));
+            typeParams.add(new TypeParam(lastTypeParamName, lastTypeParBounds));
         }
         lastTypeParamName = idToken.getText();
-        lastTypeParBounds = new ArrayList<JavaEntity>();
+        lastTypeParBounds = new ArrayList<List<LocatableToken>>();
     }
     
     @Override
     protected void gotTypeParamBound(List<LocatableToken> tokens)
     {
-        JavaEntity boundEntity = ParseUtils.getTypeEntity(scopeStack.peek(),
-                currentQuerySource(), tokens);
-        if (boundEntity != null) {
-            lastTypeParBounds.add(boundEntity);
+        lastTypeParBounds.add(tokens);
+    }
+    
+    /**
+     * Get a list of the recently processed type parameters as a list of TparEntity.
+     * The given resolver must be able to resolve the type parameter names
+     * themselves before the returned type parameter entities are resolved (because
+     * type parameters may have other type parameters as bounds).
+     */
+    private List<TparEntity> getTparList(EntityResolver resolver)
+    {
+        if (typeParams == null) {
+            return null;
         }
+        
+        Reflective querySource = currentQuerySource();
+        List<TparEntity> rlist = new ArrayList<TparEntity>(typeParams.size());
+        for (TypeParam tpar : typeParams) {
+            List<JavaEntity> bounds = new ArrayList<JavaEntity>(tpar.bounds.size());
+            for (List<LocatableToken> boundTokens : tpar.bounds) {
+                bounds.add(ParseUtils.getTypeEntity(resolver, querySource, boundTokens));
+            }
+            JavaEntity boundsEnt = IntersectionTypeEntity.getIntersectionEntity(bounds, scopeStack.peek());
+            rlist.add(new TparEntity(tpar.name, boundsEnt));
+        }
+        
+        return rlist;
     }
     
     @Override
     protected void beginTypeBody(LocatableToken token)
     {
         if (lastTypeParamName != null) {
-            typeParams.add(new TparEntity(lastTypeParamName,
-                    IntersectionTypeEntity.getIntersectionEntity(lastTypeParBounds, pcuNode)));
+            typeParams.add(new TypeParam(lastTypeParamName, lastTypeParBounds));
         }
         
         ParsedTypeNode top = (ParsedTypeNode) scopeStack.peek();
-        top.setTypeParams(typeParams);
+        top.setTypeParams(getTparList(top));
         top.setExtendedTypes(extendedTypes);
         top.setImplementedTypes(implementedTypes);
         gotExtends = false;
@@ -901,11 +933,9 @@ public class EditorParser extends JavaParser
         
         int curOffset = getTopNodeOffset();
         int insPos = lineColToPosition(start.getLine(), start.getColumn());
-        EntityResolver resolver = new PositionedResolver(scopeStack.peek(), insPos - curOffset);
 
         if (lastTypeParamName != null) {
-            typeParams.add(new TparEntity(lastTypeParamName,
-                    IntersectionTypeEntity.getIntersectionEntity(lastTypeParBounds, resolver)));
+            typeParams.add(new TypeParam(lastTypeParamName, lastTypeParBounds));
             lastTypeParamName = null;
         }
 
@@ -913,7 +943,7 @@ public class EditorParser extends JavaParser
         JavaEntity returnType = ParseUtils.getTypeEntity(pnode, currentQuerySource(), lastTypeSpec);
         pnode.setReturnType(returnType);
         pnode.setModifiers(currentModifiers);
-        pnode.setTypeParams(typeParams);
+        pnode.setTypeParams(getTparList(pnode));
         typeParams = null;
         
         beginNode(insPos);
@@ -984,19 +1014,13 @@ public class EditorParser extends JavaParser
     protected void gotTypeSpec(List<LocatableToken> tokens)
     {
         if (gotExtends) {
-            int tokpos = lineColToPosition(tokens.get(0).getLine(), tokens.get(0).getColumn());
-            int topOffset = getTopNodeOffset();
-            EntityResolver resolver = new PositionedResolver(scopeStack.peek(), tokpos - topOffset);
-            JavaEntity supert = ParseUtils.getTypeEntity(resolver, currentQuerySource(), tokens);
+            JavaEntity supert = ParseUtils.getTypeEntity(scopeStack.peek(), currentQuerySource(), tokens);
             if (supert != null) {
                 extendedTypes.add(supert);
             }
         }
         else if (gotImplements) {
-            int tokpos = lineColToPosition(tokens.get(0).getLine(), tokens.get(0).getColumn());
-            int topOffset = getTopNodeOffset();
-            EntityResolver resolver = new PositionedResolver(scopeStack.peek(), tokpos - topOffset);
-            JavaEntity supert = ParseUtils.getTypeEntity(resolver, currentQuerySource(), tokens);
+            JavaEntity supert = ParseUtils.getTypeEntity(scopeStack.peek(), currentQuerySource(), tokens);
             if (supert != null) {
                 implementedTypes.add(supert);
             }
