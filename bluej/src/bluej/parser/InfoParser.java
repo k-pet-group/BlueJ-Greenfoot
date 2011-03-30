@@ -41,12 +41,14 @@ import bluej.parser.entity.ClassLoaderResolver;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.PackageResolver;
+import bluej.parser.entity.PositionedResolver;
 import bluej.parser.entity.TypeEntity;
 import bluej.parser.entity.UnresolvedArray;
 import bluej.parser.entity.UnresolvedEntity;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
 import bluej.parser.nodes.JavaParentNode;
+import bluej.parser.nodes.MethodNode;
 import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
 import bluej.pkgmgr.Package;
@@ -383,9 +385,13 @@ public class InfoParser extends EditorParser
     {
         lastTypespecToks = tokens;
         super.gotTypeSpec(tokens);
+        
         // Dependency tracking
-        JavaEntity tentity = ParseUtils.getTypeEntity(scopeStack.peek(),
-                currentQuerySource(), tokens);
+        int tokpos = lineColToPosition(tokens.get(0).getLine(), tokens.get(0).getColumn());
+        int topOffset = getTopNodeOffset();
+        EntityResolver resolver = new PositionedResolver(scopeStack.peek(), tokpos - topOffset);
+        
+        JavaEntity tentity = ParseUtils.getTypeEntity(resolver, currentQuerySource(), tokens);
         if (tentity != null && ! gotExtends && ! gotImplements) {
             typeReferences.add(tentity);
         }
@@ -483,7 +489,11 @@ public class InfoParser extends EditorParser
         List<LocatableToken> components = currentUnresolvedVal.components;
         components.add(token);
         Iterator<LocatableToken> i = components.iterator();
-        JavaEntity entity = UnresolvedEntity.getEntity(scopeStack.peek(),
+        
+        int tokpos = lineColToPosition(token.getLine(), token.getColumn());
+        int offset = tokpos - getTopNodeOffset();
+        
+        JavaEntity entity = UnresolvedEntity.getEntity(new PositionedResolver(scopeStack.peek(), offset),
                 i.next().getText(), currentQuerySource());
         while (entity != null && i.hasNext()) {
             entity = entity.getSubentity(i.next().getText(), currentQuerySource());
@@ -498,8 +508,7 @@ public class InfoParser extends EditorParser
         super.gotMethodDeclaration(token, hiddenToken);
         String lastComment = (hiddenToken != null) ? hiddenToken.getText() : null;
         currentMethod = new MethodDesc();
-        currentMethod.returnType = ParseUtils.getTypeEntity(scopeStack.peek(),
-                currentQuerySource(), lastTypespecToks);
+        currentMethod.returnType =  ((MethodNode) scopeStack.peek()).getReturnType();
         currentMethod.name = token.getText();
         currentMethod.paramNames = "";
         currentMethod.paramTypes = new LinkedList<JavaEntity>();

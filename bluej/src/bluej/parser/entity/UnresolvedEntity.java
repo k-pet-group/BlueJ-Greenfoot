@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,8 +21,6 @@
  */
 package bluej.parser.entity;
 
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 import bluej.debugger.gentype.JavaType;
@@ -37,7 +35,7 @@ import bluej.debugger.gentype.Reflective;
 public class UnresolvedEntity extends JavaEntity
 {
     private EntityResolver resolver;
-    private List<String> names;
+    private String name;
     private List<TypeArgumentEntity> typeArguments;
     private Reflective querySource;
     
@@ -47,39 +45,28 @@ public class UnresolvedEntity extends JavaEntity
      */
     public static JavaEntity getEntity(EntityResolver resolver, String name, Reflective querySource)
     {
-        return new UnresolvedEntity(resolver, name, querySource);
+        return new UnresolvedEntity(resolver, name, querySource, null);
     }
     
-    protected UnresolvedEntity(EntityResolver resolver, String name, Reflective querySource)
+    protected UnresolvedEntity(EntityResolver resolver, String name, Reflective querySource,
+            List<TypeArgumentEntity> typeArgs)
     {
         this.resolver = resolver;
-        this.names = new LinkedList<String>();
-        names.add(name);
+        this.name = name;
         this.querySource = querySource;
+        this.typeArguments = typeArgs;
     }
     
-    protected UnresolvedEntity(EntityResolver resolver, List<String> names,
-            Reflective querySource, List<TypeArgumentEntity> typeArguments)
-    {
-        this.resolver = resolver;
-        this.names = names;
-        this.typeArguments = typeArguments;
-        this.querySource = querySource;
-    }
-
     @Override
     public String getName()
     {
-        return names.get(names.size() - 1);
+        return name;
     }
 
     @Override
     public JavaEntity getSubentity(String name, Reflective accessSource)
     {
-        List<String> newNames = new LinkedList<String>();
-        newNames.addAll(names);
-        newNames.add(name);
-        return new UnresolvedEntity(resolver, newNames, querySource, typeArguments);
+        return new UnresolvedSubEntity(this, name, accessSource);
     }
 
     @Override
@@ -91,18 +78,17 @@ public class UnresolvedEntity extends JavaEntity
     @Override
     public JavaEntity setTypeArgs(List<TypeArgumentEntity> tparams)
     {
-        return new UnresolvedEntity(resolver, names, querySource, tparams);
+        return new UnresolvedEntity(resolver, name, querySource, tparams);
     }
 
     @Override
     public ValueEntity resolveAsValue()
     {
-        Iterator<String> i = names.iterator();
-        String name = i.next();
-        JavaEntity entity = resolver.getValueEntity(name, querySource);
-        while (entity != null && i.hasNext()) {
-            entity = entity.getSubentity(i.next(), querySource);
+        if (typeArguments != null) {
+            return null;
         }
+        
+        JavaEntity entity = resolver.getValueEntity(name, querySource);
         if (entity != null) {
             return entity.resolveAsValue();
         }
@@ -111,21 +97,15 @@ public class UnresolvedEntity extends JavaEntity
     
     @Override
     public TypeEntity resolveAsType()
-    {
-        Iterator<String> i = names.iterator();
-        PackageOrClass entity = resolver.resolvePackageOrClass(i.next(), querySource);
-        while (entity != null && i.hasNext()) {
-            entity = entity.getPackageOrClassMember(i.next());
-        }
+    {        
+        PackageOrClass entity = resolver.resolvePackageOrClass(name, querySource);
         if (entity != null) {
             TypeEntity tentity = entity.resolveAsType();
             if (tentity != null) {
                 if (typeArguments != null) {
                     return tentity.setTypeArgs(typeArguments);
                 }
-                else {
-                    return tentity;
-                }
+                return tentity;
             }
         }
         return null;
@@ -134,11 +114,14 @@ public class UnresolvedEntity extends JavaEntity
     @Override
     public PackageOrClass resolveAsPackageOrClass()
     {
-        Iterator<String> i = names.iterator();
-        PackageOrClass entity = new PackageEntity(i.next(), resolver);
-        while (entity != null && i.hasNext()) {
-            entity = entity.getPackageOrClassMember(i.next());
+        PackageOrClass ent = resolver.resolvePackageOrClass(name, querySource);
+        if (typeArguments != null) {
+            TypeEntity tent = ent.resolveAsType();
+            if (tent != null) {
+                return tent.setTypeArgs(typeArguments);
+            }
+            return null;
         }
-        return entity;
+        return ent;
     }
 }

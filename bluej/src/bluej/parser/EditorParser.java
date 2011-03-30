@@ -40,6 +40,7 @@ import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.IntersectionTypeEntity;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.ParsedReflective;
+import bluej.parser.entity.PositionedResolver;
 import bluej.parser.entity.TparEntity;
 import bluej.parser.entity.TypeEntity;
 import bluej.parser.entity.UnresolvedArray;
@@ -897,23 +898,24 @@ public class EditorParser extends JavaParser
             start = hiddenToken;
             jdcomment = hiddenToken.getText();
         }
+        
+        int curOffset = getTopNodeOffset();
+        int insPos = lineColToPosition(start.getLine(), start.getColumn());
+        EntityResolver resolver = new PositionedResolver(scopeStack.peek(), insPos - curOffset);
 
         if (lastTypeParamName != null) {
             typeParams.add(new TparEntity(lastTypeParamName,
-                    IntersectionTypeEntity.getIntersectionEntity(lastTypeParBounds, pcuNode)));
+                    IntersectionTypeEntity.getIntersectionEntity(lastTypeParBounds, resolver)));
             lastTypeParamName = null;
         }
 
         MethodNode pnode = new MethodNode(scopeStack.peek(), token.getText(), jdcomment);
-        JavaEntity returnType = ParseUtils.getTypeEntity(pnode,
-                currentQuerySource(), lastTypeSpec);
+        JavaEntity returnType = ParseUtils.getTypeEntity(pnode, currentQuerySource(), lastTypeSpec);
         pnode.setReturnType(returnType);
         pnode.setModifiers(currentModifiers);
         pnode.setTypeParams(typeParams);
         typeParams = null;
         
-        int curOffset = getTopNodeOffset();
-        int insPos = lineColToPosition(start.getLine(), start.getColumn());
         beginNode(insPos);
         scopeStack.peek().insertNode(pnode, insPos - curOffset, 0);
         scopeStack.push(pnode);
@@ -982,15 +984,19 @@ public class EditorParser extends JavaParser
     protected void gotTypeSpec(List<LocatableToken> tokens)
     {
         if (gotExtends) {
-            JavaEntity supert = ParseUtils.getTypeEntity(scopeStack.peek(),
-                    currentQuerySource(), tokens);
+            int tokpos = lineColToPosition(tokens.get(0).getLine(), tokens.get(0).getColumn());
+            int topOffset = getTopNodeOffset();
+            EntityResolver resolver = new PositionedResolver(scopeStack.peek(), tokpos - topOffset);
+            JavaEntity supert = ParseUtils.getTypeEntity(resolver, currentQuerySource(), tokens);
             if (supert != null) {
                 extendedTypes.add(supert);
             }
         }
         else if (gotImplements) {
-            JavaEntity supert = ParseUtils.getTypeEntity(scopeStack.peek(),
-                    currentQuerySource(), tokens);
+            int tokpos = lineColToPosition(tokens.get(0).getLine(), tokens.get(0).getColumn());
+            int topOffset = getTopNodeOffset();
+            EntityResolver resolver = new PositionedResolver(scopeStack.peek(), tokpos - topOffset);
+            JavaEntity supert = ParseUtils.getTypeEntity(resolver, currentQuerySource(), tokens);
             if (supert != null) {
                 implementedTypes.add(supert);
             }
@@ -1020,14 +1026,15 @@ public class EditorParser extends JavaParser
     @Override
     protected void gotField(LocatableToken first, LocatableToken idToken)
     {
-        JavaEntity fieldType = ParseUtils.getTypeEntity(scopeStack.peek(),
+        int curOffset = getTopNodeOffset();
+        int insPos = lineColToPosition(first.getLine(), first.getColumn());
+        EntityResolver resolver = new PositionedResolver(scopeStack.peek(), insPos - curOffset);
+        JavaEntity fieldType = ParseUtils.getTypeEntity(resolver,
                 currentQuerySource(), lastTypeSpec);
         
         lastField = new FieldNode(scopeStack.peek(), idToken.getText(), fieldType,
                 arrayDecls, currentModifiers);
         arrayDecls = 0;
-        int curOffset = getTopNodeOffset();
-        int insPos = lineColToPosition(first.getLine(), first.getColumn());
         beginNode(insPos);
         
         if (fieldType != null) {
@@ -1126,10 +1133,19 @@ public class EditorParser extends JavaParser
     {
         ParsedTypeNode pnode = new ParsedTypeNode(scopeStack.peek(), innermostType,
                 JavaParser.TYPEDEF_CLASS, null, 0); // TODO generate Abc$1 ?
+                
+        innermostType = pnode;
+        int curOffset = getTopNodeOffset();
+        LocatableToken begin = token;
+        int insPos = lineColToPosition(begin.getLine(), begin.getColumn());
+        beginNode(insPos);
+        scopeStack.peek().insertNode(pnode, insPos - curOffset, 0);
+        scopeStack.push(pnode);
         
         JavaEntity supert;
         if (! isEnumMember) {
-            supert = ParseUtils.getTypeEntity(scopeStack.peek(), currentQuerySource(), newTypes.peek());
+            EntityResolver resolver = new PositionedResolver(scopeStack.peek(), insPos - curOffset);
+            supert = ParseUtils.getTypeEntity(resolver, currentQuerySource(), newTypes.peek());
         }
         else {
             supert = new TypeEntity(new ParsedReflective(innermostType));
@@ -1138,14 +1154,6 @@ public class EditorParser extends JavaParser
         superts.add(supert);
         pnode.setExtendedTypes(superts);
         pnode.setImplementedTypes(Collections.<JavaEntity>emptyList());
-        
-        innermostType = pnode;
-        int curOffset = getTopNodeOffset();
-        LocatableToken begin = token;
-        int insPos = lineColToPosition(begin.getLine(), begin.getColumn());
-        beginNode(insPos);
-        scopeStack.peek().insertNode(pnode, insPos - curOffset, 0);
-        scopeStack.push(pnode);
         
         TypeInnerNode bodyNode = new TypeInnerNode(scopeStack.peek());
         bodyNode.setInner(true);
