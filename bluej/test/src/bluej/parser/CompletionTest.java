@@ -33,6 +33,7 @@ import javax.swing.text.PlainDocument;
 import junit.framework.TestCase;
 import bluej.debugger.gentype.FieldReflective;
 import bluej.debugger.gentype.GenTypeClass;
+import bluej.debugger.gentype.GenTypeSolid;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.MethodReflective;
 import bluej.debugger.gentype.Reflective;
@@ -576,6 +577,50 @@ public class CompletionTest extends TestCase
         CodeSuggestions suggests = aNode.getExpressionType(68, doc);
         assertNotNull(suggests);
         assertEquals("java.lang.String", suggests.getSuggestionType().toString());
+        assertFalse(suggests.isStatic());
+    }
+    
+    public void testTparCompletion4() throws Exception
+    {
+        String aClassSrc = "class A<T extends String, U extends T> {\n" +   // 0 - 41
+        "public void m(U u) {\n" +              // 41 - 62   
+        "  u.\n" +                              // 62 -   u. <- 66   
+        "}\n" +
+        "}\n";
+
+        MoeSyntaxDocument doc = documentForSource(aClassSrc, "");
+        ParsedCUNode aNode = doc.getParser();
+        resolver.addCompilationUnit("", aNode);
+        
+        CodeSuggestions suggests = aNode.getExpressionType(66, doc);
+        assertNotNull(suggests);
+        GenTypeSolid stsolid = suggests.getSuggestionType().asSolid();
+        assertNotNull(stsolid);
+        GenTypeClass [] stypes = stsolid.getReferenceSupertypes();
+        assertEquals(1, stypes.length);
+        assertEquals("java.lang.String", stypes[0].toString());
+        assertFalse(suggests.isStatic());
+    }
+    
+    public void testTparCompletion5() throws Exception
+    {
+        String aClassSrc = "class A {\n" +      // 0 - 10
+        "public <T extends String, U extends T> void m(U u) {\n" +  // 10 - 63
+        "  u.\n" +                              // 63 -   u. <- 67   
+        "}\n" +
+        "}\n";
+
+        MoeSyntaxDocument doc = documentForSource(aClassSrc, "");
+        ParsedCUNode aNode = doc.getParser();
+        resolver.addCompilationUnit("", aNode);
+        
+        CodeSuggestions suggests = aNode.getExpressionType(67, doc);
+        assertNotNull(suggests);
+        GenTypeSolid stsolid = suggests.getSuggestionType().asSolid();
+        assertNotNull(stsolid);
+        GenTypeClass [] stypes = stsolid.getReferenceSupertypes();
+        assertEquals(1, stypes.length);
+        assertEquals("java.lang.String", stypes[0].toString());
         assertFalse(suggests.isStatic());
     }
     
