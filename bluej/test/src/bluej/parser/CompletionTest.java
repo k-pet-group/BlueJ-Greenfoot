@@ -697,7 +697,7 @@ public class CompletionTest extends TestCase
     {
         String aClassSrc = "class A {\n" +   // 0 - 10
             "public void m() {\n" +          // 10 - 28  
-            "  for\n" +                      // 28 - 34  new <-- 33  
+            "  for\n" +                      // 28 - 34  for <-- 33  
             "}\n" +
             "}\n";
     

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,6 +28,7 @@ import javax.swing.text.Element;
 
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.editor.moe.Token;
+import bluej.parser.CodeSuggestions;
 import bluej.parser.DocumentReader;
 import bluej.parser.lexer.JavaLexer;
 import bluej.parser.lexer.JavaTokenTypes;
@@ -187,5 +188,11 @@ public class CommentNode extends ParsedNode
         Element map = document.getDefaultRootElement();
         Element lineEl = map.getElement(line - 1);
         return lineEl.getStartOffset() + col - 1;
+    }
+    
+    @Override
+    public CodeSuggestions getExpressionType(int pos, Document document)
+    {
+        return null;
     }
 }

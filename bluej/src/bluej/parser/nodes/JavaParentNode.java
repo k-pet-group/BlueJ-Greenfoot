@@ -21,10 +21,12 @@
  */
 package bluej.parser.nodes;
 
+import java.io.Reader;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.text.Document;
+import javax.swing.text.Element;
 
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.Reflective;
@@ -39,6 +41,7 @@ import bluej.parser.entity.PackageOrClass;
 import bluej.parser.entity.ParsedReflective;
 import bluej.parser.entity.TypeEntity;
 import bluej.parser.entity.ValueEntity;
+import bluej.parser.lexer.JavaLexer;
 import bluej.parser.lexer.JavaTokenFilter;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
@@ -244,39 +247,68 @@ public abstract class JavaParentNode extends ParentParsedNode
         valueEntityCache.clear();
         pocEntityCache.clear();
         
-        NodeAndPosition<ParsedNode> child = getNodeTree().findNode(pos, nodePos);
-        if (child != null) {
+        NodeAndPosition<ParsedNode> child = getNodeTree().findNodeAtOrBefore(pos, nodePos);
+        if (child != null && child.getEnd() >= pos) {
             return child.getNode().getExpressionType(pos, child.getPosition(), defaultType, document);
         }
         
-        child = getNodeTree().findNodeAtOrBefore(pos, nodePos);
-        if (child != null && child.getNode().getNodeType() == ParsedNode.NODETYPE_EXPRESSION) {
-            // There's no child at the suggestion point, but, there is an expression immediately
-            // prior. It's possible that it ends with a dot.
-            CodeSuggestions suggests = ExpressionNode.suggestAsExpression(pos, child.getPosition(), this, defaultType, document);
-            if (suggests != null && suggests.getSuggestionToken() != null) {
-                return suggests;
+        int startpos = nodePos;
+        if (child != null) {
+            startpos = child.getEnd();
+        }
+        
+        // We want to find the relevant suggestion token.
+        
+        Element map = document.getDefaultRootElement();
+        int line = map.getElementIndex(pos) + 1;
+        Element lineEl = map.getElement(line - 1);
+        startpos = Math.max(startpos, lineEl.getStartOffset());
+        int col = startpos - map.getElement(line - 1).getStartOffset() + 1;
+        Reader r = new DocumentReader(document, startpos, pos);
+        
+        JavaLexer lexer = new JavaLexer(r, line, col);
+        JavaTokenFilter filter = new JavaTokenFilter(lexer);
+        LocatableToken token = filter.nextToken();
+        LocatableToken prevToken = null;
+        while (token.getType() != JavaTokenTypes.EOF) {
+            prevToken = token;
+            token = filter.nextToken();
+        }
+        
+        if (prevToken != null && prevToken.getEndLine() != token.getEndLine()) {
+            if (prevToken.getEndColumn() != token.getEndColumn()) {
+                // If the token doesn't end right at the completion point, it's not used.
+                prevToken = null;
             }
         }
-        else if (child == null && parentNode != null) {
-            // Likewise, if we have no prior sibling, perhaps the parent node does.
+        
+        if (prevToken != null && startpos == nodePos) {
+            // The completion position is at the end of some token.
+            // The parent might have a prior expression sibling which might end in a dot.
             int offset = getOffsetFromParent();
             int ppos = nodePos - offset;
             child = parentNode.getNodeTree().findNodeAtOrBefore(nodePos - 1, ppos);
-            if (child != null && child.getNode().getNodeType() == ParsedNode.NODETYPE_EXPRESSION) {
-                CodeSuggestions suggests = ExpressionNode.suggestAsExpression(pos, child.getPosition(), this, defaultType, document);
-                if (suggests != null && suggests.getSuggestionToken() != null) {
+            if (child != null && child.getNode().getNodeType() == ParsedNode.NODETYPE_EXPRESSION
+                    && child.getEnd() == nodePos) {
+                CodeSuggestions suggests = ExpressionNode.suggestAsExpression(pos, child.getPosition(),
+                        this, defaultType, document);
+                if (suggests != null) {
                     return suggests;
                 }
             }
         }
+        
+        // No identifiable expression. The suggestion type is the enclosing type.
         
         GenTypeClass atype = (defaultType != null) ? defaultType.getType().asClass() : null;
         if (atype == null) {
             return null;
         }
         boolean isStaticCtxt = (defaultType.resolveAsType() != null);
-        return new CodeSuggestions(atype, atype, null, isStaticCtxt);
+        if (prevToken != null && ! Character.isJavaIdentifierPart(prevToken.getText().codePointAt(0))) {
+            prevToken = null;
+        }
+        return new CodeSuggestions(atype, atype, prevToken, isStaticCtxt);
     }
 
     @Override
