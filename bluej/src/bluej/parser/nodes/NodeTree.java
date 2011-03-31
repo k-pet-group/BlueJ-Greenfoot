@@ -54,7 +54,7 @@ public class NodeTree<T extends RBTreeNode<T>>
 
     public Iterator<NodeAndPosition<T>> iterator(int offset)
     {
-        return new NodeTreeIterator<T>(offset, this, true);
+        return new NodeTreeIterator<T>(offset, this);
     }
 
     /**
@@ -744,23 +744,45 @@ public class NodeTree<T extends RBTreeNode<T>>
         
         /**
          * Find the next sibling node - that is, the sibling that occurs closest after this one in
-         * terms of position.
+         * terms of position. If the node tree is manipulated only via methods on this object then
+         * a call to nextSibling() is valid, otherwise the return is undefined,
          * 
          * @return  The next sibling, or null if there is no next sibling.
          */
-        @SuppressWarnings("unchecked")
         public NodeAndPosition<T> nextSibling()
         {
-            NodeTreeIterator<T> ni = new NodeTreeIterator<T>(position - parsedNode.getContainingNodeTree().pnodeOffset,
-                    (NodeTree<T>) parsedNode.getContainingNodeTree(), false);
-            ni.next();  // skip "this" node
-            if (ni.hasNext()) {
-                NodeAndPosition<T> next = ni.next();
-                return next;
+            NodeTree<T> nt = parsedNode.getContainingNodeTree();
+            if (nt.right != null) {
+                // go right and then as far left as possible
+                int offs = position + nt.pnodeSize;
+                nt = nt.right;
+                while (nt.left != null) {
+                    nt = nt.left;
+                }
+                return new NodeAndPosition<T>(nt.pnode, offs + nt.pnodeOffset, nt.pnodeSize);
             }
-            return null;
+            
+            // Otherwise go up until we have gone up to the right
+            int offs = position - nt.pnodeOffset;
+            while (nt.parent != null) {
+                if (nt.parent.left == nt) {
+                    nt = nt.parent;
+                    return new NodeAndPosition<T>(nt.pnode, offs + nt.pnodeOffset, nt.pnodeSize);
+                }
+                nt = nt.parent;
+                offs -= (nt.pnodeOffset + nt.pnodeSize); 
+            }
+            
+            return null; // no prior node
         }
         
+        /**
+         * Find the previous sibling node - that is, the sibling that occurs closest before this one in
+         * terms of position. If the node tree is manipulated only via methods on this object then
+         * a call to prevSibling() is valid, otherwise the return is undefined,
+         * 
+         * @return  The previous sibling, or null if there is no next sibling.
+         */
         public NodeAndPosition<T> prevSibling()
         {
             NodeTree<T> nt = parsedNode.getContainingNodeTree();
@@ -848,12 +870,19 @@ public class NodeTree<T extends RBTreeNode<T>>
         int offset = 0;
         NodeTree<T> current = null;
 
-        public NodeTreeIterator(int offset, NodeTree<T> tree, boolean leftFirst)
+        /**
+         * Construct a new NodeTreeIterator over the given tree
+         * @param offset     The offset of the tree
+         * @param tree       The tree
+         * @param leftFirst  Whether to process the left branch first (otherwise iteration starts
+         *                   at the node in {@code tree}.
+         */
+        public NodeTreeIterator(int offset, NodeTree<T> tree)
         {
             this.offset = offset;
             if (tree.pnode != null) {
                 current = tree;
-                if (!leftFirst || tree.left == null) {
+                if (tree.left == null) {
                     pos = 1;
                 }
             }
@@ -861,7 +890,6 @@ public class NodeTree<T extends RBTreeNode<T>>
 
         public boolean hasNext()
         {
-            // return !stack.isEmpty();
             return current != null;
         }
 
