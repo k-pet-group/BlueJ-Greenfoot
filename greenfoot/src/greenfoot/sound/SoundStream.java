@@ -459,7 +459,7 @@ public class SoundStream implements Sound, Runnable
 
     public void setVolume(int level)
     {
-        line.setVolume(level);
+        line.setVolume(SoundUtils.logToLin(level));
     }
 
     public int getVolume()

@@ -43,6 +43,16 @@ public class SoundUtils
     }
 
     /**
+     * Convert a value on a logarithmic scale between 0-100 to a linear scale
+     * in the same range.
+     * @param level the logarithmic level.
+     * @return the linear level.
+     */
+    public static int logToLin(int level) {
+        return (int) ((Math.log(level) / Math.log(100)) * 100);
+    }
+
+    /**
      * Calculate how long it will take to play the given number of bytes.
      * 
      * @param bytes Number of bytes.

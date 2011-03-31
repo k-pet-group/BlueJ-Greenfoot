@@ -341,7 +341,8 @@ public class AudioLine
             if (line != null) {
                 if (line.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
                     FloatControl volume = (FloatControl) line.getControl(FloatControl.Type.MASTER_GAIN);
-                    volume.setValue(SoundUtils.convertMinMax(masterVolume, volume.getMinimum(), volume.getMaximum()));
+                    float val = SoundUtils.convertMinMax(masterVolume, volume.getMinimum(), volume.getMaximum());
+                    volume.setValue(val);
                 }
             }
         }
