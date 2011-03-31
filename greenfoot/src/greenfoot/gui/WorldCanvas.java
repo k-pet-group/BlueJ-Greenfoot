@@ -251,12 +251,17 @@ public class WorldCanvas extends JPanel
     public Dimension getPreferredSize()
     {
         if (world != null) {
-            Dimension size = new Dimension();
+            size = new Dimension();
             size.width = WorldVisitor.getWidthInPixels(world) ;
             size.height = WorldVisitor.getHeightInPixels(world) ;
-            this.size = new Dimension(size);
+            return size;
         }
-        return size;
+        else if (size != null) {
+            return size;
+        }
+        else {
+            return super.getPreferredSize();
+        }
     }
     
     public void setDropTargetListener(DropTarget dropTargetListener)

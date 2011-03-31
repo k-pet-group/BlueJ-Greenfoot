@@ -77,7 +77,7 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
 
     public void instantiateNewWorld()
     {
-        viewer.instantiateNewWorld();
+        WorldHandler.getInstance().setWorld(viewer.instantiateNewWorld());
     }
 
     public InputManager getInputManager()
@@ -97,7 +97,7 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
 
     public void discardWorld(World world)
     {
-    	// Nothing special to do.    
+        // Nothing special to do.    
     }
 
     public void addActor(Actor actor, int x, int y)

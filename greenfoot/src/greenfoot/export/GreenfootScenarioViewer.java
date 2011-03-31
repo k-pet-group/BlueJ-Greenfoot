@@ -116,10 +116,10 @@ public class GreenfootScenarioViewer extends JApplet
         canvas.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         
         JScrollPane outer = new JScrollPane( centerPanel );
-        outer.setBorder( BorderFactory.createEmptyBorder(EMPTY_BORDER_SIZE,EMPTY_BORDER_SIZE,EMPTY_BORDER_SIZE,EMPTY_BORDER_SIZE));
+        outer.setBorder(BorderFactory.createEmptyBorder(EMPTY_BORDER_SIZE,EMPTY_BORDER_SIZE,EMPTY_BORDER_SIZE,EMPTY_BORDER_SIZE));
         controls.setBorder(BorderFactory.createCompoundBorder( BorderFactory.createEmptyBorder(0,EMPTY_BORDER_SIZE,EMPTY_BORDER_SIZE,EMPTY_BORDER_SIZE), BorderFactory.createEtchedBorder()));
         
-        rootPaneContainer.getContentPane().add( outer, BorderLayout.CENTER);
+        rootPaneContainer.getContentPane().add(outer, BorderLayout.CENTER);
         rootPaneContainer.getContentPane().add(controls, BorderLayout.SOUTH);
     }
 
@@ -149,15 +149,22 @@ public class GreenfootScenarioViewer extends JApplet
             ActorDelegateStandAlone.setupAsActorDelegate();
             ActorDelegateStandAlone.initProperties(properties);
 
-            canvas = new WorldCanvas(null);
+            Class<?> worldClass = Class.forName(worldClassName);
+            worldConstructor = worldClass.getConstructor(new Class[]{});
+            World world = instantiateNewWorld();
+            
+            canvas = new WorldCanvas(world);
             
             WorldHandler.initialise(canvas, new WorldHandlerDelegateStandAlone(this, lockScenario));
             WorldHandler worldHandler = WorldHandler.getInstance();
             Simulation.initialize(worldHandler, new SimulationDelegateStandAlone());
+            
             LocationTracker.initialize();
             sim = Simulation.getInstance();
             controls = new ControlPanel(sim, ! lockScenario);
-            
+
+            worldHandler.setWorld(world);
+
             // Make sure the SoundCollection is initialized and listens for events
             sim.addSimulationListener(SoundFactory.getInstance().getSoundCollection());
             
@@ -183,31 +190,22 @@ public class GreenfootScenarioViewer extends JApplet
             } catch (NumberFormatException nfe) {
                 // If there is no speed info in the properties we don't care...
             }
-            Class<?> worldClass = Class.forName(worldClassName);
-            worldConstructor = worldClass.getConstructor(new Class[]{});
-            instantiateNewWorld();
+            
+            buildGUI();
         }
         catch (ClassNotFoundException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         catch (SecurityException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         catch (NoSuchMethodException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         catch (IllegalArgumentException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
-
-        buildGUI();
     }
-
-
     
     /**
      * Called by the browser or applet viewer to inform this JApplet that it
@@ -236,7 +234,7 @@ public class GreenfootScenarioViewer extends JApplet
      */
     public void stop()
     {
-    	sim.setPaused(true);
+        sim.setPaused(true);
     }
 
     /**
@@ -288,29 +286,25 @@ public class GreenfootScenarioViewer extends JApplet
     /**
      * Creates a new instance of the world. And initialises with that world.
      */
-    public void instantiateNewWorld() 
+    public World instantiateNewWorld() 
     {
         try {
             World world = (World) worldConstructor.newInstance(new Object[]{});
-            WorldHandler.getInstance().setWorld(world);
+            return world;
         }
         catch (IllegalArgumentException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         catch (InstantiationException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         catch (IllegalAccessException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         catch (InvocationTargetException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
             e.getCause().printStackTrace();
         }
+        return null;
     }
     
     /**

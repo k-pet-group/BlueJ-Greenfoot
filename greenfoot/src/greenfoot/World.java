@@ -403,7 +403,10 @@ public abstract class World
 
         object.addedToWorld(this);
         
-        WorldHandler.getInstance().objectAddedToWorld(object);
+        WorldHandler whInstance = WorldHandler.getInstance();
+        if (whInstance != null) {
+            WorldHandler.getInstance().objectAddedToWorld(object);
+        }
     }
 
     /**
