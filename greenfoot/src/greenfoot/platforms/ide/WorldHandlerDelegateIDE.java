@@ -212,7 +212,7 @@ public class WorldHandlerDelegateIDE
             Actor obj = worldHandler.getObject(e.getX(), e.getY());
             // if null then the user clicked on the world
             if (obj == null) {
-            	menu = makeWorldPopupMenu(worldHandler.getWorld());
+                menu = makeWorldPopupMenu(worldHandler.getWorld());
             } else {
                 menu = makeActorPopupMenu(obj);
             }
@@ -228,20 +228,20 @@ public class WorldHandlerDelegateIDE
     /**
      * Displays the world pop-up menu in the location specified
      * by the parameter MouseEvent.
-     * @param e	Used to get the component to display in as well as the x
+     * @param e Used to get the component to display in as well as the x
      * and y coordinates.
      */
     public void showWorldPopupMenu(MouseEvent e)
     {
-    	JPopupMenu menu = makeWorldPopupMenu(worldHandler.getWorld());
-    	if (menu != null) {
-    	    menu.show(e.getComponent(), e.getX(), e.getY());
-    	}
+        JPopupMenu menu = makeWorldPopupMenu(worldHandler.getWorld());
+        if (menu != null) {
+            menu.show(e.getComponent(), e.getX(), e.getY());
+        }
     }
 
     /**
      * Clear the world from the cache.
-     * @param world		World to discard
+     * @param world  World to discard
      */
     @Override
     public void discardWorld(World world)
@@ -254,7 +254,6 @@ public class WorldHandlerDelegateIDE
     {
         greenfootRecorder.clearCode(false);
         greenfootRecorder.setWorld(newWorld);
-        //worldInitialising = false;
         if (oldWorld != null) {
             discardWorld(oldWorld);
         }
@@ -265,6 +264,7 @@ public class WorldHandlerDelegateIDE
             if(lastWorldClass != null) {
                 lastWorld = project.getDefaultPackage().getClass(lastWorldClass);
             }
+            project.setLastWorldClassName(lastWorldClass);
         }
 
         saveWorldAction.setLastWorldGClass(lastWorld);
@@ -476,17 +476,6 @@ public class WorldHandlerDelegateIDE
     public void worldConstructed(Object world)
     {
         worldInitialising = false;
-        Class<?> worldClass = world.getClass();
-        
-        // We want to save the world class as the last constructed class, but only if
-        // there's a no-argument constructor:
-        Constructor<?> [] cons = worldClass.getConstructors();
-        for (Constructor<?> con : cons) {
-            if (con.getParameterTypes().length == 0) {
-                project.setLastWorldClassName(world.getClass().getName());
-                break;
-            }
-        }
     }
     
     @Override

@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2011  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,14 +21,15 @@
  */
 package greenfoot.gui.export;
 
+import greenfoot.core.GClass;
 import greenfoot.core.GProject;
 import greenfoot.core.WorldHandler;
 import greenfoot.export.Exporter;
 import greenfoot.gui.GreenfootFrame;
 import greenfoot.gui.MessageDialog;
 
-import java.awt.Color;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Frame;
@@ -36,6 +37,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.lang.reflect.Constructor;
 import java.util.HashMap;
 
 import javax.swing.JButton;
@@ -57,6 +59,8 @@ public class ExportDialog extends EscapeDialog
 
     private static final String noWorldDialogTitle = Config.getString("export.noworld.dialog.title");
     private static final String noWorldDialogMsg = Config.getString("export.noworld.dialog.msg");
+    private static final String noZeroArgConsTitle = Config.getString("export.noconstructor.dialog.title");
+    private static final String noZeroArgConsMsg = Config.getString("export.noconstructor.dialog.msg");
     
     private Frame parent;
     private GProject project;
@@ -85,7 +89,6 @@ public class ExportDialog extends EscapeDialog
 
     /**
      * Show this dialog.
-     * 
      */
     public void display()
     {
@@ -95,9 +98,33 @@ public class ExportDialog extends EscapeDialog
                 return;         // Cancel export
             }
         }
-        if (project.getLastWorldClassName() == null) {
+        String lastWorldClassName = project.getLastWorldClassName();
+        GClass lastWorldClass = lastWorldClassName == null ? null
+                : project.getDefaultPackage().getClass(lastWorldClassName);
+        if (lastWorldClass == null) {
             JButton[] buttons = new JButton[]{new JButton(Config.getString("greenfoot.continue"))};
             MessageDialog errorDialog = new MessageDialog(parent, noWorldDialogMsg, noWorldDialogTitle, 50 , buttons);
+            errorDialog.display();
+            return;
+        }
+
+        // Check that a zero-argument constructor is available
+        boolean haveNoArgConstructor = false;
+        try {
+            Class<?> realClass = lastWorldClass.getJavaClass();
+            Constructor<?> [] cons = realClass.getConstructors();
+            for (Constructor<?> con : cons) {
+                if (con.getParameterTypes().length == 0) {
+                    haveNoArgConstructor = true;
+                    break;
+                }
+            }
+        }
+        catch (LinkageError le) {}
+        
+        if (! haveNoArgConstructor) {
+            JButton[] buttons = new JButton[]{new JButton(Config.getString("greenfoot.continue"))};
+            MessageDialog errorDialog = new MessageDialog(parent, noZeroArgConsMsg, noZeroArgConsTitle, 50 , buttons);
             errorDialog.display();
             return;
         }
@@ -381,10 +408,12 @@ public class ExportDialog extends EscapeDialog
     private boolean showCompileDialog(GProject project)
     {
         ExportCompileDialog dlg; 
-        if(this.isVisible()) 
+        if(this.isVisible()) {
            dlg = new ExportCompileDialog(this, project);
-        else
+        }
+        else {
             dlg = new ExportCompileDialog(parent, project);
+        }
         
         project.addCompileListener(dlg);
         boolean compiled = dlg.display();

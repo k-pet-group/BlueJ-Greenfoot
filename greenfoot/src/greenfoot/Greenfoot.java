@@ -25,6 +25,7 @@ import java.util.Random;
 
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
+import greenfoot.sound.MicLevelGrabber;
 import greenfoot.sound.Sound;
 import greenfoot.sound.SoundFactory;
 
@@ -277,5 +278,10 @@ public class Greenfoot
     public static MouseInfo getMouseInfo()
     {
         return WorldHandler.getInstance().getMouseManager().getMouseInfo();
-    }   
+    }
+    
+    public static int getMicLevel()
+    {
+        return MicLevelGrabber.getInstance().getLevel();
+    }
 }

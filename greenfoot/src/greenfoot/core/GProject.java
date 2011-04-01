@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -311,11 +311,13 @@ public class GProject extends RProjectListenerImpl
     
     // ----------- CompileListener interface -------------
     
+    @Override
     public void compileError(RCompileEvent event)
     {
         delegateCompileEvent(event);
     }
     
+    @Override
     public void compileFailed(RCompileEvent event)
     {
         reloadClasses();
@@ -323,11 +325,13 @@ public class GProject extends RProjectListenerImpl
         delegateCompileEvent(event);
     }
     
+    @Override
     public void compileStarted(RCompileEvent event)
     {
         delegateCompileEvent(event);
     }
     
+    @Override
     public void compileSucceeded(RCompileEvent event)
     {
         reloadClasses();
@@ -335,6 +339,7 @@ public class GProject extends RProjectListenerImpl
         delegateCompileEvent(event);
     }
     
+    @Override
     public void compileWarning(RCompileEvent event)
     {
         delegateCompileEvent(event);
@@ -423,7 +428,7 @@ public class GProject extends RProjectListenerImpl
     }
 
     /**
-     * @return	Whether or not the debugger window is currently visible.
+     * @return Whether or not the debugger window is currently visible.
      */
     public boolean isExecControlVisible() 
     {
