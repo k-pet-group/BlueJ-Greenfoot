@@ -448,6 +448,10 @@ public class WorldHandlerDelegateIDE
         return project.getDefaultPackage().getClass(lastWorldClass);
     }
 
+    /**
+     * Get the last world class that was instantiated, if it can (still) be instantiated.
+     * May return null.
+     */
     @SuppressWarnings("unchecked")
     private Class<? extends World> getLastWorldClass()
     {
@@ -582,6 +586,7 @@ public class WorldHandlerDelegateIDE
      * Notify that the simulation has become active ("act" or "run" pressed). Any recorded interaction
      * then becomes invalid.
      */
+    @Override
     public void simulationActive()
     {
         greenfootRecorder.clearCode(true);
