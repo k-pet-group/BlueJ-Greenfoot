@@ -259,12 +259,11 @@ public class WorldHandlerDelegateIDE
         }
         
         GClass lastWorld = null;
-        if (project != null) {
+        if (project != null && newWorld != null) {
             String lastWorldClass = newWorld.getClass().getName();
-            if(lastWorldClass != null) {
+            if (lastWorldClass != null) {
                 lastWorld = project.getDefaultPackage().getClass(lastWorldClass);
             }
-            project.setLastWorldClassName(lastWorldClass);
         }
 
         saveWorldAction.setLastWorldGClass(lastWorld);
@@ -373,7 +372,21 @@ public class WorldHandlerDelegateIDE
             if(worldClasses.isEmpty() ) {
                 return;
             }
-            cls = worldClasses.get(0);
+            
+            for (Class<? extends World> wclass : worldClasses) {
+                try {
+                    wclass.getConstructor(new Class<?>[0]);
+                    cls = wclass;
+                    break;
+                }
+                catch (LinkageError le) { }
+                catch (NoSuchMethodException nsme) { }
+            }
+            if (cls == null) {
+                // Couldn't find a world with a suitable constructor
+                showMissingConstructorDialog();
+                return;
+            }
         }
         
         final Class<? extends World> icls = cls;
@@ -389,6 +402,7 @@ public class WorldHandlerDelegateIDE
                         WorldHandler.getInstance().setWorld(newWorld);
                     }
                     saveWorldAction.setRecordingValid(true);
+                    project.setLastWorldClassName(icls.getName());
                 }
                 catch (LinkageError e) { }
                 catch (NoSuchMethodException nsme) {
@@ -476,6 +490,9 @@ public class WorldHandlerDelegateIDE
     public void worldConstructed(Object world)
     {
         worldInitialising = false;
+        if (project != null) {
+            project.setLastWorldClassName(world.getClass().getName());
+        }
     }
     
     @Override
