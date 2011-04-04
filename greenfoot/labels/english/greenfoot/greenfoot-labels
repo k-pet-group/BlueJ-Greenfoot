@@ -64,6 +64,7 @@ show.readme=Scenario Information
 pause.simulation=Pause
 show.apidoc=Open Documentation
 save.world=Save the World
+share=Share...
 
 # Remove class confirmation
 remove.confirm.title=Confirm removal of class

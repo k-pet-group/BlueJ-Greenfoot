@@ -28,7 +28,7 @@ package greenfoot.gui.export;
  * Currently hardcoded for one set of icons. Could be generalised if needed.
  *
  * @author Michael Kolling
- * @version $Id: TabbedIconPane.java 8233 2010-09-02 10:13:46Z nccb $
+ * @version $Id: TabbedIconPane.java 8827 2011-04-04 10:08:45Z nccb $
  */
 
 import bluej.Config;
@@ -37,6 +37,8 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
@@ -60,6 +62,7 @@ public class TabbedIconPane extends JPanel
                 
     private JRadioButton selected;
     private TabbedIconPaneListener listener;
+    private Map<String, JRadioButton> buttons = new HashMap<String, JRadioButton>();
     
     /**
      * Creates a new instance of TabbedIconPane.
@@ -116,6 +119,7 @@ public class TabbedIconPane extends JPanel
         toggle.setActionCommand(command);
         toggle.addActionListener(this);
         toggle.setOpaque(false);
+        buttons.put(command, toggle);
 
         JPanel panel = new JPanel();
         panel.setBackground(backgroundColor);
@@ -128,6 +132,18 @@ public class TabbedIconPane extends JPanel
             select(toggle);
         }
         return toggle;
+    }
+    
+    /**
+     * Directly selects the given button without informing the listener
+     */
+    public void select(String function)
+    {
+        JRadioButton button = buttons.get(function);
+        if (button != null) {
+            deselect(selected);
+            select(button);
+        }
     }
     
     /**

@@ -123,7 +123,7 @@ import com.apple.eawt.ApplicationEvent;
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener, WorldListener, SelectionListener
 {
-    private static final String readMeIconFile = "readme.png";
+    private static final String shareIconFile = "export-publish-small.png";
     private static final String compileIconFile = "compile.png";
     private static final int WORLD_MARGIN = 40;
 
@@ -148,6 +148,7 @@ public class GreenfootFrame extends JFrame
     private SaveCopyAction saveCopyAction;
     private ShowReadMeAction showReadMeAction;
     private ExportProjectAction exportProjectAction;
+    private ExportProjectAction shareAction;
     private CloseProjectAction closeProjectAction;
     private RemoveSelectedClassAction removeSelectedClassAction;
     private CompileAllAction compileAllAction;
@@ -458,10 +459,10 @@ public class GreenfootFrame extends JFrame
         
         JPanel eastPanel = new JPanel(new BorderLayout(12, 12));
 
-        JButton readMeButton = GreenfootUtil.createButton(showReadMeAction); 
-        readMeButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource(readMeIconFile)));
-        readMeButton.setMaximumSize(new Dimension(Short.MAX_VALUE, Short.MAX_VALUE));
-        eastPanel.add(readMeButton, BorderLayout.NORTH);       
+        JButton shareButton = GreenfootUtil.createButton(shareAction); 
+        shareButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource(shareIconFile)));
+        shareButton.setMaximumSize(new Dimension(Short.MAX_VALUE, Short.MAX_VALUE));
+        eastPanel.add(shareButton, BorderLayout.NORTH);       
         
         // the class browser 
         
@@ -600,7 +601,8 @@ public class GreenfootFrame extends JFrame
         saveCopyAction = new SaveCopyAction(this);
         showReadMeAction = new ShowReadMeAction(this);
         saveWorldAction = worldHandlerDelegate.getSaveWorldAction();
-        exportProjectAction = new ExportProjectAction(this);
+        exportProjectAction = new ExportProjectAction(this, false);
+        shareAction = new ExportProjectAction(this, true);
         closeProjectAction = new CloseProjectAction(this);
         removeSelectedClassAction = new RemoveSelectedClassAction(this);
         removeSelectedClassAction.setEnabled(false);
@@ -627,6 +629,7 @@ public class GreenfootFrame extends JFrame
         addMenuItem(saveProjectAction, projectMenu, KeyEvent.VK_S, false, KeyEvent.VK_S);
         addMenuItem(saveCopyAction, projectMenu, -1, false, -1);
         projectMenu.addSeparator();
+        addMenuItem(showReadMeAction, projectMenu, -1, false, -1);
         addMenuItem(exportProjectAction, projectMenu, KeyEvent.VK_E, false, KeyEvent.VK_E);
 
         if(! Config.isMacOS()) {
@@ -780,6 +783,7 @@ public class GreenfootFrame extends JFrame
         showReadMeAction.setEnabled(state);
         saveWorldAction.setEnabled(state);
         exportProjectAction.setEnabled(state);
+        shareAction.setEnabled(state);
         
         // Disable simulation buttons
         if (state == false) {

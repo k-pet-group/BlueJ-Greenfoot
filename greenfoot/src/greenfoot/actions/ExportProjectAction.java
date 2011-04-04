@@ -34,18 +34,20 @@ import bluej.Config;
  * Action to export a project to a standalone program.
  * 
  * @author Poul Henriksen, Michael Kolling
- * @version $Id: ExportProjectAction.java 6216 2009-03-30 13:41:07Z polle $
+ * @version $Id: ExportProjectAction.java 8827 2011-04-04 10:08:45Z nccb $
  */
 public class ExportProjectAction extends AbstractAction 
 {
     
     private ExportDialog exportDialog;
     private GreenfootFrame gfFrame;
+    private boolean share; // The action is from the share button, so show Gallery export
     
-    public ExportProjectAction(GreenfootFrame gfFrame)
+    public ExportProjectAction(GreenfootFrame gfFrame, boolean share)
     {
-        super(Config.getString("export.project"));
+        super(Config.getString(share ? "share" : "export.project"));
         this.gfFrame = gfFrame;
+        this.share = share;
         setEnabled(false);
     }
 
@@ -53,6 +55,9 @@ public class ExportProjectAction extends AbstractAction
     {       
         if(exportDialog == null) {
             exportDialog = new ExportDialog(gfFrame);
+        }
+        if (share) {
+            exportDialog.selectGalleryPane();
         }
         exportDialog.display();
     }

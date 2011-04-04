@@ -74,6 +74,8 @@ public class ExportDialog extends EscapeDialog
     private String selectedFunction;
     private int progress;
 
+    private TabbedIconPane tabbedPane;
+
     public ExportDialog(GreenfootFrame parent)
     {
         super(parent, dialogTitle, false);
@@ -277,7 +279,7 @@ public class ExportDialog extends EscapeDialog
      */
     public void tabSelected(String function)
     {
-        showPane(function);
+        showPane(function, true);
     }
 
     // === end of TabbedIconListener interface ===
@@ -285,7 +287,7 @@ public class ExportDialog extends EscapeDialog
     /** 
      * Called when the selection of the tabs changes.
      */
-    public void showPane(String function)
+    private void showPane(String function, boolean saveAsDefault)
     {
         ExportPane chosenPane = panes.get(function);
         if(chosenPane != selectedPane) {
@@ -298,7 +300,9 @@ public class ExportDialog extends EscapeDialog
             selectedFunction = function;
             clearStatus();
             pack();
-            Config.putPropString("greenfoot.lastExportPane", function);
+            if (saveAsDefault) {
+                Config.putPropString("greenfoot.lastExportPane", function);
+            }
         }
     }
     
@@ -331,7 +335,7 @@ public class ExportDialog extends EscapeDialog
         contentPane.setBorder(null);
         contentPane.setBackground(new Color(220, 220, 220));
         
-        TabbedIconPane tabbedPane = new TabbedIconPane(preferredPane);
+        tabbedPane = new TabbedIconPane(preferredPane);
         tabbedPane.setListener(this);
         contentPane.add(tabbedPane, BorderLayout.NORTH);
 
@@ -381,7 +385,7 @@ public class ExportDialog extends EscapeDialog
 
         contentPane.add(bottomPanel, BorderLayout.SOUTH);
         
-        showPane(preferredPane);
+        showPane(preferredPane, false);
 
         DialogManager.centreDialog(this);
     }
@@ -453,5 +457,14 @@ public class ExportDialog extends EscapeDialog
     {
         progress += bytes;
         progressBar.setValue(progress);
+    }
+
+    /**
+     * Selects the pane with the gallery export
+     */
+    public void selectGalleryPane()
+    {
+        tabbedPane.select(ExportPublishPane.FUNCTION);
+        showPane(ExportPublishPane.FUNCTION, false);
     }
 }
