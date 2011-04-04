@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -30,67 +30,57 @@ public class JdiTestResultFailure extends JdiTestResult
 {
     SourceLocation failPoint;
     
-    JdiTestResultFailure(String className, String methodName, String exceptionMsg, String traceMsg, SourceLocation failPoint)
+    /**
+     * Construct a new test failure result.
+     */
+    JdiTestResultFailure(String className, String methodName, String exceptionMsg, String traceMsg,
+            SourceLocation failPoint, int runTimeMs)
     {
-		super(className, methodName);
+        super(className, methodName, runTimeMs);
 
-		if (exceptionMsg == null)
-			throw new NullPointerException("exceptionMsg cannot be null");
-			
-		this.exceptionMsg = exceptionMsg;
+        this.exceptionMsg = exceptionMsg;
 
-		if (traceMsg != null)
-			this.traceMsg = getFilteredTrace(traceMsg);
-	    else
-	    	this.traceMsg = null;
-        
+        if (traceMsg != null) {
+            this.traceMsg = getFilteredTrace(traceMsg);
+        }
+        else {
+            this.traceMsg = null;
+        }
+
         this.failPoint = failPoint;
     }
     
-    /**
-     * @see bluej.debugger.DebuggerTestResult#getExceptionMessage()
-     */
+    @Override
     public String getExceptionMessage()
     {
         return exceptionMsg;
     }
 
-    /**
-     * 
-     * @see bluej.debugger.DebuggerTestResult#getTrace()
-     */
+    @Override
     public String getTrace()
     {
         return traceMsg;
     }
     
-    /* (non-Javadoc)
-     * @see bluej.debugger.DebuggerTestResult#getExceptionLocation()
-     */
+    @Override
     public SourceLocation getExceptionLocation()
     {
         return failPoint;
     }
 
-    /* (non-Javadoc)
-     * @see bluej.debugger.DebuggerTestResult#isError()
-     */
+    @Override
     public boolean isError()
     {
         return false;
     }
 
-    /* (non-Javadoc)
-     * @see bluej.debugger.DebuggerTestResult#isFailure()
-     */
+    @Override
     public boolean isFailure()
     {
         return true;
     }
 
-    /* (non-Javadoc)
-     * @see bluej.debugger.DebuggerTestResult#isSuccess()
-     */
+    @Override
     public boolean isSuccess()
     {
         return false;

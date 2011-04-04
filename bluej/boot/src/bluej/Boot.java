@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -85,7 +85,7 @@ public class Boot
     // The second group are available to user code (and to bluej)
     // bluejcore.jar is necessary as it contains the support runtime
     // (bluej.runtime.* classes).
-    private static final String[] bluejUserJars = { "bluejcore.jar", "junit.jar" };
+    private static final String[] bluejUserJars = { "bluejcore.jar", "junit-4.8.2.jar" };
 
     // The number of jar files in the user jars which are built from the
     // BlueJ classes directory
@@ -96,7 +96,7 @@ public class Boot
     private static final String JLAYER_MP3_JAR = "jl1.0.1.jar";
     private static final String[] greenfootUserJars = {"extensions" + File.separatorChar + "greenfoot.jar", 
         "bluejcore.jar", "bluejeditor.jar", "bluejext.jar",
-        "AppleJavaExtensions.jar", "junit.jar", "bluej.jar",
+        "AppleJavaExtensions.jar", "junit-4.8.2.jar", "bluej.jar",
         "commons-httpclient-3.1.jar", "commons-logging-api-1.1.1.jar",
         "commons-codec-1.3.jar", JLAYER_MP3_JAR};
 
@@ -269,9 +269,9 @@ public class Boot
      */
     public static File getBluejLibDir()
     {
-    	if(bluejLibDir == null) {
-    	    bluejLibDir = calculateBluejLibDir();
-    	}
+        if(bluejLibDir == null) {
+            bluejLibDir = calculateBluejLibDir();
+        }
         return bluejLibDir;
     }
 
@@ -422,7 +422,7 @@ public class Boot
         // directory to the classpath (where Eclipse stores the
         // .class files)
         if (numBuildJars != 0 && useClassesDir) {
-        	File classesDir = new File(libDir.getParentFile(), "classes");
+            File classesDir = new File(libDir.getParentFile(), "classes");
             
             if (classesDir.isDirectory()) {
                 urlList.add(classesDir.toURI().toURL());
@@ -449,7 +449,7 @@ public class Boot
             //    throw new IllegalStateException("required jar is missing or unreadable: " + toAdd);
 
             if (toAdd.canRead())
-            	urlList.add(toAdd.toURI().toURL());
+                urlList.add(toAdd.toURI().toURL());
         }
     
         if (isSystem) {

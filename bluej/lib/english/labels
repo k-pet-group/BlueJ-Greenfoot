@@ -530,6 +530,7 @@ testdisplay.title = BlueJ:  Test Results
 testdisplay.counter.runs=Runs:
 testdisplay.counter.errors=Errors:
 testdisplay.counter.failures=Failures:
+testdisplay.counter.totalTime=Total Time:
 testdisplay.showsource=Show Source
 
 # status messages

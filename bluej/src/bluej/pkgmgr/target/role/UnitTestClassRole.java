@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -43,6 +43,8 @@ import javax.swing.Action;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
+import org.junit.Test;
+
 import bluej.Config;
 import bluej.debugger.DebuggerObject;
 import bluej.editor.Editor;
@@ -64,30 +66,41 @@ import bluej.utility.JavaNames;
 /**
  * A role object for Junit unit tests.
  *
- * @author  Andrew Patterson based on AppletClassRole
+ * @author  Andrew Patterson
  */
 public class UnitTestClassRole extends ClassRole
 {
     public static final String UNITTEST_ROLE_NAME = "UnitTestTarget";
+    public static final String UNITTEST_ROLE_NAME_JUNIT4 = "UnitTestTargetJunit4";
 
     private final Color unittestbg = Config.getOptionalItemColour("colour.class.bg.unittest");
 
     private static final String popupPrefix = Config.getString("pkgmgr.test.popup.testPrefix");
-	private static final String testAll = Config.getString("pkgmgr.test.popup.testAll");
-	private static final String createTest = Config.getString("pkgmgr.test.popup.createTest");
-	private static final String benchToFixture = Config.getString("pkgmgr.test.popup.benchToFixture");
-	private static final String fixtureToBench = Config.getString("pkgmgr.test.popup.fixtureToBench");
+    private static final String testAll = Config.getString("pkgmgr.test.popup.testAll");
+    private static final String createTest = Config.getString("pkgmgr.test.popup.createTest");
+    private static final String benchToFixture = Config.getString("pkgmgr.test.popup.benchToFixture");
+    private static final String fixtureToBench = Config.getString("pkgmgr.test.popup.fixtureToBench");
+    
+    /** Whether this is a Junit 4 test class. If false, it's a Junit 3 test class. */
+    private boolean isJunit4;
     
     /**
      * Create the unit test class role.
      */
-    public UnitTestClassRole()
+    public UnitTestClassRole(boolean isJunit4)
     {
+        this.isJunit4 = isJunit4;
     }
 
+    @Override
     public String getRoleName()
     {
-        return UNITTEST_ROLE_NAME;
+        if (isJunit4) {
+            return UNITTEST_ROLE_NAME_JUNIT4;
+        }
+        else {
+            return UNITTEST_ROLE_NAME;
+        }
     }
 
     public String getStereotypeLabel()
@@ -109,21 +122,41 @@ public class UnitTestClassRole extends ClassRole
         }
     }
 
+    @SuppressWarnings("unchecked")
     private boolean isJUnitTestMethod(Method m)
     {
-        // look for reasons to not include this method as a test case
-        if (!m.getName().startsWith("test"))
+        if (isJunit4) {
+            Class<?> cl = m.getDeclaringClass();
+            ClassLoader classLoader = cl.getClassLoader();
+            try {
+                Class<Test> testClass;
+                if (classLoader == null) {
+                    testClass = org.junit.Test.class;
+                }
+                else {
+                    testClass = (Class<Test>) classLoader.loadClass("org.junit.Test");
+                }
+
+                if (m.getAnnotation(testClass) != null) {
+                    return true;
+                }
+            }
+            catch (ClassNotFoundException cnfe) {}
+            catch (LinkageError le) {}
+
+            // No suitable annotations found, so not a test class
             return false;
-        if (!Modifier.isPublic(m.getModifiers()))
-            return false;
-        if (m.getParameterTypes().length != 0)
-            return false;
-        if (!m.getReturnType().equals(Void.TYPE))
-            return false;
-        
-        return true;
+        }
+        else {
+            // look for reasons to not include this method as a test case
+            if (!m.getName().startsWith("test")) return false;
+            if (!Modifier.isPublic(m.getModifiers())) return false;
+            if (m.getParameterTypes().length != 0) return false;
+            if (!m.getReturnType().equals(Void.TYPE)) return false;
+            return true;
+        }
     }
-	
+    
     /**
      * Generate a popup menu for this TestClassRole.
      * @param cl the class object that is represented by this target
@@ -149,7 +182,7 @@ public class UnitTestClassRole extends ClassRole
 
         // add run all tests option
         addMenuItem(menu, new TestAction(testAll, ct.getPackage().getEditor(),ct),
-        			enableTestAll);
+                enableTestAll);
         menu.addSeparator();
 
         return false;
@@ -166,13 +199,14 @@ public class UnitTestClassRole extends ClassRole
         boolean hasEntries = false;
 
         Method[] allMethods = cl.getMethods();
-		
+        
         if (! ct.isAbstract()) {
             for (int i=0; i < allMethods.length; i++) {
                 Method m = allMethods[i];
                 
-                if (!isJUnitTestMethod(m))
+                if (!isJUnitTestMethod(m)) {
                     continue;
+                }
                 
                 Action testAction = new TestAction(popupPrefix + " " + m.getName().substring(4),
                         ct.getPackage().getEditor(), ct, m.getName());
@@ -305,16 +339,17 @@ public class UnitTestClassRole extends ClassRole
         // prompt for a new test name
         String newTestName = DialogManager.askString(pmf, "unittest-new-test-method");
 
-        if (newTestName == null)
+        if (newTestName == null) {
             return;
+        }
 
         if (newTestName.length() == 0) {
             pmf.setStatus(Config.getString("pkgmgr.test.noTestName"));
             return;
         }
 
-        // test methods must start with the word "test"
-        if(!newTestName.startsWith("test")) {
+        // Junit 3 test methods must start with the word "test"
+        if(!isJunit4 && !newTestName.startsWith("test")) {
             newTestName = "test" + Character.toTitleCase(newTestName.charAt(0)) + newTestName.substring(1);
         }
 
@@ -342,7 +377,7 @@ public class UnitTestClassRole extends ClassRole
         }
 
         pmf.testRecordingStarted(Config.getString("pkgmgr.test.recording") + " "
-        						 + ct.getBaseName() + "." + newTestName + "()");
+                + ct.getBaseName() + "." + newTestName + "()");
 
         pmf.getProject().removeClassLoader();
 
@@ -448,15 +483,19 @@ public class UnitTestClassRole extends ClassRole
 
                 if (methodInsert != null) {
                     ed.setSelection(methodInsert.getLine(), methodInsert.getColumn(), 1);
-                    ed.insertText("\n\tpublic void " + name + "()\n\t{\n" + pmf.getObjectBench().getTestMethod() + "\t}\n}\n", false);
+                    if (isJunit4) {
+                        ed.insertText("\n\t@Test\n\tpublic void " + name + "()\n\t{\n" + pmf.getObjectBench().getTestMethod() + "\t}\n}\n", false);
+                    }
+                    else {
+                        ed.insertText("\n\tpublic void " + name + "()\n\t{\n" + pmf.getObjectBench().getTestMethod() + "\t}\n}\n", false);
+                    }
                 }
             }
             
             ed.save();
         }
         catch (IOException ioe) {
-            PkgMgrFrame.showMessageWithText(pmf.getPackage(),
-                    "generic-file-save-error", ioe.getLocalizedMessage());
+            PkgMgrFrame.showMessageWithText(pmf.getPackage(), "generic-file-save-error", ioe.getLocalizedMessage());
         }
     }
     
@@ -517,8 +556,9 @@ public class UnitTestClassRole extends ClassRole
      */
     public void doBenchToFixture(PkgMgrFrame pmf, ClassTarget ct)
     {
-        if(pmf.getObjectBench().getObjectCount() == 0)
+        if(pmf.getObjectBench().getObjectCount() == 0) {
             return;
+        }
                 
         Editor ed = ct.getEditor();
         try {
@@ -551,8 +591,6 @@ public class UnitTestClassRole extends ClassRole
                 }
                 
                 // to get correct locations for rewriting setUp(), we need to reparse
-                // (TODO: intelligently keep track of changes to the editor and modify
-                //        line numbers accordingly - avoid this reparse)
                 uta = analyzeUnitTest(ct);
             }
 
@@ -561,8 +599,9 @@ public class UnitTestClassRole extends ClassRole
             
             // sanity check.. this shouldn't ever be null but if it is, lets not
             // make it worse by trying to edit the source
-            if (fixtureInsertLocation == null)
+            if (fixtureInsertLocation == null) {
                 return;
+            }
             
             // find the curly brackets for the setUp() method
             SourceSpan setupSpan = uta.getMethodBlockSpan("setUp");
@@ -575,7 +614,12 @@ public class UnitTestClassRole extends ClassRole
                 // otherwise, we will be inserting a brand new setUp() method
                 ed.setSelection(fixtureInsertLocation.getLine(),
                                 fixtureInsertLocation.getColumn(), 1);
-                ed.insertText("{\n\tpublic void setUp()\n\t", false);
+                if (isJunit4) {
+                    ed.insertText("{\n\t@Before\n\tpublic void setUp()\n\t", false);
+                }
+                else {
+                    ed.insertText("{\n\tpublic void setUp()\n\t", false);
+                }
             }
             
             // insert the code for our setUp() method
@@ -619,7 +663,7 @@ public class UnitTestClassRole extends ClassRole
     /**
      * A TestAction is an action that causes a JUnit test to be run on a class.
      * If testName is not provided, it is set to null which means that the whole
-     * test class is run. Else it refers to a test method that should be run
+     * test class is run; otherwise it refers to a test method that should be run
      * individually.
      */
     private class TestAction extends TargetAbstractAction
@@ -644,8 +688,6 @@ public class UnitTestClassRole extends ClassRole
         }
     }
 
-	/**
-	 */
     private class MakeTestCaseAction extends TargetAbstractAction
     {
         public MakeTestCaseAction(String name, PackageEditor ped, Target t)

@@ -49,7 +49,7 @@
     <!-- Set up classpath (does not include jar files built by us) -->
     <path id="bluej.class.path">
         <pathelement location="${bluej_home}/lib/AppleJavaExtensions.jar"/>
-        <pathelement location="${bluej_home}/lib/junit.jar"/>
+        <pathelement location="${bluej_home}/lib/junit-4.8.2.jar"/>
         <pathelement location="${bluej_home}/lib/org-netbeans-lib-cvsclient.jar"/>
         <pathelement location="${bluej_home}/lib/svnkit-javahl.jar"/>
         <pathelement location="${bluej_home}/lib/trilead.jar"/>

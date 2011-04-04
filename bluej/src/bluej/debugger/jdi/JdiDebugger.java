@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -545,8 +545,14 @@ public class JdiDebugger extends Debugger
                     arrayRef = (ArrayReference) vmr.invokeRunTest(className, methodName);
                 }
                 
+                if (arrayRef == null || arrayRef.length() == 0) {
+                    return new JdiTestResultError(className, methodName, "VM returned unknown result", "", null, 0);
+                }
+                
+                int runTimeMs = Integer.parseInt(((StringReference) arrayRef.getValue(0)).value());
+                
                 if (arrayRef != null && arrayRef.length() > 5) {
-                    String failureType = ((StringReference) arrayRef.getValue(0)).value();
+                    String failureType = ((StringReference) arrayRef.getValue(7)).value();
                     String exMsg = ((StringReference) arrayRef.getValue(1)).value();
                     String traceMsg = ((StringReference) arrayRef.getValue(2)).value();
                     
@@ -554,27 +560,32 @@ public class JdiDebugger extends Debugger
                     String failureSource = ((StringReference) arrayRef.getValue(4)).value();
                     String failureMethod = ((StringReference) arrayRef.getValue(5)).value();
                     int lineNo = Integer.parseInt(((StringReference) arrayRef.getValue(6)).value());
-                    
                     SourceLocation failPoint = new SourceLocation(failureClass, failureSource, failureMethod, lineNo);
                     
-                    if (failureType.equals("failure"))
-                        return new JdiTestResultFailure(className, methodName, exMsg, traceMsg, failPoint);
-                    else
-                        return new JdiTestResultError(className, methodName, exMsg, traceMsg, failPoint);
+                    // junit4 no longer distinguishes between errors and failures
+                    if (failureType.equals("failure")) {
+                        return new JdiTestResultFailure(className, methodName, exMsg, traceMsg, failPoint, runTimeMs);
+                    }
+                    else {
+                        return new JdiTestResultError(className, methodName, exMsg, traceMsg, failPoint, runTimeMs);
+                    }
+                    
+                } else if (arrayRef != null && arrayRef.length() == 1) {
+                    // Success - extract the run time in mS
+                    return new JdiTestResult(className, methodName, runTimeMs);
                 }
             }
         }
         catch (InvocationException ie) {
             // what to do here??
-            return new JdiTestResultError(className, methodName, "Internal invocation error", "", null);
+            return new JdiTestResultError(className, methodName, "Internal invocation error", "", null, 0);
         }
         catch (VMDisconnectedException vmde) {
-            return new JdiTestResultError(className, methodName, "VM restarted", "", null);
+            return new JdiTestResultError(className, methodName, "VM restarted", "", null, 0);
         }
-
-
-        // a null means that we had success. Return a success test result
-        return new JdiTestResult(className, methodName);
+        
+        // should never get here
+        return new JdiTestResultError(className, methodName, "VM returned unknown result", "", null, 0);
     }
 
     /**

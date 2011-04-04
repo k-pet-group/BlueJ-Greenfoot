@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -36,14 +36,20 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import org.junit.runner.JUnitCore;
+import org.junit.runner.Request;
+import org.junit.runner.Result;
+import org.junit.runner.notification.Failure;
 
 import bluej.utility.Utility;
-
-import junit.framework.TestCase;
-import junit.framework.TestFailure;
-import junit.framework.TestResult;
-import junit.framework.TestSuite;
 
 /**
  * Class that controls the runtime of code executed within BlueJ.
@@ -58,11 +64,11 @@ import junit.framework.TestSuite;
 public class ExecServer
 {
     // these fields will be fetched by VMReference
-	
+    
     // the initial thread that starts main()
     public static final String MAIN_THREAD_NAME = "mainThread";
     public static Thread mainThread = null;
-	
+    
     // a worker thread that we create
     public static final String WORKER_THREAD_NAME = "workerThread";
     public static Thread workerThread = null;
@@ -246,7 +252,7 @@ public class ExecServer
         // signal with a breakpoint that we have performed our VM
         // initialization, at the same time, create the initial server thread.
         newThread();
-		
+        
         // Set the worker thread in motion also. Give it maximum priority so that it can
         // be guarenteed to execute in a timely manner, and won't get starved by user code
         // executing in other threads.
@@ -343,13 +349,6 @@ public class ExecServer
      */
     public static Class<?> loadAndInitClass(String className)
     {
-    	//Debug.message("[VM] loadClass: " + className);
-        
-        if (currentLoader == null) {
-          // It does not make much sense to load something without a loader, better signal it immediatly.
-          System.err.println("ExecServer.loadClass() currentLoader=null");
-        }
-        
         Throwable exception = null;
         Class<?> cl;
         try {
@@ -578,111 +577,62 @@ public class ExecServer
      * Execute a JUnit test method and return the result.<p>
      * 
      * The array returned in case of failure or error contains:<br>
-     *  [0] = "failure" or "error" (string)<br>
+     *  [0] = the runtime in milliseconds expressed as a decimal integer
      *  [1] = the exception message (or "no exception message")<br>
      *  [2] = the stack trace as a string (or "no stack trace")<br>
      *  [3] = the name of the class in which the exception/failure occurred<br>
      *  [4] = the source filename for where the exception/failure occurred<br>
      *  [5] = the name of the method in which the exception/failure occurred<br>
-     *  [6] = the line number where the exception/failure occurred (a string)
+     *  [6] = the line number where the exception/failure occurred (a string)<br>
+     *  [7] = "failure" or "error" (string)<br>
+     *  
+     * The array returned in case of success contains:<br>
+     *  [0] = the runtime in milliseconds expressed as a decimal integer
      * 
-     * @return an array in case of failure or error, and null if the test ran
-     *         successfully.
+     * @return an array of length 8 on test failure/error, or of length 1 if the test passed
      */
     private static Object[] runTestMethod(String className, String methodName)
     {
-        // Debug.message("[VM] runTestMethod" + className + " " + methodName);
-
         Class<?> cl = loadAndInitClass(className);
-        
-        TestCase testCase = null;
-        
-        // construct a testcase using
-        // the String constructor and passing in our
-        // method name as a parameter     
-        try {
-            Class<?> partypes[] = new Class[1];
-            partypes[0] = String.class;
-            Constructor<?> ct = cl.getConstructor(partypes);
 
-            Object arglist[] = new Object[1];
-            arglist[0] = methodName;
-            testCase = (TestCase) ct.newInstance(arglist);
-        }
-        catch (NoSuchMethodException nsme) { }
-        catch (InstantiationException ie) { throw new IllegalArgumentException("ie"); }
-        catch (IllegalAccessException iae) { throw new IllegalArgumentException("iae"); }
-        catch (InvocationTargetException ite) { throw new IllegalArgumentException("ite"); }
+        Result res = (new JUnitCore()).run(Request.method(cl, methodName));
+        if (res.wasSuccessful()) {
+            Object result[] = new Object[1];
+            result[0] = String.valueOf(res.getRunTime());
+            return result;
+        } else {
+            Object result[] = new Object[8];
+            List<Failure> failures = res.getFailures();
+            for (Iterator<Failure> iterator = failures.iterator(); iterator.hasNext();) {
+                Failure failure = (Failure) iterator.next();
+                if (failure.getException().getClass() == java.lang.AssertionError.class
+                        || failure.getException().getClass() == junit.framework.AssertionFailedError.class) {
+                    result[7] = "failure";
+                }
+                else {
+                    result[7] = "error";
+                }
 
-        // if that failed, construct a testcase using
-        // the no-arguement constructor
-        if (testCase == null) {
-            try {
-                testCase = (TestCase) cl.newInstance();
-                testCase.setName(methodName);
-            }
-            catch (InstantiationException ie) { }
-            catch (IllegalAccessException iae) { }
-        }
-
-        TestSuite suite = new TestSuite("bluej");
-        suite.addTest(testCase);
-
-        RemoteTestRunner runner = new RemoteTestRunner();
-
-        TestResult tr = runner.doRun(suite);
-
-        if (tr.errorCount() > 1 || tr.failureCount() > 1)
-            throw new IllegalStateException("error or failure count was > 1");
-
-        if (tr.errorCount() == 1) {
-            for (Enumeration<?> e = tr.errors(); e.hasMoreElements(); ) {
-                Object result[] = new Object[7];
-                TestFailure tf = (TestFailure)e.nextElement();
-
-                result[0] = tf.isFailure() ? "failure" : "error";
-                result[1] = tf.exceptionMessage() != null ? tf.exceptionMessage() : "no exception message";
-                result[2] = tf.trace() != null ? tf.trace() : "no trace";
-                StackTraceElement [] ste = tf.thrownException().getStackTrace();
-                result[3] = ste[0].getClassName();
-                result[4] = ste[0].getFileName();
-                result[5] = ste[0].getMethodName();
-                result[6] = String.valueOf(ste[0].getLineNumber());
-
-                return result;
-            }
-            // should not reach here
-            throw new IllegalStateException("errorCount was 1 but found no errors");
-        }
-
-        if (tr.failureCount() == 1) {
-            for (Enumeration<?> e = tr.failures(); e.hasMoreElements(); ) {
-                Object result[] = new Object[7];
-                TestFailure tf = (TestFailure)e.nextElement();
-
-                result[0] = tf.isFailure() ? "failure" : "error";
-                result[1] = tf.exceptionMessage() != null ? tf.exceptionMessage() : "no exception message";
-                result[2] = tf.trace() != null ? tf.trace() : "no trace";
-                StackTraceElement [] ste = tf.thrownException().getStackTrace();
+                result[0] = String.valueOf(res.getRunTime());
+                result[1] = failure.getMessage() != null ? failure.getMessage() : "no exception message";
+                result[2] = failure.getTrace() != null ? failure.getTrace() : "no trace";
 
                 // search the stack trace backward until finding a class not
-                // part of the junit framework
-                int i = 0;
-                while(i < ste.length && ste[i].getClassName().startsWith("junit."))
+                // part of the org.junit framework
+                StackTraceElement [] ste = failure.getException().getStackTrace();
+                int i = 0; 
+                while(i < ste.length && ste[i].getClassName().startsWith("org.junit.")) {
                     i++;
+                }
+
                 result[3] = ste[i].getClassName();
                 result[4] = ste[i].getFileName();
                 result[5] = ste[i].getMethodName();
                 result[6] = String.valueOf(ste[i].getLineNumber());
-
-                return result;
             }
-            // should not reach here
-            throw new IllegalStateException("failureCount was 1 but found no errors");
-        }
 
-        // success
-        return null;
+            return result;
+        }
     }
 
     /**

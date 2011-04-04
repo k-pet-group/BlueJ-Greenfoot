@@ -18,7 +18,7 @@
         <include name="lib/bluejeditor.jar" />
         <include name="lib/bluejext.jar" />
         <include name="lib/antlr.jar" />
-        <include name="lib/junit.jar" />
+        <include name="lib/junit-4.8.2.jar" />
         <include name="lib/AppleJavaExtensions.jar" />
         <include name="lib/sshconnection.jar" />
         <include name="lib/org-netbeans-lib-cvsclient.jar" />

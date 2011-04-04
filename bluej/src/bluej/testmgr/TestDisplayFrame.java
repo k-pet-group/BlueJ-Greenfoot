@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -45,7 +45,6 @@ import java.awt.Image;
  * A Swing based user interface to run tests.
  *
  * @author  Andrew Patterson
- * @version $Id: TestDisplayFrame.java 7712 2010-05-24 14:09:58Z mik $
  */
 public class TestDisplayFrame
 {
@@ -55,23 +54,26 @@ public class TestDisplayFrame
 
     public synchronized static TestDisplayFrame getTestDisplay()
     {
-        if(singleton == null)
+        if(singleton == null) {
             singleton = new TestDisplayFrame();
+        }
         return singleton;
     }
 
     public static boolean isFrameShown()
     {
-        if(singleton == null)
+        if(singleton == null) {
             return false;
-        else
+        }
+        else {
             return singleton.isShown();
+        }
     }
 
     private JFrame frame;
-	private DefaultListModel testEntries;
+    private DefaultListModel testEntries;
 
-	private JList testnames;
+    private JList testnames;
     private ProgressBar progressBar;
     private GridBagConstraints pbConstraints;
     private JPanel statusLabel;
@@ -83,6 +85,7 @@ public class TestDisplayFrame
     private CounterPanel counterPanel;
     private int errorCount;
     private int failureCount;
+    private int totalTimeMs;
     private int testTotal;
     private boolean doingMultiple;
         
@@ -97,6 +100,7 @@ public class TestDisplayFrame
         testTotal = 0;
         errorCount = 0;
         failureCount = 0;
+        totalTimeMs = 0;
         doingMultiple = false;
 
         createUI();
@@ -159,23 +163,23 @@ public class TestDisplayFrame
         
         bottomPanel = new JPanel();
         bottomPanel.setOpaque(false);
-		{
+        {
             bottomPanel.setLayout(new GridBagLayout());
             GridBagConstraints constraints = new GridBagConstraints();
             
-			constraints.fill = GridBagConstraints.BOTH;
+            constraints.fill = GridBagConstraints.BOTH;
             constraints.weightx = 1.0;
             constraints.weighty = 0;
             constraints.gridx = 0;
             
             progressBar = new ProgressBar();
-	        bottomPanel.add(progressBar, constraints);
+            bottomPanel.add(progressBar, constraints);
             
             bottomPanel.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth), constraints);
             
             counterPanel = new CounterPanel();
             counterPanel.setOpaque(false);
-	        bottomPanel.add(counterPanel, constraints);
+            bottomPanel.add(counterPanel, constraints);
             bottomPanel.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth), constraints);
         
             // exception message field (text area)
@@ -205,7 +209,7 @@ public class TestDisplayFrame
                 }
             });
             
-	        // Panel for "show source" and "close" buttons
+            // Panel for "show source" and "close" buttons
             JPanel buttonPanel = new JPanel();
             buttonPanel.setOpaque(false);
             buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
@@ -224,7 +228,7 @@ public class TestDisplayFrame
         }
         splitPane.setBottomComponent(bottomPanel);
         
-		frame.getContentPane().add(splitPane);
+        frame.getContentPane().add(splitPane);
         frame.pack();
     }
 
@@ -234,6 +238,7 @@ public class TestDisplayFrame
         
         errorCount = 0;
         failureCount = 0;
+        totalTimeMs = 0;
         testTotal = 0;   
 
         exceptionMessageField.setText("");
@@ -276,8 +281,8 @@ public class TestDisplayFrame
      * 
      * @param num   the number of tests we will run
      */
-	public void startTest(Project project, int num)
-	{
+    public void startTest(Project project, int num)
+    {
         lastProject = project;
 
         if (! doingMultiple) {
@@ -286,7 +291,7 @@ public class TestDisplayFrame
             counterPanel.setTotal(testTotal);
             progressBar.setMaximum(testTotal);  
         }
-	}
+    }
 
     /**
      * Add a test result to the test displayer.
@@ -294,14 +299,15 @@ public class TestDisplayFrame
      * @param dtr  The test result to add
      * @param quiet  True if the result should be added "quietly" (do not make
      *               test frame visible or bring it to front)
-     */	
-	public void addResult(DebuggerTestResult dtr, boolean quiet)
-	{
+     */
+    public void addResult(DebuggerTestResult dtr, boolean quiet)
+    {
         addResultQuietly(dtr);
-        
-        if (! quiet)
+
+        if (! quiet) {
             showTestDisplay(true);
-	}
+        }
+    }
 
     /**
      * Add a test result to the test displayer but do not
@@ -318,9 +324,12 @@ public class TestDisplayFrame
                 ++errorCount;
         }
 
+        totalTimeMs += dtr.getRunTimeMs();
+        
         testEntries.addElement(dtr);
         progressBar.step(testEntries.getSize(), dtr.isSuccess());
         
+        counterPanel.setTotalTime(totalTimeMs);
         counterPanel.setFailureValue(failureCount);
         counterPanel.setErrorValue(errorCount);
         counterPanel.setRunValue(testEntries.getSize());
@@ -355,15 +364,15 @@ public class TestDisplayFrame
         statusLabel.repaint();
     }
 
-	class MyListSelectionListener implements ListSelectionListener
-	{
-		public void valueChanged(ListSelectionEvent e)
-		{
-			if (testnames.getSelectedValue() != null) {
-				DebuggerTestResult dtr = (DebuggerTestResult) testnames.getSelectedValue();
+    class MyListSelectionListener implements ListSelectionListener
+    {
+        public void valueChanged(ListSelectionEvent e)
+        {
+            if (testnames.getSelectedValue() != null) {
+                DebuggerTestResult dtr = (DebuggerTestResult) testnames.getSelectedValue();
 
-				if (dtr.isError() || dtr.isFailure()) {
-					// fdv.showFailure(dtr.getExceptionMessage() + "\n---\n" + dtr.getTrace());
+                if (dtr.isError() || dtr.isFailure()) {
+                    // fdv.showFailure(dtr.getExceptionMessage() + "\n---\n" + dtr.getTrace());
                     exceptionMessageField.setText(dtr.getExceptionMessage()
                             + "\n---\n" + dtr.getTrace());
                     exceptionMessageField.setCaretPosition(0);
@@ -373,13 +382,13 @@ public class TestDisplayFrame
                     // unncessary horizontal scrollbar from appearing
                     exceptionMessageField.setColumns(1);
                     showSourceButton.setEnabled(dtr.getExceptionLocation() != null);
-				} else {
+                } else {
                     exceptionMessageField.setText("");
                     showSourceButton.setEnabled(false);
                 }
-			}
-		}
-	}
+            }
+        }
+    }
     
     class ShowSourceListener extends MouseAdapter implements ActionListener
     {
@@ -428,41 +437,40 @@ public class TestDisplayFrame
 
 class MyCellRenderer extends JLabel implements ListCellRenderer
 {
-	final static Icon errorIcon = Config.getFixedImageAsIcon("error.gif");
-	final static Icon failureIcon = Config.getFixedImageAsIcon("failure.gif");
-	final static Icon okIcon = Config.getFixedImageAsIcon("ok.gif");
+    final static Icon errorIcon = Config.getFixedImageAsIcon("error.gif");
+    final static Icon failureIcon = Config.getFixedImageAsIcon("failure.gif");
+    final static Icon okIcon = Config.getFixedImageAsIcon("ok.gif");
 
-	// This is the only method defined by ListCellRenderer.
-	// We just reconfigure the JLabel each time we're called.
-	public Component getListCellRendererComponent(
-	  JList list,
-	  Object value,            // value to display
-	  int index,               // cell index
-	  boolean isSelected,      // is the cell selected
-	  boolean cellHasFocus)    // the list and the cell have the focus
-	{
-		if (value instanceof DebuggerTestResult) {
-			DebuggerTestResult dtr = (DebuggerTestResult) value;
-			
-			setText(dtr.getName());
-			setIcon((dtr.isSuccess()) ? okIcon : (dtr.isFailure() ? failureIcon : errorIcon));
-			
-		} else
-			setText(value.toString());
+    // This is the only method defined by ListCellRenderer.
+    // We just reconfigure the JLabel each time we're called.
+    public Component getListCellRendererComponent(
+            JList list,
+            Object value,            // value to display
+            int index,               // cell index
+            boolean isSelected,      // is the cell selected
+            boolean cellHasFocus)    // the list and the cell have the focus
+    {
+        if (value instanceof DebuggerTestResult) {
+            DebuggerTestResult dtr = (DebuggerTestResult) value;
+            setText(dtr.getName() + " (" + dtr.getRunTimeMs() + "ms)");
+            setIcon((dtr.isSuccess()) ? okIcon : (dtr.isFailure() ? failureIcon : errorIcon));
+        } else {
+            setText(value.toString());
+        }
 
-		if (isSelected) {
-			setBackground(list.getSelectionBackground());
-			setForeground(list.getSelectionForeground());
+        if (isSelected) {
+            setBackground(list.getSelectionBackground());
+            setForeground(list.getSelectionForeground());
             setOpaque(true);
-		}
-		else {
-			setBackground(list.getBackground());
-			setForeground(list.getForeground());
+        }
+        else {
+            setBackground(list.getBackground());
+            setForeground(list.getForeground());
             setOpaque(false);
-		}
-		setEnabled(list.isEnabled());
-		setFont(list.getFont());
+        }
+        setEnabled(list.isEnabled());
+        setFont(list.getFont());
 
-		return this;
-	}
+        return this;
+    }
 }

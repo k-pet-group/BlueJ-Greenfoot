@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,17 +26,24 @@ package bluej.debugger;
  * method.
  *
  * @author  Andrew Patterson
- * @version $Id: DebuggerTestResult.java 6215 2009-03-30 13:28:25Z polle $
  */
 public abstract class DebuggerTestResult
 {
-	/**
-	 * Return the fully qualified name of the test method.
-	 * 
-	 * @return  the name of the test method in the
-	 *          form ClassName.methodName
-	 */
+    /**
+     * Return the fully qualified name of the test method.
+     * 
+     * @return  the name of the test method in the
+     *          form ClassName.methodName
+     */
     abstract public String getName();
+    
+    /**
+     * Return the run time of the test in milliseconds
+     * 
+     * @return  the total running time of the test in
+     *          milliseconds
+     */
+    abstract public int getRunTimeMs();
     
     /**
      * Return whether this test method was a success.
@@ -53,12 +60,12 @@ public abstract class DebuggerTestResult
      */
     abstract public boolean isFailure();
     
-	/**
-	 * If !isSuccess then this returns true if the
-	 * test result was an unexpected 'error'.
-	 * 
-	 * @return  true if this test resulted in an error
-	 */
+    /**
+     * If !isSuccess then this returns true if the
+     * test result was an unexpected 'error'.
+     * 
+     * @return  true if this test resulted in an error
+     */
     abstract public boolean isError();
     
     /**
@@ -71,14 +78,14 @@ public abstract class DebuggerTestResult
      */
     abstract public String getTrace();
     
-	/**
-	 * Return an exception message for the test failure/error.
-	 * 
-	 * This method can be called only when the test
-	 * resulted in a failure or an error.
-	 * 
-	 * @return  a String of the details of the exception thrown
-	 */
+    /**
+     * Return an exception message for the test failure/error.
+     * 
+     * This method can be called only when the test
+     * resulted in a failure or an error.
+     * 
+     * @return  a String of the details of the exception thrown
+     */
     abstract public String getExceptionMessage();
     
     /**

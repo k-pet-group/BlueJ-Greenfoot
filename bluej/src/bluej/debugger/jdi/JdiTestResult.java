@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -31,22 +31,24 @@ import bluej.debugger.SourceLocation;
  */
 public class JdiTestResult extends DebuggerTestResult
 {
-	protected String className;
-	protected String methodName;
-	protected String exceptionMsg, traceMsg; 	// null if no failure
+    protected String className;
+    protected String methodName;
+    protected String exceptionMsg, traceMsg;  // null if no failure
+    protected int runTimeMs;
 
-	JdiTestResult(String className, String methodName)
-	{
-		if (className == null || methodName == null)
-			throw new NullPointerException("constructing JdiTestResult");
+    JdiTestResult(String className, String methodName, int runTimeMs)
+    {
+        if (className == null || methodName == null)
+            throw new NullPointerException("constructing JdiTestResult");
 
-		this.className = className;
-		this.methodName = methodName;
+        this.className = className;
+        this.methodName = methodName;
+        this.runTimeMs = runTimeMs;
 
-		this.exceptionMsg = null;
-		this.traceMsg = null;
-	}
-  
+        this.exceptionMsg = null;
+        this.traceMsg = null;
+    }
+
     /**
      * @see bluej.debugger.DebuggerTestResult#getExceptionMessage()
      */
@@ -67,11 +69,21 @@ public class JdiTestResult extends DebuggerTestResult
 
     /**
      * 
+     * 
+     * @see bluej.debugger.DebuggerTestResult#getRunTimeMs()
+     */
+    public int getRunTimeMs()
+    {
+        return runTimeMs;
+    }
+
+    /**
+     * 
      * @see bluej.debugger.DebuggerTestResult#getTrace()
      */
     public String getTrace()
     {
-		throw new IllegalStateException("getting stack trace from successful test");
+        throw new IllegalStateException("getting stack trace from successful test");
     }
     
     /* (non-Javadoc)
@@ -106,46 +118,46 @@ public class JdiTestResult extends DebuggerTestResult
         return true;
     }
 
-	/**
-	 * Filters stack frames from internal JUnit classes
-	 */
-	public static String getFilteredTrace(String stack)
-	{
-		StringWriter sw= new StringWriter();
-		PrintWriter pw= new PrintWriter(sw);
-		StringReader sr= new StringReader(stack);
-		BufferedReader br= new BufferedReader(sr);
+    /**
+     * Filters stack frames from internal JUnit classes
+     */
+    public static String getFilteredTrace(String stack)
+    {
+        StringWriter sw= new StringWriter();
+        PrintWriter pw= new PrintWriter(sw);
+        StringReader sr= new StringReader(stack);
+        BufferedReader br= new BufferedReader(sr);
 
-		String line;
-		try {
-			while ((line= br.readLine()) != null) {
-				if (!filterLine(line))
-					pw.println(line);
-			}
-		} catch (Exception IOException) {
-			return stack; // return the stack unfiltered
-		}
-		return sw.toString();
-	}
+        String line;
+        try {
+            while ((line= br.readLine()) != null) {
+                if (!filterLine(line))
+                    pw.println(line);
+            }
+        } catch (Exception IOException) {
+            return stack; // return the stack unfiltered
+        }
+        return sw.toString();
+    }
 
-	static boolean filterLine(String line)
-	{
-		String[] patterns= new String[] {
-			"junit.framework.TestCase",
-			"junit.framework.TestResult",
-			"junit.framework.TestSuite",
-			"junit.framework.Assert.", // don't filter AssertionFailure
-			"junit.swingui.TestRunner",
-			"junit.awtui.TestRunner",
-			"junit.textui.TestRunner",
-			"sun.reflect.",
-			"bluej.",
-			"java.lang.reflect.Method.invoke("
-		};
-		for (int i= 0; i < patterns.length; i++) {
-			if (line.indexOf(patterns[i]) > 0)
-				return true;
-		}
-		return false;
-	}
+    static boolean filterLine(String line)
+    {
+        String[] patterns= new String[] {
+                "junit.framework.TestCase",
+                "junit.framework.TestResult",
+                "junit.framework.TestSuite",
+                "junit.framework.Assert.", // don't filter AssertionFailure
+                "junit.swingui.TestRunner",
+                "junit.awtui.TestRunner",
+                "junit.textui.TestRunner",
+                "sun.reflect.",
+                "bluej.",
+                "java.lang.reflect.Method.invoke("
+        };
+        for (int i= 0; i < patterns.length; i++) {
+            if (line.indexOf(patterns[i]) > 0)
+                return true;
+        }
+        return false;
+    }
 }
