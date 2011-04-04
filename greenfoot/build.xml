@@ -349,6 +349,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <!-- Export icons -->
         <copy file="resources/images/export-app.png" todir="images"/>
         <copy file="resources/images/export-publish.png" todir="images"/>
+        <copy file="resources/images/export-publish-small.png" todir="images"/>
         <copy file="resources/images/export-webpage.png" todir="images"/>
     </target>
 
