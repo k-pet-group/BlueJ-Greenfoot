@@ -81,6 +81,8 @@ import java.awt.Image;
 import java.awt.Menu;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.util.Iterator;
@@ -413,8 +415,22 @@ public class GreenfootFrame extends JFrame
         
         worldCanvas.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         
-        JPanel canvasPanel = new JPanel(new IDECenterLayout(worldHandlerDelegate));
+        JPanel canvasPanel = new JPanel(new CenterLayout());
         canvasPanel.setBorder(BorderFactory.createEtchedBorder());        
+        canvasPanel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    worldHandlerDelegate.showWorldPopupMenu(e);
+                }
+            }
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    worldHandlerDelegate.showWorldPopupMenu(e);
+                }
+            }
+        });
         
         JScrollPane worldScrollPane = new JScrollPane(worldCanvas);
         DBox worldBox = new DBox(DBox.Y_AXIS, 0.5f); // scroll pane
