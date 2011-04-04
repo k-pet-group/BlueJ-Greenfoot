@@ -128,11 +128,11 @@ public abstract class MyGameClient
         //base number of parts is 6
         int counter=6;
         Part [] parts = new Part[ counter + size + tagsList.size() + (hasSource ? 1 : 0)];
-        parts[0] = new StringPart("scenario[title]", gameName);
-        parts[1] = new StringPart("scenario[main_class]", "greenfoot.export.GreenfootScenarioViewer");
-        parts[2] = new StringPart("scenario[width]", "" + width);
-        parts[3] = new StringPart("scenario[height]", "" + height);
-        parts[4] = new StringPart("scenario[url]", gameUrl);
+        parts[0] = new StringPart("scenario[title]", gameName, "UTF-8");
+        parts[1] = new StringPart("scenario[main_class]", "greenfoot.export.GreenfootScenarioViewer", "UTF-8");
+        parts[2] = new StringPart("scenario[width]", "" + width, "UTF-8");
+        parts[3] = new StringPart("scenario[height]", "" + height, "UTF-8");
+        parts[4] = new StringPart("scenario[url]", gameUrl, "UTF-8");
         parts[5] = new ProgressTrackingPart("scenario[uploaded_data]", new File(jarFileName), this);
         Iterator <String> mapIterator=partsMap.keySet().iterator();
         String key="";
@@ -140,7 +140,7 @@ public abstract class MyGameClient
         while (mapIterator.hasNext()){
             key = mapIterator.next().toString();
             obj = partsMap.get(key).toString();
-            parts[counter]= new StringPart(key, obj);
+            parts[counter]= new StringPart(key, obj, "UTF-8");
             counter=counter+1;
         }
         
