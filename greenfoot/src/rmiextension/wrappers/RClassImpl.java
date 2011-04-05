@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -55,11 +55,10 @@ import bluej.utility.Debug;
 public class RClassImpl extends java.rmi.server.UnicastRemoteObject
     implements RClass
 {
-    BClass bClass;
+    private BClass bClass;
     
     private static ProjectNotOpenException pnoe;
     private static PackageNotFoundException pnfe;
-    private boolean booleanResult;
     
     /**
      * Package-private constructor. Use WrapperPool to instantiate.
@@ -73,28 +72,20 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
         }
     }
 
-    public RClassImpl()
-        throws RemoteException
-    {
-
-    }
-
-    /**
-     * @return
-     * @throws ProjectNotOpenException
-     * @throws PackageNotFoundException
-     */
+    @Override
     public void compile(boolean waitCompileEnd, boolean forceQuiet)
         throws ProjectNotOpenException, PackageNotFoundException, CompilationNotStartedException
     {
         bClass.compile(waitCompileEnd, forceQuiet);
     }
     
+    @Override
     public boolean hasSourceCode() throws ProjectNotOpenException, PackageNotFoundException
     {
         return ExtensionBridge.hasSourceCode(bClass);
     }
 
+    @Override
     public void edit()
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException
     {
@@ -125,12 +116,7 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
         }
     }
     
-    /**
-     * Closes the editor (sets the editor to not visible)
-     * @throws ProjectNotOpenException
-     * @throws PackageNotFoundException
-     * @throws RemoteException
-     */
+    @Override
     public void closeEditor() throws ProjectNotOpenException, PackageNotFoundException, RemoteException
     {
         synchronized (RClassImpl.class) {
@@ -160,6 +146,7 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
         }
     }
     
+    @Override
     public void showMessage(final String message) throws RemoteException,
             ProjectNotOpenException, PackageNotFoundException
     {
@@ -172,6 +159,7 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
         });
     }
 
+    @Override
     public void insertAppendMethod(final String comment, final String access, final String methodName, final String methodBody, final boolean showEditorOnCreate, final boolean showEditorOnAppend) throws ProjectNotOpenException, PackageNotFoundException, RemoteException
     {
         final Editor e = bClass.getEditor();
@@ -213,6 +201,7 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
         return null;
     }
 
+    @Override
     public void insertMethodCallInConstructor(final String methodName, final boolean showEditor)
             throws ProjectNotOpenException, PackageNotFoundException,
             RemoteException
@@ -239,7 +228,9 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
         });
     }
     
-    // Appends text to a node that ends in a curly bracket:
+    /**
+     * Appends text to a node that ends in a curly bracket
+     */
     private void appendTextToNode(Editor e, MoeEditor bjEditor, NodeAndPosition<ParsedNode> node, String text)
     {
         //The node may have whitespace at the end, so we look for the last closing brace and
@@ -310,12 +301,7 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
         return null;
     }
 
-    /**
-     * @param signature
-     * @return
-     * @throws ProjectNotOpenException
-     * @throws ClassNotFoundException
-     */
+    @Override
     public RConstructor getConstructor(Class<?>[] signature)
         throws ProjectNotOpenException, ClassNotFoundException, RemoteException
     {
@@ -326,11 +312,7 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
         return rConstructor;
     }
 
-    /**
-     * @return
-     * @throws ProjectNotOpenException
-     * @throws ClassNotFoundException
-     */
+    @Override
     public RConstructor[] getConstructors()
         throws ProjectNotOpenException, ClassNotFoundException, RemoteException
     {
@@ -345,24 +327,14 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
         return rConstructors;
     }
 
-    /**
-     * @param methodName
-     * @param params
-     * @return
-     * @throws ProjectNotOpenException
-     * @throws ClassNotFoundException
-     */
+    @Override
     public BMethod getDeclaredMethod(String methodName, Class<?>[] params)
         throws ProjectNotOpenException, ClassNotFoundException
     {
         return null;
     }
 
-    /**
-     * @return
-     * @throws ProjectNotOpenException
-     * @throws ClassNotFoundException
-     */
+    @Override
     public BMethod[] getDeclaredMethods()
         throws ProjectNotOpenException, ClassNotFoundException
     {
@@ -370,12 +342,7 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
 
     }
 
-    /**
-     * @param fieldName
-     * @return
-     * @throws ProjectNotOpenException
-     * @throws ClassNotFoundException
-     */
+    @Override
     public RField getField(String fieldName)
         throws ProjectNotOpenException, ClassNotFoundException, RemoteException
     {
@@ -383,68 +350,89 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
         BField wrapped = bClass.getField(fieldName);
         RField wrapper = WrapperPool.instance().getWrapper(wrapped);
         return wrapper;
-
     }
 
-    /**
-     * @return
-     * @throws ProjectNotOpenException
-     * @throws ClassNotFoundException
-     */
+    @Override
     public BField[] getFields()
         throws ProjectNotOpenException, ClassNotFoundException
     {
         return bClass.getFields();
     }
 
-    /**
-     * @return
-     * @throws ProjectNotOpenException
-     * @throws PackageNotFoundException
-     */
+    @Override
     public RPackage getPackage()
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException
     {
-
         BPackage wrapped = bClass.getPackage();
         RPackage wrapper = WrapperPool.instance().getWrapper(wrapped);
         return wrapper;
     }
 
-    /**
-     * Gets the superclass of this class if it is a part of the project.
-     * 
-     * @see #getSuperclassName()
-     * @return
-     * @throws ProjectNotOpenException
-     * @throws PackageNotFoundException
-     * @throws ClassNotFoundException
-     */
+    @Override
     public RClass getSuperclass()
         throws ProjectNotOpenException, PackageNotFoundException, ClassNotFoundException, RemoteException
     {
-        BClass wrapped = bClass.getSuperclass();
-        RClass wrapper = WrapperPool.instance().getWrapper(wrapped);
-        return wrapper;
+        synchronized (RClassImpl.class) {
+            final BClass[] wrapped = new BClass[1];
+            final ClassNotFoundException[] cnfe = new ClassNotFoundException[1];
+            pnoe = null;
+            pnfe = null;
+
+            try {
+                EventQueue.invokeAndWait(new Runnable() {
+                    @Override
+                    public void run()
+                    {
+                        try {
+                            wrapped[0] = bClass.getSuperclass();
+                        }
+                        catch (ProjectNotOpenException e) {
+                            pnoe = e;
+                        }
+                        catch (PackageNotFoundException e) {
+                            pnfe = e;
+                        }
+                        catch (ClassNotFoundException e) {
+                            cnfe[0] = e;
+                        }
+                    }
+                });
+            }
+            catch (InterruptedException ie) {
+                throw new RuntimeException(ie);
+            }
+            catch (InvocationTargetException ite) {
+                throw new RuntimeException(ite.getCause());
+            }
+
+            if (pnoe != null) {
+                throw pnoe;
+            }
+            if (pnfe != null) {
+                throw pnfe;
+            }
+            if (cnfe[0] != null) {
+                throw cnfe[0];
+            }
+
+            return WrapperPool.instance().getWrapper(wrapped[0]);
+        }
     }
 
-    /**
-     * @return
-     * @throws ProjectNotOpenException
-     * @throws PackageNotFoundException
-     */
+    @Override
     public boolean isCompiled()
         throws ProjectNotOpenException, PackageNotFoundException
     {
         synchronized (RClassImpl.class) {
             pnoe = null;
             pnfe = null;
+            final boolean[] result = new boolean[1];
             try {
                 EventQueue.invokeAndWait(new Runnable() {
                     public void run()
                     {
                         try {
-                            booleanResult = bClass.isCompiled();
+                            result[0] = bClass.isCompiled();
                         } catch (ProjectNotOpenException e) {
                             pnoe = e;
                         } catch (PackageNotFoundException e) {
@@ -463,7 +451,7 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
             if (pnoe != null) throw pnoe;
             if (pnfe != null) throw pnfe;
             
-            return booleanResult;
+            return result[0];
         }
     }
 
@@ -511,5 +499,4 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
             }
         });        
     }
-
 }

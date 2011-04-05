@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -46,6 +46,12 @@ public interface RClass
     public abstract void edit()
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException;
     
+    /**
+     * Closes the editor (sets the editor to not visible)
+     * @throws ProjectNotOpenException   if the project has been closed
+     * @throws PackageNotFoundException  if the package has been removed
+     * @throws RemoteException           if a remote exception occurs
+     */
     public abstract void closeEditor()
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException;
     
@@ -76,6 +82,9 @@ public interface RClass
     public abstract RPackage getPackage()
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException;
 
+    /**
+     * Gets the superclass of this class (if it has one).
+     */
     public abstract RClass getSuperclass()
         throws ProjectNotOpenException, PackageNotFoundException, ClassNotFoundException, RemoteException;
 
