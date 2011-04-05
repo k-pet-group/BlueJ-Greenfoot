@@ -368,25 +368,7 @@ public class WorldHandlerDelegateIDE
         Class<? extends World> cls = getLastWorldClass();
         
         if(cls == null) {
-            List<Class<? extends World>> worldClasses = project.getDefaultPackage().getWorldClasses();
-            if(worldClasses.isEmpty() ) {
-                return;
-            }
-            
-            for (Class<? extends World> wclass : worldClasses) {
-                try {
-                    wclass.getConstructor(new Class<?>[0]);
-                    cls = wclass;
-                    break;
-                }
-                catch (LinkageError le) { }
-                catch (NoSuchMethodException nsme) { }
-            }
-            if (cls == null) {
-                // Couldn't find a world with a suitable constructor
-                showMissingConstructorDialog();
-                return;
-            }
+            return;
         }
         
         final Class<? extends World> icls = cls;
