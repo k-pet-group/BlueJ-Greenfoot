@@ -205,7 +205,7 @@ public class Simulation extends Thread
                 // maybePause() handle whatever needs to be done.
             }
             catch (InterruptedException e) {
-            	//maybePause was interrupted. Do nothing, will be handled the next time we get to maybePause.
+                //maybePause was interrupted. Do nothing, will be handled the next time we get to maybePause.
             }
             catch (Throwable t) {
                 // If any other exceptions occur, halt the simulation
@@ -426,11 +426,11 @@ public class Simulation extends Thread
      */
     private void runOneLoop()
     {
-        worldHandler.startSequence();
         World world = worldHandler.getWorld();
         if (world == null) {
             return;
         }
+        worldHandler.startSequence();
 
         // We don't want to be interrupted in the middle of an act-loop
         // so we remember the first interrupted exception and throw it
