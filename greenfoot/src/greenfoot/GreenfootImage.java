@@ -140,7 +140,8 @@ public class GreenfootImage
         if (! image.copyOnWrite) {
             setImage(GraphicsUtilities.createCompatibleTranslucentImage(image.getWidth(), image.getHeight()));
             Graphics2D g = getGraphics();
-            image.drawImage(g, 0, 0, null, false);
+            g.setComposite(AlphaComposite.Src);
+            g.drawImage(image.getAwtImage(), 0, 0, null);
             g.dispose();
         }
         else {
@@ -394,7 +395,7 @@ public class GreenfootImage
         BufferedImage scaled = GraphicsUtilities.createCompatibleTranslucentImage(width, height);
         Graphics2D g = scaled.createGraphics();
         g.setComposite(AlphaComposite.Src);
-        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
         g.drawImage(image, 0, 0, width, height, null);
         g.dispose();
         setImage(scaled);
