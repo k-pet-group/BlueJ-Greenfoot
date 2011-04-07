@@ -33,6 +33,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.MediaTracker;
+import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
@@ -385,7 +386,18 @@ public class GreenfootImage
      */
     public void scale(int width, int height)
     {
-        setImage(image.getScaledInstance(width, height, Image.SCALE_DEFAULT));
+        if (width == image.getWidth() && height == image.getHeight())
+            return;
+        
+        // getScaledInstance is too slow, see: http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6196792
+        // This is adapted from: http://java.sun.com/products/java-media/2D/reference/faqs/index.html#Q_How_do_I_create_a_resized_copy
+        BufferedImage scaled = GraphicsUtilities.createCompatibleTranslucentImage(width, height);
+        Graphics2D g = scaled.createGraphics();
+        g.setComposite(AlphaComposite.Src);
+        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g.drawImage(image, 0, 0, width, height, null);
+        g.dispose();
+        setImage(scaled);
     }
 
     /**
