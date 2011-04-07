@@ -416,6 +416,9 @@ public abstract class World
      */
     public void removeObject(Actor object)
     {
+        if (object == null)
+            return;
+        
         if (objectsDisordered.remove(object)) {
             // we only want to remove it once.
             collisionChecker.removeObject(object);
