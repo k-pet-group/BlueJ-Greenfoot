@@ -609,6 +609,18 @@ public class WorldHandler
             return world;
         }
     }
+    
+    /**
+     * Checks if there is a world set.
+     * 
+     * This is not the same as checking if getWorld() is null, because getWorld()
+     * can return a world being initialised.  This method checks if a world has
+     * actually been set.
+     */
+    public synchronized boolean hasWorld()
+    {
+        return world != null;
+    }
 
     /**
      * Handle drop of actors. Handles QuickAdd

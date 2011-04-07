@@ -192,9 +192,8 @@ public class Simulation extends Thread
         while (!abort) {
             try {
                 maybePause();
-                
-                World world = worldHandler.getWorld();
-                if (world != null) {
+                                
+                if (worldHandler.hasWorld()) {
                     runOneLoop();
                 }
 
@@ -426,10 +425,10 @@ public class Simulation extends Thread
      */
     private void runOneLoop()
     {
-        World world = worldHandler.getWorld();
-        if (world == null) {
+        if (!worldHandler.hasWorld()) {
             return;
         }
+        World world = worldHandler.getWorld();
         worldHandler.startSequence();
 
         // We don't want to be interrupted in the middle of an act-loop
