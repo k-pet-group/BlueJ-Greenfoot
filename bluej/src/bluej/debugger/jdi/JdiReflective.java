@@ -529,10 +529,11 @@ public class JdiReflective extends Reflective
     /**
      * Derive a type from a type signature.
      * @param i   An iterator through the signature
-     * @param tparams  The type parameters of the parent type (the type from where this signature comes)
+     * @param tparams  The type parameters of the parent type (the type from where this signature comes);
+     *                 may be null.
      * @param parent   The parent type
      */
-    private static JavaType typeFromSignature(StringIterator i,
+    public static JavaType typeFromSignature(StringIterator i,
             Map<String,? extends GenTypeParameter> tparams, ReferenceType parent)
     {
         char c = i.next();
