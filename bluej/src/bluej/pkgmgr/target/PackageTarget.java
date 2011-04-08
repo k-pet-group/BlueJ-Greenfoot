@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -94,12 +94,14 @@ public class PackageTarget extends Target
         return getPackage().getQualifiedName(getBaseName());
     }
 
+    @Override
     public void load(Properties props, String prefix)
         throws NumberFormatException
     {
         super.load(props, prefix);
     }
 
+    @Override
     public void save(Properties props, String prefix)
     {
         super.save(props, prefix);
@@ -122,7 +124,6 @@ public class PackageTarget extends Target
      * directory without asking questions. Use with care.
      *
      * @param directory   The directory that will be deleted.
-     *
      */
     private void deleteDir(File directory)
     {
@@ -150,21 +151,10 @@ public class PackageTarget extends Target
     }
     
     /**
-     * Copy all the files belonging to this target to a new location.
-     * For package targets, this has not yet been implemented.
-     *
-     * @arg directory The directory to copy into (ending with "/")
-     */
-    public boolean copyFiles(String directory)
-    {
-        //XXX not working
-        return true;
-    }
-
-    /**
      * Called when a package icon in a GraphEditor is double clicked. Creates a
      * new PkgFrame when a package is drilled down on.
      */
+    @Override
     public void doubleClick(MouseEvent evt)
     {
         getPackage().getEditor().raiseOpenPackageEvent(this, getPackage().getQualifiedName(getBaseName()));
@@ -173,6 +163,7 @@ public class PackageTarget extends Target
     /**
      * Disply the context menu.
      */
+    @Override
     public void popupMenu(int x, int y, GraphEditor graphEditor)
     {
         JPopupMenu menu = createMenu();
@@ -216,6 +207,7 @@ public class PackageTarget extends Target
             this.pkgName = pkgName;
         }
 
+        @Override
         public void actionPerformed(ActionEvent e)
         {
             getPackage().getEditor().raiseOpenPackageEvent(t, pkgName);
@@ -232,12 +224,14 @@ public class PackageTarget extends Target
             this.t = t;
         }
 
+        @Override
         public void actionPerformed(ActionEvent e)
         {
             getPackage().getEditor().raiseRemoveTargetEvent(t);
         }
     }
 
+    @Override
     public void remove()
     {
         PkgMgrFrame pmf = PkgMgrFrame.findFrame(getPackage());
@@ -249,9 +243,7 @@ public class PackageTarget extends Target
     }
 
     /**
-     * Removes the package associated with this target. No question asked, it
-     * would be nice if it was something like public void remove (boolean
-     * askConfirm); D.
+     * Removes the package associated with this target unconditionally.
      */
     public void removeImmediate()
     {
@@ -260,12 +252,14 @@ public class PackageTarget extends Target
         getPackage().getProject().removePackage(getQualifiedName());
     }
 
+    @Override
     public void setSize(int width, int height)
     {
         super.setSize(Math.max(width, MIN_WIDTH), Math.max(height, MIN_HEIGHT));
         setGhostSize(0, 0);
     }
 
+    @Override
     public void setPos(int x, int y)
     {
         super.setPos(x, y);
@@ -349,24 +343,15 @@ public class PackageTarget extends Target
         this.isDragging = isDragging;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see bluej.graph.Moveable#isMoveable()
-     */
+    @Override
     public boolean isMoveable()
     {
         return isMoveable;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see bluej.graph.Moveable#setIsMoveable(boolean)
-     */
+    @Override
     public void setIsMoveable(boolean isMoveable)
     {
         this.isMoveable = isMoveable;
-
     }
 }
