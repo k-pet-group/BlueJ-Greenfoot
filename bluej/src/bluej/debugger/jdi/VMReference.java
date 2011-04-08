@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.net.URL;
@@ -40,11 +41,11 @@ import bluej.Boot;
 import bluej.Config;
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerEvent;
+import bluej.debugger.DebuggerEvent.BreakpointProperties;
 import bluej.debugger.DebuggerResult;
 import bluej.debugger.DebuggerTerminal;
 import bluej.debugger.ExceptionDescription;
 import bluej.debugger.SourceLocation;
-import bluej.debugger.DebuggerEvent.BreakpointProperties;
 import bluej.runtime.ExecServer;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
@@ -74,9 +75,9 @@ import com.sun.jdi.VMMismatchException;
 import com.sun.jdi.Value;
 import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.VirtualMachineManager;
-import com.sun.jdi.connect.AttachingConnector;
 import com.sun.jdi.connect.Connector;
 import com.sun.jdi.connect.Connector.Argument;
+import com.sun.jdi.connect.ListeningConnector;
 import com.sun.jdi.event.ExceptionEvent;
 import com.sun.jdi.event.LocatableEvent;
 import com.sun.jdi.event.ThreadDeathEvent;
@@ -126,11 +127,6 @@ class VMReference
     // the class name of the execution server class running on the remote VM
     static final String SERVER_CLASSNAME = ExecServer.class.getName();
 
-    // the field name of the static field within that class
-    // the name of the method used to signal a System.exit()
-    // pending for removal when exit scheme is tested.
-    //    static final String SERVER_EXIT_MARKER_METHOD_NAME = "exitMarker";
-
     // the name of the method used to suspend the ExecServer
     static final String SERVER_STARTED_METHOD_NAME = "vmStarted";
 
@@ -177,9 +173,6 @@ class VMReference
     private int exitStatus;
     private ExceptionDescription lastException;
     
-    // A counter for giving names to shared memory blocks for the shared
-    // memory transport
-    static private int shmCount = 0;
     // array index of memory transport parameter 
     private int transportIndex = 0;
     
@@ -200,7 +193,6 @@ class VMReference
         final int CONNECT_TRIES = 5; // try to connect max of 5 times
         final int CONNECT_WAIT = 500; // wait half a sec between each connect
 
-        int portNumber;
         String [] launchParams;
 
         // launch the VM using the runtime classpath.
@@ -224,11 +216,9 @@ class VMReference
             paramList.add("-Xdock:icon=" + Config.getBlueJIconPath() + "/" + Config.getVMIconsName());
             paramList.add("-Xdock:name=" + Config.getVMDockName());
         }
-        paramList.add("-Xrunjdwp:transport=dt_socket,server=y");
         
-        // set index of memory transport, this may be used later if socket launch
-        // will not work
-        transportIndex = paramList.size() - 1;
+        // Index for where the transport parameter is to be added
+        transportIndex = paramList.size();
         paramList.add(SERVER_CLASSNAME);
         
         // set output encoding if specified, default is to use system default
@@ -240,89 +230,46 @@ class VMReference
             paramList.add(streamEncoding);
         }
         
-        launchParams = (String[]) paramList.toArray(new String[0]);
-
-        String transport = Config.getPropString("bluej.vm.transport");
+        String transport = Config.getPropString("bluej.vm.transport", "dt_socket");
         
-        AttachingConnector tcpipConnector = null;
-        AttachingConnector shmemConnector = null;
+        List<ListeningConnector> connectors = new ArrayList<ListeningConnector>(mgr.listeningConnectors());
 
-        Throwable tcpipFailureReason = null;
-        Throwable shmemFailureReason = null;
-        
-        // Attempt to connect via TCP/IP transport
-        
-        List<AttachingConnector> connectors = mgr.attachingConnectors();
-        AttachingConnector connector = null;
-
-        // find the known connectors
-        Iterator<AttachingConnector> it = connectors.iterator();
+        // find the known connectors - order them by preference:
+        Iterator<ListeningConnector> it = connectors.iterator();
         while (it.hasNext()) {
-            AttachingConnector c = (AttachingConnector) it.next();
-            
-            if (c.transport().name().equals("dt_socket")) {
-                tcpipConnector = c;
-            }
-            else if (c.transport().name().equals("dt_shmem")) {
-                shmemConnector = c;
+            ListeningConnector c = it.next();
+            if (c.transport().name().equals(transport)) {
+                // We've found the preferred connector
+                it.remove();
+                connectors.add(0, c);
+                break;
             }
         }
-
-        connector = tcpipConnector;
-
-        // If the transport has been explicitly set the shmem in bluej.defs,
-        // try to use the dt_shmem connector first.
-        if (transport.equals("dt_shmem") && shmemConnector != null)
-            connector = null;
-
+        
+        Throwable [] failureReasons = new Throwable[connectors.size()];
+        
         for (int i = 0; i < CONNECT_TRIES; i++) {
-            
-            if (connector != null) {
+            for (int j = 0; j < connectors.size(); j++) {
+                ListeningConnector connector = connectors.get(j);
                 try {
-                    final StringBuffer listenMessage = new StringBuffer();
-                    remoteVMprocess = launchVM(initDir, launchParams, listenMessage, term);
-                    
-                    portNumber = extractPortNumber(listenMessage.toString());
-                    
-                    if (portNumber == -1) {
-                        closeIO();
-                        remoteVMprocess.destroy();
-                        remoteVMprocess = null;
-                        throw new Exception() {
-                            public void printStackTrace()
-                            {
-                                Debug.message("Could not find port number to connect to debugger");
-                                Debug.message("Line received from debugger was: " + listenMessage);
-                            }
-                        };
-                    }
-                    
+                    // Set up connection arguments
                     Map<String, Argument> arguments = connector.defaultArguments();
-                    
-                    Connector.Argument hostnameArg = (Connector.Argument) arguments.get("hostname");
-                    Connector.Argument portArg = (Connector.Argument) arguments.get("port");
-                    Connector.Argument timeoutArg = (Connector.Argument) arguments.get("timeout");
-                    
-                    if (hostnameArg == null || portArg == null) {
-                        throw new Exception() {
-                            public void printStackTrace() {
-                                Debug.message("incompatible JPDA socket launch connector");
-                            }
-                        };
-                    }
-                    
-                    hostnameArg.setValue("127.0.0.1");
-                    portArg.setValue(Integer.toString(portNumber));
+                    Connector.Argument timeoutArg = arguments.get("timeout");
                     if (timeoutArg != null) {
                         // The timeout appears to be in milliseconds.
                         // The default is apparently no timeout.
                         timeoutArg.setValue("1000");
                     }
                     
-                    VirtualMachine m = null;
+                    String address = connector.startListening(arguments);
+                    paramList.add(transportIndex, "-Xrunjdwp:transport=" + connector.transport().name()
+                            + ",address=" + address);
+                    
+                    launchParams = (String[]) paramList.toArray(new String[0]);
+                    remoteVMprocess = launchVM(initDir, launchParams, term);
                     
                     try {
-                        m = connector.attach(arguments);
+                        machine = connector.accept(arguments);
                     }
                     catch (Throwable t) {
                         // failed to connect.
@@ -332,63 +279,17 @@ class VMReference
                         throw t;
                     }
                     Debug.log("Connected to debug VM via dt_socket transport...");
-                    machine = m;
                     setupEventHandling();
-                    waitForStartup();
-                    Debug.log("Communication with debug VM fully established.");
-                    return m;
-                }
-                catch(Throwable t) {
-                    tcpipFailureReason = t;
-                }
-            }
-            
-            // Attempt launch using shared memory transport, if available
-            
-            connector = shmemConnector;
-            
-            if (connector != null) {
-                try {
-                    Map<String, Argument> arguments = connector.defaultArguments();
-                    Connector.Argument addressArg = (Connector.Argument) arguments.get("name");
-                    if (addressArg == null) {
-                        throw new Exception() {
-                            public void printStackTrace()
-                            {
-                                Debug.message("Shared memory connector is incompatible - no 'name' argument");
-                            }
-                        };
+                    if (waitForStartup()) {
+                        Debug.log("Communication with debug VM fully established.");
+                        return machine;
                     }
                     else {
-                        String shmName = "bluej" + shmCount++;
-                        addressArg.setValue(shmName);
-                        
-                        launchParams[transportIndex] = "-Xrunjdwp:transport=dt_shmem,address=" + shmName + ",server=y,suspend=y";
-                        
-                        StringBuffer listenMessage = new StringBuffer();
-                        remoteVMprocess = launchVM(initDir, launchParams, listenMessage,term);
-                        
-                        VirtualMachine m = null;
-                        try {
-                            m = connector.attach(arguments);
-                        }
-                        catch (Throwable t) {
-                            // failed to connect.
-                            closeIO();
-                            remoteVMprocess.destroy();
-                            remoteVMprocess = null;
-                            throw t;
-                        }
-                        Debug.log("Connected to debug VM via dt_shmem transport...");
-                        machine = m;
-                        setupEventHandling();
-                        waitForStartup();
-                        Debug.log("Communication with debug VM fully established.");
-                        return m;
+                        Debug.log("Error: Debug VM not signalling startup.");
                     }
                 }
                 catch(Throwable t) {
-                    shmemFailureReason = t;
+                    failureReasons[j] = t;
                 }
             }
             
@@ -398,21 +299,13 @@ class VMReference
                     Thread.sleep(CONNECT_WAIT);
             }
             catch (InterruptedException ie) { break; }
-            connector = tcpipConnector;
         }
 
         // failed to connect
         Debug.message("Failed to connect to debug VM. Reasons follow:");
-        if (tcpipConnector != null && tcpipFailureReason != null) {
-            Debug.message("dt_socket transport:");
-            tcpipFailureReason.printStackTrace();
-        }
-        if (shmemConnector != null && shmemFailureReason != null) {
-            Debug.message("dt_shmem transport:");
-            tcpipFailureReason.printStackTrace();
-        }
-        if (shmemConnector == null && tcpipConnector == null) {
-            Debug.message(" No suitable transports available.");
+        for (int i = 0; i < connectors.size(); i++) {
+            Debug.message(connectors.get(i).transport().name() + " transport:");
+            failureReasons[i].printStackTrace(new PrintWriter(Debug.getDebugStream()));
         }
         
         return null;
@@ -446,13 +339,11 @@ class VMReference
      *                  the debug vm process
      * @param term      the terminal to connect to process I/O
      */
-    private Process launchVM(File initDir, String [] params, StringBuffer line, DebuggerTerminal term)
+    private Process launchVM(File initDir, String [] params, DebuggerTerminal term)
         throws IOException
     {    
         Process vmProcess = Runtime.getRuntime().exec(params, null, initDir);
         BufferedReader br = new BufferedReader(new InputStreamReader(vmProcess.getInputStream()));
-        String listenMessage = br.readLine();
-        line.append(listenMessage);
         
         // grab anything else the VM spits out before we try to connect to it.
         try {
@@ -465,11 +356,13 @@ class VMReference
                 Thread.sleep(200);
                 
                 // discontinue if no data available or stream closed
-                if (! br.ready())
+                if (! br.ready()) {
                     break;
+                }
                 int len = br.read(buf);
-                if (len == -1)
+                if (len == -1) {
                     break;
+                }
                 
                 extra.append(buf, 0, len);
             }
@@ -507,36 +400,6 @@ class VMReference
     }
 
     /**
-     * Parse the message printed when starting up in server=y mode but when no
-     * port is specified. The message contains the port number that we should
-     * use to connect with.
-     * 
-     * @param msg
-     *            the message printed by the debug vm
-     * @return the port number to use or -1 in case of error
-     */
-    private int extractPortNumber(String msg)
-    {
-        int colonIndex = msg.indexOf(":");
-        int val = -1;
-
-        if (! msg.startsWith("Listening for transport dt_socket at address:")) {
-            return -1;
-        }
-        
-        try {
-            if (colonIndex > -1) {
-                val = Integer.parseInt(msg.substring(colonIndex + 1).trim());
-            }
-        }
-        catch (NumberFormatException nfe) {
-            return -1;
-        }
-
-        return val;
-    }
-
-    /**
      * Create the second virtual machine and start the execution server (class
      * ExecServer) on that machine.
      */
@@ -564,8 +427,9 @@ class VMReference
     {
         serverThreadStartWait();
         
-        if (! setupServerConnection(machine))
+        if (! setupServerConnection(machine)) {
             return false;
+        }
         
         return true;
     }
