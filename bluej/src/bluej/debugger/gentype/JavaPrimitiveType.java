@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -34,8 +34,6 @@ public class JavaPrimitiveType
     private static JavaPrimitiveType [] primitiveTypes = new JavaPrimitiveType[JavaType.JT_MAX+1];
     private static String [] typeNames = { "void", "null", "boolean", "char",
             "byte", "short", "int", "long", "float", "double" };
-    // note, the types above should be valid java types. So the type of null
-    // is java.lang.Object.
     
     // each element represents a primitive type, and contains an array of
     // other types that this type can be assigned from
@@ -67,8 +65,9 @@ public class JavaPrimitiveType
     
     private static JavaPrimitiveType getType(int v)
     {
-        if (primitiveTypes[v] == null)
+        if (primitiveTypes[v] == null) {
             primitiveTypes[v] = new JavaPrimitiveType(v);
+        }
         
         return primitiveTypes[v];
     }
@@ -126,12 +125,13 @@ public class JavaPrimitiveType
         return getType(JT_DOUBLE);
     }
     
-    
+    @Override
     public String toString()
     {
         return typeNames[myIndex];
     }
     
+    @Override
     public String arrayComponentName()
     {
         // Simple lookup by index. It's not possible to have an array of
@@ -139,6 +139,7 @@ public class JavaPrimitiveType
         return "!!ZCBSIJFD".substring(myIndex, myIndex + 1);
     }
     
+    @Override
     public boolean isAssignableFrom(JavaType o)
     {
         int [] assignables = assignableFrom[myIndex];
@@ -149,29 +150,7 @@ public class JavaPrimitiveType
         return false;
     }
     
-    public boolean couldHold(int n)
-    {
-        if (myIndex >= JT_INT)
-            return true;
-        
-        if (myIndex == JT_BYTE)
-            return n >= -128 && n <= 127;
-        else if (myIndex == JT_CHAR)
-            return n >=0 && n <= 65535;
-        else if (myIndex == JT_SHORT)
-            return n >= -32768 && n <= 32767;
-
-        return false;
-    }
-    
-    public boolean fitsType(int gtype)
-    {
-        if (myIndex == JT_CHAR)
-            return (gtype != JT_BYTE && gtype != JT_SHORT);
-        else
-            return gtype >= myIndex;
-    }
-    
+    @Override
     public JavaType getErasedType()
     {
         return this;
@@ -181,50 +160,40 @@ public class JavaPrimitiveType
      * For primitive types, "isAssignableFromRaw" is equivalent to
      * "isAssignableFrom".
      */
+    @Override
     public boolean isAssignableFromRaw(JavaType t)
     {
         return isAssignableFrom(t);
     }
 
+    @Override
     public boolean isPrimitive()
     {
         return true;
     }
     
+    @Override
     public boolean isNumeric()
     {
         return myIndex >= JT_LOWEST_NUMERIC;
     }
     
+    @Override
     public boolean isIntegralType()
     {
         return myIndex >= JT_CHAR && myIndex <= JT_LONG;
     }
     
+    @Override
     public boolean typeIs(int v)
     {
         return myIndex == v;
     }
     
+    @Override
     public JavaType mapTparsToTypes(Map<String, ? extends GenTypeParameter> tparams)
     {
         return this;
-    }
-    
-//    public boolean equals(Object other)
-//    {
-//        if (other instanceof JavaType) {
-//            JavaType gto = (JavaType) other;
-//            return (gto.typeIs(myIndex));
-//        }
-//        else {
-//            return false;
-//        }
-//    }
-    
-    final protected int getMyIndex()
-    {
-        return myIndex;
     }
     
     @Override

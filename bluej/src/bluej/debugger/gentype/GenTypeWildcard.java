@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,8 +23,6 @@ package bluej.debugger.gentype;
 
 import java.util.ArrayList;
 import java.util.Map;
-
-import bluej.utility.Debug;
 
 /**
  * A wildcard type with an upper and/or lower bound.
@@ -66,11 +64,13 @@ public class GenTypeWildcard extends GenTypeParameter
         }
     }
     
+    @Override
     public String toString()
     {
         return toString(false);
     }
         
+    @Override
     public String toString(NameTransform nt)
     {
         if (lowerBound != null) {
@@ -84,14 +84,10 @@ public class GenTypeWildcard extends GenTypeParameter
         return "?";
     }
     
+    @Override
     public String toTypeArgString(NameTransform nt)
     {
         return toString(nt);
-    }
-    
-    public String arrayComponentName()
-    {
-        return getErasedType().arrayComponentName();
     }
     
     @Override
@@ -131,6 +127,7 @@ public class GenTypeWildcard extends GenTypeParameter
         return new GenTypeWildcard(newUpper, newLower);
     }
     
+    @Override
     public boolean equals(GenTypeParameter other)
     {
         if (this == other)
@@ -143,48 +140,26 @@ public class GenTypeWildcard extends GenTypeParameter
         GenTypeSolid otherLower = other.getLowerBound();
         JavaType otherUpper = other.getUpperBound();
         
-        if (upperBound != null && ! upperBound.equals(otherUpper))
+        if (upperBound != null && ! upperBound.equals(otherUpper)) {
             return false;
-        if (upperBound == null && otherUpper != null)
+        }
+        if (upperBound == null && otherUpper != null) {
             return false;
-        if (lowerBound != null && ! lowerBound.equals(otherLower))
+        }
+        if (lowerBound != null && ! lowerBound.equals(otherLower)) {
             return false;
-        if (lowerBound == null && otherLower != null)
+        }
+        if (lowerBound == null && otherLower != null) {
             return false;
+        }
         
         return true;
     }
     
-    public void getParamsFromTemplate(Map<String,GenTypeParameter> map, GenTypeParameter template)
-    {
-        // This should never actually be called on a wildcard type (I think).
-        // TODO fix. Actually it probably can get called. When it is called, it
-        // should only be on an actual java type (not a type with multiple
-        // bounds), and it may match against a wildcard or a class.
-        Debug.reportError("getParamsFromTemplate called on GenTypeWildcard.");
-        return;
-    }
-    
+    @Override
     public JavaType getErasedType()
     {
         return upperBound.getErasedType();
-    }
-    
-    public boolean isPrimitive()
-    {
-        return false;
-    }
-    
-    public boolean isAssignableFrom(JavaType t)
-    {
-        // This shouldn't be called.
-        return false;
-    }
-    
-    public boolean isAssignableFromRaw(JavaType t)
-    {
-        // This shouldn't be called.
-        return false;
     }
     
     @Override
@@ -199,6 +174,7 @@ public class GenTypeWildcard extends GenTypeParameter
      * 
      * @return A copy of the upper bounds.
      */
+    @Override
     public GenTypeSolid[] getUpperBounds()
     {
         if (upperBound != null) {
@@ -209,6 +185,7 @@ public class GenTypeWildcard extends GenTypeParameter
         }
     }
     
+    @Override
     public GenTypeSolid getUpperBound()
     {
         return upperBound;
@@ -220,6 +197,7 @@ public class GenTypeWildcard extends GenTypeParameter
      * 
      * @return A copy of the lower bounds.
      */
+    @Override
     public GenTypeSolid getLowerBound()
     {
         return lowerBound;

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -69,20 +69,6 @@ public abstract class GenTypeParameter
     abstract public boolean equals(GenTypeParameter other);
 
     /**
-     * Assuming that this is some type which encloses some type parameters by
-     * name, and the given template is a similar type but with actual type
-     * arguments, obtain a map which maps the name of the argument (in this
-     * type) to the actual type (from the template type).<p>
-     * 
-     * The given map may already contain some mappings. In this case, the
-     * existing mappings will be retained or made more specific.
-     * 
-     * @param map   A map to which mappings should be added
-     * @param template   The template to use
-     */
-    abstract public void getParamsFromTemplate(Map<String,GenTypeParameter> map, GenTypeParameter template);
-    
-    /**
      * Find the most precise type that can be determined by taking into account
      * commonalities between this type and the given type. For instance if the
      * other class is a subtype of this type, return the subtype. Also, if
@@ -114,20 +100,24 @@ public abstract class GenTypeParameter
         // Calculate new lower bounds
         GenTypeSolid newLower = null;
         GenTypeSolid otherLower = other.getLowerBound();
-        if (otherLower == null)
+        if (otherLower == null) {
             newLower = lowerBound;
-        else if (lowerBound == null)
+        }
+        else if (lowerBound == null) {
             newLower = otherLower;
-        else
+        }
+        else {
             newLower = GenTypeSolid.lub(new GenTypeSolid [] {otherLower, lowerBound});
+        }
         
         // If the upper bounds now equals the lower bounds, we have a solid
-        if (newUpper != null && newUpper.equals(newLower))
+        if (newUpper != null && newUpper.equals(newLower)) {
             return newUpper;
-        else
+        }
+        else {
             return new GenTypeWildcard(newUpper, newLower);
+        }
     }
-
 
     /**
      * Get the upper bounds of this type. For a solid type the upper bounds are the

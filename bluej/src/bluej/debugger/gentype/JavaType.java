@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -83,7 +83,21 @@ public abstract class JavaType extends GenTypeParameter
      * "L" and with ";" appended.
      */
     abstract public String arrayComponentName();
-    
+
+    /**
+     * Assuming that this is some type which encloses some type parameters by
+     * name, and the given template is a similar type but with actual type
+     * arguments, obtain a map which maps the name of the argument (in this
+     * type) to the actual type (from the template type).<p>
+     * 
+     * The given map may already contain some mappings. In this case, the
+     * existing mappings will be retained or made more specific.
+     * 
+     * @param map   A map to which mappings should be added
+     * @param template   The template to use
+     */
+    abstract public void getParamsFromTemplate(Map<String,GenTypeParameter> map, GenTypeParameter template);
+
     /**
      * Determine whether the type represents a primitive type such as "int".
      * This includes the null type, void, and numeric constants.
@@ -104,14 +118,6 @@ public abstract class JavaType extends GenTypeParameter
      * short, int or long (specifically excluding float and double)
      */
     public boolean isIntegralType()
-    {
-        return false;
-    }
-    
-    /**
-     * Determine whether the type could hold the given integer value
-     */
-    public boolean couldHold(int n)
     {
         return false;
     }
