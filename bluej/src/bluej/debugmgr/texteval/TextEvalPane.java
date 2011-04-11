@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -50,6 +50,7 @@ import javax.swing.text.SimpleAttributeSet;
 
 import bluej.BlueJEvent;
 import bluej.Config;
+import bluej.debugger.DebuggerField;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.ExceptionDescription;
 import bluej.debugger.gentype.JavaType;
@@ -65,7 +66,6 @@ import bluej.parser.TextAnalyzer;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.Debug;
-import bluej.utility.JavaNames;
 import bluej.utility.Utility;
 
 /**
@@ -291,24 +291,22 @@ public class TextEvalPane extends JEditorPane
         }
         
         if (result != null && !result.isNullObject()) {
-            //Debug.message("type:"+result.getFieldValueTypeString(0));
-            
-            String resultString = result.getFieldValueString(0);
+            DebuggerField resultField = result.getField(0);
+            String resultString = resultField.getValueString();
             
             if(resultString.equals(nullLabel)) {
                 output(resultString);
             }
             else {
-                String resultType;
-                boolean isObject = result.instanceFieldIsObject(0);
+                boolean isObject = resultField.isReferenceType();
                 
                 if(isObject) {
-                    resultType = result.getFieldObject(0).getStrippedGenClassName();
-                    objectOutput(resultString + "   (" + resultType + ")", 
-                            new ObjectInfo(result.getFieldObject(0), ir));
+                    DebuggerObject resultObject = resultField.getValueObject(null);
+                    String resultType = resultObject.getGenType().toString(true);
+                    objectOutput(resultString + "   (" + resultType + ")",  new ObjectInfo(resultObject, ir));
                 }
                 else {
-                    resultType = JavaNames.stripPrefix(result.getFieldValueTypeString(0));
+                    String resultType = resultField.getType().toString(true);
                     output(resultString + "   (" + resultType + ")");
                 }
             }            

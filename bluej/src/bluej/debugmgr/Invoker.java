@@ -498,12 +498,12 @@ public class Invoker
             // goes into an infinite loop can hang BlueJ.
             new Thread() {
                 public void run() {
-                	EventQueue.invokeLater(new Runnable() {
-                	    public void run() {
-                	        closeCallDialog();
-                	    }
-                	});
-                	
+                    EventQueue.invokeLater(new Runnable() {
+                        public void run() {
+                            closeCallDialog();
+                        }
+                    });
+                    
                     final DebuggerResult result = debugger.instantiateClass(className);
                     
                     EventQueue.invokeLater(new Runnable() {
@@ -1143,7 +1143,7 @@ public class Invoker
                     DebuggerObject resultObj = result.getResultObject();
                     if (unwrap) {
                         // For constructor calls, the result is expected to be the created object.
-                        resultObj = resultObj.getFieldObject(0);
+                        resultObj = resultObj.getInstanceField(0).getValueObject(null);
                     }
                     ir.setResultObject(resultObj);   
                     watcher.putResult(resultObj, objName, ir);

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -47,6 +47,7 @@ import javax.swing.border.EmptyBorder;
 
 import bluej.BlueJTheme;
 import bluej.Config;
+import bluej.debugger.DebuggerField;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeDeclTpar;
@@ -56,7 +57,6 @@ import bluej.debugmgr.ExpressionInformation;
 import bluej.pkgmgr.Package;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.DialogManager;
-import bluej.utility.JavaNames;
 import bluej.utility.JavaUtils;
 import bluej.utility.MultiLineLabel;
 import bluej.views.Comment;
@@ -172,8 +172,9 @@ public class ResultInspector extends Inspector
     protected Object[] getListData()
     {
         String fieldString;
+        DebuggerField resultField = obj.getField(0);
         if (!resultType.isPrimitive()) {
-            DebuggerObject resultObject = obj.getFieldObject(0, resultType);
+            DebuggerObject resultObject = resultField.getValueObject(resultType);
             if (!resultObject.isNullObject()) {
                 fieldString = resultObject.getGenType().toString(true);
             }
@@ -182,10 +183,10 @@ public class ResultInspector extends Inspector
             }
         }
         else {
-            fieldString = JavaNames.stripPrefix(obj.getFieldValueTypeString(0));
+            fieldString = resultField.getType().toString(true);
         }
         
-        fieldString += " = " + obj.getFieldValueString(0);
+        fieldString += " = " + obj.getField(0).getValueString();
         return new Object[]{fieldString};
     }
 
@@ -331,10 +332,11 @@ public class ResultInspector extends Inspector
      */
     protected void listElementSelected(int slot)
     {
-        if (obj.instanceFieldIsObject(slot)) {
+        DebuggerField field = obj.getInstanceField(0);
+        if (field.isReferenceType() && ! field.isNull()) {
 
             // Don't use the name, since it is meaningless anyway (it is always "result")
-            setCurrentObj(obj.getInstanceFieldObject(slot, resultType), null, resultType.toString(false));
+            setCurrentObj(field.getValueObject(resultType), null, resultType.toString(false));
 
             if (obj.instanceFieldIsPublic(slot)) {
                 setButtonsEnabled(true, true);

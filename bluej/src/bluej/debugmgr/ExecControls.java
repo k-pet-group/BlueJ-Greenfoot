@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -131,7 +131,7 @@ public class ExecControls extends JFrame
     //private List threads;
     private JTree threadTree; 
     private DebuggerThreadTreeModel threadModel;
-	
+    
     
     private JComponent mainPanel;
     private JList stackList, staticList, instanceList, localList;
@@ -141,21 +141,21 @@ public class ExecControls extends JFrame
     private CardLayout cardLayout;
     private JPanel flipPanel;
     private JCheckBoxMenuItem systemThreadItem;
-	
+
     // the Project that owns this debugger
     private Project project;
 
     // the debug machine this control is looking at
-    private Debugger debugger = null;				
-
+    private Debugger debugger = null;
+    
     // the thread currently selected
     private DebuggerThread selectedThread;
-	
-    private DebuggerClass currentClass;	    // the current class for the
+
+    private DebuggerClass currentClass;     // the current class for the
                                             //  selected stack frame
-    private DebuggerObject currentObject;	// the "this" object for the
+    private DebuggerObject currentObject;   // the "this" object for the
                                             //  selected stack frame
-    private int currentFrame = 0;		    // currently selected frame
+    private int currentFrame = 0;           // currently selected frame
     
     // A flag to keep track of whether a stack frame selection was performed
     // explicitly via the gui or as a result of a debugger event
@@ -278,7 +278,7 @@ public class ExecControls extends JFrame
             if (selectedThread.equals(threadModel.getNodeAsDebuggerThread(nodes[i]))) {
                 setSelectedThread(selectedThread);
             }
-        }	
+        }
     }
 
     public void treeNodesInserted(TreeModelEvent e) { }
@@ -362,7 +362,7 @@ public class ExecControls extends JFrame
 
             cardLayout.show(flipPanel, "blank");
         }
-        else {	
+        else {
             boolean isSuspended = selectedThread.isSuspended();
 
             stopButton.setEnabled(!isSuspended);
@@ -511,7 +511,8 @@ public class ExecControls extends JFrame
     private void viewInstanceField(int index)
     {
         if(currentObject.instanceFieldIsObject(index)) {
-            project.getInspectorInstance(currentObject.getInstanceFieldObject(index), null, null, null, this);
+            project.getInspectorInstance(currentObject.getInstanceField(index).getValueObject(null),
+                    null, null, null, this);
         }
     }
 
@@ -535,7 +536,7 @@ public class ExecControls extends JFrame
         if (icon != null) {
             setIconImage(icon);
         }
-    	
+    
         setJMenuBar(makeMenuBar());
 
         JPanel contentPane = new GradientFillPanel(new BorderLayout(6,6));
@@ -667,8 +668,9 @@ public class ExecControls extends JFrame
                     if (node != null) {
                         DebuggerThread dt = threadModel.getNodeAsDebuggerThread(node);        
 
-                        if (dt != null)
-                            setSelectedThread(dt);				 	
+                        if (dt != null) {
+                            setSelectedThread(dt);
+                        }
                     }
                 }
             }
@@ -696,7 +698,7 @@ public class ExecControls extends JFrame
             threadTree.addTreeSelectionListener(this);             
             threadTree.addMouseListener(treeMouseListener);
         }
-										        
+
         JScrollPane threadScrollPane = new JScrollPane(threadTree);
         lbl = new JLabel(threadTitle);
         lbl.setOpaque(true);
@@ -734,7 +736,7 @@ public class ExecControls extends JFrame
                 Window win = (Window)event.getSource();
                 win.setVisible(false);
             }
-            	
+            
         });
 
         // save position when window is moved

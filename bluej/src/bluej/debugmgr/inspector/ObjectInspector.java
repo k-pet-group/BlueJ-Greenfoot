@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,7 +24,9 @@ package bluej.debugmgr.inspector;
 import java.awt.AlphaComposite;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.Font;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -54,7 +56,9 @@ import javax.swing.border.EmptyBorder;
 
 import bluej.BlueJTheme;
 import bluej.Config;
+import bluej.debugger.DebuggerField;
 import bluej.debugger.DebuggerObject;
+import bluej.debugger.gentype.GenTypeClass;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PackageEditor;
 import bluej.prefmgr.PrefMgr;
@@ -64,8 +68,6 @@ import bluej.testmgr.record.GetInvokerRecord;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.testmgr.record.ObjectInspectInvokerRecord;
 import bluej.utility.DialogManager;
-import java.awt.Dimension;
-import java.awt.Font;
 
 /**
  * A window that displays the fields in an object or a method return value.
@@ -173,7 +175,8 @@ public class ObjectInspector extends Inspector
         header.setLayout(new BoxLayout(header, BoxLayout.Y_AXIS));
         header.setOpaque(false);
         header.setDoubleBuffered(false);
-        String className = obj.getStrippedGenClassName();
+        GenTypeClass objType = obj.getGenType();
+        String className = objType != null ? objType.toString(true) : "";
 
         String fullTitle = null;
         if(objName != null) {
@@ -332,24 +335,42 @@ public class ObjectInspector extends Inspector
                 setButtonsEnabled(false, false);
                 return;
             }
-        }
 
-        queryArrayElementSelected = (slot == (ARRAY_QUERY_SLOT_VALUE));
-
-        // for array compression..
-        if (queryArrayElementSelected) { // "..." in Array inspector
-            setCurrentObj(null, null, null); //  selected
-            // check to see if elements are objects,
-            // using the first item in the array
-            if (obj.instanceFieldIsObject(0)) {
-                setButtonsEnabled(true, false);
+            queryArrayElementSelected = (slot == (ARRAY_QUERY_SLOT_VALUE));
+            // for array compression..
+            if (queryArrayElementSelected) { // "..." in Array inspector
+                setCurrentObj(null, null, null); //  selected
+                // check to see if elements are objects,
+                // using the first item in the array
+                if (obj.instanceFieldIsObject(0)) {
+                    setButtonsEnabled(true, false);
+                }
+                else {
+                    setButtonsEnabled(false, false);
+                }
             }
             else {
+                if (!obj.getElementType().isPrimitive()) {
+                    DebuggerObject elementObj = obj.getElementObject(slot);
+                    if (! elementObj.isNullObject()) {
+                        setCurrentObj(elementObj, "[" + slot + "]", obj.getElementType().toString());
+                        setButtonsEnabled(true, true);
+                        return;
+                    }
+                }
+                
+                // primitive or null
+                setCurrentObj(null, null, null);
                 setButtonsEnabled(false, false);
             }
+            
+            return;
         }
-        else if (obj.instanceFieldIsObject(slot)) {
-            setCurrentObj(obj.getInstanceFieldObject(slot), obj.getInstanceFieldName(slot), obj.getInstanceFieldType(slot));
+
+        // Non-array
+        if (obj.instanceFieldIsObject(slot)) {
+            DebuggerField field = obj.getInstanceField(slot);
+            setCurrentObj(field.getValueObject(null), field.getName(), field.getType().toString());
 
             if (obj.instanceFieldIsPublic(slot)) {
                 setButtonsEnabled(true, true);
@@ -431,13 +452,14 @@ public class ObjectInspector extends Inspector
             try {
                 int slot = Integer.parseInt(response);
                 // check if within bounds of array
-                if (slot >= 0 && slot < obj.getInstanceFieldCount()) {
+                if (slot >= 0 && slot < obj.getElementCount()) {
                     // if its an object set as current object
                     if (obj.instanceFieldIsObject(slot)) {
                         boolean isPublic = getButton.isEnabled();
                         InvokerRecord newIr = new ArrayElementInspectorRecord(ir, slot);
-                        setCurrentObj(obj.getInstanceFieldObject(slot), obj.getInstanceFieldName(slot), obj.getInstanceFieldType(slot));
-                        inspectorManager.getInspectorInstance(selectedField, selectedFieldName, pkg, isPublic ? newIr : null, this);
+                        setCurrentObj(obj.getElementObject(slot), "[" + slot + "]", obj.getElementType().toString());
+                        inspectorManager.getInspectorInstance(selectedField, selectedFieldName, pkg,
+                                isPublic ? newIr : null, this);
                     }
                     else {
                         // it is not an object - a primitive, so lets
@@ -506,15 +528,15 @@ public class ObjectInspector extends Inspector
         // in displaying
         // the ... elements because there would be no elements for them to
         // reveal
-        if (arrayObject.getInstanceFieldCount() > (VISIBLE_ARRAY_START + VISIBLE_ARRAY_TAIL + 2)) {
+        if (arrayObject.getElementCount() > (VISIBLE_ARRAY_START + VISIBLE_ARRAY_TAIL + 2)) {
 
             // the destination list
             List<String> newArray = new ArrayList<String>(2 + VISIBLE_ARRAY_START + VISIBLE_ARRAY_TAIL);
-            newArray.add(0, ("int length = " + arrayObject.getInstanceFieldCount()));
+            newArray.add(0, ("int length = " + arrayObject.getElementCount()));
             for (int i = 0; i <= VISIBLE_ARRAY_START; i++) {
                 // first 40 elements are displayed as per normal
-                newArray.add(arrayObject.getInstanceField(i, true));
-                indexToSlotList.add(new Integer(i));
+                newArray.add("[" + i + "] = " + arrayObject.getElementValueString(i));
+                indexToSlotList.add(i);
             }
 
             // now the first of our expansion slots
@@ -523,19 +545,19 @@ public class ObjectInspector extends Inspector
 
             for (int i = VISIBLE_ARRAY_TAIL; i > 0; i--) {
                 // last 5 elements are displayed
-                newArray.add(arrayObject.getInstanceField(arrayObject.getInstanceFieldCount() - i, true));
-                // slot is offset by one due to length field being included in
-                // fullArrayFieldList therefore we add 1 to compensate
-                indexToSlotList.add(new Integer(arrayObject.getInstanceFieldCount() - (i + 1)));
+                int elNum = arrayObject.getElementCount() - i;
+                newArray.add("[" + elNum + "] = " + arrayObject.getElementValueString(elNum));
+                indexToSlotList.add(arrayObject.getElementCount() - i);
             }
             return newArray;
         }
         else {
-            List<String> fullArrayFieldList = arrayObject.getInstanceFields(true);
-            fullArrayFieldList.add(0, ("int length = " + arrayObject.getInstanceFieldCount()));
+            List<String> fullArrayFieldList = new ArrayList<String>(arrayObject.getElementCount() + 1);
+            fullArrayFieldList.add(0, ("int length = " + arrayObject.getElementCount()));
             
-            for (int i = 0; i < fullArrayFieldList.size(); i++) {
-                indexToSlotList.add(new Integer(i));
+            for (int i = 0; i < arrayObject.getElementCount(); i++) {
+                fullArrayFieldList.add("[" + i + "] = " + arrayObject.getElementValueString(i));
+                indexToSlotList.add(i);
             }
             return fullArrayFieldList;
         }

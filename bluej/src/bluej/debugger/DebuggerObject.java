@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,11 +21,12 @@
  */
 package bluej.debugger;
 
+import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.Map;
 
-import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.GenTypeClass;
+import bluej.debugger.gentype.JavaType;
 
 /**
  * A class representing an object, and its type, in the debugged VM. The "null" value
@@ -38,26 +39,11 @@ public abstract class DebuggerObject
     public static final String OBJECT_REFERENCE = "<object reference>";
     
     /**
-     *  Get the fully qualified name of the class of this object.
+     * Get the fully qualified name of the class of this object.
      *
      * @return  the fully qualified class name
      */
     public abstract String getClassName();
-    
-    /**
-     *  Get the name of the class of this object, including generic parameters
-     * 
-     * @return  the fully qualified class name
-     */
-    public abstract String getGenClassName();
-
-    /**
-     *  Get the name of the class, including generic parameters, with package
-     *  prefixes stripped in both the raw name and parameter names.
-     * 
-     * @return  the stripped class name
-     */
-    public abstract String getStrippedGenClassName();
     
     /**
      *  Get the class of this object.
@@ -87,116 +73,63 @@ public abstract class DebuggerObject
     public abstract boolean isNullObject();
 
     /**
-     *  Return the number of static fields.
-     *
-     *@return    The StaticFieldCount value
+     * Get all field/value pairs for the object.
      */
-    public abstract int getStaticFieldCount();
-
-    /**
-     *  Return the number of object fields.
-     *
-     *@return    The InstanceFieldCount value
-     */
-    public abstract int getInstanceFieldCount();
-
-    /**
-     *  Return the name of the static field at 'slot'.
-     *
-     *@param  slot  The slot number to be checked
-     *@return       The StaticFieldName value
-     */
-    public abstract String getStaticFieldName(int slot);
-
-    /**
-     *  Return the name of the object field at 'slot'.
-     *
-     *@param  slot  The slot number to be checked
-     *@return       The InstanceFieldName value
-     */
-    public abstract String getInstanceFieldName(int slot);
-
-    /**
-     * Return the type of the object field at 'slot'.
-     *
-     *@param  slot  The slot number to be checked
-     *@return       The type of the field
-     */
-    public abstract String getInstanceFieldType(int slot);
+    public abstract List<DebuggerField> getFields();
     
     /**
-     *  Return the object in static field 'slot'.
-     *
-     *@param  slot  The slot number to be returned
-     *@return       The StaticFieldObject value
+     * Get a field/value pair, specified by index. 
      */
-    public abstract DebuggerObject getStaticFieldObject(int slot);
-
-    /**
-     *  Return the object in object field 'slot'.
-     *
-     *@param  slot  The slot number to be returned
-     *@return       The InstanceFieldObject value
-     */
-    public abstract DebuggerObject getInstanceFieldObject(int slot);
-
-    /**
-     * Return the object, about which some static type information is known,
-     * in object field 'slot'.
-     * 
-     * @param slot          The slot number to be returned
-     * @param expectedType  The static type of the value in the field
-     * @return   The value in the field, as a DebuggerObject.
-     */
-    public abstract DebuggerObject getInstanceFieldObject(int slot, JavaType expectedType);
+    public DebuggerField getField(int slot)
+    {
+        return getFields().get(slot);
+    }
     
     /**
-     *  Return the object in field 'slot' (counting static and object fields).
-     *
-     *@param  slot  The slot number to be returned
-     *@return       The FieldObject value
+     * Get an instance field/value pair, specified by index.
      */
-    public abstract DebuggerObject getFieldObject(int slot);
-
-    /**
-     * Return the object, about which some static type information is known,
-     * in the field 'slot' (counting static and instance fields).
-     * 
-     * @param slot          The slot number to be returned
-     * @param expectedType  The static type of the value in the field
-     * @return              The field object value (as a DebuggerObject)
-     */
-    public abstract DebuggerObject getFieldObject(int slot, JavaType expectedType);
-
-    /**
-     *  Return the object in field 'slot' (counting static and object fields).
-     *
-     *@param  name  Description of Parameter
-     *@return       The FieldObject value
-     */
-    public abstract DebuggerObject getFieldObject(String name);
-
-    /**
-     * Returns the a string representation of the value in 'slot' (counting static and object fields).
-     * @param slot The slot number to be returned
-     * @return     The string representation of this value
-     */
-    public abstract String getFieldValueString(int slot);
+    public DebuggerField getInstanceField(int slot)
+    {
+        for (DebuggerField field : getFields()) {
+            if (! Modifier.isStatic(field.getModifiers())) {
+                if (slot == 0) {
+                    return field;
+                }
+                slot--;
+            }
+        }
+        return null;
+    }
     
     /**
-     * Returns the a string representation of the type of the value in 'slot' (counting static and object fields).
-     * @param slot The slot number to be returned
-     * @return     The string representation of this value
+     * Return the number of array elements. Returns -1 if the object is not an array.
      */
-    public abstract String getFieldValueTypeString(int slot);
-    
+    public abstract int getElementCount();
+
+    /**
+     * Return the array element type. Returns null if the object is not an array.
+     */
+    public abstract JavaType getElementType();
     
     /**
-     *  Return the jdi object. This exposes the jdi to Inspectors.
-     *  If jdi is not being used, it should return null, which is
-     *  the default implementation.
+     * Return the array element object for the specified index.
+     */
+    public abstract DebuggerObject getElementObject(int index);
+    
+    /**
+     * Return a string representation of the array element at the specified index.
+     * For null, the string "null" will be returned.
+     * For a primitive, a string representation of the value will be returned.
+     * For a string, the return will be a quoted Java literal string expression.
+     * For any other reference type, the return will be DebuggerObject.OBJECT_REFERENCE.
+     */
+    public abstract String getElementValueString(int index);
+
+    /**
+     * Return the JDI object. This exposes the JDI to Inspectors.
+     * If JDI is not being used, it should return null.
      *
-     *@return    The ObjectReference value
+     * @return    The ObjectReference value
      */
     public abstract com.sun.jdi.ObjectReference getObjectReference();
 
@@ -233,26 +166,6 @@ public abstract class DebuggerObject
     public abstract List<String> getInstanceFields(boolean includeModifiers, Map<String, List<String>> restrictedClasses);
     
     /**
-     * A single-item form of getInstanceFields that only gets a single field.
-     * All parameters are as in getInstanceFields.  In general, it should be the case that
-     * this code:
-     * 
-     * List<String> list = new LinkedList<String>();
-     * for (int i = 0; i < getInstanceFieldCount();i++)
-     *     list.add(getInstanceField(i, includeModifiers));
-     *     
-     * Should produce the same list as:
-     * 
-     * List<String> list = getInstanceFields(includeModifiers, null);
-     * 
-     * Array objects should override this to provide a more efficient implementation.
-     */
-    public String getInstanceField(int slot, boolean includeModifiers)
-    {
-        return getInstanceFields(includeModifiers).get(slot);
-    }
-    
-    /**
      * Get a list of the instance fields of this object.
      * @param includeModifiers  Whether to include modifiers ("private" etc).
      * @see #getInstanceFields(boolean, java.util.Map)
@@ -263,30 +176,12 @@ public abstract class DebuggerObject
     }
 
     /**
-     *  Return true if the static field 'slot' is public.
-     *
-     *@param  slot  The slot number to be checked
-     *@return       Description of the Returned Value
-     */
-    public abstract boolean staticFieldIsPublic(int slot);
-
-    /**
      *  Return true if the object field 'slot' is public.
      *
      *@param  slot  The slot number to be checked
      *@return       Description of the Returned Value
      */
     public abstract boolean instanceFieldIsPublic(int slot);
-
-
-    /**
-     *  Return true if the static field 'slot' is an object (and not
-     *  a simple type).
-     *
-     *@param  slot  The slot number to be checked
-     *@return       Description of the Returned Value
-     */
-    public abstract boolean staticFieldIsObject(int slot);
 
     /**
      *  Return true if the object field 'slot' is an object (and not
@@ -296,13 +191,4 @@ public abstract class DebuggerObject
      *@return       Description of the Returned Value
      */
     public abstract boolean instanceFieldIsObject(int slot);
-
-    /**
-     *  Return true if the field 'slot' is an object (and not
-     *  a simple type). Includes static and instance fields.
-     *
-     *@param  slot  The slot number to be checked
-     *@return       Description of the Returned Value
-     */
-    public abstract boolean fieldIsObject(int slot);
 }

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -1679,8 +1679,9 @@ public class PkgMgrFrame extends JFrame
      */
     public void doExport()
     {
-    	if (exporter == null)
-    		exporter = new ExportManager(this);
+        if (exporter == null) {
+            exporter = new ExportManager(this);
+        }
         exporter.export();
     }
 
@@ -2039,7 +2040,7 @@ public class PkgMgrFrame extends JFrame
             getPackage().getDebugger().addObject(pkg.getId(), newInstanceName, object);
 
             if (ir != null) {
-                ir.setBenchName(newInstanceName, wrapper.getObject().getGenClassName());
+                ir.setBenchName(newInstanceName, wrapper.getTypeName());
             }
         }
     }

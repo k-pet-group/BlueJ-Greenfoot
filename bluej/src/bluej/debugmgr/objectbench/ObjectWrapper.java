@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -176,8 +176,15 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
         this.obj = obj;
         this.iType = iType;
         this.setName(instanceName);
-        className = obj.getGenClassName();
-        displayClassName = obj.getStrippedGenClassName(); 
+        if (obj.isNullObject()) {
+            className = "";
+            displayClassName = "";
+        }
+        else {
+            GenTypeClass objType = obj.getGenType();
+            className = objType.toString();
+            displayClassName = objType.toString(true);
+        }
 
         createMenu(findIType());
                 
@@ -680,49 +687,47 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
 
     // --- popup menu actions ---
     
-    /**
-	 * @return
-	 */
-	private int calcOffset() {
-		int menuOffset;
-		if(!itemHeightKnown) {
-		    int height = ((JComponent)menu.getComponent(0)).getHeight();
+    private int calcOffset()
+    {
+        int menuOffset;
+        if(!itemHeightKnown) {
+            int height = ((JComponent)menu.getComponent(0)).getHeight();
 
-		    // first time, before it's shown, we won't get the real height
-		    if(height > 1) {
-		        itemHeight = height;
-		        itemsOnScreen = (int)Config.screenBounds.getHeight() /
-		                             itemHeight;
-		        itemHeightKnown = true;
-		    }
-		}
-		// try tp position menu so that the pointer is near the method items
-		int offsetFactor = 4;
-		int menuCount = menu.getComponentCount();
-		// typically there are a minimum of 4 menu items for most objects
-		// arrays however do not (at present) so calculation is adjusted to compensate 
-		if( menuCount < 4)
-		    offsetFactor = menuCount;
-		menuOffset = (menu.getComponentCount() - offsetFactor) * itemHeight;
-		return menuOffset;
-	}
-	
-	public void showMenu(int x, int y){
-		int menuOffset;
-		
-        if(menu == null)
+            // first time, before it's shown, we won't get the real height
+            if(height > 1) {
+                itemHeight = height;
+                itemsOnScreen = (int)Config.screenBounds.getHeight() /
+                itemHeight;
+                itemHeightKnown = true;
+            }
+        }
+        // try tp position menu so that the pointer is near the method items
+        int offsetFactor = 4;
+        int menuCount = menu.getComponentCount();
+        // typically there are a minimum of 4 menu items for most objects
+        // arrays however do not (at present) so calculation is adjusted to compensate 
+        if( menuCount < 4)
+            offsetFactor = menuCount;
+        menuOffset = (menu.getComponentCount() - offsetFactor) * itemHeight;
+        return menuOffset;
+    }
+
+    public void showMenu(int x, int y)
+    {
+        int menuOffset;
+
+        if(menu == null) {
             return;
+        }
 
         menuOffset = calcOffset();
         menu.show(this, x + 1, y - menuOffset);
-       
-        
-	}
-	
-	public void showMenu()
-	{
-		showMenu(WIDTH/2, HEIGHT/2);
-	}
+    }
+
+    public void showMenu()
+    {
+        showMenu(WIDTH/2, HEIGHT/2);
+    }
 
     /**
      * Open this object for inspection.
@@ -730,7 +735,7 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
     protected void inspectObject()
     {
         InvokerRecord ir = new ObjectInspectInvokerRecord(getName());
-      	pkg.getProject().getInspectorInstance(obj, getName(), pkg, ir, pmf);  // shows the inspector
+        pkg.getProject().getInspectorInstance(obj, getName(), pkg, ir, pmf);  // shows the inspector
     }
 
     protected void removeObject()

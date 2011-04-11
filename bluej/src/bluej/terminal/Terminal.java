@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -64,6 +64,7 @@ import bluej.BlueJEventListener;
 import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.debugger.Debugger;
+import bluej.debugger.DebuggerField;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.DebuggerTerminal;
 import bluej.debugmgr.ExecutionEvent;
@@ -413,8 +414,9 @@ public final class Terminal extends JFrame
                 if (object != null) {
                     if (event.getClassName() != null && event.getMethodName() == null) {
                         // constructor call - the result object is the created object
-                        result = object.getGenClassName() + " result = ";
-                        result += "(new instance of " + object.getGenClassName() + ")";
+                        String genTypeStr = object.getGenType().toString();
+                        result = genTypeStr + " result = ";
+                        result += "(new instance of " + genTypeStr + ")";
                     }
                     else {
                         // if the method returns a void, we must handle it differently
@@ -423,8 +425,9 @@ public final class Terminal extends JFrame
                         }
                         else {
                             // other - the result object is a wrapper with a single result field
-                            result = object.getFieldValueTypeString(0) + " result = ";
-                            result += object.getFieldValueString(0);
+                            DebuggerField resultField = object.getField(0);
+                            result = resultField.getType() + " result = ";
+                            result += resultField.getValueString();
                         }
                     }
                 }

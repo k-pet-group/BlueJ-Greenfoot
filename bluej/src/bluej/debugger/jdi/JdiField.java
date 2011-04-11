@@ -1,0 +1,102 @@
+/*
+ This file is part of the BlueJ program. 
+ Copyright (C) 2011  Michael Kolling and John Rosenberg 
+ 
+ This program is free software; you can redistribute it and/or 
+ modify it under the terms of the GNU General Public License 
+ as published by the Free Software Foundation; either version 2 
+ of the License, or (at your option) any later version. 
+ 
+ This program is distributed in the hope that it will be useful, 
+ but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+ GNU General Public License for more details. 
+ 
+ You should have received a copy of the GNU General Public License 
+ along with this program; if not, write to the Free Software 
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
+ 
+ This file is subject to the Classpath exception as provided in the  
+ LICENSE.txt file that accompanied this code.
+ */
+package bluej.debugger.jdi;
+
+import bluej.debugger.DebuggerField;
+import bluej.debugger.DebuggerObject;
+import bluej.debugger.gentype.JavaType;
+
+import com.sun.jdi.Field;
+import com.sun.jdi.ObjectReference;
+import com.sun.jdi.Value;
+
+public class JdiField extends DebuggerField
+{
+    private Field field;
+    private JdiObject object;
+    
+    public JdiField(Field field, JdiObject object)
+    {
+        this.field = field;
+        this.object = object;
+    }
+
+    @Override
+    public String getName()
+    {
+        return field.name();
+    }
+
+    @Override
+    public JavaType getType()
+    {
+        if (object != null) {
+            return JdiReflective.fromField(field, object);
+        }
+        else {
+            return JdiReflective.fromField(field, field.declaringType());
+        }
+    }
+
+    @Override
+    public int getModifiers()
+    {
+        return field.modifiers();
+    }
+
+    @Override
+    public String getValueString()
+    {
+        Value value;
+        if (object != null) {
+            value = object.obj.getValue(field);
+        }
+        else {
+            value = field.declaringType().getValue(field);
+        }
+
+        return JdiUtils.getJdiUtils().getValueString(value);
+    }
+
+    @Override
+    public DebuggerObject getValueObject(JavaType expectedType)
+    {
+        Value value;
+        if (object != null) {
+            value = object.obj.getValue(field);
+        }
+        else {
+            value = field.declaringType().getValue(field);
+        }
+        
+        if (value instanceof ObjectReference) {
+            ObjectReference or = (ObjectReference) value;
+            if (expectedType == null) {
+                expectedType = getType();
+            }
+            return JdiObject.getDebuggerObject(or, expectedType);
+        }
+        
+        return null;
+    }
+
+}
