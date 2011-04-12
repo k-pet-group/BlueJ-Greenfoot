@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,12 +21,9 @@
  */
 package greenfoot.localdebugger;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import bluej.debugger.DebuggerObject;
-import bluej.utility.JavaNames;
+import bluej.debugger.gentype.JavaType;
+import bluej.utility.JavaUtils;
 
 /**
  * A DebuggerObject to represent arrays. This base class is for object arrays;
@@ -62,163 +59,35 @@ public class LocalArray extends LocalObject
         super(object);
         this.length = length;
     }
-    
-    public int getInstanceFieldCount()
+
+    @Override
+    public int getElementCount()
     {
         return length;
     }
+    
+    @Override
+    public DebuggerObject getElementObject(int index)
+    {
+        Object val = ((Object []) object)[index];
+        return getLocalObject(val);
+    }
+    
+    @Override
+    public String getElementValueString(int index)
+    {
+        return LocalField.valueStringForObject(getElementObject(index));
+    }
 
+    @Override
+    public JavaType getElementType()
+    {
+        return JavaUtils.genTypeFromClass(object.getClass().getComponentType());
+    }
+    
     @Override
     public boolean isArray()
     {
         return true;
-    }
-    
-    public String getInstanceFieldName(int slot)
-    {
-        return "[" + String.valueOf(slot) + "]";
-    }
-
-    public DebuggerObject getInstanceFieldObject(int slot)
-    {
-        Object val = ((Object []) object)[slot];
-        return getLocalObject(val);
-    }
-    
-    /**
-     * Return the type of the object field at 'slot'.
-     *
-     *@param  slot  The slot number to be checked
-     *@return       The type of the field
-     */
-    @Override
-    public String getInstanceFieldType(int slot)
-    {            
-        String arrayType = getClassName();
-        return JavaNames.getArrayElementType(arrayType);
-    }
-
-    @Override
-    public List<String> getInstanceFields(boolean includeModifiers,
-            Map<String, List<String>> restrictedClasses)
-    {
-        List<String> fields = new ArrayList<String>(length);
-
-        for (int i = 0; i < length; i++) {
-            String valString = getFieldValueString(i);
-            fields.add("[" + i + "]" + " = " + valString);
-        }
-        return fields;
-    }
-    
-    @Override
-    public String getInstanceField(int slot, boolean includeModifiers)
-    {
-        String valString = getFieldValueString(slot);
-        String field = "[" + slot + "]" + " = " + valString;
-        return field;
-    }
-    
-    @Override
-    public String getFieldValueString(int index)
-    {
-        Object value = ((Object []) object)[index];
-        
-        if (value instanceof String) {
-            return "\"" + value + "\"";
-        }
-        else if (value instanceof Enum<?>) {
-            Enum<?> enumv = (Enum<?>) value;
-            return enumv.name();
-        }
-        else {
-            return DebuggerObject.OBJECT_REFERENCE;
-        }
-    }
-    
-    public boolean instanceFieldIsPublic(int slot)
-    {
-        return true;
-    }
-
-    public boolean instanceFieldIsObject(int slot)
-    {
-        return ((Object []) object)[slot] != null; 
-    }
-    
-
-    /**
-     *  Return the name of the static field at 'slot'.
-     *
-     *@param  slot  The slot number to be checked
-     *@return       The StaticFieldName value
-     */
-    public String getStaticFieldName(int slot)
-    {
-        throw new UnsupportedOperationException("getStaticFieldName");
-    }
-    
-
-    /**
-     *  Return the object in static field 'slot'.
-     *
-     *@param  slot  The slot number to be returned
-     *@return       the object at slot or null if slot does not exist
-     */
-    public DebuggerObject getStaticFieldObject(int slot)
-    {
-        throw new UnsupportedOperationException("getStaticFieldObject");
-    }
-    
-
-
-    /**
-     *  Return an array of strings with the description of each static field
-     *  in the format "<modifier> <type> <name> = <value>".
-     *
-     *@param  includeModifiers  Description of Parameter
-     *@return                   The StaticFields value
-     */
-    public List<String> getStaticFields(boolean includeModifiers)
-    {
-        throw new UnsupportedOperationException("getStaticFields");
-        //        return new ArrayList(0);
-    }
-    
-
-
-    /**
-     *  Return true if the static field 'slot' is public.
-     *
-     *@param  slot  Description of Parameter
-     *@return       Description of the Returned Value
-     *@arg          slot The slot number to be checked
-     */
-    public boolean staticFieldIsPublic(int slot)
-    {
-        throw new UnsupportedOperationException("getStaticFieldObject");
-    }
-
-
-    /**
-     *  Return true if the static field 'slot' is an object (and not
-     *  a simple type).
-     *
-     *@param  slot  The slot number to be checked
-     *@return       Description of the Returned Value
-     */
-    public boolean staticFieldIsObject(int slot)
-    {
-        throw new UnsupportedOperationException("getStaticFieldObject");
-    }
-    
-    public int hashCode() 
-    {
-        return super.hashCode();
-    }
-    
-    public boolean equals(Object other)
-    {
-        return super.equals(other);
     }
 }

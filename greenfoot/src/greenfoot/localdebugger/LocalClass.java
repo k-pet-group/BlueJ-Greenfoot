@@ -29,13 +29,14 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import bluej.debugger.DebuggerClass;
+import bluej.debugger.DebuggerField;
 import bluej.debugger.DebuggerObject;
-import bluej.debugger.gentype.JavaType;
-import bluej.utility.JavaUtils;
 
 /**
  * Represent a local class as a DebuggerClass.
@@ -63,18 +64,19 @@ public class LocalClass extends DebuggerClass
         return cl.getName();
     }
     
-    /**
-     *  Return the type of the static field at 'slot'.
-     *
-     *@param  slot  The slot number to be checked
-     *@return       The type of the static field
-     */
     @Override
-    public String getStaticFieldType(int slot)
+    public List<DebuggerField> getStaticFields()
     {
-        Field f = getFields()[slot];
-        JavaType fieldType = JavaUtils.getJavaUtils().getFieldType(f);
-        return fieldType.toString();
+        Field [] fields = getFields();
+        Set<String> usedNames = new HashSet<String>();
+        List<DebuggerField> rlist = new ArrayList<DebuggerField>(fields.length);
+        
+        for (Field field : fields) {
+            boolean visible = usedNames.add(field.getName());
+            rlist.add(new LocalField(null, field, !visible));
+        }
+        
+        return rlist;
     }
     
     /*

@@ -38,11 +38,12 @@ import rmiextension.wrappers.WrapperPool;
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerClass;
 import bluej.debugger.DebuggerEvent;
+import bluej.debugger.DebuggerEvent.BreakpointProperties;
+import bluej.debugger.DebuggerField;
 import bluej.debugger.DebuggerListener;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.DebuggerThread;
 import bluej.debugger.SourceLocation;
-import bluej.debugger.DebuggerEvent.BreakpointProperties;
 import bluej.debugmgr.Invoker;
 import bluej.extensions.BProject;
 import bluej.extensions.ExtensionBridge;
@@ -425,8 +426,9 @@ public class GreenfootDebugHandler implements DebuggerListener
                         DebuggerClass simMonClass = debugger.getClass(CLASS_NAME, true);
                         DebuggerObject stateObject = null;
                         for (int i = 0; ; i++) {
-                            if (simMonClass.getStaticFieldName(i).equals(stateVar)) {
-                                stateObject = simMonClass.getStaticFieldObject(i);
+                            DebuggerField simMonField = simMonClass.getStaticField(i);
+                            if (simMonField.getName().equals(stateVar)) {
+                                stateObject = simMonField.getValueObject(null);
                                 break;
                             }
                         }

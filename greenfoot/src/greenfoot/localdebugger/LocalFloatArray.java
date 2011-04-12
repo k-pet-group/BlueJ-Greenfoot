@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -34,14 +34,8 @@ public class LocalFloatArray extends LocalArray
     }
     
     @Override
-    public String getFieldValueString(int index)
+    public String getElementValueString(int index)
     {
         return Float.toString(((float []) object)[index]);
-    }
-    
-    @Override
-    public boolean instanceFieldIsObject(int slot)
-    {
-        return false;
     }
 }

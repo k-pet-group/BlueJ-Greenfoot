@@ -26,9 +26,11 @@ import greenfoot.World;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 /**
  * This class has some helper methods for the debugger in Greenfoot; 
@@ -49,7 +51,7 @@ public class DebugUtil
      * As restrictedClasses, but uses Strings (fully qualified class names)
      * as the keys rather than Class objects.
      */
-    public static Map<String, List<String>> restrictedClassesAsNames()
+    public static Map<String, Set<String>> restrictedClassesAsNames()
     {
         return restrictedAsNames;
     }
@@ -59,16 +61,18 @@ public class DebugUtil
     
     // Make these static to avoid reallocating the map every time it is asked for:
     private static final HashMap<Class<?>, List<String>> restricted;
-    private static final HashMap<String, List<String>> restrictedAsNames;
+    private static final HashMap<String, Set<String>> restrictedAsNames;
     static 
     {
         restricted = new HashMap<Class<?>, List<String>>();
         restricted.put(Actor.class, Arrays.asList(actorIncludeFields));
         restricted.put(World.class, Arrays.asList(worldIncludeFields));
         
-        restrictedAsNames = new HashMap<String, List<String>>();
+        restrictedAsNames = new HashMap<String, Set<String>>();
         for (Entry<Class<?>, List<String>> e : restricted.entrySet()) {
-            restrictedAsNames.put(e.getKey().getName(), e.getValue());
+            HashSet<String> values = new HashSet<String>();
+            values.addAll(e.getValue());
+            restrictedAsNames.put(e.getKey().getName(), values);
         }
     }
 }
