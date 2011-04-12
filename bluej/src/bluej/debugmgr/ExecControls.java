@@ -541,7 +541,8 @@ public class ExecControls extends JFrame
      */
     private void viewInstanceField(int index)
     {
-        if(currentObject.instanceFieldIsObject(index)) {
+        DebuggerField field = currentObject.getInstanceField(index);
+        if(field.isReferenceType() && ! field.isNull()) {
             project.getInspectorInstance(currentObject.getInstanceField(index).getValueObject(null),
                     null, null, null, this);
         }

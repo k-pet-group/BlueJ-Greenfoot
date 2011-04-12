@@ -351,9 +351,7 @@ public class ObjectInspector extends Inspector
             // for array compression..
             if (queryArrayElementSelected) { // "..." in Array inspector
                 setCurrentObj(null, null, null); //  selected
-                // check to see if elements are objects,
-                // using the first item in the array
-                if (obj.instanceFieldIsObject(0)) {
+                if (! obj.getElementType().isPrimitive()) {
                     setButtonsEnabled(true, false);
                 }
                 else {
@@ -379,8 +377,8 @@ public class ObjectInspector extends Inspector
         }
 
         // Non-array
-        if (obj.instanceFieldIsObject(slot)) {
-            DebuggerField field = obj.getInstanceField(slot);
+        DebuggerField field = obj.getInstanceField(slot);
+        if (field.isReferenceType() && ! field.isNull()) {
             setCurrentObj(field.getValueObject(null), field.getName(), field.getType().toString());
 
             if (Modifier.isPublic(field.getModifiers())) {
@@ -465,7 +463,7 @@ public class ObjectInspector extends Inspector
                 // check if within bounds of array
                 if (slot >= 0 && slot < obj.getElementCount()) {
                     // if its an object set as current object
-                    if (obj.instanceFieldIsObject(slot)) {
+                    if (! obj.getElementType().isPrimitive() && ! obj.getElementObject(slot).isNullObject()) {
                         boolean isPublic = getButton.isEnabled();
                         InvokerRecord newIr = new ArrayElementInspectorRecord(ir, slot);
                         setCurrentObj(obj.getElementObject(slot), "[" + slot + "]", obj.getElementType().toString());

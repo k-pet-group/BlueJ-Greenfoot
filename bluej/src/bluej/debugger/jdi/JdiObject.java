@@ -30,13 +30,11 @@ import bluej.debugger.DebuggerObject;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.Reflective;
-import bluej.utility.Debug;
 
 import com.sun.jdi.ArrayReference;
 import com.sun.jdi.Field;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.ReferenceType;
-import com.sun.jdi.Value;
 
 /**
  * Represents an object running on the user (remote) machine, together with an optional generic
@@ -255,53 +253,17 @@ public class JdiObject extends DebuggerObject
         List<Field> visibleFields = obj.referenceType().visibleFields();
         List<DebuggerField> rlist = new ArrayList<DebuggerField>(fields.size());
         for (Field field : fields) {
-            boolean visible = visibleFields.remove(field);
-            rlist.add(new JdiField(field, this, !visible));
+            if (! checkIgnoreField(field)) {
+                boolean visible = visibleFields.remove(field);
+                rlist.add(new JdiField(field, this, !visible));
+            }
         }
         return rlist;
     }
 
-    /**
-     *  Return true if the object field 'slot' is an object (and not
-     *  a simple type).
-     *
-     *@param  slot  The slot number to be checked
-     *@return       Description of the Returned Value
-     */
-    @Override
-    public boolean instanceFieldIsObject(int slot)
-    {
-        return checkFieldForObject(false, slot);
-    }
-
-    private Field getField(boolean getStatic, int slot)
-    {
-        for (int i = 0; i < fields.size(); i++) {
-            Field field = (Field) fields.get(i);
-
-            if (checkIgnoreField(field)) {
-                continue;
-            }
-
-            if (field.isStatic() == getStatic) {
-                if (slot == 0) {
-                    return field;
-                }
-                else {
-                    slot--;
-                }
-            }
-        }
-        Debug.reportError("invalid slot in remote object");
-        return null;
-    }
-
     private boolean checkIgnoreField(Field f)
     {
-        if (f.name().indexOf('$') >= 0)
-            return true;
-        else
-            return false;
+        return (f.name().indexOf('$') >= 0);
     }
 
     /**
@@ -320,13 +282,6 @@ public class JdiObject extends DebuggerObject
         // either null object or unavailable fields
         // lets give them an empty list of fields
         fields = new ArrayList<Field>();
-    }
-
-    private boolean checkFieldForObject(boolean getStatic, int slot)
-    {
-        Field field = getField(getStatic, slot);
-        Value val = obj.getValue(field);
-        return (val instanceof ObjectReference);
     }
 
     /**
