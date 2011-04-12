@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -19,47 +19,41 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package bluej.debugger;
-
-import java.util.List;
+package bluej.debugmgr.inspector;
 
 /**
- * A class for representing classes in the debugged VM.
- *
- * @author     Michael Kolling
+ * Plain old data type for field/value pairs.
+ * 
+ * @author Davin McCall
  */
-public abstract class DebuggerClass
+public class FieldInfo
 {
-    /**
-     *  Return the name of this class (fully qualified).
-     *
-     *@return    The class name
-     */
-    public abstract String getName();
-
-    /**
-     * Get a list of static fields declared in this class.
-     */
-    public abstract List<DebuggerField> getStaticFields();
+    private String description;
+    private String value;
     
     /**
-     * Get the static field specified by the given index.
+     * Construct a FieldInfo object with the given field description (modifiers, type, name) and value.
      */
-    public DebuggerField getStaticField(int slot)
+    public FieldInfo(String description, String value)
     {
-        return getStaticFields().get(slot);
+        this.description = description;
+        this.value = value;
     }
     
     /**
-     * Returns true if this represents a Java interface
-     * 
+     * Get the field description (modifiers, type, name).
      */
-    public abstract boolean isInterface();
-
+    public String getDescription()
+    {
+        return description;
+    }
+    
     /**
-     * Returns true if this represents an enum
-     * 
+     * Get the field value representation.
+     * @return
      */
-    public abstract boolean isEnum();
-
+    public String getValue()
+    {
+        return value;
+    }
 }

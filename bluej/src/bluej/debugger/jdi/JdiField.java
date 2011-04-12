@@ -21,6 +21,7 @@
  */
 package bluej.debugger.jdi;
 
+import bluej.debugger.DebuggerClass;
 import bluej.debugger.DebuggerField;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.gentype.JavaType;
@@ -29,15 +30,22 @@ import com.sun.jdi.Field;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
 
+/**
+ * An implement of DebuggerField using the Java Debug Interface (JDI).
+ * 
+ * @author Davin McCall
+ */
 public class JdiField extends DebuggerField
 {
     private Field field;
     private JdiObject object;
+    private boolean hidden;
     
-    public JdiField(Field field, JdiObject object)
+    public JdiField(Field field, JdiObject object, boolean hidden)
     {
         this.field = field;
         this.object = object;
+        this.hidden = hidden;
     }
 
     @Override
@@ -99,4 +107,15 @@ public class JdiField extends DebuggerField
         return null;
     }
 
+    @Override
+    public DebuggerClass getDeclaringClass()
+    {
+        return new JdiClass(field.declaringType());
+    }
+    
+    @Override
+    public boolean isHidden()
+    {
+        return hidden;
+    }
 }

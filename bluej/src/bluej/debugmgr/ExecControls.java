@@ -39,9 +39,12 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
@@ -77,11 +80,13 @@ import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerClass;
+import bluej.debugger.DebuggerField;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.DebuggerThread;
 import bluej.debugger.DebuggerThreadTreeModel;
-import bluej.debugger.SourceLocation;
 import bluej.debugger.DebuggerThreadTreeModel.SyncMechanism;
+import bluej.debugger.SourceLocation;
+import bluej.debugmgr.inspector.Inspector;
 import bluej.pkgmgr.Project;
 import bluej.utility.GradientFillPanel;
 import bluej.utility.JavaNames;
@@ -163,7 +168,7 @@ public class ExecControls extends JFrame
     
     //Fields from these classes (key from map) are only shown if they are in the corresponding whitelist
     //of fields (corresponding value from map)
-    private Map<String, List<String>> restrictedClasses; 
+    private Map<String, Set<String>> restrictedClasses; 
     
 
     /**
@@ -194,7 +199,12 @@ public class ExecControls extends JFrame
         setVisible(show);
     }
     
-    public void setRestrictedClasses(Map<String, List<String>> restrictedClasses)
+    /**
+     * Sets the restricted classes - classes for which only some fields should be displayed.
+     * 
+     * @param restrictedClasses a map of class name to a set of white-listed fields.
+     */
+    public void setRestrictedClasses(Map<String, Set<String>> restrictedClasses)
     {
         this.restrictedClasses = restrictedClasses;
     }
@@ -483,11 +493,31 @@ public class ExecControls extends JFrame
         currentObject = selectedThread.getCurrentObject(frameNo);
         if(currentClass != null) {
             staticList.setFixedCellWidth(-1);
-            staticList.setListData(currentClass.getStaticFields(false, restrictedClasses).toArray());
+            List<DebuggerField> fields = currentClass.getStaticFields();
+            List<String> listData = new ArrayList<String>(fields.size());
+            for (DebuggerField field : fields) {
+                String declaringClass = field.getDeclaringClassName();
+                Set<String> whiteList = restrictedClasses.get(declaringClass);
+                if (whiteList == null || whiteList.contains(field.getName())) {
+                    listData.add(Inspector.fieldToString(field) + " = " + field.getValueString());
+                }
+            }
+            staticList.setListData(listData.toArray(new String[listData.size()]));
         }
         if(currentObject != null) {
             instanceList.setFixedCellWidth(-1);
-            instanceList.setListData(currentObject.getInstanceFields(false, restrictedClasses).toArray());
+            List<DebuggerField> fields = currentObject.getFields();
+            List<String> listData = new ArrayList<String>(fields.size());
+            for (DebuggerField field : fields) {
+                if (! Modifier.isStatic(field.getModifiers())) {
+                    String declaringClass = field.getDeclaringClassName();
+                    Set<String> whiteList = restrictedClasses.get(declaringClass);
+                    if (whiteList == null || whiteList.contains(field.getName())) {
+                        listData.add(Inspector.fieldToString(field) + " = " + field.getValueString());
+                    }
+                }
+            }
+            instanceList.setListData(listData.toArray(new String[listData.size()]));
         }
         if(selectedThread != null) {
             localList.setFixedCellWidth(-1);
@@ -500,8 +530,9 @@ public class ExecControls extends JFrame
      */
     private void viewStaticField(int index)
     {
-        if(currentClass.staticFieldIsObject(index)) {
-            project.getInspectorInstance(currentClass.getStaticFieldObject(index), null, null, null, this);
+        DebuggerField field = currentClass.getStaticField(index);
+        if(field.isReferenceType() && ! field.isNull()) {
+            project.getInspectorInstance(field.getValueObject(null), null, null, null, this);
         }
     }
 

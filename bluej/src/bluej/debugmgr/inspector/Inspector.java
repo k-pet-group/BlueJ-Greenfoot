@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,6 +29,7 @@ import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.Point;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
@@ -42,6 +43,8 @@ import java.awt.event.MouseMotionAdapter;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -56,6 +59,7 @@ import javax.swing.event.ListSelectionListener;
 
 import bluej.BlueJTheme;
 import bluej.Config;
+import bluej.debugger.DebuggerField;
 import bluej.debugger.DebuggerObject;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PackageEditor;
@@ -64,7 +68,6 @@ import bluej.testmgr.record.InvokerRecord;
 import bluej.testmgr.record.ObjectInspectInvokerRecord;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
-import java.awt.Image;
 
 /**
  * 
@@ -97,13 +100,12 @@ public abstract class Inspector extends JFrame
     protected AssertPanel assertPanel;
 
     protected DebuggerObject selectedField; // the object currently selected in
-    // the list
+                                            // the list
     protected String selectedFieldName; // the name of the field of the
-    // currently selected object
+                                        // currently selected object
     protected String selectedFieldType;
     protected InvokerRecord selectedInvokerRecord; // an InvokerRecord for the
-    // selected
-    // object (if possible, else null)
+                                                   // selected object (if possible, else null)
 
     protected Package pkg;
     protected InspectorManager inspectorManager;
@@ -114,6 +116,31 @@ public abstract class Inspector extends JFrame
     private static final int MIN_LIST_WIDTH = 150;
     private static final int MAX_LIST_WIDTH = 400;
 
+    /**
+     * Convert a field to a string representation, used to display the field in the inspector value list.
+     */
+    public static String fieldToString(DebuggerField field)
+    {
+        int mods = field.getModifiers();
+        String result = "";
+        if (Modifier.isPrivate(mods)) {
+            result = "private ";
+        }
+        else if (Modifier.isPublic(mods)) {
+            result = "public ";
+        }
+        else if (Modifier.isProtected(mods)) {
+            result = "protected ";
+        }
+        
+        if (field.isHidden()) {
+            result += "(hidden) ";
+        }
+        
+        result += field.getType().toString(true);
+        result += " " + field.getName();
+        return result;
+    }
   
     /**
      * Constructor.
@@ -212,10 +239,10 @@ public abstract class Inspector extends JFrame
 
             public void keyTyped(KeyEvent e)
             {
-            	// Enter or escape?
-            	if (e.getKeyChar() == '\n' || e.getKeyChar() == 27) {
-            	    // On MacOS, we'll never see escape here. We have set up an
-            	    // action on the root pane which will handle it instead.
+                // Enter or escape?
+                if (e.getKeyChar() == '\n' || e.getKeyChar() == 27) {
+                    // On MacOS, we'll never see escape here. We have set up an
+                    // action on the root pane which will handle it instead.
                     doClose(true);
                     e.consume();
                 }    
@@ -252,7 +279,7 @@ public abstract class Inspector extends JFrame
     /**
      * Returns the list of data.
      */
-    abstract protected Object[] getListData();
+    abstract protected List<FieldInfo> getListData();
 
     /**
      * An element in the field list was selected.
@@ -285,13 +312,13 @@ public abstract class Inspector extends JFrame
      */
     public void update()
     {
-        final Object[] listData = getListData();
+        final List<FieldInfo> listData = getListData();
         
         fieldList.setData(listData);
         fieldList.setTableHeader(null);
         
         // Ensures that an element (if any exist) is always selected
-        if (fieldList.getSelectedRow() == -1 && listData.length > 0) {
+        if (fieldList.getSelectedRow() == -1 && listData.size() > 0) {
             fieldList.setRowSelectionInterval(0, 0);
         }
                 
@@ -337,9 +364,9 @@ public abstract class Inspector extends JFrame
      */
     protected void recalculateFieldlistSize()
     {
-        final Object[] listData = getListData();
+        final List<FieldInfo> listData = getListData();
         int height = fieldList.getPreferredSize().height;
-        int rows = listData.length;
+        int rows = listData.size();
         int scrollBarWidth = 0;
         if (rows > getPreferredRows()) {
             height = fieldList.getRowHeight() * getPreferredRows();
@@ -589,7 +616,7 @@ public abstract class Inspector extends JFrame
         });
     }
     
-    /**
+   /**
     * Taken from the source code at: http://java.sun.com/developer/technicalArticles/GUI/translucent_shaped_windows/
     *
     * @author Anthony Petrov

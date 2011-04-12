@@ -23,7 +23,6 @@ package bluej.debugger.jdi;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import bluej.debugger.DebuggerClass;
 import bluej.debugger.DebuggerField;
@@ -253,66 +252,13 @@ public class JdiObject extends DebuggerObject
     @Override
     public List<DebuggerField> getFields()
     {
+        List<Field> visibleFields = obj.referenceType().visibleFields();
         List<DebuggerField> rlist = new ArrayList<DebuggerField>(fields.size());
         for (Field field : fields) {
-            rlist.add(new JdiField(field, this));
+            boolean visible = visibleFields.remove(field);
+            rlist.add(new JdiField(field, this, !visible));
         }
         return rlist;
-    }
-    
-    @Override
-    public List<String> getInstanceFields(boolean includeModifiers, Map<String, List<String>> restrictedClasses)
-    {
-        List<String> fieldStrings = new ArrayList<String>(obj == null ? 0 : fields.size());
-        
-        if (obj == null)
-            return fieldStrings;
-            
-        ReferenceType cls = obj.referenceType();
-        List<Field> visible = cls.visibleFields();
-        
-        for (int i = 0; i < fields.size(); i++) {
-            Field field = (Field) fields.get(i);
-        
-            if (checkIgnoreField(field))
-                continue;
-            
-            if (restrictedClasses != null) {
-                List<String> fieldWhitelist = restrictedClasses.get(field.declaringType().name());
-                if (fieldWhitelist != null && !fieldWhitelist.contains(field.name())) 
-                    continue; // ignore this one
-            }            
-        
-            if (field.isStatic() == false) {
-                Value val = obj.getValue(field);
-        
-                String valString = JdiUtils.getJdiUtils().getValueString(val);
-                String fieldString = "";
-        
-                if (includeModifiers) {
-                    if (field.isPrivate()) {
-                        fieldString = "private ";
-                    }
-                    if (field.isProtected()) {
-                        fieldString = "protected ";
-                    }
-                    if (field.isPublic()) {
-                        fieldString = "public ";
-                    }
-                }
-        
-                fieldString += JdiReflective.fromField(field, this).toString(true);
-        
-                if (!visible.contains(field)) {
-                    fieldString += " (hidden)";
-                }
-                
-                fieldString += " " + field.name() + " = " +valString;
-                
-                fieldStrings.add(fieldString);
-            }
-        }
-        return fieldStrings;
     }
 
     /*
@@ -401,10 +347,12 @@ public class JdiObject extends DebuggerObject
     @Override
     public boolean equals(Object o)
     {
-        if(this == o)
+        if(this == o) {
             return true;
-        if((o == null) || (o.getClass() != this.getClass()))
+        }
+        if((o == null) || (o.getClass() != this.getClass())) {
             return false;
+        }
 
         // object must be JdiObject at this point
         JdiObject test = (JdiObject)o;

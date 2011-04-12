@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,31 +23,45 @@ package bluej.debugmgr.inspector;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.List;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.JTabbedPane;
 import javax.swing.border.EmptyBorder;
 
 import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.debugger.DebuggerClass;
+import bluej.debugger.DebuggerField;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.target.role.StdClassRole;
 import bluej.prefmgr.PrefMgr;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.DialogManager;
 import bluej.utility.JavaNames;
-import java.awt.Dimension;
 
 /**
  * A window that displays the static fields in an class.
  * 
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: ClassInspector.java 7686 2010-05-22 12:01:21Z mik $
+ * @version $Id: ClassInspector.java 8859 2011-04-12 03:23:57Z davmac $
  */
 public class ClassInspector extends Inspector
 {
@@ -136,7 +150,7 @@ public class ClassInspector extends Inspector
         JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
         mainPanel.setOpaque(false);
 
-        if (getListData().length != 0) {
+        if (getListData().size() != 0) {
             JScrollPane scrollPane = createFieldListScrollPane();
             mainPanel.add(scrollPane, BorderLayout.CENTER);
         } else {
@@ -201,9 +215,16 @@ public class ClassInspector extends Inspector
     /**
      * True if this inspector is used to display a method call result.
      */
-    protected Object[] getListData()
+    protected List<FieldInfo> getListData()
     {
-        return myClass.getStaticFields(true).toArray(new Object[0]);
+        List<DebuggerField> fields = myClass.getStaticFields();
+        List<FieldInfo> fieldInfos = new ArrayList<FieldInfo>(fields.size());
+        for (DebuggerField field : fields) {
+            String desc = Inspector.fieldToString(field);
+            String value = field.getValueString();
+            fieldInfos.add(new FieldInfo(desc, value));
+        }
+        return fieldInfos;
     }
 
     /**
@@ -211,10 +232,11 @@ public class ClassInspector extends Inspector
      */
     protected void listElementSelected(int slot)
     {
-        if (myClass.staticFieldIsObject(slot)) {
-            setCurrentObj(myClass.getStaticFieldObject(slot), myClass.getStaticFieldName(slot), myClass.getStaticFieldType(slot));
+        DebuggerField field = myClass.getStaticField(slot);
+        if (field.isReferenceType() && ! field.isNull()) {
+            setCurrentObj(field.getValueObject(null), field.getName(), field.getType().toString());
 
-            if (myClass.staticFieldIsPublic(slot)) {
+            if (Modifier.isPublic(field.getModifiers())) {
                 setButtonsEnabled(true, true);
             }
             else {

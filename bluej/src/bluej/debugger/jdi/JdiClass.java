@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,20 +23,21 @@ package bluej.debugger.jdi;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import bluej.debugger.DebuggerClass;
-import bluej.debugger.DebuggerObject;
-import bluej.debugger.gentype.GenTypeClass;
+import bluej.debugger.DebuggerField;
 import bluej.utility.Debug;
 
-import com.sun.jdi.*;
+import com.sun.jdi.ClassType;
+import com.sun.jdi.Field;
+import com.sun.jdi.InterfaceType;
+import com.sun.jdi.ReferenceType;
 
 /**
- *  Represents an class running on the user (remote) machine.
+ * Represents an class running on the user (remote) machine.
  *
- *@author     Michael Kolling
- *@created    December 26, 2000
+ * @author     Michael Kolling
+ * @created    December 26, 2000
  */
 public class JdiClass extends DebuggerClass
 {
@@ -57,173 +58,47 @@ public class JdiClass extends DebuggerClass
     }
 
 
-    /**
-     *  Return the name of this class (fully qualified).
+    /*
+     * Return the name of this class (fully qualified).
      *
-     *@return    The class name
+     * @return    The class name
      */
+    @Override
     public String getName()
     {
         return remoteClass.name();
     }
 
-
-    /**
-     *  Return the number of static fields (including inherited fields).
-     *
-     *@return    The StaticFieldCount value
-     */
-    public int getStaticFieldCount()
+    @Override
+    public List<DebuggerField> getStaticFields()
     {
-        return staticFields.size();
+        List<Field> visibleFields = remoteClass.visibleFields();
+        List<DebuggerField> rlist = new ArrayList<DebuggerField>(staticFields.size());
+        for (Field field : staticFields) {
+            rlist.add(new JdiField(field, null, ! visibleFields.contains(field)));
+        }
+        return rlist;
     }
 
-
-    /**
-     *  Return the name of the static field at 'slot'.
-     *
-     *@param  slot  The slot number to be checked
-     *@return       The StaticFieldName value
-     */
-    public String getStaticFieldName(int slot)
-    {
-        return ((Field)staticFields.get(slot)).name();
-    }
-
-    /**
-     * Return the type of the static field at 'slot'.
-     *
-     *@param  slot  The slot number to be checked
-     *@return       The type of the static field
+    /*
+     * Returns true if this represents a Java interface
      */
     @Override
-    public String getStaticFieldType(int slot)
-    {
-        Field field = (Field) staticFields.get(slot);
-        return JdiReflective.fromField(field, remoteClass).toString(false);
-    }
-
-    /**
-     *  Return the object in static field 'slot'. Slot must exist and
-     *  must be of object type.
-     *
-     *@param  slot  The slot number to be returned
-     *@return       the object at slot
-     */
-    public DebuggerObject getStaticFieldObject(int slot)
-    {
-        Field field = (Field)staticFields.get(slot);
-        ObjectReference val = (ObjectReference) remoteClass.getValue(field);
-        GenTypeClass expectedType = (GenTypeClass)JdiReflective.fromField(field, remoteClass);
-        return JdiObject.getDebuggerObject(val, expectedType);
-    }
-
-    /**
-     *  Return an array of strings with the description of each static field
-     *  in the format "<modifier> <type> <name> = <value>".
-     *
-     *@param  includeModifiers  Description of Parameter
-     *@return                   The StaticFields value
-     */
-    public List<String> getStaticFields(boolean includeModifiers, Map<String, List<String>> restrictedClasses)
-    {
-        return getFields(includeModifiers, restrictedClasses);
-    }
-
-
-    /**
-     *  Return true if the static field 'slot' is public.
-     *
-     *@param  slot  The slot number to be checked
-     *@return       Description of the Returned Value
-     */
-    public boolean staticFieldIsPublic(int slot)
-    {
-        return ((Field)staticFields.get(slot)).isPublic();
-    }
-
-
-    /**
-     *  Return true if the static field 'slot' is an object (and not
-     *  a simple type).
-     *
-     *@param  slot  The slot number to be checked
-     *@return       Description of the Returned Value
-     */
-    public boolean staticFieldIsObject(int slot)
-    {
-        Field field = (Field) staticFields.get(slot);
-        Value val = remoteClass.getValue(field);
-        return (val instanceof ObjectReference);
-    }
-
-    /**
-     * Returns true if this represents a Java interface
-     *  
-     */
     public boolean isInterface()
     {
         return remoteClass instanceof InterfaceType;
     }
 
-    /**
+    /*
      * Returns true if this represents an enum
-     *  
      */
+    @Override
     public boolean isEnum()
     {
         if (remoteClass instanceof ClassType) {
             return JdiUtils.getJdiUtils().isEnum((ClassType) remoteClass);
         }
         return false;
-    }
-
-    /**
-     *  Return a list of strings with the description of each field
-     *  in the format "<modifier> <type> <name> = <value>".
-     * @param restrictedClasses 
-     */
-    private List<String> getFields(boolean includeModifiers, Map<String, List<String>> restrictedClasses)
-    {
-        List<String> fieldStrings = new ArrayList<String>(staticFields.size());
-        List<Field> visible = remoteClass.visibleFields();
-
-        for (int i = 0; i < staticFields.size(); i++) {
-            Field field = (Field) staticFields.get(i);
-            
-            if (restrictedClasses != null) {
-                List<String> fieldWhitelist = restrictedClasses.get(field.declaringType().name());
-                if (fieldWhitelist != null && !fieldWhitelist.contains(field.name())) 
-                    continue; // ignore this one
-            }
-
-            Value val = remoteClass.getValue(field);
-
-            String valString = JdiUtils.getJdiUtils().getValueString(val);
-            String fieldString = "";
-
-            if (includeModifiers) {
-                if (field.isPrivate()) {
-                    fieldString = "private ";
-                }
-                if (field.isProtected()) {
-                    fieldString = "protected ";
-                }
-                if (field.isPublic()) {
-                    fieldString = "public ";
-                }
-            }
-
-            fieldString += JdiReflective.fromField(field, remoteClass).toString(true) 
-                + " " + field.name()
-                + " = " + valString;
-
-            if (!visible.contains(field)) {
-                fieldString += " (hidden)";
-            }
-            fieldStrings.add(fieldString);
-        }
-        return fieldStrings;
     }
 
     /**
@@ -245,5 +120,4 @@ public class JdiClass extends DebuggerClass
             Debug.reportError("cannot get fields for remote class");
         }
     }
-
 }

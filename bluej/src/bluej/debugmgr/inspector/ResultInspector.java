@@ -28,6 +28,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -169,7 +170,8 @@ public class ResultInspector extends Inspector
     /**
      * Returns a single string representing the return value.
      */
-    protected Object[] getListData()
+    @Override
+    protected List<FieldInfo> getListData()
     {
         String fieldString;
         DebuggerField resultField = obj.getField(0);
@@ -186,8 +188,9 @@ public class ResultInspector extends Inspector
             fieldString = resultField.getType().toString(true);
         }
         
-        fieldString += " = " + obj.getField(0).getValueString();
-        return new Object[]{fieldString};
+        List<FieldInfo> rlist = new ArrayList<FieldInfo>(1);
+        rlist.add(new FieldInfo(fieldString, resultField.getValueString()));
+        return rlist;
     }
 
     /**
@@ -385,7 +388,10 @@ public class ResultInspector extends Inspector
      */
     public String getResult()
     {
-        return (String) obj.getInstanceFields(false).get(0);
+        DebuggerField resultField = obj.getField(0);
+        
+        String result = resultField.getType() + " " + resultField.getName() + " = " + resultField.getValueString();
+        return result;
     }
 
     protected int getPreferredRows()

@@ -21,10 +21,6 @@
  */
 package bluej.debugger.jdi;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.gentype.GenTypeArray;
 import bluej.debugger.gentype.GenTypeArrayClass;
@@ -180,32 +176,6 @@ public class JdiArray extends JdiObject
         return JdiUtils.getJdiUtils().getValueString(val);
     }
 
-    @Override
-    public List<String> getInstanceFields(boolean includeModifiers,
-            Map<String, List<String>> restrictedClasses)
-    {
-        ArrayReference array = (ArrayReference) obj;
-        int len = array.length();
-        List<String> r = new ArrayList<String>(len);
-        for (int i = 0; i < len; i++) {
-            String field = getInstanceFieldName(i) + " = "
-                    + JdiUtils.getJdiUtils().getValueString(array.getValue(i));
-            r.add(field);
-        }
-        return r;
-    }
-    
-    /**
-     * Return the name of the object field at 'slot'.
-     *
-     *@param  slot  The slot number to be checked
-     *@return       The InstanceFieldName value
-     */
-    private String getInstanceFieldName(int slot)
-    {
-        return "[" + String.valueOf(slot) + "]";
-    }
-    
     /*
      * Return the object in object field 'slot'.
      *

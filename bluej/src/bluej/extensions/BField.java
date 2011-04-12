@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,7 +21,10 @@
  */
 package bluej.extensions;
 
+import java.util.List;
+
 import bluej.debugger.DebuggerClass;
+import bluej.debugger.DebuggerField;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.jdi.JdiObject;
 import bluej.debugmgr.objectbench.ObjectWrapper;
@@ -30,6 +33,7 @@ import bluej.pkgmgr.PkgMgrFrame;
 import bluej.utility.Debug;
 import bluej.views.FieldView;
 import bluej.views.View;
+
 import com.sun.jdi.BooleanValue;
 import com.sun.jdi.ByteValue;
 import com.sun.jdi.CharValue;
@@ -125,7 +129,6 @@ public class BField
         return bluej_view.getField();
     }
     
-
     /**
      * Returns the modifiers of this field.
      * The <code>java.lang.reflect.Modifier</code> class can be used to decode the modifiers.
@@ -137,7 +140,6 @@ public class BField
     {
         return bluej_view.getModifiers();
     }
-
 
     /**
      * When you are inspecting a static field use this one.
@@ -169,11 +171,11 @@ public class BField
 
         // Now I want the Debugger object of that field.
         // I do it this way since there is no way to get it by name...
-        int staticCount = debuggerClass.getStaticFieldCount();
         DebuggerObject debugObj = null;
-        for (int index = 0; index < staticCount; index++) {
-            if (wantFieldName.equals(debuggerClass.getStaticFieldName(index))) {
-                debugObj = debuggerClass.getStaticFieldObject(index);
+        List<DebuggerField> staticFields = debuggerClass.getStaticFields();
+        for (DebuggerField field : staticFields) {
+            if (wantFieldName.equals(field.getName())) {
+                debugObj = field.getValueObject(null);
                 break;
             }
         }
@@ -185,9 +187,7 @@ public class BField
 
         ObjectReference objRef = debugObj.getObjectReference();
         if (objRef == null) {
-            // WARNING At the moment it is not possible to have reflection behaviour
-            // You NEED to have an instance of the class to get static fields...
-            // Therefore.... this is normal behaviour and not an ERROR...
+            // Without JDI this cannot work.
             return null;
         }
 

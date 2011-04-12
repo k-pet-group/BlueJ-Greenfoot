@@ -61,6 +61,24 @@ public abstract class DebuggerField
      *                       May be null.
      */
     public abstract DebuggerObject getValueObject(JavaType expectedType);
+
+    /**
+     * Get the class which declares this field.
+     */
+    public abstract DebuggerClass getDeclaringClass();
+    
+    /**
+     * Get the qualified name of the class which declares this field.
+     */
+    public String getDeclaringClassName()
+    {
+        return getDeclaringClass().getName();
+    }
+    
+    /**
+     * Check whether this field is hidden - redefined in a subclass or ambiguously multiply inherited
+     */
+    public abstract boolean isHidden();
     
     /**
      * Check whether the field type is a reference type.

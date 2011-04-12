@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,8 +24,14 @@ package bluej.debugmgr.inspector;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.util.Iterator;
+import java.util.List;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
 import javax.swing.border.Border;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -86,11 +92,11 @@ public class FieldList extends JTable
      * A list of fields that should be shown in this list.
      * 
      * @param listData
-     *            Strings that include a "="
+     *            The list of fields
      */
-    public void setData(Object[] listData)
+    public void setData(List<FieldInfo> listData)
     {
-        ((ListTableModel) getModel()).setDataVector(listData);
+        ((ListTableModel) getModel()).setData(listData);
 
         setColumnWidths(listData);
         
@@ -100,7 +106,7 @@ public class FieldList extends JTable
     /**
      * Calculate column widths based on the data.
      */
-    private void setColumnWidths(Object[] listData)
+    private void setColumnWidths(List<FieldInfo> listData)
     {
         int colPrefWidth = preferredWidth/2;
 
@@ -125,12 +131,12 @@ public class FieldList extends JTable
     /**
      * Finds the maximum width among all the elements in the given column in the data.
      */
-    private int getMaxWidth(Object[] listData, int column)
+    private int getMaxWidth(List<FieldInfo> listData, int column)
     {
         TableCellRenderer ltcr = getDefaultRenderer(Object.class);
         TableColumn tableColumn = getColumnModel().getColumn(column);
         int contentsMaxWidth = tableColumn.getPreferredWidth();
-        for (int row = 0; row < listData.length; row++) {
+        for (int row = 0; row < listData.size(); row++) {
             Component n = ltcr.getTableCellRendererComponent(this, dataModel.getValueAt(row, column),
                     false, false, row, column);
             contentsMaxWidth = Math.max(contentsMaxWidth, n.getPreferredSize().width);
@@ -148,61 +154,56 @@ public class FieldList extends JTable
 
     static class ListTableModel extends AbstractTableModel
     {
-        private Object[][] cells;
-
-        public Object getValueAt(int row, int col)
-        {
-            return cells[row][col];
-        }
-
-        public int getColumnCount()
-        {
-            return 2;
-        }
-
-        public int getRowCount()
-        {
-            if (cells != null)
-                return cells.length;
-            else
-                return 0;
-        }
+        private String[][] cells;
 
         public ListTableModel()
         {
             super();
         }
 
-        public ListTableModel(Object[] rows)
+        public ListTableModel(List<FieldInfo> rows)
         {
-            setDataVector(rows);
+            setData(rows);
+        }
+        
+        @Override
+        public String getValueAt(int row, int col)
+        {
+            return cells[row][col];
         }
 
-        public void setDataVector(Object[] rows)
+        @Override
+        public int getColumnCount()
         {
-            cells = new Object[rows.length][2];
-            for (int i = 0; i < rows.length; i++) {
-                String s = (String) rows[i];
-                String descriptionString;
-                String valueString;
-                //split on "="
-                int delimiterIndex = s.indexOf('=');
-                if (delimiterIndex >= 0) {
-                    descriptionString = s.substring(0, delimiterIndex);
-                    valueString = s.substring(delimiterIndex + 1);
+            return 2;
+        }
 
-                }
-                else {
-                    //It was not a "normal" object. We just show the string.
-                    //It could be an array compression [...]
-                    descriptionString = s;
-                    valueString = "";
-                }
-                cells[i][0] = descriptionString;
-                cells[i][1] = valueString;
+        @Override
+        public int getRowCount()
+        {
+            if (cells != null) {
+                return cells.length;
+            }
+            else {
+                return 0;
             }
         }
 
+        /**
+         * Set the field list data.
+         */
+        public void setData(List<FieldInfo> rows)
+        {
+            cells = new String[rows.size()][2];
+            Iterator<FieldInfo> f = rows.iterator();
+            for (int i = 0; i < rows.size(); i++) {
+                FieldInfo field = f.next();
+                cells[i][0] = field.getDescription();
+                cells[i][1] = field.getValue();
+            }
+        }
+
+        @Override
         public boolean isCellEditable(int row, int column)
         {
             return false;
@@ -240,13 +241,13 @@ public class FieldList extends JTable
                 return this;
             }
 
-            if (valueString.equals(" " + DebuggerObject.OBJECT_REFERENCE)) {
+            if (valueString.equals(DebuggerObject.OBJECT_REFERENCE)) {
                 this.setIcon(objectrefIcon);
                 this.setText("");
             }
             else {
                 // display some control characters in the displayed string in
-                // the correct form. This code should probably be somewhere else.
+                // the correct form. This code should probably be somewhere else. TODO
                 StringBuffer displayString = new StringBuffer(valueString);
                 replaceAll(displayString, "\\", "\\\\");
                 replaceAll(displayString, "\n", "\\n");
@@ -256,8 +257,8 @@ public class FieldList extends JTable
                 this.setIcon(null);
                 String display = displayString.toString();
                 this.setText(display);
-                if (display.trim().startsWith("\"")) {
-                    this.setToolTipText(display.trim());
+                if (display.startsWith("\"")) {
+                    this.setToolTipText(display);
                 }
                 else {
                     this.setToolTipText(null);

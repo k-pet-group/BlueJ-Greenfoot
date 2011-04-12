@@ -38,6 +38,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -204,7 +205,7 @@ public class ObjectInspector extends Inspector
         mainPanel.setOpaque(false);
         mainPanel.setDoubleBuffered(false);
 
-        if (getListData().length != 0) {
+        if (!getListData().isEmpty()) {
             JScrollPane scrollPane = createFieldListScrollPane();
             mainPanel.add(scrollPane, BorderLayout.CENTER);
         } else {
@@ -305,15 +306,25 @@ public class ObjectInspector extends Inspector
     /**
      * True if this inspector is used to display a method call result.
      */
-    protected Object[] getListData()
+    @Override
+    protected List<FieldInfo> getListData()
     {
         // if is an array (we potentially will compress the array if it is
         // large)
         if (obj.isArray()) {
-            return compressArrayList(obj).toArray(new Object[0]);
+            return compressArrayList(obj);
         }
         else {
-            return obj.getInstanceFields(true).toArray(new Object[0]);
+            List<DebuggerField> fields = obj.getFields();
+            List<FieldInfo> fieldInfos = new ArrayList<FieldInfo>(fields.size());
+            for (DebuggerField field : fields) {
+                if (! Modifier.isStatic(field.getModifiers())) {
+                    String desc = Inspector.fieldToString(field);
+                    String value = field.getValueString();
+                    fieldInfos.add(new FieldInfo(desc, value));
+                }
+            }
+            return fieldInfos;
         }
     }
 
@@ -515,7 +526,7 @@ public class ObjectInspector extends Inspector
      *            the full field list for an array
      * @return the compressed array
      */
-    private List<String> compressArrayList(DebuggerObject arrayObject)
+    private List<FieldInfo> compressArrayList(DebuggerObject arrayObject)
     {
         // mimic the public length field that arrays possess
         // according to the java spec...
@@ -531,32 +542,32 @@ public class ObjectInspector extends Inspector
         if (arrayObject.getElementCount() > (VISIBLE_ARRAY_START + VISIBLE_ARRAY_TAIL + 2)) {
 
             // the destination list
-            List<String> newArray = new ArrayList<String>(2 + VISIBLE_ARRAY_START + VISIBLE_ARRAY_TAIL);
-            newArray.add(0, ("int length = " + arrayObject.getElementCount()));
+            List<FieldInfo> newArray = new ArrayList<FieldInfo>(2 + VISIBLE_ARRAY_START + VISIBLE_ARRAY_TAIL);
+            newArray.add(0, new FieldInfo("int length", "" + arrayObject.getElementCount()));
             for (int i = 0; i <= VISIBLE_ARRAY_START; i++) {
                 // first 40 elements are displayed as per normal
-                newArray.add("[" + i + "] = " + arrayObject.getElementValueString(i));
+                newArray.add(new FieldInfo("[" + i + "]", arrayObject.getElementValueString(i)));
                 indexToSlotList.add(i);
             }
 
             // now the first of our expansion slots
-            newArray.add("[...]");
+            newArray.add(new FieldInfo("[...]", ""));
             indexToSlotList.add(new Integer(ARRAY_QUERY_SLOT_VALUE));
 
             for (int i = VISIBLE_ARRAY_TAIL; i > 0; i--) {
                 // last 5 elements are displayed
                 int elNum = arrayObject.getElementCount() - i;
-                newArray.add("[" + elNum + "] = " + arrayObject.getElementValueString(elNum));
+                newArray.add(new FieldInfo("[" + elNum + "]", arrayObject.getElementValueString(elNum)));
                 indexToSlotList.add(arrayObject.getElementCount() - i);
             }
             return newArray;
         }
         else {
-            List<String> fullArrayFieldList = new ArrayList<String>(arrayObject.getElementCount() + 1);
-            fullArrayFieldList.add(0, ("int length = " + arrayObject.getElementCount()));
+            List<FieldInfo> fullArrayFieldList = new ArrayList<FieldInfo>(arrayObject.getElementCount() + 1);
+            fullArrayFieldList.add(0, new FieldInfo("int length", "" + arrayObject.getElementCount()));
             
             for (int i = 0; i < arrayObject.getElementCount(); i++) {
-                fullArrayFieldList.add("[" + i + "] = " + arrayObject.getElementValueString(i));
+                fullArrayFieldList.add(new FieldInfo("[" + i + "]", arrayObject.getElementValueString(i)));
                 indexToSlotList.add(i);
             }
             return fullArrayFieldList;
