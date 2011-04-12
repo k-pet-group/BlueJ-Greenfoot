@@ -337,16 +337,9 @@ public class ResultInspector extends Inspector
     {
         DebuggerField field = obj.getInstanceField(0);
         if (field.isReferenceType() && ! field.isNull()) {
-
             // Don't use the name, since it is meaningless anyway (it is always "result")
             setCurrentObj(field.getValueObject(resultType), null, resultType.toString(false));
-
-            if (obj.instanceFieldIsPublic(slot)) {
-                setButtonsEnabled(true, true);
-            }
-            else {
-                setButtonsEnabled(true, false);
-            }
+            setButtonsEnabled(true, true);
         }
         else {
             setCurrentObj(null, null, null);

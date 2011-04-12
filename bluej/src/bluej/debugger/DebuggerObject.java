@@ -133,14 +133,6 @@ public abstract class DebuggerObject
     public abstract com.sun.jdi.ObjectReference getObjectReference();
     
     /**
-     *  Return true if the object field 'slot' is public.
-     *
-     *@param  slot  The slot number to be checked
-     *@return       Description of the Returned Value
-     */
-    public abstract boolean instanceFieldIsPublic(int slot);
-
-    /**
      *  Return true if the object field 'slot' is an object (and not
      *  a simple type).
      *

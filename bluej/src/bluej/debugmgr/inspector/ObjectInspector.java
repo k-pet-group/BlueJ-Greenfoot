@@ -383,7 +383,7 @@ public class ObjectInspector extends Inspector
             DebuggerField field = obj.getInstanceField(slot);
             setCurrentObj(field.getValueObject(null), field.getName(), field.getType().toString());
 
-            if (obj.instanceFieldIsPublic(slot)) {
+            if (Modifier.isPublic(field.getModifiers())) {
                 setButtonsEnabled(true, true);
             }
             else {

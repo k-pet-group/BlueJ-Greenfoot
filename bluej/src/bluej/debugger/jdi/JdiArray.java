@@ -188,36 +188,4 @@ public class JdiArray extends JdiObject
         Value val = ((ArrayReference) obj).getValue(index);
         return JdiObject.getDebuggerObject((ObjectReference) val, componentType);
     }
-
-    /**
-     * Return true if the object field 'slot' is public.
-     *
-     * @param  slot  The slot number to be checked
-     * @return       Description of the Returned Value
-     */
-    @Override
-    public boolean instanceFieldIsPublic(int slot)
-    {
-        return true;
-    }
-
-    /**
-     * Return true if the object field 'slot' is an object (and not
-     * a simple type).
-     *
-     * @param   slot    The slot number to be checked
-     * @return          true if the object in slot is an object
-     */
-    @Override
-    public boolean instanceFieldIsObject(int slot)
-    {
-        Value val = ((ArrayReference) obj).getValue(slot);
-
-        if (val == null) {
-            return false;
-        }
-        else {
-            return (val instanceof ObjectReference);
-        }
-    }
 }

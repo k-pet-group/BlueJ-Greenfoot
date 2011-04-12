@@ -261,17 +261,6 @@ public class JdiObject extends DebuggerObject
         return rlist;
     }
 
-    /*
-     *  Return true if the object field 'slot' is public.
-     *
-     * @param  slot  The slot number to be checked
-     */
-    @Override
-    public boolean instanceFieldIsPublic(int slot)
-    {
-        return getField(false, slot).isPublic();
-    }
-
     /**
      *  Return true if the object field 'slot' is an object (and not
      *  a simple type).
