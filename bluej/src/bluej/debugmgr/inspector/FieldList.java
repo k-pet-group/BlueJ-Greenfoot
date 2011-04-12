@@ -246,19 +246,10 @@ public class FieldList extends JTable
                 this.setText("");
             }
             else {
-                // display some control characters in the displayed string in
-                // the correct form. This code should probably be somewhere else. TODO
-                StringBuffer displayString = new StringBuffer(valueString);
-                replaceAll(displayString, "\\", "\\\\");
-                replaceAll(displayString, "\n", "\\n");
-                replaceAll(displayString, "\t", "\\t");
-                replaceAll(displayString, "\r", "\\r");
-
                 this.setIcon(null);
-                String display = displayString.toString();
-                this.setText(display);
-                if (display.startsWith("\"")) {
-                    this.setToolTipText(display);
+                this.setText(valueString);
+                if (valueString.startsWith("\"")) {
+                    this.setToolTipText(valueString);
                 }
                 else {
                     this.setToolTipText(null);
@@ -284,15 +275,6 @@ public class FieldList extends JTable
                 this.setHorizontalAlignment(JLabel.LEADING);
             }
             return this;
-        }
-
-        private void replaceAll(StringBuffer sb, String orig, String replacement)
-        {
-            int location = sb.indexOf(orig);
-            while (location != -1) {
-                sb.replace(location, location + orig.length(), replacement);
-                location = sb.indexOf(orig, location + replacement.length());
-            }
         }
     }
 }

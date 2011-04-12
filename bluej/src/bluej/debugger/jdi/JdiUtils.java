@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,6 +23,7 @@ package bluej.debugger.jdi;
 
 import bluej.Config;
 import bluej.debugger.DebuggerObject;
+import bluej.utility.JavaUtils;
 
 import com.sun.jdi.ClassType;
 import com.sun.jdi.Field;
@@ -95,8 +96,7 @@ public abstract class JdiUtils
             return nullLabel;
         }
         else if (val instanceof StringReference) {
-            return "\"" + ((StringReference) val).value() + "\"";
-            // toString should be okay for this as well once the bug is out...
+            return "\"" + JavaUtils.escapeString(((StringReference) val).value()) + "\"";
         }
         else if (val.type() instanceof ClassType && isEnum((ClassType) val.type())) {
             ClassType type = (ClassType) val.type();

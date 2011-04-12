@@ -137,6 +137,49 @@ public abstract class JavaUtils
     }
  
     /**
+     * Translate escape characters into their source representation.
+     * The result is suitable for inserting into Java source (between quotes).
+     */
+    public static String escapeString(String s)
+    {
+        StringBuffer outBuf = new StringBuffer();
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (c == '\b') {
+                outBuf.append("\\b");
+            }
+            else if (c == '\t') {
+                outBuf.append("\\t");
+            }
+            else if (c == '\n') {
+                outBuf.append("\\n");
+            }
+            else if (c == '\f') {
+                outBuf.append("\\f");
+            }
+            else if (c == '\r') {
+                outBuf.append("\\r");
+            }
+            else if (c == '\\') {
+                outBuf.append("\\\\");
+            }
+            else if (c == '\"') {
+                outBuf.append('\"');
+            }
+            else if (c < 32) {
+                String uescape = Integer.toHexString(c);
+                uescape = "0000".substring(uescape.length()) + uescape;
+                outBuf.append("\\u" + uescape);
+            }
+            else {
+                outBuf.append(c);
+            }
+        }
+        
+        return outBuf.toString();
+    }
+    
+    /**
      * Get a "short description" of a method. This is like the signature,
      * but substitutes the parameter names for their types.
      * 
