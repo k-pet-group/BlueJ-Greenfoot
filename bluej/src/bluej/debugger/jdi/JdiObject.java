@@ -272,8 +272,7 @@ public class JdiObject extends DebuggerObject
     protected void getRemoteFields()
     {
         if (obj != null) {
-        ReferenceType cls = obj.referenceType();
-
+            ReferenceType cls = obj.referenceType();
             if (cls != null) {
                 fields = cls.allFields();
                 return;

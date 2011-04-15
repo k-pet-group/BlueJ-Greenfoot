@@ -261,23 +261,37 @@ class VMReference
                         timeoutArg.setValue("1000");
                     }
                     
-                    String address = connector.startListening(arguments);
-                    paramList.add(transportIndex, "-Xrunjdwp:transport=" + connector.transport().name()
-                            + ",address=" + address);
-                    
-                    launchParams = (String[]) paramList.toArray(new String[0]);
-                    remoteVMprocess = launchVM(initDir, launchParams, term);
-                    
-                    try {
-                        machine = connector.accept(arguments);
+                    // Listening connectors can only listen on one address at a time -
+                    // Synchronize to prevent problems.
+                    synchronized (connector) {
+                        String address = connector.startListening(arguments);
+                        paramList.add(transportIndex, "-Xrunjdwp:transport=" + connector.transport().name()
+                                + ",address=" + address);
+
+                        launchParams = (String[]) paramList.toArray(new String[0]);
+                        try {
+                            remoteVMprocess = launchVM(initDir, launchParams, term);
+                        }
+                        catch (Throwable t) {
+                            connector.stopListening(arguments);
+                            throw t;
+                        }
+
+                        try {
+                            machine = connector.accept(arguments);
+                        }
+                        catch (Throwable t) {
+                            // failed to connect.
+                            closeIO();
+                            remoteVMprocess.destroy();
+                            remoteVMprocess = null;
+                            throw t;
+                        }
+                        finally {
+                            connector.stopListening(arguments);
+                        }
                     }
-                    catch (Throwable t) {
-                        // failed to connect.
-                        closeIO();
-                        remoteVMprocess.destroy();
-                        remoteVMprocess = null;
-                        throw t;
-                    }
+                    
                     Debug.log("Connected to debug VM via dt_socket transport...");
                     setupEventHandling();
                     if (waitForStartup()) {
