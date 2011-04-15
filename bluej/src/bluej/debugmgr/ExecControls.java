@@ -504,8 +504,9 @@ public class ExecControls extends JFrame
             }
             staticList.setListData(listData.toArray(new String[listData.size()]));
         }
-        if(currentObject != null) {
-            instanceList.setFixedCellWidth(-1);
+        
+        instanceList.setFixedCellWidth(-1);
+        if(currentObject != null && !currentObject.isNullObject()) {
             List<DebuggerField> fields = currentObject.getFields();
             List<String> listData = new ArrayList<String>(fields.size());
             for (DebuggerField field : fields) {
@@ -519,6 +520,10 @@ public class ExecControls extends JFrame
             }
             instanceList.setListData(listData.toArray(new String[listData.size()]));
         }
+        else {
+            instanceList.setListData(new String[0]);
+        }
+        
         if(selectedThread != null) {
             localList.setFixedCellWidth(-1);
             localList.setListData(selectedThread.getLocalVariables(frameNo).toArray());

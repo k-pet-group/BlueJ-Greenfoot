@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -53,7 +53,18 @@ public abstract class DebuggerThread
     public abstract List<String> getLocalVariables(int frameNo);
     public abstract boolean varIsObject(int frameNo, int index);
     public abstract DebuggerObject getStackObject(int frameNo, int index);
+    
+    /**
+     * Return the current instance object of some frame on this thread.
+     * The returned object may represent the null reference if the frame
+     * is for a static method.
+     */
     public abstract DebuggerObject getCurrentObject(int frameNo);
+    
+    /**
+     * Return the current class of this thread (may return null if the
+     * class cannot be determined).
+     */
     public abstract DebuggerClass getCurrentClass(int frameNo);
 
     public abstract void setSelectedFrame(int frame);

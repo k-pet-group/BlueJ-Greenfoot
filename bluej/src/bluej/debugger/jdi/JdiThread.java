@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -141,14 +141,17 @@ class JdiThread extends DebuggerThread
     {
         try {
             if (rt.isAtBreakpoint()) {
-            	if(VMReference.isAtMainBreakpoint(rt))
-            	    return statusFinished;
-            	else
-            	    return statusBreakpoint;
+                if(VMReference.isAtMainBreakpoint(rt)) {
+                    return statusFinished;
+                }
+                else {
+                    return statusBreakpoint;
+                }
             }
                         
-            if(rt.isSuspended())
+            if(rt.isSuspended()) {
                 return statusStopped;
+            }
 
             int status = rt.status();
             switch(status) {
@@ -425,10 +428,7 @@ class JdiThread extends DebuggerThread
         return null;
     }
 
-    /**
-     * Return the current object of this thread. May be null (if, for
-     * example, the thread executed only static methods).
-     */
+    @Override
     public DebuggerObject getCurrentObject(int frameNo)
     {
         try {
@@ -437,16 +437,12 @@ class JdiThread extends DebuggerThread
                 return JdiObject.getDebuggerObject(frame.thisObject());
             }
         }
-        catch(Exception e) {
-            // nothing to do...
-        }
-        return null;
+        catch (IncompatibleThreadStateException e) { }
+        catch (VMDisconnectedException vmde) { }
+        return JdiObject.getDebuggerObject(null);
     }
 
-
-    /**
-     * Return the current class of this thread.
-     */
+    @Override
     public DebuggerClass getCurrentClass(int frameNo)
     {
         try {
@@ -455,9 +451,8 @@ class JdiThread extends DebuggerThread
                 return new JdiClass(frame.location().declaringType());
             }
         }
-        catch(Exception e) {
-            // nothing to do...
-        }
+        catch (IncompatibleThreadStateException e) { }
+        catch (VMDisconnectedException vmde) { }
         return null;
     }
 
@@ -596,10 +591,10 @@ class JdiThread extends DebuggerThread
             return getName() + " (" + getStatus() + ")";
             //return getName() + " (" + getStatus() + ") " + rt.threadGroup().name();  // for debugging
         }
-    	catch (ObjectCollectedException oce)
-    	{
-    	    return "collected";
-    	}
+        catch (ObjectCollectedException oce)
+        {
+            return "collected";
+        }
     }
     
     public boolean sameThread(DebuggerThread dt)
