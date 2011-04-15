@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -33,6 +33,7 @@ import org.tigris.subversion.javahl.StatusCallback;
 import org.tigris.subversion.javahl.StatusKind;
 
 import bluej.groupwork.*;
+import bluej.utility.Debug;
 
 /**
  * Subversion "status" command.
@@ -209,6 +210,7 @@ public class SvnStatusCommand extends SvnCommand
         }
         catch (ClientException ce) {
             if (! isCancelled()) {
+                Debug.reportError("Subversion status command exception", ce);
                 return new TeamworkCommandError(ce.getMessage(), ce.getLocalizedMessage());
             }
         }

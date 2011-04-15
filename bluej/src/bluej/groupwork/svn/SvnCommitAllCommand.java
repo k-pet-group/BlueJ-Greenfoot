@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,12 +28,15 @@ import java.util.Set;
 
 import org.tigris.subversion.javahl.ClientException;
 import org.tigris.subversion.javahl.Depth;
+import org.tigris.subversion.javahl.PropertyData;
 import org.tigris.subversion.javahl.SVNClientInterface;
 import org.tigris.subversion.javahl.Status;
+import org.tigris.subversion.javahl.StatusCallback;
 
 import bluej.groupwork.TeamworkCommandAborted;
 import bluej.groupwork.TeamworkCommandError;
 import bluej.groupwork.TeamworkCommandResult;
+import bluej.utility.Debug;
 
 /**
  * A subversion command to commit files.
@@ -63,18 +66,35 @@ public class SvnCommitAllCommand extends SvnCommand
     {
         SVNClientInterface client = getClient();
         
+        // A class to allow callbacks to pass back status information.
+        class StatusRef {
+            Status status;
+        };
+
         try {
             // First "svn add" the new files
             Iterator<File> i = newFiles.iterator();
             while (i.hasNext()) {
                 File newFile = (File) i.next();
                 
-                Status status = client.singleStatus(newFile.getAbsolutePath(), false);
+                final StatusRef statusRef = new StatusRef();
+                
+                client.status(newFile.getAbsolutePath(), Depth.empty, false, true, true, false, null,
+                        new StatusCallback() {
+                            @Override
+                            public void doStatus(Status status)
+                            {
+                                statusRef.status = status;
+                            }
+                        });
+                
+                
+                Status status = statusRef.status;
                 if (! status.isManaged()) {
                     client.add(newFile.getAbsolutePath(), Depth.empty, false, false, true);
                     if (! newFile.isDirectory()) {
-                        client.propertySet(newFile.getAbsolutePath(), "svn:eol-style",
-                                "native", false);
+                        client.propertySet(newFile.getAbsolutePath(), PropertyData.EOL_STYLE,
+                                "native", Depth.empty, null, false, null);
                     }
                 }
             }
@@ -84,12 +104,21 @@ public class SvnCommitAllCommand extends SvnCommand
             while (i.hasNext()) {
                 File newFile = (File) i.next();
                 
-                Status status = client.singleStatus(newFile.getAbsolutePath(), false);
+                final StatusRef statusRef = new StatusRef();
+                client.status(newFile.getAbsolutePath(), Depth.empty, false, true, true, false, null,
+                        new StatusCallback() {
+                            @Override
+                            public void doStatus(Status status)
+                            {
+                                statusRef.status = status;
+                            }
+                        });
+                Status status = statusRef.status;
                 if (! status.isManaged()) {
                     client.add(newFile.getAbsolutePath(), Depth.empty, false, false, true);
                     if (! newFile.isDirectory()) {
-                        client.propertySet(newFile.getAbsolutePath(), "svn:mime-type",
-                                "application/octet-stream", false);
+                        client.propertySet(newFile.getAbsolutePath(), PropertyData.MIME_TYPE,
+                                "application/octet-stream", Depth.empty, null, false, null);
                     }
                 }
             }
@@ -115,8 +144,8 @@ public class SvnCommitAllCommand extends SvnCommand
             }
         }
         catch (ClientException ce) {
-            ce.printStackTrace();
             if (! isCancelled()) {
+                Debug.reportError("Subversion commit all exception", ce);
                 return new TeamworkCommandError(ce.getMessage(), ce.getLocalizedMessage());
             }
         }
