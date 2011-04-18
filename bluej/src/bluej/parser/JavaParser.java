@@ -1084,7 +1084,7 @@ public class JavaParser
             else if (token.getType() == JavaTokenTypes.LT
                     || token.getType() == JavaTokenTypes.IDENT
                     || isPrimitiveType(token)) {
-                // method, field
+                // method/constructor, field
                 LocatableToken first = firstMod != null ? firstMod : token;
                 if (token.getType() == JavaTokenTypes.LT) {
                     // generic method
@@ -1094,14 +1094,17 @@ public class JavaParser
                 else {
                     tokenStream.pushBack(token);
                 }
-                if (!parseTypeSpec(true)) {
+                // Might be a constructor:
+                boolean isConstructor = tokenStream.LA(1).getType() == JavaTokenTypes.IDENT
+                        && tokenStream.LA(2).getType() == JavaTokenTypes.LPAREN;
+                if (!isConstructor && !parseTypeSpec(true)) {
                     return;
                 }
                 LocatableToken idToken = tokenStream.nextToken(); // identifier
                 if (idToken.getType() != JavaTokenTypes.IDENT) {
                     modifiersConsumed();
                     tokenStream.pushBack(idToken);
-                    error("Expected identifier (method or field name).");
+                    errorBefore("Expected identifier (method or field name).", idToken);
                     return;
                 }
 
@@ -1140,7 +1143,12 @@ public class JavaParser
                 }
                 else if (ttype == JavaTokenTypes.LPAREN) {
                     // method declaration
-                    gotMethodDeclaration(idToken, hiddenToken);
+                    if (isConstructor) {
+                        gotConstructorDecl(idToken, hiddenToken);
+                    }
+                    else {
+                        gotMethodDeclaration(idToken, hiddenToken);
+                    }
                     modifiersConsumed();
                     parseMethodParamsBody();
                 }
