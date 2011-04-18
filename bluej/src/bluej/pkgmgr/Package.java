@@ -937,8 +937,8 @@ public final class Package extends Graph
             int width = Integer.parseInt(props.getProperty("target" + (i + 1) + ".width"));
             target = getTarget(identifierName);
             if (target != null){
-            	target.setPos(x, y);
-            	target.setSize(width, height);
+                target.setPos(x, y);
+                target.setSize(width, height);
             }
         }
         repaint();
@@ -1301,7 +1301,7 @@ public final class Package extends Graph
      */
     public void saveFilesInEditors() throws IOException
     {
-    	 for (Iterator<Target> it = targets.iterator(); it.hasNext();) {
+        for (Iterator<Target> it = targets.iterator(); it.hasNext();) {
             Target target = it.next();
             if (target instanceof ClassTarget) {
                 ClassTarget ct = (ClassTarget) target;
@@ -1310,7 +1310,7 @@ public final class Package extends Graph
                 if(ed != null)
                     ed.save();
             }
-    	 }
+        }
     }
     
     /**
@@ -1911,13 +1911,15 @@ public final class Package extends Graph
 
         for (Iterator<Target> it = targets.iterator(); it.hasNext();) {
             Target t = it.next();
-            if (!(t instanceof ClassTarget))
+            if (!(t instanceof ClassTarget)) {
                 continue;
+            }
 
             ClassTarget ct = (ClassTarget) t;
 
-            if (filename.equals(ct.getSourceFile().getPath()))
+            if (filename.equals(ct.getSourceFile().getPath())) {
                 return ct;
+            }
         }
 
         return null;
@@ -2433,11 +2435,13 @@ public final class Package extends Graph
                 String fileName = sources[i].getPath();
                 String fullName = getProject().convertPathToPackageName(fileName);
 
-                Target t = getTarget(JavaNames.getBase(fullName));
+                if (fullName != null) {
+                    Target t = getTarget(JavaNames.getBase(fullName));
 
-                if (t instanceof ClassTarget) {
-                    ClassTarget ct = (ClassTarget) t;
-                    ct.setState(ClassTarget.S_COMPILING);
+                    if (t instanceof ClassTarget) {
+                        ClassTarget ct = (ClassTarget) t;
+                        ct.setState(ClassTarget.S_COMPILING);
+                    }
                 }
             }
         }
@@ -2509,11 +2513,15 @@ public final class Package extends Graph
                 String filename = sources[i].getPath();
 
                 String fullName = getProject().convertPathToPackageName(filename);
+                if (fullName == null) {
+                    continue;
+                }
 
                 ClassTarget t = (ClassTarget) targets.get(JavaNames.getBase(fullName));
 
-                if (t == null)
+                if (t == null) {
                     continue;
+                }
 
                 boolean newCompiledState = successful;
 

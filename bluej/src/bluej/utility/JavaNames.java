@@ -178,49 +178,45 @@ public class JavaNames
      * Returns null if the file is outside the base
      * directory.
      *
-     * The behaviour of this function is not guaranteed if
+     *<p>The behaviour of this function is not guaranteed if
      * you pass in a directory name. It is meant for filenames
      * like /foo/bar/p1/s1/TestName.java
      *
-     * An example of its use is if your baseDir was the
+     * <p>An example of its use is if your baseDir was the
      * directory /foo/bar and you passed in
      * /foo/bar/p1/s1/TestName.java the function would
      * return p1.s1.TestName
      *
-     * Makes no guarantee that the returned name is a valid
+     * <p>Makes no guarantee that the returned name is a valid
      * Java identifier (ie. some of the directory names used
      * may not be valid java identifiers but no check is made
      * for this).
      */
     public static String convertFileToQualifiedName(File baseDir, File f)
     {
-        try {
-            File pathFile = f.getCanonicalFile();
-            File parent = null;
-            String name = "";
+        File pathFile = f.getAbsoluteFile();
+        File parent = null;
+        String name = "";
 
-            while((parent = pathFile.getParentFile()) != null) {
-                if(pathFile.equals(baseDir)) {
-                    return name;
-                }
-
-                if (name == "") {
-                    name = pathFile.getName();
-
-                    int firstDot;
-
-                    if((firstDot = name.indexOf('.')) >= 0) {
-                        name = name.substring(0, firstDot);
-                    }
-                }
-                else {
-                    name = pathFile.getName() + "." + name;
-                }
-
-                pathFile = parent;
+        while((parent = pathFile.getParentFile()) != null) {
+            if(pathFile.equals(baseDir)) {
+                return name;
             }
+
+            if (name == "") {
+                name = pathFile.getName();
+
+                int firstDot = name.indexOf('.');
+                if (firstDot >= 0) {
+                    name = name.substring(0, firstDot);
+                }
+            }
+            else {
+                name = pathFile.getName() + "." + name;
+            }
+
+            pathFile = parent;
         }
-        catch(IOException ioe) { }
 
         return null;
     }
