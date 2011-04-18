@@ -76,11 +76,17 @@ public class GreenfootScenarioViewer extends JApplet
 
     private Constructor<?> worldConstructor;
 
+    /**
+     * The default constructor, used when the scenario runs as an applet.
+     */
     public GreenfootScenarioViewer()
     {
 
     }
 
+    /**
+     * Constructor for when the scenario runs as an application.
+     */
     public GreenfootScenarioViewer(RootPaneContainer rootPane)
     {
         rootPaneContainer = rootPane;
