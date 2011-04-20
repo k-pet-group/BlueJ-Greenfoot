@@ -267,8 +267,9 @@ class VMReference
                         String address = connector.startListening(arguments);
                         paramList.add(transportIndex, "-Xrunjdwp:transport=" + connector.transport().name()
                                 + ",address=" + address);
-
-                        launchParams = (String[]) paramList.toArray(new String[0]);
+                        launchParams = paramList.toArray(new String[paramList.size()]);
+                        paramList.remove(transportIndex);
+                        
                         try {
                             remoteVMprocess = launchVM(initDir, launchParams, term);
                         }
