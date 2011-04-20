@@ -261,6 +261,15 @@ class VMReference
                         timeoutArg.setValue("1000");
                     }
                     
+                    // Make sure the local address is localhost, not the
+                    // machine name, as using the machine name causes problems on some systems
+                    // when the network is disconnected (because the machine name binds to
+                    // the network IP, not to localhost):
+                    if (arguments.containsKey("localAddress"))
+                    {
+                        arguments.get("localAddress").setValue("localhost");
+                    }
+                    
                     // Listening connectors can only listen on one address at a time -
                     // Synchronize to prevent problems.
                     synchronized (connector) {
