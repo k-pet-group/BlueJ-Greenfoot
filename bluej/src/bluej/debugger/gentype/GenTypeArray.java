@@ -73,7 +73,7 @@ public class GenTypeArray extends GenTypeSolid
         if (baseCap == baseType) {
             return this;
         }
-        return new GenTypeArray(baseCap);
+        return baseCap.getArray();
     }
         
     public JavaType getArrayComponent()
@@ -149,7 +149,7 @@ public class GenTypeArray extends GenTypeSolid
             return this;
         }
         else {
-            return new GenTypeArray(baseErased);
+            return baseErased.getArray();
         }
     }
     
@@ -184,7 +184,7 @@ public class GenTypeArray extends GenTypeSolid
                 lbound = (lbound == null) ? lbound : lbound.getArray();
                 new GenTypeWildcard(ubound, lbound);
             }
-            return new GenTypeArray(mappedBase.getUpperBound());
+            return mappedBase.getUpperBound().getArray();
         }
         return this;
     }

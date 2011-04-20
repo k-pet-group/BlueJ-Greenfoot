@@ -103,7 +103,7 @@ public class JdiArray extends JdiObject
                 component = ((GenTypeClass) genericType).mapToDerived(compReflective);
 
                 while (level > 1) {
-                    component = new GenTypeArray(component);
+                    component = component.getArray();
                     level--;
                 }
                 componentType = component;
