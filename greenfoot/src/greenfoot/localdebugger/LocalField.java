@@ -90,8 +90,15 @@ public class LocalField extends DebuggerField
             
             // Get type parameters
             GenTypeClass fieldClass = getType().asClass();
-            GenTypeClass objClass = fieldClass.mapToDerived(new JavaReflective(resultObj.getClass()));
-            return LocalObject.getLocalObject(resultObj, objClass.getMap());
+            if (fieldClass != null) {
+                GenTypeClass objClass = fieldClass.mapToDerived(new JavaReflective(resultObj.getClass()));
+                return LocalObject.getLocalObject(resultObj, objClass.getMap());
+            }
+            else {
+                // Though it's invalid to call getValueObject when the field type isn't a reference
+                // type, we may have a primitive array type, for which asClass() can return null.
+                return LocalObject.getLocalObject(resultObj);
+            }
         }
         catch (IllegalAccessException iae) {
             return null;

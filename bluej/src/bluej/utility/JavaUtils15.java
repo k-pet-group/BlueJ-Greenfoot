@@ -548,6 +548,6 @@ public class JavaUtils15 extends JavaUtils
         GenericArrayType gat = (GenericArrayType)t;
         JavaType componentType = (JavaType) genTypeFromType(gat.getGenericComponentType(), tvars);
         
-        return new GenTypeArray(componentType);
+        return componentType.getArray();
     }
 }

@@ -149,6 +149,7 @@ public abstract class JavaType extends GenTypeParameter
     
     /**
      * If this type represents a class type, get it. Otherwise returns null.
+     * Arrays with a non-class component type (including arrays of primitives) may return null.
      */
     public GenTypeClass asClass()
     {

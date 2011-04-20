@@ -37,7 +37,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import bluej.debugger.gentype.GenTypeArray;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeDeclTpar;
 import bluej.debugger.gentype.GenTypeParameter;
@@ -725,7 +724,7 @@ public abstract class JavaUtils
         }
         if (c.isArray()) {
             JavaType componentT = genTypeFromClass(c.getComponentType());
-            return new GenTypeArray(componentT);
+            return componentT.getArray();
         }
         return new GenTypeClass(new JavaReflective(c));
     }
