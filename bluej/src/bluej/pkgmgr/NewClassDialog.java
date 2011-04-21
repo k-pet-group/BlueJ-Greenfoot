@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -38,7 +38,6 @@ import bluej.utility.*;
  *
  * @author  Justin Tan
  * @author  Michael Kolling
- * @version $Id: NewClassDialog.java 8121 2010-08-20 04:20:13Z davmac $
  */
 class NewClassDialog extends EscapeDialog
 {
@@ -46,24 +45,23 @@ class NewClassDialog extends EscapeDialog
     ButtonGroup templateButtons;
 
     private String newClassName = "";
-    private boolean ok;		// result: which button?
-    private boolean isJavaMEpackage;
+    private boolean ok;   // result: which button?
     private static List<String> windowsRestrictedWords;  //stores restricted windows class filenames
 
-    
-    public NewClassDialog(JFrame parent)
+    /**
+     * Construct a NewClassDialog
+     */
+    public NewClassDialog(JFrame parent, boolean isJavaMEpackage)
     {
         super(parent, Config.getString("pkgmgr.newClass.title"), true);
         
-        isJavaMEpackage = ((PkgMgrFrame) parent).isJavaMEpackage( );
-
         addWindowListener(new WindowAdapter() {
-                public void windowClosing(WindowEvent E)
-                {
-                    ok = false;
-                    setVisible(false);
-                }
-            });
+            public void windowClosing(WindowEvent E)
+            {
+                ok = false;
+                setVisible(false);
+            }
+        });
 
         JPanel mainPanel = new JPanel();
         {
@@ -89,14 +87,14 @@ class NewClassDialog extends EscapeDialog
                 choicePanel.setLayout(new BoxLayout(choicePanel, BoxLayout.Y_AXIS));
                 choicePanel.setAlignmentX(LEFT_ALIGNMENT);
 
-				//create compound border empty border outside of a titled border
-				Border b = BorderFactory.createCompoundBorder(
-							BorderFactory.createTitledBorder(Config.getString("pkgmgr.newClass.classType")),
-							BorderFactory.createEmptyBorder(0, 10, 0, 10));
-							
+                //create compound border empty border outside of a titled border
+                Border b = BorderFactory.createCompoundBorder(
+                        BorderFactory.createTitledBorder(Config.getString("pkgmgr.newClass.classType")),
+                        BorderFactory.createEmptyBorder(0, 10, 0, 10));
+
                 choicePanel.setBorder(b);
 
-                addClassTypeButtons(choicePanel);
+                addClassTypeButtons(choicePanel, isJavaMEpackage);
             }
 
             choicePanel.setMaximumSize(new Dimension(textFld.getMaximumSize().width,
@@ -115,22 +113,22 @@ class NewClassDialog extends EscapeDialog
                 {
                     okButton.addActionListener(new ActionListener()
                     {
-						public void actionPerformed(ActionEvent evt)
-						{
-							doOK();							
-						}
+                        public void actionPerformed(ActionEvent evt)
+                        {
+                            doOK();
+                        }
                     });
                 }
 
                 JButton cancelButton = BlueJTheme.getCancelButton();
                 {
                     cancelButton.addActionListener(new ActionListener()
-					{
-						public void actionPerformed(ActionEvent evt)
-						{
-							doCancel();							
-						}
-					});
+                    {
+                        public void actionPerformed(ActionEvent evt)
+                        {
+                            doCancel();
+                        }
+                    });
                 }
 
                 DialogManager.addOKCancelButtons(buttonPanel, okButton, cancelButton);
@@ -151,7 +149,7 @@ class NewClassDialog extends EscapeDialog
      * Add the class type buttons (defining the class template to be used
      * to the panel. The templates are defined in the "defs" file.
      */
-    private void addClassTypeButtons(JPanel panel)
+    private void addClassTypeButtons(JPanel panel, boolean isJavaMEpackage)
     {
         String templateSuffix = ".tmpl";
         int suffixLength = templateSuffix.length();
@@ -251,9 +249,12 @@ class NewClassDialog extends EscapeDialog
         }
         else 
         {
-            if (isWindowsRestrictedWord(newClassName))
+            if (isWindowsRestrictedWord(newClassName)) {
                 DialogManager.showError((JFrame)this.getParent(), "windows-reserved-class-name");
-            else DialogManager.showError((JFrame)this.getParent(), "invalid-class-name");            
+            }
+            else {
+                DialogManager.showError((JFrame)this.getParent(), "invalid-class-name");            
+            }
             textFld.selectAll();
             textFld.requestFocus();
         }

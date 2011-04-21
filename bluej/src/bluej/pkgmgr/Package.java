@@ -583,6 +583,8 @@ public final class Package extends Graph
     /**
      * Load the elements of a package from a specified directory. If the package
      * file (bluej.pkg) is not found, an IOException is thrown.
+     * 
+     * <p>This does not cause targets to be loaded. Use refreshPackage() for that.
      */
     public void load()
         throws IOException
@@ -593,14 +595,6 @@ public final class Package extends Graph
         
         // try to load the package file for this package
         packageFile.load(lastSavedProps);
-        
-        //Set the internal project flag identifying Java Micro Edition projects
-        String javaMEflag = lastSavedProps.getProperty( "package.isJavaMEproject", "false" );
-        if ( javaMEflag.equals( "true" ) ) {
-            getProject().setJavaMEproject( true );
-        } else {
-            getProject().setJavaMEproject( false );
-        }
     }
     
     /**
@@ -960,12 +954,6 @@ public final class Package extends Graph
         }
 
         SortedProperties props = new SortedProperties();
-        
-        String javaMEflag = lastSavedProps.getProperty( "package.isJavaMEproject", "false" );
-        if ( javaMEflag.equals( "true" ) )  {
-            props.put( "package.isJavaMEproject", "true" );
-        }
-         
         props.putAll(frameProperties);
 
         // save targets and dependencies in package
