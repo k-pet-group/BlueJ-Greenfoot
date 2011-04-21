@@ -1,12 +1,17 @@
 $PKGLINE
 
+import static org.junit.Assert.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
 /**
  * Die Test-Klasse $CLASSNAME.
  *
  * @author  (Ihr Name)
  * @version (eine Versionsnummer oder ein Datum)
  */
-public class $CLASSNAME extends junit.framework.TestCase
+public class $CLASSNAME
 {
     /**
      * Konstruktor fuer die Test-Klasse $CLASSNAME
@@ -20,7 +25,8 @@ public class $CLASSNAME extends junit.framework.TestCase
      *
      * Wird vor jeder Testfall-Methode aufgerufen.
      */
-    protected void setUp()
+    @Before
+    public void setUp()
     {
     }
 
@@ -29,7 +35,8 @@ public class $CLASSNAME extends junit.framework.TestCase
      *
      * Wird nach jeder Testfall-Methode aufgerufen.
      */
-    protected void tearDown()
+    @After
+    public void tearDown()
     {
     }
 }

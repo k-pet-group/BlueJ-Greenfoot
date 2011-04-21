@@ -1,12 +1,17 @@
 $PKGLINE
 
+import static org.junit.Assert.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
 /**
  * Κλάση δοκιμασίας $CLASSNAME.
  *
  * @author  (Το όνομά σας)
  * @version (Αριθμός έκδοσης ή ημερομηνία εδώ)
  */
-public class $CLASSNAME extends junit.framework.TestCase
+public class $CLASSNAME
 {
     /**
      * Βασικός κατασκευαστής για την κλάση δοκιμασίας $CLASSNAME
@@ -20,7 +25,8 @@ public class $CLASSNAME extends junit.framework.TestCase
      *
      * Καλείται πριν απο κάθε μέθοδο δοκιμασίας.
      */
-    protected void setUp()
+    @Before
+    public void setUp()
     {
     }
 
@@ -29,7 +35,8 @@ public class $CLASSNAME extends junit.framework.TestCase
      *
      * Καλείται μετά απο κάθε μέθοδο δοκιμασίας.
      */
-    protected void tearDown()
+    @After
+    public void tearDown()
     {
     }
 }

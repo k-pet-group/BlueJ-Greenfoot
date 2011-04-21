@@ -1,15 +1,20 @@
 $PKGLINE
 
+import static org.junit.Assert.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
 /**
  * La classe test $CLASSNAME.
  *
- * @author (el vostre nom) 
+ * @author (el vostre nom)
  * @version (un número de versió o la data)
  */
-public class $CLASSNAME extends junit.framework.TestCase {
+public class $CLASSNAME {
 
     /**
-     * Mètode constructor per defecte de la classe test $CLASSNAME 
+     * Mètode constructor per defecte de la classe test $CLASSNAME
      */
     public $CLASSNAME() {
     }
@@ -19,7 +24,9 @@ public class $CLASSNAME extends junit.framework.TestCase {
      *
      * Cridat abans de cada test del mètode
      */
-    protected void setUp() {
+    @Before
+    public void setUp()
+    {
     }
 
     /**
@@ -27,7 +34,9 @@ public class $CLASSNAME extends junit.framework.TestCase {
      *
      * Cridat després de cada test del mètode
      */
-    protected void tearDown() {
+    @After
+    public void tearDown()
+    {
     }
     
 }

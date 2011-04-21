@@ -1,4 +1,10 @@
 $PKGLINE
+
+import static org.junit.Assert.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
 /**
  * Classe-test $CLASSNAME.
  *
@@ -23,7 +29,7 @@ $PKGLINE
  * qui réalise les engagements, et suivi d'un appel ŕ tearDown(), qui les
  * détruit.
  */
-public class $CLASSNAME extends junit.framework.TestCase
+public class $CLASSNAME
 {
     // Définissez ici les variables d'instance nécessaires ŕ vos engagements;
     // Vous pouvez également les saisir automatiquement du présentoir
@@ -45,7 +51,8 @@ public class $CLASSNAME extends junit.framework.TestCase
      *
      * Méthode appelée avant chaque appel de méthode de test.
      */
-    protected void setUp() // throws java.lang.Exception
+    @Before
+    public void setUp() // throws java.lang.Exception
     {
         // Initialisez ici vos engagements
         fValeur1= 2.0;
@@ -57,7 +64,8 @@ public class $CLASSNAME extends junit.framework.TestCase
      *
      * Méthode appelée aprčs chaque appel de méthode de test.
      */
-    protected void tearDown() // throws java.lang.Exception
+    @After
+    public void tearDown() // throws java.lang.Exception
     {
         //Libérez ici les ressources engagées par setUp()
     }

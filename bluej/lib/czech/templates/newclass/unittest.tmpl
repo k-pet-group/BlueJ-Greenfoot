@@ -3,6 +3,16 @@
 
 $PKGLINE
 
+import static org.junit.Assert.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
 
 
 /*******************************************************************************
@@ -12,7 +22,7 @@ $PKGLINE
  * @author    jméno autora
  * @version   0.00.000
  */
-public class $CLASSNAME extends junit.framework.TestCase
+public class $CLASSNAME
 {
 //== KONSTANTNÍ ATRIBUTY TŘÍDY =================================================
 //== PROMĚNNÉ ATRIBUTY TŘÍDY ===================================================
@@ -43,8 +53,8 @@ public class $CLASSNAME extends junit.framework.TestCase
      * Inicializace předcházející spuštění každého testu a připravující tzv.
      * přípravek (fixture), což je sada objektů, s nimiž budou testy pracovat.
      */
-    @Override
-    protected void setUp()
+    @Before
+    public void setUp()
     {
     }
 
@@ -52,8 +62,8 @@ public class $CLASSNAME extends junit.framework.TestCase
     /***************************************************************************
      * Úklid po testu - tato metoda se spustí po vykonání každého testu.
      */
-    @Override
-    protected void tearDown()
+    @After
+    public void tearDown()
     {
     }
 
