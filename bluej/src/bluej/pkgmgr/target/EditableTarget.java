@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -33,7 +33,6 @@ import bluej.pkgmgr.Package;
  * A target in a package that can be edited as text
  *
  * @author  Michael Cahill
- * @version $Id: EditableTarget.java 6954 2009-12-17 04:51:26Z davmac $
  */
 public abstract class EditableTarget extends Target
     implements EditorWatcher
@@ -47,7 +46,7 @@ public abstract class EditableTarget extends Target
     }
 
     /**
-     * @returns the name of the (text) file this target corresponds to.
+     * @return the name of the (text) file this target corresponds to.
      */
     protected abstract File getSourceFile();
 
@@ -101,10 +100,10 @@ public abstract class EditableTarget extends Target
     {
         super.load(props, prefix);
         if(props.getProperty(prefix + ".editor.x") != null) {
-	        editorBounds = new Rectangle(Integer.parseInt(props.getProperty(prefix + ".editor.x")),
-	                Integer.parseInt(props.getProperty(prefix + ".editor.y")), 
-	                Integer.parseInt(props.getProperty(prefix + ".editor.width")),
-	                Integer.parseInt(props.getProperty(prefix + ".editor.height")));
+            editorBounds = new Rectangle(Integer.parseInt(props.getProperty(prefix + ".editor.x")),
+                    Integer.parseInt(props.getProperty(prefix + ".editor.y")), 
+                    Integer.parseInt(props.getProperty(prefix + ".editor.width")),
+                    Integer.parseInt(props.getProperty(prefix + ".editor.height")));
         }
     }
 

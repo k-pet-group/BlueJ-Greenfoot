@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,6 +22,7 @@
 package bluej.editor;
 
 import java.awt.Rectangle;
+import java.nio.charset.Charset;
 
 import bluej.editor.moe.MoeEditorManager;
 import bluej.parser.entity.EntityResolver;
@@ -33,7 +34,7 @@ import bluej.pkgmgr.JavadocResolver;
  * @author  Michael Cahill
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: EditorManager.java 7070 2010-02-01 06:20:09Z davmac $
+ * @version $Id: EditorManager.java 8887 2011-04-21 03:29:25Z davmac $
  */
 public abstract class EditorManager
 {
@@ -43,7 +44,7 @@ public abstract class EditorManager
     /**
      * Singleton factory method to return an EditorManager instance;
      *
-     * @returns	the singleton EditorManager instance
+     * @returns the singleton EditorManager instance
      */
     public static EditorManager getEditorManager()
     {
@@ -57,7 +58,8 @@ public abstract class EditorManager
      * it visible after opening it.
      *
      * @param filename     name of the source file to open (may be null)
-     * @param docFilename  name of the corresponding javadoc file 
+     * @param docFilename  name of the corresponding javadoc file
+     * @param charset      the character set of the file contents 
      * @param windowTitle  title of window (usually class name)
      * @param watcher      an watcher to be notified of edit events
      * @param compiled     true, if the class has been compiled
@@ -68,7 +70,8 @@ public abstract class EditorManager
      * @return          the new editor, or null if there was a problem
      */
     public abstract Editor openClass(String filename, 
-        String docFilename, 
+        String docFilename,
+        Charset charset,
         String windowTitle, 
         EditorWatcher watcher, 
         boolean compiled, 
@@ -85,12 +88,12 @@ public abstract class EditorManager
      * A call to "Editor::show" is needed to make is visible after
      * opening it.
      *
-     * @param filename	name of the source file to open (may be null)
-     * @param windowTitle	title of window (usually class name)
-     * @param watcher	an object interested in editing events
-     * @returns		the new editor, or null if there was a problem
+     * @param filename          name of the source file to open (may be null)
+     * @param windowTitle       title of window (usually class name)
+     * @param watcher           an object interested in editing events
+     * @returns                 the new editor, or null if there was a problem
      */
-    public abstract Editor openText(String filename, String windowTitle,
+    public abstract Editor openText(String filename, Charset charset, String windowTitle,
                                     Rectangle bounds );
 
     /**

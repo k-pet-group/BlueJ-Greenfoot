@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,6 +24,7 @@ package bluej.editor;
 import java.awt.Rectangle;
 import java.awt.print.PrinterJob;
 import java.io.IOException;
+import java.nio.charset.Charset;
 
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
@@ -43,14 +44,15 @@ public interface Editor
 {
     /**
      * Read a file into the editor buffer and show the editor. If the editor
-     * already contains text, it is cleared first.
+     * already contains text, it is cleared first. If the file cannot be read,
+     * the editor should not be displayed.
      * 
      * @param filename    the file to be read
      * @param compiled    true if this is a compiled class
      * 
      * @return false is there was a problem, true otherwise
      */
-    boolean showFile(String filename, boolean compiled, String docFilename, Rectangle bounds);
+    boolean showFile(String filename, Charset charset, boolean compiled, String docFilename, Rectangle bounds);
 
     /**
      * Reload and display the same file that was displayed before.

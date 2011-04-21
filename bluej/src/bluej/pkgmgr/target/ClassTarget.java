@@ -900,6 +900,7 @@ public class ClassTarget extends DependentTarget
             }
             
             editor = EditorManager.getEditorManager().openClass(filename, docFilename,
+                    project.getProjectCharset(),
                     getBaseName(), this, isCompiled(), editorBounds, resolver,
                     project.getJavadocResolver());
             

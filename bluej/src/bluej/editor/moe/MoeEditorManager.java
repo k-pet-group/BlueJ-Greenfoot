@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,6 +23,7 @@ package bluej.editor.moe;
 
 import java.awt.Rectangle;
 import java.awt.Toolkit;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -68,30 +69,32 @@ public final class MoeEditorManager
 
         resources = Config.moeUserProps;
 
-        editorManager = this;	// make this object publicly available
+        editorManager = this;   // make this object publicly available
     }
 
 
     // ------------------------------------------------------------------------
     
-    /**
+    /*
      * Open an editor to display a class. The filename may be "null"
      * to open an empty editor (e.g. for displaying a view). The editor
      * is initially hidden. A call to "Editor::show" is needed to make
      * is visible after opening it.
      *
-     * @param filename	   name of the source file to open (may be null)
+     * @param filename     name of the source file to open (may be null)
      * @param docFilename  name of the corresponding javadoc file 
      * @param windowTitle  title of window (usually class name)
-     * @param watcher	   an watcher to be notified of edit events
-     * @param compiled	   true, if the class has been compiled
+     * @param watcher      an watcher to be notified of edit events
+     * @param compiled     true, if the class has been compiled
      * @param bounds       the bounds of the window to appear on screen
      * @param projectResolver   A resolver for external symbols
      * 
-     * @return		the new editor, or null if there was a problem
+     * @return          the new editor, or null if there was a problem
      */
+    @Override
     public Editor openClass(String filename, 
                 String docFilename,
+                Charset charset,
                 String windowTitle,
                 EditorWatcher watcher, 
                 boolean compiled,
@@ -99,12 +102,13 @@ public final class MoeEditorManager
                 EntityResolver projectResolver,
                 JavadocResolver javadocResolver)
     {
-        return openEditor (filename, docFilename, true, windowTitle, watcher, compiled,
+        return openEditor (filename, docFilename, charset, true, windowTitle, watcher, compiled,
                            bounds, projectResolver, javadocResolver);
     }
 
     // ------------------------------------------------------------------------
-    /**
+    
+    /*
      * Open an editor to display a text document. The difference to
      * "openClass" is that code specific functions (such as compile,
      * debug, view) are disabled in the editor. The filename may be
@@ -112,14 +116,15 @@ public final class MoeEditorManager
      * A call to "Editor.show" is needed to make is visible after
      * opening it.
      *
-     * @param filename	name of the source file to open (may be null)
-     * @param windowTitle	title of window (usually class name)
-     * @returns		the new editor, or null if there was a problem
+     * @param filename          name of the source file to open (may be null)
+     * @param windowTitle       title of window (usually class name)
+     * @returns                 the new editor, or null if there was a problem
      */
-    public Editor openText(String filename, String windowTitle,
-                           Rectangle bounds)	// inherited from EditorManager
+    @Override
+    public Editor openText(String filename, Charset charset, String windowTitle,
+                           Rectangle bounds)
     {
-        return openEditor (filename, null, false, windowTitle, null, false, bounds, null, null);
+        return openEditor(filename, null, charset, false, windowTitle, null, false, bounds, null, null);
     }
 
     public void refreshAll()
@@ -174,18 +179,20 @@ public final class MoeEditorManager
      * is initially hidden. A call to "Editor::show" is needed to make
      * is visible after opening it.
      *
-     * @param filename	name of the source file to open (may be null)
-     * @param docFilename	name of the documentation based on filename
+     * @param filename     name of the source file to open (may be null)
+     * @param docFilename  name of the documentation based on filename
+     * @param charset      the character set of the file contents
      * @param isCode       true if the file represents code, or false if it is plain text
-     * @param windowTitle	title of window (usually class name)
-     * @param watcher	an object interested in editing events
-     * @param compiled	true, if the class has been compiled
-     * @param bounds	bounds for the editor window. If the width and/or height are
-     *                  zero, then only the position (x,y) are to be used.
+     * @param windowTitle  title of window (usually class name)
+     * @param watcher      an object interested in editing events
+     * @param compiled     true, if the class has been compiled
+     * @param bounds       bounds for the editor window. If the width and/or height are
+     *                     zero, then only the position (x,y) are to be used.
      * @param projectResolver   a resolver for external symbols
-     * @returns		the new editor, or null if there was a problem
+     * @returns       the new editor, or null if there was a problem
      */
     private Editor openEditor(String filename, String docFilename,
+            Charset charset,
             boolean isCode, String windowTitle, 
             EditorWatcher watcher, boolean compiled, 
             Rectangle bounds, EntityResolver projectResolver,
@@ -200,10 +207,11 @@ public final class MoeEditorManager
         mep.setShowLineNum(showLineNum);
         editor = new MoeEditor(mep);
         editors.add(editor);
-        if (editor.showFile(filename, compiled, docFilename, bounds))
+        if (editor.showFile(filename, charset, compiled, docFilename, bounds)) {
             return editor;
+        }
         else {
-            editor.doClose();			// editor will remove itself
+            editor.doClose();           // editor will remove itself
             return null;
         }
     }

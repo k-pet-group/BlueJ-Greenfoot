@@ -46,13 +46,19 @@ import java.awt.print.PageFormat;
 import java.awt.print.PrinterJob;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.BufferedWriter;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Reader;
+import java.io.Writer;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -222,6 +228,7 @@ public final class MoeEditor extends JFrame
     private long lastModified;              // time of last modification of file
     private String windowTitle;             // title of editor window
     private String docFilename;             // path to javadoc html file
+    private Charset characterSet;           // character set of the file
 
     private boolean sourceIsCode;           // true if current buffer is code
     private boolean viewingHTML;
@@ -290,14 +297,16 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
 
-    /**
+    /*
      * Load the file "filename" and show the editor window.
      */
-    public boolean showFile(String filename, boolean compiled,       // inherited from Editor, redefined
+    @Override
+    public boolean showFile(String filename, Charset charset, boolean compiled,
             String docFilename, Rectangle bounds)
     {
         this.filename = filename;
         this.docFilename = docFilename;
+        this.characterSet = charset;
 
         if (bounds != null) {
             if (bounds.x > (Config.screenBounds.width - 80))
@@ -315,7 +324,6 @@ public final class MoeEditor extends JFrame
         }
 
         boolean loaded = false;
-        boolean readError = false;
 
         if (filename != null) {
             try {
@@ -330,9 +338,15 @@ public final class MoeEditor extends JFrame
                     DialogManager.showMessage(this, "editor-crashed");
                 }
 
-                FileReader reader = new FileReader(filename);
+                // FileReader reader = new FileReader(filename);
+                FileInputStream inputStream = new FileInputStream(filename);
+                Reader reader = new InputStreamReader(inputStream, charset);
                 sourcePane.read(reader, null);
-                reader.close();
+                try {
+                    reader.close();
+                    inputStream.close();
+                }
+                catch (IOException ioe) {}
                 File file = new File(filename);
                 lastModified = file.lastModified();
 
@@ -352,7 +366,7 @@ public final class MoeEditor extends JFrame
                 clear();
             }
             catch (IOException ex) {
-                readError = true;
+                Debug.reportError("Couldn't open file", ex);
             }
         }
         else {
@@ -365,17 +379,12 @@ public final class MoeEditor extends JFrame
             }
         }
 
-        if (!loaded)             // should exist, but didn't
+        if (!loaded) {
+            // should exist, but didn't
             return false;
+        }
 
-        if (loaded)
-            info.message(Config.getString("editor.info.version") + " " + versionString);
-        else if (readError)
-            info.warning(Config.getString("editor.info.readingProblem"), 
-                    Config.getString("editor.info.regularFile"));
-        else
-            info.message(Config.getString("editor.info.version" + versionString), 
-                    Config.getString("editor.info.newFile"));
+        info.message(Config.getString("editor.info.version") + " " + versionString);
 
         setWindowTitle();
         sourcePane.setFont(PrefMgr.getStandardEditorFont());
@@ -385,18 +394,20 @@ public final class MoeEditor extends JFrame
         return true;
     }
 
-    /**
+    /*
      * Reload the editor content from the associated file, discarding unsaved
      * edits.
      */
+    @Override
     public void reloadFile()       // inherited from Editor, redefined
     {
         doReload();
     }
 
-    /**
+    /*
      * Wipe out contents of the editor.
      */
+    @Override
     public void clear()       // inherited from Editor, redefined
     {
         ignoreChanges = true;
@@ -453,16 +464,17 @@ public final class MoeEditor extends JFrame
         currentTextPane.repaint();
     }
 
-    /**
+    /*
      * Save the buffer to disk under current filename, if there any changes.
      * This method may be called often.
      */
-    public void save()       // inherited from Editor, redefined
-    throws IOException
+    @Override
+    public void save()
+        throws IOException
     {
         IOException failureException = null;
         if (saveState.isChanged()) {
-            BufferedWriter writer = null;
+            Writer writer = null;
             try {
                 // The crash file is used during writing and will remain in
                 // case of a crash during the write operation. The backup
@@ -473,12 +485,12 @@ public final class MoeEditor extends JFrame
                 // make a backup to the crash file
                 FileUtility.copyFile(filename, crashFilename);
 
-                writer = new BufferedWriter(new FileWriter(filename));
+                OutputStream ostream = new BufferedOutputStream(new FileOutputStream(filename));
+                writer = new OutputStreamWriter(ostream, characterSet);
                 sourcePane.write(writer);
-                writer.close();
+                writer.close(); writer = null;
                 setSaved();
-                File file = new File(filename);
-                lastModified = file.lastModified();
+                lastModified = new File(filename).lastModified();
 
                 if (PrefMgr.getFlag(PrefMgr.MAKE_BACKUP)) {
                     // if all went well, rename the crash file as a normal
@@ -1511,7 +1523,6 @@ public final class MoeEditor extends JFrame
             boolean ignoreCase, boolean wrap)
     {
         if (s.length() == 0) {
-            //info.warning(Config.getString("editor.info.emptySearchString"));
             info.message(" ");
             return false;
         }
@@ -2554,17 +2565,23 @@ public final class MoeEditor extends JFrame
     }
 
     // --------------------------------------------------------------------
+    
     /**
      * Revert the buffer contents to the last saved version. Do not ask any
      * question - just do it. Must have a file name.
      */
     public void doReload()
     {
-        FileReader reader = null;
+        Reader reader = null;
         try {
-            reader = new FileReader(filename);
+            FileInputStream inputStream = new FileInputStream(filename);
+            reader = new InputStreamReader(inputStream, characterSet);
             sourcePane.read(reader, null);
-            reader.close();
+            try {
+                reader.close();
+                inputStream.close();
+            }
+            catch (IOException ioe) {}
             File file = new File(filename);
             lastModified = file.lastModified();
 
@@ -2615,10 +2632,12 @@ public final class MoeEditor extends JFrame
         // tidies up leftover highlight if matching is switched off
         // while highlighting a valid bracket or refreshes bracket in open
         // editor
-        if (matchBrackets)
+        if (matchBrackets) {
             doBracketMatch();
-        else
+        }
+        else {
             moeCaret.removeBracket();
+        }
     }
 
     /**
