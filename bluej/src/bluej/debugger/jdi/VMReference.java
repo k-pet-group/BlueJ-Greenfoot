@@ -265,7 +265,7 @@ class VMReference
                     // machine name, as using the machine name causes problems on some systems
                     // when the network is disconnected (because the machine name binds to
                     // the network IP, not to localhost):
-                    if (arguments.containsKey("localAddress"))
+                    if (connector.transport().name().equals("dt_socket") && arguments.containsKey("localAddress"))
                     {
                         arguments.get("localAddress").setValue("localhost");
                     }
