@@ -41,14 +41,14 @@ import bluej.parser.nodes.NodeTree.NodeAndPosition;
 public class MoeErrorManager implements MoeDocumentListener
 {
     /** Parse error delay in milliseconds */
-    private static final int ERR_DISPLAY_DELAY = 1000;
+    // private static final int ERR_DISPLAY_DELAY = 1000;
     
     private MoeEditor editor;
     
     private Object errorHighlightTag = null;
     
     /** A timer used to delay the appearance of parse errors until the user is idle */
-    private Timer timer;
+    // private Timer timer;
     
     /** Parse errors that are currently being displayed */
     private NodeTree<ParseErrorNode> parseErrors = new NodeTree<ParseErrorNode>();
@@ -100,6 +100,7 @@ public class MoeErrorManager implements MoeDocumentListener
     /**
      * Notify the error manager of an insert update to the document.
      */
+    /*
     public void insertUpdate(DocumentEvent e)
     {
         NodeAndPosition<ParseErrorNode> nap = parseErrors.findNodeAtOrAfter(e.getOffset());
@@ -116,10 +117,12 @@ public class MoeErrorManager implements MoeDocumentListener
             timer.restart();
         }
     }
+    */
     
     /**
      * Notify the error manager of a remove update to the document.
      */
+    /*
     public void removeUpdate(DocumentEvent e)
     {
         NodeAndPosition<ParseErrorNode> nap = parseErrors.findNodeAtOrAfter(e.getOffset() + e.getLength());
@@ -140,6 +143,7 @@ public class MoeErrorManager implements MoeDocumentListener
             timer.restart();
         }
     }
+    */
     
     /**
      * Get the error code (or message) at a particular document position.
@@ -156,6 +160,7 @@ public class MoeErrorManager implements MoeDocumentListener
     @Override
     public void parseError(int position, int size, String message)
     {
+        /*
         size = Math.max(1, size); // make size at least 1
 
         // Don't add this error if it overlaps an existing error:
@@ -194,6 +199,7 @@ public class MoeErrorManager implements MoeDocumentListener
             timer.setRepeats(false);
             timer.start();
         }
+        */
     }    
     
     @Override
@@ -226,6 +232,7 @@ public class MoeErrorManager implements MoeDocumentListener
     /**
      * The timer expired... make pending errors visible
      */
+    /*
     private void timerExpiry()
     {
         NodeAndPosition<ParseErrorNode> nap = pendingErrors.findNodeAtOrAfter(0);
@@ -264,4 +271,5 @@ public class MoeErrorManager implements MoeDocumentListener
         pendingErrors.clear();
         timer = null;
     }
+    */
 }
