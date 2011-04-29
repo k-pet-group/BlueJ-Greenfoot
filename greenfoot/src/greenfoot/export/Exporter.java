@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009, 2010  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -60,8 +60,17 @@ import bluej.pkgmgr.Project;
 public class Exporter 
         implements PublishListener
 {
-    private static final String GREENFOOT_CORE_JAR = "Greenfoot-core-" + Boot.GREENFOOT_API_VERSION + ".jar";
+    private static final String GREENFOOT_CORE_JAR = getGreenfootCoreJar();
     private static final String GALLERY_SHARED_JARS = "http://www.greenfootgallery.org/sharedjars/";
+    
+    private static String getGreenfootCoreJar()
+    {
+        // The core jar filename doesn't need to include the API internal version increment.
+        String coreJar = "Greenfoot-core-";
+        int lastDot = Boot.GREENFOOT_API_VERSION.lastIndexOf('.');
+        coreJar += Boot.GREENFOOT_API_VERSION.substring(0, lastDot) + ".jar";
+        return coreJar;
+    }
     
     private static Exporter instance;
     
