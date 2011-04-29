@@ -24,6 +24,7 @@ dependency4.to=Lander
 dependency4.type=UsesDependency
 package.numDependencies=4
 package.numTargets=4
+project.charset=UTF-8
 simulation.speed=40
 target1.height=30
 target1.name=Lander

@@ -20,6 +20,7 @@ dependency4.to=Leaf
 dependency4.type=UsesDependency
 package.numDependencies=4
 package.numTargets=4
+project.charset=UTF-8
 simulation.speed=28
 target1.height=50
 target1.name=Wombat

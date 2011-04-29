@@ -52,6 +52,7 @@ dependency9.to=Balloon
 dependency9.type=UsesDependency
 package.numDependencies=12
 package.numTargets=7
+project.charset=UTF-8
 readme.editor.height=493
 readme.editor.width=610
 readme.editor.x=0
