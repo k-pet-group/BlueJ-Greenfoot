@@ -15,7 +15,7 @@
     <!-- Greenfoot Version Number -->
     <property name="greenfoot.version.major" value="2"/>
     <property name="greenfoot.version.minor" value="0"/>
-    <property name="greenfoot.version.micro" value="1"/>
+    <property name="greenfoot.version.micro" value="2"/>
     
     <!-- Change when API has changed in a way that is likely to break some scenarios. 
     A warning will be shown to the user - update the greenfoot-labels file to
@@ -24,16 +24,14 @@
     
     <!-- Change when API has changed in a way that is visible to the user, but is very 
     unlikely to break scenarios (documentation changes, addition of method).
-    Changing this number will stripe the user's classes and require a recompile. -->
+    Changing this number will stripe the user's classes and require a recompile.
+    Do not change this number if the changes cannot break older scenarios. -->
     <property name="greenfoot.apiversion.nonbreaking" value="2"/>
     
     <!-- Change when API has only changed internally and not in any way visible to the user. 
     It should not be possible for this change to break existing scenarios. 
-    Changing this number will NOT stripe the user's classes nor require a recompile.
-    This version probably doesn't matter anymore, since we no longer copy the classes into 
-    the project directory (since greenfoot version 1.5.2)
-    -->
-    <property name="greenfoot.apiversion.internal" value="0"/>
+    Changing this number will NOT stripe the user's classes nor require a recompile. -->
+    <property name="greenfoot.apiversion.internal" value="1"/>
         
     <property name="greenfoot.apiversion" value="${greenfoot.apiversion.breaking}.${greenfoot.apiversion.nonbreaking}.${greenfoot.apiversion.internal}"/>
 
@@ -364,7 +362,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <echo message="The greenfoot dist-jar (used to build windows installer)s is in ${package}/greenfoot-dist-${greenfoot.version.nodots}.jar"/>
         <echo message="The greenfoot jar-installer is in ${package}/Greenfoot-generic-${greenfoot.version.nodots}.jar"/>
         <echo message="The greenfoot Mac-installer is in ${package}/Greenfoot-mac-${greenfoot.version.nodots}.zip"/>
-        <echo message="And don't forget to copy this to the gallery: ${package}/Greenfoot-core-${greenfoot.apiversion}.jar"/>
+        <echo message="And don't forget to copy this to the gallery: ${package}/Greenfoot-core-${greenfoot.apiversion.public}.jar"/>
     </target>
 	
 	<target name="debian-dist">
@@ -621,7 +619,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
 
 
     <target name="build-standalone-jar"  depends="compile-standalone" description="Create a jar with all the Greenfoot classes and resources needed for an exported scenario." >
-        <jar jarfile="${package}/Greenfoot-core-${greenfoot.apiversion}.jar" basedir="${standalone.build}">
+        <jar jarfile="${package}/Greenfoot-core-${greenfoot.apiversion.public}.jar" basedir="${standalone.build}">
             <manifest>
                 <attribute name="Main-Class" value="greenfoot.export.GreenfootScenarioViewer" />
             </manifest>
