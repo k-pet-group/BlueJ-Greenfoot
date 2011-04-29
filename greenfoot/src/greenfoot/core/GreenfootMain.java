@@ -73,7 +73,7 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 8774 2011-03-28 01:43:17Z marionz $
+ * @version $Id: GreenfootMain.java 8895 2011-04-29 04:27:18Z davmac $
  */
 public class GreenfootMain extends Thread implements CompileListener, RProjectListener
 {
@@ -633,16 +633,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
 
         Version apiVersion = GreenfootMain.getAPIVersion();
 
-        if(projectVersion == null) {
-            // Poul: I don't actually think this can happen anymore, but leaving it in just in case.
-            String message = apiVersion.getNotGreenfootMessage(projectDir);
-            JButton continueButton = new JButton(Config.getString("greenfoot.continue"));
-            MessageDialog dialog = new MessageDialog(parent, message, Config.getString("project.version.mismatch"), 50,
-                    new JButton[]{continueButton});
-            dialog.displayModal();
-            return VERSION_BAD;
-        }
-        else if (projectVersion.isBad()) {
+        if (projectVersion.isBad()) {
             String message = projectVersion.getBadMessage();
             JButton continueButton = new JButton(Config.getString("greenfoot.continue"));
             MessageDialog dialog = new MessageDialog(parent, message, Config.getString("project.version.mismatch"), 50,
