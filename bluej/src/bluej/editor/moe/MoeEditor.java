@@ -726,7 +726,6 @@ public final class MoeEditor extends JFrame
     {
         this.filename = filename;
         this.docFilename = docFilename;
-        // error ## - need to add full path
         windowTitle = title;
         setWindowTitle();
     }
