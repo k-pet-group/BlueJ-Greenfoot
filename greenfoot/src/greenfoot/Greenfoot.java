@@ -50,7 +50,7 @@ import greenfoot.sound.SoundFactory;
  * </ul>
  * 
  * @author Davin McCall
- * @version 2.1
+ * @version 2.2
  */
 public class Greenfoot
 {
