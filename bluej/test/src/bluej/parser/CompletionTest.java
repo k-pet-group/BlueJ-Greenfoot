@@ -46,6 +46,7 @@ import bluej.parser.entity.TypeEntity;
 import bluej.parser.lexer.LocatableToken;
 import bluej.parser.nodes.ParsedCUNode;
 import bluej.pkgmgr.JavadocResolver;
+import bluej.utility.JavaReflective;
 
 public class CompletionTest extends TestCase
 {
@@ -880,6 +881,29 @@ public class CompletionTest extends TestCase
         // In ticket #340 this causes an EmptyStackException:
         CodeSuggestions suggests = aNode.getExpressionType(80, doc);
         assertNotNull(suggests);
+    }
+    
+    public void testCompletionAfterAnonClass() throws Exception
+    {
+        String aClassSrc =
+            "class A {\n" +            // 0 - 10
+            "  public void g() {\n" +   // 10 - 30
+            "    new Thread() {\n" +    // 30 - 49
+            "      public void run() {\n" +  // 49 - 75
+            "        int x = 5 + 6;\n" +  // 75 - 98
+            "      }\n" +               // 98 - 106
+            "    }.start();\n" +        //  }. <-- 112
+            "  }\n" +                   
+            "}\n";
+
+        PlainDocument doc = new PlainDocument();
+        doc.insertString(0, aClassSrc, null);
+        ParsedCUNode aNode = cuForSource(aClassSrc, "");
+        resolver.addCompilationUnit("", aNode);
+        
+        CodeSuggestions suggests = aNode.getExpressionType(112, doc);
+        assertNotNull(suggests);
+        assertTrue(new GenTypeClass(new JavaReflective(Thread.class)).isAssignableFrom(suggests.getSuggestionType()));
     }
     
     // Yet to do:
