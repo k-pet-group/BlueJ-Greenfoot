@@ -863,6 +863,25 @@ public class CompletionTest extends TestCase
         assertNotNull(acontent);
     }
     
+    public void testRegression340() throws Exception
+    {
+        String aClassSrc =
+            "class A {\n" +            // 0 - 10
+            "  public void g() {\n" +   // 10 - 30
+            "    someMethod(new int[] {new String().length, 45});\n" +  //  }.  <-- 80
+            "  }\n" +                   
+            "}\n";
+
+        PlainDocument doc = new PlainDocument();
+        doc.insertString(0, aClassSrc, null);
+        ParsedCUNode aNode = cuForSource(aClassSrc, "");
+        resolver.addCompilationUnit("", aNode);
+        
+        // In ticket #340 this causes an EmptyStackException:
+        CodeSuggestions suggests = aNode.getExpressionType(80, doc);
+        assertNotNull(suggests);
+    }
+    
     // Yet to do:
     
     // Test that multiple fields defined in a single statement are handled correctly,
