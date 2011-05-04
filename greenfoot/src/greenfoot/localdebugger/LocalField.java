@@ -111,7 +111,8 @@ public class LocalField extends DebuggerField
         try {
             boolean accessible = field.isAccessible();
             field.setAccessible(true);
-            Object resultObj = field.get(parentObject.object);
+            Object pObj = (parentObject == null) ? null : parentObject.object;
+            Object resultObj = field.get(pObj);
             field.setAccessible(accessible);
             if (field.getType().isPrimitive()) {
                 return resultObj.toString();
