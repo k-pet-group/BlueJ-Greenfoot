@@ -353,9 +353,6 @@ public class TextParser extends JavaParser
         case JavaTokenTypes.QUESTION:
             processQuestionOperator();
             break;
-        case JavaTokenTypes.LITERAL_new:
-            processNewOperator(operator);
-            break;
         }
     }
     
@@ -1777,13 +1774,12 @@ public class TextParser extends JavaParser
     {
         if (state == STATE_NEW) {
             JavaEntity entity = resolveTypeSpec(tokens);
+            state = STATE_NEW_ARGS;
             
             if (entity != null) {
                 valueStack.push(new ValueEntity(entity.getType().getCapture()));
-                state = STATE_NEW_ARGS;
             }
             else {
-                state = STATE_NONE;
                 valueStack.push(new ErrorEntity());
             }
         }
@@ -1824,6 +1820,11 @@ public class TextParser extends JavaParser
     @Override
     protected void gotNewArrayDeclarator(boolean withDimension)
     {
+        if (state != STATE_NONE) {
+            state = STATE_NONE; // Don't expect constructor arguments!
+            operatorStack.pop(); // remove new operator from stack
+        }
+        
         if (withDimension) {
             valueStack.pop(); // pull the dimension off the value stack
         }
@@ -2186,10 +2187,14 @@ public class TextParser extends JavaParser
     @Override
     protected void endExprNew(LocatableToken token, boolean included)
     {
-        if (state == STATE_NEW_ARGS) {
-            // Push dummy arguments
-            argumentStack.push(Collections.<JavaEntity>emptyList());
+        if (state != STATE_NONE) {
+            if (state == STATE_NEW_ARGS) {
+                // We got a type spec: remove it
+                popValueStack();
+            }
+            operatorStack.pop(); // Remove "new" operator from stack
+            valueStack.push(new ErrorEntity());
+            state = STATE_NONE;
         }
-        state = STATE_NONE;
     }
 }
