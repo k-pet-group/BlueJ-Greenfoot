@@ -906,6 +906,25 @@ public class CompletionTest extends TestCase
         assertTrue(new GenTypeClass(new JavaReflective(Thread.class)).isAssignableFrom(suggests.getSuggestionType()));
     }
     
+    public void testAfterArrayInitList() throws Exception
+    {
+        String aClassSrc =
+            "class A {\n" +            // 0 - 10
+            "  public void g() {\n" +   // 10 - 30
+            "    int l = new String[]{\"one\",\"two\"}.length;\n" +  //  }.  <-- 68
+            "  }\n" +                   
+            "}\n";
+
+        PlainDocument doc = new PlainDocument();
+        doc.insertString(0, aClassSrc, null);
+        ParsedCUNode aNode = cuForSource(aClassSrc, "");
+        resolver.addCompilationUnit("", aNode);
+        
+        CodeSuggestions suggests = aNode.getExpressionType(68, doc);
+        assertNotNull(suggests);
+        assertEquals("java.lang.String[]", suggests.getSuggestionType().toString());
+    }
+    
     // Yet to do:
     
     // Test that multiple fields defined in a single statement are handled correctly,

@@ -262,6 +262,10 @@ public class JavaParser
     
     protected void endExprNew(LocatableToken token, boolean included) { }
     
+    protected void beginArrayInitList(LocatableToken token) { }
+    
+    protected void endArrayInitList(LocatableToken token) { }
+    
     /** An anonymous class body. Preceded by a type spec (see gotTypeSpec()) except in the case of an enum member body. */
     protected void beginAnonClassBody(LocatableToken token, boolean isEnumMember) { }
     
@@ -3125,7 +3129,9 @@ public class JavaParser
             if (tokenStream.LA(1).getType() == JavaTokenTypes.LCURLY) {
                 // Array initialiser list
                 token = nextToken();
+                beginArrayInitList(token);
                 token = parseArrayInitializerList(token);
+                endArrayInitList(token);
                 endExprNew(token, token.getType() == JavaTokenTypes.RCURLY);
                 return;
             }

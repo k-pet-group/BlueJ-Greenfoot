@@ -2217,4 +2217,10 @@ public class TextParser extends JavaParser
     {
         operatorStack.push(new Operator(token.getType(), token));
     }
+    
+    @Override
+    protected void beginArrayInitList(LocatableToken token)
+    {
+        operatorStack.push(new Operator(token.getType(), token));
+    }
 }
