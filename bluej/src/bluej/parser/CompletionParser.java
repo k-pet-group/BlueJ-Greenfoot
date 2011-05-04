@@ -32,7 +32,6 @@ import bluej.debugger.gentype.MethodReflective;
 import bluej.debugger.gentype.Reflective;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
-import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
 
 /**
@@ -97,6 +96,9 @@ public class CompletionParser extends TextParser
     
     public Map<String,Set<MethodReflective>> getMethodSuggestions()
     {
+        if (methodSuggestions == null) {
+            suggestFor(getSuggestionType());
+        }
         return methodSuggestions;
     }
     
@@ -153,15 +155,6 @@ public class CompletionParser extends TextParser
     {
         suggestionToken = token;
         suggestionEntity = popValueStack();
-    }
-    
-    @Override
-    protected void endExpression(LocatableToken token)
-    {
-        super.endExpression(token);
-        if (token.getType() == JavaTokenTypes.EOF) {
-            suggestFor(getSuggestionType());
-        }
     }
     
     private void suggestFor(GenTypeSolid type)

@@ -1204,7 +1204,7 @@ public class EditorParser extends JavaParser
     }
     
     @Override
-    protected void endExpression(LocatableToken token)
+    protected void endExpression(LocatableToken token, boolean isEmpty)
     {
         endTopNode(token, false);
         arrayDecls = 0;
