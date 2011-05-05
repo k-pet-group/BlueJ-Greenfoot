@@ -97,7 +97,7 @@ public abstract class MyGameClient
         }
         
         if (response > 400) {
-            error("Unrecognized response from the server: " + response); // TODO i18n
+            error(Config.getString("export.publish.errorResponse") + " - " + response);
             return this;
         }
         
@@ -165,7 +165,7 @@ public abstract class MyGameClient
         
         response = httpClient.executeMethod(postMethod);
         if (response > 400) {
-            error("Unrecognized response from the server: " + response); // TODO i18n
+            error(Config.getString("export.publish.errorResponse") + " - " + response);
             return this;
         }
         
@@ -194,13 +194,13 @@ public abstract class MyGameClient
     {
         Header statusHeader = postMethod.getResponseHeader("X-mygame-status");
         if (statusHeader == null) {
-            error("Unrecognized response from the server."); // TODO i18n
+            error(Config.getString("export.publish.errorResponse"));
             return false;
         }
         String responseString = statusHeader.getValue();
         int spaceIndex = responseString.indexOf(" ");
         if (spaceIndex == -1) {
-            error("Unrecognized response from the server."); // TODO i18n
+            error(Config.getString("export.publish.errorResponse"));
             return false;
         }
         try {
@@ -210,10 +210,10 @@ public abstract class MyGameClient
                 // Everything is good!
                 return true;
             case 1 :
-                error("Invalid username or password"); // TODO i18n
+                error(Config.getString("export.publish.errorPassword"));
                 return false;
             case 2 :
-                error("The scenario is too large"); // TODO i18n
+                error(Config.getString("export.publish.errorTooLarge"));
                 return false;
             default :
                 // Unknown error - print it!
@@ -222,7 +222,7 @@ public abstract class MyGameClient
             }
         }
         catch (NumberFormatException nfe) {
-            error("Unrecognized response from the server."); // TODO i18n
+            error(Config.getString("export.publish.errorResponse"));
             return false;
         }
     }
