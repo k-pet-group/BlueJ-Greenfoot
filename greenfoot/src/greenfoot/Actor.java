@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -134,20 +134,20 @@ public abstract class Actor
     }
 
     /**
-     * The act method is called by the greenfoot framework to give objects a
+     * The act method is called by the greenfoot framework to give actors a
      * chance to perform some action. At each action step in the environment,
      * each object's act method is invoked, in unspecified order.
      * 
      * <p>The default implementation does nothing. This method should be overridden in
-     * subclasses to implement an object's action.
+     * subclasses to implement an actor's action.
      */
     public void act()
     {
     }
 
     /**
-     * Return the x-coordinate of the object's current location. The
-     * value returned is the horizontal index of the object's cell in the world.
+     * Return the x-coordinate of the actor's current location. The
+     * value returned is the horizontal index of the actor's cell in the world.
      * 
      * @return The x-coordinate of the object's current location.
      * @throws IllegalStateException If the actor has not been added into a world.
@@ -160,9 +160,9 @@ public abstract class Actor
 
     /**
      * Return the y-coordinate of the object's current location. The
-     * value returned is the vertical index of the object's cell in the world.
+     * value returned is the vertical index of the actor's cell in the world.
      * 
-     * @return The y-coordinate of the object's current location
+     * @return The y-coordinate of the actor's current location
      * @throws IllegalStateException If the actor has not been added into a world.
      */
     public int getY()
@@ -172,9 +172,9 @@ public abstract class Actor
     }
 
     /**
-     * Return the current rotation of the object. Rotation is expressed as a degree
-     * value, range (0..359). Zero degrees is to the east. The angle increases 
-     * clockwise.
+     * Return the current rotation of this actor. Rotation is expressed as a degree
+     * value, range (0..359). Zero degrees is towards the east (right-hand side of
+     * the world), and the angle increases clockwise.
      * 
      * @see #setRotation(int)
      * 
@@ -186,11 +186,13 @@ public abstract class Actor
     }
 
     /**
-     * Set the rotation of the object. Rotation is expressed as a degree
-     * value, range (0..359). Zero degrees is to the east, and the angle increases 
-     * clockwise.
+     * Set the rotation of this actor. Rotation is expressed as a degree
+     * value, range (0..359). Zero degrees is to the east (right-hand side of the
+     * world), and the angle increases clockwise.
      * 
      * @param rotation The rotation in degrees.
+     * 
+     * @see #turn(int)
      */
     public void setRotation(int rotation)
     {
@@ -226,8 +228,8 @@ public abstract class Actor
     }
 
     /**
-     * Assign a new location for this object. The location is specified as a cell
-     * index in the world.
+     * Assign a new location for this actor. This moves the actor to the specified
+     * location. The location is specified as the co-ordinates of a cell in the world.
      * 
      * <p>If this method is overridden it is important to call this method as
      * "super.setLocation(x,y)" from the overriding method, to avoid infinite recursion.
@@ -235,10 +237,50 @@ public abstract class Actor
      * @param x Location index on the x-axis
      * @param y Location index on the y-axis
      * @throws IllegalStateException If the actor has not been added into a world.
+     * 
+     * @see #move(int)
      */
     public void setLocation(int x, int y)
     {
         setLocationDrag(x, y);
+    }
+    
+    /**
+     * Move this actor the specified distance in the direction it is
+     * currently facing.
+     * 
+     * <p>The direction can be set by the {@link #setRotation(int)} method. As
+     * the value 0 is specified as eastwards, an actor's image must "face right"
+     * in order for the move method to work correctly.
+     * 
+     * @param distance  The distance to move (in cell-size units); a negative value
+     *                  will move backwards
+     * @throws IllegalStateException If the actor has not been added into a world.
+     * 
+     * @see #setLocation(int, int)
+     */
+    public void move(int distance)
+    {
+        int adjustedDistance = getWorld().cellSize * distance;
+        double radians = Math.toRadians(rotation);
+        
+        // We round to the nearest integer, to allow moving one unit at an angle
+        // to actually move.
+        int dx = (int) Math.round(Math.cos(radians) * adjustedDistance);
+        int dy = (int) Math.round(Math.sin(radians) * adjustedDistance);
+        setLocation(x + dx, y + dy);
+    }
+    
+    /**
+     * Turn this actor by the specified amount (in degrees).
+     * 
+     * @param amount  the number of degrees to turn; positive values turn clockwise
+     * 
+     * @see #setRotation(int)
+     */
+    public void turn(int amount)
+    {
+        setRotation(rotation + amount);
     }
     
     /**
@@ -302,7 +344,7 @@ public abstract class Actor
     }
 
     /**
-     * Return the world that this object lives in.
+     * Return the world that this actor lives in.
      * 
      * @return The world.
      */
@@ -312,11 +354,11 @@ public abstract class Actor
     }
 
     /**
-     * This method is called by the Greenfoot system when the object has
+     * This method is called by the Greenfoot system when this actor has
      * been inserted into the world. This method can be overridden to implement
      * custom behaviour when the actor is inserted into the world.
      * <p>
-     * This default implementation is empty.
+     * The default implementation does nothing.
      * 
      * @param world The world the object was added to.
      */
@@ -324,8 +366,8 @@ public abstract class Actor
     {}
 
     /**
-     * Returns the image used to represent this Actor. This image can be
-     * modified to change the object's appearance.
+     * Returns the image used to represent this actor. This image can be
+     * modified to change the actor's appearance.
      * 
      * @return The object's image.
      */
@@ -335,7 +377,7 @@ public abstract class Actor
     }
 
     /**
-     * Set an image for this object from an image file. The file may be in
+     * Set an image for this actor from an image file. The file may be in
      * jpeg, gif or png format. The file should be located in the project
      * directory.
      * 
@@ -348,7 +390,7 @@ public abstract class Actor
     }
 
     /**
-     * Set the image for this object to the specified image.
+     * Set the image for this actor to the specified image.
      * 
      * @see #setImage(String)
      * @param image The image.
@@ -587,7 +629,6 @@ public abstract class Actor
 
     /**
      * Notify the world that this object's size has changed, if it in fact has changed.
-     *
      */
     private void sizeChanged()
     {
@@ -598,7 +639,6 @@ public abstract class Actor
 
     /**
      * Notify the world that this object's location has changed.
-     *
      */
     private void locationChanged(int oldX, int oldY)
     {
