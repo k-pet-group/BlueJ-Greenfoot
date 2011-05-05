@@ -171,6 +171,15 @@ public class ExportDialog extends EscapeDialog
     }
 
     /**
+     * Set some additional text to be displayed in the "export" button.
+     * @param s  The additional text - may be the empty string
+     */
+    public void setExportTextAddition(String s)
+    {
+        continueButton.setText(Config.getString("export.dialog.continue") + s);
+    }
+    
+    /**
      * Close action when OK is pressed.
      */
     private void doOK()
@@ -291,10 +300,11 @@ public class ExportDialog extends EscapeDialog
     {
         ExportPane chosenPane = panes.get(function);
         if(chosenPane != selectedPane) {
-            if(selectedPane != null)
+            if(selectedPane != null) {
                 contentPane.remove(selectedPane);
+            }
             continueButton.setText(Config.getString("export.dialog.continue"));
-            chosenPane.activated(continueButton);
+            chosenPane.activated();
             contentPane.add(chosenPane, BorderLayout.CENTER);
             selectedPane = chosenPane;
             selectedFunction = function;
@@ -312,7 +322,7 @@ public class ExportDialog extends EscapeDialog
     private void createPanes(GProject project, File defaultExportDir)
     {
         panes = new HashMap<String, ExportPane>();
-        panes.put(ExportPublishPane.FUNCTION, new ExportPublishPane(project));
+        panes.put(ExportPublishPane.FUNCTION, new ExportPublishPane(project, this));
         panes.put(ExportWebPagePane.FUNCTION, new ExportWebPagePane(project.getName(), defaultExportDir));
         panes.put(ExportAppPane.FUNCTION, new ExportAppPane(project.getName(), defaultExportDir));
         

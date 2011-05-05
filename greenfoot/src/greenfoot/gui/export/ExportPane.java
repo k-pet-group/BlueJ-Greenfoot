@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2011  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -19,23 +19,21 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-/*
- * ExportPane is a superclass for all changing panes that can appear 
- * in the Export dialogue.
- *
- * @author Michael Kolling
- * @version $Id: ExportPane.java 7564 2010-05-14 14:53:38Z mik $
- */
 
 package greenfoot.gui.export;
 
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 
 import bluej.Config;
 import java.awt.Color;
 
+/**
+ * ExportPane is a superclass for all changing panes that can appear 
+ * in the Export dialogue.
+ *
+ * @author Michael Kolling
+ */
 public abstract class ExportPane extends JPanel
 {
     private static final String lockText = Config.getString("export.lock.label");
@@ -59,9 +57,8 @@ public abstract class ExportPane extends JPanel
     /**
      * This method will be called when this pane is activated (about to be
      * shown/visible)
-     * @param continueButton 
      */
-    public abstract void activated(JButton continueButton);
+    public abstract void activated();
     
     /**
      * This method will be called when the user is about to export the scenario

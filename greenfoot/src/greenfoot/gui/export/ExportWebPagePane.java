@@ -23,7 +23,7 @@
  * ExportWebPagePane.java
  *
  * @author Michael Kolling
- * @version $Id: ExportWebPagePane.java 7564 2010-05-14 14:53:38Z mik $
+ * @version $Id: ExportWebPagePane.java 8919 2011-05-05 05:12:13Z davmac $
  */
 
 package greenfoot.gui.export;
@@ -134,7 +134,7 @@ public class ExportWebPagePane extends ExportPane
     }
 
     @Override
-    public void activated(JButton continueButton)
+    public void activated()
     {
         // Nothing special to do here        
     }   

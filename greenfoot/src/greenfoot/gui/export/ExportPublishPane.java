@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009, 2010  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -45,7 +45,6 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.InputVerifier;
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -113,15 +112,16 @@ public class ExportPublishPane extends ExportPane implements ChangeListener
     private String publishedUserName;
 
     private ExistingScenarioChecker scenarioChecker;
-    private JButton continueButton;
     private Font font;
     private boolean isUpdate=false;
+    private ExportDialog exportDialog;
 
     /** Creates a new instance of ExportPublishPane */
-    public ExportPublishPane(GProject project)
+    public ExportPublishPane(GProject project, ExportDialog exportDialog)
     {
         super();
         this.project = project;
+        this.exportDialog = exportDialog;
         makePane();
     }
 
@@ -532,33 +532,22 @@ public class ExportPublishPane extends ExportPane implements ChangeListener
                 {
                     // If an error occurs, we just reset the text on the export
                     // button.
-                    continueButton.setText(getStrippedText());
+                    exportDialog.setExportTextAddition("");
                 }
 
                 @Override
                 public void scenarioExistenceChecked(ScenarioInfo info)
                 {
-                    String currentText = getStrippedText();
                     if (info != null) {
                         removeLeftPanel();
                         createScenarioDisplay(true);
                         addLeftPanel();
                         revalidate();
-                        continueButton.setText(currentText + updateText);
+                        exportDialog.setExportTextAddition(updateText);
                     }
                     else {
-                        continueButton.setText(currentText);
+                        exportDialog.setExportTextAddition("");
                     }
-                }
-
-                private String getStrippedText()
-                {
-                    String currentText = continueButton.getText();
-                    int i = currentText.indexOf(updateText);
-                    if (i != -1) {
-                        currentText = currentText.substring(0, i);
-                    }
-                    return currentText;
                 }
             };
         }
@@ -572,9 +561,8 @@ public class ExportPublishPane extends ExportPane implements ChangeListener
      * <p>And we load previously used values if they are stored.
      */
     @Override
-    public void activated(JButton continueButton)
+    public void activated()
     {
-        this.continueButton = continueButton;
         checkForExistingScenario();
         if (firstActivation) {
             firstActivation = false;
