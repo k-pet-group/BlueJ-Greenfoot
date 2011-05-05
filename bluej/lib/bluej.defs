@@ -99,7 +99,7 @@ bluej.url.reference=http://www.bluej.org/reference/manual.pdf
 # setting is saved in the user preferences file (and the setting here
 # is ignored). You can adjust the user preferences via the preferences
 # dialog (found under the "tools" menu) in BlueJ.
-bluej.url.javaStdLib=http://java.sun.com/javase/6/docs/api/index.html
+bluej.url.javaStdLib=http://download.oracle.com/javase/6/docs/api/
 
 # Location of the Java standard library sources. This does not need to
 # be specified if the "src.jar" file is in the standard location (in
