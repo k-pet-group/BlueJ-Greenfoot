@@ -191,21 +191,38 @@ public class ScenarioInfo
         return true;
     }
 
+    /**
+     * If we're updating an existing scenario, return a description of the udpate.
+     * @see #isUpdate()
+     */
     public String getUpdateDescription()
     {
         return updateDescription;
     }
 
+    /**
+     * Set the update description (if this is an update).
+     * @param updateDescription   The update description provided by the user.
+     * @see #setUpdate(boolean)
+     */
     public void setUpdateDescription(String updateDescription)
     {
         this.updateDescription = updateDescription;
     }
 
+    /**
+     * Check whether this is (as far as we're aware) an update of an existing scenario.
+     * If it is {@link #getUpdateDescription()} will return a description of the update.
+     */
     public boolean isUpdate()
     {
         return isUpdate;
     }
 
+    /**
+     * Specify whether this is an update of an existing scenario. Also use {@link #setUpdateDescription(String)}
+     * to set the update description as provided by the user.
+     */
     public void setUpdate(boolean isUpdate)
     {
         this.isUpdate = isUpdate;
