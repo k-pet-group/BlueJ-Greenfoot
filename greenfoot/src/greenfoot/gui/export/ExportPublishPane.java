@@ -328,7 +328,6 @@ public class ExportPublishPane extends ExportPane implements ChangeListener
         add(Box.createVerticalStrut(16));       
         add(getLoginPanel());
         add(Box.createVerticalStrut(10));
-
     }
     
     /**
@@ -341,8 +340,8 @@ public class ExportPublishPane extends ExportPane implements ChangeListener
 
         loginPanel.setBackground(background);
         loginPanel.setAlignmentX(LEFT_ALIGNMENT);
-        Border border = BorderFactory.createCompoundBorder(BorderFactory.createLoweredBevelBorder(), BorderFactory
-                .createEmptyBorder(12, 12, 12, 12));
+        Border border = BorderFactory.createCompoundBorder(BorderFactory.createLoweredBevelBorder(),
+                BorderFactory.createEmptyBorder(12, 12, 12, 12));
         loginPanel.setBorder(border);
 
         JLabel text = new JLabel(Config.getString("export.publish.login"));
@@ -504,13 +503,7 @@ public class ExportPublishPane extends ExportPane implements ChangeListener
         scenarioInfo.setUpdateDescription(getUpdateDescription());
     }
 
-
     private void checkForExistingScenario()
-    {
-        checkForExistingScenario(false);
-    }
-    
-    private void checkForExistingScenario(boolean forceRecheck)
     {
         String userName = getUserName();
         String title = getTitle();
@@ -549,7 +542,7 @@ public class ExportPublishPane extends ExportPane implements ChangeListener
                 }
             };
         }
-        scenarioChecker.startScenarioExistenceCheck(serverURL, userName, title, forceRecheck);
+        scenarioChecker.startScenarioExistenceCheck(serverURL, userName, title);
     }
 
     /**

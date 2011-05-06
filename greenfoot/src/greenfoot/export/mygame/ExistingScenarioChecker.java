@@ -68,21 +68,16 @@ public abstract class ExistingScenarioChecker
     /**
      * Will start a thread that checks whether a scenario with the given name
      * exists for the given user. When a result is ready the method
-     * scenarioExistenceChecked will be called. If it is already checking for
-     * the existence of another scenario name, that check will be aborted and
-     * this check will start. If it is already checking for a scenario with that
-     * name it will just return and continue that checking.
-     * 
-     * @param scenarioName
-     * @param forceRecheck 
+     * scenarioExistenceChecked will be called. The result for the given host / user / scenario
+     * combination may be cached.
      */
     public void startScenarioExistenceCheck(final String hostName, final String userName,
-            final String scenarioName, boolean forceRecheck)
+            final String scenarioName)
     {
         synchronized (this) {
             boolean sameScenario = hostName.equals(this.hostName) && userName.equals(this.userName)
                     && scenarioName.equals(this.scenarioName);
-            if (sameScenario && !forceRecheck) {
+            if (sameScenario) {
                 return;
             }
             if (checking) {
