@@ -285,13 +285,11 @@ public class ExportPublishPane extends ExportPane implements ChangeListener
     private void setTitle(String title)
     {
         titleField.setText(title);
-        checkForExistingScenario();
     }
 
     private void setUserName(String name)
     {
         userNameField.setText(name);
-        checkForExistingScenario();
     }
 
     /**
@@ -485,6 +483,7 @@ public class ExportPublishPane extends ExportPane implements ChangeListener
             setTags(info.getTags());
             setLocked(info.isLocked());
             setHasSource(info.getHasSource());
+            setUpdate(true);
         }
     }
 
@@ -526,14 +525,12 @@ public class ExportPublishPane extends ExportPane implements ChangeListener
 
         if (scenarioChecker == null) {
             scenarioChecker = new ExistingScenarioChecker() {
-                private String updateText = " " + Config.getString("export.dialog.continue.update");
 
                 @Override
                 public void scenarioExistenceCheckFailed(Exception reason)
                 {
-                    // If an error occurs, we just reset the text on the export
-                    // button.
-                    exportDialog.setExportTextAddition("");
+                    // Don't do anything. Failure could be due to proxy requiring authentication,
+                    // or network disconnection.
                 }
 
                 @Override
@@ -545,10 +542,9 @@ public class ExportPublishPane extends ExportPane implements ChangeListener
                         createScenarioDisplay();
                         addLeftPanel();
                         revalidate();
-                        exportDialog.setExportTextAddition(updateText);
                     }
                     else {
-                        exportDialog.setExportTextAddition("");
+                        setUpdate(false);
                     }
                 }
             };
@@ -566,11 +562,11 @@ public class ExportPublishPane extends ExportPane implements ChangeListener
     public void activated()
     {
         if (firstActivation) {
-            checkForExistingScenario();
             firstActivation = false;
             
             setUserName(Config.getPropString("publish.username", ""));
             loadStoredScenarioInfo();
+            checkForExistingScenario();
             
             commonTagsLoader = new SwingWorker() {
                 @SuppressWarnings("unchecked")
@@ -615,6 +611,11 @@ public class ExportPublishPane extends ExportPane implements ChangeListener
             };
             commonTagsLoader.start();
         }
+        
+        if (isUpdate) {
+            String updateText = " " + Config.getString("export.dialog.continue.update");
+            exportDialog.setExportTextAddition(updateText);
+        }
     }
 
     @Override
@@ -632,7 +633,7 @@ public class ExportPublishPane extends ExportPane implements ChangeListener
         if (success) {
             publishedScenarioInfo.store(project.getProjectProperties());
             Config.putPropString("publish.username", publishedUserName);
-            checkForExistingScenario(true);
+            setUpdate(true);
         }
     }
     
@@ -876,12 +877,20 @@ public class ExportPublishPane extends ExportPane implements ChangeListener
     }
 
     /**
-     * If the update flag is true it indicates an update export; 
-     * false indicates that it is a first export
+     * Specify whether this scenario will be updated, or is a new export.
      */
     private void setUpdate(boolean isUpdate)
     {
-        this.isUpdate = isUpdate;
+        if (this.isUpdate != isUpdate) {
+            this.isUpdate = isUpdate;
+            if (isUpdate) {
+                String updateText = " " + Config.getString("export.dialog.continue.update");
+                exportDialog.setExportTextAddition(updateText);
+            }
+            else {
+                exportDialog.setExportTextAddition("");
+            }
+        }
     }
 
 }

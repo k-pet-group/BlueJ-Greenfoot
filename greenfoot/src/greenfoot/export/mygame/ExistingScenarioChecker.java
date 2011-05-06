@@ -24,8 +24,6 @@ package greenfoot.export.mygame;
 import java.io.IOException;
 import java.net.UnknownHostException;
 
-import javax.swing.SwingUtilities;
-
 import bluej.utility.SwingWorker;
 
 /**
@@ -85,14 +83,6 @@ public abstract class ExistingScenarioChecker
             boolean sameScenario = hostName.equals(this.hostName) && userName.equals(this.userName)
                     && scenarioName.equals(this.scenarioName);
             if (sameScenario && !forceRecheck) {
-                // Scenario already checked, but make sure finished is invoked
-                // to update status (continue button)
-                SwingUtilities.invokeLater(new Runnable() {
-                    public void run()
-                    {
-                        worker.finished();
-                    }
-                });
                 return;
             }
             if (checking) {
@@ -134,23 +124,6 @@ public abstract class ExistingScenarioChecker
         abort = true;
         worker.interrupt();
         return true;
-    }
-
-    /**
-     * Blocks until the result is ready. TODO: This can block forever if the
-     * server never responds?
-     * 
-     * @return An Exception if an error occurred, or null if the scenario does
-     *         not exist, or a ScenarioInfo object if the scenario exists.
-     */
-    public Object getResult()
-    {
-        synchronized (this) {
-            if (worker == null) {
-                throw new IllegalStateException("Check not started yet. No result to get.");
-            }
-        }
-        return worker.get();
     }
 
     /**
@@ -202,8 +175,6 @@ public abstract class ExistingScenarioChecker
     /**
      * Called when the worker has finished and the result is ready to be
      * processed.
-     * 
-     * @param value
      */
     private synchronized void workerFinished(Object value)
     {

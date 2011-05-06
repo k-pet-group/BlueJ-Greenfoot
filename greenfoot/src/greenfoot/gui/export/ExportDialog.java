@@ -437,9 +437,7 @@ public class ExportDialog extends EscapeDialog
     }
 
     /**
-     * Tell this dialog that the publish has finished and whether it was succesfull.
-     * @param success
-     * @param string
+     * Tell this dialog that the publish has finished and whether it was successful.
      */
     public void publishFinished(boolean success, String msg)
     {
