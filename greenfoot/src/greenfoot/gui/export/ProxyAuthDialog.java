@@ -117,7 +117,7 @@ public class ProxyAuthDialog extends JDialog
         passwordField = new JTextField(20);
         authPanel.add(passwordField);
         
-        JButton okButton = new JButton("Ok"); // DAV i18n
+        JButton okButton = new JButton(Config.getString("okay"));
         okButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e)
@@ -127,7 +127,7 @@ public class ProxyAuthDialog extends JDialog
             }
         });
         
-        JButton cancelButton = new JButton("Cancel"); // DAV i18n
+        JButton cancelButton = new JButton(Config.getString("cancel"));
         cancelButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e)
