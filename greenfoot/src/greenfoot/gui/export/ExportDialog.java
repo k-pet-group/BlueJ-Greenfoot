@@ -51,6 +51,9 @@ import bluej.Config;
 import bluej.utility.DialogManager;
 import bluej.utility.EscapeDialog;
 
+/**
+ * A dialog allowing the user to export a scenario in a variety of ways.
+ */
 public class ExportDialog extends EscapeDialog
         implements TabbedIconPaneListener
 {
@@ -133,17 +136,20 @@ public class ExportDialog extends EscapeDialog
         
         final ExportPublishPane publishPane = (ExportPublishPane) panes.get(ExportPublishPane.FUNCTION);
         
-        // getSnapShot has to be invoked on the EDT.
-        SwingUtilities.invokeLater(new Runnable(){
-            public void run()
-            {
-                BufferedImage snapShot = WorldHandler.getInstance().getSnapShot();
-                if(snapShot != null) {
-                    publishPane.setImage(snapShot);
-                }        
-                clearStatus();
-                setVisible(true);  // returns after OK or Cancel, which set 'ok'
-            }});
+        BufferedImage snapShot = WorldHandler.getInstance().getSnapShot();
+        if(snapShot != null) {
+            publishPane.setImage(snapShot);
+        }        
+        clearStatus();
+        
+        String preferredPane = Config.getPropString("greenfoot.lastExportPane", ExportPublishPane.FUNCTION);
+        boolean center = (selectedFunction == null);
+        showPane(preferredPane, false);
+        if (center) {
+            DialogManager.centreDialog(this);
+        }
+
+        setVisible(true);  // returns after OK or Cancel, which set 'ok'
     }
 
     /**
@@ -395,8 +401,6 @@ public class ExportDialog extends EscapeDialog
 
         contentPane.add(bottomPanel, BorderLayout.SOUTH);
         
-        showPane(preferredPane, false);
-
         DialogManager.centreDialog(this);
     }
 

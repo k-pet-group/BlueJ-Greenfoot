@@ -114,6 +114,8 @@ public class ExportPublishPane extends ExportPane implements ChangeListener
     private ExistingScenarioChecker scenarioChecker;
     private Font font;
     private boolean isUpdate = false;
+    /** Whether the scenario info display is showing "update" mode */
+    private boolean displayUpdate = false;
     private ExportDialog exportDialog;
 
     /** Creates a new instance of ExportPublishPane */
@@ -486,6 +488,16 @@ public class ExportPublishPane extends ExportPane implements ChangeListener
         }
     }
 
+    private void updateScenarioDisplay()
+    {
+        if (isUpdate != displayUpdate) {
+            removeLeftPanel();
+            createScenarioDisplay();
+            addLeftPanel();
+            displayUpdate = isUpdate;
+            revalidate();
+        }
+    }
 
     /**
      * Updates the given scenarioInfo with the current values typed into the
@@ -530,15 +542,12 @@ public class ExportPublishPane extends ExportPane implements ChangeListener
                 public void scenarioExistenceChecked(ScenarioInfo info)
                 {
                     if (info != null) {
-                        removeLeftPanel();
                         setUpdate(true);
-                        createScenarioDisplay();
-                        addLeftPanel();
-                        revalidate();
                     }
                     else {
                         setUpdate(false);
                     }
+                    updateScenarioDisplay();
                 }
             };
         }
@@ -559,6 +568,7 @@ public class ExportPublishPane extends ExportPane implements ChangeListener
             
             setUserName(Config.getPropString("publish.username", ""));
             loadStoredScenarioInfo();
+            updateScenarioDisplay();
             checkForExistingScenario();
             
             commonTagsLoader = new SwingWorker() {
