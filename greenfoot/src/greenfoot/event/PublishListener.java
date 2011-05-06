@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2011  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,11 +27,27 @@ import java.util.EventListener;
  * Listener for recieving events when publishing a scenario to a website.
  * 
  * @author Poul Henriksen
- *
  */
 public interface PublishListener extends EventListener
 {
-    public void statusRecieved(PublishEvent event);
+    /**
+     * The upload completed successfully.
+     */
+    public void uploadComplete(PublishEvent event);
+    
+    /**
+     * An error occurred. The upload will not complete.
+     */
     public void errorRecieved(PublishEvent event);
+    
+    /**
+     * Some upload progress has been made.
+     */
     public void progressMade(PublishEvent event);
+    
+    /**
+     * Proxy authentication details are required.
+     * @return a 2-element array containing a username/password pair, or null if the user cancels.
+     */
+    public String[] needProxyAuth();
 }

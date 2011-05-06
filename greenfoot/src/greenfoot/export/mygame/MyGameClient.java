@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009, 2010  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -20,6 +20,9 @@
  LICENSE.txt file that accompanied this code.
  */
 package greenfoot.export.mygame;
+
+import greenfoot.event.PublishEvent;
+import greenfoot.event.PublishListener;
 
 import java.io.File;
 import java.io.IOException;
@@ -62,10 +65,14 @@ import bluej.Config;
  * 
  * @author Davin McCall
  */
-public abstract class MyGameClient
+public class MyGameClient
 {
-    public MyGameClient()
+    private PublishListener listener;
+    
+    public MyGameClient(PublishListener listener)
     {
+        this.listener = listener;
+        
         // Disable logging, prevents guff going to System.err
         LogFactory.getFactory().setAttribute("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog");
     }
@@ -92,8 +99,20 @@ public abstract class MyGameClient
         
         int response = httpClient.executeMethod(postMethod);
         
-        if (response == 407) {
+        if (response == 407 && listener != null) {
             // proxy auth required
+            String[] authDetails = listener.needProxyAuth();
+            if (authDetails != null) {
+                String proxyHost = httpClient.getHostConfiguration().getProxyHost();
+                int proxyPort = httpClient.getHostConfiguration().getProxyPort();
+                AuthScope authScope = new AuthScope(proxyHost, proxyPort);
+                Credentials proxyCreds =
+                    new UsernamePasswordCredentials(authDetails[0], authDetails[1]);
+                httpClient.getState().setProxyCredentials(authScope, proxyCreds);
+
+                // Now retry:
+                response = httpClient.executeMethod(postMethod);
+            }
         }
         
         if (response > 400) {
@@ -174,7 +193,7 @@ public abstract class MyGameClient
         }
         
         // Done.
-        status("Upload complete.");
+        listener.uploadComplete(new PublishEvent(PublishEvent.STATUS));
         
         return this;
     }
@@ -246,7 +265,6 @@ public abstract class MyGameClient
             catch (NumberFormatException nfe) {}
 
             hostConfig.setProxy(proxyHost, proxyPort);
-            // TODO prompt for user/password
             String proxyUser = Config.getPropString("proxy.user", null);
             String proxyPass = Config.getPropString("proxy.password", null);
             if (proxyUser != null) {
@@ -416,13 +434,30 @@ public abstract class MyGameClient
         return Collections.<String>emptyList();
     }
     
-    public abstract void error(String s);
-    
-    public abstract void status(String s);
+    /**
+     * An error occurred.
+     */
+    private void error(String s)
+    {
+        listener.errorRecieved(new PublishEvent(s, PublishEvent.ERROR));
+    }
     
     /**
      * The specified number of bytes have just been sent.
      */
-    public abstract void progress(int bytes);
-     
+    public void progress(int bytes)
+    {
+        listener.progressMade(new PublishEvent(bytes, PublishEvent.PROGRESS));
+    }
+    
+    /**
+     * Prompt the user for proxy authentication details (username and password).
+     * 
+     * @return A 2-element array with the username as the first element and the password as the second,
+     *         or null if the user elected to cancel the upload.
+     */
+    public String[] promptProxyAuth()
+    {
+        return listener.needProxyAuth();
+    }
 }

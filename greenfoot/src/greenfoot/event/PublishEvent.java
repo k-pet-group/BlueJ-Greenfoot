@@ -51,6 +51,15 @@ public class PublishEvent
 
     private int type;
 
+    /**
+     * Construct a PublishEvent for an "upload complete" event.
+     * @param type The event type.
+     */
+    public PublishEvent(int type)
+    {
+        this.type = type;
+    }
+    
     public PublishEvent(String msg, int type)
     {
         this.msg = msg;

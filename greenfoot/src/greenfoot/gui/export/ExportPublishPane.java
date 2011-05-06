@@ -22,8 +22,8 @@
 package greenfoot.gui.export;
 
 import greenfoot.core.GProject;
-import greenfoot.export.WebPublisher;
 import greenfoot.export.mygame.ExistingScenarioChecker;
+import greenfoot.export.mygame.MyGameClient;
 import greenfoot.export.mygame.ScenarioInfo;
 import greenfoot.util.GreenfootUtil;
 
@@ -584,7 +584,7 @@ public class ExportPublishPane extends ExportPane implements ChangeListener
                 @Override
                 public Object construct()
                 {
-                    WebPublisher client = new WebPublisher();
+                    MyGameClient client = new MyGameClient(null);
                     List<String> tags = null;
                     try {
                         String hostAddress = serverURL;
