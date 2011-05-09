@@ -236,7 +236,6 @@ public abstract class Actor
      * 
      * @param x Location index on the x-axis
      * @param y Location index on the y-axis
-     * @throws IllegalStateException If the actor has not been added into a world.
      * 
      * @see #move(int)
      */
@@ -255,20 +254,23 @@ public abstract class Actor
      * 
      * @param distance  The distance to move (in cell-size units); a negative value
      *                  will move backwards
-     * @throws IllegalStateException If the actor has not been added into a world.
      * 
      * @see #setLocation(int, int)
      */
     public void move(int distance)
     {
-        int adjustedDistance = getWorld().cellSize * distance;
-        double radians = Math.toRadians(rotation);
-        
-        // We round to the nearest integer, to allow moving one unit at an angle
-        // to actually move.
-        int dx = (int) Math.round(Math.cos(radians) * adjustedDistance);
-        int dy = (int) Math.round(Math.sin(radians) * adjustedDistance);
-        setLocation(x + dx, y + dy);
+        World world = getWorld();
+
+        if (world != null) {
+            int adjustedDistance = getWorld().cellSize * distance;
+            double radians = Math.toRadians(rotation);
+
+            // We round to the nearest integer, to allow moving one unit at an angle
+            // to actually move.
+            int dx = (int) Math.round(Math.cos(radians) * adjustedDistance);
+            int dy = (int) Math.round(Math.sin(radians) * adjustedDistance);
+            setLocation(x + dx, y + dy);
+        }
     }
     
     /**
@@ -299,33 +301,34 @@ public abstract class Actor
         // Note this should not call user code - because it is called off the
         // simulation thread. We must access world fields (width, height, cellSize) directly.
         
-        failIfNotInWorld();
-        int oldX = this.x;
-        int oldY = this.y;
+        if (world != null) {
+            int oldX = this.x;
+            int oldY = this.y;
 
-        if (world.isBounded()) {
-            this.x = limitValue(x, world.width);
-            this.y = limitValue(y, world.height);
-        }
-        else {
-            this.x = x;
-            this.y = y;
-        }
-        
-        if (this.x != oldX || this.y != oldY) {
-            if (boundingRect != null) {
-                int dx = (this.x - oldX) * world.cellSize;
-                int dy = (this.y - oldY) * world.cellSize;
-
-                boundingRect.setX(boundingRect.getX() + dx);
-                boundingRect.setY(boundingRect.getY() + dy);
-                
-                for (int i = 0; i < 4; i++) {
-                    boundingXs[i] += dx;
-                    boundingYs[i] += dy;
-                }
+            if (world.isBounded()) {
+                this.x = limitValue(x, world.width);
+                this.y = limitValue(y, world.height);
             }
-            locationChanged(oldX, oldY);
+            else {
+                this.x = x;
+                this.y = y;
+            }
+
+            if (this.x != oldX || this.y != oldY) {
+                if (boundingRect != null) {
+                    int dx = (this.x - oldX) * world.cellSize;
+                    int dy = (this.y - oldY) * world.cellSize;
+
+                    boundingRect.setX(boundingRect.getX() + dx);
+                    boundingRect.setY(boundingRect.getY() + dy);
+
+                    for (int i = 0; i < 4; i++) {
+                        boundingXs[i] += dx;
+                        boundingYs[i] += dy;
+                    }
+                }
+                locationChanged(oldX, oldY);
+            }
         }
     }
 
