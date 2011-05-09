@@ -14,8 +14,8 @@
 
     <!-- Greenfoot Version Number -->
     <property name="greenfoot.version.major" value="2"/>
-    <property name="greenfoot.version.minor" value="0"/>
-    <property name="greenfoot.version.micro" value="2"/>
+    <property name="greenfoot.version.minor" value="1"/>
+    <property name="greenfoot.version.micro" value="0"/>
     
     <!-- Change when API has changed in a way that is likely to break some scenarios. 
     A warning will be shown to the user - update the greenfoot-labels file to
@@ -39,6 +39,9 @@
 
     <property name="greenfoot.version" value="${greenfoot.version.major}.${greenfoot.version.minor}.${greenfoot.version.micro}"/>
     <property name="greenfoot.version.nodots" value="${greenfoot.version.major}${greenfoot.version.minor}${greenfoot.version.micro}"/>
+	
+	<!-- Suffix added after version number in output files -->
+	<property name="greenfoot.rcsuffix" value=""/>
 
     <!-- Location of the bluej lib dir -->
     <property name="bluej.lib.greenfoot"  location="${bluej.projectdir}/lib/greenfoot"/>
@@ -355,13 +358,13 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <!-- Run the BlueJ dist-->
         <ant dir="${bluej.projectdir}" target="dist-greenfoot" />
 
-        <move file="${bluej.installer.jar}" tofile="${package}/Greenfoot-generic-${greenfoot.version.nodots}.jar"/>
-        <move file="${bluej.dist.jar}" tofile="${package}/greenfoot-dist-${greenfoot.version.nodots}.jar"/>
-        <move file="${bluej.dist.mac}" tofile="${package}/Greenfoot-mac-${greenfoot.version.nodots}.zip"/>
+        <move file="${bluej.installer.jar}" tofile="${package}/Greenfoot-generic-${greenfoot.version.nodots}${greenfoot.rcsuffix}.jar"/>
+        <move file="${bluej.dist.jar}" tofile="${package}/greenfoot-dist-${greenfoot.version.nodots}${greenfoot.rcsuffix}.jar"/>
+        <move file="${bluej.dist.mac}" tofile="${package}/Greenfoot-mac-${greenfoot.version.nodots}${greenfoot.rcsuffix}.zip"/>
 
-        <echo message="The greenfoot dist-jar (used to build windows installer)s is in ${package}/greenfoot-dist-${greenfoot.version.nodots}.jar"/>
-        <echo message="The greenfoot jar-installer is in ${package}/Greenfoot-generic-${greenfoot.version.nodots}.jar"/>
-        <echo message="The greenfoot Mac-installer is in ${package}/Greenfoot-mac-${greenfoot.version.nodots}.zip"/>
+        <echo message="The greenfoot dist-jar (used to build windows installer)s is in ${package}/greenfoot-dist-${greenfoot.version.nodots}${greenfoot.rcsuffix}.jar"/>
+        <echo message="The greenfoot jar-installer is in ${package}/Greenfoot-generic-${greenfoot.version.nodots}${greenfoot.rcsuffix}.jar"/>
+        <echo message="The greenfoot Mac-installer is in ${package}/Greenfoot-mac-${greenfoot.version.nodots}${greenfoot.rcsuffix}.zip"/>
         <echo message="And don't forget to copy this to the gallery: ${package}/Greenfoot-core-${greenfoot.apiversion.public}.jar"/>
     </target>
 	

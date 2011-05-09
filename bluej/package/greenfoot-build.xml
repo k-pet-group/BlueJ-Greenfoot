@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="greenfoot-package" default="dist">
 
+	<!-- Most of the targets in this build file are designed to be called from the
+	     main Greenfoot build.xml file, as they require variables defined by it. -->
+	
     <patternset id="bluej.docfiles">
         <exclude name="**/.#*" />
         <include name="doc/API/**" />
@@ -326,7 +329,7 @@
 		<exec executable="dpkg-deb" searchpath="true">
 		    <arg value="-b" />
 		    <arg file="gfdeb" />
-		    <arg value="greenfoot-${greenfoot.version}.deb" />
+		    <arg value="greenfoot-${greenfoot.version}${greenfoot.rcsuffix}.deb" />
 		</exec>
 		
         <delete dir="gfdeb" />
