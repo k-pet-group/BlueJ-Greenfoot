@@ -3,7 +3,7 @@
 
 [Setup]
 AppName=Greenfoot
-AppVerName=Greenfoot 2.0.2
+AppVerName=Greenfoot 2.1.0
 AppPublisher=La Trobe University
 AppPublisherURL=http://www.greenfoot.org
 AppSupportURL=http://www.greenfoot.org
@@ -12,7 +12,7 @@ UninstallFilesDir={app}\uninst
 DefaultDirName={sd}\Greenfoot
 DefaultGroupName=Greenfoot
 Compression=bzip/9
-OutputBaseFilename=Greenfoot-windows-2.0.2
+OutputBaseFilename=Greenfoot-windows-2.1.0
 OutputDir=.
 PrivilegesRequired=none
 ChangesAssociations=yes
