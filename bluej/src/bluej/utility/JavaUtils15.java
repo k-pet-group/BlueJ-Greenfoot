@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -47,6 +47,7 @@ public class JavaUtils15 extends JavaUtils
      */
     public String getDescription(Method method, String [] paramnames,
             Map<String,? extends GenTypeParameter> tparams, boolean longDesc)
+        throws ClassNotFoundException
     {
         // If tparams is null, the parent object is raw.
         if(tparams == null) {
@@ -73,45 +74,63 @@ public class JavaUtils15 extends JavaUtils
         name += rtype.mapTparsToTypes(newMap).toString(true) + " " + method.getName();
         JavaType[] paramTypes = getParamGenTypes(method, false);
         String[] paramTypeNames = new String[paramTypes.length];
-        for(int i = 0; i < paramTypes.length; i++)
+        for(int i = 0; i < paramTypes.length; i++) {
             paramTypeNames[i] = paramTypes[i].mapTparsToTypes(newMap).toString(true);
+        }
         
         return makeDescription(name, paramTypeNames, paramnames, longDesc, method.isVarArgs());
     }
 
+    @Override
     public String getShortDesc(Method method, String [] paramnames, Map<String,GenTypeParameter> tparams)
+        throws ClassNotFoundException
     {
         return getDescription(method, paramnames, tparams, false);
     }
 
+    @Override
     public String getLongDesc(Method method, String [] paramnames, Map<String,GenTypeParameter> tparams)
+        throws ClassNotFoundException
     {
         return getDescription(method, paramnames, tparams, true);
     }
     
+    @Override
     public String getShortDesc(Method method, String [] paramnames)
+        throws ClassNotFoundException
     {
-        String name = getTypeParameters(method);
-        name += getTypeName(method.getGenericReturnType()) + " " + method.getName();
+        try {
+            String name = getTypeParameters(method);
+            name += getTypeName(method.getGenericReturnType()) + " " + method.getName();
 
-        // Get the names without introducing ellipsis for varargs
-        Type[] paramTypes = method.getGenericParameterTypes();       
-        String[] paramTypeNames = getParameterTypes(paramTypes, false);
-        
-        return makeDescription(name, paramTypeNames, paramnames, false, method.isVarArgs());
+            // Get the names without introducing ellipsis for varargs
+            Type[] paramTypes = method.getGenericParameterTypes();       
+            String[] paramTypeNames = getParameterTypes(paramTypes, false);
+
+            return makeDescription(name, paramTypeNames, paramnames, false, method.isVarArgs());
+        }
+        catch (TypeNotPresentException tnpe) {
+            throw new ClassNotFoundException(tnpe.typeName(), tnpe.getCause());
+        }
     }
 
-    public String getLongDesc(Method method, String [] paramnames)
+    @Override
+    public String getLongDesc(Method method, String [] paramnames) throws ClassNotFoundException
     {
-        String name = getTypeParameters(method);
-        name += getTypeName(method.getGenericReturnType()) + " " + method.getName();
-        
-        // Get the names without introducing ellipsis for varargs
-        Type[] paramTypes = method.getGenericParameterTypes();       
-        String[] paramTypeNames = getParameterTypes(paramTypes, false);
+        try {
+            String name = getTypeParameters(method);
+            name += getTypeName(method.getGenericReturnType()) + " " + method.getName();
 
-        // String[] paramTypes = getParameterTypes(method);
-        return makeDescription(name, paramTypeNames, paramnames, true, method.isVarArgs());
+            // Get the names without introducing ellipsis for varargs
+            Type[] paramTypes = method.getGenericParameterTypes();       
+            String[] paramTypeNames = getParameterTypes(paramTypes, false);
+
+            // String[] paramTypes = getParameterTypes(method);
+            return makeDescription(name, paramTypeNames, paramnames, true, method.isVarArgs());
+        }
+        catch (TypeNotPresentException tnpe) {
+            throw new ClassNotFoundException(tnpe.typeName(), tnpe.getCause());
+        }
     }
     
     /*
@@ -122,6 +141,7 @@ public class JavaUtils15 extends JavaUtils
      * Make a constructor description (short or long).
      */
     public String getDescription(Constructor<?> constructor, String [] paramnames, boolean longDesc)
+        throws ClassNotFoundException
     {
         String name = getTypeParameters(constructor);
         name += constructor.getName();        
@@ -135,12 +155,16 @@ public class JavaUtils15 extends JavaUtils
         return makeDescription(name, paramTypeNames, paramnames, longDesc, constructor.isVarArgs());
     }
     
+    @Override
     public String getShortDesc(Constructor<?> constructor, String [] paramnames)
+        throws ClassNotFoundException
     {
         return getDescription(constructor, paramnames, false);
     }
 
+    @Override
     public String getLongDesc(Constructor<?> constructor, String [] paramnames)
+        throws ClassNotFoundException
     {
         return getDescription(constructor, paramnames, true);
     }
@@ -149,119 +173,181 @@ public class JavaUtils15 extends JavaUtils
      * Check various attributes of constructors / methods
      */
     
+    @Override
     public boolean isVarArgs(Constructor<?> cons)
     {
         return cons.isVarArgs();
     }
     
+    @Override
     public boolean isVarArgs(Method method)
     {
         return method.isVarArgs();
     }
 
+    @Override
     public boolean isSynthetic(Method method)
     {
         return method.isSynthetic();
     }
     
+    @Override
     public boolean isEnum(Class<?> cl)
     {
         return cl.isEnum();
     }
     
-    public JavaType getReturnType(Method method)
+    @Override
+    public JavaType getReturnType(Method method) throws ClassNotFoundException
     {
-        Type rt = method.getGenericReturnType();
-        return genTypeFromType(rt);
+        try {
+            Type rt = method.getGenericReturnType();
+            return genTypeFromType(rt);
+        }
+        catch (TypeNotPresentException tnpe) {
+            throw new ClassNotFoundException(tnpe.typeName(), tnpe.getCause());
+        }
     }
     
+    @Override
     public JavaType getRawReturnType(Method method)
     {
         Class<?> c = method.getReturnType();
         return JavaUtils.genTypeFromClass(c);
     }
     
-    public JavaType getFieldType(Field field)
+    @Override
+    public JavaType getFieldType(Field field) throws ClassNotFoundException
     {
-        return genTypeFromType(field.getGenericType());
+        try {
+            return genTypeFromType(field.getGenericType());
+        }
+        catch (TypeNotPresentException tnpe) {
+            throw new ClassNotFoundException(tnpe.typeName(), tnpe.getCause());
+        }
     }
     
+    @Override
     public JavaType getRawFieldType(Field field)
     {
         Class<?> c = field.getType();
         return JavaUtils.genTypeFromClass(c);
     }
     
+    @Override
     public List<GenTypeDeclTpar> getTypeParams(Method method)
     {
         return getTypeParams((GenericDeclaration) method);
     }
     
+    @Override
     public List<GenTypeDeclTpar> getTypeParams(Constructor<?> cons)
     {
         return getTypeParams((GenericDeclaration) cons);
     }
 
+    @Override
     public List<GenTypeDeclTpar> getTypeParams(Class<?> cl)
     {
         return getTypeParams((GenericDeclaration) cl);
     }
     
-    public GenTypeClass getSuperclass(Class<?> cl)
+    @Override
+    public GenTypeClass getSuperclass(Class<?> cl) throws ClassNotFoundException
     {
-        Type sc = cl.getGenericSuperclass();
-        if( sc == null )
-            return null;
-        return (GenTypeClass)genTypeFromType(sc);
+        try {
+            Type sc = cl.getGenericSuperclass();
+            if( sc == null ) {
+                return null;
+            }
+            return (GenTypeClass)genTypeFromType(sc);
+        }
+        catch (TypeNotPresentException tnpe) {
+            throw new ClassNotFoundException(tnpe.typeName(), tnpe.getCause());
+        }
     }
     
-    public GenTypeClass [] getInterfaces(Class<?> cl)
+    @Override
+    public GenTypeClass [] getInterfaces(Class<?> cl) throws ClassNotFoundException
     {
-        Type [] classes = cl.getGenericInterfaces();
-        GenTypeClass [] gentypes = new GenTypeClass[classes.length];
-        
-        for( int i = 0; i < classes.length; i++ )
-            gentypes[i] = (GenTypeClass)genTypeFromType(classes[i]);
-        
-        return gentypes;
+        try {
+            Type [] classes = cl.getGenericInterfaces();
+            GenTypeClass [] gentypes = new GenTypeClass[classes.length];
+
+            for( int i = 0; i < classes.length; i++ ) {
+                gentypes[i] = (GenTypeClass)genTypeFromType(classes[i]);
+            }
+
+            return gentypes;
+        }
+        catch (TypeNotPresentException tnpe) {
+            throw new ClassNotFoundException(tnpe.typeName(), tnpe.getCause());
+        }
     }    
     
-    public String[] getParameterTypes(Method method) 
+    @Override
+    public String[] getParameterTypes(Method method) throws ClassNotFoundException
     {
-        Type [] params = method.getGenericParameterTypes();
-        boolean isVarArgs = isVarArgs(method);
-        return getParameterTypes(params, isVarArgs);
+        try {
+            Type [] params = method.getGenericParameterTypes();
+            boolean isVarArgs = isVarArgs(method);
+            return getParameterTypes(params, isVarArgs);
+        }
+        catch (TypeNotPresentException tnpe) {
+            throw new ClassNotFoundException(tnpe.typeName(), tnpe.getCause());
+        }
     }
     
-    public JavaType[] getParamGenTypes(Method method, boolean raw)
+    @Override
+    public JavaType[] getParamGenTypes(Method method, boolean raw) throws ClassNotFoundException
     {
-        Type [] params;
-        if (raw)
-            params = method.getParameterTypes();
-        else
-            params = method.getGenericParameterTypes();
-        JavaType [] gentypes = new JavaType[params.length];
-        for(int i = 0; i < params.length; i++) {
-            gentypes[i] = (JavaType) genTypeFromType(params[i]);
+        try {
+            Type [] params;
+            if (raw) {
+                params = method.getParameterTypes();
+            }
+            else {
+                params = method.getGenericParameterTypes();
+            }
+            JavaType [] gentypes = new JavaType[params.length];
+            for(int i = 0; i < params.length; i++) {
+                gentypes[i] = (JavaType) genTypeFromType(params[i]);
+            }
+            return gentypes;
         }
-        return gentypes;
+        catch (TypeNotPresentException tnpe) {
+            throw new ClassNotFoundException(tnpe.typeName(), tnpe.getCause());
+        }
     }
 
-    public String[] getParameterTypes(Constructor<?> constructor) 
+    @Override
+    public String[] getParameterTypes(Constructor<?> constructor) throws ClassNotFoundException
     {
-        Type [] params = constructor.getGenericParameterTypes();
-        boolean isVarArgs = isVarArgs(constructor);
-        return getParameterTypes(params, isVarArgs);
+        try {
+            Type [] params = constructor.getGenericParameterTypes();
+            boolean isVarArgs = isVarArgs(constructor);
+            return getParameterTypes(params, isVarArgs);
+        }
+        catch (TypeNotPresentException tnpe) {
+            throw new ClassNotFoundException(tnpe.typeName(), tnpe.getCause());
+        }
+
     }
 
-    public JavaType[] getParamGenTypes(Constructor<?> constructor)
+    @Override
+    public JavaType[] getParamGenTypes(Constructor<?> constructor) throws ClassNotFoundException
     {
-        Type [] params = constructor.getGenericParameterTypes();
-        JavaType [] gentypes = new JavaType[params.length];
-        for(int i = 0; i < params.length; i++) {
-            gentypes[i] = (JavaType) genTypeFromType(params[i]);
+        try {
+            Type [] params = constructor.getGenericParameterTypes();
+            JavaType [] gentypes = new JavaType[params.length];
+            for(int i = 0; i < params.length; i++) {
+                gentypes[i] = (JavaType) genTypeFromType(params[i]);
+            }
+            return gentypes;
         }
-        return gentypes;
+        catch (TypeNotPresentException tnpe) {
+            throw new ClassNotFoundException(tnpe.typeName(), tnpe.getCause());
+        }
     }
 
     /* -------------- Internal methods ---------------- */
@@ -274,13 +360,13 @@ public class JavaUtils15 extends JavaUtils
     {
         List<GenTypeDeclTpar> rlist = new ArrayList<GenTypeDeclTpar>();
         TypeVariable<?> [] tvars = decl.getTypeParameters();
-        
+
         Map<String,GenTypeDeclTpar> tvarMap = new HashMap<String,GenTypeDeclTpar>();
-        
+
         for (TypeVariable<?> tvar : tvars) {
             tvarMap.put(tvar.getName(), new GenTypeDeclTpar(tvar.getName()));
         }
-        
+
         for( int i = 0; i < tvars.length; i++ ) {
             // find the bounds.
             Type [] bounds = tvars[i].getBounds();
@@ -288,11 +374,11 @@ public class JavaUtils15 extends JavaUtils
             for (int j = 0; j < bounds.length; j++) {
                 upperBounds[j] = (GenTypeSolid) genTypeFromType(bounds[j], tvarMap);
             }
-            
+
             // add the type parameter to the list.
             GenTypeDeclTpar tpar = tvarMap.get(tvars[i].getName());
             tpar.setBounds(upperBounds);
-            
+
             rlist.add(tpar);
         }
         return rlist;
@@ -301,7 +387,7 @@ public class JavaUtils15 extends JavaUtils
     /**
      * Gets nicely formatted strings describing the parameter types.
      */
-    private String[] getParameterTypes(Type[] params, boolean isVarArgs)
+    private String[] getParameterTypes(Type[] params, boolean isVarArgs) throws ClassNotFoundException
     {
         String[] parameterTypes = new String[params.length];
         for (int j = 0; j < params.length; j++) {
@@ -314,38 +400,49 @@ public class JavaUtils15 extends JavaUtils
         return parameterTypes;
     }
 
-    static private String getTypeName(Type type)
+    /**
+     * Express the given type as a string.
+     */
+    static private String getTypeName(Type type) throws ClassNotFoundException
     {
-        StringBuffer sb = new StringBuffer();
-        Type primtype = type;
-        int dimensions = 0;
-        while(primtype instanceof GenericArrayType) {
-            dimensions++;
-            primtype = ((GenericArrayType)primtype).getGenericComponentType();
+        try {
+            StringBuffer sb = new StringBuffer();
+            Type primtype = type;
+            int dimensions = 0;
+            while(primtype instanceof GenericArrayType) {
+                dimensions++;
+                primtype = ((GenericArrayType)primtype).getGenericComponentType();
+            }
+
+            if(primtype instanceof Class<?>) {
+                sb.append(JavaUtils14.getTypeName((Class<?>)primtype));
+            }
+            else if(primtype instanceof ParameterizedType) {
+                sb.append(getTypeName((ParameterizedType)primtype));
+            }
+            else if(primtype instanceof TypeVariable<?>) {
+                sb.append(((TypeVariable<?>)primtype).getName());
+            }
+            else if(primtype instanceof WildcardType) {
+                sb.append(getTypeName((WildcardType)primtype));
+            }
+            else {
+                Debug.message("getTypeName(): Unknown type: " + primtype.getClass().getName());
+            }
+
+            while( dimensions > 0 ) {
+                sb.append("[]");
+                dimensions--;
+            }
+            return sb.toString();
         }
-        
-        if( primtype == null )
-            Debug.message("type == null??");
-            
-        if(primtype instanceof Class<?>)
-            sb.append(JavaUtils14.getTypeName((Class<?>)primtype));
-        else if(primtype instanceof ParameterizedType)
-            sb.append(getTypeName((ParameterizedType)primtype));
-        else if(primtype instanceof TypeVariable<?>)
-            sb.append(((TypeVariable<?>)primtype).getName());
-        else if(primtype instanceof WildcardType)
-            sb.append(getTypeName((WildcardType)primtype));
-        else
-            Debug.message("getTypeName: Unknown type: " + primtype.getClass().getName());
-        
-        while( dimensions > 0 ) {
-            sb.append("[]");
-            dimensions--;
+        catch (TypeNotPresentException tnpe) {
+            throw new ClassNotFoundException(tnpe.typeName(), tnpe.getCause());
         }
-        return sb.toString();
     }
 
     static private String getTypeName(ParameterizedType type)
+        throws ClassNotFoundException
     {
         StringBuffer sb = new StringBuffer();
         sb.append(getTypeName(type.getRawType()));
@@ -354,15 +451,16 @@ public class JavaUtils15 extends JavaUtils
         Type [] argTypes = type.getActualTypeArguments();
         for(int i = 0; i < argTypes.length; i++) {
             sb.append(getTypeName(argTypes[i]));
-            if( i != argTypes.length - 1 )
+            if( i != argTypes.length - 1 ) {
                 sb.append(',');
+            }
         }
         
         sb.append('>');
         return sb.toString();
     }
 
-    static private String getTypeName(WildcardType type)
+    static private String getTypeName(WildcardType type) throws ClassNotFoundException
     {
         StringBuffer sb = new StringBuffer();
         Type[] upperBounds = type.getUpperBounds();
@@ -423,11 +521,13 @@ public class JavaUtils15 extends JavaUtils
      * @return the parameters (or an empty string)
      */
     static private String getTypeParameters(Method method)
+        throws ClassNotFoundException
     {
         return typeParamsToString(method.getTypeParameters(), true);
     }
     
     static private String getTypeParameters(Constructor<?> cons)
+        throws ClassNotFoundException
     {
         return typeParamsToString(cons.getTypeParameters(), true);
     }
@@ -438,6 +538,7 @@ public class JavaUtils15 extends JavaUtils
      * are no type parameters).
      */
     static private String typeParamsToString(TypeVariable<?> [] tparams, boolean extraSpace)
+        throws ClassNotFoundException
     {
         if( tparams.length != 0 ) {
             String name = "<";
@@ -460,18 +561,20 @@ public class JavaUtils15 extends JavaUtils
                         name += " & " + getTypeName(upperBounds[j]);
                     }
                 }
-                
                                
-                if( i != tparams.length - 1 )
+                if( i != tparams.length - 1 ) {
                     name += ',';
+                }
             }
             name += ">";
-            if (extraSpace)
+            if (extraSpace) {
                 name += " ";
+            }
             return name;
         }
-        else
+        else {
             return "";
+        }
     }
 
     /**
@@ -513,15 +616,18 @@ public class JavaUtils15 extends JavaUtils
                 }
                 else {
                     GenTypeSolid gtp = (GenTypeSolid)genTypeFromType(upperBounds[0], tvars);
-                    if( upperBounds.length != 1 )
+                    if( upperBounds.length != 1 ) {
                         Debug.message("GenTypeFromType: multiple upper bounds for wildcard type?");
+                    }
                     return new GenTypeExtends(gtp);
                 }
             } else {
-                if (upperBounds.length != 0 && upperBounds[0] != null && upperBounds[0] != Object.class)
+                if (upperBounds.length != 0 && upperBounds[0] != null && upperBounds[0] != Object.class) {
                     Debug.message("getTypeName: upper and lower bound?");
-                if (lowerBounds.length != 1)
+                }
+                if (lowerBounds.length != 1) {
                     Debug.message("getTypeName: multiple lower bounds for wildcard type?");
+                }
                 GenTypeParameter lbound = genTypeFromType(lowerBounds[0], tvars);
                 return new GenTypeSuper((GenTypeSolid) lbound);
             }
@@ -538,8 +644,9 @@ public class JavaUtils15 extends JavaUtils
             
             // Check for outer type
             GenTypeClass outer = null;
-            if (pt.getOwnerType() != null)
+            if (pt.getOwnerType() != null) {
                 outer = (GenTypeClass) genTypeFromType(pt.getOwnerType());
+            }
             
             return new GenTypeClass(new JavaReflective(rawtype), arggentypes, outer);
         }

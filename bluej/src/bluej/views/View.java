@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -330,21 +330,30 @@ public class View
 
     public MethodView[] getDeclaredMethods()
     {
-        int count = 0;
         if(methods == null) {
+            int count = 0;
             try {
                 Method[] cl_methods = cl.getDeclaredMethods();
                 
                 for(int i = 0; i < cl_methods.length; i++) {
-                    if (!cl_methods[i].isSynthetic())
+                    if (!cl_methods[i].isSynthetic()) {
                         count++;
+                    }
                 }
                 methods = new MethodView[count];
                 
                 count = 0;
                 for(int i = 0; i < cl_methods.length; i++) {
                     if (!cl_methods[i].isSynthetic()) {
-                        methods[count] = new MethodView(this, cl_methods[i]);
+                        try {
+                            methods[count] = new MethodView(this, cl_methods[i]);
+                        }
+                        catch (Throwable t) {
+                            t.printStackTrace();
+                            if (t instanceof ClassNotFoundException) {
+                                throw (ClassNotFoundException) t;
+                            }
+                        }
                         count++;
                     }
                 }
@@ -353,6 +362,9 @@ public class View
                 // getDeclaredMethods can cause attempts for other classes to be loaded.
                 // This in turn can cause a LinkageError variant to be thrown. (For
                 // instance, NoClassDefFoundError).
+                methods = new MethodView[0];
+            }
+            catch (ClassNotFoundException cnfe) {
                 methods = new MethodView[0];
             }
         }

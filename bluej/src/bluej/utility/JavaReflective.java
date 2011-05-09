@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -188,14 +188,24 @@ public class JavaReflective extends Reflective
             }
         }
 
-        GenTypeClass superclass = JavaUtils.getJavaUtils().getSuperclass(c);
-        if( superclass != null ) {
-            l.add(superclass);
+        GenTypeClass superclass = null;
+        try {
+            superclass = JavaUtils.getJavaUtils().getSuperclass(c);
+            if( superclass != null ) {
+                l.add(superclass);
+            }
         }
+        catch (ClassNotFoundException cnfe) {}
         
-        GenTypeClass[] interfaces = JavaUtils.getJavaUtils().getInterfaces(c);
-        for( int i = 0; i < interfaces.length; i++ ) {
-            l.add(interfaces[i]);
+        GenTypeClass[] interfaces;
+        try {
+            interfaces = JavaUtils.getJavaUtils().getInterfaces(c);
+            for( int i = 0; i < interfaces.length; i++ ) {
+                l.add(interfaces[i]);
+            }
+        }
+        catch (ClassNotFoundException cnfe) {
+            interfaces = new GenTypeClass[0];
         }
 
         // Interfaces with no direct superinterfaces have a supertype of Object
@@ -232,10 +242,15 @@ public class JavaReflective extends Reflective
             Field [] fields = c.getDeclaredFields();
             Map<String,FieldReflective> rmap = new HashMap<String,FieldReflective>();
             for (int i = 0; i < fields.length; i++) {
-                JavaType fieldType = JavaUtils.getJavaUtils().getFieldType(fields[i]);
-                FieldReflective fref = new FieldReflective(fields[i].getName(), fieldType,
-                        fields[i].getModifiers());
-                rmap.put(fields[i].getName(), fref);
+                try {
+                    JavaType fieldType = JavaUtils.getJavaUtils().getFieldType(fields[i]);
+                    FieldReflective fref = new FieldReflective(fields[i].getName(), fieldType,
+                            fields[i].getModifiers());
+                    rmap.put(fields[i].getName(), fref);
+                }
+                catch (ClassNotFoundException cnfe) {
+                    // Can happen if a type parameter cannot be found
+                }
             }
 
             // See JLS section 10.7: arrays have a "public final int length" field
@@ -262,7 +277,14 @@ public class JavaReflective extends Reflective
                     continue;
                 }
 
-                JavaType rtype = JavaUtils.getJavaUtils().getReturnType(method);
+                JavaType rtype;
+                try {
+                    rtype = JavaUtils.getJavaUtils().getReturnType(method);
+                }
+                catch (ClassNotFoundException cnfe) {
+                    // Type parameter missing
+                    rtype = JavaUtils.getJavaUtils().getRawReturnType(method);
+                }
                 List<GenTypeDeclTpar> tpars = JavaUtils.getJavaUtils().getTypeParams(method);
 
                 // We need to create a map from each type parameter name to its type
@@ -273,25 +295,30 @@ public class JavaReflective extends Reflective
                     getTparMapping(method.getDeclaringClass(), tparMap);
                 }
 
-                JavaType [] paramTypes = JavaUtils.getJavaUtils().getParamGenTypes(method, false);
-                List<JavaType> paramTypesList = new ArrayList<JavaType>(paramTypes.length);
-                for (JavaType paramType : paramTypes) {
-                    paramTypesList.add(paramType.mapTparsToTypes(tparMap).getUpperBound());
-                }
+                try {
+                    JavaType [] paramTypes = JavaUtils.getJavaUtils().getParamGenTypes(method, false);
+                    List<JavaType> paramTypesList = new ArrayList<JavaType>(paramTypes.length);
+                    for (JavaType paramType : paramTypes) {
+                        paramTypesList.add(paramType.mapTparsToTypes(tparMap).getUpperBound());
+                    }
 
-                rtype = rtype.mapTparsToTypes(tparMap).getUpperBound();
+                    rtype = rtype.mapTparsToTypes(tparMap).getUpperBound();
 
-                String name = method.getName();
-                MethodReflective mr = new MethodReflective(name, rtype, tpars, paramTypesList,
-                        this,
-                        JavaUtils.getJavaUtils().isVarArgs(method),
-                        method.getModifiers());
-                Set<MethodReflective> rset = rmap.get(method.getName());
-                if (rset == null) {
-                    rset = new HashSet<MethodReflective>();
-                    rmap.put(method.getName(), rset);
+                    String name = method.getName();
+                    MethodReflective mr = new MethodReflective(name, rtype, tpars, paramTypesList,
+                            this,
+                            JavaUtils.getJavaUtils().isVarArgs(method),
+                            method.getModifiers());
+                    Set<MethodReflective> rset = rmap.get(method.getName());
+                    if (rset == null) {
+                        rset = new HashSet<MethodReflective>();
+                        rmap.put(method.getName(), rset);
+                    }
+                    rset.add(mr);
                 }
-                rset.add(mr);
+                catch (ClassNotFoundException cnfe) {
+                    continue;
+                }
             }
 
             // See JLS section 10.7: arrays have a "public Object clone()" method

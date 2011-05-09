@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -41,14 +41,16 @@ public class MethodView extends CallableView implements Comparable<MethodView>
 {
     protected Method method;
     protected View returnType;
+    private JavaType jtReturnType;
 
     /**
      * Constructor.
      */
-    public MethodView(View view, Method method)
+    public MethodView(View view, Method method) throws ClassNotFoundException
     {
         super(view);
         this.method = method;
+        jtReturnType = JavaUtils.getJavaUtils().getReturnType(method);
     }
 
     public Method getMethod()
@@ -83,6 +85,7 @@ public class MethodView extends CallableView implements Comparable<MethodView>
      * Returns a signature string in the format
      * "type name(type,type,type)".
      */
+    @Override
     public String getSignature()
     {
         return JavaUtils.getSignature(method);
@@ -103,8 +106,9 @@ public class MethodView extends CallableView implements Comparable<MethodView>
         Class<?>[] params = method.getParameterTypes();
         for(int i = 0; i < params.length; i++) {
             name.append(params[i].getName());
-            if (i != params.length - 1)
+            if (i != params.length - 1) {
                 name.append(',');
+            }
         }
         name.append(')');
         return name.toString();
@@ -114,33 +118,31 @@ public class MethodView extends CallableView implements Comparable<MethodView>
      * Get a short String describing this member. A description is similar
      * to the signature, but it has parameter names in it instead of types.
      */
+    @Override
     public String getShortDesc()
     {
-        return JavaUtils.getJavaUtils().getShortDesc(method, getParamNames());
+        try {
+            return JavaUtils.getJavaUtils().getShortDesc(method, getParamNames());
+        }
+        catch (ClassNotFoundException cnfe) {
+            return ""; // TODO handle.
+        }
     }
 
-    /**
-     * Get a short description string, mapping type parameters from the
-     * class to the corresponding instantiation type. Type parameters not
-     * contained in the map are mapped to their erasure type; type parameters
-     * from a generic method are left unmapped.
-     *  
-     * @param genericParams  The map of name to type
-     * @return  the signature string with type parameters mapped
-     */
-    public String getShortDesc(Map<String,GenTypeParameter> genericParams)
-    {
-        return JavaUtils.getJavaUtils().getShortDesc(method, getParamNames(), genericParams);
-    }
-    
     /**
      * Get a long String describing this member. A long description is
      * similar to the short description, but it has type names and parameters
      * included.
      */
+    @Override
     public String getLongDesc()
     {
-        return JavaUtils.getJavaUtils().getLongDesc(method, getParamNames());
+        try {
+            return JavaUtils.getJavaUtils().getLongDesc(method, getParamNames());
+        }
+        catch (ClassNotFoundException cnfe) {
+            return ""; // TODO handle properly.
+        }
     }
     
     /**
@@ -154,11 +156,16 @@ public class MethodView extends CallableView implements Comparable<MethodView>
      */
     public String getLongDesc(Map<String,GenTypeParameter> genericParams)
     {
-        if (genericParams == null && isStatic()) {
-            return JavaUtils.getJavaUtils().getLongDesc(method, getParamNames());
+        try {
+            if (genericParams == null && isStatic()) {
+                return JavaUtils.getJavaUtils().getLongDesc(method, getParamNames());
+            }
+            else {
+                return JavaUtils.getJavaUtils().getLongDesc(method, getParamNames(), genericParams);
+            }
         }
-        else {
-            return JavaUtils.getJavaUtils().getLongDesc(method, getParamNames(), genericParams);
+        catch (ClassNotFoundException cnfe) {
+            return ""; // TODO handle.
         }
     }
 
@@ -171,54 +178,72 @@ public class MethodView extends CallableView implements Comparable<MethodView>
         return method.getParameterTypes();
     }
     
+    @Override
     public JavaType[] getParamTypes(boolean raw)
     {
-        JavaUtils jutils = JavaUtils.getJavaUtils();
-        JavaType [] ptypes = jutils.getParamGenTypes(method, raw);
-        return ptypes;
+        try {
+            JavaUtils jutils = JavaUtils.getJavaUtils();
+            JavaType [] ptypes = jutils.getParamGenTypes(method, raw);
+            return ptypes;
+        }
+        catch (ClassNotFoundException cnfe) {
+            return new JavaType[0]; // TODO handle better
+        }
     }
     
-    public GenTypeDeclTpar[] getTypeParams()
+    @Override
+    public GenTypeDeclTpar[] getTypeParams() throws ClassNotFoundException
     {
         JavaUtils jutils = JavaUtils.getJavaUtils();
         List<GenTypeDeclTpar> tparams = jutils.getTypeParams(method);
         return tparams.toArray(new GenTypeDeclTpar[0]);
     }
     
-    public String[] getParamTypeStrings() 
+    @Override
+    public String[] getParamTypeStrings()
     {
-        return JavaUtils.getJavaUtils().getParameterTypes(method);
+        try {
+            return JavaUtils.getJavaUtils().getParameterTypes(method);
+        }
+        catch (ClassNotFoundException cnfe) {
+            return new String[0]; // TODO handle better
+        }
     }
 
     /**
      * Returns the name of this method as a String
      */
-    public String getName() {
+    public String getName()
+    {
         return method.getName();
     }
 
     /**
-     * @returns a boolean indicating whether this method has no return value
+     * Check whether this is method returns void
      */
-    public boolean isVoid() {
-        String resultName = getReturnType().getQualifiedName();
-        return "void".equals(resultName);
+    public boolean isVoid()
+    {
+        return method.getReturnType() == void.class;
     }
 
     /**
      * @returns if this method is the main method (a static void returning
      * function called main with a string array as an argument)
      */
-    public boolean isMain() {
-        if (!isVoid())
+    public boolean isMain()
+    {
+        if (!isVoid()) {
             return false;
+        }
         if ("main".equals(getName())) {
             Class<?>[] c = getParameters();
-            if (c.length != 1)
+            if (c.length != 1) {
                 return false;
+            }
             if (c[0].isArray() && String.class.equals(c[0].getComponentType())) {
-                if (Modifier.isStatic(getModifiers()) && Modifier.isPublic(getModifiers()))
+                if (Modifier.isStatic(getModifiers()) && Modifier.isPublic(getModifiers())) {
                     return true;
+                }
             }
         }
         return false;
@@ -227,6 +252,7 @@ public class MethodView extends CallableView implements Comparable<MethodView>
     /**
      * Whether this method has a var arg.
      */
+    @Override
     public boolean isVarArgs()
     {
         return JavaUtils.getJavaUtils().isVarArgs(method);
@@ -235,6 +261,7 @@ public class MethodView extends CallableView implements Comparable<MethodView>
     /**
      * Test whether the method is generic.
      */
+    @Override
     public boolean isGeneric()
     {
         return !JavaUtils.getJavaUtils().getTypeParams(method).isEmpty();
@@ -246,25 +273,33 @@ public class MethodView extends CallableView implements Comparable<MethodView>
      */
     public View getReturnType()
     {
-        if (returnType == null)
+        if (returnType == null) {
             returnType = View.getView(method.getReturnType());
+        }
         return returnType;
     }
     
-    public JavaType getGenericReturnType() {
-        return JavaUtils.getJavaUtils().getReturnType(method);
+    /**
+     * Get the return type of this method.
+     */
+    public JavaType getGenericReturnType()
+    {
+        return jtReturnType;
     }
     
     public void print(FormattedPrintWriter out, Map<String,GenTypeParameter> typeParams, int indents)
     {
         Comment comment = getComment();
-        if(comment != null)
+        if(comment != null) {
             comment.print(out, indents);
+        }
 
         out.setItalic(false);
         out.setBold(true);
-        for(int i=0; i<indents; i++)
+        for(int i=0; i<indents; i++) {
             out.indentLine();
+        }
+        
         out.println(getLongDesc(typeParams));
     }
 

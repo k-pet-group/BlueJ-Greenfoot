@@ -186,7 +186,8 @@ public abstract class JavaUtils
      * @param paramnames  The parameter names of the method
      * @return The description.
      */
-    abstract public String getShortDesc(Method method, String [] paramnames);
+    abstract public String getShortDesc(Method method, String [] paramnames)
+        throws ClassNotFoundException;
 
     /**
      * Get a "short description" of a method, and map class type parameters to
@@ -200,14 +201,15 @@ public abstract class JavaUtils
      * @return The description.
      */
     abstract public String getShortDesc(Method method, String [] paramnames,
-            Map<String,GenTypeParameter> tparams);
+            Map<String,GenTypeParameter> tparams) throws ClassNotFoundException;
 
     /**
      * Get a long String describing the method. A long description is
      * similar to the short description, but it has type names and parameters
      * included.
      */
-    abstract public String getLongDesc(Method method, String [] paramnames);
+    abstract public String getLongDesc(Method method, String [] paramnames)
+        throws ClassNotFoundException;
     
     /**
      * Get a long String describing the method, with class type parameters
@@ -220,7 +222,7 @@ public abstract class JavaUtils
      * @return The long description string.
      */
     abstract public String getLongDesc(Method method, String [] paramnames,
-            Map<String,GenTypeParameter> tparams);
+            Map<String,GenTypeParameter> tparams) throws ClassNotFoundException;
     
     /**
      * Get a "short description" of a constructor. This is like the signature,
@@ -229,14 +231,16 @@ public abstract class JavaUtils
      * @param constructor   The constructor to get the description of
      * @return The description.
      */
-    abstract public String getShortDesc(Constructor<?> constructor, String [] paramnames);
+    abstract public String getShortDesc(Constructor<?> constructor, String [] paramnames)
+        throws ClassNotFoundException;
     
     /**
      * Get a long String describing the constructor. A long description is
      * similar to the short description, but it has type names and parameters
      * included.
      */
-    abstract public String getLongDesc(Constructor<?> constructor, String [] paramnames);
+    abstract public String getLongDesc(Constructor<?> constructor, String [] paramnames)
+        throws ClassNotFoundException;
     
     abstract public boolean isVarArgs(Constructor<?> cons);
     
@@ -249,14 +253,14 @@ public abstract class JavaUtils
     /**
      * Get the return type of a method.
      */
-    abstract public JavaType getReturnType(Method method);
+    abstract public JavaType getReturnType(Method method) throws ClassNotFoundException;
     
     abstract public JavaType getRawReturnType(Method method);
 
     /**
      * Get the declared type of a field.
      */
-    abstract public JavaType getFieldType(Field field);
+    abstract public JavaType getFieldType(Field field) throws ClassNotFoundException;
     
     abstract public JavaType getRawFieldType(Field field);
     
@@ -290,14 +294,14 @@ public abstract class JavaUtils
     /**
      * Get the declared supertype of a class.
      */
-    abstract public GenTypeClass getSuperclass(Class<?> cl);
+    abstract public GenTypeClass getSuperclass(Class<?> cl) throws ClassNotFoundException;
     
     /**
      * Get a list of the interfaces directly implemented by the given class.
      * @param cl  The class for which to find the interfaces
      * @return    An array of interfaces
      */
-    abstract public GenTypeClass [] getInterfaces(Class<?> cl);
+    abstract public GenTypeClass [] getInterfaces(Class<?> cl) throws ClassNotFoundException;
     
     /**
      * Gets an array of nicely formatted strings with the types of the parameters.
@@ -305,7 +309,7 @@ public abstract class JavaUtils
      * 
      * @param method The method to get the parameters for.
      */
-    abstract public String[] getParameterTypes(Method method);
+    abstract public String[] getParameterTypes(Method method) throws ClassNotFoundException;
     
     /**
      * Get an array containing the argument types of the method.
@@ -317,7 +321,7 @@ public abstract class JavaUtils
      * @param raw     whether to return the raw versions of argument types
      * @return  the argument types
      */
-    abstract public JavaType[] getParamGenTypes(Method method, boolean raw);
+    abstract public JavaType[] getParamGenTypes(Method method, boolean raw) throws ClassNotFoundException;
     
     /**
      * Gets an array of nicely formatted strings with the types of the parameters.
@@ -325,7 +329,7 @@ public abstract class JavaUtils
      * 
      * @param constructor The constructor to get the parameters for.
      */
-    abstract public String[] getParameterTypes(Constructor<?> constructor);
+    abstract public String[] getParameterTypes(Constructor<?> constructor) throws ClassNotFoundException;
     
     /**
      * Get an array containing the argument types of the method.
@@ -336,7 +340,7 @@ public abstract class JavaUtils
      * @param method  the method whose argument types to get
      * @return  the argument types
      */
-    abstract public JavaType[] getParamGenTypes(Constructor<?> constructor);
+    abstract public JavaType[] getParamGenTypes(Constructor<?> constructor) throws ClassNotFoundException;
 
     /**
      * Open a web browser to show the given URL. On Java 6+ we can use

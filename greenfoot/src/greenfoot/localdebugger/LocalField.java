@@ -70,13 +70,18 @@ public class LocalField extends DebuggerField
     @Override
     public JavaType getType()
     {
-        JavaType fieldType = JavaUtils.getJavaUtils().getFieldType(field);
-        if (parentObject != null) {
-            GenTypeClass parentType = parentObject.getGenType();
-            parentType = parentType.mapToSuper(field.getDeclaringClass().getName());
-            fieldType = fieldType.mapTparsToTypes(parentType.getMap()).getUpperBound();
+        try {
+            JavaType fieldType = JavaUtils.getJavaUtils().getFieldType(field);
+            if (parentObject != null) {
+                GenTypeClass parentType = parentObject.getGenType();
+                parentType = parentType.mapToSuper(field.getDeclaringClass().getName());
+                fieldType = fieldType.mapTparsToTypes(parentType.getMap()).getUpperBound();
+            }
+            return fieldType;
         }
-        return fieldType;
+        catch (ClassNotFoundException cnfe) {
+            return new GenTypeClass(new JavaReflective(field.getType()));
+        }
     }
     
     @Override

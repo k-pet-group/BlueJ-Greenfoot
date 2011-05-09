@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -93,7 +93,12 @@ public final class ConstructorView extends CallableView
      */
     public String getShortDesc() 
     {
-        return JavaUtils.getJavaUtils().getShortDesc(cons, getParamNames());       
+        try {
+            return JavaUtils.getJavaUtils().getShortDesc(cons, getParamNames());
+        }
+        catch (ClassNotFoundException cnfe) {
+            return ""; // TODO handle better
+        }
     }
 
     /**
@@ -103,7 +108,12 @@ public final class ConstructorView extends CallableView
      */
     public String getLongDesc() 
     {
-        return JavaUtils.getJavaUtils().getLongDesc(cons, getParamNames());
+        try {
+            return JavaUtils.getJavaUtils().getLongDesc(cons, getParamNames());
+        }
+        catch (ClassNotFoundException cnfe) {
+            return ""; // TODO handle better
+        }
     }
     
     /**
@@ -115,16 +125,29 @@ public final class ConstructorView extends CallableView
         return cons.getParameterTypes();
     }
     
+    @Override
     public String[] getParamTypeStrings() 
     {
-        return JavaUtils.getJavaUtils().getParameterTypes(cons);
+        try {
+            return JavaUtils.getJavaUtils().getParameterTypes(cons);
+        }
+        catch (ClassNotFoundException cnfe) {
+            return new String[0]; // TODO handle better
+        }
     }
     
+    @Override
     public JavaType[] getParamTypes(boolean raw)
     {
-        return JavaUtils.getJavaUtils().getParamGenTypes(cons);
+        try {
+            return JavaUtils.getJavaUtils().getParamGenTypes(cons);
+        }
+        catch (ClassNotFoundException cnfe) {
+            return new JavaType[0]; // TODO handle better
+        }
     }
     
+    @Override
     public GenTypeDeclTpar[] getTypeParams()
     {
         JavaUtils jutils = JavaUtils.getJavaUtils();

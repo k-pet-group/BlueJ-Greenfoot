@@ -132,7 +132,7 @@ public class ResultInspector extends Inspector
         Method m = methodView.getMethod();
 
         // Find the expected return type
-        JavaType methodReturnType = JavaUtils.getJavaUtils().getReturnType(m);
+        JavaType methodReturnType = methodView.getGenericReturnType();
 
         // TODO: infer type of generic parameters based on the actual
         // arguments passed to the method.
