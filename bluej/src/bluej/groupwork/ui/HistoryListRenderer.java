@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -42,7 +42,6 @@ import bluej.utility.MultiWrapLabel;
  * width.
  * 
  * @author Davin McCall
- * @version $Id: HistoryListRenderer.java 6215 2009-03-30 13:28:25Z polle $
  */
 public class HistoryListRenderer extends DBox implements ListCellRenderer
 {
@@ -118,7 +117,7 @@ public class HistoryListRenderer extends DBox implements ListCellRenderer
       boolean cellHasFocus)    // the list and the cell have the focus
     {
         HistoryInfo info = (HistoryInfo) value;
-        String topText = info.getDate() + " "  + info.getRevision() + " " + info.getUser();
+        String topText = info.getDate() + "  "  + info.getRevision() + "  " + info.getUser();
         String [] files = info.getFiles();
         String filesText = files[0];
         for (int i = 1; i < files.length; i++) {
