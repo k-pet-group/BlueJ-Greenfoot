@@ -26,8 +26,8 @@ public class Explosion extends Actor
     /** How much do we increment the index in the explosion animation. */
     private int increment=1;    
     
-    public Explosion() {
-        
+    public Explosion()
+    {
         initialiseImages();
         setImage(images[0]);        
         Greenfoot.playSound("Explosion.wav");
@@ -36,7 +36,8 @@ public class Explosion extends Actor
     /** 
      * Create the images for explosion.
      */
-    public synchronized static void initialiseImages() {
+    public synchronized static void initialiseImages()
+    {
         if(images == null) {
             GreenfootImage baseImage = new GreenfootImage("explosion.png");
             int maxSize = baseImage.getWidth()*4;
