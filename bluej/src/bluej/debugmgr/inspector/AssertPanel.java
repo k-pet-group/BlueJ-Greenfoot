@@ -196,6 +196,9 @@ public class AssertPanel extends JPanel
         }
     }
     
+    /**
+     * Set the result type, used to determine which assertion methods may be applicable.
+     */
     public void setResultType(JavaType type)
     {
         if (type.typeIs(JavaType.JT_FLOAT) || type.typeIs(JavaType.JT_DOUBLE)) {
@@ -219,9 +222,7 @@ public class AssertPanel extends JPanel
     }
     
     /**
-     * 
-     * @return a boolean indicating if the user wanted assertions for this
-     *         result
+     * Check whether the user has asked for an assertion to be recorded.
      */
     public boolean isAssertEnabled()
     {
