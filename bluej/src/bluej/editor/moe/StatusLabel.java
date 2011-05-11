@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,19 +22,22 @@
 package bluej.editor.moe;
 
 import bluej.Config;
+import bluej.prefmgr.PrefMgr;
+
 import java.awt.*;              // New Event model    
 import javax.swing.*;
 
 /**
-** @author Michael Kolling
-**
-**/
-
+ * Status label for the Moe editor.
+ * 
+ * @author Michael Kolling
+ */
 public final class StatusLabel extends JLabel
 {
     // ---------------- CONSTANTS -----------------
 
-    public static Font statusFont = new Font("SansSerif", Font.BOLD | Font.ITALIC, 11);
+    private static Font statusFont = new Font("SansSerif",
+            Font.BOLD | Font.ITALIC, PrefMgr.getEditorFontSize() - 1);
 
     // current save state
     static final int READONLY = 0;
@@ -47,11 +50,9 @@ public final class StatusLabel extends JLabel
         Config.getString("editor.state.changed")
     };
 
-
     // ------------ INSTANCE VARIABLES ------------
 
     private int state;
-
 
     // -------------- CONSTRUCTORS ----------------
 
@@ -86,5 +87,15 @@ public final class StatusLabel extends JLabel
         state = newState;
         setText(stateString[state]);
     }
-
-}  // end class StatusLabel
+    
+    public void refresh()
+    {
+        setFont(statusFont);
+    }
+    
+    public static void resetFont()
+    {
+        int fontSize = Math.max(PrefMgr.getEditorFontSize() - 1, 1);
+        statusFont = new Font("SansSerif", Font.BOLD | Font.ITALIC, fontSize);
+    }
+}

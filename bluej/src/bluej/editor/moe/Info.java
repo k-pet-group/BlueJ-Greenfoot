@@ -22,13 +22,14 @@
 package bluej.editor.moe;
 
 import bluej.Config;
+import bluej.prefmgr.PrefMgr;
 import bluej.utility.DialogManager;
 import bluej.utility.BlueJFileReader;
 
 import bluej.utility.Utility;
 import java.awt.*;              // MenuBar, MenuItem, Menu, Button, etc.
 import java.awt.event.*;        // New Event model
-import javax.swing.*;		// all the GUI components
+import javax.swing.*;           // all the GUI components
 import java.io.*;
 import javax.swing.border.EmptyBorder;
 
@@ -44,7 +45,7 @@ public final class Info extends JPanel
 {
     static final ImageIcon helpImage = Config.getFixedImageAsIcon("help.png");
 
-    public static Font infoFont = new Font("SansSerif", Font.BOLD, 10);
+    private static Font infoFont = new Font("SansSerif", Font.BOLD, PrefMgr.getEditorFontSize() - 1);
 
     // -------- INSTANCE VARIABLES --------
 
@@ -65,9 +66,8 @@ public final class Info extends JPanel
         super();
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createLineBorder(Color.black));
-        setFont(infoFont);
 
-        JPanel body = new JPanel(new GridLayout(0, 1));	// one col, many rows
+        JPanel body = new JPanel(new GridLayout(0, 1)); // one col, many rows
         body.setBackground(MoeEditor.infoColor);
         body.setBorder(new EmptyBorder(0,6,0,4));
         line1 = new JLabel();
@@ -91,6 +91,17 @@ public final class Info extends JPanel
 
         isClear = true;
         helpGroup = "";
+        refresh();
+    }
+    
+    /**
+     * Reset the font size for all Info instances - each instance must be
+     * individually refresh()ed after calling this.
+     */
+    public static void resetFont()
+    {
+        int fsize = Math.max(PrefMgr.getEditorFontSize() - 1, 1);
+        infoFont = new Font("SansSerif", Font.BOLD, fsize);
     }
 
     /**
@@ -113,7 +124,6 @@ public final class Info extends JPanel
         }
     }
 
-
     /**
      * display a two line message
      */
@@ -127,7 +137,6 @@ public final class Info extends JPanel
         hideHelp();
     }
 
-
     /**
      * display a one- or two-line warning (message with beep). Separate lines should
      * be delimited with '\n'.
@@ -138,7 +147,6 @@ public final class Info extends JPanel
         MoeEditorManager.editorManager.beep();
     }
 
-
     /**
      * display a two line warning (message with beep)
      */
@@ -147,7 +155,6 @@ public final class Info extends JPanel
         message (msg1, msg2);
         MoeEditorManager.editorManager.beep();
     }
-
 
     /**
      * clear the display
@@ -160,7 +167,15 @@ public final class Info extends JPanel
         }
     }
 
-
+    /**
+     * Refresh display parameters (font size).
+     */
+    public void refresh()
+    {
+        line1.setFont(infoFont);
+        line2.setFont(infoFont);
+    }
+    
     /**
      * Set the "help group" (the name of the compiler, used to locate the additional
      * help text for error messages)

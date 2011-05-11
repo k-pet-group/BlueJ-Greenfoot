@@ -460,6 +460,11 @@ public final class MoeEditor extends JFrame
         sourcePane.setFont(PrefMgr.getStandardEditorFont());
         checkBracketStatus();
         currentTextPane.repaint();
+        
+        Info.resetFont();
+        info.refresh();
+        StatusLabel.resetFont();
+        saveState.refresh();
     }
 
     /*
