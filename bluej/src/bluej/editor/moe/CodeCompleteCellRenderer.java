@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 2010,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -51,18 +51,16 @@ public class CodeCompleteCellRenderer extends JPanel implements ListCellRenderer
     
     private Dimension rtypeSize;
     private String immediateType;
-    private static Font cfont;
-    private static Font cfontBold;
+    private Font cfont;
+    private Font cfontBold;
     
     CodeCompleteCellRenderer(String immediateType)
     {
         setBorder(null);
         setLayout(new DBoxLayout(DBoxLayout.X_AXIS));
-        if (cfont == null) {
-            int fontSize = PrefMgr.getStandardEditorFont().getSize();
-            cfont = Config.getFont("bluej.codecompletion.font", "Monospaced", fontSize);
-            cfontBold = cfont.deriveFont(Font.BOLD);
-        }
+        int fontSize = PrefMgr.getStandardEditorFont().getSize();
+        cfont = Config.getFont("bluej.codecompletion.font", "Monospaced", fontSize);
+        cfontBold = cfont.deriveFont(Font.BOLD);
         typeLabel.setFont(cfont);
         typeLabel.setText("String123456"); // for assigning width
         rtypeSize = typeLabel.getPreferredSize();

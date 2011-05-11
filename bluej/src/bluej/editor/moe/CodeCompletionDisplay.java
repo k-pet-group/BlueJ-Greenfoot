@@ -65,6 +65,7 @@ import bluej.Config;
 import bluej.parser.AssistContent;
 import bluej.parser.SourceLocation;
 import bluej.parser.lexer.LocatableToken;
+import bluej.prefmgr.PrefMgr;
 import bluej.utility.JavaUtils;
 
 
@@ -203,6 +204,7 @@ public class CodeCompletionDisplay extends JFrame
         // we set the background with an alpha component of zero to get transparency
         // (see http://forums.java.net/jive/thread.jspa?messageID=267839)
         methodDescription.setBackground(new Color(0,0,0,0));
+        methodDescription.setFont(methodDescription.getFont().deriveFont((float)PrefMgr.getEditorFontSize()));
         
         methodList = new JList();
         methodList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -275,6 +277,7 @@ public class CodeCompletionDisplay extends JFrame
         
         // Set a standard height/width
         Font mlFont = methodList.getFont();
+        mlFont = mlFont.deriveFont((float)PrefMgr.getEditorFontSize());
         FontMetrics metrics = methodList.getFontMetrics(mlFont);
         Dimension size = new Dimension(metrics.charWidth('m') * 30, metrics.getHeight() * 15);
 
@@ -283,7 +286,7 @@ public class CodeCompletionDisplay extends JFrame
         scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scrollPane.setPreferredSize(size);
         methodPanel.add(scrollPane);
-
+        methodPanel.setFont(mlFont);
         
         scrollPane = new GradientFillScrollPane(methodDescription, new Color(250,246,229), new Color(240,220,140));
         scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
