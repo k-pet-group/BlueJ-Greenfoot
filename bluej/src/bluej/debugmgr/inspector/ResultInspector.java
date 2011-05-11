@@ -293,6 +293,7 @@ public class ResultInspector extends Inspector
             assertPanel = new AssertPanel();
             {
                 assertPanel.setAlignmentX(LEFT_ALIGNMENT);
+                assertPanel.setResultType(resultType);
                 bottomPanel.add(assertPanel);
             }
         }
