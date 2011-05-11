@@ -253,8 +253,6 @@ public final class MoeEditor extends JFrame
      */
     private static ArrayList<String> readMeActions;
 
-    private CodeCompletionDisplay codeCompletionDlg;
-    
     /** Used to obtain javadoc for arbitrary methods */
     private JavadocResolver javadocResolver;
     private ReparseRunner reparseRunner;
@@ -2973,7 +2971,6 @@ public final class MoeEditor extends JFrame
 
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
-                closeContentAssist();
                 close();
             }
             public void windowActivated(WindowEvent e) {
@@ -3515,14 +3512,13 @@ public final class MoeEditor extends JFrame
     protected void createContentAssist()
     {
         //need to recreate the dialog each time it is pressed as the values may be different 
-        closeContentAssist();
         CodeSuggestions suggests = sourceDocument.getParser().getExpressionType(sourcePane.getCaretPosition(),
                 sourceDocument);
         if (suggests != null) {
             LocatableToken suggestToken = suggests.getSuggestionToken();
             AssistContent[] values = ParseUtils.getPossibleCompletions(suggests, "", javadocResolver);
             if (values != null && values.length > 0) {
-                codeCompletionDlg = new CodeCompletionDisplay(this, 
+                CodeCompletionDisplay codeCompletionDlg = new CodeCompletionDisplay(this, 
                         suggests.getSuggestionType().toString(false), 
                         values, suggestToken);
                 int cpos = sourcePane.getCaretPosition();
@@ -3540,17 +3536,6 @@ public final class MoeEditor extends JFrame
             }
         }
         info.warning("No completions available.");
-    }
-
-    /**
-     * Close the content assist (code completion) popup window.
-     */
-    private void closeContentAssist()
-    {
-        if (codeCompletionDlg != null) {
-            codeCompletionDlg.setVisible(false);
-            codeCompletionDlg.dispose();
-        }
     }
 
     /**
