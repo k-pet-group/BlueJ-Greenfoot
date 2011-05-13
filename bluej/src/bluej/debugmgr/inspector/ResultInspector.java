@@ -27,12 +27,16 @@ import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
+import java.awt.Toolkit;
+import java.awt.datatransfer.StringSelection;
+import java.awt.event.ActionEvent;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -41,6 +45,7 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.border.Border;
@@ -57,6 +62,7 @@ import bluej.debugger.gentype.JavaType;
 import bluej.debugmgr.ExpressionInformation;
 import bluej.pkgmgr.Package;
 import bluej.testmgr.record.InvokerRecord;
+import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.JavaUtils;
 import bluej.utility.MultiLineLabel;
@@ -233,8 +239,23 @@ public class ResultInspector extends Inspector
         Box result = Box.createVerticalBox();
         result.setOpaque(false);
 
-        JLabel expression = new JLabel(expressionInformation.getExpression(), JLabel.LEFT);
+        final JLabel expression = new JLabel(expressionInformation.getExpression(), JLabel.LEFT);
         expression.setAlignmentX(JComponent.LEFT_ALIGNMENT);
+        JPopupMenu copyPopup = new JPopupMenu();
+        copyPopup.add(new AbstractAction(Config.getString("editor.copyLabel")) {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                try {
+                    StringSelection ss = new StringSelection(expression.getText());
+                    Toolkit.getDefaultToolkit().getSystemClipboard().setContents(ss, ss);
+                }
+                catch (IllegalStateException ise) {
+                    Debug.log("Copy: clipboard unavailable.");
+                }
+            }
+        });
+        expression.setComponentPopupMenu(copyPopup);
 
         result.add(expression);
         result.add(Box.createVerticalStrut(5));
