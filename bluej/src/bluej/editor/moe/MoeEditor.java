@@ -1409,7 +1409,8 @@ public final class MoeEditor extends JFrame
     
     /**
      * Check whether TABs need expanding in this editor. If they do, return
-     * true. At the same time, set this flag to true.
+     * true, and mark tabs as no longer needing expanding (i.e. subsequent
+     * calls will return false).
      */
     public boolean checkExpandTabs()
     {
