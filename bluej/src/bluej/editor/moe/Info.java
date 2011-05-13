@@ -70,7 +70,15 @@ public final class Info extends JPanel
         JPanel body = new JPanel(new GridLayout(0, 1)); // one col, many rows
         body.setBackground(MoeEditor.infoColor);
         body.setBorder(new EmptyBorder(0,6,0,4));
-        line1 = new JLabel();
+        line1 = new JLabel() {
+            public void setBounds(int x, int y, int width, int height)
+            {
+                super.setBounds(x,y,width,height);
+                if (originalMsg != null) {
+                    rebreakLine();
+                }
+            };
+        };
         line2 = new JLabel();
         body.add(line1);
         body.add(line2);
@@ -110,31 +118,98 @@ public final class Info extends JPanel
     public void message(String msg)
     {
         originalMsg = msg;
-        int newline = msg.indexOf('\n');
+        rebreakLine();
+        isClear = false;
+        hideHelp();
+    }
+    
+    /**
+     * Find a suitable place to split the original message over the two lines,
+     * and do so.
+     */
+    private void rebreakLine()
+    {
+        int newline = originalMsg.indexOf('\n');
+        
+        String firstLine, secondLine;
+        
         if (newline == -1) {
-            if(msg.length() <= 81) {
-                message (msg, "");
+            int ipos = breakLine(originalMsg);
+            if(originalMsg.length() <= ipos) {
+                firstLine = originalMsg;
+                secondLine = "";
             }
             else {
-                message (msg.substring(0, 80), msg.substring(80));
+                // look for a suitable place to break to a new line
+                int lspace = originalMsg.lastIndexOf(' ', ipos);
+                int tspace = originalMsg.lastIndexOf('\t', ipos);
+                int space = Math.max(lspace, tspace);
+                if (space > ipos / 2) {
+                    // Roughly: if breaking at the space means breaking before the halfway point,
+                    // don't do it.
+                    ipos = space;
+                }
+                
+                firstLine = originalMsg.substring(0, ipos);
+                secondLine = originalMsg.substring(ipos);
             }
         }
         else {
-            message (msg.substring(0, newline), msg.substring(newline+1));
+            firstLine = originalMsg.substring(0, newline);
+            secondLine = originalMsg.substring(newline+1);
         }
+        
+        line1.setText(firstLine);
+        line2.setText(secondLine);
     }
 
+    /**
+     * Calculate at which character to break a line across the line1 label
+     */
+    private int breakLine(String msg)
+    {
+        if (msg.length() <= 2) {
+            return msg.length(); // don't even bother
+        }
+        
+        FontMetrics metrics = line1.getFontMetrics(line1.getFont());
+        Insets insets = line1.getInsets();
+        int hInsets = 0;
+        if (insets != null) {
+            hInsets = insets.left + insets.right;
+        }
+        int lineWidth = line1.getWidth() - hInsets;
+        
+        char [] charBuf = new char[msg.length()];
+        msg.getChars(0, msg.length(), charBuf, 0);
+        int curWidth = metrics.charsWidth(charBuf, 0, charBuf.length);
+        if (curWidth < lineWidth) {
+            return charBuf.length;
+        }
+        
+        int lowerBound = 1;
+        int upperBound = charBuf.length;
+        
+        while (lowerBound != upperBound) {
+            int mid = (lowerBound + upperBound + 1) / 2; // favour towards the upper bound
+            curWidth = metrics.charsWidth(charBuf, 0, mid);
+            if (curWidth < lineWidth) {
+                lowerBound = mid;
+            }
+            else {
+                upperBound = Math.min(mid, upperBound - 1);
+            }
+        }
+        
+        return lowerBound;
+    }
+    
     /**
      * display a two line message
      */
     public void message(String msg1, String msg2)
     {
-        line1.setText(msg1);
-        line2.setText(msg2.replace('\n', ' '));
-
-        isClear = false;
-
-        hideHelp();
+        message(msg1 + '\n' + msg2);
     }
 
     /**
