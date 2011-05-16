@@ -81,10 +81,20 @@ public class ImageEditPanel extends JPanel
     /** Label used for the slider. */
     private JLabel smallLabel;
     
-    public ImageEditPanel(int width, int height) {
+    /** Whether to enable dragging / zooming, when we have an image */
+    private boolean enableImageControls;
+    /** Whether we actually have an image in the edit canvas */
+    private boolean haveImage;
+    
+    /**
+     * Construct a new image edit panel for an image with the specified height and width.
+     */
+    public ImageEditPanel(int width, int height)
+    {
         this.width = width;
         this.height = height;
         setPreferredSize(new Dimension(width + 2, height + 2));
+        buildUI();
     }
     
     /**
@@ -92,28 +102,28 @@ public class ImageEditPanel extends JPanel
      */
     public void setImage(BufferedImage snapShot)
     {
-        if(imageCanvas == null) {
-            imageCanvas = new ImageEditCanvas(width, height, snapShot);
+        double oldMinScale = imageCanvas.getMinimumScale();
+        imageCanvas.setImage(snapShot); 
+        double newMinScale = imageCanvas.getMinimumScale();            
+        if(!haveImage || Math.abs(newMinScale - oldMinScale) > .0000001 ) {
+            // Only re-fit scaling if there was a change in size.
             imageCanvas.fit();
-            buildUI();
-        }
-        else {
-            double oldMinScale = imageCanvas.getMinimumScale();
-            imageCanvas.setImage(snapShot); 
-            double newMinScale = imageCanvas.getMinimumScale();            
-            if(Math.abs(newMinScale - oldMinScale) > .0000001 ) {
-                // Only re-fit scaling if there was a change in size.
-                imageCanvas.fit();
-                adjustSlider();    
-            } 
+            adjustSlider();    
+        } 
+        if (!haveImage) {
+            haveImage = true;
+            enableImageEditPanel(enableImageControls);
         }
     }
-
     
+    /**
+     * Compose the user interface components.
+     */
     private void buildUI()
     {
         setOpaque(false);
         setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+        imageCanvas = new ImageEditCanvas(width, height, null);
         imageCanvas.addMouseMotionListener(this);
         imageCanvas.addMouseListener(this);
         imageCanvas.addMouseWheelListener(this);
@@ -241,7 +251,7 @@ public class ImageEditPanel extends JPanel
      */
     public BufferedImage getImage()
     {
-        if(imageCanvas == null) {
+        if (!haveImage) {
             return null;
         }
         BufferedImage newImage = GraphicsUtilities.createCompatibleImage(width, height);
@@ -252,19 +262,14 @@ public class ImageEditPanel extends JPanel
     }
     
     /**
-     * Sets the zoom slider to be enabled or disabled 
-     */
-    private void setZoomSlider(boolean enabled)
-    {
-        zoomSlider.setEnabled(enabled);
-    }
-    
-    /**
      * Sets the slider and the image canvas to be enabled/disabled 
      */
     public void enableImageEditPanel (boolean enabled)
     {
-        setZoomSlider(enabled);
-        imageCanvas.setEnabled(enabled);
+        enableImageControls = enabled;
+        if (!enabled || haveImage) {
+            zoomSlider.setEnabled(enabled);
+            imageCanvas.setEnabled(enabled);
+        }
     }
 }

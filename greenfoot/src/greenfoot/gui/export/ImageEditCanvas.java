@@ -89,11 +89,14 @@ public class ImageEditCanvas extends JPanel
     public void setImage(java.awt.image.BufferedImage image)
     {
         this.image = image;
-        double minScaleFactorX = size.getWidth() / (double) image.getWidth();
-        double minScaleFactorY = size.getHeight() / (double) image.getHeight();
-        minScaleFactor = minScaleFactorX < minScaleFactorY ? minScaleFactorX : minScaleFactorY;
-        if (minScaleFactor > 1)
-            minScaleFactor = 1;
+        if (image != null) {
+            double minScaleFactorX = size.getWidth() / (double) image.getWidth();
+            double minScaleFactorY = size.getHeight() / (double) image.getHeight();
+            minScaleFactor = minScaleFactorX < minScaleFactorY ? minScaleFactorX : minScaleFactorY;
+            if (minScaleFactor > 1) {
+                minScaleFactor = 1;
+            }
+        }
     }
 
     public void paintComponent(Graphics g)
@@ -107,28 +110,30 @@ public class ImageEditCanvas extends JPanel
      */
     public void paintImage(Graphics g)
     {
-        Graphics2D g2 = (Graphics2D) g;
-        AffineTransform oldTx = g2.getTransform();
+        if (image != null) {
+            Graphics2D g2 = (Graphics2D) g;
+            AffineTransform oldTx = g2.getTransform();
 
-        // Snap if size fits
-        double xSnapped = x;
-        double ySnapped = y; 
-        if (Math.abs(scaleFactor - minScaleFactor) < .0000001) {
-            double xs = (image.getWidth() / 2 + xSnapped) * scaleFactor;
-            double ys = (image.getHeight() / 2 + ySnapped) * scaleFactor;
-            if (Math.abs(xs) < snapThreshold && Math.abs(ys) < snapThreshold) {
-                xSnapped = -image.getWidth() / 2;
-                ySnapped = -image.getHeight() / 2;
+            // Snap if size fits
+            double xSnapped = x;
+            double ySnapped = y; 
+            if (Math.abs(scaleFactor - minScaleFactor) < .0000001) {
+                double xs = (image.getWidth() / 2 + xSnapped) * scaleFactor;
+                double ys = (image.getHeight() / 2 + ySnapped) * scaleFactor;
+                if (Math.abs(xs) < snapThreshold && Math.abs(ys) < snapThreshold) {
+                    xSnapped = -image.getWidth() / 2;
+                    ySnapped = -image.getHeight() / 2;
+                }
             }
+
+            // Scale around center of canvas
+            g2.translate(size.width / 2, size.height / 2);
+            g2.scale(scaleFactor, scaleFactor);
+            g2.translate(xSnapped, ySnapped);
+
+            g2.drawImage(image, 0, 0, null);
+            g2.setTransform(oldTx);
         }
-
-        // Scale around center of canvas
-        g2.translate(size.width / 2, size.height / 2);
-        g2.scale(scaleFactor, scaleFactor);
-        g2.translate(xSnapped, ySnapped);
-
-        g2.drawImage(image, 0, 0, null);
-        g2.setTransform(oldTx);
     }
 
     /**
@@ -198,6 +203,4 @@ public class ImageEditCanvas extends JPanel
     {
         return size;
     }
-
-   
 }
