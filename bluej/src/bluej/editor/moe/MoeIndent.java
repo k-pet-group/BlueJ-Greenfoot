@@ -30,10 +30,11 @@ import java.util.regex.Pattern;
 
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Element;
+import javax.swing.text.Position;
 
 import bluej.Config;
-import bluej.parser.nodes.ParsedNode;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
+import bluej.parser.nodes.ParsedNode;
 import bluej.utility.Debug;
 
 /**
@@ -96,9 +97,19 @@ public class MoeIndent
         boolean perfect = true;
         NodeAndPosition<ParsedNode> root = new NodeAndPosition<ParsedNode>(doc.getParser(), 0, doc.getParser().getSize());
 
+        // Track the start and end positions, as they may change due to updates
+        Position startp, endp;
+        try {
+            startp = doc.createPosition(startPos);
+            endp = doc.createPosition(endPos);
+        }
+        catch (BadLocationException ble) {
+            throw new RuntimeException(ble);
+        }
+        
         // examine if there are missing spaces between methods and add them.
         // NB. proper indentation of these changes later in this method.
-        checkMethodSpacing(root, rootElement, methodUpdates);
+        checkMethodSpacing(root, rootElement, methodUpdates, startPos, endPos);
         for (DocumentAction methodUpdate : methodUpdates) {
             caretPos = methodUpdate.apply(doc, caretPos);
         }
@@ -108,7 +119,7 @@ public class MoeIndent
         for (int i = 0; i < rootElement.getElementCount(); i++) {
             Element el = rootElement.getElement(i);
             // If the element overlaps at all with our area of interest:
-            if (el.getEndOffset() > startPos && el.getStartOffset() < endPos) {
+            if (el.getEndOffset() > startp.getOffset() && el.getStartOffset() < endp.getOffset()) {
                 boolean thisLineBlank = isWhiteSpaceOnly(getElementContents(doc, el));
                 if (thisLineBlank) {
                     try {
@@ -146,7 +157,7 @@ public class MoeIndent
             Element el = rootElement.getElement(i);
             
             // If the element overlaps at all with our area of interest:
-            if (el.getEndOffset() > startPos && el.getStartOffset() < endPos) {
+            if (el.getEndOffset() > startp.getOffset() && el.getStartOffset() < endp.getOffset()) {
 
                 boolean thisLineBlank = isWhiteSpaceOnly(getElementContents(doc, el));
                 DocumentAction update = null;
@@ -221,8 +232,11 @@ public class MoeIndent
      * @param root      Node to look inside of.
      * @param map       Map of the document used to get the lines of the method.
      * @param updates   List to update with new actions where needed.
+     * @param startPos  Start of document region to scan
+     * @param endPos    End of document region to scan
      */
-    private static void checkMethodSpacing(NodeAndPosition<ParsedNode> root, Element map, List<DocumentAction> updates)
+    private static void checkMethodSpacing(NodeAndPosition<ParsedNode> root, Element map,
+            List<DocumentAction> updates, int startPos, int endPos)
     {
         NodeAndPosition<ParsedNode> current = null;
         NodeAndPosition<ParsedNode> next = null;
@@ -233,17 +247,28 @@ public class MoeIndent
                     current.getNode().getNodeType() == next.getNode().getNodeType()) {
                 int currentLine = map.getElementIndex(current.getEnd() - 1);
                 int nextLine = map.getElementIndex(next.getPosition());
-                if ((currentLine + 1) == nextLine) {
-                    updates.add(0, new DocumentAddLineAction(next.getPosition()));
-                } else if ((currentLine == nextLine)) {
-                    updates.add(0, new DocumentAddLineAction(next.getPosition(), true));
+                
+                if (next.getPosition() >= startPos && next.getPosition() <= endPos) {
+                    if ((currentLine + 1) == nextLine) {
+                        updates.add(0, new DocumentAddLineAction(next.getPosition()));
+                    } else if ((currentLine == nextLine)) {
+                        updates.add(0, new DocumentAddLineAction(next.getPosition(), true));
+                    }
                 }
-                    
+                else if (current.getEnd() >= startPos && current.getEnd() <= endPos) {
+                    if ((currentLine + 1) == nextLine) {
+                        updates.add(0, new DocumentAddLineAction(current.getEnd()));
+                    } else if ((currentLine == nextLine)) {
+                        updates.add(0, new DocumentAddLineAction(current.getEnd(), true));
+                    }
+                }
             }
             current = next;
-            checkMethodSpacing(current, map, updates);
+            if (current.getPosition() > endPos) {
+                return;
+            }
+            checkMethodSpacing(current, map, updates, startPos, endPos);
         }
-        
     }
     
     // ---------------------------------------
