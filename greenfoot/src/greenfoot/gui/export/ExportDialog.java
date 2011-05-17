@@ -76,6 +76,8 @@ public class ExportDialog extends EscapeDialog
     private ExportPane selectedPane;
     private String selectedFunction;
     private int progress;
+    /** Has the dialog been made visible previously? */
+    private boolean haveBeenVisible;
 
     private TabbedIconPane tabbedPane;
 
@@ -143,10 +145,11 @@ public class ExportDialog extends EscapeDialog
         clearStatus();
         
         String preferredPane = Config.getPropString("greenfoot.lastExportPane", ExportPublishPane.FUNCTION);
-        boolean center = (selectedFunction == null);
         showPane(preferredPane, false);
-        if (center) {
+        if (! haveBeenVisible) {
+            pack();
             DialogManager.centreDialog(this);
+            haveBeenVisible = true;
         }
 
         setVisible(true);  // returns after OK or Cancel, which set 'ok'
