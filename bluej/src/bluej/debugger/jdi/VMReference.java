@@ -1641,11 +1641,33 @@ class VMReference
 
             // avoid problems with ObjectCollectedExceptions, see:
             // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4257193
-            // We suspend the machine which seems to prevent GC from occurring.
+            // We suspend the machine which seems to help prevent GC from occurring.
             machine.suspend();
             needsMachineResume = true;
             ArrayReference argsArray = objectArray.newInstance(length);
             ArrayReference typesArray = stringArray.newInstance(length);
+            
+            // Even with a suspended virtual machine, these arrays have been known to be garbage collected.
+            // Force them to remain uncollected:
+            while (true) {
+                try {
+                    argsArray.disableCollection();
+                    break;
+                }
+                catch (ObjectCollectedException oce) {
+                    argsArray = objectArray.newInstance(length);
+                }
+            }
+            
+            while (true) {
+                try {
+                    typesArray.disableCollection();
+                    break;
+                }
+                catch (ObjectCollectedException oce) {
+                    typesArray = stringArray.newInstance(length);
+                }
+            }
             
             // Fill the arrays with the correct values
             for (int i = 0; i < length; i++) {
@@ -1656,6 +1678,8 @@ class VMReference
             
             setStaticFieldValue(serverClass, ExecServer.PARAMETER_TYPES_NAME, typesArray);
             setStaticFieldValue(serverClass, ExecServer.ARGUMENTS_NAME, argsArray);
+            typesArray.enableCollection();
+            argsArray.enableCollection();
 
             setStaticFieldObject(serverClass, ExecServer.CLASS_TO_RUN_NAME, className);
             setStaticFieldValue(serverClass, ExecServer.EXEC_ACTION_NAME, machine.mirrorOf(ExecServer.INSTANTIATE_CLASS_ARGS));
