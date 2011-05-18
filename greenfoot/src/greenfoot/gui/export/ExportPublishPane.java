@@ -547,7 +547,6 @@ public class ExportPublishPane extends ExportPane implements ChangeListener
                     else {
                         setUpdate(false);
                     }
-                    updateScenarioDisplay();
                 }
             };
         }
@@ -568,7 +567,6 @@ public class ExportPublishPane extends ExportPane implements ChangeListener
             
             setUserName(Config.getPropString("publish.username", ""));
             loadStoredScenarioInfo();
-            updateScenarioDisplay();
             checkForExistingScenario();
             
             commonTagsLoader = new SwingWorker() {
@@ -893,6 +891,7 @@ public class ExportPublishPane extends ExportPane implements ChangeListener
             else {
                 exportDialog.setExportTextAddition("");
             }
+            updateScenarioDisplay();
         }
     }
 
