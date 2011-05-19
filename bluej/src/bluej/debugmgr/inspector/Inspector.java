@@ -571,6 +571,7 @@ public abstract class Inspector extends JFrame
     
     // Allow movement of the window by dragging
     // Adapted from: http://www.stupidjavatricks.com/?p=4
+    // (with improvements).
     protected void installListenersForMoveDrag()
     {
         addMouseListener( new MouseAdapter()
@@ -579,7 +580,6 @@ public abstract class Inspector extends JFrame
             public void mousePressed( MouseEvent e )
             {
                 initialClick = e.getPoint();
-                //Component target = getComponentAt( initialClick );
             }
 
             @Override
@@ -600,18 +600,12 @@ public abstract class Inspector extends JFrame
                     return;
                 }
 
-                // get location of Window
-                int thisX = getLocation().x;
-                int thisY = getLocation().y;
-                
                 // Determine how much the mouse moved since the initial click
-                int xMoved = ( thisX + e.getX() ) - ( thisX + initialClick.x );
-                int yMoved = ( thisY + e.getY() ) - ( thisY + initialClick.y );
-     
+                int newXPos = e.getXOnScreen() - initialClick.x;
+                int newYPos = e.getYOnScreen() - initialClick.y;
+                
                 // Move window to this position
-                int X = thisX + xMoved;
-                int Y = thisY + yMoved;
-                setLocation( X, Y );
+                setLocation(newXPos, newYPos);
             }
         });
     }
