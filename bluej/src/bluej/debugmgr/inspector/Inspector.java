@@ -141,7 +141,7 @@ public abstract class Inspector extends JFrame
         result += " " + field.getName();
         return result;
     }
-  
+    
     /**
      * Constructor.
      * 
@@ -152,7 +152,7 @@ public abstract class Inspector extends JFrame
      */
     protected Inspector(InspectorManager inspectorManager, Package pkg, InvokerRecord ir, Color valueFieldColor)
     {
-        super(AWTUtilitiesWrapper.getBestGC());
+        super(Config.isLinux() ? null : AWTUtilitiesWrapper.getBestGC());
         
         if(inspectorManager == null) {
             throw new NullPointerException("An inspector must have an InspectorManager.");
