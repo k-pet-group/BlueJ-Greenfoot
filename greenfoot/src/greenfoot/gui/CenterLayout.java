@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2011  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,33 +24,29 @@ package greenfoot.gui;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Insets;
+import java.awt.LayoutManager;
 
-/*
+/**
  * This is a layout class for a container that has exactly one child component.
  * The layout places that child in the centre of the container.
  *
  * @author mik
- * @version 0.1
+ * @version 0.2
  */
-
-public class CenterLayout extends FlowLayout
-{	
-	public CenterLayout()
-	{
-        super(FlowLayout.LEFT, 0, 0);
-	}
+public class CenterLayout implements LayoutManager
+{
+    public CenterLayout()
+    {
+    }
     
-    /**
-     * Layout the target container.
-     */
+    @Override
     public void layoutContainer(Container target)
     {
         synchronized (target.getTreeLock()) {
             Insets insets = target.getInsets();
-            int maxwidth = target.getWidth() - (insets.left + insets.right + getHgap() * 2);
-            int maxheight = target.getHeight() - (insets.top + insets.bottom + getVgap() * 2);
+            int maxwidth = target.getWidth() - (insets.left + insets.right);
+            int maxheight = target.getHeight() - (insets.top + insets.bottom);
 
             Component m = target.getComponent(0);
             if (m.isVisible()) {
@@ -60,13 +56,57 @@ public class CenterLayout extends FlowLayout
                 m.setSize(d);
 
                 int hspace = maxwidth - d.width;
-                int xpos = insets.left + getHgap() + (hspace / 2);
+                int xpos = insets.left + (hspace / 2);
 
                 int vspace = maxheight - d.height;
-                int ypos = insets.top + getVgap() + (vspace / 2);
+                int ypos = insets.top + (vspace / 2);
 
                 m.setLocation(xpos, ypos);
             }
         }
+    }
+    
+    @Override
+    public void addLayoutComponent(String name, Component comp)
+    {
+    }
+
+    @Override
+    public void removeLayoutComponent(Component comp)
+    {
+    }
+
+    @Override
+    public Dimension preferredLayoutSize(Container parent)
+    {
+        Dimension d;
+        if (parent.getComponentCount() > 0) {
+            Component m = parent.getComponent(0);
+            d = m.getPreferredSize();
+        }
+        else {
+            d = new Dimension(0,0);
+        }
+        Insets insets = parent.getInsets();
+        d.height += insets.top + insets.bottom;
+        d.width += insets.left + insets.right;
+        return d;
+    }
+
+    @Override
+    public Dimension minimumLayoutSize(Container parent)
+    {
+        Dimension d;
+        if (parent.getComponentCount() > 0) {
+            Component m = parent.getComponent(0);
+            d = m.getMinimumSize();
+        }
+        else {
+            d = new Dimension(0,0);
+        }
+        Insets insets = parent.getInsets();
+        d.height += insets.top + insets.bottom;
+        d.width += insets.left + insets.right;
+        return d;
     }
 }

@@ -879,16 +879,6 @@ public class WorldHandler
         return worldCanvas;
     }
 
-    public boolean isObjectDropped()
-    {
-        return objectDropped;
-    }
-
-    public void setObjectDropped(boolean b)
-    {
-        objectDropped = b;
-    }
-
     public EventListenerList getListenerList()
     {
         return listenerList;
@@ -903,9 +893,9 @@ public class WorldHandler
     {
         // if the operation was cancelled, add the object back into the
         // world at its original position
-        if (!isObjectDropped() && o instanceof Actor) {
+        if (!objectDropped && o instanceof Actor) {
             final Actor actor = (Actor) o;
-            setObjectDropped(true);
+            objectDropped = true;
             dragActorMoved = false;
             Simulation.getInstance().runLater(new Runnable() {
                 @Override

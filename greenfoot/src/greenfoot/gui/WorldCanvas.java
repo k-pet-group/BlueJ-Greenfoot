@@ -34,6 +34,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
@@ -63,7 +64,7 @@ public class WorldCanvas extends JPanel
     private Point dragLocation;
     /** Image used when dragging new actors on the world. Includes the drop shadow.*/
     private BufferedImage dragImage;
-    /** Preferred size */
+    /** Preferred size (not counting insets) */
     private Dimension size;
     
     public WorldCanvas(World world)
@@ -180,11 +181,14 @@ public class WorldCanvas extends JPanel
             int timeout = WorldHandler.READ_LOCK_TIMEOUT;
             if (lock.readLock().tryLock(timeout, TimeUnit.MILLISECONDS)) {
                 try {
+                    Insets insets = getInsets();
                     Graphics2D g2 = (Graphics2D) g;
+                    g.translate(insets.left, insets.top);
                     paintBackground(g2);
                     paintObjects(g2);
                     paintDraggedObject(g2);
                     WorldVisitor.paintDebug(world, g2);
+                    g.translate(-insets.left, -insets.top);
                 }
                 finally {
                     lock.readLock().unlock();
@@ -200,8 +204,6 @@ public class WorldCanvas extends JPanel
             e.printStackTrace();
         }
     }
-
-
 
     /**
      * If an object is being dragged, paint it.
@@ -254,6 +256,9 @@ public class WorldCanvas extends JPanel
             size = new Dimension();
             size.width = WorldVisitor.getWidthInPixels(world) ;
             size.height = WorldVisitor.getHeightInPixels(world) ;
+            Insets insets = getInsets();
+            size.width += insets.left + insets.right;
+            size.height += insets.top + insets.bottom;
             return size;
         }
         else if (size != null) {
@@ -269,16 +274,18 @@ public class WorldCanvas extends JPanel
         this.dropTargetListener = dropTargetListener;
     }
 
+    @Override
     public boolean drop(Object o, Point p)
     {
+        Insets insets = getInsets();
+        Point p2 = new Point(p.x - insets.left, p.y - insets.top);
         clearDragInfo();
         if (dropTargetListener != null) {
-            return dropTargetListener.drop(o, p);
+            return dropTargetListener.drop(o, p2);
         }
         else {
             return false;
         }
-
     }
 
     /**
@@ -287,6 +294,8 @@ public class WorldCanvas extends JPanel
      */
     public boolean drag(Object o, Point p)
     {
+        Insets insets = getInsets();
+        Point p2 = new Point(p.x - insets.left, p.y - insets.top);
         if(o instanceof Actor && ActorVisitor.getWorld((Actor) o) == null) {   
             if(!getVisibleRect().contains(p)) {
                 return false;
@@ -296,12 +305,12 @@ public class WorldCanvas extends JPanel
                 dragActor = (Actor) o;          
                 dragImage = GreenfootUtil.createDragShadow(ActorVisitor.getDragImage(dragActor).getAwtImage());
             }
-            dragLocation = p;
+            dragLocation = p2;
             repaint();
             return true;            
         }        
         else if (dropTargetListener != null) {
-            return dropTargetListener.drag(o, p);
+            return dropTargetListener.drag(o, p2);
         }
         else {        
             return false;
@@ -379,5 +388,4 @@ public class WorldCanvas extends JPanel
     {
         return false;
     }
-    
 }
