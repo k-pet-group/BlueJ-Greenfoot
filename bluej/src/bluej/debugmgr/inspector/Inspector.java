@@ -683,7 +683,7 @@ public abstract class Inspector extends JFrame
        
        private static void set(Method method, Window window, Object value) {
            if (awtUtilitiesClass == null ||
-                   method == null)
+                   method == null || !isTranslucencyCapable(window.getGraphicsConfiguration()))
            {
                return;
            }
