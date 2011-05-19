@@ -90,7 +90,7 @@ public class LocalField extends DebuggerField
         try {
             boolean accessible = field.isAccessible();
             field.setAccessible(true);
-            Object resultObj = field.get(parentObject.object);
+            Object resultObj = parentObject == null ? field.get(null) : field.get(parentObject.object);
             field.setAccessible(accessible);
             
             // Get type parameters
