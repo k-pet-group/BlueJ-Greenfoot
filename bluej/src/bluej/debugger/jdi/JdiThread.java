@@ -439,6 +439,7 @@ class JdiThread extends DebuggerThread
         }
         catch (IncompatibleThreadStateException e) { }
         catch (VMDisconnectedException vmde) { }
+        catch (InvalidStackFrameException ise) { } // thread was resumed elsewhere
         return JdiObject.getDebuggerObject(null);
     }
 
