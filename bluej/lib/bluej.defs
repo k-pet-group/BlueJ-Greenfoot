@@ -395,8 +395,8 @@ bluej.terminal.clearscreen=false
 bluej.terminal.recordcalls=false
 bluej.terminal.buffering=false
 
-# Default is to use system encoding, uncomment only to provide an explicit encoding 
-#bluej.terminal.encoding=UTF-8
+# If not specified, the VM default encoding will be used.
+bluej.terminal.encoding=UTF-8
 
 
 #######################################################################
