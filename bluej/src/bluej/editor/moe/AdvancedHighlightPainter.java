@@ -45,4 +45,15 @@ public interface AdvancedHighlightPainter
      * @param view  The root view
      */
     public void paint(Graphics g, int p0, int p1, Shape viewBounds, JTextComponent editor, View view);
+    
+    /**
+     * Issue a repaint for the area covered by the highlight.
+     * 
+     * @param p0  The position where the highlight starts
+     * @param p1  The position where the highlight ends
+     * @param viewBounds  The view bounds of the root view within the component
+     * @param editor      The component to repaint
+     * @param rootViwe  The root view
+     */
+    public void issueRepaint(int p0, int p1, Shape viewBounds, JTextComponent editor, View rootView);
 }

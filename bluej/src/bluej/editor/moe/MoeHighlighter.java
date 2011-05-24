@@ -75,12 +75,6 @@ public class MoeHighlighter extends LayeredHighlighter
             return endPos.getOffset();
         }
         
-//        @Override
-//        public HighlightPainter getPainter()
-//        {
-//            return painter;
-//        }
-        
         /**
          * Issue a repaint to the component, in order that this highlight be repainted.
          */
@@ -125,6 +119,9 @@ public class MoeHighlighter extends LayeredHighlighter
         public abstract void paint(Graphics g, int p0, int p1, Shape viewBounds, JTextComponent editor, View view);
     }
     
+    /**
+     * A highlight handling layered highlights.
+     */
     private static class StandardMoeHighlight extends MoeHighlight
     {
         private HighlightPainter painter;
@@ -154,6 +151,9 @@ public class MoeHighlighter extends LayeredHighlighter
         }
     }
     
+    /**
+     * A highlight handling advanced highlights.
+     */
     private static class AdvancedMoeHighlight extends MoeHighlight
     {
         private AdvancedHighlightPainter painter;
@@ -162,6 +162,22 @@ public class MoeHighlighter extends LayeredHighlighter
         {
             super(startPos, endPos);
             this.painter = painter;
+        }
+        
+        @Override
+        public void repaintHighlight(JTextComponent component)
+        {
+            int p0 = startPos.getOffset();
+            int p1 = endPos.getOffset();
+            Rectangle r = component.getBounds();
+            Insets insets = component.getInsets();
+            r.x = insets.left;
+            r.y = insets.top;
+            r.width -= insets.left + insets.right;
+            r.height -= insets.top + insets.bottom;
+            
+            View rootView = component.getUI().getRootView(component);
+            painter.issueRepaint(p0, p1, r, component, rootView);
         }
         
         @Override

@@ -141,4 +141,19 @@ public class MoeBorderHighlighterPainter implements AdvancedHighlightPainter
         }
     }
 
+    @Override
+    public void issueRepaint(int p0, int p1, Shape viewBounds,
+            JTextComponent editor, View rootView)
+    {
+        try {
+            Shape s = rootView.modelToView(p0, Position.Bias.Forward, p1, Position.Bias.Backward, viewBounds);
+            Rectangle r = s.getBounds();
+            r.x -= 2;
+            r.width += 4;
+            editor.repaint(r);
+        }
+        catch (BadLocationException ble) {
+            throw new RuntimeException(ble);
+        }
+    }
 }
