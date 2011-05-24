@@ -74,11 +74,10 @@ public class MoeErrorManager implements MoeDocumentListener
     {
         JEditorPane sourcePane = editor.getSourcePane();
         try {
-            errorHighlightTag = sourcePane.getHighlighter().addHighlight(
-                    startPos, endPos,
-                    new MoeBorderHighlighterPainter(Color.RED, Color.RED, Color.PINK,
-                            Color.RED, Color.PINK)
-            );
+            MoeHighlighter highlighter = (MoeHighlighter) sourcePane.getHighlighter();
+            AdvancedHighlightPainter painter = new MoeBorderHighlighterPainter(Color.RED, Color.RED,
+                    Color.PINK, Color.RED, Color.PINK);
+            errorHighlightTag = highlighter.addHighlight(startPos, endPos, painter);
         }
         catch (BadLocationException ble) {
             throw new RuntimeException(ble);

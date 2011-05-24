@@ -37,7 +37,6 @@ import javax.swing.text.Highlighter;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.LayeredHighlighter;
 import javax.swing.text.PlainDocument;
-import javax.swing.text.Position;
 import javax.swing.text.Position.Bias;
 import javax.swing.text.Segment;
 import javax.swing.text.TabExpander;
@@ -208,42 +207,25 @@ public class MoePlainView extends View implements TabExpander
         topLine = Math.max(topLine, 0);
         
         int mheight = metrics.getHeight();
-        int ypos = abounds.y + topLine * mheight + metrics.getAscent();
+        int ypos = abounds.y + topLine * mheight;
+        int textBase = metrics.getAscent();
         
         g.setColor(getTextColor());
         g.setFont(host.getFont());
         for (int i = topLine; i <= bottomLine; i++) {
             Element line = getElement().getElement(i);
             if (lh != null) {
-                // Note PlainView uses "getEndOffset() - 1" where we use plain "getEndOffset()". Reasoning
-                // explained in modelToView(int,Bias,int,Bias,Shape) method.
-                lh.paintLayeredHighlights(g, line.getStartOffset(), line.getEndOffset(), allocation, host, this);
+                // Set up a clip region for just the current line. Stops MoeHighlighter from painting the
+                // highlights over other lines.
+                Rectangle lineClip = new Rectangle(abounds.x, ypos, abounds.width, mheight);
+                Rectangle.intersect(lineClip, clip, lineClip);
+                g.setClip(lineClip);
+                lh.paintLayeredHighlights(g, line.getStartOffset(), line.getEndOffset() - 1, allocation, host, this);
             }
-            drawLine(i, g, abounds.x + leftMargin, ypos);
+            drawLine(i, g, abounds.x + leftMargin, ypos + textBase);
             ypos += mheight;
         }
-    }
-    
-    @Override
-    public Shape modelToView(int p0, Position.Bias b0, int p1, Position.Bias b1, Shape a) throws BadLocationException
-    {
-        // What is the meaning of this hack? Well might you ask. To put it bluntly, Swing is so riddled with bugs
-        // that the only way we can make everything work is by introducing even more bugs to counter the other ones.
-        // In this case, we are trying to fix a problem where the selection highlight displays as a rectangular block
-        // when the selection spans multiple lines. PlainView fixes that in the "paint(Graphics)" method by
-        // telling the LayeredHighlighter to paint from [start of the line] to [end_of_the_line - 1], but that
-        // causes another problem whereby highlights of 0 width at the end of the line don't get painted at all
-        // (due to a bug in DefaultHighlighter.paintLayeredHighlights(...)).
-        
-        // So, what we do here is, if the shape of a region is requested, and the end of the region is just past
-        // the end of the line, we adjust it so that it's back on the previous line. That prevents the selection
-        // highlight from painting as a block, while still allowing zero-width highlights at the end of the line
-        // to display.
-        if (p0 != p1 && b1 == Bias.Backward && p1 > p0 && getDocument().getText(p1 - 1, 1).charAt(0) == '\n') {
-            p1--;
-        }
-        
-        return super.modelToView(p0, b0, p1, b1, a);    
+        g.setClip(clip); // restore original clip bounds
     }
     
     /**

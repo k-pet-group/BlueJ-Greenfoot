@@ -42,6 +42,7 @@ public final class MoeEditorPane extends JEditorPane
     {
         super();
         setBorder(new EmptyBorder(6, 6, 6, 0));
+        setHighlighter(new MoeHighlighter());
     }
     
     /*

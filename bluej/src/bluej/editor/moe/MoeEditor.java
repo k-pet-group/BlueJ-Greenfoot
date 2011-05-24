@@ -95,7 +95,6 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Caret;
 import javax.swing.text.EditorKit;
 import javax.swing.text.Element;
-import javax.swing.text.Highlighter.HighlightPainter;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
@@ -184,7 +183,7 @@ public final class MoeEditor extends JFrame
     
     private static final Color highlightBorderColor = new Color(212, 172,45);
     
-    protected static HighlightPainter highlightPainter =
+    protected static AdvancedHighlightPainter searchHighlightPainter =
         new MoeBorderHighlighterPainter(highlightBorderColor, Config.getHighlightColour(),
                 Config.getHighlightColour2(), Config.getSelectionColour2(),
                 Config.getSelectionColour());;
@@ -1762,8 +1761,8 @@ public final class MoeEditor extends JFrame
     private void addSearchHighlight(int startPos, int endPos)
     {
         try {
-            Object tag = currentTextPane.getHighlighter().addHighlight(startPos, endPos, 
-                    highlightPainter);
+            MoeHighlighter highlighter = (MoeHighlighter) currentTextPane.getHighlighter();
+            Object tag = highlighter.addHighlight(startPos, endPos, searchHighlightPainter);
             if (currentTextPane == sourcePane) {
                 sourceSearchHighlightTags.add(tag);
             }
@@ -2349,6 +2348,7 @@ public final class MoeEditor extends JFrame
     public void createHTMLPane()
     {
         htmlPane = new JEditorPane();
+        htmlPane.setHighlighter(new MoeHighlighter());
         htmlPane.setEditorKit(new HTMLEditorKit());
         htmlPane.setEditable(false);
         htmlPane.addHyperlinkListener(this);
