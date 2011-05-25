@@ -271,6 +271,7 @@ menu.help.javadoc=Java Library Documentation
 menu.help.tutorial=Greenfoot Tutorial
 menu.help.website=Greenfoot Web Site
 menu.help.moreScenarios=Get more scenarios
+menu.help.discuss=Greenfoot Discussion
 
 # Project does not exist dialog
 noproject.dialog.title=Error opening project

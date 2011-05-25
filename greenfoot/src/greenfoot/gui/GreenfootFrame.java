@@ -683,6 +683,7 @@ public class GreenfootFrame extends JFrame
         addMenuItem(new ShowWebsiteAction(Config.getString("menu.help.moreScenarios"), Config.getPropString("greenfoot.url.scenarios")), helpMenu, -1, false, -1);
         helpMenu.addSeparator();
         addMenuItem(new ShowWebsiteAction(Config.getPropString("greenfoot.gameserver.name"), Config.getPropString("greenfoot.gameserver.address")), helpMenu, -1, false, -1);
+        addMenuItem(new ShowWebsiteAction(Config.getString("menu.help.discuss"), Config.getPropString("greenfoot.url.discuss")), helpMenu, -1, false, -1);
         
         return menuBar;
     }
