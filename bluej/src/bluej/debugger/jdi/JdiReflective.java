@@ -43,7 +43,6 @@ public class JdiReflective extends Reflective
     // If the type has not been loaded, we know only it's name, and the
     // type from which we discovered the reference to it:
     protected String name = null;
-    // private ReferenceType sourceType = null;
     private ClassLoaderReference sourceLoader = null;
     private VirtualMachine sourceVM = null;
 
@@ -71,7 +70,6 @@ public class JdiReflective extends Reflective
     public JdiReflective(String name, ReferenceType sourceType)
     {
         this.name = name;
-        // this.sourceType = sourceType;
         this.sourceLoader = sourceType.classLoader();
         this.sourceVM = sourceType.virtualMachine();
     }
@@ -93,6 +91,16 @@ public class JdiReflective extends Reflective
         this.sourceVM = vm;
     }
     
+    /**
+     * Get the JDI ReferenceType this reflective represents.
+     */
+    public ReferenceType getJdiType()
+    {
+        checkLoaded();
+        return rclass;
+    }
+    
+    @Override
     public Reflective getRelativeClass(String name)
     {
         if (rclass != null) {
@@ -698,7 +706,7 @@ public class JdiReflective extends Reflective
     }
 
     /**
-     * Determine the complete type of an instance field.
+     * Determine the complete declared type of an instance field.
      * 
      * @param f
      *            The field
@@ -720,16 +728,12 @@ public class JdiReflective extends Reflective
         // case, findClass() and v.type() both successfully get a reference
         // to the type. Perhaps it's a VM bug.
 
-        Value v = parent.obj.getValue(f); // cheap way to make sure class is
-                                          // loaded (if value not null)
         try {
             t = f.type();
         }
         catch (ClassNotLoadedException cnle) {
             // Debug.message("ClassNotLoadedException, name = " + f.typeName());
-            t = findClass(f.typeName(), parent.obj.referenceType().classLoader(), parent.obj.virtualMachine());
-            if (t == null && v != null)
-                t = v.type();
+            t = new JdiReflective(f.typeName(), f.declaringType()).getJdiType();
         }
 
         final String gensig = JdiUtils.getJdiUtils().genericSignature(f);
@@ -740,7 +744,7 @@ public class JdiReflective extends Reflective
             return getNonGenericType(f.typeName(), t, parent.obj.referenceType().classLoader(), parent.obj
                     .virtualMachine());
         }
-
+        
         // generic version.
         GenTypeClass genType = parent.getGenType();
         
