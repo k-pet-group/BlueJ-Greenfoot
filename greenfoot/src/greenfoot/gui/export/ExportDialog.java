@@ -144,8 +144,11 @@ public class ExportDialog extends EscapeDialog
         }        
         clearStatus();
         
-        String preferredPane = Config.getPropString("greenfoot.lastExportPane", ExportPublishPane.FUNCTION);
-        showPane(preferredPane, false);
+        if (selectedPane == null) {
+            String preferredPane = Config.getPropString("greenfoot.lastExportPane", ExportPublishPane.FUNCTION);
+            showPane(preferredPane, false);
+        }
+        
         if (! haveBeenVisible) {
             pack();
             DialogManager.centreDialog(this);
