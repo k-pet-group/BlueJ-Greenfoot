@@ -248,9 +248,7 @@ public abstract class Actor
      * Move this actor the specified distance in the direction it is
      * currently facing.
      * 
-     * <p>The direction can be set by the {@link #setRotation(int)} method. As
-     * the value 0 is specified as eastwards, an actor's image must "face right"
-     * in order for the move method to work correctly.
+     * <p>The direction can be set using the {@link #setRotation(int)} method.
      * 
      * @param distance  The distance to move (in cell-size units); a negative value
      *                  will move backwards
