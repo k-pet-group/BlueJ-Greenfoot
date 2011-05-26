@@ -62,7 +62,7 @@ greenfoot.url.discuss=http://www.greenfootgallery.org/topics/
 # setting is saved in the user preferences file (and the setting here
 # is ignored). You can adjust the user preferences via the preferences
 # dialog in Greenfoot.
-greenfoot.url.javaStdLib=http://java.sun.com/j2se/1.5/docs/api/index.html
+greenfoot.url.javaStdLib=http://download.oracle.com/javase/6/docs/api/
 
 # Options for the generation of the JavaDoc shown in the documentation view of the editor.
 doctool.options=-author -version -nodeprecated -protected
