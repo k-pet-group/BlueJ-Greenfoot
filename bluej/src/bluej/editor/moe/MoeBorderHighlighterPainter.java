@@ -80,7 +80,8 @@ public class MoeBorderHighlighterPainter implements AdvancedHighlightPainter
                 r.x+(r.width/2), r.y+r.height, color2);
 
             g2d.setPaint(gp);
-            g2d.fillRect(r.x-1, r.y, r.width+1, r.height);
+            //g2d.fillRect(r.x-1, r.y, r.width+1, r.height);
+            g2d.fillRoundRect(r.x - 2, r.y, r.width + 2, r.height, 6, 6);
             g2d.setPaint(origPaint);
         }
     }
@@ -103,7 +104,6 @@ public class MoeBorderHighlighterPainter implements AdvancedHighlightPainter
             paintGradient(g, r, innerColor1, innerColor2);
 
             g.setColor(borderColor);
-            g.drawRoundRect(r.x-2,r.y, r.width+2, r.height-1, 6, 6);
             
             int selStart = c.getSelectionStart();
             int selEnd = c.getSelectionEnd();
@@ -132,6 +132,8 @@ public class MoeBorderHighlighterPainter implements AdvancedHighlightPainter
                 paintGradient(g, r, selectionColor1, selectionColor2);
                 g.setClip(origClip);
             }
+
+            g.drawRoundRect(r.x-2,r.y, r.width+2, r.height-1, 6, 6);
             
             r.x -= 2;
             r.width += 3;

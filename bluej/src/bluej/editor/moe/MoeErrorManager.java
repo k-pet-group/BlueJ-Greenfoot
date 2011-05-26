@@ -43,6 +43,12 @@ public class MoeErrorManager implements MoeDocumentListener
     /** Parse error delay in milliseconds */
     // private static final int ERR_DISPLAY_DELAY = 1000;
     
+    // Error highlight colors
+    private static final Color ERROR_HIGHLIGHT_GRADIENT1 = new Color(240,128,128);
+    private static final Color ERROR_HIGHLIGHT_GRADIENT2 = new Color(240,190,190);
+    private static final Color ERROR_HIGHLIGHT_SELECTED1 = ERROR_HIGHLIGHT_GRADIENT1;
+    private static final Color ERROR_HIGHLIGHT_SELECTED2 = ERROR_HIGHLIGHT_GRADIENT2;
+    
     private MoeEditor editor;
     
     private Object errorHighlightTag = null;
@@ -75,8 +81,9 @@ public class MoeErrorManager implements MoeDocumentListener
         JEditorPane sourcePane = editor.getSourcePane();
         try {
             MoeHighlighter highlighter = (MoeHighlighter) sourcePane.getHighlighter();
-            AdvancedHighlightPainter painter = new MoeBorderHighlighterPainter(Color.RED, Color.RED,
-                    Color.PINK, Color.RED, Color.PINK);
+            AdvancedHighlightPainter painter = new MoeBorderHighlighterPainter(Color.RED,
+                    ERROR_HIGHLIGHT_GRADIENT1, ERROR_HIGHLIGHT_GRADIENT2,
+                    ERROR_HIGHLIGHT_SELECTED1, ERROR_HIGHLIGHT_SELECTED2);
             errorHighlightTag = highlighter.addHighlight(startPos, endPos, painter);
         }
         catch (BadLocationException ble) {
