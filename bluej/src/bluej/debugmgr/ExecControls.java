@@ -99,8 +99,6 @@ import bluej.utility.JavaNames;
 public class ExecControls extends JFrame
     implements ListSelectionListener, TreeSelectionListener, TreeModelListener
 {
-   // private static final String windowTitle =
-        
     private static final String stackTitle =
         Config.getString("debugger.execControls.stackTitle");
     private static final String staticTitle =
@@ -132,17 +130,12 @@ public class ExecControls extends JFrame
     // === instance ===
 
     // the display for the list of active threads
-    //private JList threadList;
-    //private List threads;
     private JTree threadTree; 
     private DebuggerThreadTreeModel threadModel;
     
-    
     private JComponent mainPanel;
     private JList stackList, staticList, instanceList, localList;
-    private JButton stopButton, stepButton, stepIntoButton, continueButton,
-        terminateButton;
-    //private JButton closeButton;
+    private JButton stopButton, stepButton, stepIntoButton, continueButton, terminateButton;
     private CardLayout cardLayout;
     private JPanel flipPanel;
     private JCheckBoxMenuItem systemThreadItem;
@@ -311,7 +304,7 @@ public class ExecControls extends JFrame
             viewStaticField(staticList.getSelectedIndex());
         }
         else if(src == instanceList && instanceList.getSelectedIndex() >= 0) {
-            viewInstanceField(instanceList.getSelectedIndex());
+            viewInstanceField((DebuggerField) instanceList.getSelectedValue());
         }
         else if(src == localList && localList.getSelectedIndex() >= 0) {
             viewLocalVar(localList.getSelectedIndex());
@@ -508,17 +501,17 @@ public class ExecControls extends JFrame
         instanceList.setFixedCellWidth(-1);
         if(currentObject != null && !currentObject.isNullObject()) {
             List<DebuggerField> fields = currentObject.getFields();
-            List<String> listData = new ArrayList<String>(fields.size());
+            List<DebuggerField> listData = new ArrayList<DebuggerField>(fields.size());
             for (DebuggerField field : fields) {
                 if (! Modifier.isStatic(field.getModifiers())) {
                     String declaringClass = field.getDeclaringClassName();
                     Set<String> whiteList = restrictedClasses.get(declaringClass);
                     if (whiteList == null || whiteList.contains(field.getName())) {
-                        listData.add(Inspector.fieldToString(field) + " = " + field.getValueString());
+                        listData.add(field);
                     }
                 }
             }
-            instanceList.setListData(listData.toArray(new String[listData.size()]));
+            instanceList.setListData(listData.toArray(new DebuggerField[listData.size()]));
         }
         else {
             instanceList.setListData(new String[0]);
@@ -544,12 +537,10 @@ public class ExecControls extends JFrame
     /**
      * Display an object inspector for an object in an instance field.
      */
-    private void viewInstanceField(int index)
+    private void viewInstanceField(DebuggerField field)
     {
-        DebuggerField field = currentObject.getInstanceField(index);
         if(field.isReferenceType() && ! field.isNull()) {
-            project.getInspectorInstance(currentObject.getInstanceField(index).getValueObject(null),
-                    null, null, null, this);
+            project.getInspectorInstance(field.getValueObject(null), null, null, null, this);
         }
     }
 
@@ -635,6 +626,7 @@ public class ExecControls extends JFrame
                 instanceList.setVisibleRowCount(4);
                 instanceList.setFixedCellWidth(150);
                 instanceList.addMouseListener(mouseListener);
+                instanceList.setCellRenderer(new FieldCellRenderer());
             }
             instanceScrollPane.setViewportView(instanceList);
             JLabel lbl = new JLabel(instanceTitle);
