@@ -132,8 +132,10 @@ public class MidiFileSound implements Sound
             pause = false;
             open();
             sequencer.setSequence(sequence);
-            sequencer.start();
-            playbackListener.playbackStarted(this);
+            if (sequencer.isOpen()) {
+                sequencer.start();
+                playbackListener.playbackStarted(this);
+            }
         }
         catch (SecurityException e) {
             SoundExceptionHandler.handleSecurityException(e, url.toString());
