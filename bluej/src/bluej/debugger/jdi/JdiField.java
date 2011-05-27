@@ -61,7 +61,7 @@ public class JdiField extends DebuggerField
             return JdiReflective.fromField(field, object);
         }
         else {
-            return JdiReflective.fromField(field, field.declaringType());
+            return JdiReflective.fromField(field);
         }
     }
 
