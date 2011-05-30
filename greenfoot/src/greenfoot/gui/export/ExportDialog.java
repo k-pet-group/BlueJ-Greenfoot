@@ -58,7 +58,8 @@ public class ExportDialog extends EscapeDialog
         implements TabbedIconPaneListener
 {
     // Internationalisation
-    private static final String dialogTitle =Config.getString("export.dialog.title");
+    private static final String dialogTitle = Config.getApplicationName() + ": "
+        + Config.getString("export.dialog.title");
 
     private static final String noWorldDialogTitle = Config.getString("export.noworld.dialog.title");
     private static final String noWorldDialogMsg = Config.getString("export.noworld.dialog.msg");
