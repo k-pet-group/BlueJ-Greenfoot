@@ -613,10 +613,15 @@ public class ExportPublishPane extends ExportPane implements ChangeListener
             commonTagsLoader.start();
         }
         
+        String updateText;
         if (isUpdate) {
-            String updateText = " " + Config.getString("export.dialog.continue.update");
-            exportDialog.setExportTextAddition(updateText);
+            updateText = Config.getString("export.dialog.update") ;
         }
+        else {
+            updateText = Config.getString("export.dialog.share");
+        }
+         
+        exportDialog.setExportButtonText(updateText);
     }
 
     @Override
@@ -885,11 +890,12 @@ public class ExportPublishPane extends ExportPane implements ChangeListener
         if (this.isUpdate != isUpdate) {
             this.isUpdate = isUpdate;
             if (isUpdate) {
-                String updateText = " " + Config.getString("export.dialog.continue.update");
-                exportDialog.setExportTextAddition(updateText);
+                String updateText = Config.getString("export.dialog.update");
+                exportDialog.setExportButtonText(updateText);
             }
             else {
-                exportDialog.setExportTextAddition("");
+                String exportText = Config.getString("export.dialog.share");
+                exportDialog.setExportButtonText(exportText);
             }
             updateScenarioDisplay();
         }

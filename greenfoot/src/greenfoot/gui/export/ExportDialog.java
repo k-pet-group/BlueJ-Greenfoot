@@ -160,7 +160,7 @@ public class ExportDialog extends EscapeDialog
 
     /**
      * Display or hide the progress bar and status text. If 'showProgress' is 
-     * true, an indeterminite progress bar is shown, otherwise hidden. 
+     * true, an indeterminate progress bar is shown, otherwise hidden. 
      * If 'text' is null, the text is hidden, otherwise shown.
      *
      * setProgress can be invoked from a worker thread.
@@ -183,12 +183,11 @@ public class ExportDialog extends EscapeDialog
     }
 
     /**
-     * Set some additional text to be displayed in the "export" button.
-     * @param s  The additional text - may be the empty string
+     * Set the text for the export/share button.
      */
-    public void setExportTextAddition(String s)
+    public void setExportButtonText(String s)
     {
-        continueButton.setText(Config.getString("export.dialog.continue") + s);
+        continueButton.setText(s);
     }
     
     /**
@@ -196,10 +195,10 @@ public class ExportDialog extends EscapeDialog
      */
     private void doOK()
     {
-        if(!project.isCompiled())  {
+        if(!project.isCompiled()) {
             boolean isCompiled = showCompileDialog(project);
             if(!isCompiled) {               
-                return;         // Cancel export
+                return;  // Cancel export
             }
         }
         doExport();
@@ -315,7 +314,7 @@ public class ExportDialog extends EscapeDialog
             if(selectedPane != null) {
                 contentPane.remove(selectedPane);
             }
-            continueButton.setText(Config.getString("export.dialog.continue"));
+            continueButton.setText(Config.getString("export.dialog.export"));
             chosenPane.activated();
             contentPane.add(chosenPane, BorderLayout.CENTER);
             selectedPane = chosenPane;

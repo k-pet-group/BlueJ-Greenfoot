@@ -66,7 +66,6 @@ show.readme=Scenario Information
 pause.simulation=Pause
 show.apidoc=Open Documentation
 save.world=Save the World
-share=Share...
 
 # Remove class confirmation
 remove.confirm.title=Confirm removal of class
@@ -77,7 +76,7 @@ remove.confirm.text2=Continue?
 project.savecopy.title=Save Scenario Copy
 
 # Export scenario dialog
-export.project=Export...
+export.project=Share...
 export.progress.bundling=Bundling scenario...
 export.progress.publishing=Publishing...
 export.progress.writingHTML=Writing web page...
@@ -98,8 +97,9 @@ export.app.choose=Save executable jar file
 export.compile.help=Not all the classes in the scenario are compiled. To continue with the export, compile the classes now.
 export.compile.notCompiled=Scenario not compiled.
 export.dialog.title=Greenfoot: Export
-export.dialog.continue=Export
-export.dialog.continue.update=(update)
+export.dialog.export=Export
+export.dialog.share=Share
+export.dialog.update=Update
 export.lock.label=Lock scenario
 export.snapshot.label=Keep existing screenshot:
 export.lock.description=Prevents: Speed change, Act-button, and changing of actor locations while paused.
