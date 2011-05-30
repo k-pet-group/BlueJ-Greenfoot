@@ -82,7 +82,7 @@ public class ImageEditPanel extends JPanel
     private JLabel smallLabel;
     
     /** Whether to enable dragging / zooming, when we have an image */
-    private boolean enableImageControls;
+    private boolean enableImageControls = true;
     /** Whether we actually have an image in the edit canvas */
     private boolean haveImage;
     
