@@ -1,13 +1,14 @@
 #!/bin/sh
-if [ -e /usr/lib/jvm/java-6-sun ]; then
+if [ -e /usr/lib/jvm/java-6-sun/lib/tools.jar ]; then
 	JAVAPATH="/usr/lib/jvm/java-6-sun"
-elif [ -e /usr/lib/jvm/java-6-openjdk ]; then
+elif [ -e /usr/lib/jvm/java-6-openjdk/lib/tools.jar ]; then
 	JAVAPATH="/usr/lib/jvm/java-6-openjdk"
-elif [ -e /usr/lib/jvm/java-5-sun ]; then
+elif [ -e /usr/lib/jvm/java-5-sun/lib/tools.jar ]; then
 	JAVAPATH="/usr/lib/jvm/java-5-sun"
 else
 	echo "A suitable JDK couldn't be located. You may need to edit the"
 	echo "/usr/bin/bluej launch script."
+	exit 1
 fi
 	
 CP="/usr/share/bluej/bluej.jar:$JAVAPATH/lib/tools.jar"
