@@ -50,6 +50,7 @@ import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.utility.DialogManager;
 import bluej.utility.EscapeDialog;
+import bluej.utility.Utility;
 
 /**
  * A dialog allowing the user to export a scenario in a variety of ways.
@@ -238,7 +239,6 @@ public class ExportDialog extends EscapeDialog
 
                 if(function.equals(ExportPublishPane.FUNCTION)) {
                     exporter.publishToWebServer(project, (ExportPublishPane)pane, ExportDialog.this);
-                    
                 }
                 if(function.equals(ExportWebPagePane.FUNCTION)) {
                     exporter.makeWebPage(project, (ExportWebPagePane)pane, ExportDialog.this);
@@ -429,6 +429,9 @@ public class ExportDialog extends EscapeDialog
         }
     }
 
+    /**
+     * Inform the user that some classes aren't compiled, and give the option to compile them.
+     */
     private boolean showCompileDialog(GProject project)
     {
         ExportCompileDialog dlg; 
@@ -447,12 +450,15 @@ public class ExportDialog extends EscapeDialog
     }
 
     /**
-     * Tell this dialog that the publish has finished and whether it was successful.
+     * Tell this dialog that the publish (to the Gallery) has finished and whether it was successful.
      */
     public void publishFinished(boolean success, String msg)
     {
         selectedPane.postPublish(success);
-        setProgress(false, msg);        
+        setProgress(false, msg);
+        if (success) {
+            Utility.openWebBrowser(Config.getString("greenfoot.gameserver.address"));
+        }
     }
     
     /**
