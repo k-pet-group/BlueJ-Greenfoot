@@ -280,6 +280,12 @@ public class Greenfoot
         return WorldHandler.getInstance().getMouseManager().getMouseInfo();
     }
     
+    /**
+     * Get the microphone input level. This level is an approximation of the loudness
+     * any noise that is currently being received by the microphone.
+     * 
+     * @return The microphone input level (between 0 and 100, inclusive).
+     */
     public static int getMicLevel()
     {
         return MicLevelGrabber.getInstance().getLevel();
