@@ -67,7 +67,7 @@ public class GPackage
         if(project == null) {
             throw new NullPointerException("Project must not be null.");
         }
-    	this.project = project;
+        this.project = project;
     }
     
     /**
@@ -180,7 +180,7 @@ public class GPackage
 
     public GClass newClass(String className)
     {
-    	GClass newClass = null;
+        GClass newClass = null;
         try {
             RClass newRClass = pkg.newClass(className);
             newClass = new GClass(newRClass, this);
@@ -269,6 +269,22 @@ public class GPackage
         catch (RemoteException re) {
             Debug.reportError("Error getting remote compiler queue", re);
             return null;
+        }
+    }
+    
+    public void reload()
+    {
+        try {
+            pkg.reload();
+        }
+        catch (ProjectNotOpenException e) {
+            e.printStackTrace();
+        }
+        catch (PackageNotFoundException e) {
+            e.printStackTrace();
+        }
+        catch (RemoteException e) {
+            e.printStackTrace();
         }
     }
 }
