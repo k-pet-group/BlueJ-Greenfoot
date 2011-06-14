@@ -114,8 +114,6 @@ public class ExportPublishPane extends ExportPane implements ChangeListener
     private ExistingScenarioChecker scenarioChecker;
     private Font font;
     private boolean isUpdate = false;
-    /** Whether the scenario info display is showing "update" mode */
-    private boolean displayUpdate = false;
     private ExportDialog exportDialog;
 
     /** Creates a new instance of ExportPublishPane */
@@ -488,15 +486,18 @@ public class ExportPublishPane extends ExportPane implements ChangeListener
         }
     }
 
+    /**
+     * Update the display according to whether this is an update of an existing scenario,
+     * or an upload of a new scenario.
+     */
     private void updateScenarioDisplay()
     {
-        if (isUpdate != displayUpdate) {
-            removeLeftPanel();
-            createScenarioDisplay();
-            addLeftPanel();
-            displayUpdate = isUpdate;
-            revalidate();
-        }
+        removeLeftPanel();
+        createScenarioDisplay();
+        infoPanel.add(leftPanel, BorderLayout.CENTER);
+        boolean enableImageControl = !isUpdate || !keepScenarioScreenshot.isSelected();
+        imagePanel.enableImageEditPanel(enableImageControl);
+        revalidate();
     }
 
     /**
@@ -657,10 +658,8 @@ public class ExportPublishPane extends ExportPane implements ChangeListener
     }
     
     /**
-     * Creates the scenario information display including information such as title; description, url
-     * @param update If true then the options are more comprehensive, specifically 
-     * a text area where the update details can be sent through; if false these fields
-     * are not available; traditionally will be true when a scenario has been exported before
+     * Creates the scenario information display including information such as title, description, url.
+     * For an update (isUpdate = true), the displayed options are slightly different.
      */
     private void createScenarioDisplay()
     {
@@ -800,14 +799,6 @@ public class ExportPublishPane extends ExportPane implements ChangeListener
     {
         leftPanel.removeAll();
         infoPanel.remove(leftPanel);
-    }
-    
-    /**
-     * Adds the scenario information to the display
-     */
-    private void addLeftPanel()
-    {
-        infoPanel.add(leftPanel, BorderLayout.CENTER);
     }
     
     /**
