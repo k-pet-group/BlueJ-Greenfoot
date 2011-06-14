@@ -876,4 +876,19 @@ public class GreenfootUtil
     {
         delegate.displayMessage(parent, messageText);
     }
+
+    /**
+     * Given a string that represents a filename (or long path),
+     * chops off the extension if any is present.
+     * 
+     * So Crab.java becomes Crab, and /tmp/pic.png becomes /tmp/pic
+     */
+    public static String removeExtension(String full)
+    {
+        int n = full.lastIndexOf('.');
+        if (n == -1)
+            return full;
+        else
+            return full.substring(0, n);
+    }
 }
