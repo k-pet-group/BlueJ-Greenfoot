@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -57,7 +57,6 @@ import bluej.views.ViewFilter;
  * class types
  * 
  * @author Bruce Quig
- * @version $Id: ClassRole.java 7779 2010-06-16 14:44:28Z davmac $
  */
 public abstract class ClassRole
 {
@@ -117,6 +116,11 @@ public abstract class ClassRole
         }
     }
 
+    /**
+     * Get the "stereotype label" for this class role. This will be displayed
+     * on classes in the UML diagram along with the class name. It may return
+     * null if there is no stereotype label.
+     */
     public String getStereotypeLabel()
     {
         return null;
@@ -140,10 +144,12 @@ public abstract class ClassRole
         Hashtable<String,String> translations = new Hashtable<String,String>();
         translations.put("CLASSNAME", name);
 
-        if (pkg.isUnnamedPackage())
+        if (pkg.isUnnamedPackage()) {
             translations.put("PKGLINE", "");
-        else
+        }
+        else {
             translations.put("PKGLINE", "package " + pkg.getQualifiedName() + ";" + Config.nl + Config.nl);
+        }
 
         try {
             // Check for existing file. Normally this won't happen (the check for duplicate
@@ -155,7 +161,7 @@ public abstract class ClassRole
             }
             BlueJFileReader.translateFile(Config.getClassTemplateFile(template),
                     new File(sourceFile), translations,
-                    Charset.forName("UTF-8"), Charset.defaultCharset());
+                    Charset.forName("UTF-8"), pkg.getProject().getProjectCharset());
             return true;
         }
         catch (IOException e) {
