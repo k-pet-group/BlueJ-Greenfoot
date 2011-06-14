@@ -252,6 +252,10 @@ soundRecorder.closeAnyway=Close anyway
 soundRecorder.closeTitle=Close without saving
 soundRecorder.closeQuestion=Sound has been changed since you last saved.  If you close the sound recorder, these changes will be lost.
 
+import.import=Import
+import.dialogTitle=Import Class
+import.action=Import Class
+
 # Menus
 
 menu.openRecent=Open recent

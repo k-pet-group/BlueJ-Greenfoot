@@ -15,6 +15,8 @@ import java.io.File;
 import javax.swing.AbstractAction;
 import javax.swing.JOptionPane;
 
+import bluej.Config;
+
 /**
  * The action that shows the import-class dialog
  * (which allows you to import a supplied common class),
@@ -30,7 +32,7 @@ public class ImportClassAction extends AbstractAction
 
     public ImportClassAction(GreenfootFrame gfFrame, InteractionListener interactionListener)
     {
-        super("Import Class");
+        super(Config.getString("import.action"));
         this.gfFrame = gfFrame;
         this.interactionListener = interactionListener;
     }   

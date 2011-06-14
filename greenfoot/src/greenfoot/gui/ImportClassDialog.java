@@ -93,7 +93,7 @@ public class ImportClassDialog extends EscapeDialog
     {
         public OkAction()
         {
-            super("Import");
+            super(Config.getString("import.import"));
         }
 
         @Override
@@ -107,7 +107,7 @@ public class ImportClassDialog extends EscapeDialog
     
     private void buildUI()
     {
-        setTitle("Import Class");
+        setTitle(Config.getString("import.dialogTitle"));
         JPanel p = new JPanel();
         p.setLayout(new BorderLayout(10, 0));
         p.setBorder(new EmptyBorder(0, 0, 10, 0));
@@ -124,7 +124,7 @@ public class ImportClassDialog extends EscapeDialog
             JButton okButton = new JButton(new OkAction());
             getRootPane().setDefaultButton(okButton);
 
-            JButton cancelButton = new JButton(new AbstractAction("Cancel") {
+            JButton cancelButton = new JButton(new AbstractAction(Config.getString("greenfoot.cancel")) {
                 public void actionPerformed(ActionEvent e)
                 {
                     setVisible(false);                                                
@@ -185,8 +185,6 @@ public class ImportClassDialog extends EscapeDialog
         rightPane.add(new JScrollPane(htmlPane), BorderLayout.CENTER);
         p.add(rightPane, BorderLayout.CENTER);
 
-        Debug.message(Config.getGreenfootLibDir().getAbsolutePath());
-
         pack();
         setSize(700, 550);
         ((ImportableClassButton)buttonGroup.getElements().nextElement()).select();
@@ -238,8 +236,6 @@ public class ImportClassDialog extends EscapeDialog
             
             htmlPane.setText(processedContents);
             htmlPane.setCaretPosition(0);
-            
-            Debug.message("Showing HTML: " + processedContents);
             
             //((HTMLDocument)htmlPane.getDocument()).setBase(new URL(fullURL));
         }
