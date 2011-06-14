@@ -36,51 +36,30 @@ import greenfoot.gui.input.mouse.LocationTracker;
 import greenfoot.record.InteractionListener;
 import greenfoot.util.GreenfootUtil;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
-import javax.swing.BorderFactory;
 import javax.swing.JPopupMenu;
 import javax.swing.JRootPane;
-import javax.swing.JToggleButton;
 
 import bluej.Config;
 import bluej.utility.DialogManager;
-import bluej.utility.Utility;
 
 /**
  * A class visualisation.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
  */
-public class ClassView extends JToggleButton
-    implements Selectable, MouseListener
+public class ClassView extends ClassButton
+    implements Selectable
 {
-    private final Color classColour = new Color(245, 204, 155);
-    private static final Color stripeColor = new Color(152,152,152);
-
-    public static final Color[] shadowColours = { new Color(242, 242, 242), 
-                                                  new Color(211, 211, 211),
-                                                  new Color(189, 189, 189),
-                                                  new Color(83, 83, 83)
-                                                };
-
-    private static final int SHADOW = 4;    // thickness of shadow
-    private static final int GAP = 2;       // spacing between classes
-    private static final int SELECTED_BORDER = 3;
-
-    private GClass gClass;
+    GClass gClass;
     private ClassRole role;
-    private ClassBrowser classBrowser;
-    private JPopupMenu popupMenu;
+    ClassBrowser classBrowser;
+    JPopupMenu popupMenu;
     private String superclass; //Holds the current superclass. Used to determine wether the superclass has changed.
     private InteractionListener interactionListener;
         
@@ -93,14 +72,6 @@ public class ClassView extends JToggleButton
         this.interactionListener = interactionListener;
         init(gClass);
     }    
-    
-    /*
-     * @see java.awt.Component#isFocusable()
-     */
-    public boolean isFocusable() 
-    {
-        return false;
-    }
     
     /**
      * Check whether this class is a core class (can't be removed or have
@@ -167,15 +138,7 @@ public class ClassView extends JToggleButton
         
         superclass = getSuperclass();
         
-        this.addMouseListener(this);
-        this.setBorder(BorderFactory.createEmptyBorder(7, 8, 10, 11)); // top,left,bottom,right
-        Font font = getFont();
-        font = font.deriveFont(13.0f);
-        this.setFont(font);
-        // this.setFont(PrefMgr.getTargetFont());
-
-        setContentAreaFilled(false);
-        setFocusPainted(false);
+        initUI();
         
         update();
     }
@@ -194,7 +157,7 @@ public class ClassView extends JToggleButton
         return gClass;
     }
 
-    private JPopupMenu getPopupMenu()
+    public JPopupMenu getPopupMenu()
     {
         if (popupMenu == null) {
             popupMenu = role.createPopupMenu(classBrowser, this, interactionListener);
@@ -210,9 +173,9 @@ public class ClassView extends JToggleButton
      */
     private void setRole(ClassRole role)
     {
-    	WorldHandler.getInstance().removeWorldListener(this.role);
+        WorldHandler.getInstance().removeWorldListener(this.role);
         this.role = role;
-    	WorldHandler.getInstance().addWorldListener(this.role);
+        WorldHandler.getInstance().addWorldListener(this.role);
     }
 
     /**
@@ -228,102 +191,6 @@ public class ClassView extends JToggleButton
         popupMenu = null;
         
         updateSuperClass();
-    }
-    
-    /**
-     * Rebuild the UI of this ClassView from scratch.
-     */
-    public void updateView()
-    {
-        update();
-
-        JRootPane rootPane = getRootPane();
-        if(rootPane != null) {
-            getRootPane().revalidate();
-        }
-    }
-
-    /**
-     *  Clears the UI for this ClassView
-     */
-    private void clearUI()
-    {
-        this.removeAll();
-    }
-
-    /**
-     * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
-     */
-    public void paintComponent(Graphics g)
-    {
-        // Sometimes there are still paint events pending when the gclass
-        // has been removed. We can check for that here.
-        if (gClass != null) {
-            drawBackground(g);
-            super.paintComponent(g);
-            
-            drawShadow((Graphics2D) g);
-            drawBorders((Graphics2D) g);
-        }
-    }
-
-    
-    private void drawBackground(Graphics g)
-    {
-        int height = getHeight() - SHADOW - GAP;
-        int width = getWidth() - 4;
-
-        g.setColor(classColour);
-        g.fillRect(0, GAP, width, height);
-        
-        if(!gClass.isCompiled()) {
-            g.setColor(stripeColor);
-            Utility.stripeRect(g, 0, GAP, width, height, 8, 3);
-
-            g.setColor(classColour);
-            g.fillRect(7, GAP+7, width-14, height-14);
-        }
-    }
-    
-    
-    /**
-     * Draw a 'shadow' appearance under and to the right of the target.
-     */
-    protected void drawShadow(Graphics2D g)
-    {
-        int height = getHeight() - SHADOW;
-        int width = getWidth() - 4;
-        
-        g.setColor(Color.WHITE);
-        g.fillRect(0, 0, width + 4, GAP);   // blank for gap above class
-        g.fillRect(0, height, 6, height + SHADOW);
-        g.fillRect(width, 0, width + 3, 10);
-        
-        // colorchange is expensive on mac, so draworder is by color, not position
-        g.setColor(shadowColours[3]);
-        g.drawLine(3, height, width, height);//bottom
-
-        g.setColor(shadowColours[2]);
-        g.drawLine(4, height + 1, width, height + 1);//bottom
-        g.drawLine(width + 1, height + 2, width + 1, 3 + GAP);//right
-
-        g.setColor(shadowColours[1]);
-        g.drawLine(5, height + 2, width + 1, height + 2);//bottom
-        g.drawLine(width + 2, height + 3, width + 2, 4 + GAP);//right
-
-        g.setColor(shadowColours[0]);
-        g.drawLine(6, height + 3, width + 2, height + 3); //bottom
-        g.drawLine(width + 3, height + 3, width + 3, 5 + GAP); // right
-    }
-
-    /**
-     * Draw the borders of this target.
-     */
-    protected void drawBorders(Graphics2D g)
-    {
-        g.setColor(Color.BLACK);
-        int thickness = isSelected() ? SELECTED_BORDER : 1;
-        Utility.drawThickRect(g, 0, GAP, getWidth() - 4, getHeight() - SHADOW - GAP - 1, thickness);
     }
 
     /**
@@ -362,46 +229,11 @@ public class ClassView extends JToggleButton
     public boolean deselect()
     {
         if (isSelected()) {
-        	setSelected(false);
+            setSelected(false);
             fireSelectionChangeEvent();
             return true;
         }
         return false;
-    }
-
-    protected void fireSelectionChangeEvent()
-    {
-        // Guaranteed to return a non-null array
-        Object[] listeners = listenerList.getListenerList();
-        // Process the listeners last to first, notifying
-        // those that are interested in this event
-        for (int i = listeners.length - 2; i >= 0; i -= 2) {
-            if (listeners[i] == SelectionListener.class) {
-                ((SelectionListener) listeners[i + 1]).selectionChange(this);
-            }
-        }
-    }
-
-    /**
-     * Add a changeListener to listen for changes.
-     * 
-     * @param l
-     *            Listener to add
-     */
-    public void addSelectionChangeListener(SelectionListener l)
-    {
-        listenerList.add(SelectionListener.class, l);
-    }
-    
-    /**
-     * Remove a changeListener.
-     * 
-     * @param l
-     *            Listener to remove
-     */
-    public void removeSelectionChangeListener(SelectionListener l)
-    {
-        listenerList.remove(SelectionListener.class, l);
     }
 
     /**
@@ -503,65 +335,14 @@ public class ClassView extends JToggleButton
     }
         
     /**
-     * Notify the class view that the underlying class has changed name.
-     * @param oldName  The original name of the class
-     */
-    public void nameChanged(String oldName)
-    {
-        classBrowser.renameClass(this, oldName);
-        updateView();
-    }
-
-    // ----- MouseListener interface -----
-    
-    /**
-     * Mouse-click on this class view. Chek for double-click and handle.
-     */
-    public void mouseClicked(MouseEvent e)
-    {
-        if (e.getClickCount() > 1 && ((e.getModifiers() & MouseEvent.BUTTON1_MASK) != 0)) {
-            gClass.edit();
-        }
-    }
-
-    /*
-     */
-    public void mouseEntered(MouseEvent e) { }
-
-    /*
-     */
-    public void mouseExited(MouseEvent e) { }
-    
-    /**
-     * The mouse was pressed on the component. Do what you have to do.
-     */
-    public void mousePressed(MouseEvent e)
-    {
-        select();
-        maybeShowPopup(e);
-    }
-
-    public void mouseReleased(MouseEvent e)
-    {
-        maybeShowPopup(e);
-    }
-
-    private void maybeShowPopup(MouseEvent e)
-    {
-        if (e.isPopupTrigger()) {
-            getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
-        }
-    }
-
-    /**
      * Removes this class.
      * <br>
      * Must be called from the event thread.
      */
     public void remove()
     {
-    	WorldHandler.getInstance().removeWorldListener(this.role);
-    	role.remove();
+        WorldHandler.getInstance().removeWorldListener(this.role);
+        role.remove();
         classBrowser.removeClass(this);
         gClass.remove();
         gClass = null;
@@ -574,6 +355,89 @@ public class ClassView extends JToggleButton
     public String getSuperclass()
     {
         return gClass.getSuperclassGuess();
+    }
+
+
+    protected void fireSelectionChangeEvent()
+    {
+        // Guaranteed to return a non-null array
+        Object[] listeners = listenerList.getListenerList();
+        // Process the listeners last to first, notifying
+        // those that are interested in this event
+        for (int i = listeners.length - 2; i >= 0; i -= 2) {
+            if (listeners[i] == SelectionListener.class) {
+                ((SelectionListener) listeners[i + 1]).selectionChange(this);
+            }
+        }
+    }
+
+    /**
+     * Add a changeListener to listen for changes.
+     * 
+     * @param l
+     *            Listener to add
+     */
+    public void addSelectionChangeListener(SelectionListener l)
+    {
+        listenerList.add(SelectionListener.class, l);
+    }
+
+    /**
+     * Remove a changeListener.
+     * 
+     * @param l
+     *            Listener to remove
+     */
+    public void removeSelectionChangeListener(SelectionListener l)
+    {
+        listenerList.remove(SelectionListener.class, l);
+    }
+
+
+    /**
+     * Notify the class view that the underlying class has changed name.
+     * @param oldName  The original name of the class
+     */
+    public void nameChanged(String oldName)
+    {
+        classBrowser.renameClass(this, oldName);
+        updateView();
+    }
+    
+    /**
+     * Rebuild the UI of this ClassView from scratch.
+     */
+    public void updateView()
+    {
+        update();
+
+        JRootPane rootPane = getRootPane();
+        if(rootPane != null) {
+            getRootPane().revalidate();
+        }
+    }
+
+    
+    protected boolean isValidClass()
+    {
+        return gClass != null;
+    }
+    
+    protected boolean isUncompiled()
+    {
+        return !gClass.isCompiled();
+    }
+    
+    protected void doubleClick()
+    {
+        gClass.edit();
+    }
+
+    protected void maybeShowPopup(MouseEvent e)
+    {
+        if (e.isPopupTrigger()) {
+            getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
+        }
     }
 
     public void setPopupMenu(JPopupMenu popupMenu)
