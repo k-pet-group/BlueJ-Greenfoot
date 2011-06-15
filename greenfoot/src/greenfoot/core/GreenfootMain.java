@@ -73,7 +73,7 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 8895 2011-04-29 04:27:18Z davmac $
+ * @version $Id: GreenfootMain.java 8996 2011-06-15 13:25:38Z plcs $
  */
 public class GreenfootMain extends Thread implements CompileListener, RProjectListener
 {
@@ -691,7 +691,8 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
     }
 
     /**
-     * Deletes all class files in the directory, including the greenfoot subdirectory.
+     * Deletes all class files in the directory, including the greenfoot subdirectory,
+     * only if they have a .java file related to them.
      */
     public static void deleteAllClassFiles(File dir)
     {
@@ -700,8 +701,13 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
 
         for (int i = 0; i < classFiles.length; i++) {
             String fileName = classFiles[i];
+            int index = fileName.lastIndexOf('.');
+            String javaFileName = fileName.substring(0, index) + ".java";
             File file = new File(dir, fileName);
-            file.delete();
+            File javaFile = new File(dir, javaFileName);
+            if (javaFile.exists()) {
+                file.delete();
+            }
         }
     }
 
