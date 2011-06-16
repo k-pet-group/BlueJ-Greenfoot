@@ -57,7 +57,6 @@ import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
-import javax.swing.text.BadLocationException;
 
 import bluej.BlueJEvent;
 import bluej.BlueJEventListener;
@@ -375,13 +374,8 @@ public final class Terminal extends JFrame
             clear();
         }
         if(recordMethodCalls) {
-            try {
-                if(text.getCaretPosition() !=
-                   text.getLineStartOffset(text.getLineCount())) {
-                    writeToTerminal("\n");
-                }
-            }
-            catch(BadLocationException exc) {
+            if(text.getCaretPosition() !=
+                text.getLineStartOffset(text.getLineCount())) {
                 writeToTerminal("\n");
             }
             if(callString != null) {
@@ -396,13 +390,8 @@ public final class Terminal extends JFrame
     private void methodResult(ExecutionEvent event)
     {
         if (recordMethodCalls) {
-            try {
-                if (text.getCaretPosition() !=
-                   text.getLineStartOffset(text.getLineCount())) {
-                    writeToTerminal("\n");
-                }
-            }
-            catch (BadLocationException exc) {
+            if (text.getCaretPosition() !=
+                text.getLineStartOffset(text.getLineCount())) {
                 writeToTerminal("\n");
             }
             
@@ -474,6 +463,29 @@ public final class Terminal extends JFrame
         return err;
     }
 
+    /**
+     * Possibly handle an action resulting from a keystroke. Most actions are filtered
+     * out, to avoid editing commands from being performed, but some are still allowed.
+     */
+    private void handleKeyAction(Object action)
+    {
+        if (action instanceof String) {
+            if (action.equals("copy-to-clipboard")) {
+                Action a = text.getActionMap().get(action);
+                if (a != null) {
+                    a.actionPerformed(new ActionEvent(text,
+                            ActionEvent.ACTION_PERFORMED, action.toString()));
+                }
+            }
+            else if (action.equals("paste-from-clipboard")) {
+                Action a = text.getActionMap().get(action);
+                if (a != null) {
+                    a.actionPerformed(new ActionEvent(text,
+                            ActionEvent.ACTION_PERFORMED, action.toString()));
+                }
+            }
+        }
+    }
 
     // ---- KeyListener interface ----
 
@@ -481,23 +493,30 @@ public final class Terminal extends JFrame
     {
         // Let menu commands and dead keys (if active) pass
         // Dead keys are passed because they wont work on Windows otherwise
-        if(event.getModifiers() != SHORTCUT_MASK && !(Utility.isDeadKey(event) && isActive) )  
+        if (! isActive || ! Utility.isDeadKey(event)) {
+            KeyStroke ks = KeyStroke.getKeyStrokeForEvent(event);
+            handleKeyAction(text.getInputMap().get(ks));
             event.consume();
+        }        
     }
     
     public void keyReleased(KeyEvent event)
     {
         // Let menu commands and dead keys (if active) pass
         // Dead keys are passed because they wont work on Windows otherwise
-        if(event.getModifiers() != SHORTCUT_MASK && !(Utility.isDeadKey(event) && isActive) )  
+        if (! isActive || ! Utility.isDeadKey(event)) {
+            KeyStroke ks = KeyStroke.getKeyStrokeForEvent(event);
+            handleKeyAction(text.getInputMap().get(ks));
             event.consume();
+        }
     }
 
     public void keyTyped(KeyEvent event)
     {
-        initialise();
-        char ch = event.getKeyChar();
+        KeyStroke ks = KeyStroke.getKeyStrokeForEvent(event);
+        handleKeyAction(text.getInputMap().get(ks));
         
+        char ch = event.getKeyChar();
         switch (ch) {
             
         case KeyEvent.VK_EQUALS: // increase the font size
@@ -553,7 +572,7 @@ public final class Terminal extends JFrame
                     break;
 
                 default:
-                    if (buffer.putChar(ch)) {
+                    if (ch >= 32 && buffer.putChar(ch)) {
                         writeToTerminal(String.valueOf(ch));
                     }
                     break;
@@ -603,10 +622,8 @@ public final class Terminal extends JFrame
         scrollPane = new JScrollPane(text);
         text.setFont(getTerminalFont());
         text.setEditable(false);
-        text.setLineWrap(false);
         text.setForeground(FGCOLOUR);
         text.setMargin(new Insets(6, 6, 6, 6));
-        //text.setBackground(inactiveBgColour);
         text.addKeyListener(this);
 
         getContentPane().add(scrollPane, BorderLayout.CENTER);
@@ -652,7 +669,7 @@ public final class Terminal extends JFrame
      */
     private void createErrorPane()
     {
-        errorText = new JTextArea(5, text.getColumns());
+        errorText = new JTextArea(5, 80);
         errorScrollPane = new JScrollPane(errorText);
         errorText.setFont(getTerminalFont());
         errorText.setEditable(false);
@@ -667,7 +684,8 @@ public final class Terminal extends JFrame
     /**
      * Show the errorPane for error output
      */
-    private void showErrorPane() {
+    private void showErrorPane()
+    {
         if(errorShown) {
             return;
         }
@@ -704,9 +722,9 @@ public final class Terminal extends JFrame
     
     /**
      * Hide the pane with the error output.
-     *
      */
-    private void hideErrorPane() {
+    private void hideErrorPane()
+    {
         if(!errorShown) {
             return;
         }
@@ -766,7 +784,8 @@ public final class Terminal extends JFrame
             super(Config.getString("terminal.clear"));
         }
 
-        public void actionPerformed(ActionEvent e) {
+        public void actionPerformed(ActionEvent e)
+        {
             clear();
         }
     }
@@ -778,7 +797,8 @@ public final class Terminal extends JFrame
             super(Config.getString("terminal.save"));
         }
 
-        public void actionPerformed(ActionEvent e) {
+        public void actionPerformed(ActionEvent e)
+        {
             save();
         }
     }
@@ -790,7 +810,8 @@ public final class Terminal extends JFrame
             super(Config.getString("terminal.print"));
         }
 
-        public void actionPerformed(ActionEvent e) {
+        public void actionPerformed(ActionEvent e)
+        {
             print();
         }
     }
@@ -802,7 +823,8 @@ public final class Terminal extends JFrame
             super(Config.getString("terminal.close"));
         }
 
-        public void actionPerformed(ActionEvent e) {
+        public void actionPerformed(ActionEvent e)
+        {
             showHide(false);
         }
     }
@@ -810,9 +832,11 @@ public final class Terminal extends JFrame
     private Action getCopyAction()
     {
         Action[] textActions = text.getActions();
-        for (int i=0; i < textActions.length; i++)
-            if(textActions[i].getValue(Action.NAME).equals("copy-to-clipboard"))
+        for (int i=0; i < textActions.length; i++) {
+            if(textActions[i].getValue(Action.NAME).equals("copy-to-clipboard")) {
                 return textActions[i];
+            }
+        }
 
         return null;
     }
@@ -824,7 +848,8 @@ public final class Terminal extends JFrame
             super(Config.getString("terminal.clearScreen"));
         }
 
-        public void actionPerformed(ActionEvent e) {
+        public void actionPerformed(ActionEvent e)
+        {
             clearOnMethodCall = autoClear.isSelected();
             Config.putPropBoolean(CLEARONMETHODCALLSPROPNAME, clearOnMethodCall);
         }

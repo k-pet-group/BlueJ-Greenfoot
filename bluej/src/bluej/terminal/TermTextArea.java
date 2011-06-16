@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,7 +23,7 @@ package bluej.terminal;
 
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
-import javax.swing.JTextArea;
+import javax.swing.JTextPane;
 import javax.swing.text.BadLocationException;
 
 import bluej.utility.Debug;
@@ -36,9 +36,8 @@ import java.awt.datatransfer.Transferable;
  * A customised text area for use in the BlueJ text terminal.
  *
  * @author  Michael Kolling
- * @version $Id: TermTextArea.java 7054 2010-01-27 03:58:25Z davmac $
  */
-public final class TermTextArea extends JTextArea
+public final class TermTextArea extends JTextPane
 {
     private static final int BUFFER_LINES = 48;
 
@@ -52,7 +51,7 @@ public final class TermTextArea extends JTextArea
      */
     public TermTextArea(int rows, int columns, InputBuffer buffer, Terminal terminal)
     {
-        super(rows, columns);
+        //super(rows, columns);
         this.buffer = buffer;
         this.terminal = terminal;
     }
@@ -62,22 +61,57 @@ public final class TermTextArea extends JTextArea
         unlimitedBuffer = arg;
     }
 
-    @Override
+    /**
+     * Append some text to the terminal text area.
+     */
     public void append(String s)
     {
-        super.append(s);
+        int length = getDocument().getLength();
+        try {
+            getDocument().insertString(length, s, null);
+        }
+        catch (BadLocationException ble) {
+            throw new RuntimeException(ble);
+        }
 
         if(!unlimitedBuffer) {             // possibly remove top line
             int lines = getLineCount();
             if(lines > BUFFER_LINES) {
-                try {
-                    int linePos = getLineStartOffset(lines-BUFFER_LINES);
-                    replaceRange(null, 0, linePos);
-                }
-                catch(BadLocationException exc) {
-                    Debug.reportError("bad location in terminal operation");
-                }
+                int linePos = getLineStartOffset(lines-BUFFER_LINES);
+                replaceRange(null, 0, linePos);
             }
+        }
+    }
+    
+    /**
+     * Get the number of lines in the text area
+     */
+    public int getLineCount()
+    {
+        return getDocument().getDefaultRootElement().getElementCount();
+    }
+    
+    /**
+     * Get the start offset of a particular line (line 0 is the first line).
+     */
+    public int getLineStartOffset(int line)
+    {
+        return getDocument().getDefaultRootElement().getElement(line).getStartOffset();
+    }
+    
+    /**
+     * Replace the text in some portion of the document with the given string.
+     */
+    public void replaceRange(String s, int startPos, int endPos)
+    {
+        try {
+            getDocument().remove(startPos, endPos - startPos);
+            if (s != null) {
+                getDocument().insertString(startPos, s, null);
+            }
+        }
+        catch (BadLocationException ble) {
+            throw new RuntimeException(ble);
         }
     }
 
@@ -114,7 +148,7 @@ public final class TermTextArea extends JTextArea
                 }
             }
         } else {
-            // if it isn't a string, let the usual paint method handle it.
+            // if it isn't a string, let the usual paste method handle it.
             super.paste();
         }
     }
