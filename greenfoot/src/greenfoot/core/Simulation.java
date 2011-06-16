@@ -137,10 +137,9 @@ public class Simulation extends Thread
      * @param worldHandler
      *            The handler for the world that is simulated
      */
-    private Simulation(WorldHandler worldHandler, SimulationDelegate simulationDelegate)
+    private Simulation(SimulationDelegate simulationDelegate)
     {
         this.setName("SimulationThread");
-        this.worldHandler = worldHandler;
         this.delegate = simulationDelegate;
         startedEvent = new SimulationEvent(this, SimulationEvent.STARTED);
         stoppedEvent = new SimulationEvent(this, SimulationEvent.STOPPED);
@@ -155,11 +154,9 @@ public class Simulation extends Thread
         HDTimer.init();
     }
     
-    public static void initialize(WorldHandler worldHandler, SimulationDelegate simulationDelegate)
+    public static void initialize(SimulationDelegate simulationDelegate)
     {
-        instance = new Simulation(worldHandler, simulationDelegate);
-        worldHandler.addWorldListener(instance);
-        instance.addSimulationListener(worldHandler);
+        instance = new Simulation(simulationDelegate);
         instance.start();
     }
 
@@ -171,6 +168,16 @@ public class Simulation extends Thread
         return instance;
     }
 
+    /**
+     * Attach this simulation to the world handler (and vice versa).
+     */
+    public void attachWorldHandler(WorldHandler worldHandler)
+    {
+        this.worldHandler = worldHandler;
+        worldHandler.addWorldListener(this);
+        addSimulationListener(worldHandler);
+    }
+    
     // The following methods should run only on the simulation thread itself!
 
     /**

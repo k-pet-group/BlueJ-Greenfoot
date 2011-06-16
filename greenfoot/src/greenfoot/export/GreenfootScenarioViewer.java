@@ -155,6 +155,10 @@ public class GreenfootScenarioViewer extends JApplet
             ActorDelegateStandAlone.setupAsActorDelegate();
             ActorDelegateStandAlone.initProperties(properties);
 
+            // We must construct the simulation before the world, as a call to
+            // Greenfoot.setSpeed() requires a call to the simulation instance.
+            Simulation.initialize(new SimulationDelegateStandAlone());
+            
             Class<?> worldClass = Class.forName(worldClassName);
             worldConstructor = worldClass.getConstructor(new Class[]{});
             World world = instantiateNewWorld();
@@ -163,10 +167,11 @@ public class GreenfootScenarioViewer extends JApplet
             
             WorldHandler.initialise(canvas, new WorldHandlerDelegateStandAlone(this, lockScenario));
             WorldHandler worldHandler = WorldHandler.getInstance();
-            Simulation.initialize(worldHandler, new SimulationDelegateStandAlone());
+
+            sim = Simulation.getInstance();
+            sim.attachWorldHandler(worldHandler);
             
             LocationTracker.initialize();
-            sim = Simulation.getInstance();
             controls = new ControlPanel(sim, ! lockScenario);
 
             worldHandler.setWorld(world);
