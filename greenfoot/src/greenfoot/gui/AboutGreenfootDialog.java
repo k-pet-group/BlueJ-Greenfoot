@@ -48,7 +48,7 @@ import bluej.utility.MultiLineLabel;
  * The BlueJ about box.
  * 
  * @author Poul Henriksen
- * @version $Id: AboutGreenfootDialog.java 8442 2010-09-30 12:19:12Z mik $
+ * @version $Id: AboutGreenfootDialog.java 9003 2011-06-16 13:11:18Z mik $
  */
 public class AboutGreenfootDialog extends JDialog
 {
@@ -74,11 +74,9 @@ public class AboutGreenfootDialog extends JDialog
         MultiLineLabel text = new MultiLineLabel(LEFT_ALIGNMENT, 6);
         text.setBackground(Color.white);
         text.addText("The Greenfoot team:" + "\n ", false, true);
-        text.addText("      Neil Brown\n");        
-        text.addText("      Poul Henriksen\n");
+        text.addText("      Neil Brown\n");     
         text.addText("      Michael K\u00F6lling\n");
         text.addText("      Davin McCall\n");
-        text.addText("      Bruce Quig\n");
         text.addText("      John Rosenberg\n");
         text.addText("      Philip Stevens\n");        
         text.addText("      Ian Utting\n");
