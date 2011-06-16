@@ -21,23 +21,24 @@
  */
 package bluej.terminal;
 
-import java.awt.datatransfer.UnsupportedFlavorException;
-import java.io.IOException;
-import javax.swing.JTextPane;
-import javax.swing.text.BadLocationException;
-
-import bluej.utility.Debug;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.io.IOException;
+
+import javax.swing.JEditorPane;
+import javax.swing.text.BadLocationException;
+
+import bluej.utility.Debug;
 
 /**
  * A customised text area for use in the BlueJ text terminal.
  *
  * @author  Michael Kolling
  */
-public final class TermTextArea extends JTextPane
+public final class TermTextArea extends JEditorPane
 {
     private static final int BUFFER_LINES = 48;
 

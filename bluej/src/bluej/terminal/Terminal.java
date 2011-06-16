@@ -220,8 +220,6 @@ public final class Terminal extends JFrame
             if (!active) {
                 text.getCaret().setVisible(false);
             }
-            //text.setEnabled(active);
-            //text.setBackground(active ? activeBgColour : inactiveBgColour);
             isActive = active;
         }
     }
@@ -489,6 +487,7 @@ public final class Terminal extends JFrame
 
     // ---- KeyListener interface ----
 
+    @Override
     public void keyPressed(KeyEvent event)
     {
         // Let menu commands and dead keys (if active) pass
@@ -500,6 +499,7 @@ public final class Terminal extends JFrame
         }        
     }
     
+    @Override
     public void keyReleased(KeyEvent event)
     {
         // Let menu commands and dead keys (if active) pass
@@ -511,6 +511,7 @@ public final class Terminal extends JFrame
         }
     }
 
+    @Override
     public void keyTyped(KeyEvent event)
     {
         KeyStroke ks = KeyStroke.getKeyStrokeForEvent(event);
@@ -596,6 +597,7 @@ public final class Terminal extends JFrame
      * @param arg      An event specific parameter. See BlueJEvent for
      *                 definition.
      */
+    @Override
     public void blueJEvent(int eventId, Object arg)
     {
         initialise();
