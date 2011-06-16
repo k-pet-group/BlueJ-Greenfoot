@@ -37,7 +37,7 @@ import javax.swing.*;
  * The BlueJ about box.
  *
  * @author  Michael Kolling
- * @version $Id: AboutBlue.java 7711 2010-05-24 13:55:36Z mik $
+ * @version $Id: AboutBlue.java 9004 2011-06-16 13:15:21Z mik $
  */
 class AboutBlue extends EscapeDialog
 {
@@ -64,10 +64,8 @@ class AboutBlue extends EscapeDialog
         text.setBackground(Color.white);
         text.addText(Config.getString("about.theTeam") + "\n ", false, true);
         text.addText("  Neil Brown\n");
-        text.addText("  Poul Henriksen\n");
         text.addText("  Michael K\u00F6lling\n");
         text.addText("  Davin McCall\n");
-        text.addText("  Bruce Quig\n");
         text.addText("  Philip Stevens\n");
         text.addText("  John Rosenberg\n");
         text.addText("  Ian Utting\n");
@@ -141,20 +139,20 @@ class AboutBlue extends EscapeDialog
         // Close Action when OK is pressed
         ok.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event)
-        	{
-        	    setVisible(false);
-        	    dispose();
-        	}
+                {
+                    setVisible(false);
+                    dispose();
+                }
         });
 
         // Close Action when close button is pressed
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent event)
-        	{
-        	    Window win = (Window)event.getSource();
-        	    win.setVisible(false);
-        	    win.dispose();
-        	}
+                {
+                    Window win = (Window)event.getSource();
+                    win.setVisible(false);
+                    win.dispose();
+                }
         });
 
         setResizable(false);
