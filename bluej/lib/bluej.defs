@@ -442,10 +442,6 @@ colour.target.border=0,0,0
 colour.target.bg.compiling=200,150,100
 colour.target.stripes=158,139,116
 
-# object bench
-colour.wrapper.bg=205,38,38
-colour.wrapper.shadow=152,152,152
-
 #colour for selections (in text and otherwise)
 colour.selection=233,225,0
 colour.selection2=255,250,0

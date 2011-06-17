@@ -97,7 +97,6 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
     static String inheritedFrom = Config.getString("debugger.objectwrapper.inherited");
 
     // Colors
-    static final Color bg = Config.getItemColour("colour.wrapper.bg");
     static final Color envOpColour = Config.ENV_COLOUR;
     static final Color textColour = Color.white;
     
