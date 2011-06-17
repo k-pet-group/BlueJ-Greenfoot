@@ -23,7 +23,6 @@ package bluej.pkgmgr.target;
 
 import java.awt.Color;
 import java.awt.EventQueue;
-import java.awt.Font;
 import java.awt.Paint;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -80,7 +79,6 @@ import bluej.pkgmgr.target.role.InterfaceClassRole;
 import bluej.pkgmgr.target.role.MIDletClassRole;
 import bluej.pkgmgr.target.role.StdClassRole;
 import bluej.pkgmgr.target.role.UnitTestClassRole;
-import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileEditor;
@@ -98,7 +96,6 @@ import bluej.views.MethodView;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Bruce Quig
- * @author Damiano Bolla
  */
 public class ClassTarget extends DependentTarget
     implements Moveable, InvokeListener
@@ -112,10 +109,7 @@ public class ClassTarget extends DependentTarget
     private final static String createTestStr = Config.getString("pkgmgr.classmenu.createTest");
 
     // Define Background Colours
-    private final static Color compbg = Config.getItemColour("colour.target.bg.compiling");
-
-    private final static Color colBorder = Config.getItemColour("colour.target.border");
-    private final static Color textfg = Config.getItemColour("colour.text.fg");
+    private final static Color compbg = new Color(200,150,100);
 
     private static String usesArrowMsg = Config.getString("pkgmgr.usesArrowMsg");
 
@@ -314,6 +308,7 @@ public class ClassTarget extends DependentTarget
      * 
      * @return The displayName value
      */
+    @Override
     public String getDisplayName()
     {
         return super.getDisplayName() + getTypeParameters();
@@ -336,6 +331,7 @@ public class ClassTarget extends DependentTarget
      * 
      * @param newState The new state value
      */
+    @Override
     public void setState(int newState)
     {
         if (state != newState) {
@@ -556,6 +552,7 @@ public class ClassTarget extends DependentTarget
      *            properties in a properties file used by multiple targets.
      * @exception NumberFormatException Description of the Exception
      */
+    @Override
     public void load(Properties props, String prefix)
         throws NumberFormatException
     {
@@ -607,6 +604,7 @@ public class ClassTarget extends DependentTarget
      * @param prefix an internal name used for this target to identify its
      *            properties in a properties file used by multiple targets.
      */
+    @Override
     public void save(Properties props, String prefix)
     {
         super.save(props, prefix);
@@ -751,35 +749,6 @@ public class ClassTarget extends DependentTarget
         }
     }
 
-    /**
-     * Gets the borderColour attribute of the ClassTarget object
-     * 
-     * @return The borderColour value
-     */
-    Color getBorderColour()
-    {
-        return colBorder;
-    }
-
-    /**
-     * Gets the textColour attribute of the ClassTarget object
-     * 
-     * @return The textColour value
-     */
-    Color getTextColour()
-    {
-        return textfg;
-    }
-
-    /**
-     * Gets the font attribute of the ClassTarget object
-     * 
-     * @return The font value
-     */
-    Font getFont()
-    {
-        return PrefMgr.getTargetFont();
-    }
 
     // --- EditableTarget interface ---
 
@@ -921,6 +890,7 @@ public class ClassTarget extends DependentTarget
      * <p>This can cause saveEvent() to be generated, which might move
      * the class to a new package (if the package line has been changed).
      */
+    @Override
     public void ensureSaved() throws IOException
     {
         if(editor != null) {
@@ -941,6 +911,7 @@ public class ClassTarget extends DependentTarget
             int state = 0;
             DebuggerClass clss;
             
+            @Override
             public void run() {
                 switch (state) {
                     // This is the intial state. Try and load the class.
@@ -963,6 +934,7 @@ public class ClassTarget extends DependentTarget
 
     // --- EditorWatcher interface ---
 
+    @Override
     public void modificationEvent(Editor editor)
     {
         invalidate();
@@ -974,6 +946,7 @@ public class ClassTarget extends DependentTarget
         sourceInfo.setSourceModified();
     }
 
+    @Override
     public void saveEvent(Editor editor)
     {
         ClassInfo info = analyseSource();
@@ -983,6 +956,7 @@ public class ClassTarget extends DependentTarget
         determineRole(null);
     }
 
+    @Override
     public String breakpointToggleEvent(Editor editor, int lineNo, boolean set)
     {
         if (isCompiled() || ! modifiedSinceCompile) {
@@ -1042,6 +1016,7 @@ public class ClassTarget extends DependentTarget
      * 
      * @param editor Description of the Parameter
      */
+    @Override
     public void compile(Editor editor)
     {
         getPackage().compile(this);
@@ -1706,6 +1681,7 @@ public class ClassTarget extends DependentTarget
      * 
      * @param evt Description of the Parameter
      */
+    @Override
     public void doubleClick(MouseEvent evt)
     {
         open();
@@ -1804,6 +1780,7 @@ public class ClassTarget extends DependentTarget
      * @param x The new pos value
      * @param y The new pos value
      */
+    @Override
     public void setPos(int x, int y)
     {
         super.setPos(x, y);
@@ -1816,6 +1793,7 @@ public class ClassTarget extends DependentTarget
      * @param width The new size value
      * @param height The new size value
      */
+    @Override
     public void setSize(int width, int height)
     {
         super.setSize(Math.max(width, MIN_WIDTH), Math.max(height, MIN_HEIGHT));
@@ -1984,6 +1962,7 @@ public class ClassTarget extends DependentTarget
         properties.put(key, value);
     }
     
+    @Override
     public String getTooltipText()
     {
         if (!getSourceInfo().isValid()) {

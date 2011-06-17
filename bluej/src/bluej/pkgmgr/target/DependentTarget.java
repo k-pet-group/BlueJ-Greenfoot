@@ -34,8 +34,9 @@ import bluej.utility.MultiIterator;
 /**
  * A target that has relationships to other targets
  *
- * @author 	Michael Cahill
- * @version	$Id: DependentTarget.java 7201 2010-02-25 00:40:01Z davmac $
+ * @author   Michael Cahill
+ * @author   Michael Kolling
+ * @version  $Id: DependentTarget.java 9012 2011-06-17 08:28:22Z mik $
  */
 public abstract class DependentTarget extends EditableTarget
 {
@@ -52,7 +53,7 @@ public abstract class DependentTarget extends EditableTarget
     private List<Dependency> children;
 
     protected DependentTarget assoc;
-	
+
     /**
      * Create a new target belonging to the specified package.
      */
@@ -68,12 +69,14 @@ public abstract class DependentTarget extends EditableTarget
         assoc = null;
     }
     
+    @Override
     public void setPos(int x, int y)
     {
         super.setPos(x,y);
         recalcDependentPositions();
     }
 
+    @Override
     public void setSize(int width, int height)
     {
         super.setSize(width, height);
@@ -85,6 +88,7 @@ public abstract class DependentTarget extends EditableTarget
      * @param props the properties object to save to
      * @param prefix an internal name used for this target to identify
      */
+    @Override
     public void save(Properties props, String prefix)
     {
         super.save(props, prefix);
@@ -108,7 +112,7 @@ public abstract class DependentTarget extends EditableTarget
     {
         return assoc;
     }
-	
+
     public void addDependencyOut(Dependency d, boolean recalc)
     {
         if(d instanceof UsesDependency) {
@@ -355,18 +359,18 @@ public abstract class DependentTarget extends EditableTarget
         double tan = sin / cos;
         double m = (double) getHeight() / getWidth();
 
-        if(Math.abs(tan) < m)	// side
+        if(Math.abs(tan) < m)   // side
             radius = 0.5 * getWidth() / Math.abs(cos);
-        else	// top
+        else    // top
             radius = 0.5 * getHeight() / Math.abs(sin);
 
         Point p = new Point(getX() + getWidth() / 2 + (int)(radius * cos),
                             getY() + getHeight() / 2 - (int)(radius * sin));
 
         // Correct for shadow
-        if((-m < tan) && (tan < m) && (cos > 0))	// right side
+        if((-m < tan) && (tan < m) && (cos > 0))    // right side
             p.x += SHAD_SIZE;
-        if((Math.abs(tan) > m) && (sin < 0) && (p.x > getX() + SHAD_SIZE))	// bottom
+        if((Math.abs(tan) > m) && (sin < 0) && (p.x > getX() + SHAD_SIZE))  // bottom
             p.y += SHAD_SIZE;
 
         return p;
@@ -408,6 +412,7 @@ public abstract class DependentTarget extends EditableTarget
         }
     }
 
+    @Override
     public String toString()
     {
         return getDisplayName();

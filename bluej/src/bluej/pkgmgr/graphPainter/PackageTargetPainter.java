@@ -39,7 +39,7 @@ public class PackageTargetPainter
     private static final int HANDLE_SIZE = 20;
 
     private static final Color defaultbg = Config.getOptionalItemColour("colour.package.bg.default");
-    private static final Color bordercolour = Config.getItemColour("colour.target.border");
+    private static final Color bordercolour = Color.BLACK;
 
     private static final int TEXT_HEIGHT = GraphPainterStdImpl.TEXT_HEIGHT;
     private static final int TEXT_BORDER = GraphPainterStdImpl.TEXT_BORDER;

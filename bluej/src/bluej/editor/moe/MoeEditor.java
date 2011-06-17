@@ -148,11 +148,9 @@ public final class MoeEditor extends JFrame
     // colours
     final static Color cursorColor = new Color(255, 0, 100);                 // cursor
 
-    final static Color frameBgColor = new Color(175, 175, 175);
     final static Color infoColor = new Color(240, 240, 240);
     final static Color lightGrey = new Color(224, 224, 224);
     final static Color selectionColour = Config.getSelectionColour();
-    final static Color titleCol = Config.getItemColour("colour.text.fg");
     final static Color envOpColour = Config.ENV_COLOUR;
 
     // Fonts
@@ -3134,7 +3132,6 @@ public final class MoeEditor extends JFrame
     {
         JPanel toolbar = new JPanel();
         toolbar.setLayout(new BoxLayout(toolbar, BoxLayout.X_AXIS));
-        //toolbar.setBackground(frameBgColor);
 
         String[] toolGroups = getResource("toolbar").split(" ");
         for (String group : toolGroups) {
