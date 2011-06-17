@@ -63,7 +63,7 @@ public abstract class ClassRole
     public final static String CLASS_ROLE_NAME = null;
 
     private final Color defaultbg = Config.getOptionalItemColour("colour.class.bg.default");
-    protected final Color envOpColour = Config.getItemColour("colour.menu.environOp");
+    protected final Color envOpColour = Config.ENV_COLOUR;
 
     public String getRoleName()
     {

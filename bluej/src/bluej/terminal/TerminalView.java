@@ -21,6 +21,7 @@
  */
 package bluej.terminal;
 
+import bluej.Config;
 import java.awt.Color;
 import java.awt.Graphics;
 
@@ -41,7 +42,7 @@ import javax.swing.text.Utilities;
 public class TerminalView extends PlainView
 {
     public static final String METHOD_RECORD = "method-record";
-    private static final Color METHOD_RECORD_COLOR = Color.RED;
+    private static final Color METHOD_RECORD_COLOR = Config.ENV_COLOUR;
     
     public TerminalView(Element el)
     {

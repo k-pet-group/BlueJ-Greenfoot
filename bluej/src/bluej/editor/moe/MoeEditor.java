@@ -153,7 +153,7 @@ public final class MoeEditor extends JFrame
     final static Color lightGrey = new Color(224, 224, 224);
     final static Color selectionColour = Config.getSelectionColour();
     final static Color titleCol = Config.getItemColour("colour.text.fg");
-    final static Color envOpColour = Config.getItemColour("colour.menu.environOp");
+    final static Color envOpColour = Config.ENV_COLOUR;
 
     // Fonts
     public static int printFontSize = Config.getPropInteger("bluej.fontsize.printText", 10);

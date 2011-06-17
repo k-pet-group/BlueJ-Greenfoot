@@ -35,13 +35,13 @@ import bluej.pkgmgr.graphPainter.GraphPainterStdImpl;
  * 
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: GraphEditor.java 7645 2010-05-20 10:54:49Z nccb $
+ * @version $Id: GraphEditor.java 9008 2011-06-17 07:53:51Z mik $
  */
 public class GraphEditor extends JComponent
     implements MouseMotionListener, GraphListener
 {
     protected static final Color background = Config.getOptionalItemColour("colour.graph.background");
-    protected final Color envOpColour = Config.getItemColour("colour.menu.environOp");
+    protected final Color envOpColour = Config.ENV_COLOUR;
     
     private final static Cursor handCursor = new Cursor(Cursor.HAND_CURSOR);
     private final static Cursor defaultCursor = new Cursor(Cursor.DEFAULT_CURSOR);
@@ -199,7 +199,7 @@ public class GraphEditor extends JComponent
      */
     public void addToSelection(SelectableGraphElement element)
     {
-    	selectionController.addToSelection(element);
+        selectionController.addToSelection(element);
     }
     
    

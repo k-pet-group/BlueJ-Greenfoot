@@ -98,7 +98,7 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
 
     // Colors
     static final Color bg = Config.getItemColour("colour.wrapper.bg");
-    static final Color envOpColour = Config.getItemColour("colour.menu.environOp");
+    static final Color envOpColour = Config.ENV_COLOUR;
     static final Color textColour = Color.white;
     
     // Images

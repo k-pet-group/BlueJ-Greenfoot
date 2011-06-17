@@ -97,6 +97,9 @@ public final class Config
     public static final String greenfootDebugLogName = "greenfoot-debuglog.txt";
     public static String debugLogName = bluejDebugLogName;
 
+    public static final Color ENV_COLOUR = new Color(152,32,32);
+
+
     // a border for components with keyboard focus
     public static final Border focusBorder = new CompoundBorder(new LineBorder(Color.BLACK),
             new BevelBorder(BevelBorder.LOWERED,

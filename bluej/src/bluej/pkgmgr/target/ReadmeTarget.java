@@ -53,7 +53,7 @@ public class ReadmeTarget extends EditableTarget
     private static final int WIDTH = ReadmeTargetPainter.getMaxImageWidth();
     private static final int HEIGHT = ReadmeTargetPainter.getMaxImageHeight();
     private static String openStr = Config.getString("pkgmgr.packagemenu.open");
-    private static final Color envOpColour = Config.getItemColour("colour.menu.environOp");
+    private static final Color envOpColour = Config.ENV_COLOUR;
     
     public static final String README_ID = "@README";
 
