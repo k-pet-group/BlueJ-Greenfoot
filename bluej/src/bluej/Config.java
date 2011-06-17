@@ -82,6 +82,38 @@ public final class Config
 {
     public static final String nl = System.getProperty("line.separator");
 
+    public static Properties moeSystemProps;  // moe (editor) properties
+    public static Properties moeUserProps;    // moe (editor) properties
+
+    public static String compilertype = "javac";  // current compiler (javac, jikes)
+    public static String language;      // message language (english, ...)
+
+    public static Rectangle screenBounds; // maximum dimensions of screen
+
+    public static final String osname = System.getProperty("os.name", "");
+    public static final String DEFAULT_LANGUAGE = "english";
+    public static final String BLUEJ_OPENPACKAGE = "bluej.openPackage";
+    public static final String bluejDebugLogName = "bluej-debuglog.txt";
+    public static final String greenfootDebugLogName = "greenfoot-debuglog.txt";
+    public static String debugLogName = bluejDebugLogName;
+
+    // a border for components with keyboard focus
+    public static final Border focusBorder = new CompoundBorder(new LineBorder(Color.BLACK),
+            new BevelBorder(BevelBorder.LOWERED,
+                    new Color(195, 195, 195),
+                    new Color(240, 240, 240),
+                    new Color(195, 195, 195),
+                    new Color(124, 124, 124)));
+
+    // a border for components without keyboard focus
+    public static final Border normalBorder = new CompoundBorder(new EmptyBorder(1,1,1,1),
+            new BevelBorder(BevelBorder.LOWERED,
+                    new Color(195, 195, 195),
+                    new Color(240, 240, 240),
+                    new Color(124, 124, 124),
+                    new Color(195, 195, 195)));
+
+
     // bluej configuration properties hierarchy
     // (command overrides user which overrides system)
     
@@ -93,9 +125,6 @@ public final class Config
     private static Properties initialCommandLineProps; // The properties
                                                        // specified on the
                                                        // command line
-    public static Properties moeSystemProps;  // moe (editor) properties
-    public static Properties moeUserProps;    // moe (editor) properties
-    
     private static Properties langProps;        // international labels
 
     private static BlueJPropStringSource propSource; // source for properties
@@ -105,20 +134,8 @@ public final class Config
     /** The greenfoot subdirectory of the "lib"-directory*/ 
     private static File greenfootLibDir;
     
-    public static String compilertype = "javac";  // current compiler (javac, jikes)
-    public static String language;      // message language (english, ...)
-
-    public static Rectangle screenBounds; // maximum dimensions of screen
-
     private static boolean usingMacOSScreenMenubar;
 
-    public static final String osname = System.getProperty("os.name", "");
-    public static final String DEFAULT_LANGUAGE = "english";
-    public static final String BLUEJ_OPENPACKAGE = "bluej.openPackage";
-    public static final String bluejDebugLogName = "bluej-debuglog.txt";
-    public static final String greenfootDebugLogName = "greenfoot-debuglog.txt";
-    public static String debugLogName = bluejDebugLogName;
-    
     private static boolean initialised = false;
     private static boolean isGreenfoot = false;
     
@@ -133,22 +150,6 @@ public final class Config
     protected static final int SHORTCUT_MASK =
         Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
     
-    // a border for components with keyboard focus
-    public static final Border focusBorder = new CompoundBorder(new LineBorder(Color.BLACK),
-            new BevelBorder(BevelBorder.LOWERED, 
-                    new Color(195, 195, 195),
-                    new Color(240, 240, 240),
-                    new Color(195, 195, 195),
-                    new Color(124, 124, 124)));
-    
-    // a border for components without keyboard focus
-    public static final Border normalBorder = new CompoundBorder(new EmptyBorder(1,1,1,1),
-            new BevelBorder(BevelBorder.LOWERED, 
-                    new Color(195, 195, 195),
-                    new Color(240, 240, 240),
-                    new Color(124, 124, 124),
-                    new Color(195, 195, 195)));
-   
     private static Color selectionColour;
     private static Color selectionColour2;
     private static Color highlightColour;
@@ -157,7 +158,6 @@ public final class Config
     
     /** whether this is the debug vm or not. */
     private static boolean isDebugVm = true; // Default to true, will be corrected on main VM
-
 
     /**
      * Initialisation of BlueJ configuration. Must be called at startup.
