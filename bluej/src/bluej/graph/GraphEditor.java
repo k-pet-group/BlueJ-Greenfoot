@@ -35,7 +35,7 @@ import bluej.pkgmgr.graphPainter.GraphPainterStdImpl;
  * 
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: GraphEditor.java 9008 2011-06-17 07:53:51Z mik $
+ * @version $Id: GraphEditor.java 9010 2011-06-17 07:58:50Z mik $
  */
 public class GraphEditor extends JComponent
     implements MouseMotionListener, GraphListener
@@ -89,6 +89,7 @@ public class GraphEditor extends JComponent
      * Tell how big we would like to be. The preferred size of the graph editor
      * the the size of the edited graph.
      */
+    @Override
     public Dimension getPreferredSize()
     {
         return graph.getMinimumSize();
@@ -98,6 +99,7 @@ public class GraphEditor extends JComponent
      * Tell how big we would like to be. The minimum size of the graph editor
      * the the size of the edited graph.
      */
+    @Override
     public Dimension getMinimumSize()
     {
         return graph.getMinimumSize();
@@ -106,6 +108,7 @@ public class GraphEditor extends JComponent
     /**
      * Paint this graph editor (this may be on screen or on a printer).
      */
+    @Override
     public void paint(Graphics g)
     {
         Graphics2D g2D = (Graphics2D) g;
@@ -169,6 +172,7 @@ public class GraphEditor extends JComponent
      * 
      * This method is called after the corresponding mousePressed method.
      */
+    @Override
     protected void processMouseEvent(MouseEvent evt)
     {
         super.processMouseEvent(evt);
@@ -226,6 +230,7 @@ public class GraphEditor extends JComponent
 
     private boolean hasFocus;
     
+    @Override
     public boolean hasFocus(){
         return hasFocus;
     }
@@ -234,6 +239,7 @@ public class GraphEditor extends JComponent
         this.hasFocus = hasFocus;
     }
     
+    @Override
     public String getToolTipText(MouseEvent event)
     {
         int x = event.getX();
