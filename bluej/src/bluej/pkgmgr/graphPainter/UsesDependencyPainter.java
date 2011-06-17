@@ -47,7 +47,7 @@ public class UsesDependencyPainter
     static final int ARROW_SIZE = 10; // pixels
     static final double ARROW_ANGLE = Math.PI / 6; // radians
 
-    private static final Color normalColour = Config.getItemColour("colour.arrow.uses");
+    private static final Color normalColour = Color.BLACK;
 
     private static final float dash1[] = {5.0f, 2.0f};
     private static final BasicStroke dashedUnselected = new BasicStroke(strokeWidthDefault, BasicStroke.CAP_BUTT,
