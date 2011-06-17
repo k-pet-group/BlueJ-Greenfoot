@@ -21,6 +21,9 @@
  */
 package bluej.terminal;
 
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
@@ -46,15 +49,38 @@ public final class TermTextArea extends JEditorPane
 
     private InputBuffer buffer;
     private Terminal terminal;
+    
+    private int preferredRows;
+    private int preferredColumns;
 
     /**
      * Create a new text area with given size.
      */
     public TermTextArea(int rows, int columns, InputBuffer buffer, Terminal terminal)
     {
-        //super(rows, columns);
+        preferredRows = rows;
+        preferredColumns = columns;
+        resetPreferredSize();
         this.buffer = buffer;
         this.terminal = terminal;
+    }
+    
+    @Override
+    public void setFont(Font font)
+    {
+        super.setFont(font);
+        resetPreferredSize();
+    }
+    
+    /**
+     * Reset the preferred size according to font metrics and desired rows/columns
+     */
+    private void resetPreferredSize()
+    {
+        FontMetrics metrics = getFontMetrics(getFont());
+        int mwidth = metrics.charWidth('m');
+        int mheight = metrics.getHeight();
+        setPreferredSize(new Dimension(mwidth * preferredColumns, mheight * preferredRows));
     }
 
     public void setUnlimitedBuffering(boolean arg)
