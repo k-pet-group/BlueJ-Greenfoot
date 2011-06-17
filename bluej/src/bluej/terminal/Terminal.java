@@ -372,15 +372,7 @@ public final class Terminal extends JFrame
             clear();
         }
         if(recordMethodCalls) {
-            if(text.getCaretPosition() !=
-                text.getLineStartOffset(text.getLineCount())) {
-                writeToTerminal("\n");
-            }
-            if(callString != null) {
-                writeToTerminal("[ ");
-                writeToTerminal(callString);
-                writeToTerminal(" ]\n");
-            }
+            text.appendMethodCall("[ " + callString + " ]\n");
         }
         newMethodCall = true;
     }
@@ -388,11 +380,6 @@ public final class Terminal extends JFrame
     private void methodResult(ExecutionEvent event)
     {
         if (recordMethodCalls) {
-            if (text.getCaretPosition() !=
-                text.getLineStartOffset(text.getLineCount())) {
-                writeToTerminal("\n");
-            }
-            
             String result = null;
             String resultType = event.getResult();
             
@@ -427,9 +414,7 @@ public final class Terminal extends JFrame
             }
             
             if (result != null) {
-                writeToTerminal("[ ");
-                writeToTerminal(result);
-                writeToTerminal(" ]\n");
+                text.appendMethodCall("[ " + result + " ]\n");
             }
         }
     }

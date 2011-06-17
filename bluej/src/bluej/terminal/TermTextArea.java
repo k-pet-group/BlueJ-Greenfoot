@@ -32,7 +32,13 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
 
 import javax.swing.JEditorPane;
+import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultEditorKit;
+import javax.swing.text.Document;
+import javax.swing.text.Element;
+import javax.swing.text.View;
+import javax.swing.text.ViewFactory;
 
 import bluej.utility.Debug;
 
@@ -63,6 +69,26 @@ public final class TermTextArea extends JEditorPane
         resetPreferredSize();
         this.buffer = buffer;
         this.terminal = terminal;
+        setEditorKit(new DefaultEditorKit() {
+            
+            @Override
+            public Document createDefaultDocument()
+            {
+                return new TerminalDocument();
+            }
+            
+            @Override
+            public ViewFactory getViewFactory()
+            {
+                return new ViewFactory() {
+                    @Override
+                    public View create(Element elem)
+                    {
+                        return new TerminalView(elem);
+                    }
+                };
+            } 
+        });
     }
     
     @Override
@@ -93,9 +119,17 @@ public final class TermTextArea extends JEditorPane
      */
     public void append(String s)
     {
+        append(s, null);
+    }
+    
+    /**
+     * Append some text to the terminal text area.
+     */
+    public void append(String s, AttributeSet attribs)
+    {
         int length = getDocument().getLength();
         try {
-            getDocument().insertString(length, s, null);
+            getDocument().insertString(length, s, attribs);
         }
         catch (BadLocationException ble) {
             throw new RuntimeException(ble);
@@ -108,6 +142,25 @@ public final class TermTextArea extends JEditorPane
                 replaceRange(null, 0, linePos);
             }
         }
+    }
+    
+    /**
+     * Append a line of text from a method call recording.
+     */
+    public void appendMethodCall(String s)
+    {
+        int length = getDocument().getLength();
+        int lineCount = getLineCount();
+        if (length != getLineStartOffset(lineCount - 1)) {
+            // Start a new line for the method call details
+            append("\n");
+            lineCount++;
+        }
+        
+        append(s, null);
+        
+        TerminalDocument doc = (TerminalDocument) getDocument();
+        doc.markLineAsMethodOutput(lineCount - 1);
     }
     
     /**
