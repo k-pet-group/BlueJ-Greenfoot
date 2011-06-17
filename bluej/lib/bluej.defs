@@ -431,9 +431,6 @@ bluej.javame.showtools=false
 ### Colours. All are specified as RGB values.
 #######################################################################
 
-colour.background=208,212,208
-colour.text.fg=0,0,0
-
 #colour for selections (in text and otherwise)
 colour.selection=233,225,0
 colour.selection2=255,250,0
