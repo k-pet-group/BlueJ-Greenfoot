@@ -41,8 +41,6 @@ public class ImplementsDependencyPainter
     protected static final float strokeWidthSelected = 2.0f;
 
     static final Color normalColour = Config.getItemColour("colour.arrow.implements");
-    //static final Color bgGraph =
-    // Config.getItemColour("colour.graph.background");
     static final int ARROW_SIZE = 18; // pixels
     static final double ARROW_ANGLE = Math.PI / 6; // radians
     //static final int SELECT_DIST = 4;

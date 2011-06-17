@@ -38,7 +38,6 @@ public class PackageTargetPainter
     private static final int TAB_HEIGHT = 12;
     private static final int HANDLE_SIZE = 20;
 
-    private static final Color defaultbg = Config.getOptionalItemColour("colour.package.bg.default");
     private static final Color bordercolour = Color.BLACK;
 
     private static final int TEXT_HEIGHT = GraphPainterStdImpl.TEXT_HEIGHT;
@@ -91,13 +90,9 @@ public class PackageTargetPainter
             thickness = 2;
 
         Paint fill;
-        if (defaultbg == null) {            
-            fill = new GradientPaint(
+        fill = new GradientPaint(
                 width/4, 0, new Color(229, 183, 173),
                 width*3/4, height, new Color(207, 130, 117));
-        } else {
-            fill = defaultbg;
-        }
         
         drawShadow(g, packageTarget, tabWidth, width, height);
 
