@@ -280,7 +280,9 @@ public class Simulation extends Thread
                 if (! enabled || paused) {
                     // Stopping/stopped.
                     // Make sure we repaint before pausing.
-                    worldHandler.repaint();
+                    if (worldHandler != null) {
+                        worldHandler.repaint();
+                    }
                     try {
                         System.gc();
                         simulationWait();
