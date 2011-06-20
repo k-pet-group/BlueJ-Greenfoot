@@ -372,7 +372,6 @@ pkgmgr.test.recording=recording
 pkgmgr.test.popup.testAll=Test All
 pkgmgr.test.popup.noTests=No test methods
 pkgmgr.test.popup.abstract=Test class is abstract
-pkgmgr.test.popup.testPrefix=Test
 pkgmgr.test.popup.createTest=Create Test Method...
 pkgmgr.test.popup.benchToFixture=Object Bench to Test Fixture
 pkgmgr.test.popup.fixtureToBench=Test Fixture to Object Bench

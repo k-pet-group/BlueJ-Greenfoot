@@ -62,6 +62,7 @@ import bluej.testmgr.record.ExistingFixtureInvokerRecord;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.JavaNames;
+import bluej.utility.JavaUtils;
 
 /**
  * A role object for Junit unit tests.
@@ -75,7 +76,6 @@ public class UnitTestClassRole extends ClassRole
 
     private final Color unittestbg = Config.getOptionalItemColour("colour.class.bg.unittest");
 
-    private static final String popupPrefix = Config.getString("pkgmgr.test.popup.testPrefix");
     private static final String testAll = Config.getString("pkgmgr.test.popup.testAll");
     private static final String createTest = Config.getString("pkgmgr.test.popup.createTest");
     private static final String benchToFixture = Config.getString("pkgmgr.test.popup.benchToFixture");
@@ -138,6 +138,8 @@ public class UnitTestClassRole extends ClassRole
                 }
 
                 if (m.getAnnotation(testClass) != null) {
+                    if (!Modifier.isPublic(m.getModifiers())) return false;
+                    if (m.getParameterTypes().length != 0) return false;
                     return true;
                 }
             }
@@ -194,6 +196,7 @@ public class UnitTestClassRole extends ClassRole
      * @param menu the popup menu to add the class menu items to
      * @param cl Class object associated with this class target
      */
+    @Override
     public boolean createClassConstructorMenu(JPopupMenu menu, ClassTarget ct, Class<?> cl)
     {
         boolean hasEntries = false;
@@ -208,7 +211,14 @@ public class UnitTestClassRole extends ClassRole
                     continue;
                 }
                 
-                Action testAction = new TestAction(popupPrefix + " " + m.getName().substring(4),
+                String rtype;
+                try {
+                    rtype = JavaUtils.getJavaUtils().getReturnType(m).toString(true);
+                }
+                catch (ClassNotFoundException cnfe) {
+                    rtype = m.getReturnType().getName();
+                }
+                Action testAction = new TestAction(rtype + " " + m.getName() + "()",
                         ct.getPackage().getEditor(), ct, m.getName());
                 
                 JMenuItem item = new JMenuItem();
@@ -233,12 +243,7 @@ public class UnitTestClassRole extends ClassRole
         return true;
     }
 
-    /**
-     * creates a class menu containing any constructors and static methods etc.
-     *
-     * @param menu the popup menu to add the class menu items to
-     * @param cl Class object associated with this class target
-     */
+    @Override
     public boolean createClassStaticMenu(JPopupMenu menu, ClassTarget ct, Class<?> cl)
     {
         boolean enable = !ct.getPackage().getProject().inTestMode() && ct.hasSourceCode() && ! ct.isAbstract();
