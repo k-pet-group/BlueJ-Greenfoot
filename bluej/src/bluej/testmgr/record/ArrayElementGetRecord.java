@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 2010,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -54,12 +54,19 @@ public class ArrayElementGetRecord extends InvokerRecord
         parentIr.incUsageCount();
     }
 
+    @Override
+    public boolean hasVoidResult()
+    {
+        return false;
+    }
+    
     /**
      * Give this method invoker record a name on the object bench.
      * 
      * @param name Name of the object a it appears on the object bench.
      * @param type The type that the object is on the actual bench.
      */
+    @Override
     public void setBenchName(String name, String type)
     {
         objName = name;

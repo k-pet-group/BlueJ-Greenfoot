@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -44,11 +44,30 @@ public class ConstructionInvokerRecord extends InvokerRecord
         this.argumentValues = argVals;
     }
     
+    @Override
+    public boolean hasVoidResult()
+    {
+        return false;
+    }
+    
+    @Override
     public String [] getArgumentValues()
     {
         return argumentValues;
     }
 
+    @Override
+    public String getResultName()
+    {
+        return name;
+    }
+    
+    @Override
+    public String getResultTypeString()
+    {
+        return type;
+    }
+    
     /**
      * Construct a declaration for any objects constructed
      * by this invoker record.

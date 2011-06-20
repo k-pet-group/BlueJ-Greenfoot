@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -66,6 +66,28 @@ public abstract class InvokerRecord
     }
     
     /**
+     * If the result of this invocation is to be consigned to the object bench, get
+     * its name (otherwise returns null).
+     */
+    public String getResultName()
+    {
+        return null;
+    }
+    
+    /**
+     * Get the (static, compile time) result type of the invocation, if known. 
+     */
+    public String getResultTypeString()
+    {
+        return null;
+    }
+    
+    /**
+     * Check whether this record represents an invocation that has no result.
+     */
+    public abstract boolean hasVoidResult();
+    
+    /**
      * Construct a declaration for any objects constructed
      * by this invoker record.
      * 
@@ -124,7 +146,7 @@ public abstract class InvokerRecord
     
     public int getAssertionCount()
     {
-    	return assertions.size();
+        return assertions.size();
     }
     
     public String getAssertion(int i)

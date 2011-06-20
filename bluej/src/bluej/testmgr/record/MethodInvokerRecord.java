@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -41,7 +41,7 @@ public class MethodInvokerRecord extends VoidMethodInvokerRecord
     private JavaType returnType;
     private String benchType;
     protected String benchName;
-	
+    
     /** How many times has this record been used. */
     private int usageCount;
     
@@ -56,8 +56,8 @@ public class MethodInvokerRecord extends VoidMethodInvokerRecord
      */
     public MethodInvokerRecord(JavaType returnType, String command, String [] argumentValues)
     {
-    	super(command, argumentValues);
-    	
+        super(command, argumentValues);
+    
         this.returnType = returnType;
         this.benchType = returnType.toString(false);
         this.benchName = null;
@@ -71,6 +71,7 @@ public class MethodInvokerRecord extends VoidMethodInvokerRecord
      * @param name
      * @param type
      */
+    @Override
     public void setBenchName(String name, String type)
     {
         benchName = name;
@@ -91,7 +92,7 @@ public class MethodInvokerRecord extends VoidMethodInvokerRecord
         if (benchName == null)
             return null;
 
-        // declare the variable		
+        // declare the variable
         StringBuffer sb = new StringBuffer();
         sb.append(fieldDeclarationStart);
         sb.append(benchDeclaration());
