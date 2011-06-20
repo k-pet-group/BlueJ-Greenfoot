@@ -366,13 +366,31 @@ public final class Terminal extends JFrame
     /**
      * An interactive method call has been made by a user.
      */
-    private void methodCall(String callString)
+    private void methodCall(String callString, boolean isVoid)
     {
         newMethodCall = false;
         if(clearOnMethodCall) {
             clear();
         }
         if(recordMethodCalls) {
+            if (isVoid) {
+                text.appendMethodCall(callString + ";\n");
+            }
+            else {
+                text.appendMethodCall(callString + "\n");
+            }
+        }
+        newMethodCall = true;
+    }
+    
+    private void constructorCall(InvokerRecord ir)
+    {
+        newMethodCall = false;
+        if(clearOnMethodCall) {
+            clear();
+        }
+        if(recordMethodCalls) {
+            String callString = ir.getResultTypeString() + " " + ir.getResultName() + " = " + ir.toExpression() + ";";
             text.appendMethodCall(callString + "\n");
         }
         newMethodCall = true;
@@ -388,34 +406,33 @@ public final class Terminal extends JFrame
                 DebuggerObject object = event.getResultObject();
                 if (object != null) {
                     if (event.getClassName() != null && event.getMethodName() == null) {
-                        // constructor call - the result object is the created object
-                        String genTypeStr = object.getGenType().toString();
-                        result = genTypeStr + " result = ";
-                        result += "(new instance of " + genTypeStr + ")";
+                        // Constructor call - the result object is the created object.
+                        // Don't display the result separately:
+                        return;
                     }
                     else {
                         // if the method returns a void, we must handle it differently
                         if (object.isNullObject()) {
-                            result = "void result";
+                            return; // Don't show result of void calls
                         }
                         else {
                             // other - the result object is a wrapper with a single result field
                             DebuggerField resultField = object.getField(0);
-                            result = resultField.getType() + " result = ";
+                            result = "    returned " + resultField.getType().toString(true) + " ";
                             result += resultField.getValueString();
                         }
                     }
                 }
             }
             else if (resultType == ExecutionEvent.EXCEPTION_EXIT) {
-                result = "Exception occurred.";
+                result = "    Exception occurred.";
             }
             else if (resultType == ExecutionEvent.TERMINATED_EXIT) {
-                result = "VM terminated.";
+                result = "    VM terminated.";
             }
             
             if (result != null) {
-                text.appendMethodCall("[ " + result + " ]\n");
+                text.appendMethodCall(result + "\n");
             }
         }
     }
@@ -588,7 +605,13 @@ public final class Terminal extends JFrame
     {
         initialise();
         if(eventId == BlueJEvent.METHOD_CALL) {
-            methodCall(((InvokerRecord)arg).toExpression());
+            InvokerRecord ir = (InvokerRecord) arg;
+            if (ir.getResultName() != null) {
+                constructorCall(ir);
+            }
+            else {
+                methodCall(ir.toExpression(), ir.hasVoidResult());
+            }
         }
         else if (eventId == BlueJEvent.EXECUTION_RESULT) {
             methodResult((ExecutionEvent) arg);
