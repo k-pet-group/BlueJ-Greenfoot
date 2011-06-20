@@ -763,7 +763,7 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
             
             public void beginExecution(InvokerRecord ir)
             {
-                BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, ir.toExpression());
+                BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, ir);
                 pmf.setWaitCursor(false);
             }
             

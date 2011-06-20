@@ -89,7 +89,6 @@ import bluej.debugmgr.ExpressionInformation;
 import bluej.debugmgr.Invoker;
 import bluej.debugmgr.LibraryCallDialog;
 import bluej.debugmgr.ResultWatcher;
-import bluej.debugmgr.inspector.ResultInspector;
 import bluej.debugmgr.objectbench.ObjectBench;
 import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.debugmgr.texteval.TextEvalArea;
@@ -1809,7 +1808,7 @@ public class PkgMgrFrame extends JFrame
                 
                 public void beginExecution(InvokerRecord ir)
                 {
-                    BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, ir.toExpression());
+                    BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, ir);
                     setWaitCursor(false);
                 }
                 
@@ -1892,7 +1891,7 @@ public class PkgMgrFrame extends JFrame
                 
                 public void beginExecution(InvokerRecord ir)
                 {
-                    BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, ir.toExpression());
+                    BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, ir);
                     setWaitCursor(false);
                 }
                 
@@ -1918,9 +1917,8 @@ public class PkgMgrFrame extends JFrame
                     if (result == null)
                         return;
 
-                    ResultInspector viewer = getProject().getResultInspectorInstance(result, name, getPackage(), ir,
+                    getProject().getResultInspectorInstance(result, name, getPackage(), ir,
                             expressionInformation, PkgMgrFrame.this);
-                    BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, viewer.getResult());
                 }
 
                 public void putError(String msg, InvokerRecord ir)

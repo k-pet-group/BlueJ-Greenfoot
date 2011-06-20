@@ -32,31 +32,31 @@ import java.util.List;
   * other parts of the system might be interested in. Objects can register
   * themselves as event listeners. They then get notified of events.
   *
-  * A BlueJEvent has one argument. The argument passed differs for every 
+  * <p>A BlueJEvent has one argument. The argument passed differs for every 
   * event type.
   *
-  * Event types and their arguments:<PRE>
+  * <p>Event types and their arguments:<PRE>
   *
-  *  type       argument        sent when...
+  *  type               argument            sent when...
   *  -----------------------------------------------------------------------
-  *  CREATE_VM      (unused)        creation of VM has started
+  *  CREATE_VM          (unused)            creation of VM has started
   * 
-  *  CREATE_VM_FAILED (unused)      creation of VM has failed
+  *  CREATE_VM_FAILED   (unused)            creation of VM has failed
   *
-  *  CREATE_VM_DONE (unused)        creation of VM completed
+  *  CREATE_VM_DONE     (unused)            creation of VM completed
   *
-  *  METHOD_CALL    a String representing   an interactive method call
-  *                      the call           was started or completed
+  *  METHOD_CALL        InvokerRecord       an interactive method call was started
   *
-  *  EXECUTION_RESULT  bluej.debugmgr.ExecutionEvent   VM execution finished
+  *  EXECUTION_RESULT   bluej.debugmgr.ExecutionEvent   VM execution finished
   *
-  *  GENERATING_DOCU    (unused)        documentation generation started
+  *  GENERATING_DOCU    (unused)            documentation generation started
   *
-  *  DOCU_GENERATED (unused)        documentation generation finished
+  *  DOCU_GENERATED     (unused)            documentation generation finished
   *
-  *  DOCU_ABORTED   (unused)        documentation generation aborted
+  *  DOCU_ABORTED       (unused)            documentation generation aborted
   *
   * </PRE>
+  * 
   * @author Michael Kolling
   */
 public class BlueJEvent

@@ -244,7 +244,7 @@ public class TextEvalPane extends JEditorPane
      */
     public void beginExecution(InvokerRecord ir)
     { 
-        BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, currentCommand);
+        BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, ir);
     }
     
     /**

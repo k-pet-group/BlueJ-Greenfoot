@@ -69,6 +69,7 @@ import bluej.debugger.DebuggerTerminal;
 import bluej.debugmgr.ExecutionEvent;
 import bluej.pkgmgr.Project;
 import bluej.prefmgr.PrefMgr;
+import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
@@ -350,7 +351,7 @@ public final class Terminal extends JFrame
      */
     private void prepare()
     {
-        if(newMethodCall) {   // prepare only once per method call
+        if (newMethodCall) {   // prepare only once per method call
             showHide(true);
             newMethodCall = false;
         }
@@ -372,7 +373,7 @@ public final class Terminal extends JFrame
             clear();
         }
         if(recordMethodCalls) {
-            text.appendMethodCall("[ " + callString + " ]\n");
+            text.appendMethodCall(callString + "\n");
         }
         newMethodCall = true;
     }
@@ -587,7 +588,7 @@ public final class Terminal extends JFrame
     {
         initialise();
         if(eventId == BlueJEvent.METHOD_CALL) {
-            methodCall((String)arg);
+            methodCall(((InvokerRecord)arg).toExpression());
         }
         else if (eventId == BlueJEvent.EXECUTION_RESULT) {
             methodResult((ExecutionEvent) arg);
