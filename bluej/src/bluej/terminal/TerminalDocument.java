@@ -39,7 +39,7 @@ import javax.swing.text.Segment;
  * 
  * <p>This is mainly necessary to override PlainDocument's slightly brain-damaged
  * implementation of the insertUpdate() method, which can clear line attributes
- * unexpectedly.
+ * unexpectedly (insertUpdate method).
  * 
  * @author Davin McCall
  */
@@ -147,6 +147,41 @@ public class TerminalDocument extends AbstractDocument
         super.insertUpdate(chng, attr);
     }
 
+    @Override
+    protected void removeUpdate(DefaultDocumentEvent chng)
+    {
+        BranchElement lineMap = (BranchElement) getDefaultRootElement();
+        int offset = chng.getOffset();
+        int length = chng.getLength();
+        
+        int index = lineMap.getElementIndex(offset);
+        
+        LeafElement first = (LeafElement) lineMap.getElement(index);
+        if (first.getEndOffset() > (offset + length)) {
+            return; // only removing part of a line
+        }
+        
+        ArrayList<Element> removed = new ArrayList<Element>();
+        
+        int lastIndex = index + 1;
+        LeafElement last = (LeafElement) lineMap.getElement(lastIndex);
+        removed.add(last);
+        while (last.getEndOffset() <= (offset + length)) {
+            lastIndex++;
+            last = (LeafElement) lineMap.getElement(lastIndex);
+            removed.add(last);
+        }
+        
+        first.end = last.end;
+        lineMap.replace(index, lastIndex - index, new Element[0]);
+        Element[] removedArr = new Element[removed.size()];
+        removed.toArray(removedArr);
+        ElementEdit ee = new ElementEdit(lineMap, index + 1, removedArr, new Element[0]);
+        chng.addEdit(ee);
+        
+        super.removeUpdate(chng);
+    }
+    
     /**
      * Special purposed leaf element which allows resetting the start and end
      * positions.
