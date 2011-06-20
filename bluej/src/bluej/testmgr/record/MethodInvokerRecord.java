@@ -62,6 +62,12 @@ public class MethodInvokerRecord extends VoidMethodInvokerRecord
         this.benchType = returnType.toString(false);
         this.benchName = null;
     }
+    
+    @Override
+    public boolean hasVoidResult()
+    {
+        return false;
+    }
 
     /**
      * Give this method invoker record a name on the object
