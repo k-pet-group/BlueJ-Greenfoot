@@ -103,6 +103,7 @@ public class UnitTestClassRole extends ClassRole
         }
     }
 
+    @Override
     public String getStereotypeLabel()
     {
         return "unit test";
@@ -111,6 +112,7 @@ public class UnitTestClassRole extends ClassRole
     /**
      * Return the intended background colour for this type of target.
      */
+    @Override
     public Paint getBackgroundPaint(int width, int height)
     {
         if (unittestbg != null) {
@@ -165,6 +167,7 @@ public class UnitTestClassRole extends ClassRole
      * @param editorFrame the frame in which this targets package is displayed
      * @return the generated JPopupMenu
      */
+    @Override
     public boolean createRoleMenu(JPopupMenu menu, ClassTarget ct, Class<?> cl, int state)
     {
         boolean enableTestAll = false;
@@ -183,8 +186,7 @@ public class UnitTestClassRole extends ClassRole
         }
 
         // add run all tests option
-        addMenuItem(menu, new TestAction(testAll, ct.getPackage().getEditor(),ct),
-                enableTestAll);
+        addMenuItem(menu, new TestAction(testAll, ct.getPackage().getEditor(),ct), enableTestAll);
         menu.addSeparator();
 
         return false;
@@ -258,6 +260,7 @@ public class UnitTestClassRole extends ClassRole
         return true;
     }
 
+    @Override
     public void run(final PkgMgrFrame pmf, final ClassTarget ct, final String param)
     {
         if (param != null) {
@@ -323,8 +326,9 @@ public class UnitTestClassRole extends ClassRole
         int testCount = 0;
 
         for (int i=0; i < allMethods.length; i++) {
-            if (isJUnitTestMethod(allMethods[i]))
+            if (isJUnitTestMethod(allMethods[i])) {
                 testCount++;
+            }
         }
         
         return testCount;
@@ -480,7 +484,7 @@ public class UnitTestClassRole extends ClassRole
                 // replace this method (don't replace the method header!)
                 ed.setSelection(existingSpan.getStartLine(), existingSpan.getStartColumn(),
                                   existingSpan.getEndLine(), existingSpan.getEndColumn());
-                ed.insertText("{\n" + pmf.getObjectBench().getTestMethod() + "\t}", false);
+                ed.insertText("{\n" + pmf.getObjectBench().getTestMethod() + "    }", false);
             }
             else {
                 // insert a complete method
@@ -489,10 +493,10 @@ public class UnitTestClassRole extends ClassRole
                 if (methodInsert != null) {
                     ed.setSelection(methodInsert.getLine(), methodInsert.getColumn(), 1);
                     if (isJunit4) {
-                        ed.insertText("\n\t@Test\n\tpublic void " + name + "()\n\t{\n" + pmf.getObjectBench().getTestMethod() + "\t}\n}\n", false);
+                        ed.insertText("\n    @Test\n    public void " + name + "()\n    {\n" + pmf.getObjectBench().getTestMethod() + "    }\n}\n", false);
                     }
                     else {
-                        ed.insertText("\n\tpublic void " + name + "()\n\t{\n" + pmf.getObjectBench().getTestMethod() + "\t}\n}\n", false);
+                        ed.insertText("\n    public void " + name + "()\n    {\n" + pmf.getObjectBench().getTestMethod() + "    }\n}\n", false);
                     }
                 }
             }
@@ -620,16 +624,16 @@ public class UnitTestClassRole extends ClassRole
                 ed.setSelection(fixtureInsertLocation.getLine(),
                                 fixtureInsertLocation.getColumn(), 1);
                 if (isJunit4) {
-                    ed.insertText("{\n\t@Before\n\tpublic void setUp()\n\t", false);
+                    ed.insertText("{\n    @Before\n    public void setUp()\n    ", false);
                 }
                 else {
-                    ed.insertText("{\n\tpublic void setUp()\n\t", false);
+                    ed.insertText("{\n    public void setUp()\n    ", false);
                 }
             }
             
             // insert the code for our setUp() method
             ed.insertText("{\n" + pmf.getObjectBench().getFixtureSetup()
-                                + "\t}", false);
+                                + "    }", false);
 
             // insert our new fixture declarations
             ed.setSelection(fixtureInsertLocation.getLine(),
