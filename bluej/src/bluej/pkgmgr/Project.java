@@ -623,14 +623,9 @@ public class Project implements DebuggerListener, InspectorManager
      */
     private void updateInspector(final Inspector inspector)
     {
-        EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                inspector.update();
-                inspector.updateLayout();
-                inspector.setVisible(true);
-                inspector.bringToFront();
-            }
-        });
+        inspector.update();
+        inspector.setVisible(true);
+        inspector.bringToFront();
     }
     
     /**
@@ -658,8 +653,9 @@ public class Project implements DebuggerListener, InspectorManager
             inspector = new ObjectInspector(obj, this, name, pkg, ir, parent);
             inspectors.put(obj, inspector);
         }
-
-        updateInspector(inspector);
+        else {
+            updateInspector(inspector);
+        }
 
         return inspector;
     }
@@ -751,8 +747,9 @@ public class Project implements DebuggerListener, InspectorManager
             inspector = new ClassInspector(clss, this, pkg, ir, parent);
             inspectors.put(clss.getName(), inspector);
         }
-
-        updateInspector(inspector);
+        else {
+            updateInspector(inspector);
+        }
 
         return inspector;
     }
@@ -779,11 +776,12 @@ public class Project implements DebuggerListener, InspectorManager
         String name, Package pkg, InvokerRecord ir, ExpressionInformation info,
         JFrame parent) 
     {
-        final ResultInspector inspector = new ResultInspector(obj, this, name, pkg, ir, info,
-                    parent);
+        final ResultInspector inspector = new ResultInspector(obj, this, name, pkg, ir, info);
         inspectors.put(obj, inspector);
 
-        updateInspector(inspector);
+        DialogManager.centreWindow(inspector, parent);
+        inspector.setVisible(true);
+        inspector.bringToFront();
 
         return inspector;
     }

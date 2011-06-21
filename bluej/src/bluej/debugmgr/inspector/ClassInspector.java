@@ -24,7 +24,6 @@ package bluej.debugmgr.inspector;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.EventQueue;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
@@ -61,7 +60,7 @@ import bluej.utility.JavaNames;
  * 
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: ClassInspector.java 8859 2011-04-12 03:23:57Z davmac $
+ * @version $Id: ClassInspector.java 9024 2011-06-21 03:07:08Z davmac $
  */
 public class ClassInspector extends Inspector
 {
@@ -95,20 +94,19 @@ public class ClassInspector extends Inspector
         myClass = clss;
 
         final ClassInspector insp = this;
-        EventQueue.invokeLater(new Runnable() {
-            public void run()
-            {
-                makeFrame();
-                pack();
-                if (parent instanceof Inspector) {
-                    DialogManager.tileWindow(insp, parent);
-                }
-                else {
-                    DialogManager.centreWindow(insp, parent);
-                }
-                installListenersForMoveDrag();
-            }
-        });
+
+        makeFrame();
+        update();
+        updateLayout();
+        pack();
+        
+        if (parent instanceof Inspector) {
+            DialogManager.tileWindow(insp, parent);
+        }
+        else {
+            DialogManager.centreWindow(insp, parent);
+        }
+        installListenersForMoveDrag();
     }
 
     /**

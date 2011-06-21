@@ -42,7 +42,6 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -63,7 +62,6 @@ import bluej.debugmgr.ExpressionInformation;
 import bluej.pkgmgr.Package;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.Debug;
-import bluej.utility.DialogManager;
 import bluej.utility.JavaUtils;
 import bluej.utility.MultiLineLabel;
 import bluej.views.Comment;
@@ -110,8 +108,8 @@ public class ResultInspector extends Inspector
      * @param parent
      *            The parent frame of this frame
      */
-    public ResultInspector(DebuggerObject obj, InspectorManager inspectorManager, String name, Package pkg, InvokerRecord ir, ExpressionInformation info,
-            final JFrame parent)
+    public ResultInspector(DebuggerObject obj, InspectorManager inspectorManager, String name,
+            Package pkg, InvokerRecord ir, ExpressionInformation info)
     {
         super(inspectorManager, pkg, ir, new Color(226, 224, 220));
 
@@ -122,8 +120,8 @@ public class ResultInspector extends Inspector
         calcResultType();
 
         makeFrame();
-        pack();
-        DialogManager.centreWindow(this, parent);
+        update();
+        updateLayout();
     }
 
     /**
@@ -367,14 +365,6 @@ public class ResultInspector extends Inspector
             setCurrentObj(null, null, null);
             setButtonsEnabled(false, false);
         }
-    }
-
-    /**
-     * Show the inspector for the class of an object.
-     */
-    protected void showClass()
-    {
-        inspectorManager.getClassInspectorInstance(obj.getClassRef(), pkg, this);
     }
 
     @Override

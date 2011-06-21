@@ -25,7 +25,6 @@ import java.awt.AlphaComposite;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
@@ -133,31 +132,30 @@ public class ObjectInspector extends Inspector
         this.objName = name;
 
         final ObjectInspector thisInspector = this;
-        EventQueue.invokeLater(new Runnable() {
-            public void run()
-            {
-                makeFrame();
-                pack();
-                if (parent instanceof Inspector) {
-                    DialogManager.tileWindow(thisInspector, parent);
-                }
-                else {
-                    DialogManager.centreWindow(thisInspector, parent);
-                }
 
-                if (Config.isMacOS() || Config.isWinOS()) {
-                    // Window translucency doesn't seem to work on linux.
-                    // We'll assume that it might not work on any OS other
-                    // than those on which it's known to work: MacOS and Windows.
-                    thisInspector.setWindowOpaque(false);
-                }
-                if (!Config.isMacOS()) {
-                    // MacOS automatically makes tranparent windows draggable by their
-                    // content - no need to do it ourselves.
-                    thisInspector.installListenersForMoveDrag();
-                }
-            }
-        });
+        makeFrame();
+        update();
+        updateLayout();
+        pack();
+        
+        if (parent instanceof Inspector) {
+            DialogManager.tileWindow(thisInspector, parent);
+        }
+        else {
+            DialogManager.centreWindow(thisInspector, parent);
+        }
+
+        if (Config.isMacOS() || Config.isWinOS()) {
+            // Window translucency doesn't seem to work on linux.
+            // We'll assume that it might not work on any OS other
+            // than those on which it's known to work: MacOS and Windows.
+            thisInspector.setWindowOpaque(false);
+        }
+        if (!Config.isMacOS()) {
+            // MacOS automatically makes tranparent windows draggable by their
+            // content - no need to do it ourselves.
+            thisInspector.installListenersForMoveDrag();
+        }
     }
 
     /**

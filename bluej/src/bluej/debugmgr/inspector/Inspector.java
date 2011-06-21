@@ -287,11 +287,6 @@ public abstract class Inspector extends JFrame
     abstract protected void listElementSelected(int slot);
 
     /**
-     * Show the inspector for the class of an object.
-     */
-    abstract protected void showClass();
-
-    /**
      * Remove this inspector.
      */
     abstract protected void remove();
