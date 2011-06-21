@@ -25,6 +25,7 @@ import java.awt.EventQueue;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -1087,6 +1088,19 @@ public class Invoker
 
         File classFile = new File(pkgPath, shellName + ".class");
         classFile.delete();
+        
+        // Remove any inner class files
+        String [] innerClassFiles = pkgPath.list(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name)
+            {
+                return (name.startsWith(shellName + "$"));
+            }
+        });
+        
+        for (String innerClassFile : innerClassFiles) {
+            new File(pkgPath, innerClassFile).delete();
+        }
     }
 
     // -- end of CompileObserver interface --
