@@ -51,7 +51,7 @@ public abstract class Actor
     private static final String NO_WORLD = "An actor is trying to access the world, when no world has been instantiated.";
 
     /** Error message to display when trying to use methods that requires the actor be in a world. */
-    private static final String ACTOR_NOT_IN_WORLD = "The actor has not been inserted into a world so it has no location yet. You might want to look at the method addedToWorld on the Actor class.";
+    private static final String ACTOR_NOT_IN_WORLD = "Actor not in world. An attempt was made to use the actor's location while it is not in the world. Either it has not yet been inserted, or it has been removed.";
 
     /** Counter of number of actors constructed, used as a hash value */
     private static int sequenceNumber = 0;
