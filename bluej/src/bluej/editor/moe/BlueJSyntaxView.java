@@ -348,6 +348,12 @@ public abstract class BlueJSyntaxView extends MoePlainView
 
     /**
      * Draw the scope highlighting for one line of the document.
+     * 
+     * @param a              the shape to render into
+     * @param g              the graphics context to render to
+     * @param document       the document
+     * @param lines          the previous, current and next lines (segments and elements)
+     * @param prevScopeStack the stack of nodes (from outermost to innermost) at the beginning of the current line
      */
     private void drawScopes(Shape a, Graphics g, MoeSyntaxDocument document, ThreeLines lines,
             int charWidth, List<NodeAndPosition<ParsedNode>> prevScopeStack, boolean small,
@@ -1068,6 +1074,15 @@ public abstract class BlueJSyntaxView extends MoePlainView
         }
     }
     
+    /**
+     * Get a stack of ParsedNodes which overlap a particular document position. The stack shall contain the
+     * outermost node (at the bottom of the stack) through to the innermost node (at the top of the stack).
+     * 
+     * @param root     The root node
+     * @param rootPos  The position of the root node
+     * @param position The position for which to build the scope stack
+     * @param list     The list into which to store the stack. Items are added to the end of the list.
+     */
     private void getScopeStackAfter(ParsedNode root, int rootPos, int position, List<NodeAndPosition<ParsedNode>> list)
     {
         // Note we add 1 to the given position to skip nodes which actually end at the position,
@@ -1151,6 +1166,7 @@ public abstract class BlueJSyntaxView extends MoePlainView
      * Need to override this method to handle node updates. If a node indentation changes,
      * the whole node needs to be repainted.
      */
+    @Override
     protected void updateDamage(DocumentEvent changes, Shape a, ViewFactory f)
     {
         if (a == null) {
