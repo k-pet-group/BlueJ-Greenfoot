@@ -388,7 +388,7 @@ public abstract class BlueJSyntaxView extends MoePlainView
         while (li.hasNext()) {
             NodeAndPosition<ParsedNode> nap = li.next();
             int napPos = nap.getPosition();
-            int napEnd = napPos + nap.getSize();
+            int napEnd = nap.getEnd();
 
             if (napPos >= lines.thisLineEl.getEndOffset()) {
                 // The node isn't even on this line, go to the next line
@@ -407,9 +407,9 @@ public abstract class BlueJSyntaxView extends MoePlainView
             // Draw the start node
             int xpos = getNodeIndent(a, document, nap, lines.thisLineEl,
                     lines.thisLineSeg);
-            boolean starts = nodeSkipsStart(napPos, napEnd, lines.aboveLineEl, lines.aboveLineSeg);
+            boolean starts = nodeSkipsStart(nap, lines.aboveLineEl, lines.aboveLineSeg);
             boolean ends = nodeSkipsEnd(napPos, napEnd, lines.belowLineEl, lines.belowLineSeg);
-            int rbound = getNodeRBound(a, napEnd, fullWidth - rightMargin, nodeDepth,
+            int rbound = getNodeRBound(a, nap, fullWidth - rightMargin, nodeDepth,
                     lines.thisLineEl, lines.thisLineSeg);
 
             drawInfo.node = nap.getNode();
@@ -454,18 +454,18 @@ public abstract class BlueJSyntaxView extends MoePlainView
                 nodeDepth++;
                 napPos = nextNap.getPosition();
                 napEnd = napPos + nextNap.getSize();
-                if (! nodeSkipsStart(napPos, napEnd, lines.thisLineEl, lines.thisLineSeg)) {
+                if (! nodeSkipsStart(nextNap, lines.thisLineEl, lines.thisLineSeg)) {
                     if (drawNode(drawInfo, nextNap, napParent, onlyMethods)) {
                         // Draw it
                         int xpos = getNodeIndent(a, document, nextNap, lines.thisLineEl,
                                 lines.thisLineSeg);
-                        int rbound = getNodeRBound(a, napEnd, fullWidth - rightMargin, nodeDepth,
+                        int rbound = getNodeRBound(a, nextNap, fullWidth - rightMargin, nodeDepth,
                                 lines.thisLineEl, lines.thisLineSeg);
                         drawInfo.node = nextNap.getNode();
                         Color [] colors = colorsForNode(drawInfo.node);
                         drawInfo.color1 = colors[0];
                         drawInfo.color2 = colors[1];
-                        drawInfo.starts = nodeSkipsStart(napPos, napEnd, lines.aboveLineEl,
+                        drawInfo.starts = nodeSkipsStart(nextNap, lines.aboveLineEl,
                                 lines.aboveLineSeg);
                         drawInfo.ends = nodeSkipsEnd(napPos, napEnd, lines.belowLineEl,
                                 lines.belowLineSeg);
@@ -519,7 +519,7 @@ public abstract class BlueJSyntaxView extends MoePlainView
              */
         }
 
-        if (nodeSkipsStart(napPos, napEnd, info.lines.thisLineEl, info.lines.thisLineSeg)) {
+        if (nodeSkipsStart(nap, info.lines.thisLineEl, info.lines.thisLineSeg)) {
             return false; // just white space on this line
         }
 
@@ -668,11 +668,19 @@ public abstract class BlueJSyntaxView extends MoePlainView
     }
 
     /**
-     * Find the rightmost bound of a node.
+     * Find the rightmost bound of a node on a particular line.
+     * 
+     * @param a       The view allocation
+     * @param napEnd  The end of the node (position in the document just beyond the node)
+     * @param fullWidth  The full width to draw to (for the outermost mode)
+     * @param nodeDepth  The node depth
+     * @param lineEl   line element of the line to find the bound for
+     * @param lineSeg  Segment containing text of the current line
      */
-    private int getNodeRBound(Shape a, int napEnd, int fullWidth, int nodeDepth,
+    private int getNodeRBound(Shape a, NodeAndPosition<ParsedNode> nap, int fullWidth, int nodeDepth,
             Element lineEl, Segment lineSeg) throws BadLocationException
     {
+        int napEnd = nap.getEnd();
         int rbound = fullWidth - nodeDepth * RIGHT_SCOPE_MARGIN;
         if (lineEl == null || napEnd >= lineEl.getEndOffset()) {
             return rbound;
@@ -680,7 +688,10 @@ public abstract class BlueJSyntaxView extends MoePlainView
         if (napEnd < lineEl.getStartOffset()) {
             return rbound;
         }
-        int nwsb = findNonWhitespace(lineSeg, napEnd - lineEl.getStartOffset());
+        
+        // If there is some text between the node end and the end of the line, we want to clip the
+        // node short so that the text does not appear to be part of the node.
+        int nwsb = findNonWhitespaceComment(nap, lineEl, lineSeg, napEnd - lineEl.getStartOffset());
         if (nwsb != -1) {
             Rectangle ebounds = modelToView(napEnd, a, Position.Bias.Backward).getBounds();
             return Math.min(rbound, ebounds.x);
@@ -693,8 +704,11 @@ public abstract class BlueJSyntaxView extends MoePlainView
      * starts later). This takes into account that the node may "officially" start on the
      * line, but only have white space, in which case it can be moved down to the next line.
      */
-    private boolean nodeSkipsStart(int napPos, int napEnd, Element lineEl, Segment segment)
+    private boolean nodeSkipsStart(NodeAndPosition<ParsedNode> nap, Element lineEl, Segment segment)
     {
+        int napPos = nap.getPosition();
+        int napEnd = nap.getEnd();
+        
         if (lineEl == null) {
             return true;
         }
@@ -704,7 +718,7 @@ public abstract class BlueJSyntaxView extends MoePlainView
             if (napPos >= lineEl.getEndOffset()) {
                 return true;
             }
-            int nws = findNonWhitespace(segment, napPos - lineEl.getStartOffset());
+            int nws = findNonWhitespaceComment(nap, lineEl, segment, napPos - lineEl.getStartOffset());
             if (nws == -1) {
                 return true;
             }
@@ -749,21 +763,21 @@ public abstract class BlueJSyntaxView extends MoePlainView
         throws BadLocationException
     {
         int napPos = nap.getPosition();
-        int napEnd = napPos + nap.getSize();
+        int napEnd = nap.getEnd();
 
         if (lineEl == null) {
             return Integer.MAX_VALUE;
         }
 
-        if (nap.getPosition() >= lineEl.getEndOffset()) {
+        if (napPos >= lineEl.getEndOffset()) {
             return Integer.MAX_VALUE;
         }
 
-        if (nap.getPosition() + nap.getSize() <= lineEl.getStartOffset()) {
+        if (napEnd <= lineEl.getStartOffset()) {
             return Integer.MAX_VALUE;
         }
 
-        if (nodeSkipsStart(napPos, napEnd, lineEl, segment)
+        if (nodeSkipsStart(nap, lineEl, segment)
                 || nodeSkipsEnd(napPos, napEnd, lineEl, segment)) {
             return Integer.MAX_VALUE;
         }
@@ -1038,9 +1052,8 @@ public abstract class BlueJSyntaxView extends MoePlainView
             return dmgRange;
         }
         catch (BadLocationException ble) {
-            ble.printStackTrace();
+            throw new RuntimeException(ble);
         }
-        return null;
     }
     
     /**
@@ -1113,6 +1126,34 @@ public abstract class BlueJSyntaxView extends MoePlainView
         return -1;
     }
 
+    /**
+     * Search for a non-whitespace character, starting from the given offset in the segment; treat
+     * single-line comments as whitespace. Returns -1 if the line consists only of whitespace.
+     */
+    private int findNonWhitespaceComment(NodeAndPosition<ParsedNode> nap, Element lineEl, Segment segment, int startPos)
+    {
+        int nws = findNonWhitespace(segment, startPos);
+        if (nws != -1) {
+            int pos = nws + lineEl.getStartOffset();
+            
+            if (nap.getEnd() > pos) {
+                NodeAndPosition<ParsedNode> inNap = nap.getNode().findNodeAt(pos, nap.getPosition());
+                if (inNap != null && inNap.getNode().getNodeType() == ParsedNode.NODETYPE_COMMENT
+                        && inNap.getPosition() == pos && inNap.getEnd() == lineEl.getEndOffset() - 1) {
+                    return -1;
+                }
+            }
+            else {
+                NodeAndPosition<ParsedNode> nnap = nap.nextSibling();
+                if (nnap != null && nnap.getNode().getNodeType() == ParsedNode.NODETYPE_COMMENT
+                        && nnap.getPosition() == pos && nnap.getEnd() == lineEl.getEndOffset() - 1) {
+                    return -1;
+                }
+            }
+        }
+        return nws;
+    }
+    
     /**
      * Search backwards for a non-whitespace character. If no such character
      * is found, returns (endPos - 1).
