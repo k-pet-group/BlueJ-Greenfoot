@@ -908,7 +908,7 @@ public abstract class BlueJSyntaxView extends MoePlainView
                 return dmgRange;
             }
             if (top.getPosition() >= lineEl.getEndOffset()) {
-                // The first node we found is on the next line.
+                // The first node we found begins on a line following the additions.
                 i = map.getElementIndex(top.getPosition());
                 if (i > le) {
                     return dmgRange;
@@ -916,21 +916,17 @@ public abstract class BlueJSyntaxView extends MoePlainView
             }
             
             scopeStack.add(top);
-            NodeAndPosition<ParsedNode> nap = top.getNode().findNodeAtOrAfter(lineEl.getStartOffset(),
+            NodeAndPosition<ParsedNode> nap = top.getNode().findNodeAtOrAfter(lineEl.getStartOffset() + 1,
                     top.getPosition());
-            while (nap != null && nap.getEnd() == lineEl.getStartOffset()) nap = nap.nextSibling(); 
             while (nap != null) {
                 scopeStack.add(nap);
-                nap = nap.getNode().findNodeAtOrAfter(lineEl.getStartOffset(),
-                        nap.getPosition());                
-                while (nap != null && nap.getEnd() == lineEl.getStartOffset()) nap = nap.nextSibling(); 
+                nap = nap.getNode().findNodeAtOrAfter(lineEl.getStartOffset() + 1, nap.getPosition());                
             }
             
             outer:
             while (true) {
                 // Skip to the next line which has text on it
-                doc.getText(lineEl.getStartOffset(),
-                        lineEl.getEndOffset() - lineEl.getStartOffset(), segment);
+                doc.getText(lineEl.getStartOffset(), lineEl.getEndOffset() - lineEl.getStartOffset(), segment);
                 int nws = findNonWhitespace(segment, 0);
                 while (nws == -1) {
                     if (++i > le) {
@@ -955,22 +951,29 @@ public abstract class BlueJSyntaxView extends MoePlainView
                     j.remove();
                 } while (j.hasPrevious());
 
-                // Rebuild the scope stack
                 if (topNap != null) {
+                    // Rebuild the scope stack
                     do {
                         topNap = topNap.nextSibling();
                     } while (topNap != null && topNap.getEnd() <= curpos);
                     while (topNap != null && topNap.getPosition() < lineEndPos) {
                         scopeStack.add(topNap);
-                        topNap = topNap.getNode().findNodeAtOrAfter(curpos,
-                                topNap.getPosition());
-                        while (topNap != null && topNap.getEnd() == curpos) topNap = topNap.nextSibling();
+                        topNap = topNap.getNode().findNodeAtOrAfter(curpos + 1, topNap.getPosition());
                     }
                 }
                 
                 if (scopeStack.isEmpty()) {
                     break;
                 }
+                
+                // At this point:
+                // - curpos is the position of the first non-whitespace on the current line (it may be
+                //   prior to damageStart, but in that case it will be on the same line)
+                // - i is the current line index
+                // - lineEl is the current line element
+                // - segment contains the text of the current line
+                // - scopeStack contains a stack of elements which overlap or follow curpos, and
+                //   which start on or before the current line.
 
                 // Calculate/store indent
                 Rectangle cbounds = modelToView(lineEl.getStartOffset() + nws, a, Position.Bias.Forward).getBounds();
@@ -1207,9 +1210,9 @@ public abstract class BlueJSyntaxView extends MoePlainView
     }
     
     /**
-     * Get a stack of ParsedNodes which overlap a particular document position. The stack shall contain the
-     * outermost node (at the bottom of the stack) through to the innermost node (at the top of the stack).
-     * Nodes that end at the specified position, or which have zero size, are skipped over.
+     * Get a stack of ParsedNodes which overlap or follow a particular document position. The stack shall
+     * contain the outermost node (at the bottom of the stack) through to the innermost node which overlaps
+     * (but does not end at) or which is the node first following the specified position.
      * 
      * @param root     The root node
      * @param rootPos  The position of the root node
