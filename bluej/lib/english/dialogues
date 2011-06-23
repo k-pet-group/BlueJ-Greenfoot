@@ -345,7 +345,7 @@ null
 classmgr-changes-no-effect
 The changes you have made to the class libraries
 will not take effect until the next time you
-compile or restart the Virtual Machine.
+restart the Virtual Machine.
 
 unittest-new-test-method
 Specify a name for this test.

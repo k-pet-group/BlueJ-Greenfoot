@@ -249,8 +249,9 @@ public class Project implements DebuggerListener, InspectorManager
         }
 
         debugger = Debugger.getDebuggerImpl(getProjectDir(), getTerminal());
-        // The debugger should have a new classLoader, may it go into the getDebuggerImpl ?
         debugger.newClassLoader(getClassLoader());
+        List<URL> libs = getLibrariesClasspath();
+        debugger.setUserLibraries(libs.toArray(new URL[libs.size()]));
         debugger.addDebuggerListener(this);
         debugger.launch();
 
@@ -1290,6 +1291,9 @@ public class Project implements DebuggerListener, InspectorManager
         // will be installed as soon as the VM has restarted).
         newRemoteClassLoader();
         
+        List<URL> libs = getLibrariesClasspath();
+        debugger.setUserLibraries(libs.toArray(new URL[libs.size()]));
+        
         // Breakpoints will be re-initialized once the new VM has
         // actually started.
     }
@@ -1613,6 +1617,26 @@ public class Project implements DebuggerListener, InspectorManager
         currentClassLoader.setJavaMEoptLibs (optLibs);
         
         return currentClassLoader;
+    }
+    
+    /**
+     * Get the classpath for libraries - those specified in preferences, in the project's +libs,
+     * in the BlueJ userlib folder, etc. This doesn't include the BlueJ runtime.
+     */
+    private List<URL> getLibrariesClasspath()
+    {
+        ArrayList<URL> pathList = new ArrayList<URL>();
+        
+        // Next part is the libraries that are added trough the config panel.
+        pathList.addAll(PrefMgrDialog.getInstance().getUserConfigLibPanel().getUserConfigContent());
+        
+        // Then the libraries that are in the userlib directory
+        pathList.addAll(getUserlibContent());
+        
+        // The libraries that are in the project +libs directory
+        pathList.addAll(getPlusLibsContent());
+        
+        return pathList;
     }
 
     /**

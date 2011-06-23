@@ -22,6 +22,7 @@
 package bluej.debugger.jdi;
 
 import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -130,6 +131,9 @@ public class JdiDebugger extends Debugger
     
     // most recent exception description
     private ExceptionDescription lastException;
+    
+    /** User libraries to be added to VM classpath */
+    private URL[] libraries = {};
 
     /**
      * Construct an instance of the debugger.
@@ -154,9 +158,16 @@ public class JdiDebugger extends Debugger
         hideSystemThreads = true;
     }
 
+    @Override
+    public void setUserLibraries(URL[] libraries)
+    {
+        this.libraries = libraries;
+    }
+    
     /**
      * Start debugging.
      */
+    @Override
     public synchronized void launch()
     {
         // This could be either an initial launch (selfRestart == false) or
@@ -193,6 +204,7 @@ public class JdiDebugger extends Debugger
     /**
      * Close this VM, possibly restart it.
      */
+    @Override
     public synchronized void close(boolean restart)
     {
         // There are essentially three states the remote process could be in:
@@ -1074,7 +1086,7 @@ public class JdiDebugger extends Debugger
         public void run()
         {
             try {
-                VMReference newVM = new VMReference(JdiDebugger.this, terminal, startingDirectory);
+                VMReference newVM = new VMReference(JdiDebugger.this, terminal, startingDirectory, libraries);
 
                 BPClassLoader lastLoader;
                 synchronized(JdiDebugger.this) {

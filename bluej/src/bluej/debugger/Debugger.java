@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,6 +22,7 @@
 package bluej.debugger;
 
 import java.io.File;
+import java.net.URL;
 import java.util.Map;
 
 import bluej.classmgr.BPClassLoader;
@@ -96,6 +97,12 @@ public abstract class Debugger
     }
 
     /**
+     * Set the user libraries to be added to the system classpath when the VM is launched
+     * or restarted.
+     */
+    public abstract void setUserLibraries(URL[] libraries);
+    
+    /**
      * Launch a VM for running user code, which will be controlled by this debugger instance.
      * This should be called only once.
      * 
@@ -152,14 +159,14 @@ public abstract class Debugger
      * Return the debugger objects that exist in the
      * debugger.
      * 
-     * @return	a Map of (String name, DebuggerObject obj) entries
+     * @return  a Map of (String name, DebuggerObject obj) entries
      */
     public abstract Map<String,DebuggerObject> getObjects();
 
     /**
      * Guess a suitable name for an object about to be put on the object bench.
      * 
-     * @param	startingName  a fully qualified class name (will be stripped of
+     * @param  startingName  a fully qualified class name (will be stripped of
      *                        qualifying part) or a field name that will be used
      *                        as the basis for the new name.
      * @return  a String suitable as a name for an object on the object bench. 
@@ -184,8 +191,8 @@ public abstract class Debugger
      * Run the setUp() method of a test class and return the created
      * objects.
      * 
-     * @param className	the fully qualified name of the class
-     * @return			a Map of (String name, DebuggerObject obj) entries
+     * @param className  the fully qualified name of the class
+     * @return          a Map of (String name, DebuggerObject obj) entries
      */
     public abstract Map<String,DebuggerObject> runTestSetUp(String className);
 
@@ -207,7 +214,7 @@ public abstract class Debugger
      * "Run" a class (i.e. invoke its main method without arguments)
      */
     public abstract DebuggerResult runClassMain(String className)
-    	throws ClassNotFoundException;
+        throws ClassNotFoundException;
 
     /**
      * Instantiate a class using the default constructor for that class.
@@ -238,7 +245,7 @@ public abstract class Debugger
      * @throws ClassNotFoundException if the class couldn't be located.
      */
     public abstract DebuggerClass getClass(String className, boolean initialize)
-		throws ClassNotFoundException;
+        throws ClassNotFoundException;
 
     /**
      * Get a reference to a string in the remote machine whose value is the

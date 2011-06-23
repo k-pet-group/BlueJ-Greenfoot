@@ -184,11 +184,14 @@ class VMReference
      * 
      * @param initDir
      *            the directory to have as a current directory in the remote VM
+     * @param libraries
+     *            libraries to be added to the VM startup classpath
      * @param mgr
      *            the virtual machine manager
      * @return an instance of a VirtualMachine or null if there was an error
      */
-    public VirtualMachine localhostSocketLaunch(File initDir, DebuggerTerminal term, VirtualMachineManager mgr)
+    public VirtualMachine localhostSocketLaunch(File initDir, URL[] libraries, DebuggerTerminal term,
+            VirtualMachineManager mgr)
     {
         final int CONNECT_TRIES = 5; // try to connect max of 5 times
         final int CONNECT_WAIT = 500; // wait half a sec between each connect
@@ -198,7 +201,11 @@ class VMReference
         // launch the VM using the runtime classpath.
         Boot boot = Boot.getInstance();
         File [] filesPath = Utility.urlsToFiles(boot.getRuntimeUserClassPath());
-        String allClassPath = Utility.toClasspathString(filesPath);
+        File [] libraryPaths = Utility.urlsToFiles(libraries);
+        File [] classPath = new File[filesPath.length + libraryPaths.length];
+        System.arraycopy(filesPath, 0, classPath, 0, filesPath.length);
+        System.arraycopy(libraryPaths, 0, classPath, filesPath.length, libraryPaths.length);
+        String allClassPath = Utility.toClasspathString(classPath);
         
         ArrayList<String> paramList = new ArrayList<String>(10);
         paramList.add(Config.getJDKExecutablePath(null, "java"));
@@ -427,13 +434,13 @@ class VMReference
      * Create the second virtual machine and start the execution server (class
      * ExecServer) on that machine.
      */
-    public VMReference(JdiDebugger owner, DebuggerTerminal term, File initialDirectory)
+    public VMReference(JdiDebugger owner, DebuggerTerminal term, File initialDirectory, URL[] libraries)
         throws JdiVmCreationException
     {
         this.owner = owner;
         
         // machine will be suspended at startup
-        machine = localhostSocketLaunch(initialDirectory, term, Bootstrap.virtualMachineManager());
+        machine = localhostSocketLaunch(initialDirectory, libraries, term, Bootstrap.virtualMachineManager());
         //machine = null; //uncomment to simulate inabilty to create debug VM
         
         if (machine == null) {
