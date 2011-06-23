@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.Stack;
 
 import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentEvent.ElementChange;
 import javax.swing.event.DocumentEvent.EventType;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Element;
@@ -842,10 +843,18 @@ public abstract class BlueJSyntaxView extends MoePlainView
                 int line = map.getElementIndex(curpos);
                 Element lineEl = map.getElement(line);
                 Segment segment = new Segment();
-                doc.getText(curpos, lineEl.getEndOffset() - curpos, segment);
-                int nws = findNonWhitespace(segment, 0);
+                doc.getText(lineEl.getStartOffset(), lineEl.getEndOffset() - lineEl.getStartOffset(), segment);
 
-                if (nws == 0) {
+                int lineOffset = curpos - lineEl.getStartOffset();
+
+                int nws;
+                if (lineEl.getStartOffset() < nap.getPosition() && nap.getNode().isInner()) {
+                    nws = findNonWhitespaceComment(nap, lineEl, segment, lineOffset);
+                } else {
+                    nws = findNonWhitespace(segment, lineOffset);
+                }
+
+                if (nws == lineOffset) {
                     // Ok, at this position we have non-white space and are not in an inner
                     Rectangle cbounds = modelToView(curpos, a, Position.Bias.Forward).getBounds();
                     indent = Math.min(indent, cbounds.x);
@@ -866,7 +875,7 @@ public abstract class BlueJSyntaxView extends MoePlainView
         }
     }
     
-    private int[] reassessIndents(Shape a, int dmgStart, int dmgEnd, boolean remove)
+    private int[] reassessIndentsAdd(Shape a, int dmgStart, int dmgEnd)
     {
         MoeSyntaxDocument doc = (MoeSyntaxDocument) getDocument();
         ParsedCUNode pcuNode = doc.getParsedNode();
@@ -884,7 +893,6 @@ public abstract class BlueJSyntaxView extends MoePlainView
             dmgRange[0] = dmgStart;
             dmgRange[1] = dmgEnd;
 
-            // It's a multiple line change
             int i = ls;
             List<NodeAndPosition<ParsedNode>> scopeStack = new LinkedList<NodeAndPosition<ParsedNode>>();
             int lineEndPos = map.getElement(le).getEndOffset();
@@ -904,24 +912,6 @@ public abstract class BlueJSyntaxView extends MoePlainView
                 i = map.getElementIndex(top.getPosition());
                 if (i > le) {
                     return dmgRange;
-                }
-            }
-            
-            if (remove) {
-                doc.getText(lineEl.getStartOffset(),
-                        lineEl.getEndOffset() - lineEl.getStartOffset(), segment);
-                int nws = findNonWhitespace(segment, 0);
-                if (nws == -1) {
-                    List<NodeAndPosition<ParsedNode>> rscopeStack = new LinkedList<NodeAndPosition<ParsedNode>>();
-                    getScopeStackAfter(doc.getParsedNode(), 0, lineEl.getStartOffset(), rscopeStack);
-                    rscopeStack.remove(0); // remove the root node
-                    while (! rscopeStack.isEmpty()) {
-                        NodeAndPosition<ParsedNode> rtop = rscopeStack.remove(rscopeStack.size() - 1);
-                        while (rtop != null && rtop.getPosition() < lineEl.getEndOffset()) {
-                            nodeIndents.remove(rtop.getNode());
-                            rtop = rtop.nextSibling();
-                        }
-                    }
                 }
             }
             
@@ -1055,6 +1045,135 @@ public abstract class BlueJSyntaxView extends MoePlainView
             throw new RuntimeException(ble);
         }
     }
+
+    private int[] reassessIndentsRemove(Shape a, int dmgPoint, boolean multiLine)
+    {
+        MoeSyntaxDocument doc = (MoeSyntaxDocument) getDocument();
+        ParsedCUNode pcuNode = doc.getParsedNode();
+        
+        int [] dmgRange = new int[2];
+        dmgRange[0] = dmgPoint;
+        dmgRange[1] = dmgPoint;
+        
+        if (pcuNode == null) {
+            return dmgRange;
+        }
+        
+        Element map = doc.getDefaultRootElement();
+        int ls = map.getElementIndex(dmgPoint);
+        Element lineEl = map.getElement(ls);
+
+        NodeAndPosition<ParsedNode> top =
+            pcuNode.findNodeAtOrAfter(lineEl.getStartOffset(), 0);
+        while (top != null && top.getEnd() == lineEl.getStartOffset()) {
+            top = top.nextSibling();
+        }
+        
+        if (top == null) {
+            // No nodes at all.
+            return dmgRange;
+        }
+
+        if (top.getPosition() >= lineEl.getEndOffset()) {
+            // The first node we found is on the next line.
+            return dmgRange;
+        }
+        
+        try {
+            // At this point lineEl/segment are the line containing the deletion point. Some lines beyond
+            // this point may have been removed (if multiLine true).
+            Segment segment = new Segment();
+            doc.getText(lineEl.getStartOffset(),
+                    lineEl.getEndOffset() - lineEl.getStartOffset(), segment);
+            
+            // All nodes for this line with a cached indent greater than or equal to the damage point
+            // indent should have their indents re-assessed: If the indent of the node on this line is
+            // lower than (or the same as) the cached indent, it becomes the new cached indent; otherwise
+            // the cached indent must be discarded.
+            // Except: if the node does not span the damage point, its cached indent need not be discarded,
+            //   since in that case the node indent cannot have increased.
+
+            List<NodeAndPosition<ParsedNode>> rscopeStack = new LinkedList<NodeAndPosition<ParsedNode>>();
+            getScopeStackAfter(doc.getParsedNode(), 0, dmgPoint, rscopeStack);
+            rscopeStack.remove(0); // remove the root node
+
+            boolean doContinue = true;
+
+            Rectangle cbounds = modelToView(dmgPoint, a, Position.Bias.Forward).getBounds();
+            int dpI = cbounds.x; // damage point indent
+
+            while (doContinue && ! rscopeStack.isEmpty()) {
+                NodeAndPosition<ParsedNode> rtop = rscopeStack.remove(rscopeStack.size() - 1);
+                while (rtop != null && rtop.getPosition() < lineEl.getEndOffset()) {
+                    if (rtop.getPosition() <= dmgPoint && rtop.getEnd() >= lineEl.getEndOffset()) {
+                        // Content of inner nodes can't affect containing nodes:
+                        doContinue &= ! rtop.getNode().isInner();
+                    }
+
+                    Integer cachedIndent = nodeIndents.get(rtop.getNode());
+                    if (cachedIndent == null) {
+                        rtop = rtop.nextSibling();
+                        continue;
+                    }
+
+                    // If the cached indent is smaller than the damage point indent, then it
+                    // is still valid - unless this is a multiple line remove.
+                    if (!multiLine && cachedIndent < dpI) {
+                        rtop = rtop.nextSibling();
+                        continue;
+                    }
+
+                    if (nodeSkipsStart(rtop, lineEl, segment)) {
+                        if (rtop.getPosition() <= dmgPoint) {
+                            // The remove may have made this line empty
+                            nodeIndents.remove(rtop);
+                            dmgRange[0] = Math.min(dmgRange[0], rtop.getPosition());
+                            dmgRange[1] = Math.max(dmgRange[1], rtop.getEnd());
+                        }
+                        break; // no more siblings can be on this line
+                    }
+
+                    int nwsP = Math.max(lineEl.getStartOffset(), rtop.getPosition());
+                    int nws = findNonWhitespace(segment, nwsP - lineEl.getStartOffset());
+                    if (nws == -1 || nws + lineEl.getStartOffset() >= rtop.getEnd()) {
+                        // Two separate cases which we can handle in the same manner.
+                        if (rtop.getPosition() <= dmgPoint) {
+                            // The remove may have made this line empty
+                            nodeIndents.remove(rtop.getNode());
+                            dmgRange[0] = Math.min(dmgRange[0], rtop.getPosition());
+                            dmgRange[1] = Math.max(dmgRange[1], rtop.getEnd());
+                        }
+
+                        rtop = rtop.nextSibling();
+                        continue;
+                    }
+
+                    cbounds = modelToView(nws + lineEl.getStartOffset(), a, Position.Bias.Forward).getBounds();
+                    int newIndent = cbounds.x;
+
+                    if (newIndent < cachedIndent) {
+                        nodeIndents.put(rtop.getNode(), newIndent);
+                        dmgRange[0] = Math.min(dmgRange[0], rtop.getPosition());
+                        dmgRange[1] = Math.max(dmgRange[1], rtop.getEnd());
+                    }
+                    else if (newIndent > cachedIndent) {
+                        if (rtop.getPosition() <= dmgPoint) {
+                            nodeIndents.remove(rtop.getNode());
+                            dmgRange[0] = Math.min(dmgRange[0], rtop.getPosition());
+                            dmgRange[1] = Math.max(dmgRange[1], rtop.getEnd());
+                        }
+                    }
+
+                    rtop = rtop.nextSibling();
+                }
+            }
+            
+            return dmgRange;
+        }
+        catch (BadLocationException ble) {
+            throw new RuntimeException(ble);
+        }
+    }
     
     /**
      * Update an existing indent, in the case where we have found a line where the indent
@@ -1090,6 +1209,7 @@ public abstract class BlueJSyntaxView extends MoePlainView
     /**
      * Get a stack of ParsedNodes which overlap a particular document position. The stack shall contain the
      * outermost node (at the bottom of the stack) through to the innermost node (at the top of the stack).
+     * Nodes that end at the specified position, or which have zero size, are skipped over.
      * 
      * @param root     The root node
      * @param rootPos  The position of the root node
@@ -1257,14 +1377,17 @@ public abstract class BlueJSyntaxView extends MoePlainView
         if (changes.getType() == EventType.INSERT) {
             damageStart = Math.min(damageStart, changes.getOffset());
             damageEnd = Math.max(damageEnd, changes.getOffset() + changes.getLength());
-            int [] r = reassessIndents(a, damageStart, damageEnd, false);
+            int [] r = reassessIndentsAdd(a, damageStart, damageEnd);
             damageStart = r[0];
             damageEnd = r[1];
         }
         else if (changes.getType() == EventType.REMOVE) {
             damageStart = Math.min(damageStart, changes.getOffset());
             damageEnd = Math.max(damageEnd, changes.getOffset());
-            int [] r = reassessIndents(a, damageStart, damageStart, true);
+            ElementChange ec = changes.getChange(document.getDefaultRootElement());
+            // Element [] childrenRemoved = changes.getChange(document.getDefaultRootElement()).getChildrenRemoved();
+            boolean multiLine = ec != null;
+            int [] r = reassessIndentsRemove(a, damageStart, multiLine);
             damageStart = r[0];
             damageEnd = r[1];
         }
