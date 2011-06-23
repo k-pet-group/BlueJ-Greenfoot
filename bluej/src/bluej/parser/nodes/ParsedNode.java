@@ -166,9 +166,11 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
     }
     
     /**
-     * Find the child node (if any) at the given position
+     * Find the child node (if any) overlapping (including starting or ending at) the given position.
+     * 
      * @param position   The position of the child node to find
      * @param startpos   The position of this node
+     * @return the "leftmost" child which overlaps the position
      */
     public final NodeAndPosition<ParsedNode> findNodeAt(int position, int startpos)
     {
