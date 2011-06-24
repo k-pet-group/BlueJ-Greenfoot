@@ -117,6 +117,9 @@ public class Invoker
 
     private String commandString;
     private InvokerRecord ir;
+    
+    /** Whether we've already seen an error from the compiler */
+    private boolean gotError;
 
     /**
      * Construct an invoker, specifying most attributes manually.
@@ -286,6 +289,7 @@ public class Invoker
      */
     public void invokeInteractive()
     {
+        gotError = false;
         // check for a method call with no parameter
         // if so, just do it
         if ((!constructing || Config.isGreenfoot()) && !member.hasParameters()) {
@@ -343,6 +347,7 @@ public class Invoker
             dlg.setVisible(false);
         }
         else if (event == CallDialog.OK) {
+            gotError = false;
             dialog.setEnabled(false);
             objName = dialog.getNewInstanceName();                
             String[] actualTypeParams = dialog.getTypeParams();
@@ -362,6 +367,7 @@ public class Invoker
      */
     public void invokeDirect(String[] params)
     {
+        gotError = false;
         final JavaType[] argTypes = member.getParamTypes(false);
         for (int i = 0; i < argTypes.length; i++) {
             argTypes[i] = argTypes[i].mapTparsToTypes(typeMap).getUpperBound();
@@ -388,6 +394,7 @@ public class Invoker
      */
     protected void doInvocation(String[] args, JavaType[] argTypes, String[] typeParams)
     {
+        gotError = false;
         int numArgs = (args == null ? 0 : args.length);
 
         // prepare variables (assigned with actual values) for each parameter
@@ -580,6 +587,7 @@ public class Invoker
      */
     public boolean doFreeFormInvocation(String resultType)
     {
+        gotError = false;
         boolean hasResult = resultType != null;
         if (hasResult) {
             if (resultType.equals(""))
@@ -999,16 +1007,20 @@ public class Invoker
     // -- CompileObserver interface --
 
     // not interested in these events:
-    public void startCompile(File[] sources)
-    {}
+    @Override
+    public void startCompile(File[] sources) { }
 
     /*
      * @see bluej.compiler.CompileObserver#compilerMessage(bluej.compiler.Diagnostic)
      */
+    @Override
     public void compilerMessage(Diagnostic diagnostic)
     {
         if (diagnostic.getType() == Diagnostic.ERROR) {
-            errorMessage(diagnostic.getFileName(), diagnostic.getStartLine(), diagnostic.getMessage());
+            if (! gotError) {
+                gotError = true;
+                errorMessage(diagnostic.getFileName(), diagnostic.getStartLine(), diagnostic.getMessage());
+            }
         }
         // We ignore warnings for shell classes
     }
@@ -1028,6 +1040,7 @@ public class Invoker
      * The compilation of the shell class has ended. If all went well, execute
      * now. Then clean up.
      */
+    @Override
     public synchronized void endCompile(File[] sources, boolean successful)
     {
         if (dialog != null) {
