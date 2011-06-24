@@ -164,6 +164,7 @@ public class Project implements DebuggerListener, InspectorManager
     
     private boolean inTestMode = false;
     private BPClassLoader currentClassLoader;
+    private List<URL> libraryUrls;
     
     // the TeamSettingsController for this project
     private TeamSettingsController teamSettingsController = null;
@@ -234,6 +235,7 @@ public class Project implements DebuggerListener, InspectorManager
         }
         
         this.projectDir = projectDir;
+        libraryUrls = getLibrariesClasspath();
         inspectors = new HashMap<Object,Inspector>();
         packages = new TreeMap<String, Package>();
         docuGenerator = new DocuGenerator(this);
@@ -249,9 +251,8 @@ public class Project implements DebuggerListener, InspectorManager
         }
 
         debugger = Debugger.getDebuggerImpl(getProjectDir(), getTerminal());
+        debugger.setUserLibraries(libraryUrls.toArray(new URL[libraryUrls.size()]));
         debugger.newClassLoader(getClassLoader());
-        List<URL> libs = getLibrariesClasspath();
-        debugger.setUserLibraries(libs.toArray(new URL[libs.size()]));
         debugger.addDebuggerListener(this);
         debugger.launch();
 
@@ -385,7 +386,8 @@ public class Project implements DebuggerListener, InspectorManager
             }
 
             proj.initialPackageName = startingPackage.getQualifiedName();
-        } else {
+        }
+        else {
             proj.initialPackageName = startingPackageName;
         }
 
@@ -1291,8 +1293,8 @@ public class Project implements DebuggerListener, InspectorManager
         // will be installed as soon as the VM has restarted).
         newRemoteClassLoader();
         
-        List<URL> libs = getLibrariesClasspath();
-        debugger.setUserLibraries(libs.toArray(new URL[libs.size()]));
+        libraryUrls = getLibrariesClasspath();
+        debugger.setUserLibraries(libraryUrls.toArray(new URL[libraryUrls.size()]));
         
         // Breakpoints will be re-initialized once the new VM has
         // actually started.
@@ -1321,7 +1323,7 @@ public class Project implements DebuggerListener, InspectorManager
 
         if (! Config.isGreenfoot()) {
             // dispose windows for local classes. Should not run user code
-            // on the event queue, so run it in a seperate thread.
+            // on the event queue, so run it in a separate thread.
             new Thread() {
                 public void run() {
                     getDebugger().disposeWindows();
@@ -1572,23 +1574,11 @@ public class Project implements DebuggerListener, InspectorManager
         List<URL> optLibs  = new ArrayList<URL>(); //java ME optional libraries
 
         try {
-            // Junit is always part of the project libraries, only Junit, not the core Bluej.
-                        //   pathList.add( Boot.getInstance().getJunitLib().toURI().toURL());
-            
-            // Until the rest of BlueJ is clean we also need to add bluejcore
-            // It should be possible to run BlueJ only with Junit
             Collections.addAll(pathList, Boot.getInstance().getRuntimeUserClassPath());
     
-            // Next part is the libraries that are added trough the config panel.
-            pathList.addAll(PrefMgrDialog.getInstance().getUserConfigLibPanel().getUserConfigContent());
-    
-            // Then the libraries that are in the userlib directory
-            pathList.addAll(getUserlibContent());
+            pathList.addAll(libraryUrls);
             
-            // The libraries that are in the project +libs directory
-            pathList.addAll(getPlusLibsContent());
-          
-            // The current paroject dir must be added to the project class path too.
+            // The current project dir must be added to the project class path too.
             pathList.add(getProjectDir().toURI().toURL());
             
             //Add Java ME jars if this is a Java ME project. 
@@ -1622,6 +1612,9 @@ public class Project implements DebuggerListener, InspectorManager
     /**
      * Get the classpath for libraries - those specified in preferences, in the project's +libs,
      * in the BlueJ userlib folder, etc. This doesn't include the BlueJ runtime.
+     * 
+     * <p>Most of the time, the list in {@code libraryUrls} should be used instead of calling this
+     * method, as it represents the libraries known to the currently executing VM.
      */
     private List<URL> getLibrariesClasspath()
     {
