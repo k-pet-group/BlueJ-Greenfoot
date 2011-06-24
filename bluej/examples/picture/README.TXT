@@ -1,5 +1,5 @@
 Project "picture"
-Authors: Michael Kolling and David J. Barnes
+Authors: Michael Kölling and David J. Barnes
 
 This project is part of the material for the book
 
@@ -41,4 +41,4 @@ A good second project to look at after this is "picture", which adds a class
 to those ones in this project. That class (named "Picture") uses the shapes
 to draw a picture. It can be used to experiment with coding.
 
-Michael K�lling, July 2000
+Michael Kölling, July 2000

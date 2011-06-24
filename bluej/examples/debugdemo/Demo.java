@@ -3,7 +3,7 @@
  * the BlueJ debug functionality. It contains loops and nested method calls
  * that make interesting examples to set breakpoints.
  * 
- * @author M. Kolling
+ * @author M. Kölling
  * @version 13 August 1999
  */
 public class Demo
@@ -25,7 +25,7 @@ public class Demo
      */
     public int loop(int count)
     {
-        	int sum = 17;
+        int sum = 17;
 
         for (int i=0; i<count; i++) {
             sum = sum + i;

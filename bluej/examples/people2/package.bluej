@@ -11,6 +11,7 @@ package.editor.x=60
 package.editor.y=82
 package.numDependencies=2
 package.numTargets=5
+project.charset=UTF-8
 target1.height=50
 target1.modifiers=0
 target1.name=Student

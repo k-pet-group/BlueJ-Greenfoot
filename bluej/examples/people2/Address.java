@@ -1,7 +1,7 @@
 /**
  * Class Address - used to store address details for a post address
  * 
- * @author  Michael Kolling
+ * @author  Michael Kölling
  * @version 1.0, January 1999
  */
 public class Address

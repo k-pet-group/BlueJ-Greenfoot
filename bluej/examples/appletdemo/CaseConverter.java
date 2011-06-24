@@ -10,7 +10,7 @@ import javax.swing.*;
  * Aug 2004: Updated from Applet to JApplet (mik)
  *
  * @author Bruce Quig 
- * @author Michael Kolling
+ * @author Michael Kölling
  * 
  * @version 2004-08-04
  */

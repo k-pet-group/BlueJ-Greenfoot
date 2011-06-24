@@ -3,54 +3,54 @@ import java.awt.*;
 /**
  * A square that can be manipulated and that draws itself on a canvas.
  * 
- * @author	Michael Kolling and David J. Barnes
+ * @author  Michael Kölling and David J. Barnes
  * @version 1.0  (15 July 2000)
  */
 
 public class Square
 {
     private int size;
-	private int xPosition;
-	private int yPosition;
-	private String color;
-	private boolean isVisible;
+    private int xPosition;
+    private int yPosition;
+    private String color;
+    private boolean isVisible;
 
     /**
      * Create a new square at default position with default color.
      */
     public Square()
     {
-		size = 30;
-		xPosition = 60;
-		yPosition = 50;
-		color = "red";
-		isVisible = false;
+        size = 30;
+        xPosition = 60;
+        yPosition = 50;
+        color = "red";
+        isVisible = false;
     }
 
-	/**
-	 * Make this square visible. If it was already visible, do nothing.
-	 */
-	public void makeVisible()
-	{
-		isVisible = true;
-		draw();
-	}
-	
-	/**
-	 * Make this square invisible. If it was already invisible, do nothing.
-	 */
-	public void makeInvisible()
-	{
-		erase();
-		isVisible = false;
-	}
-	
+    /**
+     * Make this square visible. If it was already visible, do nothing.
+     */
+    public void makeVisible()
+    {
+        isVisible = true;
+        draw();
+    }
+
+    /**
+     * Make this square invisible. If it was already invisible, do nothing.
+     */
+    public void makeInvisible()
+    {
+        erase();
+        isVisible = false;
+    }
+
     /**
      * Move the square a few pixels to the right.
      */
     public void moveRight()
     {
-		moveHorizontal(20);
+        moveHorizontal(20);
     }
 
     /**
@@ -58,7 +58,7 @@ public class Square
      */
     public void moveLeft()
     {
-		moveHorizontal(-20);
+        moveHorizontal(-20);
     }
 
     /**
@@ -66,7 +66,7 @@ public class Square
      */
     public void moveUp()
     {
-		moveVertical(-20);
+        moveVertical(-20);
     }
 
     /**
@@ -74,7 +74,7 @@ public class Square
      */
     public void moveDown()
     {
-		moveVertical(20);
+        moveVertical(20);
     }
 
     /**
@@ -82,9 +82,9 @@ public class Square
      */
     public void moveHorizontal(int distance)
     {
-		erase();
-		xPosition += distance;
-		draw();
+        erase();
+        xPosition += distance;
+        draw();
     }
 
     /**
@@ -92,9 +92,9 @@ public class Square
      */
     public void moveVertical(int distance)
     {
-		erase();
-		yPosition += distance;
-		draw();
+        erase();
+        yPosition += distance;
+        draw();
     }
 
     /**
@@ -102,23 +102,23 @@ public class Square
      */
     public void slowMoveHorizontal(int distance)
     {
-		int delta;
+        int delta;
 
-		if(distance < 0) 
-		{
-			delta = -1;
-			distance = -distance;
-		}
-		else 
-		{
-			delta = 1;
-		}
+        if(distance < 0) 
+        {
+            delta = -1;
+            distance = -distance;
+        }
+        else 
+        {
+            delta = 1;
+        }
 
-		for(int i = 0; i < distance; i++)
-		{
-			xPosition += delta;
-			draw();
-		}
+        for(int i = 0; i < distance; i++)
+        {
+            xPosition += delta;
+            draw();
+        }
     }
 
     /**
@@ -126,23 +126,23 @@ public class Square
      */
     public void slowMoveVertical(int distance)
     {
-		int delta;
+        int delta;
 
-		if(distance < 0) 
-		{
-			delta = -1;
-			distance = -distance;
-		}
-		else 
-		{
-			delta = 1;
-		}
+        if(distance < 0) 
+        {
+            delta = -1;
+            distance = -distance;
+        }
+        else 
+        {
+            delta = 1;
+        }
 
-		for(int i = 0; i < distance; i++)
-		{
-			yPosition += delta;
-			draw();
-		}
+        for(int i = 0; i < distance; i++)
+        {
+            yPosition += delta;
+            draw();
+        }
     }
 
     /**
@@ -150,42 +150,42 @@ public class Square
      */
     public void changeSize(int newSize)
     {
-		erase();
-		size = newSize;
-		draw();
+        erase();
+        size = newSize;
+        draw();
     }
 
     /**
      * Change the color. Valid colors are "red", "yellow", "blue", "green",
-	 * "magenta" and "black".
+     * "magenta" and "black".
      */
     public void changeColor(String newColor)
     {
-		color = newColor;
-		draw();
+        color = newColor;
+        draw();
     }
 
-	/*
-	 * Draw the square with current specifications on screen.
-	 */
-	private void draw()
-	{
-		if(isVisible) {
-			Canvas canvas = Canvas.getCanvas();
-			canvas.draw(this, color,
-						new Rectangle(xPosition, yPosition, size, size));
-			canvas.wait(10);
-		}
-	}
+    /*
+     * Draw the square with current specifications on screen.
+     */
+    private void draw()
+    {
+        if(isVisible) {
+            Canvas canvas = Canvas.getCanvas();
+            canvas.draw(this, color,
+                    new Rectangle(xPosition, yPosition, size, size));
+            canvas.wait(10);
+        }
+    }
 
-	/*
-	 * Erase the square on screen.
-	 */
-	private void erase()
-	{
-		if(isVisible) {
-			Canvas canvas = Canvas.getCanvas();
-			canvas.erase(this);
-		}
-	}
+    /*
+     * Erase the square on screen.
+     */
+    private void erase()
+    {
+        if(isVisible) {
+            Canvas canvas = Canvas.getCanvas();
+            canvas.erase(this);
+        }
+    }
 }

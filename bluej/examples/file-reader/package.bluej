@@ -5,6 +5,7 @@ package.editor.x=40
 package.editor.y=62
 package.numDependencies=0
 package.numTargets=1
+project.charset=UTF-8
 target1.height=50
 target1.modifiers=0
 target1.name=FileReader

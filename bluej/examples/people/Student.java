@@ -1,13 +1,13 @@
 /**
  * A class representing students for a simple BlueJ demo program.
  *
- * @author  Michael Kolling
+ * @author  Michael Kölling
  * @version 1.0, January 1999
  */
 
 class Student extends Person
 {
-	private String SID;    // student ID number
+    private String SID;    // student ID number
 
     /**
      * Create a student with default settings for detail information.
@@ -15,8 +15,8 @@ class Student extends Person
 
     Student()
     {
-    	super("(unknown name)", 0000);
-    	SID = "(unknown ID)";
+        super("(unknown name)", 0000);
+        SID = "(unknown ID)";
     }
  
 
@@ -24,8 +24,8 @@ class Student extends Person
      * Create a student with given name, year of birth and student ID
      */
     Student(String name, int yearOfBirth, String studentID)
-	{
-		super(name, yearOfBirth);
+    {
+        super(name, yearOfBirth);
         SID = studentID;
     }
 

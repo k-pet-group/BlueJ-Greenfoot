@@ -1,6 +1,6 @@
 BlueJ example project "hello"
 
-Copyright (c) Michael Kölling, Monash University, 1999-2000
+Copyright (c) Michael KÃ¶lling, Monash University, 1999-2000
 
 This is "Hello world".
 
@@ -17,4 +17,4 @@ You can start this project in two ways:
   - execute the static "main" method of the "Hello" class
 
 
-Michael Kölling, August 2000
+Michael KÃ¶lling, August 2000

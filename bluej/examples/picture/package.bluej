@@ -25,6 +25,7 @@ package.numDependencies=6
 package.numTargets=5
 package.showExtends=true
 package.showUses=true
+project.charset=UTF-8
 target1.height=40
 target1.name=Canvas
 target1.type=ClassTarget

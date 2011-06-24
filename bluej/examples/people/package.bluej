@@ -10,6 +10,7 @@ package.numDependencies=1
 package.numTargets=4
 package.showExtends=true
 package.showUses=true
+project.charset=UTF-8
 target1.height=50
 target1.name=Student
 target1.showInterface=false

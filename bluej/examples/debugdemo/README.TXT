@@ -1,6 +1,6 @@
 BlueJ example project "debugdemo"
 
-Copyright (c) Michael Kolling, Monash University, 1999-2000
+Copyright (c) Michael Kölling, Monash University, 1999-2000
 
 This project is distributed with the BlueJ system to provide an example
 for testing the debugger. The project does not make any sense at all. Its 

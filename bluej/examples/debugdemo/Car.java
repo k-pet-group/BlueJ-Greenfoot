@@ -1,7 +1,7 @@
 /**
  * Class Car - nonsense class for debugger demo
  * 
- * @author Michael Kolling
+ * @author Michael Kölling
  * @version 13 August 1999
  */
 public class Car

@@ -7,19 +7,19 @@ import java.util.Iterator;
  *
  * Written as a first demo program for BlueJ.
  *
- * @author  Michael Kolling
+ * @author  Michael Kölling
  * @version 1.1, March 2002
  */
 
 public class Database {
 
-	private ArrayList persons;
+    private ArrayList persons;
 
- 	/**
-	 * Create a new, empty person database.
+    /**
+     * Create a new, empty person database.
      */
-  	public Database() 
-	{
+    public Database() 
+    {
         persons = new ArrayList();
     }
 
@@ -27,7 +27,7 @@ public class Database {
      * Add a person to the database.
      */
     public void addPerson(Person p) 
-	{
+    {
         persons.add(p);
     }
 
