@@ -23,7 +23,6 @@ package bluej.pkgmgr.graphPainter;
 
 import java.awt.*;
 
-import bluej.Config;
 import bluej.pkgmgr.target.*;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Utility;

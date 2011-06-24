@@ -24,7 +24,6 @@ package bluej.pkgmgr.graphPainter;
 import java.awt.*;
 import java.awt.Graphics2D;
 
-import bluej.Config;
 import bluej.pkgmgr.dependency.Dependency;
 import bluej.pkgmgr.dependency.ImplementsDependency;
 

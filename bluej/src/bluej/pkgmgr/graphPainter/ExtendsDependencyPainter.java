@@ -23,7 +23,6 @@ package bluej.pkgmgr.graphPainter;
 
 import java.awt.*;
 
-import bluej.Config;
 import bluej.graph.RubberBand;
 import bluej.pkgmgr.dependency.Dependency;
 import bluej.pkgmgr.dependency.ExtendsDependency;
@@ -34,7 +33,7 @@ import bluej.pkgmgr.dependency.Dependency.Line;
  * 
  * @author fisker
  * @author Michael Kolling
- * @version $Id: ExtendsDependencyPainter.java 9014 2011-06-17 08:38:51Z mik $
+ * @version $Id: ExtendsDependencyPainter.java 9034 2011-06-24 02:42:21Z davmac $
  */
 public class ExtendsDependencyPainter
     implements DependencyPainter

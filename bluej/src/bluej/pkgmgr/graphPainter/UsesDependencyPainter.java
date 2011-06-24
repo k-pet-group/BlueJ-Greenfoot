@@ -28,7 +28,6 @@ import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
 
-import bluej.Config;
 import bluej.graph.RubberBand;
 import bluej.pkgmgr.dependency.Dependency;
 import bluej.pkgmgr.dependency.UsesDependency;
