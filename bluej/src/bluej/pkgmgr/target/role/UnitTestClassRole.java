@@ -462,6 +462,17 @@ public class UnitTestClassRole extends ClassRole
         }.start();
     }
 
+    private static final String spaces = "                    ";
+    
+    /**
+     * Get a string of whitespace corresponding to an indentation.
+     */
+    private String getIndentString()
+    {
+        int ts = Math.max(Config.getPropInteger("bluej.editor.tabsize", 4), spaces.length());
+        return spaces.substring(0, ts);
+    }
+    
     /**
      * End the construction of a test method.
      * 
@@ -475,6 +486,7 @@ public class UnitTestClassRole extends ClassRole
     public void doEndMakeTestCase(PkgMgrFrame pmf, ClassTarget ct, String name)
     {
         Editor ed = ct.getEditor();
+        String ts = getIndentString();
         try {
             UnitTestAnalyzer uta = analyzeUnitTest(ct);
 
@@ -484,7 +496,7 @@ public class UnitTestClassRole extends ClassRole
                 // replace this method (don't replace the method header!)
                 ed.setSelection(existingSpan.getStartLine(), existingSpan.getStartColumn(),
                                   existingSpan.getEndLine(), existingSpan.getEndColumn());
-                ed.insertText("{\n" + pmf.getObjectBench().getTestMethod() + "    }", false);
+                ed.insertText("{\n" + pmf.getObjectBench().getTestMethod() + ts + "}", false);
             }
             else {
                 // insert a complete method
@@ -493,10 +505,12 @@ public class UnitTestClassRole extends ClassRole
                 if (methodInsert != null) {
                     ed.setSelection(methodInsert.getLine(), methodInsert.getColumn(), 1);
                     if (isJunit4) {
-                        ed.insertText("\n    @Test\n    public void " + name + "()\n    {\n" + pmf.getObjectBench().getTestMethod() + "    }\n}\n", false);
+                        ed.insertText("\n" + ts + "@Test\n" + ts + "public void " + name + "()\n" + ts + "{\n"
+                                + pmf.getObjectBench().getTestMethod() + ts + "}\n}\n", false);
                     }
                     else {
-                        ed.insertText("\n    public void " + name + "()\n    {\n" + pmf.getObjectBench().getTestMethod() + "    }\n}\n", false);
+                        ed.insertText("\n" + ts + "public void " + name + "()\n" + ts + "{\n"
+                                + pmf.getObjectBench().getTestMethod() + ts + "}\n}\n", false);
                     }
                 }
             }
@@ -546,7 +560,7 @@ public class UnitTestClassRole extends ClassRole
                 // copy everything between the opening { and the final }
                 String setUpWithoutBrackets = 
                         setUpWithBrackets.substring(setUpWithBrackets.indexOf('{') + 1,
-                                                    setUpWithBrackets.indexOf('}')).trim();
+                                                    setUpWithBrackets.lastIndexOf('}')).trim();
                 existing.setSetupMethod(setUpWithoutBrackets);
             }
             
@@ -614,6 +628,8 @@ public class UnitTestClassRole extends ClassRole
             
             // find the curly brackets for the setUp() method
             SourceSpan setupSpan = uta.getMethodBlockSpan("setUp");
+
+            String ts = getIndentString();
             
             // rewrite the setUp() method of the unit test (if it exists)
             if (setupSpan != null) {
@@ -624,16 +640,16 @@ public class UnitTestClassRole extends ClassRole
                 ed.setSelection(fixtureInsertLocation.getLine(),
                                 fixtureInsertLocation.getColumn(), 1);
                 if (isJunit4) {
-                    ed.insertText("{\n    @Before\n    public void setUp()\n    ", false);
+                    ed.insertText("{\n" + ts + "@Before\n" + ts + "public void setUp()\n" + ts, false);
                 }
                 else {
-                    ed.insertText("{\n    public void setUp()\n    ", false);
+                    ed.insertText("{\n" + ts + "public void setUp()\n" + ts, false);
                 }
             }
             
             // insert the code for our setUp() method
             ed.insertText("{\n" + pmf.getObjectBench().getFixtureSetup()
-                                + "    }", false);
+                                + ts + "}", false);
 
             // insert our new fixture declarations
             ed.setSelection(fixtureInsertLocation.getLine(),
