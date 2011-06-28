@@ -1,0 +1,40 @@
+Setting up the MinGW environment for building the Bluej launcher
+----------------------------------------------------------------
+
+MinGW (http://www.mingw.org) is a GNU-like environment for Windows.
+
+You'll need the following MinGW packages (unpack them into \mingw):
+
+- gcc (MinGW/BaseSystem/GCC/Version4/gcc-4.5.2-1/gcc-core-4.5.2-1-mingw32-bin.tar)
+- g++ (MinGW/BaseSystem/GCC/Version4/gcc-4.5.2-1/gcc-c%2B%2B-4.5.2-1-mingw32-bin.tar)
+- binutils (MinGW/BaseSystem/GNU-Binutils/binutils-2.21/binutils-2.21-3-mingw32-bin.tar)
+- GNU make (MinGW/make/make-3.82-mingw32/make-3.82-5-mingw32-bin.tar)
+- MinGW API for Windows (MinGW/BaseSystem/RuntimeLibrary/Win32-API/w32api-3.17/w32api-3.17-2-mingw32-dev.tar)
+- MinGW runtime (MinGW/BaseSystem/RuntimeLibrary/MinGW-RT/mingwrt-3.18/mingwrt-3.18-mingw32-dev.tar)
+- gmp library (MinGW/gmp/gmp-5.0.1-1/libgmp-5.0.1-1-mingw32-dll-10.tar)
+- mpfr library (MinGW/mpfr/mpfr-2.4.1-1/libmpfr-2.4.1-1-mingw32-dll-1.tar)
+- mpc library (MinGW/mpc/mpc-0.8.1-1/libmpc-0.8.1-1-mingw32-dll-2.tar)
+- iconv library (MinGW/libiconv/libiconv-1.13.1-1/libiconv-1.13.1-1-mingw32-dll-2.tar)
+- libintl library (MinGW/gettext/gettext-0.17-1/libintl-0.17-1-mingw32-dll-8.tar)
+
+And the following Msys packages (unpack them into \msys\1.0):
+
+- MSYS base system (MSYS/BaseSystem/msys-core/msys-1.0.17-1/msysCORE-1.0.17-1-msys-1.0.17-bin.tar)
+- bash shell (MSYS/BaseSystem/bash/bash-3.1.17-4/bash-3.1.17-4-msys-1.0.16-bin.tar)
+- mintty terminal emulator (MSYS/mintty/mintty-0.9.9/mintty-0.9.9-1-msys-1.0.16-bin.tar)
+- regex library (MSYS/BaseSystem/regex/regex-1.20090805-2/libregex-1.20090805-2-msys-1.0.13-dll-1.tar)
+- termcap library (MSYS/BaseSystem/termcap/termcap-0.20050421_1-2/libtermcap-0.20050421_1-2-msys-1.0.13-dll-0.tar)
+
+Additional setup required:
+
+- create home directory:
+   /msys/1.0/home/(username)
+
+- edit /msys/1.0/etc/fstab.sample, copy to fstab, set:
+   C:/Docume~1/(username)/workspace   /workspace
+   C:/msys/1.0/home                   /home
+   
+  "workspace" should be a mount point somewhere convenient underneath your BlueJ project directory.
+  Note you must use the shortened name for paths with spaces, hence "Docume~1" above. 
+
+- set up a shortcut to run "mintty -" or "bash -login"

@@ -5,17 +5,7 @@ The launcher is built using the MinGW (Minimalist GNU for Windows) environment:
 
 http://www.mingw.org/
 
-Any suitably recent version should do. They don't make it particularly clear what
-packages you'll need but in general:
-
-- gcc
-- binutils
-- GNU make
-- MinGW API for Windows
-- MinGW runtime
-- MSYS base system
-
-... should be a good start (please let me know if I've missed anything). 
+See MINGW.TXT for information on required packages and setup.
 
 If you want to build the Windows installer, you will also need InnoSetup:
 
@@ -68,9 +58,11 @@ build ID or just left at 0.
 Step 3.
 -------
 
-Run "make".
+Start your bash shell in the MSYS environment (i.e. run mintty).
+Change directory into the /package/winlaunch subdirector of the BlueJ project.
+Then:
 
-This should be done from within the bash shell in the MSYS environment.
+Run "make" (or "mingw32-make").
 
 The generated launcher is called "bjlaunch.exe" (for BlueJ) or
 "gflaunch.exe" (for Greenfoot).
