@@ -160,7 +160,6 @@
              greenfoot-dist-new.jar which is the platform independant
              distributable -->
         <delete dir="install_tmp" />
-        <delete file="greenfoot-install.png" />
     </target>
     
     <target name="greenfoot-dist-cleanup">
@@ -229,6 +228,28 @@
 
         <delete dir="install_tmp" />
     </target>
+	
+	<target name="windows-msi-dist" depends="dist">
+		<delete dir="winsetup/SourceDir" />
+		<delete dir="winsetup" includes="*.wixobj" />
+        <unzip src="greenfoot-dist.jar" dest="winsetup/SourceDir" />
+		
+		<exec dir="winsetup" executable="C:\Program Files\Windows Installer XML v3.5\bin\candle.exe">
+			<arg line="greenfoot-wix.xml"/>
+		</exec>
+		
+		<exec dir="winsetup" executable="C:\Program Files\Windows Installer XML v3.5\bin\heat.exe">
+			<arg line="dir SourceDir -cg GreenfootFiles -dr INSTALLDIR -ke -gg -srd -sfrag -template fragment -out greenfoot-install-files.wxs"/>
+		</exec>
+		<exec dir="winsetup" executable="C:\Program Files\Windows Installer XML v3.5\bin\candle.exe">
+			<arg line="greenfoot-install-files.wxs"/>
+		</exec>
+		
+		<exec dir="winsetup" executable="C:\Program Files\Windows Installer XML v3.5\bin\light.exe">
+			<arg line="-ext WixUIExtension greenfoot-wix.wixobj greenfoot-install-files.wixobj -o greenfoot.msi"/>
+		</exec>
+		<delete dir="winsetup/SourceDir" />
+	</target>
 
     <target name="debian-dist">
         <mkdir dir="gfdeb" />
