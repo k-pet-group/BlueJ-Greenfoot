@@ -749,6 +749,7 @@ public class Project implements DebuggerListener, InspectorManager
             ClassInspectInvokerRecord ir = new ClassInspectInvokerRecord(clss.getName());
             inspector = new ClassInspector(clss, this, pkg, ir, parent);
             inspectors.put(clss.getName(), inspector);
+            inspector.setVisible(true);
         }
         else {
             updateInspector(inspector);
