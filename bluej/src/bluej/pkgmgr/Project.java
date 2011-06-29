@@ -655,6 +655,7 @@ public class Project implements DebuggerListener, InspectorManager
         if (inspector == null) {
             inspector = new ObjectInspector(obj, this, name, pkg, ir, parent);
             inspectors.put(obj, inspector);
+            inspector.setVisible(true);
         }
         else {
             updateInspector(inspector);
