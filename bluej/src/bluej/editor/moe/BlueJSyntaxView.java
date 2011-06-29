@@ -816,29 +816,34 @@ public abstract class BlueJSyntaxView extends MoePlainView
             int indent = Integer.MAX_VALUE;
 
             int curpos = nap.getPosition();
-            int napEnd = curpos + nap.getSize();
+            int napEnd = nap.getEnd();
 
             Element map = doc.getDefaultRootElement();
             Stack<NodeAndPosition<ParsedNode>> scopeStack = new Stack<NodeAndPosition<ParsedNode>>();
             scopeStack.add(nap);
 
+            outer:
             while (curpos < napEnd) {
-                // First skip over inner nodes
+                // Remove any nodes from the scope stack who we have now skipped over
                 NodeAndPosition<ParsedNode> top = scopeStack.get(scopeStack.size() - 1);
-                while (top.getEnd() > napEnd) {
+                while (top.getEnd() <= curpos) {
                     scopeStack.remove(scopeStack.size() - 1);
                     top = scopeStack.get(scopeStack.size() - 1);
                 }
-                NodeAndPosition<ParsedNode> nextChild = top.getNode().findNodeAt(curpos, top.getPosition());
-                while (nextChild != null && ! nextChild.getNode().isInner()) {
+                
+                // Re-build the scope stack and skip inner nodes.
+                // Note, we find nodes at curpos + 1 to avoid nodes which *end* here.
+                NodeAndPosition<ParsedNode> nextChild = top.getNode().findNodeAt(curpos + 1, top.getPosition());
+                while (nextChild != null) {
+                    if (nextChild.getNode().isInner()) {
+                        curpos = nextChild.getEnd();
+                        continue outer;
+                    }
+                    scopeStack.add(nextChild);
                     top = nextChild;
-                    nextChild = top.getNode().findNodeAt(curpos, top.getPosition());
+                    nextChild = top.getNode().findNodeAt(curpos + 1, top.getPosition());
                 }
                 
-                if (nextChild != null) {
-                    curpos = nextChild.getEnd();
-                }
-
                 // Ok, we've skipped inner nodes
                 int line = map.getElementIndex(curpos);
                 Element lineEl = map.getElement(line);
@@ -849,6 +854,7 @@ public abstract class BlueJSyntaxView extends MoePlainView
 
                 int nws;
                 if (lineEl.getStartOffset() < nap.getPosition() && nap.getNode().isInner()) {
+                    // The node is an inner node starting on this line
                     nws = findNonWhitespaceComment(nap, lineEl, segment, lineOffset);
                 } else {
                     nws = findNonWhitespace(segment, lineOffset);
@@ -864,7 +870,8 @@ public abstract class BlueJSyntaxView extends MoePlainView
                     curpos = lineEl.getEndOffset();
                 }
                 else {
-                    curpos += nws;
+                    // We need to check for inner nodes at the adjusted position
+                    curpos += nws - lineOffset;
                 }
             }
 
@@ -1129,7 +1136,7 @@ public abstract class BlueJSyntaxView extends MoePlainView
                     if (nodeSkipsStart(rtop, lineEl, segment)) {
                         if (rtop.getPosition() <= dmgPoint) {
                             // The remove may have made this line empty
-                            nodeIndents.remove(rtop);
+                            nodeIndents.remove(rtop.getNode());
                             dmgRange[0] = Math.min(dmgRange[0], rtop.getPosition());
                             dmgRange[1] = Math.max(dmgRange[1], rtop.getEnd());
                         }
@@ -1291,7 +1298,7 @@ public abstract class BlueJSyntaxView extends MoePlainView
                 return i - segment.offset;
             }
         }
-        return i - segment.offset - 1;
+        return endPos - 1;
     }
 
     /**
