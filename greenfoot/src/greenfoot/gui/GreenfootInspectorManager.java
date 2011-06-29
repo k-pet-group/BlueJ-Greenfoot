@@ -25,7 +25,6 @@ import greenfoot.gui.inspector.GreenfootClassInspector;
 import greenfoot.gui.inspector.GreenfootObjectInspector;
 import greenfoot.gui.inspector.GreenfootResultInspector;
 
-import java.awt.EventQueue;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -43,6 +42,7 @@ import bluej.debugmgr.inspector.ResultInspector;
 import bluej.pkgmgr.Package;
 import bluej.testmgr.record.ClassInspectInvokerRecord;
 import bluej.testmgr.record.InvokerRecord;
+import bluej.utility.DialogManager;
 
 /**
  * An inspector manager for Greenfoot projects.
@@ -77,17 +77,14 @@ public class GreenfootInspectorManager implements InspectorManager
         if (inspector == null) {
             inspector = new GreenfootObjectInspector(obj, this, name, pkg, ir, parent);
             objectInspectors.put(obj, inspector);
+            inspector.setVisible(true);
         }
-        
-        final ObjectInspector insp = inspector;
-        EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                insp.update();
-                insp.updateLayout();
-                insp.setVisible(true);
-                insp.bringToFront();
-            }
-        });
+        else {
+            inspector.update();
+            inspector.updateLayout();
+            inspector.setVisible(true);
+            inspector.bringToFront();
+        }
         
         return inspector;
     }
@@ -103,16 +100,12 @@ public class GreenfootInspectorManager implements InspectorManager
             inspector = new GreenfootClassInspector(clss, this, pkg, ir, parent);
             classInspectors.put(clss.getName(), inspector);
         }
-
-        final Inspector insp = inspector;
-        EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                insp.update();
-                insp.updateLayout();
-                insp.setVisible(true);
-                insp.bringToFront();
-            }
-        });
+        else {
+            inspector.update();
+            inspector.updateLayout();
+            inspector.setVisible(true);
+            inspector.bringToFront();
+        }
 
         return inspector;
     }
@@ -125,19 +118,17 @@ public class GreenfootInspectorManager implements InspectorManager
         ResultInspector inspector = (ResultInspector) objectInspectors.get(obj);
         
         if (inspector == null) {
-            inspector = new GreenfootResultInspector(obj, this, name, pkg, ir, info, parent);
+            inspector = new GreenfootResultInspector(obj, this, name, pkg, ir, info);
             objectInspectors.put(obj, inspector);
+            DialogManager.centreWindow(inspector, parent);
+            inspector.setVisible(true);
         }
-
-        final ResultInspector insp = inspector;
-        insp.update();
-        insp.updateLayout();
-        EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                insp.setVisible(true);
-                insp.bringToFront();
-            }
-        });
+        else {
+            inspector.update();
+            inspector.updateLayout();
+            inspector.setVisible(true);
+            inspector.bringToFront();
+        }
 
         return inspector;
     }

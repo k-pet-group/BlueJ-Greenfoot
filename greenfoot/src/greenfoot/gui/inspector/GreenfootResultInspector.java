@@ -23,8 +23,6 @@ package greenfoot.gui.inspector;
 
 import greenfoot.util.GreenfootUtil;
 
-import javax.swing.JFrame;
-
 import bluej.debugger.DebuggerObject;
 import bluej.debugmgr.ExpressionInformation;
 import bluej.debugmgr.inspector.InspectorManager;
@@ -43,9 +41,9 @@ public class GreenfootResultInspector extends ResultInspector
      * Construct a result inspector.
      */
     public GreenfootResultInspector(DebuggerObject obj, InspectorManager inspectorManager, String name, Package pkg,
-            InvokerRecord ir, ExpressionInformation info, JFrame parent)
+            InvokerRecord ir, ExpressionInformation info)
     {
-        super(obj, inspectorManager, name, pkg, ir, info, parent);
+        super(obj, inspectorManager, name, pkg, ir, info);
         GreenfootUtil.makeGreenfootTitle(GreenfootResultInspector.this);
     }
 
