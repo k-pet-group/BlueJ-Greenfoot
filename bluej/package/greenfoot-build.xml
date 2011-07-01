@@ -233,20 +233,32 @@
 		<delete dir="winsetup/SourceDir" />
 		<delete dir="winsetup" includes="*.wixobj" />
         <unzip src="greenfoot-dist.jar" dest="winsetup/SourceDir" />
-		
-		<exec dir="winsetup" executable="C:\Program Files\Windows Installer XML v3.5\bin\candle.exe">
-			<arg line="greenfoot-wix.xml"/>
+				
+		<exec dir="winsetup" executable="${wix_bin}/candle.exe">
+			<arg line="greenfoot-registry.wxs"/>
 		</exec>
 		
-		<exec dir="winsetup" executable="C:\Program Files\Windows Installer XML v3.5\bin\heat.exe">
+		<exec dir="winsetup" executable="${wix_bin}/candle.exe">
+			<arg line="JDKDlg.wxs"/>
+		</exec>
+		
+		<exec dir="winsetup" executable="${wix_bin}/candle.exe">
+			<arg line="ui.wxs"/>
+		</exec>
+		
+		<exec dir="winsetup" executable="${wix_bin}/candle.exe">
+			<arg line="greenfoot.wxs"/>
+		</exec>
+		
+		<exec dir="winsetup" executable="${wix_bin}/heat.exe">
 			<arg line="dir SourceDir -cg GreenfootFiles -dr INSTALLDIR -ke -gg -srd -sfrag -template fragment -out greenfoot-install-files.wxs"/>
 		</exec>
-		<exec dir="winsetup" executable="C:\Program Files\Windows Installer XML v3.5\bin\candle.exe">
+		<exec dir="winsetup" executable="${wix_bin}/candle.exe">
 			<arg line="greenfoot-install-files.wxs"/>
 		</exec>
 		
-		<exec dir="winsetup" executable="C:\Program Files\Windows Installer XML v3.5\bin\light.exe">
-			<arg line="-ext WixUIExtension greenfoot-wix.wixobj greenfoot-install-files.wixobj -o greenfoot.msi"/>
+		<exec dir="winsetup" executable="${wix_bin}/light.exe">
+			<arg line="-ext WixUIExtension greenfoot.wixobj greenfoot-registry.wixobj JDKDlg.wixobj ui.wixobj greenfoot-install-files.wixobj -o greenfoot.msi"/>
 		</exec>
 		<delete dir="winsetup/SourceDir" />
 	</target>

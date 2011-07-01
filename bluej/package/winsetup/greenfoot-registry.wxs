@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns='http://schemas.microsoft.com/wix/2006/wi'>
+  <Fragment>
+	<!-- The HKMU pseudo-root uses HKLM for all-user installs, and HKCU for per-user installs -->
+    <ComponentGroup Id="GreenfootRegistryKeys">
+        <Component Id="GreenfootKey" Directory="TARGETDIR" Guid="832966f3-bb74-4bc6-b450-344518e28714">
+        	<RegistryKey Root="HKMU" Key="Software\Greenfoot\Greenfoot\[GREENFOOTVERSION]" Action="createAndRemoveOnUninstall">
+        	    <!--  I seem to need this child to avoid a WiX warning: -->
+        		<RegistryValue Type="string" Value="" KeyPath="no"/>
+        	</RegistryKey>
+        </Component>
+        
+        <Component Id="AddJVMKey" Directory="TARGETDIR" Guid="a1636903-e165-4651-a37c-590de0f93ba3">
+        	<Condition><![CDATA[JDKVERSION="1.6" AND JDKHOME<>""]]></Condition>
+        	<RegistryKey Root="HKMU" Key="Software\Greenfoot\Greenfoot\[GREENFOOTVERSION]" Action="none">
+        		<RegistryValue Name="CurrentVM" Type="string" Value="[JDKHOME]" />
+        	</RegistryKey>
+        </Component>
+    </ComponentGroup>
+  </Fragment>
+</Wix>

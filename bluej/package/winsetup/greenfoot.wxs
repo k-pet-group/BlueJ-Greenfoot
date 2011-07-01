@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns='http://schemas.microsoft.com/wix/2006/wi'>
+
+ <Product Name='Greenfoot' Id='b273a991-2b1d-406e-9601-e2f2f2452c4a' UpgradeCode='3ec7b829-9e53-4132-b2bf-fb7d4c08aebc'
+    Language='1033' Codepage='1252' Version='2.1.0' Manufacturer='Greenfoot Team'>
+    
+    <Package Id='*' Keywords='Installer' Description="Greenfoot Installer"
+      Manufacturer='Greenfoot'
+      InstallerVersion='100' Languages='1033' Compressed='yes' SummaryCodepage='1252' />
+    
+    <Media Id='1' Cabinet='Greenfoot.cab' EmbedCab='yes' />
+    
+    <Directory Id='TARGETDIR' Name='SourceDir'>
+	   <Directory Id='ProgramFilesFolder'>    
+	     <Directory Id='INSTALLDIR' Name='Greenfoot'/>
+	   </Directory>   
+    
+       <Directory Id="ProgramMenuFolder" Name="Programs">
+          <Directory Id="ProgramMenuDir" Name="Greenfoot">
+            <Component Id="ProgramMenuShortcut" Guid="*">
+              <Condition>INSTALLMENUSHORTCUT</Condition>
+              <RemoveFolder Id='ProgramMenuDir' On='uninstall' />
+              <RegistryKey Root="HKCU" Key="Software\Greenfoot\Greenfoot\[GREENFOOTVERSION]"
+	                       Action="createAndRemoveOnUninstall">
+	            <RegistryValue Name="MenuShortcut" Value="1" Type="integer" KeyPath="yes"/>
+	          </RegistryKey>
+	          <Shortcut Id="MenuShortcut" 
+	                    Name="Greenfoot" WorkingDirectory="INSTALLDIR"
+	                    Icon="GreenfootIcon.ico" Target="[#Greenfoot.exe]"/>
+	          <Shortcut Id="MenuVMShortcut" 
+	                    Name="Select Greenfoot VM" WorkingDirectory="INSTALLDIR"
+	                    Icon="GreenfootIcon.ico" Target="[#Greenfoot.exe]" Arguments="/select"/>
+            </Component>
+          </Directory>
+        </Directory>
+
+        <Directory Id="DesktopFolder" Name="Desktop" />
+        
+        <!--  Following: http://windows-installer-xml-wix-toolset.687559.n2.nabble.com/How-to-create-an-optional-shortcut-td699311.html
+          Also available at: http://wix.mindcapers.com/wiki/Shortcuts_in_WiX -->
+	    <Component Id="DesktopShortcut" Guid="*">
+	    	<Condition>INSTALLDESKTOPSHORTCUT</Condition> 
+	    	<CreateFolder/>
+	    	<RegistryKey Root="HKCU" Key="Software\Greenfoot\Greenfoot\[GREENFOOTVERSION]"
+	                       Action="createAndRemoveOnUninstall">
+	            <RegistryValue Name="DesktopShortcut" Value="1" Type="integer" KeyPath="yes"/>
+	          </RegistryKey>
+	          <Shortcut Id="DesktopShortcut" Directory="DesktopFolder"
+	                    Name="Greenfoot" WorkingDirectory="INSTALLDIR"
+	                    Icon="GreenfootIcon.ico" Target="[#Greenfoot.exe]"/>
+	    </Component>
+	    
+	  <Component Id="Associations" Guid="a6197409-6e00-4bf5-8493-0e57d9b7f041">
+	      <Condition>INSTALLASSOCIATIONS</Condition>
+	      <ProgId Id="GreenfootProject" Description="Greenfoot Project File" Icon="Greenfoot.exe" IconIndex="0">
+	        <Extension Id="greenfoot" ContentType="application/binary">
+	          <Verb Id="open" TargetFile="Greenfoot.exe" Argument="&quot;%1&quot;"/>
+	        </Extension>
+	        <Extension Id="gfar" ContentType="application/binary" />
+	      </ProgId>
+      </Component>
+    </Directory>
+
+    <Property Id="WixAppFolder" Value="WixPerMachineFolder"/>
+    <WixVariable Id="WixUISupportPerMachine" Value="1" />
+    <WixVariable Id="WixUISupportPerUser" Value="1" />    
+    
+    <Property Id="INSTALLDESKTOPSHORTCUT" Value="1"/>
+    <Property Id="INSTALLMENUSHORTCUT" Value="1"/>
+    <Property Id="INSTALLASSOCIATIONS" Value="1"/>
+    <!--  TODO add a dialog with checkboxes for these properties -->
+    
+    <Component Id='CompLauncher' Directory="INSTALLDIR">
+      <File Id='Greenfoot.exe' Name='Greenfoot.exe' DiskId='1' Source='..\winlaunch\gflaunch.exe' KeyPath='yes' />
+    </Component>
+    
+    <Feature Title='Greenfoot' Id='FeatureCore' Level='1' ConfigurableDirectory="INSTALLDIR">
+      <ComponentGroupRef Id='GreenfootFiles' />
+      <ComponentRef Id='CompLauncher' />
+      <ComponentRef Id="DesktopShortcut"/>
+      <ComponentRef Id="ProgramMenuShortcut"/>
+      <ComponentRef Id="Associations"/> 
+      <ComponentGroupRef Id='GreenfootRegistryKeys' />
+    </Feature>
+    
+    <Icon Id="GreenfootIcon.ico" SourceFile="..\winlaunch\greenfoot-icon-256-shadow.ico" />
+    
+    <UIRef Id='WixUI_Common'/>
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLDIR" />
+    <UIRef Id="WixUI_InstallDir_Mod"/>       
+    
+    <?include jdkversion.wxi ?>
+    
+</Product>
+</Wix>

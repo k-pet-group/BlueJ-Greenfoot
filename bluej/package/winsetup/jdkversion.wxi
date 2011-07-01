@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Include xmlns='http://schemas.microsoft.com/wix/2006/wi'>
+  <Property Id="JDKVERSION32">
+      <!--  Looks in 32-bit only, on x86 and x64: -->
+      <RegistrySearch Id="JDKVersion32RegKey" Root="HKLM" Key="SOFTWARE\JavaSoft\Java Development Kit" Name="CurrentVersion" Type="raw" />
+    </Property>
+    <Property Id="JDKVERSION64">
+      <RegistrySearch Id="JDKVersion64RegKey" Root="HKLM" Key="SOFTWARE\JavaSoft\Java Development Kit" Name="CurrentVersion" Type="raw" Win64="yes"/>
+    </Property>
+    <Property Id="JDKVERSION">
+      <RegistrySearch Id="JDKVersionRegKey" Root="HKLM" Key="SOFTWARE\JavaSoft\Java Development Kit" Name="CurrentVersion" Type="raw" Win64="yes"/>
+    </Property>
+    <Property Id="JDK6HOME32">
+      <!--  Looks in 32-bit only, on x86 and x64: -->
+      <RegistrySearch Id="JDK6Home32RegKey" Root="HKLM" Key="SOFTWARE\JavaSoft\Java Development Kit\1.6" Name="JavaHome" Type="raw" />
+    </Property>
+    <Property Id="JDK6HOME64">
+      <RegistrySearch Id="JDK6Home64RegKey" Root="HKLM" Key="SOFTWARE\JavaSoft\Java Development Kit\1.6" Name="JavaHome" Type="raw" Win64="yes"/>
+    </Property>
+    <Property Id="JDKHOME">
+      <RegistrySearch Id="JDK6HomeRegKey" Root="HKLM" Key="SOFTWARE\JavaSoft\Java Development Kit\1.6" Name="JavaHome" Type="raw" Win64="yes"/>
+    </Property>
+    
+    <Property Id="JDK64">
+      <![CDATA[JDKVERSION64="1.6" AND JDK6HOME64<>""]]>
+    </Property>
+    
+    <SetProperty Id="JDKVERSION" After="AppSearch" Value="[JDKVERSION32]">
+      <![CDATA[(JDKVERSION64<>"1.6" OR JDK6HOME64="") AND (JDKVERSION32="1.6" OR JDKVERSION32>JDKVERSION64)]]>
+    </SetProperty>
+    
+    <SetProperty Id="JDKHOME" After="AppSearch" Value="[JDK6HOME32]">
+      <![CDATA[(JDKVERSION64<>"1.6" OR JDK6HOME64="") AND (JDKVERSION32="1.6" OR JDKVERSION32>JDKVERSION64)]]>
+    </SetProperty>
+    
+    <Property Id="JDKFOUND">
+      No suitable JDK could be found.  You may proceed with installation, but Greenfoot will not work without a JDK (version 1.6) installed.
+    </Property>
+    
+    <Property Id="JDKJUSTRIGHT" Value=" " />
+    <Property Id="JDKTOOOLD" Value=" " />
+    <Property Id="JDKTOONEW" Value=" " />
+    
+    <SetProperty Id="JDKFOUND" After="AppSearch" Value="JDK Version [JDKVERSION] found at [JDKHOME].">
+      <![CDATA[JDKVERSION<>""]]>
+    </SetProperty>
+    
+    <SetProperty Id="JDKJUSTRIGHT" After="AppSearch" Value="This JDK is the right version, and will be used by Greenfoot.  To choose a different JDK, use the Select VM shortcut once Greenfoot is installed.">
+      <![CDATA[JDKVERSION="1.6"]]>
+    </SetProperty>
+    
+    <SetProperty Id="JDKTOOOLD" After="AppSearch" Value="This JDK is too old.  For Greenfoot to work correctly, you will need to have JDK 1.6 installed on your machine.">
+      <![CDATA[JDKVERSION<"1.6" AND JDKVERSION<>""]]>
+    </SetProperty>
+    
+    <SetProperty Id="JDKTOONEW" After="AppSearch" Value="This JDK is newer than the Greenfoot release you are installing, and thus you may encounter problems.  Try looking for a newer Greenfoot version that supports your JDK (or downgrade if you are using an unreleased JDK).">
+      <![CDATA[JDKVERSION>"1.6" AND JDKVERSION<>""]]>
+    </SetProperty>
+</Include>
