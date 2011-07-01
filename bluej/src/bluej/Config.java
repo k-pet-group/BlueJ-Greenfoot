@@ -1388,12 +1388,13 @@ public final class Config
     }
 
     /**
-     * Set a non-language dependant string for the BlueJ properties
+     * Set a non-language dependant string for the BlueJ properties.
+     * If the supplied value is null, the property is removed.
      */
     public static void putPropString(String strname, String value)
     {
         String defVal = systemProps.getProperty(strname);
-        if (defVal == null || ! defVal.equals(value)) {
+        if (value != null && (defVal == null || ! defVal.equals(value))) {
             userProps.setProperty(strname, value);
         }
         else {
