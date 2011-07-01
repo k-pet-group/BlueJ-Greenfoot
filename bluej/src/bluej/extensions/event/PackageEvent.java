@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,14 +27,9 @@ import bluej.pkgmgr.Package;
 /**
  * This class encapsulates events on BlueJ packages.
  *
- * @version $Id: PackageEvent.java 6215 2009-03-30 13:28:25Z polle $
+ * @author Clive Miller, University of Kent at Canterbury, 2002
+ * @author Damiano Bolla, University of Kent at Canterbury, 2003
  */
-
-/*
- * Author Clive Miller, University of Kent at Canterbury, 2002
- * Author Damiano Bolla, University of Kent at Canterbury, 2003
- */
-
 public class PackageEvent implements ExtensionEvent
 {
     /**
@@ -63,32 +58,33 @@ public class PackageEvent implements ExtensionEvent
      * Returns the eventId of this event.
      */
     public int getEvent ()
-      {
-      return eventId;
-      }
+    {
+        return eventId;
+    }
 
     /**
      * Returns the package associated with this event.
      */
     public BPackage getPackage ()
-      {
-      return thisPackage.getBPackage();
-      }
+    {
+        return thisPackage.getBPackage();
+    }
 
     /**
      * Returns a meaningful description of this event.
      */
+    @Override
     public String toString()
-      {
-      StringBuffer aRisul = new StringBuffer (500);
+    {
+        StringBuffer aRisul = new StringBuffer (500);
 
-      aRisul.append("PackageEvent:");
+        aRisul.append("PackageEvent:");
 
-      if ( eventId == PACKAGE_OPENED ) aRisul.append(" PACKAGE_OPENED");
-      if ( eventId == PACKAGE_CLOSING ) aRisul.append(" PACKAGE_CLOSING");
-      
-      aRisul.append(" packageName="+thisPackage.getQualifiedName());
-      
-      return aRisul.toString();      
-      }
+        if ( eventId == PACKAGE_OPENED ) aRisul.append(" PACKAGE_OPENED");
+        if ( eventId == PACKAGE_CLOSING ) aRisul.append(" PACKAGE_CLOSING");
+
+        aRisul.append(" packageName="+thisPackage.getQualifiedName());
+
+        return aRisul.toString();      
+    }
 }
