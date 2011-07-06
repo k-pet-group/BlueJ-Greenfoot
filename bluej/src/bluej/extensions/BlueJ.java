@@ -67,7 +67,7 @@ import javax.swing.*;
  * after its <code>terminate()</code> method has been called will result
  * in an (unchecked) <code>ExtensionUnloadedException</code> being thrown.
  *
- * @version    $Id: BlueJ.java 7526 2010-05-11 04:18:57Z davmac $
+ * @version    $Id: BlueJ.java 9069 2011-07-06 07:11:59Z davmac $
  */
 
 /*
@@ -391,15 +391,21 @@ public final class BlueJ
      *
      *
      * @param  property  The name of the required global property
-     * @param  value     the required value of that property.
+     * @param  value     the required value of that property (or null to remove the property)
      */
     public void setExtensionPropertyString(String property, String value)
     {
-        if (!myWrapper.isValid())
+        if (!myWrapper.isValid()) {
             throw new ExtensionUnloadedException();
+        }
 
         String thisKey = myWrapper.getSettingsString(property);
-        Config.putPropString(thisKey, value);
+        if (value != null) {
+            Config.putPropString(thisKey, value);
+        }
+        else {
+            Config.removeProperty(thisKey);
+        }
     }
 
 
