@@ -104,6 +104,8 @@ public class KeyboardManager implements TriggeredKeyListener, FocusListener
         addKey("F12", KeyEvent.VK_F12);
         addKey("backspace", KeyEvent.VK_BACK_SPACE);
         addKey("\'", KeyEvent.VK_QUOTE);
+        addKey("shift", KeyEvent.VK_SHIFT);
+        addKey("control", KeyEvent.VK_CONTROL);
     }
     
     /**
@@ -274,7 +276,7 @@ public class KeyboardManager implements TriggeredKeyListener, FocusListener
     {
         releaseAllKeys();
     }
-	
+
     /**
      * Translate the "key pad" directional keys according to the status of numlock.
      * 
@@ -372,7 +374,7 @@ public class KeyboardManager implements TriggeredKeyListener, FocusListener
     {
         for (int keyCode = 0; keyCode < keyDown.length; keyCode++) {
             keyDown[keyCode] = false;
-            keyLatched[keyCode] = false;				
+            keyLatched[keyCode] = false;
         }
     }
 }
