@@ -45,7 +45,7 @@ import greenfoot.sound.SoundFactory;
  *     punctuation marks. getKey() also returns uppercase characters when
  *     appropriate.
  * <li>"up", "down", "left", "right" (the cursor keys)
- * <li>"enter", "space", "tab", "escape", "backspace"
+ * <li>"enter", "space", "tab", "escape", "backspace", "shift", "control"
  * <li>"F1", "F2", .., "F12" (the function keys)
  * </ul>
  * 
