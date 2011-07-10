@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,6 +22,7 @@
 package bluej.compiler;
 
 import java.io.File;
+import java.nio.charset.Charset;
 import java.util.List;
 
 import bluej.Config;
@@ -36,7 +37,7 @@ import bluej.classmgr.BPClassLoader;
  */
 class Job
 {
-    Compiler compiler;		// The compiler for this job
+    Compiler compiler;  // The compiler for this job
     CompileObserver observer;
     File destDir;
     BPClassLoader bpClassLoader;
@@ -45,14 +46,14 @@ class Job
                       // or user files if we want to suppress 
                       // "unchecked" warnings, false otherwise
     private List<String> userCompileOptions;
-
-	
+    private Charset fileCharset;
+    
     /**
      * Create a job with a set of sources.
      */
     public Job(File[] sourceFiles, Compiler compiler, CompileObserver observer,
-    			BPClassLoader bpClassLoader, File destDir, boolean internal,
-    			List<String> userCompileOptions)
+                        BPClassLoader bpClassLoader, File destDir, boolean internal,
+                        List<String> userCompileOptions, Charset fileCharset)
     {
         this.sources = sourceFiles;
         this.compiler = compiler;
@@ -61,8 +62,9 @@ class Job
         this.destDir = destDir;
         this.internal = internal;
         this.userCompileOptions = userCompileOptions;
+        this.fileCharset = fileCharset;
     }
-	
+    
     /**
      * Compile this job
      */
@@ -88,7 +90,7 @@ class Job
                 userCompileOptions.add(1, majorVersion);
             }
 
-            boolean successful = compiler.compile(sources, observer, internal, userCompileOptions);
+            boolean successful = compiler.compile(sources, observer, internal, userCompileOptions, fileCharset);
 
             if(observer != null) {
                 observer.endCompile(sources, successful);

@@ -49,6 +49,7 @@ import bluej.debugmgr.objectbench.ObjectBenchInterface;
 import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
+import bluej.pkgmgr.Project;
 import bluej.testmgr.record.ConstructionInvokerRecord;
 import bluej.testmgr.record.ExpressionInvokerRecord;
 import bluej.testmgr.record.InvokerRecord;
@@ -262,8 +263,9 @@ public class Invoker
         compiler = new InvokerCompiler() {
             public void compile(File[] files, CompileObserver observer)
             {
-                JobQueue.getJobQueue().addJob(files, observer, pkg.getProject().getClassLoader(),
-                        pkg.getProject().getProjectDir(),true);
+                Project project = pkg.getProject();
+                JobQueue.getJobQueue().addJob(files, observer, project.getClassLoader(),
+                        project.getProjectDir(), true, project.getProjectCharset());
             }
         };
     }

@@ -166,7 +166,9 @@ public class InfoParser extends EditorParser
         FileInputStream fis = new FileInputStream(f);
         EntityResolver resolver = new PackageResolver(pkg.getProject().getEntityResolver(),
                 pkg.getQualifiedName());
-        ClassInfo info = parse(new BufferedReader(new InputStreamReader(fis)), resolver, pkg.getQualifiedName());
+        Reader reader = new InputStreamReader(fis, pkg.getProject().getProjectCharset());
+        reader = new BufferedReader(reader);
+        ClassInfo info = parse(reader, resolver, pkg.getQualifiedName());
         try {
             fis.close();
         }

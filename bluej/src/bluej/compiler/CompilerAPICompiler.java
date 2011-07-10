@@ -24,6 +24,7 @@ package bluej.compiler;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -64,8 +65,9 @@ public class CompilerAPICompiler extends Compiler
      * 
      * @return  true if successful
      */
+    @Override
     public boolean compile(final File[] sources, final CompileObserver observer,
-            final boolean internal, List<String> userOptions) 
+            final boolean internal, List<String> userOptions, Charset fileCharset) 
     {
         boolean result = true;
         JavaCompiler jc = ToolProvider.getSystemJavaCompiler();
@@ -123,7 +125,7 @@ public class CompilerAPICompiler extends Compiler
         try
         {  
             //setup the filemanager
-            StandardJavaFileManager sjfm = jc.getStandardFileManager(diagListener, null, null);
+            StandardJavaFileManager sjfm = jc.getStandardFileManager(diagListener, null, fileCharset);
             List<File> pathList = new ArrayList<File>();
             List<File> outputList = new ArrayList<File>();
             outputList.add(getDestDir());

@@ -23,9 +23,11 @@ package bluej.compiler;
 
 
 import java.io.File;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
+
 import bluej.utility.Utility;
 
 /**
@@ -180,10 +182,12 @@ abstract class Compiler
      *            compiling user code
      * @param options
      *            Option strings to pass to the compiler
+     * @param fileCharset
+     *            The character set in which source files are encoded 
      * 
      * @return  true if the compilation was successful
      */
     public abstract boolean compile(File[] sources, CompileObserver observer,
-            boolean internal, List<String> options);
+            boolean internal, List<String> options, Charset fileCharset);
 
 }

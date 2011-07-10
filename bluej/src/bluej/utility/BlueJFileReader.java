@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -43,7 +43,7 @@ import bluej.Config;
  * 
  * 
  * @author Michael Kolling
- * @version $Id: BlueJFileReader.java 7779 2010-06-16 14:44:28Z davmac $
+ * @version $Id: BlueJFileReader.java 9076 2011-07-10 15:10:45Z davmac $
  */
 public class BlueJFileReader
 {
@@ -120,7 +120,7 @@ public class BlueJFileReader
                 catch(Exception e) {}
             }
         }
-        return null;	// not found
+        return null; // not found
     }
 
     /**
@@ -188,7 +188,7 @@ public class BlueJFileReader
       
         try {
             in = new InputStreamReader(new FileInputStream(template), templateCharset);
-            out = new FileWriter(dest);
+            out = new OutputStreamWriter(new FileOutputStream(dest), outputCharset);
             
             for(int c; (c = in.read()) != -1; ) {
                 if(c == '$') {

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 2010,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,7 +22,7 @@
 package bluej.pkgmgr;
 
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -150,7 +150,7 @@ public class ProjectJavadocResolver implements JavadocResolver
                     ZipEntry zipEnt = zipFile.getEntry(fullEntryName);
                     if (zipEnt != null) {
                         InputStream zeis = zipFile.getInputStream(zipEnt);
-                        r = new InputStreamReader(zeis);
+                        r = new InputStreamReader(zeis, project.getProjectCharset());
                         ClassInfo info = InfoParser.parse(r, resolver, null);
                         if (info == null) {
                             return null;
@@ -176,10 +176,11 @@ public class ProjectJavadocResolver implements JavadocResolver
                 }
                 
                 File srcFile = new File(base, entNameFs);
-                Reader r = null;
+                FileInputStream fis = null;
                 try {
                     if (srcFile.canRead()) {
-                        r = new FileReader(srcFile);
+                        fis = new FileInputStream(srcFile);
+                        Reader r = new InputStreamReader(fis, project.getProjectCharset());
                         ClassInfo info = InfoParser.parse(r, resolver, null);
                         r.close();
                         if (info == null) {
@@ -189,9 +190,9 @@ public class ProjectJavadocResolver implements JavadocResolver
                     }
                 }
                 catch (IOException ioe) {
-                    if (r != null) {
+                    if (fis != null) {
                         try {
-                            r.close();
+                            fis.close();
                         }
                         catch (IOException e) {}
                     }
@@ -205,7 +206,7 @@ public class ProjectJavadocResolver implements JavadocResolver
         URL srcUrl = project.getClassLoader().findResource(targetName);
         if (srcUrl != null) {
             try {
-                Reader r = new InputStreamReader(srcUrl.openStream());
+                Reader r = new InputStreamReader(srcUrl.openStream(), project.getProjectCharset());
                 ClassInfo info = InfoParser.parse(r, resolver, null);
                 if (info != null) {
                     return info.getComments();

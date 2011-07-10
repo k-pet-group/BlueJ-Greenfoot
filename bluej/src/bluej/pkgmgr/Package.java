@@ -962,7 +962,7 @@ public final class Package extends Graph
         int t_count = 0;
 
         Iterator<Target> t_enum = targets.iterator();
-        for (int i = 0; t_enum.hasNext(); i++) {
+        while (t_enum.hasNext()) {
             Target t = t_enum.next();
             // should we save this target
             if (t.isSaveable()) {
@@ -1386,8 +1386,8 @@ public final class Package extends Graph
             srcFiles[i] = ct.getSourceFile();
         }
         
-        JobQueue.getJobQueue().addJob(srcFiles, observer, getProject().getClassLoader(), getProject().getProjectDir(),
-                ! PrefMgr.getFlag(PrefMgr.SHOW_UNCHECKED));
+        JobQueue.getJobQueue().addJob(srcFiles, observer, project.getClassLoader(), project.getProjectDir(),
+                ! PrefMgr.getFlag(PrefMgr.SHOW_UNCHECKED), project.getProjectCharset());
     }
 
     /**

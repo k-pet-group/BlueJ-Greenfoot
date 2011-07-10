@@ -26,12 +26,14 @@ import java.awt.EventQueue;
 import java.awt.GradientPaint;
 import java.awt.Paint;
 import java.awt.event.ActionEvent;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -370,7 +372,8 @@ public class UnitTestClassRole extends ClassRole
 
         // find out if the method already exists in the unit test src
         try {
-            UnitTestAnalyzer uta = analyzeUnitTest(ct);
+            Charset charset = pmf.getProject().getProjectCharset();
+            UnitTestAnalyzer uta = analyzeUnitTest(ct, charset);
 
             SourceSpan existingSpan = uta.getMethodBlockSpan(newTestName);
 
@@ -402,23 +405,24 @@ public class UnitTestClassRole extends ClassRole
      * @return  A UnitTestAnalyzer object with information about the unit test class
      * @throws IOException  if the source file can't be saved or read
      */
-    private UnitTestAnalyzer analyzeUnitTest(ClassTarget ct) throws IOException
+    private UnitTestAnalyzer analyzeUnitTest(ClassTarget ct, Charset fileEncoding) throws IOException
     {
         ct.ensureSaved();
         
         UnitTestAnalyzer uta = null;
-        Reader reader = null;
+        FileInputStream fis = null;
         try {
-            reader = new FileReader(ct.getSourceFile());
+            fis = new FileInputStream(ct.getSourceFile());
+            Reader reader = new InputStreamReader(fis, fileEncoding);
             uta = new UnitTestAnalyzer(reader);
         }
         catch (FileNotFoundException fnfe) {
             throw fnfe;
         }
         finally {
-            if (reader != null) {
+            if (fis != null) {
                 try {
-                    reader.close();
+                    fis.close();
                 }
                 catch (IOException ioe) {
                     // shouldn't happen
@@ -488,7 +492,8 @@ public class UnitTestClassRole extends ClassRole
         Editor ed = ct.getEditor();
         String ts = getIndentString();
         try {
-            UnitTestAnalyzer uta = analyzeUnitTest(ct);
+            Charset charset = pmf.getProject().getProjectCharset();
+            UnitTestAnalyzer uta = analyzeUnitTest(ct, charset);
 
             SourceSpan existingSpan = uta.getMethodBlockSpan(name);
 
@@ -540,7 +545,8 @@ public class UnitTestClassRole extends ClassRole
         ExistingFixtureInvokerRecord existing = new ExistingFixtureInvokerRecord();
         
         try {
-            UnitTestAnalyzer uta = analyzeUnitTest(ct);
+            Charset charset = pmf.getProject().getProjectCharset();
+            UnitTestAnalyzer uta = analyzeUnitTest(ct, charset);
 
             // iterate through all the declarations of fields (fixture items) in the class
             List<SourceSpan> fixtureSpans = uta.getFieldSpans();
@@ -585,7 +591,8 @@ public class UnitTestClassRole extends ClassRole
                 
         Editor ed = ct.getEditor();
         try {
-            UnitTestAnalyzer uta = analyzeUnitTest(ct);
+            Charset charset = pmf.getProject().getProjectCharset();
+            UnitTestAnalyzer uta = analyzeUnitTest(ct, charset);
 
             // find all the fields declared in this unit test class
             List<SourceSpan> variables = uta.getFieldSpans();
@@ -614,7 +621,7 @@ public class UnitTestClassRole extends ClassRole
                 }
                 
                 // to get correct locations for rewriting setUp(), we need to reparse
-                uta = analyzeUnitTest(ct);
+                uta = analyzeUnitTest(ct, charset);
             }
 
             // find a location to insert new methods

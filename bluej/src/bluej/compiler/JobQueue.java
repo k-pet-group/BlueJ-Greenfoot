@@ -22,6 +22,7 @@
 package bluej.compiler;
 
 import java.io.File;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -76,7 +77,8 @@ public class JobQueue
      * @param destDir   Destination for class files?
      * @param suppressUnchecked    Suppress "unchecked" warning in java 1.5
      */
-    public void addJob(File[] sources, CompileObserver observer, BPClassLoader bpClassLoader, File destDir, boolean suppressUnchecked)
+    public void addJob(File[] sources, CompileObserver observer, BPClassLoader bpClassLoader, File destDir,
+            boolean suppressUnchecked, Charset fileCharset)
     {
         List<String> options = new ArrayList<String>();
         if (bpClassLoader.loadsForJavaMEproject()) {
@@ -87,7 +89,7 @@ public class JobQueue
         Compiler.tokenizeOptionString(options, optionString);
         
         thread.addJob(new Job(sources, compiler, observer, bpClassLoader,
-                destDir, suppressUnchecked, options));
+                destDir, suppressUnchecked, options, fileCharset));
     }
 
     /**
