@@ -331,9 +331,13 @@ bool launchVM(string jdkLocation)
 	JNIEnv *jniEnv;
 	
 	// Try and load msvcr71.dll from the JDK directory first. Otherwise loading the jvm seems
-	// to fail on some machines.
+	// to fail on some machines. Note, apparently JDK7 uses msvc100.dll instead; we may have to
+	// introduce the same workaround for that file.
 	HINSTANCE hMsvcrlib;
-	hMsvcrlib = LoadLibrary( (jdkLocation + TEXT("\\jre\\bin\\msvcr71.dll")).c_str() );
+	string msvcrPath = jdkLocation + TEXT("\\jre\\bin\\msvcr71.dll");
+	if (GetFileAttributes(msvcrPath.c_str()) != INVALID_FILE_ATTRIBUTES) {
+		hMsvcrlib = LoadLibrary(msvcrPath.c_str());
+	}
 	
 	// Now load the JVM.
 	HINSTANCE hJavalib;
