@@ -6,39 +6,39 @@ import javax.swing.*;
  * Klasse $CLASSNAME - lav en beskrivelse af klassen her
  * 
  * @author (dit navn her)
- * @version (versions nummer eller dato her)
+ * @version (versionsnummer eller dato her)
  */
 public class $CLASSNAME extends JApplet
 {
-	// instans-variable - erstat eksemplet herunder med dine egne variable
+	// instansvariable - erstat eksemplet herunder med dine egne variable
 	private int x;
 
 	 /**
 	 * Kaldes af browseren eller applet-viewer for at informere JApplet om at
 	 * den er indlæst i systemet. Den kaldes altid før første gang 
-	 * start metoden kaldes.
+	 * metoden start() bliver kaldt.
 	 */
 	public void init()
 	{
-		// Dette er en nødløsning for en sikkerheds-konflikt i nogle browsere		
-        // insklusive nogle versioner af Netscape og Internet Explorer, som ikke 
-        // tillader adgang til AWT system hændelses-kø som JApplet laver ved 
-        // opstart for at checke adgang. Er måske ikke nødvendig i din browser. 
+		// Dette er en nødløsning for en sikkerhedskonflikt i nogle browsere		
+		// insklusive nogle versioner af Netscape og Internet Explorer, som ikke 
+		// tillader adgang til AWT-systemets hændelseskø som JApplet laver ved 
+		// opstart for at checke adgang. Er måske ikke nødvendig i din browser. 
 		JRootPane rootPane = this.getRootPane();	
 		rootPane.putClientProperty("defeatSystemEventQueueCheck", Boolean.TRUE);
 	
-		// indsæt initialiserings-kode til din JApplet her
+		// indsæt initialiseringskode til din JApplet her
 	}
 
 	/**
 	 * Kaldes af browser eller applet-viewer for at informere denne JApplet om  
-	 * at den skal start sin kørsel. Den kaldes efter init metoden og hver 
-	 * gang JApplet'en mødes på en web-side. 
+	 * at den skal starte sin kørsel. Den kaldes efter init()-metoden og hver 
+	 * gang JApplet'en mødes på en webside. 
 	 */
 	public void start()
 	{
 		// indsæt kode der skal køre hver gang 
-		// web-siden besøges
+		// websiden besøges
 	}
 
 	/** 
@@ -54,13 +54,13 @@ public class $CLASSNAME extends JApplet
 	}
 
 	/**
-	 * Paint metode for applet'en.
+	 * Paint-metode for appletten.
 	 * 
-	 * @param  g   Graphics objektet for denne applet
+	 * @param  g   Graphics-objektet for denne applet
 	 */
 	public void paint(Graphics g)
 	{
-		// simpel tekst, vist på applet'en
+		// simpel tekst, vist på appletten
 		g.setColor(Color.white);
 		g.fillRect(0, 0, 200, 100);
 		g.setColor(Color.black);
@@ -83,7 +83,7 @@ public class $CLASSNAME extends JApplet
 	/**
 	 * Returnerer information om denne applet. 
 	 * En applet bør implementere denne metode for at returnere en streng der 
-	 * indeholder information om forfatter, version og applet'ens copyright.
+	 * indeholder information om forfatter, version og applettens copyright.
 	 *
 	 * @return en String med information om denne applet
 	 */
@@ -106,7 +106,7 @@ public class $CLASSNAME extends JApplet
 	 */
 	public String[][] getParameterInfo()
 	{
-		// Levér parameter information om applet'en
+		// Levér parameter information om appletten
 		String paramInfo[][] = {
 				 {"firstParameter",	"1-10",	"beskrivelse af første parameter"},
 				 {"status", "boolean", "beskrivelse af anden parameter"},

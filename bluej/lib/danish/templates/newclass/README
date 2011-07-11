@@ -19,13 +19,13 @@ suffiks (for eksempel "mainclass.tmpl").
 
 Navne p\u00e5 applet'er, interfaces, abstrakte klasser eller enum'er skal starte med
 "applet", "interface", "abstract" eller "enum" respektivt. Alt andet vil blive 
-behandlet som en standard-klasse.
+behandlet som en standardklasse.
 
-Som udgangspunkt vil denne skabelon vises i "Ny klasse" dialogen, i slutningen
+Som udgangspunkt vil denne skabelon vises i dialogen "Ny klasse", i slutningen
 af listen med dens "fornavn" ("mainClass").
 
 Navnet der optr\u00e6der i dialogen kan defineres ved at definere egenskaben
-"pkgmgr.newClass.<template-name>" i labels-filen (the labels-filen
+"pkgmgr.newClass.<template-name>" i labels-filen (labels-filen
 er i <bluej-home>/lib/<language>/labels). For eksempel, definering af
 
    pkgmgr.newClass.mainclass=Klasse med Main
