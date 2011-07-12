@@ -2,9 +2,13 @@
 <Wix xmlns='http://schemas.microsoft.com/wix/2006/wi'>
   <Fragment>
 	 <UI>
-	    <!--  TODO put the banner at the top of this dialog like the others -->
 		<Dialog Id="JDKDlg" Width="370" Height="270">
-             <Control Id="JDKDlgTextSummary" Type="Text" Height="100" Width="300" X="10" Y="10" TabSkip="no">
+		     <Control Id="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" TabSkip="no" Text="!(loc.InstallScopeDlgBannerBitmap)" />
+             <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="370" Height="0" />
+             <Control Id="BottomLine" Type="Line" X="0" Y="234" Width="370" Height="0" />
+             <Control Id="Description" Type="Text" X="25" Y="23" Width="280" Height="20" Transparent="yes" NoPrefix="yes" Text="Your system has been scanned to find an available Java Development Kit (JDK)" />
+             <Control Id="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Transparent="yes" NoPrefix="yes" Text="{\WixUI_Font_Title}Checking JDK Version" />
+             <Control Id="JDKDlgTextSummary" Type="Text" Height="100" Width="300" X="10" Y="110" TabSkip="no">
 		           <Text>
 		             [JDKFOUND]  [JDKJUSTRIGHT]  [JDKTOOOLD]  [JDKTOONEW]
 		           </Text>
