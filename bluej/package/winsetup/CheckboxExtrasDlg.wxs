@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns='http://schemas.microsoft.com/wix/2006/wi'>
+  <Fragment>
+	 <UI>
+	    <!--  TODO put the banner at the top of this dialog like the others -->
+		<Dialog Id="CheckboxExtrasDlg" Width="370" Height="270">
+             <Control Id="AssociationCheckBox" Type="CheckBox" Height="15" Width="250" CheckBoxValue="1" X="100" Y="50" Text="Add File Associations (*.greenfoot, *.gfar)" Property="INSTALLASSOCIATIONS"/>
+             <Control Id="MenuShortcutCheckBox" Type="CheckBox" Height="15" Width="250" CheckBoxValue="1" X="100" Y="75" Text="Create Program Menu Shortcuts" Property="INSTALLMENUSHORTCUT"/>
+             <Control Id="DesktopShortcutCheckBox" Type="CheckBox" Height="15" Width="250" CheckBoxValue="1" X="100" Y="100" Text="Create Desktop Shortcut" Property="INSTALLDESKTOPSHORTCUT"/>             
+	         <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Text="!(loc.WixUIBack)" />
+	         <Control Id="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Default="yes" Text="!(loc.WixUINext)"/>
+             <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Cancel="yes" Text="!(loc.WixUICancel)">
+               <Publish Event="SpawnDialog" Value="CancelDlg">1</Publish>
+             </Control>
+        </Dialog>
+     </UI>
+  </Fragment>            
+</Wix>
