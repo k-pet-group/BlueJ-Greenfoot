@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Include xmlns='http://schemas.microsoft.com/wix/2006/wi'>
+
+       <Directory Id="ProgramMenuFolder" Name="Programs">
+          <Directory Id="ProgramMenuDir" Name="!(loc.SOFTWARE)">
+            <Component Id="ProgramMenuShortcut" Guid="*">
+              <Condition>INSTALLMENUSHORTCUT</Condition>
+              <RemoveFolder Id='ProgramMenuDir' On='uninstall' />
+              <RegistryKey Root="HKCU" Key="Software\[SOFTWARE]\[SOFTWARE]\[SOFTWAREVERSION]"
+	                       Action="createAndRemoveOnUninstall">
+	            <RegistryValue Name="MenuShortcut" Value="1" Type="integer" KeyPath="yes"/>
+	          </RegistryKey>
+	          <Shortcut Id="MenuShortcut" 
+	                    Name="!(loc.SOFTWARE)" WorkingDirectory="INSTALLDIR"
+	                    Icon="Icon.ico" Target="[#Launcher]"/>
+	          <Shortcut Id="MenuVMShortcut" 
+	                    Name="Select !(loc.SOFTWARE) VM" WorkingDirectory="INSTALLDIR"
+	                    Icon="Icon.ico" Target="[#Launcher]" Arguments="/select"/>
+            </Component>
+          </Directory>
+        </Directory>
+
+        <Directory Id="DesktopFolder" Name="Desktop" />
+        
+        <!--  Following: http://windows-installer-xml-wix-toolset.687559.n2.nabble.com/How-to-create-an-optional-shortcut-td699311.html
+          Also available at: http://wix.mindcapers.com/wiki/Shortcuts_in_WiX -->
+	    <Component Id="DesktopShortcut" Guid="*">
+	    	<Condition>INSTALLDESKTOPSHORTCUT</Condition> 
+	    	<CreateFolder/>
+	    	<RegistryKey Root="HKCU" Key="Software\[SOFTWARE]\[SOFTWARE]\[SOFTWAREVERSION]"
+	                       Action="createAndRemoveOnUninstall">
+	            <RegistryValue Name="DesktopShortcut" Value="1" Type="integer" KeyPath="yes"/>
+	          </RegistryKey>
+	          <Shortcut Id="DesktopShortcut" Directory="DesktopFolder"
+	                    Name="!(loc.SOFTWARE)" WorkingDirectory="INSTALLDIR"
+	                    Icon="Icon.ico" Target="[#Launcher]"/>
+	    </Component>
+	    
+	  <Component Id="Associations" Guid="*">
+	      <Condition>INSTALLASSOCIATIONS</Condition>
+	      <RegistryKey Root="HKMU" Key="Software\[SOFTWARE]\[SOFTWARE]\[SOFTWAREVERSION]"
+	                       Action="createAndRemoveOnUninstall">
+	            <RegistryValue Name="FileAssociation" Value="1" Type="integer" KeyPath="yes"/>
+	      </RegistryKey>
+	      <ProgId Id="[SOFTWARE]Project" Description="[SOFTWARE] Project File" Icon="Launcher" IconIndex="0">
+	        <Extension Id="[SOFTWAREPROJECTEXT]" ContentType="application/binary">
+	          <Verb Id="open" TargetFile="Launcher" Argument="&quot;%1&quot;"/>
+	        </Extension>
+	        <Extension Id="[SOFTWAREARCHIVEEXT]" ContentType="application/binary" />
+	      </ProgId>
+      </Component>
+</Include>
