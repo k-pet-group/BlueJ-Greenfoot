@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Include xmlns='http://schemas.microsoft.com/wix/2006/wi'>
+    <Property Id="WixAppFolder" Value="WixPerMachineFolder"/>
+    <WixVariable Id="WixUISupportPerMachine" Value="1" />
+    <WixVariable Id="WixUISupportPerUser" Value="1" />    
+    
+    <Property Id="INSTALLDESKTOPSHORTCUT" Value="1"/>
+    <Property Id="INSTALLMENUSHORTCUT" Value="1"/>
+    <Property Id="INSTALLASSOCIATIONS" Value="1"/>
+    
+    <UIRef Id='WixUI_Common'/>
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLDIR" />
+    <UIRef Id="WixUI_InstallDir_Mod"/>  
+</Include>

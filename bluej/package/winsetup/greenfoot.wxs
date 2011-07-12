@@ -10,6 +10,10 @@
     
     <Media Id='1' Cabinet='Greenfoot.cab' EmbedCab='yes' />
     
+    <?include greenfoot-version.wxi ?>
+    <?include common.wxi ?>
+    <?include jdkversion.wxi ?>
+    
     <Directory Id='TARGETDIR' Name='SourceDir'>
 	   <Directory Id='ProgramFilesFolder'>    
 	     <Directory Id='INSTALLDIR' Name='Greenfoot'/>
@@ -63,16 +67,7 @@
 	        <Extension Id="gfar" ContentType="application/binary" />
 	      </ProgId>
       </Component>
-    </Directory>
-
-    <Property Id="WixAppFolder" Value="WixPerMachineFolder"/>
-    <WixVariable Id="WixUISupportPerMachine" Value="1" />
-    <WixVariable Id="WixUISupportPerUser" Value="1" />    
-    
-    <Property Id="INSTALLDESKTOPSHORTCUT" Value="1"/>
-    <Property Id="INSTALLMENUSHORTCUT" Value="1"/>
-    <Property Id="INSTALLASSOCIATIONS" Value="1"/>
-    <!--  TODO add a dialog with checkboxes for these properties -->
+    </Directory>    
     
     <Component Id='CompLauncher' Directory="INSTALLDIR">
       <File Id='Greenfoot.exe' Name='Greenfoot.exe' DiskId='1' Source='..\winlaunch\gflaunch.exe' KeyPath='yes' />
@@ -88,12 +83,8 @@
     </Feature>
     
     <Icon Id="GreenfootIcon.ico" SourceFile="..\winlaunch\greenfoot-icon-256-shadow.ico" />
-    
-    <UIRef Id='WixUI_Common'/>
-    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLDIR" />
-    <UIRef Id="WixUI_InstallDir_Mod"/>       
-    
-    <?include jdkversion.wxi ?>
+    <WixVariable Id="WixUIBannerBmp" Value="greenfoot-banner.bmp"/>
+    <WixVariable Id="WixUIDialogBmp" Value="greenfoot-dialog.bmp"/>
     
 </Product>
 </Wix>
