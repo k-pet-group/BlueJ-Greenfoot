@@ -263,6 +263,44 @@
 
         <delete dir="mac_tmp" />
     </target>
+	
+	<target name="windows-msi-dist" depends="dist">
+			<delete dir="winsetup/SourceDir" />
+			<delete dir="winsetup" includes="*.wixobj" />
+	        <unzip src="${dist.jar}" dest="winsetup/SourceDir" />
+					
+			<exec dir="winsetup" executable="${wix_bin}/candle.exe">
+				<arg line="registry.wxs"/>
+			</exec>
+			
+			<exec dir="winsetup" executable="${wix_bin}/candle.exe">
+				<arg line="JDKDlg.wxs"/>
+			</exec>
+			
+			<exec dir="winsetup" executable="${wix_bin}/candle.exe">
+				<arg line="CheckboxExtrasDlg.wxs"/>
+			</exec>
+			
+			<exec dir="winsetup" executable="${wix_bin}/candle.exe">
+				<arg line="ui.wxs"/>
+			</exec>
+			
+			<exec dir="winsetup" executable="${wix_bin}/candle.exe">
+				<arg line="bluej.wxs"/>
+			</exec>
+			
+			<exec dir="winsetup" executable="${wix_bin}/heat.exe">
+				<arg line="dir SourceDir -cg BlueJFiles -dr INSTALLDIR -ke -gg -srd -sfrag -template fragment -out bluej-install-files.wxs"/>
+			</exec>
+			<exec dir="winsetup" executable="${wix_bin}/candle.exe">
+				<arg line="bluej-install-files.wxs"/>
+			</exec>
+			
+			<exec dir="winsetup" executable="${wix_bin}/light.exe">
+				<arg line="-ext WixUIExtension -loc bluej.wxl bluej.wixobj registry.wixobj CheckboxExtrasDlg.wixobj JDKDlg.wixobj ui.wixobj bluej-install-files.wixobj -o bluej.msi"/>
+			</exec>
+			<delete dir="winsetup/SourceDir" />
+		</target>
 
 	<target name="debian-dist">
 		<mkdir dir="bluejdeb" />

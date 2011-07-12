@@ -269,9 +269,13 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <ant dir="package" antfile="greenfoot-build.xml" target="dist"/>
     </target>
 
-    <target name="windows-dist">
+    <target name="windows-dist" depends="ready-to-run">
         <ant dir="package" target="windows-dist"/>
     </target>
+	
+	<target name="windows-msi-dist">
+	    <ant dir="package" target="windows-msi-dist"/>
+	</target>
 
     <target name="mac-dist">
         <jarbundler dir="package"

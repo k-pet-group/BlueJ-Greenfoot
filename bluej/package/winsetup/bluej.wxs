@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns='http://schemas.microsoft.com/wix/2006/wi'>
+
+<!--  To Roll a new release:
+        Change Version in the Product item here
+        Change Version in SOFTWAREVERSION property, below -->
+
+<Product Name='BlueJ' Id='*' UpgradeCode='f4b4357e-6101-4cb1-8e38-3d4f3afb4be2'
+    Language='1033' Codepage='1252' Version='3.0.5' Manufacturer='BlueJ Team'>
+    
+    <Package Id='*' Keywords='Installer' Description="BlueJ Installer"
+      Manufacturer='BlueJ'
+      InstallerVersion='100' Languages='1033' Compressed='yes' SummaryCodepage='1252' />
+    
+    <Media Id='1' Cabinet='BlueJ.cab' EmbedCab='yes' />
+    
+    <Property Id="SOFTWARE" Value="BlueJ"/>
+    <Property Id="SOFTWAREVERSION" Value="3.0.5"/>
+    <Property Id="SOFTWAREPROJECTEXT" Value="bluej"/>
+    <Property Id="SOFTWAREARCHIVEEXT" Value="bjar"/>
+    
+    <?include common.wxi ?>
+    <?include jdkversion.wxi ?>
+    
+    <Directory Id='TARGETDIR' Name='SourceDir'>
+	   <Directory Id='ProgramFilesFolder'>    
+	     <Directory Id='INSTALLDIR' Name='!(loc.SOFTWARE)'/>
+	   </Directory>   
+    
+       <?include shortcut-associations.wxi ?>
+    </Directory>    
+    
+    <Component Id='CompLauncher' Directory="INSTALLDIR">
+      <File Id='Launcher' Name='BlueJ.exe' DiskId='1' Source='..\winlaunch\bjlaunch.exe' KeyPath='yes' />
+    </Component>
+    
+    <Feature Title='Greenfoot' Id='FeatureCore' Level='1' ConfigurableDirectory="INSTALLDIR">
+      <ComponentGroupRef Id='BlueJFiles' />
+      <ComponentRef Id='CompLauncher' />
+      <ComponentRef Id="DesktopShortcut"/>
+      <ComponentRef Id="ProgramMenuShortcut"/>
+      <ComponentRef Id="Associations"/> 
+      <ComponentGroupRef Id='RegistryKeys' />
+    </Feature>
+    
+    <Icon Id="Icon.ico" SourceFile="..\winlaunch\bluej-vista.ico" />
+    <WixVariable Id="WixUIBannerBmp" Value="greenfoot-banner.bmp"/> <!-- TODO -->
+    <WixVariable Id="WixUIDialogBmp" Value="greenfoot-dialog.bmp"/> <!-- TODO -->
+    
+</Product>
+</Wix>
