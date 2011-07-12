@@ -104,6 +104,7 @@ public class RJobQueueImpl extends java.rmi.server.UnicastRemoteObject
                 }
             }
         };
-        queue.addJob(files, cobserver, pkg.getProject().getClassLoader(), pkg.getPath(), true);
+        queue.addJob(files, cobserver, pkg.getProject().getClassLoader(), pkg.getPath(), true,
+                pkg.getProject().getProjectCharset());
     }
 }
