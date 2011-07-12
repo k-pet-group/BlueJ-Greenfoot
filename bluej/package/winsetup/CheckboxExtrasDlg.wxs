@@ -8,9 +8,9 @@
              <Control Id="BottomLine" Type="Line" X="0" Y="234" Width="370" Height="0" />
              <Control Id="Description" Type="Text" X="25" Y="23" Width="280" Height="20" Transparent="yes" NoPrefix="yes" Text="Select which optional extra items you would like installed" />
              <Control Id="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Transparent="yes" NoPrefix="yes" Text="{\WixUI_Font_Title}Select Associations and Shortcuts" />
-             <Control Id="AssociationCheckBox" Type="CheckBox" Height="15" Width="250" CheckBoxValue="1" X="100" Y="50" Text="Add File Associations (*.greenfoot, *.gfar)" Property="INSTALLASSOCIATIONS"/>
-             <Control Id="MenuShortcutCheckBox" Type="CheckBox" Height="15" Width="250" CheckBoxValue="1" X="100" Y="75" Text="Create Program Menu Shortcuts" Property="INSTALLMENUSHORTCUT"/>
-             <Control Id="DesktopShortcutCheckBox" Type="CheckBox" Height="15" Width="250" CheckBoxValue="1" X="100" Y="100" Text="Create Desktop Shortcut" Property="INSTALLDESKTOPSHORTCUT"/>             
+             <Control Id="AssociationCheckBox" Type="CheckBox" Height="15" Width="250" CheckBoxValue="1" X="100" Y="100" Text="Add File Associations (*.[SOFTWAREPROJECTEXT], *.[SOFTWAREARCHIVEEXT])" Property="INSTALLASSOCIATIONS"/>
+             <Control Id="MenuShortcutCheckBox" Type="CheckBox" Height="15" Width="250" CheckBoxValue="1" X="100" Y="125" Text="Create Program Menu Shortcuts" Property="INSTALLMENUSHORTCUT"/>
+             <Control Id="DesktopShortcutCheckBox" Type="CheckBox" Height="15" Width="250" CheckBoxValue="1" X="100" Y="150" Text="Create Desktop Shortcut" Property="INSTALLDESKTOPSHORTCUT"/>             
 	         <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Text="!(loc.WixUIBack)" />
 	         <Control Id="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Default="yes" Text="!(loc.WixUINext)"/>
              <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Cancel="yes" Text="!(loc.WixUICancel)">

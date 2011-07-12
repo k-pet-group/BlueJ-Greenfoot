@@ -34,7 +34,7 @@
     </SetProperty>
     
     <Property Id="JDKFOUND">
-      No suitable JDK could be found.  You may proceed with installation, but Greenfoot will not work without a JDK (version 1.6) installed.
+      No suitable JDK could be found.  You may proceed with installation, but !(loc.SOFTWARE) will not work without a JDK (version 1.6) installed.
     </Property>
     
     <Property Id="JDKJUSTRIGHT" Value=" " />
@@ -45,15 +45,15 @@
       <![CDATA[JDKVERSION<>""]]>
     </SetProperty>
     
-    <SetProperty Id="JDKJUSTRIGHT" After="AppSearch" Value="This JDK is the right version, and will be used by Greenfoot.  To choose a different JDK, use the Select VM shortcut once Greenfoot is installed.">
+    <SetProperty Id="JDKJUSTRIGHT" After="AppSearch" Value="This JDK is the right version, and will be used by !(loc.SOFTWARE).  To choose a different JDK, use the Select VM shortcut once !(loc.SOFTWARE) is installed.">
       <![CDATA[JDKVERSION="1.6"]]>
     </SetProperty>
     
-    <SetProperty Id="JDKTOOOLD" After="AppSearch" Value="This JDK is too old.  For Greenfoot to work correctly, you will need to have JDK 1.6 installed on your machine.">
+    <SetProperty Id="JDKTOOOLD" After="AppSearch" Value="This JDK is too old.  For !(loc.SOFTWARE) to work correctly, you will need to have JDK 1.6 installed on your machine.">
       <![CDATA[JDKVERSION<"1.6" AND JDKVERSION<>""]]>
     </SetProperty>
     
-    <SetProperty Id="JDKTOONEW" After="AppSearch" Value="This JDK is newer than the Greenfoot release you are installing, and thus you may encounter problems.  Try looking for a newer Greenfoot version that supports your JDK (or downgrade if you are using an unreleased JDK).">
+    <SetProperty Id="JDKTOONEW" After="AppSearch" Value="This JDK is newer than the !(loc.SOFTWARE) release you are installing, and thus you may encounter problems.  Try looking for a newer !(loc.SOFTWARE) version that supports your JDK (or downgrade if you are using an unreleased JDK).">
       <![CDATA[JDKVERSION>"1.6" AND JDKVERSION<>""]]>
     </SetProperty>
 </Include>
