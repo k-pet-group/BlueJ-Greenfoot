@@ -111,8 +111,12 @@ public class CompilerAPICompiler extends Compiler
                 else {
                     diagType = bluej.compiler.Diagnostic.NOTE;
                     bjDiagnostic = new bluej.compiler.Diagnostic(diagType, message);
+                    // Two variants of the warning message:
+                    // - for a single file, "xyz.java uses unchecked or unsafe operations"
+                    // - for multiple, "Some input files use unchecked or unsafe operations"
                     if (internal &&
                             (message.endsWith(" uses unchecked or unsafe operations.") ||
+                            message.endsWith("Some input files use unchecked or unsafe operations.") ||
                             message.startsWith("Note: Recompile with -Xlint:unchecked "))) {
                         return;
                     }
