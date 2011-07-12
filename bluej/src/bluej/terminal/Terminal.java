@@ -47,7 +47,9 @@ import java.lang.reflect.InvocationTargetException;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.InputMap;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -73,13 +75,13 @@ import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
-import bluej.utility.Utility;
 
 /**
  * The Frame part of the Terminal window used for I/O when running programs
  * under BlueJ.
  *
- * @author  Michael Kolling, Philip Stevens
+ * @author  Michael Kolling
+ * @author  Philip Stevens
  */
 @SuppressWarnings("serial")
 public final class Terminal extends JFrame
@@ -464,61 +466,23 @@ public final class Terminal extends JFrame
         return err;
     }
 
-    /**
-     * Possibly handle an action resulting from a keystroke. Most actions are filtered
-     * out, to avoid editing commands from being performed, but some are still allowed.
-     */
-    private void handleKeyAction(Object action)
-    {
-        if (action instanceof String) {
-            if (action.equals("copy-to-clipboard")) {
-                Action a = text.getActionMap().get(action);
-                if (a != null) {
-                    a.actionPerformed(new ActionEvent(text,
-                            ActionEvent.ACTION_PERFORMED, action.toString()));
-                }
-            }
-            else if (action.equals("paste-from-clipboard")) {
-                Action a = text.getActionMap().get(action);
-                if (a != null) {
-                    a.actionPerformed(new ActionEvent(text,
-                            ActionEvent.ACTION_PERFORMED, action.toString()));
-                }
-            }
-        }
-    }
-
     // ---- KeyListener interface ----
 
     @Override
     public void keyPressed(KeyEvent event)
     {
-        // Let menu commands and dead keys (if active) pass
-        // Dead keys are passed because they wont work on Windows otherwise
-        if (! isActive || ! Utility.isDeadKey(event)) {
-            KeyStroke ks = KeyStroke.getKeyStrokeForEvent(event);
-            handleKeyAction(text.getInputMap().get(ks));
-            event.consume();
-        }        
     }
     
     @Override
     public void keyReleased(KeyEvent event)
     {
-        // Let menu commands and dead keys (if active) pass
-        // Dead keys are passed because they wont work on Windows otherwise
-        if (! isActive || ! Utility.isDeadKey(event)) {
-            KeyStroke ks = KeyStroke.getKeyStrokeForEvent(event);
-            handleKeyAction(text.getInputMap().get(ks));
-            event.consume();
-        }
     }
 
     @Override
     public void keyTyped(KeyEvent event)
     {
-        KeyStroke ks = KeyStroke.getKeyStrokeForEvent(event);
-        handleKeyAction(text.getInputMap().get(ks));
+        // We handle most things we are interested in here. The InputMap filters out
+        // most other unwanted actions (but allows copy/paste).
         
         char ch = event.getKeyChar();
         switch (ch) {
@@ -528,6 +492,7 @@ public final class Terminal extends JFrame
             if (event.getModifiers() == SHORTCUT_MASK) {
                 setTerminalFontSize(terminalFontSize + 1);
                 project.getTerminal().resetFont();
+                event.consume();
                 break;
             }
 
@@ -535,6 +500,7 @@ public final class Terminal extends JFrame
             if (event.getModifiers() == SHORTCUT_MASK) {
                 setTerminalFontSize(terminalFontSize - 1);
                 project.getTerminal().resetFont();
+                event.consume();
                 break;
             }
 
@@ -546,14 +512,11 @@ public final class Terminal extends JFrame
             if (isActive) {
                 switch (ch) {
 
-                case 3: // CTRL-C (linux/Windows)
-                case 22: // CTRL-V (linux/Windows)
-                    break;
-
                 case 4:   // CTRL-D (unix/Mac EOF)
                 case 26:  // CTRL-Z (DOS/Windows EOF)
                     buffer.signalEOF();
                     writeToTerminal("\n");
+                    event.consume();
                     break;
 
                 case '\b':  // backspace
@@ -565,6 +528,7 @@ public final class Terminal extends JFrame
                             Debug.reportError("bad location " + exc);
                         }
                     }
+                    event.consume();
                     break;
 
                 case '\r':  // carriage return
@@ -573,18 +537,21 @@ public final class Terminal extends JFrame
                         writeToTerminal(String.valueOf(ch));
                         buffer.notifyReaders();
                     }
+                    event.consume();
                     break;
 
                 default:
-                    if (ch >= 32 && buffer.putChar(ch)) {
-                        writeToTerminal(String.valueOf(ch));
+                    if (ch >= 32) {
+                        if (buffer.putChar(ch)) {
+                            writeToTerminal(String.valueOf(ch));
+                        }
+                        event.consume();
                     }
                     break;
                 }
             }
             break;
         }
-        event.consume();    // make sure the text area doesn't handle this
     }
 
 
@@ -630,6 +597,38 @@ public final class Terminal extends JFrame
             setIconImage(icon);
         }
         text = new TermTextArea(rows, columns, buffer, this);
+        final InputMap origInputMap = text.getInputMap();
+        text.setInputMap(JComponent.WHEN_FOCUSED, new InputMap() {
+            {
+                setParent(origInputMap);
+            }
+            
+            @Override
+            public Object get(KeyStroke keyStroke)
+            {
+                Object actionName = super.get(keyStroke);
+                
+                if (actionName == null) {
+                    return null;
+                }
+                
+                char keyChar = keyStroke.getKeyChar();
+                if (keyChar == KeyEvent.CHAR_UNDEFINED || keyChar < 32) {
+                    // We might want to filter the action
+                    if ("copy-to-clipboard".equals(actionName)) {
+                        return actionName;
+                    }
+                    if ("paste-from-clipboard".equals(actionName)) {
+                        // Handled via paste() in TermTextArea
+                        return actionName;
+                    }
+                    return null;
+                }
+                
+                return actionName;
+            }
+        });
+        
         scrollPane = new JScrollPane(text);
         text.setFont(getTerminalFont());
         text.setEditable(false);
