@@ -243,6 +243,10 @@
 		</exec>
 		
 		<exec dir="winsetup" executable="${wix_bin}/candle.exe">
+			<arg line="CheckboxExtrasDlg.wxs"/>
+		</exec>
+		
+		<exec dir="winsetup" executable="${wix_bin}/candle.exe">
 			<arg line="ui.wxs"/>
 		</exec>
 		
@@ -258,7 +262,7 @@
 		</exec>
 		
 		<exec dir="winsetup" executable="${wix_bin}/light.exe">
-			<arg line="-ext WixUIExtension greenfoot.wixobj greenfoot-registry.wixobj JDKDlg.wixobj ui.wixobj greenfoot-install-files.wixobj -o greenfoot.msi"/>
+			<arg line="-ext WixUIExtension greenfoot.wixobj greenfoot-registry.wixobj CheckboxExtrasDlg.wixobj JDKDlg.wixobj ui.wixobj greenfoot-install-files.wixobj -o greenfoot.msi"/>
 		</exec>
 		<delete dir="winsetup/SourceDir" />
 	</target>
