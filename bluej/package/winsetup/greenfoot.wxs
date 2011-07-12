@@ -50,8 +50,12 @@
 	                    Icon="GreenfootIcon.ico" Target="[#Greenfoot.exe]"/>
 	    </Component>
 	    
-	  <Component Id="Associations" Guid="a6197409-6e00-4bf5-8493-0e57d9b7f041">
+	  <Component Id="Associations" Guid="*">
 	      <Condition>INSTALLASSOCIATIONS</Condition>
+	      <RegistryKey Root="HKMU" Key="Software\Greenfoot\Greenfoot\[GREENFOOTVERSION]"
+	                       Action="createAndRemoveOnUninstall">
+	            <RegistryValue Name="FileAssociation" Value="1" Type="integer" KeyPath="yes"/>
+	      </RegistryKey>
 	      <ProgId Id="GreenfootProject" Description="Greenfoot Project File" Icon="Greenfoot.exe" IconIndex="0">
 	        <Extension Id="greenfoot" ContentType="application/binary">
 	          <Verb Id="open" TargetFile="Greenfoot.exe" Argument="&quot;%1&quot;"/>
