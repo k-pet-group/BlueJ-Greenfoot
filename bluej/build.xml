@@ -269,7 +269,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <ant dir="package" antfile="greenfoot-build.xml" target="dist"/>
     </target>
 
-    <target name="windows-dist" depends="ready-to-run">
+    <target name="windows-dist">
         <ant dir="package" target="windows-dist"/>
     </target>
 	
