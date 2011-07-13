@@ -44,8 +44,7 @@
     </Feature>
     
     <Icon Id="Icon.ico" SourceFile="..\winlaunch\bluej-vista.ico" />
-    <WixVariable Id="WixUIBannerBmp" Value="greenfoot-banner.bmp"/> <!-- TODO -->
-    <WixVariable Id="WixUIDialogBmp" Value="greenfoot-dialog.bmp"/> <!-- TODO -->
-    
+    <WixVariable Id="WixUIBannerBmp" Value="bluej-banner.bmp"/>
+    <WixVariable Id="WixUIDialogBmp" Value="bluej-dialog.bmp"/>    
 </Product>
 </Wix>
