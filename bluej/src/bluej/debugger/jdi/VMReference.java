@@ -374,31 +374,47 @@ class VMReference
         throws IOException
     {    
         Process vmProcess = Runtime.getRuntime().exec(params, null, initDir);
-        BufferedReader br = new BufferedReader(new InputStreamReader(vmProcess.getInputStream()));
+        BufferedReader bro = new BufferedReader(new InputStreamReader(vmProcess.getInputStream()));
+        BufferedReader bre = new BufferedReader(new InputStreamReader(vmProcess.getErrorStream()));
         
         // grab anything else the VM spits out before we try to connect to it.
         try {
-            br = new BufferedReader(new InputStreamReader(vmProcess.getErrorStream()));
-            StringBuffer extra = new StringBuffer();
+            
+            StringBuffer extraOut = new StringBuffer();
+            StringBuffer extraErr = new StringBuffer();
             // Two streams to check: standard output and standard error
                 
             char [] buf = new char[1024];
+            Thread.sleep(200); // A little extra time for initial output
             for (int i = 0; i < 5; i++) {
                 Thread.sleep(200);
                 
                 // discontinue if no data available or stream closed
-                if (! br.ready()) {
-                    break;
+                boolean keepReading = false;
+                if (bro.ready()) {
+                    int len = bro.read(buf);
+                    if (len != -1) {
+                        extraOut.append(buf, 0, len);
+                    }
+                    keepReading = true;
                 }
-                int len = br.read(buf);
-                if (len == -1) {
-                    break;
+                if (bre.ready()) {
+                    int len = bre.read(buf);
+                    if (len != -1) {
+                        extraErr.append(buf, 0, len);
+                    }
+                    keepReading = true;
                 }
                 
-                extra.append(buf, 0, len);
+                if (! keepReading) {
+                    break;
+                }
             }
-            if (extra.length() != 0) {
-                Debug.message("Extra output from debug VM on launch:" + extra);
+            if (extraOut.length() != 0) {
+                Debug.message("Extra output from debug VM on launch:" + extraOut);
+            }
+            if (extraErr.length() != 0) {
+                Debug.message("Error output from debug VM on launch:" + extraErr);
             }
         }
         catch (InterruptedException ie) {}
