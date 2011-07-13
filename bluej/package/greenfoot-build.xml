@@ -254,6 +254,8 @@
 			<arg line="greenfoot.wxs"/>
 		</exec>
 		
+		<!-- The heat tool scans all the files in SourceDir and generates
+		     a WiX file that has all the XML needed for installing all those files -->
 		<exec dir="winsetup" executable="${wix_bin}/heat.exe">
 			<arg line="dir SourceDir -cg GreenfootFiles -dr INSTALLDIR -ke -gg -srd -sfrag -template fragment -out greenfoot-install-files.wxs"/>
 		</exec>
@@ -262,7 +264,7 @@
 		</exec>
 		
 		<exec dir="winsetup" executable="${wix_bin}/light.exe">
-			<arg line="-ext WixUIExtension -loc greenfoot.wxl greenfoot.wixobj registry.wixobj CheckboxExtrasDlg.wixobj JDKDlg.wixobj ui.wixobj greenfoot-install-files.wixobj -o greenfoot.msi"/>
+			<arg line="-ext WixUIExtension -loc greenfoot.wxl greenfoot.wixobj registry.wixobj CheckboxExtrasDlg.wixobj JDKDlg.wixobj ui.wixobj greenfoot-install-files.wixobj -o greenfoot-${greenfoot.version}.msi"/>
 		</exec>
 		<delete dir="winsetup/SourceDir" />
 	</target>
