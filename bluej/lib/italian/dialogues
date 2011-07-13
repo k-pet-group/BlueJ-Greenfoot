@@ -17,11 +17,6 @@ Un errore incontrato in un file perch\u00e9 il
 sorgente non pu\u00f2 essere trovato.
 classe: numero di linea di fonte:
 
-system-exit
-Il metodo finisce attraverso un istruzione
-"exit". Nessun risultato \u00e8
-ritornato. Il codice di uscita \u00e8:
-
 no-help
 Nessun aiuto disponibile per questa messaggio.
 Per favore mandi una mail con il testo del messaggio d'errore
@@ -94,7 +89,7 @@ Il file jar non pu\u00f2 essere scritto correttamente.
 (Controlla l'accesso al file system e allla disponibilit\u00e0
 di spazio sul disco.)
 
-error-file-exists
+error-jar-exists
 Il file selezionato \u00e8 gi\u00e0 esistente.
 Lo vuoi sovrascrivere?
 Sovrascrivi
@@ -115,7 +110,7 @@ directory-exists
 Un file o una cartella con questo 
 nome gi\u00e0 esiste.
 
-cannot-copy-package
+cannot-create-directory
 Non posso creare la cartella. Controlla che
 abbia un nome valido e la cartella padre
 esistae ha i permessi di scrittura.
@@ -178,6 +173,20 @@ Una classe o un package con questo nome gi\u00e0 esiste
 in questo progetto. Non possono avere
 due classi con lo stesso nome.
 
+class-already-in-library
+Una classe con questo nome esiste già nella libreria.
+Se crei questa classe, sarai capace di
+modificare e compilare la classe, ma non chiamerai i metodi.
+Cancella
+Continua
+null
+
+compile-class-already-in-library
+Una classe con questo nome già esiste nella libreria
+"$".
+Puoi modificare e compilare la classe, ma 
+chiamando i metodi eseguirai il codice della classe della libreria.
+
 windows-reserved-class-name
 Il nome scelto per la classe non pu\u00f2 essere usato , perch\u00e9 \u00e8
 in conflitto con le parole riservate sul sistema
@@ -208,7 +217,8 @@ null
 
 really-remove-package
 Rimuovi questo package in modo permanente
-cancella la cartella del package
+cancella la cartella del package (inclusi TUTTI
+i contenuti della cartella).
 Vuoi continuare?
 Elimina
 Cancella
@@ -253,7 +263,8 @@ null
 
 changed-on-disk
 Il codice sorgente \u00e8 cambiato sul disco. Vuoi
-ricaricarlo dal disco? I cambiamenti saranno mostrati nell'editor.
+ricaricarlo dal disco? I cambiamenti saranno mostrati 
+qui nell'editor.
 Ricarica
 Cancella
 null
@@ -334,6 +345,10 @@ Specifica un nome per questo test.
 La registrazione inizier\u00e0 dopo.
 Nuovo Metodo di Test
 null
+
+unittest-io-error
+Un errore di I/O è avvenuto quando si cerca di leggere il codice 
+sorgente del test unitario.
 
 getobject-new-name
 Scrivi il nome per il nuovo oggetto sulla
@@ -504,6 +519,11 @@ Mantieni versione locale
 Usa versione repository
 null
 
+team-error-saving-project
+Un errore durante il tentativo di salvare i file di progetto:
+ $
+ Pubblicare o l'aggiornamento può avere risultati imprevisti.
+
 not-all-compiled
 Non tutte le classi del progetto sono compilate. Per fare il deploy della MIDlet
 del progetto compila prima tutte le classi.
@@ -526,18 +546,3 @@ Il programma \u00e8 gia in esecuzione. Non puoi far partire un altra
 esecuzione (o ispezioni la classe) finch\u00e8 l'esecuzione non finisce. Se
 il programma \u00e8 in un ciclo infinito, puoi usare il debugger per
 terminarlo.
-
-class-library-conflict
-Una classe con questo nome gi\u00e0 esiste nella libreria
-"$".
-Se crei questa classe, sarai capace di
-modificare e compilare la classe, ma non chiamerai i metodi.
-Cancella
-Continua
-null
-
-compile-class-library-conflict
-Una classe con questo nome gi\u00e0 esiste nella libreria
-"$".
-Puoi modificare e compilare la classe, ma 
-chiamando i metodi eseguirai il codice della classe della libreria.

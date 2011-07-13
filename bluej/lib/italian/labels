@@ -12,13 +12,9 @@ main.invalidPackage=Package non trovato
 
 compileException=Eccezione durante la compilazione
 compiler.thread.title=Thread del compilatore di BlueJ
-compiler.invalidcompiler=bluej.compiler.type non \u00e8 configurato con un compilatore valido
-compiler.nocompiler=Il compilatore non pu\u00f2 essere eseguito
 compiler.warningDialog.title=Warning del compilatore
 compiler.warningDialog.label=Warning dall'ultima compilazione
 compiler.warningDialog.noWarnings=Nessun warning
-
-debugger.null=nullo
 
 debugger.assert.assertThat=Asserisce che:
 debugger.assert.resultIs=il risultato \u00e8
@@ -37,6 +33,8 @@ debugger.inspector.enum.title=BlueJ:  Ispettore di enum
 debugger.inspector.interface.title=BlueJ:  Ispettore di interfaccie
 debugger.inspector.result.title=BlueJ:  Risultato del Metodo
 debugger.inspector.result.returned=ritornato:
+debugger.inspector.object.noFields=Nessun campo
+debugger.inspector.class.noFields=Nessun campo
 debugger.inspector.showClass=Mostra i campi statici
 debugger.inspector.inspect=Ispeziona
 debugger.inspector.get=Recupera
@@ -168,12 +166,12 @@ editor.closeLabel = Chiudi
 editor.page-setupLabel = Imposta pagina...
 
 # menu labels (MUST be defined)
-editor.classLabel = Classe
-editor.editLabel = Modifica
-editor.toolsLabel = Strumenti
-editor.debugLabel = Debug
-editor.optionLabel = Opzioni
-editor.helpLabel = Aiuto
+editor.classLabel = _Classe
+editor.editLabel = _Modifica
+editor.toolsLabel = _Strumenti
+editor.debugLabel = _Debug
+editor.optionLabel = _Opzioni
+editor.helpLabel = _Aiuto
 
 # item labels (can be omitted if same as action name)
 editor.saveLabel = Salva
@@ -191,6 +189,7 @@ editor.autoindentLabel = Rientro automatico
 editor.comment-blockLabel = Commenta
 editor.uncomment-blockLabel = Togli commento
 editor.insert-methodLabel = Inserisci metodo
+editor.add-javadocLabel = Inserisci commenti al metodo
 
 editor.new-findLabel = Nuova Ricerca
 editor.findLabel = Trova...
@@ -201,6 +200,7 @@ editor.replaceLabel = Sostituisci...
 editor.compileLabel = Compila
 editor.toggle-breakpointLabel = Metti/Togli Breakpoint
 editor.toggle-interface-viewLabel = Implementazione/Specifiche
+editor.toggle-interface-viewLabel = Verifica documentazione
 
 editor.go-to-lineLabel = Vai alla linea...
 editor.gotoline.title = Vai alla linea
@@ -261,15 +261,26 @@ editor.replacePanel.replaceLabel=Sostituisci:
 editor.replacePanel.replaceOnce=Sostituisci
 editor.replacePanel.replaceAll= Sostituisci tutti
 
+# "Add javadoc" function
+editor.addjavadoc.notAMethod=No in un metodo.
+editor.addjavadoc.hasJavadoc=Questo metodo contiene gi\u00e0 commenti in Javadoc.
+editor.addjavadoc.constructor=Costruttore
+editor.addjavadoc.method=Metodo
+editor.addjavadoc.parameter=Un parametro
+editor.addjavadoc.returnValue=Il valore di ritorno
+
 #Messages shown as a result of a search with replace all
-editor.replaceAll.replaced=Sostituisci
-editor.replaceAll.intancesOf=instanza di
+editor.replaceAll.replaced=Sostituisci 
+editor.replaceAll.intancesOf=\ instanza di 
 editor.replaceAll.string=Stringa
-editor.replaceAll.notFoundNothingReplaced=non trovato. Nessuna sostituzione.
+editor.replaceAll.notFoundNothingReplaced=\ non trovato. Nessuna sostituzione.
 
 #Messages shown as a result of a search with highlight all
-editor.highlight.found=Trovato
-editor.highlight.notFound=non trovato.
+editor.highlight.found=Trovato 
+editor.highlight.notFound=\ non trovato.
+
+# Message shown in code completion pane when nothing is found
+editor.completion.noMatch=Nessuna corrispondenza
 
 #Messages shown when determining what function is bound to a given key
 editor.keypressed.keyIsNotBound=\ non legato alla funzione.
@@ -277,9 +288,6 @@ editor.keypressed.callsTheFunction=\ chiamate alla funzione "
 
 #Messages, warnings, etc that is displayed by Info.java
 editor.info.version = versione Moe
-editor.info.readingProblem = Si \u00e8 verificato un problema nella lettura del file.
-editor.info.regularFile = (E' un file normale? Hai i permessi di lettura?)
-editor.info.newFile = Nuovo file
 editor.info.errorSaving = Errore nel salvataggio del file!
 editor.info.compiled = Classe compilata - nessun errore sintattico
 editor.info.noChanges = Non ci sono cambiamenti da salvare
@@ -380,7 +388,7 @@ pkgmgr.codepad.uninitialized=Nota: Le variabili sono automaticamente inizializat
 pkgmgr.codepad.vmTerminated=Occore riavviare la VM
 # The "variable has already been defined" error message in the codepad. The '$' symbol will be
 # replaced by the name of the problematic variable.
-pkgmgr.codepad.redefinedVar=$ \u00e8 gia definita
+pkgmgr.codepad.redefinedVar=$ \u00e8 gi\u00e0 definita
 
 # "new class" dialog
 pkgmgr.newClass.title=BlueJ:  Crea un nuova classe
@@ -525,6 +533,7 @@ testdisplay.title = BlueJ:  Risultati dei test
 testdisplay.counter.runs=Eseguiti:
 testdisplay.counter.errors=Errori:
 testdisplay.counter.failures=Fallimenti:
+testdisplay.counter.totalTime=Tempo Totale:
 testdisplay.showsource=Mostra il sorgente
 
 # status messages
@@ -596,7 +605,7 @@ menu.tools.preferences=_Preferenze...@,
 
 menu.view=_Visualizza
 menu.view.showUses=Relazioni 'usa'@U
-menu.view.showInherits=Relazioni 'eredit\u00e0'@I
+menu.view.showInherits=Relazioni 'eredit\u00e0@I
 menu.view.showExecControls=Debugger@D
 menu.view.showTerminal=Terminale@T
 menu.view.showTextEval=Mostra il Code Pad@E
@@ -607,7 +616,7 @@ team.project.marker=Progetti Condivisi
 team.commit=Pubblica@I
 team.menu.commit=Pubblica nel registro@I
 team.commit.title=Pubblica File nel Registro
-team.commit.files=Il files \u00e8 stato pubblicato
+team.commit.files=I file sono stati pubblicati
 team.commit.comment=Pubblica commenti
 team.commit.layout=(Diagrammi Layout)
 team.commit.includelayout=Pubblica diagrammi layout
@@ -741,7 +750,6 @@ tooltip.newUses=Inserisci una relazione 'usa'
 tooltip.newExtends=Inserisci una relazione 'eredit\u00e0'
 tooltip.compile=Compila tutte le classi di questo package non compilate
 tooltip.test=Carica tutte le classi di test compilate di questo package
-tooltip.test=Compila tutte le classi test del package
 tooltip.progress=Indicatore di esecuzione: indica quando la virtual machine \u00e8 in esecuzione
 tooltip.test.end=Termina la registrazione di un metodo di test e lo salva.
 tooltip.test.cancel=Cancella ed elimina la registrazione di un metodo di test.
@@ -749,15 +757,16 @@ tooltip.commit=Pubblica i cambiamenti locali nel registro
 tooltip.update=Aggiorna i file locali che sono stati modificati nel registro
 tooltip.status=Mostra lo stato deifile del progetto di tutto il team di lavoro
 tooltip.deployMIDlet=Deploy MIDlet contenuta nel progetto
+
 graph.tooltip.classBroken=Questa classe non pu\u00f2 essere analizzata attualmente
 
 #Copyright
 
-menu.help.copyright.title=BlueJ Copyright
-menu.help.copyright.line1=BlueJ \u00e8 disponibile gratuitamente e pu\u00f2 essere
-menu.help.copyright.line2=liberamente redistribuito. Non pu\u00f2 essere venduto a
-menu.help.copyright.line3=scopo di lucro o incluso in altri pacchetti venduti
-menu.help.copyright.line4=a scopo di lucro senza una autorizzazione scritta.
+menu.help.copyright.title=BlueJ Copyright, Lincenza e ridistribuzione
+menu.help.copyright.line1=BlueJ \u00e8 disponibile sotto la licenza GNU General Public License
+menu.help.copyright.line2=versione 2 con eccezione per i Classpath
+menu.help.copyright.line3=Per maggiori informazioni vedere il file LICENSE.txt
+menu.help.copyright.line4=e THIRDPARTYLICENSE.txt.
 
 # About
 
@@ -767,9 +776,8 @@ about.vm=Virtual Machine:
 about.runningOn=Sistema:
 about.javahome=Java Home:
 about.logfile=File di log del debug:
-about.moreInfo=Maggiori informazioni al sito www.bluej.org.
-about.theTeam=Il team BlueJ:
 about.moreInformation=Per maggiori informazioni, vedi
+about.theTeam=Il team BlueJ:
 
 
 # Work Indicator
