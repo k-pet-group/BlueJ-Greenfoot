@@ -2,6 +2,11 @@
 <Wix xmlns='http://schemas.microsoft.com/wix/2006/wi'>
   <Fragment>
 	 <UI>
+	    <!-- This is the dialog that has three checkboxes on it,
+	         one for creating file associations (to .bluej/.greenfoot and .bjar/.gfar)
+	         one for a desktop shortcut, and
+	         one for start menu shortcuts. 
+	         This links up with the machinery in shortcut-associations.wxi -->	         
 		<Dialog Id="CheckboxExtrasDlg" Width="370" Height="270">
 		     <Control Id="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" TabSkip="no" Text="!(loc.InstallScopeDlgBannerBitmap)" />
              <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="370" Height="0" />

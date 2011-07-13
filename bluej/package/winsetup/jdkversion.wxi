@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Include xmlns='http://schemas.microsoft.com/wix/2006/wi'>
-  <Property Id="JDKVERSION32">
+  <!-- This file has all the code for trying to detect currently installed JDKs on the system.
+       It's complicated because we can only easily perform exact checks (rather than checking for a range of versions),
+       and we need to take account of 32-bit and 64-bit JDKs.  It's also complicated
+       because WiX only allows one default value and one SetProperty per property,
+       so we split up the logic into setting different properties, which are shown to
+       the user in the installer.  For actual internal logic, JDKVERSION and JDKHOME
+       should be the ones to use after this code executes.  -->
+    <Property Id="JDKVERSION32">
       <!--  Looks in 32-bit only, on x86 and x64: -->
       <RegistrySearch Id="JDKVersion32RegKey" Root="HKLM" Key="SOFTWARE\JavaSoft\Java Development Kit" Name="CurrentVersion" Type="raw" />
     </Property>

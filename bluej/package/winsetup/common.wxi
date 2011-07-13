@@ -4,11 +4,15 @@
     <WixVariable Id="WixUISupportPerMachine" Value="1" />
     <WixVariable Id="WixUISupportPerUser" Value="1" />    
     
+    <!-- These properties control the installation of the shortcuts and associations,
+         which can be adjusted in the GUI on the CheckboxExtrasDlg.
+         By default, all will be installed. -->
     <Property Id="INSTALLDESKTOPSHORTCUT" Value="1"/>
     <Property Id="INSTALLMENUSHORTCUT" Value="1"/>
     <Property Id="INSTALLASSOCIATIONS" Value="1"/>
     
     <UIRef Id='WixUI_Common'/>
     <Property Id="WIXUI_INSTALLDIR" Value="INSTALLDIR" />
+    <!-- See ui.wxs for the full UI bits -->
     <UIRef Id="WixUI_InstallDir_Mod"/>  
 </Include>

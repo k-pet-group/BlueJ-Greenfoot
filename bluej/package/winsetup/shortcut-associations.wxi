@@ -1,11 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Include xmlns='http://schemas.microsoft.com/wix/2006/wi'>
+       <!-- For the shortcuts in this file, we also add a registry key.  The key doesn't
+            do anything, other than effectively recording that the shortcuts were created.
+            This key makes a unique path that is associated with the registry key, which
+            avoids us having to create extra GUIDs for each shortcut to uniquely identify them.
+            The KeyPath="yes" option indicates that the registry key is the unique path
+            associated with that shortcut. -->
+            
+        <!--  To make the shortcuts optional, I'm following:
+          http://windows-installer-xml-wix-toolset.687559.n2.nabble.com/How-to-create-an-optional-shortcut-td699311.html
+          Also available at: http://wix.mindcapers.com/wiki/Shortcuts_in_WiX -->
 
+       <!-- This is the start menu shortcuts -->
        <Directory Id="ProgramMenuFolder" Name="Programs">
           <Directory Id="ProgramMenuDir" Name="!(loc.SOFTWARE)">
             <Component Id="ProgramMenuShortcut" Guid="*">
               <Condition>INSTALLMENUSHORTCUT</Condition>
               <RemoveFolder Id='ProgramMenuDir' On='uninstall' />
+              <!-- TODO should this be HKMU? -->
               <RegistryKey Root="HKCU" Key="Software\[SOFTWARE]\[SOFTWARE]\[SOFTWAREVERSION]"
 	                       Action="createAndRemoveOnUninstall">
 	            <RegistryValue Name="MenuShortcut" Value="1" Type="integer" KeyPath="yes"/>
@@ -22,11 +34,11 @@
 
         <Directory Id="DesktopFolder" Name="Desktop" />
         
-        <!--  Following: http://windows-installer-xml-wix-toolset.687559.n2.nabble.com/How-to-create-an-optional-shortcut-td699311.html
-          Also available at: http://wix.mindcapers.com/wiki/Shortcuts_in_WiX -->
+        <!-- This is the desktop shortcut -->
 	    <Component Id="DesktopShortcut" Guid="*">
 	    	<Condition>INSTALLDESKTOPSHORTCUT</Condition> 
 	    	<CreateFolder/>
+	    	<!-- TODO should this be HKMU? -->
 	    	<RegistryKey Root="HKCU" Key="Software\[SOFTWARE]\[SOFTWARE]\[SOFTWAREVERSION]"
 	                       Action="createAndRemoveOnUninstall">
 	            <RegistryValue Name="DesktopShortcut" Value="1" Type="integer" KeyPath="yes"/>
@@ -36,6 +48,7 @@
 	                    Icon="Icon.ico" Target="[#Launcher]"/>
 	    </Component>
 	    
+	  <!-- This is the file associations -->
 	  <Component Id="Associations" Guid="*">
 	      <Condition>INSTALLASSOCIATIONS</Condition>
 	      <RegistryKey Root="HKMU" Key="Software\[SOFTWARE]\[SOFTWARE]\[SOFTWAREVERSION]"
@@ -46,6 +59,8 @@
 	        <Extension Id="[SOFTWAREPROJECTEXT]" ContentType="application/binary">
 	          <Verb Id="open" TargetFile="Launcher" Argument="&quot;%1&quot;"/>
 	        </Extension>
+	        <!-- This second extension doesn't need an action, because it (non-obviously)
+	             shares the open action of the first extension --> 
 	        <Extension Id="[SOFTWAREARCHIVEEXT]" ContentType="application/binary" />
 	      </ProgId>
       </Component>

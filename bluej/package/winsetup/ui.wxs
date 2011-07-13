@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns='http://schemas.microsoft.com/wix/2006/wi'>
   <Fragment>
+  
+    <!-- This file contains the GUI for the installer.  It's basically a slight rework of
+         an existing WiX GUI, called WixUI_InstallDir.
+         
+         The way WiX GUIs work is to pull in all the dialogs you want (where each dialog is
+         a page in the install wizard), then declare the links between them by defining
+         what the previous/next buttons on each dialog do.  The two-way nature is not enforced,
+         so if you make a mistake (or maybe you might want this), you can wire the next
+         button on A to go to B, and B to go to C, but the previous button on C to go back to A.
+      --> 
 	
     <UI Id="WixUI_InstallDir_Mod">
            <TextStyle Id="WixUI_Font_Normal" FaceName="Tahoma" Size="8" />
@@ -22,7 +32,8 @@
            <DialogRef Id="InstallScopeDlg" />
            <DialogRef Id="UserExit" />
            
-           
+           <!-- A lot of these are taken from the original WixUI_InstallDir, but I've
+                added in the JDKDlg and the CheckboxExtrasDlg, at what seemed like the appropriate points. -->
            
            <Publish Dialog="BrowseDlg" Control="OK" Event="DoAction" Value="WixUIValidatePath" Order="3">1</Publish>
            <Publish Dialog="BrowseDlg" Control="OK" Event="SpawnDialog" Value="InvalidDirDlg" Order="4"><![CDATA[WIXUI_INSTALLDIR_VALID<>"1"]]></Publish>
