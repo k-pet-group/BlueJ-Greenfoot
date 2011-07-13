@@ -2399,8 +2399,9 @@ public class PkgMgrFrame extends JFrame
     public void generateProjectDocumentation()
     {
         String message = pkg.generateDocumentation();
-        if (message != "")
+        if (message.length() != 0) {
             DialogManager.showText(this, message);
+        }
     }
 
     /**

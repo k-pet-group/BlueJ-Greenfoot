@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -108,62 +108,6 @@ public class DocuGenerator
     private String docDirPath;
 
     /* -------------- end of static field declarations ----------------- */
-
-    /**
-     * Generate documentation for the class in file 'filename'. The
-     * documentation is generated in a temporary directory. If the
-     * generation was successful the result will be displayed in a web browser.
-     * @param filename the fully qualified filename of the class to be
-     * documented.
-     * @return the path of the HTML file that will be generated
-     */
-    public void generateClassDocu(String filename)
-    {
-        //File docDir = getDocTempDir();  use project docDir instead
-        if (docDir == null)
-                BlueJEvent.raiseEvent(BlueJEvent.DOCU_ABORTED, null);
-
-        // test whether the documentation directory is accessible.
-        String docDirStatus = testDocDir();
-        if (docDirStatus != "")
-                BlueJEvent.raiseEvent(BlueJEvent.DOCU_ABORTED, null);
-
-        // build the call string
-        ArrayList<String> call = new ArrayList<String>();
-        call.add(docCommand);
-        addParams(call, fixedJavadocParams);
-        String majorVersion = System.getProperty("java.specification.version");        
-        call.add("-source");
-        call.add(majorVersion);
-        addParams(call, tmpJavadocParams);
-        call.add("-d");
-        call.add(docDir.getPath());
-        call.add("-classpath");
-        call.add(project.getClassLoader().getClassPathAsString());
-        call.add(filename);
-
-        String[] javadocCall = (String[])call.toArray(new String[0]);
-
-        // build the path for the result to be shown
-        File htmlFile = new File(getDocuPath(filename));
-        File logFile = new File(docDir, "logfile.txt");
-
-        generateDoc(javadocCall, htmlFile, logFile, classLogHeader, false);
-    }
-
-
-    /**
-     * For a given filename, return the path where the html documentation
-     * file for that file would be generated.
-     */
-    public String getDocuPath(String filename)
-    {
-        if(filename.startsWith(projectDirPath))
-            filename = filename.substring(projectDirPath.length());
-        if (filename.endsWith(".java"))
-            filename = filename.substring(0, filename.indexOf(".java"));
-        return docDirPath + filename + ".html";
-    }
 
     /**
      * Creates a separate thread that starts the external call for faster
@@ -393,8 +337,9 @@ public class DocuGenerator
      * Generate documentation for the whole project. As this is done in
      * a different process this method just returns whether the preconditions
      * for the generation that are immediately testable are fulfilled.
+     * 
      * @return "" if the external process was started, an error message
-     * otherwise.
+     *          otherwise.
      */
     public String generateProjectDocu()
     {
@@ -438,6 +383,10 @@ public class DocuGenerator
         call.add(project.getProjectName());
         call.add("-windowtitle");
         call.add(project.getProjectName());
+        call.add("-encoding");
+        call.add(project.getProjectCharset().name());
+        call.add("-charset");
+        call.add(project.getProjectCharset().name());
         addParams(call, linkParam);
         addParams(call, fixedJavadocParams);
 
@@ -466,6 +415,67 @@ public class DocuGenerator
 
         generateDoc(javadocCall, startPage, logFile, projectLogHeader, true);
         return "";
+    }
+
+    /**
+     * Generate documentation for the class in file 'filename'. The
+     * documentation is generated in a temporary directory. If the
+     * generation was successful the result will be displayed in a web browser.
+     * @param filename the fully qualified filename of the class to be
+     * documented.
+     * @return the path of the HTML file that will be generated
+     */
+    public void generateClassDocu(String filename)
+    {
+        //File docDir = getDocTempDir();  use project docDir instead
+        if (docDir == null) {
+            BlueJEvent.raiseEvent(BlueJEvent.DOCU_ABORTED, null);
+        }
+
+        // test whether the documentation directory is accessible.
+        String docDirStatus = testDocDir();
+        if (docDirStatus != "") {
+            BlueJEvent.raiseEvent(BlueJEvent.DOCU_ABORTED, null);
+        }
+
+        // build the call string
+        ArrayList<String> call = new ArrayList<String>();
+        call.add(docCommand);
+        addParams(call, fixedJavadocParams);
+        String majorVersion = System.getProperty("java.specification.version");        
+        call.add("-source");
+        call.add(majorVersion);
+        addParams(call, tmpJavadocParams);
+        call.add("-d");
+        call.add(docDir.getPath());
+        call.add("-classpath");
+        call.add(project.getClassLoader().getClassPathAsString());
+        call.add("-encoding");
+        call.add(project.getProjectCharset().name());
+        call.add("-charset");
+        call.add(project.getProjectCharset().name());
+        call.add(filename);
+
+        String[] javadocCall = call.toArray(new String[0]);
+
+        // build the path for the result to be shown
+        File htmlFile = new File(getDocuPath(filename));
+        File logFile = new File(docDir, "logfile.txt");
+
+        generateDoc(javadocCall, htmlFile, logFile, classLogHeader, false);
+    }
+
+    /**
+     * For a given filename, return the path where the html documentation
+     * file for that file would be generated.
+     */
+    public String getDocuPath(String filename)
+    {
+        if(filename.startsWith(projectDirPath))
+            filename = filename.substring(projectDirPath.length());
+        if (filename.endsWith(".java"))
+            filename = filename.substring(0, filename.indexOf(".java"));
+        return docDirPath + filename + ".html";
     }
 
     /**
@@ -517,10 +527,7 @@ public class DocuGenerator
         {
             BufferedReader logReader = new BufferedReader(new FileReader(logFile));
             String header = logReader.readLine();
-            if(header.equals(projectLogHeader))
-                return true;
-            else
-                return false;
+            return header.equals(projectLogHeader);
         }
         catch(Exception e)
         {
@@ -548,8 +555,9 @@ public class DocuGenerator
 
             return " -link " + docURL;
         }
-        else
+        else {
             return "";
+        }
     }
 }
 
