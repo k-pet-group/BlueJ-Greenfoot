@@ -26,7 +26,7 @@
     <SetProperty Id="JDKVERSION" After="AppSearch" Value="[JDKVERSION32]">
       <![CDATA[((JDKVERSION<>"1.6" OR JDKVERSION<>"1.7") OR JDKHOME="") AND (JDKVERSION32="1.6" OR JDKVERSION32="1.7" OR JDKVERSION32>JDKVERSION)]]>
     </SetProperty>    
-    <SetProperty Id="JDKHOME" After="AppSearch" Value="[JDK6HOME32]">
+    <SetProperty Id="JDKHOME" After="AppSearch" Value="[JDKHOME32]">
       <![CDATA[((JDKVERSION<>"1.6" OR JDKVERSION<>"1.7") OR JDKHOME="") AND (JDKVERSION32="1.6" OR JDKVERSION32="1.7" OR JDKVERSION32>JDKVERSION)]]>
     </SetProperty>
     

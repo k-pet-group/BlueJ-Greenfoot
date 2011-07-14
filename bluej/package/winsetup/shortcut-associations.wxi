@@ -17,7 +17,6 @@
             <Component Id="ProgramMenuShortcut" Guid="*">
               <Condition>INSTALLMENUSHORTCUT</Condition>
               <RemoveFolder Id='ProgramMenuDir' On='uninstall' />
-              <!-- TODO should this be HKMU? -->
               <RegistryKey Root="HKCU" Key="Software\[SOFTWARE]\[SOFTWARE]\[SOFTWAREVERSION]"
 	                       Action="createAndRemoveOnUninstall">
 	            <RegistryValue Name="MenuShortcut" Value="1" Type="integer" KeyPath="yes"/>
@@ -38,7 +37,6 @@
 	    <Component Id="DesktopShortcut" Guid="*">
 	    	<Condition>INSTALLDESKTOPSHORTCUT</Condition> 
 	    	<CreateFolder/>
-	    	<!-- TODO should this be HKMU? -->
 	    	<RegistryKey Root="HKCU" Key="Software\[SOFTWARE]\[SOFTWARE]\[SOFTWAREVERSION]"
 	                       Action="createAndRemoveOnUninstall">
 	            <RegistryValue Name="DesktopShortcut" Value="1" Type="integer" KeyPath="yes"/>

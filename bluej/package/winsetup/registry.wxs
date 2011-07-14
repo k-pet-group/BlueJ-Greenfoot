@@ -12,8 +12,8 @@
         
         <!-- Currently we only add the key if the version is 1.6; need to allow 1.7 as well -->
         <Component Id="AddJVMKey" Directory="TARGETDIR" Guid="*">
-        	<Condition><![CDATA[JDKVERSION="1.6"AND JDKHOME<>""]]></Condition>
-        	<RegistryKey Root="HKMU" Key="Software\[SOFTWARE]\[SOFTWARE]\[SOFTWAREVERSION]" Action="none">
+        	<Condition><![CDATA[(JDKVERSION="1.6" OR JDKVERSION="1.7") AND JDKHOME<>""]]></Condition>
+        	<RegistryKey Root="HKMU" Key="Software\[SOFTWARE]\[SOFTWARE]\[SOFTWAREVERSION]" Action="createAndRemoveOnUninstall">
         		<RegistryValue Name="CurrentVM" Type="string" Value="[JDKHOME]" KeyPath="yes"/>
         	</RegistryKey>
         </Component>
