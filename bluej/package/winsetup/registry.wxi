@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Wix xmlns='http://schemas.microsoft.com/wix/2006/wi'>
-  <Fragment>
+<Include xmlns='http://schemas.microsoft.com/wix/2006/wi'>
+  
 	<!-- The HKMU pseudo-root uses HKLM for all-user installs, and HKCU for per-user installs -->
     <ComponentGroup Id="RegistryKeys">
-        <Component Id="SoftwareKey" Directory="TARGETDIR" Guid="*">
+        <Component Id="SoftwareKey" Directory="TARGETDIR" Guid="$(var.Guid.RegistryKey)">
         	<RegistryKey Root="HKMU" Key="Software\[SOFTWARE]\[SOFTWARE]\[SOFTWAREVERSION]" Action="createAndRemoveOnUninstall">
         	    <!--  I seem to need this child to avoid a WiX warning: -->
         		<RegistryValue Type="string" Value="" KeyPath="yes"/>
@@ -11,12 +11,11 @@
         </Component>
         
         <!-- Currently we only add the key if the version is 1.6; need to allow 1.7 as well -->
-        <Component Id="AddJVMKey" Directory="TARGETDIR" Guid="*">
+        <Component Id="AddJVMKey" Directory="TARGETDIR" Guid="$(var.Guid.RegistryKeyVM)">
         	<Condition><![CDATA[(JDKVERSION="1.6" OR JDKVERSION="1.7") AND JDKHOME<>""]]></Condition>
-        	<RegistryKey Root="HKMU" Key="Software\[SOFTWARE]\[SOFTWARE]\[SOFTWAREVERSION]" Action="createAndRemoveOnUninstall">
+        	<RegistryKey Root="HKMU" Key="Software\[SOFTWARE]\[SOFTWARE]\[SOFTWAREVERSION]" Action="none">
         		<RegistryValue Name="CurrentVM" Type="string" Value="[JDKHOME]" KeyPath="yes"/>
         	</RegistryKey>
         </Component>
     </ComponentGroup>
-  </Fragment>
-</Wix>
+</Include>

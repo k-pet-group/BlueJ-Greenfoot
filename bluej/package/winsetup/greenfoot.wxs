@@ -5,7 +5,7 @@
         Change Version in the Product item here
         Change Version in SOFTWAREVERSION property, below -->
 
-<Product Name='Greenfoot' Id='*' UpgradeCode='3ec7b829-9e53-4132-b2bf-fb7d4c08aebc'
+<Product Name='Greenfoot' Id='8c838b70-3a71-41e8-91a6-4adcf2e483d0' UpgradeCode='3ec7b829-9e53-4132-b2bf-fb7d4c08aebc'
     Language='1033' Codepage='1252' Version='2.1.0' Manufacturer='Greenfoot Team'>
     
     <Package Id='*' Keywords='Installer' Description="Greenfoot Installer"
@@ -19,6 +19,12 @@
     <Property Id="SOFTWAREVERSION" Value="2.1.0"/>
     <Property Id="SOFTWAREPROJECTEXT" Value="greenfoot"/>
     <Property Id="SOFTWAREARCHIVEEXT" Value="gfar"/>
+    <!-- Define all the necessary GUIDs here, to make sure they are different from BlueJ -->
+    <?define Guid.MenuShortcut='26d00889-0db7-4d0f-b350-1f3b421075a6'?>
+    <?define Guid.DesktopShortcut='91ab2947-57a1-4cbc-91b1-5415d13e7df0'?>
+    <?define Guid.AssociationShortcut='a49aa8ee-2ebf-40fe-9574-538c9313836a'?>
+    <?define Guid.RegistryKey='a57e38b9-93a7-48d1-b625-0cedfdd44c11'?>
+    <?define Guid.RegistryKeyVM='3771cf1d-5082-4753-a11c-104f8534765c'?>
     
     <!-- common.wxi is an include file with the UI and other settings
          common to both BlueJ and Greenfoot -->
@@ -45,6 +51,8 @@
       <!-- The name Launcher is referred to in shortcut-associations, which is used for both BlueJ and Greenfoot -->
       <File Id='Launcher' Name='Greenfoot.exe' DiskId='1' Source='..\winlaunch\gflaunch.exe' KeyPath='yes' />
     </Component>
+    
+    <?include registry.wxi ?>
     
     <Feature Title='Greenfoot' Id='FeatureCore' Level='1' ConfigurableDirectory="INSTALLDIR">
       <ComponentGroupRef Id='GreenfootFiles' />

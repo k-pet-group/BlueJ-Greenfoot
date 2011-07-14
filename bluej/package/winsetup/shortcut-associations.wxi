@@ -14,11 +14,11 @@
        <!-- This is the start menu shortcuts -->
        <Directory Id="ProgramMenuFolder" Name="Programs">
           <Directory Id="ProgramMenuDir" Name="!(loc.SOFTWARE)">
-            <Component Id="ProgramMenuShortcut" Guid="*">
+            <Component Id="ProgramMenuShortcut" Guid="$(var.Guid.MenuShortcut)">
               <Condition>INSTALLMENUSHORTCUT</Condition>
               <RemoveFolder Id='ProgramMenuDir' On='uninstall' />
               <RegistryKey Root="HKCU" Key="Software\[SOFTWARE]\[SOFTWARE]\[SOFTWAREVERSION]"
-	                       Action="createAndRemoveOnUninstall">
+	                       Action="none">
 	            <RegistryValue Name="MenuShortcut" Value="1" Type="integer" KeyPath="yes"/>
 	          </RegistryKey>
 	          <Shortcut Id="MenuShortcut" 
@@ -34,11 +34,11 @@
         <Directory Id="DesktopFolder" Name="Desktop" />
         
         <!-- This is the desktop shortcut -->
-	    <Component Id="DesktopShortcut" Guid="*">
+	    <Component Id="DesktopShortcut" Guid="$(var.Guid.DesktopShortcut)">
 	    	<Condition>INSTALLDESKTOPSHORTCUT</Condition> 
 	    	<CreateFolder/>
 	    	<RegistryKey Root="HKCU" Key="Software\[SOFTWARE]\[SOFTWARE]\[SOFTWAREVERSION]"
-	                       Action="createAndRemoveOnUninstall">
+	                       Action="none">
 	            <RegistryValue Name="DesktopShortcut" Value="1" Type="integer" KeyPath="yes"/>
 	          </RegistryKey>
 	          <Shortcut Id="DesktopShortcut" Directory="DesktopFolder"
@@ -47,10 +47,10 @@
 	    </Component>
 	    
 	  <!-- This is the file associations -->
-	  <Component Id="Associations" Guid="*">
+	  <Component Id="Associations" Guid="$(var.Guid.AssociationShortcut)">
 	      <Condition>INSTALLASSOCIATIONS</Condition>
 	      <RegistryKey Root="HKMU" Key="Software\[SOFTWARE]\[SOFTWARE]\[SOFTWAREVERSION]"
-	                       Action="createAndRemoveOnUninstall">
+	                       Action="none">
 	            <RegistryValue Name="FileAssociation" Value="1" Type="integer" KeyPath="yes"/>
 	      </RegistryKey>
 	      <ProgId Id="[SOFTWARE]Project" Description="[SOFTWARE] Project File" Icon="Launcher" IconIndex="0">
