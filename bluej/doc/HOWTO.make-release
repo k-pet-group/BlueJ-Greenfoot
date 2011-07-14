@@ -37,7 +37,7 @@ PART I - BUILDING BLUEJ
     on a system which has the "dpkg-deb" utility installed, and you should do it as the
     root user. 
 
- 5. Use bluej-dist.jar to build Windows version. (See HOWTO.make-win-version)
+ 5. See HOWTO.make-win-version for building the Windows release.
 
  6. Rename (usually by adding a release candidate string like "BlueJ*rc1.???").
 
