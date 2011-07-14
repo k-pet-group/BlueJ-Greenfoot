@@ -11,56 +11,46 @@
       <!--  Looks in 32-bit only, on x86 and x64: -->
       <RegistrySearch Id="JDKVersion32RegKey" Root="HKLM" Key="SOFTWARE\JavaSoft\Java Development Kit" Name="CurrentVersion" Type="raw" />
     </Property>
-    <Property Id="JDKVERSION64">
-      <RegistrySearch Id="JDKVersion64RegKey" Root="HKLM" Key="SOFTWARE\JavaSoft\Java Development Kit" Name="CurrentVersion" Type="raw" Win64="yes"/>
-    </Property>
     <Property Id="JDKVERSION">
       <RegistrySearch Id="JDKVersionRegKey" Root="HKLM" Key="SOFTWARE\JavaSoft\Java Development Kit" Name="CurrentVersion" Type="raw" Win64="yes"/>
     </Property>
-    <Property Id="JDK6HOME32">
+    <Property Id="JDKHOME32">
       <!--  Looks in 32-bit only, on x86 and x64: -->
-      <RegistrySearch Id="JDK6Home32RegKey" Root="HKLM" Key="SOFTWARE\JavaSoft\Java Development Kit\1.6" Name="JavaHome" Type="raw" />
-    </Property>
-    <Property Id="JDK6HOME64">
-      <RegistrySearch Id="JDK6Home64RegKey" Root="HKLM" Key="SOFTWARE\JavaSoft\Java Development Kit\1.6" Name="JavaHome" Type="raw" Win64="yes"/>
+      <RegistrySearch Id="JDK6Home32RegKey" Root="HKLM" Key="SOFTWARE\JavaSoft\Java Development Kit\[JDKVERSION32]" Name="JavaHome" Type="raw" />
     </Property>
     <Property Id="JDKHOME">
-      <RegistrySearch Id="JDK6HomeRegKey" Root="HKLM" Key="SOFTWARE\JavaSoft\Java Development Kit\1.6" Name="JavaHome" Type="raw" Win64="yes"/>
+      <RegistrySearch Id="JDK6HomeRegKey" Root="HKLM" Key="SOFTWARE\JavaSoft\Java Development Kit\[JDKVERSION]" Name="JavaHome" Type="raw" Win64="yes"/>
     </Property>
     
-    <Property Id="JDK64">
-      <![CDATA[JDKVERSION64="1.6" AND JDK6HOME64<>""]]>
-    </Property>
-    
+    <!--  If we didn't find a suitable native-bit (i.e. 32-bit on 32-bit machines, 64-bit on 64-bit) JDK, override to use the 32-bit if it is suitable -->
     <SetProperty Id="JDKVERSION" After="AppSearch" Value="[JDKVERSION32]">
-      <![CDATA[(JDKVERSION64<>"1.6" OR JDK6HOME64="") AND (JDKVERSION32="1.6" OR JDKVERSION32>JDKVERSION64)]]>
-    </SetProperty>
-    
+      <![CDATA[((JDKVERSION<>"1.6" OR JDKVERSION<>"1.7") OR JDKHOME="") AND (JDKVERSION32="1.6" OR JDKVERSION32="1.7" OR JDKVERSION32>JDKVERSION)]]>
+    </SetProperty>    
     <SetProperty Id="JDKHOME" After="AppSearch" Value="[JDK6HOME32]">
-      <![CDATA[(JDKVERSION64<>"1.6" OR JDK6HOME64="") AND (JDKVERSION32="1.6" OR JDKVERSION32>JDKVERSION64)]]>
+      <![CDATA[((JDKVERSION<>"1.6" OR JDKVERSION<>"1.7") OR JDKHOME="") AND (JDKVERSION32="1.6" OR JDKVERSION32="1.7" OR JDKVERSION32>JDKVERSION)]]>
     </SetProperty>
     
+    <!--  These are the pieces of text shown in the GUI.  Below are the default values: -->
     <Property Id="JDKFOUND">
-      No suitable JDK could be found.  You may proceed with installation, but !(loc.SOFTWARE) will not work without a JDK (version 1.6) installed.
+      No suitable JDK could be found.  You may proceed with installation, but !(loc.SOFTWARE) will not work without a JDK (version 1.6 or 1.7) installed.
     </Property>
-    
     <Property Id="JDKJUSTRIGHT" Value=" " />
     <Property Id="JDKTOOOLD" Value=" " />
     <Property Id="JDKTOONEW" Value=" " />
     
+    <!--  Set the GUI text under the appropriate conditions -->
     <SetProperty Id="JDKFOUND" After="AppSearch" Value="JDK Version [JDKVERSION] found at [JDKHOME].">
       <![CDATA[JDKVERSION<>""]]>
     </SetProperty>
-    
-    <SetProperty Id="JDKJUSTRIGHT" After="AppSearch" Value="This JDK is the right version, and will be used by !(loc.SOFTWARE).  To choose a different JDK, use the Select VM shortcut once !(loc.SOFTWARE) is installed.">
-      <![CDATA[JDKVERSION="1.6"]]>
+    <SetProperty Id="JDKJUSTRIGHT" After="AppSearch" Value="This JDK is a suitable version, and will be used by !(loc.SOFTWARE).  To choose a different JDK, use the Select VM shortcut once !(loc.SOFTWARE) is installed.">
+      <![CDATA[JDKVERSION="1.6" OR JDKVERSION="1.7"]]>
     </SetProperty>
     
-    <SetProperty Id="JDKTOOOLD" After="AppSearch" Value="This JDK is too old.  For !(loc.SOFTWARE) to work correctly, you will need to have JDK 1.6 installed on your machine.">
+    <SetProperty Id="JDKTOOOLD" After="AppSearch" Value="This JDK is too old.  For !(loc.SOFTWARE) to work correctly, you will need to have JDK 1.6 or 1.7 installed on your machine.">
       <![CDATA[JDKVERSION<"1.6" AND JDKVERSION<>""]]>
     </SetProperty>
     
-    <SetProperty Id="JDKTOONEW" After="AppSearch" Value="This JDK is newer than the !(loc.SOFTWARE) release you are installing, and thus you may encounter problems.  Try looking for a newer !(loc.SOFTWARE) version that supports your JDK (or downgrade if you are using an unreleased JDK).">
-      <![CDATA[JDKVERSION>"1.6" AND JDKVERSION<>""]]>
+    <SetProperty Id="JDKTOONEW" After="AppSearch" Value="This JDK is newer than the !(loc.SOFTWARE) release you are installing, and thus you may encounter problems.  If you have problems, try looking for a newer !(loc.SOFTWARE) version that supports your JDK (or consider downgrading if you are using an unreleased JDK).">
+      <![CDATA[JDKVERSION>"1.7" AND JDKVERSION<>""]]>
     </SetProperty>
 </Include>
