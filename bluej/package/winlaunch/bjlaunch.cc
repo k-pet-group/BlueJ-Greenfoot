@@ -235,7 +235,6 @@ void saveSelectedJdk(LPCTSTR jdkLocation)
 				
 		RegCloseKey(regKey);
 	}
-	
 }
 
 
@@ -330,18 +329,33 @@ bool launchVM(string jdkLocation)
 	JavaVM *javaVM;
 	JNIEnv *jniEnv;
 	
-	// Try and load msvcr71.dll from the JDK directory first. Otherwise loading the jvm seems
-	// to fail on some machines. Note, apparently JDK7 uses msvc100.dll instead; we may have to
-	// introduce the same workaround for that file.
-	HINSTANCE hMsvcrlib;
-	string msvcrPath = jdkLocation + TEXT("\\jre\\bin\\msvcr71.dll");
-	if (GetFileAttributes(msvcrPath.c_str()) != INVALID_FILE_ATTRIBUTES) {
-		hMsvcrlib = LoadLibrary(msvcrPath.c_str());
+	// Loading the JVM dll then requires loading msvcr71.dll (Java 6) or msvcr100.dll (Java 7).
+	// The msvcrXXX.dll is sometimes in the system directory, but if it's not it won't be found
+	// automatically. The simplest way to resolve this is to set the current working directory.
+
+	// First we save the current working directory:
+	LPTSTR curDir = (LPTSTR) malloc(100);
+	DWORD curDirLen =  GetCurrentDirectory(100, curDir);
+	if (curDirLen > 100) {
+		free(curDir);
+		curDir = (LPTSTR) malloc(curDirLen);
+		GetCurrentDirectory(curDirLen, curDir);
 	}
-	
+
+	// Now set the directory:
+	string jvmDllPath = jdkLocation + TEXT("\\jre\\bin");
+	SetCurrentDirectory(jvmDllPath.c_str());
+
 	// Now load the JVM.
 	HINSTANCE hJavalib;
 	hJavalib = LoadLibrary( (jdkLocation + TEXT("\\jre\\bin\\client\\jvm.dll")).c_str() );
+
+	// Restore the working directory:
+	if (curDirLen != 0) {
+		SetCurrentDirectory(curDir);
+	}
+	free(curDir);
+
 	if (hJavalib == NULL) {
 		return launchVMexternal(jdkLocation);
 	}
@@ -368,7 +382,6 @@ bool launchVM(string jdkLocation)
 	JavaVMInitArgs vm_args;
     
 	JavaVMOption * options = new JavaVMOption[1 + windowsvmargs.size()];
-	//JavaVMOption options[1];
 	options[0].optionString = classPathOptArr;
 	options[0].extraInfo = NULL;
 	int j = 1;
@@ -559,6 +572,7 @@ int WINAPI WinMain
 {
     appInstance = hInst;
 	bool forceVMselect = false; // whether we MUST show window
+	SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOOPENFILEERRORBOX);
 	
 	LPTSTR commandLine = GetCommandLine();
 	
