@@ -7,6 +7,10 @@
        so we split up the logic into setting different properties, which are shown to
        the user in the installer.  For actual internal logic, JDKVERSION and JDKHOME
        should be the ones to use after this code executes.  -->
+       
+    <!-- The 64-bit registry searches below give warnings because they are using
+         a 64-bit locator.  It seems to work fine in practice on 32-bit and 64-bit systems,
+         so I think these can be ignored. -->
     <Property Id="JDKVERSION32">
       <!--  Looks in 32-bit only, on x86 and x64: -->
       <RegistrySearch Id="JDKVersion32RegKey" Root="HKLM" Key="SOFTWARE\JavaSoft\Java Development Kit" Name="CurrentVersion" Type="raw" />

@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Include xmlns='http://schemas.microsoft.com/wix/2006/wi'>
-    <Property Id="WixAppFolder" Value="WixPerMachineFolder"/>
+    <!-- This property must be per-user by default.  This isn't
+         a UI issue; when the user does not have admin rights,
+         the UI step that sets this setting will be skipped,
+         so it must be per-user by default (it if was all-users,
+         a per-user installation would always fail for a limited-rights user) -->
+    <Property Id="WixAppFolder" Value="WixPerUserFolder"/>
     <WixVariable Id="WixUISupportPerMachine" Value="1" />
     <WixVariable Id="WixUISupportPerUser" Value="1" />    
     

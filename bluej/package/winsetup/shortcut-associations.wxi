@@ -7,6 +7,22 @@
             The KeyPath="yes" option indicates that the registry key is the unique path
             associated with that shortcut. -->
             
+       <!-- There is one small irritation/bug that can't easily be worked around with the
+            shortcuts.  WiX prevents the use of HKMU or HKLM for the root key when installing
+            the shortcuts, so you must use HKCU, even though the keys may be installed
+            for all users.  In practice, the shortcuts still install, but if uninstall
+            for all users is performed by a different user than the one that installed for
+            all users, it can leave two registry keys behind.  The shortcuts still get deleted,
+            I believe.  There is no easy way round this with WiX 3.5; you can use a trick
+            involving advertised shortcuts but that prevents optional installation of the shortcuts,
+            and you can't use anything else as a key path because you get ICE38/ICE43 errors. -->
+            
+       <!-- This file generates a lot of ICE69 warnings, because the shortcuts are in a
+            different installer component to the file (the launcher) that they point to.
+            This means that in theory the shortcuts could exist without the file they are pointing to.
+            However, in practice (and the reason this is only a warning), the components are
+            in the same installer feature, so they should always be installed and uninstalled together. -->
+            
         <!--  To make the shortcuts optional, I'm following:
           http://windows-installer-xml-wix-toolset.687559.n2.nabble.com/How-to-create-an-optional-shortcut-td699311.html
           Also available at: http://wix.mindcapers.com/wiki/Shortcuts_in_WiX -->

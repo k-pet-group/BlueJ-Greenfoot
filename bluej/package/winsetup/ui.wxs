@@ -48,6 +48,8 @@
            
            <Publish Dialog="InstallScopeDlg" Control="Back" Event="NewDialog" Value="JDKDlg">1</Publish>
            <Publish Dialog="InstallScopeDlg" Control="Next" Event="NewDialog" Value="CheckboxExtrasDlg">1</Publish>
+           <Publish Dialog="InstallScopeDlg" Control="Next" Property="ALLUSERS" Value="{}">WixAppFolder="WixPerUserFolder"</Publish>
+           <Publish Dialog="InstallScopeDlg" Control="Next" Property="ALLUSERS" Value="1">WixAppFolder="WixPerMachineFolder"</Publish>           
 
            <Publish Dialog="CheckboxExtrasDlg" Control="Back" Event="NewDialog" Value="InstallScopeDlg">1</Publish>
            <Publish Dialog="CheckboxExtrasDlg" Control="Next" Event="NewDialog" Value="InstallDirDlg">1</Publish>

@@ -15,6 +15,8 @@
     <!-- Embeds all the files to install inside the MSI -->
     <Media Id='1' Cabinet='BlueJ.cab' EmbedCab='yes' />
     
+    <Property Id="ALLUSERS" Secure="yes" />
+    
     <Property Id="SOFTWARE" Value="BlueJ"/>
     <Property Id="SOFTWAREVERSION" Value="3.0.5"/>
     <Property Id="SOFTWAREPROJECTEXT" Value="bluej"/>
@@ -49,6 +51,8 @@
     
     <Component Id='CompLauncher' Directory="INSTALLDIR">
       <!-- The name Launcher is referred to in shortcut-associations, which is used for both BlueJ and Greenfoot -->
+      <!-- There is a WiX warning here about Launcher not having a language, but if you try to
+           set a language you get an error, so just ignore the warning -->
       <File Id='Launcher' Name='BlueJ.exe' DiskId='1' Source='..\winlaunch\bjlaunch.exe' KeyPath='yes' />
     </Component>
     
