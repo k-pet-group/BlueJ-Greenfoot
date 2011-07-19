@@ -1607,6 +1607,11 @@ public class JavaParser
                 }
                 
                 while (true) {
+                    if (tokenStream.LA(1).getType() == JavaTokenTypes.FINAL) {
+                        // Java 7 "final re-throw"
+                        token = nextToken();
+                    }
+                    
                     parseTypeSpec(true);
                     token = nextToken();
                     if (token.getType() != JavaTokenTypes.IDENT) {
