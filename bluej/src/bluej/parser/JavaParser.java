@@ -2344,6 +2344,7 @@ public class JavaParser
                 }
             }
             else if (token.getType() == JavaTokenTypes.COMMA) {
+                needBaseType = true;
                 ttokens.add(token);
             }
             else {
@@ -2370,6 +2371,14 @@ public class JavaParser
     {
         LocatableToken token;
         int beginDepth = dr.depth;
+        
+        if (tokenStream.LA(1).getType() == JavaTokenTypes.GT) {
+            // Java 7 Diamond operator
+            ttokens.add(tokenStream.nextToken());
+            dr.depth--;
+            return true;
+        }
+        
         int ttype = parseBaseType(speculative, ttokens);
         if (ttype == TYPE_ERROR) {
             return false;
