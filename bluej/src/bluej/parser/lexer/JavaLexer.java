@@ -243,12 +243,21 @@ public final class JavaLexer implements TokenStream
         return false;
     }
     
+    /**
+     * Read a numerical literal token.
+     * 
+     * @param ch   The first character of the token
+     * @param dot  Whether there was a leading dot
+     */
     private int readDigitToken(char ch, boolean dot)
     {
         int rval = ch;     
         textBuffer.append(ch);
-        int type = JavaTokenTypes.NUM_INT;
+        int type = dot ? JavaTokenTypes.NUM_DOUBLE : JavaTokenTypes.NUM_INT;
 
+        boolean fpValid = true; // whether a subsequent dot would be valid.
+                // (will be set false for a non-decimal literal).
+        
         if (ch == '0') {
             rval = readNextChar();
             if (rval == 'x' || rval == 'X') {
@@ -263,6 +272,7 @@ public final class JavaLexer implements TokenStream
                     textBuffer.append((char) rval);
                     rval = readNextChar();
                 } while (isHexDigit((char) rval));
+                fpValid = false;
             }
             else if (Character.isDigit((char) rval)) {
                 do {
@@ -270,6 +280,7 @@ public final class JavaLexer implements TokenStream
                     textBuffer.append((char) rval);
                     rval = readNextChar();
                 } while (Character.isDigit((char) rval));
+                fpValid = false;
             }
             ch = (char) rval;
         }
@@ -281,8 +292,8 @@ public final class JavaLexer implements TokenStream
             }
         }
         
-        if (rval == '.') {
-            // A decimal. (This might not really be valid).
+        if (rval == '.' && fpValid) {
+            // A decimal.
             textBuffer.append((char) rval);
             rval = readNextChar();
             while (Character.isDigit((char) rval)) {
@@ -312,7 +323,7 @@ public final class JavaLexer implements TokenStream
             return JavaTokenTypes.NUM_DOUBLE;
         }
         
-        if (rval == 'e' || rval == 'E') {
+        if ((rval == 'e' || rval == 'E') && fpValid) {
             // exponent
             textBuffer.append((char) rval);
             rval = readNextChar();
@@ -321,21 +332,23 @@ public final class JavaLexer implements TokenStream
                 rval = readNextChar();
             }
         }
-        
-        if (rval == 'l' || rval == 'L') {
+        else if (rval == 'l' || rval == 'L') {
             textBuffer.append((char) rval);
             rval = readNextChar();
             return JavaTokenTypes.NUM_LONG;
         }
-        if (rval == 'f' || rval == 'F') {
-            textBuffer.append((char) rval);
-            rval = readNextChar();
-            return JavaTokenTypes.NUM_FLOAT;
-        }
-        if (rval == 'd' || rval == 'D') {
-            textBuffer.append((char) rval);
-            rval = readNextChar();
-            return JavaTokenTypes.NUM_DOUBLE;
+        
+        if (fpValid) {
+            if (rval == 'f' || rval == 'F') {
+                textBuffer.append((char) rval);
+                rval = readNextChar();
+                return JavaTokenTypes.NUM_FLOAT;
+            }
+            if (rval == 'd' || rval == 'D') {
+                textBuffer.append((char) rval);
+                rval = readNextChar();
+                return JavaTokenTypes.NUM_DOUBLE;
+            }
         }
         
         return type;
