@@ -246,7 +246,7 @@ public final class JavaLexer implements TokenStream
     /**
      * Read a numerical literal token.
      * 
-     * @param ch   The first character of the token
+     * @param ch   The first character of the token (must be a decimal digit)
      * @param dot  Whether there was a leading dot
      */
     private int readDigitToken(char ch, boolean dot)
@@ -271,7 +271,21 @@ public final class JavaLexer implements TokenStream
                 do {
                     textBuffer.append((char) rval);
                     rval = readNextChar();
-                } while (isHexDigit((char) rval));
+                } while (isHexDigit((char) rval) || rval == '_');
+                fpValid = false;
+            }
+            else if (rval == 'b' || rval == 'B') {
+                // Java 7 binary literal
+                textBuffer.append((char) rval);
+                rval = readNextChar();
+                if (rval != '0' && rval != '1') {
+                    return JavaTokenTypes.INVALID;
+                }
+                
+                do {
+                    textBuffer.append((char) rval);
+                    rval = readNextChar();
+                } while (rval == '0' || rval == '1' || rval == '_');
                 fpValid = false;
             }
             else if (Character.isDigit((char) rval)) {
@@ -279,14 +293,14 @@ public final class JavaLexer implements TokenStream
                     // octal?
                     textBuffer.append((char) rval);
                     rval = readNextChar();
-                } while (Character.isDigit((char) rval));
+                } while (Character.isDigit((char) rval) || rval == '_');
                 fpValid = false;
             }
             ch = (char) rval;
         }
         else {
             rval = readNextChar();
-            while (Character.isDigit((char) rval)) {
+            while (Character.isDigit((char) rval) || rval == '_') {
                 textBuffer.append((char) rval);
                 rval = readNextChar();
             }
@@ -296,7 +310,7 @@ public final class JavaLexer implements TokenStream
             // A decimal.
             textBuffer.append((char) rval);
             rval = readNextChar();
-            while (Character.isDigit((char) rval)) {
+            while (Character.isDigit((char) rval) || rval == '_') {
                 textBuffer.append((char) rval);
                 rval = readNextChar();
             }
@@ -304,7 +318,7 @@ public final class JavaLexer implements TokenStream
                 // exponent
                 textBuffer.append((char) rval);
                 rval = readNextChar();
-                while (Character.isDigit((char) rval)) {
+                while (Character.isDigit((char) rval) || rval == '_') {
                     textBuffer.append((char) rval);
                     rval = readNextChar();
                 }
@@ -327,10 +341,11 @@ public final class JavaLexer implements TokenStream
             // exponent
             textBuffer.append((char) rval);
             rval = readNextChar();
-            while (Character.isDigit((char) rval)) {
+            while (Character.isDigit((char) rval) || rval == '_') {
                 textBuffer.append((char) rval);
                 rval = readNextChar();
             }
+            type = JavaTokenTypes.NUM_DOUBLE;
         }
         else if (rval == 'l' || rval == 'L') {
             textBuffer.append((char) rval);
