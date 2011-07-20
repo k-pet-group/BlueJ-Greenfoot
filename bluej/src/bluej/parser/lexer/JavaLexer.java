@@ -43,7 +43,6 @@ public final class JavaLexer implements TokenStream
     private int rChar; 
     private int beginColumn, beginLine;
     private int endColumn, endLine;
-    private char [] buf = new char[1];
     
     private static Map<String,Integer> keywords = new HashMap<String,Integer>();
     
@@ -141,22 +140,6 @@ public final class JavaLexer implements TokenStream
             readNextChar();
         }
 
-        return createToken();
-    }
-    
-    private LocatableToken makeToken(int type, String txt)
-    {           
-        LocatableToken tok = new LocatableToken(type, txt);
-        tok.setColumn(beginColumn);
-        tok.setLine(beginLine);  
-        tok.setEndLineAndCol(endLine, endColumn);
-        beginColumn = endColumn;
-        beginLine = endLine;
-        return tok;
-    }
-
-    private LocatableToken createToken()
-    {
         if (rChar == -1) {
             // EOF
             return makeToken(JavaTokenTypes.EOF, null); 
@@ -167,9 +150,25 @@ public final class JavaLexer implements TokenStream
             return createWordToken(nextChar); 
         }
         if (Character.isDigit(nextChar)) {
-            return makeToken(getDigitType(nextChar, false), textBuffer.toString());
+            return makeToken(readDigitToken(nextChar, false), textBuffer.toString());
         }
         return makeToken(getSymbolType(nextChar), textBuffer.toString());
+    }
+    
+    /**
+     * Make a token of the given type, with the given text. The token
+     * begins where the previous token ended, and ends at the current
+     * position (as found in endLine and endColumn).
+     */
+    private LocatableToken makeToken(int type, String txt)
+    {           
+        LocatableToken tok = new LocatableToken(type, txt);
+        tok.setColumn(beginColumn);
+        tok.setLine(beginLine);  
+        tok.setEndLineAndCol(endLine, endColumn);
+        beginColumn = endColumn;
+        beginLine = endLine;
+        return tok;
     }
 
     private LocatableToken createWordToken(char nextChar)
@@ -244,10 +243,9 @@ public final class JavaLexer implements TokenStream
         return false;
     }
     
-    
-    private int getDigitType(char ch, boolean dot)
+    private int readDigitToken(char ch, boolean dot)
     {
-        int rval=ch;     
+        int rval = ch;     
         textBuffer.append(ch);
         int type = JavaTokenTypes.NUM_INT;
 
@@ -459,7 +457,7 @@ public final class JavaLexer implements TokenStream
         if ('/' == ch)
             return getForwardSlashType();
         if ('.' == ch)
-            return getDotType();
+            return getDotToken();
         if ('*' == ch)
             return getStarType();
         if ('>' == ch)
@@ -583,7 +581,7 @@ public final class JavaLexer implements TokenStream
     private int getEqualType()
     {
         //=, ==
-        int rval=readNextChar();
+        int rval = readNextChar();
         char thisChar=(char)rval; 
         if (thisChar=='='){
             textBuffer.append(thisChar); 
@@ -717,13 +715,13 @@ public final class JavaLexer implements TokenStream
         return JavaTokenTypes.LNOT;
     }
 
-    private int getDotType()
+    private int getDotToken()
     {
         //. or .56f .12 
         int rval = readNextChar();
         char ch = (char)rval;
         if (Character.isDigit(ch)){
-            return getDigitType(ch, true);
+            return readDigitToken(ch, true);
         }
         //...
         else if (ch=='.'){
@@ -746,21 +744,15 @@ public final class JavaLexer implements TokenStream
 
     private int readNextChar()
     {
-        int rval=-1;
         endColumn = reader.getColumn();
         endLine = reader.getLine();
         try{
-            rval = reader.read(buf, 0, 1);
-            rChar = buf[0];
-            if (rval == -1) {
-                rChar = -1;
-            }
-            return rChar;
+            rChar = reader.read();
         } catch(IOException e) {
             rChar = -1;
         }
 
-        return -1;
+        return rChar;
     }
 
     private int getWordType()
