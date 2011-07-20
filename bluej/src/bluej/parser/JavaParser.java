@@ -95,7 +95,7 @@ public class JavaParser
     }
     
     /**
-     * Signal a parser error, occurring because the next token in the token stream is
+     * Signal a parser error, occurring because the given token in the token stream is
      * not valid in the current context, but for which a useful error diagnosis can be
      * provided. The entire token will be highlighted as erroneous.
      * 
@@ -1131,11 +1131,11 @@ public class JavaParser
                     }
                     else if (ttype == JavaTokenTypes.ASSIGN) {
                         parseExpression();
-                        parseSubsequentDeclarations(DECL_TYPE_FIELD);
+                        parseSubsequentDeclarations(DECL_TYPE_FIELD, true);
                     }
                     else if (ttype == JavaTokenTypes.COMMA) {
                         tokenStream.pushBack(token);
-                        parseSubsequentDeclarations(DECL_TYPE_FIELD);
+                        parseSubsequentDeclarations(DECL_TYPE_FIELD, true);
                     }
                     else {
                         error("Expected ',', '=' or ';' after field declaration");
@@ -1425,8 +1425,7 @@ public class JavaParser
             token = tokenStream.LA(1);
             pushBackAll(tlist);
             if (isTypeSpec && token.getType() == JavaTokenTypes.IDENT) {
-                gotTypeSpec(tlist);
-                return parseVariableDeclarations(tlist.get(0));
+                return parseVariableDeclarations(tlist.get(0), true);
             }
             else {
                 parseExpression();                                              
@@ -1491,7 +1490,7 @@ public class JavaParser
                 parseTypeDef(token);
             }
             else {
-                parseVariableDeclarations(token);
+                parseVariableDeclarations(token, true);
             }
             return null;
         case 28: // LITERAL_class
@@ -1527,7 +1526,7 @@ public class JavaParser
             }
             else {
                 pushBackAll(tlist);
-                return parseVariableDeclarations(token);
+                return parseVariableDeclarations(token, true);
             }
         case 40: // LCURLY
             beginStmtblockBody(token);
@@ -1562,10 +1561,48 @@ public class JavaParser
         return token;
     }
     
+    /**
+     * Parse a try/catch/finally. The first token is 'try'.
+     * @param token  The first token (must be 'try').
+     * @return  the last token that is part of the try/catch/finally, or null
+     */
     public LocatableToken parseTryCatchStmt(LocatableToken token)
     {
         beginTryCatchSmt(token);
         token = nextToken();
+        if (token.getType() == JavaTokenTypes.LPAREN) {
+            // Java 7 try-with-resource
+            parseModifiers();
+            do {
+                token = tokenStream.LA(1);
+                // Specification allows either a variable declaration (with initializer) or
+                // expression.
+                if (token.getType() == JavaTokenTypes.IDENT) {
+                    List<LocatableToken> tlist = new LinkedList<LocatableToken>();
+                    boolean isTypeSpec = parseTypeSpec(true, true, tlist);
+                    token = tokenStream.LA(1);
+                    pushBackAll(tlist);
+                    if (isTypeSpec && token.getType() == JavaTokenTypes.IDENT) {
+                        parseVariableDeclarations(tlist.get(0), false);
+                    }
+                    else {
+                        parseExpression();                                              
+                    }
+                }
+                else if (isModifier(token)) {
+                    tokenStream.nextToken(); // remove the modifier from the token stream
+                    parseVariableDeclarations();
+                }
+                else {
+                    parseExpression();
+                }
+                token = tokenStream.nextToken();
+            } while (token.getType() == JavaTokenTypes.SEMI);
+            if (token.getType() != JavaTokenTypes.RPAREN) {
+                errorBefore("Missing closing ')' after resources in 'try' statement", token);
+            }
+            token = nextToken();
+        }
         if (token.getType() != JavaTokenTypes.LCURLY) {
             error ("Expecting '{' after 'try'");
             tokenStream.pushBack(token);
@@ -1860,7 +1897,7 @@ public class JavaParser
                     else {
                         tokenStream.pushBack(token);
                     }
-                    if (parseSubsequentDeclarations(DECL_TYPE_FORINIT) == null) {
+                    if (parseSubsequentDeclarations(DECL_TYPE_FORINIT, true) == null) {
                         endForLoop(tokenStream.LA(1), false);
                         modifiersConsumed();
                         return null;
@@ -2021,16 +2058,19 @@ public class JavaParser
     public LocatableToken parseVariableDeclarations()
     {
         LocatableToken first = tokenStream.LA(1);
-        return parseVariableDeclarations(first);
+        return parseVariableDeclarations(first, true);
     }
     
     /**
-     * Parse a variable declaration, possibly with an initialiser, always followed by ';'
+     * Parse a variable declaration, possibly with an initialiser, usually followed by ';'
      * 
      * @param first   The first token of the declaration (should still be
      *                in the token stream, unless it is a modifier)
+     * @param mustEndWithSemi  If false, specifies that the declaration need not be terminated by a semi-colon,
+     *                and that furthermore, the character terminating the declaration should be left in the token
+     *                stream.
      */
-    public LocatableToken parseVariableDeclarations(LocatableToken first)
+    public LocatableToken parseVariableDeclarations(LocatableToken first, boolean mustEndWithSemi)
     {
         beginVariableDecl(first);
         parseModifiers();
@@ -2040,7 +2080,7 @@ public class JavaParser
         // This is necessary because an initializer expression might contain an anonymous
         // class containing modifiers.
         if (r) {
-            return parseSubsequentDeclarations(DECL_TYPE_VAR);
+            return parseSubsequentDeclarations(DECL_TYPE_VAR, mustEndWithSemi);
         }
         else {
             endVariableDecls(tokenStream.LA(1), false);
@@ -2060,9 +2100,10 @@ public class JavaParser
     /**
      * After seeing a type and identifier declaration, this will parse any
      * the subsequent declarations, and check for a terminating semicolon.
-     * @return  the last token that is part of the declarations, or null on error
+     * 
+     * @return  the last token that is part of the declarations, or null on error (or mustEndWithSemi == false).
      */
-    protected LocatableToken parseSubsequentDeclarations(int type)
+    protected LocatableToken parseSubsequentDeclarations(int type, boolean mustEndWithSemi)
     {
         LocatableToken prevToken = lastToken;
         LocatableToken token = nextToken();
@@ -2087,6 +2128,13 @@ public class JavaParser
             }
         }
 
+        if (! mustEndWithSemi) {
+            tokenStream.pushBack(token);
+            endDeclaration(type, token, false);
+            endDeclarationStmt(type, token, false);
+            return null;
+        }
+        
         if (token.getType() != JavaTokenTypes.SEMI) {
             tokenStream.pushBack(token);
             errorBehind(BJ003, prevToken);
@@ -2147,9 +2195,12 @@ public class JavaParser
      */
     private boolean parseVariableDeclaration(LocatableToken first)
     {
-        if (!parseTypeSpec(true)) {
+        List<LocatableToken> typeSpecTokens = new LinkedList<LocatableToken>();
+        if (!parseTypeSpec(false, true, typeSpecTokens)) {
             return false;
         }
+        gotTypeSpec(typeSpecTokens);
+        
         LocatableToken token = nextToken();
         modifiersConsumed();
         if (token.getType() != JavaTokenTypes.IDENT) {
