@@ -1,8 +1,28 @@
-﻿Slovenská lokalizácia pre BlueJ 3.0
-===================================
+﻿Slovenská lokalizácia pre BlueJ
+===============================
 
-Verzia 1.0 zo dňa 22.9.2010.
+Aktualizácie a ďalšie informácie získate na adrese:
+---------------------------------------------------
 
+  * http://cec.truni.sk/horvath/personal.php?get_bluej_trans
+
+
+Poznámky k verzii prekladu 1.1 zo dňa 18.7.2011
+-----------------------------------------------
+
+Na podnet autorov bola vydaná nová verzia prekladu reflektujúca zmeny vykonané v rámci vydania najbližšej verzie nástroja BlueJ. Presné číslo novej verzie BlueJ nebolo prekladateľom vopred známe, k jej vydaniu však má prísť počas najbližších dvoch týždňov – dátum vydania verzie prekladu je vždy možné konfrontovať s informáciami na http://www.bluej.org/.
+
+
+Poznámky k aktualizácii prekladu 1.01 zo dňa 27.9.2010
+------------------------------------------------------
+
+Aktualizácia obsahuje jedinú úpravu, preklad chybového hlásenia, na ktoré sa omylom zabudlo.
+
+Jazykový balíček je plne kompatibilný aj s verziou BlueJ 3.0.2. Pôvodné anglické znenie obsahuje kozmetické úpravy, ktoré budú zapracované do ďalšej verzie prekladu.
+
+
+Poznámky k verzii prekladu 1.0 zo dňa 22.9.2010
+-----------------------------------------------
 
 Lokalizáciu vytvorili Roman Horváth a Andrea Hrnčiariková. Prvý autor vytvoril hrubú verziu prekladu, ktorú revidovala druhá spoluautorka.
 
@@ -10,7 +30,3 @@ Lokalizácia bola pôvodne inšpirovaná českým prekladom z dielne autorov Pe
 
 Od začatia prekladu (koniec septembra 2009) prešla slovenská verzia lokalizácie výraznými zmenami a priklonila sa viac k pôvodnému anglickému zneniu. Českým autorom v každom prípade ďakujeme za inšpiráciu a poskytnutie „štartovacej“ verzie.
 
-
-Aktualizácie a ďalšie informácie získate na adrese:
-
-  * http://cec.truni.sk/horvath/personal.php?get_bluej_trans
