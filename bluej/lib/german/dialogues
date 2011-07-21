@@ -18,11 +18,6 @@ gefunden werden kann, ist ein Fehler
 aufgetreten.
 Klasse: Zeilennummer:
 
-system-exit
-Die Methode wurde durch eine explizite
-"exit"-Anweisung beendet. Es gibt keinen
-R\u00fcckgabewert. Der Exitcode lautet:
-
 no-help
 F\u00fcr diese Meldung ist kein Hilfetext 
 verf\u00fcgbar. Bitte senden Sie den Text 
@@ -87,7 +82,7 @@ gespeichert.
 error-no-templates
 Das angegebene Vorlagenverzeichnis (das Verzeichnis,
 in dem BlueJ die Klassenvorlagen findet) ist nicht
-virhanden. Es ist unter der Eigenschaft "bluej.templatePath" 
+vorhanden. Es ist unter der Eigenschaft "bluej.templatePath" 
 in der Datei <bluej-home>/lib/bluej.defs definiert.
 \u00dcberpr\u00fcfen Sie diese Eigenschaft und stellen Sie sie
 richtig.
@@ -111,7 +106,7 @@ Die jar-Datei konnte nicht richtig geschrieben werden.
 rechte und freien Plattenspeicherplatz.)
 
 error-file-exists
-Die gew\u00fcnschte jar-Datei ist bereits vorhanden.
+Die gew\u00e4hlte Datei ist bereits vorhanden.
 Wollen Sie sie \u00fcberschreiben?
 \u00dcberschreiben
 Abbrechen
@@ -198,6 +193,23 @@ duplicate-name
 Eine Klasse oder ein Paket mit diesem Namen existiert
 bereits in diesem Paket. Sie k\u00f6nnen keine zwei Klassen
 mit demselben Namen haben.
+
+class-library-conflict
+Eine Klasse mit diesem Namen existiert bereits
+in der Bibliothek "$".
+Wenn Sie diese Klasse erzeugen, k\u00f6nnen Sie sie
+bearbeiten und \u00fcbersetzen, aber ihre Methoden
+nicht aufrufen.
+Abbrechen
+Trotzdem fortfahren
+null
+
+compile-class-library-conflict
+Eine Klasse mit diesem Namen existiert bereits
+in der Bibliothek "$".
+Sie k\u00f6nnen Ihre Klasse bearbeiten und 
+\u00fcbersetzen, aber der Aufruf von Methoden
+wird Code aus der Bibliotheksklasse ausf\u00fchren.
 
 windows-reserved-class-name
 Der gew\u00e4hlte Klassenname kann nicht verwendet werden,
@@ -353,14 +365,17 @@ null
 
 classmgr-changes-no-effect
 Ihre \u00c4nderungen an den Klassenbibliotheken werden
-erst nach dem n\u00e4chsten \u00dcbersetzen oder dem Neustart
-der virtuellen Maschine wirksam.
+erst nach dem Neustart der virtuellen Maschine wirksam.
 
 unittest-new-test-method
 Benennen Sie den Test.
 Die Aufzeichnung wird im Anschluss gestartet.
 Neue Testmethode
 null
+
+unittest-io-error
+W\u00e4hrend versucht wurde, den Test-Quelltest zu 
+lesen, ist ein Ein-/Ausgabefehler aufgetreten.
 
 getobject-new-name
 Geben Sie den Namen f\u00fcr das neue Objekt ein.
@@ -403,7 +418,7 @@ um Projekte auszuf\u00fchren. Dies ist ein ernstes Problem - Sie werden
 nicht in der Lage sein, Objekte zu erzeugen oder Methoden aufzurufen,
 ohne das Problem zu l\u00f6sen. Dies wird oft von \u00fcberm\u00e4\u00dfig 
 einschr\u00e4nkenden Einstellungen der Firewall verursacht.
-Siehe <http://www.bluej.org/help/faq.html#socket-exc> f�r mehr Informationen.
+Siehe <http://www.bluej.org/help/faq.html#socket-exc> f?r mehr Informationen.
 
 project-is-readonly
 Das Projekt ist schreibgesch\u00fctzt. Sie werden nicht in der Lage sein,
@@ -543,6 +558,13 @@ Meine Version behalten
 Repository-Version verwenden
 null
 
+team-error-saving-project
+W\u00e4hrend versucht wurde, die Projektdateien zu speichern, ist
+ein Fehler aufgetreten:
+	$
+Abgeben oder Aktualisieren kann unerwartete Ergebnisse
+haben.
+ 
 not-all-compiled
 Nicht alle Klassen dieses Projekts sind kompiliert. Um die MIDlet-Suite
 bereitstellen zu k\u00f6nnen, m\u00fcssen Sie alle Klassen des Projekts kompilieren.
@@ -558,10 +580,10 @@ stuck-at-breakpoint
 Ihr Programm l\u00e4uft bereits und hat an einem Haltepunkt angehalten.
 Sie k\u00f6nnen keine weitere Ausf\u00fchrung starten, w\u00e4hrend die aktuelle
 noch aktiv ist. Benutzen Sie die Steuerelemente des Debuggers, um die aktuelle 
-Ausf�hrung entweder fortzuf\u00fchren oder zu beenden.
+Ausf\u00e4hrung entweder fortzuf\u00fchren oder zu beenden.
 
 already-executing
 Ihr Programm l\u00e4uft bereits. Sie k\u00f6nnen keine weitere 
 Ausf\u00fchrung starten (oder eine Klasse inspizieren), w\u00e4hrend 
 die aktuelle noch aktiv ist. Benutzen Sie die Steuerelemente des 
-Debuggers, um die aktuelle Ausf�hrung entweder fortzuf\u00fchren oder zu beenden.
+Debuggers, um die aktuelle Ausf\u00e4hrung entweder fortzuf\u00fchren oder zu beenden.
