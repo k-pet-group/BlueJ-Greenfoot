@@ -1651,18 +1651,20 @@ public class JavaParser
                     
                     parseTypeSpec(true);
                     token = nextToken();
-                    if (token.getType() != JavaTokenTypes.IDENT) {
-                        error("Expecting identifier after type (in 'catch' expression)");
-                        tokenStream.pushBack(token);
-                        endTryCatchStmt(token, false);
-                        return null;
-                    }
-                    token = nextToken();
                     if (token.getType() != JavaTokenTypes.BOR) {
                         // Java 7 multi-catch
                         break;
                     }
                 }
+                
+                if (token.getType() != JavaTokenTypes.IDENT) {
+                    error("Expecting identifier after type (in 'catch' expression)");
+                    tokenStream.pushBack(token);
+                    endTryCatchStmt(token, false);
+                    return null;
+                }
+                token = nextToken();
+                
                 if (token.getType() != JavaTokenTypes.RPAREN) {
                     error("Expecting ')' after identifier (in 'catch' expression)");
                     tokenStream.pushBack(token);
