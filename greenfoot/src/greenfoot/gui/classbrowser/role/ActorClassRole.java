@@ -44,7 +44,7 @@ import bluej.Config;
  */
 public class ActorClassRole extends ImageClassRole
 {
-    protected final Color envOpColour = Config.getItemColour("colour.menu.environOp");
+    protected final Color envOpColour = new Color(152,32,32);
 
     private String template = "actorclass.tmpl";
 
@@ -53,10 +53,10 @@ public class ActorClassRole extends ImageClassRole
     
     private List<Action> constructorItems = new ArrayList<Action>();
     private boolean enableConstructors = false;
-	
+    
     public ActorClassRole(GProject project)
     {
-    	super(project);
+        super(project);
     }
     
     /*

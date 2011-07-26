@@ -69,7 +69,7 @@ public abstract class ClassRole implements WorldListener
 {
     protected final static Dimension iconSize = new Dimension(16, 16);
     
-    private final Color envOpColour = Config.getItemColour("colour.menu.environOp");
+    private final Color envOpColour = new Color(152,32,32);
     
     /**
      * Set the text and icon of a ClassView as appropriate for the given class
@@ -221,5 +221,5 @@ public abstract class ClassRole implements WorldListener
      * Called when this role is being removed. Do any cleanup that is needed here.
      */
     public abstract void remove();
-	
+    
 }
