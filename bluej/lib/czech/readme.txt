@@ -1,17 +1,22 @@
-Ceska lokalizace pro BlueJ 3.0
-===============================
+--------------------------------------------------------------------
+Soubor je ulozen v kodovani UTF-8.
+Kontrola kodovani: Příliš žluťoučký kůň úpěl ďábelské ódy.
+--------------------------------------------------------------------
 
-Lokalizace pouziva kodovani ASCII
+Česká lokalizace pro BlueJ 3.0.5
+================================
 
-Verze 3.0 ze dne 27.3.2010.
+Lokalizace pouziva kodovani UTF-8
 
-Lokalizaci vytvorili Petr Skoda a Rudolf Pecinovsky.
+Verze 3.0.51 ze dne 25.7.2011.
+
+Lokalizaci vytvořili Petr Škoda a Rudolf Pecinovský.
 
 
-Aktualizace a dalsi informace ziskate na adrese:
+Aktualizace a další informace získáte na adrese:
 
-  http://vyuka.pecinovsky.cz
+  http://vyuka.pecinovsky.cz/bluej_config/index.html
 
-pripadne na mailu
+případně na mailu
 
   rudolf@pecinovsky.cz

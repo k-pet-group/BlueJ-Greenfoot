@@ -1,0 +1,13 @@
+BJ00
+Deklarace n\u00e1zvu a parametr\u016f metody mu\u00ed b\u00fdt n\u00e1sledov\u00e1na
+t\u011blem metody nebo kl\u00ed\u010dov\u00fdm slovem "throws" anebo st\u0159edn\u00edkem
+
+BJ01
+Je o\u010dek\u00e1v\u00e1na otev\u00edrac\u00ed kulat\u00e1 z\u00e1vorka "(".
+Za kl\u00ed\u010dov\u00fdmi slovy "if", "while" a "switch" mus\u00ed n\u00e1sledovat "(".
+Nezapomn\u011bli jste uzav\u0159\u00edt podm\u00ednku do z\u00e1vorek?
+
+BJ02
+Je o\u010dek\u00e1v\u00e1na otev\u00edrac\u00ed kulat\u00e1 z\u00e1vorka "(".
+Mezi "(" a ")" uzav\u00edr\u00e1me podm\u00ednky,
+mezi "{" a "}" uzav\u00edr\u00e1me t\u011bla cykl\u016f.

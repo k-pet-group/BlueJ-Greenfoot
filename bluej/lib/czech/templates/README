@@ -2,9 +2,9 @@
 Soubor je ulozen v kodovani UTF-8.
 Kontrola kodovani: Příliš žluťoučký kůň úpěl ďábelské ódy.
 --------------------------------------------------------------------
-Tato složka obsahuje některé šablony, které BlueJ používá pro
-generování souborů. Změnou těchto šablon dosáhnete změny obsahu
-generovaných souborů.
+Tato složka obsahuje některé šablony,
+které BlueJ používá pro generování zdrojových souborů a jejich částí.
+Změnou těchto šablon dosáhnete změny obsahu generovaných souborů.
 
  - "readme" může být libovolně měněna
 

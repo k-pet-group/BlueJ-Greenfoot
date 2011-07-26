@@ -1,555 +1,563 @@
 kotrola-kodovani
-P\u0159\u00EDli\u0161 \u017Elu\u0165ou\u010Dk\u00FD k\u016F\u0148 \u00FAp\u011Bl \u010F\u00E1belsk\u00E9 \u00F3dy.
-P\u0158\u00CDLI\u0160 \u017DLU\u0164OU\u010CK\u00DD K\u016E\u0147 \u00DAP\u011AL \u010E\u00C1BELSK\u00C9 \u00D3DY.
+P\u0159\u00edli\u0161 \u017elu\u0165ou\u010dk\u00fd k\u016f\u0148 \u00fap\u011bl \u010f\u00e1belsk\u00e9 \u00f3dy.
+P\u0158\u00cdLI\u0160 \u017dLU\u0164OU\u010cK\u00dd K\u016e\u0147 \u00daP\u011aL \u010e\u00c1BELSK\u00c9 \u00d3DY.
 
 compile-while-executing
-Nem\u016F\u017Eete p\u0159ekl\u00E1dat,
-dokud b\u011B\u017E\u00ED virtu\u00E1ln\u00ED stroj Javy.
-Mohly by nastat nep\u0159edv\u00EDdateln\u00E9 probl\u00E9my!
+Nem\u016f\u017eete p\u0159ekl\u00e1dat,
+dokud b\u011b\u017e\u00ed virtu\u00e1ln\u00ed stroj Javy.
+Mohly by nastat nep\u0159edv\u00eddateln\u00e9 probl\u00e9my!
 
 exception-thrown
-Byla vyvol\u00E1na v\u00FDjimka:
+Byla vyvol\u00e1na v\u00fdjimka:
 
 break-no-source
-Chod programu se zastavil na zar\u00E1\u017Ece v souboru,
-ke kter\u00E9mu nen\u00ED dostupn\u00FD zdrojov\u00FD k\u00F3d.
-Jm\u00E9no souboru:
+Chod programu se zastavil na zar\u00e1\u017ece v souboru,
+ke kter\u00e9mu nen\u00ed dostupn\u00fd zdrojov\u00fd k\u00f3d.
+Jm\u00e9no souboru:
 
 error-in-file
-Nastala chyba v souboru, ke kter\u00E9mu nen\u00ED
-dostupn\u00FD zdrojov\u00FD k\u00F3d.
-T\u0159\u00EDda: \u010D\u00EDslo \u0159\u00E1dku:
-
-system-exit
-Metoda skon\u010Dila zavol\u00E1n\u00EDm metody "exit".
-Nebyl vr\u00E1cen \u017E\u00E1dn\u00FD v\u00FDsledek.
-K\u00F3d ukon\u010Den\u00ED je:
+Nastala chyba v souboru, ke kter\u00e9mu nen\u00ed
+dostupn\u00fd zdrojov\u00fd k\u00f3d.
+T\u0159\u00edda: \u010d\u00edslo \u0159\u00e1dku:
 
 no-help
-Pro tuto zpr\u00E1vu nen\u00ED \u017E\u00E1dn\u00E1 n\u00E1pov\u011Bda.
-Po\u0161lete pros\u00EDm text t\u00E9to zpr\u00E1vy na email
-mik@mip.sdu.dk - n\u00E1pov\u011Bda bude p\u0159id\u00E1na
-do datab\u00E1ze. D\u011Bkujeme.
+Pro tuto zpr\u00e1vu nen\u00ed k dispozici \u017e\u00e1dn\u00e1 n\u00e1pov\u011bda.
+Po\u0161lete pros\u00edm text chybov\u00e9 zpr\u00e1vy e-mailem
+na adresu mik@bluej.org
+N\u00e1pov\u011bda bude p\u0159id\u00e1na do datab\u00e1ze. D\u011bkujeme.
 
 editor-crashed
-Zdrojov\u00FD text byl nejsp\u00ED\u0161 upraven jin\u00FDm editorem nebo
-BlueJ p\u0159i posledn\u00EDm z\u00E1pisu t\u00E9to t\u0159\u00EDdy na disk
-havaroval. Zdrojov\u00FD k\u00F3d pak mo\u017En\u00E1 chyb\u00ED, nebo je
-nekompletn\u00ED. Ve slo\u017Ece s projektem by m\u011Bla b\u00FDt z\u00E1lo\u017En\u00ED
-kopie t\u00E9to t\u0159\u00EDdy. Zd\u00E1-li se zdrojov\u00FD k\u00F3d poni\u010Den:
-   1. ukon\u010Dete BlueJ,
-   2. z\u00E1lohujte slo\u017Eku s projektem (pro jistotu),
-   3. zm\u011B\u0148te p\u0159\u00EDponu z\u00E1lo\u017En\u00EDho souboru na .java
+Zdrojov\u00fd text byl nejsp\u00ed\u0161 upraven jin\u00fdm editorem nebo
+p\u0159i posledn\u00edm z\u00e1pisu t\u00e9to t\u0159\u00eddy na disk BlueJ havaroval.
+Zdrojov\u00fd k\u00f3d pak mo\u017en\u00e1 chyb\u00ed, nebo je nekompletn\u00ed.
+M\u00e1te-li nastaveno vytv\u00e1\u0159en\u00ed z\u00e1lo\u017en\u00edch kopi\u00ed,
+by m\u011bla by b\u00fdt ve slo\u017ece s projektem z\u00e1lo\u017en\u00ed kopie t\u00e9to t\u0159\u00eddy.
+Zd\u00e1-li se zdrojov\u00fd k\u00f3d poni\u010den:
+   1. ukon\u010dete BlueJ,
+   2. z\u00e1lohujte slo\u017eku s projektem (pro jistotu),
+   3. zm\u011b\u0148te p\u0159\u00edponu z\u00e1lo\u017en\u00edho souboru z .java~ na .java
 
 cannot-run-compiler
-P\u0159eklada\u010D nelze spustit.
-Je tento p\u0159eklada\u010D dostupn\u00FD?
-Jm\u00E9no p\u0159eklada\u010De:
+P\u0159eklada\u010d nelze spustit.
+Je tento p\u0159eklada\u010d dostupn\u00fd?
+Jm\u00e9no p\u0159eklada\u010de:
 
 compiler-error
 Chyba p\u0159ekladu:
 
 stream-incomplete
-Chyba p\u0159ekladu. Chybov\u00FD proud je nekompletn\u00ED.
+Chyba p\u0159ekladu. Chybov\u00fd proud je nekompletn\u00ed.
 
 out-of-bounds
-Specifikovan\u00FD prvek le\u017E\u00ED
-mimo povolen\u00E9 meze pole.
+Specifikovan\u00fd prvek le\u017e\u00ed
+mimo povolen\u00e9 meze pole.
 
 cannot-access-element
-Nan\u00ED mo\u017En\u00E9 p\u0159istoupit
-k zadan\u00E9mu prvku pole.
+K zadan\u00e9mu prvku pole
+nen\u00ed mo\u017en\u00e9 p\u0159istoupit.
 
 appletviewer-error
-Chyba p\u0159i spou\u0161t\u011Bn\u00ED aplikace appletviewer.
+Chyba p\u0159i spou\u0161t\u011bn\u00ed apletu
+aplikac\u00ed appletviewer.
 
 error-no-name
-Mus\u00EDte zadat platn\u00E9 jm\u00E9no.
+Mus\u00edte zadat platn\u00e9 jm\u00e9no.
 
 error-save-file
-Nastala chyba p\u0159i ukl\u00E1d\u00E1n\u00ED souboru.
-Soubor nebyl ulo\u017Een.
+P\u0159i ukl\u00e1d\u00e1n\u00ed souboru nastala chyba.
+Soubor nebyl ulo\u017een.
 
 cannot-save-keys
-P\u0159i ukl\u00E1d\u00E1n\u00ED kl\u00E1vesov\u00FDch zkratek nastala chyba.
-Zm\u011Bny nebyly ulo\u017Eeny.
+P\u0159i ukl\u00e1d\u00e1n\u00ed kl\u00e1vesov\u00fdch
+zkratek nastala chyba.
+Zm\u011bny nebyly ulo\u017eeny.
 
 error-no-templates
-Slo\u017Eka s \u0161ablonami (slo\u017Eka, v n\u00ED\u017E BlueJ hled\u00E1 \u0161ablony t\u0159\u00EDd)
-neexistuje. Zkontrolujete pros\u00EDm nastaven\u00ED polo\u017Eky
-"bluej.templatePath" v souboru <bluej-home>/lib/bluej.defs.
+Slo\u017eka s \u0161ablonami (slo\u017eka, v n\u00ed\u017e BlueJ hled\u00e1 \u0161ablony t\u0159\u00edd)
+neexistuje. Cesta k t\u00e9to slo\u017ece slo\u017eka je zad\u00e1na v souboru
+<bluej-home>/lib/bluej.defs v polo\u017ekce "bluej.templatePath"-
+Zkontrolujte jej\u00ed spr\u00e1vn\u00e9 nastaven\u00ed.
 
 skeleton-error
-Nelze vygenerovat v\u00FDchoz\u00ED kostru t\u00E9to t\u0159\u00EDdy.
-Bu\u010F je chyba v konfiguraci BlueJ,
-nebo je soubor nedostupn\u00FD.
+Nelze vytvo\u0159it v\u00fdchoz\u00ed kostru t\u0159\u00eddy.
+Bu\u010f je chyba v konfiguraci BlueJ,
+nebo se vyskytly syst\u00e9mov\u00e9 probl\u00e9my
+p\u0159i pr\u00e1ci s diskem.
 
 error-open-source
-Zdrojov\u00FD k\u00F3d t\u00E9to t\u0159\u00EDdy nelze otev\u0159\u00EDt.
+Zdrojov\u00fd k\u00f3d t\u00e9to t\u0159\u00eddy
+nelze otev\u0159\u00edt.
 
 error-writing-jar
-Do souboru jar se nepoda\u0159ilo \u00FAsp\u011B\u0161n\u011B zapsat.
-Zkontrolujte p\u0159\u00EDstupov\u00E1 pr\u00E1va a voln\u00E9 m\u00EDsto
-na disku.
+Nepoda\u0159ilo se \u00fasp\u011b\u0161n\u011b zapsat do souboru jar.
+Zkontrolujte p\u0159\u00edstupov\u00e1 pr\u00e1va k souboru
+a voln\u00e9 m\u00edsto na disku.
 
 error-file-exists
-Vybran\u00FD soubor jar ji\u017E existuje.
-P\u0159ejete si pokra\u010Dovat?
+Vybran\u00fd soubor jar ji\u017e existuje.
+P\u0159ejete si pokra\u010dovat?
 P\u0159epsat
 Storno
 null
 
 invalid-class-name
-Neplatn\u00E9 jm\u00E9no t\u0159\u00EDdy.
+Neplatn\u00e9 jm\u00e9no t\u0159\u00eddy.
 
 invalid-package-name
-Neplatn\u00E9 jm\u00E9no bal\u00ED\u010Dku.
+Neplatn\u00e9 jm\u00e9no bal\u00ed\u010dku.
 
 must-be-identifier
-Jm\u00E9no nen\u00ED platn\u00E9, proto\u017Ee nevyhovuje
-po\u017Eadavk\u016Fm kladen\u00FDm na identifik\u00E1tory
-jazyka Java.
+Zadan\u00e9 jm\u00e9no nen\u00ed platn\u00e9,
+proto\u017ee nevyhovuje po\u017eadavk\u016fm
+kladen\u00fdm na identifik\u00e1tory jazyka Java.
 
 directory-exists
-Soubor nebo slo\u017Eka s t\u00EDmto
-jm\u00E9nem ji\u017E existuje.
+Soubor nebo slo\u017eka s t\u00edmto
+jm\u00e9nem ji\u017e existuje.
 
 cannot-create-directory
-Nelze vytvo\u0159it slo\u017Eku (adres\u00E1\u0159).
-Zkontroluje, zda m\u00E1 platn\u00E9 jm\u00E9no,
-zda existuje jej\u00ED rodi\u010Dovsk\u00E1 slo\u017Eka
-a neplat\u00ED-li pro rodi\u010Dovskou slo\u017Eku
-z\u00E1kaz z\u00E1pisu.
+Nelze vytvo\u0159it slo\u017eku (adres\u00e1\u0159).
+Zkontroluje, zda je zadan\u00e9 jm\u00e9no platn\u00e9,
+a zda existuje jej\u00ed rodi\u010dovsk\u00e1 slo\u017eka,
+do n\u00ed\u017e je mo\u017eno zapisovat.
 
 cannot-copy-package
-Nastal probl\u00E9m p\u0159i kop\u00EDrov\u00E1n\u00ED soubor\u016F bal\u00ED\u010Dku.
-Bal\u00ED\u010Dek nebyl v\u016Fbec zaps\u00E1n, nebo je nekompletn\u00ED.
+Nastal probl\u00e9m p\u0159i kop\u00edrov\u00e1n\u00ed soubor\u016f bal\u00ed\u010dku.
+Bal\u00ed\u010dek nebyl v\u016fbec zaps\u00e1n, nebo je nekompletn\u00ed.
 
 file-does-not-exist
-Zadan\u00FD soubor neexistuje.
+Zadan\u00fd soubor neexistuje.
 
 cannot-import
-Nemohu importovat soubor. Soubor
-mus\u00ED obsahovat zdrojov\u00FD k\u00F3d a
-mus\u00ED m\u00EDt p\u0159\u00EDponu ".java".
+Nemohu importovat soubor.
+Soubor mus\u00ed m\u00edt p\u0159\u00edponu ".java"
+a mus\u00ed obsahovat zdrojov\u00fd k\u00f3d.
 
 docdir-blocked-by-file
-Slo\u017Eku pro dokumentaci nelze vytvo\u0159it,
-proto\u017Ee se ve slo\u017Ece projektu
-ji\u017E nach\u00E1z\u00ED soubor se stejn\u00FDm jm\u00E9nem.
+Nelze vytvo\u0159it Slo\u017eku pro dokumentaci,
+proto\u017ee se ve slo\u017ece projektu
+ji\u017e nach\u00e1z\u00ed soubor se stejn\u00fdm jm\u00e9nem.
 
 docdir-not-created
-Ve slo\u017Ece projektu nem\u016F\u017Ee b\u00FDt vytvo\u0159ena
-slo\u017Eka pro dokumentaci.
+Ve slo\u017ece projektu se nepoda\u0159ilo
+vytvo\u0159it slo\u017eku pro dokumentaci.
 
 no-permission-for-docdir
-Ve slo\u017Ece projektu nem\u016F\u017Ee b\u00FDt vytvo\u0159ena
-slo\u017Eka pro dokumentaci.
-Nem\u00E1te dostate\u010Dn\u00E9 opr\u00E1vn\u011Bn\u00ED.
+Nem\u00e1te dostate\u010dn\u00e9 opr\u00e1vn\u011bn\u00ed pro
+vytvo\u0159en\u00ed slo\u017eka pro dokumentaci
+ve slo\u017ece projektu.
 
 show-or-generate
-P\u0159ejete si zobrazit d\u0159\u00EDve vytvo\u0159enou dokumentaci
-nebo si p\u0159ejete vygenerovat jej\u00ED novou verzi?
-Pouze uk\u00E1zat
+P\u0159ejete si zobrazit d\u0159\u00edve vytvo\u0159enou dokumentaci
+nebo si p\u0159ejete vygenerovat jej\u00ed novou verzi?
+Pouze uk\u00e1zat
 Znovu generovat
 Storno
 
 doctool-error
-Javadoc nahl\u00E1sil chybu. Mo\u017En\u00E1 je v n\u011Bkter\u00E9m zdrojov\u00E9m
-souboru syntaktick\u00E1 chyba. Je tak\u00E9 mo\u017En\u00E9, \u017Ee byla nastavena
-\u0161patn\u00E1 cesta URL k dokumentaci JDK v nastaven\u00ED BlueJ.
-Ujist\u011Bte se, \u017Ee jsou v\u0161echny soubory p\u0159elo\u017Een\u00E9 a
-ov\u011B\u0159te nastaven\u00ED cesty k specifikaci Java API.
-Opakujte generov\u00E1n\u00ED dokumentace. Jestli\u017Ee probl\u00E9my
-p\u0159etrvaj\u00ED, zkontrolujte v\u00FDpis chyb z Javadoc:
+Javadoc nahl\u00e1sil chybu. Mo\u017en\u00e1 je v n\u011bkter\u00e9m zdrojov\u00e9m
+souboru syntaktick\u00e1 chyba. Je tak\u00e9 mo\u017en\u00e9, \u017ee byla
+v nastaven\u00ed BlueJ zad\u00e1na \u0161patn\u00e1 URL dokumentace JDK.
+Ujist\u011bte se, \u017ee jsou v\u0161echny soubory p\u0159elo\u017een\u00e9 a
+ov\u011b\u0159te nastaven\u00ed cesty ke specifikaci Java API.
+Opakujte generov\u00e1n\u00ed dokumentace. Jestli\u017ee probl\u00e9my
+p\u0159etrvaj\u00ed, zkontrolujte v\u00fdpis chyb z Javadoc:
 
 severe-doc-trouble
-Nastala v\u00FDjimka p\u0159i vol\u00E1n\u00ED extern\u00EDho
-n\u00E1stroje pro vytv\u00E1\u0159en\u00ED dokumentace.
+Nastala v\u00fdjimka p\u0159i vol\u00e1n\u00ed extern\u00edho
+n\u00e1stroje pro vytv\u00e1\u0159en\u00ed dokumentace.
 
 no-java-sources-found
-V zadan\u00E9 slo\u017Ece nebyly nalezeny
-\u017E\u00E1dn\u00E9 zdrojov\u00E9 soubory Javy.
+V zadan\u00e9 slo\u017ece nebyly nalezeny
+\u017e\u00e1dn\u00e9 zdrojov\u00e9 soubory Javy.
 
 duplicate-name
-T\u0159\u00EDda nebo bal\u00ED\u010Dek se stejn\u00FDm jm\u00E9nem
-ji\u017E v tomto bal\u00ED\u010Dku existuje.
-V tomto bal\u00ED\u010Dku nem\u016F\u017Eete m\u00EDt druhou
-t\u0159\u00EDdu \u010Di bal\u00ED\u010Dek se stejn\u00FDm jm\u00E9nem.
+T\u0159\u00edda nebo bal\u00ed\u010dek se stejn\u00fdm jm\u00e9nem
+ji\u017e v tomto bal\u00ed\u010dku existuje. V bal\u00ed\u010dku
+nem\u016f\u017eete m\u00edt dv\u011b entity se stejn\u00fdm jm\u00e9nem.
 
 class-library-conflict
-V knihovn\u011B je ji\u017E t\u0159\u00EDda se stejn\u00FDm n\u00E1zvem
+T\u0159\u00edda se stejn\u00fdm n\u00e1zvem je ji\u017e v knihovn\u011b
 "$".
-Vytvo\u0159\u00EDte-li proto t\u0159\u00EDdu se zadan\u00FDm n\u00E1zvem,
-budete ji sice moci upravovat a p\u0159ekl\u00E1dat,
-ale nebudete moci volat jej\u00ED metody.
+Vytvo\u0159\u00edte-li proto t\u0159\u00eddu se zadan\u00fdm n\u00e1zvem,
+budete ji sice moci upravovat a p\u0159ekl\u00e1dat,
+ale nebudete moci volat jej\u00ed metody.
 Storno
-P\u0159esto pokra\u010Duj
+P\u0159esto pokra\u010duj
 null
 
 compile-class-library-conflict
-V knihovn\u011B je ji\u017E t\u0159\u00EDda se stejn\u00FDm n\u00E1zvem
+V knihovn\u011b je ji\u017e t\u0159\u00edda se stejn\u00fdm n\u00e1zvem
 "$".
-M\u016F\u017Eete proto svoji t\u0159\u00EDdu upravovat a p\u0159ekl\u00E1dat,
-ale p\u0159i vol\u00E1n\u00ED metod se budou spou\u0161t\u011Bt
-metody knihovn\u00ED t\u0159\u00EDdy.
+M\u016f\u017eete proto svoji t\u0159\u00eddu upravovat a p\u0159ekl\u00e1dat,
+ale p\u0159i vol\u00e1n\u00ed metod se budou spou\u0161t\u011bt
+metody knihovn\u00ed t\u0159\u00eddy.
 
 windows-reserved-class-name
-Zadan\u00FD n\u00E1zev t\u0159\u00EDdy nelze pou\u017E\u00EDt, proto\u017Ee tetno n\u00E1zev
-je v n\u011Bkter\u00FDch opera\u010Dn\u00EDch syst\u00E9mech rezervov\u00E1n
+Zadan\u00fd n\u00e1zev t\u0159\u00eddy nelze pou\u017e\u00edt, proto\u017ee tetno n\u00e1zev
+je v n\u011bkter\u00fdch opera\u010dn\u00edch syst\u00e9mech rezervov\u00e1n
 
 error-in-import
-P\u0159i importov\u00E1n\u00ED nastala chyba. Zkontrolujte
-p\u0159\u00EDstupov\u00E1 pr\u00E1va a m\u00EDsto na disku.
+P\u0159i importov\u00e1n\u00ed nastala chyba.
+Zkontrolujte p\u0159\u00edstupov\u00e1 pr\u00e1va
+a m\u00edsto na disku.
 
 no-class-selected-compile
-Nebyla vybr\u00E1na t\u0159\u00EDda k p\u0159ekladu.
-P\u0159ed spu\u0161t\u011Bn\u00EDm p\u0159ekladu vyberte
-klepnut\u00EDm t\u0159\u00EDdu, kter\u00E1 se m\u00E1 p\u0159elo\u017Eit.
+Nebyla vybr\u00e1na t\u0159\u00edda k p\u0159ekladu.
+P\u0159ed spu\u0161t\u011bn\u00edm p\u0159ekladu vyberte
+klepnut\u00edm t\u0159\u00eddu, kter\u00e1 se m\u00e1 p\u0159elo\u017eit.
 
 no-class-selected
-Nebyla vybr\u00E1na \u017E\u00E1dn\u00E1 t\u0159\u00EDda nebo bal\u00ED\u010Dek.
-Jestli\u017Ee chcete smazat soubor nebo bal\u00ED\u010Dek,
-nejd\u0159\u00EDve je mus\u00EDte vybrat a pak smazat.
+Nebyla vybr\u00e1na \u017e\u00e1dn\u00e1 t\u0159\u00edda nebo bal\u00ed\u010dek.
+Jestli\u017ee chcete smazat soubor nebo bal\u00ed\u010dek,
+nejd\u0159\u00edve je mus\u00edte vybrat, a teprve pak smazat.
 
 really-remove-class
-Opravdu si p\u0159ejete odstranit tyto t\u0159\u00EDdy
-v\u010Detn\u011B jejich zdrojov\u00FDch soubor\u016F?
+Opravdu si p\u0159ejete odstranit tyto t\u0159\u00eddy
+v\u010detn\u011b jejich zdrojov\u00fdch soubor\u016f?
 Odstranit
 Storno
 null
 
 really-remove-package
-P\u0159i odstra\u0148ov\u00E1n\u00ED bal\u00ED\u010Dku sma\u017Eete cel\u00FD obsah
-p\u0159\u00EDslu\u0161n\u00E9 slo\u017Eky v\u010Detn\u011B v\u0161ech soubor\u016F a podslo\u017Eek.
-P\u0159ejete si pokra\u010Dovat?
+P\u0159i odstra\u0148ov\u00e1n\u00ed bal\u00ed\u010dku sma\u017eete cel\u00fd obsah
+p\u0159\u00edslu\u0161n\u00e9 slo\u017eky v\u010detn\u011b v\u0161ech soubor\u016f a podslo\u017eek.
+P\u0159ejete si pokra\u010dovat?
 Odstranit
 Storno
 null
 
 remove-package-open
-Vybran\u00FD bal\u00ED\u010Dek ur\u010Den\u00FD pro odstran\u011Bn\u00ED obsahuje
-jin\u00FD bal\u00ED\u010Dek, kter\u00FD je otev\u0159en\u00FD v BlueJ.
-Tento bal\u00ED\u010Dek mus\u00ED b\u00FDt nejd\u0159\u00EDv zav\u0159en.
+Vybran\u00fd bal\u00ed\u010dek ur\u010den\u00fd pro odstran\u011bn\u00ed obsahuje
+jin\u00fd bal\u00ed\u010dek, kter\u00fd je otev\u0159en\u00fd v BlueJ.
+Tento bal\u00ed\u010dek mus\u00ed b\u00fdt nejd\u0159\u00edv zav\u0159en.
 
 package-does-not-exist
-Chyba p\u0159i otev\u00EDr\u00E1n\u00ED bal\u00ED\u010Dku.
-Bal\u00ED\u010Dek neexistuje:
+Chyba p\u0159i otev\u00edr\u00e1n\u00ed bal\u00ed\u010dku.
+Bal\u00ed\u010dek neexistuje:
 
 no-bluej-package
-Chyba p\u0159i otev\u00EDr\u00E1n\u00ED bal\u00ED\u010Dku.
-Soubor/slo\u017Eka nen\u00ED platn\u00FD BlueJ
-bal\u00ED\u010Dek:
+Chyba p\u0159i otev\u00edr\u00e1n\u00ed bal\u00ed\u010dku.
+Soubor/slo\u017eka nen\u00ed platn\u00fd
+bal\u00ed\u010dek BlueJ:
 
 applet-height-width
-Mus\u00ED b\u00FDt zad\u00E1na v\u00FD\u0161ka a \u0161\u00ED\u0159ka apletu.
+Mus\u00ed b\u00fdt zad\u00e1na v\u00fd\u0161ka a \u0161\u00ed\u0159ka apletu.
 
 cannot-read-help
-Soubor s n\u00E1pov\u011Bdou nem\u016F\u017Ee b\u00FDt na\u010Dten:
+Soubor s n\u00e1pov\u011bdou nem\u016f\u017ee b\u00fdt na\u010dten:
 
 not-yet-implemented
-Zat\u00EDm nen\u00ED implementov\u00E1no - omlouv\u00E1me se.
+Zat\u00edm nen\u00ed implementov\u00e1no - omlouv\u00e1me se.
 
 quit-all
-Ukon\u010Dit v\u0161echny otev\u0159en\u00E9 projekty?
-Ukon\u010Dit v\u0161e
+Ukon\u010dit v\u0161echny otev\u0159en\u00e9 projekty?
+Ukon\u010dit v\u0161e
 Storno
 null
 
 really-reload
-Opravdu si p\u0159ejete obnovit stav z posledn\u00EDho ulo\u017Een\u00ED?
+Opravdu si p\u0159ejete obnovit stav z posledn\u00edho ulo\u017een\u00ed?
 Jste si jisti?
-Znovu na\u010D\u00EDst
+Znovu na\u010d\u00edst
 Storno
 null
 
 changed-on-disk
-Zdrojov\u00FD text na disku byl zm\u011Bn\u011Bn.
-Budete cht\u00EDt na\u010D\u00EDt aktu\u00E1ln\u00ED verzi z disku?
-Pokud ano, tak p\u0159ijdete o v\u0161echny zm\u011Bny,
-kter\u00E9 jste v editoru u\u010Dinili
-od posledn\u00EDho ulo\u017Een\u00ED souboru.
-Na\u010D\u00EDst z disku
+Zdrojov\u00fd text na disku byl zm\u011bn\u011bn.
+Budete cht\u00edt na\u010d\u00edt aktu\u00e1ln\u00ed verzi z disku?
+Pokud ano, tak p\u0159ijdete o v\u0161echny zm\u011bny,
+kter\u00e9 jste u\u010dinili od posledn\u00edho ulo\u017een\u00ed souboru.
+Na\u010d\u00edst z disku
 Storno
 null
 
 really-print
-Text je \u0161ir\u0161\u00ED ne\u017E pap\u00EDr. Dlouh\u00E9 \u0159\u00E1dky budou
-o\u0159\u00EDznuty. Tento probl\u00E9m m\u016F\u017Eete odstranit t\u00EDm,
-\u017Ee zm\u011Bn\u00EDte \u0161\u00ED\u0159ku okna editoru.
-St\u00E1le si p\u0159ejete vytisknout text?
+Text je \u0161ir\u0161\u00ed ne\u017e pap\u00edr. Dlouh\u00e9 \u0159\u00e1dky budou
+o\u0159\u00edznuty. Tento probl\u00e9m m\u016f\u017eete odstranit t\u00edm,
+\u017ee zm\u011bn\u00edte \u0161\u00ed\u0159ku okna editoru.
+St\u00e1le si p\u0159ejete vytisknout text?
 Tisk
 Storno
 null
 
 open-non-bluej-already-bluej
-Vybran\u00E1 slo\u017Eka je ji\u017E projekt BlueJ.
+Vybran\u00e1 slo\u017eka je ji\u017e
+projektem BlueJ.
 
 open-non-bluej-no-java
-V t\u00E9to slo\u017Ece nebyly nalezeny
-\u017E\u00E1dn\u00E9 zdrojov\u00E9 soubory v Jav\u011B.
+V t\u00e9to slo\u017ece nebyly nalezeny
+\u017e\u00e1dn\u00e9 zdrojov\u00e9 soubory v Jav\u011b.
 
 open-non-bluej-invalid
-P\u0159\u00E1li jste si otev\u0159\u00EDt tuto slo\u017Eku jako BlueJ projekt.
-V n\u011Bkter\u00E9m souboru je ozna\u010Den\u00ED 'package',
-kter\u00E9 neodpov\u00EDd\u00E1 slo\u017Ece, ve kter\u00E9 je soubor
-um\u00EDst\u011Bn - nap\u0159. soubor za\u010D\u00EDnaj\u00EDc\u00ED p\u0159\u00EDkazem
+P\u0159\u00e1li jste si otev\u0159\u00edt tuto slo\u017eku jako projekt BlueJ.
+V n\u011bkter\u00e9m souboru je p\u0159\u00edkaz 'package',
+kter\u00fd neodpov\u00edd\u00e1 slo\u017ece, v n\u00ed\u017e je soubor um\u00edst\u011bn -
+nap\u0159. soubor za\u010d\u00ednaj\u00edc\u00ed p\u0159\u00edkazem
 package com.aa;
-mus\u00ED b\u00FDt ulo\u017Een ve slo\u017Ece
-<slo\u017Eka_projektu>/com/aa.
+mus\u00ed b\u00fdt ulo\u017een ve slo\u017ece
+<slo\u017eka_projektu>/com/aa.
 
 import-into-current
-V tomto okn\u011B u\u017E m\u00E1te otev\u0159en\u00FD bal\u00ED\u010Dek.
-P\u0159ejete si importovat do tohoto bal\u00ED\u010Dku,
-nebo chcete vytvo\u0159it nov\u00FD projekt
-a importovat do n\u011Bj?
-Do sou\u010Dasn\u00E9ho
-Nov\u00FD projekt
+V tomto okn\u011b u\u017e m\u00e1te otev\u0159en\u00fd bal\u00ed\u010dek.
+P\u0159ejete si importovat do tohoto bal\u00ed\u010dku,
+nebo chcete vytvo\u0159it nov\u00fd projekt
+a importovat do n\u011bj?
+Do aktu\u00e1ln\u00edho bal\u00ed\u010dku
+Nov\u00fd projekt
 Storno
 
 package-name-invalid
-V p\u0159\u00EDkazu "package" jste pou\u017Eili bal\u00ED\u010Dek,
-kter\u00FD v tomto projektu neexistuje.
-Chcete-li p\u0159esunout t\u0159\u00EDdu do jin\u00E9ho bal\u00ED\u010Dku,
-mus\u00EDte jej nejd\u0159\u00EDve vytvo\u0159it.
-P\u0159\u00EDkaz "package" byl vr\u00E1cen do p\u016Fvodn\u00EDho tvaru.
+V p\u0159\u00edkazu "package" jste pou\u017eili bal\u00ed\u010dek,
+kter\u00fd v tomto projektu neexistuje.
+Chcete-li p\u0159esunout t\u0159\u00eddu do jin\u00e9ho bal\u00ed\u010dku,
+mus\u00edte jej nejd\u0159\u00edve vytvo\u0159it.
+P\u0159\u00edkaz "package" byl vr\u00e1cen do p\u016fvodn\u00edho tvaru.
 
 package-name-clash
-Zm\u011Bna proveden\u00E1 v p\u0159\u00EDkazu "package" je neplatn\u00E1,
-p\u0159\u00EDkaz package byl vr\u00E1cen do p\u016Fvodn\u00EDho stavu.
-D\u016Fvodem je to, \u017Ee zm\u011Bna by m\u011Bla za n\u00E1sledek p\u0159esunut\u00ED
-t\u00E9to t\u0159\u00EDdy do jin\u00E9ho bal\u00ED\u010Dku, ale v c\u00EDlov\u00E9m bal\u00ED\u010Dku
-ji\u017E existuje t\u0159\u00EDda se shodn\u00FDm n\u00E1zvem (tato t\u0159\u00EDda by
-musela b\u00FDt p\u0159eps\u00E1na).
+Zm\u011bna proveden\u00e1 v p\u0159\u00edkazu "package" je neplatn\u00e1,
+p\u0159\u00edkaz package byl vr\u00e1cen do p\u016fvodn\u00edho stavu.
+D\u016fvodem je, \u017ee zm\u011bna by m\u011bla za n\u00e1sledek p\u0159esunut\u00ed
+t\u00e9to t\u0159\u00eddy do bal\u00ed\u010dku, v n\u011bm\u017e ji\u017e existuje t\u0159\u00edda
+nebo bal\u00edcek se shodn\u00fdm n\u00e1zvem a tato t\u0159\u00edda (bal\u00ed\u010dek)
+by musela b\u00fdt p\u0159eps\u00e1na.
 
 package-name-changed
-Zm\u011Bnili jste p\u0159\u00EDkaz "package", kter\u00FD ud\u00E1v\u00E1
-p\u0159\u00EDslu\u0161nost t\u0159\u00EDdy k bal\u00ED\u010Dku. P\u0159ejete si
-p\u0159esunout t\u0159\u00EDdu do jin\u00E9ho bal\u00ED\u010Dku,
-nebo vr\u00E1tit zm\u011Bnu zp\u011Bt.
+Zm\u011bnili jste p\u0159\u00edkaz "package",
+kter\u00fd ud\u00e1v\u00e1 p\u0159\u00edslu\u0161nost t\u0159\u00eddy k bal\u00ed\u010dku.
+P\u0159ejete si p\u0159esunout t\u0159\u00eddu do jin\u00e9ho bal\u00ed\u010dku,
+a nebo vr\u00e1tit zm\u011bnu zp\u011bt.
 P\u0159esunout
-Zp\u011Bt
+Zp\u011bt
 null
 
 ask-index
 Zadejte index pvku pole [...]
-Prohl\u00EDdka pole
+Prohl\u00eddka pole
 null
 
 classmgr-changes-no-effect
-Zm\u011Bny, kter\u00E9 jste provedli v nastaven\u00ED knihoven,
-se projev\u00ED a\u017E po p\u0159\u00ED\u0161t\u00EDm spu\u0161t\u011Bn\u00ED BlueJ.
+Zm\u011bny, kter\u00e9 jste provedli v nastaven\u00ed knihoven,
+se projev\u00ed a\u017e po p\u0159\u00ed\u0161t\u00edm spu\u0161t\u011bn\u00ed
+virtu\u00e1ln\u00edho stroje.
 
 unittest-new-test-method
-Zadejte jm\u00E9no testu.
-Pot\u00E9 bude zah\u00E1jeno zaznamen\u00E1v\u00E1n\u00ED testu.
-N\u00E1zev testovac\u00ED metody
+Zadejte jm\u00e9no testu.
+Pot\u00e9 bude zah\u00e1jeno zaznamen\u00e1v\u00e1n\u00ed testu.
+N\u00e1zev testovac\u00ed metody
 null
 
+unittest-io-error
+P\u0159i pokusu o na\u010dten\u00ed jednotky vznikla chyba.
+Zkontrolujte zdrojov\u00fd soubor.
+
 getobject-new-name
-Vlo\u017Ete jm\u00E9no odkazu na objekt
-v z\u00E1sobn\u00EDku odkaz\u016F.
-Jm\u00E9no odkazu
+Vlo\u017ete jm\u00e9no odkazu na objekt
+ze z\u00e1sobn\u00edku odkaz\u016f.
+Jm\u00e9no odkazu
 null
 
 unittest-fixture-present
-Tato testovac\u00ED t\u0159\u00EDda u\u017E m\u00E1 deklarovan\u00FD p\u0159\u00EDpravek.
-Jestli\u017Ee budete pokra\u010Dovat, sou\u010Dasn\u00FD p\u0159\u00EDpravek bude nahrazen.
-P\u0159ejete si pokra\u010Dovat?
+Tato testovac\u00ed t\u0159\u00edda u\u017e m\u00e1 deklarovan\u00fd p\u0159\u00edpravek.
+Budete-li pokra\u010dovat, bude sou\u010dasn\u00fd p\u0159\u00edpravek nahrazen.
+P\u0159ejete si pokra\u010dovat?
 Nahradit
 Storno
 null
 
 unittest-method-present
-V testovac\u00ED t\u0159\u00EDd\u011B je ji\u017E definov\u00E1na stejnojmenn\u00E1 metoda.
-Budete li pokra\u010Dovat, bude tato metoda nahrazena.
-Chcete pokra\u010Dovat?
+V testovac\u00ed t\u0159\u00edd\u011b je ji\u017e definov\u00e1na stejnojmenn\u00e1 metoda.
+Budete li pokra\u010dovat, bude tato metoda nahrazena.
+Chcete pokra\u010dovat?
 Nahradit
 Storno
 null
 
 no-search-string
-Nen\u00ED zad\u00E1n hledan\u00FD text.
-(Vyberte text nebo nejd\u0159\u00EDve pou\u017Eijte "Hledat".)
+Nen\u00ed zad\u00e1n hledan\u00fd text.
+Vyberte text nebo zadejte "Hledat".
 
 default-keys
-Opravdu si p\u0159ejete obnovit v\u00FDchoz\u00ED
-nastaven\u00ED kl\u00E1vesov\u00FDch zkratek?
-V\u00FDchoz\u00ED
+Opravdu si p\u0159ejete zru\u0161it v\u00e1mi nastaven\u00e9
+kl\u00e1vesov\u00e9 zkratky a obnovit v\u00fdchoz\u00ed
+nastaven\u00ed kl\u00e1vesov\u00fdch zkratek?
+V\u00fdchoz\u00ed
 Storno
 null
 
 error-create-vm
-BlueJ nen\u00ED schopen vytvo\u0159it virtu\u00E1ln\u00ED stroj (VM), na n\u011Bm\u017E by mohl
-b\u00FDt projekt spu\u0161t\u011Bn. To je v\u00E1\u017En\u00FD probl\u00E9m - dokud nebude vy\u0159e\u0161en,
-nebudete moci vytv\u00E1\u0159et objekty ani spou\u0161t\u011Bt metody.
-Tento probl\u00E9m je v\u011Bt\u0161inou zp\u016Fsobem p\u0159\u00EDli\u0161 p\u0159\u00EDsn\u00FDm nastaven\u00EDm firewalu,
-V\u00EDce informac\u00ED najdete na <http://www.bluej.org/help/faq.html#socket-exc>.
+BlueJ nen\u00ed schopen vytvo\u0159it virtu\u00e1ln\u00ed stroj (VM), na n\u011bm\u017e by mohl
+b\u00fdt projekt spu\u0161t\u011bn. To je v\u00e1\u017en\u00fd probl\u00e9m - dokud nebude vy\u0159e\u0161en,
+nebudete moci vytv\u00e1\u0159et objekty ani spou\u0161t\u011bt metody.
+Tento probl\u00e9m je v\u011bt\u0161inou zp\u016fsobem p\u0159\u00edli\u0161 p\u0159\u00edsn\u00fdm nastaven\u00edm firewalu,
+V\u00edce informac\u00ed najdete na <http://www.bluej.org/help/faq.html#socket-exc>.
 
 project-is-readonly
-Projekt je ur\u010Den pouze ke \u010Dten\u00ED. Nem\u016F\u017Eete proto vytv\u00E1\u0159et objekty
-ani volat metody.
-P\u0159\u00ED\u010Dinou je bu\u010F nastaven\u00ED p\u0159\u00EDstupov\u00FDch pr\u00E1v k soubor\u016Fm v adres\u00E1\u0159i
-projektu na READ-ONLY nebo um\u00EDst\u011Bn\u00ED soubor\u016F na za\u0159\u00EDzen\u00ED,
-kter\u00E9 nedovoluje z\u00E1pis (nap\u0159. CD-ROM).
-Chcete li s projektem norm\u00E1ln\u011B pracovat, mus\u00EDte zabezpe\u010Dit,
-\u017De je um\u00EDst\u011Bn na za\u0159\u00EDzen\u00ED umo\u017E\u0148uj\u00EDc\u00EDm z\u00E1pis (nejl\u00E9pe na pevn\u00E9m
-disku) a \u017Ee m\u00E1te pr\u00E1vo zapisovat do dan\u00E9ho adres\u00E1\u0159e a do
-kter\u00E9hokoliv ze soubor\u016F projektu.
+Projekt je ur\u010den pouze ke \u010dten\u00ed.
+Nem\u016f\u017eete proto vytv\u00e1\u0159et objekty ani volat metody.
+P\u0159\u00ed\u010dinou je bu\u010f nastaven\u00ed p\u0159\u00edstupov\u00fdch pr\u00e1v
+k soubor\u016fm v adres\u00e1\u0159i projektu na READ-ONLY nebo
+um\u00edst\u011bn\u00ed soubor\u016f na za\u0159\u00edzen\u00ed, kter\u00e9 nedovoluje z\u00e1pis
+(nap\u0159. CD-ROM). Chcete li s projektem norm\u00e1ln\u011b pracovat,
+mus\u00edte zabezpe\u010dit, aby byl um\u00edst\u011bn na za\u0159\u00edzen\u00ed
+umo\u017e\u0148uj\u00edc\u00edm z\u00e1pis (nejl\u00e9pe na pevn\u00e9m disku)
+a abyste m\u011bli pr\u00e1vo zapisovat do dan\u00e9ho adres\u00e1\u0159e
+a do kter\u00e9hokoliv ze soubor\u016f projektu.
 
 project-is-virtualized
-Projekt, kter\u00FD jste otev\u0159eli, je virtualizov\u00E1n syst\u00E9mem Windows.
-K tomu nap\u0159. doch\u00E1z\u00ED, je-li projekt ulo\u017Een n\u011Bkde ve slo\u017Ece
-"Program files" \u010Di jej\u00EDch podlo\u017Ek\u00E1ch.
-P\u0159i virtualizaci projektu bude program p\u0159i pokusu o vytvo\u0159en\u00ED
-objektu nebo vol\u00E1n\u00ED metody hl\u00E1sit chybu.
-Abyste mohli tento projekt pln\u011B vyu\u017E\u00EDt, mus\u00EDte jej p\u0159esunout
-do jin\u00E9 slo\u017Eky. K tomu m\u016F\u017Eete vyu\u017E\u00EDt nap\u0159. p\u0159\u00EDkaz "Ulo\u017Eit jako"
-kter\u00FD po zav\u0159en\u00ED tohoto okna najdete v nab\u00EDdce "Projekt".
+Projekt, kter\u00fd jste otev\u0159eli, je virtualizov\u00e1n syst\u00e9mem Windows.
+K tomu doch\u00e1z\u00ed nap\u0159. tehdy, je-li projekt ulo\u017een n\u011bkde ve slo\u017ece
+"Program Files" \u010di v jej\u00edch podlo\u017ek\u00e1ch.
+P\u0159i virtualizaci projektu bude program p\u0159i pokusu o vytvo\u0159en\u00ed
+objektu nebo vol\u00e1n\u00ed metody hl\u00e1sit chybu.
+Abyste mohli tento projekt pln\u011b vyu\u017e\u00edt, mus\u00edte jej p\u0159esunout
+do jin\u00e9 slo\u017eky. K tomu m\u016f\u017eete vyu\u017e\u00edt nap\u0159. p\u0159\u00edkaz "Ulo\u017eit jako"
+kter\u00fd po zav\u0159en\u00ed tohoto okna najdete v nab\u00eddce "Projekt".
 
 could-not-write-shell-file
-Spu\u0161t\u011Bn\u00ED se nezda\u0159ilo, proto\u017Ee slo\u017Eka projektu neumo\u017E\u0148uje z\u00E1pis.
-Chcete li m\u00EDt mo\u017Enost vytv\u00E1\u0159et objekty a spou\u0161t\u011Bt metody,
-Mus\u00EDte b\u00FDt schopni zapisovat do slo\u017Eky projektu.
-Zajist\u011Bte, aby byl v\u00E1\u0161 projekt na zapisovateln\u00E9m za\u0159\u00EDzen\u00ED
-(ne na CD-ROM) a abyste m\u011Bli pr\u00E1vo z\u00E1pisu do slo\u017Eky
-projektu a jej\u00EDch soubor\u016F.
+Spu\u0161t\u011bn\u00ed se nezda\u0159ilo, proto\u017ee slo\u017eka projektu neumo\u017e\u0148uje z\u00e1pis.
+Chcete li m\u00edt mo\u017enost vytv\u00e1\u0159et objekty a spou\u0161t\u011bt metody,
+mus\u00edte b\u00fdt schopni zapisovat do slo\u017eky projektu. Zajist\u011bte,
+aby byl v\u00e1\u0161 projekt na zapisovateln\u00e9m za\u0159\u00edzen\u00ed (ne na CD-ROM)
+a abyste m\u011bli pr\u00e1vo z\u00e1pisu do slo\u017eky projektu a jej\u00edch soubor\u016f.
 
 jar-output-dir-exists
-Slo\u017Eka, kam by chete rozbalit archiv JAR, ji\u017E existuje.
-Ne\u017E po\u017E\u00E1d\u00E1te o rozbalen\u00EDt archivu,
-mus\u00EDte slo\u017Eku nejprve odstranit.
+Slo\u017eka, kam chcete rozbalit archiv, ji\u017e existuje.
+Mus\u00edte bu\u010f zadat jinou c\u00edlovou slo\u017eku, anebo p\u0159ed \u017e\u00e1dost\u00ed
+o rozbalen\u00edt archivu, danou slo\u017eku nejprve odstranit.
 
 jar-output-no-write
-Nepoda\u0159ilo se vytvo\u0159it v\u00FDstupn\u00ED slo\u017Eku.
-Ov\u011B\u0159te, \u017Ee chete archiv rozbalit do slo\u017Eky,
-do kter\u00E9 m\u00E1te povolen z\u00E1pis.
+Nepoda\u0159ilo se vytvo\u0159it v\u00fdstupn\u00ed slo\u017eku.
+Ov\u011b\u0159te, \u017ee chete archiv rozbalit do slo\u017eky,
+do kter\u00e9 m\u00e1te povolen z\u00e1pis.
 
 jar-extraction-error
-P\u0159i rozbalov\u00E1n\u00ED obsahu souboru JAR vznikla chyba.
-V\u00EDce informac\u00ED najdete lad\u00EDc\u00EDm logovac\u00EDm souboru
-bluej-debuglog.txt um\u00EDst\u011Bn\u00E9m ve slo\u017Ece bluej
-domovsk\u00E9ho adres\u00E1\u0159e aktu\u00E1ln\u00EDho u\u017Eivatele.
+P\u0159i rozbalov\u00e1n\u00ed archivu vznikla chyba.
+V\u00edce informac\u00ed najdete lad\u00edc\u00edm logovac\u00edm souboru
+bluej-debuglog.txt um\u00edst\u011bn\u00e9m ve slo\u017ece bluej
+domovsk\u00e9ho adres\u00e1\u0159e aktu\u00e1ln\u00edho u\u017eivatele.
 
 file-save-error-before-compile
-Jeden \u010Di v\u00EDce soubor\u016F nemohlo b\u00FDt ulo\u017Eeno,
-a proto byl p\u0159eklad stornov\u00E1n.
+Jeden \u010di v\u00edce soubor\u016f nemohlo b\u00fdt ulo\u017eeno,
+a proto byl p\u0159eklad stornov\u00e1n.
 
 generic-file-save-error
-P\u0159i pokusu o ulo\u017Een\u00ED souboru nastala chyba.
+P\u0159i pokusu o ulo\u017een\u00ed souboru nastala chyba.
 
 empty-assertion-text
-Nezadali jste o\u010Dek\u00E1van\u00FD v\u00FDsledek tohoto vol\u00E1n\u00ED metody.
-Bez n\u011Bj nen\u00ED v\u00E1\u0161 test kompletn\u00ED a testovac\u00ED t\u0159\u00EDda se nebude p\u0159ekl\u00E1dat.
-Jste si jisti, \u017Ee chete pokra\u010Dovat bez zad\u00E1n\u00ED v\u00FDsledn\u00E9 hodnoty?
-Zp\u011Bt
-Pokra\u010Duj
+Nezadali jste o\u010dek\u00e1van\u00fd v\u00fdsledek tohoto vol\u00e1n\u00ed metody.
+Bez n\u011bj nen\u00ed v\u00e1\u0161 test kompletn\u00ed a testovac\u00ed t\u0159\u00edda se nebude p\u0159ekl\u00e1dat.
+Jste si jisti, \u017ee chete pokra\u010dovat bez zad\u00e1n\u00ed v\u00fdsledn\u00e9 hodnoty?
+Zp\u011bt
+Pokra\u010duj
 null
 
 team-update-first
-Ve va\u0161\u00ED pracovn\u00ED kopii byly smaz\u00E1ny soubory
-jejich\u017E ekvivalenty v \u00FAlo\u017Ei\u0161ti byly zm\u011Bn\u011Bny.
-To vyvol\u00E1v\u00E1 konflikt.
-Ne\u017E ode\u0161lete (commit) svoje zm\u011Bny,
-mus\u00EDte nejprve akutalizovat (update) svoji pracovn\u00ED kopii,
-abyste ji synchonizovali s obsahem \u00FAlo\u017Ei\u0161t\u011B (repository).
-Aktualizace ovlivn\u00ED n\u00E1sleduj\u00EDc\u00ED soubory:
+Ve va\u0161\u00ed pracovn\u00ed kopii (working copy) byly smaz\u00e1ny soubory
+jejich\u017e ekvivalenty v \u00falo\u017ei\u0161ti byly mezi t\u00edm zm\u011bn\u011bny.
+To vyvol\u00e1v\u00e1 konflikt. Ne\u017e ode\u0161lete (commit) svoje zm\u011bny,
+mus\u00edte nejprve akutalizovat (update) svoji pracovn\u00ed kopii,
+abyste ji synchronizovali s obsahem \u00falo\u017ei\u0161t\u011b (repository).
+Aktualizace ovlivn\u00ed n\u00e1sleduj\u00edc\u00ed soubory:
 
 team-resolve-conflicts-delete
-Nastal konflikt soubor\u016F, kter\u00E9 byly paraleln\u011B upraveny
-v \u00FAlo\u017Ei\u0161ti (repository) i ve va\u0161\u00ED pracovn\u00ED kopii.
-Abyste vy\u0159e\u0161ili (resolve) tento konflikt,
-mus\u00EDte nejprve smazat sv\u00E9 upraven\u00E9 verze t\u011Bctho soubor\u016F
-a pak akutalizovat (update) soubory z \u00FAlo\u017Ei\u0161t\u011B.
-Pot\u00E9 m\u016F\u017Eete vy\u0159e\u0161it vznikl\u00FD konflikt.
+Nastal konflikt soubor\u016f, kter\u00e9 byly paraleln\u011b upraveny
+v \u00falo\u017ei\u0161ti (repository) i ve va\u0161\u00ed pracovn\u00ed kopii (working copy).
+Abyste vy\u0159e\u0161ili (resolve) tento konflikt, mus\u00edte nejprve smazat
+(anebo p\u0159esunout) sv\u00e9 upraven\u00e9 verze t\u011bctho soubor\u016f
+a pak akutalizovat (update) soubory z \u00falo\u017ei\u0161t\u011b.
+Pot\u00e9 m\u016f\u017eete vy\u0159e\u0161it vznikl\u00fd konflikt.
 
 team-resolve-merge-conflicts
-B\u011Bhem p\u0159edchoz\u00ED aktualizace vznikly konflikty
-p\u0159i slu\u010Dov\u00E1n\u00ED (merge) n\u011Bkter\u00FDch soubor\u016F.
-P\u0159ed t\u00EDm, ne\u017E ode\u0161lete (commit) novou verzi,
-mus\u00EDte otev\u0159\u00EDt n\u00E1sleduj\u00EDc\u00ED soubory
-a vy\u0159e\u0161it v\u0161echny konflikty:
+B\u011bhem p\u0159edchoz\u00ed aktualizace vznikly konflikty
+p\u0159i slu\u010dov\u00e1n\u00ed (merge) n\u011bkter\u00fdch soubor\u016f.
+P\u0159ed t\u00edm, ne\u017e ode\u0161lete (commit) novou verzi,
+mus\u00edte vy\u0159e\u0161it konflikty n\u00e1sleduj\u00edc\u00edch soubor\u016f:
 
 team-unresolved-conflicts
-Abyste vy\u0159e\u0161ily vznikl\u00E9 konflikty,
-mus\u00EDte lok\u00E1ln\u011B smazat n\u00E1sleduj\u00EDc\u00ED soubory,
-kter\u00E9 maj\u00ED nevy\u0159e\u0161en\u00E9 konflikty:
+Abyste vy\u0159e\u0161ili vznikl\u00e9 konflikty,
+mus\u00edte lok\u00e1ln\u011b smazat n\u00e1sleduj\u00edc\u00ed soubory,
+kter\u00e9 maj\u00ed nevy\u0159e\u0161en\u00e9 konflikty:
 
 team-uptodate-failed
-Va\u0161e lok\u00E1ln\u00ED kopie ji\u017E nen\u00ED platn\u00E1.
-P\u0159ed p\u0159\u00EDpadn\u00FDm odesl\u00E1n\u00EDm zm\u011Bn
-ji proto mus\u00EDte nejprve aktualizovat.
+Va\u0161e lok\u00e1ln\u00ed kopie ji\u017e nen\u00ed platn\u00e1.
+P\u0159ed p\u0159\u00edpadn\u00fdm odesl\u00e1n\u00edm zm\u011bn
+ji proto mus\u00edte nejprve aktualizovat.
 
 team-cant-connect
-P\u0159ipojen\u00ED k serveru se nepoda\u0159ilo.
-V nastaven\u00ED pro t\u00FDmovou pr\u00E1ci ov\u011B\u0159te,
-\u017Ee adresa serveru je korektn\u00ED
+P\u0159ipojen\u00ed k serveru se nepoda\u0159ilo.
+V nastaven\u00ed pro t\u00fdmovou pr\u00e1ci ov\u011b\u0159te,
+\u017ee adresa serveru je korektn\u00ed
 
 team-project-exists
-Projekt ji\u017E na serveru existuje.
-M\u016F\u017Eete jej st\u00E1hnout (checkout),
-prov\u011B\u0159it a p\u0159\u00EDpadn\u011B slou\u010Dit,
-nebo mus\u00EDte sv\u016Fj projekt p\u0159ed odesl\u00E1n\u00EDm (commit)
-p\u0159ejmenovat.
+Projekt ji\u017e na serveru existuje.
+M\u016f\u017eete jej st\u00e1hnout (checkout), prov\u011b\u0159it a p\u0159\u00edpadn\u011b slou\u010dit,
+a nebo mus\u00edte sv\u016fj projekt p\u0159ed odesl\u00e1n\u00edm (commit) p\u0159ejmenovat.
 
 team-cant-find-path
 Cesta nebyla na serveru nalezena.
-To m\u016F\u017Ee b\u00FDt zap\u0159\u00ED\u010Din\u011Bno neexistenc\u00ED zadan\u00E9 skupiny \u010Di projektu.
-V Nastaven\u00ED pro t\u00FDmovou pr\u00E1ci ov\u011B\u0159te,
-\u017Ee skupina i projekt jsou zad\u00E1ny spr\u00E1vn\u011B.
+To m\u016f\u017ee b\u00fdt zap\u0159\u00ed\u010din\u011bno neexistenc\u00ed zadan\u00e9 skupiny \u010di projektu.
+V Nastaven\u00ed pro t\u00fdmovou pr\u00e1ci ov\u011b\u0159te,
+\u017ee skupina i projekt jsou zad\u00e1ny spr\u00e1vn\u011b.
 
 team-cant-find-module
-Projekt nen\u00ED v \u00FAlo\u017Ei\u0161ti.
-P\u0159ed sta\u017Een\u00EDm (checkout) projektu mus\u00ED b\u00FDt
-projekt sd\u00EDlen (shared) a ulo\u017Een do \u00FAlo\u017Ei\u0161t\u011B (repository).
+Projekt nen\u00ed v \u00falo\u017ei\u0161ti.
+P\u0159ed sta\u017een\u00edm (checkout) projektu mus\u00ed b\u00fdt
+projekt sd\u00edlen (shared) a ulo\u017een do \u00falo\u017ei\u0161t\u011b (repository).
 
 team-cant-find-repository
-\u00DAlo\u017Eit\u011B nebylo nalezeno.
-V Nastaven\u00ED pro t\u00FDmovou pr\u00E1ci ov\u011B\u0159te,
-\u017Ee je v\u0161e spr\u00E1vn\u011B nastaveno.
+\u00dalo\u017eit\u011b nebylo nalezeno.
+V Nastaven\u00ed pro t\u00fdmovou pr\u00e1ci ov\u011b\u0159te,
+\u017ee je v\u0161e spr\u00e1vn\u011b nastaveno.
 
 team-empty-message
-Objevila se nezn\u00E1m\u00E1\u00ED chyba.
-Zkontrolujte nastaven\u00ED v Nastaven\u00ED pro t\u00FDmovou pr\u00E1ci.
+Objevila se nezn\u00e1m\u00e1\u00ed chyba.
+Zkontrolujte nastaven\u00ed v Nastaven\u00ed pro t\u00fdmovou pr\u00e1ci.
 
 team-invalid-cvsroot
-Neplatn\u00FD ko\u0159en CVS.
-Zkontrolujte nastaven\u00ED v Nastaven\u00ED pro t\u00FDmovou pr\u00E1ci.
+Neplatn\u00fd ko\u0159en CVS.
+Zkontrolujte nastaven\u00ed v Nastaven\u00ed pro t\u00fdmovou pr\u00e1ci.
 
 team-authentication-problem
-Server v\u00E1s odm\u00EDtl p\u0159ihl\u00E1sit (log in).
-V Nastaven\u00ED pro t\u00FDmovou pr\u00E1ci
-ov\u011B\u0159te svoje u\u017Eivatelsk\u00E9 jm\u00E9no a heslo
+Server v\u00e1s odm\u00edtl p\u0159ihl\u00e1sit (log in).
+V Nastaven\u00ed pro t\u00fdmovou pr\u00e1ci
+ov\u011b\u0159te svoje u\u017eivatelsk\u00e9 jm\u00e9no a heslo
 
 team-binary-conflict
-P\u0159i pokusu o aktualizaci n\u00E1\u00FDsleduj\u00EDc\u00EDho souboru byl detekov\u00E1n konflikt:
+P\u0159i pokusu o aktualizaci n\u00e1\u00fdsleduj\u00edc\u00edho souboru byl detekov\u00e1n konflikt:
     $
-Soubor byl zm\u011Bn\u011Bn lok\u00E1ln\u011B a sou\u010Dasn\u011B v \u00FAlo\u017Ei\u0161ti.
-Pou\u017Eij moji verzi
-Pou\u017Eij vezi z \u00FAlo\u017Ei\u0161t\u011B
+Soubor byl zm\u011bn\u011bn lok\u00e1ln\u011b a sou\u010dasn\u011b v \u00falo\u017ei\u0161ti.
+Pou\u017eij moji verzi
+Pou\u017eij vezi z \u00falo\u017ei\u0161t\u011b
 null
 
+team-error-saving-project
+P\u0159i pokusu o ulo\u017een\u00ed projektu se objevila chyba:
+	$
+Operace odesl\u00e1n\u00ed (commit) \u010di aktualizace (update)
+mohou m\u00edt nep\u0159\u00edjemn\u00e9 d\u016fsledky.
+
 not-all-compiled
-V dan\u00E9m projektu nebyly n\u011Bkter\u00E9 t\u0159\u00EDdy p\u0159elo\u017Eeny.
-Chcete-li ulo\u017Eit skupinu MIDlet\u016F (MIDlet suite)
-tohoto projektu, mus\u00EDte p\u0159elo\u017Eit v\u0161echny t\u0159\u00EDdy.
+V dan\u00e9m projektu nebyly n\u011bkter\u00e9 t\u0159\u00eddy p\u0159elo\u017eeny.
+Chcete-li ulo\u017eit skupinu MIDlet\u016f (MIDlet suite)
+tohoto projektu, mus\u00edte p\u0159elo\u017eit v\u0161echny t\u0159\u00eddy.
 
 error-midleticon-exists
-Soubor, kter\u00FD jste vybrali,
-je ji\u017E ve slo\u017Ece res/icons tohoto projektu.
-Chcete je p\u0159epsat?
+Soubor, kter\u00fd jste vybrali,
+je ji\u017e ve slo\u017ece res/icons tohoto projektu.
+Chcete jej p\u0159epsat?
 P\u0159epsat
 Storno
 null
 
 stuck-at-breakpoint
-V\u00E1\u0161 program je ji\u017E vykon\u00E1v\u00E1n a zastavil se na zar\u00E1\u017Ece (breakpoint).
-Dokud bude program aktivn\u00ED, nebudete jej moci spustit znovu.
-Pomoc\u00ED tla\u010D\u00EDtek lad\u00EDc\u00EDho programu (debuggeru) bu\u010Fto
-nechte program pokra\u010Dovat v pr\u00E1ci, anebo jej ukon\u010Dete.
+V\u00e1\u0161 program je ji\u017e vykon\u00e1v\u00e1n a zastavil se na zar\u00e1\u017ece (breakpoint).
+Dokud bude program aktivn\u00ed, nebudete jej moci spustit znovu.
+Pomoc\u00ed tla\u010d\u00edtek lad\u00edc\u00edho programu (debuggeru) bu\u010fto
+nechte program pokra\u010dovat v pr\u00e1ci, anebo jej ukon\u010dete.
 
 already-executing
-V\u00E1\u0161 program ji\u017E b\u011B\u017E\u00ED. Dokud neskon\u010D\u00ED, nem\u016F\u017Eete jej spustit znovu
-a nam\u016F\u017Eete ani prohl\u00ED\u017Eet atributy jeho t\u0159\u00EDd.
-Pokud program uv\u00EDzl v nekone\u010Dn\u00E9 smy\u010Dce, m\u016F\u017Eete jej ukon\u010Dit
-pomoc\u00ED lad\u00EDc\u00EDho programu (debuggeru).
+V\u00e1\u0161 program ji\u017e b\u011b\u017e\u00ed. Dokud neskon\u010d\u00ed, nem\u016f\u017eete jej spustit znovu
+a nem\u016f\u017eete ani prohl\u00ed\u017eet atributy jeho t\u0159\u00edd.
+Pokud program uv\u00edzl v nekone\u010dn\u00e9 smy\u010dce, m\u016f\u017eete jej ukon\u010dit
+pomoc\u00ed lad\u00edc\u00edho programu (debuggeru).
