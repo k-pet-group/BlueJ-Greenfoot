@@ -72,8 +72,9 @@ public class ExistingFixtureInvokerRecord extends InvokerRecord
      * 
      * @return a String representing the object declaration
      *         src or null if there is none.
-     */    
-    public String toFixtureDeclaration()
+     */
+    @Override
+    public String toFixtureDeclaration(String firstIndent)
     {
         StringBuffer sb = new StringBuffer();
 
@@ -96,8 +97,9 @@ public class ExistingFixtureInvokerRecord extends InvokerRecord
      *  
      * @return a String reprenting the object initialisation
      *         src or null if there is none. 
-     */    
-    public String toFixtureSetup()
+     */
+    @Override
+    public String toFixtureSetup(String secondIndent)
     {
         StringBuffer sb = new StringBuffer();
         sb.append(secondIndent);
@@ -113,7 +115,8 @@ public class ExistingFixtureInvokerRecord extends InvokerRecord
      * 
      * @return a String representing the test method src
      */
-    public String toTestMethod(PkgMgrFrame pmf)
+    @Override
+    public String toTestMethod(PkgMgrFrame pmf, String secondIndent)
     {
         return null;
     }

@@ -47,19 +47,19 @@ public class ArrayElementInspectorRecord extends InvokerRecord
     }
 
     @Override
-    public String toFixtureDeclaration()
+    public String toFixtureDeclaration(String firstIndent)
     {
         return null;
     }
 
     @Override
-    public String toFixtureSetup()
+    public String toFixtureSetup(String secondIndent)
     {
         return null;
     }
 
     @Override
-    public String toTestMethod(PkgMgrFrame pmf)
+    public String toTestMethod(PkgMgrFrame pmf, String secondIndent)
     {
         return null;
     }

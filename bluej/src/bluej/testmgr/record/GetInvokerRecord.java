@@ -82,9 +82,9 @@ public class GetInvokerRecord extends InvokerRecord
      *         src or null if there is none.
      */    
     @Override
-    public String toFixtureDeclaration()
+    public String toFixtureDeclaration(String firstIndent)
     {
-        return fieldDeclarationStart + objType + " " + objName + statementEnd;    
+        return firstIndent + fieldDeclarationStart + objType + " " + objName + statementEnd;    
     }
 
     /**
@@ -95,7 +95,7 @@ public class GetInvokerRecord extends InvokerRecord
      *         src or null if there is none. 
      */    
     @Override
-    public String toFixtureSetup()
+    public String toFixtureSetup(String secondIndent)
     {
         return secondIndent + objName + " = " + toExpression() + statementEnd;          
     }
@@ -107,7 +107,7 @@ public class GetInvokerRecord extends InvokerRecord
      * @return a String representing the test method src
      */
     @Override
-    public String toTestMethod(PkgMgrFrame pmf)
+    public String toTestMethod(PkgMgrFrame pmf, String secondIndent)
     {
         return secondIndent + objType + " " + objName + " = " + toExpression() + statementEnd;
     }

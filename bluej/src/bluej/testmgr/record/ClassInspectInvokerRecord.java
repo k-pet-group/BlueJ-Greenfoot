@@ -53,20 +53,21 @@ public class ClassInspectInvokerRecord extends InvokerRecord
     }
 
     @Override
-    public String toFixtureDeclaration()
+    public String toFixtureDeclaration(String firstIndent)
     {
         return null;
     }
     
     @Override
-    public String toFixtureSetup()
+    public String toFixtureSetup(String secondIndent)
     {
         return secondIndent + className + statementEnd;
     }
 
-    public String toTestMethod(PkgMgrFrame pmf)
+    @Override
+    public String toTestMethod(PkgMgrFrame pmf, String secondIndent)
     {
-        return firstIndent + className + statementEnd;
+        return secondIndent + className + statementEnd;
     }
     
     @Override

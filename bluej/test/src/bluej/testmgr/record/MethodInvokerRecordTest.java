@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -98,11 +98,11 @@ public class MethodInvokerRecordTest extends junit.framework.TestCase
         lotsOfAssertions.setBenchName("on_bench", "java.lang.Math");
 
         assertEquals(testMethodResultWithBench,
-                        lotsOfAssertions.toTestMethod(null));
+                        lotsOfAssertions.toTestMethod(null, "\t\t"));
         assertEquals("\tprivate java.lang.Math on_bench;\n",
-                        lotsOfAssertions.toFixtureDeclaration());
+                        lotsOfAssertions.toFixtureDeclaration("\t"));
         assertEquals("\t\ton_bench = Math.pow(4,3);\n",
-                        lotsOfAssertions.toFixtureSetup());
+                        lotsOfAssertions.toFixtureSetup("\t\t"));
     }
 
     /**
@@ -125,11 +125,11 @@ public class MethodInvokerRecordTest extends junit.framework.TestCase
         lotsOfAssertions.setBenchName("on_bench", "java.lang.Math");
 
         assertEquals(testMethodResultWithBenchTypecast,
-                        lotsOfAssertions.toTestMethod(null));
+                        lotsOfAssertions.toTestMethod(null, "\t\t"));
         assertEquals("\tprivate java.lang.Math on_bench;\n",
-                        lotsOfAssertions.toFixtureDeclaration());
+                        lotsOfAssertions.toFixtureDeclaration("\t"));
         assertEquals("\t\ton_bench = Math.pow(4,3);\n",
-                        lotsOfAssertions.toFixtureSetup());
+                        lotsOfAssertions.toFixtureSetup("\t\t"));
     }
 
 }

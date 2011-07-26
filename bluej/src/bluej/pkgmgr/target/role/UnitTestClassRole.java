@@ -501,7 +501,7 @@ public class UnitTestClassRole extends ClassRole
                 // replace this method (don't replace the method header!)
                 ed.setSelection(existingSpan.getStartLine(), existingSpan.getStartColumn(),
                                   existingSpan.getEndLine(), existingSpan.getEndColumn());
-                ed.insertText("{\n" + pmf.getObjectBench().getTestMethod() + ts + "}", false);
+                ed.insertText("{\n" + pmf.getObjectBench().getTestMethod(ts + ts) + ts + "}", false);
             }
             else {
                 // insert a complete method
@@ -511,11 +511,11 @@ public class UnitTestClassRole extends ClassRole
                     ed.setSelection(methodInsert.getLine(), methodInsert.getColumn(), 1);
                     if (isJunit4) {
                         ed.insertText("\n" + ts + "@Test\n" + ts + "public void " + name + "()\n" + ts + "{\n"
-                                + pmf.getObjectBench().getTestMethod() + ts + "}\n}\n", false);
+                                + pmf.getObjectBench().getTestMethod(ts + ts) + ts + "}\n}\n", false);
                     }
                     else {
                         ed.insertText("\n" + ts + "public void " + name + "()\n" + ts + "{\n"
-                                + pmf.getObjectBench().getTestMethod() + ts + "}\n}\n", false);
+                                + pmf.getObjectBench().getTestMethod(ts + ts) + ts + "}\n}\n", false);
                     }
                 }
             }
@@ -655,14 +655,14 @@ public class UnitTestClassRole extends ClassRole
             }
             
             // insert the code for our setUp() method
-            ed.insertText("{\n" + pmf.getObjectBench().getFixtureSetup()
+            ed.insertText("{\n" + pmf.getObjectBench().getFixtureSetup(ts + ts)
                                 + ts + "}", false);
 
             // insert our new fixture declarations
             ed.setSelection(fixtureInsertLocation.getLine(),
                              fixtureInsertLocation.getColumn(), 1);
                 
-            ed.insertText("{\n" + pmf.getObjectBench().getFixtureDeclaration(), false);
+            ed.insertText("{\n" + pmf.getObjectBench().getFixtureDeclaration(ts), false);
             ed.save();
         }
         catch (IOException ioe) {

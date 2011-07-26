@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -56,7 +56,7 @@ public class ObjectBench extends JPanel implements ValueCollection,
     private List<ObjectWrapper> objects;
     private ObjectWrapper selectedObject;
     private PkgMgrFrame pkgMgrFrame;
-	
+    
     // All invocations done since our last reset.
     private List<InvokerRecord> invokerRecords;
    
@@ -421,24 +421,22 @@ public class ObjectBench extends JPanel implements ValueCollection,
      * The mouse was clicked in the object bench.
      * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
      */
-    public void mouseClicked(MouseEvent e) {
-    	setSelectedObject(null);
+    public void mouseClicked(MouseEvent e)
+    {
+        setSelectedObject(null);
     }
-
     
     /**
      * The mouse entered the object bench.
      * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
      */
     public void mouseEntered(MouseEvent e) {}
-
     
     /**
      * The mouse left the object bench.
      * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
      */
     public void mouseExited(MouseEvent e) {}
-    
 
     /**
      * The mouse was pressed in the object bench.
@@ -447,7 +445,6 @@ public class ObjectBench extends JPanel implements ValueCollection,
     public void mousePressed(MouseEvent e) {
         requestFocus();
     }
-
     
     /**
      * The mouse was released in the object bench.
@@ -479,7 +476,6 @@ public class ObjectBench extends JPanel implements ValueCollection,
         invokerRecords = new LinkedList<InvokerRecord>();
     }
 
-    
     public void addInteraction(InvokerRecord ir)
     {
         if (invokerRecords == null)
@@ -488,8 +484,10 @@ public class ObjectBench extends JPanel implements ValueCollection,
         invokerRecords.add(ir);    
     }
     
-    
-    public String getFixtureDeclaration()
+    /**
+     * Get the recorded interaction fixture declarations as Java code.
+     */
+    public String getFixtureDeclaration(String firstIndent)
     {
         StringBuffer sb = new StringBuffer();
         Iterator<InvokerRecord> it = invokerRecords.iterator();
@@ -497,15 +495,18 @@ public class ObjectBench extends JPanel implements ValueCollection,
         while(it.hasNext()) {
             InvokerRecord ir = it.next();
             
-            if (ir.toFixtureDeclaration() != null)
-            	sb.append(ir.toFixtureDeclaration());
+            if (ir.toFixtureDeclaration(firstIndent) != null) {
+                sb.append(ir.toFixtureDeclaration(firstIndent));
+            }
         }                    
 
         return sb.toString();
     }
     
-    
-    public String getFixtureSetup()
+    /**
+     * Get the recorded interaction fixture setup as Java code.
+     */
+    public String getFixtureSetup(String secondIndent)
     {
         StringBuffer sb = new StringBuffer();
         Iterator<InvokerRecord> it = invokerRecords.iterator();
@@ -513,15 +514,18 @@ public class ObjectBench extends JPanel implements ValueCollection,
         while(it.hasNext()) {
             InvokerRecord ir = it.next();
             
-            if (ir.toFixtureSetup() != null)
-                sb.append(ir.toFixtureSetup());
+            if (ir.toFixtureSetup(secondIndent) != null) {
+                sb.append(ir.toFixtureSetup(secondIndent));
+            }
         }                    
 
         return sb.toString();
     }
     
-    
-    public String getTestMethod()
+    /**
+     * Get the recorded interactions as Java code.
+     */
+    public String getTestMethod(String secondIndent)
     {
         StringBuffer sb = new StringBuffer();
         Iterator<InvokerRecord> it = invokerRecords.iterator();
@@ -529,7 +533,7 @@ public class ObjectBench extends JPanel implements ValueCollection,
         while(it.hasNext()) {
             InvokerRecord ir = it.next();
 
-            String testMethod = ir.toTestMethod(pkgMgrFrame);
+            String testMethod = ir.toTestMethod(pkgMgrFrame, secondIndent);
             if (testMethod != null) {
                 sb.append(testMethod);
             }

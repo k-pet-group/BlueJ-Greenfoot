@@ -62,7 +62,7 @@ public class VoidMethodInvokerRecord extends InvokerRecord
      * @return null because a void method results in no objects
      */
     @Override
-    public String toFixtureDeclaration()
+    public String toFixtureDeclaration(String firstIndent)
     {
         return null;
     }
@@ -75,14 +75,14 @@ public class VoidMethodInvokerRecord extends InvokerRecord
      *         src or null if there is none. 
      */    
     @Override
-    public String toFixtureSetup()
+    public String toFixtureSetup(String secondIndent)
     {
         // code for the fixture setup involves just inserting the method call
         return secondIndent + command + statementEnd;
     }
 
     @Override
-    public String toTestMethod(PkgMgrFrame pmf)
+    public String toTestMethod(PkgMgrFrame pmf, String secondIndent)
     {
         // code for the test method involves just inserting the method call
         return secondIndent + command + statementEnd;
