@@ -466,22 +466,22 @@ public class UnitTestClassRole extends ClassRole
         }.start();
     }
 
-    private static final String spaces = "                    ";
+    private static final String spaces = "                                 ";
     
     /**
      * Get a string of whitespace corresponding to an indentation.
      */
     private String getIndentString()
     {
-        int ts = Math.max(Config.getPropInteger("bluej.editor.tabsize", 4), spaces.length());
+        int ts = Math.min(Config.getPropInteger("bluej.editor.tabsize", 4), spaces.length());
         return spaces.substring(0, ts);
     }
     
     /**
      * End the construction of a test method.
-     * 
+     * <p>
      * This method is responsible for actually created the source code for a
-     * just recorded test method.
+     * just-recorded test method.
      * 
      * @param pmf   the PkgMgrFrame this is all occurring in
      * @param ct    the ClassTarget of the unit test class
