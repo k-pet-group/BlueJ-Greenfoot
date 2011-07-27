@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,6 +29,7 @@ import java.awt.Shape;
 
 import javax.swing.text.Element;
 import javax.swing.text.Segment;
+import javax.swing.text.TabExpander;
 import javax.swing.text.Utilities;
 
 import bluej.Config;
@@ -41,7 +42,7 @@ import bluej.editor.moe.MoeSyntaxDocument;
  * @author Bruce Quig
  * @author Michael Kolling
  *
- * @version $Id: TextEvalSyntaxView.java 6650 2009-09-10 05:44:40Z davmac $
+ * @version $Id: TextEvalSyntaxView.java 9133 2011-07-27 04:19:22Z davmac $
  */
 
 public class TextEvalSyntaxView extends BlueJSyntaxView
@@ -79,30 +80,30 @@ public class TextEvalSyntaxView extends BlueJSyntaxView
      * Draw a line for the text eval area.
      */
     public void paintTaggedLine(Segment lineText, int lineIndex, Graphics g, int x, int y, 
-            MoeSyntaxDocument document, Color def, Element line) 
+            MoeSyntaxDocument document, Color def, Element line, TabExpander tx) 
     {
         if(hasTag(line, OUTPUT)) {
             g.setColor(outputColor);
-            Utilities.drawTabbedText(lineText, x, y, g, this, 0);
+            Utilities.drawTabbedText(lineText, x, y, g, tx, 0);
         }
         else if(hasTag(line, ERROR)) {
             g.setColor(errorColor);
-            Utilities.drawTabbedText(lineText, x, y, g, this, 0);
+            Utilities.drawTabbedText(lineText, x, y, g, tx, 0);
         }
         else if(hasObject(line, OBJECT)) {
             g.drawImage(objectImage, x-1-BREAKPOINT_OFFSET, y+3-objectImage.getHeight(null), null);
             g.setColor(outputColor);
-            Utilities.drawTabbedText(lineText, x, y, g, this, 0);
+            Utilities.drawTabbedText(lineText, x, y, g, tx, 0);
         }
         else if(hasTag(line, CONTINUE)) {
             g.drawImage(continueImage, x-1-BREAKPOINT_OFFSET, y+3-continueImage.getHeight(null), null);
             paintSyntaxLine(lineText, lineIndex, x, y, g, 
-                    document, def);   
+                    document, def, tx);   
         }
         else {
             g.drawImage(promptImage, x-1-BREAKPOINT_OFFSET, y+3-promptImage.getHeight(null), null);
             paintSyntaxLine(lineText, lineIndex, x, y, g, 
-                    document, def);   
+                    document, def, tx);   
         }
     }
     

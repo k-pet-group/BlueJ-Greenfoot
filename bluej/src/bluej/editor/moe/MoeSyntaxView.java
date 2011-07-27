@@ -33,6 +33,7 @@ import java.awt.Shape;
 import javax.swing.text.Element;
 import javax.swing.text.Position;
 import javax.swing.text.Segment;
+import javax.swing.text.TabExpander;
 
 import bluej.Config;
 import bluej.prefmgr.PrefMgr;
@@ -149,12 +150,13 @@ public class MoeSyntaxView extends BlueJSyntaxView
     /* When painting a line also paint the markers (breakpoint marks, step marks) etc.
      * @see bluej.editor.moe.BlueJSyntaxView#paintTaggedLine(javax.swing.text.Segment, int, java.awt.Graphics, int, int, bluej.editor.moe.MoeSyntaxDocument, java.awt.Color, javax.swing.text.Element)
      */
+    @Override
     public void paintTaggedLine(Segment lineText, int lineIndex, Graphics g, int x, int y, 
-            MoeSyntaxDocument document, Color def, Element line) 
+            MoeSyntaxDocument document, Color def, Element line, TabExpander tx) 
     {
         paintLineMarkers(lineIndex, g, x - LEFT_MARGIN, y, document, line);
         if (document.getParsedNode() != null && syntaxHighlighting) {
-            paintSyntaxLine(lineText, lineIndex, x, y, g, document, def);
+            paintSyntaxLine(lineText, lineIndex, x, y, g, document, def, tx);
         }
         else {
             paintPlainLine(lineIndex, g, x, y);

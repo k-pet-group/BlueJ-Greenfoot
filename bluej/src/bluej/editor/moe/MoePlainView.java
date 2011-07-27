@@ -50,12 +50,12 @@ import javax.swing.text.ViewFactory;
  * 
  * @author Davin McCall
  */
-public class MoePlainView extends View implements TabExpander
+public class MoePlainView extends View
 {
-    private Font currentFont;     // current font
-    protected FontMetrics metrics;  // Metrics of the current font
-    private Element longestLine;  // The longest known line (or null if not currently known)
-    private int tabSize;          // The current tab width (pixels)
+    private Font currentFont;      // current font
+    protected FontMetrics metrics; // Metrics of the current font
+    private Element longestLine;   // The longest known line (or null if not currently known)
+    protected int tabSize;         // The current tab width (pixels)
     
     private Segment segment = new Segment();
     
@@ -92,18 +92,30 @@ public class MoePlainView extends View implements TabExpander
         }
     }
     
-    @Override
-    public float nextTabStop(float x, int tabOffset)
+    static protected class MoeTabExpander implements TabExpander
     {
-        if (tabSize == 0) {
-            return x;
+        private int tabSize;
+        private int leftMargin;
+        
+        public MoeTabExpander(int tabSize, int leftMargin)
+        {
+            this.tabSize = tabSize;
+            this.leftMargin = leftMargin;
         }
-        int ntabs = (((int) x) - leftMargin) / tabSize;
-        return leftMargin + ((ntabs + 1) * tabSize);
+        
+        @Override
+        public float nextTabStop(float x, int tabOffset)
+        {
+            if (tabSize == 0) {
+                return x;
+            }
+            int ntabs = (((int) x) - leftMargin) / tabSize;
+            return leftMargin + 0 + ((ntabs + 1) * tabSize);
+        }
     }
     
     @Override
-    public Shape modelToView(int pos, Shape a, Bias b)
+    public Shape modelToView(int pos, final Shape a, Bias b)
             throws BadLocationException
     {
         checkMetrics();
@@ -116,11 +128,13 @@ public class MoePlainView extends View implements TabExpander
         Document doc = getDocument();
         doc.getText(line.getStartOffset(), pos - line.getStartOffset(), s);
         
+        TabExpander tabExpander = new MoeTabExpander(tabSize, leftMargin);
+        
         // Note that PlainView always returns a rectangle of width 1, at the start of the
         // character position, which is what the highlight painters expect; So, even though it seems
         // more correct to return a rectangle containing the entire character, we also just return
         // a rectangle of width 1.
-        int tpos = Utilities.getTabbedTextWidth(s, metrics, leftMargin, this, line.getStartOffset());
+        int tpos = Utilities.getTabbedTextWidth(s, metrics, leftMargin, tabExpander, line.getStartOffset());
         tpos += leftMargin;
         Rectangle aBounds = a.getBounds();
         return new Rectangle(aBounds.x + tpos, aBounds.y + lineIndex * metrics.getHeight(), 1, metrics.getHeight());
@@ -172,7 +186,9 @@ public class MoePlainView extends View implements TabExpander
             // can't happen...??
             throw new RuntimeException(ble);
         }
-        int offset = Utilities.getTabbedTextOffset(s, metrics, leftMargin, (int)x - aBounds.x, this, lineStart);
+        
+        TabExpander tx = new MoeTabExpander(tabSize, leftMargin + aBounds.x);
+        int offset = Utilities.getTabbedTextOffset(s, metrics, leftMargin, (int)x - aBounds.x, tx, lineStart);
         
         biasReturn[0] = Bias.Forward;
         return Math.min(lineStart + offset, getDocument().getLength());
@@ -249,7 +265,8 @@ public class MoePlainView extends View implements TabExpander
         try {
             Element line = getElement().getElement(lineIndex);
             getDocument().getText(line.getStartOffset(), line.getEndOffset() - line.getStartOffset(), segment);
-            Utilities.drawTabbedText(segment, x, y, g, this, line.getStartOffset());
+            TabExpander tx = new MoeTabExpander(tabSize, x);
+            Utilities.drawTabbedText(segment, x, y, g, tx, line.getStartOffset());
         }
         catch (BadLocationException ble) {
             throw new RuntimeException(ble);
@@ -280,7 +297,8 @@ public class MoePlainView extends View implements TabExpander
     {
         try {
             getDocument().getText(line.getStartOffset(), line.getEndOffset() - line.getStartOffset(), segment);
-            int width = Utilities.getTabbedTextWidth(segment, metrics, leftMargin, this, line.getStartOffset());
+            TabExpander tx = new MoeTabExpander(tabSize, leftMargin);
+            int width = Utilities.getTabbedTextWidth(segment, metrics, leftMargin, tx, line.getStartOffset());
             return width;
         }
         catch (BadLocationException ble) {

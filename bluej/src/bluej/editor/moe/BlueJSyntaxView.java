@@ -43,6 +43,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Element;
 import javax.swing.text.Position;
 import javax.swing.text.Segment;
+import javax.swing.text.TabExpander;
 import javax.swing.text.Utilities;
 import javax.swing.text.ViewFactory;
 
@@ -158,6 +159,7 @@ public abstract class BlueJSyntaxView extends MoePlainView
         MoeSyntaxDocument document = (MoeSyntaxDocument)getDocument();
 
         Color def = MoeSyntaxDocument.getDefaultColor();
+        TabExpander tx = new MoeTabExpander(tabSize, x);
 
         try {
             Element lineElement = getElement().getElement(lineIndex);
@@ -167,7 +169,7 @@ public abstract class BlueJSyntaxView extends MoePlainView
             document.getText(start, end - (start + 1), line);
             g.setColor(def);
 
-            paintTaggedLine(line, lineIndex, g, x, y, document, def, lineElement);
+            paintTaggedLine(line, lineIndex, g, x, y, document, def, lineElement, tx);
         }
         catch (BadLocationException bl) {
             // shouldn't happen
@@ -189,9 +191,9 @@ public abstract class BlueJSyntaxView extends MoePlainView
      *           to the left of this point)
      */
     protected void paintTaggedLine(Segment line, int lineIndex, Graphics g, int x, int y, 
-            MoeSyntaxDocument document, Color def, Element lineElement)
+            MoeSyntaxDocument document, Color def, Element lineElement, TabExpander tx)
     {
-        paintSyntaxLine(line, lineIndex, x, y, g, document, def);
+        paintSyntaxLine(line, lineIndex, x, y, g, document, def, tx);
     }
 
     /**
@@ -201,7 +203,7 @@ public abstract class BlueJSyntaxView extends MoePlainView
      */
     protected final void paintSyntaxLine(Segment line, int lineIndex, int x, int y,
             Graphics g, MoeSyntaxDocument document, 
-            Color def)
+            Color def, TabExpander tx)
     {
         Color[] colors = MoeSyntaxDocument.getColors();
         Token tokens = document.getTokensForLine(lineIndex);
@@ -221,7 +223,8 @@ public abstract class BlueJSyntaxView extends MoePlainView
             }
             g.setColor(color);
             line.count = length;
-            x = Utilities.drawTabbedText(line,x,y,g,this,offset);
+            
+            x = Utilities.drawTabbedText(line,x,y,g,tx,offset);
             line.offset += length;
             offset += length;
 

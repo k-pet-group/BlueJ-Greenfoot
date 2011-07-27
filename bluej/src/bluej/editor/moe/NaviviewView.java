@@ -35,6 +35,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Element;
 import javax.swing.text.Position;
 import javax.swing.text.Segment;
+import javax.swing.text.TabExpander;
 import javax.swing.text.ViewFactory;
 
 import bluej.Config;
@@ -67,7 +68,7 @@ public class NaviviewView extends BlueJSyntaxView
     @Override
     protected void paintTaggedLine(Segment line, int lineIndex, Graphics g,
             int x, int y, MoeSyntaxDocument document, Color def,
-            Element lineElement)
+            Element lineElement, TabExpander tx)
     {
         // Painting at such a small font size means the font appears very light.
         // To get around this problem, we paint into a temporary image, then darken
@@ -102,7 +103,7 @@ public class NaviviewView extends BlueJSyntaxView
             if (SYNTAX_COLOURING) {
                 if (document.getParsedNode() != null) {
                     super.paintTaggedLine(line, lineIndex, imgG, x - clipBounds.x,
-                            metrics.getAscent(), document, def, lineElement);
+                            metrics.getAscent(), document, def, lineElement, tx);
                 } else {
                     paintPlainLine(lineIndex, imgG, x - clipBounds.x, metrics.getAscent());
                 }
