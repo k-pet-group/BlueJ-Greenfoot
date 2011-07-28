@@ -41,6 +41,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -159,9 +160,11 @@ public class ExecControls extends JFrame
     // explicitly via the gui or as a result of a debugger event
     private boolean autoSelectionEvent = false; 
     
-    //Fields from these classes (key from map) are only shown if they are in the corresponding whitelist
-    //of fields (corresponding value from map)
-    private Map<String, Set<String>> restrictedClasses; 
+    /**
+     * Fields from these classes (key from map) are only shown if they are in the corresponding whitelist
+     * of fields (corresponding value from map)
+     */
+    private Map<String, Set<String>> restrictedClasses = Collections.emptyMap(); 
     
 
     /**
