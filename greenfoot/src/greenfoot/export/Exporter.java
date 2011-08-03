@@ -384,11 +384,9 @@ public class Exporter implements PublishListener
         }
         
         WorldCanvas canvas = WorldHandler.getInstance().getWorldCanvas();
-        border = GreenfootScenarioViewer.getControlsBorderSize();        
+        border = GreenfootScenarioViewer.getWorldBorderSize();        
         Dimension size = new Dimension(canvas.getWidth() + border.width, (int) controlPanelSize.getHeight() + canvas.getHeight() + border.height);
-        if(size.getWidth() < controlPanelSize.getWidth()) {
-            size.width = controlPanelSize.width;
-        }
+        size.width = Math.max(size.width, controlPanelSize.width);
         return size;
     }
         

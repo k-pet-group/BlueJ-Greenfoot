@@ -158,6 +158,17 @@ public class GreenfootScenarioViewer extends JApplet
             // Greenfoot.setSpeed() requires a call to the simulation instance.
             Simulation.initialize(new SimulationDelegateStandAlone());
             canvas = new WorldCanvas(null);
+            canvas.addMouseListener(new MouseAdapter() {
+                public void mouseClicked(MouseEvent e)
+                {
+                    canvas.requestFocusInWindow();
+                    // Have to use requestFocus, since it is the only way to
+                    // make it work in some browsers (Ubuntu's Firefox 1.5
+                    // and 2.0)
+                    canvas.requestFocus();
+                }
+            });        
+            
             WorldHandler.initialise(canvas, new WorldHandlerDelegateStandAlone(this, lockScenario));
             WorldHandler worldHandler = WorldHandler.getInstance();
             sim = Simulation.getInstance();
@@ -223,16 +234,6 @@ public class GreenfootScenarioViewer extends JApplet
      */
     public void start()
     {
-        canvas.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e)
-            {
-                canvas.requestFocusInWindow();
-                // Have to use requestFocus, since it is the only way to
-                // make it work in some browsers (Ubuntu's Firefox 1.5
-                // and 2.0)
-                canvas.requestFocus();
-            }
-        });        
     }
 
     /**
