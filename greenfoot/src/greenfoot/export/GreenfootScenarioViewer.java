@@ -95,15 +95,14 @@ public class GreenfootScenarioViewer extends JApplet
 
     /**
      * Returns the size of the borders around the controls.
-     * 
      */
     public static Dimension getControlsBorderSize()
     {
         return new Dimension((EMPTY_BORDER_SIZE ) * 2, (EMPTY_BORDER_SIZE ) * 2);
     } 
+    
     /**
      * Returns the size of the borders around the world panel.
-     * 
      */
     public static Dimension getWorldBorderSize()
     {
@@ -119,7 +118,7 @@ public class GreenfootScenarioViewer extends JApplet
         
         JPanel centerPanel = new JPanel(new CenterLayout());
         centerPanel.add( canvas );
-        canvas.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        centerPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         
         JScrollPane outer = new JScrollPane( centerPanel );
         outer.setBorder(BorderFactory.createEmptyBorder(EMPTY_BORDER_SIZE,EMPTY_BORDER_SIZE,EMPTY_BORDER_SIZE,EMPTY_BORDER_SIZE));
@@ -158,23 +157,13 @@ public class GreenfootScenarioViewer extends JApplet
             // We must construct the simulation before the world, as a call to
             // Greenfoot.setSpeed() requires a call to the simulation instance.
             Simulation.initialize(new SimulationDelegateStandAlone());
-            
-            Class<?> worldClass = Class.forName(worldClassName);
-            worldConstructor = worldClass.getConstructor(new Class[]{});
-            World world = instantiateNewWorld();
-            
-            canvas = new WorldCanvas(world);
-            
+            canvas = new WorldCanvas(null);
             WorldHandler.initialise(canvas, new WorldHandlerDelegateStandAlone(this, lockScenario));
             WorldHandler worldHandler = WorldHandler.getInstance();
-
             sim = Simulation.getInstance();
             sim.attachWorldHandler(worldHandler);
-            
             LocationTracker.initialize();
             controls = new ControlPanel(sim, ! lockScenario);
-
-            worldHandler.setWorld(world);
 
             // Make sure the SoundCollection is initialized and listens for events
             sim.addSimulationListener(SoundFactory.getInstance().getSoundCollection());
@@ -201,6 +190,15 @@ public class GreenfootScenarioViewer extends JApplet
             } catch (NumberFormatException nfe) {
                 // If there is no speed info in the properties we don't care...
             }
+            
+            Class<?> worldClass = Class.forName(worldClassName);
+            worldConstructor = worldClass.getConstructor(new Class[]{});
+            World world = instantiateNewWorld();
+            worldHandler.setWorld(world);
+            // Although setting the world on worldHandler also sets it on canvas,
+            // it does so later (via EventQueue.invokeLater()). We need to do it
+            // here and now, so that the canvas size will be calculated correctly.
+            canvas.setWorld(world);
             
             buildGUI();
         }
