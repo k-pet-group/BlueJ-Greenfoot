@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2011  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -90,6 +90,16 @@ public class ActorSet extends AbstractSet<Actor>
     public boolean contains(Actor actor)
     {
         return getActorNode(actor) != null; 
+    }
+    
+    @Override
+    public boolean contains(Object o)
+    {
+        if (o instanceof Actor) {
+            Actor a = (Actor) o;
+            return contains(a);
+        }
+        return false;
     }
     
     /**

@@ -380,7 +380,6 @@ public abstract class World
         objectsInActOrder.setClassOrder(false, classes);
     }
     
-    
     /**
      * Add an Actor to the world.
      * 
@@ -390,17 +389,19 @@ public abstract class World
      */
     public void addObject(Actor object, int x, int y)
     {
-        if (! objectsDisordered.add(object)) {
-            // Actor is already in the world
-            return;
+        if (object.world != null) {
+            if (object.world == this) {
+                return;  // Actor is already in the world
+            }
+            object.world.removeObject(object);
         }
-
-        object.addToWorld(x, y, this);
-
+        
+        objectsDisordered.add(object);
         collisionChecker.addObject(object);
         addInPaintOrder(object);
         addInActOrder(object);
 
+        object.addToWorld(x, y, this);
         object.addedToWorld(this);
         
         WorldHandler whInstance = WorldHandler.getInstance();
@@ -416,14 +417,17 @@ public abstract class World
      */
     public void removeObject(Actor object)
     {
-        if (object == null)
+        if (object == null || object.world != this) {
             return;
+        }
         
-        if (objectsDisordered.remove(object)) {
-            // we only want to remove it once.
-            collisionChecker.removeObject(object);
-            removeInActOrder(object);
-            removeInPaintOrder(object);
+        objectsDisordered.remove(object);
+        collisionChecker.removeObject(object);
+        if (objectsDisordered != objectsInActOrder && objectsInActOrder != null) {
+            objectsInActOrder.remove(object);
+        }
+        else if (objectsDisordered != objectsInPaintOrder && objectsInPaintOrder != null) {
+            objectsInPaintOrder.remove(object);
         }
         object.setWorld(null);
     }
@@ -867,20 +871,6 @@ public abstract class World
     {
         if(objectsInPaintOrder != null) {
             objectsInPaintOrder.add(object);
-        }
-    }
-
-    private void removeInActOrder(Actor object)
-    {
-        if(objectsInActOrder != null) {
-            objectsInActOrder.remove(object);
-        }
-    }
-
-    private void removeInPaintOrder(Actor object)
-    {
-        if(objectsInPaintOrder != null) {
-            objectsInPaintOrder.remove(object);
         }
     }
 }

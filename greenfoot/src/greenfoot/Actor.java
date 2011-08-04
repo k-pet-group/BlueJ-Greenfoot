@@ -457,15 +457,10 @@ public abstract class Actor
     }
 
     /**
-     * Adds this object to a world at the given coordinate.
+     * Sets the world, and the initial location
      */
     void addToWorld(int x, int y, World world)
     {
-        final World oldWorld = world; // don't use getWorld() as it is overridable!
-        if ( oldWorld != null && oldWorld != world ) {
-            oldWorld.removeObject( this );
-        }
-        
         if (world.isBounded()) {
             x = limitValue(x, world.getWidth());
             y = limitValue(y, world.getHeight());
@@ -474,8 +469,9 @@ public abstract class Actor
         this.x = x;
         this.y = y;
         boundingRect = null;
-        this.setWorld(world);
 
+        this.setWorld(world);
+        
         // This call is not necessary, however setLocation may be overridden
         // so it must still be called. (Asteroids scenario relies on setLocation
         // being called when the object is added to the world...)
