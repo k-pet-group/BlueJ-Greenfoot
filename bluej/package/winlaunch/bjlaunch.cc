@@ -727,7 +727,7 @@ int WINAPI WinMain
 					"Please also note, the Java Runtime Environment (JRE) is not sufficient.\n"
 					"You must have a JDK to run " APPNAME ".\n\n"
 					"The launcher will continue to run - if you have a JDK installed, "
-					"you can browse\nfor it (use the browser button)."),
+					"you can browse\nfor it (use the browse button)."),
 				TEXT(APPNAME), MB_ICONEXCLAMATION | MB_OK);
 	}
 
@@ -756,5 +756,5 @@ int WINAPI WinMain
     }
 
 	// We've received WM_QUIT
-    return msg.wParam;
+	return msg.wParam;
 }
