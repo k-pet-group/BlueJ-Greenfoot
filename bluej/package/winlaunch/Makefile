@@ -27,7 +27,7 @@ resources.o: bjlaunch.rc resources.h
 	windres $(GREENFOOTDEF) bjlaunch.rc resources.o
 
 bjlaunch.o: bjlaunch.cc resources.h
-	g++ $(GREENFOOTDEF) -DAPPNAME=$(APPNAME) -Os -I"$(JDKDIR)/include" -I"$(JDKDIR)/include/win32" -c bjlaunch.cc -o bjlaunch.o
+	g++ $(GREENFOOTDEF) -DAPPNAME=$(APPNAME) -DREQUIREDJAVA=$(REQUIREDJAVA) -Os -I"$(JDKDIR)/include" -I"$(JDKDIR)/include/win32" -c bjlaunch.cc -o bjlaunch.o
 
 javaprops.o: javaprops.cc winfilebuf.h
 	g++ -DAPPNAME=$(APPNAME) -Os -c javaprops.cc -o javaprops.o
