@@ -83,10 +83,12 @@ public class SoundClip implements Sound
      * finished. This will effectively ignore the CLOSE_TIMEOUT.
      */
     private boolean closeWhenFinished = false;
+    
     /**
      * The master volume of the sound clip.
      */
-    private int masterVolume;
+    private int masterVolume = 100;
+    
     /**
      * Extra delay in ms added to the sleep time before closing the clip. This
      * is just an extra buffer of time to make sure we don't close it too soon.
@@ -110,7 +112,6 @@ public class SoundClip implements Sound
 
     /**
      * Load the sound file supplied by the parameter into this sound engine.
-     * 
      */
     private boolean open()
     {
@@ -123,6 +124,7 @@ public class SoundClip implements Sound
             soundClip.open(stream);
             clipLength = soundClip.getMicrosecondLength() / 1000;
             setState(ClipState.STOPPED);
+            setVolume(masterVolume);
             return true;
         }
         catch (SecurityException e) {
@@ -242,9 +244,6 @@ public class SoundClip implements Sound
     public synchronized void setVolume(int level)
     {
         this.masterVolume = level;
-        if (!open()) {
-            return;
-        }
         if (soundClip != null) {
             if (soundClip.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
                 FloatControl volume = (FloatControl) soundClip.getControl(FloatControl.Type.MASTER_GAIN);
