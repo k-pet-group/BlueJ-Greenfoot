@@ -574,7 +574,7 @@ public class GreenfootFrame extends JFrame
             try {
                 GPackage pkg = project.getDefaultPackage();
 
-                GClass[] classes = pkg.getClasses();
+                GClass[] classes = pkg.getClasses(false);
                 //add the system classes
                 classBrowser.quickAddClass(new ClassView(classBrowser,
                         new GCoreClass(World.class, project), worldHandlerDelegate));

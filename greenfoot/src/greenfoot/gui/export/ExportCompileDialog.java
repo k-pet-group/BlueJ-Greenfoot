@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2011  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -155,24 +155,32 @@ public class ExportCompileDialog extends EscapeDialog
         dispose();        
     }
     
+    @Override
     public void compileError(RCompileEvent event)
     {
     }
     
+    @Override
     public void compileFailed(RCompileEvent event)
     {
         doCancel();
     }
+
+    @Override
     public void compileStarted(RCompileEvent event)
     {
 
     }
+
+    @Override
     public void compileSucceeded(RCompileEvent event)
     {
         if(project.isCompiled()) {
             doOk();
         }
     }
+    
+    @Override
     public void compileWarning(RCompileEvent event)
     {
         

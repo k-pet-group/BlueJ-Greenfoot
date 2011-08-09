@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -92,7 +92,7 @@ public class GPackage
     /**
      * Get the GClass wrapper for a remote class in this package.
      */
-    public GClass getGClass(RClass remoteClass)
+    public GClass getGClass(RClass remoteClass, boolean inRemoteCallback)
     {
         if (remoteClass == null) {
             return null;
@@ -104,7 +104,7 @@ public class GPackage
             if (gClass == null) {
                 gClass = new GClass(remoteClass, this);
                 classPool.put(remoteClass, gClass);
-                gClass.loadSavedSuperClass();
+                gClass.loadSavedSuperClass(inRemoteCallback);
             }
         }
         return gClass;
@@ -153,14 +153,14 @@ public class GPackage
         return project;
     }
 
-    public GClass[] getClasses()
+    public GClass[] getClasses(boolean inRemoteCallback)
     {
         try {
             RClass[] rClasses = pkg.getRClasses();
             GClass[] gClasses = new GClass[rClasses.length];
             for (int i = 0; i < rClasses.length; i++) {
                 RClass rClass = rClasses[i];
-                gClasses[i] = getGClass(rClass);
+                gClasses[i] = getGClass(rClass, inRemoteCallback);
             }
             return gClasses;
         }
@@ -187,7 +187,7 @@ public class GPackage
             synchronized (classPool) {
                 classPool.put(newRClass, newClass);
             }
-            newClass.loadSavedSuperClass();
+            newClass.loadSavedSuperClass(false);
         }
         catch (RemoteException re) {
             Debug.reportError("Creating new class", re);
@@ -206,12 +206,13 @@ public class GPackage
     
     /**
      * Get the named class (null if it cannot be found).
+     * Do not call from a remote callback.
      */
     public GClass getClass(String className)
     {
         try {
             RClass rClass = pkg.getRClass(className);
-            return getGClass(rClass);
+            return getGClass(rClass, false);
         }
         catch (RemoteException re) {
             Debug.reportError("Getting class", re);
@@ -228,12 +229,13 @@ public class GPackage
 
     /** 
      * Returns all the world sub-classes in this package that can be instantiated.
+     * Do not call from a remote callback.
      */
     @SuppressWarnings("unchecked")
     public List<Class<? extends World>> getWorldClasses()
     {
         List<Class<? extends World>> worldClasses= new LinkedList<Class<? extends World>>();
-        GClass[] classes = getClasses();
+        GClass[] classes = getClasses(false);
         for (int i = 0; i < classes.length; i++) {
             GClass cls = classes[i];
             if(cls.isWorldSubclass()) {

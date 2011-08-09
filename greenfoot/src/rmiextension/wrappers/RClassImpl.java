@@ -369,53 +369,59 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
     }
 
     @Override
-    public RClass getSuperclass()
+    public RClass getSuperclass(boolean inRemoteCallback)
         throws ProjectNotOpenException, PackageNotFoundException, ClassNotFoundException, RemoteException
     {
-        synchronized (RClassImpl.class) {
-            final BClass[] wrapped = new BClass[1];
-            final ClassNotFoundException[] cnfe = new ClassNotFoundException[1];
-            pnoe = null;
-            pnfe = null;
+        if (! inRemoteCallback) {
+            synchronized (RClassImpl.class) {
+                final BClass[] wrapped = new BClass[1];
+                final ClassNotFoundException[] cnfe = new ClassNotFoundException[1];
+                pnoe = null;
+                pnfe = null;
 
-            try {
-                EventQueue.invokeAndWait(new Runnable() {
-                    @Override
-                    public void run()
-                    {
-                        try {
-                            wrapped[0] = bClass.getSuperclass();
+                try {
+                    EventQueue.invokeAndWait(new Runnable() {
+                        @Override
+                        public void run()
+                        {
+                            try {
+                                wrapped[0] = bClass.getSuperclass();
+                            }
+                            catch (ProjectNotOpenException e) {
+                                pnoe = e;
+                            }
+                            catch (PackageNotFoundException e) {
+                                pnfe = e;
+                            }
+                            catch (ClassNotFoundException e) {
+                                cnfe[0] = e;
+                            }
                         }
-                        catch (ProjectNotOpenException e) {
-                            pnoe = e;
-                        }
-                        catch (PackageNotFoundException e) {
-                            pnfe = e;
-                        }
-                        catch (ClassNotFoundException e) {
-                            cnfe[0] = e;
-                        }
-                    }
-                });
-            }
-            catch (InterruptedException ie) {
-                throw new RuntimeException(ie);
-            }
-            catch (InvocationTargetException ite) {
-                throw new RuntimeException(ite.getCause());
-            }
+                    });
+                }
+                catch (InterruptedException ie) {
+                    throw new RuntimeException(ie);
+                }
+                catch (InvocationTargetException ite) {
+                    throw new RuntimeException(ite.getCause());
+                }
 
-            if (pnoe != null) {
-                throw pnoe;
-            }
-            if (pnfe != null) {
-                throw pnfe;
-            }
-            if (cnfe[0] != null) {
-                throw cnfe[0];
-            }
+                if (pnoe != null) {
+                    throw pnoe;
+                }
+                if (pnfe != null) {
+                    throw pnfe;
+                }
+                if (cnfe[0] != null) {
+                    throw cnfe[0];
+                }
 
-            return WrapperPool.instance().getWrapper(wrapped[0]);
+                return WrapperPool.instance().getWrapper(wrapped[0]);
+            }
+        }
+        else {
+            BClass sc = bClass.getSuperclass();
+            return WrapperPool.instance().getWrapper(sc);
         }
     }
 

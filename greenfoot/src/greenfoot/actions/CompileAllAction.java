@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -36,7 +36,7 @@ import javax.swing.AbstractAction;
  */
 public class CompileAllAction extends AbstractAction
 {
-	private GProject project;
+    private GProject project;
     
     public CompileAllAction(GProject project)
     {
@@ -46,8 +46,8 @@ public class CompileAllAction extends AbstractAction
     
     public void setProject(GProject project)
     {
-    	this.project = project;
-    	setEnabled(project != null);
+        this.project = project;
+        setEnabled(project != null);
     }
 
     /**
@@ -56,7 +56,7 @@ public class CompileAllAction extends AbstractAction
      */
     public void actionPerformed(ActionEvent e)
     {
-        int numOfClasses = project.getDefaultPackage().getClasses().length;
+        int numOfClasses = project.getDefaultPackage().getClasses(false).length;
         // we only want to compile if there are classes in the project
         if(numOfClasses < 1) {
             return;

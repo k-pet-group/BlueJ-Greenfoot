@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -97,12 +97,15 @@ public class GClass
     /**
      * Load the super class from the saved property, or if it is not saved
      * attempt to guess it.
+     * 
+     * @param inRemoteCallback   should be true iff the execution of this method is blocking the dispatch thread
+     *                           in the remote VM.
      */
-    public void loadSavedSuperClass() 
+    public void loadSavedSuperClass(boolean inRemoteCallback) 
     {
         String savedSuperclass = getClassProperty("superclass");
         if(savedSuperclass == null) {
-            guessSuperclass();
+            guessSuperclass(inRemoteCallback);
         } else {
             setSuperclassGuess(savedSuperclass);
         }
@@ -481,9 +484,12 @@ public class GClass
      * If the is not parseable it will use the last superclass that was known.<br>
      * In general, we will try to remember the last known superclass, and report that back.
      * 
+     * @param inRemoteCallback   should be true iff the execution of this method is blocking the dispatch thread
+     *                           in the remote VM.
+     * 
      * @return Best guess of the name of the superclass (NOT the qualified name).
      */
-    private synchronized void guessSuperclass()
+    private synchronized void guessSuperclass(boolean inRemoteCallback)
     {
         // TODO This should be called each time the source file is saved. However,
         // this is not possible at the moment, so we just do it when it is
@@ -505,7 +511,7 @@ public class GClass
         }
         
         try {
-            RClass sclass = rmiClass.getSuperclass();
+            RClass sclass = rmiClass.getSuperclass(inRemoteCallback);
             if (sclass != null) {
                 setSuperclassGuess(sclass.getQualifiedName());
                 return;
@@ -580,10 +586,13 @@ public class GClass
         return false;
     }   
 
+    /**
+     * Reload. Only call from a remote callback.
+     */
     public synchronized void reload()
     {
         loadRealClass();
-        guessSuperclass();
+        guessSuperclass(true);
         if(classView != null) {
             EventQueue.invokeLater(new Runnable() {
                 public void run()

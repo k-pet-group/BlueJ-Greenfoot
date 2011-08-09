@@ -84,8 +84,11 @@ public interface RClass
 
     /**
      * Gets the superclass of this class (if it has one).
+     * 
+     * @param inRemoteCallback  whether this method is being called from a method which was itself invoked
+     *                          by a callback from this virtual machine, which blocks the dispatch thread.
      */
-    public abstract RClass getSuperclass()
+    public abstract RClass getSuperclass(boolean inRemoteCallback)
         throws ProjectNotOpenException, PackageNotFoundException, ClassNotFoundException, RemoteException;
 
     public abstract boolean isCompiled()

@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2011  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -39,13 +39,12 @@ import bluej.extensions.event.ClassEvent;
  * for each GClass to be a ClassListener.
  * 
  * @author Davin McCall
- * @version $Id: ClassStateManager.java 8321 2010-09-14 15:05:24Z nccb $
  */
 public class ClassStateManager extends RClassListenerImpl
 {
-	private GProject project;
-	private List<CompiledStateListener> listeners = new LinkedList<CompiledStateListener>();
-	
+    private GProject project;
+    private List<CompiledStateListener> listeners = new LinkedList<CompiledStateListener>();
+    
     /**
      * Construct a ClassStateManager.
      * @throws RemoteException
@@ -73,7 +72,7 @@ public class ClassStateManager extends RClassListenerImpl
             }            
             
             GPackage pkg = project.getPackage(eventClass.getPackage());
-            GClass gClass = pkg.getGClass(eventClass);
+            GClass gClass = pkg.getGClass(eventClass, true);
             
             if (eventId == ClassEvent.STATE_CHANGED) {
                 boolean compiled = event.isClassCompiled();

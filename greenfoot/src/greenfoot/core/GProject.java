@@ -257,12 +257,14 @@ public class GProject extends RProjectListenerImpl
     
     /**
      * Checks whether every class in this project is compiled.
+     * Do not call from a remote callback (except for a compilation event callback).
+     * 
      * @return True is all classes are compiled, false otherwise
      */
     public boolean isCompiled()
     {
         try {
-            GClass[] classes = getDefaultPackage().getClasses();
+            GClass[] classes = getDefaultPackage().getClasses(false);
             for (int i = 0; i < classes.length; i++) {
                 GClass cls = classes[i];
                 if(!cls.isCompiled())  {
@@ -284,7 +286,7 @@ public class GProject extends RProjectListenerImpl
     public void closeEditors()
     {
         try {
-            GClass[] classes = getDefaultPackage().getClasses();
+            GClass[] classes = getDefaultPackage().getClasses(false);
             for (int i = 0; i < classes.length; i++) {
                 GClass cls = classes[i];
                 cls.closeEditor();
@@ -347,10 +349,13 @@ public class GProject extends RProjectListenerImpl
     
     // ----------- End of CompileListener interface ------
     
+    /**
+     * Reload all classes. Only call from a remote callback.
+     */
     private void reloadClasses()
     {
         GPackage pkg = getDefaultPackage();  
-        GClass[] classes = pkg.getClasses();
+        GClass[] classes = pkg.getClasses(true);
         for (GClass cls : classes) {
             cls.reload();
         }
