@@ -53,7 +53,7 @@ public class MicLevelGrabber
                     TargetDataLine line = (TargetDataLine) AudioSystem.getLine(new DataLine.Info(TargetDataLine.class, format));
                     line.open();
                     line.start();
-                    int bufferSize = (int) (format.getSampleRate() / 2) * format.getFrameSize();
+                    int bufferSize = (int) (format.getSampleRate() / 20) * format.getFrameSize();
                     byte buffer[] = new byte[bufferSize];
                     int bytesRead = line.read(buffer, 0, bufferSize);
                     line.stop();
