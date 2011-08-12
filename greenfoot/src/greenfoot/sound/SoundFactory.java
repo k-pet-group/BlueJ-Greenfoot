@@ -57,6 +57,18 @@ public class SoundFactory
     private SoundFactory()
     {
         soundCollection = new SoundCollection();
+        
+        for (String soundFile : GreenfootUtil.findFiles("sounds"))
+        {
+            // This loads the file, and if it's a SoundClip, puts it in
+            // the sound cache.  It also happens to make objects for
+            // non-SoundClip items, but since they are all streams,
+            // that shouldn't cause a big slowdown or waste of resources.
+            getCachedSound(soundFile);
+            
+            if (!soundCache.hasFreeSpace())
+                return; // No point continuing to overwrite things in the cache once all slots are filled
+        }
     }
 
     public synchronized static SoundFactory getInstance()
@@ -91,7 +103,7 @@ public class SoundFactory
             }   
             else if(isMp3(url)) {
                 return new SoundStream(new Mp3AudioInputStream(url), soundCollection);
-            }			
+            }            
             else if (isJavaAudioStream(size)) {
                 return new SoundStream(new JavaAudioInputStream(url), soundCollection);
             } 
@@ -128,7 +140,7 @@ public class SoundFactory
         // If we can not get the size, or if it is a big file we stream
         // it in a thread.
         return size == -1 || size > maxClipSize;
-    }	
+    }    
 
     private boolean isMidi(URL url)
     {

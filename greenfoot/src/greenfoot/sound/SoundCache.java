@@ -41,6 +41,17 @@ public class SoundCache
     {
         nextEntry = 0;
     }
+    
+    /**
+     * Indicates whether the next slot in the cache has never been used.
+     * This is only useful very early on in the lifetime of the cache, to check
+     * when the cache first reaches its capacity.  After that, hasFreeSpace()
+     * will always return false.
+     */
+    public boolean hasFreeSpace()
+    {
+        return cache[nextEntry] == null;
+    }
 
     /**
      * Add a sound to the cache.
