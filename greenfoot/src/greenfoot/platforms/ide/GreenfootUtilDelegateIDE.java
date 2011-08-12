@@ -27,14 +27,17 @@ import greenfoot.platforms.GreenfootUtilDelegate;
 import java.awt.Component;
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Hashtable;
 
 import bluej.Config;
 import bluej.runtime.ExecServer;
 import bluej.utility.BlueJFileReader;
+import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 
 public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
@@ -65,6 +68,28 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
     public URL getResource(String path) 
     {
         return ExecServer.getCurrentClassLoader().getResource(path);
+    }
+    
+    public Iterable<String> getResources(String path)
+    {
+        ArrayList<String> files = new ArrayList<String>();
+        try
+        {
+            URL url = getResource(path);
+            if (url != null && "file".equals(url.getProtocol()))
+            {
+                for (String file : new File(url.toURI()).list())
+                {
+                    files.add(file);
+                }
+            }
+        }
+        catch (URISyntaxException e)
+        {
+            Debug.reportError("Bad URI in getResources", e);
+        }
+        // May be a blank list if something went wrong:
+        return files;
     }
     
     /**

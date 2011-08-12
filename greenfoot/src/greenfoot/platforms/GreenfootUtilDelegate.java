@@ -43,6 +43,16 @@ public interface GreenfootUtilDelegate
      * Get some resource from the project, specified by a relative path.
      */
     public URL getResource(String path);  
+    
+    /**
+     * Gets a list of all the resources available in the given subdirectory
+     * (e.g. "images", "sounds") as plain filenames (e.g. "foo.wav").
+     * If the resources are in a directory (i.e. in the IDE), this is equivalent to asking for 
+     * a directory listing.  If they are in a JAR file (i.e. in standalone), you get the equivalent
+     * listing for the contents of that directory within the JAR.
+     */
+    public Iterable<String> getResources(String folderPath);
+    
 
     /**
      * Get the project-relative path of the Greenfoot logo.

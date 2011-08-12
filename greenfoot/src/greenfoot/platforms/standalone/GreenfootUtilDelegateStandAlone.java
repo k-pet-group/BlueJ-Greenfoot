@@ -28,8 +28,14 @@ import java.awt.Component;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.net.URLDecoder;
+import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
 {
@@ -65,6 +71,36 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
             }
             return null;
         }
+    }
+    
+    public Iterable<String> getResources(String path)
+    {
+        Set<String> files = new HashSet<String>();
+        try
+        {
+            // We can't look for the subdirectory (e.g. sounds) because it won't be found as a file, we
+            // must look for a given file, so let's look for our own class file:
+            URL url = getResource(getClass().getName().replace(".", "/")+".class");
+            // Inspired by http://www.uofr.net/~greg/java/get-resource-listing.html
+            if (url != null && "jar".equals(url.getProtocol()))
+            {
+                String jarPath = url.getPath().substring(5, url.getPath().indexOf("!")); //strip out only the JAR file
+                JarFile jar = new JarFile(URLDecoder.decode(jarPath, "UTF-8"));
+                Enumeration<JarEntry> entries = jar.entries(); //gives ALL entries in jar                
+                while(entries.hasMoreElements()) {
+                  String name = entries.nextElement().getName();
+                  if (name.startsWith(path) && name.length() > path.length()) { //filter according to the path
+                    String entry = name.substring(path.length() + 1); // add one for slash
+                    files.add(entry);                    
+                  }
+                }
+            }
+        }
+        catch (IOException e)
+        {
+            System.out.println("IO Exception reading JAR in getResources: " + e.toString());
+        }
+        return files;
     }
 
     /**

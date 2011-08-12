@@ -21,14 +21,15 @@
  */
 package greenfoot;
 
+import greenfoot.platforms.GreenfootUtilDelegate;
+
 import java.awt.Component;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-
-import greenfoot.platforms.GreenfootUtilDelegate;
+import java.util.ArrayList;
 
 public class TestUtilDelegate implements GreenfootUtilDelegate
 {
@@ -41,6 +42,11 @@ public class TestUtilDelegate implements GreenfootUtilDelegate
     public URL getResource(String path)
     {
         return getClass().getClassLoader().getResource(path);
+    }
+    
+    public Iterable<String> getResources(String path)
+    {
+        return new ArrayList<String>();
     }
 
     public String getGreenfootLogoPath()

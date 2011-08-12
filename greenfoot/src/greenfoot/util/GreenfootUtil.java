@@ -457,6 +457,16 @@ public class GreenfootUtil
 
         }
     }
+    
+    /**
+     * Finds files in the given directory (pass directory without trailing slash)
+     * @param dir subdirectory to search in (e.g. "images", "sounds"), without trailing slash
+     * @return A list of files in that subdirectory, without the path prefix (e.g. "foo.wav")
+     */
+    public static Iterable<String> findFiles(final String dir)
+    {
+        return delegate.getResources(dir);
+    }
 
     /**
      * Tries to find the filename using the classloader. It first searches in
