@@ -63,7 +63,7 @@ import bluej.pkgmgr.Project;
 public class Exporter implements PublishListener
 {
     private static final String GREENFOOT_CORE_JAR = getGreenfootCoreJar();
-    private static final String GALLERY_SHARED_JARS = "http://www.greenfootgallery.org/sharedjars/";
+    private static final String GALLERY_SHARED_JARS = "sharedjars/";
     
     private static String getGreenfootCoreJar()
     {
@@ -114,8 +114,12 @@ public class Exporter implements PublishListener
             return;
         }
         File exportDir = tmpJarFile.getParentFile();
-        String jarName = tmpJarFile.getName();           
+        String jarName = tmpJarFile.getName();
         
+        String hostAddress = Config.getPropString("greenfoot.gameserver.address", "http://www.greenfootgallery.org/");
+        if (! hostAddress.endsWith("/")) {
+            hostAddress += "/";
+        }        
         
         String worldClass = project.getLastWorldClassName();
         
@@ -127,12 +131,12 @@ public class Exporter implements PublishListener
         jarCreator.includeSource(false);
        
         // Add the Greenfoot standalone classes as a separate external jar
-        jarCreator.addToClassPath(GALLERY_SHARED_JARS + GREENFOOT_CORE_JAR);   
+        jarCreator.addToClassPath(hostAddress + GALLERY_SHARED_JARS + GREENFOOT_CORE_JAR);   
        
         // Add 3rd party libraries used by Greenfoot.      
         Set<File> thirdPartyLibs = GreenfootUtil.get3rdPartyLibs();
         for (File lib : thirdPartyLibs) {
-            jarCreator.addToClassPath(GALLERY_SHARED_JARS + lib.getName());  
+            jarCreator.addToClassPath(hostAddress + GALLERY_SHARED_JARS + lib.getName());  
         }
         
         // Extra entries for the manifest
@@ -201,10 +205,7 @@ public class Exporter implements PublishListener
         if(scenarioName != null && scenarioName.length() < 1) {
             scenarioName = "NO_NAME";
         }       
-        String hostAddress = Config.getPropString("greenfoot.gameserver.address", "http://www.greenfootgallery.org/");
-        if (! hostAddress.endsWith("/")) {
-            hostAddress += "/";
-        }
+        
         
         if(webPublisher == null) {
             webPublisher = new MyGameClient(this);
