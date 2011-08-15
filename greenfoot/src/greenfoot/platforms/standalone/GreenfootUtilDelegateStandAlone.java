@@ -25,17 +25,15 @@ import greenfoot.GreenfootImage;
 import greenfoot.platforms.GreenfootUtilDelegate;
 
 import java.awt.Component;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
-import java.net.URLDecoder;
-import java.util.Enumeration;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 
 public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
 {
@@ -73,35 +71,32 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
         }
     }
     
-    public Iterable<String> getResources(String path)
+    @Override
+    public Iterable<String> getSoundFiles()
     {
-        Set<String> files = new HashSet<String>();
-        try
+        InputStream is = this.getClass().getClassLoader().getResourceAsStream("soundindex.list");
+        ArrayList<String> r = new ArrayList<String>();
+        
+        if (is != null)
         {
-            // We can't look for the subdirectory (e.g. sounds) because it won't be found as a file, we
-            // must look for a given file, so let's look for our own class file:
-            URL url = getResource(getClass().getName().replace(".", "/")+".class");
-            // Inspired by http://www.uofr.net/~greg/java/get-resource-listing.html
-            if (url != null && "jar".equals(url.getProtocol()))
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+            String line;
+            try
             {
-                String jarPath = url.getPath().substring(5, url.getPath().indexOf("!")); //strip out only the JAR file
-                JarFile jar = new JarFile(URLDecoder.decode(jarPath, "UTF-8"));
-                Enumeration<JarEntry> entries = jar.entries(); //gives ALL entries in jar                
-                while(entries.hasMoreElements()) {
-                  String name = entries.nextElement().getName();
-                  if (name.startsWith(path) && name.length() > path.length()) { //filter according to the path
-                    String entry = name.substring(path.length() + 1); // add one for slash
-                    files.add(entry);                    
-                  }
+                while ((line = reader.readLine()) != null)
+                {
+                    r.add(line);
                 }
             }
+            catch (IOException e)
+            {
+                //Silently stop
+            }
         }
-        catch (IOException e)
-        {
-            System.out.println("IO Exception reading JAR in getResources: " + e.toString());
-        }
-        return files;
-    }
+        
+        // May just be blank if there's a problem:
+        return r;
+    }    
 
     /**
      * Returns the path to a small version of the greenfoot logo.

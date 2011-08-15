@@ -459,13 +459,12 @@ public class GreenfootUtil
     }
     
     /**
-     * Finds files in the given directory (pass directory without trailing slash)
-     * @param dir subdirectory to search in (e.g. "images", "sounds"), without trailing slash
-     * @return A list of files in that subdirectory, without the path prefix (e.g. "foo.wav")
+     * Gets a list of the sound files in this scenario
+     * @return A list of files in the sounds subdirectory, without the path prefix (e.g. "foo.wav")
      */
-    public static Iterable<String> findFiles(final String dir)
+    public static Iterable<String> getSoundFiles()
     {
-        return delegate.getResources(dir);
+        return delegate.getSoundFiles();
     }
 
     /**

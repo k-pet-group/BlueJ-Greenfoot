@@ -22,9 +22,11 @@
 package greenfoot.export;
 
 import greenfoot.core.GProject;
+import greenfoot.util.GreenfootUtil;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -32,6 +34,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -257,6 +260,7 @@ public class JarCreator
     {        
         File jarFile = new File(exportDir, jarName);
         File propertiesFile = null;
+        File soundFile = null;
         OutputStream oStream = null;
         ZipOutputStream jStream = null;
 
@@ -268,6 +272,8 @@ public class JarCreator
                 writeManifest();
                 propertiesFile = new File(projectDir, "standalone.properties");
                 writePropertiesFile(propertiesFile);
+                soundFile = new File(projectDir, "soundindex.list");
+                writeSoundFilesList(soundFile);
                 jStream = new JarOutputStream(oStream, manifest);
             }
             else {
@@ -300,6 +306,25 @@ public class JarCreator
                 propertiesFile.delete();
             }
         }
+    }
+
+    private void writeSoundFilesList(File file)
+    {
+        BufferedWriter os = null;
+        try {
+            file.createNewFile();
+            os = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file)));
+            for (String name : GreenfootUtil.getSoundFiles())
+            {
+                os.write(name + "\n");
+            }
+            os.close();
+        }
+        catch (IOException e)
+        {
+            Debug.reportError("Error writing list of sounds: ", e);
+        }
+        
     }
 
     /**
@@ -354,7 +379,7 @@ public class JarCreator
         String newLineRegExp = "(?m)(?s)$.^";
         //\\z matches end of input, so this will match all trailing newlines.
         String trailingNewLineReqExp = "$.\\z";
-		String[] lines = value.split(newLineRegExp + "|" + trailingNewLineReqExp );
+        String[] lines = value.split(newLineRegExp + "|" + trailingNewLineReqExp );
         for (int i = 0; i < lines.length; i++) {
             String string = lines[i];
             if(i!=0) {

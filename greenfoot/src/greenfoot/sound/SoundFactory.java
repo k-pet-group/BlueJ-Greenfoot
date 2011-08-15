@@ -58,7 +58,7 @@ public class SoundFactory
     {
         soundCollection = new SoundCollection();
         
-        for (String soundFile : GreenfootUtil.findFiles("sounds"))
+        for (String soundFile : GreenfootUtil.getSoundFiles())
         {
             // This loads the file, and if it's a SoundClip, puts it in
             // the sound cache.  It also happens to make objects for

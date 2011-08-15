@@ -70,12 +70,12 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
         return ExecServer.getCurrentClassLoader().getResource(path);
     }
     
-    public Iterable<String> getResources(String path)
+    public Iterable<String> getSoundFiles()
     {
         ArrayList<String> files = new ArrayList<String>();
         try
         {
-            URL url = getResource(path);
+            URL url = getResource("sounds");
             if (url != null && "file".equals(url.getProtocol()))
             {
                 for (String file : new File(url.toURI()).list())
