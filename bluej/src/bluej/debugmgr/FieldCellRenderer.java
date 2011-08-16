@@ -25,7 +25,6 @@ import java.awt.Component;
 
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JList;
-import javax.swing.ListCellRenderer;
 
 import bluej.debugger.DebuggerField;
 import bluej.debugmgr.inspector.Inspector;
@@ -35,7 +34,7 @@ import bluej.debugmgr.inspector.Inspector;
  * 
  * @author Davin Mccall
  */
-public class FieldCellRenderer extends DefaultListCellRenderer implements ListCellRenderer
+public class FieldCellRenderer extends DefaultListCellRenderer
 {
     @Override
     public Component getListCellRendererComponent(JList list, Object value,
