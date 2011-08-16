@@ -108,4 +108,10 @@ public class TestUtilDelegate implements GreenfootUtilDelegate
     {
         System.err.println(messageText);
     }
+    
+    @Override
+    public Iterable<String> getSoundFiles()
+    {
+        return null;
+    }
 }
