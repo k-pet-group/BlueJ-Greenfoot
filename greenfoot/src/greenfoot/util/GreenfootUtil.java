@@ -117,7 +117,7 @@ public class GreenfootUtil
     
     /**
      * Get a spacer along the specified axis and with the specified width.
-     * 
+     * <p>
      * A Spacer is like a strut, but with a minimum height/width of 0,
      * so it will collapse to provide additional space to other
      * components if necessary.
@@ -162,6 +162,7 @@ public class GreenfootUtil
 
     /**
      * Check whether a given file is an image that can be read by Java.
+     * 
      * @param file the file to check
      * @return true if the file is a valid image, false otherwise.
      */
@@ -355,6 +356,7 @@ public class GreenfootUtil
          *  (non-Javadoc)
          * @see java.awt.image.ImageObserver#imageUpdate(java.awt.Image, int, int, int, int, int)
          */
+        @Override
         public synchronized boolean imageUpdate(Image img, int infoflags, int x, int y, int width, int height)
         {
             // First stage: get image dimensions
@@ -390,9 +392,7 @@ public class GreenfootUtil
     
     
     /**
-     * 
      * Copies the src-DIR recursively into dst.
-     * 
      */
     public static void copyDir(File src, File dst)
     {
@@ -416,8 +416,8 @@ public class GreenfootUtil
     }
 
     /**
-     * Copies the src to dst. Creating parent dirs for dst. If dst exist it
-     * overrides it.
+     * Copies the src to dst, creating parent dirs for dst. If dst exists it
+     * is overwritten.
      * 
      * @param src
      *            The source. It must be a file
@@ -895,9 +895,11 @@ public class GreenfootUtil
     public static String removeExtension(String full)
     {
         int n = full.lastIndexOf('.');
-        if (n == -1)
+        if (n == -1) {
             return full;
-        else
+        }
+        else {
             return full.substring(0, n);
+        }
     }
 }
