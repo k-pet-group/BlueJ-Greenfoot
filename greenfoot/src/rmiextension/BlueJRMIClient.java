@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,11 +22,12 @@
 package rmiextension;
 
 import java.io.File;
-import java.net.MalformedURLException;
-import java.rmi.Naming;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-import java.util.Properties;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 
 import rmiextension.wrappers.RBlueJ;
 import rmiextension.wrappers.RPackage;
@@ -42,7 +43,6 @@ import bluej.extensions.ProjectNotOpenException;
  */
 public class BlueJRMIClient implements BlueJPropStringSource
 {
-
     RBlueJ blueJ = null;
     private static BlueJRMIClient instance;
 
@@ -54,10 +54,15 @@ public class BlueJRMIClient implements BlueJPropStringSource
         instance = this;
 
         try {
-            blueJ = (RBlueJ) Naming.lookup(rmiServiceName);
+            URI uri = new URI(rmiServiceName);
+            String path = uri.getPath().substring(1); // strip leading '/'
+            String host = uri.getHost();
+            int port = uri.getPort();
+            Registry reg = LocateRegistry.getRegistry(host, port, new LocalSocketFactory());
+            blueJ = (RBlueJ) reg.lookup(path);
         }
-        catch (MalformedURLException e) {
-            e.printStackTrace();
+        catch (URISyntaxException use) {
+            use.printStackTrace();
         }
         catch (RemoteException e) {
             e.printStackTrace();
@@ -112,6 +117,7 @@ public class BlueJRMIClient implements BlueJPropStringSource
     
     // Implementation for "BlueJPropStringSource" interface
     
+    @Override
     public String getBlueJPropertyString(String property, String def)
     {
         try {
@@ -125,26 +131,18 @@ public class BlueJRMIClient implements BlueJPropStringSource
         }
     }
 
+    @Override
     public String getLabel(String key)
     {
         return Config.getString(key, key);
     }
     
+    @Override
     public void setUserProperty(String property, String val)
     {
         try {
             blueJ.setExtensionPropertyString(property, val);
         }
         catch (RemoteException re) {}
-    }
-    
-    public Properties getInitialCommandLineProperties()
-    {
-        try {
-            return blueJ.getInitialCommandLineProperties();
-        }
-        catch (RemoteException e) {
-            return null;
-        }
     }
 }

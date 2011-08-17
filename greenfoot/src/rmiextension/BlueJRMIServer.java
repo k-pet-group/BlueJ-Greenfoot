@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2011  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -36,17 +36,13 @@ import bluej.utility.Debug;
 /**
  * Starts the registry and BlueJ-service.
  * <p>
- * 
  * To support multiple instances of greenfoot running at the same time the
  * registry will be started on a random free port.
  * 
- * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: BlueJRMIServer.java 6216 2009-03-30 13:41:07Z polle $
  */
 public class BlueJRMIServer
 {
-
     private final static String HOST = "127.0.0.1";
     private final static String BLUEJ_SERVICE = "BlueJService";
     private static int port;
@@ -55,6 +51,8 @@ public class BlueJRMIServer
     private int registryStartAttempts = 0;
     /** How many time to we retry before giving up */
     private static final int MAX_REGISTRY_START_ATTEMPTS = 10;
+    
+    private static final LocalSocketFactory socketFactory = new LocalSocketFactory();
 
     /**
      * Returns the BlueJ service.
@@ -73,7 +71,7 @@ public class BlueJRMIServer
     
     /**
      * Make sure that the localhost is used for the server. If this is not done,
-     * RMI will use the outgoing IP address if there is one, and loosing this IP
+     * RMI will use the outgoing IP address if there is one, and losing this IP
      * address will make RMI calls impossible and hence lock up Greenfoot.
      */
     public static void forceHostForServer()
@@ -90,23 +88,23 @@ public class BlueJRMIServer
     public BlueJRMIServer(BlueJ blueJ)
         throws IOException
     {
-    	if (System.getSecurityManager() == null) {
-    		// If there's no security manager, the registry will
-    		// (stupidly) refuse to load classes from the class path
-    		// that aren't visible to the system class loader.
-    		System.setSecurityManager(new SecurityManager() {
-    			public void checkPermission(Permission perm) {
-    				// super.checkPermission(perm);
-    				return;
-    			}
+        if (System.getSecurityManager() == null) {
+            // If there's no security manager, the registry will
+            // (stupidly) refuse to load classes from the class path
+            // that aren't visible to the system class loader.
+            System.setSecurityManager(new SecurityManager() {
+                public void checkPermission(Permission perm) {
+                    // super.checkPermission(perm);
+                    return;
+                }
 
-    			public void checkPermission(Permission perm, Object context) {
-    				// super.checkPermission(perm, context);
-    				return;
-    			}
-    		});
-    	}
-    	
+                public void checkPermission(Permission perm, Object context) {
+                    // super.checkPermission(perm, context);
+                    return;
+                }
+            });
+        }
+        
         startRegistry();
         blueJ.addPackageListener(ProjectManager.instance());
         RBlueJ rBlueJ = new RBlueJImpl(blueJ);
@@ -137,7 +135,7 @@ public class BlueJRMIServer
             }
 
             try {
-                LocateRegistry.createRegistry(port);
+                LocateRegistry.createRegistry(port, socketFactory, socketFactory);
                 success = true;
             }
             catch (RemoteException re) {
@@ -152,7 +150,6 @@ public class BlueJRMIServer
         if (!success) {
             throw new IOException("Could not start the registry.");
         }
-
     }
 
     /**
