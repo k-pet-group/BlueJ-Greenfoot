@@ -50,7 +50,6 @@ import java.io.InputStream;
 import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.security.AccessControlException;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -468,9 +467,8 @@ public class GreenfootUtil
     }
 
     /**
-     * Tries to find the filename using the classloader. It first searches in
-     * 'projectdir/dir/', then in the 'projectdir' and last as an absolute
-     * filename or URL.
+     * Tries to find the specified file using the classloader. It first searches in
+     * 'projectdir/dir/', then in the 'projectdir' and last as an absolute filename or URL.
      * 
      * @param filename Name of the file
      * @param dir directory to search in first
@@ -483,43 +481,10 @@ public class GreenfootUtil
             throw new NullPointerException("Filename must not be null.");
         }
         
-        URL url = null;
-       
-        // If the 'dir' is part of the filename already, we attempt to use the
-        // filename alone first in order to avoid a wrong lookup for applets,
-        // because this can take a while over the net.
-        boolean pathContainsDir = false;
-        if (dir != null) {
-            // TODO It might not actually be the file system separator that
-            // should be used. Should also check for "/" to make it work on
-            // windows. If an applet it is probably "/" that is used on all 
-            // platforms.
-            int sepLoc = filename.lastIndexOf(System.getProperty("file.separator"));
-            if(sepLoc > 0) {
-                String pathOnly = filename.substring(0,sepLoc);
-                pathContainsDir = pathOnly.endsWith(dir);
-            }
-        }        
-
-        // Also look for ':' which will indicate some sort of protocol (http,
-        // jar, file, etc) which will be absolute and hence no need to use
-        // 'dir'.
-        boolean pathContainsColon = filename.contains(":");
-        
-        boolean dirSearched = false;     
-        if (!pathContainsColon && !pathContainsDir) {
-            // First, try the project directory, unless it is already part of the filename or an absolute path.
-            url = delegate.getResource(dir + "/" + filename);
-            dirSearched = true;
-        } 
+        URL url = delegate.getResource(dir + "/" + filename);
 
         if (url == null) {
             url = delegate.getResource(filename);
-        }
-        if (url == null && !dirSearched) {
-            // Second, try the specified dir
-            url = delegate.getResource(dir + "/" + filename);
-            dirSearched = true;
         }
         if (url == null) {
             // Third, try as an absolute file
@@ -531,13 +496,11 @@ public class GreenfootUtil
                 }
             }
             catch (MalformedURLException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                // Not a URL that Java can handle
             }
-            catch (AccessControlException ace) {
-                // Can get this when running in an applet (on Mac, when filename contains whitespace)
-                // Should be safe to ignore, since it will be picked up as an URL below.
-            }        
+            catch (SecurityException se) {
+                // Can get this when running as an applet
+            }
         }
         if(url == null) {
             // Fourth, try as an absolute  URL.
@@ -548,10 +511,10 @@ public class GreenfootUtil
                 s.close();
             }
             catch (MalformedURLException e) {
-                url =null;
+                url = null;
             }
             catch (IOException e) {
-                url =null;
+                url = null;
             } finally {
                 if(s != null) {
                     try {
