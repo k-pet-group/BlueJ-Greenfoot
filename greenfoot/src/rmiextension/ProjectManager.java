@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2010  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2010,2011  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -80,6 +80,8 @@ public class ProjectManager
     private static final String launcherName = "greenfootLauncher";
 
     private static BlueJ bluej;
+    
+    private static volatile boolean launchFailed = false;
 
     private ProjectManager()
     {}
@@ -127,8 +129,10 @@ public class ProjectManager
                 if (versionOK == GreenfootMain.VERSION_UPDATED) {
                     project.getPackage("").reload();
                 }
+
+                // Add debugger listener. The listener will launch Greenfoot once the
+                // VM is ready.
                 GreenfootDebugHandler.addDebuggerListener(project);
-                openGreenfoot(project);
                 
                 // Add Greenfoot API sources to project source path
                 Project bjProject = Project.getProject(project.getDir());
@@ -164,6 +168,14 @@ public class ProjectManager
         }
     }
 
+    /**
+     * Check whether failure to launch has been recorded.
+     */
+    public static boolean checkLaunchFailed()
+    {
+        return launchFailed;
+    }
+    
     /**
      * Launch the Greenfoot debug VM code (and tell it where to connect to for RMI purposes).
      * 
@@ -236,6 +248,7 @@ public class ProjectManager
      */
     public static void greenfootLaunchFailed(BProject project)
     {
+        launchFailed = true;
         String text = Config.getString("greenfoot.launchFailed");
         DialogManager.showErrorText(null, text);
         System.exit(1);

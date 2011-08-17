@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2010 Poul Henriksen and Michael Kolling 
+ Copyright (C) 2010,2011 Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -101,9 +101,9 @@ public class GreenfootDebugHandler implements DebuggerListener
             // Technically I could collapse the two listeners into one, but they
             // perform orthogonal tasks so it's nicer to keep the code separate:
             GreenfootDebugHandler handler = new GreenfootDebugHandler(project);
-            handler.addRunResetBreakpoints(proj.getDebugger());
             ExtensionBridge.addDebuggerListener(project, handler);
             ExtensionBridge.addDebuggerListener(project, handler.new GreenfootDebugControlsLink());
+            handler.addRunResetBreakpoints(proj.getDebugger());
         } catch (ProjectNotOpenException ex) {
             Debug.reportError("Project not open when adding debugger listener in Greenfoot", ex);
         }
@@ -145,6 +145,7 @@ public class GreenfootDebugHandler implements DebuggerListener
      * This method does not actually run it on; see the comments on the scheduledTasks field
      * at the top of the class for how it works.
      */
+    @Override
     public boolean examineDebuggerEvent(final DebuggerEvent e)
     {
         final Debugger debugger = (Debugger)e.getSource();
@@ -244,19 +245,22 @@ public class GreenfootDebugHandler implements DebuggerListener
      * 
      * <p>We call threadHalted if necessary.
      */
+    @Override
     public void processDebuggerEvent(final DebuggerEvent e, boolean skipUpdate)
     {
-        if (e.getNewState() == Debugger.NOTREADY && e.getOldState() == Debugger.IDLE) {           
-            //It is important to have this code run at a later time.
-            //If it runs from this thread, it tries to notify the VM event handler,
-            //which is currently calling us and we get a deadlock between the two VMs.
-            new Thread() {
-                public void run()
-                {
-                    addRunResetBreakpoints((Debugger) e.getSource());
-                    ProjectManager.instance().openGreenfoot(project);
-                }
-            }.start();
+        if (e.getNewState() == Debugger.IDLE && e.getOldState() == Debugger.NOTREADY) {
+            if (! ProjectManager.checkLaunchFailed()) {
+                //It is important to have this code run at a later time.
+                //If it runs from this thread, it tries to notify the VM event handler,
+                //which is currently calling us and we get a deadlock between the two VMs.
+                EventQueue.invokeLater(new Runnable() {
+                    public void run()
+                    {
+                        addRunResetBreakpoints((Debugger) e.getSource());
+                        ProjectManager.instance().openGreenfoot(project);
+                    }
+                });
+            }
         }
     }
 
@@ -287,8 +291,9 @@ public class GreenfootDebugHandler implements DebuggerListener
     private static boolean insideUserCode(List<SourceLocation> stack)
     {
         for (int i = 0; i < stack.size();i++) {
-            if (inInvokeMethods(stack, i))
+            if (inInvokeMethods(stack, i)) {
                 return true;
+            }
         }
         return false;
     }
@@ -305,8 +310,9 @@ public class GreenfootDebugHandler implements DebuggerListener
             if (className.equals(SIMULATION_CLASS)) {
                 String methodName = stack.get(frame).getMethodName();
                 for (String actMethod : INVOKE_METHODS) {
-                    if (actMethod.equals(methodName))
+                    if (actMethod.equals(methodName)) {
                         return true;
+                    }
                 }
             }
             else if (JavaNames.getBase(className).startsWith(Invoker.SHELLNAME)) {
@@ -410,6 +416,7 @@ public class GreenfootDebugHandler implements DebuggerListener
                 this.debugger = debugger;
             }
 
+            @Override
             public void run()
             {
                 // We hold the monitor until the object has been instantiated, to prevent race hazards:
@@ -441,6 +448,7 @@ public class GreenfootDebugHandler implements DebuggerListener
             }
         }
         
+        @Override
         public boolean examineDebuggerEvent(DebuggerEvent e)
         {
             return false;
