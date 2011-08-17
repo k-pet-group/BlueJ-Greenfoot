@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -45,6 +45,7 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
     /**
      * Creates the skeleton for a new class
      */
+    @Override
     public void createSkeleton(String className, String superClassName, File file, String templateFileName)
             throws IOException
     {
@@ -65,11 +66,13 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
         
     }
     
+    @Override
     public URL getResource(String path) 
     {
         return ExecServer.getCurrentClassLoader().getResource(path);
     }
     
+    @Override
     public Iterable<String> getSoundFiles()
     {
         ArrayList<String> files = new ArrayList<String>();
@@ -95,22 +98,26 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
     /**
      * Returns the path to a small version of the greenfoot logo.
      */
+    @Override
     public  String getGreenfootLogoPath()
     {        
         File libDir = Config.getGreenfootLibDir();
         return libDir.getAbsolutePath() + "/imagelib/other/greenfoot.png";        
     }
 
+    @Override
     public boolean addCachedImage(String fileName, GreenfootImage image) 
     { 
         return false;
     }
 
+    @Override
     public GreenfootImage getCachedImage(String fileName)
     { 
         return null;
     }
 
+    @Override
     public void removeCachedImage(String fileName) { }
 
     @Override

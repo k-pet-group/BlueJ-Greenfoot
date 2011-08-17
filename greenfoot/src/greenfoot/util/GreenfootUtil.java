@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009, 2010  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -496,8 +496,8 @@ public class GreenfootUtil
             // platforms.
             int sepLoc = filename.lastIndexOf(System.getProperty("file.separator"));
             if(sepLoc > 0) {
-              String pathOnly = filename.substring(0,sepLoc);
-              pathContainsDir = pathOnly.endsWith(dir);
+                String pathOnly = filename.substring(0,sepLoc);
+                pathContainsDir = pathOnly.endsWith(dir);
             }
         }        
 
