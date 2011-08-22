@@ -334,13 +334,9 @@ bool launchVM(string jdkLocation)
 	// automatically. The simplest way to resolve this is to set the current working directory.
 
 	// First we save the current working directory:
-	LPTSTR curDir = (LPTSTR) malloc(100);
-	DWORD curDirLen =  GetCurrentDirectory(100, curDir);
-	if (curDirLen > 100) {
-		free(curDir);
-		curDir = (LPTSTR) malloc(curDirLen);
-		GetCurrentDirectory(curDirLen, curDir);
-	}
+	DWORD curDirLen =  GetCurrentDirectory(0, NULL);
+	LPTSTR curDir = (LPTSTR) malloc(curDirLen * sizeof(TCHAR));
+	GetCurrentDirectory(curDirLen, curDir);
 
 	// Now set the directory:
 	string jvmDllPath = jdkLocation + TEXT("\\jre\\bin");
