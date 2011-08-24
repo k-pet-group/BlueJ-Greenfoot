@@ -49,6 +49,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipOutputStream;
 
+import bluej.Boot;
 import bluej.Config;
 import bluej.pkgmgr.Project;
 import bluej.utility.BlueJFileReader;
@@ -165,9 +166,6 @@ public class JarCreator
         // skip the export dir (in case it is in the projectDir)
         addSkipDir(exportDir.getAbsolutePath());
         
-        // skip the greenfoot subdir that are in the projects
-        addSkipDir(projectDir.getPath() + System.getProperty("file.separator") + "greenfoot");
-        
         // skip BlueJ files
         addSkipFile(".ctxt");
         addSkipFile("bluej.pkg");
@@ -182,6 +180,10 @@ public class JarCreator
         
         // Add the properties read by the GreenfootScenarioViewer
         properties.put("project.name", scenarioName);
+        properties.put("project.greenfootversion", Boot.GREENFOOT_VERSION);
+        properties.put("project.javaspecversion", System.getProperty("java.specification.version"));
+        properties.put("project.javaversion", System.getProperty("java.version"));
+        properties.put("project.javaclassversion", System.getProperty("java.class.version"));
         properties.put("main.class", worldClass);
         properties.put("scenario.lock", "" + lockScenario);
         properties.put("scenario.viewer.appletInfo", Config.getString("scenario.viewer.appletInfo"));
