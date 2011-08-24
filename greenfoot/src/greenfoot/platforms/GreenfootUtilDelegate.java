@@ -75,7 +75,11 @@ public interface GreenfootUtilDelegate
     public boolean addCachedImage(String fileName, GreenfootImage image);
 
     /**
-     * Gets the cached image of the requested fileName. Thread-safe
+     * Gets the cached image of the requested fileName. Thread-safe.
+     *
+     * @param name   name of the image file
+     * @return The cached image (should not be modified), or null if the image
+     *         is not cached.
      */
     public GreenfootImage getCachedImage(String fileName);
     

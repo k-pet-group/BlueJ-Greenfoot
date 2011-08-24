@@ -819,9 +819,11 @@ public class GreenfootUtil
     }
     
     /**
-     * Gets the cached image of the requested name
-     * @param name of the image
-     * @return GreenfootImage
+     * Gets the cached image (if any) of the requested name. Thread-safe.
+     * 
+     * @param name   name of the image file
+     * @return The cached image (should not be modified), or null if the image
+     *         is not cached.
      */
     public static GreenfootImage getCachedImage(String name)
     {
