@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -216,11 +216,6 @@ public class Main
      */
     private static void updateStats() 
     {
-        // System property name for honouring web proxy settings
-        // See the JDK docs/technotes/guides/net/proxies.html
-        final String useProxiesProperty = "java.net.useSystemProxies";
-        String oldProxySetting = "false";   // Documented default value
-
         // Platform details, first the ones which vary between BlueJ/Greenfoot
         String uidPropName;
         String baseURL;
@@ -255,11 +250,6 @@ public class Main
         }
         
         try {
-            // Attempt to use local proxy settings to avoid any firewalls, just
-            // for the rest of this method.
-            oldProxySetting = System.getProperty(useProxiesProperty, oldProxySetting);
-            System.setProperty(useProxiesProperty,"true");
-
             URL url = new URL(baseURL +
                 "?uid=" + URLEncoder.encode(uid, "UTF-8") +
                 "&osname=" + URLEncoder.encode(systemID, "UTF-8") +
@@ -276,8 +266,6 @@ public class Main
 
         } catch (Exception ex) {
             Debug.reportError("Update stats failed: " + ex.getClass().getName() + ": " + ex.getMessage());
-        } finally {
-            System.setProperty(useProxiesProperty, oldProxySetting);
         }
     }
 
