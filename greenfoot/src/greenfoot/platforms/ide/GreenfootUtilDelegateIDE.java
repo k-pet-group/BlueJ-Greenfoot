@@ -27,12 +27,17 @@ import greenfoot.platforms.GreenfootUtilDelegate;
 import java.awt.Component;
 import java.io.File;
 import java.io.IOException;
+import java.lang.ref.Reference;
+import java.lang.ref.ReferenceQueue;
+import java.lang.ref.SoftReference;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Dictionary;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Map;
 
 import bluej.Config;
 import bluej.runtime.ExecServer;
@@ -40,8 +45,45 @@ import bluej.utility.BlueJFileReader;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 
+/**
+ * GreenfootUtilDelegate implementation for the Greenfoot IDE.
+ */
 public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
 {
+    private static GreenfootUtilDelegateIDE instance;
+
+    /** A soft reference to a cached image */
+    private class CachedImageRef extends SoftReference<GreenfootImage>
+    {
+        String imgName;
+        
+        public CachedImageRef(String imgName, GreenfootImage image, ReferenceQueue<GreenfootImage> queue)
+        {
+            super(image, queue);
+            this.imgName = imgName;
+        }
+    }
+    
+    private Map<String,CachedImageRef> imageCache = new HashMap<String,CachedImageRef>();
+    private ReferenceQueue<GreenfootImage> imgCacheRefQueue = new ReferenceQueue<GreenfootImage>();
+    
+    static {
+        instance = new GreenfootUtilDelegateIDE();
+    }
+    
+    /**
+     * Get the GreenfootUtilDelegateIDE instance.
+     */
+    public static GreenfootUtilDelegateIDE getInstance()
+    {
+        return instance;
+    }
+    
+    private GreenfootUtilDelegateIDE()
+    {
+        // Nothing to do.
+    }
+    
     /**
      * Creates the skeleton for a new class
      */
@@ -63,7 +105,6 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
             template = Config.getDefaultLanguageFile(baseName);
         }
         BlueJFileReader.translateFile(template, file, translations, Charset.forName("UTF-8"), Charset.defaultCharset());
-        
     }
     
     @Override
@@ -107,25 +148,80 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
 
     @Override
     public boolean addCachedImage(String fileName, GreenfootImage image) 
-    { 
-        return false;
+    {
+        synchronized (imageCache) {
+            if (image != null) {
+                CachedImageRef cr = new CachedImageRef(fileName, image, imgCacheRefQueue);
+                imageCache.put(fileName, cr);
+            }
+            else {
+                imageCache.put(fileName, null);
+            }
+        }
+        return true;
     }
 
     @Override
     public GreenfootImage getCachedImage(String fileName)
     { 
-        return null;
+        synchronized (imageCache) {
+            flushImgCacheRefQueue();
+            CachedImageRef sr = imageCache.get(fileName);
+            if (sr != null) {
+                return sr.get();
+            }
+            return null;
+        }
     }
 
     @Override
-    public void removeCachedImage(String fileName) { }
+    public void removeCachedImage(String fileName)
+    {
+        synchronized (imageCache) {
+            CachedImageRef cr = imageCache.remove(fileName);
+            if (cr != null) {
+                cr.clear();
+            }
+        }
+    }
 
     @Override
     public boolean isNullCachedImage(String fileName)
     {
-        return false;
+        synchronized (imageCache) {
+            return imageCache.containsKey(fileName) && imageCache.get(fileName) == null;
+        }
     }
 
+    /**
+     * Clear the image cache.
+     */
+    public void clearImageCache()
+    {
+        synchronized (imageCache) {
+            imageCache.clear();
+            imgCacheRefQueue = new ReferenceQueue<GreenfootImage>();
+        }
+    }
+    
+    /**
+     * Flush the image cache reference queue.
+     * <p>
+     * Because the images are cached via soft references, the references may be cleared, but the
+     * key will still map to the (cleared) reference. Calling this method occasionally removes such
+     * dead keys.
+     */
+    private void flushImgCacheRefQueue()
+    {
+        Reference<? extends GreenfootImage> ref = imgCacheRefQueue.poll();
+        while (ref != null) {
+            if (ref instanceof CachedImageRef) {
+                CachedImageRef cr = (CachedImageRef) ref;
+                imageCache.remove(cr.imgName);
+            }
+        }
+    }
+    
     @Override
     public void displayMessage(Component parent, String messageText)
     {

@@ -91,7 +91,7 @@ public class GreenfootLauncherDebugVM
                 }
             });
             
-            GreenfootUtil.initialise(new GreenfootUtilDelegateIDE());
+            GreenfootUtil.initialise(GreenfootUtilDelegateIDE.getInstance());
             GreenfootMain.initialize(blueJ, client.getPackage());
         }
         catch (RemoteException re) {

@@ -405,6 +405,7 @@ public class WorldHandlerDelegateIDE
                     WorldHandler.getInstance().clearWorldSet();
                     World newWorld = (World) Simulation.newInstance(cons);
                     if (! WorldHandler.getInstance().checkWorldSet()) {
+                        GreenfootUtilDelegateIDE.getInstance().clearImageCache();
                         WorldHandler.getInstance().setWorld(newWorld);
                     }
                     saveWorldAction.setRecordingValid(true);

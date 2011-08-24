@@ -27,6 +27,7 @@ import greenfoot.World;
 import greenfoot.gui.input.mouse.LocationTracker;
 import greenfoot.localdebugger.LocalDebugger;
 import greenfoot.localdebugger.LocalObject;
+import greenfoot.platforms.ide.GreenfootUtilDelegateIDE;
 import greenfoot.record.InteractionListener;
 
 import java.awt.event.MouseEvent;
@@ -182,6 +183,7 @@ public class WorldInvokeListener
                             else if(o instanceof greenfoot.World) {
                                 interactionListener.worldConstructed(o);
                                 if (! worldHandler.checkWorldSet()) {
+                                    GreenfootUtilDelegateIDE.getInstance().clearImageCache();
                                     worldHandler.setWorld((World) o);
                                 }
                             }
