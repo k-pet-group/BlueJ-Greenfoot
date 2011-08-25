@@ -219,6 +219,7 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
                 CachedImageRef cr = (CachedImageRef) ref;
                 imageCache.remove(cr.imgName);
             }
+            ref = imgCacheRefQueue.poll();
         }
     }
     
