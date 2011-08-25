@@ -101,6 +101,10 @@ public class CompilerAPICompiler extends Compiler
                             diag.getLineNumber(), endCol);
                 }
                 else if (diag.getKind() == Diagnostic.Kind.WARNING) {
+                    if (message.startsWith("bootstrap class path not set in conjunction with -source ")) {
+                        // Java 7 produces this warning if "-source 1.6" is specified
+                        return;
+                    }
                     diagType = bluej.compiler.Diagnostic.WARNING;
                     long beginCol = diag.getColumnNumber();
                     long endCol = diag.getEndPosition() - diag.getPosition() + beginCol;
