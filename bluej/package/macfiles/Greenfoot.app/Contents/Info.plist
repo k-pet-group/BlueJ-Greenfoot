@@ -70,7 +70,7 @@
 			<string>$JAVAROOT/extensions/greenfoot.jar</string>
 		</array>
 		<key>JVMVersion</key>
-		<string>1.5+</string>
+		<string>1.6+</string>
 		<key>MainClass</key>
 		<string>bluej.Boot</string>
 		<key>Properties</key>

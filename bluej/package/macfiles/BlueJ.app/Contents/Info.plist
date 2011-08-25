@@ -61,7 +61,7 @@
 			<string>/System/Library/Java</string>
 		</array>
 		<key>JVMVersion</key>
-		<string>1.4+</string>
+		<string>1.6+</string>
 		<key>MainClass</key>
 		<string>bluej.Boot</string>
 		<key>Properties</key>
