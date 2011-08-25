@@ -88,7 +88,7 @@ greenfoot.gameserver.createAccount.address=http://greenfootgallery.org/users/new
 ## Normally it should not be necessary to change this.
 ##
 #####################################################################
-bluej.compiler.options=-source 1.5 -target 1.5
+bluej.compiler.options=-source 1.6 -target 1.6
 
 #####################################################################
 ## Options for starting the internal virtual machine.
