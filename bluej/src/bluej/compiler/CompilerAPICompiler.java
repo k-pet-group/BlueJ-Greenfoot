@@ -38,6 +38,8 @@ import javax.tools.StandardJavaFileManager;
 import javax.tools.StandardLocation;
 import javax.tools.ToolProvider;
 
+import bluej.Config;
+
 /**
  * A compiler implementation using the Compiler API introduced in Java 6.
  * 
@@ -80,11 +82,22 @@ public class CompilerAPICompiler extends Compiler
                 String src = null;
                 if (diag.getSource() != null)
                 {
-                    // See bug: http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6419926
-                    // JDK6 returns URIs without a scheme in some cases, so always resolve against a
-                    // known "file:/" URI:
-                    URI srcUri = sources[0].toURI().resolve(diag.getSource().toUri());
-                    src = new File(srcUri).getPath();
+                    // With JDK 6, diag.getSource().getName()  apparently just returns the base
+                    // name without a path. To get the path we need to ask for the URI.
+                    //     However:
+                    // With JDK 7, the diag.getSource().toURI() returns an unusable URI if the
+                    // path is a UNC path (\\server\sharename\projdir\somefile.java).
+                    
+                    if (Config.isJava17()) {
+                        src = diag.getSource().getName();
+                    }
+                    else {
+                        // See bug: http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6419926
+                        // JDK6 returns URIs without a scheme in some cases, so always resolve against a
+                        // known "file:/" URI:
+                        URI srcUri = sources[0].toURI().resolve(diag.getSource().toUri());
+                        src = new File(srcUri).getPath();
+                    }
                 }
                 
                 int diagType;
