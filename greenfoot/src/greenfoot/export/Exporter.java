@@ -378,10 +378,10 @@ public class Exporter implements PublishListener
         Dimension controlPanelSize = null;  
         Dimension border = GreenfootScenarioViewer.getControlsBorderSize();        
         if(includeControls) {
-            controlPanelSize = new Dimension(560 + border.width , 46 + border.height);
+            controlPanelSize = new Dimension(560 + border.width , 48 + border.height);
         }
         else {   
-            controlPanelSize = new Dimension(410 + border.width, 46 + border.height);
+            controlPanelSize = new Dimension(410 + border.width, 48 + border.height);
         }
         
         WorldCanvas canvas = WorldHandler.getInstance().getWorldCanvas();
