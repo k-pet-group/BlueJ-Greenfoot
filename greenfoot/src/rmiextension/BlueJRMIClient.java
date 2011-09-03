@@ -47,11 +47,13 @@ public class BlueJRMIClient implements BlueJPropStringSource
     private static BlueJRMIClient instance;
 
     private RPackage pkg;
-
+    private String prjDir;
+    
     public BlueJRMIClient(String prjDir, String rmiServiceName)
     {
         BlueJRMIServer.forceHostForServer();
         instance = this;
+        this.prjDir = prjDir;
 
         try {
             URI uri = new URI(rmiServiceName);
@@ -71,6 +73,13 @@ public class BlueJRMIClient implements BlueJPropStringSource
             e.printStackTrace();
         }
 
+    }
+    
+    /**
+     * Perform initialisation (which involves calling back into the other VM).
+     */
+    public void initialise()
+    {
         if (blueJ != null) {
             try {
                 RProject[] openProjects = blueJ.getOpenProjects();

@@ -60,43 +60,55 @@ public class GreenfootLauncherDebugVM
     public GreenfootLauncherDebugVM(String prjDir, String rmiServiceName)
     {
         instance = this;
-        BlueJRMIClient client = new BlueJRMIClient(prjDir, rmiServiceName);
+        if (BlueJRMIClient.instance() != null) {
+            // Already launched.
+            return;
+        }
         
-        RBlueJ blueJ = client.getBlueJ();
+        final BlueJRMIClient client = new BlueJRMIClient(prjDir, rmiServiceName);
+        
+        final RBlueJ blueJ = client.getBlueJ();
         if (blueJ == null) {
             System.exit(1);
         }
         
-        try {            
-            File libdir = blueJ.getSystemLibDir();
-            Config.initializeVMside(libdir, blueJ.getInitialCommandLineProperties(), true, client);
-            final RPrintStream rprintStream = blueJ.getDebugPrinter();
-            Debug.setDebugStream(new Writer() {
-                @Override
-                public void write(char[] cbuf, int off, int len)
-                        throws IOException
-                {
-                    String s = new String(cbuf, off, len);
-                    rprintStream.print(s);
+        // This constructor is called on BlueJ's "server" thread, so we do the rest in
+        // another thread to avoid holding the server thread lock:
+        new Thread() {
+            public void run() {
+                try {           
+                    client.initialise();
+                    File libdir = blueJ.getSystemLibDir();
+                    Config.initializeVMside(libdir, blueJ.getInitialCommandLineProperties(), true, client);
+                    final RPrintStream rprintStream = blueJ.getDebugPrinter();
+                    Debug.setDebugStream(new Writer() {
+                        @Override
+                        public void write(char[] cbuf, int off, int len)
+                                throws IOException
+                        {
+                            String s = new String(cbuf, off, len);
+                            rprintStream.print(s);
+                        }
+                        
+                        @Override
+                        public void flush() throws IOException
+                        {
+                        }
+                        
+                        @Override
+                        public void close() throws IOException
+                        {
+                        }
+                    });
+                    
+                    GreenfootUtil.initialise(GreenfootUtilDelegateIDE.getInstance());
+                    GreenfootMain.initialize(blueJ, client.getPackage());
                 }
-                
-                @Override
-                public void flush() throws IOException
-                {
+                catch (RemoteException re) {
+                    re.printStackTrace();
                 }
-                
-                @Override
-                public void close() throws IOException
-                {
-                }
-            });
-            
-            GreenfootUtil.initialise(GreenfootUtilDelegateIDE.getInstance());
-            GreenfootMain.initialize(blueJ, client.getPackage());
-        }
-        catch (RemoteException re) {
-            re.printStackTrace();
-        }
+            };
+        }.start();
     }
     
     /**
