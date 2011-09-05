@@ -188,7 +188,7 @@ public class TextParser extends JavaParser
      */
     public JavaEntity getExpressionType()
     {
-        processHigherPrecedence(getPrecedence(JavaTokenTypes.EOF));
+        processHigherPrecedence(getPrecedence(JavaTokenTypes.EOF) - 1);
         if (valueStack.isEmpty()) {
             return null;
         }
@@ -254,20 +254,18 @@ public class TextParser extends JavaParser
             return 12;
         case JavaTokenTypes.LNOT:
         case JavaTokenTypes.BNOT:
-        case UNARY_PLUS_OP:
-        case UNARY_MINUS_OP:
         case JavaTokenTypes.INC:
         case JavaTokenTypes.DEC:
-            return 13;
-        case JavaTokenTypes.DOT:
-            return 25;
+        case UNARY_PLUS_OP:
+        case UNARY_MINUS_OP:
         case CAST_OPERATOR:
         case BAD_CAST_OPERATOR:
-            return 50;
+            return 13;
+        case JavaTokenTypes.DOT:
         case MEMBER_CALL_OP:
         case METHOD_CALL_OP:
         case CONSTRUCTOR_CALL_OP:
-            return 100;
+            return 20;
         default:
         }
         
@@ -275,13 +273,13 @@ public class TextParser extends JavaParser
     }
     
     /** 
-     * Process all on-stack operators with a equal-or-higher precedence than that given
+     * Process all on-stack operators with a higher precedence than that given
      */
     private void processHigherPrecedence(int precedence)
     {
         while (! operatorStack.isEmpty()) {
             Operator top = operatorStack.peek();
-            if (getPrecedence(top.getType()) < precedence) {
+            if (getPrecedence(top.getType()) <= precedence) {
                 break;
             }
             operatorStack.pop();
@@ -496,7 +494,7 @@ public class TextParser extends JavaParser
     protected void gotArrayElementAccess()
     {
         JavaEntity index = popValueStack();
-        processHigherPrecedence(25); // Process DOT precedence and higher
+        processHigherPrecedence(getPrecedence(JavaTokenTypes.DOT) - 1); // Process DOT precedence and higher
         JavaEntity array = popValueStack();
         
         index = index.resolveAsValue();
@@ -1480,7 +1478,7 @@ public class TextParser extends JavaParser
         }
         
         // This should leave the expression value on top of the value stack:
-        processHigherPrecedence(getPrecedence(PAREN_OPERATOR) + 1);
+        processHigherPrecedence(getPrecedence(PAREN_OPERATOR));
         operatorStack.pop(); // pop expression beginning operator
         
         if (!operatorStack.isEmpty()) {
@@ -1757,21 +1755,21 @@ public class TextParser extends JavaParser
         else if (ttype == JavaTokenTypes.MINUS) {
             ttype = UNARY_MINUS_OP;
         }
-        processHigherPrecedence(getPrecedence(ttype));
+        processHigherPrecedence(getPrecedence(ttype)); // right associative
         operatorStack.push(new Operator(ttype, token));
     }
     
     @Override
     protected void gotBinaryOperator(LocatableToken token)
     {
-        processHigherPrecedence(getPrecedence(token.getType()));
+        processHigherPrecedence(getPrecedence(token.getType()) - 1);
         operatorStack.push(new Operator(token.getType(), token));
     }
     
     @Override
     protected void gotInstanceOfOperator(LocatableToken token)
     {
-        processHigherPrecedence(getPrecedence(token.getType()));
+        processHigherPrecedence(getPrecedence(token.getType()) - 1);
         operatorStack.push(new Operator(token.getType(), token));
         state = STATE_INSTANCEOF;
     }
@@ -1779,7 +1777,7 @@ public class TextParser extends JavaParser
     @Override
     protected void gotQuestionOperator(LocatableToken token)
     {
-        processHigherPrecedence(getPrecedence(token.getType()));
+        processHigherPrecedence(getPrecedence(token.getType()) - 1);
         operatorStack.push(new Operator(token.getType(), token));
     }
     
