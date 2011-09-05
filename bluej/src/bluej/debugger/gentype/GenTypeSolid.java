@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -96,14 +96,34 @@ public abstract class GenTypeSolid extends JavaType
         return new GenTypeSolid [] {this};
     }
     
+    @Override
     public GenTypeSolid getUpperBound()
     {
         return this;
     }
     
+    @Override
     public GenTypeSolid getLowerBound()
     {
         return this;
+    }
+    
+    @Override
+    public JavaType getCapture()
+    {
+        return this;
+    }
+    
+    @Override
+    public GenTypeSolid asSolid()
+    {
+        return this;
+    }
+    
+    @Override
+    public boolean isWildcard()
+    {
+        return false;
     }
     
     /*
@@ -386,23 +406,5 @@ public abstract class GenTypeSolid extends JavaType
             }
         }
         return rlist.toArray(new GenTypeClass[rlist.size()]);
-    }
-    
-    @Override
-    public JavaType getCapture()
-    {
-        return this;
-    }
-    
-    @Override
-    public GenTypeSolid asSolid()
-    {
-        return this;
-    }
-    
-    @Override
-    public boolean isWildcard()
-    {
-        return false;
     }
 }

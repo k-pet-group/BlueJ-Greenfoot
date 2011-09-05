@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -63,7 +63,6 @@ import javax.swing.JTextField;
 
 import bluej.BlueJTheme;
 import bluej.Config;
-import bluej.debugger.gentype.GenTypeArray;
 import bluej.debugger.gentype.GenTypeDeclTpar;
 import bluej.debugger.gentype.GenTypeParameter;
 import bluej.debugger.gentype.JavaType;
@@ -87,7 +86,7 @@ import bluej.views.View;
  * @author  Michael Kolling
  */
 public abstract class CallDialog extends EscapeDialog
-	implements ObjectBenchListener, FocusListener
+    implements ObjectBenchListener, FocusListener
 {
     protected static final Insets INSETS = new Insets(2, 2, 2, 2);
 
@@ -924,7 +923,7 @@ public abstract class CallDialog extends EscapeDialog
             int totalParams = parameterList.size();
             JavaType[] allParams = new JavaType[totalParams];
             System.arraycopy(params, 0, allParams, 0, params.length);
-            JavaType varArgType = ((GenTypeArray)params[params.length - 1]).getArrayComponent();
+            JavaType varArgType = params[params.length - 1].getArrayComponent();
             for (int i = params.length - 1; i < totalParams; i++) {
                 allParams[i] = varArgType;
             }
