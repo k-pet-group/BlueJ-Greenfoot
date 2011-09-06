@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,7 +23,6 @@ package bluej.extensions;
 
 import javax.swing.JMenuItem;
 
-import bluej.debugger.DebuggerListener;
 import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.extensions.event.ExtensionEvent;
 import bluej.extmgr.ExtensionPrefManager;
@@ -86,18 +85,15 @@ public final class ExtensionBridge
         bClass.nameChanged(newName);
     }
     
-    public static JMenuItem getMenuItem(BlueJ aBluej, Object attachedObject) {
+    public static JMenuItem getMenuItem(BlueJ aBluej, Object attachedObject)
+    {
         return aBluej.getMenuItem(attachedObject);
     }
 
     public static void postMenuItem(BlueJ aBluej, Object attachedObject,
-        JMenuItem onThisItem) {
+        JMenuItem onThisItem)
+    {
         aBluej.postMenuItem(attachedObject, onThisItem);
-    }
-    
-    public static void addDebuggerListener(BProject proj, DebuggerListener listener)
-      throws ProjectNotOpenException {
-        proj.addDebuggerListener(listener);
     }
     
     public static boolean hasSourceCode(BClass bClass) throws ProjectNotOpenException, PackageNotFoundException

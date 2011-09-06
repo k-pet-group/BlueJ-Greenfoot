@@ -119,8 +119,10 @@ public abstract class Debugger
      * Add a listener for DebuggerEvents
      * 
      * @param l  the DebuggerListener to add
+     * @return  the machine state at the time the listener was added
+     *          (any changes from this state will have been signalled to the listener)
      */
-    public abstract void addDebuggerListener(DebuggerListener l);
+    public abstract int addDebuggerListener(DebuggerListener l);
 
     /**
      * Remove a listener for DebuggerEvents.

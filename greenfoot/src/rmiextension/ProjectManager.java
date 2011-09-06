@@ -36,7 +36,6 @@ import rmiextension.wrappers.RProjectImpl;
 import rmiextension.wrappers.WrapperPool;
 import bluej.Boot;
 import bluej.Config;
-import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.ExceptionDescription;
 import bluej.debugmgr.ResultWatcher;
@@ -134,13 +133,6 @@ public class ProjectManager
                 // Add debugger listener. The listener will launch Greenfoot once the
                 // VM is ready.
                 GreenfootDebugHandler.addDebuggerListener(project);
-                
-                Project proj = Project.getProject(project.getDir());
-                if (proj.getDebugger().getStatus() == Debugger.IDLE) {
-                    // However, maybe the debugger became idle before we added the listener:
-                    // TODO technically there is still a race condition here.
-                    openGreenfoot(project);
-                }
                 
                 // Add Greenfoot API sources to project source path
                 Project bjProject = Project.getProject(project.getDir());

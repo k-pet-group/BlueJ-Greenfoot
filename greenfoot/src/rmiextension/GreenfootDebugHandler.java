@@ -101,9 +101,14 @@ public class GreenfootDebugHandler implements DebuggerListener
             // Technically I could collapse the two listeners into one, but they
             // perform orthogonal tasks so it's nicer to keep the code separate:
             GreenfootDebugHandler handler = new GreenfootDebugHandler(project);
-            ExtensionBridge.addDebuggerListener(project, handler);
-            ExtensionBridge.addDebuggerListener(project, handler.new GreenfootDebugControlsLink());
-            handler.addRunResetBreakpoints(proj.getDebugger());
+            int mstate = proj.getDebugger().addDebuggerListener(handler);
+            proj.getDebugger().addDebuggerListener(handler.new GreenfootDebugControlsLink());
+            if (mstate == Debugger.IDLE) {
+                // The VM may have already started by the time the listener was added. If so,
+                // we need to kick off Greenfoot on the other VM here:
+                handler.addRunResetBreakpoints(proj.getDebugger());
+                ProjectManager.instance().openGreenfoot(project);
+            }
         } catch (ProjectNotOpenException ex) {
             Debug.reportError("Project not open when adding debugger listener in Greenfoot", ex);
         }
@@ -455,7 +460,7 @@ public class GreenfootDebugHandler implements DebuggerListener
         }
 
         @Override
-        public void processDebuggerEvent(DebuggerEvent e, boolean skipUpdate)
+        public synchronized void processDebuggerEvent(DebuggerEvent e, boolean skipUpdate)
         {
             final String stateVar;
             if (e.getID() == DebuggerEvent.THREAD_BREAKPOINT || e.getID() == DebuggerEvent.THREAD_HALT) {

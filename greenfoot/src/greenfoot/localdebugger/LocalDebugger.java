@@ -59,7 +59,7 @@ public class LocalDebugger extends Debugger
     }
     
     @Override
-    public void addDebuggerListener(DebuggerListener l)
+    public int addDebuggerListener(DebuggerListener l)
     {
         throw new UnsupportedOperationException();
     }
