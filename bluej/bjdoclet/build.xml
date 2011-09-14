@@ -15,6 +15,14 @@
                 debug="on"
                 deprecation="yes">
         </javac>
+		<copy todir="classes">
+			<fileset dir="src">
+			    <include name="**/*"/>
+			    <exclude name="**/*.java"/>
+				<exclude name="**/.svn/**"/>
+				<exclude name="**/package.html"/>
+			</fileset>
+	    </copy>
 		<jar basedir="classes" excludes="**/.*" destfile="bjdoclet.jar" />
 		<copy file="bjdoclet.jar" todir="../lib" />
 	</target>
