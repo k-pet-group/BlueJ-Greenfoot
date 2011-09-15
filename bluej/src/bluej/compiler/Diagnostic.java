@@ -21,12 +21,14 @@
  */
 package bluej.compiler;
 
+import java.io.Serializable;
+
 /**
  * A compiler diagostic (error, warning, or other note)
  * 
  * @author Davin McCall
  */
-public class Diagnostic
+public class Diagnostic implements Serializable
 {
     public static int ERROR = 0;
     public static int WARNING = 1;
