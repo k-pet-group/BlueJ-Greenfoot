@@ -457,7 +457,8 @@ public abstract class Actor
     }
 
     /**
-     * Sets the world, and the initial location
+     * Sets the world, and the initial location. The location is adjusted according to the world's bounding
+     * rules. The cached collision checking bounds, if any, are cleared.
      */
     void addToWorld(int x, int y, World world)
     {

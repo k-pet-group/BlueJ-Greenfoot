@@ -397,11 +397,14 @@ public abstract class World
         }
         
         objectsDisordered.add(object);
-        collisionChecker.addObject(object);
         addInPaintOrder(object);
         addInActOrder(object);
 
+        // Note we must call this before adding the object to the collision checker,
+        // so that the cached bounds are cleared:
         object.addToWorld(x, y, this);
+        
+        collisionChecker.addObject(object);
         object.addedToWorld(this);
         
         WorldHandler whInstance = WorldHandler.getInstance();
