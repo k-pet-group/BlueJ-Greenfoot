@@ -61,7 +61,7 @@ import bluej.Config;
  */
 public class Utility
 {
-    /** * @version $Id: Utility.java 9207 2011-09-15 05:09:50Z davmac $
+    /** * @version $Id: Utility.java 9208 2011-09-15 05:23:52Z davmac $
 
      * Used to track which events have occurred for firstTimeThisRun()
      */
@@ -1047,4 +1047,57 @@ public class Utility
         return rlist.toArray(new File[rlist.size()]);
     }
 
+    /**
+     * Break a quoted command-line string into separate arguments.
+     */
+    public static List<String> dequoteCommandLine(String str)
+    {
+        List<String> strings = new ArrayList<String>();
+        
+        int i = 0;
+        while (i < str.length()) {
+            // Skip white space
+            while (i < str.length() && Character.isWhitespace(str.charAt(i))) {
+                i++;
+            }
+            
+            StringBuffer arg = new StringBuffer();
+            char c;
+            
+            while (i < str.length()) {
+                c = str.charAt(i++);
+                if (c == '\\') {
+                    if (i < str.length()) {
+                        arg.append(str.charAt(i++));
+                    }
+                }
+                else if (c == '\"') {
+                    // Process quoted string
+                    while (i < str.length()) {
+                        c = str.charAt(i++);
+                        if (c == '\"') {
+                            break;
+                        }
+                        if (c == '\\') {
+                            if (i < str.length()) {
+                                arg.append(str.charAt(i++));
+                            }
+                        }
+                        else {
+                            arg.append(c);
+                        }
+                    }
+                }
+                else if (Character.isWhitespace(c)) {
+                    break;
+                }
+                else {
+                    arg.append(c);
+                }
+            }
+            strings.add(arg.toString());
+        }
+        
+        return strings;        
+    }
 }

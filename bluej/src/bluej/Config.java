@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -1536,71 +1536,9 @@ public final class Config
         String args = getPropString("bluej.vm.args");
         if(args != null && !args.equals("bluej.vm.args")) {
             // if there is more than one arg set
-            List<String> splitArgs = splitVMArgs(args);
+            List<String> splitArgs = Utility.dequoteCommandLine(args);
             debugVMArgs.addAll(splitArgs);
         }        
-    }
-    
-     /**
-     * Splits VM args String into separate args including handling quotes
-     * used for file paths with spaces.<p>
-     * 
-     * Backslash can be used to quote any character including whitespace or
-     * quote, or itself. (In the bluej.defs file, a backslash must be
-     * doubled as properties processing also treats it as an escape).
-     * 
-     * @param str - the string to be split
-     * @returns an array of Strings
-     */
-    private static List<String> splitVMArgs(String str)
-    {
-        List<String> strings = new ArrayList<String>();
-        
-        int i = 0;
-        while (i < str.length()) {
-            // Skip white space
-            while (i < str.length() && Character.isWhitespace(str.charAt(i))) {
-                i++;
-            }
-            
-            StringBuffer arg = new StringBuffer();
-            char c;
-            
-            while (i < str.length()) {
-                c = str.charAt(i++);
-                if (c == '\\') {
-                    if (i < str.length()) {
-                        arg.append(str.charAt(i++));
-                    }
-                }
-                else if (c == '\"') {
-                    // Process quoted string
-                    while (i < str.length()) {
-                        c = str.charAt(i++);
-                        if (c == '\"') {
-                            break;
-                        }
-                        if (c == '\\') {
-                            if (i < str.length()) {
-                                arg.append(str.charAt(i++));
-                            }
-                        }
-                        else {
-                            arg.append(c);
-                        }
-                    }
-                }
-                else if (Character.isWhitespace(c)) {
-                    break;
-                }
-                else {
-                    arg.append(c);
-                }
-            }
-            strings.add(arg.toString());
-        }
-        
-        return strings;
     }
     
     /**

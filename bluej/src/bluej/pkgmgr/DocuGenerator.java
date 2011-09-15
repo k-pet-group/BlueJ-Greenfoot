@@ -28,7 +28,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.StringTokenizer;
 
 import bluej.BlueJEvent;
 import bluej.Config;
@@ -45,22 +44,6 @@ import bluej.utility.Utility;
  * into a directory in the project directory.
  * As the documentation for a single class serves merely as a preview option,
  * it is generated in a temporary directory.
- *
- * <p>Information in this class belongs to one of three categories:
- * 
- * <ol>
- * <li>Static information - valid for all runs of a generator (e.g. the name
- * (not the path!) of the directory where project documentation is written
- * to).
- * 
- * <li>Instance information - valid for all generator runs for one project (e.g.
- * the path of the project directory).
- * 
- * <li>Run-specific information - generated on each run (e.g. the names of the
- * targets, as these might change between several runs).
- * 
- * Each of these categories can again be divided into tool-dependent (e.g.
- * the name of the documentation generating tool) and tool-independent.
  *
  * @author  Axel Schmolitzky
  */
@@ -160,6 +143,7 @@ public class DocuGenerator
          * Perform the call that was passed in as a constructor parameter.
          * If this call was successful let the result be shown in a browser.
          */
+        @Override
         public void run()
         {
             // Process docuRun;
@@ -294,12 +278,15 @@ public class DocuGenerator
         private InputStream   readStream;
         private OutputStream outStream;
         
-        public EchoThread(InputStream r,OutputStream out) {
+        public EchoThread(InputStream r,OutputStream out)
+        {
             readStream = r;
             outStream = out;
         }
         
-        public void run() {
+        @Override
+        public void run()
+        {
             try {
                 byte[] buf = new byte[1024];
                 int n;
@@ -329,8 +316,6 @@ public class DocuGenerator
         projectDirPath = projectDir.getPath();
         docDir = new File(projectDir, docDirName);
         docDirPath = docDir.getPath();
-
-        // tool-dependent instance information for javadoc
     }
 
     /**
@@ -364,31 +349,21 @@ public class DocuGenerator
         }
 
         // tool-specific infos for javadoc
-        // get the parameter that enables javadoc to link the generated
-        // documentation to the API documentation
-        String linkParam = getLinkParam();
 
         ArrayList<String> call = new ArrayList<String>();
         call.add(docCommand);
         call.add("-sourcepath");
         call.add(projectDirPath);
-        call.add("-classpath");
-        call.add(project.getClassLoader().getClassPathAsString());
-        call.add("-d");
-        call.add(docDirPath);
-        String majorVersion = System.getProperty("java.specification.version");        
-        call.add("-source");
-        call.add(majorVersion);
+        addGeneralOptions(call);
         call.add("-doctitle");
         call.add(project.getProjectName());
         call.add("-windowtitle");
         call.add(project.getProjectName());
-        call.add("-encoding");
-        call.add(project.getProjectCharset().name());
-        call.add("-charset");
-        call.add(project.getProjectCharset().name());
-        addParams(call, linkParam);
-        addParams(call, fixedJavadocParams);
+        call.addAll(Utility.dequoteCommandLine(fixedJavadocParams));
+
+        // get the parameter that enables javadoc to link the generated
+        // documentation to the API documentation
+        addLinkParam(call);
 
         // add the names of all the targets for the documentation tool.
         // first: get the names of all packages that contain java sources.
@@ -441,19 +416,9 @@ public class DocuGenerator
         // build the call string
         ArrayList<String> call = new ArrayList<String>();
         call.add(docCommand);
-        addParams(call, fixedJavadocParams);
-        String majorVersion = System.getProperty("java.specification.version");        
-        call.add("-source");
-        call.add(majorVersion);
-        addParams(call, tmpJavadocParams);
-        call.add("-d");
-        call.add(docDir.getPath());
-        call.add("-classpath");
-        call.add(project.getClassLoader().getClassPathAsString());
-        call.add("-encoding");
-        call.add(project.getProjectCharset().name());
-        call.add("-charset");
-        call.add(project.getProjectCharset().name());
+        call.addAll(Utility.dequoteCommandLine(fixedJavadocParams));
+        call.addAll(Utility.dequoteCommandLine(tmpJavadocParams));
+        addGeneralOptions(call);
         call.add(filename);
 
         String[] javadocCall = call.toArray(new String[0]);
@@ -463,6 +428,25 @@ public class DocuGenerator
         File logFile = new File(docDir, "logfile.txt");
 
         generateDoc(javadocCall, htmlFile, logFile, classLogHeader, false);
+    }
+    
+    private void addGeneralOptions(List<String> call)
+    {
+        String majorVersion = System.getProperty("java.specification.version");        
+        call.add("-source");
+        call.add(majorVersion);
+        call.add("-classpath");
+        call.add(project.getClassLoader().getClassPathAsString());
+        call.add("-d");
+        call.add(docDirPath);
+        call.add("-encoding");
+        call.add(project.getProjectCharset().name());
+        call.add("-charset");
+        call.add(project.getProjectCharset().name());
+        call.add("-docletpath");
+        call.add(new File(Config.getBlueJLibDir(), "bjdoclet.jar").getPath());
+        call.add("-doclet");
+        call.add("bluej.doclet.doclets.formats.html.HtmlDoclet");
     }
 
     /**
@@ -476,17 +460,6 @@ public class DocuGenerator
         if (filename.endsWith(".java"))
             filename = filename.substring(0, filename.indexOf(".java"));
         return docDirPath + filename + ".html";
-    }
-
-    /**
-     * Add all string tokens from s into list.
-     */
-    private static void addParams(List<String> list, String s)
-    {
-        StringTokenizer st = new StringTokenizer(s);
-        while (st.hasMoreTokens()) {
-            list.add(st.nextToken());
-        }
     }
 
     /**
@@ -543,20 +516,18 @@ public class DocuGenerator
      * accessible via the link provided in the BlueJ properties file.
      * @return the link parameter if the link is working, "" otherwise.
      */
-    private String getLinkParam()
+    private void addLinkParam(List<String> params)
     {
         String linkToLib = Config.getPropString("doctool.linkToStandardLib");
         if(linkToLib.equals("true")) {
-
             String docURL = Config.getPropString("bluej.url.javaStdLib");
 
-            if (docURL.endsWith("index.html"))
-                docURL = docURL.substring(0, docURL.indexOf("index.html"));
+            if (docURL.endsWith("index.html")) {
+                docURL = docURL.substring(0, docURL.length() - "index.html".length());
+            }
 
-            return " -link " + docURL;
-        }
-        else {
-            return "";
+            params.add("-link");
+            params.add(docURL);
         }
     }
 }
