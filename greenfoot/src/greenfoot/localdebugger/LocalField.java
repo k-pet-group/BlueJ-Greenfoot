@@ -95,7 +95,7 @@ public class LocalField extends DebuggerField
             
             // Get type parameters
             GenTypeClass fieldClass = getType().asClass();
-            if (fieldClass != null) {
+            if (resultObj != null && fieldClass != null) {
                 GenTypeClass objClass = fieldClass.mapToDerived(new JavaReflective(resultObj.getClass()));
                 return LocalObject.getLocalObject(resultObj, objClass.getMap());
             }
