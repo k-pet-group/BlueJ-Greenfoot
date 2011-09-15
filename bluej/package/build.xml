@@ -11,6 +11,7 @@
     
     <property name="bluej.source.zip" value="BlueJ-source-${bluej.version.nodots}.zip"/>
     
+	<!-- Library files to be installed as part of BlueJ -->
     <patternset id="bluej.libfiles">
         <exclude name="**/.#*" />
         <include name="lib/bluej.jar" />
@@ -25,6 +26,7 @@
         <include name="lib/svnkit.jar" />
         <include name="lib/svnkit-javahl.jar" />
         <include name="lib/trilead.jar" />
+    	<include name="lib/bjdoclet.jar" />
         <include name="lib/bluej.defs" />
         <include name="lib/moe.defs" />
         <include name="lib/userlib/README.TXT" />

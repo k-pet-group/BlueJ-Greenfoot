@@ -9,6 +9,7 @@
         <include name="doc/API/**" />
     </patternset>
     
+    <!-- Library files to be installed as part of Greenfoot -->
     <patternset id="bluej.libfiles">
         <exclude name="**/.#*" />
         <include name="lib/bluej.jar" />
@@ -21,6 +22,7 @@
         <include name="lib/commons-codec-1.3.jar" />
         <include name="lib/commons-logging-api-1.1.1.jar" />               
         <include name="lib/jl1.0.1.jar" />
+        <include name="lib/bjdoclet.jar" />
         <include name="lib/bluej.defs" />
         <include name="lib/greenfoot.defs" />
         <include name="lib/moe.defs" />
