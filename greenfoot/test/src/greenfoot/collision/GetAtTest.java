@@ -204,4 +204,38 @@ public class GetAtTest extends TestCase
         result = world.getObjectsAt(2, 1, TestObject.class);
         assertFalse(result.contains(actor1));  
     }
+    
+    public void testMovement()
+    {
+        world = WorldCreator.createWorld(10, 10, 50);
+        TestObject actor1 = new TestObject(8,8);
+        TestObject actor2 = new TestObject(8,8);
+        TestObject actor3 = new TestObject(8,8);
+        TestObject actor4 = new TestObject(8,8);
+        world.addObject(actor1, 0, 0);
+        world.addObject(actor2, 9, 0);
+        world.addObject(actor3, 0, 9);
+        world.addObject(actor4, 9, 9);
+        assertSame(actor1.getOneObjectAtP(9, 0, TestObject.class), actor2);
+        assertSame(actor1.getOneObjectAtP(0, 9, TestObject.class), actor3);
+        assertSame(actor1.getOneObjectAtP(9, 9, TestObject.class), actor4);
+        assertSame(actor2.getOneObjectAtP(-9, 0, TestObject.class), actor1);
+        
+        actor1.setLocation(1, 1);
+        actor4.setLocation(8, 8);
+        assertSame(actor1.getOneObjectAtP(8, -1, TestObject.class), actor2);
+        assertSame(actor1.getOneObjectAtP(-1, 8, TestObject.class), actor3);
+        assertSame(actor1.getOneObjectAtP(7, 7, TestObject.class), actor4);
+        assertSame(actor2.getOneObjectAtP(-8, 1, TestObject.class), actor1);
+        world.removeObjects(world.getObjects(null));
+        
+        world.addObject(actor1, 0, 0);
+        world.addObject(actor2, 9, 0);
+        world.addObject(actor3, 0, 9);
+        world.addObject(actor4, 9, 9);
+        assertSame(actor1.getOneObjectAtP(9, 0, TestObject.class), actor2);
+        assertSame(actor1.getOneObjectAtP(0, 9, TestObject.class), actor3);
+        assertSame(actor1.getOneObjectAtP(9, 9, TestObject.class), actor4);
+        assertSame(actor2.getOneObjectAtP(-9, 0, TestObject.class), actor1);
+    }
 }
