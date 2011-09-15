@@ -21,10 +21,12 @@
  */
 package greenfoot.collision;
 
+import greenfoot.TestUtilDelegate;
 import greenfoot.World;
 import greenfoot.TestObject;
 import greenfoot.WorldCreator;
 import greenfoot.core.WorldHandler;
+import greenfoot.util.GreenfootUtil;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -41,6 +43,13 @@ import junit.framework.TestCase;
 public class NeighbourTest extends TestCase
 {
     private World world;
+
+    @Override
+    protected void setUp()
+        throws Exception
+    {
+        GreenfootUtil.initialise(new TestUtilDelegate());        
+    }
 
     @SuppressWarnings("unchecked")
     public void testNoWrapDiagonal()
