@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,7 +27,6 @@ import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.Shape;
 import java.awt.Window;
-import java.awt.event.KeyEvent;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -59,11 +58,11 @@ import bluej.Config;
  * 
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Utility.java 8563 2010-12-07 01:02:46Z davmac $
  */
 public class Utility
 {
-    /**
+    /** * @version $Id: Utility.java 9207 2011-09-15 05:09:50Z davmac $
+
      * Used to track which events have occurred for firstTimeThisRun()
      */
     private static Set<String> occurredEvents = new HashSet<String>();
@@ -548,6 +547,7 @@ public class Utility
             p = process;
         }
         
+        @Override
         public void run()
         {
             BufferedReader br = new BufferedReader(new InputStreamReader(p.getErrorStream()));
@@ -726,6 +726,7 @@ public class Utility
         final int[] tabSpaces = Utility.calculateTabSpaces(line, tabSize);
         
         return new TabExpander() {
+            @Override
             public float nextTabStop(float x, int tabOffset) {
                 return x + tabSpaces[tabOffset] * fontMetrics.charWidth(' ');
             }
@@ -746,14 +747,12 @@ public class Utility
     {
         while (advanceBy > 0 && index < line.length())
         {
-            int width = (line.charAt(index) == '\t') ? tabSpaces[index] : 1;	
+            int width = (line.charAt(index) == '\t') ? tabSpaces[index] : 1;
             advanceBy -= width;
             index += 1;
         }
         return index;
     }
-    
-    
 
     /**
      * Check if this is the first time a particular event (identified by the
@@ -827,52 +826,7 @@ public class Utility
             button.setMargin(new Insets(3, 1, 3, 1));
         }
     }
-
-    /**
-     * Determines whether the given key is a dead key.
-     */
-    public static boolean isDeadKey(KeyEvent event)
-    {
-        switch(event.getKeyCode()) {
-            case KeyEvent.VK_DEAD_GRAVE:
-            case KeyEvent.VK_DEAD_ACUTE:
-            case KeyEvent.VK_DEAD_CIRCUMFLEX:
-            case KeyEvent.VK_DEAD_TILDE:
-            case KeyEvent.VK_DEAD_MACRON:
-            case KeyEvent.VK_DEAD_BREVE:
-            case KeyEvent.VK_DEAD_ABOVEDOT:
-            case KeyEvent.VK_DEAD_DIAERESIS:
-            case KeyEvent.VK_DEAD_ABOVERING:
-            case KeyEvent.VK_DEAD_DOUBLEACUTE:
-            case KeyEvent.VK_DEAD_CARON:
-            case KeyEvent.VK_DEAD_CEDILLA:
-            case KeyEvent.VK_DEAD_OGONEK:
-            case KeyEvent.VK_DEAD_IOTA:
-            case KeyEvent.VK_DEAD_VOICED_SOUND:
-            case KeyEvent.VK_DEAD_SEMIVOICED_SOUND:
-                return true;                
-        }
-        return false;
-    }
     
-    /**
-     * Takes a list of lines and forms them into a multiline tool-tip.
-     * 
-     * The way to do this is to use HTML; see http://www.jguru.com/faq/view.jsp?EID=10653
-     */
-    public static String multilineTooltip(String... lines)
-    {
-        StringBuilder str = new StringBuilder("<html>");
-        for (int i = 0; i < lines.length; i++) {
-            str.append(lines[i]);
-            if (i != lines.length - 1) {
-                str.append("<br>");
-            }
-        }
-        str.append("</html>");
-        return str.toString();
-    }
-
     /**
      * Attempt to determine the prefix folder of a zip or jar archive.
      * That is, if all files in the archive are stored under a first-level
