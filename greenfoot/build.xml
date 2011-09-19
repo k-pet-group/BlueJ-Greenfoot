@@ -15,7 +15,7 @@
     <!-- Greenfoot Version Number -->
     <property name="greenfoot.version.major" value="2"/>
     <property name="greenfoot.version.minor" value="1"/>
-    <property name="greenfoot.version.micro" value="1"/>
+    <property name="greenfoot.version.micro" value="2"/>
     
     <!-- Change when API has changed in a way that is likely to break some scenarios. 
     A warning will be shown to the user - update the greenfoot-labels file to

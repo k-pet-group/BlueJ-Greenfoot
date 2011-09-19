@@ -1,4 +1,4 @@
-Greenfoot version: 2.1.1       --        README.TXT
+Greenfoot version: 2.1.2       --        README.TXT
 
 Information about Greenfoot
 -----------------------
