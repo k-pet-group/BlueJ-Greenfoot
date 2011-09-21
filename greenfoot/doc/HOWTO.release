@@ -28,7 +28,16 @@ Building the Windows installer:
  4. Update the Greenfoot version number in bluej/package/winlaunch/Greenfoot-README.TXT
  5. Update AppVerName and OutputBaseFilename in bluej/package/winsetup/greenfoot.iss
  6. Run the bluej/package/greenfoot-build.xml ant script's "windows-dist" target
- 
+
+For the MSI Windows package:
+ 1. Copy the "greenfoot-dist-XXX.jar" to the bluej/package directory
+    as "greenfoot-dist.jar"
+ 2. Build the executable launcher (see bluej/package/winlaunch/BUILD.TXT).
+ 3. Copy the launcher as "gflaunch.exe" to bluej/package/winlaunch
+ 4. Update the Greenfoot version number in bluej/package/winlaunch/Greenfoot-README.TXT
+ 5. Update the Greenfoot version number in bluej/package/winsetup/greenfoot.wxs (in 2 places)
+ 6. Run the bluej/package/greenfoot-build.xml ant script's "windows-dist" target
+
 
 Subversion:
  Create tag dir (not needed when using Eclipse):

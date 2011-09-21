@@ -17,7 +17,11 @@ How to make a BlueJ release for Windows
      project. The resulting winsetup/BlueJ-windows-VERSION.exe is the distributable file
      (where VERSION is the version number).
      
- 4b. To make the MSI installer using WiX, run "ant windows-msi-dist" from the root of the BlueJ project.
+ 4b. To make the MSI installer using WiX:
+ 
+     First update the version number in package/winsetup/bluej.wxs (in 2 places)
+ 
+     Then, run "ant windows-msi-dist" from the root of the BlueJ project.
      You'll need to have WiX installed (wix.sf.net) and set wix_bin in build.properties
      to the appropriate directory (something like: C:/Program Files/Windows Installer XML v3.5/bin)
      The resulting winsetup/blueJ-VERSION.msi is the distributable file
