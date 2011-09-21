@@ -662,17 +662,6 @@ int WINAPI WinMain
 			}
 		}
 	}
-
-  	// Check to see if there's a currently selected VM
-	checkCurrentVM();
-	
-	if (!forceVMselect && !goodVMs.empty()) {
-		const string &jdkLocation = *(goodVMs.begin());
-		if (launchVM(jdkLocation)) {
-			return 0;
-		}
-	}
-	
 	
 	// Check for VM in bluej.defs
 	string defsVm = getBlueJProperty("bluej.windows.vm");
@@ -687,7 +676,17 @@ int WINAPI WinMain
 			goodVMs.insert(defsVm);
 		}
 	}
+
+  	// Check to see if there's a currently selected VM
+	checkCurrentVM();
 	
+	if (!forceVMselect && !goodVMs.empty()) {
+		const string &jdkLocation = *(goodVMs.begin());
+		if (launchVM(jdkLocation)) {
+			return 0;
+		}
+	}
+
 	// Locate other VMs
 	findRegistryVMs();
 	if (!forceVMselect && goodVMs.size() == 1) {
