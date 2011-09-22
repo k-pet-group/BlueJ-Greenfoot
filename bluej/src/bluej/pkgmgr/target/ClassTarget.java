@@ -140,10 +140,6 @@ public class ClassTarget extends DependentTarget
     
     // a flag indicating whether an editor should have the naviview expanded/collapsed
     private Boolean isNaviviewExpanded=null;
-    /**
-     * fields used in Tarjan's algorithm:
-     */
-    public int dfn, link;
 
     // flag to prevent recursive calls to analyseDependancies()
     private boolean analysing = false;
