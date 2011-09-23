@@ -21,6 +21,14 @@ A history of changes in this and earlier BlueJ versions is at
 
   http://www.bluej.org/help/changes.html
 
+BlueJ usage data
+----------------
+When you use BlueJ, some anonymous non-personal information (BlueJ 
+version, Java version, Operating System, interface language, etc) is 
+sent to the BlueJ maintainers, to help with development planning. 
+This can be disabled by adding a "bluej.uid=private" setting to your 
+bluej.properties file. 
+
 The BlueJ Team
 --------------
 BlueJ is being developed by:
