@@ -6,6 +6,13 @@ Information about Greenfoot, including system documentation is available at
 
   http://www.greenfoot.org/
 
+Greenfoot usage data
+--------------------
+When you use Greenfoot, some anonymous non-personal information (Greenfoot 
+version, Java version, Operating System, interface language, etc) is sent 
+to the Greenfoot maintainers, to help with development planning. This can 
+be disabled by adding a "greenfoot.uid=private" setting to your 
+greenfoot.properties file. 
 
 The Greenfoot Team
 --------------
