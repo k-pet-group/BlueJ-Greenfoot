@@ -39,7 +39,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.Stack;
 
 import bluej.Config;
 import bluej.compiler.CompileObserver;
@@ -1129,20 +1128,32 @@ public final class Package extends Graph
             return;
         }
 
-        // build the list of targets that need to be compiled
         Set<ClassTarget> toCompile = new HashSet<ClassTarget>();
-        for (Iterator<Target> it = targets.iterator(); it.hasNext();) {
-            Target target = it.next();
 
-            if (target instanceof ClassTarget) {
-                ClassTarget ct = (ClassTarget) target;
-                if (ct.isInvalidState()) {
-                    toCompile.add(ct);
+        try {
+            // build the list of targets that need to be compiled
+            for (Iterator<Target> it = targets.iterator(); it.hasNext();) {
+                Target target = it.next();
+
+                if (target instanceof ClassTarget) {
+                    ClassTarget ct = (ClassTarget) target;
+                    if (ct.isInvalidState() && ! ct.isQueued()) {
+                        ct.ensureSaved();
+                        toCompile.add(ct);
+                        ct.setQueued(true);
+                    }
                 }
             }
+
+            doCompile(toCompile, new PackageCompileObserver());
         }
-        
-        doCompile(toCompile, new PackageCompileObserver());
+        catch (IOException ioe) {
+            // Abort compile
+            Debug.log("Error saving class before compile: " + ioe.getLocalizedMessage());
+            for (ClassTarget ct : toCompile) {
+                ct.setQueued(false);
+            }
+        }
     }
     
     /**
@@ -1194,12 +1205,11 @@ public final class Package extends Graph
                 } else {
                     observer = new PackageCompileObserver();
                 }
-                searchCompile(ct, 1, new Stack<ClassTarget>(), observer);
+                searchCompile(ct, observer);
             }
 
             if (assocTarget != null) {
-                searchCompile(assocTarget, 1, new Stack<ClassTarget>(),
-                        new QuietPackageCompileObserver());
+                searchCompile(assocTarget, new QuietPackageCompileObserver());
             }
         }
     }
@@ -1214,7 +1224,7 @@ public final class Package extends Graph
         }
 
         ct.setInvalidState(); // to force compile
-        searchCompile(ct, 1, new Stack<ClassTarget>(), new QuietPackageCompileObserver());
+        searchCompile(ct, new QuietPackageCompileObserver());
     }
 
     /**
@@ -1284,15 +1294,15 @@ public final class Package extends Graph
     /**
      * Compile a class together with its dependencies, as necessary.
      */
-    private void searchCompile(ClassTarget t, int dfcount,
-            Stack<ClassTarget> stack, CompileObserver observer)
+    private void searchCompile(ClassTarget t, CompileObserver observer)
     {
         if (! t.isInvalidState() || t.isQueued()) {
             return;
         }
+
+        Set<ClassTarget> toCompile = new HashSet<ClassTarget>();
         
         try {
-            Set<ClassTarget> toCompile = new HashSet<ClassTarget>();
             List<ClassTarget> queue = new LinkedList<ClassTarget>();
             toCompile.add(t);
             t.ensureSaved();
@@ -1324,6 +1334,9 @@ public final class Package extends Graph
         catch (IOException ioe) {
             // Failed to save; abort the compile
             Debug.log("Failed to save source before compile; " + ioe.getLocalizedMessage());
+            for (ClassTarget ct : toCompile) {
+                ct.setQueued(false);
+            }
         }
     }
 
