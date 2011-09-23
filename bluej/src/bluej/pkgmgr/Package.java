@@ -1291,32 +1291,40 @@ public final class Package extends Graph
             return;
         }
         
-        Set<ClassTarget> toCompile = new HashSet<ClassTarget>();
-        List<ClassTarget> queue = new LinkedList<ClassTarget>();
-        toCompile.add(t);
-        queue.add(t);
-        t.setQueued(true);
-        
-        while (! queue.isEmpty()) {
-            ClassTarget head = queue.remove(0);
-            
-            Iterator<? extends Dependency> dependencies = head.dependencies();
+        try {
+            Set<ClassTarget> toCompile = new HashSet<ClassTarget>();
+            List<ClassTarget> queue = new LinkedList<ClassTarget>();
+            toCompile.add(t);
+            t.ensureSaved();
+            queue.add(t);
+            t.setQueued(true);
 
-            while (dependencies.hasNext()) {
-                Dependency d = (Dependency) dependencies.next();
-                if (!(d.getTo() instanceof ClassTarget)) {
-                    continue;
-                }
+            while (! queue.isEmpty()) {
+                ClassTarget head = queue.remove(0);
 
-                ClassTarget to = (ClassTarget) d.getTo();
-                if (to.isInvalidState() && ! to.isQueued() && toCompile.add(to)) {
-                    to.setQueued(true);
-                    queue.add(to);
+                Iterator<? extends Dependency> dependencies = head.dependencies();
+
+                while (dependencies.hasNext()) {
+                    Dependency d = (Dependency) dependencies.next();
+                    if (!(d.getTo() instanceof ClassTarget)) {
+                        continue;
+                    }
+
+                    ClassTarget to = (ClassTarget) d.getTo();
+                    if (to.isInvalidState() && ! to.isQueued() && toCompile.add(to)) {
+                        to.ensureSaved();
+                        to.setQueued(true);
+                        queue.add(to);
+                    }
                 }
             }
+
+            doCompile(toCompile, observer);
         }
-        
-        doCompile(toCompile, observer);
+        catch (IOException ioe) {
+            // Failed to save; abort the compile
+            Debug.log("Failed to save source before compile; " + ioe.getLocalizedMessage());
+        }
     }
 
     /**
