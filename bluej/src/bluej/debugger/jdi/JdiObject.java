@@ -47,7 +47,7 @@ public class JdiObject extends DebuggerObject
     /**
      *  Factory method that returns instances of JdiObjects.
      *
-     *  @param  obj  the remote object this encapsulates.
+     *  @param  obj  the remote object this encapsulates (may be null)
      *  @return      a new JdiObject or a new JdiArray object if
      *               remote object is an array
      */

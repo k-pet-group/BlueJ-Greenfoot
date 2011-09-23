@@ -96,6 +96,10 @@ public class JdiField extends DebuggerField
             value = field.declaringType().getValue(field);
         }
         
+        if (value == null) {
+            return JdiObject.getDebuggerObject(null);
+        }
+        
         if (value instanceof ObjectReference) {
             ObjectReference or = (ObjectReference) value;
             if (expectedType == null) {

@@ -55,7 +55,7 @@ public abstract class DebuggerField
     public abstract String getValueString();
     
     /**
-     * If the field value is an object, return it as a DebuggerObject.
+     * If the field value is an object (or null), return it as a DebuggerObject.
      * 
      * @param expectedType   the known type of the field, which may be more precise than the declared type.
      *                       May be null.
