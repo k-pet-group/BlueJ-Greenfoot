@@ -388,7 +388,7 @@ public class GreenfootFrame extends JFrame
         // some menu actions work on the class browser.
         buildClassBrowser();
         setupActions();
-        setJMenuBar(buildMenu());
+        setJMenuBar(buildMenu(classStateManager));
         setGlassPane(DragGlassPane.getInstance());
 
         // build the centre panel. this includes the world and the controls
@@ -612,8 +612,9 @@ public class GreenfootFrame extends JFrame
     
     /**
      * Build the menu bar.
+     * @param classStateManager
      */
-    private JMenuBar buildMenu()
+    private JMenuBar buildMenu(ClassStateManager classStateManager)
     {
         JMenuBar menuBar = new JMenuBar();
 
@@ -624,7 +625,7 @@ public class GreenfootFrame extends JFrame
         
         recentProjectsMenu = new JMenu(Config.getString("menu.openRecent"));
         projectMenu.add(recentProjectsMenu);
-        updateRecentProjects();
+        updateRecentProjects(classStateManager);
         
         addMenuItem(closeProjectAction, projectMenu, KeyEvent.VK_W, false, KeyEvent.VK_C);
         addMenuItem(saveProjectAction, projectMenu, KeyEvent.VK_S, false, KeyEvent.VK_S);
@@ -758,13 +759,27 @@ public class GreenfootFrame extends JFrame
     }
     
     /**
-     * Update the 'Open Recent' menu
+     * Update the 'Open Recent' menu, trying to include
+     * the current project as the first item where possible.
+     * @param classStateManager
      */
-    private void updateRecentProjects()
+    private void updateRecentProjects(ClassStateManager classStateManager)
     {
+        JMenuItem item = null;
+        
+        // can only add in the current project if there is a current project
+        if (classStateManager != null && classStateManager.getProject() != null) {
+            String currentProject = PrefMgr.getProjectDirectory();
+            String currentName = classStateManager.getProject().getName();
+            item = new JMenuItem(currentProject + System.getProperty("file.separator") + currentName);
+            item.addActionListener(OpenRecentProjectAction.getInstance());
+            recentProjectsMenu.add(item);
+            recentProjectsMenu.addSeparator();
+        }
+        
         List<?> projects = PrefMgr.getRecentProjects();
         for (Iterator<?> it = projects.iterator(); it.hasNext();) {
-            JMenuItem item = new JMenuItem((String)it.next());
+            item = new JMenuItem((String)it.next());
             item.addActionListener(OpenRecentProjectAction.getInstance());
             recentProjectsMenu.add(item);
         }

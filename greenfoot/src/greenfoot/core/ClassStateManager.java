@@ -55,6 +55,15 @@ public class ClassStateManager extends RClassListenerImpl
         this.project = project;
     }
     
+    /**
+     * Returns the current project of this class state manager.
+     * @return project  
+     */
+    public GProject getProject()
+    {
+        return project;
+    }
+    
     /* (non-Javadoc)
      * @see rmiextension.wrappers.event.RClassListener#classStateChanged(rmiextension.wrappers.event.RClassEvent)
      */
