@@ -101,7 +101,7 @@ public class GenTypeClass extends GenTypeSolid
         reflective = r;
         
         // if mparams == null, this is a raw type. Nothing more to do.
-        if (mparams == null) {
+        if (mparams == null || mparams.isEmpty()) {
             return;
         }
         
