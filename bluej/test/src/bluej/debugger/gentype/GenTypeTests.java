@@ -163,4 +163,29 @@ public class GenTypeTests extends TestCase
         GenTypeClass mapped = instanceAClass.mapToSuper("CClass");
         assertEquals("CClass", mapped.toString());
     }
+    
+    /**
+     * Test GenTypeClass constructor taking a Reflective and Map; no type parameters, empty map
+     */
+    public void test5()
+    {
+        TestReflective aReflective = new TestReflective("AClass");
+        GenTypeClass aClass = new GenTypeClass(aReflective, new HashMap<String,GenTypeParameter>());
+        assertEquals("AClass", aClass.toString());
+    }
+    
+    /**
+     * Test GenTypeClass constructor taking a Reflective and Map; type parameters, empty map.
+     */
+    public void test6()
+    {
+        TestReflective aReflective = new TestReflective("AClass");
+        TestReflective bReflective = new TestReflective("BClass");
+        aReflective.typeParams.add(new GenTypeDeclTpar("T", new GenTypeClass(bReflective)));
+        
+        // effective declaration:   class AClass<T extends BClass>
+        
+        GenTypeClass aClass = new GenTypeClass(aReflective, new HashMap<String,GenTypeParameter>());
+        assertEquals("AClass<? extends BClass>", aClass.toString());
+    }
 }
