@@ -347,7 +347,7 @@ public class AudioLine
             }
         }
         catch (LineUnavailableException ex) {
-            ex.printStackTrace();
+            SoundExceptionHandler.handleLineUnavailableException(ex);
         }
     }
 
