@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -35,8 +35,10 @@ public class GenTypeClass extends GenTypeSolid
 {
     // ---------- Instance fields -----------
     
-    protected List<? extends GenTypeParameter> params = null; // List of GenTypeParameterizable's: type parameters
+    /** List of type parameters; null if none (there may be an outer class with parameters) */
+    protected List<? extends GenTypeParameter> params = null;
     protected Reflective reflective = null;
+    /** Outer class, *iff* an outer class has type parameters; otherwise null */
     protected GenTypeClass outer = null; // outer class of this class
     
     // ---------- Constructors -------------
@@ -101,12 +103,11 @@ public class GenTypeClass extends GenTypeSolid
         reflective = r;
         
         // if mparams == null, this is a raw type. Nothing more to do.
-        if (mparams == null || mparams.isEmpty()) {
+        if (mparams == null) {
             return;
         }
         
         List<GenTypeParameter> params = new ArrayList<GenTypeParameter>();
-        this.params = params;
         
         Iterator<GenTypeDeclTpar> declParmsI = r.getTypeParams().iterator();
         while( declParmsI.hasNext() ) {
@@ -119,18 +120,15 @@ public class GenTypeClass extends GenTypeSolid
                 mparams.remove(nextName);
             }
         }
-        if( params.isEmpty() )
+        if (params.isEmpty()) {
             params = null;
+        }
+
+        this.params = params;
         
-        // If there are still entries in the map, they belong to an outer
-        // class
-        if (! mparams.isEmpty()) {
-            String rName = r.getName();
-            int p = rName.lastIndexOf('$');
-            if (p == -1)
-                return;
-            String outerName = rName.substring(0, p);
-            Reflective outerReflective = r.getRelativeClass(outerName);
+        // If there are still entries in the map, they may belong to an outer class
+        if (! mparams.isEmpty() && ! r.isStatic()) {
+            Reflective outerReflective = r.getOuterClass();
             if (outerReflective != null) {
                 outer = new GenTypeClass(outerReflective, mparams);
             }
@@ -224,11 +222,24 @@ public class GenTypeClass extends GenTypeSolid
         // and it is not possible for the inner class to be raw if the outer
         // is not also raw (or, if it is, the outer should be treated as
         // raw anyway).
-        if (outer != null) {
+        if (outer != null || params != null) {
             return false;
         }
+        
+        Reflective r = reflective;
         List<?> formalParams = reflective.getTypeParams();
-        return params == null && ! formalParams.isEmpty();
+        while (formalParams.isEmpty()) {
+            if (r.isStatic()) {
+                return false;
+            }
+            r = r.getOuterClass();
+            if (r == null) {
+                return false;
+            }
+            formalParams = r.getTypeParams();
+        }
+        
+        return true;
     }
 
     public boolean isInterface()
@@ -588,9 +599,10 @@ public class GenTypeClass extends GenTypeSolid
      * type. The returned map is a mutable copy, that is, it can freely be
      * modified by the caller without affecting this GenTypeClass object. 
      * 
-     * Returns null if this represents a raw type.
+     * <p>Returns null if this represents a raw type, or an empty map if the
+     * type is not a generic type.
      * 
-     * Note that a map is not enough to completely describe a type, due to
+     * <p>Note that a map is not enough to completely describe a type, due to
      * the possibility of inner/outer types having type parameters with the
      * same name.
      * 
@@ -598,8 +610,9 @@ public class GenTypeClass extends GenTypeSolid
      */
     public Map<String,GenTypeParameter> getMap()
     {
-        if (isRaw())
+        if (isRaw()) {
             return null;
+        }
         
         HashMap<String,GenTypeParameter> r = new HashMap<String,GenTypeParameter>();
         mergeMap(r);
