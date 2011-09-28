@@ -402,7 +402,7 @@ public class GreenfootImage
     }
 
     /**
-     * Mirrors the image vertically (flip around the y-axis).
+     * Mirrors the image vertically (the top of the image becomes the bottom, and vice versa).
      * 
      */
     public void mirrorVertically()
@@ -414,7 +414,7 @@ public class GreenfootImage
     }
 
     /**
-     * Mirrors the image horizontally (flip around the x-axis).
+     * Mirrors the image horizontally (the left of the image becomes the right, and vice versa).
      * 
      */
     public void mirrorHorizontally()
