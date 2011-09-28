@@ -257,18 +257,13 @@ public abstract class Actor
      */
     public void move(int distance)
     {
-        World world = getWorld();
+        double radians = Math.toRadians(rotation);
 
-        if (world != null) {
-            int adjustedDistance = getWorld().cellSize * distance;
-            double radians = Math.toRadians(rotation);
-
-            // We round to the nearest integer, to allow moving one unit at an angle
-            // to actually move.
-            int dx = (int) Math.round(Math.cos(radians) * adjustedDistance);
-            int dy = (int) Math.round(Math.sin(radians) * adjustedDistance);
-            setLocation(x + dx, y + dy);
-        }
+        // We round to the nearest integer, to allow moving one unit at an angle
+        // to actually move.
+        int dx = (int) Math.round(Math.cos(radians) * distance);
+        int dy = (int) Math.round(Math.sin(radians) * distance);
+        setLocation(x + dx, y + dy);
     }
     
     /**
