@@ -64,7 +64,7 @@ public class SoundFactory
             // the sound cache.  It also happens to make objects for
             // non-SoundClip items, but since they are all streams,
             // that shouldn't cause a big slowdown or waste of resources.
-            getCachedSound(soundFile);
+            getCachedSound(soundFile, true);
             
             if (!soundCache.hasFreeSpace())
                 return; // No point continuing to overwrite things in the cache once all slots are filled
@@ -88,8 +88,9 @@ public class SoundFactory
      * Creates the sound from file.
      * 
      * @param file Name of a file or an url
+     * @param quiet   if true, failure is silent; otherwise an IllegalArgumentException may be thrown
      */
-    public Sound createSound(final String file)
+    public Sound createSound(final String file, boolean quiet)
     {      
         try {
             URL url = GreenfootUtil.getURL(file, "sounds");
@@ -112,9 +113,13 @@ public class SoundFactory
                 return new SoundClip(file, url, soundCollection);
             }
         } catch (IOException e) {
-            SoundExceptionHandler.handleIOException(e, file);
+            if (! quiet) {
+                SoundExceptionHandler.handleIOException(e, file);
+            }
         } catch (UnsupportedAudioFileException e) {
-            SoundExceptionHandler.handleUnsupportedAudioFileException(e, file);
+            if (! quiet) {
+                SoundExceptionHandler.handleUnsupportedAudioFileException(e, file);
+            }
         }  
         return null;
     }
@@ -122,12 +127,14 @@ public class SoundFactory
     /**
      * Gets a cached sound file if possible. If not possible, it will return a new sound.
      * 
+     * @param  file   the name of the sound file
+     * @param  quiet  if true, failure is silent; otherwise an exception may be thrown.
      */
-    public Sound getCachedSound(final String file)  
+    public Sound getCachedSound(final String file, boolean quiet)  
     {      
         Sound sound = soundCache.get(file);
         if(sound == null) {
-            sound = createSound(file);
+            sound = createSound(file, quiet);
             if(sound instanceof SoundClip) {
                 soundCache.put((SoundClip) sound);
             }

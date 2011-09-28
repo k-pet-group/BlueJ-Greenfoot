@@ -160,7 +160,7 @@ public class Greenfoot
      */
     public static void playSound(final String soundFile)
     {
-        Sound sound = SoundFactory.getInstance().getCachedSound(soundFile);
+        Sound sound = SoundFactory.getInstance().getCachedSound(soundFile, false);
 
         if( sound != null) {
             sound.play();
