@@ -154,12 +154,18 @@ public abstract class ClassButton extends JToggleButton implements MouseListener
      */
     public void mousePressed(MouseEvent e)
     {
-        select();
-        maybeShowPopup(e);
+         select();
+         maybeShowPopup(e);
     }
 
+    /**
+     * Selects the component after you've released the mouse. (We place the
+     * select here instead of in mousePressed because mouseReleased will work
+     * with right-clicks as well as left clicks (Windows problem)).
+     */
     public void mouseReleased(MouseEvent e)
     {
+        select();
         maybeShowPopup(e);
     }
 
