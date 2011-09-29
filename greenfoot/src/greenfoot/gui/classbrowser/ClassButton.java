@@ -159,9 +159,10 @@ public abstract class ClassButton extends JToggleButton implements MouseListener
     }
 
     /**
-     * Selects the component after you've released the mouse. (We place the
-     * select here instead of in mousePressed because mouseReleased will work
-     * with right-clicks as well as left clicks (Windows problem)).
+     * Selects the component after you've released the mouse.
+     *
+     * Copies the mousePressed behaviour, to handle Windows behaviour
+     * where a right-click is not considered a mousePressed event.
      */
     public void mouseReleased(MouseEvent e)
     {
