@@ -373,6 +373,9 @@ public class ParsedTypeNode extends IncrementalParsingNode
     @Override
     public CodeSuggestions getExpressionType(int pos, int nodePos, JavaEntity defaultType, Document document)
     {
+        valueEntityCache.clear();
+        pocEntityCache.clear();
+        
         // The default type if the expression is not known should be this type
         ValueEntity myType = new ValueEntity(new GenTypeClass(new ParsedReflective(this)));
         NodeAndPosition<ParsedNode> child = getNodeTree().findNode(pos, nodePos);

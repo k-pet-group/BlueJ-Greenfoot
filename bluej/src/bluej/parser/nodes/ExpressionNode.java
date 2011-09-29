@@ -62,6 +62,9 @@ public class ExpressionNode extends JavaParentNode
     @Override
     protected CodeSuggestions getExpressionType(int pos, int nodePos, JavaEntity defaultType, Document document)
     {
+        valueEntityCache.clear();
+        pocEntityCache.clear();
+        
         NodeAndPosition<ParsedNode> nap = findNodeAt(pos, nodePos);
         if (nap != null && nap.getNode().getNodeType() == ParsedNode.NODETYPE_TYPEDEF) {
             return nap.getNode().getExpressionType(pos, nap.getPosition(), defaultType, document);

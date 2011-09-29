@@ -925,6 +925,41 @@ public class CompletionTest extends TestCase
         assertEquals("java.lang.String[]", suggests.getSuggestionType().toString());
     }
     
+    public void test360() throws Exception
+    {
+        String cSrc = "package tpkg;\n" +
+                "class C {\n" +
+                "  public static void doNothing() {}\n" +
+                "}\n";
+        
+        ParsedCUNode cNode = documentForSource(cSrc, "tpkg").getParser();
+        resolver.addCompilationUnit("tpkg", cNode);
+        
+        String aSrc = "import tpkgxx.*;\n" +   // 0 - 17
+                "class A {\n" +                // 17 - 27
+                "  public A() {\n" +           // 27 - 42
+                "    class B {\n" +            // 42 - 56
+                "      public B() {\n" +       // 56 - 75 
+                "        C.\n" +               // 75 -     C. <-- 85
+                "      }\n" +
+                "  }\n" +
+                "}\n";
+
+        
+        MoeSyntaxDocument aDoc = documentForSource(aSrc, "");
+        ParsedCUNode aNode = aDoc.getParser();
+        CodeSuggestions suggests = aNode.getExpressionType(85, aDoc);
+        assertEquals(".", aDoc.getText(84, 1));  // check position calculation
+        assertNull(suggests);
+        
+        // Fix import:
+        aDoc.remove(11, 2);
+        aNode = aDoc.getParser();
+        suggests = aNode.getExpressionType(83, aDoc);
+        assertNotNull(suggests);
+        assertEquals("tpkg.C", suggests.getSuggestionType().toString());
+    }
+    
     // Yet to do:
     
     // Test that multiple fields defined in a single statement are handled correctly,
