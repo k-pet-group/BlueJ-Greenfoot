@@ -536,7 +536,20 @@ public abstract class JavaUtils
         
         StringBuffer outbuf = new StringBuffer();
         
-        String str = javadoc.substring(3, javadoc.length() - 2);
+        String str = javadoc;
+        if (javadoc.charAt(0) == '/') {
+            if (javadoc.charAt(1) == '*') {
+                if (javadoc.charAt(2) == '*') {
+                    // remove "/**" and "*/"
+                    str = javadoc.substring(3, javadoc.length() - 2);
+                }
+                else {
+                    // remove "/*" and "*/"
+                    str = javadoc.substring(2, javadoc.length() - 2);
+                }
+            }
+        }
+        
         int nl = str.indexOf('\n');
         int cr = str.indexOf('\r');
         int pos = 0;
