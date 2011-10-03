@@ -740,6 +740,52 @@ public class TextParserTest extends TestCase
         checkConstInt(exprType, 'a');
     }
     
+    public void testConstantExpressions3()
+    {
+        // Division by 0 yields a 'non-constant' int
+        TextParser parser = new TextParser(resolver, "4 / 0", null, true);
+        parser.parseExpression();
+        assertTrue(parser.atEnd());
+        JavaEntity exprType = parser.getExpressionType();
+        assertNotNull(exprType);
+        assertEquals("int", exprType.getType().toString());
+        
+        // Division by floating-point 0 yields a constant infinity
+        parser = new TextParser(resolver, "4.0 / 0.0", null, true);
+        parser.parseExpression();
+        assertTrue(parser.atEnd());
+        exprType = parser.getExpressionType();
+        assertNotNull(exprType);
+        assertEquals("double", exprType.getType().toString());
+        
+        parser = new TextParser(resolver, "(int)(4.0 / 0.0)", null, true);
+        parser.parseExpression();
+        assertTrue(parser.atEnd());
+        exprType = parser.getExpressionType();
+        checkConstInt(exprType, Integer.MAX_VALUE);
+
+        parser = new TextParser(resolver, "4.0f / 0.0f", null, true);
+        parser.parseExpression();
+        assertTrue(parser.atEnd());
+        exprType = parser.getExpressionType();
+        assertNotNull(exprType);
+        assertEquals("float", exprType.toString());
+        
+        parser = new TextParser(resolver, "(int)(4.0f / 0.0f)", null, true);
+        parser.parseExpression();
+        assertTrue(parser.atEnd());
+        exprType = parser.getExpressionType();
+        checkConstInt(exprType, Integer.MAX_VALUE);
+
+        // Modulo implies division
+        parser = new TextParser(resolver, "4 % 0", null, true);
+        parser.parseExpression();
+        assertTrue(parser.atEnd());
+        exprType = parser.getExpressionType();
+        assertNotNull(exprType);
+        assertEquals("int", exprType.toString());
+    }
+    
     public void testConstantStrings()
     {
         // From JLS 15.28
