@@ -1020,8 +1020,16 @@ public class TextParser extends JavaParser
                 case JavaTokenTypes.STAR:
                     rval = a1 * a2; break;
                 case JavaTokenTypes.DIV:
+                    if (a2 == 0) {
+                        valueStack.push(new ValueEntity(resultType));
+                        return;
+                    }
                     rval = a1 / a2; break;
                 case JavaTokenTypes.MOD:
+                    if (a2 == 0) {
+                        valueStack.push(new ValueEntity(resultType));
+                        return;
+                    }
                     rval = a1 % a2; break;
                 case JavaTokenTypes.BAND:
                     rval = a1 & a2; break;
