@@ -153,19 +153,47 @@ public abstract class GenTypeParameter
         GenTypeSolid otherLower = other.getLowerBound();
         JavaType otherUpper = other.getUpperBound();
         
-        return myUpper.isAssignableFrom(otherUpper) && otherLower.isAssignableFrom(myLower);
+        if (myUpper != null) {
+            if (otherUpper == null) {
+                if (myUpper.asClass() == null) {
+                    return false;
+                }
+                else {
+                    if (! myUpper.asClass().classloaderName().equals("java.lang.Object")) {
+                        return false;
+                    }
+                }
+            }
+            else {
+                if (! myUpper.isAssignableFrom(otherUpper)) {
+                    return false;
+                }
+            }
+        }
+        
+        if (myLower != null) {
+            if (otherLower == null) {
+                return false;
+            }
+            if (! otherLower.isAssignableFrom(myLower)) {
+                return false;
+            }
+        }
+        
+        return true;
     }
     
-    /*
-     * Provide a default version of 
-     * @see bluej.debugger.gentype.JavaType#toString(boolean)
+    /**
+     * Get a string representation of the type, optionally stripping package prefixes
      */
     public String toString(boolean stripPrefix)
     {
-        if (stripPrefix)
+        if (stripPrefix) {
             return toString(stripPrefixNt);
-        else
+        }
+        else {
             return toString(nullTransform);
+        }
     }
     
     /**
