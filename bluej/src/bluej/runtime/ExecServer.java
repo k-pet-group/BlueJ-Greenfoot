@@ -55,7 +55,7 @@ import bluej.utility.Utility;
  * Class that controls the runtime of code executed within BlueJ.
  * Sets up the initial thread state, etc.
  *
- * This class both holds runtime attributes and executes commands.
+ * <p>This class both holds runtime attributes and executes commands.
  * Execution is done through JDI reflection from the JdiDebugger class.
  *
  * @author  Michael Kolling
@@ -178,7 +178,7 @@ public class ExecServer
         }
         
         // Set up the worker thread. The worker thread can be used to perform certain actions
-        // when the main thread is busy. Actions on the worker thread are guarenteed to execute
+        // when the main thread is busy. Actions on the worker thread are guaranteed to execute
         // in a timely manner - for this reason they must not execute user code.
         workerThread = new Thread("BlueJ worker thread")
         {
@@ -483,8 +483,6 @@ public class ExecServer
      */
     private static Object[] runTestSetUp(String className)
     {
-        // Debug.message("[VM] runTestSetUp" + className);
-
         Class<?> cl = loadAndInitClass(className);
         
         try {
@@ -707,6 +705,8 @@ public class ExecServer
                 // Execute the command
                 methodReturn = null;
                 exception = null;
+                Thread.currentThread().setContextClassLoader(currentLoader);
+
                 try {
                     switch(execAction) {
                         case EXEC_SHELL:
