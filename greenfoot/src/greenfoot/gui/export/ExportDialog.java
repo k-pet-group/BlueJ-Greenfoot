@@ -457,7 +457,7 @@ public class ExportDialog extends EscapeDialog
         selectedPane.postPublish(success);
         setProgress(false, msg);
         if (success) {
-            Utility.openWebBrowser(Config.getPropString("greenfoot.gameserver.address"));
+            Utility.openWebBrowser(Config.getPropString("greenfoot.gameserver.address") + "/home");
         }
     }
     
