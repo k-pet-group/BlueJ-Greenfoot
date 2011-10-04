@@ -203,8 +203,16 @@ public class GreenfootImage
         }
         g.dispose();
     }
-
-  
+    
+    //Package-visible:
+    GreenfootImage(byte[] imageData)
+    {
+        try {
+            image = GraphicsUtilities.loadCompatibleTranslucentImage(imageData);
+        } catch (IOException ex) {
+            throw new IllegalArgumentException("Could not load image from: " + imageFileName);
+        }
+    }  
 
     private GreenfootImage() {        
     } 

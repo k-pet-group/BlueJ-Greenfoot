@@ -40,6 +40,7 @@ import java.awt.Graphics;
 import java.awt.GraphicsEnvironment;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URL;
 import javax.imageio.ImageIO;
@@ -223,6 +224,17 @@ public class GraphicsUtilities {
         BufferedImage image = ImageIO.read(resource);
         if (image == null) {
             throw new IOException("Image format of resource not supported. Resource: " + resource);
+        }
+        return toCompatibleTranslucentImage(image);
+    }
+    
+    // As above, but uses given file contents rather than path
+    public static BufferedImage loadCompatibleTranslucentImage(byte[] imageData)
+        throws IOException
+    {
+        BufferedImage image = ImageIO.read(new ByteArrayInputStream(imageData));
+        if (image == null) {
+            throw new IOException("Image format of byte data not supported");
         }
         return toCompatibleTranslucentImage(image);
     }
