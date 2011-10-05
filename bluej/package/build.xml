@@ -272,10 +272,6 @@
 		<unzip src="${dist.jar}" dest="winsetup/SourceDir" />
 					
 		<exec dir="winsetup" executable="${wix_bin}/candle.exe">
-			<arg line="registry.wxs"/>
-		</exec>
-			
-		<exec dir="winsetup" executable="${wix_bin}/candle.exe">
 			<arg line="JDKDlg.wxs"/>
 		</exec>
 			
@@ -301,7 +297,7 @@
 		</exec>
 			
 		<exec dir="winsetup" executable="${wix_bin}/light.exe">
-			<arg line="-ext WixUIExtension -loc bluej.wxl bluej.wixobj registry.wixobj CheckboxExtrasDlg.wixobj JDKDlg.wixobj ui.wixobj bluej-install-files.wixobj -o bluej-${bluej.version}.msi"/>
+			<arg line="-ext WixUIExtension -loc bluej.wxl bluej.wixobj CheckboxExtrasDlg.wixobj JDKDlg.wixobj ui.wixobj bluej-install-files.wixobj -o bluej-${bluej.version}.msi"/>
 		</exec>
 		<delete dir="winsetup/SourceDir" />
 	</target>
