@@ -1,5 +1,5 @@
 
-BlueJ version 3.0.5       --        README.TXT
+BlueJ version 3.0.6       --        README.TXT
 
 Information about BlueJ
 -----------------------
@@ -33,7 +33,7 @@ The BlueJ Team
 --------------
 BlueJ is being developed by:
 La Trobe University: John Rosenberg, Davin McCall, Marion Zalk
-University of Kent at Canterbury: Ian Utting, Michael Kolling, Neil Brown, Phil Stevens
+University of Kent at Canterbury: Ian Utting, Michael Kölling, Neil Brown, Phil Stevens
 
 The BlueJ License
 -----------------
