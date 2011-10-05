@@ -159,6 +159,7 @@ public final class Info extends JPanel
             secondLine = originalMsg.substring(newline+1);
         }
         
+        secondLine = secondLine.replace("\n", ";  ");
         line1.setText(firstLine);
         line2.setText(secondLine);
     }
