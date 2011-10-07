@@ -22,10 +22,16 @@
 package greenfoot.platforms.ide;
 
 import greenfoot.GreenfootImage;
+import greenfoot.PlayerData;
+import greenfoot.GreenfootStorageVisitor;
 import greenfoot.platforms.GreenfootUtilDelegate;
+import greenfoot.util.GreenfootStorageException;
 
 import java.awt.Component;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
@@ -34,11 +40,17 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
+import au.com.bytecode.opencsv.CSVReader;
+import au.com.bytecode.opencsv.CSVWriter;
 import bluej.Config;
 import bluej.runtime.ExecServer;
 import bluej.utility.BlueJFileReader;
@@ -51,7 +63,9 @@ import bluej.utility.DialogManager;
 public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
 {
     private static GreenfootUtilDelegateIDE instance;
-
+    
+    private String curUserName = "Player";
+    
     /** A soft reference to a cached image */
     private class CachedImageRef extends SoftReference<GreenfootImage>
     {
@@ -228,4 +242,271 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
     {
         DialogManager.showText(parent, messageText);
     }
+
+    @Override
+    public boolean isStorageSupported()
+    {
+        return true;
+    }
+    
+    public String getUserName()
+    {
+        return curUserName;
+    }
+    
+    public void setUserName(String curUserName)
+    {
+        this.curUserName = curUserName;
+    }
+
+    @Override
+    public PlayerData getCurrentUserData()
+    {
+        try
+        {
+            FileReader fr = new FileReader("storage.csv");
+            CSVReader csv = new CSVReader(fr);
+            
+            for (String[] line : csv.readAll())
+            {
+                if (line.length > 1 && getUserName().equals(line[0]))
+                {
+                    return makeStorage(line);
+                }
+            }
+            
+            // Couldn't find them anywhere, return blank:
+            return GreenfootStorageVisitor.allocate(getUserName());
+        }
+        catch (FileNotFoundException e)
+        {
+            // No previous storage, return blank:
+            return GreenfootStorageVisitor.allocate(getUserName());
+        }
+        catch (IOException e)
+        {
+            Debug.message("Error reading user data: " + e.getMessage());
+            return null;
+        }
+    }
+
+    private PlayerData makeStorage(String[] line)
+    {
+        PlayerData r = null;
+        try
+        {
+            r = GreenfootStorageVisitor.allocate(line[0]);
+            for (int i = 0; i < PlayerData.NUM_INTS; i++)
+            {
+                r.setInt(i, Integer.parseInt(line[1 + i]));
+            }
+            
+            for (int i = 0; i < PlayerData.NUM_STRINGS; i++)
+            {
+                r.setString(i, line[1 + PlayerData.NUM_INTS + i]);
+            }
+        }
+        catch (IndexOutOfBoundsException e)
+        {
+            // If we run out of the line, just stop setting the values in storage
+        }
+        
+        return r;
+    }
+    
+
+    private String[] makeLine(String userName, PlayerData data)
+    {
+        String[] line = new String[1 + PlayerData.NUM_INTS + PlayerData.NUM_STRINGS];
+        line[0] = userName;
+        try
+        {
+            for (int i = 0; i < PlayerData.NUM_INTS; i++)
+            {
+                line[1 + i] = Integer.toString(data.getInt(i));
+            }
+            
+            for (int i = 0; i < PlayerData.NUM_STRINGS; i++)
+            {
+                line[1 + PlayerData.NUM_INTS + i] = data.getString(i);
+            }
+        }
+        catch (IndexOutOfBoundsException e)
+        {
+            // Can't happen
+        }        
+        return line;
+    }
+
+    @Override
+    public boolean storeCurrentUserData(PlayerData data)
+    {
+        List<String[]> all;
+        try
+        {
+            FileReader fr = new FileReader("storage.csv");
+            CSVReader csv = new CSVReader(fr);
+            all = csv.readAll();
+            csv.close();
+        }
+        catch (FileNotFoundException e)
+        {
+            // No previous storage, make a new blank one:
+            all = new ArrayList<String[]>();
+        }
+        catch (IOException e)
+        {
+            Debug.message("Error reading user data: " + e.getMessage());
+            return false;
+        }
+        
+        // First, remove any existing line:
+        Iterator<String[]> lineIt = all.iterator();
+        while (lineIt.hasNext())
+        {
+            String[] line = lineIt.next();
+            if (line.length > 1 && getUserName().equals(line[0]))
+            {
+                lineIt.remove();
+                break;
+            }
+        }
+        
+        // Then add a line on to the end:
+        if (data != null)
+        {
+            // No line for that user, add a new one:
+            String[] line = new String[1 + PlayerData.NUM_INTS + PlayerData.NUM_STRINGS];
+            all.add(makeLine(getUserName(), data));
+        }
+        
+        try
+        {
+            CSVWriter csvOut = new CSVWriter(new FileWriter("storage.csv"));
+            csvOut.writeAll(all);
+            csvOut.close();
+            return true;
+        }
+        catch (IOException e)
+        {
+            Debug.message("Error storing user data: " + e.getMessage());
+            return false;
+        }
+    }
+    
+    private ArrayList<PlayerData> getAllDataSorted()
+    {
+        try
+        {
+            ArrayList<PlayerData> ret = new ArrayList<PlayerData>();
+            
+            FileReader fr = new FileReader("storage.csv");
+            CSVReader csv = new CSVReader(fr);
+            
+            for (String[] line : csv.readAll())
+            {
+                ret.add(makeStorage(line));
+            }
+            
+            Collections.sort(ret, new Comparator<PlayerData>() {
+                @Override
+                public int compare(PlayerData o1, PlayerData o2)
+                {
+                    // Sort in reverse order:
+                    return -(o1.getInt(0) - o2.getInt(0));
+                }
+            });
+            
+            return ret;
+        }
+        catch (FileNotFoundException e)
+        {
+            // No previous storage, return the blank list:
+            return new ArrayList<PlayerData>();
+        }
+        catch (IOException e)
+        {
+            Debug.message("Error reading user data: " + e.getMessage());
+            return null;
+        }
+    }
+
+    @Override
+    public List<PlayerData> getTopUserData(int limit)
+    {
+        ArrayList<PlayerData> ret = getAllDataSorted();
+        if (ret == null)
+            return null;
+        else if (ret.size() <= limit)
+            return ret;
+        else
+            return ret.subList(0, limit);
+    }
+
+    @Override
+    public GreenfootImage getUserImage(String userName)
+    {
+        // GreenfootUtil will take care of making a dummy image:
+        return null;
+    }
+
+    @Override
+    public List<PlayerData> getNearbyUserData(int maxAmount)
+    {
+        ArrayList<PlayerData> all = getAllDataSorted();
+        
+        if (all == null)
+            return null;
+        
+        int index = -1;
+        
+        for (int i = 0; i < all.size();i++)
+        {
+            if (curUserName != null && curUserName.equals(all.get(i).getUserName()))
+            {
+                index = i;
+            }
+        }
+        
+        if (index == -1 || maxAmount == 0)
+            return new ArrayList<PlayerData>();
+        
+        int availableBefore = index;
+        int availableAfter = all.size() - 1 - index;
+        
+        int desiredBefore = maxAmount / 2;
+        int desiredAfter = Math.max(0, maxAmount - 1) / 2;
+        
+        // maxAmount | desiredBefore | desiredAfter | before+after+1
+        // 1 | 0 | 0 | 1
+        // 2 | 1 | 0 | 2
+        // 3 | 1 | 1 | 3
+        // 4 | 2 | 1 | 4
+        // 5 | 2 | 2 | 5
+        // 6 | 3 | 2 | 6
+        // and so on...
+        
+        if (availableAfter + availableBefore + 1 <= maxAmount)
+        {
+            //Less overall that we want, use everything:
+            return all;
+        }
+        else if (availableBefore <= desiredBefore)
+        {
+            // Not enough available before-hand, but must be enough in total:
+            return all.subList(index - availableBefore, index - availableBefore + maxAmount + 1);
+        }
+        else if (availableAfter <= desiredAfter)
+        {
+            // Not enough available after, but must be enough in total:
+            return all.subList(index + availableAfter - maxAmount, index + availableAfter + 1);
+        }
+        else
+        {
+            // Must have enough available before and after:
+            return all.subList(index - desiredBefore, index + desiredAfter + 1);
+        }
+    }
+    
+    
 }

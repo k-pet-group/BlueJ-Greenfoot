@@ -22,14 +22,16 @@
 package greenfoot.platforms;
 
 import greenfoot.GreenfootImage;
+import greenfoot.PlayerData;
 
 import java.awt.Component;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 
 /**
- * Interface to classes that contain specialized behaviour for the GreefootUtil
+ * Interface to classes that contain specialized behaviour for the GreenfootUtil
  * class depending on where and how the greenfoot project is running.
  * 
  * @author Poul Henriksen
@@ -100,4 +102,43 @@ public interface GreenfootUtilDelegate
      * @param messageText   The message text itself.
      */
     public void displayMessage(Component parent, String messageText);
+
+    /**
+     * Find out whether storage is supported in the current setting
+     */
+    public boolean isStorageSupported();
+
+    /**
+     * null if an error or not supported, blank values if no previous storage
+     */
+    public PlayerData getCurrentUserData();
+
+    /**
+     * returns whether it was successful
+     */
+    public boolean storeCurrentUserData(PlayerData data);
+
+    /**
+     * null if problem, empty list if simply no data
+     * 
+     * Returns highest data when sorted by integer index 0
+     */
+    public List<PlayerData> getTopUserData(int limit);
+
+    /**
+     * returns null if storage not supported or if there was an error.
+     */
+    public GreenfootImage getUserImage(String userName);
+
+    /**
+     * returns null if storage is not supported (or there was an error)
+     */
+    public String getUserName();
+
+    /**
+     * null if problem, empty list if simply no data.
+     * 
+     * Returns data near the current player when sorted by integer index 0
+     */
+    public List<PlayerData> getNearbyUserData(int maxAmount);
 }

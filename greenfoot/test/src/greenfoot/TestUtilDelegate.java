@@ -30,6 +30,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 
 public class TestUtilDelegate implements GreenfootUtilDelegate
 {
@@ -49,7 +50,7 @@ public class TestUtilDelegate implements GreenfootUtilDelegate
         return new ArrayList<String>();
     }
 
-    public String getGreenfootLogoPath()
+    public String getGreenfootLogoPaWth()
     {
         String classes = getClass().getClassLoader().getResource(".").toString();
         File startingDir = null;
@@ -111,6 +112,54 @@ public class TestUtilDelegate implements GreenfootUtilDelegate
     
     @Override
     public Iterable<String> getSoundFiles()
+    {
+        return null;
+    }
+
+    @Override
+    public String getGreenfootLogoPath()
+    {
+        return null;
+    }
+
+    @Override
+    public boolean isStorageSupported()
+    {
+        return false;
+    }
+
+    @Override
+    public PlayerData getCurrentUserData()
+    {
+        return null;
+    }
+
+    @Override
+    public boolean storeCurrentUserData(PlayerData data)
+    {
+        return false;
+    }
+
+    @Override
+    public List<PlayerData> getTopUserData(int limit)
+    {
+        return null;
+    }
+
+    @Override
+    public GreenfootImage getUserImage(String userName)
+    {
+        return null;
+    }
+
+    @Override
+    public String getUserName()
+    {
+        return null;
+    }
+
+    @Override
+    public List<PlayerData> getNearbyUserData(int maxAmount)
     {
         return null;
     }

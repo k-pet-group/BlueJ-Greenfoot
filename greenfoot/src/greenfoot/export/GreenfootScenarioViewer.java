@@ -137,6 +137,14 @@ public class GreenfootScenarioViewer extends JApplet
     {
         GreenfootScenarioMain.initProperties();
         
+        GreenfootUtilDelegateStandAlone.storageStandalone = getParameter("storage.standalone") != null;
+        GreenfootUtilDelegateStandAlone.storageHost = getParameter("storage.server");
+        GreenfootUtilDelegateStandAlone.storagePort = getParameter("storage.serverPort");
+        GreenfootUtilDelegateStandAlone.storagePasscode = getParameter("storage.passcode");
+        GreenfootUtilDelegateStandAlone.storageScenarioId = getParameter("storage.scenarioId");
+        GreenfootUtilDelegateStandAlone.storageUserId = getParameter("storage.userId");
+        GreenfootUtilDelegateStandAlone.storageUserName = getParameter("storage.userName");
+        
         // this is a workaround for a security conflict with some browsers
         // including some versions of Netscape & Internet Explorer which do
         // not allow access to the AWT system event queue which JApplets do
