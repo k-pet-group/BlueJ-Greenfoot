@@ -702,7 +702,8 @@ public final class Package extends Graph
 
         // Update class states. We do this before updating roles (or anything else
         // which analyses the source) because the analysis does symbol resolution, and
-        // that depends on having the correct compiled state. 
+        // that depends on having the correct compiled state.
+        LinkedList<ClassTarget> invalidated = new LinkedList<ClassTarget>();
         targetIt = targets.iterator();
         for ( ; targetIt.hasNext();) {
             Target target = targetIt.next();
@@ -711,6 +712,21 @@ public final class Package extends Graph
                 ClassTarget ct = (ClassTarget) target;
                 if (ct.isCompiled() && !ct.upToDate()) {
                     ct.setState(ClassTarget.S_INVALID);
+                    invalidated.add(ct);
+                }
+            }
+        }
+        
+        while (! invalidated.isEmpty()) {
+            ClassTarget ct = invalidated.removeFirst();
+            for (Dependency dependent : ct.dependentsAsList()) {
+                DependentTarget dt = dependent.getFrom();
+                if (dt instanceof ClassTarget) {
+                    ClassTarget dep = (ClassTarget) dt;
+                    if (dep.isCompiled()) {
+                        dep.setState(ClassTarget.S_INVALID);
+                        invalidated.add(dep);
+                    }
                 }
             }
         }
