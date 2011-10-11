@@ -689,6 +689,14 @@ public class JdiReflective extends Reflective
         else if (t instanceof ShortType)
             return JavaPrimitiveType.getShort();
         else {
+            // Sometimes, we get a class which doesn't really exist
+            // eg. as a type argument to a field.
+            if (t == null) {
+                // TODO specialise TextType a little - after all we know
+                //  that this is an object type.
+                return new TextType(typeName);
+            }
+            
             // The class may or may not be loaded.
             String tname = t.signature();
             if (tname.startsWith("[")) {
