@@ -1145,6 +1145,8 @@ public final class Package extends Graph
                 }
             }
 
+            project.removeClassLoader();
+            project.newRemoteClassLoaderLeavingBreakpoints();
             doCompile(toCompile, new PackageCompileObserver());
         }
         catch (IOException ioe) {
