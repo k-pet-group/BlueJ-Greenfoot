@@ -1,0 +1,64 @@
+Understanding the BlueJ parser(s)
+---------------------------------
+
+D. McCall, 2011
+
+Basics
+------
+
+The basic Java grammar is implemented in the "bluej.parser.JavaParser" class. This class
+defines a basic Java parser, which parses source according to various grammatical structures
+and performs very basic handling of grammatical errors in the source. The parseCU() method
+for instance parses an entire compilation unit (a source file).
+
+The JavaParser class itself is designed to be subclassed. There are various methods which
+have no function in the base class, but can be overridden by subclasses in order to receive
+notification of when certain constructs are encountered. For complex constructs, there
+are often separate notifications for the beginning and the end of the construct, for instance:
+
+    // Called when the parser sees a "package" token, beginning a package statement
+    // The token parameter corresponds to the package keyword token.
+    protected void beginPackageStatement(LocatableToken token) {  }
+
+    // Called when the package specified as part of a package statement has been parsed.
+    protected void gotPackage(List<LocatableToken> pkgTokens) { }
+
+    // Called when the semi-colon at the end of a package statement is seen.
+    protected void gotPackageSemi(LocatableToken token) { }
+
+Note that in most cases, if the construct does not end properly (i.e. there is a grammatical
+error in the source code), the notifier for the construct end will still be called (often
+with a boolean parameter indicating whether there was an error). The gotPackageSemi(...)
+method above is an exception to this rule.
+
+JavaParser has several immediate subclasses, but the two most important (and complex) ones
+are EditorParser and TextParser.
+
+
+The editor parser
+-----------------
+
+The EditorParser class is a subclass of JavaParser. This parser builds a tree representing
+the structure of the source. When parsing a compilation unit, a ParsedCUNode forms the
+root of the tree. The branches of a ParsedCUNode are mainly ParsedTypeNode instances, which
+contain a single TypeInnerNode instance, which may contain various node types (including
+MethodNode).
+ 
+EditorParser works by building a stack of nodes (scopeStack); when a construct begins, a new
+node is put on the top of the stack. See:
+
+ - beginTypeBody(...)
+ - beginForLoop(...)
+ - beginForLoopBody(...)
+ 
+etc.
+
+When a construct ends, the node is closed (its length is recorded) and it is removed from the
+stack. See:
+
+ - endTypeBody(...)
+ - endForLoop(...)
+ - endForLoopBody(...)
+
+etc.
+
