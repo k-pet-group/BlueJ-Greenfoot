@@ -434,7 +434,9 @@
 	            <include name="boot/src/bluej/splash.jpg" />
 	            <include name="doc/HOWTO.*" />    
 	            <include name="doc/THIRDPARTYLICENSE.txt" />
-	            <include name="doc/LICENSE.txt" />  
+	            <include name="doc/LICENSE.txt" />
+            	<include name="doc/BlueJ-parser.txt" />
+            	<include name="doc/threading-issues.txt" />
 	            <include name="examples/**/*" />          
 	            <include name="icons/**/*" />           
 	            <include name="lib/**/*" />     
