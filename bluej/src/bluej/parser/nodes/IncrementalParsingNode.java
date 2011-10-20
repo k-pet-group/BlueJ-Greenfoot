@@ -123,11 +123,6 @@ public abstract class IncrementalParsingNode extends JavaParentNode
      */
     protected abstract int doPartialParse(ParseParams params, int state);
     
-    protected boolean lastPartialCompleted(EditorParser parser, LocatableToken token, int state)
-    {
-        return false;
-    }
-    
     protected boolean isNodeEndMarker(int tokenType)
     {
         return tokenType == JavaTokenTypes.RCURLY;

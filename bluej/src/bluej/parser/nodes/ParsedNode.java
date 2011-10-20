@@ -268,11 +268,14 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
     protected final static int REMOVE_NODE = 3; // (and reparse parent)
     
     /**
-     * Insert the given text.<p>
+     * Insert the given text.
      * 
-     * The result should be one of ALL_OK, NODE_GREW, NODE_SHRUNK, or REMOVE_NODE.
+     * <p>The result should be one of ALL_OK, NODE_GREW, NODE_SHRUNK, or REMOVE_NODE.
      * The latter indicates that the caller should remove the node. Except in the
      * case of ALL_OK, the parent node must generally be re-parsed.
+     * 
+     * <p>Note, it is expected that the node grows by the amount of text inserted -
+     * the return should be ALL_OK rather than NODE_GREW if that is the case.
      * 
      * @param document   The document
      * @param nodePos    The position of "this" node (relative to the document).
@@ -286,9 +289,12 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
     /**
      * The specified portion of text within the node has been removed.<p>
      * 
-     * The result should be one of ALL_OK, NODE_GREW, NODE_SHRUNK, or REMOVE_NODE.
+     * <p>The result should be one of ALL_OK, NODE_GREW, NODE_SHRUNK, or REMOVE_NODE.
      * The latter indicates that the caller should remove the node. Except in the
      * case of ALL_OK, the parent node must generally be re-parsed.
+     * 
+     * <p>It is expected that the node shrink by the amount of text removed - the
+     * return should be ALL_OK rather than NODE_SHRUNK if that is the case.
      * 
      * @param document   The document
      * @param nodePos    The position of "this" node (relative to the document).
