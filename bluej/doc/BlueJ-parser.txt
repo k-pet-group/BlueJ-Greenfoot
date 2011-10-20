@@ -1,7 +1,16 @@
-Understanding the BlueJ parser(s)
----------------------------------
+Understanding the BlueJ parser(s) and incremental parsing
+---------------------------------------------------------
 
 D. McCall, 2011
+
+Contents
+--------
+- Basics
+- The editor parser (EditorParser)
+- The text parser (TextParser)
+- The completion parser (CompletionParser)
+- Incremental parsing
+
 
 Basics
 ------
@@ -62,3 +71,94 @@ stack. See:
 
 etc.
 
+
+The text parser (expression parser - TextParser)
+------------------------------------------------
+
+The expression parser builds a stack of values/operands and a separate stack of operators.
+When an operator is received, any higher-precedence operators are pulled off the operator
+stack and processed (their operands are pulled from the operand stack, and the result is
+pushed back onto the operand stack).
+
+There is some additional complexity in handling, for instance, argument lists (which may
+apply to a method or constructor call). There is separate argument-list stack (argumentStack)
+which maintains a stack of argument lists; the topmost on the stack is the list currently
+being processed. When an argument list ends (see endArgumentList(...), called by JavaParser)
+it is processed immediately.
+
+
+The code completion parser (CompletionParser)
+---------------------------------------------
+
+The CompletionParser builds on the TextParser. To use the completion parser, a reader is
+constructed which will read only up until the point where completion is requested (i.e. the
+current cursor location). The logic in TextParser determines the expression type. The
+completion parser also records the token which occurs at the end of the stream - seeing as
+this may be the beginning text of the method name.
+
+  Eg.    abc.def|     - where | marks the cursor location
+      The type of the expression is the type of 'abc', and the completion token is the
+      identifier 'def'.
+
+Note that the completion token may be a keyword such as "for" - this case must be handled
+correctly.
+
+
+Incremental parsing
+-------------------
+
+It's useful in the editor to avoid re-parsing the entire source code for every small edit
+that is made. In some cases it's really just one node of the ParsedNode tree that needs
+re-parsing. The various ParsedNode subclasses contain appropriate re-parsing logic.
+
+There are two basic edit operations that can occur to a ParsedNode:
+- textInserted(...)
+- textRemoved(...)
+
+The ParsedNode implementations may schedule a re-parse of a section of the document if
+it is necessary. It is generally better to schedule a reparse (which allows the reparse
+to be performed later) than to reparse immediately (which might cause a noticable pause
+in processing).
+
+The textInserted/textRemoved methods return a value which indicates the necessary follow-up
+action:
+ - ALL_OK - no immediate follow-up action is necessary. A reparse may have been scheduled.
+ - NODE_GREW - the node increased in size, thus consuming some of the text that originally
+               was part of the parent node. The parent node will most likely need to be
+               re-parsed from the point after which the child node now ends.
+ - NODE_SHRUNK - the node decreased in size, thus returning some text to the parent node.
+               Similar to NODE_GREW.
+ - REMOVE_NODE - the node is now completely invalid and must be removed immediately. The
+               text inside the node returns to the parent, which must be re-parsed.
+
+Much of the common incremental parsing logic is implemented in ParentParsedNode and
+IncrementalParsingNode. Usually, an edit which is confined to a child node is left to that
+child to handle. The more difficult cases are:
+
+- Text inserted just beyond the end of a child node. In this case, the correct action
+  depends on the nature of the child node. If it "marks its own end" - that is, it contains
+  a token which marks the end of the node - then the inserted text is really being inserted
+  into the parent node. On the other hand, if the end of the child is marked by a token
+  in the parent node, the insertion of text has moved that node; in this case the child node
+  must be grown to accommodate the inserted text, and re-parsed at the appropriate point.
+- Text removed from the end of a child node
+- Text inserted just before a child node
+- Text removed at the beginning of a child node
+
+See the growsForward(...) and marksOwnEnd(...) methods.
+
+Scheduled parses are run (from MoeEditor) by calling the reparse(...) method. Similarly to
+edits, reparse operations are often parsed down to child nodes. Handling reparse operations
+in the presence of child nodes can be quite complicated. A reparse occurring just at the end
+of a child node may require that that the child node first be grown, and that it be allowed to
+then handle the parse operation; a child node can be marked "incomplete" if this is necessary.
+If the child node is "complete", then the reparse should be handled by the parent instead.
+Naturally edit processing must ensure to correct the "complete" status of nodes where
+appropriate.
+
+IncrementalParsingNode provides an abstract base class which can be subclassed to create node
+types capable of incremental parsing. See the class documentation. In most cases, incremental
+parsing involves creating an instance of EditorParser and calling a suitable parse method.
+An end-of-stream during a parse operation must be carefully handled - it does not necessarily
+mean that the source file has ended, only that the limit of the current parse has been
+reached.
