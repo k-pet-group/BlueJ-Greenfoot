@@ -23,6 +23,8 @@ package bluej.debugger.jdi;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -101,16 +103,21 @@ public class NetworkTest
             final ServerSocket ss = new ServerSocket(0, 50, loopAddr);
             Debug.message("Successful.");
             
-            final boolean[] connSuccess = new boolean[1];
-            
             Thread t = new Thread() {
                 @Override
                 public void run()
                 {
                     try {
+                        Debug.message("Attempting to connect to " + loopAddr.getHostAddress() + ":" + ss.getLocalPort() + " with NO_PROXY...");
+                        Socket s = new Socket(Proxy.NO_PROXY);
+                        s.setSoTimeout(300);
+                        s.connect(new InetSocketAddress(loopAddr, ss.getLocalPort()));
+                        Debug.message("Successful.");
+                        
                         Debug.message("Attempting to connect to " + loopAddr.getHostAddress() + ":" + ss.getLocalPort() + "...");
-                        new Socket(loopAddr, ss.getLocalPort());
-                        connSuccess[0] = true;
+                        s = new Socket();
+                        s.setSoTimeout(300);
+                        s.connect(new InetSocketAddress(loopAddr, ss.getLocalPort()));
                         Debug.message("Successful.");
                     }
                     catch (IOException ioe) {
@@ -123,6 +130,7 @@ public class NetworkTest
             t.start();
             ss.setSoTimeout(500); // wait for half a second max
             try {
+                ss.accept();
                 ss.accept();
             }
             catch (IOException ioe) {
