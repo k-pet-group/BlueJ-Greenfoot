@@ -74,7 +74,7 @@ public class NetworkTest
             testServerAddress(loop4addr);
         }
         catch (UnknownHostException uhe) {
-            Debug.message("(!!) 127.0.0.1 is unknown hos: " + uhe.getMessage());
+            Debug.message("(!!) 127.0.0.1 is unknown host: " + uhe.getMessage());
         }
 
         try {
