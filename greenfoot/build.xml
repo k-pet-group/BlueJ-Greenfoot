@@ -62,6 +62,7 @@
         <pathelement location="${bluej.projectdir}/lib/commons-httpclient-3.1.jar"/>
         <pathelement location="${bluej.projectdir}/lib/commons-logging-api-1.1.1.jar"/> 
         <pathelement location="${jlayer.jar.path}"/>
+        <pathelement location="${bluej.projectdir}/lib/opencsv-2.3.jar"/>
     </path>
     <!-- The sourcepath to the bluej classes-->
     <path id="bluej.src.path">
@@ -108,6 +109,7 @@
           <include name="greenfoot/GreenfootSound.java" />
           <include name="greenfoot/Greenfoot.java" />
           <include name="greenfoot/MouseInfo.java" />
+          <include name="greenfoot/PlayerData.java" />    	
 	</fileset>
 
     <!-- scenarios to be included in standard distribution -->
