@@ -64,8 +64,8 @@ public class NetworkTest
             Debug.message("(!!) Exception class: " + ioe.getClass().getName());
         }
 
-        InetAddress loop4addr;
-        InetAddress loop6addr;
+        InetAddress loop4addr = null;
+        InetAddress loop6addr = null;
         
         try {
             loop4addr = InetAddress.getByAddress(new byte[] {127, 0, 0, 1});
@@ -82,6 +82,10 @@ public class NetworkTest
         }
         catch (UnknownHostException uhe) {
             Debug.message("(!!) ::1 is unknown host: " + uhe.getMessage());
+        }
+        
+        if (lhost != null && !lhost.equals(loop4addr) && !lhost.equals(loop6addr)) {
+            testServerAddress(lhost);
         }
         
         Debug.message("Network test complete.");
