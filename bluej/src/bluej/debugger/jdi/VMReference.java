@@ -290,6 +290,7 @@ class VMReference
                             remoteVMprocess = launchVM(initDir, launchParams, term);
                         }
                         catch (Throwable t) {
+                            Debug.message("Caught exc after launchVM"); // DAV
                             connector.stopListening(arguments);
                             throw t;
                         }
@@ -298,6 +299,7 @@ class VMReference
                             machine = connector.accept(arguments);
                         }
                         catch (Throwable t) {
+                            Debug.message("Caught exc after connector.accept()"); // DAV
                             // failed to connect.
                             closeIO();
                             remoteVMprocess.destroy();
@@ -336,8 +338,12 @@ class VMReference
         Debug.message("Failed to connect to debug VM. Reasons follow:");
         for (int i = 0; i < connectors.size(); i++) {
             Debug.message(connectors.get(i).transport().name() + " transport:");
-            failureReasons[i].printStackTrace(new PrintWriter(Debug.getDebugStream()));
+            PrintWriter pw = new PrintWriter(Debug.getDebugStream());
+            failureReasons[i].printStackTrace(pw);
+            pw.flush();
         }
+
+        NetworkTest.doTest();
         
         return null;
     }
