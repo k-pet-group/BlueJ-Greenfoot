@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,7 +26,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import bluej.parser.EditorParser;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
@@ -136,12 +135,6 @@ public class TypeInnerNode extends IncrementalParsingNode
     {
         return nap.getNode().isContainer();
     }
-    
-    @Override
-    protected boolean lastPartialCompleted(EditorParser parser, LocatableToken token, int state)
-    {
-        return false;
-    };
     
     @Override
     protected boolean marksOwnEnd()

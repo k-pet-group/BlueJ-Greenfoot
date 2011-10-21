@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -30,7 +30,6 @@ import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.Reflective;
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.CodeSuggestions;
-import bluej.parser.EditorParser;
 import bluej.parser.JavaParser;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.PackageOrClass;
@@ -335,13 +334,6 @@ public class ParsedTypeNode extends IncrementalParsingNode
         }
         
         return PP_EPIC_FAIL;
-    }
-    
-    @Override
-    protected boolean lastPartialCompleted(EditorParser parser,
-            LocatableToken token, int state)
-    {
-        return state == 3;
     }
     
     @Override

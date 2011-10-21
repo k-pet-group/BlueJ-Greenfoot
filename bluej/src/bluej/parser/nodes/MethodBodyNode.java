@@ -22,14 +22,12 @@
 package bluej.parser.nodes;
 
 import bluej.debugger.gentype.Reflective;
-import bluej.parser.EditorParser;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.PackageOrClass;
 import bluej.parser.entity.ParsedReflective;
 import bluej.parser.entity.TypeEntity;
 import bluej.parser.entity.ValueEntity;
 import bluej.parser.lexer.JavaTokenTypes;
-import bluej.parser.lexer.LocatableToken;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 
 /**
@@ -79,12 +77,6 @@ public class MethodBodyNode extends IncrementalParsingNode
             }
         }
         return PP_OK;
-    }
-    
-    @Override
-    protected boolean lastPartialCompleted(EditorParser parser, LocatableToken token, int state)
-    {
-        return token != null;
     }
     
     @Override
