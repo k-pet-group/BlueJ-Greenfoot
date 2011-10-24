@@ -41,7 +41,7 @@ import bluej.parser.nodes.NodeTree.NodeAndPosition;
 public class MoeErrorManager implements MoeDocumentListener
 {
     /** Parse error delay in milliseconds */
-    // private static final int ERR_DISPLAY_DELAY = 1000;
+    private static final int ERR_DISPLAY_DELAY = 1000;
     
     // Error highlight colors
     private static final Color ERROR_HIGHLIGHT_GRADIENT1 = new Color(240,128,128);
@@ -54,7 +54,7 @@ public class MoeErrorManager implements MoeDocumentListener
     private Object errorHighlightTag = null;
     
     /** A timer used to delay the appearance of parse errors until the user is idle */
-    // private Timer timer;
+    private Timer timer;
     
     /** Parse errors that are currently being displayed */
     private NodeTree<ParseErrorNode> parseErrors = new NodeTree<ParseErrorNode>();
@@ -106,7 +106,6 @@ public class MoeErrorManager implements MoeDocumentListener
     /**
      * Notify the error manager of an insert update to the document.
      */
-    /*
     public void insertUpdate(DocumentEvent e)
     {
         NodeAndPosition<ParseErrorNode> nap = parseErrors.findNodeAtOrAfter(e.getOffset());
@@ -123,12 +122,10 @@ public class MoeErrorManager implements MoeDocumentListener
             timer.restart();
         }
     }
-    */
     
     /**
      * Notify the error manager of a remove update to the document.
      */
-    /*
     public void removeUpdate(DocumentEvent e)
     {
         NodeAndPosition<ParseErrorNode> nap = parseErrors.findNodeAtOrAfter(e.getOffset() + e.getLength());
@@ -149,7 +146,6 @@ public class MoeErrorManager implements MoeDocumentListener
             timer.restart();
         }
     }
-    */
     
     /**
      * Get the error code (or message) at a particular document position.
@@ -166,8 +162,7 @@ public class MoeErrorManager implements MoeDocumentListener
     @Override
     public void parseError(int position, int size, String message)
     {
-        /*
-        size = Math.max(1, size); // make size at least 1
+        //size = Math.max(1, size); // make size at least 1
 
         // Don't add this error if it overlaps an existing error:
         NodeAndPosition<ParseErrorNode> nap = parseErrors.findNodeAtOrAfter(position);
@@ -205,7 +200,6 @@ public class MoeErrorManager implements MoeDocumentListener
             timer.setRepeats(false);
             timer.start();
         }
-        */
     }    
     
     @Override
@@ -238,7 +232,6 @@ public class MoeErrorManager implements MoeDocumentListener
     /**
      * The timer expired... make pending errors visible
      */
-    /*
     private void timerExpiry()
     {
         NodeAndPosition<ParseErrorNode> nap = pendingErrors.findNodeAtOrAfter(0);
@@ -252,7 +245,8 @@ public class MoeErrorManager implements MoeDocumentListener
             int caretPos = sourcePane.getCaretPosition();
             
             try {
-                Object highlightTag = sourcePane.getHighlighter().addHighlight(
+                MoeHighlighter mhiliter = (MoeHighlighter) sourcePane.getHighlighter();
+                Object highlightTag = mhiliter.addHighlight(
                         position, position + size,
                         new MoeBorderHighlighterPainter(Color.RED, Color.RED, Color.PINK,
                                 Color.RED, Color.PINK)
@@ -277,5 +271,4 @@ public class MoeErrorManager implements MoeDocumentListener
         pendingErrors.clear();
         timer = null;
     }
-    */
 }
