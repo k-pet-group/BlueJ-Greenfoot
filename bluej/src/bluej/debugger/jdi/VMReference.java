@@ -281,6 +281,7 @@ class VMReference
                     // Synchronize to prevent problems.
                     synchronized (connector) {
                         String address = connector.startListening(arguments);
+                        Debug.log("Listening for JDWP connection on address: " + address);
                         paramList.add(transportIndex, "-Xrunjdwp:transport=" + connector.transport().name()
                                 + ",address=" + address);
                         launchParams = paramList.toArray(new String[paramList.size()]);
@@ -290,7 +291,6 @@ class VMReference
                             remoteVMprocess = launchVM(initDir, launchParams, term);
                         }
                         catch (Throwable t) {
-                            Debug.message("Caught exc after launchVM"); // DAV
                             connector.stopListening(arguments);
                             throw t;
                         }
@@ -299,7 +299,6 @@ class VMReference
                             machine = connector.accept(arguments);
                         }
                         catch (Throwable t) {
-                            Debug.message("Caught exc after connector.accept()"); // DAV
                             // failed to connect.
                             closeIO();
                             remoteVMprocess.destroy();
@@ -311,7 +310,7 @@ class VMReference
                         }
                     }
                     
-                    Debug.log("Connected to debug VM via dt_socket transport...");
+                    Debug.log("Connected to debug VM via " + connector.name() + " transport...");
                     setupEventHandling();
                     if (waitForStartup()) {
                         Debug.log("Communication with debug VM fully established.");
