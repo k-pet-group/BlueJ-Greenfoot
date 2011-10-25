@@ -47,6 +47,13 @@ public class NetworkTest
             lhost = InetAddress.getLocalHost();
             Debug.message("Local host address = " + lhost.getHostAddress());
             Debug.message("Local host ip = " + lhost.getHostAddress());
+
+            InetAddress[] names = InetAddress.getAllByName("localhost");
+            Debug.message("Addresses for 'localhost':");
+            for (InetAddress name : names) {
+                Debug.message(" -> " + name.getHostAddress());
+            }
+            Debug.message("(end of list).");
         }
         catch (UnknownHostException uhe) {
             Debug.message("(!!) UnknownHostException when getting local host address!");
