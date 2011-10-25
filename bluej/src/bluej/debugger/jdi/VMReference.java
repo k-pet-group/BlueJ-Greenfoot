@@ -310,7 +310,7 @@ class VMReference
                         }
                     }
                     
-                    Debug.log("Connected to debug VM via " + connector.name() + " transport...");
+                    Debug.log("Connected to debug VM via " + connector.transport().name() + " transport...");
                     setupEventHandling();
                     if (waitForStartup()) {
                         Debug.log("Communication with debug VM fully established.");
