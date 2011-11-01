@@ -1,23 +1,23 @@
 /*
- This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011  Michael Kolling and John Rosenberg 
+This file is part of the BlueJ program. 
+Copyright (C) 1999-2010,2011  Michael Kolling and John Rosenberg 
 
- This program is free software; you can redistribute it and/or 
- modify it under the terms of the GNU General Public License 
- as published by the Free Software Foundation; either version 2 
- of the License, or (at your option) any later version. 
+This program is free software; you can redistribute it and/or 
+modify it under the terms of the GNU General Public License 
+as published by the Free Software Foundation; either version 2 
+of the License, or (at your option) any later version. 
 
- This program is distributed in the hope that it will be useful, 
- but WITHOUT ANY WARRANTY; without even the implied warranty of 
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
- GNU General Public License for more details. 
+This program is distributed in the hope that it will be useful, 
+but WITHOUT ANY WARRANTY; without even the implied warranty of 
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+GNU General Public License for more details. 
 
- You should have received a copy of the GNU General Public License 
- along with this program; if not, write to the Free Software 
- Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
+You should have received a copy of the GNU General Public License 
+along with this program; if not, write to the Free Software 
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 
- This file is subject to the Classpath exception as provided in the  
- LICENSE.txt file that accompanied this code.
+This file is subject to the Classpath exception as provided in the  
+LICENSE.txt file that accompanied this code.
  */
 package bluej.editor.moe;
 
@@ -58,11 +58,11 @@ import bluej.utility.DBoxLayout;
  * of the find functionality.It also is a link to the replace panel.
  *
  * @author  Marion Zalk
+ * @author  Michael Kölling
  */
 public class FindPanel extends JPanel implements ActionListener, DocumentListener, MouseListener
 {
     private MoeEditor editor;
-
     private JComponent findBody;
     private DBox findTextBody;
     private DBox optionsBody;
@@ -76,13 +76,11 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     private JCheckBox matchCaseCheckBox;
     private JLabel replaceIconLabel;
     private JLabel closeIconLabel;
-
-    private String searchString=""; 
+    private String searchString = "";
     private static Font findFont;
     private ImageIcon openIcon;
     private ImageIcon closedIcon;
-
-    private int searchStart=-1;
+    private int searchStart = -1;
 
     /**
      * Constructor that creates and displays the different elements of the Find Panel
@@ -91,11 +89,11 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     {
         super(new BorderLayout());
         setBorder(BorderFactory.createEmptyBorder(2, 0, 5, 0));
-        openIcon=Config.getFixedImageAsIcon("bluej_arrow_open.gif");
-        closedIcon=Config.getFixedImageAsIcon("bluej_arrow_close.gif");
-        findFont=PrefMgr.getStandardFont();
+        openIcon = Config.getFixedImageAsIcon("bluej_arrow_open.gif");
+        closedIcon = Config.getFixedImageAsIcon("bluej_arrow_close.gif");
+        findFont = PrefMgr.getStandardFont();
 
-        editor=ed;
+        editor = ed;
         initDisplay();
 
         setFindDisplay();
@@ -104,9 +102,11 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         setPrevNextDisplay();
         setReplaceDisplay();
 
-        addDisplayElements();  
+        addDisplayElements();
 
-        findTField.addFocusListener(new FocusListener() {
+        findTField.addFocusListener(new FocusListener()
+        {
+
             public void focusGained(FocusEvent e)
             {
                 if (searchStart == -1) {
@@ -125,7 +125,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     @Override
     public void setVisible(boolean aFlag)
     {
-        if (aFlag && ! isVisible()) {
+        if (aFlag && !isVisible()) {
             // Remember the current caret location so we can revert to it if
             // the search term cannot be found.
             searchStart = editor.getCurrentTextPane().getSelectionStart();
@@ -150,17 +150,17 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     private void initDisplay()
     {
         findBody = new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.componentSpacingLarge, 0.5f);
-        findTextBody=new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.5f);
+        findTextBody = new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.5f);
         //prev, next
-        optionsBody=new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.5f);
-        mcBody=new DBox(DBoxLayout.X_AXIS, 0, 0, 0.5f);;
-        
+        optionsBody = new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.5f);
+        mcBody = new DBox(DBoxLayout.X_AXIS, 0, 0, 0.5f);
+
         findBody.setOpaque(false);
         findTextBody.setOpaque(false);
         optionsBody.setOpaque(false);
         mcBody.setOpaque(false);
 
-        closeBody=new JPanel(new BorderLayout());
+        closeBody = new JPanel(new BorderLayout());
         closeBody.setOpaque(false);
     }
 
@@ -185,7 +185,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         findLabelBox.add(findLabel);
         findLabelBox.setOpaque(false);
 
-        findTField=new JTextField(11);
+        findTField = new JTextField(11);
         findTField.setMaximumSize(findTField.getPreferredSize());
         findTField.setFont(findFont);
         setSearchString("");
@@ -199,22 +199,22 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     private void setPrevNextDisplay()
     {
-        previousButton=new JButton();
+        previousButton = new JButton();
         previousButton.addActionListener(this);
-        previousButton.setText(Config.getString("editor.findpanel.findPrevious")+" ");
+        previousButton.setText(Config.getString("editor.findpanel.findPrevious") + " ");
         previousButton.setEnabled(false);
         previousButton.setFont(findFont);
 
-        nextButton=new JButton();
+        nextButton = new JButton();
         nextButton.addActionListener(this);
         nextButton.setText(Config.getString("editor.findpanel.findNext"));
         nextButton.setEnabled(false);
         nextButton.setFont(findFont);
 
         if (Config.isMacOS()) {
-            previousButton.putClientProperty("JButton.buttonType", "segmentedCapsule");
+            previousButton.putClientProperty("JButton.buttonType", "segmentedTextured");
             previousButton.putClientProperty("JButton.segmentPosition", "first");
-            nextButton.putClientProperty("JButton.buttonType", "segmentedCapsule");
+            nextButton.putClientProperty("JButton.buttonType", "segmentedTextured");
             nextButton.putClientProperty("JButton.segmentPosition", "last");
         }
     }
@@ -224,7 +224,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     private void setCaseCheckDisplay()
     {
-        matchCaseCheckBox=new JCheckBox();
+        matchCaseCheckBox = new JCheckBox();
         matchCaseCheckBox.setText(Config.getString("editor.findpanel.matchCase"));
         matchCaseCheckBox.setSelected(false);
         matchCaseCheckBox.setFont(findFont);
@@ -245,7 +245,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     private void setCloseDisplay()
     {
-        closeIconLabel=new JLabel();
+        closeIconLabel = new JLabel();
         closeIconLabel.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 10));
         closeIconLabel.setIcon(Config.getFixedImageAsIcon("cross.png"));
         closeIconLabel.addMouseListener(this);
@@ -255,8 +255,8 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      * Initialise the buttons and labels for replace functionality
      */
     private void setReplaceDisplay()
-    { 
-        replaceIconLabel=new JLabel(Config.getString("editor.findpanel.replacePanel"));
+    {
+        replaceIconLabel = new JLabel(Config.getString("editor.findpanel.replacePanel"));
         replaceIconLabel.setFont(findFont);
         replaceIconLabel.setIcon(closedIcon);
         replaceIconLabel.addMouseListener(this);
@@ -276,8 +276,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
             buttonBox.add(previousButton);
             buttonBox.add(nextButton);
             optionsBody.add(buttonBox);
-        }
-        else {
+        } else {
             optionsBody.add(previousButton);
             optionsBody.add(nextButton);
         }
@@ -295,9 +294,11 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         add(findBody, BorderLayout.WEST);
         add(closeBody, BorderLayout.EAST);
 
-        KeyStroke keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE,0);
-        this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke ,"escapeAction");
-        this.getActionMap().put("escapeAction", new AbstractAction(){ //$NON-NLS-1$
+        KeyStroke keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
+        this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "escapeAction");
+        this.getActionMap().put("escapeAction", new AbstractAction()
+        { //$NON-NLS-1$
+
             public void actionPerformed(ActionEvent e)
             {
                 close();
@@ -310,17 +311,15 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      * Performs the required action dependent on source of action event 
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
-    public void actionPerformed(ActionEvent e) 
+    public void actionPerformed(ActionEvent e)
     {
         JComponent src = (JComponent) e.getSource();
 
-        if (src == nextButton || src == findTField) {  
+        if (src == nextButton || src == findTField) {
             getNext();
-        }
-        else if (src == previousButton) {
-            getPrev();   
-        }
-        else if (src == matchCaseCheckBox) {
+        } else if (src == previousButton) {
+            getPrev();
+        } else if (src == matchCaseCheckBox) {
             editor.getCurrentTextPane().setCaretPosition(editor.getCurrentTextPane().getSelectionStart());
             find(true);
         }
@@ -331,7 +330,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     public void getNext()
     {
-        editor.getCurrentTextPane().setCaretPosition((editor.getCurrentTextPane().getSelectionStart()+1));
+        editor.getCurrentTextPane().setCaretPosition((editor.getCurrentTextPane().getSelectionStart() + 1));
         find(true);
         editor.enableReplaceButtons();
     }
@@ -354,10 +353,10 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         int selBegin = editor.getCurrentTextPane().getSelectionStart();
 
         //check there has been a legitimate change in the search criteria            
-        if (getSearchString()!=null){
+        if (getSearchString() != null) {
             //previous search had a value and this search is empty
             //need to remove highlighting and have no message
-            if (findTField.getText().length()==0) {
+            if (findTField.getText().length() == 0) {
                 //need to reset the search to the beginning of the last selected
                 editor.removeSearchHighlights();
                 setSearchString(null);
@@ -382,16 +381,16 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      * the previous search String is used (if there is a previous search) 
      */
     public void displayFindPanel(String selection)
-    {    
-        if (selection==null) {
-            selection=getSearchString();
+    {
+        if (selection == null) {
+            selection = getSearchString();
         }
         setSearchString(selection);
         this.setVisible(true);
         populateFindTextfield(selection);
     }
 
-    public String getSearchString() 
+    public String getSearchString()
     {
         return searchString;
     }
@@ -400,7 +399,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      * Sets the text in the textfield and resets the searchString to the new text
      * @param searchString
      */
-    public void setSearchString(String searchString) 
+    public void setSearchString(String searchString)
     {
         this.searchString = searchString;
     }
@@ -412,8 +411,8 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     private void updateDisplay(boolean enable)
     {
         previousButton.setEnabled(enable);
-        nextButton.setEnabled(enable); 
-        editor.enableReplaceButtons(enable); 
+        nextButton.setEnabled(enable);
+        editor.enableReplaceButtons(enable);
     }
 
     /**
@@ -423,9 +422,9 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      * @param src JTextField is the source and focus is reset there and searchQuery is reset
      */
     private void setFindValues()
-    {  
+    {
         setSearchString(findTField.getText());
-        findTField.requestFocus(); 
+        findTField.requestFocus();
     }
 
     /**
@@ -436,7 +435,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     public boolean highlightAll(boolean ignoreCase, boolean forwards)
     {
-        int counter = search(ignoreCase, true, forwards) ;
+        int counter = search(ignoreCase, true, forwards);
         //if there was nothing found, need to move the caret back to its original position
         //also need to disable buttons accordingly
         if (counter < 1) {
@@ -445,9 +444,9 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
             }
             previousButton.setEnabled(false);
             nextButton.setEnabled(false);
-            editor.enableReplaceButtons(false); 
+            editor.enableReplaceButtons(false);
         }
-        writeMessage(true, counter); 
+        writeMessage(true, counter);
         return counter != 0;
     }
 
@@ -457,25 +456,24 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     private void writeMessage(boolean emptyMessage, int counter)
     {
-        if (!emptyMessage){
+        if (!emptyMessage) {
             editor.writeMessage(" ");
             return;
         }
 
-        if(counter > 0){
-            if (editor.getCurrentTextPane().getSelectedText()!=null){
+        if (counter > 0) {
+            if (editor.getCurrentTextPane().getSelectedText() != null) {
                 //move the caret to the beginning of the selected item
                 //editor.moveCaretPosition(editor.getCaretPosition()-getSearchString().length());
             }
-            editor.writeMessage(Config.getString("editor.highlight.found").trim() + " " +
-                    counter + " " + Config.getString("editor.replaceAll.intancesOf").trim() + " " +
-                    getSearchString());
-        }
-        else{
+            editor.writeMessage(Config.getString("editor.highlight.found").trim() + " "
+                    + counter + " " + Config.getString("editor.replaceAll.intancesOf").trim() + " "
+                    + getSearchString());
+        } else {
             //only write msg if there was a search string
-            if (counter<1 && getSearchString().length()>0) {               
-                editor.writeMessage(Config.getString("editor.replaceAll.string").trim() + " " +
-                        getSearchString()+ " " + Config.getString("editor.highlight.notFound").trim());
+            if (counter < 1 && getSearchString().length() > 0) {
+                editor.writeMessage(Config.getString("editor.replaceAll.string").trim() + " "
+                        + getSearchString() + " " + Config.getString("editor.highlight.notFound").trim());
 
             }
         }
@@ -487,25 +485,25 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     private int search(boolean ignoreCase, boolean wrap, boolean next)
     {
-        String searchString = getSearchString();  
-        if (searchString.length()==0) {
+        String searchStr = getSearchString();
+        if (searchStr.length() == 0) {
             return 0;
         }
 
         int found;
-        if (!next){
-            editor.doFindBackward(searchString, ignoreCase, wrap);
+        if (!next) {
+            editor.doFindBackward(searchStr, ignoreCase, wrap);
         } else {
-            editor.doFind(searchString, ignoreCase, wrap);
+            editor.doFind(searchStr, ignoreCase, wrap);
         }
-        
+
         // position the caret so that following doFindSelect finds the correct occurrence
-        int caretPos=editor.getCurrentTextPane().getCaretPosition();
-        if (caretPos>getSearchString().length()) {
-            caretPos=editor.getCurrentTextPane().getCaretPosition() - searchString.length();
+        int caretPos = editor.getCurrentTextPane().getCaretPosition();
+        if (caretPos > getSearchString().length()) {
+            caretPos = editor.getCurrentTextPane().getCaretPosition() - searchStr.length();
         }
         editor.getCurrentTextPane().setCaretPosition(caretPos);
-        found=editor.doFindSelect(searchString, ignoreCase, wrap);
+        found = editor.doFindSelect(searchStr, ignoreCase, wrap);
         return found;
     }
 
@@ -515,22 +513,24 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     protected boolean find(boolean forward)
     {
-        setFindValues(); 
+        setFindValues();
         editor.removeSearchHighlights();
         return highlightAll(!matchCaseCheckBox.isSelected(), forward);
     }
 
     public String getSearchTextfield()
     {
-        return findTField.getText();   
+        return findTField.getText();
     }
 
-    public void changedUpdate(DocumentEvent e) {  }
+    public void changedUpdate(DocumentEvent e)
+    {
+    }
 
     /**
      * Initiates a find
      */
-    public void insertUpdate(DocumentEvent e) 
+    public void insertUpdate(DocumentEvent e)
     {
         findEvent();
     }
@@ -538,9 +538,9 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     /**
      * Initiates a find
      */
-    public void removeUpdate(DocumentEvent e) 
+    public void removeUpdate(DocumentEvent e)
     {
-        if (findTField.getText().length()==0) {
+        if (findTField.getText().length() == 0) {
             //need to reset the search to the beginning of the last selected
             editor.removeSearchHighlights();
             editor.removeSelections();
@@ -550,8 +550,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
             }
             writeMessage(false, 0);
             updateDisplay(false);
-        }
-        else {
+        } else {
             findEvent();
         }
     }
@@ -575,20 +574,27 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
             editor.toggleReplacePanelVisible();
             if (replaceIconLabel.getIcon() == openIcon) {
                 replaceIconLabel.setIcon(closedIcon);
-            }
-            else if (replaceIconLabel.getIcon() == closedIcon) {
+            } else if (replaceIconLabel.getIcon() == closedIcon) {
                 replaceIconLabel.setIcon(openIcon);
             }
         }
     }
 
-    public void mouseEntered(MouseEvent e) {  }
+    public void mouseEntered(MouseEvent e)
+    {
+    }
 
-    public void mouseExited(MouseEvent e) {  }
+    public void mouseExited(MouseEvent e)
+    {
+    }
 
-    public void mousePressed(MouseEvent e) {  }
+    public void mousePressed(MouseEvent e)
+    {
+    }
 
-    public void mouseReleased(MouseEvent e) {  }
+    public void mouseReleased(MouseEvent e)
+    {
+    }
 
     public void setTextfieldSelected()
     {
@@ -603,8 +609,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     {
         if (open) {
             replaceIconLabel.setIcon(openIcon);
-        }
-        else {
+        } else {
             replaceIconLabel.setIcon(closedIcon);
         }
     }
@@ -626,11 +631,11 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      * 
      * @return text field for search text
      */
-    protected JTextField getFindTField() 
+    protected JTextField getFindTField()
     {
         return findTField;
-    } 
-    
+    }
+
     /**
      * Puts the focus in the find field
      */
@@ -638,17 +643,17 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     {
         findTField.requestFocus();
     }
-    
+
     /**
      * Populates the field and puts the focus in the text field
      */
     protected void populateFindTextfield(String selection)
     {
-        setfindTextField(selection); 
+        setfindTextField(selection);
         findTField.selectAll();
         findTField.requestFocus();
     }
-    
+
     /**
      * Allows the replace button to be en/disabled
      * @param isEnable true for enable; false if not
@@ -657,16 +662,16 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     {
         replaceIconLabel.setEnabled(isEnabled);
         //if it is in documentation view (i.e disabled) the icon should be closed (even though it is disabled)
-        if (!isEnabled){
+        if (!isEnabled) {
             setFindReplaceIcon(false);
-        }           
+        }
     }
 
     /**
      * Returns current search location
      * @return current search location
      */
-    protected int getSearchStart() 
+    protected int getSearchStart()
     {
         return searchStart;
     }
@@ -675,9 +680,8 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      * Sets the search location to the specified value
      * @param searchStart SourceLocation specifying the beginning of the search
      */
-    protected void setSearchStart(int searchStart) 
+    protected void setSearchStart(int searchStart)
     {
         this.searchStart = searchStart;
     }
-
 }
