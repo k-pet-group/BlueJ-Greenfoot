@@ -30,13 +30,20 @@ import java.util.Properties;
 import java.util.UUID;
 
 import com.apple.eawt.Application;
+import com.apple.eawt.AppEvent;
+import com.apple.eawt.QuitResponse;
 
 import bluej.extensions.event.ApplicationEvent;
 import bluej.extmgr.ExtensionsManager;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
+import bluej.pkgmgr.actions.HelpAboutAction;
+import bluej.pkgmgr.actions.PreferencesAction;
+import bluej.pkgmgr.actions.QuitAction;
 import bluej.utility.Debug;
+import bluej.utility.DialogManager;
+import java.util.List;
 
 /**
  * BlueJ starts here. The Boot class, which is responsible for dealing with
@@ -58,6 +65,8 @@ public class Main
     
     /** On MacOS X, this will be set to the project we should open (if any) */ 
     private static File initialProject;
+
+    private static QuitResponse macEventResponse = null;  // used to respond to external quit events on MacOS
 
     /**
      * Entry point to starting up the system. Initialise the system and start
@@ -127,7 +136,7 @@ public class Main
         if (!oneOpened) {
             // check for orphans...
             boolean openOrphans = "true".equals(Config.getPropString("bluej.autoOpenLastProject"));
-            if (openOrphans && PkgMgrFrame.hadOrphanPackages()) {
+            if (openOrphans && hadOrphanPackages()) {
                 String exists = "";
                 // iterate through unknown number of orphans
                 for (int i = 1; exists != null; i++) {
@@ -158,7 +167,7 @@ public class Main
         Boot.getInstance().disposeSplashWindow();
         ExtensionsManager.getInstance().delegateEvent(new ApplicationEvent(ApplicationEvent.APP_READY_EVENT));
     }
-    
+
     /**
      * Prepare MacOS specific behaviour (About menu, Preferences menu, Quit
      * menu)
@@ -166,38 +175,141 @@ public class Main
     private static void prepareMacOSApp()
     {
         Application macApp = Application.getApplication();
+
         if (macApp != null) {
-            macApp.setEnabledPreferencesMenu(true);
-            macApp.addApplicationListener(new com.apple.eawt.ApplicationAdapter() {
-                @Override
-                public void handleAbout(com.apple.eawt.ApplicationEvent e)
-                {
-                    PkgMgrFrame.handleAbout();
-                    e.setHandled(true);
-                }
 
-                public void handlePreferences(com.apple.eawt.ApplicationEvent e)
+            macApp.setAboutHandler(new com.apple.eawt.AboutHandler() {
+                public void handleAbout(AppEvent.AboutEvent e)
                 {
-                    PkgMgrFrame.handlePreferences();
-                    e.setHandled(true);
+                    HelpAboutAction.getInstance().actionPerformed(PkgMgrFrame.getMostRecent());
                 }
+            });
 
-                public void handleQuit(com.apple.eawt.ApplicationEvent e)
+            macApp.setPreferencesHandler(new com.apple.eawt.PreferencesHandler() {
+                public void handlePreferences(AppEvent.PreferencesEvent e)
                 {
-                    PkgMgrFrame.handleQuit();
+                    PreferencesAction.getInstance().actionPerformed(PkgMgrFrame.getMostRecent());
                 }
+            });
 
-                public void handleOpenFile(com.apple.eawt.ApplicationEvent event) 
+            macApp.setQuitHandler(new com.apple.eawt.QuitHandler() {
+                public void handleQuitRequestWith(AppEvent.QuitEvent e, QuitResponse response)
                 {
-                    if (launched) {
-                        String projectPath = event.getFilename();
-                        PkgMgrFrame.doOpen(new File(projectPath), null);
-                    }
-                    else {
-                        initialProject = new File(event.getFilename());
+                    macEventResponse = response;
+                    QuitAction.getInstance().actionPerformed(PkgMgrFrame.getMostRecent());
+                    // response.confirmQuit() does not need to be called, since System.exit(0) is called explcitly
+                    // response.cancelQuit() is called to cancel (in wantToQuit())
+                }
+            });
+
+            macApp.setOpenFileHandler(new com.apple.eawt.OpenFilesHandler() {
+                public void openFiles(AppEvent.OpenFilesEvent e)
+                {
+                    List<File> files = e.getFiles();
+                    for(File file : files) {
+                        PkgMgrFrame.doOpen(file, null);
                     }
                 }
             });
+        }
+    }
+
+    /**
+     * Quit menu item was chosen.
+     */
+    public static void wantToQuit()
+    {
+        int answer = 0;
+        if (Project.getOpenProjectCount() > 1)
+            answer = DialogManager.askQuestion(PkgMgrFrame.getMostRecent(), "quit-all");
+        if (answer == 0) {
+            doQuit();
+        }
+        else {
+            if(macEventResponse != null) {
+                macEventResponse.cancelQuit();
+                macEventResponse = null;
+            }
+        }
+    }
+
+
+    /**
+     * perform the closing down and quitting of BlueJ. Note that the order of
+     * the events is relevant - Extensions should be unloaded after package
+     * close
+     */
+    public static void doQuit()
+    {
+        PkgMgrFrame[] pkgFrames = PkgMgrFrame.getAllFrames();
+
+        // handle open packages so they are re-opened on startup
+        handleOrphanPackages(pkgFrames);
+
+        // We replicate some of the behaviour of doClose() here
+        // rather than call it to avoid a nasty recursion
+        for (int i = pkgFrames.length - 1; i >= 0; i--) {
+            PkgMgrFrame aFrame = pkgFrames[i];
+            aFrame.doSave();
+            aFrame.closePackage();
+            PkgMgrFrame.closeFrame(aFrame);
+        }
+
+        ExtensionsManager extMgr = ExtensionsManager.getInstance();
+        extMgr.unloadExtensions();
+        bluej.Main.exit();
+    }
+
+    /**
+     * When bluej is exited with open packages we want it to open these the next
+     * time that is started (this is default action, can be changed by setting
+     *
+     * @param openFrames
+     */
+    private static void handleOrphanPackages(PkgMgrFrame[] openFrames)
+    {
+        // if there was a previous list, delete it
+        if (hadOrphanPackages())
+            removeOrphanPackageList();
+        // add an entry for each open package
+        for (int i = 0; i < openFrames.length; i++) {
+            PkgMgrFrame aFrame = openFrames[i];
+            if (!aFrame.isEmptyFrame()) {
+                Config.putPropString(Config.BLUEJ_OPENPACKAGE + (i + 1), aFrame.getPackage().getPath().toString());
+            }
+        }
+    }
+
+    /**
+     * Checks if there were orphan packages on last exit by looking for
+     * existence of a valid BlueJ project among the saved values for the
+     * orphaned packages.
+     *
+     * @return whether a valid orphaned package exist.
+     */
+    public static boolean hadOrphanPackages()
+    {
+        String dir = "";
+        // iterate through unknown number of orphans
+        for (int i = 1; dir != null; i++) {
+            dir = Config.getPropString(Config.BLUEJ_OPENPACKAGE + i, null);
+            if (dir != null) {
+                if(Project.isProject(dir)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * removes previously listed orphan packages from bluej properties
+     */
+    private static void removeOrphanPackageList()
+    {
+        String exists = "";
+        for (int i = 1; exists != null; i++) {
+            exists = Config.removeProperty(Config.BLUEJ_OPENPACKAGE + i);
         }
     }
 

@@ -292,7 +292,7 @@ public class PkgMgrFrame extends JFrame
     private static ExtensionsManager extMgr = ExtensionsManager.getInstance();
 
     private ExportManager exporter;
-    
+
     /**
      * Open a PkgMgrFrame with no package. Packages can be installed into this
      * frame using the methods openPackage/closePackage.
@@ -435,7 +435,7 @@ public class PkgMgrFrame extends JFrame
             }
         }
 
-        if (list.size() == 0)
+        if (list.isEmpty())
             return null;
 
         return list.toArray(new PkgMgrFrame[list.size()]);
@@ -748,7 +748,7 @@ public class PkgMgrFrame extends JFrame
             else {
                 showTestingTools(wantToSeeTestingTools());
             }                
-        };
+        }
 
         extMgr.packageOpened(pkg);
     }
@@ -798,7 +798,7 @@ public class PkgMgrFrame extends JFrame
     /**
      * Closes the current package.
      */
-    private void closePackage()
+    public void closePackage()
     {
         if (isEmptyFrame()) {
             return;
@@ -837,13 +837,13 @@ public class PkgMgrFrame extends JFrame
     /**
      * Override standard show to add de-iconify and bring-to-front.
      */
+    @Override
     public void setVisible(boolean visible)
     {
         if(!visible) {
             super.setVisible(false);
         }
         else if (!Config.isGreenfoot()) {
-//        else if (true) {
             super.setVisible(true);
             setState(Frame.NORMAL);
         }
@@ -1429,7 +1429,7 @@ public class PkgMgrFrame extends JFrame
                 menuManager.addExtensionMenu(null);
             }
             else { // all frames gone, lets quit
-                doQuit();
+                bluej.Main.doQuit();
             }
         }
         else {
@@ -1439,99 +1439,9 @@ public class PkgMgrFrame extends JFrame
     }
 
     /**
-     * Quit menu item was chosen.
-     */
-    public void wantToQuit()
-    {
-        int answer = 0;
-        if (Project.getOpenProjectCount() > 1)
-            answer = DialogManager.askQuestion(this, "quit-all");
-        if (answer == 0)
-            doQuit();
-    }
-
-    /**
-     * perform the closing down and quitting of BlueJ. Note that the order of
-     * the events is relevant - Extensions should be unloaded after package
-     * close
-     */
-    private void doQuit()
-    {
-        PkgMgrFrame[] pkgFrames = getAllFrames();
-
-        // handle open packages so they are re-opened on startup
-        handleOrphanPackages(pkgFrames);
-
-        // We replicate some of the behaviour of doClose() here
-        // rather than call it to avoid a nasty recursion
-        for (int i = pkgFrames.length - 1; i >= 0; i--) {
-            PkgMgrFrame aFrame = pkgFrames[i];
-            aFrame.doSave();
-            aFrame.closePackage();
-            PkgMgrFrame.closeFrame(aFrame);
-        }
-
-        extMgr.unloadExtensions();
-        bluej.Main.exit();
-    }
-
-    /**
-     * When bluej is exited with open packages we want it to open these the next
-     * time that is started (this is default action, can be changed by setting
-     * 
-     * @param openFrames
-     */
-    private void handleOrphanPackages(PkgMgrFrame[] openFrames)
-    {
-        // if there was a previous list, delete it
-        if (hadOrphanPackages())
-            removeOrphanPackageList();
-        // add an entry for each open package
-        for (int i = 0; i < openFrames.length; i++) {
-            PkgMgrFrame aFrame = openFrames[i];
-            if (!aFrame.isEmptyFrame()) {
-                Config.putPropString(Config.BLUEJ_OPENPACKAGE + (i + 1), aFrame.getPackage().getPath().toString());
-            }
-        }
-    }
-
-    /**
-     * Checks if there were orphan packages on last exit by looking for
-     * existence of a valid BlueJ project among the saved values for the
-     * orphaned packages.
-     * 
-     * @return whether a valid orphaned package exist.
-     */
-    public static boolean hadOrphanPackages()
-    {
-        String dir = "";
-        // iterate through unknown number of orphans
-        for (int i = 1; dir != null; i++) {
-            dir = Config.getPropString(Config.BLUEJ_OPENPACKAGE + i, null);
-            if (dir != null) {
-                if(Project.isProject(dir)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    /**
-     * removes previously listed orphan packages from bluej properties
-     */
-    private void removeOrphanPackageList()
-    {
-        String exists = "";
-        for (int i = 1; exists != null; i++) {
-            exists = Config.removeProperty(Config.BLUEJ_OPENPACKAGE + i);
-        }
-    }
-
-    /**
      * Save this package. Don't ask questions - just do it.
      */
-    protected void doSave()
+    public void doSave()
     {
         if (isEmptyFrame()) {
             return;
@@ -2575,7 +2485,7 @@ public class PkgMgrFrame extends JFrame
                 break;
             case BlueJEvent.CREATE_VM_FAILED :
                 DialogManager.showError(this, "error-create-vm");
-                doQuit();
+                bluej.Main.doQuit();
                 break;
         }
     }
@@ -2623,6 +2533,7 @@ public class PkgMgrFrame extends JFrame
     /**
      * String representation for debugging only.
      */
+    @Override
     public String toString()
     {
         String str = "PkgMgrFrame(): ";
@@ -2888,6 +2799,7 @@ public class PkgMgrFrame extends JFrame
         pack();
 
         addWindowListener(new WindowAdapter() {
+            @Override
             public void windowClosing(WindowEvent E)
             {
                 PkgMgrFrame pmf = (PkgMgrFrame) E.getWindow();
