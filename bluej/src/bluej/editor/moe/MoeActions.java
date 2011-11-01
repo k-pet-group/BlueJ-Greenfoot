@@ -401,22 +401,6 @@ public final class MoeActions
 
             // set up bindings for new actions in recent releases
 
-            if (version < 130) {
-                keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_TAB, 0), 
-                        (Action) (actions.get("indent")));
-                keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_TAB, Event.SHIFT_MASK),
-                        (Action) (actions.get("insert-tab")));
-                keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), 
-                        (Action) (actions.get("new-line")));
-                keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, Event.SHIFT_MASK),
-                        (Action) (actions.get("insert-break")));
-            }
-            if (version < 200) {
-                keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_TAB, Event.SHIFT_MASK), 
-                        (Action) (actions.get("de-indent")));
-                keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_I, SHORTCUT_MASK), 
-                        (Action) (actions.get("insert-tab")));
-            }
             if (version < 252) {
                 keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, SHORTCUT_MASK),
                         (Action) (actions.get("increase-font")));
@@ -721,10 +705,7 @@ public final class MoeActions
 
         public void actionPerformed(ActionEvent e)
         {
-            MoeEditor editor = getEditor(e);
-            editor.undoManager.beginCompoundEdit();
-            blockAction(editor, new IndentLineAction());
-            editor.undoManager.endCompoundEdit();
+            doBlockIndent(getEditor(e));
         }
     }
 
@@ -740,10 +721,7 @@ public final class MoeActions
 
         public void actionPerformed(ActionEvent e)
         {
-            MoeEditor editor = getEditor(e);
-            editor.undoManager.beginCompoundEdit();
-            blockAction(editor, new DeindentLineAction());
-            editor.undoManager.endCompoundEdit();
+            doBlockDeIndent(getEditor(e));
         }
     }
 
@@ -900,22 +878,27 @@ public final class MoeActions
             JTextComponent textPane = getTextComponent(e);
             MoeEditor ed = getEditor(e);
 
-            // if necessary, convert all TABs in the current editor to spaces
-            int converted = 0;
-            if (ed.checkExpandTabs()) {
-                // do TABs need expanding?
-                ed.setCaretActive(false);
-                converted = convertTabsToSpaces(textPane);
-                ed.setCaretActive(true);
+            if(haveSelection(textPane)) {
+                doBlockIndent(ed);
             }
+            else {
+                // if necessary, convert all TABs in the current editor to spaces
+                int converted = 0;
+                if (ed.checkExpandTabs()) {
+                    // do TABs need expanding?
+                    ed.setCaretActive(false);
+                    converted = convertTabsToSpaces(textPane);
+                    ed.setCaretActive(true);
+                }
 
-            if (PrefMgr.getFlag(PrefMgr.AUTO_INDENT))
-                doIndent(textPane, false);
-            else
-                insertSpacedTab(textPane);
+                if (PrefMgr.getFlag(PrefMgr.AUTO_INDENT))
+                    doIndent(textPane, false);
+                else
+                    insertSpacedTab(textPane);
 
-            if (converted > 0)
-                ed.writeMessage(Config.getString("editor.info.tabsExpanded"));
+                if (converted > 0)
+                    ed.writeMessage(Config.getString("editor.info.tabsExpanded"));
+            }
         }
     }
 
@@ -934,16 +917,21 @@ public final class MoeActions
             JTextComponent textPane = getTextComponent(e);
             MoeEditor ed = getEditor(e);
 
-            // if necessary, convert all TABs in the current editor to spaces
-            if (ed.checkExpandTabs()) { // do TABs need expanding?
-                ed.setCaretActive(false);
-                int converted = convertTabsToSpaces(textPane);
-                ed.setCaretActive(true);
-
-                if (converted > 0)
-                    ed.writeMessage(Config.getString("editor.info.tabsExpanded"));
+            if(haveSelection(textPane)) {
+                doBlockDeIndent(ed);
             }
-            doDeIndent(textPane);
+            else {
+                // if necessary, convert all TABs in the current editor to spaces
+                if (ed.checkExpandTabs()) { // do TABs need expanding?
+                    ed.setCaretActive(false);
+                    int converted = convertTabsToSpaces(textPane);
+                    ed.setCaretActive(true);
+
+                    if (converted > 0)
+                        ed.writeMessage(Config.getString("editor.info.tabsExpanded"));
+                }
+                doDeIndent(textPane);
+            }
         }
     }
 
@@ -1618,6 +1606,16 @@ public final class MoeActions
     // ========================= SUPPORT ROUTINES ==========================
 
     /**
+     * Check whether any text is currently selected.
+     * @return True, if a selection is active.
+     */
+    private boolean haveSelection(JTextComponent textPane)
+    {
+        Caret caret = textPane.getCaret();
+        return caret.getMark() != caret.getDot();
+    }
+
+    /**
      * Add the current selection of the text component to the clipboard.
      */
     public void addSelectionToClipboard(JTextComponent textComponent)
@@ -1827,6 +1825,28 @@ public final class MoeActions
             }
         }
         catch (BadLocationException exc) {}
+    }
+
+    /**
+     * Indent a block of lines (defined by the current selection) by one
+     * additional level.
+     */
+    private void doBlockIndent(MoeEditor editor)
+    {
+        editor.undoManager.beginCompoundEdit();
+        blockAction(editor, new IndentLineAction());
+        editor.undoManager.endCompoundEdit();
+    }
+
+    /**
+     * De-indent a block of lines (defined by the current selection) by one
+     * level.
+     */
+    private void doBlockDeIndent(MoeEditor editor)
+    {
+        editor.undoManager.beginCompoundEdit();
+        blockAction(editor, new DeindentLineAction());
+        editor.undoManager.endCompoundEdit();
     }
 
     /**
