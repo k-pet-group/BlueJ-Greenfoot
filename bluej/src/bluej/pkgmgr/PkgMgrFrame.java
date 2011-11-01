@@ -448,19 +448,19 @@ public class PkgMgrFrame extends JFrame
      */
     public static PkgMgrFrame getMostRecent()
     {
-        PkgMgrFrame[] frames = getAllFrames();
+        PkgMgrFrame[] allFrames = getAllFrames();
 
         // If there are no frames open, yet...
-        if (frames.length < 1)
+        if (allFrames.length < 1)
             return null;
 
         // Assume that the most recent is the first one. Not really the best
         // thing to do...
-        PkgMgrFrame mostRecent = frames[0];
+        PkgMgrFrame mostRecent = allFrames[0];
 
-        for (int i = 0; i < frames.length; i++)
-            if (frames[i].getFocusOwner() != null)
-                mostRecent = frames[i];
+        for (int i = 0; i < allFrames.length; i++)
+            if (allFrames[i].getFocusOwner() != null)
+                mostRecent = allFrames[i];
 
         return mostRecent;
     }
@@ -879,7 +879,7 @@ public class PkgMgrFrame extends JFrame
     /**
      * Set the window title to show the current package name.
      */
-    protected String updateWindowTitle()
+    protected final String updateWindowTitle()
     {
         if (isEmptyFrame()) {
             setTitle("BlueJ");
@@ -902,7 +902,7 @@ public class PkgMgrFrame extends JFrame
     /**
      * Display a message in the status bar of the frame
      */
-    public void setStatus(final String status)
+    public final void setStatus(final String status)
     {
          EventQueue.invokeLater(new Runnable() {
             public void run() {
@@ -1294,17 +1294,17 @@ public class PkgMgrFrame extends JFrame
         if (openProj == null)
             return false;
         else {
-            Package pkg = openProj.getPackage(openProj.getInitialPackageName());
+            Package initialPkg = openProj.getPackage(openProj.getInitialPackageName());
 
-            PkgMgrFrame pmf = findFrame(pkg);
+            PkgMgrFrame pmf = findFrame(initialPkg);
 
             if (pmf == null) {
                 if (isEmptyFrame()) {
                     pmf = this;
-                    openPackage(pkg);
+                    openPackage(initialPkg);
                 }
                 else {
-                    pmf = createFrame(pkg);
+                    pmf = createFrame(initialPkg);
 
                     DialogManager.tileWindow(pmf, this);
                 }
@@ -1391,11 +1391,11 @@ public class PkgMgrFrame extends JFrame
      */
     public static void closeProject(Project project) 
     {
-        PkgMgrFrame[] frames = getAllProjectFrames(project);
+        PkgMgrFrame[] allFrames = getAllProjectFrames(project);
 
-        if (frames != null) {
-            for (int i = 0; i < frames.length; i++) {
-                frames[i].doClose(true, true);
+        if (allFrames != null) {
+            for (int i = 0; i < allFrames.length; i++) {
+                allFrames[i].doClose(true, true);
             }
         }
     }
@@ -1468,8 +1468,8 @@ public class PkgMgrFrame extends JFrame
             p.put("package.editor.x", Integer.toString(point.x));
             p.put("package.editor.y", Integer.toString(point.y));
     
-            p.put("package.showUses", new Boolean(isShowUses()).toString());
-            p.put("package.showExtends", new Boolean(isShowExtends()).toString());
+            p.put("package.showUses", Boolean.toString(isShowUses()));
+            p.put("package.showExtends", Boolean.toString(isShowExtends()));
         }
         pkg.save(p);
     }
