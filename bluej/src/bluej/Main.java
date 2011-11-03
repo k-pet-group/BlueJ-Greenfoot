@@ -86,7 +86,8 @@ public class Main
         // event will be generated once we add a listener and will be delivered on
         // the dispatch thread. It will then be processed before the call to
         // processArgs() (just below) is called.
-        prepareMacOSApp();
+        if (Config.isMacOS())
+            prepareMacOSApp();
 
         // process command line arguments, start BlueJ!
         EventQueue.invokeLater(new Runnable() {
@@ -171,7 +172,7 @@ public class Main
     /**
      * Prepare MacOS specific behaviour (About menu, Preferences menu, Quit
      * menu)
-     */
+     */ 
     private static void prepareMacOSApp()
     {
         Application macApp = Application.getApplication();
