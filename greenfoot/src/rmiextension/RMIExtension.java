@@ -29,12 +29,12 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import bluej.Config;
+import bluej.Main;
 import bluej.extensions.BProject;
 import bluej.extensions.BlueJ;
 import bluej.extensions.Extension;
 import bluej.extensions.event.ApplicationEvent;
 import bluej.extensions.event.ApplicationListener;
-import bluej.pkgmgr.PkgMgrFrame;
 import bluej.utility.Debug;
 
 /**
@@ -49,6 +49,7 @@ public class RMIExtension extends Extension implements ApplicationListener
     /**
      * When this method is called, the extension may start its work.
      */
+    @SuppressWarnings("ResultOfObjectAllocationIgnored")
     public void startup(BlueJ bluej)
     {
         theBlueJ = bluej;
@@ -75,7 +76,7 @@ public class RMIExtension extends Extension implements ApplicationListener
         // Now we need to find out if a greenfoot project is automatically
         // opening. If not we must open the dummy project.
         boolean openOrphans = "true".equals(Config.getPropString("bluej.autoOpenLastProject"));
-        if (!openOrphans || !PkgMgrFrame.hadOrphanPackages()) {
+        if (!openOrphans || !Main.hadOrphanPackages()) {
             if (theBlueJ.getOpenProjects().length == 0) {
                 openProject(projectPath);
             }
@@ -136,6 +137,7 @@ public class RMIExtension extends Extension implements ApplicationListener
         return ("greenfoot Extension");
     }
 
+    @Override
     public String getDescription()
     {
         return ("greenfoot extension");
@@ -145,6 +147,7 @@ public class RMIExtension extends Extension implements ApplicationListener
      * Returns a URL where you can find info on this extension. The real problem
      * is making sure that the link will still be alive in three years...
      */
+    @Override
     public URL getURL()
     {
         try {
