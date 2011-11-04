@@ -91,6 +91,7 @@ public class Main
 
         // process command line arguments, start BlueJ!
         EventQueue.invokeLater(new Runnable() {
+            @Override
             public void run()
             {
                 processArgs(args);
@@ -99,6 +100,7 @@ public class Main
         
         // Send usage data back to bluej.org
         new Thread() {
+            @Override
             public void run()
             {
                 updateStats();
@@ -180,6 +182,7 @@ public class Main
         if (macApp != null) {
 
             macApp.setAboutHandler(new com.apple.eawt.AboutHandler() {
+                @Override
                 public void handleAbout(AppEvent.AboutEvent e)
                 {
                     HelpAboutAction.getInstance().actionPerformed(PkgMgrFrame.getMostRecent());
@@ -187,6 +190,7 @@ public class Main
             });
 
             macApp.setPreferencesHandler(new com.apple.eawt.PreferencesHandler() {
+                @Override
                 public void handlePreferences(AppEvent.PreferencesEvent e)
                 {
                     PreferencesAction.getInstance().actionPerformed(PkgMgrFrame.getMostRecent());
@@ -194,6 +198,7 @@ public class Main
             });
 
             macApp.setQuitHandler(new com.apple.eawt.QuitHandler() {
+                @Override
                 public void handleQuitRequestWith(AppEvent.QuitEvent e, QuitResponse response)
                 {
                     macEventResponse = response;
@@ -204,6 +209,7 @@ public class Main
             });
 
             macApp.setOpenFileHandler(new com.apple.eawt.OpenFilesHandler() {
+                @Override
                 public void openFiles(AppEvent.OpenFilesEvent e)
                 {
                     List<File> files = e.getFiles();
