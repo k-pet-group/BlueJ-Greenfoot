@@ -193,6 +193,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
                 classpathref="bluej.class.path" 
                 debug="true">
             <compilerarg line="-target 1.6" />
+            <compilerarg line="-source 1.6" /> <!-- Otherwise Java 7 (and above) complains -->
         </javac>
         <!-- Compile the RMI-classes -->
         <rmic base="${build}" includes="**/*Impl.class" excludes="bluej/**">
