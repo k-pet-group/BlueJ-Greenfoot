@@ -64,16 +64,7 @@ PART II - RELEASING BLUEJ
 10. Update the file www.bluej.org/version.info
     The real location currently is: dodo:~bluej/www/version.info
 
-11. Update the description and BlueJ distribution files for the Extension Manager
-    (Updater) extension:
-     - Copy the Mac distribution bluej-XXX.zip to extensions/extupdater/bluej_update_mac.zip
-     - Copy the Windows distribution bluejsetup-XXX.exe to extensions/extupdater/bluej_update_win.exe
-     - Use "ant bluej-updates" in that directory to build bluej_update_win.jar and bluej_update_mac.jar
-     - Copy bluej_update_*.jar to the website in ~bluej/www/update-info
-     - Edit ~bluej/www/update-info/bluej-updates.xml for each of the three
-       distributions, changing the version, size and description.
-        - Change the jarUrl entry for the "pure Java" release to refer to 
-          the "all other systems" distribution Jar.
+11. Intentionally left blank
 
 12. In the bugs database (http://bugs.bluej.org/trac/bluej),
 
