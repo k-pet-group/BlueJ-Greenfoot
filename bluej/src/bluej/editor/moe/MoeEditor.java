@@ -1220,7 +1220,7 @@ public final class MoeEditor extends JFrame
      */
     public void insertUpdate(DocumentEvent e)
     {
-        errorManager.insertUpdate(e);
+        //errorManager.insertUpdate(e);
         removeSearchHighlights();
         errorManager.removeErrorHighlight();
         if (!saveState.isChanged()) {
@@ -1238,7 +1238,7 @@ public final class MoeEditor extends JFrame
      */
     public void removeUpdate(DocumentEvent e)
     {
-        errorManager.removeUpdate(e);
+        //errorManager.removeUpdate(e);
         removeSearchHighlights();
         errorManager.removeErrorHighlight();
         if (!saveState.isChanged()) {

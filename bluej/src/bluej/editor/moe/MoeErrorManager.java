@@ -57,9 +57,9 @@ public class MoeErrorManager implements MoeDocumentListener
     private Timer timer;
     
     /** Parse errors that are currently being displayed */
-    private NodeTree<ParseErrorNode> parseErrors = new NodeTree<ParseErrorNode>();
+//    private NodeTree<ParseErrorNode> parseErrors = new NodeTree<ParseErrorNode>();
     /** Parse errors that haven't yet been displayed */
-    private NodeTree<ParseErrorNode> pendingErrors = new NodeTree<ParseErrorNode>();
+//    private NodeTree<ParseErrorNode> pendingErrors = new NodeTree<ParseErrorNode>();
     
     /**
      * Construct a new MoeErrorManager to manage error display for the specified editor instance.
@@ -108,19 +108,19 @@ public class MoeErrorManager implements MoeDocumentListener
      */
     public void insertUpdate(DocumentEvent e)
     {
-        NodeAndPosition<ParseErrorNode> nap = parseErrors.findNodeAtOrAfter(e.getOffset());
-        if (nap != null) {
-            nap.slide(e.getLength());
-        }
-        
-        nap = pendingErrors.findNodeAtOrAfter(e.getOffset());
-        if (nap != null) {
-            nap.slide(e.getLength());
-        }
-        
-        if (timer != null) {
-            timer.restart();
-        }
+//        NodeAndPosition<ParseErrorNode> nap = parseErrors.findNodeAtOrAfter(e.getOffset());
+//        if (nap != null) {
+//            nap.slide(e.getLength());
+//        }
+//        
+//        nap = pendingErrors.findNodeAtOrAfter(e.getOffset());
+//        if (nap != null) {
+//            nap.slide(e.getLength());
+//        }
+//        
+//        if (timer != null) {
+//            timer.restart();
+//        }
     }
     
     /**
@@ -128,23 +128,23 @@ public class MoeErrorManager implements MoeDocumentListener
      */
     public void removeUpdate(DocumentEvent e)
     {
-        NodeAndPosition<ParseErrorNode> nap = parseErrors.findNodeAtOrAfter(e.getOffset() + e.getLength());
-        if (nap != null) {
-            if (nap.getPosition() >= e.getOffset() + e.getLength()) {
-                nap.slide(-e.getLength());
-            }
-        }
-        
-        nap = pendingErrors.findNodeAtOrAfter(e.getOffset() + e.getLength());
-        if (nap != null) {
-            if (nap.getPosition() >= e.getOffset() + e.getLength()) {
-                nap.slide(-e.getLength());
-            }
-        }
-
-        if (timer != null) {
-            timer.restart();
-        }
+//        NodeAndPosition<ParseErrorNode> nap = parseErrors.findNodeAtOrAfter(e.getOffset() + e.getLength());
+//        if (nap != null) {
+//            if (nap.getPosition() >= e.getOffset() + e.getLength()) {
+//                nap.slide(-e.getLength());
+//            }
+//        }
+//        
+//        nap = pendingErrors.findNodeAtOrAfter(e.getOffset() + e.getLength());
+//        if (nap != null) {
+//            if (nap.getPosition() >= e.getOffset() + e.getLength()) {
+//                nap.slide(-e.getLength());
+//            }
+//        }
+//
+//        if (timer != null) {
+//            timer.restart();
+//        }
     }
     
     /**
@@ -152,123 +152,121 @@ public class MoeErrorManager implements MoeDocumentListener
      */
     public String getErrorAtPosition(int pos)
     {
-        NodeAndPosition<ParseErrorNode> nap = parseErrors.findNode(pos);
-        if (nap != null) {
-            return nap.getNode().getErrCode();
-        }
+//        NodeAndPosition<ParseErrorNode> nap = parseErrors.findNode(pos);
+//        if (nap != null) {
+//            return nap.getNode().getErrCode();
+//        }
         return null;
     }
     
     @Override
     public void parseError(int position, int size, String message)
     {
-        //size = Math.max(1, size); // make size at least 1
-
         // Don't add this error if it overlaps an existing error:
-        NodeAndPosition<ParseErrorNode> nap = parseErrors.findNodeAtOrAfter(position);
-        while (nap != null && nap.getEnd() == position && nap.getPosition() != position) {
-            nap = nap.nextSibling();
-        }
-        if (nap != null) {
-            if (nap.getEnd() <= position + size) {
-                return;
-            }
-        }
-
-        nap = pendingErrors.findNodeAtOrAfter(position);
-        while (nap != null && nap.getEnd() == position && nap.getPosition() != position) {
-            nap = nap.nextSibling();
-        }
-        if (nap != null) {
-            if (nap.getEnd() <= position + size) {
-                return;
-            }
-        }
-
-        pendingErrors.insertNode(new ParseErrorNode(null, message), position, size);
-
-        if (timer == null) {
-            timer = new Timer(ERR_DISPLAY_DELAY, new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e)
-                {
-                    timerExpiry();
-                }
-            });
-
-            timer.setCoalesce(true);
-            timer.setRepeats(false);
-            timer.start();
-        }
+//        NodeAndPosition<ParseErrorNode> nap = parseErrors.findNodeAtOrAfter(position);
+//        while (nap != null && nap.getEnd() == position && nap.getPosition() != position) {
+//            nap = nap.nextSibling();
+//        }
+//        if (nap != null) {
+//            if (nap.getEnd() <= position + size) {
+//                return;
+//            }
+//        }
+//
+//        nap = pendingErrors.findNodeAtOrAfter(position);
+//        while (nap != null && nap.getEnd() == position && nap.getPosition() != position) {
+//            nap = nap.nextSibling();
+//        }
+//        if (nap != null) {
+//            if (nap.getEnd() <= position + size) {
+//                return;
+//            }
+//        }
+//
+//        pendingErrors.insertNode(new ParseErrorNode(null, message), position, size);
+//
+//        if (timer == null) {
+//            timer = new Timer(ERR_DISPLAY_DELAY, new ActionListener() {
+//                @Override
+//                public void actionPerformed(ActionEvent e)
+//                {
+//                    timerExpiry();
+//                }
+//            });
+//
+//            timer.setCoalesce(true);
+//            timer.setRepeats(false);
+//            timer.start();
+//        }
     }    
     
     @Override
     public void reparsingRange(int position, int size)
     {
-        // Remove any parse error highlights in the reparsed range
-        int endPos = position + size;
-        
-        clearReparsedRange(parseErrors, position, endPos);
-        clearReparsedRange(pendingErrors, position, endPos);
+//        // Remove any parse error highlights in the reparsed range
+//        int endPos = position + size;
+//        
+//        clearReparsedRange(parseErrors, position, endPos);
+//        clearReparsedRange(pendingErrors, position, endPos);
     }
     
-    private void clearReparsedRange(NodeTree<ParseErrorNode> tree, int position, int endPos)
-    {
-        NodeAndPosition<ParseErrorNode> nap = tree.findNodeAtOrAfter(position);
-        while (nap != null && nap.getPosition() <= endPos) {
-            ParseErrorNode pen = nap.getNode();
-            JEditorPane sourcePane = editor.getSourcePane();
-            Object highlightTag = pen.getHighlightTag();
-            if (highlightTag != null) {
-                sourcePane.getHighlighter().removeHighlight(highlightTag);
-            }
-            
-            NodeAndPosition<ParseErrorNode> nnap = nap.nextSibling();
-            pen.remove();
-            nap = nnap;
-        }
-    }
+//    private void clearReparsedRange(NodeTree<ParseErrorNode> tree, int position, int endPos)
+//    {
+//        NodeAndPosition<ParseErrorNode> nap = tree.findNodeAtOrAfter(position);
+//        while (nap != null && nap.getPosition() <= endPos) {
+//            ParseErrorNode pen = nap.getNode();
+//            JEditorPane sourcePane = editor.getSourcePane();
+//            Object highlightTag = pen.getHighlightTag();
+//            if (highlightTag != null) {
+//                sourcePane.getHighlighter().removeHighlight(highlightTag);
+//            }
+//            
+//            NodeAndPosition<ParseErrorNode> nnap = nap.nextSibling();
+//            pen.remove();
+//            nap = nnap;
+//        }
+//    }
     
     /**
      * The timer expired... make pending errors visible
      */
-    private void timerExpiry()
-    {
-        NodeAndPosition<ParseErrorNode> nap = pendingErrors.findNodeAtOrAfter(0);
-        while (nap != null) {
-            ParseErrorNode pen = nap.getNode();
-            
-            int position = nap.getPosition();
-            int size = nap.getSize();
-
-            JEditorPane sourcePane = editor.getSourcePane();
-            int caretPos = sourcePane.getCaretPosition();
-            
-            try {
-                MoeHighlighter mhiliter = (MoeHighlighter) sourcePane.getHighlighter();
-                Object highlightTag = mhiliter.addHighlight(
-                        position, position + size,
-                        new MoeBorderHighlighterPainter(Color.RED, Color.RED, Color.PINK,
-                                Color.RED, Color.PINK)
-                );
-
-                parseErrors.insertNode(new ParseErrorNode(highlightTag, pen.getErrCode()), position, size);
-                
-                // Check if the error overlaps the caret currently
-                if (caretPos >= position && caretPos <= position + size) {
-                    if (! editor.isShowingInterface()) {
-                        editor.writeMessage(ParserMessageHandler.getMessageForCode(pen.getErrCode()));
-                    }
-                }
-            }
-            catch (BadLocationException ble) {
-                throw new RuntimeException(ble);
-            }
-            
-            nap = nap.nextSibling();
-        }
-        
-        pendingErrors.clear();
-        timer = null;
-    }
+//    private void timerExpiry()
+//    {
+//        NodeAndPosition<ParseErrorNode> nap = pendingErrors.findNodeAtOrAfter(0);
+//        while (nap != null) {
+//            ParseErrorNode pen = nap.getNode();
+//            
+//            int position = nap.getPosition();
+//            int size = nap.getSize();
+//
+//            JEditorPane sourcePane = editor.getSourcePane();
+//            int caretPos = sourcePane.getCaretPosition();
+//            
+//            try {
+//                MoeHighlighter mhiliter = (MoeHighlighter) sourcePane.getHighlighter();
+//                Object highlightTag = mhiliter.addHighlight(
+//                        position, position + size,
+//                        new MoeBorderHighlighterPainter(Color.RED, Color.RED, Color.PINK,
+//                                Color.RED, Color.PINK)
+//                );
+//
+//                parseErrors.insertNode(new ParseErrorNode(highlightTag, pen.getErrCode()), position, size);
+//                
+//                // Check if the error overlaps the caret currently
+//                if (caretPos >= position && caretPos <= position + size) {
+//                    if (! editor.isShowingInterface()) {
+//                        editor.writeMessage(ParserMessageHandler.getMessageForCode(pen.getErrCode()));
+//                    }
+//                }
+//            }
+//            catch (BadLocationException ble) {
+//                throw new RuntimeException(ble);
+//            }
+//            
+//            nap = nap.nextSibling();
+//        }
+//        
+//        pendingErrors.clear();
+//        timer = null;
+//    }
 }
