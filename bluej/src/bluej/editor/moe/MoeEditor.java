@@ -2593,7 +2593,10 @@ public final class MoeEditor extends JFrame
      */
     public void doReload()
     {
+        removeSearchHighlights();
         Reader reader = null;
+        boolean isShowingSrc = sourceDocument == document;
+        
         try {
             FileInputStream inputStream = new FileInputStream(filename);
             reader = new InputStreamReader(inputStream, characterSet);
@@ -2633,10 +2636,19 @@ public final class MoeEditor extends JFrame
         }
         finally {
             try {
-                if (reader != null)
+                if (reader != null) {
                     reader.close();
+                }
             }
             catch (IOException ioe) {}
+            
+            if (isShowingSrc) {
+                document = sourceDocument;
+            }
+            
+            if (finder != null && finder.isVisible()) {
+               finder.find(true);
+            }
         }
     }
 
