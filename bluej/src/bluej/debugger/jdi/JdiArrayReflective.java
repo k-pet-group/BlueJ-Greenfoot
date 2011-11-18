@@ -51,6 +51,7 @@ public class JdiArrayReflective extends JdiReflective
     public JdiArrayReflective(JavaType t, ClassLoaderReference classLoader, VirtualMachine vm)
     {
         super("[" + t.arrayComponentName(), classLoader, vm);
+        componentType = t;
     }
     
     public String getName()
