@@ -101,7 +101,7 @@ bluej.compiler.options=-source 1.6 -target 1.6
 ## if not configured properly.  
 #####################################################################
 
-bluej.vm.args=-Xincgc -Dapple.awt.graphics.UseQuartz=true
+bluej.vm.args=-Xincgc
 
 #####################################################################
 ## External program used for editing images.
