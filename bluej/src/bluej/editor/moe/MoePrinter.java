@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -170,7 +170,6 @@ public class MoePrinter
     private Book paginateText(List<PrintLine> text, PageFormat pageFormat, MoeSyntaxDocument document, boolean lineNumbers, boolean syntaxHighlighting, Font font) 
     {
         Book book = new Book();
-        int currentLine = 0;       // line I am  currently reading
         int pageNum = 1;        // page #
 
         // height of text area of a page
@@ -191,7 +190,6 @@ public class MoePrinter
 
             for (int lineCount = 0; li.hasNext() && lineCount < linesPerPage; lineCount++) { 
                 pageText.add(li.next());
-                currentLine++; //bq needed?
             }
         
             // create a new page object with the text and add it to the book
@@ -474,10 +472,9 @@ public class MoePrinter
             return endOffset;
         }
 
-        
         public int getLineNumber() {
             return lineNumber;
-        }		
+        }
         
         public int length() {
             return endOffset - startOffset;

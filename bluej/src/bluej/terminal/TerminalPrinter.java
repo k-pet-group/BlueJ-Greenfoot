@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program.
- Copyright (C) 2010  Michael Kolling and John Rosenberg
+ Copyright (C) 2010,2011  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -52,7 +52,7 @@ import bluej.utility.Utility;
  *
  */
 public class TerminalPrinter
-{	
+{
     // This is done to match with the terminal text area which uses the
     // JTextArea default, which is that every tab is 8 spaces:
     private static final int tabSize = 8;
@@ -149,7 +149,6 @@ public class TerminalPrinter
         List<String> text = new LinkedList<String>(Arrays.asList(textArea.getText().split("\r\n|\r|\n")));
         
         Book book = new Book();
-        int currentLine = 0;       // line I am  currently reading
         int pageNum = 1;        // page #
 
         // height of text area of a page
@@ -170,7 +169,6 @@ public class TerminalPrinter
 
             for (int lineCount = 0; li.hasNext() && lineCount < linesPerPage; lineCount++) { 
                 pageText.add(li.next());
-                currentLine++; //bq needed?
             }
         
             // create a new page object with the text and add it to the book
