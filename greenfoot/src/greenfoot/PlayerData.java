@@ -21,11 +21,29 @@
  */
 package greenfoot;
 
-import greenfoot.util.GreenfootStorageException;
 import greenfoot.util.GreenfootUtil;
 
 import java.util.List;
 
+/**
+ * The PlayerData class allows you to store and load data for Greenfoot scenarios,
+ * even when the scenario has been uploaded to the Greenfoot website.
+ * 
+ * <p>You should always check if storage is currently available by PlayerData.isStorageAvailable().
+ * Storage is not always available, and in particular, if the user is not logged in to
+ * the Greenfoot website (a very common case), storage will not be available.</p>
+ * 
+ * <p>When storage is available, you can use PlayerData.getMyData() to get the data for the
+ * current user, or PlayerData.getTop(10) or PlayerData.getNearby(10) to get items to show
+ * on a scoreboard.  These give you back PlayerData items, where you can get the players' image or
+ * get/set the current data.</p>
+ * 
+ * <p>A player's data consists of 10 integers and 5 strings.  You should store scores in the
+ * first integer slot (using setInt(0, score) and getInt(0)) because that is what getTop and getNearby
+ * will use for sorting.  Otherwise, you are free to use the integers and strings as you
+ * need for your scenario: things like which level the player reached last time they
+ * were playing.</p>
+ */
 public class PlayerData
 {
     // These may enlarge in future:
@@ -119,21 +137,20 @@ public class PlayerData
     }
     
     /**
-     * Gets a list of all the GreenfootStorage items for this scenario.
+     * Gets a sorted list of the PlayerData items for this scenario, starting at the top.
      * 
-     * This will be one item per user, and it will be sorted in descending order by the first integer value
+     * <p>This will return one PlayerData item per user, and it will be sorted in descending order by the first integer value
      * (i.e. the return of getInt(0)).  The parameter allows you to specify a limit
      * on the amount of users' data to retrieve.  If there is lots of data stored
      * for users in your app, this may take some time (and bandwidth) to retrieve all users' data,
-     * and often you do not need all the users' data.
+     * and often you do not need all the users' data.</p>
      * 
-     * For example, if you want to show the high-scores, store the score with setInt(0, score),
-     * and then use getAllUserData(10) to get the users with the top ten scores. 
+     * <p>For example, if you want to show the high-scores, store the score with setInt(0, score),
+     * and then use getTop(10) to get the users with the top ten scores.</p> 
      * 
      * @param limit The maximum number of data items to retrieve.
      * Passing zero or a negative number will get all the data, but see the note above.  
-     * @return A list where each item is a GreenfootStorage, or null if there was a problem
-     * @throws GreenfootStorageException
+     * @return A list where each item is a PlayerData, or null if there was a problem
      */
     public static List getTop(int maxAmount)
     {
@@ -142,6 +159,29 @@ public class PlayerData
         return GreenfootUtil.getTopUserData(maxAmount);
     }
     
+    /**
+     * Gets a sorted list of the PlayerData items for this scenario surrounding the current user.
+     * 
+     * <p>This will be one item per user, and it will be sorted in descending order by the first integer value
+     * (i.e. the return of getInt(0)).  The parameter allows you to specify a limit
+     * on the amount of users' data to retrieve.  If there is lots of data stored
+     * for users in your app, this may take some time (and bandwidth) to retrieve all users' data,
+     * and often you do not need all the users' data.</p>
+     * 
+     * <p>The items will be those surrounding the current user.  So for example, imagine that the player is 50th
+     * of 100 total users (when sorted by getInt(0)).  Calling getNearby(5) will get the
+     * 48th, 49th, 50th, 51st and 52nd users in that order.  Do not rely on the player being at a fixed
+     * location in the middle of the list: calling getNearby(5) when the user is 2nd overall will get the
+     * 1st, 2nd, 3rd, 4th and 5th users, so the user will be 2nd in the list, and a similar thing will happen
+     * if the user is near the end of the list.</p>
+     * 
+     * <p>For example, if you want to show the high-scores surrounding the player, store the score with setInt(0, score),
+     * and then use getNearby(10) to get the ten users with scores close to the current player.</p> 
+     * 
+     * @param limit The maximum number of data items to retrieve.
+     * Passing zero or a negative number will get all the data, but see the note above.  
+     * @return A list where each item is a PlayerData, or null if there was a problem
+     */
     public static List getNearby(int maxAmount)
     {
         return GreenfootUtil.getNearbyUserData(maxAmount);
