@@ -1,3 +1,24 @@
+/*
+ This file is part of the Greenfoot program. 
+ Copyright (C) 2011  Poul Henriksen and Michael Kolling 
+ 
+ This program is free software; you can redistribute it and/or 
+ modify it under the terms of the GNU General Public License 
+ as published by the Free Software Foundation; either version 2 
+ of the License, or (at your option) any later version. 
+ 
+ This program is distributed in the hope that it will be useful, 
+ but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+ GNU General Public License for more details. 
+ 
+ You should have received a copy of the GNU General Public License 
+ along with this program; if not, write to the Free Software 
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
+ 
+ This file is subject to the Classpath exception as provided in the  
+ LICENSE.txt file that accompanied this code.
+ */
 package greenfoot;
 
 import greenfoot.util.GreenfootStorageException;
@@ -68,11 +89,10 @@ public class PlayerData
      * so you must check this function before attempting to use the other static storage functions.
      * If this function returns false, your scenario must proceed without using storage.
      */
-    
-    // Returns false for applets when not on the Gallery, and stand-alone applications
-    // Returns true for inside Greenfoot, and applets on the gallery
     public static boolean isStorageAvailable()
     {
+        // Returns false for applets when not on the Gallery, and stand-alone applications
+        // Returns true for inside Greenfoot, and applets on the gallery
         return GreenfootUtil.isStorageSupported();
     }
     
@@ -115,10 +135,10 @@ public class PlayerData
      * @return A list where each item is a GreenfootStorage, or null if there was a problem
      * @throws GreenfootStorageException
      */
-    // Will return an empty list if there is no previously stored data
-    // Each item is a GreenfootStorage
     public static List getTop(int maxAmount)
     {
+        // Will return an empty list if there is no previously stored data
+        // Each item is a GreenfootStorage
         return GreenfootUtil.getTopUserData(maxAmount);
     }
     
