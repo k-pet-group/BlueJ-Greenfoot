@@ -64,7 +64,7 @@ public class Main
     private static boolean launched = false;
     
     /** On MacOS X, this will be set to the project we should open (if any) */ 
-    private static File initialProject;
+    private static List<File> initialProjects;
 
     private static QuitResponse macEventResponse = null;  // used to respond to external quit events on MacOS
 
@@ -131,8 +131,10 @@ public class Main
         }
         
         // Open a project if requested by the OS (Mac OS)
-        if (initialProject != null) {
-            oneOpened |= (PkgMgrFrame.doOpen(initialProject, null));
+        if (initialProjects != null) {
+            for (File initialProject : initialProjects) {
+                oneOpened |= (PkgMgrFrame.doOpen(initialProject, null));
+            }
         }
 
         // if we have orphaned packages, these are re-opened
@@ -212,9 +214,14 @@ public class Main
                 @Override
                 public void openFiles(AppEvent.OpenFilesEvent e)
                 {
-                    List<File> files = e.getFiles();
-                    for(File file : files) {
-                        PkgMgrFrame.doOpen(file, null);
+                    if (launched) {
+                        List<File> files = e.getFiles();
+                        for(File file : files) {
+                            PkgMgrFrame.doOpen(file, null);
+                        }
+                    }
+                    else {
+                        initialProjects = e.getFiles();
                     }
                 }
             });
