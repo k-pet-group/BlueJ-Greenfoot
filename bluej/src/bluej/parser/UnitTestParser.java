@@ -165,7 +165,7 @@ public class UnitTestParser extends JavaParser
     }
     
     @Override
-    protected void gotMethodParameter(LocatableToken token)
+    protected void gotMethodParameter(LocatableToken token, LocatableToken ellipsisToken)
     {
         inMethod = false; // we're not interested in methods with parameters
     }

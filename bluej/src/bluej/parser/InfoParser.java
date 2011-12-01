@@ -530,9 +530,9 @@ public class InfoParser extends EditorParser
         arrayCount = 0;
     }
 
-    protected void gotMethodParameter(LocatableToken token)
+    protected void gotMethodParameter(LocatableToken token, LocatableToken ellipsisToken)
     {
-        super.gotMethodParameter(token);
+        super.gotMethodParameter(token, ellipsisToken);
         if (currentMethod != null) {
             currentMethod.paramNames += token.getText() + " ";
             JavaEntity ptype = ParseUtils.getTypeEntity(scopeStack.peek(),
@@ -540,6 +540,9 @@ public class InfoParser extends EditorParser
             while (arrayCount > 0) {
                 ptype = new UnresolvedArray(ptype);
                 arrayCount--;
+            }
+            if (ellipsisToken != null) {
+                ptype = new UnresolvedArray(ptype);                
             }
             currentMethod.paramTypes.add(ptype);
         }

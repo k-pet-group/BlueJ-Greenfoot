@@ -948,7 +948,7 @@ public class EditorParser extends JavaParser
     }
     
     @Override
-    protected void gotMethodParameter(LocatableToken token)
+    protected void gotMethodParameter(LocatableToken token, LocatableToken ellipsisToken)
     {
         JavaEntity paramType = ParseUtils.getTypeEntity(scopeStack.peek(),
                 currentQuerySource(), lastTypeSpec);
@@ -959,6 +959,10 @@ public class EditorParser extends JavaParser
             paramType = new UnresolvedArray(paramType);
         }
         MethodNode mNode = (MethodNode) scopeStack.peek();
+        if (ellipsisToken != null) {
+            mNode.setVarArgs(true);
+            paramType = new UnresolvedArray(paramType);            
+        }
         mNode.addParameter(token.getText(), paramType);
     }
     

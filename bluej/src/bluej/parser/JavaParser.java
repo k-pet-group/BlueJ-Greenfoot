@@ -461,8 +461,11 @@ public class JavaParser
      * We saw a method (or constructor) parameter. The given token specifies the parameter name. 
      * The last type parsed by parseTypeSpec(boolean) is the parameter type, after any additonal
      * array declarators (see gotArrayDeclarator()) are applied.
+     * 
+     * @param token   The token giving the parameter name
+     * @param ellipsisToken  The token, if any, with the ellipsis indicating a varargs parameter. May be null.
      */
-    protected void gotMethodParameter(LocatableToken token) { }
+    protected void gotMethodParameter(LocatableToken token, LocatableToken ellipsisToken) { }
     
     /**
      * Called when, after a parameter/field/variable name, array declarators "[]" are seen.
@@ -3279,8 +3282,10 @@ public class JavaParser
             parseModifiers();
             parseTypeSpec(true);
             LocatableToken idToken = nextToken(); // identifier
+            LocatableToken varargsToken = null;
             if (idToken.getType() == JavaTokenTypes.TRIPLE_DOT) {
                 // var args
+                varargsToken = idToken;
                 idToken = nextToken();
             }
             if (idToken.getType() != JavaTokenTypes.IDENT) {
@@ -3290,7 +3295,7 @@ public class JavaParser
                 return;
             }
             parseArrayDeclarators();
-            gotMethodParameter(idToken);
+            gotMethodParameter(idToken, varargsToken);
             modifiersConsumed();
             token = nextToken();
             if (token.getType() != JavaTokenTypes.COMMA) {
