@@ -960,6 +960,25 @@ public class CompletionTest extends TestCase
         assertEquals("tpkg.C", suggests.getSuggestionType().toString());
     }
     
+    public void testVarargsParam() throws Exception
+    {
+        String aClassSrc =
+                "class A {\n" +            // 0 - 10
+                "  public void g(String ... s) {\n" +   // 10 - 42
+                "    System.out.print(s.length);\n" +  //  s.  <-- 65
+                "  }\n" +                   
+                "}\n";
+
+        PlainDocument doc = new PlainDocument();
+        doc.insertString(0, aClassSrc, null);
+        ParsedCUNode aNode = cuForSource(aClassSrc, "");
+        resolver.addCompilationUnit("", aNode);
+            
+        CodeSuggestions suggests = aNode.getExpressionType(66, doc);
+        assertNotNull(suggests);
+        assertEquals("java.lang.String[]", suggests.getSuggestionType().toString());        
+    }
+    
     // Yet to do:
     
     // Test that multiple fields defined in a single statement are handled correctly,
