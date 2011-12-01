@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -30,6 +30,7 @@ import java.net.URL;
 
 import bluej.Config;
 import bluej.Main;
+import bluej.debugger.jdi.NetworkTest;
 import bluej.extensions.BProject;
 import bluej.extensions.BlueJ;
 import bluej.extensions.Extension;
@@ -60,6 +61,7 @@ public class RMIExtension extends Extension implements ApplicationListener
         }
         catch (IOException e) {
             Debug.reportError("Could not launch RMI server", e);
+            NetworkTest.doTest();
             ProjectManager.greenfootLaunchFailed(null);
         }
 
