@@ -29,6 +29,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.Writer;
+import java.net.InetAddress;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -272,15 +273,26 @@ class VMReference
                     // machine name, as using the machine name causes problems on some systems
                     // when the network is disconnected (because the machine name binds to
                     // the network IP, not to localhost):
+                    String listenAddress = null;
                     if (connector.transport().name().equals("dt_socket") && arguments.containsKey("localAddress"))
                     {
-                        arguments.get("localAddress").setValue("localhost");
+                        listenAddress = InetAddress.getLocalHost().getHostAddress();
+                        arguments.get("localAddress").setValue(listenAddress);
                     }
                     
                     // Listening connectors can only listen on one address at a time -
                     // Synchronize to prevent problems.
                     synchronized (connector) {
                         String address = connector.startListening(arguments);
+                        if (listenAddress != null) {
+                            // It seems the address name returned by connector.startListening(...) may be the host name,
+                            // even though we specifically asked for localhost. So here we'll force it to the localhost
+                            // IP address:
+                            int colonIndex = address.indexOf(':');
+                            if (colonIndex != -1) {
+                                address = listenAddress + address.substring(colonIndex);
+                            }
+                        }
                         Debug.log("Listening for JDWP connection on address: " + address);
                         paramList.add(transportIndex, "-Xrunjdwp:transport=" + connector.transport().name()
                                 + ",address=" + address);

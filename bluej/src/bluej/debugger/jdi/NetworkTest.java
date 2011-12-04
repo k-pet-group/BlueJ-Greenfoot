@@ -43,14 +43,16 @@ public class NetworkTest
         Debug.message("Commencing network test...");
         
         InetAddress lhost = null;
+        InetAddress[] lhostByName = new InetAddress[0];
+        
         try {
             lhost = InetAddress.getLocalHost();
             Debug.message("Local host address = " + lhost.getHostAddress());
             Debug.message("Local host ip = " + lhost.getHostAddress());
 
-            InetAddress[] names = InetAddress.getAllByName("localhost");
+            lhostByName = InetAddress.getAllByName("localhost");
             Debug.message("Addresses for 'localhost':");
-            for (InetAddress name : names) {
+            for (InetAddress name : lhostByName) {
                 Debug.message(" -> " + name.getHostAddress());
             }
             Debug.message("(end of list).");
@@ -96,6 +98,12 @@ public class NetworkTest
         if (lhost != null && !lhost.equals(loop4addr) && !lhost.equals(loop6addr)) {
             testServerAddress(lhost);
         }
+        
+        for (InetAddress name : lhostByName) {
+            if (!name.equals(loop4addr) && !name.equals(loop6addr) && !name.equals(lhost)) {
+                testServerAddress(name);
+            }
+        }        
         
         Debug.message("Network test complete.");
     }
