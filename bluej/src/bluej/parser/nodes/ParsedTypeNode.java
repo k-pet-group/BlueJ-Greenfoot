@@ -211,6 +211,9 @@ public class ParsedTypeNode extends IncrementalParsingNode
         stateMarkers[1] = position + size;
     }
     
+    /**
+     * Get the inner node for the type, if one exists. May return null.
+     */
     public TypeInnerNode getInner()
     {
         return inner;

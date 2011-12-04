@@ -42,6 +42,7 @@ import bluej.parser.JavaParser;
 import bluej.parser.nodes.FieldNode;
 import bluej.parser.nodes.MethodNode;
 import bluej.parser.nodes.ParsedTypeNode;
+import bluej.parser.nodes.TypeInnerNode;
 import bluej.utility.JavaUtils;
 
 /**
@@ -246,8 +247,14 @@ public class ParsedReflective extends Reflective
     @Override
     public Map<String,Set<MethodReflective>> getDeclaredMethods()
     {
-        Map<String,Set<MethodNode>> methods = pnode.getInner().getMethods();
+        TypeInnerNode pnodeInner = pnode.getInner();
+        if (pnodeInner == null) {
+            return Collections.emptyMap();
+        }
+        
+        Map<String,Set<MethodNode>> methods = pnodeInner.getMethods();
         Map<String,Set<MethodReflective>> rmap = new HashMap<String,Set<MethodReflective>>();
+        
         for (Iterator<String> i = methods.keySet().iterator(); i.hasNext(); ) {
             String name = i.next();
             Set<MethodNode> mset = methods.get(name);
