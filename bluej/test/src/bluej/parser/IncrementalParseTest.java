@@ -944,4 +944,20 @@ public class IncrementalParseTest extends TestCase
         assertEquals(47, nap.getPosition());
         assertEquals(7, nap.getSize());
     }
+
+    // Should not throw an exception...
+    public void testRegression393() throws Exception
+    {
+        // Note the comment is significant in this.
+        String aSrc = "@RunWith(Suite.class)\n" +  // 0 - 22
+            "public class AllTests  {\n" +         // 22 - 47
+            "//     public static void main(String[] args) {\n" +   // 47 -
+            "}\n";
+
+        MoeSyntaxDocument aDoc = docForSource(aSrc, "");
+        aDoc.getParser();
+        
+        aDoc.remove(47, 1); // remove '/' at start of comment
+        aDoc.getParser();
+    }
 }
