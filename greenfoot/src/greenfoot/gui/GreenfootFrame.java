@@ -110,9 +110,14 @@ import bluej.Config;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.DBox;
 
+import com.apple.eawt.AboutHandler;
+import com.apple.eawt.AppEvent.AboutEvent;
+import com.apple.eawt.AppEvent.PreferencesEvent;
+import com.apple.eawt.AppEvent.QuitEvent;
 import com.apple.eawt.Application;
-import com.apple.eawt.ApplicationAdapter;
-import com.apple.eawt.ApplicationEvent;
+import com.apple.eawt.PreferencesHandler;
+import com.apple.eawt.QuitHandler;
+import com.apple.eawt.QuitResponse;
 
 /**
  * The main frame for a Greenfoot project (one per project)
@@ -261,31 +266,36 @@ public class GreenfootFrame extends JFrame
      */
     private Application prepareMacOSApp()
     {
-        Application macApp = Application.getApplication();
-        if (macApp != null) {
-            macApp.setEnabledPreferencesMenu(true);
-            macApp.addApplicationListener(new ApplicationAdapter() {
-                public void handleAbout(ApplicationEvent e)
-                {
-                    AboutGreenfootAction.getInstance(GreenfootFrame.this).actionPerformed(null);
-                    e.setHandled(true);
-                }
-
-                public void handlePreferences(ApplicationEvent e)
+        if (Config.isMacOS()) {
+            Application macApp = Application.getApplication();
+            macApp.setPreferencesHandler(new PreferencesHandler() {
+                @Override
+                public void handlePreferences(PreferencesEvent e)
                 {
                     PreferencesAction.getInstance().actionPerformed(null);
-                    e.setHandled(true);
-                }
-
-                public void handleQuit(ApplicationEvent e)
-                {
-                    exit();
-                    e.setHandled(true);
                 }
             });
+            macApp.setAboutHandler(new AboutHandler() {
+                @Override
+                public void handleAbout(AboutEvent arg0)
+                {
+                    AboutGreenfootAction.getInstance(GreenfootFrame.this).actionPerformed(null);                    
+                }
+            });
+            macApp.setQuitHandler(new QuitHandler() {
+                @Override
+                public void handleQuitRequestWith(QuitEvent e,
+                        QuitResponse response)
+                {
+                    exit();
+                    // response.confirmQuit() does not need to be called, since System.exit(0) is called explicitly
+                }
+            });
+            
+            return macApp;
         }
-
-        return macApp;
+        
+        return null;
     }
     
     /**
