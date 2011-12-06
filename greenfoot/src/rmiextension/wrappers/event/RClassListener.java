@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2011  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,7 +28,6 @@ import java.rmi.RemoteException;
  * Interface representing remote class listeners.
  * 
  * @author Davin McCall
- * @version $Id: RClassListener.java 6216 2009-03-30 13:41:07Z polle $
  */
 public interface RClassListener extends Remote
 {
@@ -38,6 +37,9 @@ public interface RClassListener extends Remote
      * compiled.
      * 
      * <p>Use event.isCompiled() to check the class compilation state.
+     * 
+     * <p>This is called from the Swing event queue on the main VM, so calls which
+     * require access to the event queue must not be made from the same thread.
      * 
      * @throws RemoteException  if a remote exception occurs
      */

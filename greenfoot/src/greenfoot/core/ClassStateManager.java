@@ -64,9 +64,10 @@ public class ClassStateManager extends RClassListenerImpl
         return project;
     }
     
-    /* (non-Javadoc)
+    /*
      * @see rmiextension.wrappers.event.RClassListener#classStateChanged(rmiextension.wrappers.event.RClassEvent)
      */
+    @Override
     public void classStateChanged(RClassEvent event) throws RemoteException
     {
         RClass eventClass = event.getRClass();

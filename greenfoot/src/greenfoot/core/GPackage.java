@@ -102,7 +102,7 @@ public class GPackage
         synchronized (classPool) {
             gClass = classPool.get(remoteClass);
             if (gClass == null) {
-                gClass = new GClass(remoteClass, this);
+                gClass = new GClass(remoteClass, this, inRemoteCallback);
                 classPool.put(remoteClass, gClass);
                 gClass.loadSavedSuperClass(inRemoteCallback);
             }
@@ -178,12 +178,12 @@ public class GPackage
         }
     }
 
-    public GClass newClass(String className)
+    public GClass newClass(String className, boolean inRemoteCallback)
     {
         GClass newClass = null;
         try {
             RClass newRClass = pkg.newClass(className);
-            newClass = new GClass(newRClass, this);
+            newClass = new GClass(newRClass, this, inRemoteCallback);
             synchronized (classPool) {
                 classPool.put(newRClass, newClass);
             }

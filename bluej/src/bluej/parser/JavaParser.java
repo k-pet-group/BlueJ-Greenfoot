@@ -305,6 +305,24 @@ public class JavaParser
     /** End of type definition body. This should be a '}' unless an error occurred */
     protected void endTypeBody(LocatableToken endCurlyToken, boolean included) { }
     
+    /** Got the beginning of a declaration - either a type, a field/variable, or a method */
+    protected void gotDeclBegin(LocatableToken token) { }
+    
+    /**
+     * Called when the current element is recognised as a type definition.
+     * @param tdType  one of TYPEDEF_CLASS, _INTERFACE, _ANNOTATION or _ENUM
+     */
+    protected void gotTypeDef(LocatableToken firstToken, int tdType) { }
+
+    /** Called when we have the identifier token for a class/interface/enum definition */
+    protected void gotTypeDefName(LocatableToken nameToken) { }
+
+    /** Called when we have seen the "extends" literal token */
+    protected void gotTypeDefExtends(LocatableToken extendsToken) { }
+
+    /** Called when we have seen the "implements" literal token */
+    protected void gotTypeDefImplements(LocatableToken implementsToken) { }
+
     protected void gotTypeDefEnd(LocatableToken token, boolean included)
     {
         endElement(token, included);
@@ -947,21 +965,6 @@ public class JavaParser
     }
 
     /**
-     * Called when the current element is recognised as a type definition.
-     * @param tdType  one of TYPEDEF_CLASS, _INTERFACE, _ANNOTATION or _ENUM
-     */
-    protected void gotTypeDef(LocatableToken firstToken, int tdType) { }
-
-    /** Called when we have the identifier token for a class/interface/enum definition */
-    protected void gotTypeDefName(LocatableToken nameToken) { }
-
-    /** Called when we have seen the "extends" literal token */
-    protected void gotTypeDefExtends(LocatableToken extendsToken) { }
-
-    /** Called when we have seen the "implements" literal token */
-    protected void gotTypeDefImplements(LocatableToken implementsToken) { }
-
-    /**
      * Check whether a token represents a modifier (or an "at" symbol,
      * denoting an annotation).
      */
@@ -1061,10 +1064,7 @@ public class JavaParser
             }
             else if (token.getType() == JavaTokenTypes.LCURLY) {
                 // initialisation block
-                LocatableToken firstToken = token;
-                if (! modifiers.isEmpty()) {
-                    firstToken = modifiers.get(0);
-                }
+                LocatableToken firstToken = firstMod == null ? token : firstMod;
                 beginInitBlock(firstToken, token);
                 modifiersConsumed();
                 parseStmtBlock();
@@ -1575,7 +1575,6 @@ public class JavaParser
         token = nextToken();
         if (token.getType() == JavaTokenTypes.LPAREN) {
             // Java 7 try-with-resource
-            parseModifiers();
             do {
                 token = tokenStream.LA(1);
                 // Specification allows either a variable declaration (with initializer) or

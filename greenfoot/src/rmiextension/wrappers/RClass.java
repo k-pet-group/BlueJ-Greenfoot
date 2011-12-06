@@ -91,7 +91,7 @@ public interface RClass
     public abstract RClass getSuperclass(boolean inRemoteCallback)
         throws ProjectNotOpenException, PackageNotFoundException, ClassNotFoundException, RemoteException;
 
-    public abstract boolean isCompiled()
+    public abstract boolean isCompiled(boolean inRemoteCallback)
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException;
 
     public abstract String getQualifiedName()

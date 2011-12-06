@@ -61,7 +61,7 @@ public class NewClassAction extends AbstractAction
         this.gfFrame = gfFrame;
         this.interactionListener = interactionListener;
     }
-	
+
     public void actionPerformed(ActionEvent arg0)
     {
         JFrame f = gfFrame;
@@ -84,7 +84,7 @@ public class NewClassAction extends AbstractAction
             File newJavaFile = new File(dir, className + ".java");
             GreenfootUtil.createSkeleton(className, null, newJavaFile, NormalClassRole.getInstance().getTemplateFileName());
 
-            GClass newClass = pkg.newClass(className);
+            GClass newClass = pkg.newClass(className, false);
 
             ClassView classView = new ClassView(classBrowser, newClass, interactionListener);
             classBrowser.addClass(classView);

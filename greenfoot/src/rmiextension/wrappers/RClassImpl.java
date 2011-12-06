@@ -426,7 +426,7 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
     }
 
     @Override
-    public boolean isCompiled()
+    public boolean isCompiled(boolean inRemoteCallback)
         throws ProjectNotOpenException, PackageNotFoundException
     {
         synchronized (RClassImpl.class) {
@@ -434,9 +434,10 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
             pnfe = null;
             final boolean[] result = new boolean[1];
             try {
-                EventQueue.invokeAndWait(new Runnable() {
+                Runnable r = new Runnable() {
                     public void run()
                     {
+                        try { Thread.sleep(500); } catch (Exception eeee) { }; // DAV
                         try {
                             result[0] = bClass.isCompiled();
                         } catch (ProjectNotOpenException e) {
@@ -444,8 +445,14 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
                         } catch (PackageNotFoundException e) {
                             pnfe = e;
                         }
-                    }                
-                });
+                    }                                    
+                };
+                if (inRemoteCallback) {
+                    r.run();
+                }
+                else {
+                    EventQueue.invokeAndWait(r);
+                }
             }
             catch (InterruptedException ie) {
                 ie.printStackTrace();

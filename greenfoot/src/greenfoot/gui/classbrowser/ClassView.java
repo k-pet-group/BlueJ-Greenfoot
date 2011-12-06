@@ -321,7 +321,7 @@ public class ClassView extends ClassButton
             String superClassName = getClassName();            
             GreenfootUtil.createSkeleton(className, superClassName, newJavaFile, role.getTemplateFileName());
             
-            GClass newClass = pkg.newClass(className);
+            GClass newClass = pkg.newClass(className, false);
             //We know what the superclass should be, so we set it.
             newClass.setSuperclassGuess(this.getQualifiedClassName());
             return newClass;

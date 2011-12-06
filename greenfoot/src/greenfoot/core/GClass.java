@@ -72,13 +72,13 @@ public class GClass
      * 
      * If you use it, remember to call loadSavedSuperClass() afterwards.
      */
-    public GClass(RClass cls, GPackage pkg)
+    public GClass(RClass cls, GPackage pkg, boolean inRemoteCallback)
     {
         this.rmiClass = cls;
         this.pkg = pkg;
         
         try {
-            compiled = cls.isCompiled();
+            compiled = cls.isCompiled(inRemoteCallback);
             if (compiled) {
                 loadRealClass();
             }
