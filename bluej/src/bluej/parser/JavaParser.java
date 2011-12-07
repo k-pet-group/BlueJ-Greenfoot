@@ -307,7 +307,17 @@ public class JavaParser
     
     /** 
      * Got the beginning of a declaration - either a type, a field/variable, or a
-     * method constructor.
+     * method constructor, or an initialisation block. This will be followed by one of:
+     * 
+     * <ul>
+     * <li>gotTypeDef(...) - if a type definition
+     * <li>gotMethodDeclaration(...) - if a method declaration
+     * <li>gotConstructorDecl(...) - if a constructor declaration
+     * <li>beginInitBlock(...) - if an initialiser block
+     * <li>beginFieldDeclarations(...) - if a field declaration
+     * <li>beginVariableDecl(...) - if a variable declaration
+     * <li>endDecl(...) - if not a valid declaration
+     * </ul>
      */
     protected void gotDeclBegin(LocatableToken token) { beginElement(token); }
     
