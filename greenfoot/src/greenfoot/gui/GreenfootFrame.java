@@ -38,7 +38,7 @@ import greenfoot.actions.RemoveSelectedClassAction;
 import greenfoot.actions.ResetWorldAction;
 import greenfoot.actions.RunOnceSimulationAction;
 import greenfoot.actions.RunSimulationAction;
-import greenfoot.actions.SaveCopyAction;
+import greenfoot.actions.SaveAsAction;
 import greenfoot.actions.SaveProjectAction;
 import greenfoot.actions.SaveWorldAction;
 import greenfoot.actions.ShowApiDocAction;
@@ -135,6 +135,7 @@ public class GreenfootFrame extends JFrame
     private static final int accelModifier = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
     private static final int shiftAccelModifier = accelModifier | KeyEvent.SHIFT_MASK;
 
+    private RBlueJ rBlueJ;
     private GProject project;
     private GreenfootInspectorManager inspectorManager = new GreenfootInspectorManager();
         
@@ -150,7 +151,7 @@ public class GreenfootFrame extends JFrame
     
     private NewClassAction newClassAction;
     private SaveProjectAction saveProjectAction;
-    private SaveCopyAction saveCopyAction;
+    private SaveAsAction saveAsAction;
     private ShowReadMeAction showReadMeAction;
     private ExportProjectAction exportProjectAction;
     private ExportProjectAction shareAction;
@@ -203,6 +204,8 @@ public class GreenfootFrame extends JFrame
         throws HeadlessException
     {
         super("Greenfoot");
+        
+        this.rBlueJ = blueJ;
         
         LocationTracker.instance(); //force initialisation
         Image icon = BlueJTheme.getApplicationIcon("greenfoot");
@@ -609,7 +612,7 @@ public class GreenfootFrame extends JFrame
     {
         newClassAction = new NewClassAction(this, worldHandlerDelegate);
         saveProjectAction = new SaveProjectAction(this);
-        saveCopyAction = new SaveCopyAction(this);
+        saveAsAction = new SaveAsAction(this, rBlueJ);
         showReadMeAction = new ShowReadMeAction(this);
         saveWorldAction = worldHandlerDelegate.getSaveWorldAction();
         exportProjectAction = new ExportProjectAction(this, false);
@@ -639,7 +642,7 @@ public class GreenfootFrame extends JFrame
         
         addMenuItem(closeProjectAction, projectMenu, KeyEvent.VK_W, false, KeyEvent.VK_C);
         addMenuItem(saveProjectAction, projectMenu, KeyEvent.VK_S, false, KeyEvent.VK_S);
-        addMenuItem(saveCopyAction, projectMenu, -1, false, -1);
+        addMenuItem(saveAsAction, projectMenu, -1, false, -1);
         projectMenu.addSeparator();
         addMenuItem(showReadMeAction, projectMenu, -1, false, -1);
         addMenuItem(exportProjectAction, projectMenu, KeyEvent.VK_E, false, KeyEvent.VK_E);
@@ -805,7 +808,7 @@ public class GreenfootFrame extends JFrame
     
         closeProjectAction.setEnabled(state);
         saveProjectAction.setEnabled(state);
-        saveCopyAction.setEnabled(state);
+        saveAsAction.setEnabled(state);
         newClassAction.setEnabled(state);
         showReadMeAction.setEnabled(state);
         saveWorldAction.setEnabled(state);

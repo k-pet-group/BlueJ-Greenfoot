@@ -30,24 +30,29 @@ import java.rmi.RemoteException;
 
 import javax.swing.AbstractAction;
 
+import rmiextension.wrappers.RBlueJ;
+
 import bluej.Config;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 
 /**
- * An action to save a copy of a project into another location.
+ * An action to save a copy of a project into another location, then close the current project
+ * and open the new copy.
  * 
  * @author Davin McCall
  */
-public class SaveCopyAction extends AbstractAction
+public class SaveAsAction extends AbstractAction
 {
     private GreenfootFrame gfFrame;
+    private RBlueJ rBlueJ;
     
-    public SaveCopyAction(GreenfootFrame gfFrame)
+    public SaveAsAction(GreenfootFrame gfFrame, RBlueJ rBlueJ)
     {
-        super(Config.getString("project.savecopy"));
+        super(Config.getString("project.saveAs"));
         this.gfFrame = gfFrame;
+        this.rBlueJ = rBlueJ;
         setEnabled(false);
     }
     
@@ -55,7 +60,7 @@ public class SaveCopyAction extends AbstractAction
     {
         // get a file name to save under
         File newFile = FileUtility.getDirName(gfFrame,
-                Config.getString("project.savecopy.title"),
+                Config.getString("project.saveAs.title"),
                 Config.getString("pkgmgr.saveAs.buttonLabel"), false, true);
                 
         if (newFile != null) {
@@ -68,6 +73,16 @@ public class SaveCopyAction extends AbstractAction
 
                 result = FileUtility.copyDirectory(project.getDir(),
                         newFile);
+                
+                if (result == FileUtility.NO_ERROR)
+                {
+                    // It's very important to set the new copy opening
+                    // before closing the old project.  If you close the old one
+                    // first, Greenfoot realises that it has no projects open
+                    // and exits.  So it has to be in this order:
+                    rBlueJ.openProject(newFile);
+                    project.close();
+                }
             }
             catch (RemoteException re) {
                 re.printStackTrace();

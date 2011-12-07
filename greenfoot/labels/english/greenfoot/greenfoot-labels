@@ -60,7 +60,7 @@ reset.world=Reset
 run.once=Act
 run.simulation=Run
 project.save=Save
-project.savecopy=Save a Copy As...
+project.saveAs=Save As
 select.image=Set image...
 show.readme=Scenario Information
 pause.simulation=Pause
@@ -72,8 +72,8 @@ remove.confirm.title=Confirm removal of class
 remove.confirm.text1=About to remove class
 remove.confirm.text2=Continue?
 
-# Save project copy dialog
-project.savecopy.title=Save Scenario Copy
+# Save As project dialog
+project.saveAs.title=Save Scenario As
 
 # Export scenario dialog
 export.project=Share...
