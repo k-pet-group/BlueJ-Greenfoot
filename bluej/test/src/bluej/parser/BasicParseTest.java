@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -122,10 +122,10 @@ public class BasicParseTest extends junit.framework.TestCase
     }
     
     public void testNoParseExceptionsOnGenerics()
-    	throws Exception
+        throws Exception
     {
-    	// Parse generics
-    	assertNotNull(InfoParser.parse(getFile("15_generic.dat")));
+        // Parse generics
+        assertNotNull(InfoParser.parse(getFile("15_generic.dat")));
     }
     
     public void testCode()
@@ -290,20 +290,20 @@ public class BasicParseTest extends junit.framework.TestCase
     
     public void testValidClassInfo2() throws Exception
     {
-    	StringReader sr = new StringReader(
-    			"class A implements Runnable, Iterable {\n" +
-    			"  void someMethod() {\n" +
-    			"    I i = new I();\n" +
-    			"  }\n" +
-    			"}\n"
-    	);
-    	ClassInfo info = InfoParser.parse(sr,
-    	        new ClassLoaderResolver(this.getClass().getClassLoader()), null);
-    	List<String> implemented = info.getImplements();
-    	assertNotNull(implemented);
-    	assertEquals(2, implemented.size());
-    	assertTrue(implemented.contains("java.lang.Runnable"));
-    	assertTrue(implemented.contains("java.lang.Iterable"));
+        StringReader sr = new StringReader(
+                "class A implements Runnable, Iterable {\n" +
+                "  void someMethod() {\n" +
+                "    I i = new I();\n" +
+                "  }\n" +
+                "}\n"
+        );
+        ClassInfo info = InfoParser.parse(sr,
+                new ClassLoaderResolver(this.getClass().getClassLoader()), null);
+        List<String> implemented = info.getImplements();
+        assertNotNull(implemented);
+        assertEquals(2, implemented.size());
+        assertTrue(implemented.contains("java.lang.Runnable"));
+        assertTrue(implemented.contains("java.lang.Iterable"));
     }
     
     public void testValidClassInfo3() throws Exception
@@ -329,11 +329,11 @@ public class BasicParseTest extends junit.framework.TestCase
      */
     public void testValidClassInfo4() throws Exception
     {
-    	StringReader sr = new StringReader(
-    			"interface A {}"
-    	);
-    	ClassInfo info = InfoParser.parse(sr, null, null);
-    	assertTrue(info.isInterface());
+        StringReader sr = new StringReader(
+                "interface A {}"
+        );
+        ClassInfo info = InfoParser.parse(sr, null, null);
+        assertTrue(info.isInterface());
     }
 
     /**
@@ -341,12 +341,12 @@ public class BasicParseTest extends junit.framework.TestCase
      */
     public void testValidClassInfo5() throws Exception
     {
-    	StringReader sr = new StringReader(
-    			"enum A { monday { public int getAnInt() { return 3;} }, tuesday() {}, wednesday }"
-    	);
-    	ClassInfo info = InfoParser.parse(sr, null, null);
-    	assertNotNull(info);
-    	assertTrue(info.isEnum());
+        StringReader sr = new StringReader(
+                "enum A { monday { public int getAnInt() { return 3;} }, tuesday() {}, wednesday }"
+        );
+        ClassInfo info = InfoParser.parse(sr, null, null);
+        assertNotNull(info);
+        assertTrue(info.isEnum());
     }
     
     public void testMultiDimensionalArrayParam() throws Exception
@@ -478,18 +478,18 @@ public class BasicParseTest extends junit.framework.TestCase
                 new ClassLoaderResolver(this.getClass().getClassLoader())
                 );
         ter.addCompilationUnit("", cuForSource("class I {}", ter));
-    	StringReader sr = new StringReader(
-    			"class A {\n" +
-    			"  void someMethod() {\n" +
-    			"    I i = new I();\n" +
-    			"  }\n" +
-    			"  class I { }\n" +
-    			"}\n"
-    	);
-    	ClassInfo info = InfoParser.parse(sr, null, null);
-    	List<String> used = info.getUsed();
-    	
-    	assertFalse(used.contains("I"));
+        StringReader sr = new StringReader(
+                "class A {\n" +
+                "  void someMethod() {\n" +
+                "    I i = new I();\n" +
+                "  }\n" +
+                "  class I { }\n" +
+                "}\n"
+        );
+        ClassInfo info = InfoParser.parse(sr, null, null);
+        List<String> used = info.getUsed();
+        
+        assertFalse(used.contains("I"));
     }
 
     /**
@@ -753,5 +753,21 @@ public class BasicParseTest extends junit.framework.TestCase
         assertFalse(info.isInterface());
         assertFalse(info.isApplet());
         assertFalse(info.isEnum());
+    }
+    
+    public void testAnnotation1()
+    {
+        String aSrc = "public @interface UnderConstruction {\n" +
+            "    String owner() default \"Aqifg\";\n" +
+            "    public String value() default \"Object is Under Construction.\";\n" +
+            "    abstract String createdBy() default \"Navin Gujarish\";\n" +
+            "    public abstract String lastChanged() default \"08/07/2011\";\n" +
+            "    int someInteger() default 123;\n" +
+            "    java.lang.String someString() default \"I am a String\";\n" +
+            "}\n";
+            
+        ClassInfo info = InfoParser.parse(new StringReader(aSrc), new ClassLoaderResolver(getClass().getClassLoader()), null);
+        assertNotNull(info);
+        assertFalse(info.hadParseError());
     }
 }
