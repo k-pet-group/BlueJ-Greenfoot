@@ -782,9 +782,8 @@ public class GreenfootFrame extends JFrame
         
         // can only add in the current project if there is a current project
         if (classStateManager != null && classStateManager.getProject() != null) {
-            String currentProject = PrefMgr.getProjectDirectory();
-            String currentName = classStateManager.getProject().getName();
-            item = new JMenuItem(currentProject + System.getProperty("file.separator") + currentName);
+            String currentName = classStateManager.getProject().getDir().getPath();
+            item = new JMenuItem(currentName);
             item.addActionListener(OpenRecentProjectAction.getInstance());
             recentProjectsMenu.add(item);
             recentProjectsMenu.addSeparator();
