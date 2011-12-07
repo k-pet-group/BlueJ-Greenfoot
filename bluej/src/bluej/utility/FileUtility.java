@@ -144,11 +144,11 @@ public class FileUtility
             String buttonLabel, FileFilter filter,
             boolean rememberDir)
     {
-    	File file = getFile(parent, title, buttonLabel, filter, rememberDir);
-    	if (file == null)
-    		return null;
-    	else
-    		return file.getPath();
+        File file = getFile(parent, title, buttonLabel, filter, rememberDir);
+        if (file == null)
+            return null;
+        else
+            return file.getPath();
     }
     
     /**
@@ -165,7 +165,29 @@ public class FileUtility
     public static File getDirName(Component parent, String title,
             String buttonLabel, boolean existingOnly, boolean rememberDir)
     {
+        return getDirName(parent, title, buttonLabel, null, existingOnly, rememberDir);
+    }
+    
+    /**
+     *  Get a directory name from the user, using a file selection dialogue.
+     *  If cancelled or an invalid name was specified, return null.
+     *  
+     *  @param parent   The parent component for the dialog display
+     *  @param buttonLabel  The label for the select button
+     *  @param startDir The directory to show in the file chooser to begin with
+     *  @param existingOnly  Whether only existing directories should be
+     *                       selectable
+     *  @param rememberDir  Whether to remember the parent directory of
+     *                      the selected directory across sessions 
+     */
+    public static File getDirName(Component parent, String title,
+            String buttonLabel, File startDir, boolean existingOnly, boolean rememberDir)
+    {
         PackageChooser newChooser = getDirectoryChooser();
+        if (startDir != null)
+        {
+            newChooser.setCurrentDirectory(startDir);
+        }
         newChooser.setFileFilter(newChooser.getAcceptAllFileFilter());
         newChooser.setAllowNewFiles(! existingOnly);
         
@@ -630,7 +652,7 @@ public class FileUtility
         if(!dir.isDirectory()) {
             return WriteCapabilities.UNKNOWN;
         }
-        WriteCapabilities capabilities = WriteCapabilities.UNKNOWN;		
+        WriteCapabilities capabilities = WriteCapabilities.UNKNOWN;
 
         File tmpFile = null;
         try {
@@ -646,7 +668,7 @@ public class FileUtility
             capabilities = WriteCapabilities.READ_ONLY;
         } finally {
             if(tmpFile != null) {
-                tmpFile.delete();			
+                tmpFile.delete();
             }
         }
         return capabilities;
