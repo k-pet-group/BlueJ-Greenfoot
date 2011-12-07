@@ -47,6 +47,7 @@ import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
 import bluej.parser.nodes.CommentNode;
 import bluej.parser.nodes.ContainerNode;
+import bluej.parser.nodes.DeclarationNode;
 import bluej.parser.nodes.ExpressionNode;
 import bluej.parser.nodes.FieldNode;
 import bluej.parser.nodes.ImportNode;
@@ -430,8 +431,32 @@ public class EditorParser extends JavaParser
     }
     
     @Override
+    protected void gotDeclBegin(LocatableToken token)
+    {
+        // This notifies us of the beginning of some sort of declaration, but we're not sure
+        // of the declaration type yet. We'll add in a placeholder node so that any child
+        // nodes (eg parts of annotations) have somewhere to go. We'll remove the placeholder
+        // node when we find out what sort of node we *really* want.
+        pcuStmtBegin = token;
+        DeclarationNode placeHolder = new DeclarationNode(scopeStack.peek());
+        int curOffset = getTopNodeOffset();
+        int insPos = lineColToPosition(token.getLine(), token.getColumn());
+        // Note, we don't want to soak up comments yet, so we don't call beginNode(...) here.
+        scopeStack.peek().insertNode(placeHolder, insPos - curOffset, 0);
+        scopeStack.push(placeHolder);
+    }
+    
+    @Override
+    protected void endDecl(LocatableToken token)
+    {
+        // Failed declaration; just throw away the node
+        scopeStack.pop().remove();
+    }
+    
+    @Override
     protected void gotTypeDef(LocatableToken firstToken, int tdType)
     {
+        endDecl(firstToken); // remove placeholder
         Reflective ref = currentQuerySource();
         String prefix;
         if (ref != null) {
@@ -802,6 +827,7 @@ public class EditorParser extends JavaParser
     @Override
     protected void beginInitBlock(LocatableToken first, LocatableToken lcurly)
     {
+        endDecl(first); // remove placeholder node
         int curOffset = getTopNodeOffset();
         JavaParentNode blockNode = new ContainerNode(scopeStack.peek(), ParsedNode.NODETYPE_NONE);
         blockNode.setInner(false);
@@ -825,16 +851,19 @@ public class EditorParser extends JavaParser
         endStmtblockBody(rcurly, included);
     }
     
+    @Override
     protected void beginElement(LocatableToken token)
     {
         pcuStmtBegin = token;
     }
     
+    @Override
     protected void endTypeBody(LocatableToken token, boolean included)
     {
         endTopNode(token, false);
     }
     
+    @Override
     protected void gotTypeDefEnd(LocatableToken token, boolean included)
     {
         endTopNode(token, included);
@@ -905,6 +934,7 @@ public class EditorParser extends JavaParser
     protected void gotConstructorDecl(LocatableToken token,
             LocatableToken hiddenToken)
     {
+        endDecl(token); // remove placeholder
         LocatableToken start = pcuStmtBegin;
         String jdcomment = null;
         if (hiddenToken != null) {
@@ -925,6 +955,7 @@ public class EditorParser extends JavaParser
     protected void gotMethodDeclaration(LocatableToken token,
             LocatableToken hiddenToken)
     {
+        endDecl(token); // remove placeholder
         LocatableToken start = pcuStmtBegin;
         String jdcomment = null;
         if (hiddenToken != null) {
@@ -1045,6 +1076,7 @@ public class EditorParser extends JavaParser
     protected void beginFieldDeclarations(LocatableToken first)
     {
         arrayDecls = 0;
+        endDecl(first); // remove placeholder
     }
     
     @Override
@@ -1130,7 +1162,7 @@ public class EditorParser extends JavaParser
     @Override
     protected void beginForInitDecl(LocatableToken first)
     {
-        beginFieldDeclarations(first);
+        arrayDecls = 0;
     }
     
     @Override

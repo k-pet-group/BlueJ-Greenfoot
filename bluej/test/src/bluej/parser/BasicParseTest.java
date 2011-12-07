@@ -491,7 +491,7 @@ public class BasicParseTest extends junit.framework.TestCase
         
         assertFalse(used.contains("I"));
     }
-
+    
     /**
      * Test loop iterator variable declaration dependency
      */
@@ -755,15 +755,27 @@ public class BasicParseTest extends junit.framework.TestCase
         assertFalse(info.isEnum());
     }
     
+    public @interface Unfinished {
+        public enum Priority { LOW, MEDIUM, HIGH }
+        public class Xxxxx {}
+        String value();
+        String[] changedBy() default "";
+        String[] lastChangedBy() default "";
+        Priority priority() default Priority.MEDIUM;
+        String createdBy() default "Aqif Hamid";
+        String lastChanged() default "08/07/2011";
+        final String ff = "hello";
+    }
+        
     public void testAnnotation1()
     {
         String aSrc = "public @interface UnderConstruction {\n" +
+            "    public enum Priority { LOW, MEDIUM, HIGH }\n" +
             "    String owner() default \"Aqifg\";\n" +
-            "    public String value() default \"Object is Under Construction.\";\n" +
-            "    abstract String createdBy() default \"Navin Gujarish\";\n" +
             "    public abstract String lastChanged() default \"08/07/2011\";\n" +
             "    int someInteger() default 123;\n" +
             "    java.lang.String someString() default \"I am a String\";\n" +
+            "    String ff = \"another string\";\n" +
             "}\n";
             
         ClassInfo info = InfoParser.parse(new StringReader(aSrc), new ClassLoaderResolver(getClass().getClassLoader()), null);

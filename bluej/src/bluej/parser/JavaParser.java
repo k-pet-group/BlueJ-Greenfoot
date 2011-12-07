@@ -590,8 +590,9 @@ public class JavaParser
         }
         else if (isModifier(token) || isTypeDeclarator(token)) {
             // optional: class/interface/enum
-            beginElement(token);
+            gotDeclBegin(token);
             tokenStream.pushBack(token);
+            parseModifiers();
             parseTypeDef(token);
             reachedCUstate(2); state = 2;
         }
@@ -712,6 +713,7 @@ public class JavaParser
      */
     public final void parseTypeDef()
     {
+        parseModifiers();
         parseTypeDef(tokenStream.LA(1));
     }
     
@@ -768,15 +770,10 @@ public class JavaParser
     {
         beginTypeBody(token);
 
-        if (tdType == TYPEDEF_ANNOTATION) {
-            parseAnnotationBody();
+        if (tdType == TYPEDEF_ENUM) {
+            parseEnumConstants();
         }
-        else { 
-            if (tdType == TYPEDEF_ENUM) {
-                parseEnumConstants();
-            }
-            parseClassBody();
-        }
+        parseClassBody();
 
         token = nextToken();
         if (token.getType() != JavaTokenTypes.RCURLY) {
@@ -1450,7 +1447,9 @@ public class JavaParser
             token = tokenStream.LA(1);
             pushBackAll(tlist);
             if (isTypeSpec && token.getType() == JavaTokenTypes.IDENT) {
-                return parseVariableDeclarations(tlist.get(0), true);
+                token = tlist.get(0);
+                gotDeclBegin(token);
+                return parseVariableDeclarations(token, true);
             }
             else {
                 parseExpression();                                              
@@ -1510,6 +1509,7 @@ public class JavaParser
         case 26: // LITERAL_transient
         case 27: // AT
             tokenStream.pushBack(token);
+            gotDeclBegin(token);
             parseModifiers();
             if (isTypeDeclarator(tokenStream.LA(1)) || tokenStream.LA(1).getType() == JavaTokenTypes.AT) {
                 parseTypeDef(token);
@@ -1522,6 +1522,7 @@ public class JavaParser
         case 29: // LITERAL_enum
         case 30: // LITERAL_interface
             tokenStream.pushBack(token);
+            gotDeclBegin(token);
             parseTypeDef(token);
             return null;
         case 31: // LITERAL_void
@@ -1551,6 +1552,7 @@ public class JavaParser
             }
             else {
                 pushBackAll(tlist);
+                gotDeclBegin(token);
                 return parseVariableDeclarations(token, true);
             }
         case 40: // LCURLY
@@ -1607,6 +1609,7 @@ public class JavaParser
                     token = tokenStream.LA(1);
                     pushBackAll(tlist);
                     if (isTypeSpec && token.getType() == JavaTokenTypes.IDENT) {
+                        gotDeclBegin(tlist.get(0));
                         parseVariableDeclarations(tlist.get(0), false);
                     }
                     else {
@@ -2084,6 +2087,7 @@ public class JavaParser
     public LocatableToken parseVariableDeclarations()
     {
         LocatableToken first = tokenStream.LA(1);
+        gotDeclBegin(first);
         return parseVariableDeclarations(first, true);
     }
     
@@ -2648,56 +2652,6 @@ public class JavaParser
         }
     }
         
-    /**
-     * Parse an annotation body
-     */
-    public void parseAnnotationBody()
-    {
-        LocatableToken token = tokenStream.LA(1);
-        while (token.getType() != JavaTokenTypes.RCURLY) {
-            parseModifiers();
-            boolean gotType = parseTypeSpec(true);
-            if (gotType) {
-                LocatableToken hiddenToken = (LocatableToken) token.getHiddenBefore();
-                LocatableToken idToken = nextToken(); // identifier
-                if (idToken.getType() != JavaTokenTypes.IDENT) {
-                    error("Expected identifier (method or field name).", idToken);
-                    return;
-                }
-
-                token = nextToken();
-
-                if (token.getType() == JavaTokenTypes.LPAREN) {
-                    // method declaration
-                    gotMethodDeclaration(idToken, hiddenToken);
-                    parseMethodParamsBody();
-                }
-                else {
-                    error("Expected ';' or '=' or '(' (in field or method declaration).", token);
-                    tokenStream.pushBack(token);
-                }
-                token = nextToken();
-                if (token.getType()==JavaTokenTypes.LITERAL_default){
-                    parseExpression();
-                    token = nextToken();
-                    if (token.getType()!= JavaTokenTypes.SEMI){
-                        errorBefore("Expected ';' or '=' or '(' (in field or method declaration).", token);
-                        tokenStream.pushBack(token);
-                    }
-                    token = nextToken();
-                }
-                tokenStream.pushBack(token);
-            }
-            else {
-                if (tokenStream.LA(1) == token) {
-                    // No tokens were processed; must skip at least one token:
-                    tokenStream.nextToken();
-                }
-                token = tokenStream.LA(1);
-            }
-        }   
-    }
-
     private static int [] expressionTokenIndexes = new int[JavaTokenTypes.INVALID+1];
     
     static {
