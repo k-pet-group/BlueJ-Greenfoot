@@ -402,16 +402,13 @@ Please see <http://www.bluej.org/help/faq.html#socket-exc> for more
 information.
 
 project-is-readonly
-The project is read-only. You will not be able to create objects
-or execute methods.
-Either the access rights of the project directory are set as 
-'read only' for you, or the whole file system is not writable (is 
-it a CD?).
-To fully use this project, you must ensure that it is on a writable
-file system (usually your hard disk), and that you have write 
-permission in the project directory and each file within it.
-This can often be accomplished by choosing "save as" from the
-Project menu after closing this dialog.
+The project being opened is read-only:
+$
+You will not be able to modify it,
+unless you save it to a different location.
+Save elsewhere
+Continue anyway
+null
 
 project-is-virtualized
 The project you are opening is being virtualized by Windows. This 
