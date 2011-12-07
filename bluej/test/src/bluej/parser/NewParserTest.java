@@ -273,8 +273,8 @@ public class NewParserTest extends TestCase
                 "public @interface RequestForEnhancement { " +
                 "int id();" +
                 "String synopsis();"+
-                "String engineer();  default \"[unassigned]\"; "+
-                "String date();      default \"[unimplemented]\"; "+
+                "String engineer()  default \"[unassigned]\"; "+
+                "String date()      default \"[unimplemented]\"; "+
                 "}"
         );
         JavaParser ip = new JavaParser(sr);
