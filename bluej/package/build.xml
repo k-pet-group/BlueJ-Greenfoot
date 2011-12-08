@@ -432,6 +432,7 @@
 	            <include name="src/**/*.java" />       
 	            <include name="boot/src/**/*.java" />       
 	            <include name="boot/src/bluej/splash.jpg" />
+            	<include name="bjdoclet/**" />
 	            <include name="doc/HOWTO.*" />    
 	            <include name="doc/THIRDPARTYLICENSE.txt" />
 	            <include name="doc/LICENSE.txt" />
@@ -460,7 +461,7 @@
             	<exclude name="test/classes/**"/>
 	            <include name="build.properties"/>   
 	            <include name="build.xml"/>  
-	            <exclude name="**/.DS_Store"/>
+	            <exclude name="**/.*"/>
 	        </zipfileset>
         </zip>
     </target>
