@@ -124,6 +124,13 @@
         <include name="scenarios/wombats/" />
         <include name="scenarios/wombats2/" />
     </patternset>
+    
+    <patternset id="distribution.common.classes">
+      <include name="common/**/*.java" />
+      <include name="common/**/*.class" />
+      <include name="common/**/*.html" />
+      <include name="common/inherit.gif" />
+    </patternset>
 
     <!-- The classpath to the greenfoot classes (once they are built) -->
     <path id="greenfoot.class.path">
@@ -289,6 +296,14 @@ LICENSE.txt file that accompanied this code.${line.separator}
         </copy>
     </target>
 
+    <target name="copy-common-classes" depends="compile-scenarios"  description="Copies the common classes to bluej" >
+        <copy todir="${bluej.lib.greenfoot}" preservelastmodified="true">
+            <fileset dir=".">
+                <patternset refid="distribution.common.classes"/>
+            </fileset>
+        </copy>
+    </target>
+
     <target name="copy-tutorial" description="Copies the projects tutorial and tutorial project to BlueJ" >
         <copy todir="${bluej.projectdir}/package/tutorial">
             <fileset refid="tutorial.files"/>
@@ -359,7 +374,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
     	<copy file="resources/images/menu-button.png" todir="images"/>
     </target>
 
-    <target name="dist" depends="ready-to-run, clean-scenarios, copy-scenarios, copy-license, copy-tutorial, zip-source" description="Generate the distribution. Also runs the bluej.dist-greenfoot" >
+    <target name="dist" depends="ready-to-run, clean-scenarios, copy-scenarios, copy-common-classes, copy-license, copy-tutorial, zip-source" description="Generate the distribution. Also runs the bluej.dist-greenfoot" >
         <!-- Run the BlueJ dist-->
         <ant dir="${bluej.projectdir}" target="dist-greenfoot" />
 

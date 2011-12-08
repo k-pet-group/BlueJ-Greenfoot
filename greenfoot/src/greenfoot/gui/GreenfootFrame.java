@@ -27,6 +27,7 @@ import greenfoot.actions.AboutGreenfootAction;
 import greenfoot.actions.CloseProjectAction;
 import greenfoot.actions.CompileAllAction;
 import greenfoot.actions.ExportProjectAction;
+import greenfoot.actions.ImportClassAction;
 import greenfoot.actions.NewClassAction;
 import greenfoot.actions.NewProjectAction;
 import greenfoot.actions.OpenProjectAction;
@@ -150,6 +151,7 @@ public class GreenfootFrame extends JFrame
     private JComponent centrePanel;
     
     private NewClassAction newClassAction;
+    private ImportClassAction importClassAction;
     private SaveProjectAction saveProjectAction;
     private SaveAsAction saveAsAction;
     private ShowReadMeAction showReadMeAction;
@@ -617,6 +619,7 @@ public class GreenfootFrame extends JFrame
         saveWorldAction = worldHandlerDelegate.getSaveWorldAction();
         exportProjectAction = new ExportProjectAction(this, false);
         shareAction = new ExportProjectAction(this, true);
+        importClassAction = new ImportClassAction(this, worldHandlerDelegate);
         closeProjectAction = new CloseProjectAction(this);
         removeSelectedClassAction = new RemoveSelectedClassAction(this);
         removeSelectedClassAction.setEnabled(false);
@@ -655,6 +658,7 @@ public class GreenfootFrame extends JFrame
         JMenu editMenu = addMenu(Config.getString("menu.edit"), menuBar, 'e');
         
         addMenuItem(newClassAction, editMenu, KeyEvent.VK_N, false, KeyEvent.VK_N);
+        addMenuItem(importClassAction, editMenu, KeyEvent.VK_I, false, KeyEvent.VK_I);
         addMenuItem(removeSelectedClassAction, editMenu, KeyEvent.VK_D, false, KeyEvent.VK_R);
                 
         if (!Config.usingMacScreenMenubar()) { // no "Preferences" here for
@@ -809,6 +813,7 @@ public class GreenfootFrame extends JFrame
         saveProjectAction.setEnabled(state);
         saveAsAction.setEnabled(state);
         newClassAction.setEnabled(state);
+        importClassAction.setEnabled(state);
         showReadMeAction.setEnabled(state);
         saveWorldAction.setEnabled(state);
         exportProjectAction.setEnabled(state);

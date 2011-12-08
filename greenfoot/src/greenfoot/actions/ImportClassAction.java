@@ -53,6 +53,7 @@ public class ImportClassAction extends AbstractAction
     public ImportClassAction(GreenfootFrame gfFrame, InteractionListener interactionListener)
     {
         super(Config.getString("import.action"));
+        setEnabled(false);
         this.gfFrame = gfFrame;
         this.interactionListener = interactionListener;
     }   

@@ -78,8 +78,8 @@ public class ImportClassDialog extends EscapeDialog
     }
     
     /**
-     * Gets the final selected file image (which may be .java or .class)
-     * null if the user pressed cancel (or otherwise did not select one)
+     * Gets the final selected file image
+     * null if the user pressed cancel (or otherwise did not select one) or if there is no image
      */
     public File getFinalSelectionImageFile()
     {
@@ -228,7 +228,7 @@ public class ImportClassDialog extends EscapeDialog
             while (n != -1);
             
             String processedContents = s.toString()
-               .replace("./resources/inherit.gif", new File(Config.getGreenfootLibDir(), "inherit.gif").toURI().toURL().toString())
+               .replace("./resources/inherit.gif", new File(Config.getGreenfootLibDir(), "common/inherit.gif").toURI().toURL().toString())
                //And, while I'm at it, fix that damn missing space:
                .replace("</B><DT>extends", "</B><DT> extends")
                ;
