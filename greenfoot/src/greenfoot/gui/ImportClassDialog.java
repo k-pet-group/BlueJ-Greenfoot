@@ -9,6 +9,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
@@ -280,7 +281,22 @@ public class ImportClassDialog extends EscapeDialog
             classLabel.setText(name);
             File img = findImage(file);
             curSelectionImage = img;
-            classPicture.setIcon(img == null ? null : new ImageIcon(img.getAbsolutePath()));
+            ImageIcon icon;
+            if (img == null)
+            {
+                icon = null;
+            }
+            else
+            {
+                icon = new ImageIcon(img.getAbsolutePath());
+                final int maxDim = 60;
+                if (Math.max(icon.getIconHeight(), icon.getIconWidth()) > maxDim)
+                {
+                    double scale = (double)maxDim / (double)Math.max(icon.getIconHeight(), icon.getIconWidth());
+                    icon.setImage(icon.getImage().getScaledInstance((int)(scale * icon.getIconWidth()), (int)(scale * icon.getIconHeight()), Image.SCALE_SMOOTH));
+                }
+            }
+            classPicture.setIcon(icon);
             showHTML(GreenfootUtil.removeExtension(file.getAbsolutePath()));
         }
 
