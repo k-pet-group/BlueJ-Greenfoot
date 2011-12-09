@@ -42,6 +42,7 @@ import greenfoot.actions.RunSimulationAction;
 import greenfoot.actions.SaveAsAction;
 import greenfoot.actions.SaveProjectAction;
 import greenfoot.actions.SaveWorldAction;
+import greenfoot.actions.SetPlayerAction;
 import greenfoot.actions.ShowApiDocAction;
 import greenfoot.actions.ShowCopyrightAction;
 import greenfoot.actions.ShowReadMeAction;
@@ -161,6 +162,7 @@ public class GreenfootFrame extends JFrame
     private RemoveSelectedClassAction removeSelectedClassAction;
     private CompileAllAction compileAllAction;
     private SaveWorldAction saveWorldAction;
+    private SetPlayerAction setPlayerAction;
     
     private ToggleDebuggerAction toggleDebuggerAction;
     private ToggleSoundAction toggleSoundAction;
@@ -617,6 +619,7 @@ public class GreenfootFrame extends JFrame
         saveAsAction = new SaveAsAction(this, rBlueJ);
         showReadMeAction = new ShowReadMeAction(this);
         saveWorldAction = worldHandlerDelegate.getSaveWorldAction();
+        setPlayerAction = new SetPlayerAction(this);
         exportProjectAction = new ExportProjectAction(this, false);
         shareAction = new ExportProjectAction(this, true);
         importClassAction = new ImportClassAction(this, worldHandlerDelegate);
@@ -686,6 +689,7 @@ public class GreenfootFrame extends JFrame
         addMenuItem(saveWorldAction, ctrlMenu, -1, false, KeyEvent.VK_W);
         ctrlMenu.addSeparator();
         addMenuItem(compileAllAction, ctrlMenu, KeyEvent.VK_K, false, -1);
+        addMenuItem(setPlayerAction, ctrlMenu, KeyEvent.VK_M, false, -1);
         
         JMenu helpMenu = addMenu(Config.getString("menu.help"), menuBar, 'h');
         

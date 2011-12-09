@@ -256,6 +256,11 @@ import.import=Import
 import.dialogTitle=Import Class
 import.action=Import Class
 
+set.player=Set Player Name
+playername.dialog.title=Set Player Name
+playername.dialog.help=Set the player username used by the PlayerData class for local storage
+playername.dialog.playerName=Player Name
+
 # Menus
 
 menu.openRecent=Open recent
