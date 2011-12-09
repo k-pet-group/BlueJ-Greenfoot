@@ -124,13 +124,6 @@
         <include name="scenarios/wombats/" />
         <include name="scenarios/wombats2/" />
     </patternset>
-    
-    <patternset id="distribution.common.classes">
-      <include name="common/**/*.java" />
-      <include name="common/**/*.class" />
-      <include name="common/**/*.html" />
-      <include name="common/inherit.gif" />
-    </patternset>
 
     <!-- The classpath to the greenfoot classes (once they are built) -->
     <path id="greenfoot.class.path">
@@ -297,12 +290,34 @@ LICENSE.txt file that accompanied this code.${line.separator}
     </target>
 
     <target name="copy-common-classes" depends="compile-scenarios"  description="Copies the common classes to bluej" >
-        <copy todir="${bluej.lib.greenfoot}" preservelastmodified="true">
-            <fileset dir=".">
-                <patternset refid="distribution.common.classes"/>
-            </fileset>
-        </copy>
+        <antcall target="copy-common-class">
+          <param name="common.class" value="Explosion"/>
+        </antcall>
+    	<antcall target="copy-common-class">
+    	  <param name="common.class" value="SmoothMover"/>
+    	</antcall>
+    	<antcall target="copy-common-class">
+    	  <param name="common.class" value="GifImage"/>
+    	</antcall>
     </target>
+	
+	<target name="copy-common-class" depends="compile-scenarios">
+		<javadoc destdir="common" sourcefiles="common/${common.class}.java" Version="yes" notree="yes" noindex="yes" nohelp="yes" nonavbar="yes"/> 
+		
+		<copy todir="${bluej.lib.greenfoot}" preservelastmodified="true">
+		  <fileset dir=".">
+	        <patternset>
+	          <include name="common/${common.class}.java" />
+	          <!-- <include name="common/${common.class}.class" /> -->
+	          <include name="common/${common.class}.html" />
+	          <include name="common/${common.class}.png" />
+	          <include name="common/${common.class}.jpg" />
+	          <include name="common/${common.class}.jpeg" />
+	          <include name="common/inherit.gif" />
+	        </patternset>
+	      </fileset>
+	   </copy>
+	</target>
 
     <target name="copy-tutorial" description="Copies the projects tutorial and tutorial project to BlueJ" >
         <copy todir="${bluej.projectdir}/package/tutorial">
