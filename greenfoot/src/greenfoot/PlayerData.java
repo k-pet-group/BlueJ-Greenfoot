@@ -48,13 +48,9 @@ public class PlayerData
 {
     // These may enlarge in future:
     
-    /**
-     * The number of integers that can be stored
-     */
+    /** The number of integers that can be stored */
     public static final int NUM_INTS = 10;
-    /**
-     * The number of Strings that can be stored
-     */
+    /** The number of Strings that can be stored */
     public static final int NUM_STRINGS = 5;
     private int[] ints;
     private String[] strings;
@@ -78,13 +74,14 @@ public class PlayerData
     
     /**
      * Gets the value of the int at the given index (0 to NUM_INTS-1, inclusive)
-     * 
+     * <p>
      * Default value is zero.
      */
     public int getInt(int index) { return ints[index]; }
+    
     /**
      * Gets the value of the String at the given index (0 to NUM_STRINGS-1, inclusive)
-     * 
+     * <p>
      * Default value is the empty String.
      */
     public String getString(int index) { return strings[index] == null ? "" : strings[index]; }
@@ -93,6 +90,7 @@ public class PlayerData
      * Sets the value of the int at the given index (0 to NUM_INTS-1, inclusive)
      */
     public void setInt(int index, int value) { ints[index] = value; }
+
     /**
      * Gets the value of the String at the given index (0 to NUM_STRINGS-1, inclusive)
      * Passing null is treated as a blank string.
@@ -101,7 +99,7 @@ public class PlayerData
     
     /**
      * A boolean indicating whether storage is available.
-     * 
+     * <p>
      * Storage is unavailable if it is an applet outside the Greenfoot website, or a stand-alone application,
      * or if the user is not logged in to the Greenfoot website.  This last case is very common,
      * so you must check this function before attempting to use the other static storage functions.
@@ -126,7 +124,7 @@ public class PlayerData
     
     /**
      * Stores the data.
-     * 
+     * <p>
      * If you try to store data for any user other than the current user, it is guaranteed to fail.
      * 
      * @return true if stored successfully, false if there was a problem.
@@ -179,7 +177,7 @@ public class PlayerData
      * and then use getNearby(10) to get the ten users with scores close to the current player.</p> 
      * 
      * @param limit The maximum number of data items to retrieve.
-     * Passing zero or a negative number will get all the data, but see the note above.  
+     *            Passing zero or a negative number will get all the data, but see the note above.  
      * @return A list where each item is a PlayerData, or null if there was a problem
      */
     public static List getNearby(int maxAmount)
@@ -189,7 +187,7 @@ public class PlayerData
     
     /**
      * Returns a 50x50 image of the user.
-     * 
+     * <p>
      * On the Greenfoot website, this is their profile picture. 
      * If running locally, always returns a dummy image, with their username drawn on the image.
      * 
