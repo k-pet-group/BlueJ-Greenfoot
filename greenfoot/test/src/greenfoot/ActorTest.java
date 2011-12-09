@@ -101,7 +101,6 @@ public class ActorTest extends TestCase
         world.addObject(o, 0, 0);
         o.setLocation(0, 0);
         Rect rect = o.getBoundingRect();
-        System.out.println("Rect: " + rect);
         assertEquals(-1 , rect.getX());
         assertEquals(-1 , rect.getY());
         assertEquals(2 , rect.getTop());

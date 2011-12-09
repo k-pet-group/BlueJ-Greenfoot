@@ -50,12 +50,13 @@ public class TestUtilDelegate implements GreenfootUtilDelegate
         return new ArrayList<String>();
     }
 
-    public String getGreenfootLogoPaWth()
+    public String getGreenfootLogoPath()
     {
-        String classes = getClass().getClassLoader().getResource(".").toString();
+        String resourceName = "greenfoot/TestUtilDelegate.class";
+        String classes = getClass().getClassLoader().getResource(resourceName).toString();
         File startingDir = null;
         try {
-            startingDir = (new File(new URI(classes)).getParentFile());
+            startingDir = new File(new URI(classes)).getParentFile().getParentFile();
         }
         catch (URISyntaxException e) {
             e.printStackTrace();
@@ -112,12 +113,6 @@ public class TestUtilDelegate implements GreenfootUtilDelegate
     
     @Override
     public Iterable<String> getSoundFiles()
-    {
-        return null;
-    }
-
-    @Override
-    public String getGreenfootLogoPath()
     {
         return null;
     }
