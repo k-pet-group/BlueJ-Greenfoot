@@ -91,12 +91,6 @@ public class MousePollingManager implements TriggeredMouseListener, TriggeredMou
     private boolean polledInThisAct;
     
     /**
-     * Whether the user has requested any information about the current mouse data.
-     * Access to this field must be synchronized. 
-     */
-    private boolean polledThisData;
-    
-    /**
      * The current mouse data This will be the mouse info returned for the rest
      * of this act loop.
      * 
@@ -193,7 +187,6 @@ public class MousePollingManager implements TriggeredMouseListener, TriggeredMou
     private void registerEventRecieved()
     {
         gotNewEvent = true;
-        polledThisData = false;
     }
     
     /**
@@ -211,23 +204,21 @@ public class MousePollingManager implements TriggeredMouseListener, TriggeredMou
         polledInThisAct = true;
         
         synchronized(this) {
-            if (!polledThisData && !gotNewEvent) {
-                // The current data hasn't yet been polled, and there's no more recent data
-                polledThisData = true;
-                return;
-            }
-            
             // The current data was already polled, or we have a new event since;
             // use futureData as our current data. (If there's been no event, i.e. if
             // gotNewEvent is false, futureData will contain no events).
-            MouseEventData newData = new MouseEventData();
-            currentData = futureData;
-            futureData = newData;
-            potentialNewDragData = new MouseEventData();
-            
-            // Indicate that we have processed all current events.
-            gotNewEvent = false;
-            polledThisData = true;
+            if (gotNewEvent) {
+                MouseEventData newData = new MouseEventData();
+                currentData = futureData;
+                futureData = newData;
+                potentialNewDragData = new MouseEventData();
+
+                // Indicate that we have processed all current events.
+                gotNewEvent = false;
+            }
+            else {
+                currentData.init();
+            }
         }
     }
 
@@ -344,7 +335,8 @@ public class MousePollingManager implements TriggeredMouseListener, TriggeredMou
      * mouse. Within the same act-loop it will always return exactly the same
      * MouseInfo object with exactly the same contents.
      * 
-     * @return The info about the current state of the mouse. Null if nothing mouse related has happened in this act round.
+     * @return The info about the current state of the mouse; Null if the mouse is outside
+     *         the world boundaries (unless being dragged).
      */
     public MouseInfo getMouseInfo()
     {
@@ -406,6 +398,9 @@ public class MousePollingManager implements TriggeredMouseListener, TriggeredMou
 
     public void mouseExited(MouseEvent e)
     {
+        synchronized (this) {
+            futureData.mouseExited();
+        }
     }
 
     public void mousePressed(MouseEvent e)

@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2011  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -35,7 +35,8 @@ import greenfoot.World;
  * @author Poul Henriksen
  * 
  */
-class MouseEventData {
+class MouseEventData
+{
     private MouseInfo mouseInfo;
     
     // We need to hold the data for each individual action that might have
@@ -45,9 +46,9 @@ class MouseEventData {
     private MouseInfo mouseClickedInfo;
     private MouseInfo mousePressedInfo;
     private MouseInfo mouseDraggedInfo;
-    private MouseInfo mouseMovedInfo;    
+    private MouseInfo mouseMovedInfo;
 
-    private void init()
+    public void init()
     {
         mousePressedInfo = null;
         mouseClickedInfo = null;
@@ -108,7 +109,7 @@ class MouseEventData {
     public void mouseDragged(int x, int y, int button, Actor actor)
     {
         init();
-        mouseDraggedInfo = MouseInfoVisitor.newMouseInfo();;
+        mouseDraggedInfo = MouseInfoVisitor.newMouseInfo();
         mouseInfo = mouseDraggedInfo;
         MouseInfoVisitor.setButton(mouseInfo, button);
         MouseInfoVisitor.setLoc(mouseInfo, x, y);
@@ -134,6 +135,11 @@ class MouseEventData {
         MouseInfoVisitor.setActor(mouseInfo, actor);
     }
 
+    public void mouseExited()
+    {
+        mouseInfo = mouseDraggedInfo;
+    }
+    
     public boolean isMouseMoved(Object obj)
     {
         return checkObject(obj, mouseMovedInfo);
@@ -147,16 +153,6 @@ class MouseEventData {
         MouseInfoVisitor.setButton(mouseInfo, button);
         MouseInfoVisitor.setLoc(mouseInfo, x, y);
         MouseInfoVisitor.setActor(mouseInfo, actor);
-    }
-
-    public int getX()
-    {
-        return mouseInfo.getX();
-    }
-
-    public int getY()
-    {
-        return mouseInfo.getY();
     }
 
     public Actor getActor()

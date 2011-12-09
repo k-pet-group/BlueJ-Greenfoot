@@ -192,7 +192,7 @@ public class MousePollTest extends TestCase
         /// New act round where nothing happens
         mouseMan.newActStarted();        
         assertFalse(mouseMan.isMousePressed(actorAtClick));
-        assertNull(mouseMan.getMouseInfo());
+        assertNotNull(mouseMan.getMouseInfo());
         
         /// New act round where we drag a bit
         mouseMan.newActStarted();
@@ -217,7 +217,7 @@ public class MousePollTest extends TestCase
         mouseMan.newActStarted();
         assertFalse(mouseMan.isMousePressed(actorAtClick));
         assertFalse(mouseMan.isMouseDragged(actorAtClick));
-        assertNull(mouseMan.getMouseInfo());
+        assertNotNull(mouseMan.getMouseInfo());
         
         // New act round where the drag is ended
         mouseMan.newActStarted();
