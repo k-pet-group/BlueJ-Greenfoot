@@ -226,10 +226,22 @@ public abstract class Actor
             sizeChanged();
         }
     }
+    
+    /**
+     * Turn this actor to face towards a certain location.
+     * 
+     * @param x  The x-coordinate of the cell to turn towards
+     * @param y  The y-coordinate of the cell to turn towards
+     */
+    public void turnTowards(int x, int y)
+    {
+        double a = Math.atan2(y - this.y, x - this.x);
+        setRotation((int) Math.toDegrees(a));
+    }
 
     /**
      * Assign a new location for this actor. This moves the actor to the specified
-     * location. The location is specified as the co-ordinates of a cell in the world.
+     * location. The location is specified as the coordinates of a cell in the world.
      * 
      * <p>If this method is overridden it is important to call this method as
      * "super.setLocation(x,y)" from the overriding method, to avoid infinite recursion.
