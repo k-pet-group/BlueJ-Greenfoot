@@ -95,6 +95,9 @@
         <include name="lib/bluej.defs" />
         <include name="lib/moe.defs" />
         <include name="lib/*/templates/**" />
+    	<include name="doc/*.txt" />
+    	<include name="doc/*.TXT" />
+    	<include name="doc/HOWTO.*" />
     </patternset>
 	<patternset id="bluej.textfiles.iso88591">
         <include name="lib/*/labels" />
@@ -115,6 +118,9 @@
                 <patternset refid="bluej.icons" />
             </fileset>
             <fileset refid="bluej.license.files"/>
+        	<fileset dir="${bluej_home}/doc">
+				<include name="README.TXT"/>        	
+        	</fileset>
         </copy>
 
         <!-- make sure the people .class files are dated in the future so they
@@ -345,6 +351,7 @@
 		<delete dir="bluej-examples-tmp" />
 		<copy todir="bluejdeb/usr/share/doc/BlueJ" file="../doc/LICENSE.txt" />
 		<copy todir="bluejdeb/usr/share/doc/BlueJ" file="../doc/THIRDPARTYLICENSE.txt" />
+		<copy todir="bluejdeb/usr/share/doc/BlueJ" file="../doc/README.TXt" />
 
 		<!-- desktop app extras -->
 		<copy todir="bluejdeb/usr/share">
@@ -412,13 +419,6 @@
             <fileset dir="winsetup" includes="bluej.iss" />
         </replaceregexp>
         
-        <!-- update BlueJ README.txt version number -->
-        <replaceregexp byline="true">
-            <regexp pattern="BlueJ version .*\b (\s+--.*)" />
-            <substitution expression="BlueJ version ${bluej.version} \1"/>
-            <fileset dir="winlaunch" includes="README.TXT" />
-        </replaceregexp>
-
         <exec dir="winsetup" executable="C:\Program Files\Inno Setup 5\ISCC.exe">
             <arg line="bluej.iss"/>
         </exec>
@@ -436,6 +436,7 @@
 	            <include name="doc/HOWTO.*" />    
 	            <include name="doc/THIRDPARTYLICENSE.txt" />
 	            <include name="doc/LICENSE.txt" />
+            	<include name="doc/README.TXT" />
             	<include name="doc/BlueJ-parser.txt" />
             	<include name="doc/threading-issues.txt" />
 	            <include name="examples/**/*" />          

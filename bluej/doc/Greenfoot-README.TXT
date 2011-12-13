@@ -17,7 +17,7 @@ greenfoot.properties file.
 The Greenfoot Team
 --------------
 Greenfoot is being developed by:
-University of Kent at Canterbury: Michael Kolling, Poul Henriksen
+University of Kent at Canterbury: Michael Kölling, Poul Henriksen
 La Trobe University: John Rosenberg, Davin McCall, Marion Zalk
 
 The copyright (c) for Greenfoot is held by P. Henriksen and M. Kolling.

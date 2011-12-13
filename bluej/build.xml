@@ -388,6 +388,13 @@ LICENSE.txt file that accompanied this code.${line.separator}
             <substitution expression="BLUEJ_VERSION_SUFFIX = &quot;${bluej.version.suffix}&quot;;"/>
             <fileset dir="boot/src/bluej" includes="Boot.java"/>
         </replaceregexp>
+    	
+        <!-- update BlueJ README.txt version number -->
+        <replaceregexp byline="true">
+            <regexp pattern="BlueJ version .*\b (\s+--.*)" />
+            <substitution expression="BlueJ version ${bluej.version} \1"/>
+            <fileset dir="winlaunch" includes="README.TXT" />
+        </replaceregexp>
     </target>
     
     <target name="add-license-to-sources" description="adds the license to each source file" >	      

@@ -33,7 +33,7 @@ The BlueJ Team
 --------------
 BlueJ is being developed by:
 La Trobe University: John Rosenberg, Davin McCall, Marion Zalk
-University of Kent at Canterbury: Ian Utting, Michael Kölling, Neil Brown, Phil Stevens
+University of Kent at Canterbury: Ian Utting, Michael KÃ¶lling, Neil Brown, Phil Stevens
 
 The BlueJ License
 -----------------
@@ -42,7 +42,7 @@ with the Classpath Exception.
 
 For the full license text, please see the file LICENSE.TXT.
 
-The copyright © for BlueJ is held by M. Kölling and J. Rosenberg.
+The copyright Â© for BlueJ is held by M. KÃ¶lling and J. Rosenberg.
 
 Third Party Libraries
 ---------------------

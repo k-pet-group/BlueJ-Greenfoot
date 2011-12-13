@@ -52,7 +52,6 @@ Type: files; Name: "{app}\lib\extensions\submission.jar"
 [Files]
 Source: "..\install_tmp\*.*"; DestDir: "{app}"; Flags: recursesubdirs ignoreversion
 Source: "..\winlaunch\bjlaunch.exe"; DestDir: "{app}"; DestName: "bluej.exe"
-Source: "..\winlaunch\README.TXT"; DestDir: "{app}"
 
 [Run]
 Filename: "{app}\README.TXT"; Description: "View the README file"; Flags: postinstall shellexec skipifsilent
