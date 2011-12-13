@@ -351,6 +351,7 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
         {
             String userName = getString(buf);
             r[line] = GreenfootStorageVisitor.allocate(userName);
+            r[line].setScore(buf.getInt());
             for (int i = 0; i < numInts; i++)
             {
                 int x = buf.getInt();
@@ -374,12 +375,13 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
         {
             ensureStorageConnected();
             int payloadLength = 0;
-            payloadLength += 4 + 4 + PlayerData.NUM_INTS * 4;
+            payloadLength += 4 + 4 + (1 + PlayerData.NUM_INTS) * 4;
             for (int i = 0; i < PlayerData.NUM_STRINGS; i++)
                 payloadLength += stringSize(data.getString(i));
             
             ByteBuffer buf = makeRequest(1 + payloadLength);
             buf.put((byte) 2);
+            buf.putInt(data.getScore());
             buf.putInt(PlayerData.NUM_INTS);
             buf.putInt(PlayerData.NUM_STRINGS);
             for (int i = 0; i < PlayerData.NUM_INTS; i++)

@@ -38,9 +38,8 @@ import java.util.List;
  * on a scoreboard.  These give you back PlayerData items, where you can get the players' image or
  * get/set the current data.</p>
  * 
- * <p>A player's data consists of 10 integers and 5 strings.  You should store scores in the
- * first integer slot (using setInt(0, score) and getInt(0)) because that is what getTop and getNearby
- * will use for sorting.  Otherwise, you are free to use the integers and strings as you
+ * <p>A player's data consists of a score integer, 10 general integers and 5 strings.  getTop and getNearby
+ * use the score for sorting.  You are free to use the general integers and strings as you
  * need for your scenario: things like which level the player reached last time they
  * were playing.</p>
  */
@@ -55,11 +54,13 @@ public class PlayerData
     private int[] ints;
     private String[] strings;
     private String userName;
+    private int score;
     
     //package-visible:
     PlayerData(String userName)
     {
-        this.userName = userName; 
+        this.userName = userName;
+        score = 0;
         ints = new int[NUM_INTS];
         strings = new String[NUM_STRINGS];
     }
@@ -96,6 +97,26 @@ public class PlayerData
      * Passing null is treated as a blank string.
      */
     public void setString(int index, String value) { strings[index] = value; /* TODO throw an exception if it's over max length */ }
+    
+    /**
+     * Gets the player's score
+     */
+    public int getScore() { return score; }
+    
+    /**
+     * Sets the player's score.
+     * <p>
+     * Note that this really does set the player's score.  If you want to record only the player's highest
+     * score, you must code that yourself, using something like:
+     * <pre>
+     *   if (latestScore > getScore())
+     *   {
+     *     setScore(latestScore);
+     *   }
+     * </pre>
+     * Without some code like this, you'll always overwrite the player's previous score.
+     */
+    public void setScore(int score) { this.score = score; }
     
     /**
      * A boolean indicating whether storage is available.
@@ -137,13 +158,13 @@ public class PlayerData
     /**
      * Gets a sorted list of the PlayerData items for this scenario, starting at the top.
      * 
-     * <p>This will return one PlayerData item per user, and it will be sorted in descending order by the first integer value
-     * (i.e. the return of getInt(0)).  The parameter allows you to specify a limit
+     * <p>This will return one PlayerData item per user, and it will be sorted in descending order by the score
+     * (i.e. the return of getScore()).  The parameter allows you to specify a limit
      * on the amount of users' data to retrieve.  If there is lots of data stored
      * for users in your app, this may take some time (and bandwidth) to retrieve all users' data,
      * and often you do not need all the users' data.</p>
      * 
-     * <p>For example, if you want to show the high-scores, store the score with setInt(0, score),
+     * <p>For example, if you want to show the high-scores, store the score with setScore(score),
      * and then use getTop(10) to get the users with the top ten scores.</p> 
      * 
      * @param limit The maximum number of data items to retrieve.
@@ -160,20 +181,20 @@ public class PlayerData
     /**
      * Gets a sorted list of the PlayerData items for this scenario surrounding the current user.
      * 
-     * <p>This will be one item per user, and it will be sorted in descending order by the first integer value
-     * (i.e. the return of getInt(0)).  The parameter allows you to specify a limit
+     * <p>This will be one item per user, and it will be sorted in descending order by the score
+     * (i.e. the return of getScore()).  The parameter allows you to specify a limit
      * on the amount of users' data to retrieve.  If there is lots of data stored
      * for users in your app, this may take some time (and bandwidth) to retrieve all users' data,
      * and often you do not need all the users' data.</p>
      * 
      * <p>The items will be those surrounding the current user.  So for example, imagine that the player is 50th
-     * of 100 total users (when sorted by getInt(0)).  Calling getNearby(5) will get the
+     * of 100 total users (when sorted by getScore()).  Calling getNearby(5) will get the
      * 48th, 49th, 50th, 51st and 52nd users in that order.  Do not rely on the player being at a fixed
      * location in the middle of the list: calling getNearby(5) when the user is 2nd overall will get the
      * 1st, 2nd, 3rd, 4th and 5th users, so the user will be 2nd in the list, and a similar thing will happen
      * if the user is near the end of the list.</p>
      * 
-     * <p>For example, if you want to show the high-scores surrounding the player, store the score with setInt(0, score),
+     * <p>For example, if you want to show the high-scores surrounding the player, store the score with setScore(score),
      * and then use getNearby(10) to get the ten users with scores close to the current player.</p> 
      * 
      * @param limit The maximum number of data items to retrieve.

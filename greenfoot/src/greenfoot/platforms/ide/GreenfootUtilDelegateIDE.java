@@ -295,15 +295,17 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
         PlayerData r = null;
         try
         {
-            r = GreenfootStorageVisitor.allocate(line[0]);
+            int column = 0; 
+            r = GreenfootStorageVisitor.allocate(line[column++]);
+            r.setScore(Integer.parseInt(line[column++]));
             for (int i = 0; i < PlayerData.NUM_INTS; i++)
             {
-                r.setInt(i, Integer.parseInt(line[1 + i]));
+                r.setInt(i, Integer.parseInt(line[column++]));
             }
             
             for (int i = 0; i < PlayerData.NUM_STRINGS; i++)
             {
-                r.setString(i, line[1 + PlayerData.NUM_INTS + i]);
+                r.setString(i, line[column++]);
             }
         }
         catch (IndexOutOfBoundsException e)
@@ -317,18 +319,20 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
 
     private String[] makeLine(String userName, PlayerData data)
     {
-        String[] line = new String[1 + PlayerData.NUM_INTS + PlayerData.NUM_STRINGS];
-        line[0] = userName;
+        String[] line = new String[1 + 1 + PlayerData.NUM_INTS + PlayerData.NUM_STRINGS];
+        int column = 0;
+        line[column++] = userName;
+        line[column++] = Integer.toString(data.getScore());
         try
         {
             for (int i = 0; i < PlayerData.NUM_INTS; i++)
             {
-                line[1 + i] = Integer.toString(data.getInt(i));
+                line[column++] = Integer.toString(data.getInt(i));
             }
             
             for (int i = 0; i < PlayerData.NUM_STRINGS; i++)
             {
-                line[1 + PlayerData.NUM_INTS + i] = data.getString(i);
+                line[column++] = data.getString(i);
             }
         }
         catch (IndexOutOfBoundsException e)
