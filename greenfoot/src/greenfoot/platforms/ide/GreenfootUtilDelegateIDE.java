@@ -262,41 +262,31 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
     @Override
     public PlayerData getCurrentUserData()
     {
-        try
+        ArrayList<PlayerData> all = getAllDataSorted();
+        
+        if (all == null)
+            return null; // Error reading file
+        
+        for (int i = 0; i < all.size();i++)
         {
-            FileReader fr = new FileReader("storage.csv");
-            CSVReader csv = new CSVReader(fr);
-            
-            for (String[] line : csv.readAll())
+            if (getUserName().equals(all.get(i).getUserName()))
             {
-                if (line.length > 1 && getUserName().equals(line[0]))
-                {
-                    return makeStorage(line);
-                }
+                return all.get(i);
             }
-            
-            // Couldn't find them anywhere, return blank:
-            return GreenfootStorageVisitor.allocate(getUserName());
         }
-        catch (FileNotFoundException e)
-        {
-            // No previous storage, return blank:
-            return GreenfootStorageVisitor.allocate(getUserName());
-        }
-        catch (IOException e)
-        {
-            Debug.message("Error reading user data: " + e.getMessage());
-            return null;
-        }
+        
+        // Couldn't find them anywhere, return blank:
+        return GreenfootStorageVisitor.allocate(getUserName(), -1);
+    
     }
 
-    private PlayerData makeStorage(String[] line)
+    private PlayerData makeStorage(String[] line, int rank)
     {
         PlayerData r = null;
         try
         {
             int column = 0; 
-            r = GreenfootStorageVisitor.allocate(line[column++]);
+            r = GreenfootStorageVisitor.allocate(line[column++], rank);
             r.setScore(Integer.parseInt(line[column++]));
             for (int i = 0; i < PlayerData.NUM_INTS; i++)
             {
@@ -380,7 +370,6 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
         if (data != null)
         {
             // No line for that user, add a new one:
-            String[] line = new String[1 + PlayerData.NUM_INTS + PlayerData.NUM_STRINGS];
             all.add(makeLine(getUserName(), data));
         }
         
@@ -389,6 +378,7 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
             CSVWriter csvOut = new CSVWriter(new FileWriter("storage.csv"));
             csvOut.writeAll(all);
             csvOut.close();
+            
             return true;
         }
         catch (IOException e)
@@ -407,19 +397,23 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
             FileReader fr = new FileReader("storage.csv");
             CSVReader csv = new CSVReader(fr);
             
-            for (String[] line : csv.readAll())
-            {
-                ret.add(makeStorage(line));
-            }
+            List<String[]> all = csv.readAll();
             
-            Collections.sort(ret, new Comparator<PlayerData>() {
+            Collections.sort(all, new Comparator<String[]>() {
                 @Override
-                public int compare(PlayerData o1, PlayerData o2)
+                public int compare(String[] o1, String[] o2)
                 {
                     // Sort in reverse order:
-                    return -(o1.getInt(0) - o2.getInt(0));
+                    return -(Integer.parseInt(o1[1]) - Integer.parseInt(o2[1]));
                 }
             });
+            
+            int rank = 1;
+            for (String[] line : all)
+            {
+                ret.add(makeStorage(line, rank));
+                rank++;
+            }
             
             return ret;
         }

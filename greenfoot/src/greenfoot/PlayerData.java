@@ -55,11 +55,13 @@ public class PlayerData
     private String[] strings;
     private String userName;
     private int score;
+    private int rank;
     
     //package-visible:
-    PlayerData(String userName)
+    PlayerData(String userName, int rank)
     {
         this.userName = userName;
+        this.rank = rank;
         score = 0;
         ints = new int[NUM_INTS];
         strings = new String[NUM_STRINGS];
@@ -119,6 +121,19 @@ public class PlayerData
     public void setScore(int score) { this.score = score; }
     
     /**
+     * Gets the players overall rank for this scenario.
+     * <p>
+     * The player with the highest score will return 1, the player with the second highest score
+     * will return 2, and so on.  Players with equal scores will get equal ranks,
+     * so rank will not necessarily be unique.  To find the rank, scores are sorted
+     * in descending order (highest score first).  If your scores need to be lowest-first,
+     * one trick is to store them as negative numbers.
+     * <p>
+     * If the rank is unavailable (e.g. because the data hasn't been stored yet), this function will return -1
+     */
+    public int getRank() { return rank; }
+    
+    /**
      * A boolean indicating whether storage is available.
      * <p>
      * Storage is unavailable if it is an applet outside the Greenfoot website, or a stand-alone application,
@@ -152,7 +167,15 @@ public class PlayerData
      */
     public boolean store()
     {
-        return GreenfootUtil.storeCurrentUserData(this);
+        boolean success = GreenfootUtil.storeCurrentUserData(this);
+        
+        if (success)
+        {
+            //Update the rank (not very efficient, but simple):
+            rank = getMyData().rank;
+        }
+        
+        return success;
     }
     
     /**

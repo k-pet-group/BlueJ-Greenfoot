@@ -350,8 +350,10 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
         for (int line = 0; line < numLines; line++)
         {
             String userName = getString(buf);
-            r[line] = GreenfootStorageVisitor.allocate(userName);
-            r[line].setScore(buf.getInt());
+            int score = buf.getInt();
+            int rank = buf.getInt();
+            r[line] = GreenfootStorageVisitor.allocate(userName, rank);
+            r[line].setScore(score);
             for (int i = 0; i < numInts; i++)
             {
                 int x = buf.getInt();

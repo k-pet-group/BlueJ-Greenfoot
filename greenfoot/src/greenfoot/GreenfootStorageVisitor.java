@@ -23,9 +23,9 @@ package greenfoot;
 
 public class GreenfootStorageVisitor
 {
-    public static PlayerData allocate(String userName)
+    public static PlayerData allocate(String userName, int rank)
     {
-        return new PlayerData(userName);
+        return new PlayerData(userName, rank);
     }
     
     public static GreenfootImage readImage(byte[] imageFileContents)
