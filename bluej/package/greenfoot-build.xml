@@ -4,7 +4,7 @@
     <!-- Most of the targets in this build file are designed to be called from the
          main Greenfoot build.xml file, as they require variables defined by it. -->
     
-    <patternset id="bluej.docfiles">
+    <patternset id="gfapidoc.files">
         <exclude name="**/.#*" />
         <include name="doc/API/**" />
     </patternset>
@@ -78,7 +78,7 @@
             <fileset dir="${bluej_home}">
                 <patternset refid="bluej.libfiles" />
                 <patternset refid="bluej.libdirs" />
-                <patternset refid="bluej.docfiles" />
+                <patternset refid="gfapidoc.files" />
             </fileset>
             <fileset dir="${bluej_home}/package">
                 <patternset refid="greenfoot.scenarios" />
@@ -90,8 +90,9 @@
                 <patternset refid="greenfoot.license.files" />
             </fileset>
         </copy>
-
-        <chmod dir="install_tmp" perm="a+r" />
+        	
+        <copy tofile="install_tmp/README.TXT"
+    		file="${bluej_home}/doc/Greenfoot-README.TXT" />
 
         <!-- jar the entire distribution into one jar file            -->
         <!-- (use zip instead of jar to avoid generation of manifest) -->
@@ -319,7 +320,7 @@
         <mkdir dir="gf-apidoc-tmp" />
         <copy todir="gf-apidoc-tmp">
             <fileset dir="${bluej_home}">
-                <patternset refid="bluej.docfiles" />
+                <patternset refid="gfapidoc.files" />
             </fileset>
         </copy>
         <mkdir dir="gfdeb/usr/share/doc/Greenfoot/API" />
