@@ -335,6 +335,7 @@
         
         <copy todir="gfdeb/usr/share/doc/Greenfoot" file="${greenfoot.projectdir}/doc/LICENSE.txt" />
         <copy todir="gfdeb/usr/share/doc/Greenfoot" file="${greenfoot.projectdir}/doc/THIRDPARTYLICENSE.txt" />
+    	<copy tofile="gfdeb/usr/share/doc/Greenfoot/README.txt" file="${greenfoot.projectdir}/doc/Greenfoot-README.txt" />
 
         <!-- desktop app extras -->
         <copy todir="gfdeb/usr/share">
