@@ -32,8 +32,7 @@ bluej.properties file.
 The BlueJ Team
 --------------
 BlueJ is being developed by:
-La Trobe University: John Rosenberg, Davin McCall, Marion Zalk
-University of Kent at Canterbury: Ian Utting, Michael Kölling, Neil Brown, Phil Stevens
+University of Kent: Michael Kölling, Ian Utting, Davin McCall, Neil Brown, Phil Stevens
 
 The BlueJ License
 -----------------
