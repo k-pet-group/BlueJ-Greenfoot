@@ -302,7 +302,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
     </target>
 	
 	<target name="copy-common-class" depends="compile-scenarios">
-		<javadoc destdir="common" sourcefiles="common/${common.class}.java" Version="yes" notree="yes" noindex="yes" nohelp="yes" nonavbar="yes"/> 
+		<javadoc destdir="common" sourcefiles="common/${common.class}.java" Version="yes" notree="yes" noindex="yes" nohelp="yes" nonavbar="yes" classpath="${build}"/> 
 		
 		<copy todir="${bluej.lib.greenfoot}" preservelastmodified="true">
 		  <fileset dir=".">
