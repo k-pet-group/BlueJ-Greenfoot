@@ -355,7 +355,6 @@ class JdiThread extends DebuggerThread
      */
     public List<String> getLocalVariables(int frameNo)
     {
-        //Debug.message("[JdiThread] getLocalVariables");
         try {
             if(rt.isSuspended()) {
                 StackFrame frame = rt.frame(frameNo);
@@ -374,8 +373,19 @@ class JdiThread extends DebuggerThread
                 return localVars;
             }
         }
-        catch(Exception e) {
-            // nothing can be done...
+        catch (IncompatibleThreadStateException itse) { }
+        catch (AbsentInformationException ase) { }
+        catch (VMDisconnectedException vmde) { }
+        catch (InvalidStackFrameException e) {
+            // This shouldn't happen, as we've checked the thread status, 
+            // but it does, apparently; seems like a JDK bug.
+            // Probably related to: http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6644945
+            // Occurs (at least) in JDK 1.6.0_25.
+            try {
+                Thread.sleep(100);
+                return getLocalVariables(frameNo);
+            }
+            catch (InterruptedException ie) {}
         }
         return new ArrayList<String>();
     }
