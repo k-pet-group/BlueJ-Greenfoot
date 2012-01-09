@@ -187,7 +187,7 @@ public class MoePlainView extends View
             throw new RuntimeException(ble);
         }
         
-        TabExpander tx = new MoeTabExpander(tabSize, leftMargin + aBounds.x);
+        TabExpander tx = new MoeTabExpander(tabSize, leftMargin);
         int offset = Utilities.getTabbedTextOffset(s, metrics, leftMargin, (int)x - aBounds.x, tx, lineStart);
         
         biasReturn[0] = Bias.Forward;
