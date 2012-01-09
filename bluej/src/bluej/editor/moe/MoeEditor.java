@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2011,2012  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -640,16 +640,22 @@ public final class MoeEditor extends JFrame
             int tpos = 0; // where we are in the string
             String lineText = sourceDocument.getText(spos, testPos);
             
-            while (true) {
-                int tabPos = lineText.indexOf(tpos, '\t');
+            while (cpos < column - 1) {
+                int tabPos = lineText.indexOf('\t', tpos);
                 if (tabPos == -1) {
-                    // No more tabs... whatever is left of the line text
-                    // also adds to the position count directly.
-                    cpos += lineText.length() - tpos;
-                    return spos + cpos;
+                    // No more tabs...
+                    tpos += column - cpos - 1;
+                    return spos + tpos;
+                }
+                
+                int newcpos = cpos + (tabPos - tpos);
+                if (newcpos >= column) {
+                    tpos += column - cpos - 1;
+                    return spos + tpos;
                 }
 
-                cpos += tabPos - tpos; // track the actual "column"
+                cpos = newcpos;
+                
                 cpos += 8; // hit tab
                 cpos -= cpos % 8;  // back to tab stop
 
@@ -2362,8 +2368,9 @@ public final class MoeEditor extends JFrame
     // --------------------------------------------------------------------
 
     /**
+     * Create the HTML plane used to display javadoc.
      */
-    public void createHTMLPane()
+    private void createHTMLPane()
     {
         htmlPane = new JEditorPane();
         htmlPane.setHighlighter(new MoeHighlighter());
