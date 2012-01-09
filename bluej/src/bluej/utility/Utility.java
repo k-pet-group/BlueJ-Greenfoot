@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,6 +22,7 @@
 package bluej.utility;
 
 import java.awt.Component;
+import java.awt.Desktop;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Insets;
@@ -61,7 +62,7 @@ import bluej.Config;
  */
 public class Utility
 {
-    /** * @version $Id: Utility.java 9208 2011-09-15 05:23:52Z davmac $
+    /** * @version $Id: Utility.java 9409 2012-01-09 12:36:07Z davmac $
 
      * Used to track which events have occurred for firstTimeThisRun()
      */
@@ -316,25 +317,31 @@ public class Utility
      */
     public static boolean openWebBrowser(URL url)
     {
-        if (Config.isMacOS()) {
-            // Mac
-            try {
-                com.apple.eio.FileManager.openURL(url.toString());
-            }
-            catch (IOException e) {
-                Debug.reportError("could not start web browser. exc: " + e);
-                return false;
-            }
-        }
-        else if (Config.isWinOS()) {
+        if (Config.isWinOS()) {
             // Windows
             return openWebBrowser(url.toString());
         }
         else {
-            // Unix and other
-            if (JavaUtils.getJavaUtils().openWebBrowser(url)) {
-                return true;
+            Exception exception = null;
+            
+            if (Desktop.isDesktopSupported()) {
+                try {
+                    Desktop.getDesktop().browse(url.toURI());
+                }
+                catch (IOException ioe) { exception = ioe; }
+                catch (URISyntaxException use) { exception = use; }
             }
+            
+            if (exception == null) {
+                return true; // success
+            }
+            
+            if (Config.isMacOS()) {
+                Debug.reportError("could not start web browser. exc: " + exception);
+                return false;
+            }
+            
+            // Unix and other
 
             String cmd = mergeStrings(Config.getPropString("browserCmd1"), url.toString());
             String cmd2 = mergeStrings(Config.getPropString("browserCmd2"), url.toString());

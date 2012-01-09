@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,12 +23,8 @@ package bluej.utility;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -341,41 +337,6 @@ public abstract class JavaUtils
      * @return  the argument types
      */
     abstract public JavaType[] getParamGenTypes(Constructor<?> constructor) throws ClassNotFoundException;
-
-    /**
-     * Open a web browser to show the given URL. On Java 6+ we can use
-     * the desktop integration functionality of the JDK to do this. On
-     * prior versions we fall back to older methods.
-     * 
-     * @return true if successful
-     */
-    public boolean openWebBrowser(URL url)
-    {
-        // For now, do this via reflection so that BlueJ can be built
-        // on Java 5 and earlier.
-        
-        try {
-            Class<?> cl = Class.forName("java.awt.Desktop");
-            Method m = cl.getMethod("isDesktopSupported", new Class[0]);
-            Boolean result = (Boolean) m.invoke(null, (Object[]) null);
-            if (result.booleanValue()) {
-                // The Desktop abstraction is supported
-                m = cl.getMethod("getDesktop", new Class[0]);
-                Object desktop = m.invoke(null, (Object[]) null);
-                
-                // Invoke the browse method
-                m = cl.getMethod("browse", new Class[] {URI.class});
-                m.invoke(desktop, new Object[] {url.toURI()});
-                return true;
-            }
-        }
-        catch (ClassNotFoundException cnfe) {}
-        catch (NoSuchMethodException nsme) {}
-        catch (IllegalAccessException iae) {}
-        catch (InvocationTargetException ite) {}
-        catch (URISyntaxException use) {}
-        return false;
-    }
     
     /**
      * Change a list of type parameters (with bounds) into a map, which maps
