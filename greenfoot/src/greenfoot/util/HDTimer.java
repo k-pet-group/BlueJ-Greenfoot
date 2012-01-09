@@ -122,8 +122,6 @@ public class HDTimer
     private static void sleepFromTime(long nanos, long tStart)
         throws InterruptedException
     {
-        int yieldCount = 0;
-        int loopCount = 0;
         long sleepNanos = nanos - sleepPrecision;
 
         // First, use Java's Thread.sleep() if it is precise enough
@@ -143,7 +141,6 @@ public class HDTimer
                 throw new InterruptedException("HDTimer.sleepFromTime interrupted in yield.");
             }
             Thread.yield();
-            yieldCount++;
             long yieldTime = System.nanoTime() - t1;
             if (yieldTime > worstYieldTime) {
                 worstYieldTime = yieldTime;
@@ -155,15 +152,7 @@ public class HDTimer
             if(Thread.interrupted()) {
                 throw new InterruptedException("HDTimer.sleepFromTime interrupted in busy loop.");
             }
-            loopCount++;
         }
-
-        /*
-         * long tEnd = System.nanoTime(); System.out.println("sleep error when
-         * sleeping " + nanos + " nanos: " + (nanos - (tEnd-tStart)));
-         * System.out.println(" counts: " + sleepNanos + " " + yieldCount + " " +
-         * loopCount); System.out.println(" worstYield: " + worstYieldTime);
-         */
     }
 
     /**
@@ -186,8 +175,6 @@ public class HDTimer
         throws InterruptedException
     {
         long tStart = System.nanoTime();
-        int yieldCount = 0;
-        int loopCount = 0;
 
         // First, use Java's Object.wait()
         long waits = 0;
@@ -213,7 +200,6 @@ public class HDTimer
         while ((System.nanoTime() - tStart + worstYieldTime) < nanos) {
             long t1 = System.nanoTime();
             Thread.yield();
-            yieldCount++;
             long yieldTime = System.nanoTime() - t1;
             if (yieldTime > worstYieldTime) {
                 worstYieldTime = yieldTime;
@@ -221,15 +207,7 @@ public class HDTimer
         }
 
         // Third, run a busy loop for the rest of the time
-        while ((System.nanoTime() - tStart) < nanos)
-            loopCount++;
-
-        //long tEnd = System.nanoTime();
-        //System.out.println("wait error when waiting " + nanos + " nanos: " + (nanos - (tEnd - tStart)));
-        //System.out.println(" counts: " + waits + " " + yieldCount + " " + loopCount);
-        //System.out.println(" worstYield: " + worstYieldTime);
-        //System.out.println(" waited: " + waited);
-
+        while ((System.nanoTime() - tStart) < nanos) ;
     }
     
     /**
