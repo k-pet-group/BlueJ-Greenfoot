@@ -2,6 +2,7 @@ import greenfoot.World;
 import greenfoot.Actor;
 import greenfoot.GreenfootImage;
 import greenfoot.Greenfoot;
+import greenfoot.MouseInfo;
 
 import java.awt.Color;
 
@@ -37,6 +38,11 @@ public class Paddle extends Actor
         int newx = getX() + xdir;
         if (newx >= 0 && newx < getWorld().getWidth()) {
             super.setLocation(newx,getY());
+        }
+        
+        MouseInfo minfo = Greenfoot.getMouseInfo();
+        if (minfo != null) {
+            super.setLocation(minfo.getX(), getY());
         }
     }
 }

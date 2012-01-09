@@ -31,8 +31,8 @@ public class Ball extends Actor
     public static Bounds getBounds(Actor go)
     {
         Bounds b = new Bounds();
-        int width = go.getWidth();
-        int height = go.getHeight();
+        int width = go.getImage().getWidth();
+        int height = go.getImage().getHeight();
         b.lx = go.getX() - width / 2;
         b.ty = go.getY() - height / 2;
         b.rx = b.lx + width;

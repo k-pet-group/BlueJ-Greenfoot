@@ -24,7 +24,6 @@ public class BrickWorld extends World
         GreenfootImage background = new GreenfootImage(20,20);
         background.setColor(Color.BLACK);
         background.fill();
-        setTiled(true);
         setBackground(background);
         
         scenario1();
@@ -35,7 +34,7 @@ public class BrickWorld extends World
      */
     public void scenario1()
     {
-                for (int i = BRICKLEFTBORDER + BRICKWIDTH / 2; i+BRICKWIDTH/2 < SIZEX - BRICKRIGHTBORDER; i+=BRICKWIDTH+BRICKSPACING) {
+        for (int i = BRICKLEFTBORDER + BRICKWIDTH / 2; i+BRICKWIDTH/2 < SIZEX - BRICKRIGHTBORDER; i+=BRICKWIDTH+BRICKSPACING) {
             for (int j = 0; j < 4; j++ ) {
                 Brick newBrick = new Brick();
                 // newBrick.setLocation(i, BRICKTOPBORDER + (BRICKHEIGHT + BRICKSPACING) * j);
