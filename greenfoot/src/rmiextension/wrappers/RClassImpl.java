@@ -437,7 +437,6 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
                 Runnable r = new Runnable() {
                     public void run()
                     {
-                        try { Thread.sleep(500); } catch (Exception eeee) { }; // DAV
                         try {
                             result[0] = bClass.isCompiled();
                         } catch (ProjectNotOpenException e) {
