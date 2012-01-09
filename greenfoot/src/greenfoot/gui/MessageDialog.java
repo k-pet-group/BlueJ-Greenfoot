@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2012  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -42,7 +42,6 @@ import bluej.utility.EscapeDialog;
  * that will show a modal dialog and return the button pressed.
  * 
  * @author Poul Henriksen
- * 
  */
 public class MessageDialog extends EscapeDialog implements ActionListener
 {
@@ -137,6 +136,8 @@ public class MessageDialog extends EscapeDialog implements ActionListener
             buttons[i].removeActionListener(this);
         }     
         setVisible(false);
-        dispose();
+        // We must NOT dispose here; otherwise, if the dialog is modal,
+        // setVisible(true) won't return (ever). JDK bug? (OpenJDK 1.6.0_23)
+        //   dispose();
     }
 }
