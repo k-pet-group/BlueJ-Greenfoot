@@ -83,10 +83,10 @@ public class JobQueue
     {
         List<String> options = new ArrayList<String>();
         if (bpClassLoader.loadsForJavaMEproject()) {
-            String optionString = Config.getPropString(Compiler.JAVAME_COMPILER_OPTIONS, null);
+            String optionString = Config.getPropString(Compiler.JAVAME_COMPILER_OPTIONS, "");
             options.addAll(Utility.dequoteCommandLine(optionString));
         }
-        String optionString = Config.getPropString(Compiler.COMPILER_OPTIONS, null);
+        String optionString = Config.getPropString(Compiler.COMPILER_OPTIONS, "");
         options.addAll(Utility.dequoteCommandLine(optionString));
         
         thread.addJob(new Job(sources, compiler, observer, bpClassLoader,
