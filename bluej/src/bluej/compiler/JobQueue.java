@@ -28,6 +28,7 @@ import java.util.List;
 
 import bluej.Config;
 import bluej.classmgr.BPClassLoader;
+import bluej.utility.Utility;
 
 /**
  * Reasonably generic interface between the BlueJ IDE and the Java compiler.
@@ -83,10 +84,10 @@ public class JobQueue
         List<String> options = new ArrayList<String>();
         if (bpClassLoader.loadsForJavaMEproject()) {
             String optionString = Config.getPropString(Compiler.JAVAME_COMPILER_OPTIONS, null);
-            Compiler.tokenizeOptionString(options, optionString);
+            options.addAll(Utility.dequoteCommandLine(optionString));
         }
         String optionString = Config.getPropString(Compiler.COMPILER_OPTIONS, null);
-        Compiler.tokenizeOptionString(options, optionString);
+        options.addAll(Utility.dequoteCommandLine(optionString));
         
         thread.addJob(new Job(sources, compiler, observer, bpClassLoader,
                 destDir, suppressUnchecked, options, fileCharset));

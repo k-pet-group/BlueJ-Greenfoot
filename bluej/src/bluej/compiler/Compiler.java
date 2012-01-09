@@ -24,11 +24,7 @@ package bluej.compiler;
 
 import java.io.File;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.StringTokenizer;
-
-import bluej.utility.Utility;
 
 /**
  * Compiler class - an abstract interface to a source-to-bytecode compiler. This
@@ -110,64 +106,6 @@ abstract class Compiler
     public File[] getBootClassPath()
     {
         return bootClassPath;
-    }
-
-    /**
-     * Creates a list of the options that should be used for the compilation.
-     * Won't include user specified options.
-     * 
-     * @return A list of compile options.
-     */
-    protected List<String> getCompileOptions()
-    {
-        List<String> args = new ArrayList<String>();
-
-        if (getDestDir() != null) {
-            args.add("-d");
-            args.add(getDestDir().getPath());
-        }
-               
-        boolean isJavaMEproject = false;
-        if (classPath != null && classPath.length != 0) {
-            args.add("-classpath");
-            args.add(Utility.toClasspathString(classPath));
-        }       
-        
-        if (bootClassPath != null && bootClassPath.length != 0) {
-            args.add("-bootclasspath");
-            args.add(Utility.toClasspathString(bootClassPath));
-        }
-        
-        if ( isJavaMEproject ) {
-            //addUserSpecifiedOptions(args, JAVAME_COMPILER_OPTIONS);
-            //args.add( "-bootclasspath" );
-            //args.add ( getProjectClassLoader( ).getJavaMElibsAsPath( ) ); 
-        }
-        else {
-            String majorVersion = System.getProperty("java.specification.version"); 
-            args.add("-source");
-            args.add(majorVersion);
-        }
-        
-        if (isDebug()) {
-            args.add("-g");
-        }
-
-        if (isDeprecation()) {
-            args.add("-deprecation");
-        }
-
-        return args;
-    }
-
-    public static void tokenizeOptionString(List<String> args, String optionString)
-    {
-        if (optionString != null) {
-            StringTokenizer st = new StringTokenizer(optionString);
-            while (st.hasMoreTokens()) {
-                args.add(st.nextToken());
-            }
-        }
     }
 
     /**
