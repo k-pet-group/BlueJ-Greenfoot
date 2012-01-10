@@ -134,7 +134,7 @@ public class CompilerAPICompiler extends Compiler
                     if (internal &&
                             (message.endsWith(" uses unchecked or unsafe operations.") ||
                             message.endsWith("Some input files use unchecked or unsafe operations.") ||
-                            message.startsWith("Note: Recompile with -Xlint:unchecked "))) {
+                            message.endsWith("Recompile with -Xlint:unchecked for details."))) {
                         return;
                     }
                 }
