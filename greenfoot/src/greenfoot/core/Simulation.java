@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2010,2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2010,2011,2012  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -103,8 +103,8 @@ public class Simulation extends Thread
     private long lastDelayTime;
     private long delay; // the speed translated into delay (nanoseconds)
 
-    private long updates; // used for debugging to calculate update rate
-    private long lastUpdate; // used for debugging to calculate update rate
+    // private long updates; // used for debugging to calculate update rate
+    //private long lastUpdate; // used for debugging to calculate update rate
     
     /** Protects "paintPending" and "lastRepaintTime" */
     private Object repaintLock = new Object();
@@ -398,7 +398,7 @@ public class Simulation extends Thread
         }
         
         while (r != null) {
-            World world = worldHandler.getInstance().getWorld();
+            World world = WorldHandler.getInstance().getWorld();
             try {
                 ReentrantReadWriteLock lock  = null;
                 if (world != null) {
@@ -477,6 +477,8 @@ public class Simulation extends Thread
                     }
 
                 }
+                
+                worldHandler.getKeyboardManager().clearLatchedKeys();
             }
             finally {
                 lock.writeLock().unlock();
@@ -492,7 +494,7 @@ public class Simulation extends Thread
             throw interruptedException;
         }
         
-        printUpdateRate(System.nanoTime());
+        // printUpdateRate(System.nanoTime());
 
         repaintIfNeeded();
     }
@@ -575,16 +577,18 @@ public class Simulation extends Thread
      * Debug output to print the rate at which updates are performed
      * (acts/second).
      */
+    /*
     private void printUpdateRate(long currentTime)
     {
-        updates++;
+        //updates++;
 
         long timeSinceUpdate = currentTime - lastUpdate;
         if (timeSinceUpdate > 3000000000L) {
             lastUpdate = currentTime;
-            updates = 0;
+            //updates = 0;
         }
     }
+    */
 
     // Public methods etc.
 

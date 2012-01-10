@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2011,2012  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -73,6 +73,17 @@ public class KeyboardManager implements TriggeredKeyListener, FocusListener
         keyCodeMap = new HashMap<String,Integer>();
         addAllKeys();
         buildKeyNameArray();        
+    }
+    
+    /**
+     * Clear the latched state of keys which were down, but are no longer
+     * down.
+     */
+    public synchronized void clearLatchedKeys()
+    {
+        for (int i = 0; i < numKeys; i++) {
+            keyLatched[i] &= keyDown[i];
+        }
     }
     
     /**
@@ -331,9 +342,10 @@ public class KeyboardManager implements TriggeredKeyListener, FocusListener
         return keycode;
     }
     
-    /* (non-Javadoc)
+    /*
      * @see java.awt.event.KeyListener#keyTyped(java.awt.event.KeyEvent)
      */
+    @Override
     public synchronized void keyTyped(KeyEvent key)
     {
         char c = key.getKeyChar();
