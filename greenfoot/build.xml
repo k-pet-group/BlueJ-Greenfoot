@@ -290,14 +290,14 @@ LICENSE.txt file that accompanied this code.${line.separator}
     </target>
 
     <target name="copy-common-classes" depends="compile-scenarios"  description="Copies the common classes to bluej" >
-        <antcall target="copy-common-class">
-          <param name="common.class" value="Explosion"/>
-        </antcall>
     	<antcall target="copy-common-class">
     	  <param name="common.class" value="SmoothMover"/>
     	</antcall>
     	<antcall target="copy-common-class">
     	  <param name="common.class" value="GifImage"/>
+    	</antcall>
+    	<antcall target="copy-common-class">
+    	  <param name="common.class" value="ScoreWorld"/>
     	</antcall>
     </target>
 	
