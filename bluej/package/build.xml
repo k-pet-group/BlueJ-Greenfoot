@@ -351,7 +351,7 @@
 		<delete dir="bluej-examples-tmp" />
 		<copy todir="bluejdeb/usr/share/doc/BlueJ" file="../doc/LICENSE.txt" />
 		<copy todir="bluejdeb/usr/share/doc/BlueJ" file="../doc/THIRDPARTYLICENSE.txt" />
-		<copy todir="bluejdeb/usr/share/doc/BlueJ" file="../doc/README.TXt" />
+		<copy todir="bluejdeb/usr/share/doc/BlueJ" file="../doc/README.TXT" />
 
 		<!-- desktop app extras -->
 		<copy todir="bluejdeb/usr/share">
