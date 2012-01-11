@@ -189,8 +189,9 @@ public class BMethod
         DirectInvoker invoker = new DirectInvoker (pkgFrame);
         DebuggerObject result = invoker.invokeMethod (instanceWrapper, bluej_view, params);
 
-        // Result can be null if the method returns void. It is Reflection standard
-        if (result == null) return null;
+        // We return null if the method is void (as per Reflection), which might 
+        // either be a null result object, or a valid result object representing null
+        if (result == null || result.isNullObject()) return null;
 
         String resultName = invoker.getResultName();
 

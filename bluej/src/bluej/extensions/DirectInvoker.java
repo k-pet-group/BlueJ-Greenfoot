@@ -175,7 +175,7 @@ class DirectInvoker
         String resultType = watcher.getResultType();
         if (resultType != null) {
             ExecutionEvent ee = new ExecutionEvent(pkgFrame.getPackage(), callable.getClassName(),
-                    onThisObjectInstance.getName());
+                    (onThisObjectInstance==null)?null:onThisObjectInstance.getName());
             ee.setMethodName(callable.getName());
             raiseEvent(ee, callable, argStrings, watcher);
         }
