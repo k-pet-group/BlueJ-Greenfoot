@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2011,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -635,13 +635,15 @@ public final class Package extends Graph
         }
 
         addImmovableTargets();
+        List<Target> targetsToPlace = new ArrayList<Target>();
+        
         // make our Package targets reflect what is actually on disk
         // note that we consider this on-disk version the master
         // version so if we have a class target called Foo but we
         // discover a directory call Foo, a PackageTarget will be
         // inserted to replace the ClassTarget
         File subDirs[] = getPath().listFiles(new SubPackageFilter());
-
+        
         for (int i = 0; i < subDirs.length; i++) {
             // first check if the directory name would be a valid package name
             if (!JavaNames.isIdentifier(subDirs[i].getName()))
@@ -651,7 +653,7 @@ public final class Package extends Graph
 
             if (target == null || !(target instanceof PackageTarget)) {
                 target = new PackageTarget(this, subDirs[i].getName());
-                findSpaceForVertex(target);
+                targetsToPlace.add(target);
             }
 
             addTarget(target);
@@ -670,9 +672,15 @@ public final class Package extends Graph
             Target target = propTargets.get(targetName);
             if (target == null || !(target instanceof ClassTarget)) {
                 target = new ClassTarget(this, targetName);
-                findSpaceForVertex(target);
+                targetsToPlace.add(target);
             }
             addTarget(target);
+        }
+        
+        // Find an empty spot for any targets which didn't already have
+        // a position
+        for (Target t : targetsToPlace) {
+            findSpaceForVertex(t);
         }
         
         // Start with all classes in the normal (compiled) state.
