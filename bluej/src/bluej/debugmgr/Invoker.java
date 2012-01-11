@@ -1168,13 +1168,13 @@ public class Invoker
             int status = result.getExitStatus();
             switch(status) {
                 case Debugger.NORMAL_EXIT :
-                    // result will be null here for a void call
+                    // resultObj will be the null object representation (isNullObject() == true) for a void call
                     DebuggerObject resultObj = result.getResultObject();
                     if (unwrap) {
                         // For constructor calls, the result is expected to be the created object.
                         resultObj = resultObj.getInstanceField(0).getValueObject(null);
                     }
-                    ir.setResultObject(resultObj);   
+                    ir.setResultObject(resultObj);
                     watcher.putResult(resultObj, objName, ir);
                     break;
 

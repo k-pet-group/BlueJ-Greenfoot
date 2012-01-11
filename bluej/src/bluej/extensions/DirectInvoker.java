@@ -147,7 +147,11 @@ class DirectInvoker
      *
      * @param  onThisObjectInstance             the method is called on this object
      * @param  args                             The arguments for the method
-     * @return                                  The newly created object
+     * @return                                  The result object; for a constructor call this is the
+     *                                          constructed object; for any other invocation this will be
+     *                                          an object with a 'result' field containing the actual result,
+     *                                          or the null object (i.e. isNullObject() == true) if the result
+     *                                          type is void.
      * @exception  InvocationArgumentException  Thrown if the arglist is not consistent with the signature
      * @exception  InvocationErrorException     Thrown if there is a system error
      */

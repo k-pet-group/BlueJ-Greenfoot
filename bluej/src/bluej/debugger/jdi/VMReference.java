@@ -119,7 +119,7 @@ import com.sun.jdi.request.EventRequestManager;
  * <p>We can now execute commands on the remote VM by invoking methods using the
  * server thread (which is suspended at the breakpoint). 
  * 
- * <p>Non-user code used by BlueJ is run a seperate "worker" thread.
+ * <p>Non-user code used by BlueJ is run a separate "worker" thread.
  * 
  * @author Michael Kolling
  */
