@@ -15,7 +15,7 @@
      After changing the version number the target "update-version-number" should be run -->
     <property name="bluej.version.major" value="3" />
     <property name="bluej.version.minor" value="0" />
-    <property name="bluej.version.release" value="6" />
+    <property name="bluej.version.release" value="7" />
     <property name="bluej.version.suffix" value="" />
 	<!-- suffix with no spaces, eg "pre2" -->
 	<property name="bluej.version.nonspace.suffix" value="" />
@@ -393,12 +393,12 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <replaceregexp byline="true">
             <regexp pattern="BlueJ version .*\b (\s+--.*)" />
             <substitution expression="BlueJ version ${bluej.version} \1"/>
-            <fileset dir="winlaunch" includes="README.TXT" />
+            <fileset dir="doc" includes="README.TXT" />
         </replaceregexp>
     </target>
     
     <target name="add-license-to-sources" description="adds the license to each source file" >	      
-	    <replaceregexp flags="s" encoding="ISO8859-1">
+	    <replaceregexp flags="s" encoding="UTF-8">
 	        <regexp pattern="(^\/\*\n This file is part of the BlueJ program.*? file that accompanied this code\.\n.\*\/\n)|^"/> 
 	        <substitution expression="${license}"/> 
 	        <fileset dir="." includes="**/*.java" >
