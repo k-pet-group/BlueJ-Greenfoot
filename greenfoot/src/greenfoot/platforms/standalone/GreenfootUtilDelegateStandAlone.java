@@ -288,6 +288,8 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
             socket.write(buf);
             
             buf = readResponse();
+            if (1 != buf.getInt()) // Should be exactly one user
+                return null; 
             return readLines(buf, 1)[0];
         }
         catch (IOException e)
