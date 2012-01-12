@@ -265,14 +265,27 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
         return buf;
     }
     
+    private void readFullBuffer(ByteBuffer buf, int amount) throws IOException
+    {
+        int totalBytes = 0;
+        while (totalBytes < amount)
+        {
+            int bytesRead = socket.read(buf);
+            if (bytesRead > 0)
+                totalBytes += bytesRead;
+            else
+                throw new IOException("Zero or negative bytes read from socket");
+        }
+        buf.flip();
+    }
+    
     private ByteBuffer readResponse() throws IOException
     {
         ByteBuffer buf = ByteBuffer.allocate(4);
-        socket.read(buf);
-        buf.flip();
-        buf = ByteBuffer.allocate(buf.getInt());
-        socket.read(buf);
-        buf.flip();
+        readFullBuffer(buf, 4);
+        int size = buf.getInt();
+        buf = ByteBuffer.allocate(size);
+        readFullBuffer(buf, size);
         return buf;
     }
 
