@@ -52,7 +52,7 @@ import java.util.List;
  * @see greenfoot.Actor
  * @author Poul Henriksen
  * @author Michael Kolling
- * @version 2.2
+ * @version 2.3
  */
 public abstract class World
 {    

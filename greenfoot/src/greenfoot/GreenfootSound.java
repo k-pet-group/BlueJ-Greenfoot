@@ -31,7 +31,7 @@ import greenfoot.sound.SoundFactory;
  * <p>Most files of the following formats are supported: AIFF, AU, WAV, MP3 and MIDI.
  * 
  * @author Poul Henriksen
- * @version 2.2
+ * @version 2.3
  */
 public class GreenfootSound
 {

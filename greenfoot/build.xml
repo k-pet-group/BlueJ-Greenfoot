@@ -26,12 +26,12 @@
     unlikely to break scenarios (documentation changes, addition of method).
     Changing this number will stripe the user's classes and require a recompile.
     Do not change this number if the changes cannot break older scenarios. -->
-    <property name="greenfoot.apiversion.nonbreaking" value="2"/>
+    <property name="greenfoot.apiversion.nonbreaking" value="3"/>
     
     <!-- Change when API has only changed internally and not in any way visible to the user. 
     It should not be possible for this change to break existing scenarios. 
     Changing this number will NOT stripe the user's classes nor require a recompile. -->
-    <property name="greenfoot.apiversion.internal" value="1"/>
+    <property name="greenfoot.apiversion.internal" value="0"/>
         
     <property name="greenfoot.apiversion" value="${greenfoot.apiversion.breaking}.${greenfoot.apiversion.nonbreaking}.${greenfoot.apiversion.internal}"/>
 
@@ -761,7 +761,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <replaceregexp byline="true">
             <regexp pattern="@version .*"/>
             <substitution expression="@version ${greenfoot.apiversion.public}"/>
-            <fileset dir="${src}/greenfoot" includes="Greenfoot.java,GreenfootImage.java,GreenfootSound.java,Actor.java,World.java,MouseInfo.java"/>
+            <fileset dir="${src}/greenfoot" includes="Greenfoot.java,GreenfootImage.java,GreenfootSound.java,Actor.java,World.java,MouseInfo.java,PlayerData.java"/>
         </replaceregexp>
         <replaceregexp byline="true">
             <regexp pattern="GREENFOOT_VERSION = .*"/>

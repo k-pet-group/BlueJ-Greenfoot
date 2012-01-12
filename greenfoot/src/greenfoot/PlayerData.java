@@ -42,6 +42,9 @@ import java.util.List;
  * use the score for sorting.  You are free to use the general integers and strings as you
  * need for your scenario: things like which level the player reached last time they
  * were playing.</p>
+ * 
+ * @author Neil Brown
+ * @version 2.3
  */
 public class PlayerData
 {
