@@ -65,8 +65,8 @@ public class Boot
     
     // The version numbers for Greenfoot are changed in the Greenfoot build.xml
     // and then the update-version target should be executed.
-    public static String GREENFOOT_VERSION = "2.2.0";
-    public static String GREENFOOT_API_VERSION = "2.3.0";
+    public static String GREENFOOT_VERSION = "2.1.2";
+    public static String GREENFOOT_API_VERSION = "2.2.1";
     
     // A singleton boot object so the rest of BlueJ can pick up args etc.
     private static Boot instance;
@@ -96,9 +96,9 @@ public class Boot
     private static final String JLAYER_MP3_JAR = "jl1.0.1.jar";
     private static final String[] greenfootUserJars = {"extensions" + File.separatorChar + "greenfoot.jar", 
         "bluejcore.jar", "bluejeditor.jar", "bluejext.jar",
-        "AppleJavaExtensions.jar", "junit-4.8.2.jar", "bluej.jar", "scala-library.jar",
+        "AppleJavaExtensions.jar", "junit-4.8.2.jar", "bluej.jar",
         "commons-httpclient-3.1.jar", "commons-logging-api-1.1.1.jar",
-                                                       "commons-codec-1.3.jar", JLAYER_MP3_JAR, "opencsv-2.3.jar"};
+        "commons-codec-1.3.jar", JLAYER_MP3_JAR, "opencsv-2.3.jar"};
 
     // Jars that should be included with exported scenarios
     public static final String[] GREENFOOT_EXPORT_JARS = {JLAYER_MP3_JAR};
