@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,9 +24,11 @@ package bluej.debugmgr;
 import java.awt.EventQueue;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -109,6 +111,7 @@ public class Invoker
     private String imports; // import statements to include in shell file
     private NameTransform nameTransform;
     private InvokerCompiler compiler;
+    private Charset sourceCharset;
     
     /** Name of the target object to which the call is applied */
     private String instanceName;
@@ -128,7 +131,7 @@ public class Invoker
     public Invoker(JFrame frame, CallableView member, ResultWatcher watcher, File pkgPath, String pkgName,
             String pkgScopeId, CallHistory callHistory, ValueCollection objectBenchVars,
             ObjectBenchInterface objectBench, Debugger debugger, InvokerCompiler compiler,
-            String instanceName)
+            String instanceName, Charset sourceCharset)
     {
         this.pmf = frame;
         this.member = member;
@@ -157,6 +160,7 @@ public class Invoker
         };
         this.compiler = compiler;
         this.shellName = getShellName();
+        this.sourceCharset = sourceCharset;
     }
 
     /**
@@ -268,6 +272,7 @@ public class Invoker
                         project.getProjectDir(), true, project.getProjectCharset());
             }
         };
+        this.sourceCharset = pmf.getProject().getProjectCharset();
     }
     
     /**
@@ -780,7 +785,8 @@ public class Invoker
         File shellFile = new File(pkgPath, shellName + ".java");
         BufferedWriter shell = null;
         try {
-            shell = new BufferedWriter(new FileWriter(shellFile));
+            FileOutputStream fos = new FileOutputStream(shellFile);
+            shell = new BufferedWriter(new OutputStreamWriter(fos, sourceCharset));
 
             shell.write(packageLine);
             shell.newLine();
