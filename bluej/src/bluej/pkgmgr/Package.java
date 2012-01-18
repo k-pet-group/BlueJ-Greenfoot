@@ -2432,7 +2432,7 @@ public final class Package extends Graph
             }
         }
 
-        private void sendEventToExtensions(String filename, int lineNo, String message, int eventType)
+        private void sendEventToExtensions(String filename, int [] errorPosition, String message, int eventType)
         {
             File [] sources;
             if (filename != null) {
@@ -2443,7 +2443,7 @@ public final class Package extends Graph
                 sources = new File[0];
             }
             CompileEvent aCompileEvent = new CompileEvent(eventType, sources);
-            aCompileEvent.setErrorLineNumber(lineNo);
+            aCompileEvent.setErrorPosition(errorPosition);
             aCompileEvent.setErrorMessage(message);
             ExtensionsManager.getInstance().delegateEvent(aCompileEvent);
         }
@@ -2452,6 +2452,7 @@ public final class Package extends Graph
          * A compilation has been started. Mark the affected classes as being
          * currently compiled.
          */
+        @Override
         public void startCompile(File[] sources)
         {
             // Send a compilation starting event to extensions.
@@ -2465,34 +2466,39 @@ public final class Package extends Graph
             markAsCompiling(sources);
         }
 
+        @Override
         public void compilerMessage(Diagnostic diagnostic)
         {
+            int [] errorPosition = new int[4];
+            errorPosition[0] = (int) diagnostic.getStartLine();
+            errorPosition[1] = (int) diagnostic.getStartColumn();
+            errorPosition[2] = (int) diagnostic.getEndLine();
+            errorPosition[3] = (int) diagnostic.getEndColumn();
             if (diagnostic.getType() == Diagnostic.ERROR) {
-                errorMessage(diagnostic.getFileName(), (int) diagnostic.getStartLine(),
-                        diagnostic.getMessage());
+                errorMessage(diagnostic.getFileName(), errorPosition, diagnostic.getMessage());
             }
             else {
-                warningMessage(diagnostic.getFileName(), (int) diagnostic.getStartLine(),
-                        diagnostic.getMessage());
+                warningMessage(diagnostic.getFileName(), errorPosition, diagnostic.getMessage());
             }
         }
         
-        private void errorMessage(String filename, int lineNo, String message)
+        private void errorMessage(String filename, int [] errorPosition, String message)
         {
             // Send a compilation Error event to extensions.
-            sendEventToExtensions(filename, lineNo, message, CompileEvent.COMPILE_ERROR_EVENT);
+            sendEventToExtensions(filename, errorPosition, message, CompileEvent.COMPILE_ERROR_EVENT);
         }
 
-        private void warningMessage(String filename, int lineNo, String message)
+        private void warningMessage(String filename, int [] errorPosition, String message)
         {
             // Send a compilation Error event to extensions.
-            sendEventToExtensions(filename, lineNo, message, CompileEvent.COMPILE_WARNING_EVENT);
+            sendEventToExtensions(filename, errorPosition, message, CompileEvent.COMPILE_WARNING_EVENT);
         }
 
         /**
          * Compilation has ended. Mark the affected classes as being normal
          * again.
          */
+        @Override
         public void endCompile(File[] sources, boolean successful)
         {
             for (int i = 0; i < sources.length; i++) {

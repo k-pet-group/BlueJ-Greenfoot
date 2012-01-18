@@ -63,6 +63,9 @@ public class CompileEvent implements ExtensionEvent
     private int    eventId;
     private File[] fileNames;   // An array of names this event belong to
     private int    errorLineNumber;
+    private int    errorColumn;
+    private int    endErrorLine;
+    private int    endErrorColumn;
     private String errorMessage;
 
     /**
@@ -97,6 +100,17 @@ public class CompileEvent implements ExtensionEvent
     {
         errorLineNumber = aLineNumber;
     }
+    
+    /**
+     * Set the error position - beginning line [0] and column [1], ending line [2] and column [3]
+     */
+    public void setErrorPosition(int [] errorPosition)
+    {
+        errorLineNumber = errorPosition[0];
+        errorColumn = errorPosition[1];
+        endErrorLine = errorPosition[2];
+        endErrorColumn = errorPosition[3];
+    }
 
     /**
      * Returns the line number where the compilation error occurs.
@@ -105,6 +119,19 @@ public class CompileEvent implements ExtensionEvent
     public int getErrorLineNumber()
     {
         return errorLineNumber;
+    }
+    
+    /**
+     * Get the error position - beginning line [0] and column [1], ending line [2] and column [3].
+     */
+    public int[] getErrorPosition()
+    {
+        int [] r = new int[4];
+        r[0] = errorLineNumber;
+        r[1] = errorColumn;
+        r[2] = endErrorLine;
+        r[3] = endErrorColumn;
+        return r;
     }
 
     /**
