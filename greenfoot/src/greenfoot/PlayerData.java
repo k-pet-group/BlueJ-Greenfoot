@@ -193,7 +193,7 @@ public class PlayerData
      * <p>For example, if you want to show the high-scores, store the score with setScore(score),
      * and then use getTop(10) to get the users with the top ten scores.</p> 
      * 
-     * @param limit The maximum number of data items to retrieve.
+     * @param maxAmount The maximum number of data items to retrieve.
      * Passing zero or a negative number will get all the data, but see the note above.  
      * @return A list where each item is a PlayerData, or null if there was a problem
      */
@@ -223,7 +223,7 @@ public class PlayerData
      * <p>For example, if you want to show the high-scores surrounding the player, store the score with setScore(score),
      * and then use getNearby(10) to get the ten users with scores close to the current player.</p> 
      * 
-     * @param limit The maximum number of data items to retrieve.
+     * @param maxAmount The maximum number of data items to retrieve.
      *            Passing zero or a negative number will get all the data, but see the note above.  
      * @return A list where each item is a PlayerData, or null if there was a problem
      */
