@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -31,6 +31,8 @@ import greenfoot.platforms.ide.GreenfootUtilDelegateIDE;
 import greenfoot.record.InteractionListener;
 
 import java.awt.event.MouseEvent;
+import java.nio.charset.Charset;
+import java.nio.charset.IllegalCharsetNameException;
 import java.rmi.RemoteException;
 
 import javax.swing.JFrame;
@@ -135,25 +137,30 @@ public class WorldInvokeListener
         try {
             final String instanceName = rObj != null ? rObj.getInstanceName() : cl.getName();
             ResultWatcher watcher = new ResultWatcher() {
+                @Override
                 public void beginCompile()
                 {
                 }
                 
+                @Override
                 public void beginExecution(InvokerRecord ir)
                 {
                     interactionListener.beginCallExecution(callable);
                     WorldHandler.getInstance().clearWorldSet();
                 }
                 
+                @Override
                 public void putError(String message, InvokerRecord ir)
                 {
                 }
                 
+                @Override
                 public void putException(ExceptionDescription exception,
                         InvokerRecord ir)
                 {
                 }
                 
+                @Override
                 public void putResult(DebuggerObject result, String name,
                         InvokerRecord ir)
                 {
@@ -201,14 +208,29 @@ public class WorldInvokeListener
                     }
                 }
 
+                @Override
                 public void putVMTerminated(InvokerRecord ir)
                 {
                     // What, the VM was terminated? *this* VM? then how am I still executing...?
                 }
             };
             InvokerCompiler compiler = project.getDefaultPackage().getCompiler();
+            
+            // Find project character set
+            String csName = project.getProjectProperties().getString("project.charset");
+            if (csName == null) {
+                csName = "UTF-8";
+            }
+            Charset cs;
+            try {
+                cs = Charset.forName(csName);
+            }
+            catch (IllegalCharsetNameException icsne) {
+                cs = Charset.forName("UTF-8");
+            }
+            
             return new Invoker(frame, callable, watcher, project.getDir(), "", project.getDir().getPath(),
-                    ch, objectBenchVars, objectBench, debugger, compiler, instanceName);
+                    ch, objectBenchVars, objectBench, debugger, compiler, instanceName, cs);
         }
         catch (RemoteException re) {
             Debug.reportError("Error getting invoker instance", re);
@@ -220,6 +242,7 @@ public class WorldInvokeListener
      * Interactively call a method. If necessary, a dialog is presented to ask for
      * parameters; then the object is constructed.
      */
+    @Override
     public void executeMethod(MethodView mv)
     {
         Invoker invoker = getInvokerInstance(mv);
@@ -232,6 +255,7 @@ public class WorldInvokeListener
      * notified if an object is created successfully; for an actor, this will result in
      * the actor being inserted into the world.
      */
+    @Override
     public void callConstructor(ConstructorView cv)
     {
         Invoker invoker = getInvokerInstance(cv);
