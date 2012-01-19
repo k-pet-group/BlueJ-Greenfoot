@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -365,10 +365,12 @@ public class WorldHandlerDelegateIDE
     {
         greenfootRecorder.reset();
         worldInitialising = true;
-        String lastWorldClassname = getLastWorldClassName();
         Class<? extends World> cls = getLastWorldClass();
+        GClass lastWorldGClass = getLastWorldGClass();
         
-        if (lastWorldClassname == null) {
+        if (lastWorldGClass == null) {
+            // Either the last instantiated world no longer exists, or there is no record
+            // of a last instantiated world class. Find a world arbitrarily.
             List<Class<? extends World>> worldClasses = project.getDefaultPackage().getWorldClasses();
             if(worldClasses.isEmpty() ) {
                 return;
@@ -455,17 +457,6 @@ public class WorldHandlerDelegateIDE
         return project.getDefaultPackage().getClass(lastWorldClass);
     }
     
-    /**
-     * Get the name of the most recently explicitly instantiated world class
-     */
-    private String getLastWorldClassName()
-    {
-        if (project != null) {
-            return project.getLastWorldClassName();
-        }
-        return null;
-    }
-
     /**
      * Get the last world class that was instantiated, if it can (still) be instantiated.
      * May return null.
