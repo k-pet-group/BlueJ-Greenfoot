@@ -360,15 +360,42 @@ class JdiThread extends DebuggerThread
                 StackFrame frame = rt.frame(frameNo);
                 List<LocalVariable> vars = frame.visibleVariables();
                 List<String> localVars = new ArrayList<String>();
-
+                
+                // To work around a JDI bug (probably related to the other one described
+                // below) we collect information we need about the variables on the
+                // stack frame before we do anything which might cause types to be
+                // loaded:
+                
+                List<String> localVals = new ArrayList<String>();
+                List<Type> localTypes = new ArrayList<Type>();
+                List<String> genericSigs = new ArrayList<String>();
+                List<String> typeNames = new ArrayList<String>();
+                ReferenceType declaringType = frame.location().declaringType();
+                
+                for(int i = 0; i < vars.size(); i++) {
+                    LocalVariable var = vars.get(i);
+                    String val = JdiUtils.getJdiUtils().getValueString(frame.getValue(var));
+                    localVals.add(val);
+                    
+                    try {
+                        localTypes.add(var.type());
+                    }
+                    catch (ClassNotLoadedException cnle) {
+                        localTypes.add(null);
+                    }
+                    
+                    genericSigs.add(var.genericSignature());
+                    typeNames.add(var.typeName());
+                }
+                
                 for(int i = 0; i < vars.size(); i++) {
                     LocalVariable var = vars.get(i);
 
                     // Add "type name = value" to the list
-                    JavaType vartype = JdiReflective.fromLocalVar(frame, var);
-                    String val = JdiUtils.getJdiUtils().getValueString(frame.getValue(var));
+                    JavaType vartype = JdiReflective.fromLocalVar(localTypes.get(i), genericSigs.get(i),
+                            typeNames.get(i), declaringType);
                     localVars.add(vartype.toString(true) + " " + var.name()
-                            + " = " + val);
+                            + " = " + localVals.get(i));
                 }
                 return localVars;
             }
