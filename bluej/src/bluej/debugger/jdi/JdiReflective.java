@@ -121,7 +121,8 @@ public class JdiReflective extends Reflective
             if (rclass == null) {
                 Debug.message("Attempt to use unloaded type: " + name);
                 Debug.message("  name = " +  name + ", sourceLoader = " + sourceLoader);
-                Debug.message("  (in JdiReflective.checkLoader()");
+                Debug.message("  (in JdiReflective.checkLoaded()");
+                new Exception().printStackTrace(System.out);
                 return;
             }
             name = null;
