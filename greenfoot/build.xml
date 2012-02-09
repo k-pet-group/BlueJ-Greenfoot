@@ -396,7 +396,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
     </target>
 
     <target name="dist" depends="ready-to-run, clean-scenarios, copy-scenarios, copy-common-classes, copy-license, copy-tutorial, zip-source" description="Generate the distribution. Also runs the bluej.dist-greenfoot" >
-    	<copy file="doc/Greenfoot-README.TXT" todir="${bluej.projectdir}/doc"/>
+    	<copy file="doc/Greenfoot-README.txt" todir="${bluej.projectdir}/doc"/>
     	
         <!-- Run the BlueJ dist-->
         <ant dir="${bluej.projectdir}" target="dist-greenfoot" />
