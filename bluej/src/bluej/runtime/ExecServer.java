@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -167,10 +167,11 @@ public class ExecServer
         System.setIn(new BJInputStream(System.in));
         
         // Set up encoding for the terminal, the only arg that should be passed in
-        // is the encoding eg. "UTF-8, otherwise do nothing
+        // is the encoding eg. "UTF-8", otherwise do nothing
         if(args.length > 0 && !args[0].equals("")) {
             try {
                 System.setOut(new PrintStream(System.out, true, args[0]));
+                System.setErr(new PrintStream(System.err, true, args[0]));
             }
             catch (UnsupportedEncodingException uee) {
                 // Do nothing; don't use the requested encoding
