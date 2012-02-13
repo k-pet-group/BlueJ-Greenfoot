@@ -1062,9 +1062,6 @@ public class TextParserTest extends TestCase
         coll.addVariable("boolVal", JavaPrimitiveType.getBoolean(), true, false);
         TextAnalyzer tp = new TextAnalyzer(resolver, "", coll);
         
-        //tp.parseCommand("boolean boolVal = true;");
-        //tp.confirmCommand();
-        
         String r = tp.parseCommand("(boolVal) && true");
         assertEquals("boolean", r);
         r = tp.parseCommand("(boolVal) || true");

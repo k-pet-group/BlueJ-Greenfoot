@@ -2573,6 +2573,10 @@ public class JavaParser
         || ttype == JavaTokenTypes.DOT
         || ttype == JavaTokenTypes.EQUAL
         || ttype == JavaTokenTypes.NOT_EQUAL
+        || ttype == JavaTokenTypes.LT
+        || ttype == JavaTokenTypes.LE
+        || ttype == JavaTokenTypes.GT
+        || ttype == JavaTokenTypes.GE
         || ttype == JavaTokenTypes.ASSIGN
         || ttype == JavaTokenTypes.BNOT
         || ttype == JavaTokenTypes.LNOT
@@ -2584,6 +2588,8 @@ public class JavaParser
         || ttype == JavaTokenTypes.BAND_ASSIGN
         || ttype == JavaTokenTypes.BXOR
         || ttype == JavaTokenTypes.BXOR_ASSIGN
+        || ttype == JavaTokenTypes.LOR
+        || ttype == JavaTokenTypes.LAND
         || ttype == JavaTokenTypes.SL
         || ttype == JavaTokenTypes.SL_ASSIGN
         || ttype == JavaTokenTypes.SR
