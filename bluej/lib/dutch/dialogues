@@ -15,7 +15,7 @@ geen source code is gevonden.
 class: source code regelnummer:
 
 system-exit
-De method eindigde met een "exit".
+De methode eindigde met een "exit".
 Er werd geen resultaat teruggegeven.
 De exit code is:
 
@@ -301,7 +301,7 @@ Array inspecteren
 null
 
 classmgr-changes-no-effect
-De verwijzingen naar de class libraries
+De verwijzingen naar de klassenbibliotheken
 werken pas als je BlueJ opnieuw opstart.
 
 pref-optimise-no-effect
@@ -312,7 +312,7 @@ werken pas na het openen van het volgende project
 unittest-new-test-method
 Specificeer een naam voor deze test.
 Daarna begint het opnemen van de test.
-Nieuwe Test Method
+Nieuwe testmethode
 null
 
 getobject-new-name
@@ -321,19 +321,19 @@ Object naam
 null
 
 unittest-fixture-present
-Deze unit test class heeft al een object
-toestand opgeslagen met deze naam.
-Als je doorgaat, wordt deze object
-toestand vervangen.
+Deze unit testklasse heeft al een test
+fixture opgeslagen met deze naam.
+Als je doorgaat, wordt deze fixture
+vervangen.
 Wil je doorgaan?
 Vervangen
 Annuleren
 null
 
 unittest-method-present
-Deze unit test class heeft al een test method
+Deze unit testklasse heeft al een testmethode
 met deze naam. Als je doorgaat wordt deze
-test method vervangen.
+testmethode vervangen.
 Wil je doorgaan?
 Vervangen
 Annuleren
@@ -367,14 +367,14 @@ http://www.bluej.org/help/ask-help.html.
 
 project-is-readonly
 Het project is alleen lezen. Zo kan je geen objecten maken of
-methods aanroepen.
+methodes aanroepen.
 Je hebt niet de juiste rechten in de project map of je kan
 helemaal niet schrijven (is het een CD?). Vraag hulp aan
 de systeembeheerder.
 
 could-not-write-shell-file
 Je kunt niet schrijven in je project map. Zo kan je geen
-objecten maken of methods aanroepen.
+objecten maken of methodes aanroepen.
 Je hebt niet de juiste rechten in de project map of je kan
 helemaal niet schrijven (is het een CD?). Vraag hulp aan
 de systeembeheerder.

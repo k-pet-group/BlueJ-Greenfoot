@@ -1,6 +1,6 @@
-# Dutch translation by Peter van Diepen, Stedelijk Dalton College Alkmaar, The Netherlands
+# see readme.txt
 
-okay=Ok
+okay=OK
 cancel=Annuleren
 close=Sluiten
 continue=Doorgaan
@@ -17,40 +17,40 @@ compiler.warningDialog.noWarnings=Geen waarschuwingen
 
 debugger.null=null
 
-debugger.assert.assertThat=assert dat:
-debugger.assert.resultIs=resultaat is
-debugger.assert.equalTo=gelijk aan
-debugger.assert.equalToFloatingPoint=gelijk aan (double of float)
-debugger.assert.sameAs=dezelfde als
-debugger.assert.notSameAs=niet dezelfde als
-debugger.assert.notNull=niet null
-debugger.assert.null=null
+debugger.assert.assertThat=Verzeker dat:
+debugger.assert.resultIs=Het resultaat
+debugger.assert.equalTo=gelijk is aan
+debugger.assert.equalToFloatingPoint=(ongeveer) gelijk is aan
+debugger.assert.sameAs=hetzelfde is als
+debugger.assert.notSameAs=niet hetzelfde is als
+debugger.assert.notNull=niet null is
+debugger.assert.null=null is
 debugger.assert.delta=delta
 
 debugger.inspector.title=BlueJ:  Inspector
-debugger.inspector.object.title=BlueJ:  Object Inspector
-debugger.inspector.class.title=BlueJ:  Class Inspector
-debugger.inspector.enum.title=BlueJ:  Enum Inspector
-debugger.inspector.interface.title=BlueJ:  Interface Inspector
-debugger.inspector.result.title=BlueJ:  Method resultaat
-debugger.inspector.result.returned=teruggegeven:
-debugger.inspector.showClass=static variabelen laten zien
-debugger.inspector.inspect=Inspect
+debugger.inspector.object.title=BlueJ:  Objectinspector
+debugger.inspector.class.title=BlueJ:  Klasseninspector
+debugger.inspector.enum.title=BlueJ:  Enum-inspector
+debugger.inspector.interface.title=BlueJ:  Interfaceinspector
+debugger.inspector.result.title=BlueJ:  Resultaat v/d methode
+debugger.inspector.result.returned=Teruggegeven:
+debugger.inspector.showClass=Klassenvariabelen laten zien
+debugger.inspector.inspect=Inspecteer
 debugger.inspector.get=Geef
-debugger.inspector.class.nameLabel=Class
+debugger.inspector.class.nameLabel=Klasse
 debugger.inspector.enum.nameLabel=Enum
 debugger.inspector.interface.nameLabel=Interface
 
 debugger.objectwrapper.methodException=Exception bij het aanroepen van methods:
 debugger.objectwrapper.invocationException=Exception tijdens starten:
-debugger.objectwrapper.inspect=Inspect
+debugger.objectwrapper.inspect=Inspecteer
 debugger.objectwrapper.remove=Verwijderen
 debugger.objectwrapper.serializable=Serialize
 debugger.objectwrapper.redefined=opnieuw gedefinieerd in
 debugger.objectwrapper.inherited=ge\u00ebrfd van
 
 debugger.threadstatus.finished=afgesloten
-debugger.threadstatus.breakpoint=op breakpoint
+debugger.threadstatus.breakpoint=op afbreekpunt
 debugger.threadstatus.stopped=gestopt
 debugger.threadstatus.monitor=op monitor
 debugger.threadstatus.notstarted=niet gestart
@@ -61,10 +61,10 @@ debugger.threadstatus.waiting=wacht
 debugger.threadstatus.zombie=zombie
 
 #Debugger messages
-debugger.jdiDebugger.noBreakpointMsg=Wis breakpoint: geen breakpoint gevonden op deze regel.
-debugger.jdiDebugger.noLineNumberMsg=Deze class is gecompileerd zonder regelnummers.\n Zo kan je geen breakpoints gebruiken.
-debugger.jdiDebugger.noCodeMsg=Hier is geen breakpoint mogelijk: er staat geen code op deze regel
-debugger.jdiDebugger.internalErrorMsg=Er was een "internal error" bij het maken\n van dit breakpoint
+debugger.jdiDebugger.noBreakpointMsg=Wis afbreekpunt: geen afbreekpunten gevonden op deze regel.
+debugger.jdiDebugger.noLineNumberMsg=Deze klasse is gecompileerd zonder regelnummers.\n Zo kan je geen afbreekpunten gebruiken.
+debugger.jdiDebugger.noCodeMsg=Hier is geen afbreekpunt mogelijk: er staat geen code op deze regel
+debugger.jdiDebugger.internalErrorMsg=Er was een "interne fout" bij het maken\n van dit afbreekpunt
 
 # Class Manager panel user interface elements and error messages
 classmgr.prefpaneltitle=Libraries
@@ -87,26 +87,29 @@ prefmgr.title=Voorkeursinstellingen
 
 # Miscellaneous Preferences panel
 prefmgr.misc.prefpaneltitle=Diverse instellingen
-prefmgr.misc.documentation.title=Documentatie instellingen
-prefmgr.misc.jdkurlpath=JDK documentatie URL
+prefmgr.misc.documentation.title=Documentatieinstellingen
+prefmgr.misc.jdkurlpath=URL v/d JDK documentatie
 prefmgr.misc.linkToLib=Deze URL wordt gebruikt om documentatie te genereren
 prefmgr.misc.linkToLibNoteLine1=Als deze URL wordt gebruikt om documentatie te genereren, moet BlueJ die kunnen vinden.
 prefmgr.misc.linkToLibNoteLine2=Zet deze optie uit als de URL niet beschikbaar is.
-prefmgr.misc.testing.title=Unit test instellingen
-prefmgr.misc.showTesting=Unit test tools laten zien
-prefmgr.misc.vm.title=Virtual machine instellingen
+prefmgr.misc.testing.title=Instellingen voor unit tests
+prefmgr.misc.tools.title=Bijkomende instellingen
+prefmgr.misc.showTesting=Gereedschappen voor unit tests laten zien
+prefmgr.misc.showTeam=Toon teamwerk-knoppen
+prefmgr.misc.showJavaME=Toon Java ME-knoppen
+prefmgr.misc.vm.title=Instellingen van de virtuele machine
 prefmgr.misc.optimiseVM=Gebruik optimaliseren (sneller uitvoeren, maar veroorzaakt soms problemen in combinatie met debugger)
 prefmgr.misc.addLibTitle=Kies map of jar/zip file
 prefmgr.misc.libFileFilter=Library files (*.jar;*.zip) of class mappen
 
 # Editor Preferences panel
 prefmgr.edit.prefpaneltitle=Editor
-prefmgr.edit.editor.title=Editor instellingen
+prefmgr.edit.editor.title=Editorinstellingen
 prefmgr.edit.editorfontsize=Lettertype in punten
-prefmgr.edit.usesyntaxhilighting=Java keywords in andere kleur
+prefmgr.edit.usesyntaxhilighting=Java sleutelwoorden in andere kleur
 prefmgr.edit.autoindent=Automatisch inspringen (Enter en Tab toetsen)
 prefmgr.edit.displaylinenumbers=Regelnummers laten zien
-prefmgr.edit.makeBackup=Maak een backup van de source files
+prefmgr.edit.makeBackup=Maak een backup van de bronbestanden
 prefmgr.edit.matchBrackets=Laat bijbehorende haakje zien
 
 
@@ -153,9 +156,9 @@ editor.closeLabel = Sluiten
 editor.page-setupLabel = Pagina instelling...
 
 # menu labels (MUST be defined)
-editor.classLabel = Class
-editor.editLabel = Edit
-editor.toolsLabel = Tools
+editor.classLabel = Klasse
+editor.editLabel = Editeer
+editor.toolsLabel = Gereedschappen
 editor.debugLabel = Debug
 editor.optionLabel = Opties
 editor.helpLabel = Help
@@ -172,9 +175,10 @@ editor.copy-to-clipboardLabel = Kopie\u00ebren
 editor.paste-from-clipboardLabel = Plakken
 editor.indent-blockLabel = Meer inspringen
 editor.deindent-blockLabel = Minder inspringen
+editor.autoindentLabel = Auto-lay-out
 editor.comment-blockLabel = Commentaar
 editor.uncomment-blockLabel = Geen commentaar
-editor.insert-methodLabel = Method toevoegen
+editor.insert-methodLabel = Methode toevoegen
 
 editor.findLabel = Zoeken...
 editor.find-nextLabel = Volgende zoeken
@@ -182,15 +186,15 @@ editor.find-next-backwardLabel = Vorige zoeken
 editor.go-to-lineLabel = Ga naar regel...
 editor.replaceLabel = Vervangen...
 editor.compileLabel = Compileren
-editor.toggle-breakpointLabel = Breakpoint aan/uit
-editor.toggle-interface-viewLabel = Documentatie / source code
+editor.toggle-breakpointLabel = Afbreekpunt aan/uit
+editor.toggle-interface-viewLabel = Wisselen documentatie/broncode
 
 editor.go-to-lineLabel = Ga naar regel...
 editor.gotoline.title = Ga naar regel
 editor.gotoline.label = Regelnummer intoetsen
 editor.gotoline.notNumericMessage = Regelnummer moet numeriek zijn
 
-editor.implementationLabel = Source code
+editor.implementationLabel = Broncode
 editor.interfaceLabel = Documentatie
 
 editor.state.readOnly = alleen lezen
@@ -231,23 +235,23 @@ editor.info.readingProblem = Deze file geeft leesproblemen.
 editor.info.regularFile = (Is dit wel een gewone file? Mag je deze wel lezen?)
 editor.info.newFile = Nieuwe file
 editor.info.errorSaving = Fout bij het opslaan van de file!
-editor.info.compiled = Class is gecompileerd - geen syntax fouten
+editor.info.compiled = Klasse is gecompileerd - geen syntax fouten
 editor.info.noChanges = Geen wijzigingen om op te slaan
 editor.info.cannotReload = Opnieuw lezen lukt niet, want deze file is nooit opgeslagen!
 editor.info.reload = (\"Opnieuw lezen\" leest de file zoals die de laatste keer was opgeslagen op disk.)
 editor.info.emptySearchString = Lege zoektekst
 editor.info.notFound = Niet gevonden (zoek opnieuw vanaf het begin).
 editor.info.compiling = Compileren...
-editor.info.cannotSetBreak = Geen breakpoint mogelijk:\nEr is geen source code in de editor.
+editor.info.cannotSetBreak = Geen afbreekpunt mogelijk:\nEr is geen broncode in de editor.
 editor.info.fileDisappeared = Fout: de file is verdwenen!
 editor.info.fileReadError = Fout bij het lezen van deze file.
 editor.info.saved = File opgeslagen
 editor.info.printing = Afdrukken...
 editor.info.printed = Afdrukken... is gedaan.
 editor.info.cancelled = Geannuleerd.
-editor.info.generatingDoc = Class interface genereren...
-editor.info.loadingDoc = Class interface inlezen...
-editor.info.docLoaded = Class interface inlezen... is gedaan.
+editor.info.generatingDoc = Klasseninterface genereren...
+editor.info.loadingDoc = Klasseninterface inlezen...
+editor.info.docLoaded = Klasseninterface inlezen... is gedaan.
 editor.info.docAborted = Het genereren van documentatie ging fout.\n Afgebroken.
 editor.info.docDisappeared = HTML file niet gevonden:
 editor.info.docNoFrames = Frame display doet het niet met editor preview.
@@ -255,10 +259,10 @@ editor.info.tabsExpanded = Alle TABs zijn omgezet in spaties.
 editor.printer.continued=Afdrukken gaat weer verder.
 #End Editor labels
 
-pkgmgr.chooseUsesFrom=Selecteer de class die gebruikt
-pkgmgr.chooseUsesTo=Selecteer de class die wordt gebruikt
-pkgmgr.chooseInhFrom=Selecteer de subclass
-pkgmgr.chooseInhTo=Selecteer de superclass
+pkgmgr.chooseUsesFrom=Selecteer de klasse die gebruikt
+pkgmgr.chooseUsesTo=Selecteer de klasse die wordt gebruikt
+pkgmgr.chooseInhFrom=Selecteer de subklasse
+pkgmgr.chooseInhTo=Selecteer de superklasse
 pkgmgr.chooseArrow=Selecteer de pijl de je wilt verwijderen
 pkgmgr.packageSaved=Package opgeslagen
 pkgmgr.info.printing = Afdrukken...
@@ -278,14 +282,14 @@ pkgmgr.openNonBlueJPkg.title=Niet-BlueJ project openen
 pkgmgr.openNonBlueJPkg.buttonLabel=Open in BlueJ
 pkgmgr.saveAs.title=Project opslaan
 pkgmgr.saveAs.buttonLabel=Opslaan
-pkgmgr.addClass.title=Selecteer Java Class om toe te voegen
+pkgmgr.addClass.title=Selecteer Javaklasse om toe te voegen
 pkgmgr.addClass.buttonLabel=Toevoegen
 pkgmgr.importPkg.title=Selecteer map om te importeren
 pkgmgr.importPkg.buttonLabel=Importeren
 pkgmgr.importPkgNew.title=Nieuw prroject importeren in
 pkgmgr.importPkgNew.buttonLabel=Maak
 
-pkgmgr.newClass.msg=Geef de class een naam
+pkgmgr.newClass.msg=Geef de klasse een naam
 pkgmgr.newUses=Leg 'gebruikt' relatie
 pkgmgr.newExtends=Leg 'erft' relatie
 pkgmgr.unimplemented=Deze functie is nog niet gemaakt
@@ -300,33 +304,40 @@ pkgmgr.packagemenu.open=Openen
 pkgmgr.packagemenu.remove=Verwijderen
 
 pkgmgr.classmenu.runApplet=Draai Applet
-pkgmgr.classmenu.edit=Start Editor
+pkgmgr.classmenu.edit=Editor opstarten
 pkgmgr.classmenu.compile=Compileren
 pkgmgr.classmenu.inspect=Inspecteren
 pkgmgr.classmenu.remove=Verwijderen
-pkgmgr.classmenu.createTest=Maak test class
+pkgmgr.classmenu.createTest=Maak testklasse
 
 pkgmgr.test.label=Testen
 pkgmgr.test.record=Begin opnemen
 pkgmgr.test.run=Draai testen
-pkgmgr.test.end=Einde opnemen
+pkgmgr.test.end=Einde
 pkgmgr.test.succeeded=gelukt
 pkgmgr.test.noTestName=Geef de test een naam
 pkgmgr.test.invalidTestName=Naam van test moet een correcte Java identifier zijn
 pkgmgr.test.recording=opnemen
 
 pkgmgr.test.popup.testAll=Test alles
-pkgmgr.test.popup.noTests=Geen test methods
+pkgmgr.test.popup.noTests=Geen testmethoden
 pkgmgr.test.popup.testPrefix=Test
-pkgmgr.test.popup.createTest=Maak test method...
-pkgmgr.test.popup.benchToFixture=Object toestand opslaan
-pkgmgr.test.popup.fixtureToBench=Object toestand herstellen
+pkgmgr.test.popup.createTest=Maak testmethode...
+pkgmgr.test.popup.benchToFixture=Objectenbank naar testfixture
+pkgmgr.test.popup.fixtureToBench=Testfixture maar objectenbank
+
+# codepad messages
+pkgmgr.codepad.uninitialized=Opmerking: variabelen in het evaluatievak\n worden op dezelfde manier ge\u00efnitialiseerd als gewone instantievelden
+pkgmgr.codepad.vmTerminated=Er trad een reset van de VM op
+# The "variable has already been defined" error message in the codepad. The '$' symbol will be
+# replaced by the name of the problematic variable.
+pkgmgr.codepad.redefinedVar=$ was reeds gedefinieerd
 
 
 # "new class" dialog
-pkgmgr.newClass.title=BlueJ:  Maak nieuwe class
-pkgmgr.newClass.label=Class naam:
-pkgmgr.newClass.classType=Class type
+pkgmgr.newClass.title=BlueJ:  Maak nieuwe klasse
+pkgmgr.newClass.label=Klassennaam:
+pkgmgr.newClass.classType=Soort klasse
 pkgmgr.newClass.stdclass=Class
 pkgmgr.newClass.abstract=Abstract class
 pkgmgr.newClass.interface=Interface
@@ -341,22 +352,22 @@ pkgmgr.newPackage.label=Package naam:
 pkgmgr.newPackage.newPackage=Package
 
 # "Use Library Class" dialog
-callLibraryDialog.title=BlueJ:  Library class aanroepen
-callLibraryDialog.classLabel=Class:
+callLibraryDialog.title=BlueJ:  Bibliotheekklasse aanroepen
+callLibraryDialog.classLabel=Klasse:
 callLibraryDialog.docButton=Documentatie
-callLibraryDialog.listHeading=Constructors en static methods
-callLibraryDialog.clickHere1=Geef volledige class naam en druk op Enter
-callLibraryDialog.clickHere2=Constructors en methods laten zien
-callLibraryDialog.classNotFound1=Class is niet gevonden.
-callLibraryDialog.classNotFound2=(Verbeter de class naam en druk weer op Enter)
+callLibraryDialog.listHeading=Constructors en klassenmethodes
+callLibraryDialog.clickHere1=Geef volledige klassennaam en druk op Enter
+callLibraryDialog.clickHere2=Constructors en methodes laten zien
+callLibraryDialog.classNotFound1=Klasse is niet gevonden.
+callLibraryDialog.classNotFound2=(Verbeter de klassennaam en druk weer op Enter)
 
 # "export" dialog
 pkgmgr.export.title=BlueJ:  Maak jar file
 pkgmgr.export.helpLine1=Maak a Java archive (jar) file voor het project. Deze kan
 pkgmgr.export.helpLine2=buiten BlueJ draaien indien main class is gespecificeerd.
 pkgmgr.export.classLabel=Main class:
-pkgmgr.export.includeLibs=Include user libraries
-pkgmgr.export.sourceLabel=Include source
+pkgmgr.export.includeLibs=Bibliotheken opnemen
+pkgmgr.export.sourceLabel=Broncode opnemen
 pkgmgr.export.noClassText=niets (kan niet draaien)
 pkgmgr.export.specifyJar=Specificeer naam voor jar file
 pkgmgr.export.createJarText=Maak
@@ -366,7 +377,7 @@ pkgmgr.importmismatch.title=BlueJ kan dit package niet verwerken
 pkgmgr.importmismatch.helpLine1=Waarschuwing: Java verwacht een andere top level map
 pkgmgr.importmismatch.helpLine2=project is ook al gedeclareerd in een van de class package declaraties van dit project.
 pkgmgr.importmismatch.helpLine3=Het openen van deze map zal alle package declaraties wijzigen in de
-pkgmgr.importmismatch.helpLine4=volgende source files van het project.
+pkgmgr.importmismatch.helpLine4=volgende bronbestanden van het project.
 pkgmgr.importmismatch.helpLine5=Waarschijnlijk moet je de map boven de eigen map openen.
 pkgmgr.importmismatch.helpLine6=Om bij voorbeeld het project te openen met daarin het package
 pkgmgr.importmismatch.helpLine7="org.bluej", moet je de map selecteren met daarin "org"
@@ -404,31 +415,31 @@ pkgmgr.runApplet.valueLbl=Waarde =
 pkgmgr.runApplet.paramName=PARAM NAME
 pkgmgr.runApplet.value=VALUE
 pkgmgr.runApplet.htmlComment=<!-- Deze file is gegenereerd door de BlueJ ontwikkel omgeving. -->\n<!-- Dit gebeurt elke keer automatisch als de applet draait. -->\n<!-- Als je deze file met de hand wijzigt gaan de wijzigingen verloren -->\n<!-- als je de applet opnieuw draait in BlueJ. Als je dus je wijzigingen -->\n<!-- wilt bewaren moet je deze file opslaan in andere map dan de package map. -->
-pkgmgr.runApplet.htmlExportedComment=<!-- Deze file is gegenereerd door de BlueJ ontwikkel omgeving.  -->\n<!-- De codebase variable verwijst naar het volledige path van de -->\n<!-- package map van de applet toen deze webpage werd gegenereerd. -->\n<!-- Als dit package ergens anders moet staan, moet je dus -->\n<!-- de waarde van de codebase aanpassen. -->
+pkgmgr.runApplet.htmlExportedComment=<!-- Deze file is gegenereerd door de BlueJ ontwikkel omgeving.  -->\n<!-- De codebase variabele verwijst naar het volledige path van de -->\n<!-- package map van de applet toen deze webpage werd gegenereerd. -->\n<!-- Als dit package ergens anders moet staan, moet je dus -->\n<!-- de waarde van de codebase aanpassen. -->
 
 #print project dialog
 pkgmgr.printDialog.title=BlueJ:  Project afdrukken
 pkgmgr.printDialog.printDiagram=Class diagram afdrukken
-pkgmgr.printDialog.printSource=Source code afdrukken
+pkgmgr.printDialog.printSource=Broncode afdrukken
 pkgmgr.printDialog.printReadme=Project README afdrukken
 
 # method call dialog
 pkgmgr.methodCall.titleCreate=BlueJ:  Maak object
-pkgmgr.methodCall.titleCall=BlueJ:  Method aanroepen
-pkgmgr.methodCall.namePrompt=Naam van instance:
+pkgmgr.methodCall.titleCall=BlueJ:  Methode aanroepen
+pkgmgr.methodCall.namePrompt=Naam van de instantie:
 pkgmgr.methodCall.typeParametersPrompt=Type Parameters:
 pkgmgr.methodCall.typeParameterPrompt=Type Parameter:
 error.methodCall.emptyField=Fout: Lege parameter.
 error.methodCall.emptyTypeField=Fout: Lege type parameter.\nJe moet of alle type parameters invullen of geen een.
-error.methodCall.illegalName=De instance naam moet een correcte Java identifier zijn.
+error.methodCall.illegalName=De naam van de instantie moet een correcte Java identifier zijn.
 error.methodCall.duplicateName=Er bestaat al een object met deze naam.\nKies een unieke naam.
 
 # Debugger dialog (ExecControls.java)
 debugger.execControls.windowTitle = BlueJ:  Debugger
 debugger.execControls.stackTitle = Lijst van aanroepen
-debugger.execControls.staticTitle = Static variables
-debugger.execControls.instanceTitle = Instance variables
-debugger.execControls.localTitle = Local variables
+debugger.execControls.staticTitle = Klassenvariabelen
+debugger.execControls.instanceTitle = Instantievariabelen
+debugger.execControls.localTitle = Lokale variabelen
 debugger.execControls.threadTitle = Threads
 debugger.execControls.haltButtonText = Halt
 debugger.execControls.stepButtonText = Stap
@@ -447,24 +458,24 @@ dialogmgr.question = BlueJ: Vraag
 dialogmgr.message = BlueJ: Bericht
 
 #Terminal Window
-terminal.options = Options
-terminal.title = BlueJ Terminal Window
+terminal.options = Opties
+terminal.title = Terminalvenster
 terminal.clear = Wissen
 terminal.copy = Kopie\u00ebren
 terminal.save = Opslaan in file...
 terminal.close = Sluiten
-terminal.clearScreen = Window wissen bij aanroepen method
-terminal.recordCalls = Aanroepen methods vastleggen
-terminal.buffering = Onbeperkt vastleggen
-terminal.save.title = Tekst terminal window opslaan
+terminal.clearScreen = Venster wissen bij methodeaanroep
+terminal.recordCalls = Methodeaanroepen opnemen
+terminal.buffering = Onbeperkt opnemen
+terminal.save.title = Terminaltekst opslaan
 terminal.save.buttonText = Opslaan
 
 #TestDisplay Window
-testdisplay.title = BlueJ: Test resultaten
+testdisplay.title = BlueJ: Testresultaten
 testdisplay.counter.runs=Pogingen:
 testdisplay.counter.errors=Fouten:
 testdisplay.counter.failures=Mislukte pogingen:
-testdisplay.showsource=Source code laten zien
+testdisplay.showsource=Broncode laten zien
 
 # status messages
 pkgmgr.compiling=Compileren...
@@ -479,7 +490,7 @@ pkgmgr.docuAborted=Genereren documentatie... is afgebroken
 pkgmgr.webBrowserMsg=Webbrowser is gestart.
 pkgmgr.webBrowserError=Webbrowser starten is mislukt.
 pkgmgr.usesArrowMsg=Deze 'gebruikt' relatie wordt nooit gebruikt:
-pkgmgr.breakpointMsg=Class opnieuw compileren voor de breakpoints
+pkgmgr.breakpointMsg=Class opnieuw compileren voor de afbreekpunten
 pkgmgr.appletInViewer=Applet draait in appletviewer
 pkgmgr.appletInBrowser=Applet draait in webbrowser
 pkgmgr.exported.jar=Exporteren naar Jar file is gedaan
@@ -506,20 +517,20 @@ menu.package.print=Print...@P
 menu.package.quit=_Afsluiten@Q
 
 menu.edit=_Edit
-menu.edit.newClass=Nieuwe Class...@N
-menu.edit.newPackage=Nieuw Package...@R
-menu.edit.addClass=Class toevoegen uit File...
+menu.edit.newClass=Nieuwe klasse...@N
+menu.edit.newPackage=Nieuw package...@R
+menu.edit.addClass=Klasse toevoegen uit File...
 menu.edit.remove=Verwijderen@BACK_SPACE
 menu.edit.newUses=Leg 'gebruikt' relatie tussen...
 menu.edit.newInherits=Leg een 'erft' relatie tussen...
 menu.edit.removeArrow=Verwijder relatie...
 
-menu.tools=_Tools
+menu.tools=_Gereedschappen
 menu.tools.compile=Compileren@K
 menu.tools.compileSelected=Selectie compileren@^K
 menu.tools.rebuild=_Alles in package compileren
-menu.tools.callLibrary=Aanroepen Library Class...@L
-menu.tools.generateDoc=Project Documentatie@J
+menu.tools.callLibrary=Bibliotheekklasse aanroepen...@L
+menu.tools.generateDoc=Projectdocumentatie@J
 menu.tools.testing=_Testen
 menu.tools.run=Draai testen
 menu.tools.end=Begin opnemen
@@ -529,31 +540,25 @@ menu.tools.preferences=_Opties...@,
 menu.view=_Beeld
 menu.view.showUses='gebruikt' relaties@U
 menu.view.showInherits='erft' realties@I
-menu.view.showExecControls=Debugger window@D
-menu.view.showTerminal=Terminal window@T
-menu.view.showTextEval=Evalueer window@E
+menu.view.showExecControls=Debuggervenster@D
+menu.view.showTerminal=Terminalvenster@T
+menu.view.showTextEval=Evaluatievak@E
 menu.view.showTestDisplay=Test _Resultaten
 
-menu.group=_Group Work
-menu.group.make=Make Group Package
-menu.group.open=Open Group Package
-menu.group.updateSelected=Update Selected
-menu.group.updateAll=Update All
-menu.group.commitSelected=Commit Selected
-menu.group.commitAll=Commit All
-menu.group.statusSelection=Status of Selection
-menu.group.statusAll=Status of All
-menu.group.users=Users
-menu.group.configuration=Configuration
+# TODO: vertalen van alle andere team.-eigenschappen
+team.project.marker=Gedeeld project
+team.import=Deel dit project
+team.import.statusMessage=Dit project wordt gedeeld
+team.checkout=Checkout project...
 
 menu.help=_Help
-menu.help.about=_About BlueJ
-menu.help.extensions=Installed E_xtensions
-menu.help.versionCheck=Check Version...@V
+menu.help.about=_Over BlueJ
+menu.help.extensions=Ge\u00efnstalleerde _Uitbreidingen
+menu.help.versionCheck=Controleer versie...@V
 menu.help.copyright=_Copyright
-menu.help.website=BlueJ _Web Site
+menu.help.website=BlueJ _Website
 menu.help.tutorial=BlueJ _Tutorial
-menu.help.standardApi=Java _Class Libraries
+menu.help.standardApi=Java klassenbibliotheken
 
 # tool tips
 
