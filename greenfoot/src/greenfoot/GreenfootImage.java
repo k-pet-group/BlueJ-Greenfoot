@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -160,8 +160,8 @@ public class GreenfootImage
      * 
      * @param string the string to be drawn
      * @param size the requested height in pixels of each line of text (the actual height may be different by a pixel or so)
-     * @param foreground the color of the text
-     * @param background the color of the image behind the text
+     * @param foreground the color of the text.  Since Greenfoot 2.2.0, passing null will use black.
+     * @param background the color of the image behind the text.  Since Greenfoot 2.2.0, passing null with leave the background transparent.
      * @since 2.0.1
      */
     public GreenfootImage(String string, int size, Color foreground, Color background)
@@ -193,9 +193,9 @@ public class GreenfootImage
         image = GraphicsUtilities.createCompatibleTranslucentImage(maxX, y);
         g = (Graphics2D)image.getGraphics();
         g.setFont(font);
-        g.setColor(background);
+        g.setColor(background == null ? new Color(0, 0, 0, 0) : background);
         g.fillRect(0, 0, image.getWidth(), image.getHeight());
-        g.setColor(foreground);
+        g.setColor(foreground == null ? Color.BLACK : foreground);
         y = 0;
         for (int i = 0; i < lines.length;i++) {
             g.drawString(lines[i], ((maxX - (int)bounds[i].getWidth()) / 2) - (int)bounds[i].getX(), y - (int)bounds[i].getY());
