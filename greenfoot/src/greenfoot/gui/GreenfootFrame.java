@@ -520,7 +520,7 @@ public class GreenfootFrame extends JFrame
         contentPane.add(centrePanel, BorderLayout.CENTER);
         contentPane.add(eastPanel, BorderLayout.EAST);
 
-        contentPane.getInputMap().put(Config.GREENFOOT_SET_PLAYER_NAME_SHORTCUT, "setPlayerAction");
+        contentPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(Config.GREENFOOT_SET_PLAYER_NAME_SHORTCUT, "setPlayerAction");
         contentPane.getActionMap().put("setPlayerAction", setPlayerAction);
         
         pack();
