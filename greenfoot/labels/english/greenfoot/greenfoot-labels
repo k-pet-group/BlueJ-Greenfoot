@@ -261,6 +261,9 @@ playername.dialog.title=Set Player Name
 playername.dialog.help=Set the player username used by the PlayerData class for local storage
 playername.dialog.playerName=Player Name
 
+prefmgr.misc.playername.title=Player Name
+prefmgr.misc.playerNameNote=You can change this quickly using the shortcut:
+
 # Menus
 
 menu.openRecent=Open recent
