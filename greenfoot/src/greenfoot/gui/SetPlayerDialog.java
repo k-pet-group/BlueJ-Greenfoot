@@ -44,13 +44,16 @@ import bluej.utility.EscapeDialog;
 
 public class SetPlayerDialog extends EscapeDialog implements DocumentListener
 {
-    JTextField playerNameTextField;
+    private String finalPlayerName; 
+    private JTextField playerNameTextField;
     private JLabel errorMsgLabel;
     private JButton okButton;
 
     public SetPlayerDialog(JFrame parent, String curPlayerName)
     {
         super(parent, Config.getString("playername.dialog.title"), true);
+        
+        finalPlayerName = curPlayerName; // By default, it will be unchanged
 
         JPanel mainPanel = new JPanel();
         setContentPane(mainPanel);
@@ -130,11 +133,12 @@ public class SetPlayerDialog extends EscapeDialog implements DocumentListener
 
     private void ok()
     {
+        finalPlayerName = playerNameTextField.getText(); 
         dispose();
     }
     public String getPlayerName()
     {
-        return playerNameTextField.getText();
+        return finalPlayerName;
     }
 
     @Override

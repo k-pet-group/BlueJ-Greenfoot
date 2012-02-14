@@ -82,6 +82,7 @@ import java.awt.HeadlessException;
 import java.awt.Image;
 import java.awt.Menu;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -90,6 +91,7 @@ import java.awt.event.WindowListener;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonModel;
@@ -518,6 +520,9 @@ public class GreenfootFrame extends JFrame
         contentPane.add(centrePanel, BorderLayout.CENTER);
         contentPane.add(eastPanel, BorderLayout.EAST);
 
+        contentPane.getInputMap().put(Config.GREENFOOT_SET_PLAYER_NAME_SHORTCUT, "setPlayerAction");
+        contentPane.getActionMap().put("setPlayerAction", setPlayerAction);
+        
         pack();
     }
 
@@ -689,7 +694,6 @@ public class GreenfootFrame extends JFrame
         addMenuItem(saveWorldAction, ctrlMenu, -1, false, KeyEvent.VK_W);
         ctrlMenu.addSeparator();
         addMenuItem(compileAllAction, ctrlMenu, KeyEvent.VK_K, false, -1);
-        addMenuItem(setPlayerAction, ctrlMenu, KeyEvent.VK_M, false, -1);
         
         JMenu helpMenu = addMenu(Config.getString("menu.help"), menuBar, 'h');
         

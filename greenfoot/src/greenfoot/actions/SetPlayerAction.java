@@ -47,7 +47,7 @@ public class SetPlayerAction extends AbstractAction
     {
         SetPlayerDialog dlg = new SetPlayerDialog(frame, GreenfootUtilDelegateIDE.getInstance().getUserName());
         dlg.setVisible(true);
-        GreenfootUtilDelegateIDE.getInstance().setUserName(dlg.getPlayerName());
+        Config.putPropString("greenfoot.player.name", dlg.getPlayerName());
     }
 
 }

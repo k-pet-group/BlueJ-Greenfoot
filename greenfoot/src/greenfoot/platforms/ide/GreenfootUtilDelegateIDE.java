@@ -64,8 +64,6 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
 {
     private static GreenfootUtilDelegateIDE instance;
     
-    private String curUserName = "Player";
-    
     /** A soft reference to a cached image */
     private class CachedImageRef extends SoftReference<GreenfootImage>
     {
@@ -251,12 +249,7 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
     
     public String getUserName()
     {
-        return curUserName;
-    }
-    
-    public void setUserName(String curUserName)
-    {
-        this.curUserName = curUserName;
+        return Config.getPropString("greenfoot.player.name");
     }
 
     @Override
@@ -460,9 +453,10 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
         
         for (int i = 0; i < all.size();i++)
         {
-            if (curUserName != null && curUserName.equals(all.get(i).getUserName()))
+            if (getUserName() != null && getUserName().equals(all.get(i).getUserName()))
             {
                 index = i;
+                break;
             }
         }
         
