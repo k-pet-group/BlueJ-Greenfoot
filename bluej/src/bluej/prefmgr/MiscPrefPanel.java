@@ -27,6 +27,7 @@ import bluej.pkgmgr.PkgMgrFrame;
 import bluej.utility.filefilter.DirectoryFilter;
 
 import javax.swing.*;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
@@ -41,7 +42,7 @@ import java.util.jar.JarFile;
  * various miscellaneous settings
  *
  * @author  Andrew Patterson
- * @version $Id: MiscPrefPanel.java 8083 2010-08-16 19:52:09Z iau $
+ * @version $Id: MiscPrefPanel.java 9532 2012-02-14 12:03:18Z nccb $
  */
 public class MiscPrefPanel extends JPanel 
                            implements PrefPanelListener, ItemListener, ActionListener
@@ -60,6 +61,7 @@ public class MiscPrefPanel extends JPanel
     private JCheckBox showJavaMEBox;
     private String jdkURLPropertyName;
     private JPanel toolkitPanel;
+    private JTextField playerNameField;
      
     /**
      * Setup the UI for the dialog and event handlers for the buttons.
@@ -121,6 +123,54 @@ public class MiscPrefPanel extends JPanel
             docPanel.add(linkToLibNoteLine2);
         }
         box.add(docPanel);
+        
+        if (Config.isGreenfoot()) {
+            JPanel playerNamePanel = new JPanel();
+                      
+            playerNamePanel.setLayout(new BoxLayout(playerNamePanel, BoxLayout.Y_AXIS));
+            String playerNameTitle = Config.getString("prefmgr.misc.playername.title");
+            playerNamePanel.setBorder(BorderFactory.createCompoundBorder(
+                                        BorderFactory.createTitledBorder(playerNameTitle),
+                                        BlueJTheme.generalBorder));
+            playerNamePanel.setAlignmentX(LEFT_ALIGNMENT);
+            
+            // get Accelerator text
+            String shortcutText = " ";
+            KeyStroke accelerator = Config.GREENFOOT_SET_PLAYER_NAME_SHORTCUT;
+            if (accelerator != null) {
+                int modifiers = accelerator.getModifiers();
+                if (modifiers > 0) {
+                    shortcutText += KeyEvent.getKeyModifiersText(modifiers);
+                    shortcutText += Config.isMacOS() ? "" : "+";
+                }
+
+                int keyCode = accelerator.getKeyCode();
+                if (keyCode != 0) {
+                    shortcutText += KeyEvent.getKeyText(keyCode);
+                } else {
+                    shortcutText += accelerator.getKeyChar();
+                }
+            }
+            
+            playerNamePanel.add(new JLabel(Config.getString("playername.dialog.help")));
+            
+            playerNameField = new JTextField(Config.getPropString("extensions.rmiextension.RMIExtension.settings.greenfoot.player.name", "Player"), 20);
+            playerNameField.setMaximumSize(playerNameField.getPreferredSize());
+            JPanel namePanel = new JPanel();
+            namePanel.setLayout(new BoxLayout(namePanel, BoxLayout.X_AXIS));
+            namePanel.add(playerNameField);
+            namePanel.add(Box.createHorizontalGlue());
+            playerNamePanel.add(namePanel);
+            
+            
+            JLabel playerNameNote = new JLabel(
+                    Config.getString("prefmgr.misc.playerNameNote") + shortcutText);
+            Font smallFont = playerNameNote.getFont().deriveFont(10);
+            playerNameNote.setFont(smallFont);
+            playerNamePanel.add(playerNameNote);
+                        
+            box.add(playerNamePanel);
+        }
 
         if(!Config.isGreenfoot()) {
             box.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
@@ -220,6 +270,12 @@ public class MiscPrefPanel extends JPanel
         String jdkURL = jdkURLField.getText();
         Config.putPropString(jdkURLPropertyName, jdkURL);
 
+        if (Config.isGreenfoot()) {
+            if (playerNameField.getText().length() > 0 && !playerNameField.getText().matches(".*\\s.*")) {
+                Config.putPropString("extensions.rmiextension.RMIExtension.settings.greenfoot.player.name", playerNameField.getText());
+            }
+        }
+        
         if(!Config.isGreenfoot()) {
             String tkDir = toolkitDirField.getText( ); 
             if ( ! tkDir.equals( "" ) )

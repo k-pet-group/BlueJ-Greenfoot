@@ -28,6 +28,7 @@ import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileInputStream;
@@ -152,6 +153,11 @@ public final class Config
     
     protected static final int SHORTCUT_MASK =
         Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+    
+    // Bit ugly having it here, but it's needed by MiscPrefPanel (which may just be in BlueJ)
+    // and by Greenfoot
+    public static final KeyStroke GREENFOOT_SET_PLAYER_NAME_SHORTCUT =
+        KeyStroke.getKeyStroke(KeyEvent.VK_P, SHORTCUT_MASK | InputEvent.SHIFT_DOWN_MASK);
     
     private static Color selectionColour;
     private static Color selectionColour2;
