@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -373,25 +373,41 @@ public class TextParser extends JavaParser
             if (jctype.isIntegralType()) {
                 long ival;
                 if (varg1.hasConstantIntValue()) {
-                    ival = varg1.getConstantIntValue(); 
+                    ival = varg1.getConstantIntValue();
+                    if (jctype.typeIs(JavaType.JT_BYTE)) {
+                        ival = (byte) ival;
+                    }
+                    else if (jctype.typeIs(JavaType.JT_CHAR)) {
+                        ival = (char) ival;
+                    }
+                    else if (jctype.typeIs(JavaType.JT_INT)) {
+                        ival = (int) ival;
+                    }
+                    else if (jctype.typeIs(JavaType.JT_SHORT)) {
+                        ival = (short) ival;
+                    }
                 }
                 else if (varg1.hasConstantFloatValue()) {
-                    ival = (long) varg1.getConstantFloatValue();
+                    if (jctype.typeIs(JavaType.JT_BYTE)) {
+                        ival = (byte) varg1.getConstantFloatValue();
+                    }
+                    else if (jctype.typeIs(JavaType.JT_CHAR)) {
+                        ival = (char) varg1.getConstantFloatValue();
+                    }
+                    else if (jctype.typeIs(JavaType.JT_INT)) {
+                        ival = (int) varg1.getConstantFloatValue();
+                    }
+                    else if (jctype.typeIs(JavaType.JT_SHORT)) {
+                        ival = (short) varg1.getConstantFloatValue();
+                    }
+                    else {
+                        ival = (long) varg1.getConstantFloatValue();
+                    }
                 }
                 else {
                     // string constant
                     valueStack.push(new ErrorEntity());
                     return;
-                }
-                
-                if (jctype.typeIs(JavaType.JT_BYTE)) {
-                    ival = (byte) ival;
-                }
-                else if (jctype.typeIs(JavaType.JT_CHAR)) {
-                    ival = (char) ival;
-                }
-                else if (jctype.typeIs(JavaType.JT_INT)) {
-                    ival = (int) ival;
                 }
                 
                 valueStack.push(new ConstantIntValue(null, jctype, ival));
