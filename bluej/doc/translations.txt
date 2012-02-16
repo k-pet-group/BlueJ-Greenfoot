@@ -5,14 +5,17 @@ BlueJ interface translations and translators
 
 The next update column indicates whether it is likely that the translator will do the next update.
 
-language        last update     next update    comment         translator
+language        last update     next update?   comment         translator
+                (* indicates
+                 update after
+                 release)
 --------------------------------------------------------------------------------------------------------------
 afrikaans       2.0.0                x                         Petri Jooste        <RKWJPJ@puknet.puk.ac.za>
 chinese         2.0.4                                          sent email to Xiaoke Hu <go2study@gmail.com> asking for a new contact
 catalan         2.0.0                x          only labels    Santiago Manrique   
-czech           3.0preview1          x                         Rudolf Pecinovský   Rudolf: <rudolf.pecinovsky@i.cz> (or rudolf@pecinovsky.cz )
+czech           3.0.5                x                         Rudolf Pecinovský   Rudolf: <rudolf.pecinovsky@i.cz> (or rudolf@pecinovsky.cz )
 danish          3.0.3                x                         Jacob Nordfalk      <jacob.nordfalk@gmail.com>
-dutch           2.0.0                x                        
+dutch           3.0.7*               x                         Kris Coolsaet       <kris.coolsaet@UGent.be>
 french          2.2.0                x                         
 german          3.0preview1          x                         Thomas Röfer        <roefer@tzi.de>
 greek           2.1.1                x          labels=2.1.3   Ioannis G. Baltopoulos <ioannis.baltopoulos@cl.cam.ac.uk>
