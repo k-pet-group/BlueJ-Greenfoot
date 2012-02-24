@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -587,12 +587,12 @@ public class GClass
     }   
 
     /**
-     * Reload. Only call from a remote callback.
+     * Reload. Do not call from a remote callback.
      */
     public synchronized void reload()
     {
         loadRealClass();
-        guessSuperclass(true);
+        guessSuperclass(false);
         if(classView != null) {
             EventQueue.invokeLater(new Runnable() {
                 public void run()

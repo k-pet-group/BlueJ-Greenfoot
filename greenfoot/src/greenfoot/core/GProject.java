@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -350,7 +350,9 @@ public class GProject extends RProjectListenerImpl
     // ----------- End of CompileListener interface ------
     
     /**
-     * Reload all classes. Only call from a remote callback.
+     * Reload all classes. Do not call from a remote callback.
+     * (Note that this is called from compile events, which technically are remote callbacks,
+     *  but they are executed asynchronously).
      */
     private void reloadClasses()
     {
