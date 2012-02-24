@@ -205,7 +205,7 @@ public class Simulation extends Thread
                 maybePause();
                                 
                 if (worldHandler.hasWorld()) {
-                    runOneLoop();
+                    runOneLoop(worldHandler.getWorld());
                 }
 
                 delay();
@@ -359,7 +359,6 @@ public class Simulation extends Thread
     
     /**
      * Send a started event and notify the world that it is now running.
-     * May throw an unchecked exception generated from within the world.started() method.
      * 
      * @throws InterruptedException
      */
@@ -382,6 +381,12 @@ public class Simulation extends Thread
                 
             try {
                 world.started(); // may cause us to pause
+            }
+            catch (Throwable t) {
+                isRunning = false;
+                setPaused(true);
+                t.printStackTrace();
+                return;
             }
             finally {
                 lock.writeLock().unlock();
@@ -432,6 +437,7 @@ public class Simulation extends Thread
     /**
      * Run all tasks that have been schedule to run on the simulation thread.
      * Of course, this should only be called from the simulation thread...
+     * (and from an unsynchronized context).
      */
     private void runQueuedTasks()
     {
@@ -475,12 +481,8 @@ public class Simulation extends Thread
      * 
      * @throws ActInterruptedException  if an act() call was interrupted.
      */
-    private void runOneLoop()
+    private void runOneLoop(World world)
     {
-        if (!worldHandler.hasWorld()) {
-            return;
-        }
-        World world = worldHandler.getWorld();
         worldHandler.startSequence();
 
         // We don't want to be interrupted in the middle of an act-loop
@@ -497,6 +499,9 @@ public class Simulation extends Thread
             try {
                 try {
                     actWorld(world);
+                    if (world != worldHandler.getWorld()) {
+                        return; // New world was set
+                    }
                 }
                 catch (ActInterruptedException e) {
                     interruptedException = e;
@@ -511,6 +516,9 @@ public class Simulation extends Thread
                     if (ActorVisitor.getWorld(actor) != null) {
                         try {
                             actActor(actor);
+                            if (world != worldHandler.getWorld()) {
+                                return; // New world was set
+                            }
                         }
                         catch (ActInterruptedException e) {
                             if (interruptedException == null) {
@@ -856,7 +864,8 @@ public class Simulation extends Thread
     /**
      * Sleep an amount of time according to the current speed setting for this
      * simulation. This will wait without considering previous waits, as opposed
-     * to delay().
+     * to delay(). It should be called only from the simulation thread, in an
+     * unsynchronized context.
      */
     public void sleep()
     {
