@@ -286,14 +286,18 @@ public class Simulation extends Thread
                 if (checkStop) {
                     isRunning = false; // if we start again, we'll need to signal it.
                 }
+                else if (isRunning) {
+                    return; // We're running and don't need to stop
+                }
             }
+            
+            // We are either not running, or running and need to stop.
             
             if (checkStop) {
                 try {
                     signalStopping(world);
                 }
                 catch (InterruptedException ie) {
-                    isRunning = true; // we didn't manage to signal the world
                     continue;
                 }
                     
@@ -305,6 +309,8 @@ public class Simulation extends Thread
                     }
                 }
             }
+            
+            // We're not running; we may need to resume running.
             
             boolean doResumeRunning;
             
@@ -318,6 +324,11 @@ public class Simulation extends Thread
                     if (worldHandler != null) {
                         worldHandler.repaint();
                     }
+                    
+                    if (! queuedTasks.isEmpty()) {
+                        continue; // Must run queued tasks before wait
+                    }
+                    
                     System.gc();
                     try {
                         simulationWait();
@@ -346,6 +357,12 @@ public class Simulation extends Thread
         runQueuedTasks();
     }
     
+    /**
+     * Send a started event and notify the world that it is now running.
+     * May throw an unchecked exception generated from within the world.started() method.
+     * 
+     * @throws InterruptedException
+     */
     private void resumeRunning() throws InterruptedException
     {
         isRunning = true;
@@ -700,7 +717,7 @@ public class Simulation extends Thread
         else {
             paused = true;
             // isRunning = false; // cause a started event if necessary, when the simulation is enabled again
-            interrupt();
+            interruptDelay();
             fireSimulationEvent(disabledEvent);
         }
     }
@@ -907,23 +924,18 @@ public class Simulation extends Thread
         long timeElapsed = currentTime - lastDelayTime;
         long actualDelay = Math.max(delay - timeElapsed, 0L);
         
-        boolean paused;
-        boolean abort;
         synchronized (this) {
-            paused = this.paused;
-            abort = this.abort;
-        }
-
-        synchronized (interruptLock) {
-            if(interruptDelay) {
-                // interruptDelay was issued before entering this sync, so interrupt now.
-                interruptDelay = false;
-                if (paused || abort) {
-                    lastDelayTime = currentTime;
-                    return; // return... without delay
+            synchronized (interruptLock) {
+                if(interruptDelay) {
+                    // interruptDelay was issued before entering this sync, so interrupt now.
+                    interruptDelay = false;
+                    if (paused || abort) {
+                        lastDelayTime = currentTime;
+                        return; // return... without delay
+                    }
                 }
+                delaying = true;
             }
-            delaying = true;
         }
 
         while (actualDelay > 0) {
@@ -935,8 +947,10 @@ public class Simulation extends Thread
                 // We get interrupted either due to a pause, abort, being disabled or
                 // a speed change. If it's a speed change, we can continue to delay, up
                 // to the new time; otherwise we should finish up now.
-                if (!enabled || paused || abort) {
-                    break;
+                synchronized (this) {
+                    if (!enabled || paused || abort) {
+                        break;
+                    }
                 }
             }
 
@@ -981,13 +995,6 @@ public class Simulation extends Thread
     @Override
     public void worldRemoved(WorldEvent e)
     {
-        synchronized(this) {
-            if (!paused) {
-                // If the simulation is currently running, we want to make sure
-                // that the world is told that it will now be stopped.
-                e.getWorld().stopped();
-            }
-        }
         setEnabled(false);
     }
 
