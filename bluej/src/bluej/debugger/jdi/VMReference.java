@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -276,7 +276,7 @@ class VMReference
                     String listenAddress = null;
                     if (connector.transport().name().equals("dt_socket") && arguments.containsKey("localAddress"))
                     {
-                        listenAddress = InetAddress.getLocalHost().getHostAddress();
+                        listenAddress = InetAddress.getByName(null).getHostAddress();
                         arguments.get("localAddress").setValue(listenAddress);
                     }
                     
@@ -288,7 +288,7 @@ class VMReference
                             // It seems the address name returned by connector.startListening(...) may be the host name,
                             // even though we specifically asked for localhost. So here we'll force it to the localhost
                             // IP address:
-                            int colonIndex = address.indexOf(':');
+                            int colonIndex = address.lastIndexOf(':');
                             if (colonIndex != -1) {
                                 address = listenAddress + address.substring(colonIndex);
                             }
