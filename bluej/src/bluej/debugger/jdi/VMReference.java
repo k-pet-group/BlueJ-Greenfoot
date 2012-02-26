@@ -266,7 +266,7 @@ class VMReference
                     if (timeoutArg != null) {
                         // The timeout appears to be in milliseconds.
                         // The default is apparently no timeout.
-                        timeoutArg.setValue("1000");
+                        timeoutArg.setValue("2000");
                     }
                     
                     // Make sure the local address is localhost, not the
