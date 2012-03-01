@@ -416,7 +416,7 @@ usually happens when the project is stored somewhere in the
 "Program Files" directory. 
 When a project is being virtualized by Windows you will get errors 
 when trying to create objects and invoke methods.
-To fully use this project, you should move the project to a different
+To use this project, you should move the project to a different
 location. This can be accomplished by choosing "save as" from 
 the Project menu after closing this dialog.
 
