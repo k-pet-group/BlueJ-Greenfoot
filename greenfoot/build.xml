@@ -249,7 +249,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <compile-scenario scenario="wombats2" />
     </target>
 
-    <target name="ready-to-run" depends="update-images, compile, copy-imagelib, copy-projects, build-standalone-jar, create-api-doc, copy-apidocs, copy-labels" description="Builds everything so it is ready to run" >
+    <target name="ready-to-run" depends="update-images, compile, copy-imagelib, copy-projects, copy-common-classes, build-standalone-jar, create-api-doc, copy-apidocs, copy-labels" description="Builds everything so it is ready to run" >
         <!-- Put everything in ${build} into the the jar file-->
         <jar jarfile="${bluej.extensions.lib}/greenfoot.jar" basedir="${build}">
             <manifest>
@@ -395,7 +395,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
     	<copy file="resources/images/menu-button.png" todir="images"/>
     </target>
 
-    <target name="dist" depends="ready-to-run, clean-scenarios, copy-scenarios, copy-common-classes, copy-license, copy-tutorial, zip-source" description="Generate the distribution. Also runs the bluej.dist-greenfoot" >
+    <target name="dist" depends="ready-to-run, clean-scenarios, copy-scenarios, copy-license, copy-tutorial, zip-source" description="Generate the distribution. Also runs the bluej.dist-greenfoot" >
     	<copy file="doc/Greenfoot-README.txt" todir="${bluej.projectdir}/doc"/>
     	
         <!-- Run the BlueJ dist-->
