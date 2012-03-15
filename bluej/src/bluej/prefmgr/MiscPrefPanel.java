@@ -153,7 +153,7 @@ public class MiscPrefPanel extends JPanel
             
             playerNamePanel.add(new JLabel(Config.getString("playername.dialog.help")));
             
-            playerNameField = new JTextField(Config.getPropString("extensions.rmiextension.RMIExtension.settings.greenfoot.player.name", "Player"), 20);
+            playerNameField = new JTextField(Config.getPropString("extensions.rmiextension.RMIExtension.settings.greenfoot.player.name", "Player1"), 20);
             playerNameField.setMaximumSize(playerNameField.getPreferredSize());
             JPanel namePanel = new JPanel();
             namePanel.setLayout(new BoxLayout(namePanel, BoxLayout.X_AXIS));
