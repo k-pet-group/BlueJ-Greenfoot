@@ -365,13 +365,13 @@ public class Project implements DebuggerListener, InspectorManager
             return null;
         }
         
-        
         boolean readOnly = false;
 
         if(Config.isModernWinOS()) {
             WriteCapabilities capabilities = FileUtility.getVistaWriteCapabilities(projectDir);
             switch (capabilities) {
             case VIRTUALIZED_WRITE:
+                Utility.bringToFront(null);
                 DialogManager.showMessage(parent, "project-is-virtualized");
                 break;
             case READ_ONLY:
@@ -393,6 +393,7 @@ public class Project implements DebuggerListener, InspectorManager
         // Suppress the read-only warning if we know they are opening the Greenfoot startup project
         
         if (readOnly && !isGreenfootStartupProject) {
+            Utility.bringToFront(null);
             int choice = DialogManager.askQuestion(parent, "project-is-readonly", new String [] {projectDir.toString()});
             
             if (choice == 0)
@@ -403,7 +404,6 @@ public class Project implements DebuggerListener, InspectorManager
                 
                 while (!done)
                 {
-                
                     // Get a file name to save under
                     File newName = FileUtility.getDirName(null,
                             Config.getString("pkgmgr.saveAs.title"),
