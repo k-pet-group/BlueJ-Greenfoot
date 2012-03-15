@@ -249,7 +249,7 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
     
     public String getUserName()
     {
-        return Config.getPropString("greenfoot.player.name");
+        return Config.getPropString("greenfoot.player.name", "Player1");
     }
 
     @Override

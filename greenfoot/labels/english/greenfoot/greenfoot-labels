@@ -254,12 +254,13 @@ soundRecorder.closeQuestion=Sound has been changed since you last saved.  If you
 
 import.import=Import
 import.dialogTitle=Import Class
-import.action=Import Class
+import.action=Import Class...
 
 set.player=Set Player Name
 playername.dialog.title=Set Player Name
 playername.dialog.help=Set the player username used by the PlayerData class for local storage
 playername.dialog.playerName=Player Name
+playername.dialog.validationError=Player name must have no spaces and not be blank
 
 prefmgr.misc.playername.title=Player Name
 prefmgr.misc.playerNameNote=You can change this quickly using the shortcut:

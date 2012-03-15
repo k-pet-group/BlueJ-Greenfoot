@@ -86,7 +86,7 @@ public class SetPlayerDialog extends EscapeDialog implements DocumentListener
         errorMsgLabel.setAlignmentX(0.0f);
         errorMsgLabel.setVisible(false);
         errorMsgLabel.setForeground(Color.RED);
-        errorMsgLabel.setText("Player name must not be blank, and must not contain spaces"); //TODO move to config
+        errorMsgLabel.setText(Config.getString("playername.dialog.validationError"));
         mainPanel.add(errorMsgLabel);
                 
         // create the ok/cancel button panel
