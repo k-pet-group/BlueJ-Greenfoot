@@ -21,14 +21,18 @@
  */
 package greenfoot.gui;
 
+import greenfoot.core.GClass;
+import greenfoot.core.GProject;
+import greenfoot.gui.classbrowser.ClassBrowser;
 import greenfoot.gui.classbrowser.ClassButton;
+import greenfoot.gui.classbrowser.ClassView;
+import greenfoot.record.InteractionListener;
 import greenfoot.util.GreenfootUtil;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Frame;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
@@ -49,7 +53,9 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
@@ -59,16 +65,15 @@ import javax.swing.text.html.HTMLEditorKit;
 import bluej.Config;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
-import bluej.utility.EscapeDialog;
 
 /**
- * The dialog showing a library of supplied classes
- * (with associated image and javadoc), from whic
+ * The window showing a library of supplied classes
+ * (with associated image and javadoc), from which
  * you can select one to import into the current project.
  *  
  * @author neil
  */
-public class ImportClassDialog extends EscapeDialog
+public class ImportClassWindow extends JFrame
 {
     // How much to indent each sub-folder in the class list 
     private static final int INDENT_HIERARCHY = 20;
@@ -77,35 +82,18 @@ public class ImportClassDialog extends EscapeDialog
     private JEditorPane htmlPane;
     private File curSelection;
     private File curSelectionImage;
-    private File finalSelection;
-    private File finalSelectionImage;
     private ButtonGroup buttonGroup;
     private JLabel classPicture;
     private JLabel classLabel;
+    private GreenfootFrame gfFrame;
+    private InteractionListener interactionListener;
 
-    public ImportClassDialog(Frame parent)
+    public ImportClassWindow(GreenfootFrame gfFrame, InteractionListener interactionListener)
     {
-        super(parent, true);
+        this.gfFrame = gfFrame;
+        this.interactionListener = interactionListener;
         buttonGroup = new ButtonGroup();
         buildUI();
-    }
-    
-    /**
-     * Gets the final selected file (which may be .java or .class)
-     * null if the user pressed cancel (or otherwise did not select one)
-     */
-    public File getFinalSelection()
-    {
-        return finalSelection;
-    }
-    
-    /**
-     * Gets the final selected file image
-     * null if the user pressed cancel (or otherwise did not select one) or if there is no image
-     */
-    public File getFinalSelectionImageFile()
-    {
-        return finalSelectionImage;
     }
     
     /**
@@ -122,8 +110,7 @@ public class ImportClassDialog extends EscapeDialog
         public void actionPerformed(ActionEvent e)
         {
             setVisible(false);
-            finalSelection = curSelection;
-            finalSelectionImage = curSelectionImage;
+            importClass(curSelection, curSelectionImage);
         }
     }
     
@@ -420,6 +407,55 @@ public class ImportClassDialog extends EscapeDialog
         }
                 
         return null;
+    }
+    
+    private void importClass(File srcFile, File srcImage)
+    {
+        if (srcFile != null) {
+            String className = GreenfootUtil.removeExtension(srcFile.getName());
+            
+            ClassBrowser classBrowser = gfFrame.getClassBrowser();
+            GProject project = classBrowser.getProject();
+            
+            // Check if a class of the same name already exists in the project.
+            // Renaming would be too tricky, so just issue error and stop in that case:
+            for (GClass preexist : project.getDefaultPackage().getClasses(false)) {
+                if (preexist.getQualifiedName().equals(className)) {
+                    JOptionPane.showMessageDialog(gfFrame, "The current project already contains a class named " + className);
+                    return;
+                }
+            }
+            File destImage = null;
+            if (srcImage != null) {
+                destImage = new File(project.getImageDir(), srcImage.getName());
+                if (destImage.exists()) {
+                    JOptionPane.showMessageDialog(gfFrame, "The current project already contains an image file named " + srcImage.getName() + "; this file will NOT be replaced.");
+                }
+            }
+            
+            // Copy the java/class file cross:
+            File destFile = new File(project.getDir(), srcFile.getName());
+            GreenfootUtil.copyFile(srcFile, destFile);
+            
+            // We must reload the package to be able to access the GClass object:
+            project.getDefaultPackage().reload();
+            GClass gclass = project.getDefaultPackage().getClass(className);
+            
+            if (gclass == null) {
+                //TODO give an error
+                return;
+            }
+            
+            // Copy the image across and set it as the class image:
+            if (srcImage != null && destImage != null && !destImage.exists()) {
+                GreenfootUtil.copyFile(srcImage, destImage);
+                gclass.setClassProperty("image", destImage.getName());
+            }
+            
+            //Finally, update the class browser:
+            classBrowser.addClass(new ClassView(classBrowser, gclass, interactionListener));
+            classBrowser.updateLayout();
+        }
     }
 
 }
