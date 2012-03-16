@@ -36,6 +36,8 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
 import java.io.File;
@@ -57,7 +59,9 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRootPane;
 import javax.swing.JScrollPane;
+import javax.swing.KeyStroke;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
@@ -125,6 +129,14 @@ public class ImportClassWindow extends JFrame
         main.add(p);
         main.setBorder(BorderFactory.createEmptyBorder(12,12,12,12));
         setContentPane(main);
+        
+        ActionListener actionListener = new ActionListener() {
+            public void actionPerformed(ActionEvent actionEvent) {
+              setVisible(false);
+            }
+        };
+        KeyStroke stroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
+        main.registerKeyboardAction(actionListener, stroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
         
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         {
@@ -198,6 +210,8 @@ public class ImportClassWindow extends JFrame
         setSize(700, 550);
         ((ImportableClassButton)buttonGroup.getElements().nextElement()).select();
         ((ImportableClassButton)buttonGroup.getElements().nextElement()).setSelected(true);
+        
+        setLocation(gfFrame.getX() + 40, gfFrame.getY() + 40);
     }
    
     /**
