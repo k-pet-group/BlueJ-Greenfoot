@@ -412,7 +412,6 @@ public class Project implements DebuggerListener, InspectorManager
                             false, true);
                     
                     if (newName != null) {
-                        newName = new File(newName, projectDir.getName());
                         int result = FileUtility.copyDirectory(projectDir, newName);
     
                         switch (result) {
