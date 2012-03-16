@@ -154,6 +154,15 @@ public class PlayerData
     /**
      * Gets the data stored for the current user.
      * 
+     * Returns null if:
+     * <ul>
+     * <li>there is a problem reading the local file (for local scenarios), or</li>
+     * <li>there is a problem connecting to the server (for scenarios on the greenfoot.org site), or</li>
+     * <li>the user is not logged in (for scenarios on the greenfoot.org site).</li>
+     * </ul>
+     * 
+     * The last case is very common, so you should always be ready to handle a null return from this function.
+     * 
      * @return the user's data, or null if there was a problem.
      */
     public static PlayerData getMyData()
@@ -193,6 +202,14 @@ public class PlayerData
      * <p>For example, if you want to show the high-scores, store the score with setScore(score),
      * and then use getTop(10) to get the users with the top ten scores.</p> 
      * 
+     * <p>Returns null if:
+     * <ul>
+     * <li>there is a problem reading the local file (for local scenarios), or</li>
+     * <li>there is a problem connecting to the server (for scenarios on the greenfoot.org site), or</li>
+     * <li>the user is not logged in (for scenarios on the greenfoot.org site).</li>
+     * </ul>
+     * The last case is very common, so you should always be ready to handle a null return from this function.</p>
+     * 
      * @param maxAmount The maximum number of data items to retrieve.
      * Passing zero or a negative number will get all the data, but see the note above.  
      * @return A list where each item is a PlayerData, or null if there was a problem
@@ -200,7 +217,7 @@ public class PlayerData
     public static List getTop(int maxAmount)
     {
         // Will return an empty list if there is no previously stored data
-        // Each item is a GreenfootStorage
+        // Each item is a PlayerData
         return GreenfootUtil.getTopUserData(maxAmount);
     }
     
@@ -221,7 +238,16 @@ public class PlayerData
      * if the user is near the end of the list.</p>
      * 
      * <p>For example, if you want to show the high-scores surrounding the player, store the score with setScore(score),
-     * and then use getNearby(10) to get the ten users with scores close to the current player.</p> 
+     * and then use getNearby(10) to get the ten users with scores close to the current player.</p>
+     * 
+     * <p>Returns null if:
+     * <ul>
+     * <li>there is a problem reading the local file (for local scenarios), or</li>
+     * <li>there is a problem connecting to the server (for scenarios on the greenfoot.org site), or</li>
+     * <li>the user is not logged in (for scenarios on the greenfoot.org site).</li>
+     * </ul>
+     * The last case is very common, so you should always be ready to handle a null return from this function.</p>
+
      * 
      * @param maxAmount The maximum number of data items to retrieve.
      *            Passing zero or a negative number will get all the data, but see the note above.  
@@ -237,6 +263,14 @@ public class PlayerData
      * <p>
      * On the Greenfoot website, this is their profile picture. 
      * If running locally, always returns a dummy image, with their username drawn on the image.
+     * 
+     * <p>Returns null if:
+     * <ul>
+     * <li>there is a problem reading the local file (for local scenarios), or</li>
+     * <li>there is a problem connecting to the server (for scenarios on the greenfoot.org site), or</li>
+     * <li>the user is not logged in (for scenarios on the greenfoot.org site).</li>
+     * </ul>
+     * The last case is very common, so you should always be ready to handle a null return from this function.</p>
      * 
      * @return a 50x50 GreenfootImage, or null if there was a problem accessing the image
      */
