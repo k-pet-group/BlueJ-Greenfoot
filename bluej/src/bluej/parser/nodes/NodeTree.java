@@ -52,6 +52,11 @@ public class NodeTree<T extends RBTreeNode<T>>
         black = true;
     }
 
+    /**
+     * Get an iterator which iterates through nodes in the tree, in order
+     * 
+     * @param offset  The position of node containing the node tree
+     */
     public Iterator<NodeAndPosition<T>> iterator(int offset)
     {
         return new NodeTreeIterator<T>(offset, this);
@@ -61,7 +66,7 @@ public class NodeTree<T extends RBTreeNode<T>>
      * Find the ParsedNode leaf corresponding to a certain position within the parent.
      * Returns null if no leaf contains exactly the given position.
      * 
-     * Note that the leaf range may intersect the position parameter at any point -
+     * <p>Note that the leaf range may intersect the position parameter at any point -
      * start, end, or anywhere in between. The "leftmost" match will always be
      * returned i.e. if the position falls exactly between two leaves, the leftmost
      * will be found.
