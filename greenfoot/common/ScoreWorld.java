@@ -68,6 +68,9 @@ public class ScoreWorld extends World
         getBackground().setColor(MAIN_COLOR);
         getBackground().drawRect(left, top, right - left, bottom - top);
         
+        if (users == null)
+            return;
+        
         int y = top + GAP;
         for (Object obj : users)
         {
