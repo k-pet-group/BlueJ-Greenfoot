@@ -93,7 +93,7 @@
         </copy>
         	
         <copy tofile="install_tmp/README.TXT"
-    		file="${bluej_home}/doc/Greenfoot-README.TXT" />
+    		file="${bluej_home}/doc/Greenfoot-README.txt" />
 
         <!-- jar the entire distribution into one jar file            -->
         <!-- (use zip instead of jar to avoid generation of manifest) -->
