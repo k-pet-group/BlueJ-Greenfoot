@@ -22,7 +22,7 @@
 package greenfoot.platforms.standalone;
 
 import greenfoot.GreenfootImage;
-import greenfoot.GreenfootStorageVisitor;
+import greenfoot.PlayerDataVisitor;
 import greenfoot.PlayerData;
 import greenfoot.platforms.GreenfootUtilDelegate;
 import greenfoot.util.GreenfootStorageException;
@@ -303,7 +303,7 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
             buf = readResponse();
             if (1 != buf.getInt()) // Should be exactly one user
                 return null; 
-            return readLines(buf, 1)[0];
+            return readLines(buf, 1, true)[0];
         }
         catch (IOException e)
         {
@@ -354,7 +354,7 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
         }
     }
 
-    private PlayerData[] readLines(ByteBuffer buf, int numLines) throws BufferUnderflowException
+    private PlayerData[] readLines(ByteBuffer buf, int numLines, boolean useSingleton) throws BufferUnderflowException
     {
         // Read number of ints then number of Strings (username not included)
         int numInts = buf.getInt();
@@ -367,7 +367,7 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
             String userName = getString(buf);
             int score = buf.getInt();
             int rank = buf.getInt();
-            r[line] = GreenfootStorageVisitor.allocate(userName, rank);
+            r[line] = PlayerDataVisitor.allocate(userName, rank, useSingleton ? getUserName() : null);
             r[line].setScore(score);
             for (int i = 0; i < numInts; i++)
             {
@@ -459,7 +459,7 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
             
             buf = readResponse();
             int numUsers = buf.getInt();
-            PlayerData[] storage = readLines(buf, numUsers);
+            PlayerData[] storage = readLines(buf, numUsers, false);
             
             List<PlayerData> r = new ArrayList<PlayerData>();
             for (PlayerData s : storage)
@@ -501,7 +501,7 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
             
             buf = readResponse();
             int numUsers = buf.getInt();
-            PlayerData[] storage = readLines(buf, numUsers);
+            PlayerData[] storage = readLines(buf, numUsers, false);
             
             List<PlayerData> r = new ArrayList<PlayerData>();
             for (PlayerData s : storage)
@@ -555,7 +555,7 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
         
             try
             {
-                return GreenfootStorageVisitor.readImage(fileData);
+                return PlayerDataVisitor.readImage(fileData);
             }
             catch (IllegalArgumentException e)
             {

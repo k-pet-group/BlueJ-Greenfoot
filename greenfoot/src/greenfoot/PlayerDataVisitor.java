@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2011, 2012  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,11 +21,28 @@
  */
 package greenfoot;
 
-public class GreenfootStorageVisitor
+public class PlayerDataVisitor
 {
-    public static PlayerData allocate(String userName, int rank)
+    private static PlayerData myData;
+    
+    public static PlayerData allocate(String userName, int rank, String singletonUserName)
     {
-        return new PlayerData(userName, rank);
+        if (singletonUserName != null && singletonUserName.equals(userName))
+        {
+            if (myData != null)
+            {
+                myData.setRank(rank);
+            }
+            else
+            {
+                myData = new PlayerData(userName, rank);
+            }
+            return myData;
+        }
+        else
+        {
+            return new PlayerData(userName, rank);
+        }
     }
     
     public static GreenfootImage readImage(byte[] imageFileContents)

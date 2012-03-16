@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,7 +23,7 @@ package greenfoot.platforms.ide;
 
 import greenfoot.GreenfootImage;
 import greenfoot.PlayerData;
-import greenfoot.GreenfootStorageVisitor;
+import greenfoot.PlayerDataVisitor;
 import greenfoot.platforms.GreenfootUtilDelegate;
 import greenfoot.util.GreenfootStorageException;
 
@@ -255,7 +255,7 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
     @Override
     public PlayerData getCurrentUserData()
     {
-        ArrayList<PlayerData> all = getAllDataSorted();
+        ArrayList<PlayerData> all = getAllDataSorted(true);
         
         if (all == null)
             return null; // Error reading file
@@ -269,17 +269,16 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
         }
         
         // Couldn't find them anywhere, return blank:
-        return GreenfootStorageVisitor.allocate(getUserName(), -1);
-    
+        return PlayerDataVisitor.allocate(getUserName(), -1, getUserName());
     }
 
-    private PlayerData makeStorage(String[] line, int rank)
+    private PlayerData makeStorage(String[] line, int rank, boolean useSingleton)
     {
         PlayerData r = null;
         try
         {
             int column = 0; 
-            r = GreenfootStorageVisitor.allocate(line[column++], rank);
+            r = PlayerDataVisitor.allocate(line[column++], rank, useSingleton ? getUserName() : null);
             r.setScore(Integer.parseInt(line[column++]));
             for (int i = 0; i < PlayerData.NUM_INTS; i++)
             {
@@ -381,7 +380,7 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
         }
     }
     
-    private ArrayList<PlayerData> getAllDataSorted()
+    private ArrayList<PlayerData> getAllDataSorted(boolean useSingleton)
     {
         try
         {
@@ -404,7 +403,7 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
             int rank = 1;
             for (String[] line : all)
             {
-                ret.add(makeStorage(line, rank));
+                ret.add(makeStorage(line, rank, useSingleton));
                 rank++;
             }
             
@@ -425,7 +424,7 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
     @Override
     public List<PlayerData> getTopUserData(int limit)
     {
-        ArrayList<PlayerData> ret = getAllDataSorted();
+        ArrayList<PlayerData> ret = getAllDataSorted(false);
         if (ret == null)
             return null;
         else if (ret.size() <= limit)
@@ -444,7 +443,7 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
     @Override
     public List<PlayerData> getNearbyUserData(int maxAmount)
     {
-        ArrayList<PlayerData> all = getAllDataSorted();
+        ArrayList<PlayerData> all = getAllDataSorted(false);
         
         if (all == null)
             return null;

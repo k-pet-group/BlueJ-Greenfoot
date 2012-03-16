@@ -70,6 +70,12 @@ public class PlayerData
         strings = new String[NUM_STRINGS];
     }
     
+    //package-visible:
+    void setRank(int n)
+    {
+        rank = n;
+    }
+    
     /**
      * Gets the username of the user that this storage belongs to.
      */
