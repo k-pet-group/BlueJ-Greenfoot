@@ -3,22 +3,21 @@ import java.awt.Color;
 import java.util.List;
 
 /**
- * A world class that can be used to display a scoreboard, using Greenfoot's
+ * An actor class that can display a scoreboard, using Greenfoot's
  * PlayerData class.  
  * 
- * You typically use this by including some code when your game ends:
+ * You typically use this by including some code into the world for when your game ends:
  * 
  * <pre>
- *   Greenfoot.setWorld(new ScoreWorld(800, 600));
+ *   addObject(new ScoreBoard(800, 600), getWidth() / 2, getHeight() / 2); 
  * </pre>
  * 
- * Where 800 by 600 should be replaced by the size of your game world
- * (to make the scoreboard have the same size as the game world that it's replacing). 
+ * Where 800 by 600 should be replaced by the desired size of the score board. 
  * 
  * @author Neil Brown 
  * @version 1.0
  */
-public class ScoreWorld extends World
+public class ScoreBoard extends Actor
 {
     // The vertical gap between user images in the scoreboard:
     private static final int GAP = 10;
@@ -30,22 +29,20 @@ public class ScoreWorld extends World
     private static final Color SCORE_COLOR = new Color(0xB0, 0x40, 0x40); // orange-y
 
     /**
-     * Constructor for objects of class ScoreWorld.
+     * Constructor for objects of class ScoreBoard.
      * 
-     * You can specify the width and height that the new world should be --
-     * it's usually best to match the size of the game world that you are replacing
-     * with the scoreboard.  
+     * You can specify the width and height that the score board should be.  
      */
-    public ScoreWorld(int width, int height)
+    public ScoreBoard(int width, int height)
     {    
-        super(width, height, 1); 
+        setImage(new GreenfootImage(width, height)); 
         
         drawScores();
     }
     
     private void drawString(String text, int x, int y, Color color, int height)
     {
-        getBackground().drawImage(new GreenfootImage(text, height, color, new Color (0, true)), x, y);
+        getImage().drawImage(new GreenfootImage(text, height, color, new Color (0, true)), x, y);
     }
     
     private void drawScores()
@@ -53,20 +50,20 @@ public class ScoreWorld extends World
         // 50 pixels is the max height of the user image
         final int pixelsPerUser = 50 + 2*GAP;
         // Calculate how many users we have room for:
-        final int numUsers = ((getHeight() - (HEADER_TEXT_HEIGHT + 10)) / pixelsPerUser);
-        final int topSpace = getHeight() - (numUsers * pixelsPerUser) - GAP;
+        final int numUsers = ((getImage().getHeight() - (HEADER_TEXT_HEIGHT + 10)) / pixelsPerUser);
+        final int topSpace = getImage().getHeight() - (numUsers * pixelsPerUser) - GAP;
 
         drawString("All Players", 100, topSpace - HEADER_TEXT_HEIGHT - 5, MAIN_COLOR, HEADER_TEXT_HEIGHT);
-        drawString("Near You", 100 + getWidth() / 2, topSpace - HEADER_TEXT_HEIGHT - 5, MAIN_COLOR, HEADER_TEXT_HEIGHT);        
+        drawString("Near You", 100 + getImage().getWidth() / 2, topSpace - HEADER_TEXT_HEIGHT - 5, MAIN_COLOR, HEADER_TEXT_HEIGHT);        
         
-        drawUserPanel(GAP, topSpace, (getWidth() / 2) - GAP, topSpace + numUsers * pixelsPerUser, PlayerData.getTop(numUsers));
-        drawUserPanel(GAP + getWidth() / 2, topSpace, getWidth() - GAP, topSpace + numUsers * pixelsPerUser, PlayerData.getNearby(numUsers));
+        drawUserPanel(GAP, topSpace, (getImage().getWidth() / 2) - GAP, topSpace + numUsers * pixelsPerUser, PlayerData.getTop(numUsers));
+        drawUserPanel(GAP + getImage().getWidth() / 2, topSpace, getImage().getWidth() - GAP, topSpace + numUsers * pixelsPerUser, PlayerData.getNearby(numUsers));
     }
     
     private void drawUserPanel(int left, int top, int right, int bottom, List users)
     {
-        getBackground().setColor(MAIN_COLOR);
-        getBackground().drawRect(left, top, right - left, bottom - top);
+        getImage().setColor(MAIN_COLOR);
+        getImage().drawRect(left, top, right - left, bottom - top);
         
         if (users == null)
             return;
@@ -85,15 +82,15 @@ public class ScoreWorld extends World
             {
                 c = Color.WHITE;
             }
-            getBackground().setColor(c);
-            getBackground().fillRect(left + 5, y - GAP + 1, right - left - 10, 50 + 2*GAP - 1);
+            getImage().setColor(c);
+            getImage().fillRect(left + 5, y - GAP + 1, right - left - 10, 50 + 2*GAP - 1);
 
             int x = left + 10;
             drawString("#" + Integer.toString(playerData.getRank()), x, y+18, MAIN_COLOR, 14);
             x += 50;
             drawString(Integer.toString(playerData.getScore()), x, y+18, SCORE_COLOR, 14);
             x += 90;
-            getBackground().drawImage(playerData.getUserImage(), x, y);
+            getImage().drawImage(playerData.getUserImage(), x, y);
             x += 55;
             drawString(playerData.getUserName(), x, y + 18, MAIN_COLOR, 14);
             y += 50 + 2*GAP;
