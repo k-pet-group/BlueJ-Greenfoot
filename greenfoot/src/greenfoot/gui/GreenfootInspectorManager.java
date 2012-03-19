@@ -99,13 +99,13 @@ public class GreenfootInspectorManager implements InspectorManager
             ClassInspectInvokerRecord ir = new ClassInspectInvokerRecord(clss.getName());
             inspector = new GreenfootClassInspector(clss, this, pkg, ir, parent);
             classInspectors.put(clss.getName(), inspector);
-        }
-        else {
+        } else {
             inspector.update();
             inspector.updateLayout();
-            inspector.setVisible(true);
-            inspector.bringToFront();
         }
+        
+        inspector.setVisible(true);
+        inspector.bringToFront();
 
         return inspector;
     }
