@@ -38,16 +38,21 @@ public class Counter extends Actor
     private int value;
     private int target;
     private String prefix;
+    
+    public Counter()
+    {
+        this(new String());
+    }
 
     /**
      * Create a new counter, initialised to 0.
      */
-    public Counter()
+    public Counter(String prefix)
     {
         background = getImage();  // get image from class
         value = 0;
         target = 0;
-        prefix = "";
+        this.prefix = prefix;
         updateImage();
     }
     
