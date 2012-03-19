@@ -56,6 +56,6 @@ public class SimpleTimer
      */
     public int millisElapsed()
     {
-        return System.currentTimeMillis() - lastMark;
+        return (int) (System.currentTimeMillis() - lastMark);
     }
 }
