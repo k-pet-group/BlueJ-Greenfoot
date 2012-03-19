@@ -51,7 +51,7 @@ bluej.language=english
 ## edit these URLs.
 #####################################################################
 
-greenfoot.url.greenfoot=http://www.greenfoot.org
+greenfoot.url.greenfoot=http://www.greenfoot.org/
 greenfoot.url.scenarios=http://www.greenfoot.org/scenarios/index.html
 greenfoot.url.tutorial=http://www.greenfoot.org/doc/tutorial.html
 greenfoot.url.discuss=http://www.greenfootgallery.org/topics/
@@ -73,8 +73,8 @@ doctool.options=-author -version -nodeprecated -protected
 #####################################################################
 
 greenfoot.gameserver.name=Greenfoot Gallery
-greenfoot.gameserver.address=http://greenfootgallery.org
-greenfoot.gameserver.createAccount.address=http://greenfootgallery.org/users/new
+greenfoot.gameserver.address=http://www.greenfoot.org/
+greenfoot.gameserver.createAccount.address=http://www.greenfoot.org/users/new
 
 # If you need to use a HTTP proxy, set and uncomment the following items
 #proxy.host=

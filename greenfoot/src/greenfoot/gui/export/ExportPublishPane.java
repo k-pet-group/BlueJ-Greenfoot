@@ -80,9 +80,9 @@ public class ExportPublishPane extends ExportPane implements ChangeListener
     private static final Color background = new Color(166, 188, 202);
     private static final Color headingColor = new Color(40, 75, 125);
     private static final String serverURL = ensureTrailingSlash(Config.getPropString("greenfoot.gameserver.address",
-            "http://greenfootgallery.org"));
+            "http://www.greenfoot.org/"));
     private static final String createAccountUrl = Config.getPropString("greenfoot.gameserver.createAccount.address",
-            "http://greenfootgallery.org/users/new");
+            "http://www.greenfoot.org/users/new");
     private static final String serverName = Config.getPropString("greenfoot.gameserver.name", "Greenfoot Gallery");
 
     private static final String helpLine1 = Config.getString("export.publish.help") + " " + serverName;
