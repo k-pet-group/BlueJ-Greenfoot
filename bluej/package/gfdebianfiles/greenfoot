@@ -10,7 +10,8 @@ else
 fi
 	
 CP="/usr/share/greenfoot/bluej.jar:$JAVAPATH/lib/tools.jar"
-"$JAVAPATH/bin/java" -cp "$CP" bluej.Boot -greenfoot=true -bluej.compiler.showunchecked=false \
+"$JAVAPATH/bin/java" -Dawt.useSystemAAFontSettings=on -cp "$CP" bluej.Boot \
+    -greenfoot=true -bluej.compiler.showunchecked=false \
 	-greenfoot.scenarios=/usr/share/doc/Greenfoot/scenarios \
 	-greenfoot.tutorial=file:///usr/share/doc/Greenfoot/tutorial/tutorial.html \
 	-greenfoot.tutorial.scenario=wombats \

@@ -12,4 +12,4 @@ else
 fi
 	
 CP="/usr/share/bluej/bluej.jar:$JAVAPATH/lib/tools.jar"
-"$JAVAPATH/bin/java" -cp "$CP" bluej.Boot  "$@"
+"$JAVAPATH/bin/java" -Dawt.useSystemAAFontSettings=on -cp "$CP" bluej.Boot  "$@"
