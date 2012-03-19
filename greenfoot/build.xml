@@ -297,7 +297,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
     	  <param name="common.class" value="GifImage"/>
     	</antcall>
     	<antcall target="copy-common-class">
-    	  <param name="common.class" value="ScoreWorld"/>
+    	  <param name="common.class" value="ScoreBoard"/>
     	</antcall>
     	<antcall target="copy-common-class">
     	  <param name="common.class" value="SimpleTimer"/>
