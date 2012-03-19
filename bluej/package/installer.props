@@ -42,7 +42,7 @@ install.commands.win = set CP=~\\lib\\bluej.jar;!\\lib\\tools.jar
 # (UNIX must have quotes around the $CP on the actual
 # invocation, not on the declaration of the shell variables -
 # unix is clever about the quotes and removes them)
-install.javaOpts.unix=-cp "$CP"
+install.javaOpts.unix=-Dawt.useSystemAAFontSettings=on -cp "$CP"
 
 # java command-line options for windows
 install.javaOpts.win=-cp %CP%
