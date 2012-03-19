@@ -49,7 +49,7 @@ public abstract class SmoothMover extends Actor
      */
     public void move(int distance)
     {
-        double radians = Math.toRadians(rotation);
+        double radians = Math.toRadians(getRotation());
         double dx = Math.round(Math.cos(radians) * distance);
         double dy = Math.round(Math.sin(radians) * distance);
         setLocation(exactX + dx, exactY + dy);
