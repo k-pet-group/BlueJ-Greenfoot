@@ -1523,13 +1523,13 @@ public final class Config
                 UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
             }
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            Debug.log("Could not find look-and-feel class: " + e.getMessage());
         } catch (InstantiationException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         } catch (UnsupportedLookAndFeelException e) {
-            e.printStackTrace();
+            Debug.log("Unsupported look-and-feel: " + e.getMessage());
         }
     }
     
