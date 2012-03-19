@@ -1520,7 +1520,21 @@ public final class Config
             }
             // treat Linux and Solaris the same at the moment
             else if(isLinux() || isSolaris()) {
-                UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+                LookAndFeelInfo [] lafi = UIManager.getInstalledLookAndFeels();
+                LookAndFeelInfo nimbus = null;
+                for (LookAndFeelInfo lafInstance : lafi) {
+                    if (lafInstance.getName().equals("Nimbus")) {
+                        nimbus = lafInstance;
+                        break;
+                    }
+                }
+                
+                if (nimbus != null) {
+                    UIManager.setLookAndFeel(nimbus.getClassName());
+                }
+                else {
+                    UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+                }
             }
         } catch (ClassNotFoundException e) {
             Debug.log("Could not find look-and-feel class: " + e.getMessage());
