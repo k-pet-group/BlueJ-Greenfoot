@@ -43,6 +43,18 @@ public abstract class SmoothMover extends Actor
         setLocation(exactX + movementX, exactY + movementY);
     }
     
+    /*
+     * Move forward by the specified distance.
+     * (Overrides the method in Actor).
+     */
+    public void move(int distance)
+    {
+        double radians = Math.toRadians(rotation);
+        double dx = Math.round(Math.cos(radians) * distance);
+        double dy = Math.round(Math.sin(radians) * distance);
+        setLocation(exactX + dx, exactY + dy);
+    }
+    
     /**
      * Set the location using exact coordinates.
      */
@@ -53,8 +65,9 @@ public abstract class SmoothMover extends Actor
         super.setLocation((int) (x + 0.5), (int) (y + 0.5));
     }
     
-    /**
+    /*
      * Set the location using integer coordinates.
+     * (Overrides the method in Actor.)
      */
     public void setLocation(int x, int y) 
     {
