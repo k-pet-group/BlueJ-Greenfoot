@@ -89,7 +89,7 @@ public abstract class SmoothMover extends Actor
     }
     
     /**
-     * Accelerate the speed of this mover by the given factor. (Factors < 1 will
+     * Accelerate the speed of this mover by the given factor. (Factors &lt; 1 will
      * decelerate.)
      */
     public void accelerate(double factor)
