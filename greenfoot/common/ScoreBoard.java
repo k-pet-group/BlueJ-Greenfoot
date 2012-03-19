@@ -31,11 +31,12 @@ public class ScoreBoard extends Actor
     /**
      * Constructor for objects of class ScoreBoard.
      * 
-     * You can specify the width and height that the score board should be.  
+     * You can specify the width and height that the score board should be, but
+     * a minimum width of 600 will be enforced.
      */
     public ScoreBoard(int width, int height)
     {    
-        setImage(new GreenfootImage(width, height)); 
+        setImage(new GreenfootImage(Math.max(600, width), height)); 
         
         drawScores();
     }
@@ -89,7 +90,7 @@ public class ScoreBoard extends Actor
             drawString("#" + Integer.toString(playerData.getRank()), x, y+18, MAIN_COLOR, 14);
             x += 50;
             drawString(Integer.toString(playerData.getScore()), x, y+18, SCORE_COLOR, 14);
-            x += 90;
+            x += 80;
             getImage().drawImage(playerData.getUserImage(), x, y);
             x += 55;
             drawString(playerData.getUserName(), x, y + 18, MAIN_COLOR, 14);
