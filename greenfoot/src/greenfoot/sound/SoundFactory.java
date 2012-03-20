@@ -44,8 +44,6 @@ public class SoundFactory
      */
     private SoundCollection soundCollection;
     
-    private SoundCache soundCache = new SoundCache();
-
     /**
      * Only use clips when the size of the clip is below this value (size of the
      * file in bytes). 
@@ -66,8 +64,8 @@ public class SoundFactory
             // that shouldn't cause a big slowdown or waste of resources.
             getCachedSound(soundFile, true);
             
-            if (!soundCache.hasFreeSpace())
-                return; // No point continuing to overwrite things in the cache once all slots are filled
+            // if (!soundCache.hasFreeSpace())
+            //    return; // No point continuing
         }
     }
 
@@ -89,6 +87,8 @@ public class SoundFactory
      * 
      * @param file Name of a file or an url
      * @param quiet   if true, failure is silent; otherwise an IllegalArgumentException may be thrown
+     * @throws IllegalArgumentException if the specified sound is invalid or cannot be played, unless quiet is true
+     * @return  a sound, or if quiet is true, possibly null
      */
     public Sound createSound(final String file, boolean quiet)
     {      
@@ -132,14 +132,8 @@ public class SoundFactory
      */
     public Sound getCachedSound(final String file, boolean quiet)  
     {      
-        Sound sound = soundCache.get(file);
-        if(sound == null) {
-            sound = createSound(file, quiet);
-            if(sound instanceof SoundClip) {
-                soundCache.put((SoundClip) sound);
-            }
-        } 
-        return sound;
+            Sound sound = createSound(file, quiet);
+            return sound;
     }     
 
     private boolean isJavaAudioStream(int size)

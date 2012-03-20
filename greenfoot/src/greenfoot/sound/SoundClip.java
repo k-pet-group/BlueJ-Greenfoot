@@ -24,6 +24,11 @@ package greenfoot.sound;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -43,15 +48,21 @@ import javax.sound.sampled.UnsupportedAudioFileException;
  */
 public class SoundClip implements Sound
 {
-
     private void printDebug(String s)
     {
         //System.out.println(s);
     }
+    
+    private static List<String> cachedUrls = new LinkedList<String>();
+    private static Map<String,List<Clip>> cachedClipSets = new HashMap<String,List<Clip>>();
+    private static final int CLIP_CACHE_SIZE = 20;
+
     /** Name of the file holding the sound data. Used for debugging. */
     private final String name;
+    
     /** URL of the sound data. */
     private final URL url;
+    
     /**
      * The clip that this SoundClip represents. Can be null (when state is
      * CLOSED)
@@ -61,23 +72,27 @@ public class SoundClip implements Sound
     /** The states a clip can be in. */
     private enum ClipState
     {
-
         STOPPED, PLAYING, PAUSED_LOOPING, PAUSED_PLAYING, CLOSED, LOOPING
     };
+    
     private ClipState clipState = ClipState.CLOSED;
     private TimeTracker playedTimeTracker = new TimeTracker();
     private TimeTracker stoppedTimeTracker = new TimeTracker();
+    
     /** Length of this clip in ms. */
     private long clipLength;
+    
     /**
      * Thread that closes this sound clip after a timeout.
      */
     private Thread closeThread;
+    
     /**
      * How long to wait until closing the clip after playback has finished. In
      * ms.
      */
     private static final int CLOSE_TIMEOUT = 20000;
+    
     /**
      * Indicates that the clips should be closed as soon as playback has
      * finished. This will effectively ignore the CLOSE_TIMEOUT.
@@ -116,14 +131,17 @@ public class SoundClip implements Sound
     private boolean open()
     {
         try {
-            AudioInputStream stream = AudioSystem.getAudioInputStream(url);
-            AudioFormat format = stream.getFormat();
-            DataLine.Info info = new DataLine.Info(Clip.class, format);
-            // getLine throws illegal argument exception if it can't find a line.
-            soundClip = (Clip) AudioSystem.getLine(info);
-            soundClip.open(stream);
-            clipLength = soundClip.getMicrosecondLength() / 1000;
             setState(ClipState.STOPPED);
+            soundClip = getCachedClip(url);
+            if (soundClip == null) {
+                AudioInputStream stream = AudioSystem.getAudioInputStream(url);
+                AudioFormat format = stream.getFormat();
+                DataLine.Info info = new DataLine.Info(Clip.class, format);
+                // getLine throws illegal argument exception if it can't find a line.
+                soundClip = (Clip) AudioSystem.getLine(info);
+                soundClip.open(stream);
+            }
+            clipLength = soundClip.getMicrosecondLength() / 1000;
             setVolume(masterVolume);
             return true;
         }
@@ -150,11 +168,89 @@ public class SoundClip implements Sound
     }
 
     /**
+     * If possible, pull (and remove) a clip from the clip cache
+     */
+    private static Clip getCachedClip(URL clipUrl)
+    {
+        List<Clip> clipSet = cachedClipSets.get(clipUrl.toString());
+        if (clipSet == null) {
+            return null;
+        }
+        Clip clip = clipSet.remove(0);
+        if (clipSet.isEmpty()) {
+            cachedClipSets.remove(clipUrl.toString());
+        }
+        for (Iterator<String> i = cachedUrls.iterator(); i.hasNext(); ) {
+            if (i.next().equals(clipUrl.toString())) {
+                i.remove();
+                break;
+            }
+        }
+        return clip;
+    }
+    
+    /**
+     * Remove a clip from the clip cache (for discarding).
+     */
+    private static void removeClipFromCache(String clipUrl, Clip clip)
+    {
+        List<Clip> clipSet = cachedClipSets.get(clipUrl);
+        if (clipSet == null) {
+            return;
+        }
+        
+        boolean found = false;
+        for (Iterator<Clip> i = clipSet.iterator(); i.hasNext(); ) {
+            if (i.next() == clip) {
+                clip.close();
+                i.remove();
+                found = true;
+                break;
+            }
+        }
+        
+        if (found) {
+            if (clipSet.isEmpty()) {
+                cachedClipSets.remove(clipUrl);
+            }
+            for (Iterator<String> i = cachedUrls.iterator(); i.hasNext(); ) {
+                if (i.next().equals(clipUrl)) {
+                    i.remove();
+                    break;
+                }
+            }
+        }
+    }
+    
+    private static void returnClipToCache(String clipUrl, Clip clip)
+    {
+        List<Clip> clipSet = cachedClipSets.get(clipUrl);
+        if (clipSet == null) {
+            clipSet = new LinkedList<Clip>();
+            cachedClipSets.put(clipUrl, clipSet);
+        }
+        
+        clipSet.add(clip);
+        
+        cachedUrls.add(clipUrl);
+        
+        // If cache is too full, evacuate a clip
+        if (cachedUrls.size() > CLIP_CACHE_SIZE) {
+            String url = cachedUrls.remove(0);
+            clipSet = cachedClipSets.get(url);
+            Clip evacuee = clipSet.remove(0);
+            evacuee.close();
+            if (clipSet.isEmpty()) {
+                cachedClipSets.remove(url);
+            }
+        }
+    }
+    
+    /**
      * Play this sound from the beginning of the sound.    
      */
     public synchronized void play()
     {
-
         printDebug("00");
 
         if (clipState == ClipState.PLAYING) {
@@ -191,7 +287,6 @@ public class SoundClip implements Sound
         stoppedTimeTracker.reset();
         printDebug("play: " + this);
         startCloseThread();
-
     }
 
     /**
@@ -270,12 +365,12 @@ public class SoundClip implements Sound
         if (soundClip == null || isStopped()) {
             return;
         }
+        soundClip.stop();
+        soundClip.setMicrosecondPosition(0);
         setState(ClipState.STOPPED);
         playedTimeTracker.reset();
         stoppedTimeTracker.reset();
         stoppedTimeTracker.start();
-        soundClip.stop();
-        soundClip.setMicrosecondPosition(0);
         printDebug("Stop: " + this);
     }
 
@@ -306,7 +401,6 @@ public class SoundClip implements Sound
 
     /**
      * Pause the clip. Paused sounds can be resumed.
-     * 
      */
     public synchronized void pause()
     {
@@ -366,6 +460,10 @@ public class SoundClip implements Sound
                     break;
                 case STOPPED:
                     playbackListener.playbackStopped(this);
+                    if (soundClip != null) {
+                        returnClipToCache(url.toString(), soundClip);
+                        soundClip = null;
+                    }
                     break;
                 case PAUSED_LOOPING:
                     playbackListener.playbackPaused(this);
@@ -433,7 +531,6 @@ public class SoundClip implements Sound
         if (closeThread == null) {
             closeThread = new Thread("SoundClipCloseThread")
             {
-
                 public void run()
                 {
                     boolean stayAlive = true;
