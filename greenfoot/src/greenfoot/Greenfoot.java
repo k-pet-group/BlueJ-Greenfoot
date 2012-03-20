@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2011,2012  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -159,7 +159,7 @@ public class Greenfoot
      */
     public static void playSound(final String soundFile)
     {
-        Sound sound = SoundFactory.getInstance().getCachedSound(soundFile, false);
+        Sound sound = SoundFactory.getInstance().createSound(soundFile, false);
 
         if( sound != null) {
             sound.play();

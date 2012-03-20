@@ -62,7 +62,7 @@ public class SoundFactory
             // the sound cache.  It also happens to make objects for
             // non-SoundClip items, but since they are all streams,
             // that shouldn't cause a big slowdown or waste of resources.
-            Sound s = getCachedSound(soundFile, true);
+            Sound s = createSound(soundFile, true);
             
             if (s instanceof SoundClip)
                 ((SoundClip)s).preLoad();
@@ -127,18 +127,6 @@ public class SoundFactory
         return null;
     }
     
-    /**
-     * Gets a cached sound file if possible. If not possible, it will return a new sound.
-     * 
-     * @param  file   the name of the sound file
-     * @param  quiet  if true, failure is silent; otherwise an exception may be thrown.
-     */
-    public Sound getCachedSound(final String file, boolean quiet)  
-    {      
-            Sound sound = createSound(file, quiet);
-            return sound;
-    }     
-
     private boolean isJavaAudioStream(int size)
     {
         // If we can not get the size, or if it is a big file we stream
