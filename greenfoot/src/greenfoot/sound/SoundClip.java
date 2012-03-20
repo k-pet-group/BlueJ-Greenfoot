@@ -132,17 +132,7 @@ public class SoundClip implements Sound
     {
         try {
             setState(ClipState.STOPPED);
-            soundClip = getCachedClip(url);
-            if (soundClip == null) {
-                AudioInputStream stream = AudioSystem.getAudioInputStream(url);
-                AudioFormat format = stream.getFormat();
-                DataLine.Info info = new DataLine.Info(Clip.class, format);
-                // getLine throws illegal argument exception if it can't find a line.
-                soundClip = (Clip) AudioSystem.getLine(info);
-                soundClip.open(stream);
-            }
-            clipLength = soundClip.getMicrosecondLength() / 1000;
-            setVolume(masterVolume);
+            load();
             return true;
         }
         catch (SecurityException e) {
@@ -165,6 +155,54 @@ public class SoundClip implements Sound
             SoundExceptionHandler.handleLineUnavailableException(e);
         }
         return false;
+    }
+
+    private void load() throws UnsupportedAudioFileException, IOException,
+            LineUnavailableException
+    {
+        soundClip = getCachedClip(url);
+        if (soundClip == null) {
+            AudioInputStream stream = AudioSystem.getAudioInputStream(url);
+            AudioFormat format = stream.getFormat();
+            DataLine.Info info = new DataLine.Info(Clip.class, format);
+            // getLine throws illegal argument exception if it can't find a line.
+            soundClip = (Clip) AudioSystem.getLine(info);
+            soundClip.open(stream);
+        }
+        clipLength = soundClip.getMicrosecondLength() / 1000;
+        setVolume(masterVolume);
+    }
+    
+    /**
+     * Preloads the clip, by opening it.
+     */
+    public synchronized void preLoad()
+    {
+        //Ignore all exceptions when pre-loading
+        try
+        {
+            load();
+            returnClipToCache(url.toString(), soundClip);
+            soundClip = null;
+        }
+        catch (SecurityException e) {
+            
+        }
+        catch (IllegalArgumentException e) {
+            
+        }
+        catch (FileNotFoundException e) {
+            
+        }
+        catch (IOException e) {
+            
+        }
+        catch (UnsupportedAudioFileException e) {
+            
+        }
+        catch (LineUnavailableException e) {
+            
+        }
     }
 
     /**

@@ -62,7 +62,10 @@ public class SoundFactory
             // the sound cache.  It also happens to make objects for
             // non-SoundClip items, but since they are all streams,
             // that shouldn't cause a big slowdown or waste of resources.
-            getCachedSound(soundFile, true);
+            Sound s = getCachedSound(soundFile, true);
+            
+            if (s instanceof SoundClip)
+                ((SoundClip)s).preLoad();
             
             // if (!soundCache.hasFreeSpace())
             //    return; // No point continuing
