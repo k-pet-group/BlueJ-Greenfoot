@@ -260,8 +260,13 @@ public class SoundClip implements Sound
         }
     }
     
+    /**
+     * Return a clip to the clip cache.
+     */
     private static void returnClipToCache(String clipUrl, Clip clip)
     {
+        clip.setFramePosition(0);
+        
         List<Clip> clipSet = cachedClipSets.get(clipUrl);
         if (clipSet == null) {
             clipSet = new LinkedList<Clip>();
@@ -287,6 +292,7 @@ public class SoundClip implements Sound
     /**
      * Play this sound from the beginning of the sound.    
      */
+    @Override
     public synchronized void play()
     {
         printDebug("00");
@@ -330,8 +336,8 @@ public class SoundClip implements Sound
     /**
      * Play this sound from the beginning of the sound and loop around when the
      * end have been reached.
-     * 
      */
+    @Override
     public synchronized void loop()
     {
         if (clipState == ClipState.LOOPING) {
@@ -374,6 +380,7 @@ public class SoundClip implements Sound
      * Set the volume level for this sound.
      * @param level the volume level.
      */
+    @Override
     public synchronized void setVolume(int level)
     {
         this.masterVolume = level;
@@ -389,6 +396,7 @@ public class SoundClip implements Sound
      * Get the volume level.
      * @return the volume level.
      */
+    @Override
     public synchronized int getVolume()
     {
         return masterVolume;
@@ -398,6 +406,7 @@ public class SoundClip implements Sound
      * Stop this sound.
      * 
      */
+    @Override
     public synchronized void stop()
     {
         if (soundClip == null || isStopped()) {
@@ -415,20 +424,21 @@ public class SoundClip implements Sound
     /**
      * Closes this sound. It will release all the resources for this sound
      * immediately.
-     * 
      */
+    @Override
     public synchronized void close()
     {
-        if (soundClip == null) {
-            return;
+        if (clipState != ClipState.CLOSED) {
+            setState(ClipState.CLOSED);
+            playedTimeTracker.reset();
+            stoppedTimeTracker.reset();
+            if (soundClip != null) {
+                soundClip.close();
+                soundClip = null;
+            }
+            closeThread = null;
+            printDebug("Closed: " + this);
         }
-        setState(ClipState.CLOSED);
-        playedTimeTracker.reset();
-        stoppedTimeTracker.reset();
-        soundClip.close();
-        soundClip = null;
-        closeThread = null;
-        printDebug("Closed: " + this);
     }
 
     public synchronized void setCloseWhenFinished(boolean b)
@@ -440,6 +450,7 @@ public class SoundClip implements Sound
     /**
      * Pause the clip. Paused sounds can be resumed.
      */
+    @Override
     public synchronized void pause()
     {
         resumedLoop = false;
@@ -462,6 +473,7 @@ public class SoundClip implements Sound
      * do nothing
      * 
      */
+    @Override
     public synchronized void resume()
     {
         if (soundClip == null || !isPaused()) {
@@ -533,6 +545,7 @@ public class SoundClip implements Sound
     /**
      * True if the sound is currently playing.
      */
+    @Override
     public synchronized boolean isPlaying()
     {
         return clipState == ClipState.PLAYING || clipState == ClipState.LOOPING;
@@ -541,6 +554,7 @@ public class SoundClip implements Sound
     /**
      * True if the sound is currently paused.
      */
+    @Override
     public synchronized boolean isPaused()
     {
         return clipState == ClipState.PAUSED_PLAYING || clipState == ClipState.PAUSED_LOOPING;
@@ -549,6 +563,7 @@ public class SoundClip implements Sound
     /**
      * True if the sound is currently stopped.
      */
+    @Override
     public synchronized boolean isStopped()
     {
         return clipState == ClipState.STOPPED || clipState == ClipState.CLOSED;
@@ -569,6 +584,7 @@ public class SoundClip implements Sound
         if (closeThread == null) {
             closeThread = new Thread("SoundClipCloseThread")
             {
+                @Override
                 public void run()
                 {
                     boolean stayAlive = true;
@@ -662,6 +678,7 @@ public class SoundClip implements Sound
         }
     }
 
+    @Override
     public String toString()
     {
         return url + " " + super.toString();
