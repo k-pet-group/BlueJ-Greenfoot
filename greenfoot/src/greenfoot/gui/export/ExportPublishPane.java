@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -221,11 +221,11 @@ public class ExportPublishPane extends ExportPane implements ChangeListener
     }
     
     /**
-     * True if the snapshot should be overwritten; false if not (or if it doesn't exist)
+     * True if the screenshot should *not* be overwritten; false if it should
      */
     public boolean keepSavedScenarioScreenshot()
     {
-        if (keepScenarioScreenshot!=null){
+        if (isUpdate && keepScenarioScreenshot != null) {
             return keepScenarioScreenshot.isSelected();
         }
         return false;
@@ -703,7 +703,7 @@ public class ExportPublishPane extends ExportPane implements ChangeListener
             keepScenarioScreenshot.setOpaque(false);
             keepScenarioScreenshot.addChangeListener(this);
             titleAndDescPanel.add(keepScenarioScreenshot);  
-        }   
+        }
 
         text = new JLabel(Config.getString("export.publish.title"), SwingConstants.TRAILING);
         text.setFont(font);
