@@ -21,14 +21,11 @@
  */
 package greenfoot.sound;
 
+import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -53,15 +50,16 @@ public class SoundClip implements Sound
         //System.out.println(s);
     }
     
-    private static List<String> cachedUrls = new LinkedList<String>();
-    private static Map<String,List<Clip>> cachedClipSets = new HashMap<String,List<Clip>>();
-    private static final int CLIP_CACHE_SIZE = 20;
+    private static ClipCache clipCache = new ClipCache();
 
     /** Name of the file holding the sound data. Used for debugging. */
     private final String name;
     
     /** URL of the sound data. */
     private final URL url;
+    
+    /** Data for the clip (used for caching) */
+    private ClipData clipData;
     
     /**
      * The clip that this SoundClip represents. Can be null (when state is
@@ -160,15 +158,16 @@ public class SoundClip implements Sound
     private void load() throws UnsupportedAudioFileException, IOException,
             LineUnavailableException
     {
-        soundClip = getCachedClip(url);
-        if (soundClip == null) {
-            AudioInputStream stream = AudioSystem.getAudioInputStream(url);
-            AudioFormat format = stream.getFormat();
-            DataLine.Info info = new DataLine.Info(Clip.class, format);
-            // getLine throws illegal argument exception if it can't find a line.
-            soundClip = (Clip) AudioSystem.getLine(info);
-            soundClip.open(stream);
-        }
+        clipData = clipCache.getCachedClip(url);
+        InputStream is = new ByteArrayInputStream(clipData.getBuffer());
+        AudioFormat format = clipData.getFormat();
+        AudioInputStream stream = new AudioInputStream(is, format, clipData.getLength());
+        DataLine.Info info = new DataLine.Info(Clip.class, format);
+
+        // getLine throws illegal argument exception if it can't find a line.
+        soundClip = (Clip) AudioSystem.getLine(info);
+        soundClip.open(stream);
+        
         clipLength = soundClip.getMicrosecondLength() / 1000;
         setVolume(masterVolume);
     }
@@ -182,7 +181,8 @@ public class SoundClip implements Sound
         try
         {
             load();
-            returnClipToCache(url.toString(), soundClip);
+            clipCache.releaseClipData(clipData);
+            soundClip.close();
             soundClip = null;
         }
         catch (SecurityException e) {
@@ -205,90 +205,6 @@ public class SoundClip implements Sound
         }
     }
 
-    /**
-     * If possible, pull (and remove) a clip from the clip cache
-     */
-    private static Clip getCachedClip(URL clipUrl)
-    {
-        List<Clip> clipSet = cachedClipSets.get(clipUrl.toString());
-        if (clipSet == null) {
-            return null;
-        }
-        Clip clip = clipSet.remove(0);
-        if (clipSet.isEmpty()) {
-            cachedClipSets.remove(clipUrl.toString());
-        }
-        for (Iterator<String> i = cachedUrls.iterator(); i.hasNext(); ) {
-            if (i.next().equals(clipUrl.toString())) {
-                i.remove();
-                break;
-            }
-        }
-        return clip;
-    }
-    
-    /**
-     * Remove a clip from the clip cache (for discarding).
-     */
-    private static void removeClipFromCache(String clipUrl, Clip clip)
-    {
-        List<Clip> clipSet = cachedClipSets.get(clipUrl);
-        if (clipSet == null) {
-            return;
-        }
-        
-        boolean found = false;
-        for (Iterator<Clip> i = clipSet.iterator(); i.hasNext(); ) {
-            if (i.next() == clip) {
-                clip.close();
-                i.remove();
-                found = true;
-                break;
-            }
-        }
-        
-        if (found) {
-            if (clipSet.isEmpty()) {
-                cachedClipSets.remove(clipUrl);
-            }
-            for (Iterator<String> i = cachedUrls.iterator(); i.hasNext(); ) {
-                if (i.next().equals(clipUrl)) {
-                    i.remove();
-                    break;
-                }
-            }
-        }
-    }
-    
-    /**
-     * Return a clip to the clip cache.
-     */
-    private static void returnClipToCache(String clipUrl, Clip clip)
-    {
-        clip.setFramePosition(0);
-        
-        List<Clip> clipSet = cachedClipSets.get(clipUrl);
-        if (clipSet == null) {
-            clipSet = new LinkedList<Clip>();
-            cachedClipSets.put(clipUrl, clipSet);
-        }
-        
-        clipSet.add(clip);
-        
-        cachedUrls.add(clipUrl);
-        
-        // If cache is too full, evacuate a clip
-        if (cachedUrls.size() > CLIP_CACHE_SIZE) {
-            String url = cachedUrls.remove(0);
-            clipSet = cachedClipSets.get(url);
-            Clip evacuee = clipSet.remove(0);
-            evacuee.close();
-            if (clipSet.isEmpty()) {
-                cachedClipSets.remove(url);
-            }
-        }
-    }
-    
     /**
      * Play this sound from the beginning of the sound.    
      */
@@ -511,7 +427,8 @@ public class SoundClip implements Sound
                 case STOPPED:
                     playbackListener.playbackStopped(this);
                     if (soundClip != null) {
-                        returnClipToCache(url.toString(), soundClip);
+                        clipCache.releaseClipData(clipData);
+                        soundClip.close();
                         soundClip = null;
                     }
                     break;
