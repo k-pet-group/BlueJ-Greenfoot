@@ -48,7 +48,7 @@ public class ClipCache
     /** Data for clips that are in use */
     private Map<String,ClipData> cachedClips = new HashMap<String,ClipData>();
     
-    public ClipData getCachedClip(URL url)
+    public synchronized ClipData getCachedClip(URL url)
         throws IOException, UnsupportedAudioFileException
     {
         String urlStr = url.toString();
@@ -88,7 +88,7 @@ public class ClipCache
         return data;
     }
     
-    public void releaseClipData(ClipData data)
+    public synchronized void releaseClipData(ClipData data)
     {
         if (data.release()) {
             cachedClips.remove(data.getUrl());
