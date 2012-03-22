@@ -168,7 +168,9 @@ public class SoundClip implements Sound
         soundClip = (Clip) AudioSystem.getLine(info);
         soundClip.open(stream);
         
-        clipLength = soundClip.getMicrosecondLength() / 1000;
+        // Note we don't use soundClip.getMicrosecondLength() due to an IcedTea bug:
+        // http://icedtea.classpath.org/bugzilla/show_bug.cgi?id=902
+        clipLength = (long)(soundClip.getFrameLength() / soundClip.getFormat().getFrameRate() * 1000);
         setVolume(masterVolume);
     }
     
