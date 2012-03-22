@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2011,2012  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -47,7 +47,6 @@ import javax.sound.midi.Transmitter;
  */
 public class MidiFileSound implements Sound
 {
-
     private void printDebug(String s)
     {
         //System.out.println(s);
@@ -114,6 +113,7 @@ public class MidiFileSound implements Sound
         }
     }
 
+    @Override
     public synchronized void play()
     {
         sequencer.setLoopCount(0);
@@ -166,6 +166,7 @@ public class MidiFileSound implements Sound
         }
     }
 
+    @Override
     public synchronized void loop()
     {
         sequencer.setLoopStartPoint(0);
@@ -174,13 +175,7 @@ public class MidiFileSound implements Sound
         startPlayback();
     }
 
-    public synchronized void resume()
-    {
-        pause = false;
-        sequencer.start();
-        playbackListener.playbackStarted(this);
-    }
-
+    @Override
     public synchronized void pause()
     {
         pause = true;
@@ -188,12 +183,14 @@ public class MidiFileSound implements Sound
         playbackListener.playbackPaused(this);
     }
 
+    @Override
     public synchronized void stop()
     {
         pause = false;
         close();
     }
 
+    @Override
     public synchronized void close()
     {
         playbackListener.playbackStopped(this);
@@ -208,21 +205,25 @@ public class MidiFileSound implements Sound
         playbackListener.soundClosed(this);
     }
 
+    @Override
     public synchronized boolean isPaused()
     {
         return pause;
     }
 
+    @Override
     public synchronized boolean isPlaying()
     {
         return sequencer.isRunning();
     }
 
+    @Override
     public synchronized boolean isStopped()
     {
         return !isPaused() && !isPlaying();
     }
 
+    @Override
     public void setVolume(int level)
     {
         open();
@@ -239,6 +240,7 @@ public class MidiFileSound implements Sound
         }
     }
 
+    @Override
     public int getVolume()
     {
         return level;

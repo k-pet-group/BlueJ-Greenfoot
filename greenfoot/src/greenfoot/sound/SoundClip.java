@@ -384,37 +384,6 @@ public class SoundClip implements Sound
         printDebug("Pause: " + this);
     }
 
-    /**
-     * Resume a paused clip. If the clip is not currently paused, this call will
-     * do nothing
-     * 
-     */
-    @Override
-    public synchronized void resume()
-    {
-        if (soundClip == null || !isPaused()) {
-            return;
-        }
-        playedTimeTracker.start();
-
-        if (clipState == ClipState.PAUSED_PLAYING) {
-            setState(ClipState.PLAYING);
-            soundClip.start();
-        }
-        if (clipState == ClipState.PAUSED_LOOPING) {
-            setState(ClipState.LOOPING);
-            // Clip.loop will only loop from current frame to endframe,
-            // NOT from beginning frame as it should. To fix this, we have to
-            // use play() once instead, then detect when that has finished, and
-            // then start looping again. We restart looping in the closeThread.
-            playedTimeTracker.setTimeTracked(SoundUtils.getTimeToPlayFrames(soundClip.getLongFramePosition() % soundClip.getFrameLength(), soundClip.getFormat()));
-            soundClip.start();
-            resumedLoop = true;
-            startCloseThread();
-        }
-        printDebug("Resume: " + this);
-    }
-
     private void setState(ClipState newState)
     {
         if (clipState != newState) {

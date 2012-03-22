@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2011,2012  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -51,13 +51,6 @@ public interface Sound
      * After this method has been called: isStopped=false, isPlaying=false, isPaused=true.
      */
     public abstract void pause();
-
-    /**
-     * Resume the sound.
-     * 
-     * After this method has been called: isStopped=false, isPlaying=true, isPaused=false.
-     */
-    public abstract void resume();
 
     /**
      * Play this sound. 

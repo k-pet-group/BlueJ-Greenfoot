@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2011,2012  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -46,7 +46,6 @@ import bluej.utility.Debug;
  */
 public class SoundStream implements Sound, Runnable
 {
-
     private static void printDebug(String s)
     {
         // Comment this line out if you don't want debug info.
@@ -111,6 +110,7 @@ public class SoundStream implements Sound, Runnable
         }
     }
 
+    @Override
     public synchronized void play()
     {
         if (isPlaying()) {
@@ -123,17 +123,7 @@ public class SoundStream implements Sound, Runnable
         }
     }
 
-    /**
-     * Resumes playback from where it last played. If the sound is not currently
-     * paused this call does nothing.
-     */
-    public synchronized void resume()
-    {
-        if (pause) {
-            startPlayback();
-        }
-    }
-
+    @Override
     public synchronized void loop()
     {
         // Make sure we loop.
@@ -171,6 +161,7 @@ public class SoundStream implements Sound, Runnable
         playbackListener.playbackStarted(this);
     }
 
+    @Override
     public synchronized void close()
     {
         if (line != null) {
@@ -181,6 +172,7 @@ public class SoundStream implements Sound, Runnable
         }
     }
 
+    @Override
     public synchronized void stop()
     {
         if (!stop) {
@@ -193,6 +185,7 @@ public class SoundStream implements Sound, Runnable
         }
     }
 
+    @Override
     public synchronized void pause()
     {
         if (!stopped && !pause) {
@@ -203,26 +196,31 @@ public class SoundStream implements Sound, Runnable
         }
     }
 
+    @Override
     public synchronized boolean isPlaying()
     {
         return !stopped && !pause;
     }
 
+    @Override
     public synchronized boolean isStopped()
     {
         return stopped && !pause;
     }
 
+    @Override
     public synchronized boolean isPaused()
     {
         return pause;
     }
 
+    @Override
     public String toString()
     {
         return inputStream.getSource() + " " + super.toString();
     }
 
+    @Override
     public void run()
     {
         // Whether the thread should stay alive or die.
@@ -457,11 +455,13 @@ public class SoundStream implements Sound, Runnable
         return line.getLongFramePosition();
     }
 
+    @Override
     public void setVolume(int level)
     {
         line.setVolume(SoundUtils.logToLin(level));
     }
 
+    @Override
     public int getVolume()
     {
         return line.getVolume();
