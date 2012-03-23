@@ -24,6 +24,7 @@ package greenfoot.sound;
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -93,9 +94,13 @@ public class ClipCache
         if (data.release()) {
             cachedClips.remove(data.getUrl());
             freeClips.put(data.getUrl(), data);
-            if (++numberFreeClips > MAX_CACHED_CLIPS) {
+            numberFreeClips++;
+            if (numberFreeClips > MAX_CACHED_CLIPS) {
                 // remove least recently used free clip
-                freeClips.values().iterator().remove();
+                Iterator<ClipData> it = freeClips.values().iterator();
+                it.next();
+                it.remove();
+                numberFreeClips = MAX_CACHED_CLIPS;
             }
         }
     }
