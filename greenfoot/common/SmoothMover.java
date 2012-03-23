@@ -13,45 +13,27 @@ import greenfoot.*;  // (World, Actor, GreenfootImage, and Greenfoot)
  */
 public abstract class SmoothMover extends Actor
 {
-    private double movementX;
-    private double movementY;
     private double exactX;
     private double exactY;
-    
+
     /**
-     * Create a SmoothMover with an empty movement vector (standing still).
-     */
-    public SmoothMover()
-    {
-        this(0, 0);
-    }
-    
-    /**
-     * Create new SmoothMover initialised with given velocity.
-     */
-    public SmoothMover(double movementX, double movementY)
-    {
-        this.movementX = movementX;
-        this.movementY = movementY;
-    }
-    
-    /**
-     * Move in the current movement direction.
-     */
-    public void moveVector() 
-    {
-        setLocation(exactX + movementX, exactY + movementY);
-    }
-    
-    /*
      * Move forward by the specified distance.
      * (Overrides the method in Actor).
      */
+    @Override
     public void move(int distance)
     {
+        move((double)distance);
+    }
+    
+    /**
+     * Move forward by the specified exact distance.
+     */
+    public void move(double distance)
+    {
         double radians = Math.toRadians(getRotation());
-        double dx = Math.round(Math.cos(radians) * distance);
-        double dy = Math.round(Math.sin(radians) * distance);
+        double dx = Math.cos(radians) * distance;
+        double dy = Math.sin(radians) * distance;
         setLocation(exactX + dx, exactY + dy);
     }
     
@@ -65,10 +47,11 @@ public abstract class SmoothMover extends Actor
         super.setLocation((int) (x + 0.5), (int) (y + 0.5));
     }
     
-    /*
+    /**
      * Set the location using integer coordinates.
      * (Overrides the method in Actor.)
      */
+    @Override
     public void setLocation(int x, int y) 
     {
         exactX = x;
@@ -90,61 +73,5 @@ public abstract class SmoothMover extends Actor
     public double getExactY() 
     {
         return exactY;
-    }
-
-    /**
-     * Increase the speed with the given vector.
-     */
-    public void addForce(double forceX, double forceY) 
-    {
-        movementX += forceX;
-        movementY += forceY;
-    }
-    
-    /**
-     * Accelerate the speed of this mover by the given factor. (Factors &lt; 1 will
-     * decelerate.)
-     */
-    public void accelerate(double factor)
-    {
-        movementX *= factor;
-        movementY *= factor;
-        if (getSpeed()  < 0.15) {
-            movementX = 0;
-            movementY = 0;
-        }
-    }
-    
-    /**
-     * Return the speed of the current movement vector.
-     */
-    public double getSpeed()
-    {
-        return Math.hypot(movementX, movementY);
-    }
-    
-    /**
-     * Increase the speed with the given vector.
-     */
-    public void stop()
-    {
-        movementX = 0;
-        movementY = 0;
-    }
-    
-    /**
-     * Return the current speed in the X dimension.
-     */
-    public double getSpeedX() 
-    {
-        return movementX;
-    }
-    
-    /**
-     * Return the current speed in the Y dimension.
-     */
-    public double getSpeedY() 
-    {
-        return movementX;
     }
 }
