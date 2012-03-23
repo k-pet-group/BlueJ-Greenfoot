@@ -1,9 +1,9 @@
 import greenfoot.*;  // (World, Actor, GreenfootImage, and Greenfoot)
 
 /**
- * A variation of an actor that maintains precise location (using doubles for the co-ordinates
- * instead of ints). It also maintains a current movement vector that is independent of
- * the current rotation of the actor.
+ * A variation of an actor that maintains a precise location (using doubles for the co-ordinates
+ * instead of ints).  This allows small precise movements (e.g. movements of 1 pixel or less)
+ * that do not lose precision.
  * 
  * @author Poul Henriksen
  * @author Michael Kolling
