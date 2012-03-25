@@ -632,7 +632,7 @@ public final class MoeEditor extends JFrame
         int epos = line.getEndOffset();
         int testPos = Math.min(epos - spos - 1, column - 1);
         if (testPos == 0) {
-            return 0;
+            return spos;
         }
         
         try {
@@ -645,7 +645,7 @@ public final class MoeEditor extends JFrame
                 if (tabPos == -1) {
                     // No more tabs...
                     tpos += column - cpos - 1;
-                    return spos + tpos;
+                    return Math.min(spos + tpos, epos - 1);
                 }
                 
                 int newcpos = cpos + (tabPos - tpos);
@@ -664,6 +664,7 @@ public final class MoeEditor extends JFrame
         }
         catch (BadLocationException ble) {
             // Shouldn't happen.
+            throw new RuntimeException(ble);
         }
         return spos;
     }
