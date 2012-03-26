@@ -38,6 +38,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.Arrays;
 import java.util.LinkedList;
 
 import javax.imageio.ImageIO;
@@ -148,6 +149,8 @@ public class ImageLibList extends EditableList<ImageLibList.ImageListEntry> impl
         if (imageFiles == null) {
             imageFiles = new File[0];
         }
+        
+        Arrays.sort(imageFiles);
                 
         data = new LinkedList<ImageListEntry>();
         data.add(new ImageListEntry(null));

@@ -26,6 +26,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.io.File;
 import java.io.FileFilter;
+import java.util.Arrays;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -88,6 +89,8 @@ public class ImageCategorySelector extends JList
         if (imageFiles == null) {
             return;
         }
+        
+        Arrays.sort(imageFiles);
 
         for (int i = 0; i < imageFiles.length; i++) {
             listModel.addElement(imageFiles[i]);
