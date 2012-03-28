@@ -521,13 +521,13 @@ static void findRegistryVMs()
 // Extract path from file
 string extractFilePath(string filename)
 {
-	int bspos = filename.rfind('\\');
-	if (bspos == string::npos) {
-		return string();
-	}
-	else {
-		return filename.substr(0, bspos);
-	}
+    size_t bspos = filename.rfind('\\');
+    if (bspos == string::npos) {
+	return string();
+    }
+    else {
+        return filename.substr(0, bspos);
+    }
 }
 
 static bool isStdSpace(TCHAR ch)
@@ -733,7 +733,7 @@ int WINAPI WinMain
     {
         if (status == -1) {
             return -1;
-		}
+        }
 			
         if (msg.message == MSG_LAUNCHVM) {
 			DestroyWindow(hDialog);
@@ -750,6 +750,6 @@ int WINAPI WinMain
         }
     }
 
-	// We've received WM_QUIT
-	return msg.wParam;
+    // We've received WM_QUIT
+    return msg.wParam;
 }
