@@ -1,0 +1,38 @@
+#include <windows.h>
+
+#define MANIFEST_RESOURCE_ID 1
+
+LANGUAGE 0, 0
+
+#ifndef GREENFOOT
+MAINICON ICON "../winlaunch/bluej-vista.ico"
+#else
+MAINICON ICON "../winlaunch/greenfoot-icon-256-shadow.ico"
+#endif
+
+MANIFEST_RESOURCE_ID RT_MANIFEST "usbmanifest.xml"
+
+
+1 VERSIONINFO
+FILEVERSION 1,0,0,0
+PRODUCTVERSION 1,0,0,0
+FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
+FILEFLAGS 0
+FILEOS VOS_NT
+FILETYPE VFT_APP
+FILESUBTYPE 0
+BEGIN
+	BLOCK "StringFileInfo"
+	BEGIN
+		BLOCK "04091200"
+		BEGIN
+			VALUE "CompanyName", "BlueJ group"
+			VALUE "FileDescription", "BlueJ/Greenfoot USB Launcher"
+			VALUE "FileVersion", "1.0.0"
+			VALUE "InternalName", "bluejusb"
+			VALUE "OriginalFilename", "bluejusb.exe"
+			VALUE "ProductName", "BlueJ/Greenfoot USB Launcher"
+			VALUE "ProductVersion", "1.0.0"
+		END
+	END
+END
