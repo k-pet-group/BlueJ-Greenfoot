@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -143,8 +143,8 @@ public abstract class Graph
     }
 
     /**
-     * Finds the Edge that covers the coordinate x,y. If no edge is found, null
-     * is returned.
+     * Finds the Edge that covers the coordinate x,y and is visible. If no
+     * (visible) edge is found, null is returned.
      * 
      * @param x
      *            the x coordinate
@@ -157,7 +157,7 @@ public abstract class Graph
         Edge element = null;
         for (Iterator<? extends Edge> it = getEdges(); it.hasNext();) {
             element = it.next();
-            if (element.contains(x, y)) {
+            if (element.isVisible() && element.contains(x, y)) {
                 return element;
             }
         }
@@ -165,8 +165,8 @@ public abstract class Graph
     }
 
     /**
-     * Finds the Vertex that covers the coordinate x,y. If no vertex is found,
-     * null is returned.
+     * Finds the Vertex that covers the coordinate x,y and is visible. If no
+     * (visible) vertex is found, null is returned.
      * 
      * @param x
      *            the x coordinate
@@ -176,8 +176,8 @@ public abstract class Graph
      */
     private Vertex findVertex(int x, int y)
     {
-        GraphElement element = null;
-        GraphElement topElement = null;
+        Vertex element = null;
+        Vertex topElement = null;
 
         //Try to find a vertex containing the point
         // Rather than breaking when we find the vertex we keep searching
@@ -185,11 +185,11 @@ public abstract class Graph
         // This turns out to be the vertex which is rendered at the front
         for (Iterator<? extends Vertex> it = getVertices(); it.hasNext();) {
             element = it.next();
-            if (element.contains(x, y)) {
+            if (element.isVisible() && element.contains(x, y)) {
                 topElement = element;
             }
         }
-        return (Vertex) topElement;
+        return topElement;
     }
     
     /**

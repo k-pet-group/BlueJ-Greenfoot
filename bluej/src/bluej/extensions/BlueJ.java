@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,15 +22,16 @@
 package bluej.extensions;
 
 import bluej.*;
-import bluej.debugmgr.objectbench.*;
 import bluej.extensions.event.*;
+import bluej.extensions.painter.ExtensionClassTargetPainter;
 import bluej.extmgr.*;
 import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
-import bluej.pkgmgr.target.*;
+import bluej.pkgmgr.graphPainter.ClassTargetPainter.Layer;
 import java.awt.*;
 import java.io.*;
 import java.util.*;
+import java.util.List;
 import javax.swing.*;
 
 /**
@@ -67,7 +68,7 @@ import javax.swing.*;
  * after its <code>terminate()</code> method has been called will result
  * in an (unchecked) <code>ExtensionUnloadedException</code> being thrown.
  *
- * @version    $Id: BlueJ.java 9069 2011-07-06 07:11:59Z davmac $
+ * @version    $Id: BlueJ.java 9624 2012-03-29 17:04:54Z davmac $
  */
 
 /*
@@ -84,6 +85,7 @@ public final class BlueJ
 
     private PreferenceGenerator currentPrefGen = null;
     private MenuGenerator currentMenuGen = null;
+    private ExtensionClassTargetPainter currentClassTargetPainter;
     private Properties localLabels;
 
     private ArrayList<ExtensionEventListener> eventListeners;
@@ -93,6 +95,8 @@ public final class BlueJ
     private ArrayList<CompileListener> compileListeners;
     private ArrayList<InvocationListener> invocationListeners;
     private ArrayList<ClassListener> classListeners;
+    private List<DependencyListener> dependencyListeners;
+    private List<ClassTargetListener> classTargetListeners;
 
 
     /**
@@ -113,6 +117,8 @@ public final class BlueJ
         compileListeners = new ArrayList<CompileListener>();
         invocationListeners = new ArrayList<InvocationListener>();
         classListeners = new ArrayList<ClassListener>();
+        dependencyListeners = new ArrayList<DependencyListener>();
+        classTargetListeners = new ArrayList<ClassTargetListener>();
 
         // Don't use lazy initialisation here, to avoid multiple reloads
         localLabels = myWrapper.getLabelProperties();
@@ -316,6 +322,33 @@ public final class BlueJ
         return currentPrefGen;
     }
 
+
+    /**
+     * Installs a new custom class target painter for this extension. If you
+     * want to delete a previously installed custom class target painter, then
+     * set it to <code>null</code>.
+     * 
+     * @param classTargetPainter
+     *            The {@link ExtensionClassTargetPainter} to set.
+     */
+    public void setClassTargetPainter(ExtensionClassTargetPainter classTargetPainter)
+    {
+        if (!myWrapper.isValid()) {
+            throw new ExtensionUnloadedException();
+        }
+
+        currentClassTargetPainter = classTargetPainter;
+    }
+
+    /**
+     * Returns the currently registered custom class target painter.
+     * 
+     * @return The currently registered custom class target painter.
+     */
+    public ExtensionClassTargetPainter getClassTargetPainter()
+    {
+        return currentClassTargetPainter;
+    }
 
     /**
      * Returns the path of the <code>&lt;BLUEJ_HOME&gt;/lib</code> system directory.
@@ -608,6 +641,62 @@ public final class BlueJ
     }
     
     /**
+     * Register a listener for dependency events.
+     * 
+     * @param listener
+     *            The listener to register.
+     */
+    public void addDependencyListener(DependencyListener listener)
+    {
+        if (listener != null) {
+            synchronized (dependencyListeners) {
+                dependencyListeners.add(listener);
+            }
+        }
+    }
+
+    /**
+     * Removes the specified dependency listener so it no longer receives
+     * dependency events.
+     */
+    public void removeDependencyListener(DependencyListener listener)
+    {
+        if (listener != null) {
+            synchronized (dependencyListeners) {
+                dependencyListeners.remove(listener);
+            }
+        }
+    }
+    
+    /**
+     * Register a listener for class target events.
+     * 
+     * @param listener
+     *            The listener to register.
+     */
+    public void addClassTargetListener(ClassTargetListener listener)
+    {
+        if (listener != null) {
+            synchronized (classTargetListeners) {
+                classTargetListeners.add(listener);
+            }
+        }
+    }
+
+    /**
+     * Removes the specified class target listener so it no longer receives
+     * class target events.
+     */
+    public void removeClassTargetListener(ClassTargetListener listener)
+    {
+        if (listener != null) {
+            synchronized (classTargetListeners) {
+                classTargetListeners.remove(listener);
+            }
+        }
+    }
+
+    /**
      * Dispatch this event to the listeners for the ALL events.
      *
      * @param  event  Description of the Parameter
@@ -738,7 +827,60 @@ public final class BlueJ
         }
         
         for (int i = 0; i < listeners.length; i++) {
-            listeners[i].classStateChanged(event);
+            if (event.getEventId() == ClassEvent.REMOVED) {
+                if (listeners[i] instanceof ClassListener2) {
+                    ((ClassListener2) listeners[i]).classRemoved(event);
+                }
+            } else {
+                listeners[i].classStateChanged(event);
+            }
+        }
+    }
+
+    /**
+     * Dispatch this event to the listeners for the Dependency events.
+     * 
+     * @param event
+     *            The event to dispatch
+     */
+    private void delegateDependencyEvent(DependencyEvent event)
+    {
+        List<DependencyListener> listeners = new ArrayList<DependencyListener>();
+        synchronized (dependencyListeners) {
+            listeners.addAll(dependencyListeners);
+        }
+        
+        for (DependencyListener dependencyListener : listeners) {
+            switch (event.getEventType()) {
+                case DEPENDENCY_ADDED:
+                    dependencyListener.dependencyAdded(event);
+                    break;
+                case DEPENDENCY_REMOVED:
+                    dependencyListener.dependencyRemoved(event);
+                    break;
+                case DEPENDENCY_HIDDEN:
+                case DEPENDENCY_SHOWN:
+                    dependencyListener.dependencyVisibilityChanged(event);
+                    break;
+            }
+        }
+    }
+    
+    /**
+     * Dispatch this event to the listeners for the class target events.
+     * 
+     * @param event
+     *            The event to dispatch
+     */
+    private void delegateClassTargetEvent(ClassTargetEvent event)
+    {
+        List<ClassTargetListener> listeners = new ArrayList<ClassTargetListener>();
+        synchronized (classTargetListeners) {
+            listeners.addAll(classTargetListeners);
+        }
+        
+        for (ClassTargetListener classTargetListener : listeners) {
+            classTargetListener.classTargetVisibilityChanged(event);
         }
     }
 
@@ -760,6 +902,11 @@ public final class BlueJ
             delegateInvocationEvent((InvocationEvent) event);
         else if (event instanceof ClassEvent)
             delegateClassEvent((ClassEvent) event);
+        else if (event instanceof DependencyEvent) {
+            delegateDependencyEvent((DependencyEvent) event);
+        } else if (event instanceof ClassTargetEvent) {
+            delegateClassTargetEvent((ClassTargetEvent) event);
+        }
     }
 
 
@@ -774,76 +921,56 @@ public final class BlueJ
      * @param  attachedObject  Description of the Parameter
      * @return                 The menuItem value
      */
-    @SuppressWarnings("deprecation")
-    JMenuItem getMenuItem(Object attachedObject)
+    JMenuItem getMenuItem(ExtensionMenuObject attachedObject)
     {
-        if (currentMenuGen == null)
+        if ((currentMenuGen == null) || (attachedObject == null)) {
             return null;
-
-        if (attachedObject == null) {
-            JMenuItem anItem = currentMenuGen.getToolsMenuItem(null);
-            if ( anItem != null ) 
-                return anItem;
-
-            // Try to use the old deprecated method.
-            return currentMenuGen.getMenuItem();
         }
 
-        if (attachedObject instanceof Package) {
-            Package attachedPkg = (Package) attachedObject;
-            Identifier anId = new Identifier(attachedPkg.getProject(), attachedPkg);
-            return currentMenuGen.getToolsMenuItem(new BPackage(anId));
-        }
-
-        if (attachedObject instanceof ClassTarget) {
-            ClassTarget aTarget = (ClassTarget) attachedObject;
-            String qualifiedClassName = aTarget.getQualifiedName();
-            Package attachedPkg = aTarget.getPackage();
-            Identifier anId = new Identifier(attachedPkg.getProject(), attachedPkg, qualifiedClassName);
-            return currentMenuGen.getClassMenuItem(new BClass(anId));
-        }
-
-        if (attachedObject instanceof ObjectWrapper) {
-            ObjectWrapper aWrapper = (ObjectWrapper) attachedObject;
-            return currentMenuGen.getObjectMenuItem(new BObject(aWrapper));
-        }
-
-        return null;
+        return attachedObject.getMenuItem(currentMenuGen);
     }
 
 
     /**
-     * Post a notification of a menu going to be display
+     * Post a notification of a menu going to be displayed
      */
-    void postMenuItem(Object attachedObject, JMenuItem onThisItem )
+    void postMenuItem(ExtensionMenuObject attachedObject, JMenuItem onThisItem)
     {
-        if (currentMenuGen == null)
-            return;
-
-        if (attachedObject == null) {
-            // Only BPackages can be null when a menu is invoked
-            currentMenuGen.notifyPostToolsMenu(null,onThisItem);
-            return;
-            }
-
-        if (attachedObject instanceof Package) {
-            Package attachedPkg = (Package) attachedObject;
-            Identifier anId = new Identifier(attachedPkg.getProject(), attachedPkg);
-            currentMenuGen.notifyPostToolsMenu(new BPackage(anId),onThisItem);
-        }
-
-        if (attachedObject instanceof ClassTarget) {
-            ClassTarget aTarget = (ClassTarget) attachedObject;
-            String qualifiedClassName = aTarget.getQualifiedName();
-            Package attachedPkg = aTarget.getPackage();
-            Identifier anId = new Identifier(attachedPkg.getProject(), attachedPkg, qualifiedClassName);
-            currentMenuGen.notifyPostClassMenu(new BClass(anId),onThisItem);
-        }
-
-        if (attachedObject instanceof ObjectWrapper) {
-            ObjectWrapper aWrapper = (ObjectWrapper) attachedObject;
-            currentMenuGen.notifyPostObjectMenu(new BObject(aWrapper),onThisItem);
+        if ((currentMenuGen != null) && (attachedObject != null)) {
+            attachedObject.postMenuItem(currentMenuGen, onThisItem);
         }
     }
 
+    /**
+     * Calls the extension to draw its representation of a class target.
+     * 
+     * @param layer
+     *            The layer of the drawing which causes the different methods of
+     *            the {@link ExtensionClassTargetPainter} instance to be called.
+     * @param bClassTarget
+     *            The {@link BClassTarget} which represents the class target
+     *            that will be painted.
+     * @param graphics
+     *            The {@link Graphics2D} instance to draw on.
+     * @param width
+     *            The width of the area to paint.
+     * @param height
+     *            The height of the area to paint.
+     */
+    void drawExtensionClassTarget(Layer layer, BClassTarget bClassTarget, Graphics2D graphics,
+            int width, int height)
+    {
+        if (currentClassTargetPainter != null) {
+            switch (layer) {
+                case BACKGROUND :
+                    currentClassTargetPainter.drawClassTargetBackground(bClassTarget, graphics,
+                        width, height);
+                    break;
+                case FOREGROUND :
+                    currentClassTargetPainter.drawClassTargetForeground(bClassTarget, graphics,
+                        width, height);
+                    break;
+            }
+        }
+    }
 }

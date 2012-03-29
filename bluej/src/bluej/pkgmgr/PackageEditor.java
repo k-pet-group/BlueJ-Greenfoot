@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,6 +29,8 @@ import javax.swing.JPopupMenu;
 
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.gentype.GenTypeClass;
+import bluej.extmgr.MenuManager;
+import bluej.extmgr.PackageMenuObject;
 import bluej.graph.GraphEditor;
 import bluej.pkgmgr.actions.NewClassAction;
 import bluej.pkgmgr.actions.NewPackageAction;
@@ -41,7 +43,7 @@ import bluej.views.CallableView;
  * Canvas to allow editing of packages
  *
  * @author  Andrew Patterson
- * @version $Id: PackageEditor.java 7517 2010-05-07 08:23:32Z davmac $
+ * @version $Id: PackageEditor.java 9624 2012-03-29 17:04:54Z davmac $
  */
 public final class PackageEditor extends GraphEditor
 {
@@ -135,12 +137,18 @@ public final class PackageEditor extends GraphEditor
 
     private JPopupMenu createMenu()
     {
-       JPopupMenu menu = new JPopupMenu();
-       Action newClassAction = new NewClassAction();
-       addMenuItem(menu, newClassAction);
-       Action newPackageAction = new NewPackageAction();
-       addMenuItem(menu, newPackageAction);
-       return menu;
+        JPopupMenu menu = new JPopupMenu();
+        Action newClassAction = new NewClassAction();
+        addMenuItem(menu, newClassAction);
+        Action newPackageAction = new NewPackageAction();
+        addMenuItem(menu, newPackageAction);
+
+        Package bluejPackage = (Package) getGraph();
+        MenuManager menuManager = new MenuManager(menu);
+        menuManager.setAttachedObject(new PackageMenuObject(bluejPackage));
+        menuManager.addExtensionMenu(bluejPackage.getProject());
+
+        return menu;
     }
     
     private void addMenuItem(JPopupMenu menu, Action action)

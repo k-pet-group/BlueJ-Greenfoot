@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -30,6 +30,11 @@ import javax.swing.*;
 import javax.swing.AbstractAction;
 
 import bluej.Config;
+import bluej.extensions.BDependency;
+import bluej.extensions.BDependency.Type;
+import bluej.extensions.ExtensionBridge;
+import bluej.extensions.event.DependencyEvent;
+import bluej.extmgr.ExtensionsManager;
 import bluej.graph.*;
 import bluej.graph.Edge;
 import bluej.pkgmgr.Package;
@@ -41,7 +46,6 @@ import bluej.utility.Debug;
  * 
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Dependency.java 6215 2009-03-30 13:28:25Z polle $
  */
 public abstract class Dependency extends Edge
 {
@@ -50,6 +54,7 @@ public abstract class Dependency extends Edge
     protected boolean selected = false;
     //    protected static final float strokeWithDefault = 1.0f;
     //    protected static final float strokeWithSelected = 2.0f;
+    private BDependency singleBDependency; // every Dependency has none or one BDependency
 
     static final int SELECT_DIST = 4;
 
@@ -64,6 +69,7 @@ public abstract class Dependency extends Edge
         this(pkg, null, null);
     }
 
+    @Override
     public boolean equals(Object other)
     {
         if (!(other instanceof Dependency))
@@ -72,6 +78,7 @@ public abstract class Dependency extends Edge
         return (d != null) && (d.from == from) && (d.to == to);
     }
 
+    @Override
     public int hashCode()
     {
         return to.hashCode() - from.hashCode();
@@ -91,6 +98,25 @@ public abstract class Dependency extends Edge
     {
         return (DependentTarget) to;
     }
+
+    public BDependency getBDependency()
+    {
+        if (singleBDependency == null) {
+            singleBDependency = ExtensionBridge.newBDependency(this, getType());
+        }
+
+        return singleBDependency;
+    }
+
+    /**
+     * Returns the type of this dependency. This information is used by
+     * extensions to distinguish between the different types of dependencies.
+     * Subclasses must implement this method and return an appropriate constant
+     * of {@link bluej.extensions.BDependency.Type}.
+     * 
+     * @return The type of this dependency;
+     */
+    public abstract Type getType();
 
     public void load(Properties props, String prefix)
     {
@@ -139,32 +165,32 @@ public abstract class Dependency extends Edge
         return getFrom().getIdentifierName() + " --> " + getTo().getIdentifierName();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see bluej.graph.Selectable#setSelected(boolean)
-     */
+    @Override
+    public void setVisible(boolean visible)
+    {
+        if (visible != isVisible()) {
+            super.setVisible(visible);
+            
+            // Inform all listeners about the visibility change
+            DependencyEvent event = new DependencyEvent(this, getFrom().getPackage(), visible);
+            ExtensionsManager.getInstance().delegateEvent(event);
+        }
+    }
+
+    @Override
     public void setSelected(boolean selected)
     {
         this.selected = selected;
         repaint();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see bluej.graph.Selectable#isSelected()
-     */
+    @Override
     public boolean isSelected()
     {
         return selected;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see bluej.graph.Selectable#isHandle(int, int)
-     */
+    @Override
     public boolean isHandle(int x, int y)
     {
         return false;
@@ -175,6 +201,7 @@ public abstract class Dependency extends Edge
      * lines (e.g. extends). Should be overwritten for dependencies with
      * different shape.
      */
+    @Override
     public boolean contains(int x, int y)
     {
         Line line = computeLine();

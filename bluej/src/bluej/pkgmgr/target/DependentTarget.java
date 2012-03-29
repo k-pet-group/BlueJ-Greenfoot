@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -36,7 +36,6 @@ import bluej.utility.MultiIterator;
  *
  * @author   Michael Cahill
  * @author   Michael Kolling
- * @version  $Id: DependentTarget.java 9012 2011-06-17 08:28:22Z mik $
  */
 public abstract class DependentTarget extends EditableTarget
 {
@@ -125,8 +124,9 @@ public abstract class DependentTarget extends EditableTarget
             parents.add(d);
         }
 
-        if(recalc)
+        if(recalc) {
             setState(S_INVALID);
+        }
     }
 
     public void addDependencyIn(Dependency d, boolean recalc)
@@ -162,8 +162,9 @@ public abstract class DependentTarget extends EditableTarget
     {
         if(d instanceof UsesDependency) {
             inUses.remove(d);
-            if(recalc)
+            if(recalc) {
                 recalcInUses();
+            }
         }
         else if((d instanceof ExtendsDependency)
                 || (d instanceof ImplementsDependency)) {
@@ -185,6 +186,25 @@ public abstract class DependentTarget extends EditableTarget
         v.add(children.iterator());
         v.add(inUses.iterator());
         return new MultiIterator<Dependency>(v);
+    }
+    
+    /**
+     * Get the dependencies between this target and its parent(s).
+     * The returned list should not be modified and may be a view or a copy.
+     */
+    public List<Dependency> getParents()
+    {
+        return Collections.unmodifiableList(parents);
+    }
+    
+    /**
+     * Get the dependencies between this target and its children.
+     * 
+     * @return
+     */
+    public List<Dependency> getChildren()
+    {
+        return Collections.unmodifiableList(children);
     }
     
     public List<Dependency> dependentsAsList()
@@ -216,8 +236,9 @@ public abstract class DependentTarget extends EditableTarget
         if(!outUses.isEmpty()) {
             Dependency[] outUsesArray = new Dependency[outUses.size()];
             outUses.toArray(outUsesArray);
-            for(int i = 0; i < outUsesArray.length ; i++)
+            for(int i = 0; i < outUsesArray.length ; i++) {
                 getPackage().removeDependency(outUsesArray[i], false);
+            }
         }
 
         removeInheritDependencies();
@@ -269,14 +290,17 @@ public abstract class DependentTarget extends EditableTarget
 
     public void recalcOutUses()
     {
+        // Determine the visible outgoing uses dependencies
+        List<UsesDependency> visibleOutUses = getVisibleUsesDependencies(outUses);
+
         // Order the arrows by quadrant and then appropriate coordinate
-        Collections.sort(outUses, new LayoutComparer(this, false));
+        Collections.sort(visibleOutUses, new LayoutComparer(this, false));
 
         // Count the number of arrows into each quadrant
         int cy = getY() + getHeight() / 2;
         int n_top = 0, n_bottom = 0;
-        for(int i = outUses.size() - 1; i >= 0; i--) {
-            Target to = ((Dependency)outUses.get(i)).getTo();
+        for(int i = visibleOutUses.size() - 1; i >= 0; i--) {
+            Target to = ((Dependency) visibleOutUses.get(i)).getTo();
             int to_cy = to.getY() + to.getHeight() / 2;
             if(to_cy < cy)
                 ++n_top;
@@ -288,7 +312,7 @@ public abstract class DependentTarget extends EditableTarget
         int top_left = getX() + (getWidth() - (n_top - 1) * ARR_HORIZ_DIST) / 2;
         int bottom_left = getX() + (getWidth() - (n_bottom - 1) * ARR_HORIZ_DIST) / 2;
         for(int i = 0; i < n_top + n_bottom; i++) {
-            UsesDependency d = (UsesDependency)outUses.get(i);
+            UsesDependency d = (UsesDependency) visibleOutUses.get(i);
             int to_cy = d.getTo().getY() + d.getTo().getHeight() / 2;
             if(to_cy < cy) {
                 d.setSourceCoords(top_left, getY() - 4, true);
@@ -306,15 +330,18 @@ public abstract class DependentTarget extends EditableTarget
      */
     public void recalcInUses()
     {
+        // Determine the visible incoming uses dependencies
+        List<UsesDependency> visibleInUses = getVisibleUsesDependencies(inUses);
+
         // Order the arrows by quadrant and then appropriate coordinate
-        Collections.sort(inUses, new LayoutComparer(this, true));
+        Collections.sort(visibleInUses, new LayoutComparer(this, true));
 
         // Count the number of arrows into each quadrant
         int cx = getX() + getWidth() / 2;
         int n_left = 0, n_right = 0;
-        for(int i = inUses.size() - 1; i >= 0; i--)
+        for(int i = visibleInUses.size() - 1; i >= 0; i--)
         {
-            Target from = ((Dependency)inUses.get(i)).getFrom();
+            Target from = ((Dependency) visibleInUses.get(i)).getFrom();
             int from_cx = from.getX() + from.getWidth() / 2;
             if(from_cx < cx)
                 ++n_left;
@@ -327,7 +354,7 @@ public abstract class DependentTarget extends EditableTarget
         int right_top = getY() + (getHeight() - (n_right - 1) * ARR_VERT_DIST) / 2;
         for(int i = 0; i < n_left + n_right; i++)
         {
-            UsesDependency d = (UsesDependency)inUses.get(i);
+            UsesDependency d = (UsesDependency) visibleInUses.get(i);
             int from_cx = d.getFrom().getX() + d.getFrom().getWidth() / 2;
             if(from_cx < cx)
             {
@@ -340,6 +367,28 @@ public abstract class DependentTarget extends EditableTarget
                 right_top += ARR_VERT_DIST;
             }
         }
+    }
+
+    /**
+     * Returns from the specified {@link List} all uses dependencies which are
+     * currently visible.
+     * 
+     * @param usesDependencies
+     *            A {@link List} of uses dependencies.
+     * @return A {@link List} containing all visible uses dependencies from the
+     *         input list.
+     */
+    private List<UsesDependency> getVisibleUsesDependencies(List<UsesDependency> usesDependencies)
+    {
+        List<UsesDependency> result = new ArrayList<UsesDependency>();
+
+        for (UsesDependency incomingUsesDependency : usesDependencies) {
+            if (incomingUsesDependency.isVisible()) {
+                result.add(incomingUsesDependency);
+            }
+        }
+
+        return result;
     }
 
     /**

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,8 +24,12 @@ package bluej.extmgr;
 import bluej.*;
 import bluej.extensions.*;
 import bluej.extensions.event.*;
+import bluej.extensions.painter.ExtensionClassTargetPainter;
 import bluej.pkgmgr.*;
+import bluej.pkgmgr.graphPainter.ClassTargetPainter.Layer;
 import bluej.utility.*;
+
+import java.awt.Graphics2D;
 import java.io.*;
 import java.net.*;
 import java.util.*;
@@ -630,7 +634,7 @@ public class ExtensionWrapper
     /**
      *  Calls the EXTENSION getMenuItem in a safe way
      */
-    public JMenuItem safeGetMenuItem(Object attachedObject)
+    public JMenuItem safeGetMenuItem(ExtensionMenuObject attachedObject)
     {
         if (extensionBluej == null) 
             return null;
@@ -648,7 +652,7 @@ public class ExtensionWrapper
     /**
      *  Calls the EXTENSION postMenuItem in a safe way
      */
-    public void safePostMenuItem(Object attachedObject, JMenuItem onThisItem)
+    public void safePostMenuItem(ExtensionMenuObject attachedObject, JMenuItem onThisItem)
     {
         if (extensionBluej == null) 
             return;
@@ -658,6 +662,37 @@ public class ExtensionWrapper
         }
         catch (Exception exc) {
             Debug.message("ExtensionWrapper.safePostGenGetMenuItem: Class="+getExtensionClassName()+" Exception="+exc.getMessage());
+            exc.printStackTrace();
+        }
+    }
+
+    /**
+     * Calls the extension drawExtensionClassTarget in a safe way.
+     * 
+     * @param layer
+     *            The layer of the drawing which causes the different methods of
+     *            the {@link ExtensionClassTargetPainter} instance to be called.
+     * @param bClassTarget
+     *            The class target that will be painted.
+     * @param graphics
+     *            The {@link Graphics2D} instance to draw on.
+     * @param width
+     *            The width of the area to paint.
+     * @param height
+     *            The height of the area to paint.
+     */
+    public void safeDrawExtensionClassTarget(Layer layer, BClassTarget bClassTarget,
+            Graphics2D graphics, int width, int height)
+    {
+        if (extensionBluej == null) { 
+            return;
+        }
+        
+        try {
+            ExtensionBridge.drawExtensionClassTarget(extensionBluej, layer, bClassTarget, graphics,
+                width, height);
+        } catch (Exception exc) {
+            Debug.message("ExtensionWrapper.safeDrawExtensionClassTarget: Class="+getExtensionClassName()+" Exception="+exc.getMessage());
             exc.printStackTrace();
         }
     }

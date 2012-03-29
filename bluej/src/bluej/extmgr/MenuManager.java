@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -41,7 +41,7 @@ public final class MenuManager implements PopupMenuListener
     private final ExtensionsManager extMgr;
     private final JPopupMenu.Separator menuSeparator;
     private final JPopupMenu popupMenu;
-    private Object attachedObject;
+    private ExtensionMenuObject attachedObject;
 
     /**
      * Constructor for the MenuManager object.
@@ -110,7 +110,7 @@ public final class MenuManager implements PopupMenuListener
      *
      * @param  attachedTo  The new attachedObject value
      */
-    public void setAttachedObject(Object attachedTo)
+    public void setAttachedObject(ExtensionMenuObject attachedTo)
     {
         attachedObject = attachedTo;
     }
@@ -120,6 +120,7 @@ public final class MenuManager implements PopupMenuListener
      *
      * @param  event  The associated event
      */
+    @Override
     public void popupMenuWillBecomeVisible(PopupMenuEvent event)
     {
         int itemsCount = 0;
@@ -165,10 +166,12 @@ public final class MenuManager implements PopupMenuListener
     /*
      * Satisfy PopupMenuListener interface
      */
+    @Override
     public void popupMenuWillBecomeInvisible(PopupMenuEvent event) { }
 
     /*
      * Satisfy PopupMenuListener interface
      */
+    @Override
     public void popupMenuCanceled(PopupMenuEvent event) { }
 }

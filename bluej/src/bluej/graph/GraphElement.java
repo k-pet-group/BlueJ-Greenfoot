@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,6 +29,8 @@ import java.awt.event.MouseEvent;
  * 
  */
 public abstract class GraphElement {
+    /** Indicates whether this element shall be visible in the graph. */
+    private boolean visible = true;
     
     /**
      * Remove this element from the graph.
@@ -60,5 +62,27 @@ public abstract class GraphElement {
     public String getTooltipText()
     {
         return null;
+    }
+    
+    /**
+     * Indicates whether this element shall be visible in the graph.
+     * 
+     * @return <code>true</code> if the element is visible, <code>false</code>
+     *         otherwise.
+     */
+    public boolean isVisible()
+    {
+        return visible;
+    }
+
+    /**
+     * Sets the visible setting of this element.
+     * 
+     * @param visible
+     *            The new visible setting.
+     */
+    public void setVisible(boolean visible)
+    {
+        this.visible = visible;
     }
 }

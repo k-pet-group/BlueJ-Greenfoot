@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,21 +21,28 @@
  */
 package bluej.extensions;
 
+import java.awt.Graphics2D;
+
 import javax.swing.JMenuItem;
 
 import bluej.debugmgr.objectbench.ObjectWrapper;
+import bluej.extensions.BDependency.Type;
 import bluej.extensions.event.ExtensionEvent;
+import bluej.extmgr.ExtensionMenuObject;
 import bluej.extmgr.ExtensionPrefManager;
 import bluej.extmgr.ExtensionWrapper;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
+import bluej.pkgmgr.dependency.Dependency;
+import bluej.pkgmgr.graphPainter.ClassTargetPainter.Layer;
 import bluej.pkgmgr.target.ClassTarget;
+import bluej.pkgmgr.target.DependentTarget;
 
 import com.sun.jdi.Value;
 
 
-/*
+/**
  * This class acts as a bridge between the extensions package and other
  * BlueJ-internal packages (extmgr) to provide access to methods which
  * shouldn't be documented in the Extensions API Javadoc. By using this class,
@@ -80,17 +87,53 @@ public final class ExtensionBridge
                 classTarget.getQualifiedName()));
     }
 
+    public static BClassTarget newBClassTarget(ClassTarget classTarget) {
+        Package bluejPackage = classTarget.getPackage();
+        Project bluejProject = bluejPackage.getProject();
+
+        return new BClassTarget(new Identifier(bluejProject, bluejPackage,
+                classTarget.getQualifiedName()));
+    }
+
+    public static BDependency newBDependency(Dependency dependency, Type type)
+    {
+        DependentTarget from = dependency.getFrom();
+        DependentTarget to = dependency.getTo();
+        Package bluejPackage = from.getPackage();
+        Project bluejProject = bluejPackage.getProject();
+        String qualifiedNameFrom = bluejPackage.getQualifiedName(from.getIdentifierName());
+        String qualifiedNameTo = bluejPackage.getQualifiedName(to.getIdentifierName());
+
+        return new BDependency(new Identifier(bluejProject, bluejPackage, qualifiedNameFrom),
+                new Identifier(bluejProject, bluejPackage, qualifiedNameTo), type);
+    }
+
     public static void ChangeBClassName(BClass bClass, String newName)
     {
         bClass.nameChanged(newName);
     }
     
-    public static JMenuItem getMenuItem(BlueJ aBluej, Object attachedObject)
+    public static void changeBClassTargetName(BClassTarget bClassTarget, String newName)
+    {
+        bClassTarget.nameChanged(newName);
+    }
+
+    public static void changeBDependencyOriginName(BDependency bDependency, String newOriginName)
+    {
+        bDependency.originNameChanged(newOriginName);
+    }
+
+    public static void changeBDependencyTargetName(BDependency bDependency, String newTargetName)
+    {
+        bDependency.targetNameChanged(newTargetName);
+    }
+
+    public static JMenuItem getMenuItem(BlueJ aBluej, ExtensionMenuObject attachedObject)
     {
         return aBluej.getMenuItem(attachedObject);
     }
 
-    public static void postMenuItem(BlueJ aBluej, Object attachedObject,
+    public static void postMenuItem(BlueJ aBluej, ExtensionMenuObject attachedObject,
         JMenuItem onThisItem)
     {
         aBluej.postMenuItem(attachedObject, onThisItem);
@@ -104,5 +147,11 @@ public final class ExtensionBridge
     public static void clearObjectBench(BProject project) throws ProjectNotOpenException
     {
         project.clearObjectBench();
+    }
+
+    public static void drawExtensionClassTarget(BlueJ bluej, Layer layer,
+            BClassTarget bClassTarget, Graphics2D graphics, int width, int height)
+    {
+        bluej.drawExtensionClassTarget(layer, bClassTarget, graphics, width, height);
     }
 }

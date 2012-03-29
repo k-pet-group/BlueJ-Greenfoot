@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,8 +23,10 @@ package bluej.extensions;
 
 import bluej.compiler.*;
 import bluej.debugmgr.objectbench.*;
+import bluej.extensions.BDependency.Type;
 import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
+import bluej.pkgmgr.dependency.Dependency;
 import bluej.pkgmgr.target.*;
 import java.awt.*;
 import java.io.*;
@@ -349,6 +351,36 @@ public class BPackage
         Package aPkg = packageId.getBluejPackage();
 
         return aPkg.getPath();
+    }
+
+    /**
+     * Returns the dependency with the given <code>origin</code>,
+     * <code>target</code> and <code>type</code>.
+     * 
+     * @param from
+     *            The origin of the dependency.
+     * @param to
+     *            The target of the dependency.
+     * @param type
+     *            The type of the dependency (there may be more than one
+     *            dependencies with the same origin and target but different
+     *            types).
+     * @return The dependency with the given <code>origin</code> and
+     *         <code>target</code> or <code>null</code> if there is no such
+     *         dependency.
+     * @throws ProjectNotOpenException
+     *             if the project this package is part of has been closed by the
+     *             user.
+     * @throws PackageNotFoundException
+     *             if the package has been deleted by the user.
+     */
+    public BDependency getDependency(BClassTarget from, BClassTarget to, Type type)
+            throws ProjectNotOpenException, PackageNotFoundException
+    {
+        Package bluejPackage = packageId.getBluejPackage();
+        Dependency dependency = bluejPackage.getDependency(from.getClassTarget(), to.getClassTarget(), type);
+        
+        return (dependency != null) ? dependency.getBDependency() : null;
     }
 
     /**

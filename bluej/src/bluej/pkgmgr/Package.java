@@ -52,9 +52,11 @@ import bluej.debugger.SourceLocation;
 import bluej.debugmgr.CallHistory;
 import bluej.debugmgr.Invoker;
 import bluej.editor.Editor;
+import bluej.extensions.BDependency;
 import bluej.extensions.BPackage;
 import bluej.extensions.ExtensionBridge;
 import bluej.extensions.event.CompileEvent;
+import bluej.extensions.event.DependencyEvent;
 import bluej.extmgr.ExtensionsManager;
 import bluej.graph.Edge;
 import bluej.graph.Graph;
@@ -506,6 +508,54 @@ public final class Package extends Graph
                 return (Dependency) edge;
             }
         }
+        return null;
+    }
+
+    /**
+     * Returns the {@link Dependency} with the specified <code>origin</code>,
+     * <code>target</code> and <code>type</code> or <code>null</code> if there
+     * is no such dependency.
+     * 
+     * @param origin
+     *            The origin of the dependency.
+     * @param target
+     *            The target of the dependency.
+     * @param type
+     *            The type of the dependency (there may be more than one
+     *            dependencies with the same origin and target but different
+     *            types).
+     * @return The {@link Dependency} with the specified <code>origin</code>,
+     *         <code>target</code> and <code>type</code> or <code>null</code> if
+     *         there is no such dependency.
+     */
+    public Dependency getDependency(DependentTarget origin, DependentTarget target, BDependency.Type type)
+    {
+        List<Dependency> dependencies = new ArrayList<Dependency>();
+
+        switch (type) {
+            case USES :
+                dependencies = usesArrows;
+                break;
+            case IMPLEMENTS :
+            case EXTENDS :
+                dependencies = extendsArrows;
+                break;
+            case UNKNOWN :
+                // If the type of the dependency is UNKNOWN, the requested
+                // dependency does not exist anymore. In this case the method
+                // returns null.
+                return null;
+        }
+
+        for (Dependency dependency : dependencies) {
+            DependentTarget from = dependency.getFrom();
+            DependentTarget to = dependency.getTo();
+
+            if (from.equals(origin) && to.equals(target)) {
+                return dependency;
+            }
+        }
+
         return null;
     }
 
@@ -1542,6 +1592,10 @@ public final class Package extends Graph
 
         from.addDependencyOut(d, recalc);
         to.addDependencyIn(d, recalc);
+
+        // Inform all listeners about the added dependency
+        DependencyEvent event = new DependencyEvent(d, this, DependencyEvent.Type.DEPENDENCY_ADDED);
+        ExtensionsManager.getInstance().delegateEvent(event);
     }
 
     /**
@@ -1774,6 +1828,10 @@ public final class Package extends Graph
         to.removeDependencyIn(d, recalc);
 
         removedSelectableElement(d);
+
+        // Inform all listeners about the removed dependency
+        DependencyEvent event = new DependencyEvent(d, this, DependencyEvent.Type.DEPENDENCY_REMOVED);
+        ExtensionsManager.getInstance().delegateEvent(event);
     }
 
     /**

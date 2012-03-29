@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -78,7 +78,8 @@ public class GraphPainterStdImpl
     }
 
     /**
-     * Paint the edges in 'graph' on 'g'
+     * Paint the edges in 'graph' on 'g'. Edges that are declared as
+     * "not visible" will not be painted.
      * 
      * @param g
      * @param graph
@@ -89,14 +90,17 @@ public class GraphPainterStdImpl
         //Paint the edges
         for (Iterator<? extends Edge> it = graph.getEdges(); it.hasNext();) {
             edge = it.next();
-            paintEdge(g, edge);
+            if (edge.isVisible()) {
+                paintEdge(g, edge);
+            }
         }
     }
 
     /**
      * Paint the vertices in 'graph' on 'g'. If one of the targets to be painted
      * is in the process of drawing a dependency to another class, assign that
-     * class to 'dependency'
+     * class to 'dependency'. Vertices that are declared as "not visible" will
+     * not be painted.
      * 
      * @param g
      * @param graph
@@ -107,7 +111,9 @@ public class GraphPainterStdImpl
     {
         for (Iterator<? extends Vertex> it = graph.getVertices(); it.hasNext();) {
             Vertex vertex = it.next();
-            paintVertex(g, vertex);
+            if (vertex.isVisible()) {
+                paintVertex(g, vertex);
+            }
         }
     }
 

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2011,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -49,8 +49,12 @@ import bluej.debugmgr.objectbench.InvokeListener;
 import bluej.editor.Editor;
 import bluej.editor.EditorManager;
 import bluej.extensions.BClass;
+import bluej.extensions.BClassTarget;
+import bluej.extensions.BDependency;
 import bluej.extensions.ExtensionBridge;
 import bluej.extensions.event.ClassEvent;
+import bluej.extensions.event.ClassTargetEvent;
+import bluej.extmgr.ClassMenuObject;
 import bluej.extmgr.ExtensionsManager;
 import bluej.extmgr.MenuManager;
 import bluej.graph.GraphEditor;
@@ -214,6 +218,7 @@ public class ClassTarget extends DependentTarget
     }
 
     private BClass singleBClass;  // Every Target has none or one BClass
+    private BClassTarget singleBClassTarget; // Every Target has none or one BClassTarget
     
     /**
      * Return the extensions BProject associated with this Project.
@@ -227,6 +232,22 @@ public class ClassTarget extends DependentTarget
         }
           
         return singleBClass;
+    }
+
+    /**
+     * Returns the {@link BClassTarget} associated with this {@link ClassTarget}
+     * . There should be only one {@link BClassTarget} object associated with
+     * each {@link ClassTarget}.
+     * 
+     * @return The {@link BClassTarget} associated with this {@link ClassTarget}.
+     */
+    public synchronized final BClassTarget getBClassTarget()
+    {
+        if (singleBClassTarget == null) {
+            singleBClassTarget = ExtensionBridge.newBClassTarget(this);
+        }
+
+        return singleBClassTarget;
     }
 
 
@@ -340,11 +361,11 @@ public class ClassTarget extends DependentTarget
                 if (editor != null) {
                     editor.reInitBreakpoints();
                 }
-                ClassEvent event = new ClassEvent(ClassEvent.STATE_CHANGED, getBClass(), true);
+                ClassEvent event = new ClassEvent(ClassEvent.STATE_CHANGED, getPackage(), getBClass(), true);
                 ExtensionsManager.getInstance().delegateEvent(event);
             }
             else if (state == S_NORMAL) {
-                ClassEvent event = new ClassEvent(ClassEvent.STATE_CHANGED, getBClass(), false);
+                ClassEvent event = new ClassEvent(ClassEvent.STATE_CHANGED, getPackage(), getBClass(), false);
                 ExtensionsManager.getInstance().delegateEvent(event);
             }
             
@@ -1393,9 +1414,29 @@ public class ClassTarget extends DependentTarget
             setDisplayName(newName);
             updateSize();
             
+            // Update the BClass object
             BClass bClass = getBClass();
             ExtensionBridge.ChangeBClassName(bClass, getQualifiedName());
-            ClassEvent event = new ClassEvent(ClassEvent.CHANGED_NAME, getBClass(), oldName);
+            
+            // Update the BClassTarget object
+            BClassTarget bClassTarget = getBClassTarget();
+            ExtensionBridge.changeBClassTargetName(bClassTarget, getQualifiedName());
+            
+            // Update all BDependency objects related to this target
+            for (Iterator<? extends Dependency> iterator = dependencies(); iterator.hasNext();) {
+                Dependency outgoingDependency = iterator.next();
+                BDependency bDependency = outgoingDependency.getBDependency();
+                ExtensionBridge.changeBDependencyOriginName(bDependency, getQualifiedName());
+            }
+            
+            for (Iterator<? extends Dependency> iterator = dependents(); iterator.hasNext();) {
+                Dependency incomingDependency = iterator.next();
+                BDependency bDependency = incomingDependency.getBDependency();
+                ExtensionBridge.changeBDependencyTargetName(bDependency, getQualifiedName());
+            }
+            
+            // Inform all listeners about the name change
+            ClassEvent event = new ClassEvent(ClassEvent.CHANGED_NAME, getPackage(), getBClass(), oldName);
             ExtensionsManager.getInstance().delegateEvent(event);
 
             return true;
@@ -1481,6 +1522,7 @@ public class ClassTarget extends DependentTarget
      * @param x  the x coordinate for the menu, relative to graph editor
      * @param y  the y coordinate for the menu, relative to graph editor
      */
+    @Override
     public void popupMenu(int x, int y, GraphEditor graphEditor)
     {
         Class<?> cl = null;
@@ -1520,7 +1562,6 @@ public class ClassTarget extends DependentTarget
     /**
      * Creates a popup menu for this class target.
      * 
-     * 
      * @param cl class object associated with this class target
      * @return the created popup menu object
      */
@@ -1552,14 +1593,14 @@ public class ClassTarget extends DependentTarget
         role.createRoleMenuEnd(menu, this, state);
 
         MenuManager menuManager = new MenuManager(menu);
-        menuManager.setAttachedObject(this);
+        menuManager.setAttachedObject(new ClassMenuObject(this));
         menuManager.addExtensionMenu(getPackage().getProject());
 
         return menu;
     }
 
     /**
-     * Description of the Class
+     * Action which creates a test
      */
     public class CreateTestAction extends AbstractAction
     {
@@ -1571,11 +1612,7 @@ public class ClassTarget extends DependentTarget
             putValue(NAME, createTestStr);
         }
 
-        /**
-         * Description of the Method
-         * 
-         * @param e Description of the Parameter
-         */
+        @Override
         public void actionPerformed(ActionEvent e)
         {
             PkgMgrFrame pmf = PkgMgrFrame.findFrame(getPackage());
@@ -1613,6 +1650,7 @@ public class ClassTarget extends DependentTarget
             putValue(NAME, editStr);
         }
 
+        @Override
         public void actionPerformed(ActionEvent e)
         {
             open();
@@ -1629,6 +1667,7 @@ public class ClassTarget extends DependentTarget
             putValue(NAME, compileStr);
         }
 
+        @Override
         public void actionPerformed(ActionEvent e)
         {
             getPackage().compile(ClassTarget.this);
@@ -1645,6 +1684,7 @@ public class ClassTarget extends DependentTarget
             putValue(NAME, removeStr);
         }
 
+        @Override
         public void actionPerformed(ActionEvent e)
         {
             PkgMgrFrame pmf = PkgMgrFrame.findFrame(getPackage());
@@ -1664,6 +1704,7 @@ public class ClassTarget extends DependentTarget
             putValue(NAME, inspectStr);
         }
 
+        @Override
         public void actionPerformed(ActionEvent e)
         {
             if (checkDebuggerState()) {
@@ -1686,6 +1727,7 @@ public class ClassTarget extends DependentTarget
     /**
      * @return Returns the ghostX.
      */
+    @Override
     public int getGhostX()
     {
         return ghostX;
@@ -1694,6 +1736,7 @@ public class ClassTarget extends DependentTarget
     /**
      * @return Returns the ghostX.
      */
+    @Override
     public int getGhostY()
     {
         return ghostY;
@@ -1721,6 +1764,7 @@ public class ClassTarget extends DependentTarget
      * @param deltaX The new ghostPosition value
      * @param deltaY The new ghostPosition value
      */
+    @Override
     public void setGhostPosition(int deltaX, int deltaY)
     {
         this.ghostX = getX() + deltaX;
@@ -1733,6 +1777,7 @@ public class ClassTarget extends DependentTarget
      * @param deltaX The new ghostSize value
      * @param deltaY The new ghostSize value
      */
+    @Override
     public void setGhostSize(int deltaX, int deltaY)
     {
         ghostWidth = Math.max(getWidth() + deltaX, MIN_WIDTH);
@@ -1742,6 +1787,7 @@ public class ClassTarget extends DependentTarget
     /**
      * Set the target's position to its ghost position.
      */
+    @Override
     public void setPositionToGhost()
     {
         super.setPos(ghostX, ghostY);
@@ -1754,6 +1800,7 @@ public class ClassTarget extends DependentTarget
      * 
      * @return The dragging value
      */
+    @Override
     public boolean isDragging()
     {
         return isDragging;
@@ -1765,6 +1812,7 @@ public class ClassTarget extends DependentTarget
      * 
      * @param isDragging The new dragging value
      */
+    @Override
     public void setDragging(boolean isDragging)
     {
         this.isDragging = isDragging;
@@ -1795,12 +1843,23 @@ public class ClassTarget extends DependentTarget
         super.setSize(Math.max(width, MIN_WIDTH), Math.max(height, MIN_HEIGHT));
         setGhostSize(0, 0);
     }
+    
+    @Override
+    public void setVisible(boolean visible)
+    {
+        if (visible != isVisible()) {
+            super.setVisible(visible);
+            
+            // Inform all listeners about the visibility change
+            ClassTargetEvent event = new ClassTargetEvent(this, getPackage(), visible);
+            ExtensionsManager.getInstance().delegateEvent(event);
+        }
+    }
 
     /**
      * Prepares this ClassTarget for removal from a Package. It removes
      * dependency arrows and calls prepareFilesForRemoval() to remove applicable
      * files.
-     *  
      */
     private void prepareForRemoval()
     {
@@ -1855,42 +1914,32 @@ public class ClassTarget extends DependentTarget
         }
     }
 
-    /*
-     * @see bluej.editor.EditorWatcher#generateDoc()
-     */
+    @Override
     public void generateDoc()
     {
         getPackage().generateDocumentation(this);
     }
 
-    /*
-     * @see bluej.graph.GraphElement#remove()
-     */
+    @Override
     public void remove()
     {
         prepareForRemoval();
         getPackage().removeTarget(this);
     }
 
-    /*
-     * @see bluej.graph.Moveable#isMoveable()
-     */
-    /**
-     * Gets the moveable attribute of the ClassTarget object
-     * 
-     * @return The moveable value
-     */
+    @Override
     public boolean isMoveable()
     {
         return isMoveable;
     }
 
-    /*
+    /**
      * Set whether this ClassTarget can be moved by the user (dragged around).
      * This is set false for unit tests which are associated with another class.
      * 
      * @see bluej.graph.Moveable#setIsMoveable(boolean)
      */
+    @Override
     public void setIsMoveable(boolean isMoveable)
     {
         this.isMoveable = isMoveable;
@@ -1899,6 +1948,7 @@ public class ClassTarget extends DependentTarget
     /**
      * perform interactive method call
      */
+    @Override
     public void executeMethod(MethodView mv)
     {
         getPackage().getEditor().raiseMethodCallEvent(this, mv);
@@ -1907,6 +1957,7 @@ public class ClassTarget extends DependentTarget
     /**
      * interactive constructor call
      */
+    @Override
     public void callConstructor(ConstructorView cv)
     {
         getPackage().getEditor().raiseMethodCallEvent(this, cv);
@@ -1945,6 +1996,7 @@ public class ClassTarget extends DependentTarget
     /**
      * Retrieves a property from the editor
      */
+    @Override
     public String getProperty(String key) 
     {
         return (String)properties.get(key);
@@ -1953,6 +2005,7 @@ public class ClassTarget extends DependentTarget
     /**
      * Sets a property for the editor
      */
+    @Override
     public void setProperty(String key, String value) 
     {
         properties.put(key, value);

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,6 +22,8 @@
 package bluej.extensions.event;
 
 import bluej.extensions.BClass;
+import bluej.extensions.BPackage;
+import bluej.pkgmgr.Package;
 
 /**
  * This class encapsulates events which occur on BlueJ classes.<p>
@@ -30,18 +32,20 @@ import bluej.extensions.BClass;
  * 
  * STATE_CHANGED: The compile state changed (either from uncompiled to compiled,
  *                or from compiled to uncompiled)<p>
- * CHANGED_NAME:  The class has changed name.
+ * CHANGED_NAME:  The class has changed name.<p>
+ * REMOVED:       The class has been removed.
  * 
  * 
  * @author Davin McCall
- * @version $Id: ClassEvent.java 6215 2009-03-30 13:28:25Z polle $
  */
 public class ClassEvent implements ExtensionEvent
 {
     public static final int STATE_CHANGED = 0;
     public static final int CHANGED_NAME = 1;
+    public static final int REMOVED = 2;
     
     private int eventId;
+    private Package bluejPackage;
     private BClass bClass;
     private boolean isCompiled;
     private String oldName;
@@ -51,9 +55,10 @@ public class ClassEvent implements ExtensionEvent
      * @param eventId    The event identifier (STATE_CHANGED)
      * @param isCompiled  Whether the class is compiled or not
      */
-    public ClassEvent(int eventId, BClass bClass, boolean isCompiled)
+    public ClassEvent(int eventId, Package bluejPackage, BClass bClass, boolean isCompiled)
     {
         this.eventId = eventId;
+        this.bluejPackage = bluejPackage;
         this.isCompiled = isCompiled;
         this.bClass = bClass;
     }
@@ -63,9 +68,10 @@ public class ClassEvent implements ExtensionEvent
      * @param eventId  The event identifier (CHANGED_NAME)
      * @param bClass   The class which was renamed (refers to the new name)
      */
-    public ClassEvent(int eventId, BClass bClass, String oldName)
+    public ClassEvent(int eventId, Package bluejPackage, BClass bClass, String oldName)
     {
         this.eventId = eventId;
+        this.bluejPackage = bluejPackage;
         this.bClass = bClass;
         this.oldName = oldName;
     }
@@ -87,6 +93,16 @@ public class ClassEvent implements ExtensionEvent
         return isCompiled;
     }
     
+    /**
+     * Returns the package to which the class that caused this event belongs.
+     * 
+     * @return The package to which the class that caused this event belongs.
+     */
+    public BPackage getPackage()
+    {
+        return bluejPackage.getBPackage();
+    }
+
     /**
      * Get the BClass object identifying the class on which the event
      * occurred.

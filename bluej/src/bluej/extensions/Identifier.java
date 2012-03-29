@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,9 +25,11 @@ package bluej.extensions;
 import java.awt.EventQueue;
 import java.io.File;
 
+import bluej.extensions.BDependency.Type;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
+import bluej.pkgmgr.dependency.Dependency;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.Target;
 import bluej.views.View;
@@ -217,6 +219,38 @@ class Identifier
         return (ClassTarget) aTarget;
     }
 
+    /**
+     * Returns the {@link Dependency} with the origin represented by this
+     * {@link Identifier} and the target represented by the specified
+     * {@link Identifier}.
+     * 
+     * @param targetId
+     *            The {@link Identifier} representing the target of the
+     *            dependency.
+     * @param type
+     *            The type of the dependency (there may be more than one
+     *            dependencies with the same origin and target but different
+     *            types).
+     * @return The {@link Dependency} with the origin represented by this
+     *         {@link Identifier} and the target represented by the specified
+     *         {@link Identifier} or <code>null</code> if there is no such
+     *         dependency.
+     * @throws ProjectNotOpenException
+     * @throws PackageNotFoundException
+     */
+    Dependency getDependency(Identifier targetId, Type type) throws ProjectNotOpenException,
+            PackageNotFoundException
+    {
+        ClassTarget origin = getClassTarget();
+        ClassTarget target = targetId.getClassTarget();
+
+        if ((origin != null) && (target != null)) {
+            Package bluejPackage = getBluejPackage();
+            return bluejPackage.getDependency(origin, target, type);
+        }
+
+        return null;
+    }
 
     /**
      * Returns the view associated with this Class
@@ -264,20 +298,35 @@ class Identifier
         }
         
         Identifier other = (Identifier) obj;
- 
-        if (! (projectId != null ? projectId.equals(other.projectId) : other.projectId == null)) {
-            return false;
-        }
-        
-        if (! (packageId != null ? packageId.equals(other.packageId) : other.packageId == null)) {
-            return false;
-        }
-        
-        if (! (qualifiedClassName != null ? qualifiedClassName.equals(other.qualifiedClassName)
+        if (equalsIgnoreClass(other)
+                && !(qualifiedClassName != null ? qualifiedClassName.equals(other.qualifiedClassName)
                 : other.qualifiedClassName == null)) {
             return false;
         }
         
+        return true;
+    }
+
+    /**
+     * Compares the given {@link Identifier} with this one, ignoring the
+     * represented class.
+     * 
+     * @param other
+     *            The {@link Identifier} to compare.
+     * @return <code>true</code> if the specified {@link Identifier} has the
+     *         same project and package as this one, <code>false</code>
+     *         otherwise.
+     */
+    boolean equalsIgnoreClass(Identifier other)
+    {
+        if (!(projectId != null ? projectId.equals(other.projectId) : other.projectId == null)) {
+            return false;
+        }
+
+        if (!(packageId != null ? packageId.equals(other.packageId) : other.packageId == null)) {
+            return false;
+        }
+
         return true;
     }
 }

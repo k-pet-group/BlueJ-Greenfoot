@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2011,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -64,6 +64,7 @@ import bluej.debugmgr.ResultWatcher;
 import bluej.extensions.BObject;
 import bluej.extensions.ExtensionBridge;
 import bluej.extmgr.MenuManager;
+import bluej.extmgr.ObjectMenuObject;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.prefmgr.PrefMgr;
@@ -196,7 +197,6 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
         ob.setSelectedObject(this);
     }
 
-    
     public Package getPackage()
     {
         return pkg;
@@ -225,6 +225,7 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
      * type which should be written in the shell file. It is not necessarily the
      * same as the actual (dynamic) type of the object.
      */
+    @Override
     public JavaType getGenType()
     {
         return iType;
@@ -232,11 +233,13 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
     
     // --------- NamedValue interface --------------
     
+    @Override
     public boolean isFinal()
     {
         return true;
     }
     
+    @Override
     public boolean isInitialized()
     {
         return true;
@@ -340,6 +343,7 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
         menu.add(item = new JMenuItem(inspect));
         item.addActionListener(
             new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) { inspectObject(); }
             });
         item.setFont(PrefMgr.getStandoutMenuFont());
@@ -354,7 +358,7 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
         item.setForeground(envOpColour);
 
         MenuManager menuManager = new MenuManager (menu); 
-        menuManager.setAttachedObject(this);
+        menuManager.setAttachedObject(new ObjectMenuObject(this));
         menuManager.addExtensionMenu(pkg.getProject());
 
         add(menu);
@@ -564,26 +568,31 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
         return classVector;
     }
 
+    @Override
     public Dimension getMinimumSize()
     {
         return new Dimension(WIDTH, HEIGHT);
     }
 
+    @Override
     public Dimension getPreferredSize()
     {
         return new Dimension(WIDTH, HEIGHT);
     }
 
+    @Override
     public Dimension getMaximumSize()
     {
         return new Dimension(WIDTH, HEIGHT);
     }
 
+    @Override
     public String getName()
     {
         return instanceName;
     }
 
+    @Override
     public void setName(String newName)
     {
         instanceName = newName;
@@ -595,6 +604,7 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
     }
 
 
+    @Override
     public void paintComponent(Graphics g)
     {
         super.paintComponent(g);            //paint background
@@ -663,6 +673,7 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
      * menu. If it was a double click, inspect the object. If it was a normal mouse click,
      * insert it into a parameter field (if any).
      */
+    @Override
     protected void processMouseEvent(MouseEvent evt)
     {
         super.processMouseEvent(evt);
@@ -747,6 +758,7 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
      * create a watcher to watch out for the result coming back, do the
      * actual invocation, and update open object viewers after the call.
      */
+    @Override
     public void executeMethod(final MethodView method)
     {
         ResultWatcher watcher = null;
@@ -756,17 +768,20 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
         watcher = new ResultWatcher() {
             private ExpressionInformation expressionInformation = new ExpressionInformation(method,getName(),obj.getGenType());
             
+            @Override
             public void beginCompile()
             {
                 pmf.setWaitCursor(true);
             }
             
+            @Override
             public void beginExecution(InvokerRecord ir)
             {
                 BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, ir);
                 pmf.setWaitCursor(false);
             }
             
+            @Override
             public void putResult(DebuggerObject result, String name, InvokerRecord ir)
             {
                 ExecutionEvent executionEvent = new ExecutionEvent(pkg, obj.getClassName(), instanceName);
@@ -787,11 +802,13 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
                 }
             }
             
+            @Override
             public void putError(String msg, InvokerRecord ir)
             {
                 pmf.setWaitCursor(false);
             }
             
+            @Override
             public void putException(ExceptionDescription exception, InvokerRecord ir)
             {
                 ExecutionEvent executionEvent = new ExecutionEvent(pkg, obj.getClassName(), instanceName);
@@ -804,6 +821,7 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
                 pkg.exceptionMessage(exception);
             }
             
+            @Override
             public void putVMTerminated(InvokerRecord ir)
             {
                 ExecutionEvent executionEvent = new ExecutionEvent(pkg, obj.getClassName(), instanceName);

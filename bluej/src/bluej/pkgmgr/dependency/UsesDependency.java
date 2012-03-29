@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,6 +21,7 @@
  */
 package bluej.pkgmgr.dependency;
 
+import bluej.extensions.BDependency.Type;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.target.*;
 
@@ -31,13 +32,13 @@ import java.awt.*;
  * A dependency between two targets in a package
  *
  * @author  Michael Kolling
- * @version $Id: UsesDependency.java 7807 2010-06-28 05:41:28Z davmac $
+ * @version $Id: UsesDependency.java 9624 2012-03-29 17:04:54Z davmac $
  */
 public class UsesDependency extends Dependency
 {
     private int sourceX, sourceY, destX, destY;
     private boolean startTop, endLeft;
-    private boolean flag;	// flag to mark some dependencies
+    private boolean flag;    // flag to mark some dependencies
 
     public UsesDependency(Package pkg, DependentTarget from, DependentTarget to)
     {
@@ -213,5 +214,11 @@ public class UsesDependency extends Dependency
     public boolean isResizable()
     {
         return false;
+    }
+
+    @Override
+    public Type getType()
+    {
+        return Type.USES;
     }
 }

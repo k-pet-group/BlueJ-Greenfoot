@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -169,6 +169,15 @@ public class BConstructor
         return new BObject(wrapper);
     }
 
+    /**
+     * Returns the modifier of this constructor. The
+     * {@link java.lang.reflect.Modifier} class can be used to decode the
+     * modifiers.
+     */
+    public int getModifiers()
+    {
+        return bluej_view.getModifiers();
+    }
 
     /**
      *  Description of the Method

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -574,6 +574,25 @@ public class BClass
         return null;
     }
 
+
+    /**
+     * Returns the class target of this class. May return <code>null</code> if
+     * the class target is no longer valid.
+     * 
+     * @return The class target of this class or <code>null</code> if there is
+     *         no such class target.
+     * @throws ProjectNotOpenException
+     *             if the project to which this class belongs has been closed by
+     *             the user.
+     * @throws PackageNotFoundException
+     *             if the package to which this class belongs has been deleted
+     *             by the user.
+     */
+    public BClassTarget getClassTarget() throws ProjectNotOpenException, PackageNotFoundException
+    {
+        ClassTarget classTarget = classId.getClassTarget();
+        return (classTarget != null) ? classTarget.getBClassTarget() : null;
+    }
 
     /**
      * Returns this class's .class file (or null, if the class no longer exists in the project).

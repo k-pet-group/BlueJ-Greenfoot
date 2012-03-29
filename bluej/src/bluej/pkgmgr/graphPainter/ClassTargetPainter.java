@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,10 +29,13 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 
 import bluej.Config;
+import bluej.extensions.painter.ExtensionClassTargetPainter;
+import bluej.extmgr.ExtensionsManager;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.Target;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Utility;
+
 /**
  * Paints a ClassTarget
  * 
@@ -40,6 +43,16 @@ import bluej.utility.Utility;
  */
 public class ClassTargetPainter
 {
+    /**
+     * The constants in this enumeration are used to define which method of the
+     * {@link ExtensionClassTargetPainter} shall be called.
+     * 
+     * @author Simon Gerlach
+     */
+    public enum Layer {
+        BACKGROUND, FOREGROUND;
+    }
+
     private static final int HANDLE_SIZE = 20;
     private static final String STEREOTYPE_OPEN = "<<";
     private static final String STEREOTYPE_CLOSE = ">>";
@@ -108,6 +121,8 @@ public class ClassTargetPainter
      */
     private void drawUMLStyle(Graphics2D g, ClassTarget classTarget, boolean hasFocus, int width, int height)
     {
+        ExtensionsManager extensionsManager = ExtensionsManager.getInstance();
+
         // get the Stereotype
         String stereotype = classTarget.getRole().getStereotypeLabel();
 
@@ -131,12 +146,31 @@ public class ClassTargetPainter
                 - 2 * TEXT_BORDER, TEXT_HEIGHT);
         currentTextPosY += TEXT_HEIGHT;
 
-        drawWarnings(g, classTarget, width, height);
-
         // draw line beneath the stereotype and indentifiername. The UML-style
         g.setColor(borderColor);
         g.drawLine(0, currentTextPosY, width, currentTextPosY);
         
+        // Ask extensions to draw their background of the class target
+        int extensionGraphicsX = 1;
+        int extensionGraphicsY = currentTextPosY + 1;
+        int extensionGraphicsWidth = width - 1;
+        int extensionGraphicsHeight = height - currentTextPosY - 1;
+
+        Graphics2D backgroundGraphics = (Graphics2D) g.create(extensionGraphicsX,
+            extensionGraphicsY, extensionGraphicsWidth, extensionGraphicsHeight);
+        extensionsManager.drawExtensionClassTarget(Layer.BACKGROUND, classTarget.getBClassTarget(),
+            backgroundGraphics, extensionGraphicsWidth, extensionGraphicsHeight);
+
+        // Ask extensions to draw their foreground of the class target
+        Graphics2D foregroundGraphics = (Graphics2D) g.create(extensionGraphicsX,
+            extensionGraphicsY, extensionGraphicsWidth, extensionGraphicsHeight);
+        extensionsManager.drawExtensionClassTarget(Layer.FOREGROUND, classTarget.getBClassTarget(),
+            foregroundGraphics, extensionGraphicsWidth, extensionGraphicsHeight);
+
+        // Last, draw the warnings if something is wrong with the class
+        drawWarnings(g, classTarget, width, height);
+
+        g.setColor(borderColor);
         boolean drawSelected = classTarget.isSelected() && hasFocus;
         drawBorder(g, drawSelected, width, height);
     }

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,6 +21,7 @@
  */
 package bluej.extmgr;
 
+import java.awt.Graphics2D;
 import java.io.File;
 import java.util.*;
 
@@ -28,9 +29,12 @@ import javax.swing.JFrame;
 
 import bluej.*;
 import bluej.debugmgr.ExecutionEvent;
+import bluej.extensions.BClassTarget;
 import bluej.extensions.event.*;
+import bluej.extensions.painter.ExtensionClassTargetPainter;
 import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
+import bluej.pkgmgr.graphPainter.ClassTargetPainter.Layer;
 import bluej.utility.Debug;
 import javax.swing.*;
 
@@ -330,7 +334,7 @@ public class ExtensionsManager
     /**
      * Returns a List of menus currently provided by extensions.
      */
-    LinkedList<JMenuItem> getMenuItems(Object attachedObject, Project onThisProject)
+    LinkedList<JMenuItem> getMenuItems(ExtensionMenuObject attachedObject, Project onThisProject)
     {
         LinkedList<JMenuItem> menuItems = new LinkedList<JMenuItem>();
 
@@ -387,6 +391,35 @@ public class ExtensionsManager
             ExecutionEvent exevent = (ExecutionEvent) arg;
             delegateEvent(new InvocationEvent(exevent));
             return;
+        }
+    }
+    
+    /**
+     * Calls the extension to draw its representation of a class target.
+     * 
+     * @param layer
+     *            The layer of the drawing which causes the different methods of
+     *            the {@link ExtensionClassTargetPainter} instance to be called.
+     * @param bClassTarget
+     *            The class target that will be painted.
+     * @param graphics
+     *            The {@link Graphics2D} instance to draw on.
+     * @param width
+     *            The width of the area to paint.
+     * @param height
+     *            The height of the area to paint.
+     */
+    public void drawExtensionClassTarget(Layer layer, BClassTarget bClassTarget,
+            Graphics2D graphics, int width, int height)
+    {
+        synchronized (extensions) {
+            for (ExtensionWrapper extension : extensions) {
+                if (!extension.isValid()) {
+                    continue;
+                }
+
+                extension.safeDrawExtensionClassTarget(layer, bClassTarget, graphics, width, height);
+            }
         }
     }
 }

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2011,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -94,6 +94,8 @@ import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.debugmgr.texteval.TextEvalArea;
 import bluej.extmgr.ExtensionsManager;
 import bluej.extmgr.MenuManager;
+import bluej.extmgr.ToolsMenuObject;
+import bluej.extmgr.ViewMenuObject;
 import bluej.groupwork.actions.CheckoutAction;
 import bluej.groupwork.actions.TeamActionGroup;
 import bluej.groupwork.ui.ActivityIndicator;
@@ -204,7 +206,8 @@ public class PkgMgrFrame extends JFrame
     private JMenuBar menubar = null;
     private JMenu recentProjectsMenu;
     private JMenu testingMenu;
-    private MenuManager menuManager;
+    private MenuManager toolsMenuManager;
+    private MenuManager viewMenuManager;
     
     private JMenu teamMenu;
     private JMenuItem shareProjectMenuItem;
@@ -732,8 +735,11 @@ public class PkgMgrFrame extends JFrame
             
             updateTextEvalBackground(isEmptyFrame());
                     
-            this.menuManager.setAttachedObject(pkg);
-            this.menuManager.addExtensionMenu(pkg.getProject());
+            this.toolsMenuManager.setAttachedObject(new ToolsMenuObject(pkg));
+            this.toolsMenuManager.addExtensionMenu(pkg.getProject());
+
+            this.viewMenuManager.setAttachedObject(new ViewMenuObject(pkg));
+            this.viewMenuManager.addExtensionMenu(pkg.getProject());
         
             teamActions = pkg.getProject().getTeamActions();
             resetTeamActions();             
@@ -811,7 +817,8 @@ public class PkgMgrFrame extends JFrame
             classScroller.setBorder(Config.normalBorder);
             editor.removeMouseListener(this);
             editor.removeFocusListener(this);
-            this.menuManager.setAttachedObject(pkg);
+            this.toolsMenuManager.setAttachedObject(new ToolsMenuObject(pkg));
+            this.viewMenuManager.setAttachedObject(new ViewMenuObject(pkg));
             
             getObjectBench().removeAllObjects(getProject().getUniqueId());
             clearTextEval();
@@ -1426,7 +1433,8 @@ public class PkgMgrFrame extends JFrame
                 updateRecentProjects();
                 enableFunctions(false); // changes menu items
                 updateWindowTitle();
-                menuManager.addExtensionMenu(null);
+                toolsMenuManager.addExtensionMenu(null);
+                viewMenuManager.addExtensionMenu(null);
             }
             else { // all frames gone, lets quit
                 bluej.Main.doQuit();
@@ -2998,13 +3006,13 @@ public class PkgMgrFrame extends JFrame
                 createMenuItem(PreferencesAction.getInstance(), menu);
             }
 
-            // Create the menu manager that looks after extension menus
-            menuManager = new MenuManager(menu.getPopupMenu());
+            // Create the menu manager that looks after extension tools menus
+            toolsMenuManager = new MenuManager(menu.getPopupMenu());
 
-            // If this is the first frame create the extension menu now.
+            // If this is the first frame create the extension tools menu now.
             // (Otherwise, it will be created during project open.)
             if (frames.size() <= 1)
-                menuManager.addExtensionMenu(null);
+                toolsMenuManager.addExtensionMenu(null);
         }
 
         menu = new JMenu(Config.getString("menu.view"));
@@ -3024,6 +3032,15 @@ public class PkgMgrFrame extends JFrame
 
             showTestResultsItem = createCheckboxMenuItem(ShowTestResultsAction.getInstance(), menu, false);
             testItems.add(showTestResultsItem);
+
+            // Create the menu manager that looks after extension view menus
+            viewMenuManager = new MenuManager(menu.getPopupMenu());
+
+            // If this is the first frame create the extension view menu now.
+            // (Otherwise, it will be created during project open.)
+            if (frames.size() <= 1) {
+                viewMenuManager.addExtensionMenu(null);
+            }
         }
 
         menu = new JMenu(Config.getString("menu.help"));
@@ -3211,6 +3228,7 @@ public class PkgMgrFrame extends JFrame
         public URLDisplayer()
         {}
 
+        @Override
         public void actionPerformed(ActionEvent evt)
         {
             String url = evt.getActionCommand();
@@ -3224,6 +3242,7 @@ public class PkgMgrFrame extends JFrame
         public ProjectOpener()
         {}
 
+        @Override
         public void actionPerformed(ActionEvent evt)
         {
             String project = evt.getActionCommand();
