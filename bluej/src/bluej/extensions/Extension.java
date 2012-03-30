@@ -50,7 +50,7 @@ public abstract class Extension
      * The minor version number of the Extension API.
      * Provided so that extensions can check for compatibility.
      */
-    public int VERSION_MINOR = 8;
+    public int VERSION_MINOR = 9;
 
     /**
      * Determine whether this extension is compatible with a particular version
