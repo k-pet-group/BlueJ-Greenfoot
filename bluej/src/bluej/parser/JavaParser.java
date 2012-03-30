@@ -555,14 +555,14 @@ public class JavaParser
         || token.getType() == JavaTokenTypes.LITERAL_double;
     }
 
-    public static int TYPEDEF_CLASS = 0;
-    public static int TYPEDEF_INTERFACE = 1;
-    public static int TYPEDEF_ENUM = 2;
-    public static int TYPEDEF_ANNOTATION = 3;
+    public static final int TYPEDEF_CLASS = 0;
+    public static final int TYPEDEF_INTERFACE = 1;
+    public static final int TYPEDEF_ENUM = 2;
+    public static final int TYPEDEF_ANNOTATION = 3;
     /** looks like a type definition, but has an error */
-    public static int TYPEDEF_ERROR = 4;
+    public static final int TYPEDEF_ERROR = 4;
     /** doesn't parse as a type definition at all */
-    public static int TYPEDEF_EPIC_FAIL = 5;
+    public static final int TYPEDEF_EPIC_FAIL = 5;
 
     /**
      * Get the next token from the token stream.
