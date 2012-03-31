@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -42,6 +42,7 @@ import java.util.jar.JarFile;
  * various miscellaneous settings
  *
  * @author  Andrew Patterson
+ * @version $Id: MiscPrefPanel.java 9628 2012-03-31 08:14:36Z neil $
  */
 public class MiscPrefPanel extends JPanel 
                            implements PrefPanelListener, ItemListener, ActionListener
@@ -153,7 +154,7 @@ public class MiscPrefPanel extends JPanel
             
             playerNamePanel.add(new JLabel(Config.getString("playername.dialog.help")));
             
-            playerNameField = new JTextField(Config.getPropString("extensions.rmiextension.RMIExtension.settings.greenfoot.player.name", "Player1"), 20);
+            playerNameField = new JTextField(Config.getPropString("extensions.rmiextension.RMIExtension.settings.greenfoot.player.name", "Player"), 20);
             playerNameField.setMaximumSize(playerNameField.getPreferredSize());
             JPanel namePanel = new JPanel();
             namePanel.setLayout(new BoxLayout(namePanel, BoxLayout.X_AXIS));
@@ -270,7 +271,7 @@ public class MiscPrefPanel extends JPanel
         Config.putPropString(jdkURLPropertyName, jdkURL);
 
         if (Config.isGreenfoot()) {
-            if (playerNameField.getText().length() > 0 && !playerNameField.getText().matches(".*\\s.*")) {
+            if (!playerNameField.getText().matches(".*\\s.*")) {
                 Config.putPropString("extensions.rmiextension.RMIExtension.settings.greenfoot.player.name", playerNameField.getText());
             }
         }
