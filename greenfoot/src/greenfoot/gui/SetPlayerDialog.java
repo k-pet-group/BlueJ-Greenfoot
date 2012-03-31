@@ -161,7 +161,7 @@ public class SetPlayerDialog extends EscapeDialog implements DocumentListener
     private void checkValid()
     {
         String name = playerNameTextField.getText();
-        boolean invalid = name == null || name.equals("") || name.matches(".*\\s.*");
+        boolean invalid = name.matches(".*\\s.*");
         errorMsgLabel.setVisible(invalid);
         okButton.setEnabled(!invalid);
     }
