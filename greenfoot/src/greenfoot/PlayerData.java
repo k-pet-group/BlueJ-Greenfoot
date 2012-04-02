@@ -26,22 +26,38 @@ import greenfoot.util.GreenfootUtil;
 import java.util.List;
 
 /**
- * The PlayerData class allows you to store and load data for Greenfoot scenarios,
- * even when the scenario has been uploaded to the Greenfoot website.
- * 
- * <p>You should always check if storage is currently available by PlayerData.isStorageAvailable().
- * Storage is not always available, and in particular, if the user is not logged in to
- * the Greenfoot website (a very common case), storage will not be available.</p>
- * 
- * <p>When storage is available, you can use PlayerData.getMyData() to get the data for the
- * current user, or PlayerData.getTop(10) or PlayerData.getNearby(10) to get items to show
- * on a scoreboard.  These give you back PlayerData items, where you can get the players' image or
- * get/set the current data.</p>
- * 
- * <p>A player's data consists of a score integer, 10 general integers and 5 strings.  getTop and getNearby
- * use the score for sorting.  You are free to use the general integers and strings as you
- * need for your scenario: things like which level the player reached last time they
- * were playing.</p>
+ * <p>The PlayerData class can be used to store data permanently on a server, and
+ * to share this data between different users, when the scenario runs on the
+ * Greenfoot web site. This can be used to implement shared high score tables
+ * or other examples of shared data.</p>
+ *
+ * <p>Storage is only available when the current user is logged in on the Greenfoot
+ * site, so for some users storage will not be available. Always use
+ * PlayerData.isStorageAvailable() to check before accessing the player data.</p>
+ *
+ * <p>A typical code snippet for storing a high score is as follows:</p>
+ *
+ * <pre>
+ *     if (PlayerData.isStorageAvailable()) {
+ *         PlayerData myData = PlayerData.getMyData();
+ *         if (newScore > myData.getScore()) {
+ *             myData.setScore(newScore);
+ *             myData.store();  // write back to server
+ *         }
+ *     }
+ * </pre>
+ * <p>Methods to retrieve user data include getting data for the current user
+ * (getMyData()), the top scorers (e.g. getTop(10) for the top 10), and data
+ * for users with scores near my own score (e.g. getNearby(10)).</p>
+ *
+ * <p>The data that can be stored for each player consists of a score, 10
+ * additional general purpose integers, and 10 strings. In addition, the user
+ * name and user's image can be retrieved from the player data.</p>
+ *
+ * <p>For testing purposes, while running within Greenfoot (not on the web site),
+ * the player name can be set in the preferences (CTRL-SHIFT-P / CMD-SHIFT-P).
+ * This allows to simulate different players during development. When running
+ * on the web site, the player name is the user name used to log in to the site.</p>
  * 
  * @author Neil Brown
  * @version 2.3
@@ -81,7 +97,7 @@ public class PlayerData
     }
     
     /**
-     * Gets the username of the user that this storage belongs to.
+     * Get the username of the user that this storage belongs to.
      */
     public String getUserName()
     {
@@ -89,26 +105,26 @@ public class PlayerData
     }
     
     /**
-     * Gets the value of the int at the given index (0 to NUM_INTS-1, inclusive)
+     * Get the value of the int at the given index (0 to NUM_INTS-1, inclusive).
      * <p>
-     * Default value is zero.
+     * The default value is zero.
      */
     public int getInt(int index) { return ints[index]; }
     
     /**
-     * Gets the value of the String at the given index (0 to NUM_STRINGS-1, inclusive)
+     * Get the value of the String at the given index (0 to NUM_STRINGS-1, inclusive).
      * <p>
-     * Default value is the empty String.
+     * The default value is the empty String.
      */
     public String getString(int index) { return strings[index] == null ? "" : strings[index]; }
     
     /**
-     * Sets the value of the int at the given index (0 to NUM_INTS-1, inclusive)
+     * Set the value of the int at the given index (0 to NUM_INTS-1, inclusive).
      */
     public void setInt(int index, int value) { ints[index] = value; }
 
     /**
-     * Gets the value of the String at the given index (0 to NUM_STRINGS-1, inclusive)
+     * Get the value of the String at the given index (0 to NUM_STRINGS-1, inclusive).
      * Passing null is treated as a blank string.
      */
     public void setString(int index, String value)
@@ -124,12 +140,12 @@ public class PlayerData
     }
     
     /**
-     * Gets the player's score
+     * Get the player's score.
      */
     public int getScore() { return score; }
     
     /**
-     * Sets the player's score.
+     * Set the player's score.
      * <p>
      * Note that this really does set the player's score.  If you want to record only the player's highest
      * score, you must code that yourself, using something like:
@@ -144,7 +160,7 @@ public class PlayerData
     public void setScore(int score) { this.score = score; }
     
     /**
-     * Gets the players overall rank for this scenario.
+     * Get the players overall rank for this scenario.
      * <p>
      * The player with the highest score will return 1, the player with the second highest score
      * will return 2, and so on.  Players with equal scores will get equal ranks,
@@ -152,17 +168,18 @@ public class PlayerData
      * in descending order (highest score first).  If your scores need to be lowest-first,
      * one trick is to store them as negative numbers.
      * <p>
-     * If the rank is unavailable (e.g. because the data hasn't been stored yet), this function will return -1
+     * If the rank is unavailable (e.g. because the data hasn't been stored yet), this function will return -1.
      */
     public int getRank() { return rank; }
     
     /**
-     * A boolean indicating whether storage is available.
+     * Indicate whether storage is available.
      * <p>
-     * Storage is unavailable if it is an applet outside the Greenfoot website, or a stand-alone application,
+     * Storage is unavailable if the scenario is run as an applet outside the Greenfoot website,
+     * or as a stand-alone application,
      * or if the user is not logged in to the Greenfoot website.  This last case is very common,
      * so you must check this function before attempting to use the other static storage functions.
-     * If this function returns false, your scenario must proceed without using storage.
+     * If this function returns false, your scenario should proceed without using storage.
      */
     public static boolean isStorageAvailable()
     {
@@ -172,9 +189,9 @@ public class PlayerData
     }
     
     /**
-     * Gets the data stored for the current user.
+     * Get the data stored for the current user.
      * 
-     * Returns null if:
+     * This method returns null if:
      * <ul>
      * <li>there is a problem reading the local file (for local scenarios), or</li>
      * <li>there is a problem connecting to the server (for scenarios on the greenfoot.org site), or</li>
@@ -191,8 +208,9 @@ public class PlayerData
     }
     
     /**
-     * Stores the data.
+     * Store the data to the server.
      * <p>
+     * You can only store data for the current user (that is, data retrieved using getMyData).
      * If you try to store data for any user other than the current user, it is guaranteed to fail.
      * 
      * @return true if stored successfully, false if there was a problem.
@@ -211,7 +229,7 @@ public class PlayerData
     }
     
     /**
-     * Gets a sorted list of the PlayerData items for this scenario, starting at the top.
+     * Get a sorted list of the PlayerData items for this scenario, starting at the top.
      * 
      * <p>This will return one PlayerData item per user, and it will be sorted in descending order by the score
      * (i.e. the return of getScore()).  The parameter allows you to specify a limit
@@ -242,7 +260,7 @@ public class PlayerData
     }
     
     /**
-     * Gets a sorted list of the PlayerData items for this scenario surrounding the current user.
+     * Get a sorted list of the PlayerData items for this scenario surrounding the current user.
      * 
      * <p>This will be one item per user, and it will be sorted in descending order by the score
      * (i.e. the return of getScore()).  The parameter allows you to specify a limit
@@ -279,12 +297,12 @@ public class PlayerData
     }
     
     /**
-     * Returns a 50x50 image of the user.
+     * Return an image of the user. The image size is 50x50 pixels.
      * <p>
      * On the Greenfoot website, this is their profile picture. 
-     * If running locally, always returns a dummy image, with their username drawn on the image.
+     * If running locally, this method returns a dummy image with the username drawn on the image.
      * 
-     * <p>Returns null if:
+     * <p>Return null if:
      * <ul>
      * <li>there is a problem reading the local file (for local scenarios), or</li>
      * <li>there is a problem connecting to the server (for scenarios on the greenfoot.org site), or</li>
@@ -292,7 +310,7 @@ public class PlayerData
      * </ul>
      * The last case is very common, so you should always be ready to handle a null return from this function.</p>
      * 
-     * @return a 50x50 GreenfootImage, or null if there was a problem accessing the image
+     * @return A 50x50 pixel GreenfootImage, or null if there was a problem accessing the image
      */
     public GreenfootImage getUserImage()
     {
