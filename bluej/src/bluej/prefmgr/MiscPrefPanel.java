@@ -42,7 +42,7 @@ import java.util.jar.JarFile;
  * various miscellaneous settings
  *
  * @author  Andrew Patterson
- * @version $Id: MiscPrefPanel.java 9634 2012-04-02 11:15:11Z nccb $
+ * @version $Id: MiscPrefPanel.java 9636 2012-04-02 11:26:31Z nccb $
  */
 public class MiscPrefPanel extends JPanel 
                            implements PrefPanelListener, ItemListener, ActionListener
@@ -275,9 +275,7 @@ public class MiscPrefPanel extends JPanel
         Config.putPropString(jdkURLPropertyName, jdkURL);
 
         if (Config.isGreenfoot()) {
-            if (!playerNameField.getText().matches(".*\\s.*")) {
-                Config.putPropString("extensions.rmiextension.RMIExtension.settings.greenfoot.player.name", playerNameField.getText());
-            }
+            Config.putPropString("extensions.rmiextension.RMIExtension.settings.greenfoot.player.name", playerNameField.getText());
         }
         
         if(!Config.isGreenfoot()) {
