@@ -180,6 +180,17 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
     {
         System.err.println(messageText);
     }
+    
+    /**
+     * Closes the connection (well, silently drops it), but allows
+     * a subsequent connection attempt
+     */
+    private void closeConnection(Exception e)
+    {
+        e.printStackTrace();
+        socket = null;
+        failedLastConnection = false;
+    }
 
     @Override
     public boolean isStorageSupported()
@@ -191,22 +202,34 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
         }
         catch (GreenfootStorageException e)
         {
+            // Let the user know why it didn't connect.  This will go to the Java console,
+            // which is only shown if the user has specifically turned it on:
+            e.printStackTrace();
             return false;
         }
     }
     
+    /**
+     * Tries to connect to the server, if not already connected.
+     * 
+     * If it returns without throwing an exception, you can assume you are connected.
+     * 
+     * @throws GreenfootStorageException if there is a problem
+     */
     private void ensureStorageConnected() throws GreenfootStorageException
     {
         if (socket != null && socket.isConnected())
             return; //Already connected
         
-        if (socket == null && failedLastConnection)
-            throw new GreenfootStorageException("Already failed to connect to storage server on recent attempt");
+        if ((socket == null || !socket.isConnected()) && failedLastConnection)
+            throw new GreenfootStorageException("Already failed to connect to storage server on last attempt");
             // We don't continually try to reconnect -- probably a firewall blocked us
         
         if (!storageStandalone)
             throw new GreenfootStorageException("Standalone storage not supported");
             // This means the gallery didn't give us the go-ahead via an applet param
+        
+        System.err.println("Attempting to reconnect to storage server");
         
         int userId;
         try
@@ -323,19 +346,19 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
         }
         catch (IOException e)
         {
-            socket = null;
+            closeConnection(e);
             //throw new GreenfootStorageException("Error communicating with server: " + e.getMessage());
             return null;
         }
         catch (BufferUnderflowException e)
         {
-            socket = null;
+            closeConnection(e);
             //throw new GreenfootStorageException("Server sent aborted message");
             return null;
         }
         catch (GreenfootStorageException e)
         {
-            socket = null;
+            closeConnection(e);
             return null;
         }
     }
@@ -428,7 +451,7 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
             byte code = buf.get();
             if (code != 0)
             {
-                socket = null;
+                // Connection will be closed in catch block beneath:
                 throw new GreenfootStorageException("Error storing data, code: " + Byte.toString(code));
             }
             
@@ -436,19 +459,19 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
         }
         catch (IOException e)
         {
-            socket = null;
+            closeConnection(e);
             //throw new GreenfootStorageException("Error communicating with server: " + e.getMessage());
             return false;
         }
         catch (BufferUnderflowException e)
         {
-            socket = null;
+            closeConnection(e);
             //throw new GreenfootStorageException("Server sent aborted message");
             return false;
         }
         catch (GreenfootStorageException e)
         {
-            socket = null;
+            closeConnection(e);
             return false;
         }
     }
@@ -486,19 +509,19 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
         }
         catch (IOException e)
         {
-            socket = null;
+            closeConnection(e);
             //System.err.println("Error communicating with server: " + e.getMessage());
             return null;
         }
         catch (BufferUnderflowException e)
         {
-            socket = null;
+            closeConnection(e);
             //throw new GreenfootStorageException("Server sent aborted message");
             return null;
         }
         catch (GreenfootStorageException e)
         {
-            socket = null;
+            closeConnection(e);
             return null;
         }
     }
@@ -528,19 +551,19 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
         }
         catch (IOException e)
         {
-            socket = null;
+            closeConnection(e);
             //System.err.println("Error communicating with server: " + e.getMessage());
             return null;
         }
         catch (BufferUnderflowException e)
         {
-            socket = null;
+            closeConnection(e);
             //throw new GreenfootStorageException("Server sent aborted message");
             return null;
         }
         catch (GreenfootStorageException e)
         {
-            socket = null;
+            closeConnection(e);
             return null;
         }
     }
@@ -581,13 +604,13 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
         }
         catch (IOException e)
         {
-            socket = null;
+            closeConnection(e);
             //throw new GreenfootStorageException("Error communicating with server: " + e.getMessage());
             return null;
         }
         catch (GreenfootStorageException e)
         {
-            socket = null;
+            closeConnection(e);
             return null;
         }
     }
