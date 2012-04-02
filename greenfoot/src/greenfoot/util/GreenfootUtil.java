@@ -898,7 +898,7 @@ public class GreenfootUtil
         {
             // This message the user should see, because
             // it indicates a programming mistake:
-            System.err.println("Attempted to store the data for another user (i.e. a user other than the current user)");
+            System.err.println("Attempted to store the data for another user, \"" + data.getUserName() + "\" (i.e. a user other than the current user, \"" + getUserName() + "\")");
             return false;
         }
     }
