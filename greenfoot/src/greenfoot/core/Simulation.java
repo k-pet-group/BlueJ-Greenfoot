@@ -157,10 +157,14 @@ public class Simulation extends Thread
         HDTimer.init();
     }
     
+    /**
+     * Initialize the (singleton) simulation instance.
+     * The simulation thread will not actually be started until the WorldHandler
+     * is attached.
+     */
     public static void initialize(SimulationDelegate simulationDelegate)
     {
         instance = new Simulation(simulationDelegate);
-        instance.start();
     }
 
     /**
@@ -179,6 +183,7 @@ public class Simulation extends Thread
         this.worldHandler = worldHandler;
         worldHandler.addWorldListener(this);
         addSimulationListener(worldHandler);
+        start();
     }
     
     // The following methods should run only on the simulation thread itself!
