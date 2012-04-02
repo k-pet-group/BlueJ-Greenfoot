@@ -137,13 +137,13 @@ public class GreenfootScenarioViewer extends JApplet
     {
         GreenfootScenarioMain.initProperties();
         
-        GreenfootUtilDelegateStandAlone.storageStandalone = getParameter("storage.standalone") != null;
-        GreenfootUtilDelegateStandAlone.storageHost = getParameter("storage.server");
-        GreenfootUtilDelegateStandAlone.storagePort = getParameter("storage.serverPort");
-        GreenfootUtilDelegateStandAlone.storagePasscode = getParameter("storage.passcode");
-        GreenfootUtilDelegateStandAlone.storageScenarioId = getParameter("storage.scenarioId");
-        GreenfootUtilDelegateStandAlone.storageUserId = getParameter("storage.userId");
-        GreenfootUtilDelegateStandAlone.storageUserName = getParameter("storage.userName");
+        boolean storageStandalone = getParameter("storage.standalone") != null;
+        String storageHost = getParameter("storage.server");
+        String storagePort = getParameter("storage.serverPort");
+        String storagePasscode = getParameter("storage.passcode");
+        String storageScenarioId = getParameter("storage.scenarioId");
+        String storageUserId = getParameter("storage.userId");
+        String storageUserName = getParameter("storage.userName");
         
         // this is a workaround for a security conflict with some browsers
         // including some versions of Netscape & Internet Explorer which do
@@ -156,7 +156,7 @@ public class GreenfootScenarioViewer extends JApplet
         boolean lockScenario = Config.getPropBoolean("scenario.lock");
 
         try {
-            GreenfootUtil.initialise(new GreenfootUtilDelegateStandAlone());
+            GreenfootUtil.initialise(new GreenfootUtilDelegateStandAlone(storageStandalone, storageHost, storagePort, storagePasscode, storageScenarioId, storageUserId, storageUserName));
             properties = new ProjectProperties();
 
             ActorDelegateStandAlone.setupAsActorDelegate();

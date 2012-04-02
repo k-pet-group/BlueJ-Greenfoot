@@ -46,14 +46,28 @@ import java.util.Map;
 public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
 {
     private SocketChannel socket;
-    private boolean attemptedConnection;
-    public static boolean storageStandalone = false;
-    public static String storageHost;
-    public static String storagePort;
-    public static String storagePasscode;
-    public static String storageScenarioId;
-    public static String storageUserId;
-    public static String storageUserName;
+    private boolean failedLastConnection;
+    private boolean storageStandalone;
+    private String storageHost;
+    private String storagePort;
+    private String storagePasscode;
+    private String storageScenarioId;
+    private String storageUserId;
+    private String storageUserName;
+    
+    public GreenfootUtilDelegateStandAlone(boolean storageStandalone,
+            String storageHost, String storagePort, String storagePasscode,
+            String storageScenarioId, String storageUserId,
+            String storageUserName)
+    {
+        this.storageStandalone = storageStandalone;
+        this.storageHost = storageHost;
+        this.storagePort = storagePort;
+        this.storagePasscode = storagePasscode;
+        this.storageScenarioId = storageScenarioId;
+        this.storageUserId = storageUserId;
+        this.storageUserName = storageUserName;
+    }
     
     /** Holds images for classes. Avoids loading the same image twice. Key is the filename */
     public static Map<String, GreenfootImage> classImages = new HashMap<String, GreenfootImage>();
@@ -186,8 +200,8 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
         if (socket != null && socket.isConnected())
             return; //Already connected
         
-        if (socket == null && attemptedConnection)
-            throw new GreenfootStorageException("Already failed to connect to storage server");
+        if (socket == null && failedLastConnection)
+            throw new GreenfootStorageException("Already failed to connect to storage server on recent attempt");
             // We don't continually try to reconnect -- probably a firewall blocked us
         
         if (!storageStandalone)
@@ -221,7 +235,7 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
             if (storagePasscode == null)
                 throw new GreenfootStorageException("Could not find passcode to send back to server");
             
-            attemptedConnection = true;
+            failedLastConnection = true; // True unless we reach the end
             
             socket = SocketChannel.open();
             if (!socket.connect(new InetSocketAddress(storageHost, port)))
@@ -249,6 +263,8 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
             }
             buffer.flip();
             socket.write(buffer);
+            
+            failedLastConnection = false; // We succeeded, so didn't fail!
         }
         catch (IOException e)
         {
