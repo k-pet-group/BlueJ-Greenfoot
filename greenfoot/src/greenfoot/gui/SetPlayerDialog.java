@@ -42,11 +42,10 @@ import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.utility.EscapeDialog;
 
-public class SetPlayerDialog extends EscapeDialog implements DocumentListener
+public class SetPlayerDialog extends EscapeDialog
 {
     private String finalPlayerName; 
     private JTextField playerNameTextField;
-    private JLabel errorMsgLabel;
     private JButton okButton;
 
     public SetPlayerDialog(JFrame parent, String curPlayerName)
@@ -81,13 +80,6 @@ public class SetPlayerDialog extends EscapeDialog implements DocumentListener
         playerNameMax.height = playerNameTextField.getPreferredSize().height;
         playerNameTextField.setMaximumSize(playerNameMax);
         mainPanel.add(playerNameTextField);
-        
-        errorMsgLabel = new JLabel();
-        errorMsgLabel.setAlignmentX(0.0f);
-        errorMsgLabel.setVisible(false);
-        errorMsgLabel.setForeground(Color.RED);
-        errorMsgLabel.setText(Config.getString("playername.dialog.validationError"));
-        mainPanel.add(errorMsgLabel);
                 
         // create the ok/cancel button panel
         JPanel buttonPanel = new JPanel();
@@ -104,7 +96,6 @@ public class SetPlayerDialog extends EscapeDialog implements DocumentListener
                 ok();
             }
         });
-        okButton.setEnabled(false);
         
         buttonPanel.add(okButton);
         
@@ -115,11 +106,7 @@ public class SetPlayerDialog extends EscapeDialog implements DocumentListener
         Dimension buttonPanelMax = buttonPanel.getMaximumSize();
         buttonPanelMax.height = buttonPanel.getPreferredSize().height;
         buttonPanel.setMaximumSize(buttonPanelMax);
-        
-        playerNameTextField.getDocument().addDocumentListener(this);
-        //playerNameTextField.setInputVerifier(this);
-        playerNameTextField.setVerifyInputWhenFocusTarget(true);
-        
+                
         playerNameTextField.setText(curPlayerName);
         
         mainPanel.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
@@ -139,30 +126,5 @@ public class SetPlayerDialog extends EscapeDialog implements DocumentListener
     public String getPlayerName()
     {
         return finalPlayerName;
-    }
-
-    @Override
-    public void insertUpdate(DocumentEvent e)
-    {
-        checkValid();
-    }
-
-    @Override
-    public void removeUpdate(DocumentEvent e)
-    {
-        checkValid();        
-    }
-
-    @Override
-    public void changedUpdate(DocumentEvent e)
-    {
-    }
-    
-    private void checkValid()
-    {
-        String name = playerNameTextField.getText();
-        boolean invalid = name.matches(".*\\s.*");
-        errorMsgLabel.setVisible(invalid);
-        okButton.setEnabled(!invalid);
     }
 }

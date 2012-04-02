@@ -260,7 +260,6 @@ set.player=Set Player Name
 playername.dialog.title=Set Player Name
 playername.dialog.help=Set the player username used by the PlayerData class for local storage
 playername.dialog.playerName=Player Name
-playername.dialog.validationError=Player name must not have spaces
 
 prefmgr.misc.playername.title=Player Name
 prefmgr.misc.playerNameNote=You can change this quickly using the shortcut:
