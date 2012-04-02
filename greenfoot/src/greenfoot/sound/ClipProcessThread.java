@@ -29,11 +29,13 @@ import java.util.LinkedList;
  * 
  * @author Davin McCall
  */
-public class ClipProcessThread extends Thread
+public class ClipProcessThread implements Runnable
 {
     public static int PLAY = 0;
     public static int LOOP = 1;
     public static int CLOSE = 2;
+    
+    private Thread thread;
     
     private static class Entry
     {
@@ -45,8 +47,9 @@ public class ClipProcessThread extends Thread
     
     public ClipProcessThread()
     {
-        setDaemon(true);
-        start();
+        thread = new Thread(this);
+        thread.setDaemon(true);
+        thread.start();
     }
     
     public void addToQueue(SoundClip clip, int command)
@@ -57,6 +60,14 @@ public class ClipProcessThread extends Thread
             entry.command = command;
             queue.add(entry);
             queue.notify();
+            
+            // When running online, threads can be terminated willy-nilly, but
+            // static state is kept. We need to check for this:
+            if (! thread.isAlive()) {
+                thread = new Thread(this);
+                thread.setDaemon(true);
+                thread.start();
+            }
         }
     }
     

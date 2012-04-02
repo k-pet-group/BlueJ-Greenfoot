@@ -32,14 +32,14 @@ import javax.sound.sampled.Clip;
  * 
  * @author Davin McCall
  */
-public class ClipCloserThread extends Thread
+public class ClipCloserThread implements Runnable
 {
     private LinkedList<Clip> clips = new LinkedList<Clip>();
     
+    private Thread thread;
+    
     public ClipCloserThread()
     {
-        setDaemon(true);
-        start();
     }
     
     public void addClip(Clip clip)
@@ -47,6 +47,12 @@ public class ClipCloserThread extends Thread
         synchronized (clips) {
             clips.add(clip);
             clips.notify();
+            
+            if (thread == null || ! thread.isAlive()) {
+                thread = new Thread(this);
+                thread.setDaemon(true);
+                thread.start();
+            }
         }
     }
     
