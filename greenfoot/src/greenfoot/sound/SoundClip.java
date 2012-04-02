@@ -333,6 +333,7 @@ public class SoundClip implements Sound, LineListener
         if (clipState != ClipState.CLOSED) {
             setState(ClipState.CLOSED);
             if (soundClip != null) {
+                clipCache.releaseClipData(clipData);
                 soundClip.close();
                 soundClip = null;
             }

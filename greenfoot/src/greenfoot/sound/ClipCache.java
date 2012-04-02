@@ -72,12 +72,17 @@ public class ClipCache
             byte[] allBytes = new byte[(int)(af.getFrameSize() * frameLength)];
             int pos = 0;
             
-            while (pos < total) {
-                int r = ais.read(allBytes, pos, total - pos);
-                if (r == -1) {
-                    break;
+            try {
+                while (pos < total) {
+                    int r = ais.read(allBytes, pos, total - pos);
+                    if (r == -1) {
+                        break;
+                    }
+                    pos += r;
                 }
-                pos += r;
+            }
+            finally {
+                ais.close();
             }
             
             data = new ClipData(urlStr, allBytes, af, (int) frameLength);
