@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -42,7 +42,7 @@ import java.util.jar.JarFile;
  * various miscellaneous settings
  *
  * @author  Andrew Patterson
- * @version $Id: MiscPrefPanel.java 9636 2012-04-02 11:26:31Z nccb $
+ * @version $Id: MiscPrefPanel.java 9637 2012-04-02 11:29:51Z nccb $
  */
 public class MiscPrefPanel extends JPanel 
                            implements PrefPanelListener, ItemListener, ActionListener
