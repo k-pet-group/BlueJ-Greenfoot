@@ -54,6 +54,10 @@ public class PlayerData
     public static final int NUM_INTS = 10;
     /** The number of Strings that can be stored */
     public static final int NUM_STRINGS = 5;
+    /** The maximum number of characters that can be stored in each String */    
+    public static final int STRING_LENGTH_LIMIT = 50;
+    // NB the above limit matches the database schema in the gallery storage
+    // so don't alter it!
     private int[] ints;
     private String[] strings;
     private String userName;
@@ -107,7 +111,17 @@ public class PlayerData
      * Gets the value of the String at the given index (0 to NUM_STRINGS-1, inclusive)
      * Passing null is treated as a blank string.
      */
-    public void setString(int index, String value) { strings[index] = value; /* TODO throw an exception if it's over max length */ }
+    public void setString(int index, String value)
+    {
+        if (value != null && value.length() > STRING_LENGTH_LIMIT)
+        {
+            System.err.println("Error: tried to store a String of length " + value.length() + " in PlayerData, which is longer than PlayerData.STRING_LENGTH_LIMIT (" + STRING_LENGTH_LIMIT + ")");
+        }
+        else
+        {
+            strings[index] = value;
+        }
+    }
     
     /**
      * Gets the player's score
