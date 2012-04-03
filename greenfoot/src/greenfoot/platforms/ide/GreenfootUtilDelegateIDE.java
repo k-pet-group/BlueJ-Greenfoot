@@ -244,10 +244,7 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
     @Override
     public boolean isStorageSupported()
     {
-        if (getUserName() == null || getUserName().isEmpty())
-            return false;
-        else
-            return true;
+        return true;
     }
     
     public String getUserName()
@@ -433,9 +430,6 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
     @Override
     public List<PlayerData> getTopUserData(int limit)
     {
-        if (getUserName() == null || getUserName().isEmpty())
-            return null;
-        
         ArrayList<PlayerData> ret = getAllDataSorted(false);
         if (ret == null)
             return null;
