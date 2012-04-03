@@ -68,6 +68,7 @@ public class GreenfootScenarioViewer extends JApplet
 
     private static String scenarioName;
 
+    private boolean isApplet;
     private ProjectProperties properties;
     private Simulation sim;
     private WorldCanvas canvas;
@@ -81,7 +82,7 @@ public class GreenfootScenarioViewer extends JApplet
      */
     public GreenfootScenarioViewer()
     {
-
+        isApplet = true;
     }
 
     /**
@@ -90,6 +91,7 @@ public class GreenfootScenarioViewer extends JApplet
     public GreenfootScenarioViewer(RootPaneContainer rootPane)
     {
         rootPaneContainer = rootPane;
+        isApplet = false;
         init();
     }
 
@@ -126,6 +128,15 @@ public class GreenfootScenarioViewer extends JApplet
         
         rootPaneContainer.getContentPane().add(outer, BorderLayout.CENTER);
         rootPaneContainer.getContentPane().add(controls, BorderLayout.SOUTH);
+    }
+    
+    @Override
+    public String getParameter(String name)
+    {
+        if (isApplet)
+            return super.getParameter(name);
+        else
+            return null;
     }
 
     /**
