@@ -433,7 +433,7 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
         ArrayList<PlayerData> ret = getAllDataSorted(false);
         if (ret == null)
             return null;
-        else if (ret.size() <= limit)
+        else if (ret.size() <= limit || limit <= 0)
             return ret;
         else
             return ret.subList(0, limit);
