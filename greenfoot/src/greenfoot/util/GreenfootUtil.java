@@ -921,17 +921,17 @@ public class GreenfootUtil
         if (userName == null || userName.equals(""))
             userName = getUserName();
         
-        if (userName == null)
-            return null; // Storage not supported
+        GreenfootImage r = null;
         
-        GreenfootImage r = delegate.getUserImage(userName);
+        if (userName != null)
+            r = delegate.getUserImage(userName);
         
         if (r == null)
         {
             // This can be because there was a problem reading from the gallery,
             // or because we're using local storage:
             r = new GreenfootImage(50, 50);
-            r.setColor(java.awt.Color.GRAY);
+            r.setColor(java.awt.Color.DARK_GRAY);
             r.fill();
             
             final int CHARS_PER_LINE = 6; // Heuristic: 15 pixels high, assume 8 pixels width per char, 50 / 8 ~= 6
@@ -940,8 +940,9 @@ public class GreenfootUtil
             for (int i = 0 ;i < userName.length(); i += CHARS_PER_LINE)
                 wrappedName.append(userName.substring(i, Math.min(userName.length(), i + CHARS_PER_LINE))).append("\n");
                     
-            r.drawImage(new GreenfootImage(wrappedName.toString(), 15, java.awt.Color.CYAN, java.awt.Color.GRAY), 0, 0);
+            r.drawImage(new GreenfootImage(wrappedName.toString(), 15, java.awt.Color.WHITE, java.awt.Color.DARK_GRAY), 0, 0);
         }
+        // Should never return null:
         return r;
     }
 
