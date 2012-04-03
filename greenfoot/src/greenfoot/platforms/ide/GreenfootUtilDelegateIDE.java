@@ -244,7 +244,7 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
     @Override
     public boolean isStorageSupported()
     {
-        return true;
+        return getUserName() != null && !getUserName().isEmpty();
     }
     
     public String getUserName()

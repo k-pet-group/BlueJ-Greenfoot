@@ -199,7 +199,7 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
         try
         {
             ensureStorageConnected();
-            return true;
+            return getCurrentUserData() != null;
         }
         catch (GreenfootStorageException e)
         {
@@ -349,7 +349,7 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
             
             buf = readResponse();
             if (1 != buf.getInt()) // Should be exactly one user
-                return null; 
+                return null; // Error, or we're not logged in
             return readLines(buf, 1, true)[0];
         }
         catch (IOException e)
@@ -548,6 +548,9 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
             
             buf = readResponse();
             int numUsers = buf.getInt();
+            if (numUsers < 0)
+                return null; // Error, or we're not logged in
+            
             PlayerData[] storage = readLines(buf, numUsers, false);
             
             List<PlayerData> r = new ArrayList<PlayerData>();
