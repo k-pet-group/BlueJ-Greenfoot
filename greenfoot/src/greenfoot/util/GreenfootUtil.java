@@ -937,10 +937,13 @@ public class GreenfootUtil
             final int CHARS_PER_LINE = 6; // Heuristic: 15 pixels high, assume 8 pixels width per char, 50 / 8 ~= 6
             
             StringBuilder wrappedName = new StringBuilder();
+            if (userName == null)
+                userName = "";
             for (int i = 0 ;i < userName.length(); i += CHARS_PER_LINE)
                 wrappedName.append(userName.substring(i, Math.min(userName.length(), i + CHARS_PER_LINE))).append("\n");
                     
-            r.drawImage(new GreenfootImage(wrappedName.toString(), 15, java.awt.Color.WHITE, java.awt.Color.DARK_GRAY), 0, 0);
+            GreenfootImage textImage = new GreenfootImage(wrappedName.toString(), 15, java.awt.Color.WHITE, java.awt.Color.DARK_GRAY);
+            r.drawImage(textImage, Math.max(0, (50 - textImage.getWidth()) / 2), Math.max(0, (50 - textImage.getHeight()) / 2));
         }
         // Should never return null:
         return r;
