@@ -120,12 +120,17 @@ public class PlayerData
     
     /**
      * Set the value of the int at the given index (0 to NUM_INTS-1, inclusive).
+     * 
+     * <p>Note that to store this value permanently, you must later call store().
      */
     public void setInt(int index, int value) { ints[index] = value; }
 
     /**
      * Get the value of the String at the given index (0 to NUM_STRINGS-1, inclusive).
-     * Passing null is treated as a blank string.
+     * Passing null is treated as a blank string.  The given String must be of STRING_LENGTH_LIMIT
+     * characters or less (or else the method will fail).
+     * 
+     * <p>Note that to store this value permanently, you must later call store().
      */
     public void setString(int index, String value)
     {
@@ -140,7 +145,7 @@ public class PlayerData
     }
     
     /**
-     * Get the player's score.
+     * Get the player's score.  By default, this is zero.
      */
     public int getScore() { return score; }
     
@@ -150,12 +155,14 @@ public class PlayerData
      * Note that this really does set the player's score.  If you want to record only the player's highest
      * score, you must code that yourself, using something like:
      * <pre>
-     *   if (latestScore > getScore())
+     *   if (latestScore > userData.getScore())
      *   {
-     *     setScore(latestScore);
+     *     userData.setScore(latestScore);
      *   }
      * </pre>
      * Without some code like this, you'll always overwrite the player's previous score.
+     * 
+     * <p>Note that to store this value permanently, you must later call store().
      */
     public void setScore(int score) { this.score = score; }
     
@@ -178,7 +185,7 @@ public class PlayerData
      * Storage is unavailable if the scenario is run as an applet outside the Greenfoot website,
      * or as a stand-alone application,
      * or if the user is not logged in to the Greenfoot website.  This last case is very common,
-     * so you must check this function before attempting to use the other static storage functions.
+     * so you should check this function before attempting to use the other static storage functions.
      * If this function returns false, your scenario should proceed without using storage.
      */
     public static boolean isStorageAvailable()
@@ -193,7 +200,8 @@ public class PlayerData
      * 
      * This method returns null if:
      * <ul>
-     * <li>there is a problem reading the local file (for local scenarios), or</li>
+     * <li>there is a problem reading the local storage.csv file (for local scenarios), or</li>
+     * <li>the scenario is running as a stand-alone application, or applet on your own website, or</li>
      * <li>there is a problem connecting to the server (for scenarios on the greenfoot.org site), or</li>
      * <li>the user is not logged in (for scenarios on the greenfoot.org site).</li>
      * </ul>
@@ -234,19 +242,19 @@ public class PlayerData
      * <p>This will return one PlayerData item per user, and it will be sorted in descending order by the score
      * (i.e. the return of getScore()).  The parameter allows you to specify a limit
      * on the amount of users' data to retrieve.  If there is lots of data stored
-     * for users in your app, this may take some time (and bandwidth) to retrieve all users' data,
+     * for users in your app, it may take some time (and bandwidth) to retrieve all users' data,
      * and often you do not need all the users' data.</p>
      * 
-     * <p>For example, if you want to show the high-scores, store the score with setScore(score),
+     * <p>For example, if you want to show the high-scores, store the score with setScore(score) and store(),
      * and then use getTop(10) to get the users with the top ten scores.</p> 
      * 
      * <p>Returns null if:
      * <ul>
      * <li>there is a problem reading the local file (for local scenarios), or</li>
-     * <li>there is a problem connecting to the server (for scenarios on the greenfoot.org site), or</li>
-     * <li>the user is not logged in (for scenarios on the greenfoot.org site).</li>
+     * <li>the scenario is running as a stand-alone application, or applet on your own website, or</li>
+     * <li>there is a problem connecting to the server (for scenarios on the greenfoot.org site).</li>
      * </ul>
-     * The last case is very common, so you should always be ready to handle a null return from this function.</p>
+     * You should always be ready to handle a null return from this function.</p>
      * 
      * @param maxAmount The maximum number of data items to retrieve.
      * Passing zero or a negative number will get all the data, but see the note above.  
@@ -275,12 +283,13 @@ public class PlayerData
      * 1st, 2nd, 3rd, 4th and 5th users, so the user will be 2nd in the list, and a similar thing will happen
      * if the user is near the end of the list.</p>
      * 
-     * <p>For example, if you want to show the high-scores surrounding the player, store the score with setScore(score),
+     * <p>For example, if you want to show the high-scores surrounding the player, store the score with setScore(score) and store(),
      * and then use getNearby(10) to get the ten users with scores close to the current player.</p>
      * 
      * <p>Returns null if:
      * <ul>
      * <li>there is a problem reading the local file (for local scenarios), or</li>
+     * <li>the scenario is running as a stand-alone application, or applet on your own website, or</li>
      * <li>there is a problem connecting to the server (for scenarios on the greenfoot.org site), or</li>
      * <li>the user is not logged in (for scenarios on the greenfoot.org site).</li>
      * </ul>
@@ -300,17 +309,9 @@ public class PlayerData
      * Return an image of the user. The image size is 50x50 pixels.
      * <p>
      * On the Greenfoot website, this is their profile picture. 
-     * If running locally, this method returns a dummy image with the username drawn on the image.
-     * 
-     * <p>Return null if:
-     * <ul>
-     * <li>there is a problem reading the local file (for local scenarios), or</li>
-     * <li>there is a problem connecting to the server (for scenarios on the greenfoot.org site), or</li>
-     * <li>the user is not logged in (for scenarios on the greenfoot.org site).</li>
-     * </ul>
-     * The last case is very common, so you should always be ready to handle a null return from this function.</p>
-     * 
-     * @return A 50x50 pixel GreenfootImage, or null if there was a problem accessing the image
+     * If running locally (or a profile picture is unavailable), this method returns a dummy image with the username drawn on the image.
+     *
+     * @return A 50x50 pixel GreenfootImage
      */
     public GreenfootImage getUserImage()
     {
