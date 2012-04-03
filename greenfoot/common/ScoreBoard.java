@@ -69,12 +69,14 @@ public class ScoreBoard extends Actor
         if (users == null)
             return;
         
+        PlayerData me = PlayerData.getMyData();
         int y = top + GAP;
         for (Object obj : users)
         {
             PlayerData playerData = (PlayerData)obj;            
             Color c;
-            if (playerData.getUserName().equals(PlayerData.getMyData().getUserName()))
+            
+            if (me != null && playerData.getUserName().equals(me.getUserName()))
             {
                 // Highlight our row in a sky blue colour:
                 c = new Color(180, 230, 255);
