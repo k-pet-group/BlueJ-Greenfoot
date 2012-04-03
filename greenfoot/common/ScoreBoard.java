@@ -27,6 +27,9 @@ public class ScoreBoard extends Actor
     private static final Color MAIN_COLOR = new Color(0x60, 0x60, 0x60); // dark grey
     // The score color:
     private static final Color SCORE_COLOR = new Color(0xB0, 0x40, 0x40); // orange-y
+    // The background colors:
+    private static final Color BACKGROUND_COLOR = new Color(0xFF, 0xFF, 0xFF, 0xB0);
+    private static final Color BACKGROUND_HIGHLIGHT_COLOR = new Color(180, 230, 255, 0xB0);
 
     /**
      * Constructor for objects of class ScoreBoard.
@@ -53,6 +56,9 @@ public class ScoreBoard extends Actor
         // Calculate how many users we have room for:
         final int numUsers = ((getImage().getHeight() - (HEADER_TEXT_HEIGHT + 10)) / pixelsPerUser);
         final int topSpace = getImage().getHeight() - (numUsers * pixelsPerUser) - GAP;
+        
+        getImage().setColor(BACKGROUND_COLOR);
+        getImage().fill();
 
         drawString("All Players", 100, topSpace - HEADER_TEXT_HEIGHT - 5, MAIN_COLOR, HEADER_TEXT_HEIGHT);
         drawString("Near You", 100 + getImage().getWidth() / 2, topSpace - HEADER_TEXT_HEIGHT - 5, MAIN_COLOR, HEADER_TEXT_HEIGHT);        
@@ -79,11 +85,11 @@ public class ScoreBoard extends Actor
             if (me != null && playerData.getUserName().equals(me.getUserName()))
             {
                 // Highlight our row in a sky blue colour:
-                c = new Color(180, 230, 255);
+                c = BACKGROUND_HIGHLIGHT_COLOR;
             }
             else
             {
-                c = Color.WHITE;
+                c = BACKGROUND_COLOR;
             }
             getImage().setColor(c);
             getImage().fillRect(left + 5, y - GAP + 1, right - left - 10, 50 + 2*GAP - 1);
