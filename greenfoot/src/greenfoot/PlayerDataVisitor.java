@@ -29,7 +29,7 @@ public class PlayerDataVisitor
     {
         if (singletonUserName != null && singletonUserName.equals(userName))
         {
-            if (myData != null)
+            if (myData != null && myData.getUserName().equals(singletonUserName))
             {
                 myData.setRank(rank);
             }
