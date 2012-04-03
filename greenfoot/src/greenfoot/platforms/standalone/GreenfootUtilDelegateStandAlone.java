@@ -47,6 +47,7 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
 {
     private SocketChannel socket;
     private boolean failedLastConnection;
+    private boolean firstStorageException = true;
     private boolean storageStandalone;
     private String storageHost;
     private String storagePort;
@@ -203,8 +204,15 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
         catch (GreenfootStorageException e)
         {
             // Let the user know why it didn't connect.  This will go to the Java console,
-            // which is only shown if the user has specifically turned it on:
-            e.printStackTrace();
+            // which is only shown if the user has specifically turned it on.
+            // Make sure we only print one exception from this method, otherwise
+            // someone who calls it a lot will see lots of console spam (esp in standalone
+            // applets):
+            if (firstStorageException)
+            {
+                e.printStackTrace();
+            }
+            firstStorageException = false;
             return false;
         }
     }
