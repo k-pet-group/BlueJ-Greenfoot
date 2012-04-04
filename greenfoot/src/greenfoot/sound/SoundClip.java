@@ -147,27 +147,13 @@ public class SoundClip implements Sound, LineListener
         //Ignore all exceptions when pre-loading
         try
         {
-            load();
+            clipData = clipCache.getCachedClip(url);
             clipCache.releaseClipData(clipData);
-            soundClip.close();
-            soundClip = null;
-        }
-        catch (SecurityException e) {
-            
-        }
-        catch (IllegalArgumentException e) {
-            
-        }
-        catch (FileNotFoundException e) {
-            
         }
         catch (IOException e) {
             
         }
         catch (UnsupportedAudioFileException e) {
-            
-        }
-        catch (LineUnavailableException e) {
             
         }
     }
@@ -334,7 +320,7 @@ public class SoundClip implements Sound, LineListener
             setState(ClipState.CLOSED);
             if (soundClip != null) {
                 clipCache.releaseClipData(clipData);
-                soundClip.close();
+                closerThread.addClip(soundClip);
                 soundClip = null;
             }
         }
