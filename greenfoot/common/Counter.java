@@ -85,7 +85,7 @@ public class Counter extends Actor
      */
     public int getValue()
     {
-        return value;
+        return target;
     }
 
     /**
