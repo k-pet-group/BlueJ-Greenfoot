@@ -26,43 +26,44 @@ import greenfoot.util.GreenfootUtil;
 import java.util.List;
 
 /**
- * <p>The PlayerData class can be used to store data permanently on a server, and
+ * <p>The UserInfo class can be used to store data permanently on a server, and
  * to share this data between different users, when the scenario runs on the
  * Greenfoot web site. This can be used to implement shared high score tables
  * or other examples of shared data.</p>
  *
  * <p>Storage is only available when the current user is logged in on the Greenfoot
  * site, so for some users storage will not be available. Always use
- * PlayerData.isStorageAvailable() to check before accessing the player data.</p>
+ * UserInfo.isStorageAvailable() to check before accessing the user data.</p>
  *
  * <p>A typical code snippet for storing a high score is as follows:</p>
  *
  * <pre>
- *     if (PlayerData.isStorageAvailable()) {
- *         PlayerData myData = PlayerData.getMyData();
- *         if (newScore > myData.getScore()) {
- *             myData.setScore(newScore);
- *             myData.store();  // write back to server
+ *     if (UserInfo.isStorageAvailable()) {
+ *         UserInfo myInfo = UserInfo.getMyInfo();
+ *         if (newScore > myInfo.getScore()) {
+ *             myInfo.setScore(newScore);
+ *             myInfo.store();  // write back to server
  *         }
  *     }
  * </pre>
  * <p>Methods to retrieve user data include getting data for the current user
- * (getMyData()), the top scorers (e.g. getTop(10) for the top 10), and data
+ * (getMyInfo()), the top scorers (e.g. getTop(10) for the top 10), and data
  * for users with scores near my own score (e.g. getNearby(10)).</p>
  *
- * <p>The data that can be stored for each player consists of a score, 10
- * additional general purpose integers, and 10 strings. In addition, the user
- * name and user's image can be retrieved from the player data.</p>
+ * <p>The data that can be stored for each user consists of a score, 10
+ * additional general purpose integers, and 10 strings (limited to 50 characters
+ * in length). In addition, the user name and user's image can be retrieved from
+ * the user data.</p>
  *
  * <p>For testing purposes, while running within Greenfoot (not on the web site),
- * the player name can be set in the preferences (CTRL-SHIFT-P / CMD-SHIFT-P).
- * This allows to simulate different players during development. When running
- * on the web site, the player name is the user name used to log in to the site.</p>
+ * the user name can be set in the preferences (CTRL-SHIFT-P / CMD-SHIFT-P).
+ * This allows to simulate different users during development. When running
+ * on the web site, the user name is the name used to log in to the site.</p>
  * 
  * @author Neil Brown
  * @version 2.3
  */
-public class PlayerData
+public class UserInfo
 {
     // These may enlarge in future:
     
@@ -81,7 +82,7 @@ public class PlayerData
     private int rank;
     
     //package-visible:
-    PlayerData(String userName, int rank)
+    UserInfo(String userName, int rank)
     {
         this.userName = userName;
         this.rank = rank;
@@ -109,21 +110,30 @@ public class PlayerData
      * <p>
      * The default value is zero.
      */
-    public int getInt(int index) { return ints[index]; }
+    public int getInt(int index)
+    {
+        return ints[index];
+    }
     
     /**
      * Get the value of the String at the given index (0 to NUM_STRINGS-1, inclusive).
      * <p>
      * The default value is the empty String.
      */
-    public String getString(int index) { return strings[index] == null ? "" : strings[index]; }
+    public String getString(int index)
+    {
+        return strings[index] == null ? "" : strings[index];
+    }
     
     /**
      * Set the value of the int at the given index (0 to NUM_INTS-1, inclusive).
      * 
      * <p>Note that to store this value permanently, you must later call store().
      */
-    public void setInt(int index, int value) { ints[index] = value; }
+    public void setInt(int index, int value)
+    {
+        ints[index] = value;
+    }
 
     /**
      * Get the value of the String at the given index (0 to NUM_STRINGS-1, inclusive).
@@ -145,14 +155,17 @@ public class PlayerData
     }
     
     /**
-     * Get the player's score.  By default, this is zero.
+     * Get the user's score.  By default, this is zero.
      */
-    public int getScore() { return score; }
+    public int getScore()
+    {
+        return score;
+    }
     
     /**
-     * Set the player's score.
+     * Set the user's score.
      * <p>
-     * Note that this really does set the player's score.  If you want to record only the player's highest
+     * Note that this really does set the user's score.  If you want to record only the user's highest
      * score, you must code that yourself, using something like:
      * <pre>
      *   if (latestScore > userData.getScore())
@@ -160,16 +173,19 @@ public class PlayerData
      *     userData.setScore(latestScore);
      *   }
      * </pre>
-     * Without some code like this, you'll always overwrite the player's previous score.
+     * Without some code like this, you'll always overwrite the user's previous score.
      * 
      * <p>Note that to store this value permanently, you must later call store().
      */
-    public void setScore(int score) { this.score = score; }
+    public void setScore(int score)
+    {
+        this.score = score;
+    }
     
     /**
-     * Get the players overall rank for this scenario.
+     * Get the users overall rank for this scenario.
      * <p>
-     * The player with the highest score will return 1, the player with the second highest score
+     * The user with the highest score will return 1, the user with the second highest score
      * will return 2, and so on.  Players with equal scores will get equal ranks,
      * so rank will not necessarily be unique.  To find the rank, scores are sorted
      * in descending order (highest score first).  If your scores need to be lowest-first,
@@ -177,7 +193,10 @@ public class PlayerData
      * <p>
      * If the rank is unavailable (e.g. because the data hasn't been stored yet), this function will return -1.
      */
-    public int getRank() { return rank; }
+    public int getRank()
+    {
+        return rank;
+    }
     
     /**
      * Indicate whether storage is available.
@@ -210,9 +229,9 @@ public class PlayerData
      * 
      * @return the user's data, or null if there was a problem.
      */
-    public static PlayerData getMyData()
+    public static UserInfo getMyInfo()
     {
-        return GreenfootUtil.getCurrentUserData();
+        return GreenfootUtil.getCurrentUserInfo();
     }
     
     /**
@@ -225,12 +244,12 @@ public class PlayerData
      */
     public boolean store()
     {
-        boolean success = GreenfootUtil.storeCurrentUserData(this);
+        boolean success = GreenfootUtil.storeCurrentUserInfo(this);
         
         if (success)
         {
             //Update the rank (not very efficient, but simple):
-            rank = getMyData().rank;
+            rank = getMyInfo().rank;
         }
         
         return success;
@@ -264,11 +283,11 @@ public class PlayerData
     {
         // Will return an empty list if there is no previously stored data
         // Each item is a PlayerData
-        return GreenfootUtil.getTopUserData(maxAmount);
+        return GreenfootUtil.getTopUserInfo(maxAmount);
     }
     
     /**
-     * Get a sorted list of the PlayerData items for this scenario surrounding the current user.
+     * Get a sorted list of the UserInfo items for this scenario surrounding the current user.
      * 
      * <p>This will be one item per user, and it will be sorted in descending order by the score
      * (i.e. the return of getScore()).  The parameter allows you to specify a limit
@@ -276,15 +295,15 @@ public class PlayerData
      * for users in your app, this may take some time (and bandwidth) to retrieve all users' data,
      * and often you do not need all the users' data.</p>
      * 
-     * <p>The items will be those surrounding the current user.  So for example, imagine that the player is 50th
+     * <p>The items will be those surrounding the current user.  So for example, imagine that the user is 50th
      * of 100 total users (when sorted by getScore()).  Calling getNearby(5) will get the
-     * 48th, 49th, 50th, 51st and 52nd users in that order.  Do not rely on the player being at a fixed
+     * 48th, 49th, 50th, 51st and 52nd users in that order.  Do not rely on the user being at a fixed
      * location in the middle of the list: calling getNearby(5) when the user is 2nd overall will get the
      * 1st, 2nd, 3rd, 4th and 5th users, so the user will be 2nd in the list, and a similar thing will happen
      * if the user is near the end of the list.</p>
      * 
-     * <p>For example, if you want to show the high-scores surrounding the player, store the score with setScore(score) and store(),
-     * and then use getNearby(10) to get the ten users with scores close to the current player.</p>
+     * <p>For example, if you want to show the high-scores surrounding the user, store the score with setScore(score) and store(),
+     * and then use getNearby(10) to get the ten users with scores close to the current user.</p>
      * 
      * <p>Returns null if:
      * <ul>

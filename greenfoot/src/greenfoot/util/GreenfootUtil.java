@@ -22,7 +22,7 @@
 package greenfoot.util;
 
 import greenfoot.GreenfootImage;
-import greenfoot.PlayerData;
+import greenfoot.UserInfo;
 import greenfoot.platforms.GreenfootUtilDelegate;
 
 import java.awt.Color;
@@ -882,18 +882,18 @@ public class GreenfootUtil
     /**
      * null if an error, blank values if no previous storage
      */
-    public static PlayerData getCurrentUserData()
+    public static UserInfo getCurrentUserInfo()
     {
-        return delegate.getCurrentUserData();
+        return delegate.getCurrentUserInfo();
     }
 
     /**
      * returns whether it was successful
      */
-    public static boolean storeCurrentUserData(PlayerData data)
+    public static boolean storeCurrentUserInfo(UserInfo data)
     {
         if (data.getUserName().equals(getUserName()))
-            return delegate.storeCurrentUserData(data);
+            return delegate.storeCurrentUserInfo(data);
         else
         {
             // This message the user should see, because
@@ -908,9 +908,9 @@ public class GreenfootUtil
      * 
      * Returns highest data when sorted by integer index 0
      */
-    public static List<PlayerData> getTopUserData(int limit)
+    public static List<UserInfo> getTopUserInfo(int limit)
     {
-        return delegate.getTopUserData(limit);
+        return delegate.getTopUserInfo(limit);
     }
 
     /**
@@ -918,13 +918,15 @@ public class GreenfootUtil
      */
     public static GreenfootImage getUserImage(String userName)
     {
-        if (userName == null || userName.equals(""))
+        if (userName == null || userName.equals("")) {
             userName = getUserName();
+        }
         
         GreenfootImage r = null;
         
-        if (userName != null)
+        if (userName != null) {
             r = delegate.getUserImage(userName);
+        }
         
         if (r == null)
         {
@@ -958,12 +960,12 @@ public class GreenfootUtil
     }
 
     /**
-     * null if problem, empty list if simply no data.
+     * Get info for users near the current player when sorted by score
      * 
-     * Returns data near the current player when sorted by integer index 0
+     * @return  null if problem, empty list if simply no data.
      */
-    public static List<PlayerData> getNearbyUserData(int maxAmount)
+    public static List<UserInfo> getNearbyUserData(int maxAmount)
     {
-        return delegate.getNearbyUserData(maxAmount);
+        return delegate.getNearbyUserInfo(maxAmount);
     }
 }

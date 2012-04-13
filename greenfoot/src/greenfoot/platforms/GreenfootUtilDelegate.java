@@ -22,7 +22,7 @@
 package greenfoot.platforms;
 
 import greenfoot.GreenfootImage;
-import greenfoot.PlayerData;
+import greenfoot.UserInfo;
 
 import java.awt.Component;
 import java.io.File;
@@ -111,19 +111,19 @@ public interface GreenfootUtilDelegate
     /**
      * null if an error or not supported, blank values if no previous storage
      */
-    public PlayerData getCurrentUserData();
+    public UserInfo getCurrentUserInfo();
 
     /**
      * returns whether it was successful
      */
-    public boolean storeCurrentUserData(PlayerData data);
+    public boolean storeCurrentUserInfo(UserInfo data);
 
     /**
      * null if problem, empty list if simply no data
      * 
      * Returns highest data when sorted by integer index 0
      */
-    public List<PlayerData> getTopUserData(int limit);
+    public List<UserInfo> getTopUserInfo(int limit);
 
     /**
      * returns null if storage not supported or if there was an error.
@@ -140,5 +140,5 @@ public interface GreenfootUtilDelegate
      * 
      * Returns data near the current player when sorted by integer index 0
      */
-    public List<PlayerData> getNearbyUserData(int maxAmount);
+    public List<UserInfo> getNearbyUserInfo(int maxAmount);
 }

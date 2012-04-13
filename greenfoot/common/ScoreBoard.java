@@ -33,7 +33,7 @@ public class ScoreBoard extends Actor
 
     /**
      * Constructor for objects of class ScoreBoard.
-     * 
+     * <p>
      * You can specify the width and height that the score board should be, but
      * a minimum width of 600 will be enforced.
      */

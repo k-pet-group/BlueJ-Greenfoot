@@ -21,27 +21,27 @@
  */
 package greenfoot;
 
-public class PlayerDataVisitor
+public class UserInfoVisitor
 {
-    private static PlayerData myData;
+    private static UserInfo myInfo;
     
-    public static PlayerData allocate(String userName, int rank, String singletonUserName)
+    public static UserInfo allocate(String userName, int rank, String singletonUserName)
     {
         if (singletonUserName != null && singletonUserName.equals(userName))
         {
-            if (myData != null && myData.getUserName().equals(singletonUserName))
+            if (myInfo != null && myInfo.getUserName().equals(singletonUserName))
             {
-                myData.setRank(rank);
+                myInfo.setRank(rank);
             }
             else
             {
-                myData = new PlayerData(userName, rank);
+                myInfo = new UserInfo(userName, rank);
             }
-            return myData;
+            return myInfo;
         }
         else
         {
-            return new PlayerData(userName, rank);
+            return new UserInfo(userName, rank);
         }
     }
     

@@ -124,19 +124,19 @@ public class TestUtilDelegate implements GreenfootUtilDelegate
     }
 
     @Override
-    public PlayerData getCurrentUserData()
+    public UserInfo getCurrentUserInfo()
     {
         return null;
     }
 
     @Override
-    public boolean storeCurrentUserData(PlayerData data)
+    public boolean storeCurrentUserInfo(UserInfo info)
     {
         return false;
     }
 
     @Override
-    public List<PlayerData> getTopUserData(int limit)
+    public List<UserInfo> getTopUserInfo(int limit)
     {
         return null;
     }
@@ -154,7 +154,7 @@ public class TestUtilDelegate implements GreenfootUtilDelegate
     }
 
     @Override
-    public List<PlayerData> getNearbyUserData(int maxAmount)
+    public List<UserInfo> getNearbyUserInfo(int maxAmount)
     {
         return null;
     }

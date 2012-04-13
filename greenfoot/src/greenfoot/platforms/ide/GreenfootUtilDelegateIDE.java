@@ -22,10 +22,9 @@
 package greenfoot.platforms.ide;
 
 import greenfoot.GreenfootImage;
-import greenfoot.PlayerData;
-import greenfoot.PlayerDataVisitor;
+import greenfoot.UserInfo;
+import greenfoot.UserInfoVisitor;
 import greenfoot.platforms.GreenfootUtilDelegate;
-import greenfoot.util.GreenfootStorageException;
 
 import java.awt.Component;
 import java.io.File;
@@ -253,12 +252,12 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
     }
 
     @Override
-    public PlayerData getCurrentUserData()
+    public UserInfo getCurrentUserInfo()
     {
         if (getUserName() == null || getUserName().isEmpty())
             return null;
         
-        ArrayList<PlayerData> all = getAllDataSorted(true);
+        ArrayList<UserInfo> all = getAllDataSorted(true);
         
         if (all == null)
             return null; // Error reading file
@@ -272,23 +271,23 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
         }
         
         // Couldn't find them anywhere, return blank:
-        return PlayerDataVisitor.allocate(getUserName(), -1, getUserName());
+        return UserInfoVisitor.allocate(getUserName(), -1, getUserName());
     }
 
-    private PlayerData makeStorage(String[] line, int rank, boolean useSingleton)
+    private UserInfo makeStorage(String[] line, int rank, boolean useSingleton)
     {
-        PlayerData r = null;
+        UserInfo r = null;
         try
         {
             int column = 0; 
-            r = PlayerDataVisitor.allocate(line[column++], rank, useSingleton ? getUserName() : null);
+            r = UserInfoVisitor.allocate(line[column++], rank, useSingleton ? getUserName() : null);
             r.setScore(Integer.parseInt(line[column++]));
-            for (int i = 0; i < PlayerData.NUM_INTS; i++)
+            for (int i = 0; i < UserInfo.NUM_INTS; i++)
             {
                 r.setInt(i, Integer.parseInt(line[column++]));
             }
             
-            for (int i = 0; i < PlayerData.NUM_STRINGS; i++)
+            for (int i = 0; i < UserInfo.NUM_STRINGS; i++)
             {
                 r.setString(i, line[column++]);
             }
@@ -302,20 +301,20 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
     }
     
 
-    private String[] makeLine(String userName, PlayerData data)
+    private String[] makeLine(String userName, UserInfo data)
     {
-        String[] line = new String[1 + 1 + PlayerData.NUM_INTS + PlayerData.NUM_STRINGS];
+        String[] line = new String[1 + 1 + UserInfo.NUM_INTS + UserInfo.NUM_STRINGS];
         int column = 0;
         line[column++] = userName;
         line[column++] = Integer.toString(data.getScore());
         try
         {
-            for (int i = 0; i < PlayerData.NUM_INTS; i++)
+            for (int i = 0; i < UserInfo.NUM_INTS; i++)
             {
                 line[column++] = Integer.toString(data.getInt(i));
             }
             
-            for (int i = 0; i < PlayerData.NUM_STRINGS; i++)
+            for (int i = 0; i < UserInfo.NUM_STRINGS; i++)
             {
                 line[column++] = data.getString(i);
             }
@@ -328,7 +327,7 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
     }
 
     @Override
-    public boolean storeCurrentUserData(PlayerData data)
+    public boolean storeCurrentUserInfo(UserInfo data)
     {
         if (getUserName() == null || getUserName().isEmpty())
             return false;
@@ -386,11 +385,11 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
         }
     }
     
-    private ArrayList<PlayerData> getAllDataSorted(boolean useSingleton)
+    private ArrayList<UserInfo> getAllDataSorted(boolean useSingleton)
     {
         try
         {
-            ArrayList<PlayerData> ret = new ArrayList<PlayerData>();
+            ArrayList<UserInfo> ret = new ArrayList<UserInfo>();
             
             FileReader fr = new FileReader("storage.csv");
             CSVReader csv = new CSVReader(fr);
@@ -418,7 +417,7 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
         catch (FileNotFoundException e)
         {
             // No previous storage, return the blank list:
-            return new ArrayList<PlayerData>();
+            return new ArrayList<UserInfo>();
         }
         catch (IOException e)
         {
@@ -428,9 +427,9 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
     }
 
     @Override
-    public List<PlayerData> getTopUserData(int limit)
+    public List<UserInfo> getTopUserInfo(int limit)
     {
-        ArrayList<PlayerData> ret = getAllDataSorted(false);
+        ArrayList<UserInfo> ret = getAllDataSorted(false);
         if (ret == null)
             return null;
         else if (ret.size() <= limit || limit <= 0)
@@ -447,12 +446,12 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
     }
 
     @Override
-    public List<PlayerData> getNearbyUserData(int maxAmount)
+    public List<UserInfo> getNearbyUserInfo(int maxAmount)
     {
         if (getUserName() == null || getUserName().isEmpty())
             return null;
         
-        ArrayList<PlayerData> all = getAllDataSorted(false);
+        ArrayList<UserInfo> all = getAllDataSorted(false);
         
         if (all == null)
             return null;
@@ -469,7 +468,7 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
         }
         
         if (index == -1 || maxAmount == 0)
-            return new ArrayList<PlayerData>();
+            return new ArrayList<UserInfo>();
         
         int availableBefore = index;
         int availableAfter = all.size() - 1 - index;

@@ -22,8 +22,8 @@
 package greenfoot.platforms.standalone;
 
 import greenfoot.GreenfootImage;
-import greenfoot.PlayerDataVisitor;
-import greenfoot.PlayerData;
+import greenfoot.UserInfoVisitor;
+import greenfoot.UserInfo;
 import greenfoot.platforms.GreenfootUtilDelegate;
 import greenfoot.util.GreenfootStorageException;
 
@@ -199,7 +199,7 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
         try
         {
             ensureStorageConnected();
-            return getCurrentUserData() != null;
+            return getCurrentUserInfo() != null;
         }
         catch (GreenfootStorageException e)
         {
@@ -337,7 +337,7 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
     }
 
     @Override
-    public PlayerData getCurrentUserData()
+    public UserInfo getCurrentUserInfo()
     {
         try
         {
@@ -401,31 +401,31 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
         }
     }
 
-    private PlayerData[] readLines(ByteBuffer buf, int numLines, boolean useSingleton) throws BufferUnderflowException
+    private UserInfo[] readLines(ByteBuffer buf, int numLines, boolean useSingleton) throws BufferUnderflowException
     {
         // Read number of ints then number of Strings (username not included)
         int numInts = buf.getInt();
         int numStrings = buf.getInt();
         
-        PlayerData[] r = new PlayerData[numLines]; 
+        UserInfo[] r = new UserInfo[numLines]; 
         
         for (int line = 0; line < numLines; line++)
         {
             String userName = getString(buf);
             int score = buf.getInt();
             int rank = buf.getInt();
-            r[line] = PlayerDataVisitor.allocate(userName, rank, useSingleton ? getUserName() : null);
+            r[line] = UserInfoVisitor.allocate(userName, rank, useSingleton ? getUserName() : null);
             r[line].setScore(score);
             for (int i = 0; i < numInts; i++)
             {
                 int x = buf.getInt();
-                if (i < PlayerData.NUM_INTS)
+                if (i < UserInfo.NUM_INTS)
                     r[line].setInt(i, x);
             }
             for (int i = 0; i < numStrings; i++)
             {
                 String s = getString(buf);
-                if (i < PlayerData.NUM_STRINGS)
+                if (i < UserInfo.NUM_STRINGS)
                     r[line].setString(i, s);
             }
         }
@@ -433,24 +433,24 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
     }
 
     @Override
-    public boolean storeCurrentUserData(PlayerData data)
+    public boolean storeCurrentUserInfo(UserInfo data)
     {
         try
         {
             ensureStorageConnected();
             int payloadLength = 0;
-            payloadLength += 4 + 4 + (1 + PlayerData.NUM_INTS) * 4;
-            for (int i = 0; i < PlayerData.NUM_STRINGS; i++)
+            payloadLength += 4 + 4 + (1 + UserInfo.NUM_INTS) * 4;
+            for (int i = 0; i < UserInfo.NUM_STRINGS; i++)
                 payloadLength += stringSize(data.getString(i));
             
             ByteBuffer buf = makeRequest(1 + payloadLength);
             buf.put((byte) 2);
             buf.putInt(data.getScore());
-            buf.putInt(PlayerData.NUM_INTS);
-            buf.putInt(PlayerData.NUM_STRINGS);
-            for (int i = 0; i < PlayerData.NUM_INTS; i++)
+            buf.putInt(UserInfo.NUM_INTS);
+            buf.putInt(UserInfo.NUM_STRINGS);
+            for (int i = 0; i < UserInfo.NUM_INTS; i++)
                 buf.putInt(data.getInt(i));
-            for (int i = 0; i < PlayerData.NUM_STRINGS; i++)
+            for (int i = 0; i < UserInfo.NUM_STRINGS; i++)
                 putString(buf, data.getString(i));
             buf.flip();
             socket.write(buf);
@@ -493,7 +493,7 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
     }
 
     @Override
-    public List<PlayerData> getTopUserData(int limit)
+    public List<UserInfo> getTopUserInfo(int limit)
     {
         try
         {
@@ -506,10 +506,10 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
             
             buf = readResponse();
             int numUsers = buf.getInt();
-            PlayerData[] storage = readLines(buf, numUsers, false);
+            UserInfo[] storage = readLines(buf, numUsers, false);
             
-            List<PlayerData> r = new ArrayList<PlayerData>();
-            for (PlayerData s : storage)
+            List<UserInfo> r = new ArrayList<UserInfo>();
+            for (UserInfo s : storage)
             {
                 r.add(s);
             }
@@ -535,7 +535,7 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
     }
     
     @Override
-    public List<PlayerData> getNearbyUserData(int limit)
+    public List<UserInfo> getNearbyUserInfo(int limit)
     {
         try
         {
@@ -551,10 +551,10 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
             if (numUsers < 0)
                 return null; // Error, or we're not logged in
             
-            PlayerData[] storage = readLines(buf, numUsers, false);
+            UserInfo[] storage = readLines(buf, numUsers, false);
             
-            List<PlayerData> r = new ArrayList<PlayerData>();
-            for (PlayerData s : storage)
+            List<UserInfo> r = new ArrayList<UserInfo>();
+            for (UserInfo s : storage)
             {
                 r.add(s);
             }
@@ -605,7 +605,7 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
         
             try
             {
-                return PlayerDataVisitor.readImage(fileData);
+                return UserInfoVisitor.readImage(fileData);
             }
             catch (IllegalArgumentException e)
             {

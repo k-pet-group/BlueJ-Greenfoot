@@ -109,7 +109,7 @@
           <include name="greenfoot/GreenfootSound.java" />
           <include name="greenfoot/Greenfoot.java" />
           <include name="greenfoot/MouseInfo.java" />
-          <include name="greenfoot/PlayerData.java" />    	
+          <include name="greenfoot/UserInfo.java" />    	
 	</fileset>
 
     <!-- scenarios to be included in standard distribution -->
@@ -764,7 +764,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <replaceregexp byline="true">
             <regexp pattern="@version .*"/>
             <substitution expression="@version ${greenfoot.apiversion.public}"/>
-            <fileset dir="${src}/greenfoot" includes="Greenfoot.java,GreenfootImage.java,GreenfootSound.java,Actor.java,World.java,MouseInfo.java,PlayerData.java"/>
+            <fileset dir="${src}/greenfoot" includes="Greenfoot.java,GreenfootImage.java,GreenfootSound.java,Actor.java,World.java,MouseInfo.java,UserInfo.java"/>
         </replaceregexp>
         <replaceregexp byline="true">
             <regexp pattern="GREENFOOT_VERSION = .*"/>
