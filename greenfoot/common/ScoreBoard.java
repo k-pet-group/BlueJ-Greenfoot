@@ -4,7 +4,7 @@ import java.util.List;
 
 /**
  * An actor class that can display a scoreboard, using Greenfoot's
- * PlayerData class.  
+ * UserInfo class.  
  * 
  * You typically use this by including some code into the world for when your game ends:
  * 
@@ -63,8 +63,8 @@ public class ScoreBoard extends Actor
         drawString("All Players", 100, topSpace - HEADER_TEXT_HEIGHT - 5, MAIN_COLOR, HEADER_TEXT_HEIGHT);
         drawString("Near You", 100 + getImage().getWidth() / 2, topSpace - HEADER_TEXT_HEIGHT - 5, MAIN_COLOR, HEADER_TEXT_HEIGHT);        
         
-        drawUserPanel(GAP, topSpace, (getImage().getWidth() / 2) - GAP, topSpace + numUsers * pixelsPerUser, PlayerData.getTop(numUsers));
-        drawUserPanel(GAP + getImage().getWidth() / 2, topSpace, getImage().getWidth() - GAP, topSpace + numUsers * pixelsPerUser, PlayerData.getNearby(numUsers));
+        drawUserPanel(GAP, topSpace, (getImage().getWidth() / 2) - GAP, topSpace + numUsers * pixelsPerUser, UserInfo.getTop(numUsers));
+        drawUserPanel(GAP + getImage().getWidth() / 2, topSpace, getImage().getWidth() - GAP, topSpace + numUsers * pixelsPerUser, UserInfo.getNearby(numUsers));
     }
     
     private void drawUserPanel(int left, int top, int right, int bottom, List users)
@@ -75,11 +75,11 @@ public class ScoreBoard extends Actor
         if (users == null)
             return;
         
-        PlayerData me = PlayerData.getMyData();
+        UserInfo me = UserInfo.getMyData();
         int y = top + GAP;
         for (Object obj : users)
         {
-            PlayerData playerData = (PlayerData)obj;            
+            UserInfo playerData = (UserInfo)obj;            
             Color c;
             
             if (me != null && playerData.getUserName().equals(me.getUserName()))

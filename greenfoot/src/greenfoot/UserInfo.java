@@ -146,7 +146,7 @@ public class UserInfo
     {
         if (value != null && value.length() > STRING_LENGTH_LIMIT)
         {
-            System.err.println("Error: tried to store a String of length " + value.length() + " in PlayerData, which is longer than PlayerData.STRING_LENGTH_LIMIT (" + STRING_LENGTH_LIMIT + ")");
+            System.err.println("Error: tried to store a String of length " + value.length() + " in UserInfo, which is longer than UserInfo.STRING_LENGTH_LIMIT (" + STRING_LENGTH_LIMIT + ")");
         }
         else
         {
@@ -256,9 +256,9 @@ public class UserInfo
     }
     
     /**
-     * Get a sorted list of the PlayerData items for this scenario, starting at the top.
+     * Get a sorted list of the UserInfo items for this scenario, starting at the top.
      * 
-     * <p>This will return one PlayerData item per user, and it will be sorted in descending order by the score
+     * <p>This will return one UserInfo item per user, and it will be sorted in descending order by the score
      * (i.e. the return of getScore()).  The parameter allows you to specify a limit
      * on the amount of users' data to retrieve.  If there is lots of data stored
      * for users in your app, it may take some time (and bandwidth) to retrieve all users' data,
@@ -277,12 +277,12 @@ public class UserInfo
      * 
      * @param maxAmount The maximum number of data items to retrieve.
      * Passing zero or a negative number will get all the data, but see the note above.  
-     * @return A list where each item is a PlayerData, or null if there was a problem
+     * @return A list where each item is a UserInfo, or null if there was a problem
      */
     public static List getTop(int maxAmount)
     {
         // Will return an empty list if there is no previously stored data
-        // Each item is a PlayerData
+        // Each item is a UserInfo
         return GreenfootUtil.getTopUserInfo(maxAmount);
     }
     
@@ -317,7 +317,7 @@ public class UserInfo
      * 
      * @param maxAmount The maximum number of data items to retrieve.
      *            Passing zero or a negative number will get all the data, but see the note above.  
-     * @return A list where each item is a PlayerData, or null if there was a problem
+     * @return A list where each item is a UserInfo, or null if there was a problem
      */
     public static List getNearby(int maxAmount)
     {

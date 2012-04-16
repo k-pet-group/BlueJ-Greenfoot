@@ -260,7 +260,7 @@ import.action=Import Class...
 
 set.player=Set Player Name
 playername.dialog.title=Set Player Name
-playername.dialog.help=Set the username returned by the UserInfo class for local storage
+playername.dialog.help=Set the username used by the UserInfo class
 playername.dialog.playerName=Player Name
 
 prefmgr.misc.playername.title=Player Name
