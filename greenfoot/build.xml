@@ -305,6 +305,9 @@ LICENSE.txt file that accompanied this code.${line.separator}
     	<antcall target="copy-common-class">
     	  <param name="common.class" value="Counter"/>
     	</antcall>
+        <antcall target="copy-common-class">
+          <param name="common.class" value="Animal"/>
+        </antcall>
     </target>
 	
 	<target name="copy-common-class" depends="compile-scenarios">
