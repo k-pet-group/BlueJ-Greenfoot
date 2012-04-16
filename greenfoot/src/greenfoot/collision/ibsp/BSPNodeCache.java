@@ -55,6 +55,7 @@ public class BSPNodeCache
     
     public static void returnNode(BSPNode node)
     {
+        node.blankNode();
         cache[tail++] = node;
         if (tail == CACHE_SIZE) {
             tail = 0;

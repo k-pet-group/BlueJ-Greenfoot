@@ -238,4 +238,10 @@ public final class BSPNode
     {
         return new ArrayList<Actor>(actors.keySet());
     }
+    
+    // Blanks the node.  Used by BSPNodeCache 
+    void blankNode()
+    {
+        actors.clear();
+    }
 }
