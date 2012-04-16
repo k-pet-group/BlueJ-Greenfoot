@@ -26,7 +26,7 @@
     unlikely to break scenarios (documentation changes, addition of method).
     Changing this number will stripe the user's classes and require a recompile.
     Do not change this number if the changes cannot break older scenarios. -->
-    <property name="greenfoot.apiversion.nonbreaking" value="3"/>
+    <property name="greenfoot.apiversion.nonbreaking" value="4"/>
     
     <!-- Change when API has only changed internally and not in any way visible to the user. 
     It should not be possible for this change to break existing scenarios. 

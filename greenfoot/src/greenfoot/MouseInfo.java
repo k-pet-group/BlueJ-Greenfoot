@@ -27,7 +27,7 @@ package greenfoot;
  * 
  * @see Greenfoot#getMouseInfo()
  * @author Poul Henriksen
- * @version 2.3
+ * @version 2.4
  */
 public class MouseInfo
 {    

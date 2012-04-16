@@ -37,7 +37,8 @@ project.version.changes.5=2.1.0 World's methods 'setTiled' and 'getTiled' have b
 project.version.changes.6=2.1.0 World's 'getBackground' now returns an image that is the size of the entire background.
 project.version.changes.7=2.2.0 A 'move' method and a 'turn' method have been added to the Actor class.
 project.version.changes.8=2.3.0 Greenfoot.getMouseInfo() now only returns null if the mouse is not in the world.
-project.version.changes.9=2.3.0 A 'turnTowards(int,int)' method has been added to the Actor class. 
+project.version.changes.9=2.3.0 A 'turnTowards(int,int)' method has been added to the Actor class.
+project.version.changes.10=2.4.0 A 'UserInfo' class was added (renamed from 'PlayerData' in the Greenfoot 2.2.0 beta).
 
 project.version.newer.part1=The scenario being opened has been written using a newer version of Greenfoot (API version 
 # project version inserted here by Greenfoot

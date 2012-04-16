@@ -61,7 +61,7 @@ import java.util.List;
  * on the web site, the user name is the name used to log in to the site.</p>
  * 
  * @author Neil Brown
- * @version 2.3
+ * @version 2.4
  */
 public class UserInfo
 {
