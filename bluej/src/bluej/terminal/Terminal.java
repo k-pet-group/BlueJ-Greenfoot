@@ -117,7 +117,7 @@ public final class Terminal extends JFrame
     private Project project;
     
     private TermTextArea text;
-    private JTextArea errorText;
+    private TermTextArea errorText;
     private JScrollPane errorScrollPane;
     private JScrollPane scrollPane;
     private JSplitPane splitPane;
@@ -302,9 +302,11 @@ public final class Terminal extends JFrame
     /**
      * Write some text to the terminal.
      */
-    public void writeToTerminal(String s)
+    private void writeToPane(boolean stdout, String s)
     {
         prepare();
+        if (!stdout)
+            showErrorPane();
         
         // The form-feed character should clear the screen.
         int n = s.lastIndexOf('\f');
@@ -313,40 +315,16 @@ public final class Terminal extends JFrame
             s = s.substring(n + 1);
         }
         
-        text.append(s);
-        text.setCaretPosition(text.getDocument().getLength());
+        TermTextArea tta = stdout ? text : errorText;
+        
+        tta.append(s);
+        tta.setCaretPosition(tta.getDocument().getLength());       
     }
-
-    /**
-     * Write some text to error output.
-     */
-    private void writeToErrorOut(String s)
+    
+    public void writeToTerminal(String s)
     {
-        erroutBuffer.append(s);
-        int endOfLine = erroutBuffer.indexOf("\n");
-        while (endOfLine != -1) {
-            String line = erroutBuffer.substring(0, endOfLine + 1);
-
-            // TEMPORARY: filter out known annoying but harmless error messages
-            // from MacOS Java v. 1.4.1
-            if((line.indexOf("CFMessagePort") == -1) &&
-                    (line.indexOf("bootstrap_defs.h") == -1)) {
-                prepare();
-                showErrorPane();
-                
-                errorText.append(line);
-                errorText.setCaretPosition(errorText.getDocument().getLength());
-            }
-            StringBuffer newBuffer = new StringBuffer();
-            //We need to cast the CharSequence to an Object to make it work on Java 1.4 which does not have an append method for CharSequence.
-            newBuffer.append((Object) erroutBuffer.subSequence(endOfLine + 1, erroutBuffer.length()));
-            erroutBuffer = newBuffer;
-            endOfLine = erroutBuffer.indexOf("\n");
-        }
+        writeToPane(true, s);
     }
-
-    private StringBuffer erroutBuffer = new StringBuffer(120);
-
     
     /**
      * Prepare the terminal for I/O.
@@ -596,7 +574,7 @@ public final class Terminal extends JFrame
         if (icon != null) {
             setIconImage(icon);
         }
-        text = new TermTextArea(rows, columns, buffer, this);
+        text = new TermTextArea(rows, columns, buffer, project, this, false, FGCOLOUR);
         final InputMap origInputMap = text.getInputMap();
         text.setInputMap(JComponent.WHEN_FOCUSED, new InputMap() {
             {
@@ -679,11 +657,10 @@ public final class Terminal extends JFrame
      */
     private void createErrorPane()
     {
-        errorText = new JTextArea(5, 80);
+        errorText = new TermTextArea(5, 80, null, project, this, true, ERRORCOLOUR);
         errorScrollPane = new JScrollPane(errorText);
         errorText.setFont(getTerminalFont());
         errorText.setEditable(false);
-        errorText.setLineWrap(false);
         errorText.setForeground(ERRORCOLOUR);
         errorText.setMargin(new Insets(6, 6, 6, 6));
 
@@ -948,12 +925,7 @@ public final class Terminal extends JFrame
                     public void run()
                     {
                         initialise();
-                        if(isErrorOut) {
-                            writeToErrorOut(new String(cbuf, off, len));
-                        }
-                        else {
-                            writeToTerminal(new String(cbuf, off, len));
-                        }
+                        writeToPane(!isErrorOut, new String(cbuf, off, len));
                     }
                 });
             }

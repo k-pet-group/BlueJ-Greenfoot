@@ -24,6 +24,8 @@ package bluej.terminal;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.AttributeSet;
@@ -34,6 +36,10 @@ import javax.swing.text.MutableAttributeSet;
 import javax.swing.text.Position;
 import javax.swing.text.Segment;
 
+import bluej.pkgmgr.Project;
+import bluej.pkgmgr.Package;
+import bluej.utility.JavaNames;
+
 /**
  * Document implementation for the terminal editor pane.
  * 
@@ -41,16 +47,22 @@ import javax.swing.text.Segment;
  * implementation of the insertUpdate() method, which can clear line attributes
  * unexpectedly (insertUpdate method).
  * 
+ * <p>It also allows highlighting of exception stack traces
+ * 
  * @author Davin McCall
  */
 public class TerminalDocument extends AbstractDocument
 {
     Element root;
+    private boolean highlightSourceLinks;
+    private Project project;
     
-    public TerminalDocument()
+    public TerminalDocument(Project project, boolean highlightSourceLinks)
     {
         super(new GapContent());
         root = createDefaultRoot();
+        this.project = project;
+        this.highlightSourceLinks = highlightSourceLinks;
     }
     
     /**
@@ -143,8 +155,60 @@ public class TerminalDocument extends AbstractDocument
             ElementEdit ee = new ElementEdit(lineMap, lindex + 1, removed, addedArr);
             chng.addEdit(ee);
         }
+        
+        if (highlightSourceLinks)
+            scanForStackTrace();
 
         super.insertUpdate(chng, attr);
+    }
+
+    /**
+     * Looks through the contents of the terminal for lines
+     * that look like they are part of a stack trace.
+     */
+    private void scanForStackTrace()
+    {
+        try {
+            String content = getText(0, getLength());
+            
+            Pattern p = java.util.regex.Pattern.compile("at (\\S+)\\((\\S+)\\.java:(\\d+)\\)");
+            // Matches things like:
+            // at greenfoot.localdebugger.LocalDebugger$QueuedExecution.run(LocalDebugger.java:267)
+            //    ^--------------------group 1----------------------------^ ^--group 2--^      ^3^
+            Matcher m = p.matcher(content);
+            while (m.find())
+            {
+                int elementIndex = getDefaultRootElement().getElementIndex(m.start());
+                Element el = getDefaultRootElement().getElement(elementIndex);
+                MutableAttributeSet attr = (MutableAttributeSet) el.getAttributes();
+                
+                String fullyQualifiedMethodName = m.group(1);
+                String javaFile = m.group(2);
+                int lineNumber = Integer.parseInt(m.group(3));
+                
+                // The fully qualified method name will end in ".method", so we can
+                // definitely remove that:
+                
+                String fullyQualifiedClassName = JavaNames.getPrefix(fullyQualifiedMethodName);
+                // The class name may be an inner class, so we want to take the package:
+                String packageName = JavaNames.getPrefix(fullyQualifiedClassName);
+                
+                //Find out if that file is available, and only link if it is:                
+                Package pkg = project.getPackage(packageName);
+                
+                if (pkg != null && pkg.getAllClassnames().contains(javaFile))
+                {
+                    attr.addAttribute(TerminalView.SOURCE_LOCATION, new ExceptionSourceLocation(m.start(1), m.end(), pkg, javaFile, lineNumber));
+                }
+            }
+        }
+        catch (BadLocationException e) {
+            e.printStackTrace();
+        }
+        catch (NumberFormatException e ) {
+            //In case it looks like an exception but has a large line number:
+            e.printStackTrace();
+        }
     }
 
     @Override

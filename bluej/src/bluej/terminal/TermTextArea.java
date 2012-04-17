@@ -21,14 +21,20 @@
  */
 package bluej.terminal;
 
+import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
+import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.io.IOException;
 
 import javax.swing.JEditorPane;
@@ -40,6 +46,7 @@ import javax.swing.text.Element;
 import javax.swing.text.View;
 import javax.swing.text.ViewFactory;
 
+import bluej.pkgmgr.Project;
 import bluej.utility.Debug;
 
 /**
@@ -47,7 +54,7 @@ import bluej.utility.Debug;
  *
  * @author  Michael Kolling
  */
-public final class TermTextArea extends JEditorPane
+public final class TermTextArea extends JEditorPane implements MouseMotionListener, MouseListener
 {
     private static final int BUFFER_LINES = 48;
 
@@ -62,7 +69,7 @@ public final class TermTextArea extends JEditorPane
     /**
      * Create a new text area with given size.
      */
-    public TermTextArea(int rows, int columns, InputBuffer buffer, Terminal terminal)
+    public TermTextArea(int rows, int columns, InputBuffer buffer, final Project proj, Terminal terminal, final boolean highlightSourceLinks, final Color defaultColor)
     {
         preferredRows = rows;
         preferredColumns = columns;
@@ -74,7 +81,7 @@ public final class TermTextArea extends JEditorPane
             @Override
             public Document createDefaultDocument()
             {
-                return new TerminalDocument();
+                return new TerminalDocument(proj, highlightSourceLinks);
             }
             
             @Override
@@ -84,11 +91,16 @@ public final class TermTextArea extends JEditorPane
                     @Override
                     public View create(Element elem)
                     {
-                        return new TerminalView(elem);
+                        return new TerminalView(elem, defaultColor);
                     }
                 };
             } 
         });
+        if (highlightSourceLinks)
+        {
+            addMouseMotionListener(this);
+            addMouseListener(this);
+        }
     }
     
     @Override
@@ -232,4 +244,57 @@ public final class TermTextArea extends JEditorPane
             super.paste();
         }
     }
+    
+    @Override
+    public void mouseMoved(MouseEvent e)
+    {
+        TermTextArea editor = TermTextArea.this;
+        Point pt = new Point(e.getX(), e.getY());
+        int pos = editor.getUI().viewToModel(editor, pt);
+        
+        Document doc = getDocument();
+        int elementIndex = doc.getDefaultRootElement().getElementIndex(pos);
+        Element el = doc.getDefaultRootElement().getElement(elementIndex);
+        
+        Cursor cursor = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR);
+        
+        AttributeSet attrs = el.getAttributes();
+        if (attrs != null && attrs.getAttribute(TerminalView.SOURCE_LOCATION) != null) {
+            ExceptionSourceLocation sel = (ExceptionSourceLocation) attrs.getAttribute(TerminalView.SOURCE_LOCATION);
+            if (pos >= sel.getStart() && pos < sel.getEnd())
+            {
+                cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR);
+            }
+        }
+        
+        editor.setCursor(cursor);
+    }
+    
+    @Override
+    public void mouseClicked(MouseEvent e)
+    {
+        TermTextArea editor = TermTextArea.this;
+        Point pt = new Point(e.getX(), e.getY());
+        int pos = editor.getUI().viewToModel(editor, pt);
+        
+        Document doc = getDocument();
+        int elementIndex = doc.getDefaultRootElement().getElementIndex(pos);
+        Element el = doc.getDefaultRootElement().getElement(elementIndex);
+        
+        AttributeSet attrs = el.getAttributes();
+        if (attrs != null && attrs.getAttribute(TerminalView.SOURCE_LOCATION) != null) {
+            ExceptionSourceLocation sel = (ExceptionSourceLocation) attrs.getAttribute(TerminalView.SOURCE_LOCATION);
+            if (pos >= sel.getStart() && pos < sel.getEnd())
+            {
+                sel.showInEditor();
+            }
+        }
+    }
+    
+    // Un-needed stubs:
+    @Override public void mouseDragged(MouseEvent e) { }
+    @Override public void mousePressed(MouseEvent e) { }
+    @Override public void mouseReleased(MouseEvent e) { }
+    @Override public void mouseEntered(MouseEvent e) { }
+    @Override public void mouseExited(MouseEvent e) { }
 }
