@@ -69,7 +69,7 @@ public final class TermTextArea extends JEditorPane implements MouseMotionListen
     /**
      * Create a new text area with given size.
      */
-    public TermTextArea(int rows, int columns, InputBuffer buffer, final Project proj, Terminal terminal, final boolean highlightSourceLinks, final Color defaultColor)
+    public TermTextArea(int rows, int columns, InputBuffer buffer, final Project proj, Terminal terminal, final boolean isStderr)
     {
         preferredRows = rows;
         preferredColumns = columns;
@@ -81,7 +81,7 @@ public final class TermTextArea extends JEditorPane implements MouseMotionListen
             @Override
             public Document createDefaultDocument()
             {
-                return new TerminalDocument(proj, highlightSourceLinks);
+                return new TerminalDocument(proj, isStderr /* Highlight stack traces if stderr */);
             }
             
             @Override
@@ -91,16 +91,18 @@ public final class TermTextArea extends JEditorPane implements MouseMotionListen
                     @Override
                     public View create(Element elem)
                     {
-                        return new TerminalView(elem, defaultColor);
+                        return new TerminalView(elem, isStderr);
                     }
                 };
             } 
         });
-        if (highlightSourceLinks)
+        if (isStderr) /* Only need mouse listener if we're highlighting stack traces */
         {
             addMouseMotionListener(this);
             addMouseListener(this);
         }
+        
+        setForeground(TerminalView.getDefaultColor(isStderr));
     }
     
     @Override

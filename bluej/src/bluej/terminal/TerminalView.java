@@ -43,13 +43,22 @@ public class TerminalView extends PlainView
 {
     public static final String METHOD_RECORD = "method-record";
     public static final String SOURCE_LOCATION = "source-location";
+    
+
+    private static final Color STDOUT_TEXT_COLOR = Color.BLACK;
+    private static final Color STDERR_TEXT_COLOR = Color.RED;
     private static final Color METHOD_RECORD_COLOR = Config.ENV_COLOUR;
     private Color defaultColor;
     
-    public TerminalView(Element el, Color defaultColor)
+    public TerminalView(Element el, boolean isStderr)
     {
         super(el);
-        this.defaultColor = defaultColor;
+        this.defaultColor = getDefaultColor(isStderr);
+    }
+
+    public static Color getDefaultColor(boolean isStderr)
+    {
+        return isStderr ? STDERR_TEXT_COLOR : STDOUT_TEXT_COLOR;
     }
     
     @Override

@@ -93,9 +93,6 @@ public final class Terminal extends JFrame
     private static final int WINDOWWIDTH =
         Config.getPropInteger("bluej.terminal.width", 80);
 
-    private static final Color FGCOLOUR = Color.black;
-    private static final Color ERRORCOLOUR = Color.red;
-
     private static final int SHORTCUT_MASK =
         Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
     //private static final int ALT_SHORTCUT_MASK =
@@ -574,7 +571,7 @@ public final class Terminal extends JFrame
         if (icon != null) {
             setIconImage(icon);
         }
-        text = new TermTextArea(rows, columns, buffer, project, this, false, FGCOLOUR);
+        text = new TermTextArea(rows, columns, buffer, project, this, false);
         final InputMap origInputMap = text.getInputMap();
         text.setInputMap(JComponent.WHEN_FOCUSED, new InputMap() {
             {
@@ -610,7 +607,6 @@ public final class Terminal extends JFrame
         scrollPane = new JScrollPane(text);
         text.setFont(getTerminalFont());
         text.setEditable(false);
-        text.setForeground(FGCOLOUR);
         text.setMargin(new Insets(6, 6, 6, 6));
         text.addKeyListener(this);
 
@@ -657,11 +653,10 @@ public final class Terminal extends JFrame
      */
     private void createErrorPane()
     {
-        errorText = new TermTextArea(5, 80, null, project, this, true, ERRORCOLOUR);
+        errorText = new TermTextArea(5, 80, null, project, this, true);
         errorScrollPane = new JScrollPane(errorText);
         errorText.setFont(getTerminalFont());
         errorText.setEditable(false);
-        errorText.setForeground(ERRORCOLOUR);
         errorText.setMargin(new Insets(6, 6, 6, 6));
 
         splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
