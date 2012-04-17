@@ -54,12 +54,10 @@ public class TerminalView extends PlainView
     private static final Color STACK_LOCAL_TEXT_COLOR = new Color(255, 96, 96); // Colour of lines in stack trace with clickable portion (i.e. local code)
     private static final Color STACK_FOREIGN_TEXT_COLOR = Color.LIGHT_GRAY; // Colour of lines in stack trace with clickable portion (i.e. local code)
     private static final Color METHOD_RECORD_COLOR = Config.ENV_COLOUR;
-    private Color defaultColor;
     
     public TerminalView(Element el, boolean isStderr)
     {
         super(el);
-        this.defaultColor = getDefaultColor(isStderr);
     }
 
     public static Color getDefaultColor(boolean isStderr)
