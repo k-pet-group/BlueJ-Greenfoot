@@ -40,5 +40,5 @@ target3.type=ClassTarget
 target3.width=80
 target3.x=10
 target3.y=90
-version=2.3.0
+version=2.4.0
 world.lastInstantiated=WombatWorld
