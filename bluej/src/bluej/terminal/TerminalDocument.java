@@ -200,6 +200,25 @@ public class TerminalDocument extends AbstractDocument
                 {
                     attr.addAttribute(TerminalView.SOURCE_LOCATION, new ExceptionSourceLocation(m.start(1), m.end(), pkg, javaFile, lineNumber));
                 }
+                else
+                {
+                    attr.addAttribute(TerminalView.FOREIGN_STACK_TRACE, Boolean.valueOf(true));
+                }
+            }
+            
+            //Also mark up native method lines in stack traces with a marker for font colour:
+            
+            p = java.util.regex.Pattern.compile("at \\S+\\(Native Method\\)");
+            // Matches things like:
+            //  at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+            m = p.matcher(content);
+            while (m.find())
+            {
+                int elementIndex = getDefaultRootElement().getElementIndex(m.start());
+                Element el = getDefaultRootElement().getElement(elementIndex);
+                MutableAttributeSet attr = (MutableAttributeSet) el.getAttributes();
+                
+                attr.addAttribute(TerminalView.FOREIGN_STACK_TRACE, Boolean.valueOf(true));
             }
         }
         catch (BadLocationException e) {

@@ -45,11 +45,14 @@ import javax.swing.text.Utilities;
 public class TerminalView extends PlainView
 {
     public static final String METHOD_RECORD = "method-record";
+    public static final String FOREIGN_STACK_TRACE = "foreign-stack-trace";    
     public static final String SOURCE_LOCATION = "source-location";
     
 
     private static final Color STDOUT_TEXT_COLOR = Color.BLACK;
     private static final Color STDERR_TEXT_COLOR = Color.RED;
+    private static final Color STACK_LOCAL_TEXT_COLOR = new Color(255, 96, 96); // Colour of lines in stack trace with clickable portion (i.e. local code)
+    private static final Color STACK_FOREIGN_TEXT_COLOR = Color.LIGHT_GRAY; // Colour of lines in stack trace with clickable portion (i.e. local code)
     private static final Color METHOD_RECORD_COLOR = Config.ENV_COLOUR;
     private Color defaultColor;
     
@@ -84,15 +87,18 @@ public class TerminalView extends PlainView
             Element el = doc.getDefaultRootElement().getElement(elementIndex);
             
             AttributeSet attrs = el.getAttributes();
-            if (attrs != null && attrs.getAttribute(METHOD_RECORD) != null) {
-                g.setColor(METHOD_RECORD_COLOR);
+            if (attrs != null && (attrs.getAttribute(METHOD_RECORD) != null
+                                  || attrs.getAttribute(FOREIGN_STACK_TRACE) != null)) {
+                g.setColor(attrs.getAttribute(METHOD_RECORD) != null ? METHOD_RECORD_COLOR : STACK_FOREIGN_TEXT_COLOR);
                 Segment s = new Segment();
                 doc.getText(p0, p1 - p0, s);
                 return Utilities.drawTabbedText(s, x, y, g, this, p0);
             } else if (attrs != null && attrs.getAttribute(SOURCE_LOCATION) != null) {
                 ExceptionSourceLocation esl = (ExceptionSourceLocation) attrs.getAttribute(SOURCE_LOCATION);
                 Segment s = new Segment();
-                g.setColor(defaultColor);
+                
+                g.setColor(STACK_LOCAL_TEXT_COLOR);
+                
                 
                 // So we have some underline on this line, and we want to draw a portion of the line,
                 // which may or may not overlap the underline in any fashion, i.e.
