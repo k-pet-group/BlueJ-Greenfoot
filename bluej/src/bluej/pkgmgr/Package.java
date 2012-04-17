@@ -63,6 +63,8 @@ import bluej.graph.Graph;
 import bluej.parser.AssistContent;
 import bluej.parser.CodeSuggestions;
 import bluej.parser.ParseUtils;
+import bluej.parser.nodes.NodeTree.NodeAndPosition;
+import bluej.parser.nodes.ParsedNode;
 import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
 import bluej.pkgmgr.dependency.Dependency;
@@ -2379,6 +2381,16 @@ public final class Package extends Graph
             SourceLocation loc = (SourceLocation) stack.get(0);
             showMessageWithText("error-in-file", loc.getClassName() + ":" + loc.getLineNumber() + "\n" + message);
         }
+    }
+    
+    /**
+     * Displays the given class at the given line number (due to an exception, usually clicked-on stack trace).
+     * 
+     *  Simpler than the other exceptionMessage method because it requires less details 
+     */
+    public void exceptionMessage(String className, int lineNumber)
+    {
+        showEditorMessage(className, lineNumber, "", false, true, false, "exception");
     }
 
     /**
