@@ -24,6 +24,9 @@ package bluej.terminal;
 import bluej.Config;
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Toolkit;
+import java.util.Map;
 
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
@@ -66,6 +69,15 @@ public class TerminalView extends PlainView
         throws BadLocationException
     {
         try {
+            //Set correct rendering hints for graphics:
+            Toolkit tk = Toolkit.getDefaultToolkit(); 
+            Map<?,?> hints = (Map<?,?>) (tk.getDesktopProperty("awt.font.desktophints"));
+            
+            if (hints != null && g instanceof Graphics2D) {
+                Graphics2D g2d = (Graphics2D) g;
+                g2d.addRenderingHints(hints); 
+            }
+            
         
             Document doc = getDocument();
             int elementIndex = doc.getDefaultRootElement().getElementIndex(p0);
