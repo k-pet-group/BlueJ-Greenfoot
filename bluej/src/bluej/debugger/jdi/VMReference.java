@@ -218,8 +218,6 @@ class VMReference
         
         paramList.add("-classpath");
         paramList.add(allClassPath);
-        paramList.add("-Xdebug");
-        paramList.add("-Xnoagent");
         if (Config.isMacOS()) {
             paramList.add("-Xdock:icon=" + Config.getBlueJIconPath() + "/" + Config.getVMIconsName());
             paramList.add("-Xdock:name=" + Config.getVMDockName());
@@ -294,7 +292,7 @@ class VMReference
                             }
                         }
                         Debug.log("Listening for JDWP connection on address: " + address);
-                        paramList.add(transportIndex, "-Xrunjdwp:transport=" + connector.transport().name()
+                        paramList.add(transportIndex, "-agentlib:jdwp=transport=" + connector.transport().name()
                                 + ",address=" + address);
                         launchParams = paramList.toArray(new String[paramList.size()]);
                         paramList.remove(transportIndex);
