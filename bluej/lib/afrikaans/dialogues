@@ -230,9 +230,6 @@ applet-height-width
 Die minitoepassing se hoogte en wydte
 moet gespesifiseer word.
 
-cannot-read-help
-Die hulpl\u00eaer kan nie gelees word nie:
-
 not-yet-implemented
 Nog nie ge\u00efmplementeer nie - jammer.
 
@@ -383,16 +380,6 @@ wat verbindings vanaf hierdie masjien toelaat.
 Ander moontlike oorsake is foutiewe netwerkinstellings.
 Maak seker dat die TCP/IP opstelling korrek is en gaan ander netwerkopsies na.
 As die probleem voortduur, vra vir hulp (sien http://www.bluej.org/help/ask-help.html).
-
-project-is-readonly
-Die projek het lees-alleen toegang.  U sal nie objekte kan skep
-of metodes kan uitvoer nie.
-Moontlik is die toegangsregte van die projekgids gestel na 'read-only'
-of die hele l\u00eaerstelsel is onskryfbaar (bv. as dit op 'n CD is).
-Om hierdie projek ten volle te kan gebruik
-moet dit op 'n skryfbare l\u00eaerstelsel wees (normaalweg die hardeskyf)
-en die toegangsregte moet so gestel wees dat u skryftoegang het
-na die gids en elke l\u00eaer daarin.
 
 could-not-write-shell-file
 Uitvoering het gefaal omdat die projekgids nie skryfbaar is nie.

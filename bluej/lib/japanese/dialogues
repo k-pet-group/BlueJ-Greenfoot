@@ -230,9 +230,6 @@ applet-height-width
 \u30a2\u30d7\u30ec\u30c3\u30c8\u306e\u9ad8\u3055\u3068\u5e45\u3092
 \u6307\u5b9a\u3059\u308b\u5fc5\u8981\u304c\u3042\u308a\u307e\u3059.
 
-cannot-read-help
-\u30d8\u30eb\u30d7\u30d5\u30a1\u30a4\u30eb\u3092\u8aad\u307f\u8fbc\u3081\u307e\u305b\u3093:
-
 not-yet-implemented
 \u307e\u3060\u5b9f\u88c5\u3055\u308c\u3066\u3044\u307e\u305b\u3093 - \u3054\u3081\u3093\u306d.
 
@@ -382,16 +379,6 @@ setting that allows connections from localhost.
 Other possible causes are incorrect network settings. Check that TCP/IP
 is set up correctly check other networking parameters.
 If problems persist, ask for help (see http://www.bluej.org/help/ask-help.html).
-
-project-is-readonly
-\u3053\u306e\u30d7\u30ed\u30b8\u30a7\u30af\u30c8\u306f\u8aad\u8fbc\u5c02\u7528\u3067\u3059.
-You will not be able to create objects or execute methods.
-Either the access rights of the project directory are set as 
-'read only' for you, or the whole file system is not writable (is 
-it a CD?).
-To fully use this project, you must ensure that it is on a writable
-file system (usually your hard disk), and that you have write 
-permission in the project directory and each file within it.
 
 could-not-write-shell-file
 Execution failed because the project directory is not writable.

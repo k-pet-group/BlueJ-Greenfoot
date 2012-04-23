@@ -229,9 +229,6 @@ applet-height-width
 A altura (height) e a largura (width) do 
 applet devem ser especificados.
 
-cannot-read-help
-Imposs\u00edvel ler arquivo de ajuda:
-
 not-yet-implemented
 N\u00e3o implementado ainda - desculpe.
 
@@ -381,17 +378,6 @@ que permita conex\u00f5es do localhost.
 Outras causas poss\u00edveis s\u00e3o configura\u00e7\u00f5es de rede incorretas. Verifique
 se o TCP/IP est\u00e1 configurado corretamente e olhe outros par\u00e2metros da rede.
 Se o problema persistir, pe\u00e7a ajuda (veja http://www.bluej.org/help/ask-help.html).
-
-project-is-readonly
-O projeto \u00e9 apenas para leitura. Voc\u00ea n\u00e3o pode criar objetos ou
-executar m\u00e9todos.
-Ou as permiss\u00f5es de acesso do diret\u00f3rio do projeto est\u00e3o definidas
-como 'apenas leitura' para voc\u00ea, ou o sistema de arquivos inteiro
-n\u00e3o permite escrita (\u00e9 um CD?).
-Para usar este projeto plenamente, voc\u00ea deve assegurar-se que ele esteja
-num sistema de arquivos que permita grava\u00e7\u00e3o (geralmente um disco r\u00edgido),
-e que voc\u00ea tenha permiss\u00e3o de escrita no diret\u00f3rio do projeto e todos 
-os seus arquivos.
 
 could-not-write-shell-file
 A execu\u00e7\u00e3o falhou porque o diret\u00f3rio do projeto n\u00e3o permite grava\u00e7\u00e3o.

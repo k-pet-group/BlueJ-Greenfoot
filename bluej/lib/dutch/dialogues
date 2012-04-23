@@ -211,9 +211,6 @@ applet-height-width
 Je moet de hoogte en breedte
 van de applet specificeren.
 
-cannot-read-help
-BlueJ kan de help file niet lezen:
-
 not-yet-implemented
 Not Yet Implemented - sorry.
 
@@ -364,13 +361,6 @@ instllingen. Controleer of TCP/IP juist is ingesteld en
 controleer andere netwerk parameters. Als de problemen nog
 niet weg zijn, moet je hulp vragen bij:
 http://www.bluej.org/help/ask-help.html.
-
-project-is-readonly
-Het project is alleen lezen. Zo kan je geen objecten maken of
-methodes aanroepen.
-Je hebt niet de juiste rechten in de project map of je kan
-helemaal niet schrijven (is het een CD?). Vraag hulp aan
-de systeembeheerder.
 
 could-not-write-shell-file
 Je kunt niet schrijven in je project map. Zo kan je geen

@@ -258,9 +258,6 @@ bal\u00ed\u010dek:
 applet-height-width
 Mus\u00ed by\u0165 zadan\u00e1 v\u00fd\u0161ka a \u0161\u00edrka apletu.
 
-cannot-read-help
-S\u00fabor s pomocn\u00edkom nem\u00f4\u017ee by\u0165 na\u010d\u00edtan\u00fd:
-
 not-yet-implemented
 Zatia\u013e nebolo implementovan\u00e9 \u2013 ospravedl\u0148ujeme sa.
 
@@ -419,17 +416,6 @@ sie\u0165ov\u00e9ho pripojenia. Skontrolujte, \u010di m\u00e1te spr\u00e1vne nas
 parametre protokolu TCP/IP a \u010fal\u0161ie parametre pripojenia.
 Pre viac inform\u00e1ci\u00ed (anglicky) nav\u0161t\u00edvte str\u00e1nku:
 http://www.bluej.org/help/faq.html#socket-exc
-
-project-is-readonly
-Projekt je ur\u010den\u00fd len na \u010d\u00edtanie. Preto nem\u00f4\u017eete vytv\u00e1ra\u0165 objekty ani
-vola\u0165 met\u00f3dy.
-Pr\u00ed\u010dinou je bu\u010f nastavenie pr\u00edstupov\u00fdch pr\u00e1v k s\u00faborom v prie\u010dinku
-projektu na \u201eread-only\u201c (len na \u010d\u00edtanie), alebo umiestnenie s\u00faborov
-v s\u00faborovom syst\u00e9me, ktor\u00fd nepovo\u013euje z\u00e1pis (napr. CD-ROM).
-Ak chcete s projektom norm\u00e1lne pracova\u0165, mus\u00edte zabezpe\u010di\u0165, aby bol
-umiesten\u00fd na zariaden\u00ed umo\u017e\u0148uj\u00facom z\u00e1pis (najlep\u0161ie na pevnom disku)
-a aby ste mali pr\u00e1vo zapisova\u0165 do dan\u00e9ho prie\u010dinka a do v\u0161etk\u00fdch
-s\u00faborov projektu. \u010casto kr\u00e1t sta\u010d\u00ed po zatvoren\u00ed tohto dial\u00f3gu zvoli\u0165 \u201eUlo\u017ei\u0165 ako\u2026\u201c z ponuky \u201eProjekt\u201c.
 
 project-is-virtualized
 Projekt bol virtualizovan\u00fd syst\u00e9mom Windows. Toto sa obvykle st\u00e1va,

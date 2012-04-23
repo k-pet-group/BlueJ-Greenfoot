@@ -261,9 +261,6 @@ BlueJ-Paket:
 applet-height-width
 H\u00f6he und Breite des Applets m\u00fcssen angegeben werden.
 
-cannot-read-help
-Hilfedatei kann nicht gelesen werden:
-
 not-yet-implemented
 Leider nocht nicht implementiert.
 
@@ -419,19 +416,6 @@ nicht in der Lage sein, Objekte zu erzeugen oder Methoden aufzurufen,
 ohne das Problem zu l\u00f6sen. Dies wird oft von \u00fcberm\u00e4\u00dfig 
 einschr\u00e4nkenden Einstellungen der Firewall verursacht.
 Siehe <http://www.bluej.org/help/faq.html#socket-exc> f?r mehr Informationen.
-
-project-is-readonly
-Das Projekt ist schreibgesch\u00fctzt. Sie werden nicht in der Lage sein,
-Objekte zu erzeugen oder Methoden aufzurufen.
-Entweder sind die Zugriffrechte im Projektverzeichnis auf 
-'schreibgesch\u00fctzt' f\u00fcr Sie gesetzt, oder das gesamte Dateisystem ist
-nicht beschreibbar (ist es eine CD?).
-Um dieses Projekt vollst\u00e4ndig nutzen zu k\u00f6nnen, m\u00fcssen Sie daf\u00fcr
-sorgen, dass es sich auf einem beschreibbaren Dateisystem
-(normalerweise eine Festplatte) befindet und dass Sie Schreibrechte
-f\u00fcr das Projektverzeichnis und alle darin enthaltenen Dateien haben.
-Das kann oft erreicht werden, indem "Speichern unter" im Projektmen\u00fc
-nach dem Schlie\u00dfen dieses Dialogs ausgew\u00e4hlt wird.
 
 project-is-virtualized
 Das Projekt, dass Sie \u00f6ffnen, wird von Windows virtualisiert.

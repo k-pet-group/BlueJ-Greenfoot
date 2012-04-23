@@ -228,9 +228,6 @@ applet-height-width
 Il faut d\u00e9finir les hauteur et
 largeur de l'applet.
 
-cannot-read-help
-Impossible de lire le fichier d'aide :
-
 not-yet-implemented
 Pas encore impl\u00e9ment\u00e9 - d\u00e9sol\u00e9.
 
@@ -381,15 +378,6 @@ de configurer le pare-feu pour autoriser ces connexions.
 La configuration r\u00e9seau est une autre cause possible du probl\u00e8me. V\u00e9rifiez
 que TCP/IP et les autres param\u00e8tres r\u00e9seau sont correctement configur\u00e9s.
 Si les probl\u00e8mes persistent demandez de l'aide (voir http://www.bluej.org/help/ask-help.html).
-
-project-is-readonly
-Le projet est en lecture seule. Vous ne pourrez pas cr\u00e9er d'objet
-ni ex\u00e9cuter de m\u00e9thode.
-Le r\u00e9pertoire du projet ou l'ensemble du syst\u00e8me de fichiers
-est en lecture seule (est-ce un CD?).
-Pour exploiter totalement ce projet, assurez-vous qu'il est sur un syst\u00e8me de
-fichiers modifiable (votre disque dur en g\u00e9n\u00e9ral) et que vous
-avez les droits d'\u00e9criture sur le r\u00e9pertoire du projet et tous ses fichiers.
 
 could-not-write-shell-file
 \u00c9chec de l'ex\u00e9cution d\u00fb \u00e0 un r\u00e9pertoire de projet en lecture seule.

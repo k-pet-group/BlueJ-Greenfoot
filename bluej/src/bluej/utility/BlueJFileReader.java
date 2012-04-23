@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -110,8 +110,8 @@ public class BlueJFileReader
             }
         }
         catch(IOException e) {
-            DialogManager.showErrorWithText(null, "cannot-read-help",
-                                            file.toString());
+            // This use to show a dialog, but showing a dialog involves reading the
+            // help file... infinite recursion! just ignore and return null
         }
         finally {
             if(in != null) {

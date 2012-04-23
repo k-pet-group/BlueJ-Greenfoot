@@ -174,7 +174,7 @@ in questo progetto. Non possono avere
 due classi con lo stesso nome.
 
 class-already-in-library
-Una classe con questo nome esiste già nella libreria.
+Una classe con questo nome esiste giï¿½ nella libreria.
 Se crei questa classe, sarai capace di
 modificare e compilare la classe, ma non chiamerai i metodi.
 Cancella
@@ -182,7 +182,7 @@ Continua
 null
 
 compile-class-already-in-library
-Una classe con questo nome già esiste nella libreria
+Una classe con questo nome giï¿½ esiste nella libreria
 "$".
 Puoi modificare e compilare la classe, ma 
 chiamando i metodi eseguirai il codice della classe della libreria.
@@ -241,9 +241,6 @@ un package BlueJ:
 applet-height-width
 Altezza e larghezza dell' Applet
 non \u00e8 specificata.
-
-cannot-read-help
-Non posso aprire il file dell'help:
 
 not-yet-implemented
 Non \u00e8 implementato  - Spiacente!
@@ -347,7 +344,7 @@ Nuovo Metodo di Test
 null
 
 unittest-io-error
-Un errore di I/O è avvenuto quando si cerca di leggere il codice 
+Un errore di I/O ï¿½ avvenuto quando si cerca di leggere il codice 
 sorgente del test unitario.
 
 getobject-new-name
@@ -393,18 +390,6 @@ o eseguire metodi senza risolverlo. Spesso questo \u00e8 causato
 eccessivamente da impostazioni restrittive del firewall.
 Vedi <http://www.bluej.org/help/faq.html#socket-exc> per maggiori
 informazioni.
-
-project-is-readonly
-Il progetto \u00e8 a sola lettura. Non puoi creare oggetti
-o esegue metodi.
-I diritti di accesso della directory di progetto sono messi come
-'solo lettura', o l'intero file system non \u00e8 scrivibile (\u00e8 
-un CD?).
-deve assicurare di usare pienamente questo progetto, che \u00e8 su file system
-scrivibile (di solito il disco rigido), ed avere i permessi di scrittura 
-della cartella del progetto e ad ogni file.
-Puoi risolvere scegliendo "salva con nome..." dal menu
-Progetto dopo aver chiuso questo avviso.
 
 project-is-virtualized
 Il progetto che hai aperto \u00e8 virtualizzato da Windows. Questo 
@@ -522,7 +507,7 @@ null
 team-error-saving-project
 Un errore durante il tentativo di salvare i file di progetto:
  $
- Pubblicare o l'aggiornamento può avere risultati imprevisti.
+ Pubblicare o l'aggiornamento puï¿½ avere risultati imprevisti.
 
 not-all-compiled
 Non tutte le classi del progetto sono compilate. Per fare il deploy della MIDlet

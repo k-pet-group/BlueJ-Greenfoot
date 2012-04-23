@@ -244,9 +244,6 @@ bal\u00ed\u010dek BlueJ:
 applet-height-width
 Mus\u00ed b\u00fdt zad\u00e1na v\u00fd\u0161ka a \u0161\u00ed\u0159ka apletu.
 
-cannot-read-help
-Soubor s n\u00e1pov\u011bdou nem\u016f\u017ee b\u00fdt na\u010dten:
-
 not-yet-implemented
 Zat\u00edm nen\u00ed implementov\u00e1no - omlouv\u00e1me se.
 
@@ -391,18 +388,6 @@ b\u00fdt projekt spu\u0161t\u011bn. To je v\u00e1\u017en\u00fd probl\u00e9m - do
 nebudete moci vytv\u00e1\u0159et objekty ani spou\u0161t\u011bt metody.
 Tento probl\u00e9m je v\u011bt\u0161inou zp\u016fsobem p\u0159\u00edli\u0161 p\u0159\u00edsn\u00fdm nastaven\u00edm firewalu,
 V\u00edce informac\u00ed najdete na <http://www.bluej.org/help/faq.html#socket-exc>.
-
-project-is-readonly
-Projekt je ur\u010den pouze ke \u010dten\u00ed.
-Nem\u016f\u017eete proto vytv\u00e1\u0159et objekty ani volat metody.
-P\u0159\u00ed\u010dinou je bu\u010f nastaven\u00ed p\u0159\u00edstupov\u00fdch pr\u00e1v
-k soubor\u016fm v adres\u00e1\u0159i projektu na READ-ONLY nebo
-um\u00edst\u011bn\u00ed soubor\u016f na za\u0159\u00edzen\u00ed, kter\u00e9 nedovoluje z\u00e1pis
-(nap\u0159. CD-ROM). Chcete li s projektem norm\u00e1ln\u011b pracovat,
-mus\u00edte zabezpe\u010dit, aby byl um\u00edst\u011bn na za\u0159\u00edzen\u00ed
-umo\u017e\u0148uj\u00edc\u00edm z\u00e1pis (nejl\u00e9pe na pevn\u00e9m disku)
-a abyste m\u011bli pr\u00e1vo zapisovat do dan\u00e9ho adres\u00e1\u0159e
-a do kter\u00e9hokoliv ze soubor\u016f projektu.
 
 project-is-virtualized
 Projekt, kter\u00fd jste otev\u0159eli, je virtualizov\u00e1n syst\u00e9mem Windows.
