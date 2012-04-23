@@ -1,0 +1,25 @@
+editor-crashed
+It seems that Greenfoot crashed while writing this class
+to disk last time. The source code may be missing or 
+incomplete. There should be a backup of this class 
+in the project folder. If this class seems damaged,
+   1 - quit BlueJ
+   2 - backup your project folder (just in case)
+   3 - look into the project folder for a backup of
+       this java file. Rename it to the original
+       file name (with a '.java' suffix)
+
+error-create-vm
+Greenfoot was unable to create a virtual machine (VM) to execute scenarios.
+Often this is caused by overly restrictive firewall settings.
+Please see [ http://www.bluej.org/help/faq.html#socket-exc ] for more
+information, or contact support@greenfoot.org.
+
+project-is-readonly
+The scenario being opened is read-only:
+$
+You will not be able to modify it,
+unless you save it to a different location.
+Save elsewhere
+Continue anyway
+null
