@@ -175,6 +175,7 @@ public class MousePollingManager implements TriggeredMouseListener, TriggeredMou
     public void newActStarted()
     {
         polledInThisAct = false;
+        freezeMouseData();
     }
 
     /**
@@ -265,7 +266,7 @@ public class MousePollingManager implements TriggeredMouseListener, TriggeredMou
     }
 
     /**
-     * Whether the mouse had been dragged on the given object. The mouse is
+     * Whether the mouse is being dragged on the given object. The mouse is
      * considered to be dragged on an object, only if the drag started on that
      * object - even if the mouse has since been moved outside of that object.
      * <p>
