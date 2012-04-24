@@ -55,6 +55,14 @@ class MouseEventData
         mouseDraggedInfo = null;
         mouseDragEndedInfo = null;
         mouseMovedInfo = null;
+        if (mouseInfo != null)
+        {
+            MouseInfo blankedMouseInfo = MouseInfoVisitor.newMouseInfo();
+            // Only retain info on latest location, not clicks etc:
+            MouseInfoVisitor.setLoc(blankedMouseInfo, mouseInfo.getX(), mouseInfo.getY());
+            mouseInfo = blankedMouseInfo;
+        }
+        
     }
     
     public MouseInfo getMouseInfo()
