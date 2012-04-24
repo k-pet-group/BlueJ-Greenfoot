@@ -205,7 +205,7 @@ public class Greenfoot
     }
 
     /**
-     * True if the mouse has been dragged on the given object. The mouse is
+     * True if the mouse is currently being dragged on the given object. The mouse is
      * considered to be dragged on an object if the drag started on that
      * object - even if the mouse has since been moved outside of that object.
      * <p>
