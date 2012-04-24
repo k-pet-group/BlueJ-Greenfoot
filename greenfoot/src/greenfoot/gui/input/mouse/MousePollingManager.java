@@ -172,10 +172,23 @@ public class MousePollingManager implements TriggeredMouseListener, TriggeredMou
     /**
      * This method should be called when a new act-loop is started.
      */
-    public void newActStarted()
+    public synchronized void newActStarted()
     {
-        polledInThisAct = false;
-        freezeMouseData();
+        // The current data was already polled, or we have a new event since;
+        // use futureData as our current data. (If there's been no event, i.e. if
+        // gotNewEvent is false, futureData will contain no events).
+        if (gotNewEvent) {
+            MouseEventData newData = new MouseEventData();
+            currentData = futureData;
+            futureData = newData;
+            potentialNewDragData = new MouseEventData();
+    
+            // Indicate that we have processed all current events.
+            gotNewEvent = false;
+        }
+        else {
+            currentData.init();
+        }
     }
 
     /**
@@ -190,38 +203,7 @@ public class MousePollingManager implements TriggeredMouseListener, TriggeredMou
         gotNewEvent = true;
     }
     
-    /**
-     * If not already frozen, then freeze the current MouseEventData collected
-     * in this act, so that the same will be returned for the rest of this
-     * frame. This indicates the end of the previous frame and the beginning of
-     * a new frame.
-     */
-    private void freezeMouseData()
-    {
-        if(polledInThisAct) {
-            return;
-        }
-        
-        polledInThisAct = true;
-        
-        synchronized(this) {
-            // The current data was already polled, or we have a new event since;
-            // use futureData as our current data. (If there's been no event, i.e. if
-            // gotNewEvent is false, futureData will contain no events).
-            if (gotNewEvent) {
-                MouseEventData newData = new MouseEventData();
-                currentData = futureData;
-                futureData = newData;
-                potentialNewDragData = new MouseEventData();
-
-                // Indicate that we have processed all current events.
-                gotNewEvent = false;
-            }
-            else {
-                currentData.init();
-            }
-        }
-    }
+    
 
     // ************************************
     // Methods available to the user
@@ -242,7 +224,6 @@ public class MousePollingManager implements TriggeredMouseListener, TriggeredMou
      */
     public boolean isMousePressed(Object obj)
     {
-        freezeMouseData();
         return currentData.isMousePressed(obj);
     }
 
@@ -261,7 +242,6 @@ public class MousePollingManager implements TriggeredMouseListener, TriggeredMou
      */
     public boolean isMouseClicked(Object obj)
     {
-        freezeMouseData();
         return currentData.isMouseClicked(obj);
     }
 
@@ -283,7 +263,6 @@ public class MousePollingManager implements TriggeredMouseListener, TriggeredMou
      */
     public boolean isMouseDragged(Object obj)
     {
-        freezeMouseData();
         return currentData.isMouseDragged(obj);
     }
 
@@ -305,7 +284,6 @@ public class MousePollingManager implements TriggeredMouseListener, TriggeredMou
      */
     public boolean isMouseDragEnded(Object obj)
     {
-        freezeMouseData(); 
         return currentData.isMouseDragEnded(obj);
     }
 
@@ -327,7 +305,6 @@ public class MousePollingManager implements TriggeredMouseListener, TriggeredMou
      */
     public boolean isMouseMoved(Object obj)
     {
-        freezeMouseData();
         return currentData.isMouseMoved(obj);
     }
 
@@ -341,7 +318,6 @@ public class MousePollingManager implements TriggeredMouseListener, TriggeredMou
      */
     public MouseInfo getMouseInfo()
     {
-        freezeMouseData();
         return currentData.getMouseInfo();
     }   
 
