@@ -63,8 +63,6 @@ import bluej.graph.Graph;
 import bluej.parser.AssistContent;
 import bluej.parser.CodeSuggestions;
 import bluej.parser.ParseUtils;
-import bluej.parser.nodes.NodeTree.NodeAndPosition;
-import bluej.parser.nodes.ParsedNode;
 import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
 import bluej.pkgmgr.dependency.Dependency;
@@ -2641,11 +2639,13 @@ public final class Package extends Graph
         private static final int MAX_EDIT_DISTANCE = 2;
         private final String message;
         private int lineNumber;
+        private int column;
         private Project project;
 
-        public MisspeltMethodChecker(String message, int lineNumber, Project project)
+        public MisspeltMethodChecker(String message, int column, int lineNumber, Project project)
         {
             this.message = message;
+            this.column = column;
             this.lineNumber = lineNumber;
             this.project = project;
         }
@@ -2725,6 +2725,7 @@ public final class Package extends Graph
             return d[n][m];
         }
         
+        @Override
         public String calculateMessage(Editor e)
         {
             if (e == null) {
@@ -2734,11 +2735,11 @@ public final class Package extends Graph
             String missing = chopAtOpeningBracket(message.substring(message.lastIndexOf(' ') + 1));
 
             String lineText = getLine(e);
-            // We're only given the line number, not the column number
-            // Let's guess that the method name only occurs once on the line,
-            // and use its first occurrence:
-            int pos = getLineStart(e) + lineText.indexOf(missing);
-
+            
+            // The column from the diagnostic object assumes tabs are 8 spaces; convert to
+            // a line position:
+            int pos = convertColumn(lineText, column) + getLineStart(e);
+            
             LinkedList<String> maybeTheyMeant = new LinkedList<String>();
             CodeSuggestions suggests = e.getParsedNode().getExpressionType(pos, e.getSourceDocument());
             AssistContent[] values = ParseUtils.getPossibleCompletions(suggests, "",
@@ -2763,6 +2764,31 @@ public final class Package extends Graph
                 }
                 return augmentedMessage;
             }
+        }
+        
+        /** 
+         * Convert a column where a tab is counted as 8 to a column where a tab is counted
+         * as 1
+         */
+        private static int convertColumn(String string, int column)
+        {
+            int ccount = 0; // count of characters
+            int lpos = 0;   // count of columns (0 based)
+
+            int tabIndex = string.indexOf('\t');
+            while (tabIndex != -1 && lpos < column - 1) {
+                lpos += tabIndex - ccount;
+                ccount = tabIndex;
+                if (lpos >= column - 1) {
+                    break;
+                }
+                lpos = ((lpos + 8) / 8) * 8;  // tab!
+                ccount += 1;
+                tabIndex = string.indexOf('\t', ccount);
+            }
+
+            ccount += column - lpos;
+            return ccount;
         }
     }
 
@@ -2813,7 +2839,10 @@ public final class Package extends Graph
                 // See if we can help the user a bit more if they've mis-spelt a method:
                 if (message.contains("cannot find symbol - method")) {
                     messageShown = showEditorDiagnostic(diagnostic,
-                            new MisspeltMethodChecker(message, (int) diagnostic.getStartLine(), project));
+                            new MisspeltMethodChecker(message,
+                                    (int) diagnostic.getStartColumn(),
+                                    (int) diagnostic.getStartLine(),
+                                    project));
                 } else {
                     messageShown = showEditorDiagnostic(diagnostic, null);
                 }
