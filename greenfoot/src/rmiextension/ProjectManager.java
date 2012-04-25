@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2010,2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2010,2011,2012  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -48,7 +48,6 @@ import bluej.extensions.ProjectNotOpenException;
 import bluej.extensions.event.PackageEvent;
 import bluej.extensions.event.PackageListener;
 import bluej.pkgmgr.DocPathEntry;
-import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.Debug;
@@ -158,10 +157,14 @@ public class ProjectManager
             }
         }
         else {
+            try {
+                project.close();
+            }
+            catch (ProjectNotOpenException pnoe) {}
+            
             // If this was the only open project, open the startup project
             // instead.
-            if (bluej.getOpenProjects().length == 1) {
-                ((PkgMgrFrame) bluej.getCurrentFrame()).doClose(true, true);
+            if (bluej.getOpenProjects().length == 0) {
                 File startupProject = new File(bluej.getSystemLibDir(), "startupProject");
                 bluej.openProject(startupProject);
             }
