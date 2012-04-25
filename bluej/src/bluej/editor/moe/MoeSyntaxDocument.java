@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,6 +29,7 @@ import java.util.List;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentEvent.EventType;
 import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
 import javax.swing.text.Element;
 import javax.swing.text.MutableAttributeSet;
 import javax.swing.text.PlainDocument;
@@ -40,6 +41,7 @@ import bluej.parser.nodes.NodeTree;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.nodes.ParsedNode;
+import bluej.utility.Debug;
 
 
 /**
@@ -82,6 +84,45 @@ public class MoeSyntaxDocument extends PlainDocument
     /** A list of parse errors which have been detected but not yet indicated to the listener. */
     private List<PendingError> pendingErrors = new LinkedList<PendingError>();
     
+    /*
+     * We'll keep track of recent events, to aid in hunting down bugs in the event
+     * that we get an unexpected exception. 
+     */
+    
+    private static int EDIT_INSERT = 0;
+    private static int EDIT_DELETE = 1;
+    private static class EditEvent
+    {
+        int type; //  edit type - INSERT or DELETE
+        int offset;
+        int length;
+    }
+    
+    private List<EditEvent> recentEdits = new LinkedList<EditEvent>();
+    
+    private void recordEvent(DocumentEvent event)
+    {
+        int type;
+        if (event.getType() == DocumentEvent.EventType.INSERT) {
+            type = EDIT_INSERT;
+        }
+        else if (event.getType() == DocumentEvent.EventType.REMOVE) {
+            type = EDIT_DELETE;
+        }
+        else {
+            return;
+        }
+        
+        EditEvent eevent = new EditEvent();
+        eevent.type = type;
+        eevent.offset = event.getOffset();
+        eevent.length = event.getLength();
+        recentEdits.add(eevent);
+        
+        if (recentEdits.size() > 10) {
+            recentEdits.remove(0);
+        }
+    }
     
     /**
      * Create an empty MoeSyntaxDocument.
@@ -171,66 +212,58 @@ public class MoeSyntaxDocument extends PlainDocument
      */
     public boolean pollReparseQueue(int maxParse)
     {
-        if (reparseRecordTree == null) {
-            return false;
-        }
-        
-        NodeAndPosition<ReparseRecord> nap = reparseRecordTree.findNodeAtOrAfter(0);
-        if (nap != null) {
-            int pos = nap.getPosition();
-            
-            ParsedNode pn = parsedNode;
-            int ppos = 0;
-            if (pn != null) {
-                // Find the ParsedNode to handle the reparse.
-                NodeAndPosition<ParsedNode> cn = pn.findNodeAt(pos, ppos);
-                while (cn != null && cn.getEnd() == pos) {
-                    cn = cn.nextSibling();
-                }
-                while (cn != null && cn.getPosition() <= pos) {
-                    ppos = cn.getPosition();
-                    pn = cn.getNode();
-                    cn = pn.findNodeAt(nap.getPosition(), ppos);
+        try {
+            if (reparseRecordTree == null) {
+                return false;
+            }
+
+            NodeAndPosition<ReparseRecord> nap = reparseRecordTree.findNodeAtOrAfter(0);
+            if (nap != null) {
+                int pos = nap.getPosition();
+
+                ParsedNode pn = parsedNode;
+                int ppos = 0;
+                if (pn != null) {
+                    // Find the ParsedNode to handle the reparse.
+                    NodeAndPosition<ParsedNode> cn = pn.findNodeAt(pos, ppos);
                     while (cn != null && cn.getEnd() == pos) {
                         cn = cn.nextSibling();
                     }
+                    while (cn != null && cn.getPosition() <= pos) {
+                        ppos = cn.getPosition();
+                        pn = cn.getNode();
+                        cn = pn.findNodeAt(nap.getPosition(), ppos);
+                        while (cn != null && cn.getEnd() == pos) {
+                            cn = cn.nextSibling();
+                        }
+                    }
+
+                    MoeSyntaxEvent mse = new MoeSyntaxEvent(this);
+                    pn.reparse(this, ppos, pos, maxParse, mse);
+                    fireChangedUpdate(mse);
+                    return true;
                 }
-                
-                MoeSyntaxEvent mse = new MoeSyntaxEvent(this);
-                pn.reparse(this, ppos, pos, maxParse, mse);
-                if (!checkNodeTree(parsedNode)) {
-                    System.err.println("Node tree check FAIL!");
-                }
-                fireChangedUpdate(mse);
-                return true;
             }
+            return false;
         }
-        return false;
-    }
-    
-    private boolean checkNodeTree(ParsedNode node)
-    {
-        int size = node.getSize();
-        Iterator<NodeAndPosition<ParsedNode>> i = node.getChildren(0);
-        int lastPos = 0;
-        while (i.hasNext()) {
-            NodeAndPosition<ParsedNode> nap = i.next();
-            //System.out.println("Node: " + nap.getNode().getClass().getName() + " pos: " + nap.getPosition());
-            if (checkNodeTree(nap.getNode()) == false) {
-                return false;
+        catch (RuntimeException e) {
+            
+            Debug.message("Exception during incremental parsing. Recent edits:");
+            for (EditEvent event : recentEdits) {
+                String eventStr = event.type == EDIT_INSERT ? "insert " : "delete ";
+                eventStr += "offset=" + event.offset + " length=" + event.length;
+                Debug.message(eventStr);
             }
             
-            if (nap.getPosition() < lastPos) {
-                return false;
+            try {
+                Debug.message("--- Source code ---");
+                Debug.message(getText(0, getLength()));
+                Debug.message("--- Source ends ---");
             }
+            catch (BadLocationException ble) { }
             
-            lastPos = nap.getEnd();
-            if (lastPos > size) {
-                return false;
-            }
+            throw e;
         }
-        
-        return true;
     }
     
     /**
@@ -525,6 +558,7 @@ public class MoeSyntaxDocument extends PlainDocument
         if (parsedNode != null) {
             parsedNode.textInserted(this, 0, e.getOffset(), e.getLength(), mse);
         }
+        recordEvent(e);
         super.fireInsertUpdate(mse);
     }
     
@@ -599,6 +633,7 @@ public class MoeSyntaxDocument extends PlainDocument
         if (parsedNode != null) {
             parsedNode.textRemoved(this, 0, e.getOffset(), e.getLength(), mse);
         }
+        recordEvent(e);
         super.fireRemoveUpdate(mse);
     }
     
