@@ -73,8 +73,33 @@ public class DialogManager
                                            String text)
     {
         String message = getMessage(msgID);
-        if (message != null)
+        if (message != null) {
             JOptionPane.showMessageDialog(parent, message + "\n" + text);
+        }
+    }
+    
+    /**
+     * Show an information dialog with message (including and "OK" button. The
+     * message itself is identified by a message ID (a short string)
+     * which is looked up in the language specific dialogue text file
+     * (eg. "dialogues.english"). A text (given in a parameter) is appended
+     * to the message.
+     */
+    public static void showMessageWithText(Component parent, String msgID, String[] subs)
+    {
+        String message = getMessage(msgID);
+        message = Utility.mergeStrings(message, subs);
+        
+        // Replace single ':' with a blank line:
+        message = message.replace("\n:\n", "\n\n");
+        message = message.replace("\r\n:\r\n", "\r\n\r\n");
+        
+        if (message != null) {
+            JOptionPane.showMessageDialog(parent, message,
+                    Config.getApplicationName() + ":  " +
+                    Config.getString("dialogmgr.message"),
+                    JOptionPane.INFORMATION_MESSAGE);
+        }
     }
     
     /**

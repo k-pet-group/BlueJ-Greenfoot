@@ -394,51 +394,47 @@ public class Project implements DebuggerListener, InspectorManager
         
         if (readOnly && !isGreenfootStartupProject) {
             Utility.bringToFront(null);
-            int choice = DialogManager.askQuestion(parent, "project-is-readonly", new String [] {projectDir.toString()});
+            DialogManager.showMessageWithText(parent, "project-is-readonly", new String [] {projectDir.toString()});
             
-            if (choice == 0)
+            // Prompt user to "Save elsewhere"
+
+            boolean done = false;
+
+            while (!done)
             {
-                // The "Save elsewhere" choice
-                
-                boolean done = false;
-                
-                while (!done)
-                {
-                    // Get a file name to save under
-                    File newName = FileUtility.getDirName(null,
-                            Config.getString("pkgmgr.saveAs.title"),
-                            Config.getString("pkgmgr.saveAs.buttonLabel"),
-                            new JFileChooser().getFileSystemView().getDefaultDirectory(),
-                            false, true);
-                    
-                    if (newName != null) {
-                        int result = FileUtility.copyDirectory(projectDir, newName);
-    
-                        switch (result) {
-                        case FileUtility.NO_ERROR:
-                            // It worked, use this as the new project:
-                            projectDir = newName;
-                            done = true;
-                            break;
-    
-                        case FileUtility.DEST_EXISTS:
-                            DialogManager.showError(null, "directory-exists");
-    
-                            break;
-    
-                        case FileUtility.SRC_NOT_DIRECTORY:
-                        case FileUtility.COPY_ERROR:
-                            DialogManager.showError(null, "cannot-copy-package");
-    
-                            break;
-                        }
-                    }
-                    else {
-                        done = true; // if they pressed cancel, just continue with old project
+                // Get a file name to save under
+                File newName = FileUtility.getDirName(null,
+                        Config.getString("pkgmgr.saveAs.title"),
+                        Config.getString("pkgmgr.saveAs.buttonLabel"),
+                        new JFileChooser().getFileSystemView().getDefaultDirectory(),
+                        false, true);
+
+                if (newName != null) {
+                    int result = FileUtility.copyDirectory(projectDir, newName);
+
+                    switch (result) {
+                    case FileUtility.NO_ERROR:
+                        // It worked, use this as the new project:
+                        projectDir = newName;
+                        done = true;
+                        break;
+
+                    case FileUtility.DEST_EXISTS:
+                        DialogManager.showError(null, "directory-exists");
+
+                        break;
+
+                    case FileUtility.SRC_NOT_DIRECTORY:
+                    case FileUtility.COPY_ERROR:
+                        DialogManager.showError(null, "cannot-copy-package");
+
+                        break;
                     }
                 }
+                else {
+                    done = true; // if they pressed cancel, just continue with old project
+                }
             }
-            // Otherwise, just continue as normal...
         }
 
         // check whether it already exists

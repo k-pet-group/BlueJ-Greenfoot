@@ -52,13 +52,13 @@ import bluej.parser.nodes.ParsedNode;
 public class MoeSyntaxDocument extends PlainDocument
 {
     private static Color[] colors = null;
-	
+    
     private static Color defaultColour = null;
     private static Color backgroundColour = null;
     
     /** Maximum amount of document to reparse in one hit (advisory) */
     private final static int MAX_PARSE_PIECE = 8000;
-	
+    
     private ParsedCUNode parsedNode;
     private EntityResolver parentResolver;
     private NodeTree<ReparseRecord> reparseRecordTree;
@@ -198,11 +198,39 @@ public class MoeSyntaxDocument extends PlainDocument
                 
                 MoeSyntaxEvent mse = new MoeSyntaxEvent(this);
                 pn.reparse(this, ppos, pos, maxParse, mse);
+                if (!checkNodeTree(parsedNode)) {
+                    System.err.println("Node tree check FAIL!");
+                }
                 fireChangedUpdate(mse);
                 return true;
             }
         }
         return false;
+    }
+    
+    private boolean checkNodeTree(ParsedNode node)
+    {
+        int size = node.getSize();
+        Iterator<NodeAndPosition<ParsedNode>> i = node.getChildren(0);
+        int lastPos = 0;
+        while (i.hasNext()) {
+            NodeAndPosition<ParsedNode> nap = i.next();
+            //System.out.println("Node: " + nap.getNode().getClass().getName() + " pos: " + nap.getPosition());
+            if (checkNodeTree(nap.getNode()) == false) {
+                return false;
+            }
+            
+            if (nap.getPosition() < lastPos) {
+                return false;
+            }
+            
+            lastPos = nap.getEnd();
+            if (lastPos > size) {
+                return false;
+            }
+        }
+        
+        return true;
     }
     
     /**
@@ -396,7 +424,7 @@ public class MoeSyntaxDocument extends PlainDocument
             colorInt = getPropHexInt("background", 0x000000);
             backgroundColour = new Color(colorInt);
 
-            // Build colour table.	   
+            // Build colour table.     
             colors = new Color[Token.ID_COUNT];
 
             // Comments.
