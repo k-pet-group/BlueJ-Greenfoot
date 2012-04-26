@@ -113,10 +113,10 @@ Cannot create the directory. Check that
 it has a valid name and that the parent 
 directories exist and are writable.
 
-cannot-copy-package
-There was a problem copying the
-package files. The package was
-not written or may be incomplete.
+cannot-save-project
+The project could not be saved to the specified
+location. Check that you have write access, or
+choose another location.
 
 file-does-not-exist
 The specified file
@@ -400,12 +400,11 @@ information.
 
 project-is-readonly
 The project being opened is read-only:
-$
-You will not be able to modify it,
-unless you save it to a different location.
-Save elsewhere
-Continue anyway
-null
+:
+    $
+:
+To use this project, you will first need to choose a new location to
+save it to.
 
 project-is-virtualized
 The project you are opening is being virtualized by Windows. This 

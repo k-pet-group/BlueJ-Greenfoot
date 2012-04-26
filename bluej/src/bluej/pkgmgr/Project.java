@@ -426,7 +426,7 @@ public class Project implements DebuggerListener, InspectorManager
 
                     case FileUtility.SRC_NOT_DIRECTORY:
                     case FileUtility.COPY_ERROR:
-                        DialogManager.showError(null, "cannot-copy-package");
+                        DialogManager.showError(null, "cannot-save-project");
 
                         break;
                     }
