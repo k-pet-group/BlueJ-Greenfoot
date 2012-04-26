@@ -22,3 +22,8 @@ The scenario being opened is read-only:
 :
 To use this project, you will first need to choose a new location to
 save it to.
+
+cannot-save-project
+The scenario could not be saved to the specified
+location. Check that you have write access, or
+choose another location.
