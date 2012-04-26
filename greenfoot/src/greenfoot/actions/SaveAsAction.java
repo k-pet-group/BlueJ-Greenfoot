@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2012  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -98,13 +98,11 @@ public class SaveAsAction extends AbstractAction
 
                 case FileUtility.DEST_EXISTS:
                     DialogManager.showError(gfFrame, "directory-exists");
-
                     return;
 
                 case FileUtility.SRC_NOT_DIRECTORY:
                 case FileUtility.COPY_ERROR:
-                    DialogManager.showError(gfFrame, "cannot-copy-package");
-
+                    DialogManager.showError(gfFrame, "cannot-save-project");
                     return;
             }
         }
