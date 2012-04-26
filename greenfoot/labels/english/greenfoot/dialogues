@@ -17,9 +17,8 @@ information, or contact support@greenfoot.org.
 
 project-is-readonly
 The scenario being opened is read-only:
-$
-You will not be able to modify it,
-unless you save it to a different location.
-Save elsewhere
-Continue anyway
-null
+:
+    $
+:
+To use this project, you will first need to choose a new location to
+save it to.
