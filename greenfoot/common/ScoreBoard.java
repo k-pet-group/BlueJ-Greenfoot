@@ -75,7 +75,7 @@ public class ScoreBoard extends Actor
         if (users == null)
             return;
         
-        UserInfo me = UserInfo.getMyData();
+        UserInfo me = UserInfo.getMyInfo();
         int y = top + GAP;
         for (Object obj : users)
         {
