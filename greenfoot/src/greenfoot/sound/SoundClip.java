@@ -68,7 +68,11 @@ public class SoundClip implements Sound, LineListener
         STOPPED, PLAYING, PAUSED_LOOPING, PAUSED_PLAYING, CLOSED, LOOPING
     };
     
+    /** requested clip state */
     private ClipState clipState = ClipState.CLOSED;
+    
+    /** actual state playing vs looping */
+    private ClipState currentState = ClipState.CLOSED;
     
     /**
      * The master volume of the sound clip.
@@ -94,9 +98,9 @@ public class SoundClip implements Sound, LineListener
     private boolean open()
     {
         try {
-            setState(ClipState.STOPPED);
             load();
             soundClip.addLineListener(this);
+            setState(ClipState.STOPPED);
             return true;
         }
         catch (SecurityException e) {
@@ -158,8 +162,8 @@ public class SoundClip implements Sound, LineListener
         }
     }
 
-    /**
-     * Play this sound from the beginning of the sound.    
+    /*
+     * @see greenfoot.sound.Sound#play()
      */
     @Override
     public synchronized void play()
@@ -167,71 +171,30 @@ public class SoundClip implements Sound, LineListener
         if (clipState == ClipState.PLAYING) {
             return;
         }
-
-        if (clipState == ClipState.LOOPING) {
-            // Play the current loop till the end, then stop.
+        else if (soundClip == null) {
+            // Open the clip in another thread
+            processThread.addToQueue(this, ClipProcessThread.PLAY);
+            currentState = ClipState.STOPPED;
+        }
+        else if (isPaused()) {
+            soundClip.loop(0); // prevent looping, if we are looping
+            soundClip.start();
+        }
+        else if (clipState == ClipState.LOOPING) {
             soundClip.loop(0);
         }
-        else if (clipState == ClipState.STOPPED) {
-            if (soundClip == null || clipState == ClipState.CLOSED) {
-                if (!open()) {
-                    return;
-                }
-            }
-            soundClip.setFramePosition(0);
-            soundClip.start();
-        }
         else {
-            // CLOSED or PAUSED
-            if (soundClip == null || clipState == ClipState.CLOSED) {
-                processThread.addToQueue(this, ClipProcessThread.PLAY);
-            }
-            else {
-                soundClip.start();
-            }
+            // play from the start
+            soundClip.setFramePosition(0);
+            soundClip.loop(0);
+            soundClip.start();
         }
         setState(ClipState.PLAYING);
-    }
-
-    public synchronized void processCommand(int command)
-    {
-        if (command == ClipProcessThread.PLAY) {
-            // We only get this when playing from a closed state
-
-            if (clipState != ClipState.PLAYING) {
-                // No longer in the correct state - abort
-                return;
-            }
-            
-            if (!open()) {
-                return;
-            }
-            soundClip.start();
-        }
-        else if (command == ClipProcessThread.CLOSE) {
-            if (soundClip != null && isStopped()) {
-                closerThread.addClip(soundClip);
-                soundClip = null;
-            }
-        }
-        else if (command == ClipProcessThread.LOOP) {
-            if (clipState != ClipState.LOOPING) {
-                return;
-            }
-            
-            if (soundClip == null) {
-                if (! open()) {
-                    return;
-                }
-            }
-            
-            soundClip.setFramePosition(0);
-            soundClip.setLoopPoints(0, -1);
-            soundClip.loop(Clip.LOOP_CONTINUOUSLY);
-            resumedLoop = false;
+        if (soundClip != null) {
+            currentState = ClipState.PLAYING;
         }
     }
-    
+
     /**
      * Play this sound from the beginning of the sound and loop around when the
      * end have been reached.
@@ -242,32 +205,57 @@ public class SoundClip implements Sound, LineListener
         if (clipState == ClipState.LOOPING) {
             return;
         }
-        if (soundClip == null || clipState == ClipState.CLOSED) {
+        else if (soundClip == null) {
+            // Open the clip in another thread
             processThread.addToQueue(this, ClipProcessThread.LOOP);
-            return;
+            currentState = ClipState.STOPPED;
         }
-        else if (soundClip != null) {
-            soundClip.stop();
-        }
-
-        if (clipState == ClipState.PLAYING || isPaused()) {
-            // Clip.loop will only loop from current frame to endframe,
-            // NOT from beginning frame as it should. To fix this, we have to
-            // use play() once instead, then detect when that has finished, and
-            // then start looping again. We restart looping in the closeThread.
+        else if (isPaused()) {
+            soundClip.loop(0); // prevent looping, if we are looping
             soundClip.start();
+            resumedLoop = true; // loop explicitly from beginning
+        }
+        else if (clipState == ClipState.PLAYING) {
             resumedLoop = true;
         }
         else {
-            resumedLoop = false;
-            soundClip.setMicrosecondPosition(0);
+            // loop from the start
+            soundClip.setFramePosition(0);
             soundClip.setLoopPoints(0, -1);
             soundClip.loop(Clip.LOOP_CONTINUOUSLY);
+            soundClip.start();
         }
-
         setState(ClipState.LOOPING);
+        if (soundClip != null) {
+            currentState = ClipState.LOOPING;
+        }
     }
-
+    
+    public synchronized void processCommand()
+    {
+        if (clipState == ClipState.PLAYING) {
+            if (currentState != ClipState.PLAYING) {
+                if (!open()) {
+                    return;
+                }
+                soundClip.start();
+                currentState = ClipState.PLAYING;
+            }
+        }
+        else if (clipState == ClipState.LOOPING) {
+            if (currentState != ClipState.LOOPING) {
+                if (!open()) {
+                    return;
+                }
+                soundClip.setFramePosition(0);
+                soundClip.setLoopPoints(0, -1);
+                soundClip.loop(Clip.LOOP_CONTINUOUSLY);
+                resumedLoop = false;
+                currentState = ClipState.LOOPING;
+            }
+        }
+    }
+    
     /**
      * Set the volume level for this sound.
      * @param level the volume level.
@@ -296,7 +284,6 @@ public class SoundClip implements Sound, LineListener
 
     /**
      * Stop this sound.
-     * 
      */
     @Override
     public synchronized void stop()
@@ -317,12 +304,13 @@ public class SoundClip implements Sound, LineListener
     public synchronized void close()
     {
         if (clipState != ClipState.CLOSED) {
-            setState(ClipState.CLOSED);
             if (soundClip != null) {
+                setVolume(0);
                 clipCache.releaseClipData(clipData);
                 closerThread.addClip(soundClip);
                 soundClip = null;
             }
+            setState(ClipState.CLOSED);
         }
     }
 
@@ -404,11 +392,17 @@ public class SoundClip implements Sound, LineListener
         if (event.getType() == LineEvent.Type.STOP) {
             synchronized (this) {
                 if (resumedLoop && clipState == ClipState.LOOPING) {
+                    // Avoid restarting on this thread to avoid OpenJDK pulseaudio deadlock:
                     processThread.addToQueue(this, ClipProcessThread.LOOP);
                 }
                 else {
                     setState(ClipState.STOPPED);
-                    processThread.addToQueue(this, ClipProcessThread.CLOSE);
+                    // May have been restarted by a listener:
+                    if (clipState == ClipState.STOPPED && soundClip != null) {
+                        // If not, we'll close.
+                        closerThread.addClip(soundClip);
+                        soundClip = null;
+                    }
                 }
             }
         }
