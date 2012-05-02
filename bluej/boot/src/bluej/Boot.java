@@ -65,7 +65,7 @@ public class Boot
     
     // The version numbers for Greenfoot are changed in the Greenfoot build.xml
     // and then the update-version target should be executed.
-    public static String GREENFOOT_VERSION = "2.2.0";
+    public static String GREENFOOT_VERSION = "2.2.1";
     public static String GREENFOOT_API_VERSION = "2.4.0";
     
     // A singleton boot object so the rest of BlueJ can pick up args etc.

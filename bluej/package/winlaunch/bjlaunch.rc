@@ -46,8 +46,8 @@ END
 
 1 VERSIONINFO
 #ifdef GREENFOOT
-FILEVERSION 2,2,0,0
-PRODUCTVERSION 2,2,0,0
+FILEVERSION 2,2,1,0
+PRODUCTVERSION 2,2,1,0
 #else
 FILEVERSION 3,0,7,0
 PRODUCTVERSION 3,0,7,0
@@ -81,11 +81,11 @@ BEGIN
 		BEGIN
 			VALUE "CompanyName", "BlueJ group"
 			VALUE "FileDescription", "Greenfoot Launcher"
-			VALUE "FileVersion", "2.2.0"
+			VALUE "FileVersion", "2.2.1"
 			VALUE "InternalName", "greenfoot"
 			VALUE "OriginalFilename", "greenfoot.exe"
 			VALUE "ProductName", "Greenfoot"
-			VALUE "ProductVersion", "2.2.0"
+			VALUE "ProductVersion", "2.2.1"
 		END
 	END
 END
