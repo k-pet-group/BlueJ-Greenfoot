@@ -3,6 +3,8 @@ if [ -e /usr/lib/jvm/java-6-sun/lib/tools.jar ]; then
 	JAVAPATH="/usr/lib/jvm/java-6-sun"
 elif [ -e /usr/lib/jvm/java-6-openjdk/lib/tools.jar ]; then
 	JAVAPATH="/usr/lib/jvm/java-6-openjdk"
+elif [ -e /usr/lib/jvm/java-6-openjdk-amd64/lib/tools.jar ]; then
+    JAVAPATH="/usr/lib/jvm/java-6-openjdk-amd64"	
 else
 	echo "A suitable JDK couldn't be located. You may need to edit the"
 	echo "/usr/bin/greenfoot launch script."
