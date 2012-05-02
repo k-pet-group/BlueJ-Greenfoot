@@ -31,19 +31,9 @@ import java.util.LinkedList;
  */
 public class ClipProcessThread implements Runnable
 {
-    public static int PLAY = 0;
-    public static int LOOP = 1;
-    public static int CLOSE = 2;
-    
     private Thread thread;
     
-    private static class Entry
-    {
-        SoundClip clip;
-        int command;
-    }
-    
-    private LinkedList<Entry> queue = new LinkedList<Entry>();
+    private LinkedList<SoundClip> queue = new LinkedList<SoundClip>();
     
     public ClipProcessThread()
     {
@@ -52,13 +42,10 @@ public class ClipProcessThread implements Runnable
         thread.start();
     }
     
-    public void addToQueue(SoundClip clip, int command)
+    public void addToQueue(SoundClip clip)
     {
         synchronized (queue) {
-            Entry entry = new Entry();
-            entry.clip = clip;
-            entry.command = command;
-            queue.add(entry);
+            queue.add(clip);
             queue.notify();
             
             // When running online, threads can be terminated willy-nilly, but
@@ -75,7 +62,7 @@ public class ClipProcessThread implements Runnable
     public void run()
     {
         try {
-            Entry item;
+            SoundClip item;
             while (true) {
                 synchronized (queue) {
                     while (queue.isEmpty()) {
@@ -84,7 +71,7 @@ public class ClipProcessThread implements Runnable
                     item = queue.removeFirst();
                 }
 
-                item.clip.processCommand(item.command);
+                item.processState();
             }
         }
         catch (InterruptedException ie) { }

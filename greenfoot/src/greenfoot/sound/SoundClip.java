@@ -173,7 +173,7 @@ public class SoundClip implements Sound, LineListener
         }
         else if (soundClip == null) {
             // Open the clip in another thread
-            processThread.addToQueue(this, ClipProcessThread.PLAY);
+            processThread.addToQueue(this);
             currentState = ClipState.STOPPED;
         }
         else if (isPaused()) {
@@ -207,7 +207,7 @@ public class SoundClip implements Sound, LineListener
         }
         else if (soundClip == null) {
             // Open the clip in another thread
-            processThread.addToQueue(this, ClipProcessThread.LOOP);
+            processThread.addToQueue(this);
             currentState = ClipState.STOPPED;
         }
         else if (isPaused()) {
@@ -231,7 +231,7 @@ public class SoundClip implements Sound, LineListener
         }
     }
     
-    public synchronized void processCommand()
+    public synchronized void processState()
     {
         if (clipState == ClipState.PLAYING) {
             if (currentState != ClipState.PLAYING) {
@@ -393,7 +393,7 @@ public class SoundClip implements Sound, LineListener
             synchronized (this) {
                 if (resumedLoop && clipState == ClipState.LOOPING) {
                     // Avoid restarting on this thread to avoid OpenJDK pulseaudio deadlock:
-                    processThread.addToQueue(this, ClipProcessThread.LOOP);
+                    processThread.addToQueue(this);
                 }
                 else {
                     setState(ClipState.STOPPED);
