@@ -5,10 +5,12 @@
 # For BlueJ
 APPNAME=\"BlueJ\"
 EXECNAME=bluej.exe
+GREENFOOTDEF=
 
 # For Greenfoot
 #APPNAME=\"Greenfoot\"
 #EXECNAME=greenfoot.exe
+#GREENFOOTDEF=-DGREENFOOT
 
 EXENAME=\"$(EXECNAME)\"
 
@@ -22,7 +24,7 @@ $(EXECNAME): $(OBJECTS)
 	strip $(EXECNAME)
 
 resources.o: usblaunch.rc
-	windres usblaunch.rc resources.o
+	windres $(GREENFOOTDEF) usblaunch.rc resources.o
 
 usblaunch.o: usblaunch.cc
 	g++ -DAPPNAME=$(APPNAME) -DEXENAME=$(EXENAME) -Os -I"$(JDKDIR)/include" -I"$(JDKDIR)/include/win32" -c usblaunch.cc -o usblaunch.o
