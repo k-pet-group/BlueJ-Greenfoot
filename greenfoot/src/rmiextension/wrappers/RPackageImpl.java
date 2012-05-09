@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2012  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -275,12 +275,39 @@ public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
     public void reload()
         throws ProjectNotOpenException, PackageNotFoundException
     {
-        bPackage.reload();
+        final Exception[] exception = new Exception[1];
+        
+        try {
+            EventQueue.invokeAndWait(new Runnable() {
+                @Override
+                public void run()
+                {
+                    try {
+                        bPackage.reload();
+                    } catch (ProjectNotOpenException e) {
+                        exception[0] = e;
+                    } catch (PackageNotFoundException e) {
+                        exception[0] = e;
+                    }
+                }
+            });
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
+        
+        if (exception[0] != null) {
+            if (exception[0] instanceof ProjectNotOpenException) {
+                throw (ProjectNotOpenException) exception[0];
+            }
+            else {
+                throw (PackageNotFoundException) exception[0];
+            }
+        }
     }
 
     /*
-     * (non-Javadoc)
-     * 
      * @see greenfoot.remote.RPackage#getDir()
      */
     public File getDir()
@@ -290,17 +317,60 @@ public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
     }
 
     /*
-     * (non-Javadoc)
-     * 
      * @see greenfoot.remote.RPackage#newClass(java.lang.String)
      */
-    public RClass newClass(String className)
+    public RClass newClass(final String className)
         throws RemoteException, ProjectNotOpenException, PackageNotFoundException, MissingJavaFileException
     {
-        BClass wrapped = bPackage.newClass(className);
-        RClass wrapper = WrapperPool.instance().getWrapper(wrapped);
-        bPackage.reload();
-        return wrapper;
+        final RClass[] wrapper = new RClass[1];
+        final Exception[] exception = new Exception[1];
+        
+        try {
+            EventQueue.invokeAndWait(new Runnable() {
+                @Override
+                public void run()
+                {
+                    try {
+                        BClass wrapped = bPackage.newClass(className);
+                        wrapper[0] = WrapperPool.instance().getWrapper(wrapped);
+                        bPackage.reload();
+                    }
+                    catch (ProjectNotOpenException pnoe) {
+                        exception[0] = pnoe;
+                    }
+                    catch (PackageNotFoundException pnfe) {
+                        exception[0] = pnfe;
+                    }
+                    catch (MissingJavaFileException mjfe) {
+                        exception[0] = mjfe;
+                    }
+                    catch (RemoteException re) {
+                        exception[0] = re;
+                    }
+                }
+            });
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
+        
+        if (exception[0] != null) {
+            if (exception[0] instanceof ProjectNotOpenException) {
+                throw (ProjectNotOpenException) exception[0];
+            }
+            else if (exception[0] instanceof PackageNotFoundException) {
+                throw (PackageNotFoundException) exception[0];
+            }
+            else if (exception[0] instanceof MissingJavaFileException) {
+                throw (MissingJavaFileException) exception[0];
+            }
+            else {
+                throw (RemoteException) exception[0];
+            }
+        }
+        
+        return wrapper[0];
     }
     
     /* (non-Javadoc)
