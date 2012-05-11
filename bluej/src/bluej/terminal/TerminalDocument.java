@@ -208,7 +208,7 @@ public class TerminalDocument extends AbstractDocument
             
             //Also mark up native method lines in stack traces with a marker for font colour:
             
-            p = java.util.regex.Pattern.compile("at \\S+\\(Native Method\\)");
+            p = java.util.regex.Pattern.compile("at \\S+\\(Native Method|Unknown Source\\)");
             // Matches things like:
             //  at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
             m = p.matcher(content);
