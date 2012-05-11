@@ -658,6 +658,7 @@ public final class Terminal extends JFrame
         errorText.setFont(getTerminalFont());
         errorText.setEditable(false);
         errorText.setMargin(new Insets(6, 6, 6, 6));
+        errorText.setUnlimitedBuffering(true);
 
         splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
                                    scrollPane, errorScrollPane); 
