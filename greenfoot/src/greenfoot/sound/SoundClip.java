@@ -100,7 +100,6 @@ public class SoundClip implements Sound, LineListener
         try {
             load();
             soundClip.addLineListener(this);
-            setState(ClipState.STOPPED);
             return true;
         }
         catch (SecurityException e) {
@@ -177,7 +176,6 @@ public class SoundClip implements Sound, LineListener
             currentState = ClipState.STOPPED;
         }
         else if (isPaused()) {
-            soundClip.loop(0); // prevent looping, if we are looping
             soundClip.start();
         }
         else if (clipState == ClipState.LOOPING) {
@@ -211,7 +209,6 @@ public class SoundClip implements Sound, LineListener
             currentState = ClipState.STOPPED;
         }
         else if (isPaused()) {
-            soundClip.loop(0); // prevent looping, if we are looping
             soundClip.start();
             resumedLoop = true; // loop explicitly from beginning
         }
@@ -395,7 +392,7 @@ public class SoundClip implements Sound, LineListener
                     // Avoid restarting on this thread to avoid OpenJDK pulseaudio deadlock:
                     processThread.addToQueue(this);
                 }
-                else {
+                else if (! isPaused()) {
                     setState(ClipState.STOPPED);
                     // May have been restarted by a listener:
                     if (clipState == ClipState.STOPPED && soundClip != null) {
