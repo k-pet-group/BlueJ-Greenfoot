@@ -419,7 +419,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
 		<move file="${bluej.projectdir}/package/greenfoot-${greenfoot.version}.deb" tofile="${package}/greenfoot-${greenfoot.version.nodots}.deb" />
 	</target>
 	
-	<target name="windows-msi-dist" depends="update-images">
+	<target name="windows-msi-dist" depends="update-images, dist">
 	    <ant dir="${bluej.projectdir}/package" antfile="greenfoot-build.xml" target="windows-msi-dist" />
 	</target>
 
