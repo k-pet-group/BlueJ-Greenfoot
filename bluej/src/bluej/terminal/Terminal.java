@@ -88,11 +88,6 @@ public final class Terminal extends JFrame
     implements KeyListener, BlueJEventListener, DebuggerTerminal
 {
     private static final String WINDOWTITLE = Config.getApplicationName() + ": " + Config.getString("terminal.title");
-    private static final int WINDOWHEIGHT =
-        Config.getPropInteger("bluej.terminal.height", 22);
-    private static final int WINDOWWIDTH =
-        Config.getPropInteger("bluej.terminal.width", 80);
-
     private static final int SHORTCUT_MASK =
         Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
     //private static final int ALT_SHORTCUT_MASK =
@@ -182,7 +177,9 @@ public final class Terminal extends JFrame
     {
         if(! initialised) {            
             buffer = new InputBuffer(256);
-            makeWindow(WINDOWWIDTH, WINDOWHEIGHT);
+            int width = Config.isGreenfoot() ? 80 : Config.getPropInteger("bluej.terminal.width", 80);
+            int height = Config.isGreenfoot() ? 10 : Config.getPropInteger("bluej.terminal.height", 22);
+            makeWindow(width, height);
             initialised = true;
             text.setUnlimitedBuffering(unlimitedBufferingCall);
         }
@@ -653,7 +650,7 @@ public final class Terminal extends JFrame
      */
     private void createErrorPane()
     {
-        errorText = new TermTextArea(5, 80, null, project, this, true);
+        errorText = new TermTextArea(Config.isGreenfoot() ? 20 : 5, 80, null, project, this, true);
         errorScrollPane = new JScrollPane(errorText);
         errorText.setFont(getTerminalFont());
         errorText.setEditable(false);
