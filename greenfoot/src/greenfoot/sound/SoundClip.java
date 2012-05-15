@@ -228,27 +228,54 @@ public class SoundClip implements Sound, LineListener
         }
     }
     
-    public synchronized void processState()
+    public void processState()
     {
-        if (clipState == ClipState.PLAYING) {
-            if (currentState != ClipState.PLAYING) {
-                if (!open()) {
-                    return;
+        ClipState toState;
+
+        synchronized (this) {
+            toState = clipState;
+            if (clipState == ClipState.PLAYING) {
+                if (currentState != ClipState.PLAYING) {
+                    if (!open()) {
+                        return;
+                    }
+                    soundClip.start();
+                    currentState = ClipState.PLAYING;
                 }
-                soundClip.start();
-                currentState = ClipState.PLAYING;
+            }
+            else if (clipState == ClipState.LOOPING) {
+                if (currentState != ClipState.LOOPING) {
+                    if (!open()) {
+                        return;
+                    }
+                    soundClip.setFramePosition(0);
+                    soundClip.setLoopPoints(0, -1);
+                    soundClip.loop(Clip.LOOP_CONTINUOUSLY);
+                    resumedLoop = false;
+                    currentState = ClipState.LOOPING;
+                }
+            }
+            else if (isPaused() || clipState == ClipState.STOPPED) {
+                if (currentState == ClipState.PLAYING || currentState == ClipState.LOOPING) {
+                    currentState = clipState;
+                }
+                else {
+                    return; // prevent code below from executing
+                }
             }
         }
-        else if (clipState == ClipState.LOOPING) {
-            if (currentState != ClipState.LOOPING) {
-                if (!open()) {
-                    return;
-                }
-                soundClip.setFramePosition(0);
-                soundClip.setLoopPoints(0, -1);
-                soundClip.loop(Clip.LOOP_CONTINUOUSLY);
-                resumedLoop = false;
-                currentState = ClipState.LOOPING;
+        
+        if (toState == ClipState.STOPPED
+                || toState == ClipState.PAUSED_LOOPING
+                || toState == ClipState.PAUSED_PLAYING) {
+            // We have to do this outside of 'synchronized' - OpenJDK seems
+            // to callback the listener on a different thread, but nevertheless
+            // waits for it to return before returning from soundClip.stop() below,
+            // which means we'll get a deadlock if we're sync'd now.
+            // Also, stop() can take quite a while to execute on OpenJDK.
+            soundClip.stop();
+            if (toState == ClipState.STOPPED) {
+                soundClip.setMicrosecondPosition(0);
             }
         }
     }
@@ -285,12 +312,13 @@ public class SoundClip implements Sound, LineListener
     @Override
     public synchronized void stop()
     {
-        if (soundClip == null || isStopped()) {
+        if (isStopped()) {
             return;
         }
-        soundClip.stop();
-        soundClip.setMicrosecondPosition(0);
         setState(ClipState.STOPPED);
+        if (soundClip != null) {
+            processThread.addToQueue(this);
+        }
     }
 
     /**
@@ -318,16 +346,17 @@ public class SoundClip implements Sound, LineListener
     public synchronized void pause()
     {
         resumedLoop = false;
-        if (soundClip == null || isPaused()) {
+        if (soundClip == null) {
             return;
         }
         if (clipState == ClipState.PLAYING) {
             setState(ClipState.PAUSED_PLAYING);
+            processThread.addToQueue(this);
         }
         if (clipState == ClipState.LOOPING) {
             setState(ClipState.PAUSED_LOOPING);
+            processThread.addToQueue(this);
         }
-        soundClip.stop();
     }
 
     private void setState(ClipState newState)
