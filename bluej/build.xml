@@ -275,7 +275,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <ant dir="package" target="windows-dist"/>
     </target>
 	
-	<target name="windows-msi-dist">
+	<target name="windows-msi-dist" depends="dist">
 	    <ant dir="package" target="windows-msi-dist"/>
 	</target>
 
