@@ -296,8 +296,15 @@ public class KeyboardManager implements TriggeredKeyListener, FocusListener
      */
     private int numLockTranslate(int keycode)
     {
+        if (keycode >= KeyEvent.VK_NUMPAD0 && keycode <= KeyEvent.VK_NUMPAD9) {
+            // At least on linux, we can only get these codes if numlock is on; in that
+            // case we want to map to a digit anyway.
+            return keycode - KeyEvent.VK_NUMPAD0 + KeyEvent.VK_0;
+        }
+
         // Seems on linux (at least) we can't get the numlock state (get an
-        // UnsupportedOperationException).
+        // UnsupportedOperationException). Update: on Java 1.7.0_03 at least,
+        // we can now retrieve numlock state on linux.
         boolean numlock = true;
         if (hasNumLock) {
             try {
@@ -333,6 +340,7 @@ public class KeyboardManager implements TriggeredKeyListener, FocusListener
                 keycode = KeyEvent.VK_DOWN;
             }
             else if (keycode == KeyEvent.VK_KP_LEFT) {
+                System.out.println("VK_KP_LEFT!");
                 keycode = KeyEvent.VK_LEFT;
             }
             else if (keycode == KeyEvent.VK_KP_RIGHT) {
