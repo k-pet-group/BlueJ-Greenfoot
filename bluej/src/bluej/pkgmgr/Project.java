@@ -53,6 +53,7 @@ import bluej.BlueJEvent;
 import bluej.Boot;
 import bluej.Config;
 import bluej.classmgr.BPClassLoader;
+import bluej.collect.DataCollector;
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerClass;
 import bluej.debugger.DebuggerEvent;
@@ -464,7 +465,7 @@ public class Project implements DebuggerListener, InspectorManager
             proj.initialPackageName = startingPackageName;
         }
         
-        
+        DataCollector.projectOpened(proj);
         ExtensionsManager.getInstance().projectOpening(proj);
 
         return proj;
@@ -476,6 +477,8 @@ public class Project implements DebuggerListener, InspectorManager
      */
     public static void cleanUp(Project project) 
     {
+        DataCollector.projectClosed(project);
+        
         if (project.hasExecControls()) {
             project.getExecControls().dispose();
         }
@@ -1311,6 +1314,7 @@ public class Project implements DebuggerListener, InspectorManager
      */
     public void restartVM()
     {
+        DataCollector.restartVM(this);
         getDebugger().close(true);
         vmClosed();
         PkgMgrFrame.displayMessage(this, Config.getString("pkgmgr.creatingVM"));
@@ -1908,7 +1912,8 @@ public class Project implements DebuggerListener, InspectorManager
     private void traverseDirsForFiles(Set<File> allFiles, File dir, boolean includePkgFiles,
             boolean includeDirs)
     {
-        File[] files = dir.listFiles(getTeamSettingsController().getFileFilter(includePkgFiles));
+        TeamSettingsController teamSettingsController = getTeamSettingsController();
+        File[] files = dir.listFiles(teamSettingsController == null ? null : teamSettingsController.getFileFilter(includePkgFiles));
         if (files==null){
             return;
         }

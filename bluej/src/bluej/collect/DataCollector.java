@@ -68,50 +68,24 @@ public class DataCollector
     {
         if (dontSend()) return;
         initUUidSequence();
-        submitEvent("", "bluej_start");
+        submitEventNoProject("bluej_start");
     }
     
     public static void projectOpened(Project proj)
-    {
-        if (dontSend()) return;
+    {   
+        MultipartEntity mpe = new MultipartEntity();
         
-        submitEvent(proj.getProjectName(), "project_opening");
+        for (File f : proj.getFilesInProject(false, true))
+        {
+            if (f.getPath().toLowerCase().endsWith(".java"))
+            {
+                String relative = proj.getProjectDir().toURI().relativize(f.toURI()).getPath();
+                
+                mpe.addPart("project[source_files][][name]", toBody(relative));
+            }
+        }
         
-        /*
-        bluej.addPackageListener(this);
-        
-        bluej.addCompileListener(new CompileListener() {
-            @Override
-            public void compileStarted(CompileEvent event) { }
-            
-            @Override
-            public void compileWarning(CompileEvent event) { }
-            
-            @Override
-            public void compileError(CompileEvent event)
-            {
-                if (! seenFirstError) {
-                    handleCompilationEvent(event.getFiles(),
-                            event.getErrorLineNumber(),
-                            event.getErrorMessage());
-                }
-                seenFirstError = true;
-            }
-            
-            @Override
-            public void compileFailed(CompileEvent event)
-            {
-                seenFirstError = false;
-            }
-            
-            @Override
-            public void compileSucceeded(CompileEvent event)
-            {
-                seenFirstError = false;
-                handleCompilationEvent(event.getFiles(), 0, null);
-            }
-        });
-        */
+        submitEvent(proj.getProjectName(), "project_opening", mpe);
     }
     
     private static boolean dontSend()
@@ -288,13 +262,14 @@ public class DataCollector
         return thePkg;
     }
     */
-    
+    /*
     public static void packageOpened(Package pkg)
     {
         if (dontSend()) return;
         
         //TODO should this do something?
     }
+    */
     /*
     @Override
     public void packageClosing(PackageEvent event)
@@ -308,24 +283,28 @@ public class DataCollector
 
     public static void projectClosed(Project proj)
     {
-        if (dontSend()) return;
-        
-        submitEvent(proj.getProjectName(), "project_closing");
+        submitEventNoData(proj.getProjectName(), "project_closing");
     }
 
     public static void bluejClosed()
     {
-        if (dontSend()) return;
-        submitEvent("", "bluej_finish");        
+        submitEventNoProject("bluej_finish");        
     }
     
-    private static void submitEvent(String projectName, String eventName)
+    private static void submitEventNoProject(String eventName)
+    {
+        submitEventNoData("", eventName);
+    }
+    
+    private static void submitEventNoData(String projectName, String eventName)
     {
         submitEvent(projectName, eventName, new MultipartEntity());
     }
     
     private static synchronized void submitEvent(String projectName, String eventName, MultipartEntity mpe)
     {
+        if (dontSend()) return;
+        
         mpe.addPart("user[uuid]", toBody(uuid));        
         mpe.addPart("project[name]", toBody(projectName));
         mpe.addPart("event[source_time]", toBody(DateFormat.getDateTimeInstance().format(new Date())));
@@ -372,6 +351,6 @@ public class DataCollector
 
     public static void restartVM(Project project)
     {
-        submitEvent(project.getProjectName(), "resetting_vm");        
+        submitEventNoData(project.getProjectName(), "resetting_vm");        
     }
 }
