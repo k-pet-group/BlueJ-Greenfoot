@@ -53,6 +53,10 @@
         <pathelement location="${bluej_home}/lib/org-netbeans-lib-cvsclient.jar"/>
         <pathelement location="${bluej_home}/lib/svnkit-javahl.jar"/>
         <pathelement location="${bluej_home}/lib/trilead.jar"/>
+        <pathelement location="${bluej_home}/lib/httpclient-4.1.1.jar"/>
+        <pathelement location="${bluej_home}/lib/httpcore-4.1.jar"/>
+        <pathelement location="${bluej_home}/lib/httpmime-4.1.1.jar"/>
+        <pathelement location="${bluej_home}/lib/commons-logging-api-1.1.1.jar"/>
     </path>
     
     <!-- If you change the first or last lines of this license you might want
@@ -427,6 +431,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
      	<delete >
             <fileset dir="lib">
                 <include name="commons*.jar"/>
+                <exclude name="commons-logging-1.1.1.jar"/>
             </fileset>
         </delete>
         <delete dir="package/scenarios" />
