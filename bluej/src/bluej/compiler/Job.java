@@ -27,6 +27,7 @@ import java.util.List;
 
 import bluej.Config;
 import bluej.classmgr.BPClassLoader;
+import bluej.collect.DataCollectionCompileObserverWrapper;
 
 /**
  * A compiler "job". A list of filenames to compile + parameters.
@@ -57,7 +58,7 @@ class Job
     {
         this.sources = sourceFiles;
         this.compiler = compiler;
-        this.observer = observer;
+        this.observer = new DataCollectionCompileObserverWrapper(observer);
         this.bpClassLoader = bpClassLoader;
         this.destDir = destDir;
         this.internal = internal;
