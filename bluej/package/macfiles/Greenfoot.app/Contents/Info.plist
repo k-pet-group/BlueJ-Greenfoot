@@ -59,15 +59,8 @@
 		<string>-greenfoot=true -bluej.compiler.showunchecked=false</string>
 		<key>ClassPath</key>
 		<array>
-			<string>$JAVAROOT/antlr.jar</string>
 			<string>$JAVAROOT/bluej.jar</string>
-			<string>$JAVAROOT/bluejcore.jar</string>
-			<string>$JAVAROOT/bluejeditor.jar</string>
-			<string>$JAVAROOT/bluejext.jar</string>
-			<string>$JAVAROOT/junit.jar</string>
-			<string>$JAVAROOT/AppleJavaExtensions.jar</string>
 			<string>/System/Library/Java</string>
-			<string>$JAVAROOT/extensions/greenfoot.jar</string>
 		</array>
 		<key>JVMVersion</key>
 		<string>1.6+</string>
