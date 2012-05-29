@@ -33,6 +33,7 @@ import com.apple.eawt.Application;
 import com.apple.eawt.AppEvent;
 import com.apple.eawt.QuitResponse;
 
+import bluej.collect.DataCollector;
 import bluej.extensions.event.ApplicationEvent;
 import bluej.extmgr.ExtensionsManager;
 import bluej.pkgmgr.Package;
@@ -88,6 +89,8 @@ public class Main
         // processArgs() (just below) is called.
         if (Config.isMacOS())
             prepareMacOSApp();
+        
+        DataCollector.bluejOpened();
 
         // process command line arguments, start BlueJ!
         EventQueue.invokeLater(new Runnable() {
@@ -401,11 +404,13 @@ public class Main
      * The open frame count should be zero by this point as PkgMgrFrame is
      * responsible for cleaning itself up before getting here.
      */
-    public static void exit()
+    private static void exit()
     {
         if (PkgMgrFrame.frameCount() > 0)
             Debug.reportError("Frame count was not zero when exiting. Work may not have been saved");
 
+        DataCollector.bluejClosed();
+        
         // save configuration properties
         Config.handleExit();
         // exit with success status
