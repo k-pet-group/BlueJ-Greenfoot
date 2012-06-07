@@ -22,6 +22,10 @@
 package bluej.collect;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.text.DateFormat;
@@ -82,10 +86,44 @@ public class DataCollector
                 String relative = toPath(proj, f);
                 
                 mpe.addPart("project[source_files][][name]", toBody(relative));
+                
+                String contents = readFile(proj, f);
+                
+                if (contents != null)
+                {
+                    // The order here matters; if you put the [text][text] one first,
+                    // Rails groups the entries into arrays wrongly.  It seems that the
+                    // nested one must come last.  (Might be worth un-nesting that hash in future...)
+                    mpe.addPart("source_histories[][source_event_type]", toBody("complete"));
+                    mpe.addPart("source_histories[][name]", toBody(relative));
+                    mpe.addPart("source_histories[][text][text]", toBody(contents));
+                }
             }
         }
         
         submitEvent(proj.getProjectName(), "project_opening", mpe);
+    }
+    
+    private static String readFile(Project proj, File f)
+    {
+        try {
+            StringBuilder sb = new StringBuilder();
+            FileInputStream inputStream = new FileInputStream(f);
+            InputStreamReader reader = new InputStreamReader(inputStream, proj.getProjectCharset());
+            char[] buf = new char[4096];
+            
+            int read = reader.read(buf);
+            while (read != -1)
+            {
+                sb.append(buf, 0, read);
+                read = reader.read(buf);
+            }
+            
+            reader.close();
+            inputStream.close();
+            return sb.toString();
+        }
+        catch (IOException ioe) {return null;}
     }
 
     private static String toPath(Project proj, File f)
@@ -366,8 +404,6 @@ public class DataCollector
         mpe.addPart("source_histories[][diff][diff]", toBody(diff));
         mpe.addPart("source_histories[][source_event_type]", toBody("multi_line_edit"));
         mpe.addPart("source_histories[][name]", toBody(toPath(proj, path))); 
-        
-        try{throw new Exception();}catch (Exception e) {e.printStackTrace();}
         
         submitEvent(proj.getProjectName(), "multi_line_edit", mpe);
     }
