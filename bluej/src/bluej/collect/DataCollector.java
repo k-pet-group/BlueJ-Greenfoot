@@ -79,13 +79,18 @@ public class DataCollector
         {
             if (f.getPath().toLowerCase().endsWith(".java"))
             {
-                String relative = proj.getProjectDir().toURI().relativize(f.toURI()).getPath();
+                String relative = toPath(proj, f);
                 
                 mpe.addPart("project[source_files][][name]", toBody(relative));
             }
         }
         
         submitEvent(proj.getProjectName(), "project_opening", mpe);
+    }
+
+    private static String toPath(Project proj, File f)
+    {
+        return proj.getProjectDir().toURI().relativize(f.toURI()).getPath();
     }
     
     private static boolean dontSend()
@@ -352,5 +357,18 @@ public class DataCollector
     public static void restartVM(Project project)
     {
         submitEventNoData(project.getProjectName(), "resetting_vm");        
+    }
+
+    public static void edit(Project proj, File path, String diff)
+    {
+        MultipartEntity mpe = new MultipartEntity();
+        
+        mpe.addPart("source_histories[][diff][diff]", toBody(diff));
+        mpe.addPart("source_histories[][source_event_type]", toBody("multi_line_edit"));
+        mpe.addPart("source_histories[][name]", toBody(toPath(proj, path))); 
+        
+        try{throw new Exception();}catch (Exception e) {e.printStackTrace();}
+        
+        submitEvent(proj.getProjectName(), "multi_line_edit", mpe);
     }
 }

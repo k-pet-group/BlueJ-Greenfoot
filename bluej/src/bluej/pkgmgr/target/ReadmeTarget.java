@@ -227,4 +227,10 @@ public class ReadmeTarget extends EditableTarget
     {
         
     }
+    
+    @Override
+    public void recordEdit(String diff)
+    {
+        
+    }
 }

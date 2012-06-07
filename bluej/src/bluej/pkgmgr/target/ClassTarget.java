@@ -43,6 +43,7 @@ import javax.swing.AbstractAction;
 import javax.swing.JPopupMenu;
 
 import bluej.Config;
+import bluej.collect.DataCollector;
 import bluej.debugger.DebuggerClass;
 import bluej.debugger.gentype.Reflective;
 import bluej.debugmgr.objectbench.InvokeListener;
@@ -2019,6 +2020,12 @@ public class ClassTarget extends DependentTarget
         } else {
             return null;
         }
+    }
+    
+    @Override
+    public void recordEdit(String diff)
+    {
+        DataCollector.edit(getPackage().getProject(), getSourceFile(), diff);
     }
    
 }

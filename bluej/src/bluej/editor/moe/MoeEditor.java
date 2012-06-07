@@ -101,6 +101,10 @@ import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.HTMLFrameHyperlinkEvent;
 
+import difflib.Delta;
+import difflib.DiffUtils;
+import difflib.Patch;
+
 import bluej.BlueJEvent;
 import bluej.BlueJEventListener;
 import bluej.BlueJTheme;
@@ -267,6 +271,10 @@ public final class MoeEditor extends JFrame
      * this editor instance; otherwise unused.
      */
     private HashMap<String,Object> propertyMap = new HashMap<String,Object>();
+    
+    // Blackbox data recording:
+    private ArrayList<String> previousDoc = null;
+    private int oldCaretLineNumber = -1;
 
 
     /**
@@ -345,6 +353,8 @@ public final class MoeEditor extends JFrame
                 catch (IOException ioe) {}
                 File file = new File(filename);
                 lastModified = file.lastModified();
+                
+                recordLoadContent();
 
                 sourcePane.addMouseListener(this);
                 sourceDocument = (MoeSyntaxDocument) sourcePane.getDocument();
@@ -1237,6 +1247,9 @@ public final class MoeEditor extends JFrame
         actions.userAction();
         doTextInsert.setEvent(e, sourcePane);
         SwingUtilities.invokeLater(doTextInsert);
+        
+        recordEdit(false);        
+        
         scheduleReparseRunner();
     }
 
@@ -1253,6 +1266,9 @@ public final class MoeEditor extends JFrame
             setChanged();
         }
         actions.userAction();
+        
+        recordEdit(false);
+        
         scheduleReparseRunner();
     }
 
@@ -2616,6 +2632,8 @@ public final class MoeEditor extends JFrame
             catch (IOException ioe) {}
             File file = new File(filename);
             lastModified = file.lastModified();
+            
+            recordLoadContent();
 
             sourceDocument = (MoeSyntaxDocument) sourcePane.getDocument();
             sourceDocument.enableParser(false);
@@ -2785,6 +2803,12 @@ public final class MoeEditor extends JFrame
             doBracketMatch();
         }
         actions.userAction();
+        
+        if (oldCaretLineNumber != getLineNumberAt(caretPos))
+        {
+            recordEdit(true);
+        }
+        oldCaretLineNumber = getLineNumberAt(caretPos);
     }
 
     /**
@@ -3800,5 +3824,67 @@ public final class MoeEditor extends JFrame
     protected boolean containsSourceCode() 
     {
         return sourceIsCode;
+    }
+    
+    private void recordLoadContent()
+    {
+        previousDoc = new ArrayList<String>();
+        getLines(previousDoc);
+    }
+    
+    private void getLines(ArrayList<String> lines)
+    {
+        Element parent = sourceDocument.getDefaultRootElement();
+        lines.ensureCapacity(parent.getElementCount());
+        for (int i = 0; i < parent.getElementCount(); i++)
+        {
+            String line = "";
+            try {
+                line = sourceDocument.getText(parent.getElement(i).getStartOffset(), parent.getElement(i).getEndOffset() - parent.getElement(i).getStartOffset());
+            }
+            catch (BadLocationException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            lines.add(line);
+        }
+    }
+    
+    private void recordEdit(boolean includeOneLineEdits)
+    {
+        ArrayList<String> curDoc = new ArrayList<String>();
+        getLines(curDoc);
+        
+        Patch patch = DiffUtils.diff(previousDoc, curDoc);
+        
+        if (patch.getDeltas().isEmpty() || (isOneLineDiff(patch) && !includeOneLineEdits))
+            return;
+        
+        StringBuilder diff = new StringBuilder();
+        
+        for (Delta delta: patch.getDeltas()) {
+            diff.append("@@ -" + (delta.getOriginal().getPosition() + 1) + "," + delta.getOriginal().size() + " +" + (delta.getRevised().getPosition() + 1) + "," + delta.getRevised().size() + " @@\n");
+            for (String l : (List<String>)delta.getOriginal().getLines())
+            {
+                diff.append("-" + l); //l already has newline in it
+            }
+            for (String l : (List<String>)delta.getRevised().getLines())
+            {
+                diff.append("+" + l); //l already has newline in it
+            }
+        }
+        
+        watcher.recordEdit(diff.toString());
+        //TODO only update this on successful confirmation, move this code into collector
+        previousDoc = curDoc;
+    }
+
+    //Edit solely within one line
+    private static boolean isOneLineDiff(Patch patch)
+    {
+        if (patch.getDeltas().size() > 1)
+            return false;
+        Delta theDelta = patch.getDeltas().get(0);
+        return theDelta.getOriginal().size() == 1 && theDelta.getRevised().size() == 1;
     }
 }
