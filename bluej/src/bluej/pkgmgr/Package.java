@@ -41,6 +41,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import bluej.Config;
+import bluej.collect.DataCollectionCompileObserverWrapper;
 import bluej.compiler.CompileObserver;
 import bluej.compiler.Diagnostic;
 import bluej.compiler.EventqueueCompileObserver;
@@ -1434,7 +1435,7 @@ public final class Package extends Graph
             srcFiles[i++] = ct.getSourceFile();
         }
         
-        JobQueue.getJobQueue().addJob(project, srcFiles, observer, project.getClassLoader(), project.getProjectDir(),
+        JobQueue.getJobQueue().addJob(srcFiles, new DataCollectionCompileObserverWrapper(project, observer), project.getClassLoader(), project.getProjectDir(),
                 ! PrefMgr.getFlag(PrefMgr.SHOW_UNCHECKED), project.getProjectCharset());
     }
 

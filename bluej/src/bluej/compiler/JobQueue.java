@@ -79,7 +79,7 @@ public class JobQueue
      * @param destDir   Destination for class files?
      * @param suppressUnchecked    Suppress "unchecked" warning in java 1.5
      */
-    public void addJob(Project project, File[] sources, CompileObserver observer, BPClassLoader bpClassLoader, File destDir,
+    public void addJob(File[] sources, CompileObserver observer, BPClassLoader bpClassLoader, File destDir,
             boolean suppressUnchecked, Charset fileCharset)
     {
         List<String> options = new ArrayList<String>();
@@ -90,7 +90,7 @@ public class JobQueue
         String optionString = Config.getPropString(Compiler.COMPILER_OPTIONS, "");
         options.addAll(Utility.dequoteCommandLine(optionString));
         
-        thread.addJob(new Job(project, sources, compiler, observer, bpClassLoader,
+        thread.addJob(new Job(sources, compiler, observer, bpClassLoader,
                 destDir, suppressUnchecked, options, fileCharset));
     }
 

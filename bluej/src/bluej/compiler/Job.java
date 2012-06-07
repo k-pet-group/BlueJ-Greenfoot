@@ -53,13 +53,13 @@ class Job
     /**
      * Create a job with a set of sources.
      */
-    public Job(Project project, File[] sourceFiles, Compiler compiler, CompileObserver observer,
+    public Job(File[] sourceFiles, Compiler compiler, CompileObserver observer,
                         BPClassLoader bpClassLoader, File destDir, boolean internal,
                         List<String> userCompileOptions, Charset fileCharset)
     {
         this.sources = sourceFiles;
         this.compiler = compiler;
-        this.observer = new DataCollectionCompileObserverWrapper(project, observer);
+        this.observer = observer;
         this.bpClassLoader = bpClassLoader;
         this.destDir = destDir;
         this.internal = internal;

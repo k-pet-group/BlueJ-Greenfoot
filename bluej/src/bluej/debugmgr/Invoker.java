@@ -268,7 +268,7 @@ public class Invoker
             public void compile(File[] files, CompileObserver observer)
             {
                 Project project = pkg.getProject();
-                JobQueue.getJobQueue().addJob(pmf.getProject(), files, observer, project.getClassLoader(),
+                JobQueue.getJobQueue().addJob(files, observer, project.getClassLoader(),
                         project.getProjectDir(), true, project.getProjectCharset());
             }
         };
