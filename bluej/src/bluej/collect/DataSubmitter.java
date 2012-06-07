@@ -26,6 +26,7 @@ import java.nio.charset.UnsupportedCharsetException;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
@@ -124,7 +125,14 @@ public class DataSubmitter
             post.setEntity(mpe);
             HttpResponse response = client.execute(post);
             // Temporary:
-            System.err.println("Got response: " + response.toString());
+            for (Header h : response.getAllHeaders())
+            {
+                if ("X-Status".equals(h.getName()) && !"Created".equals(h.getValue()))
+                {
+                    System.err.println("Problem response: " + mpe.toString() + " " + response.toString());
+                }
+            }
+                
             EntityUtils.consume(response.getEntity());
         }
         catch (ClientProtocolException cpe) {
