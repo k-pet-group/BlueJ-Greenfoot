@@ -252,7 +252,7 @@ public class Invoker
     /**
      * Initialize most of the invoker's necessary fields via a PkgMgrFrame reference.
      */
-    private void initialize(PkgMgrFrame pmf)
+    private void initialize(final PkgMgrFrame pmf)
     {
         this.pmf = pmf;
         final Package pkg = pmf.getPackage();
@@ -268,7 +268,7 @@ public class Invoker
             public void compile(File[] files, CompileObserver observer)
             {
                 Project project = pkg.getProject();
-                JobQueue.getJobQueue().addJob(files, observer, project.getClassLoader(),
+                JobQueue.getJobQueue().addJob(pmf.getProject(), files, observer, project.getClassLoader(),
                         project.getProjectDir(), true, project.getProjectCharset());
             }
         };

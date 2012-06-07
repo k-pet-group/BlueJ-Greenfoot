@@ -1434,7 +1434,7 @@ public final class Package extends Graph
             srcFiles[i++] = ct.getSourceFile();
         }
         
-        JobQueue.getJobQueue().addJob(srcFiles, observer, project.getClassLoader(), project.getProjectDir(),
+        JobQueue.getJobQueue().addJob(project, srcFiles, observer, project.getClassLoader(), project.getProjectDir(),
                 ! PrefMgr.getFlag(PrefMgr.SHOW_UNCHECKED), project.getProjectCharset());
     }
 

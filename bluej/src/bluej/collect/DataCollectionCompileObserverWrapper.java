@@ -27,6 +27,7 @@ import java.util.List;
 
 import bluej.compiler.CompileObserver;
 import bluej.compiler.Diagnostic;
+import bluej.pkgmgr.Project;
 
 /**
  * A wrapper for a {@link CompileObserver} that also logs the
@@ -39,9 +40,11 @@ public class DataCollectionCompileObserverWrapper implements CompileObserver
 {
     private CompileObserver wrapped;
     private List<Diagnostic> diagnostics = new ArrayList<Diagnostic>();
+    private Project project;
 
-    public DataCollectionCompileObserverWrapper(CompileObserver wrapped)
+    public DataCollectionCompileObserverWrapper(Project project, CompileObserver wrapped)
     {
+        this.project = project;
         this.wrapped = wrapped;
     }
 
@@ -63,7 +66,7 @@ public class DataCollectionCompileObserverWrapper implements CompileObserver
     @Override
     public void endCompile(File[] sources, boolean succesful)
     {
-        DataCollector.compiled(sources, diagnostics);
+        DataCollector.compiled(project, sources, diagnostics);
         wrapped.endCompile(sources, succesful);
     }
 

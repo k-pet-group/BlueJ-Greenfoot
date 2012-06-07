@@ -358,7 +358,7 @@ public class DataCollector
         sequenceNum += 1;
     }
 
-    public static void compiled(File[] sources, List<Diagnostic> diagnostics)
+    public static void compiled(Project proj, File[] sources, List<Diagnostic> diagnostics)
     {
         MultipartEntity mpe = new MultipartEntity();
         for (Diagnostic d : diagnostics)
@@ -367,8 +367,14 @@ public class DataCollector
             mpe.addPart("event[compile_output][][end_line]", toBody(d.getEndLine()));
             mpe.addPart("event[compile_output][][start_column]", toBody(d.getStartColumn()));
             mpe.addPart("event[compile_output][][end_column]", toBody(d.getEndColumn()));
+            mpe.addPart("event[compile_output][][is_error]", toBody(d.getType() == Diagnostic.ERROR));
+            mpe.addPart("event[compile_output][][message]", toBody(d.getMessage()));
+            // Must make file name relative for anonymisation:
+            String relative = toPath(proj, new File(d.getFileName()));
+            mpe.addPart("event[compile_output][][source_file_name]", toBody(relative));
+            //TODO have a flag indicated whether the error was shown to the user
         }
-        //TODO finish putting in data and actually submit it, once Phil has finished
+        submitEvent(proj.getProjectName(), "compile", mpe);
     }
     
     private static StringBody toBody(String s)
@@ -390,6 +396,11 @@ public class DataCollector
     private static StringBody toBody(long l)
     {
         return toBody(Long.toString(l));
+    }
+    
+    private static StringBody toBody(boolean b)
+    {
+        return toBody(Boolean.toString(b));
     }
 
     public static void restartVM(Project project)
