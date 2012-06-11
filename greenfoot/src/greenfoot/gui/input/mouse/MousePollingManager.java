@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2012  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -84,13 +84,6 @@ public class MousePollingManager implements TriggeredMouseListener, TriggeredMou
      */
     
     /**
-     * Whether the user has requested any information about the mouse in this act loop.
-     * 
-     * <p>Accessed only from the simulation thread.
-     */
-    private boolean polledInThisAct;
-    
-    /**
      * The current mouse data This will be the mouse info returned for the rest
      * of this act loop.
      * 
@@ -130,7 +123,7 @@ public class MousePollingManager implements TriggeredMouseListener, TriggeredMou
      * 
      * <p>Accessed only from the GUI thread.
      */
-    private MouseEventData dragStartData;
+    private MouseEventData dragStartData = new MouseEventData();
 
     /**
      * Track whether the mouse is currently being dragged.
