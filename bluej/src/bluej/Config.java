@@ -177,6 +177,18 @@ public final class Config
     public static void initialise(File bluejLibDir, Properties tempCommandLineProps,
                                   boolean bootingGreenfoot)
     {
+        initialise(bluejLibDir, tempCommandLineProps, bootingGreenfoot, true);
+    }
+    
+    /**
+     * Initialisation of BlueJ configuration. Must be called at startup.
+     * This method finds and opens the configuration files.<p>
+     * 
+     * See also initializeVMside().
+     */
+    private static void initialise(File bluejLibDir, Properties tempCommandLineProps,
+                                  boolean bootingGreenfoot, boolean createUserhome)
+    {
         if(initialised)
             return;
 
@@ -219,29 +231,32 @@ public final class Config
         commandProps.putAll(tempCommandLineProps);
         commandProps.setProperty("bluej.libdir", bluejLibDir.getAbsolutePath());
         
-        // get user home directory
-        {
-            File userHome;
-            String homeDir = getPropString("bluej.userHome", "$user.home");
-            userHome = new File(homeDir);
+        if (createUserhome) {
 
-            // get user specific bluej property directory (in user home)
-            userPrefDir = new File(userHome, getBlueJPrefDirName());
+            // get user home directory
+            {
+                File userHome;
+                String homeDir = getPropString("bluej.userHome", "$user.home");
+                userHome = new File(homeDir);
 
-            if(!userPrefDir.isDirectory()) {
-                userPrefDir.mkdirs();
+                // get user specific bluej property directory (in user home)
+                userPrefDir = new File(userHome, getBlueJPrefDirName());
+
+                if(!userPrefDir.isDirectory()) {
+                    userPrefDir.mkdirs();
+                }
             }
-        }
 
-        // add user specific definitions (bluej.properties or greenfoot.properties)
-        loadProperties(getApplicationName().toLowerCase(), userProps);
+            // add user specific definitions (bluej.properties or greenfoot.properties)
+            loadProperties(getApplicationName().toLowerCase(), userProps);
 
-        // set a new name for the log file if we are running in greenfoot mode
-        if(isGreenfoot) {
-            debugLogName = greenfootDebugLogName;
+            // set a new name for the log file if we are running in greenfoot mode
+            if(isGreenfoot) {
+                debugLogName = greenfootDebugLogName;
+            }
+
+            checkDebug(userPrefDir);
         }
-        
-        checkDebug(userPrefDir);
         
         // find our language (but default to english if none found)
         language = commandProps.getProperty("bluej.language", DEFAULT_LANGUAGE);
@@ -315,8 +330,7 @@ public final class Config
                 return Config.propSource.getBlueJPropertyString(key, def);
             }
         };
-        initialise(bluejLibDir, tempCommandLineProps, bootingGreenfoot);
-
+        initialise(bluejLibDir, tempCommandLineProps, bootingGreenfoot, false);
     }
 
     /**
