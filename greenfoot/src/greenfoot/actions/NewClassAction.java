@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,8 +28,8 @@ import greenfoot.gui.NewClassDialog;
 import greenfoot.gui.classbrowser.ClassBrowser;
 import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.gui.classbrowser.role.NormalClassRole;
+import greenfoot.platforms.ide.GreenfootUtilDelegateIDE;
 import greenfoot.record.InteractionListener;
-import greenfoot.util.GreenfootUtil;
 
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -62,6 +62,7 @@ public class NewClassAction extends AbstractAction
         this.interactionListener = interactionListener;
     }
 
+    @Override
     public void actionPerformed(ActionEvent arg0)
     {
         JFrame f = gfFrame;
@@ -76,13 +77,12 @@ public class NewClassAction extends AbstractAction
         }
         
         String className = dialog.getClassName();
-        //GClass gClass = superclass.createSubclass(className);        
         
         try {
-            
             File dir = pkg.getProject().getDir();
             File newJavaFile = new File(dir, className + ".java");
-            GreenfootUtil.createSkeleton(className, null, newJavaFile, NormalClassRole.getInstance().getTemplateFileName());
+            GreenfootUtilDelegateIDE.getInstance().createSkeleton(className, null, newJavaFile,
+                    NormalClassRole.getInstance().getTemplateFileName(), pkg.getProject().getCharsetName());
 
             GClass newClass = pkg.newClass(className, false);
 

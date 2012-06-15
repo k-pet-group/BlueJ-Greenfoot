@@ -29,7 +29,6 @@ import greenfoot.util.GreenfootStorageException;
 
 import java.awt.Component;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -43,6 +42,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Implementation of GreenfootUtilDelegate for standalone applications.
+ */
 public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
 {
     private SocketChannel socket;
@@ -73,13 +75,6 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
     /** Holds images for classes. Avoids loading the same image twice. Key is the filename */
     public static Map<String, GreenfootImage> classImages = new HashMap<String, GreenfootImage>();
     
-    @Override
-    public void createSkeleton(String className, String superClassName, File file, String templateFileName)
-    throws IOException
-    {
-        // Not needed in stand alone
-    }
-
     @Override
     public URL getResource(String path)
     {

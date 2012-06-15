@@ -24,6 +24,7 @@ package greenfoot.core;
 import greenfoot.event.CompileListener;
 
 import java.io.File;
+import java.nio.charset.Charset;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -232,9 +233,22 @@ public class GProject extends RProjectListenerImpl
     /*
      * @see rmiextension.wrappers.event.RProjectListener#projectClosing()
      */
+    @Override
     public void projectClosing()
     {
         GreenfootMain.getInstance().projectClosing();
+    }
+    
+    /**
+     * Get the project character set's name
+     */
+    public String getCharsetName()
+    {
+        String charsetName = projectProperties.getString("project.charset");
+        if (charsetName == null) {
+            charsetName = Charset.defaultCharset().name();
+        }
+        return charsetName;
     }
     
     /**

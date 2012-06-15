@@ -38,6 +38,8 @@ import java.lang.ref.SoftReference;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.charset.IllegalCharsetNameException;
+import java.nio.charset.UnsupportedCharsetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -98,10 +100,22 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
     /**
      * Creates the skeleton for a new class
      */
-    @Override
-    public void createSkeleton(String className, String superClassName, File file, String templateFileName)
-            throws IOException
+    public void createSkeleton(String className, String superClassName, File file,
+            String templateFileName, String projCharsetName)
+        throws IOException
     {
+        Charset projCharset;
+        try
+        {
+            projCharset = Charset.forName(projCharsetName);
+        }
+        catch (UnsupportedCharsetException uce) {
+            projCharset = Charset.forName("UTF-8");
+        }
+        catch (IllegalCharsetNameException icne) {
+            projCharset = Charset.forName("UTF-8");
+        }
+        
         Dictionary<String, String> translations = new Hashtable<String, String>();
         translations.put("CLASSNAME", className);
         if(superClassName != null) {
@@ -115,7 +129,7 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
         if(!template.canRead()) {
             template = Config.getDefaultLanguageFile(baseName);
         }
-        BlueJFileReader.translateFile(template, file, translations, Charset.forName("UTF-8"), Charset.defaultCharset());
+        BlueJFileReader.translateFile(template, file, translations, Charset.forName("UTF-8"), projCharset);
     }
     
     @Override

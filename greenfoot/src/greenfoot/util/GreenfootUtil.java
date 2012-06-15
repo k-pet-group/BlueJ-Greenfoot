@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -564,15 +564,6 @@ public class GreenfootUtil
                 throw new IllegalArgumentException(errMsg);
             }
         }
-    }
-
-    /**
-     * Creates the skeleton for a new class
-     */
-    public static void createSkeleton(String className, String superClassName, File file,
-            String templateFileName) throws IOException
-    {
-        delegate.createSkeleton(className, superClassName, file, templateFileName);
     }
 
     /**

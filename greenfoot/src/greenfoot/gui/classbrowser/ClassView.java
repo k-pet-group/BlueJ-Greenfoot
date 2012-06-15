@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -33,8 +33,8 @@ import greenfoot.gui.classbrowser.role.ClassRole;
 import greenfoot.gui.classbrowser.role.NormalClassRole;
 import greenfoot.gui.classbrowser.role.WorldClassRole;
 import greenfoot.gui.input.mouse.LocationTracker;
+import greenfoot.platforms.ide.GreenfootUtilDelegateIDE;
 import greenfoot.record.InteractionListener;
-import greenfoot.util.GreenfootUtil;
 
 import java.awt.event.MouseEvent;
 import java.io.File;
@@ -314,12 +314,14 @@ public class ClassView extends ClassButton
         try {
             //get the default package which is the one containing the user
             // code.
-            GPackage pkg = gClass.getPackage().getProject().getDefaultPackage();
+            GProject proj = gClass.getPackage().getProject();
+            GPackage pkg = proj.getDefaultPackage();
             //write the java file as this is required to exist
-            File dir = pkg.getProject().getDir();
+            File dir = proj.getDir();
             File newJavaFile = new File(dir, className + ".java");
             String superClassName = getClassName();            
-            GreenfootUtil.createSkeleton(className, superClassName, newJavaFile, role.getTemplateFileName());
+            GreenfootUtilDelegateIDE.getInstance().createSkeleton(className, superClassName, newJavaFile,
+                    role.getTemplateFileName(), proj.getCharsetName());
             
             GClass newClass = pkg.newClass(className, false);
             //We know what the superclass should be, so we set it.
