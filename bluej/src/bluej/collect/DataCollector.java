@@ -96,7 +96,7 @@ public class DataCollector
                     // nested one must come last.  (Might be worth un-nesting that hash in future...)
                     mpe.addPart("source_histories[][source_event_type]", toBody("complete"));
                     mpe.addPart("source_histories[][name]", toBody(relative));
-                    mpe.addPart("source_histories[][text][text]", toBody(contents));
+                    mpe.addPart("source_histories[][text]", toBody(contents));
                 }
             }
         }
@@ -412,7 +412,7 @@ public class DataCollector
     {
         MultipartEntity mpe = new MultipartEntity();
         
-        mpe.addPart("source_histories[][diff][diff]", toBody(diff));
+        mpe.addPart("source_histories[][diff]", toBody(diff));
         mpe.addPart("source_histories[][source_event_type]", toBody("multi_line_edit"));
         mpe.addPart("source_histories[][name]", toBody(toPath(proj, path))); 
         
