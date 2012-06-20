@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -134,10 +134,15 @@ public abstract class Reflective
      */
     public Reflective getOuterClass()
     {
-        int dollarIndex = getName().indexOf('$');
+        int dollarIndex = getName().lastIndexOf('$');
         if (dollarIndex != -1) {
-            String outerName = getName().substring(0, dollarIndex);
-            return getRelativeClass(outerName);
+            // Note that package names can have '$' in them, so
+            // we need to check for that case:
+            int dotIndex = getName().indexOf('.', dollarIndex);
+            if (dotIndex == -1) {
+                String outerName = getName().substring(0, dollarIndex);
+                return getRelativeClass(outerName);
+            }
         }
         return null;
     }
