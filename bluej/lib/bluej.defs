@@ -146,6 +146,15 @@ bluej.numberOfRecentProjects=12
 ## User's home directory. This is also defined by Java, and if that's
 ## fine for you, don't specify this property. This property, if
 ## specified, will override Java's user.home property.
+##
+## You can specify multiple values by appending consecutive numbers
+## (starting at 2) to the property name, eg:
+##
+##   bluej.userHome=/home/mik/tmp
+##   bluej.userHome2=/some/other/directory
+##   bluej.userHome3=/yet/another/directory
+##
+## In this case the first location that is writable will be selected. 
 #####################################################################
 
 #bluej.userHome=/home/mik/tmp

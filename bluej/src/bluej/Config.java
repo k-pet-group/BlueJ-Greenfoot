@@ -234,18 +234,7 @@ public final class Config
         if (createUserhome) {
 
             // get user home directory
-            {
-                File userHome;
-                String homeDir = getPropString("bluej.userHome", "$user.home");
-                userHome = new File(homeDir);
-
-                // get user specific bluej property directory (in user home)
-                userPrefDir = new File(userHome, getBlueJPrefDirName());
-
-                if(!userPrefDir.isDirectory()) {
-                    userPrefDir.mkdirs();
-                }
-            }
+            initUserHome();
 
             // add user specific definitions (bluej.properties or greenfoot.properties)
             loadProperties(getApplicationName().toLowerCase(), userProps);
@@ -288,8 +277,57 @@ public final class Config
         // Create a property containing the BlueJ version string
         // put it in command_props so it won't be saved to a file
         commandProps.setProperty("bluej.version", Boot.BLUEJ_VERSION);
-    } // initialise
+    }
 
+    /**
+     * Initialise the user home (try and create directories if necessary).
+     * <p>
+     * We try the bluej.userHome property, or default to the system user.home
+     * property if that is not set. If the result is not writable we try
+     * bluej.userHome1, bluej.userHome2, etc.
+     */
+    private static void initUserHome()
+    {
+        File userHome;
+        String homeDir = getPropString("bluej.userHome", "$user.home");
+        userHome = new File(homeDir);
+
+        String prefDirName = getBlueJPrefDirName();
+        
+        // get user specific bluej property directory (in user home)
+        userPrefDir = new File(userHome, prefDirName);
+
+        int nameCounter = 1;
+        do {
+            if (! userPrefDir.isDirectory()) {
+                if (userPrefDir.mkdirs()) {
+                    // successfully created the preferences directory
+                    break;
+                }
+            }
+            else if (userPrefDir.canWrite()) {
+                break;
+            }
+            
+            nameCounter++;
+            String propertyName = "bluej.userHome" + nameCounter;
+            homeDir = getPropString(propertyName, null);
+            if (homeDir == null) {
+                break;
+            }
+            userHome = new File(homeDir);
+            userPrefDir = new File(userHome, prefDirName);
+        }
+        while (true);
+        
+        if (homeDir == null) {
+            // Now we're in trouble... just user user.home, and hope it's writable.
+            homeDir = System.getProperty("user.home");
+            userHome = new File(homeDir);
+            userPrefDir = new File(userHome, prefDirName);
+        }
+    }
+    
     /**
      * Alternative to "initialise", to be used in the debugee-VM by
      * applications which require it (ie. greenfoot).
