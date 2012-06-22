@@ -69,7 +69,7 @@ public class MethodBodyNode extends IncrementalParsingNode
             return PP_PULL_UP_CHILD;
         }
         
-        last = params.parser.parseStatement(last);
+        last = params.parser.parseStatement(last, false);
         if (last == null) {
             last = params.tokenStream.LA(1);
             if (last.getType() == JavaTokenTypes.EOF) {

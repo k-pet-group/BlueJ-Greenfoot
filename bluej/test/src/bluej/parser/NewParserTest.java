@@ -442,6 +442,20 @@ public class NewParserTest extends TestCase
         ip.parseStatement();
     }
     
+    /**
+     * Test for loop where initializer variables are already declared
+     */
+    public void testForLoop3()
+    {
+        // if i and j are already declared, this should still parse:
+        StringReader sr = new StringReader(
+                "for (i = 0, j = 8; i++; i < 10) {" +
+                "}"
+        );
+        JavaParser ip = new JavaParser(sr);
+        ip.parseStatement();
+    }
+    
     public void testFunkyCast()
     {
         StringReader sr = new StringReader(
