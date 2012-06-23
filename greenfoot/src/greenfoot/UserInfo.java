@@ -51,7 +51,7 @@ import java.util.List;
  * for users with scores near my own score (e.g. getNearby(10)).</p>
  *
  * <p>The data that can be stored for each user consists of a score, 10
- * additional general purpose integers, and 10 strings (limited to 50 characters
+ * additional general purpose integers, and 5 strings (limited to 50 characters
  * in length). In addition, the user name and user's image can be retrieved from
  * the user data.</p>
  *
