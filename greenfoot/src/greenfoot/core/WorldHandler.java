@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -864,14 +864,18 @@ public class WorldHandler
 
     /**
      * Used to indicate the start of a simulation round. For use in the
-     * collision checker.
+     * collision checker. Called from the simulation thread.
      * 
      * @see greenfoot.collision.CollisionChecker#startSequence()
      */
     public void startSequence()
     {
-        WorldVisitor.startSequence(world);
-        mousePollingManager.newActStarted();
+        // Guard against world getting nulled concurrently:
+        World world = this.world;
+        if (world != null) {
+            WorldVisitor.startSequence(world);
+            mousePollingManager.newActStarted();
+        }
     }
 
     public WorldCanvas getWorldCanvas()
