@@ -3854,37 +3854,6 @@ public final class MoeEditor extends JFrame
     {
         ArrayList<String> curDoc = new ArrayList<String>();
         getLines(curDoc);
-        
-        Patch patch = DiffUtils.diff(previousDoc, curDoc);
-        
-        if (patch.getDeltas().isEmpty() || (isOneLineDiff(patch) && !includeOneLineEdits))
-            return;
-        
-        StringBuilder diff = new StringBuilder();
-        
-        for (Delta delta: patch.getDeltas()) {
-            diff.append("@@ -" + (delta.getOriginal().getPosition() + 1) + "," + delta.getOriginal().size() + " +" + (delta.getRevised().getPosition() + 1) + "," + delta.getRevised().size() + " @@\n");
-            for (String l : (List<String>)delta.getOriginal().getLines())
-            {
-                diff.append("-" + l); //l already has newline in it
-            }
-            for (String l : (List<String>)delta.getRevised().getLines())
-            {
-                diff.append("+" + l); //l already has newline in it
-            }
-        }
-        
-        watcher.recordEdit(diff.toString());
-        //TODO only update this on successful confirmation, move this code into collector
-        previousDoc = curDoc;
-    }
-
-    //Edit solely within one line
-    private static boolean isOneLineDiff(Patch patch)
-    {
-        if (patch.getDeltas().size() > 1)
-            return false;
-        Delta theDelta = patch.getDeltas().get(0);
-        return theDelta.getOriginal().size() == 1 && theDelta.getRevised().size() == 1;
+        watcher.recordEdit(curDoc, includeOneLineEdits);
     }
 }

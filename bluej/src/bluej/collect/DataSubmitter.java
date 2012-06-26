@@ -21,10 +21,14 @@
  */
 package bluej.collect;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.UnsupportedCharsetException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
@@ -34,6 +38,8 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
+
+import bluej.pkgmgr.Project;
 
 /**
  * This class that handles submitting compilation data to the remote server.
@@ -47,20 +53,85 @@ public class DataSubmitter
 {
     private static final String submitUrl = "http://localhost:3000/master_events";
     
+    private static boolean givenUp = false;
+    
     private static boolean isRunning = false;
     
-    private static List<MultipartEntity> queue = new LinkedList<MultipartEntity>();
+    private static List<Event> queue = new LinkedList<Event>();
 
+    private static Map<FileKey, ArrayList<String> > fileVersions = new HashMap<FileKey, ArrayList<String> >();
+    
+    public static class FileKey
+    {
+        private File projDir;
+        private String file;
+        public FileKey(Project proj, String path)
+        {
+            this.projDir = proj.getProjectDir();
+            this.file = path;
+        }
+        
+        //Eclipse-generated hashCode and equals methods:
+        
+        @Override
+        public int hashCode()
+        {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + ((file == null) ? 0 : file.hashCode());
+            result = prime * result
+                    + ((projDir == null) ? 0 : projDir.hashCode());
+            return result;
+        }
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            FileKey other = (FileKey) obj;
+            if (file == null) {
+                if (other.file != null)
+                    return false;
+            }
+            else if (!file.equals(other.file))
+                return false;
+            if (projDir == null) {
+                if (other.projDir != null)
+                    return false;
+            }
+            else if (!projDir.equals(other.projDir))
+                return false;
+            return true;
+        }
+        
+        
+    }
+    
+    public static interface Event
+    {
+        MultipartEntity makeData(Map<FileKey, ArrayList<String> > fileVersions);
+        
+        void success(Map<FileKey, ArrayList<String> > fileVersions);
+    }
+    
     /**
      * Submit data to be posted to the server. The data is added to a queue which is processed by
      * another thread.
      * 
      * Package-visible, only used by DataCollector
      */
-    static void submitEvent(MultipartEntity mpe)
+    static void submitEvent(Event evt)
     {
+        //This thread only reads the boolean, and is an optimisation:
+        if (givenUp)
+            return;
+        
         synchronized (queue) {
-            queue.add(mpe);
+            queue.add(evt);
             
             if (! isRunning) {
                 new Thread() {
@@ -80,24 +151,30 @@ public class DataSubmitter
     private static void processQueue()
     {
         while (true) {
-            MultipartEntity mpe;
+            Event evt;
             synchronized (queue) {
                 if (queue.isEmpty()) {
                     isRunning = false;
                     return;
                 }
-                mpe = queue.remove(0);
+                evt = queue.remove(0);
             }
             
-            postData(mpe);
+
+            if (!givenUp)
+            {
+                givenUp = !postData(evt);
+            }
         }
     }
     
     /**
      * Actually post the data to the server.
+     * 
+     * Returns false if there was an error.
      */
-    private static void postData(MultipartEntity mpe)
-    {
+    private static boolean postData(Event evt)
+    {        
         HttpClient client = new DefaultHttpClient();
         
         try {
@@ -122,25 +199,36 @@ public class DataSubmitter
                         changedFile.getFilePath()));
             }
             */
+            MultipartEntity mpe = evt.makeData(fileVersions);
+            if (mpe == null)
+                return true; // nothing to send, no error
             post.setEntity(mpe);
             HttpResponse response = client.execute(post);
-            // Temporary:
+            
             for (Header h : response.getAllHeaders())
             {
                 if ("X-Status".equals(h.getName()) && !"Created".equals(h.getValue()))
                 {
+                    // Temporary printing:
                     System.err.println("Problem response: " + mpe.toString() + " " + response.toString());
+                    return false;
                 }
             }
+            
+            evt.success(fileVersions);
                 
             EntityUtils.consume(response.getEntity());
         }
         catch (ClientProtocolException cpe) {
-            
+            return false;
         }
         catch (IOException ioe) {
             //For now:
             ioe.printStackTrace();
+            
+            return false;
         }
+        
+        return true;
     }
 }

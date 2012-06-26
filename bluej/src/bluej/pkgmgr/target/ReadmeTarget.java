@@ -27,6 +27,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Properties;
 
 import javax.swing.AbstractAction;
@@ -229,7 +230,7 @@ public class ReadmeTarget extends EditableTarget
     }
     
     @Override
-    public void recordEdit(String diff)
+    public void recordEdit(ArrayList<String> diff, boolean includeOneLineEdits)
     {
         
     }

@@ -29,17 +29,27 @@ import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.text.DateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.StringBody;
 
+import difflib.Delta;
+import difflib.DiffUtils;
+import difflib.Patch;
+
 import bluej.Config;
+import bluej.collect.DataSubmitter.FileKey;
 import bluej.compiler.Diagnostic;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.Package;
+import bluej.utility.Utility;
 
 /**
  * DataCollector for sending off data.
@@ -75,9 +85,29 @@ public class DataCollector
         submitEventNoProject("bluej_start");
     }
     
+    private static ArrayList<String> splitLines(String s)
+    {
+        ArrayList<String> r = new ArrayList<String>();
+             
+        int i, prev = 0;
+        for (i = s.indexOf('\n'); i != -1; i = s.indexOf('\n', i+1))
+        {
+            r.add(s.substring(prev, i + 1));
+            prev = i + 1;
+        }
+        
+        if (prev < s.length() - 1)
+        {
+            r.add(s.substring(prev, s.length()));
+        }
+        return r;
+    }
+    
     public static void projectOpened(Project proj)
     {   
-        MultipartEntity mpe = new MultipartEntity();
+        final MultipartEntity mpe = new MultipartEntity();
+        
+        final Map<FileKey, ArrayList<String>> versions = new HashMap<FileKey, ArrayList<String>>();
         
         for (File f : proj.getFilesInProject(false, true))
         {
@@ -94,11 +124,25 @@ public class DataCollector
                     mpe.addPart("source_histories[][source_event_type]", toBody("complete"));
                     mpe.addPart("source_histories[][name]", toBody(relative));
                     mpe.addPart("source_histories[][text]", toBody(contents));
+                    versions.put(new FileKey(proj, relative), splitLines(contents));
                 }
             }
         }
         
-        submitEvent(proj.getProjectName(), "project_opening", mpe);
+        submitEvent(proj.getProjectName(), "project_opening", new DataSubmitter.Event() {
+            
+            @Override
+            public void success(Map<FileKey, ArrayList<String>> fileVersions)
+            {
+                fileVersions.putAll(versions);                
+            }
+            
+            @Override
+            public MultipartEntity makeData(Map<FileKey, ArrayList<String>> fileVersions)
+            {
+                return mpe;
+            }
+        });
     }
     
     private static String readFile(Project proj, File f)
@@ -338,20 +382,37 @@ public class DataCollector
     
     private static void submitEventNoData(String projectName, String eventName)
     {
-        submitEvent(projectName, eventName, new MultipartEntity());
+        submitEvent(projectName, eventName, new PlainEvent(new MultipartEntity()));
     }
     
-    private static synchronized void submitEvent(String projectName, String eventName, MultipartEntity mpe)
+    private static synchronized void submitEvent(final String projectName, final String eventName, final DataSubmitter.Event evt)
     {
         if (dontSend()) return;
         
-        mpe.addPart("user[uuid]", toBody(uuid));        
-        mpe.addPart("project[name]", toBody(projectName));
-        mpe.addPart("event[source_time]", toBody(DateFormat.getDateTimeInstance().format(new Date())));
-        mpe.addPart("event[event_type]", toBody(eventName));
-        mpe.addPart("event[sequence_id]", toBody(Integer.toString(sequenceNum)));
-        
-        DataSubmitter.submitEvent(mpe);
+        DataSubmitter.submitEvent(new DataSubmitter.Event() {
+            
+            @Override public void success(Map<FileKey, ArrayList<String>> fileVersions)
+            {
+                evt.success(fileVersions);
+            }
+            
+            @Override
+            public MultipartEntity makeData(Map<FileKey, ArrayList<String>> fileVersions)
+            {
+                MultipartEntity mpe = evt.makeData(fileVersions);
+                
+                if (mpe == null)
+                    return null;
+                
+                mpe.addPart("user[uuid]", toBody(uuid));        
+                mpe.addPart("project[name]", toBody(projectName));
+                mpe.addPart("event[source_time]", toBody(DateFormat.getDateTimeInstance().format(new Date())));
+                mpe.addPart("event[event_type]", toBody(eventName));
+                mpe.addPart("event[sequence_id]", toBody(Integer.toString(sequenceNum)));
+                
+                return mpe;
+            }
+        });
         sequenceNum += 1;
     }
 
@@ -371,7 +432,7 @@ public class DataCollector
             mpe.addPart("event[compile_output][][source_file_name]", toBody(relative));
             //TODO have a flag indicated whether the error was shown to the user
         }
-        submitEvent(proj.getProjectName(), "compile", mpe);
+        submitEvent(proj.getProjectName(), "compile", new PlainEvent(mpe));
     }
     
     private static StringBody toBody(String s)
@@ -405,14 +466,97 @@ public class DataCollector
         submitEventNoData(project.getProjectName(), "resetting_vm");        
     }
 
-    public static void edit(Project proj, File path, String diff)
+    public static void edit(final Project proj, final File path, final ArrayList<String> curDoc, final boolean includeOneLineEdits)
     {
-        MultipartEntity mpe = new MultipartEntity();
+        final FileKey key = new FileKey(proj, toPath(proj, path));
         
-        mpe.addPart("source_histories[][diff]", toBody(diff));
-        mpe.addPart("source_histories[][source_event_type]", toBody("multi_line_edit"));
-        mpe.addPart("source_histories[][name]", toBody(toPath(proj, path))); 
+        submitEvent(proj.getProjectName(), "multi_line_edit", new DataSubmitter.Event() {
+
+            private boolean dontReplace = false;
+            
+            //Edit solely within one line
+            private boolean isOneLineDiff(Patch patch)
+            {
+                if (patch.getDeltas().size() > 1)
+                    return false;
+                Delta theDelta = patch.getDeltas().get(0);
+                return theDelta.getOriginal().size() == 1 && theDelta.getRevised().size() == 1;
+            }
+            
+            
+            @Override
+            public MultipartEntity makeData(Map<FileKey, ArrayList<String>> fileVersions)
+            {
+                ArrayList<String> previousDoc = fileVersions.get(key);
+                if (previousDoc == null)
+                    previousDoc = new ArrayList<String>(); // Diff against empty file
+                
+                MultipartEntity mpe = new MultipartEntity();
+                
+                Patch patch = DiffUtils.diff(previousDoc, curDoc);
+                
+                if (patch.getDeltas().isEmpty() || (isOneLineDiff(patch) && !includeOneLineEdits))
+                {
+                    dontReplace = true;
+                    return null;
+                }
+                
+                StringBuilder diff = new StringBuilder();
+                
+                for (Delta delta: patch.getDeltas()) {
+                    diff.append("@@ -" + (delta.getOriginal().getPosition() + 1) + "," + delta.getOriginal().size() + " +" + (delta.getRevised().getPosition() + 1) + "," + delta.getRevised().size() + " @@\n");
+                    for (String l : (List<String>)delta.getOriginal().getLines())
+                    {
+                        diff.append("-" + l); //l already has newline in it
+                    }
+                    for (String l : (List<String>)delta.getRevised().getLines())
+                    {
+                        diff.append("+" + l); //l already has newline in it
+                    }
+                }
+                
+                mpe.addPart("source_histories[][diff]", toBody(diff.toString()));
+                mpe.addPart("source_histories[][source_event_type]", toBody("multi_line_edit"));
+                mpe.addPart("source_histories[][name]", toBody(toPath(proj, path))); 
+                
+                return mpe;
+            }
+
+
+            @Override
+            public void success(Map<FileKey, ArrayList<String>> fileVersions)
+            {
+                if (!dontReplace)
+                {
+                    fileVersions.put(key, curDoc);
+                }
+            }
+            
+            
+        });
+    }
+    
+    
+    // An Event with no diffs to construct
+    private static class PlainEvent implements DataSubmitter.Event
+    {
+        private MultipartEntity mpe;
         
-        submitEvent(proj.getProjectName(), "multi_line_edit", mpe);
+        public PlainEvent(MultipartEntity mpe)
+        {
+            this.mpe = mpe;
+        }
+
+        @Override
+        public MultipartEntity makeData(
+                Map<FileKey, ArrayList<String>> fileVersions)
+        {
+            return mpe;
+        }
+
+        @Override
+        public void success(Map<FileKey, ArrayList<String>> fileVersions)
+        {
+        }
     }
 }

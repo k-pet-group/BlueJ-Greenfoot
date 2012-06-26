@@ -21,6 +21,8 @@
  */
 package bluej.editor;
 
+import java.util.ArrayList;
+
 /**
  * @author Michael Kolling
  * Interface between the editor and the rest of BlueJ
@@ -74,6 +76,6 @@ public interface EditorWatcher
      */
     String getProperty(String key);
     
-    void recordEdit(String diff);
+    void recordEdit(ArrayList<String> curDoc, boolean includeOneLineEdits);
 
 } // end class EditorWatcher

@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -2023,9 +2024,9 @@ public class ClassTarget extends DependentTarget
     }
     
     @Override
-    public void recordEdit(String diff)
+    public void recordEdit(ArrayList<String> latest, boolean includeOneLineEdits)
     {
-        DataCollector.edit(getPackage().getProject(), getSourceFile(), diff);
+        DataCollector.edit(getPackage().getProject(), getSourceFile(), latest, includeOneLineEdits);
     }
    
 }
