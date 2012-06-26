@@ -91,9 +91,6 @@ public class DataCollector
                 
                 if (contents != null)
                 {
-                    // The order here matters; if you put the [text][text] one first,
-                    // Rails groups the entries into arrays wrongly.  It seems that the
-                    // nested one must come last.  (Might be worth un-nesting that hash in future...)
                     mpe.addPart("source_histories[][source_event_type]", toBody("complete"));
                     mpe.addPart("source_histories[][name]", toBody(relative));
                     mpe.addPart("source_histories[][text]", toBody(contents));
