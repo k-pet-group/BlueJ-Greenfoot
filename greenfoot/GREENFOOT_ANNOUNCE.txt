@@ -1,0 +1,3 @@
+People to send notification of new releases to:
+
+riegeranton@zoho.com - Rieger Anton - Greenfoot maintainer for Arch User Repository
