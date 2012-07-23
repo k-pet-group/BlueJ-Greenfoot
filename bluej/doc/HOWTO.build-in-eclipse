@@ -1,0 +1,36 @@
+Using the Eclipse IDE to build, run and debug BlueJ
+---------------------------------------------------
+
+Assuming you have created a project and extracted the source archive,
+you then need to do the following:
+
+1. Building: Set up the source and output paths.
+
+   Project properties -> Java Build Path -> Source tab
+   
+   * check the "Allow output folders for source folders" option.
+   * source folder 'bluej/boot/src' should have output folder 'bluej/boot/classes'
+   * source folder 'bluej/src' should have output folder 'bluej/classes'
+   * source folder 'bluej/test/src' should have output folder 'bluej/test/classes'
+   
+   In the Libraries tab:
+   
+   * add all the necessary jars from the lib directory:
+     AppleJavaExtensions.jar, bjdoclet.jar, junit-4.8.2.jar, org-netbeans-lib-cvsclient.jar,
+     svnkit-javahl.jar, trilead.jar
+   * You also need to add the 'tools.jar' file from your JDK
+
+2. Run / Debug
+
+   From the 'run' dropdown menu, choose 'Run Configurations...'.
+   
+   Add a new Java Application item (call it whatever you like).
+   
+   * project should be your BlueJ project, main class should be 'bluej.Boot'.
+   * in the Arguments tab, set the Program arguments to '-useclassesdir=true -bluej.debug=true'
+   * In the Classpath tab:
+     - The bootstrap entries should contain only the JRE
+     - The user entries should contain the 'boot/classes' folder (Advanced..., folder), and
+       the tools.jar from the JDK (Add External Jars...). You do not need the 'classes' folder
+       nor any of the other jar files.
+ 
