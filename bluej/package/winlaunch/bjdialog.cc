@@ -59,9 +59,9 @@ static const LPCTSTR foundonejava1 = TEXT(APPNAME "has found the following suita
 static const LPCTSTR foundonejava2 = TEXT("Click \"Launch\" to run with this Java version.");
 static const LPCTSTR foundonejava3 = TEXT("See the README for further information about Java versions.");
 
-static const LPCTSTR nojava1 = TEXT(APPNAME " could not find any Java systems. A JDK/J2SDK must be");
-static const LPCTSTR nojava2 = TEXT("installed to run BlueJ. If one is installed on your system,");
-static const LPCTSTR nojava3 = TEXT("select \"Browse\" and then browse to its installation directory");
+static const LPCTSTR nojava1 = TEXT(APPNAME " could not find a Java Development Kit. A JDK must be");
+static const LPCTSTR nojava2 = TEXT("installed to run " APPNAME ". If one is installed on your system,");
+static const LPCTSTR nojava3 = TEXT("select \"Browse\" and then browse to its installation directory.");
 
 
 
