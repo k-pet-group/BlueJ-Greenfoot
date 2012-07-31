@@ -38,9 +38,7 @@ import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Implementation of GreenfootUtilDelegate for standalone applications.
@@ -71,9 +69,6 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
         this.storageUserId = storageUserId;
         this.storageUserName = storageUserName;
     }
-    
-    /** Holds images for classes. Avoids loading the same image twice. Key is the filename */
-    public static Map<String, GreenfootImage> classImages = new HashMap<String, GreenfootImage>();
     
     @Override
     public URL getResource(String path)
@@ -135,40 +130,6 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
     public String getGreenfootLogoPath()
     {    
         return this.getClass().getClassLoader().getResource("greenfoot.png").toString();
-    }
-    
-    @Override
-    public void removeCachedImage(String fileName)
-    {
-        synchronized (classImages) {
-            classImages.remove(fileName);
-        }
-    }
-
-    @Override
-    public boolean addCachedImage(String fileName, GreenfootImage image)
-    {
-        synchronized (classImages) {
-            classImages.put(fileName, image);
-        }
-        return true;
-    }
-    
-    @Override
-    public GreenfootImage getCachedImage(String fileName)
-    {
-        synchronized (classImages) {
-            return classImages.get(fileName);
-        }
-    }
-    
-    @Override
-    public boolean isNullCachedImage(String fileName)
-    {
-        if (classImages.containsKey(fileName) && classImages.get(fileName)==null){
-            return true;
-        }
-        return false;
     }
     
     @Override

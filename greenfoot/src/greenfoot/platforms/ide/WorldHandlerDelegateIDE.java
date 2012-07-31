@@ -29,6 +29,7 @@ import greenfoot.core.ClassStateManager;
 import greenfoot.core.GClass;
 import greenfoot.core.GNamedValue;
 import greenfoot.core.GProject;
+import greenfoot.core.ImageCache;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
 import greenfoot.core.WorldInvokeListener;
@@ -407,7 +408,7 @@ public class WorldHandlerDelegateIDE
                     WorldHandler.getInstance().clearWorldSet();
                     World newWorld = (World) Simulation.newInstance(cons);
                     if (! WorldHandler.getInstance().checkWorldSet()) {
-                        GreenfootUtilDelegateIDE.getInstance().clearImageCache();
+                        ImageCache.getInstance().clearImageCache();
                         WorldHandler.getInstance().setWorld(newWorld);
                     }
                     saveWorldAction.setRecordingValid(true);

@@ -60,35 +60,6 @@ public interface GreenfootUtilDelegate
     public String getGreenfootLogoPath();
 
     /**
-     * Remove the cached version of an image for a particular class. This should be
-     * called when the image for the class is changed. Thread-safe.
-     */
-    public void removeCachedImage(String fileName);
-
-    /**
-     * Requests that an image with associated name be added into the cache. The image may be null,
-     * in which case the null response will be cached. Thread-safe.
-     * 
-     * @return  whether the image was cached.
-     */
-    public boolean addCachedImage(String fileName, GreenfootImage image);
-
-    /**
-     * Gets the cached image of the requested fileName. Thread-safe.
-     *
-     * @param name   name of the image file
-     * @return The cached image (should not be modified), or null if the image
-     *         is not cached.
-     */
-    public GreenfootImage getCachedImage(String fileName);
-    
-    /**
-     * Returns true if the fileName exists in the map and the image is cached as being null; 
-     * returns false if it exists and is not null or if it does not exist in the map
-     */
-    public boolean isNullCachedImage(String fileName);
-    
-    /**
      * Display a message to the user; how the message is displayed is dependent
      * upon the platform context. In the Greenfoot IDE, the message will be displayed
      * in a dialog; otherwise it will be written to the terminal/console/log.

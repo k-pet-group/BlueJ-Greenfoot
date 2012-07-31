@@ -23,6 +23,7 @@ package greenfoot.util;
 
 import greenfoot.GreenfootImage;
 import greenfoot.UserInfo;
+import greenfoot.core.ImageCache;
 import greenfoot.platforms.GreenfootUtilDelegate;
 
 import java.awt.Color;
@@ -79,6 +80,7 @@ public class GreenfootUtil
     public static final int Y_AXIS = 1;
     
     private static GreenfootUtilDelegate delegate;
+    private static ImageCache imageCache;
 
     private static final Color urlColor = new Color(0, 90, 200);
     
@@ -88,6 +90,7 @@ public class GreenfootUtil
     public static void initialise(GreenfootUtilDelegate newDelegate)
     {
         delegate = newDelegate;
+        imageCache = ImageCache.getInstance();
     }
     
     /**
@@ -799,7 +802,7 @@ public class GreenfootUtil
      */
     public static void removeCachedImage(String className)
     {
-        delegate.removeCachedImage(className);
+        imageCache.removeCachedImage(className);
     }
    
     /**
@@ -809,7 +812,7 @@ public class GreenfootUtil
      */
     public static boolean addCachedImage(String name, GreenfootImage image)
     {
-        return delegate.addCachedImage(name, image);
+        return imageCache.addCachedImage(name, image);
     }
     
     /**
@@ -821,7 +824,7 @@ public class GreenfootUtil
      */
     public static GreenfootImage getCachedImage(String name)
     {
-        return delegate.getCachedImage(name);
+        return imageCache.getCachedImage(name);
     }
     
     /**
@@ -829,7 +832,7 @@ public class GreenfootUtil
      */
     public static boolean isInvalidImageFilename(String fileName)
     {
-        return delegate.isNullCachedImage(fileName);
+        return imageCache.isNullCachedImage(fileName);
     }
     
     /**
