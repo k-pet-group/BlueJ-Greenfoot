@@ -606,7 +606,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
             <include name="greenfoot/core/Simulation.java"/>
             <include name="greenfoot/core/ObjectDragProxy.java"/>
             <include name="greenfoot/core/ActInterruptedException.java"/>
-
+        	<include name="greenfoot/core/ImageCache.java"/>
 
             <include name="greenfoot/event/SimulationEvent.java"/>
             <include name="greenfoot/event/SimulationListener.java"/>
@@ -652,11 +652,11 @@ LICENSE.txt file that accompanied this code.${line.separator}
 
 
         <!-- Readme label icon -->
-        <copy file="resources/images/readme.png" todir="${standalone.build}"/>
+        <!-- <copy file="resources/images/readme.png" todir="${standalone.build}"/> -->
         <!-- Image used when dragging object over an area where it can not be dropped  -->
         <copy file="resources/images/noParking.png" todir="${standalone.build}"/>
         <!-- Image selection dialog icon -->
-        <copy file="resources/images/openRight.png" todir="${standalone.build}"/>
+        <!-- <copy file="resources/images/openRight.png" todir="${standalone.build}"/> -->
         <!-- Control panel icons-->
         <copy file="resources/images/run.png" todir="${standalone.build}"/>
         <copy file="resources/images/step.png" todir="${standalone.build}"/>
@@ -666,7 +666,12 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <!-- Copy bluej.Config classes to allow use of i18n labels  -->
         <copy todir="${standalone.build}">
             <fileset dir="${bluej.projectdir}/classes/">
-                <include name="bluej/*.class"/>
+                <include name="bluej/Config.class"/>
+                <include name="bluej/Config$*.class"/>
+            	<include name="bluej/BlueJPropStringSource.class"/>
+            	<include name="bluej/BlueJTheme.class"/>
+            	<include name="bluej/PropParser.class"/>
+            	<include name="bluej/PropParser$*.class"/>
             </fileset>
         </copy>
     </target>
