@@ -30,7 +30,6 @@ import java.awt.Component;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -52,6 +51,11 @@ import bluej.runtime.ExecServer;
 import bluej.utility.BlueJFileReader;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 
 /**
  * GreenfootUtilDelegate implementation for the Greenfoot IDE.
@@ -252,8 +256,7 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
         List<String[]> all;
         try
         {
-            FileReader fr = new FileReader("storage.csv");
-            CSVReader csv = new CSVReader(fr);
+            CSVReader csv = new CSVReader(new InputStreamReader(new FileInputStream("storage.csv"), "UTF-8"));
             all = csv.readAll();
             csv.close();
         }
@@ -289,7 +292,7 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
         
         try
         {
-            CSVWriter csvOut = new CSVWriter(new FileWriter("storage.csv"));
+            CSVWriter csvOut = new CSVWriter(new OutputStreamWriter(new FileOutputStream("storage.csv"), "UTF-8"));
             csvOut.writeAll(all);
             csvOut.close();
             
@@ -308,8 +311,7 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
         {
             ArrayList<UserInfo> ret = new ArrayList<UserInfo>();
             
-            FileReader fr = new FileReader("storage.csv");
-            CSVReader csv = new CSVReader(fr);
+            CSVReader csv = new CSVReader(new InputStreamReader(new FileInputStream("storage.csv"), "UTF-8"));
             
             List<String[]> all = csv.readAll();
             
