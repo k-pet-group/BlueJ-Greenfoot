@@ -224,11 +224,13 @@ public class GreenfootScenarioViewer extends JApplet
             Class<?> worldClass = Class.forName(worldClassName);
             worldConstructor = worldClass.getConstructor(new Class[]{});
             World world = instantiateNewWorld();
-            worldHandler.setWorld(world);
+            if (! worldHandler.checkWorldSet()) {
+                worldHandler.setWorld(world);
+            }
             // Although setting the world on worldHandler also sets it on canvas,
             // it does so later (via EventQueue.invokeLater()). We need to do it
             // here and now, so that the canvas size will be calculated correctly.
-            canvas.setWorld(world);
+            canvas.setWorld(worldHandler.getWorld());
             
             buildGUI();
         }
