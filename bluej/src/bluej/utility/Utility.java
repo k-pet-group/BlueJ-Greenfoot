@@ -877,6 +877,16 @@ public class Utility
         return prefixFolder;
     }
 
+    /**
+     * Attempt to intelligently extract an archive (zip, jar).
+     *  
+     * @param archive  the archive file
+     * @param parent  parent component for dialogs
+     * 
+     * @return  the single folder containing the extracted archive contents,
+     *          or null if the archive couldn't be extracted (in which case
+     *          an error dialog is displayed).
+     */
     public static File maybeExtractArchive(File archive, Component parent)
     {
         JarInputStream jarInStream = null;
