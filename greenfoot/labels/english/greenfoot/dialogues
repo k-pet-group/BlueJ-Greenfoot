@@ -27,3 +27,8 @@ cannot-save-project
 The scenario could not be saved to the specified
 location. Check that you have write access, or
 choose another location.
+
+archive-not-greenfoot-project
+The archive file you selected to open does not look like it
+contains a Greenfoot project (try extracting the archive
+contents using another tool).

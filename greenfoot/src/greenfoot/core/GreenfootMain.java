@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -59,6 +59,7 @@ import bluej.Config;
 import bluej.debugmgr.CallHistory;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
+import bluej.pkgmgr.GreenfootProjectFile;
 import bluej.pkgmgr.Project;
 import bluej.runtime.ExecServer;
 import bluej.utility.Debug;
@@ -73,7 +74,7 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 8996 2011-06-15 13:25:38Z plcs $
+ * @version $Id: GreenfootMain.java 9910 2012-09-10 23:26:53Z davmac $
  */
 public class GreenfootMain extends Thread implements CompileListener, RProjectListener
 {
@@ -277,6 +278,15 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                 autoIndentAllFiles = true;
             } else {
                 projectDirFile = Utility.maybeExtractArchive(projectDirFile, frame);
+                if (projectDirFile == null) {
+                    return;
+                }
+                if (! GreenfootProjectFile.exists(projectDirFile)) {
+                    // Archive doesn't appear to be a Greenfoot project
+                    DialogManager.showError(frame, "archive-not-greenfoot-project");
+                    FileUtility.deleteDir(projectDirFile);
+                    return;
+                }
             }
         }
                 
