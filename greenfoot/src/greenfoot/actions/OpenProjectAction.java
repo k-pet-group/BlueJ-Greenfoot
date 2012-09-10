@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2012  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,8 +29,9 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 
 /**
+ * Action to allow the user to select a project for opening.
+ * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: OpenProjectAction.java 6216 2009-03-30 13:41:07Z polle $
  */
 public class OpenProjectAction extends AbstractAction
 {
@@ -43,21 +44,15 @@ public class OpenProjectAction extends AbstractAction
     {
         return instance;
     }
-
     
     private OpenProjectAction()
     {
         super(Config.getString("open.project"));
     }
 
+    @Override
     public void actionPerformed(ActionEvent e)
     {
-        Thread t = new Thread() {
-            public void run()
-            {
-                GreenfootMain.getInstance().openProjectBrowser();
-            }
-        };
-        t.start();
+        GreenfootMain.getInstance().openProjectBrowser();
     }
 }
