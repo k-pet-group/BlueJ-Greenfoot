@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2012  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -37,7 +37,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.Arrays;
 import java.util.LinkedList;
 
@@ -417,7 +416,9 @@ public class ImageLibList extends EditableList<ImageLibList.ImageListEntry> impl
                     
                     imageLibFrame.imageFileRefreshed(imageFile, image);
                 }
-                catch (MalformedURLException mfue) {}
+                catch (IllegalArgumentException iae) {
+                    // Some versions of the JDK seem to throw this when the image is malformed.
+                }
                 catch (IOException ioe) {}
             }
         }
