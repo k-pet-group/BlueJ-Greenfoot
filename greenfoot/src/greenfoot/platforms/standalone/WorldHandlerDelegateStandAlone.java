@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -77,7 +77,11 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
 
     public void instantiateNewWorld()
     {
-        WorldHandler.getInstance().setWorld(viewer.instantiateNewWorld());
+        WorldHandler.getInstance().clearWorldSet();
+        World newWorld = viewer.instantiateNewWorld();
+        if (! WorldHandler.getInstance().checkWorldSet()) {
+            WorldHandler.getInstance().setWorld(newWorld);
+        }
     }
 
     public InputManager getInputManager()
