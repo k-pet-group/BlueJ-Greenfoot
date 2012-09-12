@@ -327,7 +327,7 @@ public class Boot
             mainClass.newInstance();
             
         } catch (Exception exc) {
-            exc.printStackTrace();
+            throw new RuntimeException(exc);
         }
     }
     
