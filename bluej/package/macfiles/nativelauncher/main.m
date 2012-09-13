@@ -35,12 +35,8 @@
 
 #define JVM_RUNTIME_KEY "JVMRuntime"
 #define JVM_MAIN_CLASS_NAME_KEY "MainClass"
-#define JVM_OPTIONS_KEY "JVMOptions"
-#define JVM_ARGUMENTS_KEY "JVMArguments"
 
 #define UNSPECIFIED_ERROR "An unknown error occurred."
-
-#define APP_ROOT_PREFIX "$APP_ROOT"
 
 #define LIBJLI_DYLIB "/Library/Internet Plug-Ins/JavaAppletPlugin.plugin/Contents/Home/lib/jli/libjli.dylib"
 
@@ -181,21 +177,14 @@ int launch(char *commandName) {
     // Construct the application name argument
     NSString *appNameArg = [NSString stringWithFormat:@"-Xdock:name=%@", [infoDictionary objectForKey:@"CFBundleName"]]; 
     
-    // Get the VM options
-    //NSArray *options = [infoDictionary objectForKey:@JVM_OPTIONS_KEY];
-    //if (options == nil) {
-    //    options = [NSArray array];
-    //}
-
-    // Get the application arguments
-    //NSArray *arguments = [infoDictionary objectForKey:@JVM_ARGUMENTS_KEY];
-    //if (arguments == nil) {
-    //    arguments = [NSArray array];
-    //}
+    // Get the VM properties
+    NSDictionary *vmProps = [javaDictionary objectForKey:@"Properties"];
+    if (vmProps == nil) {
+        vmProps = [NSDictionary dictionary];
+    }
 
     // Initialize the arguments to JLI_Launch()
-    //int argc = 3 + [options count] + 1 + [arguments count] + 1;
-    int argc = 3 + 1 + 1;
+    int argc = 3 + [vmProps count] + 1 + 1;
     char *argv[argc];
 
     int i = 0;
@@ -203,18 +192,17 @@ int launch(char *commandName) {
     argv[i++] = strdup([appNameArg UTF8String]);
     argv[i++] = strdup([classPath UTF8String]);
     argv[i++] = strdup([libraryPath UTF8String]);
-
-    //for (NSString *option in options) {
-    //    option = [option stringByReplacingOccurrencesOfString:@APP_ROOT_PREFIX withString:[mainBundle bundlePath]];
-    //    argv[i++] = strdup([option UTF8String]);
-    //}
+    
+    // Declare pointers to allow access in the block below
+    int * const iPtr = &i;
+    char ** const argvPtr = argv;
+    
+    [vmProps enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+    	NSString *propString = [NSString stringWithFormat:@"-D%@=%@", key, obj];
+    	argvPtr[(*iPtr)++] = strdup([propString UTF8String]);
+    }];
 
     argv[i++] = strdup([mainClassName UTF8String]);
-
-    //for (NSString *argument in arguments) {
-    //    argument = [argument stringByReplacingOccurrencesOfString:@APP_ROOT_PREFIX withString:[mainBundle bundlePath]];
-    //    argv[i++] = strdup([argument UTF8String]);
-    //}
 
     // Invoke JLI_Launch()
     return jli_LaunchFxnPtr(argc, argv,
