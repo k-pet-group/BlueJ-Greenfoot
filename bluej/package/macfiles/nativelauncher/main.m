@@ -22,6 +22,9 @@
  * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
  * or visit www.oracle.com if you need additional information or have any
  * questions.
+ * --------------------------
+ * Modified for use with BlueJ.
+ * 09-2012 - changed various property key names and handling of classpath.
  */
 
 #import <Cocoa/Cocoa.h>
@@ -96,10 +99,14 @@ int launch(char *commandName) {
     NSString *runtime = [javaDictionary objectForKey:@JVM_RUNTIME_KEY];
 
     const char *libjliPath = NULL;
+    NSString *runtimePath = nil;
+    
     if (runtime != nil) {
-        NSString *runtimePath = [[[NSBundle mainBundle] builtInPlugInsPath] stringByAppendingPathComponent:runtime];
+        runtimePath = [[[NSBundle mainBundle] builtInPlugInsPath] stringByAppendingPathComponent:runtime];
         libjliPath = [[runtimePath stringByAppendingPathComponent:@"Contents/Home/jre/lib/jli/libjli.dylib"] fileSystemRepresentation];
     } else {
+    	// Not really sure what to use for runtimePath, this will do for now.
+    	runtimePath = @"/System/Library/Frameworks/JavaVM.framework/Versions/CurrentJDK";
         libjliPath = LIBJLI_DYLIB;
     }
 
@@ -145,6 +152,9 @@ int launch(char *commandName) {
 		if ([classPathEl hasPrefix:@"$JAVAROOT/"]) {
 			[classPath appendFormat:@"%@%@", javaPath, [classPathEl substringFromIndex:9]];
 		}
+		else if ([classPathEl hasPrefix:@"$JVMROOT/"]) {
+			[classPath appendFormat:@"%@%@", runtimePath, [classPathEl substringFromIndex:8]];
+		}
 		else {
 			[classPath appendString:classPathEl];
 		}
@@ -167,7 +177,10 @@ int launch(char *commandName) {
 
     // Set the library path
     NSString *libraryPath = [NSString stringWithFormat:@"-Djava.library.path=%@/Contents/MacOS", mainBundlePath];
-
+    
+    // Construct the application name argument
+    NSString *appNameArg = [NSString stringWithFormat:@"-Xdock:name=%@", [infoDictionary objectForKey:@"CFBundleName"]]; 
+    
     // Get the VM options
     //NSArray *options = [infoDictionary objectForKey:@JVM_OPTIONS_KEY];
     //if (options == nil) {
@@ -181,12 +194,13 @@ int launch(char *commandName) {
     //}
 
     // Initialize the arguments to JLI_Launch()
-    //int argc = 1 + [options count] + 2 + [arguments count] + 1;
-    int argc = 1 + 2 + 1;
+    //int argc = 3 + [options count] + 1 + [arguments count] + 1;
+    int argc = 3 + 1 + 1;
     char *argv[argc];
 
     int i = 0;
     argv[i++] = commandName;
+    argv[i++] = strdup([appNameArg UTF8String]);
     argv[i++] = strdup([classPath UTF8String]);
     argv[i++] = strdup([libraryPath UTF8String]);
 
