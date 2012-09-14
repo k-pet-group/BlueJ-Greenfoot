@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2012  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -20,7 +20,6 @@
  LICENSE.txt file that accompanied this code.
  */
 package bluej.editor.moe;
-
 
 import java.awt.Color;
 import java.awt.Component;
@@ -244,7 +243,8 @@ public class CodeCompletionDisplay extends JFrame
                     char keyChar = keyStroke.getKeyChar();
                     // Ignore < 32, and range between 0x7F and 0x9F which are unicode
                     // control characters. 0x7F is "delete".
-                    if (keyChar >= 32 && keyChar < 0x7F || keyChar > 0x9F) {
+                    // 0xFFFF is returned on Mac JDK7 for non-character events.
+                    if (keyChar >= 32 && keyChar < 0x7F || keyChar > 0x9F && keyChar < 0xFFFF) {
                         return new AbstractAction() {
                             public void actionPerformed(ActionEvent e)
                             {
