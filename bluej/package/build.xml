@@ -3,6 +3,7 @@
     
     <!-- Names of the the distributables created by the dist-target -->
     <property name="dist.jarinstaller" value="BlueJ-generic-${bluej.version.nodots}.jar"/>
+    <property name="dist.mac.legacy" value="BlueJ-mac-legacy-${bluej.version.nodots}.zip"/>
     <property name="dist.mac" value="BlueJ-mac-${bluej.version.nodots}.zip"/>
     
     <!-- Don't know how to pass this to the Windows builder -->
@@ -26,6 +27,11 @@
         <include name="lib/svnkit.jar" />
         <include name="lib/svnkit-javahl.jar" />
         <include name="lib/trilead.jar" />
+    	<include name="lib/httpclient-4.1.1.jar" />
+    	<include name="lib/httpcore-4.1.jar" />
+    	<include name="lib/httpmime-4.1.1.jar" />
+    	<include name="lib/commons-logging-1.1.1.jar" />
+    	<include name="lib/diffutils-1.2.1.jar" />
     	<include name="lib/bjdoclet.jar" />
         <include name="lib/bluej.defs" />
         <include name="lib/moe.defs" />
@@ -213,7 +219,8 @@
         <echo level="info" message="----------------------------------------------------------------------------"/>
         <echo level="info" message="The bluej-dist.jar (for building the windows installer) is in: ${basedir}${file.separator}${dist.jar}"/>
         <echo level="info" message="The generic installer is in: ${basedir}${file.separator}${dist.jarinstaller}"/>
-        <echo level="info" message="The mac installer is in: ${basedir}${file.separator}${dist.mac}"/>
+        <echo level="info" message="The mac installer is in: ${basedir}${file.separator}${dist.mac}"/>    	
+        <echo level="info" message="The legacy mac installer is in: ${basedir}${file.separator}${dist.mac.legacy}"/>
         <echo level="info" message="The source is in: ${basedir}${file.separator}${bluej.source.zip}"/>
         <echo level="warning" message="Remember to remove the dots in the version numbers when moving the files to the server. "/>
     </target>
@@ -230,23 +237,16 @@
         <property name="executable_files" value="**/PkgInfo,**/JavaApplicationStub" />
 
         <!-- copy the skeleton mac dir -->
-        <copy todir="${zip_dir}/BlueJ.app">
-            <fileset dir="macfiles/BlueJ.app"/> 
+        <copy todir="${zip_dir}/BlueJ-legacy.app">
+            <fileset dir="macfiles/BlueJ-legacy.app"/> 
         </copy>
         
         <!-- update version number -->
         <replaceregexp byline="true">
             <regexp pattern="VERSION" />
             <substitution expression="${bluej.version}" />
-            <fileset dir="${zip_dir}/BlueJ.app/Contents" includes="Info.plist" />
+            <fileset dir="${zip_dir}/BlueJ-legacy.app/Contents" includes="Info.plist" />
         </replaceregexp>
-        
-        <!-- update version number -->
-        <replaceregexp byline="true">
-            <regexp pattern="VERSION" />
-            <substitution expression="${bluej.version}" />
-            <fileset dir="${zip_dir}/BlueJ.app/Contents" includes="Info.plist" />
-        </replaceregexp>        
         
         <copy todir="${zip_dir}">
             <fileset dir="${bluej_home}">
@@ -257,18 +257,52 @@
         </copy>
         
         <!-- The lib dir should not be in the root dir, so we move the contents to the proper mac-location -->
-        <move todir="${zip_dir}/BlueJ.app/Contents/Resources/Java">
+        <move todir="${zip_dir}/BlueJ-legacy.app/Contents/Resources/Java">
             <fileset dir="${zip_dir}/lib/" />
         </move>
-        <delete dir="${zip_dir}/BlueJ.app/Contents/Resources/Java/lib" />
+        <delete dir="${zip_dir}/BlueJ-legacy.app/Contents/Resources/Java/lib" />
 
         <!-- ZIP it -->
-        <zip destfile="${dist.mac}" duplicate="fail">
+        <zip destfile="${dist.mac.legacy}" duplicate="fail">
             <zipfileset dir="mac_tmp" excludes="${executable_files}" />
             <!-- Make the files executable that need to be executable -->
             <zipfileset dir="mac_tmp" filemode="755" includes="${executable_files}" />
         </zip>
+    	
+        <!-- copy the skeleton mac dir -->
+        <copy todir="${zip_dir}/BlueJ.app">
+            <fileset dir="macfiles/BlueJ.app"/> 
+        </copy>
+    	<copy todir="${zip_dir}/BlueJ.app/Contents/MacOS" file="macfiles/nativelauncher/JavaAppLauncher" />
+    	
+        <!-- update version number -->
+        <replaceregexp byline="true">
+            <regexp pattern="VERSION" />
+            <substitution expression="${bluej.version}" />
+            <fileset dir="${zip_dir}/BlueJ.app/Contents" includes="Info.plist" />
+        </replaceregexp>
+    	
+    	<!-- Move contents from legacy app to new app -->
+        <move file="${zip_dir}/BlueJ-legacy.app/Contents/Resources/Java"
+        	todir="${zip_dir}/BlueJ.app/Contents/Resources" />
+    	
+    	<!-- Copy the JDK to the app -->
+    	<copy  todir="${zip_dir}/BlueJ.app/Contents/PlugIns/jdk">
+    		<fileset dir="${mac_bundled_jdk_path}" />
+    	</copy>
+    	
+    	<!-- Remove the legacy app -->
+    	<delete dir="${zip_dir}/BlueJ-legacy.app" />
 
+        <property name="executable_files2" value="**/PkgInfo,**/JavaAppLauncher,**/Contents/PlugIns/jdk/Contents/**/bin/*" />
+
+        <!-- ZIP it -->
+        <zip destfile="${dist.mac}" duplicate="fail">
+            <zipfileset dir="mac_tmp" excludes="${executable_files2}" />
+            <!-- Make the files executable that need to be executable -->
+            <zipfileset dir="mac_tmp" filemode="755" includes="${executable_files2}" />
+        </zip>
+    	
         <delete dir="mac_tmp" />
     </target>
 	
