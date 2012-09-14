@@ -34,7 +34,7 @@
 		</dict>
 	</array>
 	<key>CFBundleExecutable</key>
-	<string>JavaApplicationStub</string>
+	<string>JavaAppLauncher</string>
 	<key>CFBundleGetInfoString</key>
 	<string>VERSION</string>
 	<key>CFBundleIconFile</key>
@@ -58,12 +58,12 @@
 		<key>ClassPath</key>
 		<array>
 			<string>$JAVAROOT/bluej.jar</string>
-			<string>/System/Library/Java</string>
+			<string>$JVMROOT/Contents/Home/lib/tools.jar</string>
 		</array>
-		<key>JVMVersion</key>
-		<string>1.6+</string>
 		<key>MainClass</key>
 		<string>bluej.Boot</string>
+		<key>JVMRuntime</key>
+		<string>jdk</string>
 		<key>Properties</key>
 		<dict>
 			<key>com.apple.macos.useScreenMenuBar</key>
