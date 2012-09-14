@@ -284,18 +284,8 @@ LICENSE.txt file that accompanied this code.${line.separator}
 	    <ant dir="package" target="windows-msi-dist"/>
 	</target>
 
-    <target name="mac-dist">
-        <jarbundler dir="package"
-            name="BlueJ"
-            mainclass="bluej.Boot"
-            jvmversion="1.4+"
-            icon="lib/images/bluej.icns"
-            version="${bluej.version}">
-            <jarfileset dir="lib">
-                <include name="**/*.jar" />
-                <exclude name="*/CVS" />
-            </jarfileset>
-        </jarbundler>
+    <target name="mac-dist" description="build Mac distributable bundles">
+        <ant dir="package" target="mac-dist"/>
     </target>
 	
 	<!-- build *.deb package -->

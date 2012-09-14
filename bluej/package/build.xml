@@ -110,8 +110,9 @@
         <include name="lib/*/dialogues" />
         <include name="lib/*/*.help" />
 	</patternset>
-    
-    <target name="dist">
+	
+	<!-- Builds the bluej-dist.jar file -->
+	<target name="pre-dist">
         <delete dir="install_tmp" />
         <mkdir dir="install_tmp"/>
 
@@ -152,9 +153,13 @@
              basedir="install_tmp"
              compress="yes"
         />
-        <antcall target="mac-dist" />
-        
+		
         <delete dir="install_tmp" />
+	</target>
+    
+    <target name="dist">
+    	<antcall target="pre-dist" />
+        
         <mkdir dir="install_tmp"/>
 
         <!-- Build the program which calculates the length of the  -->
@@ -219,14 +224,12 @@
         <echo level="info" message="----------------------------------------------------------------------------"/>
         <echo level="info" message="The bluej-dist.jar (for building the windows installer) is in: ${basedir}${file.separator}${dist.jar}"/>
         <echo level="info" message="The generic installer is in: ${basedir}${file.separator}${dist.jarinstaller}"/>
-        <echo level="info" message="The mac installer is in: ${basedir}${file.separator}${dist.mac}"/>    	
-        <echo level="info" message="The legacy mac installer is in: ${basedir}${file.separator}${dist.mac.legacy}"/>
         <echo level="info" message="The source is in: ${basedir}${file.separator}${bluej.source.zip}"/>
         <echo level="warning" message="Remember to remove the dots in the version numbers when moving the files to the server. "/>
     </target>
 
 
-    <target name="mac-dist">
+    <target name="mac-dist" depends="pre-dist">
         <delete dir="mac_tmp" />
         
         <!-- Create the directory which will be the top level directory when unzipped-->
@@ -304,6 +307,11 @@
         </zip>
     	
         <delete dir="mac_tmp" />
+
+        <echo level="info" message="----------------------------------------------------------------------------"/>
+        <echo level="info" message="The mac installer is in: ${basedir}${file.separator}${dist.mac}"/>    	
+        <echo level="info" message="The legacy mac installer is in: ${basedir}${file.separator}${dist.mac.legacy}"/>
+    
     </target>
 	
 	<target name="windows-msi-dist" depends="dist">
