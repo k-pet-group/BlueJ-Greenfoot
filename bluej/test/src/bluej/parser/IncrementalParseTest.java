@@ -960,4 +960,69 @@ public class IncrementalParseTest extends TestCase
         aDoc.remove(47, 1); // remove '/' at start of comment
         aDoc.getParser();
     }
+    
+    public void testRegression440() throws Exception
+    {
+        // Note the comment is significant in this.
+        String aSrc = "public class XXXXX {\n" +   //  21
+                "    public XXXXX() {\n" +         //  21
+                "        //\n" +                   //  11
+                "        for (int i = 0; i < 10; i++) {\n" +  // 39 
+                "        \n" +                     //   9
+                "        }\n" +                    //  10
+                "    }\n" +                        //   6  
+                "}\n";                             //   2
+
+        MoeSyntaxDocument aDoc = docForSource(aSrc, "");
+        ParsedCUNode aNode = aDoc.getParser();
+        
+        NodeAndPosition<ParsedNode> nap = aNode.findNodeAt(0, 0);  // class
+        assertEquals(0, nap.getPosition());
+        assertEquals(118, nap.getSize());
+
+        nap = nap.getNode().findNodeAt(20, nap.getPosition()); // class inner
+        assertEquals(20, nap.getPosition());
+        assertEquals(97, nap.getSize());
+        
+        nap = nap.getNode().findNodeAt(25, nap.getPosition()); // constructor
+        assertEquals(25, nap.getPosition());
+        assertEquals(91, nap.getSize());
+        
+        nap = nap.getNode().findNodeAt(41, nap.getPosition()); // constructor inner
+        assertEquals(41, nap.getPosition());
+        assertEquals(74, nap.getSize());
+
+        nap = nap.getNode().findNodeAt(61, nap.getPosition()); // for loop
+        assertEquals(61, nap.getPosition());
+        assertEquals(49, nap.getSize());
+        
+        nap = nap.getNode().findNodeAt(91, nap.getPosition()); // for loop inner
+        assertEquals(91, nap.getPosition());
+        assertEquals(18, nap.getSize());
+        
+        // Insert '//' before 'for' and the next two lines
+        aDoc.insertString(61, "//", null);
+        aDoc.getParser();
+        aDoc.insertString(61 + 39 + 2, "//", null);
+        aDoc.getParser();
+        aDoc.insertString(61 + 39 + 9 + 4, "//", null);
+        
+        aNode = aDoc.getParser();
+        
+        nap = aNode.findNodeAt(0, 0);  // class
+        assertEquals(0, nap.getPosition());
+        assertEquals(118 + 6, nap.getSize());
+
+        nap = nap.getNode().findNodeAt(20, nap.getPosition()); // class inner
+        assertEquals(20, nap.getPosition());
+        assertEquals(97 + 6, nap.getSize());
+        
+        nap = nap.getNode().findNodeAt(25, nap.getPosition()); // constructor
+        assertEquals(25, nap.getPosition());
+        assertEquals(91 + 6, nap.getSize());
+        
+        nap = nap.getNode().findNodeAt(41, nap.getPosition()); // constructor inner
+        assertEquals(41, nap.getPosition());
+        assertEquals(74 + 6, nap.getSize());
+    }
 }
