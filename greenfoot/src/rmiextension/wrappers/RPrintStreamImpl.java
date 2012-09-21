@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2012  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,6 +27,11 @@ import java.rmi.RemoteException;
 
 import bluej.utility.Debug;
 
+/**
+ * Remote print stream implementation, forwards printed text to the debug log.
+ * 
+ * @author Davin McCall
+ */
 public class RPrintStreamImpl extends java.rmi.server.UnicastRemoteObject
     implements RPrintStream
 {
@@ -35,12 +40,15 @@ public class RPrintStreamImpl extends java.rmi.server.UnicastRemoteObject
         super();
     }
     
+    @Override
     public void print(String text) throws RemoteException
     {
         try {
             Writer writer = Debug.getDebugStream();
-            writer.write(text);
-            writer.flush();
+            synchronized (writer) {
+                writer.write(text);
+                writer.flush();
+            }
         }
         catch (IOException ioe) {
             System.err.println("IOException writing to debug log.");

@@ -344,12 +344,15 @@ class VMReference
         }
 
         // failed to connect
-        Debug.message("Failed to connect to debug VM. Reasons follow:");
-        for (int i = 0; i < connectors.size(); i++) {
-            Debug.message(connectors.get(i).transport().name() + " transport:");
-            PrintWriter pw = new PrintWriter(Debug.getDebugStream());
-            failureReasons[i].printStackTrace(pw);
-            pw.flush();
+        Writer dbgStream = Debug.getDebugStream();
+        synchronized (dbgStream) {
+            Debug.message("Failed to connect to debug VM. Reasons follow:");
+            for (int i = 0; i < connectors.size(); i++) {
+                Debug.message(connectors.get(i).transport().name() + " transport:");
+                PrintWriter pw = new PrintWriter(dbgStream);
+                failureReasons[i].printStackTrace(pw);
+                pw.flush();
+            }
         }
 
         NetworkTest.doTest();

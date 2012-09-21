@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -64,6 +64,7 @@ public class Debug
     
     /**
      * Get the debug output stream.
+     * Output to the stream should be synchronized on the stream object. 
      */
     public static Writer getDebugStream()
     {
@@ -79,9 +80,11 @@ public class Debug
     public static void message(String msg)
     {
         try {
-            debugStream.write(msg);
-            debugStream.write(eol);
-            debugStream.flush();
+            synchronized (debugStream) {
+                debugStream.write(msg);
+                debugStream.write(eol);
+                debugStream.flush();
+            }
         }
         catch (IOException ioe) {
             System.err.println("IOException writing debug log");
@@ -122,11 +125,13 @@ public class Debug
      */
     public static void reportError(String error, Throwable exc)
     {
-        message("Internal error: " + error);
-        message("Exception: " + exc);
-        PrintWriter pwriter = new PrintWriter(debugStream);
-        exc.printStackTrace(pwriter);
-        pwriter.flush();
+        synchronized (debugStream) {
+            message("Internal error: " + error);
+            message("Exception message: " + exc.getMessage());
+            PrintWriter pwriter = new PrintWriter(debugStream);
+            exc.printStackTrace(pwriter);
+            pwriter.flush();
+        }
     }
     
     /**
@@ -139,24 +144,29 @@ public class Debug
      */
     public static void reportError(Throwable error)
     {
-        message("An unexpected exception occurred:");
-        PrintWriter pwriter = new PrintWriter(debugStream);
-        error.printStackTrace(pwriter);
-        pwriter.flush();
+        synchronized (debugStream) {
+            message("An unexpected exception occurred:");
+            PrintWriter pwriter = new PrintWriter(debugStream);
+            error.printStackTrace(pwriter);
+            pwriter.flush();
+        }
     }
     
     /**
      * Log a stack trace with the given message.
+     * 
      * @param msg  The message to precede the stack trace.
      */
     public static void printCallStack(String msg)
     {
-        message(msg + "; call stack:");
-        StackTraceElement[] stack = Thread.currentThread().getStackTrace();
-        // Miss out first line (getStackTrace()) and second line (printCallStack, us)
-        // as that will always be the same and irrelevant:
-        for (int i = 2; i < stack.length; i++) {
-            message("  " + stack[i].toString());
+        synchronized (debugStream) {
+            message(msg + "; call stack:");
+            StackTraceElement[] stack = Thread.currentThread().getStackTrace();
+            // Miss out first line (getStackTrace()) and second line (printCallStack, us)
+            // as that will always be the same and irrelevant:
+            for (int i = 2; i < stack.length; i++) {
+                message("  " + stack[i].toString());
+            }
         }
     }
 }
