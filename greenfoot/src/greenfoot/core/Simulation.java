@@ -337,6 +337,7 @@ public class Simulation extends Thread
                     System.gc();
                     try {
                         simulationWait();
+                        lastDelayTime = System.nanoTime();
                     }
                     catch (InterruptedException e1) {
                         // Swallow the interrupt
