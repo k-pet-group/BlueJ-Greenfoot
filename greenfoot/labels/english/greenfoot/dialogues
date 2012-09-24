@@ -28,6 +28,16 @@ The scenario could not be saved to the specified
 location. Check that you have write access, or
 choose another location.
 
+cannot-create-project
+The scenario could not be created. Check that
+the containing folder is writable.
+
+project-already-exists
+The specified scenario folder already exists. To create a
+new scenario, choose a location and specify a unique name.
+To open an existing scenario, choose "Open Scenario" from
+the "Scenario" menu.
+
 archive-not-greenfoot-project
 The archive file you selected to open does not look like it
 contains a Greenfoot project (try extracting the archive

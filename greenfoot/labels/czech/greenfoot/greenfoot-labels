@@ -76,7 +76,6 @@ export.web.help=Vytvo\u0159it webovou str\u00E1nku s appletem.
 greenfoot.about=O programu Greenfoot...
 greenfoot.cancel=Zru\u0161it
 greenfoot.cannotCreateClass=Soubor s t\u0159\u00EDdou nemohl b\u00FDt vytvo\u0159en. Zkontrolujte, zda slo\u017Eka m\u00E1 povolen\u00ED k z\u00E1pisu.
-greenfoot.cannotCreateProject=Tento projekt nemohl b\u00FDt vytvo\u0159en. Zkontrolujte, zda slo\u017Eky maj\u00ED povolen\u00ED k z\u00E1pisu.
 greenfoot.cannotFindAPIDocumentation=Zd\u00E1 se, \u017Ee dokumentace API chyb\u00ED, nebo je ne\u010Diteln\u00E1.
 greenfoot.continue=Pokra\u010Dovat
 greenfoot.copyright=Copyright...

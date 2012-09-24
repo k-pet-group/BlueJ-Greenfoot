@@ -303,7 +303,6 @@ world.missing.constructor.msg=It was not possible to instantiate a new world. Th
 
 # Message to display if a file cannot be created
 greenfoot.cannotCreateClass=The class file could not be created. Check that the project folder is writable.
-greenfoot.cannotCreateProject=The project could not be created. Check that the containing folder is writable.
 
 # General error messages
 greenfoot.cannotFindAPIDocumentation=The API documentation seems to be missing, or unreadable.

@@ -275,7 +275,6 @@ world.missing.constructor.msg=Es konnte keine neue Instanz der Klasse World erst
 
 # Message to display if a file cannot be created
 greenfoot.cannotCreateClass=Die class-Datei konnte nicht erstellt werden. \u00FCberpr\u00FCfen Sie, ob der Projektordner beschreibbar ist.
-greenfoot.cannotCreateProject=Das Projekt konnte nicht erstellt werden. \u00FCberpr\u00FCfen Sie, ob der Ordner, der das Projekt enth\u00E4lt, beschreibbar ist.
 
 # General error messages
 greenfoot.cannotFindAPIDocumentation=Die API-Dokumentation fehlt m\u00F6glicherweise, oder ist nicht lesbar.

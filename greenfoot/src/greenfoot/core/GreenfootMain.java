@@ -74,7 +74,7 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 9910 2012-09-10 23:26:53Z davmac $
+ * @version $Id: GreenfootMain.java 9926 2012-09-24 15:01:52Z davmac $
  */
 public class GreenfootMain extends Thread implements CompileListener, RProjectListener
 {
@@ -457,6 +457,10 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                 Config.getString("pkgmgr.newPkg.buttonLabel"),
                 false, true);
         if (newFile != null) {
+            if (newFile.exists()) {
+                DialogManager.showError(frame, "project-already-exists");
+                return null;
+            }
             try {
                 RProject rproj = rBlueJ.newProject(newFile);
                 if (rproj != null) {
@@ -472,8 +476,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                     return rproj;
                 }
                 else {
-                    String errMsg = Config.getString("greenfoot.cannotCreateProject");
-                    DialogManager.showErrorText(frame, errMsg);
+                    DialogManager.showError(frame, "cannot-create-project");
                 }
             }
             catch (ServerError se) {
