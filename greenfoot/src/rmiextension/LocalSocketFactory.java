@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2011,2012  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -52,5 +52,20 @@ public class LocalSocketFactory implements RMIClientSocketFactory, RMIServerSock
     {
         InetAddress ia = InetAddress.getByAddress(new byte[] {127,0,0,1});
         return new ServerSocket(port, 50, ia); // 50 is the documented default
+    }
+    
+    // Surprisingly, we need to override these;
+    // see http://docs.oracle.com/javase/7/docs/technotes/guides/rmi/faq.html#customsocketreuse 
+    
+    @Override
+    public int hashCode()
+    {
+        return 0xDEED0000;
+    }
+    
+    @Override
+    public boolean equals(Object obj)
+    {
+        return obj != null && getClass() == obj.getClass();
     }
 }
