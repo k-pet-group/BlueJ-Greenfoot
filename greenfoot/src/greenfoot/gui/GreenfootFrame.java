@@ -454,6 +454,16 @@ public class GreenfootFrame extends JFrame
         });
         
         JScrollPane worldScrollPane = new JScrollPane(worldCanvas);
+        //Stop the world scroll pane scrolling when arrow keys are pressed - stops it interfering with the scenario.
+        String[] scrollLabels = new String[]{"unitScrollLeft", "unitScrollRight", "unitScrollUp", "unitScrollDown"};
+        for(String scrollLabel : scrollLabels) {
+            worldScrollPane.getActionMap().put(scrollLabel, new AbstractAction() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    //Do nothing
+                }
+            });
+        }
         DBox worldBox = new DBox(DBox.Y_AXIS, 0.5f); // scroll pane
         worldBox.addAligned(worldScrollPane);
 
