@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -61,8 +61,7 @@ public class MethodBodyNode extends IncrementalParsingNode
             return PP_ENDS_NODE;
         }
         if (last.getType() == JavaTokenTypes.EOF) {
-            params.abortPos = lineColToPos(params.document, last.getLine(), last.getColumn());
-            return complete ? PP_ABORT : PP_INCOMPLETE;
+            return complete ? PP_OK : PP_INCOMPLETE;
         }
         
         if (checkBoundary(params, last)) {
@@ -78,14 +77,7 @@ public class MethodBodyNode extends IncrementalParsingNode
         }
         return PP_OK;
     }
-    
-    @Override
-    protected boolean isNodeEndMarker(int tokenType)
-    {
-        //return tokenType == JavaTokenTypes.RCURLY;
-        return false;
-    }
-    
+        
     @Override
     protected boolean marksOwnEnd()
     {
