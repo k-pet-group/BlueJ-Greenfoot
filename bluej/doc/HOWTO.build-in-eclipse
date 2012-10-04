@@ -13,6 +13,9 @@ you then need to do the following:
    * source folder 'bluej/src' should have output folder 'bluej/classes'
    * source folder 'bluej/test/src' should have output folder 'bluej/test/classes'
    
+   You should also select 'UTF-8' as the character encoding in the
+   project properties (under "Resource").
+   
    In the Libraries tab:
    
    * add all the necessary jars from the lib directory:
