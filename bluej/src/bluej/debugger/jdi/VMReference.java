@@ -194,7 +194,7 @@ class VMReference
     public VirtualMachine localhostSocketLaunch(File initDir, URL[] libraries, DebuggerTerminal term,
             VirtualMachineManager mgr)
     {
-        final int CONNECT_TRIES = 5; // try to connect max of 5 times
+        final int CONNECT_TRIES = 2; // try to connect max of 5 times
         final int CONNECT_WAIT = 500; // wait half a sec between each connect
 
         String [] launchParams;
@@ -264,7 +264,7 @@ class VMReference
                     if (timeoutArg != null) {
                         // The timeout appears to be in milliseconds.
                         // The default is apparently no timeout.
-                        timeoutArg.setValue("2000");
+                        timeoutArg.setValue("5000");
                     }
                     
                     // Make sure the local address is localhost, not the
@@ -291,7 +291,7 @@ class VMReference
                                 address = listenAddress + address.substring(colonIndex);
                             }
                         }
-                        Debug.log("Listening for JDWP connection on address: " + address);
+                        Debug.log("" + System.currentTimeMillis() + ": Listening for JDWP connection on address: " + address);
                         paramList.add(transportIndex, "-agentlib:jdwp=transport=" + connector.transport().name()
                                 + ",address=" + address);
                         launchParams = paramList.toArray(new String[paramList.size()]);
@@ -337,8 +337,9 @@ class VMReference
             
             // Do a small wait between connection attempts
             try {
-                if (i != CONNECT_TRIES - 1)
+                if (i != CONNECT_TRIES - 1) {
                     Thread.sleep(CONNECT_WAIT);
+                }
             }
             catch (InterruptedException ie) { break; }
         }
@@ -346,7 +347,7 @@ class VMReference
         // failed to connect
         Writer dbgStream = Debug.getDebugStream();
         synchronized (dbgStream) {
-            Debug.message("Failed to connect to debug VM. Reasons follow:");
+            Debug.message("" + System.currentTimeMillis() + ": Failed to connect to debug VM. Reasons follow:");
             for (int i = 0; i < connectors.size(); i++) {
                 Debug.message(connectors.get(i).transport().name() + " transport:");
                 PrintWriter pw = new PrintWriter(dbgStream);
