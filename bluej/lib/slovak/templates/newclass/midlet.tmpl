@@ -2,22 +2,21 @@ $PKGLINE
 
 import javax.microedition.midlet.MIDlet;
 
-/*******************************************************************************
- * Trieda {@code $CLASSNAME} slúži … – doplňte opis účel midletu
+/**
+ * Trieda {@code $CLASSNAME} slúži «doplňte opis»…
  *
  * @author		{meno autora}
- * @version		{verzia, napr.: 0.00.000, prípadne dátum}
+ * @version		{verzia alebo dátum}
  */
 public class $CLASSNAME extends MIDlet
 {
-	/***************************************************************************
-	 * Metóda volaná AMS (Application Management Software – program pre správu
-	 * aplikácií) v okamžiku spustenia MIDletu.
-	 * AMS je program na danom zariadení, ktorý spravuje zavádzanie MIDletov
-	 * a ich následný životný cyklus. Po ukončení konštruktora prevedie AMS
-	 * daný MIDlet do stavu <b>Čakajúci</b> (Paused). Z tohto stavu bude
-	 * MIDlet prevedený do stavu <b>Aktívny</b> zavolaním metódy
-	 * {@link #startApp()}
+	/**
+	 * Metóda volaná AMS (Application Management Software – program na
+	 * správu aplikácií) v okamžiku spustenia MIDletu. AMS je program na
+	 * danom zariadení, ktorý spravuje zavádzanie MIDletov a ich následný
+	 * životný cyklus. Po ukončení konštruktora prevedie AMS daný MIDlet do
+	 * stavu <b>Čakajúci</b> (Paused). Z tohto stavu bude MIDlet prevedený
+	 * do stavu <b>Aktívny</b> zavolaním metódy {@link #startApp()}.
 	 */
 	public $CLASSNAME()
 	{
@@ -25,9 +24,9 @@ public class $CLASSNAME extends MIDlet
 	}
 
 
-	/***************************************************************************
+	/**
 	 * Zavolaním tejto metódy oznamuje AMS MIDletu, že ho prevádza do stavu
-	 * <b>Aktívny</b> – v tomto stave môže MIDlet „udržovať“ rôzne zdroje.
+	 * <b>Aktívny</b> – v tomto stave môže MIDlet „udržovať“ rôzne zdroje.
 	 * Metóda je volaná len vtedy, ak bol MIDlet v stave <b>Čakajúci</b>.
 	 *
 	 * Prípadný vznik výnimky typu {@link RuntimeException} spôsobí okamžité
@@ -36,17 +35,17 @@ public class $CLASSNAME extends MIDlet
 	 */
 	public void startApp()
 	{
-		// Alokuje prostriedky požadované pre beh MIDletu
+		// Alokuje prostriedky požadované na beh MIDletu
 	}
 
 
-	/***************************************************************************
+	/**
 	 * Zavolaním tejto metódy oznamuje AMS MIDletu, že ho prevádza do stavu
 	 * <b>Čakajúci</b> – metóda preto musí uvoľniť alokované zdroje
-	 * a zastaviť všetky aktivity MIDletu.
-	 * Metóda je volaná len vtedy, ak bol MIDlet v stave <b>Aktívny</b>.
-	 * AMS môže previesť MIDlet zo stavu <b>Aktívny</b> do stavu <b>Čakajúci</b>
-	 * a späť ľubovoľne veľa krát počas jeho behu.
+	 * a zastaviť všetky aktivity MIDletu. Metóda je volaná len vtedy, ak
+	 * bol MIDlet v stave <b>Aktívny</b>. AMS môže previesť MIDlet zo stavu
+	 * <b>Aktívny</b> do stavu <b>Čakajúci</b> a späť ľubovoľne veľakrát
+	 * počas jeho behu.
 	 *
 	 * Prípadný vznik výnimky typu {@link RuntimeException} spôsobí okamžité
 	 * ukončenie aplikácie, pred ktorou však bude zavolaná metóda
@@ -58,25 +57,26 @@ public class $CLASSNAME extends MIDlet
 	}
 
 
-	/***************************************************************************
+	/**
 	 * Zavolaním tejto metódy oznamuje AMS MIDletu, že ukončuje jeho beh.
-	 * Metóda preto musí uvoľniť všetky alokované zdroje, prípadne ich uložiť.
+	 * Metóda preto musí uvoľniť všetky alokované zdroje, prípadne ich
+	 * uložiť.
 	 * 
-	 * Volajúca metóda môže prostredníctvom parametra „bezpodmienecne“ umožniť
-	 * MIDletu, aby mohol zabrániť svojmu ukončeniu.
+	 * Volajúca metóda môže prostredníctvom parametra „bezpodmienecne“
+	 * umožniť MIDletu, aby mohol zabrániť svojmu ukončeniu.
 	 *
-	 * @param bezpodmienecne  Ak je {@code false}, môže MIDlet odmietnuť svoje
-	 *                ukončenie spôsobením výnimky {@link
+	 * @param bezpodmienecne  Ak je {@code false}, môže MIDlet odmietnuť
+	 *                svoje ukončenie spôsobením výnimky {@link
 	 *                javax.microedition.midlet.MIDletStateChangeException}.
 	 *                Ak je {@code true}, jeho ukončeniu už nič nezabráni.
 	 * @throws javax.microedition.midlet.MIDletStateChangeException
-	 *                výnimka je generovaná v prípade, že chce MIDlet zabrániť
-	 *                svojmu ukončeniu. Aby však malo generovanie výnimky
-	 *                zmysel, musí mať parameter {@code bezpodmienecne} hodnotu
-	 *                {@code false};
+	 *                výnimka je generovaná v prípade, že chce MIDlet
+	 *                zabrániť svojmu ukončeniu. Aby však malo generovanie
+	 *                výnimky zmysel, musí mať parameter
+	 *                {@code bezpodmienecne} hodnotu {@code false};
 	 */
 	public void destroyApp(boolean bezpodmienecne)
 	{
-		// Uvoľní všetky zdroje a prípadne uloží nastavenia pre budúci štart
+		// Uvoľní všetky zdroje, prípadne uloží potrebné nastavenia
 	}
 }

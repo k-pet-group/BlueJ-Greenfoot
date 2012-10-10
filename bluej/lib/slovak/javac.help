@@ -1,14 +1,14 @@
-as of release 1.4, 'assert' is a\u00a0keyword, and may not be used as an identifier
-Od verzie 1.4 je \u201eassert\u201c k\u013e\u00fa\u010dov\u00fdm slovom a\u00a0nem\u00f4\u017ee by\u0165 pou\u017eit\u00e9 ako identifik\u00e1tor.
-\u00a0
-Slovo \u201eassert\u201c je teraz s\u00fa\u010das\u0165ou jazyka Java a\u00a0m\u00e1
+as of release 1.4, 'assert' is a keyword, and may not be used as an identifier
+Od verzie 1.4 je \u201eassert\u201c k\u013e\u00fa\u010dov\u00fdm slovom a nem\u00f4\u017ee by\u0165 pou\u017eit\u00e9 ako identifik\u00e1tor.
+ 
+Slovo \u201eassert\u201c je teraz s\u00fa\u010das\u0165ou jazyka Java a m\u00e1
 \u0161peci\u00e1lny v\u00fdznam (je to k\u013e\u00fa\u010dov\u00e9 slovo). Preto ho nie je
 mo\u017en\u00e9 pou\u017ei\u0165 ako identifik\u00e1tor met\u00f3dy \u010di premennej.
 Zvo\u013ete, pros\u00edm, in\u00fd identifik\u00e1tor (n\u00e1zov).
 
 qualified new of static class
 Kvalifikovan\u00e9 new pri kon\u0161trukcii in\u0161tancie statickej triedy.
-\u00a0
+ 
 Kvalifikovan\u00e9 oper\u00e1tory new sa pou\u017e\u00edvaj\u00fa len pri
 tvorbe in\u0161tanci\u00ed vn\u00fatorn\u00fdch tried, t.j. tried, ktor\u00e9
 s\u00fa deklarovan\u00e9 vo vn\u00fatri in\u00fdch tried, av\u0161ak bez
@@ -16,36 +16,36 @@ modifik\u00e1tora static.
 
 * is abstract; cannot be instantiated
 \u00ab\u2026\u00bb je abstraktn\u00e1 trieda \u2013 nie je mo\u017en\u00e9 vytvori\u0165 jej in\u0161tanciu.
-\u00a0
+ 
 T\u00e1to trieda bola deklarovan\u00e1 ako abstraktn\u00e1 (pomocou
 k\u013e\u00fa\u010dov\u00e9ho slova \u201eabstract\u201c).
-Z\u00a0abstraktn\u00fdch tried nem\u00f4\u017eu by\u0165 vytv\u00e1ran\u00e9 in\u0161tancie.
-M\u00f4\u017eu by\u0165 vytv\u00e1ran\u00e9 a\u017e z\u00a0ich dc\u00e9rskych (odvoden\u00fdch)
+Z abstraktn\u00fdch tried nem\u00f4\u017eu by\u0165 vytv\u00e1ran\u00e9 in\u0161tancie.
+M\u00f4\u017eu by\u0165 vytv\u00e1ran\u00e9 a\u017e z ich dc\u00e9rskych (odvoden\u00fdch)
 tried. Dc\u00e9rska trieda mus\u00ed ma\u0165 implementovan\u00e9 v\u0161etky
 met\u00f3dy, ktor\u00e9 neboli implementovan\u00e9 pri jej rodi\u010dovi
 (v\u0161etky abstraktn\u00e9 met\u00f3dy). In\u0161tancie budete m\u00f4c\u0165
 vytv\u00e1ra\u0165 a\u017e po kompletnej implement\u00e1cii met\u00f3d
 dc\u00e9rskych tried.
 
-abstract methods cannot have a\u00a0body
+abstract methods cannot have a body
 Abstraktn\u00e9 met\u00f3dy nesm\u00fa ma\u0165 telo.
-\u00a0
+ 
 Pomocou k\u013e\u00fa\u010dov\u00e9ho slova \u201eabstract\u201c ste ozna\u010dili
-met\u00f3du ako abstraktn\u00fa a\u00a0pritom ste definovali
-jej telo (k\u00f3d v\u00a0zlo\u017een\u00fdch z\u00e1tvork\u00e1ch).
+met\u00f3du ako abstraktn\u00fa a pritom ste definovali
+jej telo (k\u00f3d v zlo\u017een\u00fdch z\u00e1tvork\u00e1ch).
 Deklar\u00e1cie abstraktn\u00fdch met\u00f3d sm\u00fa obsahova\u0165
 len hlavi\u010dku ukon\u010den\u00fa bodko\u010diarkou.
 Bu\u010f odstr\u00e1\u0148te k\u013e\u00fa\u010dov\u00e9 slovo \u201eabstract\u201c, alebo
 odstr\u00e1\u0148te telo met\u00f3dy (vr\u00e1tane zlo\u017een\u00fdch z\u00e1tvoriek)
-a\u00a0ukon\u010dite hlavi\u010dku met\u00f3dy bodko\u010diarkou.
+a ukon\u010dite hlavi\u010dku met\u00f3dy bodko\u010diarkou.
 
 * is already defined in *
-\u00ab\u2026\u00bb je u\u017e definovan\u00e1 v\u00a0\u00ab\u2026\u00bb.
-\u00a0
+\u00ab\u2026\u00bb je u\u017e definovan\u00e1 v \u00ab\u2026\u00bb.
+ 
 Vo vn\u00fatri tejto met\u00f3dy je u\u017e definovan\u00e1
-premenn\u00e1 (pr\u00edpadne parameter) s\u00a0rovnak\u00fdm
+premenn\u00e1 (pr\u00edpadne parameter) s rovnak\u00fdm
 n\u00e1zvom. Ak si \u017eel\u00e1te vytvori\u0165 nov\u00fa
-premenn\u00fa (alebo referenciu), pou\u017eite in\u00e9 meno.
+premenn\u00fa (alebo referenciu), pou\u017eite in\u00fd n\u00e1zov.
 Ak ste chceli pou\u017ei\u0165 t\u00fato premenn\u00fa (pr\u00edpadne
 parameter) na tomto mieste, odstr\u00e1\u0148te jej typ
 uveden\u00fd pred n\u00e1zvom (aby to nevyzeralo ako
@@ -53,35 +53,35 @@ nov\u00e1 deklar\u00e1cia).
 
 anonymous class implements interface; cannot have arguments
 Anonymn\u00e1 trieda implementuj\u00faca rozhranie nesmie ma\u0165 parametre.
-\u00a0
-Presnej\u0161ie povedan\u00e9, v\u00a0defin\u00edcii anonymnej triedy mus\u00edte
-v\u00a0hlavi\u010dke za deklar\u00e1ciou implementovan\u00e9ho rozhrania
+ 
+Presnej\u0161ie povedan\u00e9, v defin\u00edcii anonymnej triedy mus\u00edte
+v hlavi\u010dke za deklar\u00e1ciou implementovan\u00e9ho rozhrania
 uvies\u0165 len pr\u00e1zdne okr\u00fahle z\u00e1tvorky \u2013 ().
 
 anonymous class implements interface; cannot have qualifier for new
 Anonymn\u00e1 trieda implementuj\u00faca rozhranie nesmie ma\u0165 kvalifik\u00e1tor new.
-\u00a0
-Podrobnej\u0161\u00ed pomocn\u00edk nie je k\u00a0dispoz\u00edcii.
+ 
+Podrobnej\u0161\u00ed pomocn\u00edk nie je k dispoz\u00edcii.
 
 array required, but *
 Je vy\u017eadovan\u00e9 pole, ale uveden\u00fd typ je \u00ab\u2026\u00bb.
-\u00a0
+ 
 Pou\u017eili ste syntax, ktor\u00e1 je pou\u017e\u00edvan\u00e1 pri pr\u00edstupe
-k\u00a0elementom po\u013ea, av\u0161ak premenn\u00e1, ku ktorej ste to
+k elementom po\u013ea, av\u0161ak premenn\u00e1, ku ktorej ste to
 vztiahli, nie je pole.
 
 break outside switch or loop
 Pr\u00edkaz \u201ebreak\u201c je pou\u017eit\u00fd mimo \u201eswitch\u201c alebo cyklus.
-\u00a0
+ 
 Pr\u00edkaz \u201ebreak\u201c ukon\u010d\u00ed vykon\u00e1vanie bloku \u201eswitch\u201c
 alebo cyklu \u201efor\u201c, \u201ewhile\u201c \u010di \u201edo\u201c.
 Pr\u00edkaz \u201ebreak\u201c nesmie by\u0165 pou\u017eit\u00fd mimo t\u00fdchto blokov.
 
 * must be first statement in constructor
-\u00ab\u2026\u00bb mus\u00ed by\u0165 prv\u00fdm pr\u00edkazom v\u00a0kon\u0161truktore.
-\u00a0
+\u00ab\u2026\u00bb mus\u00ed by\u0165 prv\u00fdm pr\u00edkazom v kon\u0161truktore.
+ 
 Prv\u00fdm pr\u00edkazom kon\u0161truktora ka\u017edej triedy, ktor\u00e1
-ded\u00ed z\u00a0inej nadtriedy, mus\u00ed by\u0165 volanie kon\u0161truktora
+ded\u00ed z inej nadtriedy, mus\u00ed by\u0165 volanie kon\u0161truktora
 nadtriedy:
     super(\u2026);
 (pri\u010dom za \u2026 mus\u00edte doplni\u0165 spr\u00e1vne parametre).
@@ -89,70 +89,70 @@ Pou\u017eitie ak\u00e9hoko\u013evek \u010dlena triedy pred t\u00fdmto volan\u00e
 by zaru\u010dene prinieslo probl\u00e9my! Preto pred t\u00fdmto
 pr\u00edkazom nesmie by\u0165 ni\u010d: \u017eiadny pr\u00edkaz ani za\u010diatok
 bloku alebo blok try \u2026 catch, ni\u010d. S\u00fa povolen\u00e9 len
-biele znaky (medzery, tabul\u00e1tory\u2026) a\u00a0koment\u00e1re.
+biele znaky (medzery, tabul\u00e1tory\u2026) a koment\u00e1re.
 
-cannot assign a\u00a0value to final variable *
+cannot assign a value to final variable *
 Nie je mo\u017en\u00e9 priradi\u0165 hodnotu fin\u00e1lnej premennej \u00ab\u2026\u00bb.
-\u00a0
+ 
 K\u013e\u00fa\u010dov\u00fdm slovom \u201efinal\u201c s\u00fa ozna\u010den\u00e9 premenn\u00e9, ktor\u00fdch
-hodnota nesmie by\u0165 v\u00a0programe \u010falej menen\u00e1. Ak
+hodnota nesmie by\u0165 v programe \u010falej menen\u00e1. Ak
 skuto\u010dne potrebujete hodnotu premennej zmeni\u0165,
-odstr\u00e1\u0148te v\u00a0jej deklar\u00e1cii modifik\u00e1tor \u201efinal\u201c.
+odstr\u00e1\u0148te v jej deklar\u00e1cii modifik\u00e1tor \u201efinal\u201c.
 
 type variables cannot be dereferenced
 Premenn\u00e9 primit\u00edvnych typov nem\u00f4\u017eu by\u0165 dereferencovan\u00e9.
-\u00a0
-Pri premenn\u00fdch a\u00a0atrib\u00fatoch primit\u00edvnych typov, nem\u00f4\u017eete
-pou\u017ei\u0165 bodkov\u00fa konvenciu a\u00a0sna\u017ei\u0165 sa odvol\u00e1va\u0165 na ich
+ 
+Pri premenn\u00fdch a atrib\u00fatoch primit\u00edvnych typov, nem\u00f4\u017eete
+pou\u017ei\u0165 bodkov\u00fa konvenciu a sna\u017ei\u0165 sa odvol\u00e1va\u0165 na ich
 atrib\u00faty \u010di met\u00f3dy.
 
 * cannot be dereferenced
 \u00ab\u2026\u00bb nem\u00f4\u017ee by\u0165 dereferencovan\u00e1.
-\u00a0
+ 
 Pomocou bodkovej not\u00e1cie (oper\u00e1tora \u201e.\u201c) sa sna\u017e\u00edte
-prist\u00fapi\u0165 k\u00a0met\u00f3de alebo atrib\u00fatu premennej, ktor\u00e1 nie
-je objektom a\u00a0teda nem\u00e1 met\u00f3dy \u010di atrib\u00faty.
+prist\u00fapi\u0165 k met\u00f3de alebo atrib\u00fatu premennej, ktor\u00e1 nie
+je objektom a teda nem\u00e1 met\u00f3dy \u010di atrib\u00faty.
 
 cannot inherit from final *
-Nie je mo\u017en\u00e9 dedi\u0165 z\u00a0fin\u00e1lnej triedy \u00ab\u2026\u00bb.
-\u00a0
+Nie je mo\u017en\u00e9 dedi\u0165 z fin\u00e1lnej triedy \u00ab\u2026\u00bb.
+ 
 Rodi\u010dovsk\u00e1 trieda (tj. trieda, od ktorej bola t\u00e1to trieda
-odvoden\u00e1 a\u00a0ktor\u00e1 je uveden\u00e1 za k\u013e\u00fa\u010dov\u00fdm slovom \u201eextends\u201c)
+odvoden\u00e1 a ktor\u00e1 je uveden\u00e1 za k\u013e\u00fa\u010dov\u00fdm slovom \u201eextends\u201c)
 je deklarovan\u00e1 ako \u201efinal\u201c, \u010do zakazuje tvorbu jej
 potomkov (dc\u00e9rskych tried).
 
 * before supertype constructor has been called
 \u00ab\u2026\u00bb bolo volan\u00e9 pred kon\u0161truktorom rodi\u010dovskej triedy.
-\u00a0
+ 
 Prv\u00fdm pr\u00edkazom kon\u0161truktora ka\u017edej triedy, ktor\u00e1
-ded\u00ed z\u00a0inej nadtriedy, mus\u00ed by\u0165 volanie kon\u0161truktora
+ded\u00ed z inej nadtriedy, mus\u00ed by\u0165 volanie kon\u0161truktora
 nadtriedy:
     super(\u2026);
 (pri\u010dom za \u2026 mus\u00edte doplni\u0165 spr\u00e1vne parametre).
 Pou\u017eitie ak\u00e9hoko\u013evek \u010dlena triedy pred t\u00fdmto volan\u00edm,
 by zaru\u010dene prinieslo probl\u00e9my!
 
-cannot return a\u00a0value from method whose result type is void
-Nie je mo\u017en\u00e9 vr\u00e1ti\u0165 hodnotu z\u00a0met\u00f3dy, ktorej n\u00e1vratov\u00fd typ je \u201evoid\u201c.
-\u00a0
+cannot return a value from method whose result type is void
+Nie je mo\u017en\u00e9 vr\u00e1ti\u0165 hodnotu z met\u00f3dy, ktorej n\u00e1vratov\u00fd typ je \u201evoid\u201c.
+ 
 Deklar\u00e1cia n\u00e1vratov\u00e9ho typu \u201evoid\u201c znamen\u00e1, \u017ee met\u00f3da
-nevracia \u017eiadnu hodnotu. V\u00a0tele \u201evoid\u201c met\u00f3dy je mo\u017en\u00e9
+nevracia \u017eiadnu hodnotu. V tele \u201evoid\u201c met\u00f3dy je mo\u017en\u00e9
 pou\u017ei\u0165 len pr\u00edkaz \u201ereturn;\u201c, t.j. bez udania n\u00e1vratovej
 hodnoty.
 
-cannot select a\u00a0static class from a\u00a0parameterized type
-Z\u00a0parametrizovan\u00e9ho typu nie je mo\u017en\u00e9 vybra\u0165 statick\u00fa triedu.
-\u00a0
-Podrobnej\u0161\u00ed pomocn\u00edk nie je k\u00a0dispoz\u00edcii.
+cannot select a static class from a parameterized type
+Z parametrizovan\u00e9ho typu nie je mo\u017en\u00e9 vybra\u0165 statick\u00fa triedu.
+ 
+Podrobnej\u0161\u00ed pomocn\u00edk nie je k dispoz\u00edcii.
 
-* cannot be inherited with different arguments: *
-\u00ab\u2026\u00bb nem\u00f4\u017ee by\u0165 zdeden\u00e9 s\u00a0odli\u0161n\u00fdmi parametrami: \u00ab\u2026\u00bb
-\u00a0
-Podrobnej\u0161\u00ed pomocn\u00edk nie je k\u00a0dispoz\u00edcii.
+* cannot be inherited with different arguments:*
+\u00ab\u2026\u00bb nem\u00f4\u017ee by\u0165 zdeden\u00e9 s odli\u0161n\u00fdmi parametrami: \u00ab\u2026\u00bb
+ 
+Podrobnej\u0161\u00ed pomocn\u00edk nie je k dispoz\u00edcii.
 
 'catch' without 'try'
 Bol pou\u017eit\u00fd pr\u00edkaz \u201ecatch\u201c bez predch\u00e1dzaj\u00faceho \u201etry\u201c.
-\u00a0
+ 
 \u201ecatch\u201c je k\u013e\u00fa\u010dov\u00e9 slovo, ktor\u00e9 m\u00f4\u017ee by\u0165 pou\u017eit\u00e9 len
 po bloku \u201etry\u201c. Spr\u00e1vne pou\u017eitie:
   try {
@@ -163,23 +163,23 @@ po bloku \u201etry\u201c. Spr\u00e1vne pou\u017eitie:
   }
 
 * clashes with package of same name
-\u00ab\u2026\u00bb koliduje s\u00a0rovnako pomenovan\u00fdm bal\u00ed\u010dkom.
-\u00a0
-Uistite sa, \u017ee trieda a\u00a0bal\u00ed\u010dek, v\u00a0ktorom je trieda
-umiesten\u00e1, maj\u00fa rozdielne men\u00e1. Pod\u013ea konvencie by mali
-men\u00e1 tried za\u010d\u00edna\u0165 ve\u013ek\u00fdmi p\u00edsmenami a\u00a0men\u00e1 bal\u00ed\u010dkov
+\u00ab\u2026\u00bb koliduje s rovnako nazvan\u00fdm bal\u00ed\u010dkom.
+ 
+Uistite sa, \u017ee trieda a bal\u00ed\u010dek, v ktorom je trieda
+umiesten\u00e1, maj\u00fa rozdielne n\u00e1zvy. Pod\u013ea konvencie by mali
+n\u00e1zvy tried za\u010d\u00edna\u0165 ve\u013ek\u00fdmi p\u00edsmenami a n\u00e1zvy bal\u00ed\u010dkov
 by mali obsahova\u0165 len mal\u00e9 p\u00edsmen\u00e1.
 
 code too large for try statement
 K\u00f3d vo vn\u00fatri bloku \u201etry\u201c je pr\u00edli\u0161 dlh\u00fd.
-\u00a0
+ 
 Vo vn\u00fatri tohto \u201etry\u201c bloku je pr\u00edli\u0161 ve\u013ek\u00fd objem k\u00f3du.
-Presu\u0148te k\u00f3d do samostatnej met\u00f3dy a\u00a0t\u00fa zavolajte
-z\u00a0tohto bloku.
+Presu\u0148te k\u00f3d do samostatnej met\u00f3dy a t\u00fa zavolajte
+z tohto bloku.
 
 constant expression required
 Je vy\u017eadovan\u00fd kon\u0161tantn\u00fd v\u00fdraz.
-\u00a0
+ 
 Pou\u017eili ste premenn\u00fa alebo v\u00fdraz, av\u0161ak ani jedno nie je
 na tomto mieste povolen\u00e9. Tu je vy\u017eadovan\u00e9 pou\u017eitie
 kon\u0161tanty (ktor\u00fa je mo\u017en\u00e9 vyhodnoti\u0165 u\u017e po\u010das prekladu).
@@ -188,48 +188,48 @@ identifik\u00e1tory deklarovan\u00e9 ako \u201efinal\u201c.
 
 continue outside of loop
 Pr\u00edkaz \u201econtinue\u201c bol  pou\u017eit\u00fd mimo cyklu.
-\u00a0
-Pr\u00edkaz \u201econtinue\u201c je pou\u017e\u00edvan\u00fd pre okam\u017eit\u00e9
+ 
+Pr\u00edkaz \u201econtinue\u201c je pou\u017e\u00edvan\u00fd na okam\u017eit\u00e9
 spustenie \u010fal\u0161ej iter\u00e1cie (opakovania) cyklu.
 Mimo cyklu nem\u00e1 v\u00fdznam. M\u00f4\u017ee by\u0165 pou\u017eit\u00fd len
-vo vn\u00fatri cyklu \u201efor\u201c, \u201ewhile\u201c a\u00a0\u201edo\u201c.
+vo vn\u00fatri cyklu \u201efor\u201c, \u201ewhile\u201c a \u201edo\u201c.
 
 cyclic inheritance involving *
-Cyklick\u00e1 dedi\u010dnos\u0165 v\u00a0\u00ab\u2026\u00bb.
-\u00a0
+Cyklick\u00e1 dedi\u010dnos\u0165 v \u00ab\u2026\u00bb.
+ 
 Sna\u017e\u00edte sa odvodi\u0165 triedu od triedy,
 ktor\u00e1 je sama od tejto triedy odvoden\u00e1!
 In\u00fdmi slovami: sna\u017e\u00edte sa, aby rodi\u010d bol
 potomkom svojho potomka. Mus\u00edte sa rozhodn\u00fa\u0165,
-ktor\u00e1 trieda bude rodi\u010d a\u00a0ktor\u00e1 potomok.
+ktor\u00e1 trieda bude rodi\u010d a ktor\u00e1 potomok.
 
 * does not exist
-\u00ab\u2026\u00bb neexistuje.
-\u00a0
-Pravdepodobne ste tu chceli pou\u017ei\u0165 meno
+\u00ab\u2026\u00bb nejestvuje.
+ 
+Pravdepodobne ste na tomto mieste chceli pou\u017ei\u0165 n\u00e1zov
 premennej alebo triedy, av\u0161ak \u017eiadna premenn\u00e1,
-trieda alebo bal\u00ed\u010dek s\u00a0tak\u00fdm menom neexistuje.
+trieda ani bal\u00ed\u010dek s tak\u00fdm n\u00e1zvom nejestvuje.
 
-duplicate class: *
+duplicate class:*
 Duplicit\u00e1 trieda: \u00ab\u2026\u00bb
-\u00a0
-Trieda sa rovnak\u00fdm menom u\u017e existuje.
+ 
+Trieda sa rovnak\u00fdm n\u00e1zvom u\u017e jestvuje.
 
 duplicate case label
 Duplicitn\u00e1 menovka \u201ecase\u201c.
-\u00a0
+ 
 Vo vn\u00fatri bloku \u201eswitch\u201c ste pou\u017eili dvakr\u00e1t rovnak\u00fa
 menovku \u201ecase\u201c. To nie je pr\u00edpustn\u00e9.
 
 duplicate default label
 Duplicitn\u00e1 menovka \u201edefault\u201c.
-\u00a0
+ 
 Vo vn\u00fatri bloku \u201eswitch\u201c m\u00f4\u017ee by\u0165 len jedna menovka
 \u201edefault\u201c.
 
 'else' without 'if'
 Bolo pou\u017eit\u00e9 \u201eelse\u201c bez predch\u00e1dzaj\u00faceho \u201eif\u201c.
-\u00a0
+ 
 K\u013e\u00fa\u010dov\u00e9 slovo \u201eelse\u201c m\u00f4\u017ee by\u0165 pou\u017eit\u00e9 len
 ako s\u00fa\u010das\u0165 pr\u00edkazu \u201eif\u201c. Pr\u00edklad:
   if (podmienka)
@@ -238,7 +238,7 @@ ako s\u00fa\u010das\u0165 pr\u00edkazu \u201eif\u201c. Pr\u00edklad:
     pr\u00edkaz;
 Mo\u017eno\u017ee ste neuviedli spr\u00e1vny po\u010det zlo\u017een\u00fdch z\u00e1tvoriek.
 \u010castou pr\u00ed\u010dinou tejto chyby je, \u017ee chcete vo vetve if
-vykona\u0165 nieko\u013eko pr\u00edkazov a\u00a0zabudli ste ich zatvori\u0165 do zlo\u017een\u00fdch z\u00e1tvoriek. Takto:
+vykona\u0165 nieko\u013eko pr\u00edkazov a zabudli ste ich zatvori\u0165 do zlo\u017een\u00fdch z\u00e1tvoriek. Takto:
   if (podmienka)
   {
     pr\u00edkaz1;
@@ -251,32 +251,32 @@ vykona\u0165 nieko\u013eko pr\u00edkazov a\u00a0zabudli ste ich zatvori\u0165 do
 
 empty character literal
 Pr\u00e1zdny znakov\u00fd liter\u00e1l.
-\u00a0
+ 
 Zap\u00edsali ste znakov\u00fd liter\u00e1l, ktor\u00fd je pr\u00e1zdny.
 Pou\u017eitie '' nie je povolen\u00e9. Znakov\u00e9 liter\u00e1ly s\u00fa
-uv\u00e1dzan\u00e9 v\u00a0tvare 'a'. Medzi apostrofami sa nach\u00e1dza
+uv\u00e1dzan\u00e9 v tvare 'a'. Medzi apostrofami sa nach\u00e1dza
 v\u017edy pr\u00e1ve jeden znak. Jedinou v\u00fdnimkou s\u00fa \u0161peci\u00e1lne
 znaky p\u00edsan\u00e9 pomocou sp\u00e4tnej lomky (takzvan\u00e9 \u201eescape
 characters\u201c \u2013 escape sekvencie). Napr\u00edklad nov\u00fd
-riadok '\n', tabul\u00e1tor '\t' at\u010f. Pr\u00e1zdny znak neexistuje.
+riadok '\n', tabul\u00e1tor '\t' at\u010f. Pr\u00e1zdny znak nejestvuje.
 
 * has already been caught
 \u00ab\u2026\u00bb v\u00fdnimka u\u017e bola zachyten\u00e1.
-\u00a0
+ 
 Tento \u201ecatch\u201c je zbyto\u010dn\u00fd, preto\u017ee v\u0161etky v\u00fdnimky boli
 na tomto mieste u\u017e zachyten\u00e9 pr\u00edslu\u0161n\u00fdm \u201ecatch\u201c. To
 znamen\u00e1, \u017ee v\u00fdnimka sa na toto miesto nikdy nedostane.
 
 * is never thrown in body of corresponding try statement
 T\u00e1to v\u00fdnimka: \u00ab\u2026\u00bb, nikdy nevznikne vo vn\u00fatri tohto \u201etry\u201c bloku.
-\u00a0
+ 
 Pok\u00fasili ste sa zachyti\u0165 v\u00fdnimku vo vn\u00fatri bloku \u201etry\u201c, av\u0161ak \u017eiadny pr\u00edkaz vo vn\u00fatri tohto bloku tak\u00fato
 v\u00fdnimku negeneruje. Je zaru\u010den\u00e9, \u017ee t\u00e1to v\u00fdnimka
 na tomto mieste nikdy nevznikne.
 
 'finally' without 'try'
 Bolo pou\u017eit\u00e9 \u201efinally\u201c bez predch\u00e1dzaj\u00faceho \u201etry\u201c.
-\u00a0
+ 
 \u201efinally\u201c je k\u013e\u00fa\u010dov\u00e9 slovo, ktor\u00e9 m\u00f4\u017ee by\u0165 pou\u017eit\u00e9 len
 po \u201etry\u201c bloku. Spr\u00e1vne pou\u017eitie vyzer\u00e1 nasledovne:
   try {
@@ -291,65 +291,65 @@ po \u201etry\u201c bloku. Spr\u00e1vne pou\u017eitie vyzer\u00e1 nasledovne:
 
 floating point number too large
 Zadan\u00e9 desatinn\u00e9 \u010d\u00edslo je pr\u00edli\u0161 ve\u013ek\u00e9.
-\u00a0
-Syst\u00e9m nedok\u00e1\u017ee pracova\u0165 s\u00a0takto ve\u013ek\u00fdmi \u010d\u00edslami
+ 
+Syst\u00e9m nedok\u00e1\u017ee pracova\u0165 s takto ve\u013ek\u00fdmi \u010d\u00edslami
 dan\u00e9ho typu.
 
 floating point number too small
 Zadan\u00e9 desatinn\u00e9 \u010d\u00edslo je pr\u00edli\u0161 mal\u00e9.
-\u00a0
-Syst\u00e9m nedok\u00e1\u017ee pracova\u0165 s\u00a0takto mal\u00fdmi \u010d\u00edslami
+ 
+Syst\u00e9m nedok\u00e1\u017ee pracova\u0165 s takto mal\u00fdmi \u010d\u00edslami
 dan\u00e9ho typu.
 
 inner classes cannot have static declarations
 Vn\u00fatorn\u00e1 trieda nem\u00f4\u017ee ma\u0165 statick\u00e9 deklar\u00e1cie.
-\u00a0
+ 
 Vn\u00fatorn\u00e1 trieda nem\u00f4\u017ee obsahova\u0165 deklar\u00e1cie statick\u00fdch
 \u010dlenov. Ak potrebujete statick\u00fd atrib\u00fat alebo met\u00f3du,
 rozmyslite si, \u010di dan\u00e1 trieda mus\u00ed by\u0165 deklarovan\u00e1 len
 ako vnoren\u00e1, alebo vytvorte po\u017eadovan\u00fd atrib\u00fat
 \u010di met\u00f3du vo vonkaj\u0161ej triede.
 
-illegal character: *
+illegal character:*
 Zak\u00e1zan\u00fd znak: \u00ab\u2026\u00bb
-\u00a0
-Na tomto riadku sa v\u00a0zdrojovom k\u00f3de nach\u00e1dza zak\u00e1zan\u00fd
+ 
+Na tomto riadku sa v zdrojovom k\u00f3de nach\u00e1dza zak\u00e1zan\u00fd
 znak. Tento znak nemus\u00ed by\u0165 vidite\u013en\u00fd. Ak ho nem\u00f4\u017eete
-n\u00e1js\u0165, odstr\u00e1\u0148te cel\u00fd riadok a\u00a0nap\u00ed\u0161te ho znova.
+n\u00e1js\u0165, odstr\u00e1\u0148te cel\u00fd riadok a nap\u00ed\u0161te ho znova.
 
 illegal combination of modifiers: *
 Zak\u00e1zan\u00e1 kombin\u00e1cia modifik\u00e1torov: \u00ab\u2026\u00bb
-\u00a0
+ 
 Pou\u017eili ste zak\u00e1zan\u00fa kombin\u00e1ciu modifik\u00e1torov,
 ktor\u00e9 sa navz\u00e1jom vylu\u010duj\u00fa. Pr\u00edkladom s\u00fa kombinacie
-modifik\u00e1torov \u201eabstract\u201c s\u00a0niektor\u00fdm z\u00a0modifik\u00e1torov:
+modifik\u00e1torov \u201eabstract\u201c s niektor\u00fdm z modifik\u00e1torov:
 \u201enative\u201c, \u201efinal\u201c, \u201eprivate\u201c alebo \u201esynchronized\u201c.
 
 illegal escape character
 Neplatn\u00e1 escape sekvencia.
-\u00a0
+ 
 Escape sekvencie s\u00fa tvoren\u00e9 sp\u00e4tnou lomkou \u201e\\u201c
-a\u00a0jedn\u00fdm p\u00edsmenom. S\u00fa pou\u017e\u00edvan\u00e9 na zadanie
+a jedn\u00fdm p\u00edsmenom. S\u00fa pou\u017e\u00edvan\u00e9 na zadanie
 \u0161peci\u00e1lnych znakov. Je definovan\u00e1 striktn\u00e1 mno\u017eina
 znakov, ktor\u00fdch pou\u017eitie je povolen\u00e9 za znakom
 sp\u00e4tnej lomky. S\u00fa to: \n, \t, \b, \r, \f, \\, \', \"
-a\u00a0\u010d\u00edsla. Ak potrebujete pou\u017ei\u0165 samostatn\u00fd znak sp\u00e4tnej
+a \u010d\u00edsla. Ak potrebujete pou\u017ei\u0165 samostatn\u00fd znak sp\u00e4tnej
 lomky, zadajte \u201e\\\u201c \u2013 toto bude vo v\u00fdslednom re\u0165azci
 nahraden\u00e9 jedinou sp\u00e4tnou lomkou.
 
 illegal forward reference
 Dopredn\u00e1 referencia nie je povolen\u00e1.
-\u00a0
-Podrobnej\u0161\u00ed pomocn\u00edk nie je k\u00a0dispoz\u00edcii.
+ 
+Podrobnej\u0161\u00ed pomocn\u00edk nie je k dispoz\u00edcii.
 
 illegal initializer for *
 Nepovolen\u00fd incializ\u00e1tor pre \u00ab\u2026\u00bb.
-\u00a0
-Podrobnej\u0161\u00ed pomocn\u00edk nie je k\u00a0dispoz\u00edcii.
+ 
+Podrobnej\u0161\u00ed pomocn\u00edk nie je k dispoz\u00edcii.
 
 illegal line end in character literal
 Neplatn\u00fd koniec riadka vo vn\u00fatri znakov\u00e9ho liter\u00e1lu.
-\u00a0
+ 
 Zadali ste koniec riadka na miesto, kde by mala by\u0165
 uveden\u00e1 defin\u00edcia znakov\u00e9ho liter\u00e1lu. Toto nie je
 povolen\u00e9. Ak chcete zada\u0165 znak nov\u00e9ho riadka, pou\u017eite
@@ -357,95 +357,95 @@ sekvenciu \u201e\n\u201c.
 
 illegal qualifier; {0} is not an inner class
 Nepovolen\u00fd modifik\u00e1tor; \u00ab\u2026\u00bb nie je vn\u00fatorn\u00e1 trieda.
-\u00a0
-Podrobnej\u0161\u00ed pomocn\u00edk nie je k\u00a0dispoz\u00edcii.
+ 
+Podrobnej\u0161\u00ed pomocn\u00edk nie je k dispoz\u00edcii.
 
 illegal start of expression
 Zak\u00e1zan\u00fd za\u010diatok v\u00fdrazu.
-\u00a0
+ 
 Na tejto poz\u00edcii, je o\u010dak\u00e1van\u00fd za\u010diatok v\u00fdrazu,
 ale nach\u00e1dza sa tu nie\u010do in\u00e9. Pravdepodobne je
-v\u00a0predch\u00e1dzaj\u00facom k\u00f3de nie\u010do navy\u0161e alebo nie\u010do
+v predch\u00e1dzaj\u00facom k\u00f3de nie\u010do navy\u0161e alebo nie\u010do
 ch\u00fdba.
 
 illegal start of type
 Zak\u00e1zan\u00fd za\u010diatok typu.
-\u00a0
-Na tejto poz\u00edciu, je o\u010dak\u00e1van\u00e9 meno typu,
+ 
+Na tejto poz\u00edcii, je o\u010dak\u00e1van\u00fd n\u00e1zov \u00fadajov\u00e9ho typu,
 ale nach\u00e1dza sa tu nie\u010do in\u00e9 (pravdepodobne k\u013e\u00fa\u010dov\u00e9
-slovo jazyka Java). Je mo\u017en\u00e9, \u017ee v\u00a0predch\u00e1dzaj\u00facom
+slovo jazyka Java). Je mo\u017en\u00e9, \u017ee v predch\u00e1dzaj\u00facom
 k\u00f3de nie\u010do ch\u00fdba, alebo je tam uveden\u00e9 nie\u010do navy\u0161e.
 Skontrolujte spr\u00e1vnos\u0165 defin\u00edcie typu.
 
 illegal unicode escape
 Zak\u00e1zan\u00fd z\u00e1pis znaku sady unicode.
-\u00a0
-Podrobnej\u0161\u00ed pomocn\u00edk nie je k\u00a0dispoz\u00edcii.
+ 
+Podrobnej\u0161\u00ed pomocn\u00edk nie je k dispoz\u00edcii.
 
 improperly formed type, some parameters are missing
 Nekorektne utvoren\u00fd typ, niektor\u00e9 parametre ch\u00fdbaj\u00fa.
-\u00a0
-Podrobnej\u0161\u00ed pomocn\u00edk nie je k\u00a0dispoz\u00edcii.
+ 
+Podrobnej\u0161\u00ed pomocn\u00edk nie je k dispoz\u00edcii.
 
 incomparable types: *
 Nasledovn\u00e9 typy nie je mo\u017en\u00e9 porovn\u00e1va\u0165: \u00ab\u2026\u00bb
-\u00a0
-Podrobnej\u0161\u00ed pomocn\u00edk nie je k\u00a0dispoz\u00edcii.
+ 
+Podrobnej\u0161\u00ed pomocn\u00edk nie je k dispoz\u00edcii.
 
 integer number too large: *
 Cel\u00e9 \u010d\u00edslo je pr\u00edli\u0161 ve\u013ek\u00e9: \u00ab\u2026\u00bb
-\u00a0
+ 
 Zadali ste cel\u00e9 \u010d\u00edslo, ktor\u00e9 je pr\u00edli\u0161 ve\u013ek\u00e9 na to,
 aby bolo ulo\u017een\u00e9 do \u00fadajov\u00e9ho typu, ktor\u00fd je o\u010dak\u00e1van\u00fd
-na tomto mieste. Pre ulo\u017eenie v\u00e4\u010d\u0161ieho \u010d\u00edsla mus\u00edte
-pou\u017ei\u0165 \u00fadajov\u00fd typ s\u00a0v\u00e4\u010d\u0161\u00edm rozsahom.
+na tomto mieste. Na ulo\u017eenie v\u00e4\u010d\u0161ieho \u010d\u00edsla mus\u00edte
+pou\u017ei\u0165 \u00fadajov\u00fd typ s v\u00e4\u010d\u0161\u00edm rozsahom.
 (Napr\u00edklad \u201elong\u201c namiesto \u201eint\u201c.)
 
 internal error; cannot instantiate *
 Vn\u00fatorn\u00e1 chyba; nie je mo\u017en\u00e9 vytvori\u0165 in\u0161tanciu \u00ab\u2026\u00bb.
-\u00a0
-Podrobnej\u0161\u00ed pomocn\u00edk nie je k\u00a0dispoz\u00edcii.
+ 
+Podrobnej\u0161\u00ed pomocn\u00edk nie je k dispoz\u00edcii.
 
 * but with different return type
-\u00ab\u2026\u00bb sa vyskytlo s\u00a0in\u00fdm n\u00e1vratov\u00fdm \u00fadajov\u00fdm typom.
-\u00a0
+\u00ab\u2026\u00bb sa vyskytlo s in\u00fdm n\u00e1vratov\u00fdm \u00fadajov\u00fdm typom.
+ 
 Pok\u00fa\u0161ate sa kombinova\u0165 met\u00f3dy, ktor\u00e9 vyzeraj\u00fa rovnako,
 okrem n\u00e1vratov\u00e9ho typu, ktor\u00fd maj\u00fa r\u00f4zny. Toto nie je povolen\u00e9.
 T\u00e1to chyba sa pravdepodobne vyskytla, lebo sa pok\u00fa\u0161ate
-implementova\u0165 dve r\u00f4zne rozhrania v\u00a0jednej triede, pri\u010dom
-ka\u017ed\u00e9 rozhranie m\u00e1 met\u00f3du s\u00a0rovnak\u00fdm menom a\u00a0parametrami,
-ale rozdielnym n\u00e1vratov\u00fdm typom. V\u00a0tomto pr\u00edpade je implement\u00e1cia
+implementova\u0165 dve r\u00f4zne rozhrania v jednej triede, pri\u010dom
+ka\u017ed\u00e9 rozhranie m\u00e1 met\u00f3du s rovnak\u00fdm n\u00e1zvom a parametrami,
+ale rozdielnym n\u00e1vratov\u00fdm typom. V tomto pr\u00edpade je implement\u00e1cia
 oboch rozhran\u00ed nemo\u017en\u00e1. Rie\u0161en\u00edm je zmena n\u00e1vratov\u00e9ho typu jednej
-z\u00a0dvoch met\u00f3d, alebo premenovanie jednej z\u00a0nich.
+z dvoch met\u00f3d, alebo premenovanie jednej z nich.
 
 interface expected here
 Na tomto mieste je o\u010dak\u00e1van\u00e9 k\u013e\u00fa\u010dov\u00e9 slovo \u201einterface\u201c.
-\u00a0
-Rozhranie (interface) m\u00f4\u017ee by\u0165 odvoden\u00e9 len z\u00a0in\u00e9ho
-rozhrania. Meno, ktor\u00e9 ste uviedli za k\u013e\u00fa\u010dov\u00fdm slovom
+ 
+Rozhranie (interface) m\u00f4\u017ee by\u0165 odvoden\u00e9 len z in\u00e9ho
+rozhrania. N\u00e1zov, ktor\u00fd ste uviedli za k\u013e\u00fa\u010dov\u00fdm slovom
 \u201eextends\u201c neozna\u010duje rozhranie.
 
 interface methods cannot have body
 Met\u00f3dy rozhrania nem\u00f4\u017eu obsahova\u0165 telo.
-\u00a0
+ 
 Deklar\u00e1cie met\u00f3d rozhran\u00ed (\u201einterface\u201c), nem\u00f4\u017eu
-obsahova\u0165 telo (v\u00a0bloku {}). Tieto deklar\u00e1cie sm\u00fa
+obsahova\u0165 telo (v bloku {}). Tieto deklar\u00e1cie sm\u00fa
 obsahova\u0165 len hlavi\u010dku ukon\u010den\u00fa bodko\u010diarkou.
 
 hexadecimal numbers must contain at least one hexadecimal digit
 Hexadecim\u00e1lne \u010d\u00edsla musia obsahova\u0165 aspo\u0148 jednu hexadecim\u00e1lnu \u010d\u00edslicu.
-\u00a0
+ 
 Na tomto mieste bol n\u00e1jden\u00fd za\u010diatok z\u00e1pisu \u010d\u00edsla
-v\u00a0hexadecim\u00e1lnej (\u0161estn\u00e1stkovej) \u010d\u00edselnej s\u00fastave
+v hexadecim\u00e1lnej (\u0161estn\u00e1stkovej) \u010d\u00edselnej s\u00fastave
 (za\u010d\u00edna re\u0165azcom \u201e0X\u201c). Za \u201eX\u201c mus\u00ed nasledova\u0165
 aspo\u0148 jedna \u010d\u00edslica hexadecim\u00e1lnej \u010d\u00edselnej s\u00fastavy.
 
 invalid method declaration; return type required
 Neplatn\u00e1 deklar\u00e1cia met\u00f3dy; je vy\u017eadovan\u00fd n\u00e1vratov\u00fd \u00fadajov\u00fd typ.
-\u00a0
+ 
 Pri deklar\u00e1cii met\u00f3dy mus\u00ed by\u0165 uveden\u00fd n\u00e1vratov\u00fd \u00fadajov\u00fd
 typ. Napr\u00edklad, ak si \u017eel\u00e1te, aby met\u00f3da poskytovala
-hodnotu v\u00a0tvare re\u0165azca (String), nap\u00ed\u0161te:
+hodnotu v tvare re\u0165azca (String), nap\u00ed\u0161te:
     public String mojaMet\u00f3da();
 Ak si \u017eel\u00e1te, aby met\u00f3da neposkytovala \u017eiadnu n\u00e1vratov\u00fa
 hodnotu, \u0161pecifikujte to k\u013e\u00fa\u010dov\u00fdm slovom \u201evoid\u201c, napr\u00edklad:
@@ -453,181 +453,180 @@ hodnotu, \u0161pecifikujte to k\u013e\u00fa\u010dov\u00fdm slovom \u201evoid\u20
 
 * already in use
 \u00ab\u2026\u00bb bolo u\u017e pou\u017eit\u00e9.
-\u00a0
-V\u00a0tejto met\u00f3de u\u017e existuje premenn\u00e1 (pr\u00edpadne parameter)
-s\u00a0rovnak\u00fdm menom. Pou\u017eite pre \u0148u in\u00e9 meno. (Mo\u017eno ste
-chceli na tomto mieste t\u00fato premenn\u00fa pou\u017ei\u0165. V\u00a0tom pr\u00edpade
+ 
+V tejto met\u00f3de u\u017e jestvuje premenn\u00e1 (pr\u00edpadne parameter)
+s rovnak\u00fdm n\u00e1zvom. Pou\u017eite pre \u0148u in\u00fd n\u00e1zov. (Mo\u017eno ste
+chceli na tomto mieste t\u00fato premenn\u00fa pou\u017ei\u0165. V tom pr\u00edpade
 odstr\u00e1\u0148te ur\u010denie typu pred n\u00e1zvom premennej, aby to
 nevyzeralo ako deklar\u00e1cia novej premennej.)
 
 * is accessed from within inner class; needs to be declared final
-Bol zaznamenan\u00fd pokus o\u00a0pr\u00edstup k\u00a0\u00ab\u2026\u00bb z\u00a0vn\u00fatornej triedy; preto by mala by\u0165 deklarovan\u00e1 ako fin\u00e1lna (\u201efinal\u201c).
-\u00a0
-Pok\u00fasili ste sa prist\u00fapi\u0165 k\u00a0premennej z\u00a0vn\u00fatornej triedy, len\u017ee
+Bol zaznamenan\u00fd pokus o pr\u00edstup k \u00ab\u2026\u00bb z vn\u00fatornej triedy; preto by mala by\u0165 deklarovan\u00e1 ako fin\u00e1lna (\u201efinal\u201c).
+ 
+Pok\u00fasili ste sa prist\u00fapi\u0165 k premennej z vn\u00fatornej triedy, len\u017ee
 lok\u00e1lne premenn\u00e9 nem\u00f4\u017eu by\u0165 \u010d\u00edtan\u00e9 ani zapisovan\u00e9 t\u00fdmto sp\u00f4sobom.
 M\u00e1te dve mo\u017enosti na vyrie\u0161enie tohto probl\u00e9mu: bu\u010f deklarujete
 premenn\u00fa ako fin\u00e1lnu (\u201efinal\u201c), alebo sa nebudete pok\u00fa\u0161a\u0165
-pristupova\u0165 k\u00a0tejto lok\u00e1lnej premennej z\u00a0tohto miesta.
+pristupova\u0165 k tejto lok\u00e1lnej premennej z tohto miesta.
 
 malformed floating point literal
-Liter\u00e1l \u010d\u00edsla s\u00a0pohyblivou r\u00e1dovou \u010diarkou je v\u00a0nespr\u00e1vnom tvare.
-\u00a0
-Pri z\u00e1pise \u010d\u00edsla s\u00a0pohyblivou r\u00e1dovou \u010diarkou nastal
-omyl. (\u010c\u00edslo s\u00a0pohyblivou r\u00e1dovou \u010diarkou je decim\u00e1lne
-\u010d\u00edslo s\u00a0desatinnou \u010diarkou.) Tu s\u00fa pr\u00edklady spr\u00e1vneho
-z\u00e1pisu \u010d\u00edsla s\u00a0pohyblivou r\u00e1dovou \u010diarkou:
+Liter\u00e1l \u010d\u00edsla s pohyblivou r\u00e1dovou \u010diarkou je v nespr\u00e1vnom tvare.
+ 
+Pri z\u00e1pise \u010d\u00edsla s pohyblivou r\u00e1dovou \u010diarkou nastal
+omyl. (\u010c\u00edslo s pohyblivou r\u00e1dovou \u010diarkou je decim\u00e1lne
+\u010d\u00edslo s desatinnou \u010diarkou.) Tu s\u00fa pr\u00edklady spr\u00e1vneho
+z\u00e1pisu \u010d\u00edsla s pohyblivou r\u00e1dovou \u010diarkou:
 18.0      18.     1.8e1     .18E2
 
 missing method body, or declare abstract
 Ch\u00fdba telo met\u00f3dy, dopl\u0148te ho alebo deklarujte met\u00f3du ako abstraktn\u00fa.
-\u00a0
-Met\u00f3dy musia ma\u0165 definovan\u00e9 telo s\u00a0k\u00f3dom na vykonanie
+ 
+Met\u00f3dy musia ma\u0165 definovan\u00e9 telo s k\u00f3dom na vykonanie
 alebo by\u0165 deklarovan\u00e9 ako abstraktn\u00e9. Telo met\u00f3dy b\u00fdva
-uveden\u00e9 v\u00a0zlo\u017een\u00fdch z\u00e1tvork\u00e1ch { } a\u00a0b\u00fdva uveden\u00e9 za
-hlavi\u010dkou deklar\u00e1cie met\u00f3dy. Telo obsahuje pr\u00edkazy a\u00a0ak
+uveden\u00e9 v zlo\u017een\u00fdch z\u00e1tvork\u00e1ch { } a b\u00fdva uveden\u00e9 za
+hlavi\u010dkou deklar\u00e1cie met\u00f3dy. Telo obsahuje pr\u00edkazy a ak
 met\u00f3da nem\u00e1 obsahova\u0165 \u017eiadne telo, mus\u00ed by\u0165 deklarovan\u00e1
 ako abstraktn\u00e1 (\u201eabstract\u201c). Napr\u00edklad:
     public abstract int poskytniOdpove\u010f();
 
 missing return statement
 Nebol n\u00e1jden\u00fd pr\u00edkaz \u201ereturn\u201c.
-\u00a0
-T\u00e1to met\u00f3da m\u00e1 v\u00a0deklar\u00e1cii uveden\u00e9, \u017ee m\u00e1 poskytova\u0165
-n\u00e1vratov\u00fa hodnotu. Pre tento \u00fa\u010del sl\u00fa\u017ei pr\u00edkaz \u201ereturn\u201c,
-ktor\u00fd nebol v\u00a0tele met\u00f3dy n\u00e1jden\u00fd. To nie je spr\u00e1vne.
+ 
+T\u00e1to met\u00f3da m\u00e1 v deklar\u00e1cii uveden\u00e9, \u017ee m\u00e1 poskytova\u0165
+n\u00e1vratov\u00fa hodnotu. Na tento \u00fa\u010del sl\u00fa\u017ei pr\u00edkaz \u201ereturn\u201c,
+ktor\u00fd nebol v tele met\u00f3dy n\u00e1jden\u00fd. To nie je spr\u00e1vne.
 Bu\u010f mus\u00edte deklarova\u0165 met\u00f3du tak, aby nemusela poskytova\u0165
 \u017eiadnu n\u00e1vratov\u00fa hodnotu (k\u013e\u00fa\u010dov\u00fdm slovom \u201evoid\u201c):
     public void bezHodnoty() \u2026
 alebo na konci tela met\u00f3dy uve\u010fte pr\u00edkaz \u201ereturn\u201c
 nasledovan\u00fd korektn\u00fdm n\u00e1vratov\u00fdm typom \u2013 ten mus\u00ed
-kore\u0161pondova\u0165 s\u00a0n\u00e1vratov\u00fdm typom uveden\u00fdm v\u00a0deklar\u00e1cii
+kore\u0161pondova\u0165 s n\u00e1vratov\u00fdm typom uveden\u00fdm v deklar\u00e1cii
 hlavi\u010dky met\u00f3dy. Napr\u00edklad, ak m\u00e1 met\u00f3da n\u00e1vratov\u00fd typ
 cel\u00e9 \u010d\u00edslo (\u201eint\u201c) tak by to mohlo by\u0165:
     return 42;
 
 missing return value
 Ch\u00fdbaj\u00faca n\u00e1vratov\u00e1 hodnota.
-\u00a0
+ 
 Zap\u00edsali ste pr\u00edkaz \u201ereturn\u201c bez n\u00e1vratovej hodnoty.
 Toto je povolen\u00e9 len pri met\u00f3dach, ktor\u00e9 neposkytuj\u00fa
 \u017eiadnu n\u00e1vratov\u00fa hodnotu (s\u00fa deklarovan\u00e9 ako \u201evoid\u201c).
-To v\u0161ak nie je pr\u00edpad tejto met\u00f3dy, preto\u017ee v\u00a0hlavi\u010dke
+To v\u0161ak nie je pr\u00edpad tejto met\u00f3dy, preto\u017ee v hlavi\u010dke
 je deklarovan\u00e9, \u017ee m\u00e1 poskytova\u0165 n\u00e1vratov\u00fa hodnotu
 dan\u00e9ho \u00fadajov\u00e9ho typu. Bu\u010f deklarujte t\u00fato met\u00f3du
 ako \u201evoid\u201c, alebo uve\u010fte prisl\u00fachaj\u00facu n\u00e1vratov\u00fa hodnotu
 za pr\u00edkazom \u201ereturn\u201c. Pr\u00edklady:
-    return 42;    // pre met\u00f3du s\u00a0celo\u010d\u00edseln\u00fdm n\u00e1vratov\u00fdm typom
+    return 42;    // met\u00f3da s celo\u010d\u00edseln\u00fdm n\u00e1vratov\u00fdm typom
 alebo
-    return "Marvin";    // pre n\u00e1vratov\u00fd typ re\u0165azec (\u201eString\u201c)
+    return "Marvin";    // n\u00e1vratov\u00fd typ re\u0165azec (\u201eString\u201c)
 
 name clash: *
-Rozpor v\u00a0n\u00e1zvoch: \u00ab\u2026\u00bb
-\u00a0
-Definovali ste dve met\u00f3dy s\u00a0rovnak\u00fdm menom. Toto je dovolen\u00e9
-len v\u00a0pr\u00edpadoch, kedy jedna met\u00f3da pre\u0165a\u017euje druh\u00fa (\u010do nie je
-tento pr\u00edpad). N\u00e1zov jednej z\u00a0met\u00f3d mus\u00ed by\u0165 zmenen\u00fd.
+Rozpor v n\u00e1zvoch: \u00ab\u2026\u00bb
+ 
+Definovali ste dve met\u00f3dy s rovnak\u00fdm n\u00e1zvom. Toto je dovolen\u00e9
+len v pr\u00edpadoch, kedy jedna met\u00f3da pre\u0165a\u017euje druh\u00fa (\u010do nie je
+tento pr\u00edpad). N\u00e1zov jednej z met\u00f3d mus\u00ed by\u0165 zmenen\u00fd.
 
 * is reserved for internal use
-\u00ab\u2026\u00bb je rezervovan\u00e9 pre vn\u00fatorn\u00e9 pou\u017eitie.
-\u00a0
-Uveden\u00fd v\u00fdraz je rezervovan\u00fd pre vn\u00fatorn\u00e9 pou\u017eitie,
-ak je to meno premennej alebo triedy, mus\u00edte ho zmeni\u0165.
+\u00ab\u2026\u00bb je rezervovan\u00e9 na vn\u00fatorn\u00e9 pou\u017eitie.
+ 
+Uveden\u00fd v\u00fdraz je rezervovan\u00fd na vn\u00fatorn\u00e9 pou\u017eitie,
+ak je to n\u00e1zov premennej alebo triedy, mus\u00edte ho zmeni\u0165.
 
 native methods cannot have a body
 Nat\u00edvne met\u00f3dy nem\u00f4\u017eu obsahova\u0165 telo.
-\u00a0
-Deklarovali ste met\u00f3du ako nat\u00edvnu (\u201enative\u201c) a\u00a0z\u00e1rove\u0148 ste
-nap\u00edsali k\u00f3d pre jej telo. Deklar\u00e1cie nat\u00edvnych met\u00f3d sm\u00fa
-obsahova\u0165 len hlavi\u010dku deklar\u00e1cie met\u00f3dy, ktor\u00e1 m\u00e1 by\u0165 ukon\u010den\u00e1
-bodko\u010diarkou. Bu\u010f odstr\u00e1\u0148te modifik\u00e1tor \u201enative\u201c, alebo odstr\u00e1\u0148te
-telo met\u00f3dy.
+ 
+Deklarovali ste nat\u00edvnu met\u00f3du a z\u00e1rove\u0148 ste nap\u00edsali k\u00f3d jej tela.
+Deklar\u00e1cie nat\u00edvnych met\u00f3d sm\u00fa obsahova\u0165 len hlavi\u010dku deklar\u00e1cie
+met\u00f3dy, ktor\u00e1 m\u00e1 by\u0165 ukon\u010den\u00e1 bodko\u010diarkou. Bu\u010f odstr\u00e1\u0148te
+modifik\u00e1tor \u201enative\u201c, alebo odstr\u00e1\u0148te telo met\u00f3dy.
 
 no enclosing instance of type {0} is in scope
-In\u0161tancia typu \u00ab\u2026\u00bb nie je dostupn\u00e1 v\u00a0tomto zornom poli.
-\u00a0
-Podrobnej\u0161\u00ed pomocn\u00edk nie je k\u00a0dispoz\u00edcii.
+In\u0161tancia typu \u00ab\u2026\u00bb nie je dostupn\u00e1 v tomto zornom poli.
+ 
+Podrobnej\u0161\u00ed pomocn\u00edk nie je k dispoz\u00edcii.
 
 no interface expected here
 Na tomto mieste nie je o\u010dak\u00e1van\u00e9 rozhranie.
-\u00a0
+ 
 Pok\u00fa\u0161ate sa pou\u017ei\u0165 rozhranie (napr\u00edklad za k\u013e\u00fa\u010dov\u00fdm
 slovom \u201eextends\u201c pri deklar\u00e1cii triedy). Trieda
-m\u00f4\u017ee by\u0165 odvoden\u00e1 len z\u00a0inej triedy, nie z\u00a0rozhrania.
+m\u00f4\u017ee by\u0165 odvoden\u00e1 len z inej triedy, nie z rozhrania.
 Ak chcete implementova\u0165 (o\u017eivi\u0165) toto rozhranie
 mus\u00edte namiesto slova \u201eextends\u201c (\u201eroz\u0161iruje\u201c, t.j.
 \u201eded\u00ed\u201c, resp. \u201eje odvoden\u00e1 z\u201c) pou\u017ei\u0165 slovo
 \u201eimplements\u201c (\u201eimplementuje\u201c, t.j. \u201eo\u017eivuje\u201c).
 
 {0} has no match in entry in {1}; required {2}
-\u00ab\u2026\u00bb nie je zhodn\u00e9 so \u017eiadnou polo\u017ekou v\u00a0\u00ab\u2026\u00bb; je po\u017eadovan\u00e9 \u00ab\u2026\u00bb
-\u00a0
-Podrobnej\u0161\u00ed pomocn\u00edk nie je k\u00a0dispoz\u00edcii.
+\u00ab\u2026\u00bb nie je zhodn\u00e9 so \u017eiadnou polo\u017ekou v \u00ab\u2026\u00bb; je po\u017eadovan\u00e9 \u00ab\u2026\u00bb
+ 
+Podrobnej\u0161\u00ed pomocn\u00edk nie je k dispoz\u00edcii.
 
 * is not defined in a public class or interface; cannot be accessed from outside package
-\u00ab\u2026\u00bb nie je definovan\u00e9 vo verejnej triede alebo rozhran\u00ed; pr\u00edstup k\u00a0nemu je zvonka bal\u00ed\u010dka je zamietnut\u00fd.
-\u00a0
-Podrobnej\u0161\u00ed pomocn\u00edk nie je k\u00a0dispoz\u00edcii.
+\u00ab\u2026\u00bb nie je definovan\u00e9 vo verejnej triede alebo rozhran\u00ed; pr\u00edstup k nemu je zvonka bal\u00ed\u010dka je zamietnut\u00fd.
+ 
+Podrobnej\u0161\u00ed pomocn\u00edk nie je k dispoz\u00edcii.
 
 * cannot be accessed from outside package
 \u00ab\u2026\u00bb nie je dostupn\u00e9 zvonka bal\u00ed\u010dka.
-\u00a0
+ 
 Trieda, ktor\u00fa ste sa pok\u00fasili pou\u017ei\u0165, nie je
 verejn\u00e1. To znamen\u00e1, \u017ee jej defin\u00edcia neza\u010d\u00edna:
     public class \u2026
 Triedy, ktor\u00e9 nie s\u00fa verejn\u00e9, nie s\u00fa zvonka
 bal\u00ed\u010dka dostupn\u00e9. Ak chcete skuto\u010dne pou\u017ei\u0165
 triedu zvonka bal\u00ed\u010dka, mus\u00edte zmeni\u0165 jej defin\u00edciu
-a\u00a0deklarova\u0165 ju ako verejn\u00fa.
+a deklarova\u0165 ju ako verejn\u00fa.
 
 not a loop label: *
 Toto nie je menovka cyklu: \u00ab\u2026\u00bb
-\u00a0
-Menovka, na ktor\u00fa ste sa odvolali v\u00a0tele cyklu napr\u00edklad
+ 
+Menovka, na ktor\u00fa ste sa odvolali v tele cyklu napr\u00edklad
 nasledovn\u00fdm sp\u00f4sobom:
     continue \u00abmenovka\u00bb;
-nebola definovan\u00e1 tak, aby mohla by\u0165 pou\u017eit\u00e1 v\u00a0tele cyklu.
-Na to, aby menovka mohla by\u0165 pou\u017eit\u00e1 v\u00a0tele cyklu,
+nebola definovan\u00e1 tak, aby mohla by\u0165 pou\u017eit\u00e1 v tele cyklu.
+Na to, aby menovka mohla by\u0165 pou\u017eit\u00e1 v tele cyklu,
 mus\u00ed by\u0165 umiestnen\u00e1 tesne pred za\u010diatkom cyklu. Menovka,
 ktor\u00fa ste pou\u017eili, nie je spr\u00e1vne umiestnen\u00e1 \u2013 neozna\u010duje
 cyklus.
 
 not a statement
 Toto nie je pr\u00edkaz.
-\u00a0
+ 
 Nap\u00edsali ste riadok k\u00f3du, ktor\u00fd nie je \u00fapln\u00fdm
-pr\u00edkazom. Overte tento riadok k\u00f3du a\u00a0zv\u00e1\u017ete, \u010do
-ste mali v\u00a0\u00famysle nap\u00edsa\u0165.
+pr\u00edkazom. Overte tento riadok k\u00f3du a zv\u00e1\u017ete, \u010do
+ste mali v \u00famysle nap\u00edsa\u0165.
 
 not an enclosing class:*
 Toto nie je nadraden\u00e1 trieda: \u00ab\u2026\u00bb
-\u00a0
-Pok\u00fasili ste sa prist\u00fapi\u0165 k\u00a0aktu\u00e1lnemu objektu inej triedy
-(cez k\u013e\u00fa\u010dov\u00e9 slovo \u201ethis\u201c), ktor\u00e1 je definovan\u00e1 zvonka tejto
-triedy (mimo nej). Pou\u017eitie tohto objektu je dovolen\u00e9 len pre
-triedy, ktor\u00e9 s\u00fa nadraden\u00e9 tejto triede, to znamen\u00e1 pre triedy,
-vo vn\u00fatri ktor\u00fdch je definovan\u00e1 t\u00e1to trieda. (In\u00fdmi slovami,
-pomocou \u201ethis\u201c m\u00f4\u017eete pristupova\u0165 nanajv\u00fd\u0161 k\u00a0triedam, ktor\u00e9
-\u201eoba\u013euj\u00fa\u201c t\u00fato triedu, ale k\u00a0\u017eiadnym in\u00fdm.)
+ 
+Pok\u00fasili ste sa prist\u00fapi\u0165 k aktu\u00e1lnemu objektu inej triedy (cez
+k\u013e\u00fa\u010dov\u00e9 slovo \u201ethis\u201c), ktor\u00e1 je definovan\u00e1 zvonka tejto triedy
+(mimo nej). Tak\u00e9to pou\u017eitie tohto k\u013e\u00fa\u010dov\u00e9ho slova je dovolen\u00e9
+len triedam, ktor\u00e9 s\u00fa priamo nadraden\u00e9 tejto triede. To znamen\u00e1
+len triedam, vo vn\u00fatri ktor\u00fdch je definovan\u00e1 t\u00e1to trieda. (In\u00fdmi
+slovami, pomocou \u201ethis\u201c m\u00f4\u017eete pristupova\u0165 nanajv\u00fd\u0161 k triedam,
+ktor\u00e9 t\u00fato triedu \u201eoba\u013euj\u00fa\u201c. K \u017eiadnym in\u00fdm.)
 
 * cannot be applied to *
 \u00ab\u2026\u00bb nem\u00f4\u017ee by\u0165 pou\u017eit\u00e9 na \u00ab\u2026\u00bb.
-\u00a0
+ 
 Oper\u00e1tor, ktor\u00fd ste na tomto mieste pou\u017eili, nem\u00f4\u017ee by\u0165
-pou\u017eit\u00fd pre hodnoty toho \u00fadajov\u00e9ho typu, na ktor\u00fd sa ho
-pok\u00fa\u0161ate aplikova\u0165. Bu\u010f ste pou\u017eili nespr\u00e1vny \u00fadajov\u00fd typ,
+pou\u017eit\u00fd na hodnoty tohto \u00fadajov\u00e9ho typu (na ktor\u00fd sa ho
+pok\u00fa\u0161ate aplikova\u0165). Bu\u010f ste pou\u017eili nespr\u00e1vny \u00fadajov\u00fd typ,
 alebo nespr\u00e1vny oper\u00e1tor.
 
 * clashes with class of same name
-\u00ab\u2026\u00bb je v\u00a0rozpore s\u00a0triedou s\u00a0rovnak\u00fdm menom.
-\u00a0
-Uistite sa, \u017ee n\u00e1zvy tejto triedy a\u00a0aktu\u00e1lneho bal\u00ed\u010dka
+\u00ab\u2026\u00bb je v rozpore s triedou s rovnak\u00fdm n\u00e1zvom.
+ 
+Uistite sa, \u017ee n\u00e1zvy tejto triedy a aktu\u00e1lneho bal\u00ed\u010dka
 s\u00fa rozdielne. Obvykle je zau\u017e\u00edvan\u00e9, \u017ee n\u00e1zvy tried
-za\u010d\u00ednaj\u00fa ve\u013ek\u00fdmi p\u00edsmenami a\u00a0n\u00e1zvy bal\u00ed\u010dkov za\u010d\u00ednaj\u00fa
+za\u010d\u00ednaj\u00fa ve\u013ek\u00fdmi p\u00edsmenami a n\u00e1zvy bal\u00ed\u010dkov za\u010d\u00ednaj\u00fa
 mal\u00fdmi p\u00edsmenami.
 
 possible fall-through into case
 Hroz\u00ed vykonanie viacer\u00fdch vetiev naraz!
-\u00a0
+ 
 Ak neuzatvor\u00edte ka\u017ed\u00fa vetvu (\u201ecase\u201c) \u0161trukt\u00fary \u201eswitch\u201c
 pr\u00edkazom \u201ebreak\u201c, je mo\u017en\u00e9, \u017ee bude vo va\u0161om programe
 vykonan\u00fdch nieko\u013eko vetiev naraz, \u010do je vo v\u00e4\u010d\u0161ine pr\u00edpadov
@@ -636,68 +635,68 @@ vetvy uvies\u0165 k\u013e\u00fa\u010dov\u00e9 slovo \u201ebreak\u201c!
 
 error reading *
 Nastala chyba pri \u010d\u00edtan\u00ed \u00ab\u2026\u00bb
-\u00a0
-Podrobnej\u0161\u00ed pomocn\u00edk nie je k\u00a0dispoz\u00edcii.
+ 
+Podrobnej\u0161\u00ed pomocn\u00edk nie je k dispoz\u00edcii.
 
 recursive constructor invocation
 Vzniklo rekurz\u00edvne volanie kon\u0161truktora.
-\u00a0
+ 
 Telo kon\u0161truktora obsahuje rekurz\u00edvne volanie
 seba sam\u00e9ho. Toto nie je povolen\u00e9 (preto\u017ee by
-to v\u00a0drvivej v\u00e4\u010d\u0161ine pr\u00edpadov viedlo k\u00a0nekone\u010dn\u00e9mu
+to v drvivej v\u00e4\u010d\u0161ine pr\u00edpadov viedlo k nekone\u010dn\u00e9mu
 cyklu).
 
 * is ambiguous, both *
 \u00ab\u2026\u00bb je nejednozna\u010dn\u00e9, obe s\u00fa \u00ab\u2026\u00bb
-\u00a0
-Identifik\u00e1tor uveden\u00fd v\u00a0tejto spr\u00e1ve nem\u00f4\u017ee by\u0165 spr\u00e1vne
-rozpoznan\u00fd, preto\u017ee v\u00a0bal\u00ed\u010dkoch, ktor\u00e9 ste importovali,
-je definovan\u00fdch viacero tried alebo rozhran\u00ed s\u00a0rovnak\u00fdmi
+ 
+Identifik\u00e1tor uveden\u00fd v tejto spr\u00e1ve nem\u00f4\u017ee by\u0165 spr\u00e1vne
+rozpoznan\u00fd, preto\u017ee v bal\u00ed\u010dkoch, ktor\u00e9 ste importovali,
+je definovan\u00fdch viacero tried alebo rozhran\u00ed s rovnak\u00fdmi
 n\u00e1zvami. Odvol\u00e1vajte sa na uveden\u00fa triedu \u00fapln\u00fdm n\u00e1zvom
-(v\u00a0tvare napr.: \u201ejava.util.List\u201c), alebo importujte triedu
+(v tvare napr.: \u201ejava.util.List\u201c), alebo importujte triedu
 pod jej \u00fapln\u00fdm n\u00e1zvom (napr\u00edklad \u201eimport java.util.List\u201c).
 
 repeated interface
 Duplik\u00e1t rozhrania.
-\u00a0
-Uviedli ste dva kr\u00e1t to ist\u00e9 rozhranie
-v\u00a0tej istej deklar\u00e1cii \u201eimplements\u201c. Raz
+ 
+Uviedli ste dvakr\u00e1t to ist\u00e9 rozhranie
+v tej istej deklar\u00e1cii \u201eimplements\u201c. Raz
 \u00faplne sta\u010d\u00ed. Moja pam\u00e4\u0165 nie je a\u017e tak\u00e1 zl\u00e1!
 
 repeated modifier
 Opakovan\u00fd v\u00fdskyt modifik\u00e1tora.
-\u00a0
-V\u00a0tejto deklar\u00e1cii je opakovane uveden\u00fd ten ist\u00fd
+ 
+V tejto deklar\u00e1cii je opakovane uveden\u00fd ten ist\u00fd
 modifik\u00e1tor. Modifik\u00e1tory s\u00fa k\u013e\u00fa\u010dov\u00e9 slov\u00e1 ako
 \u201efinal\u201c, \u201estatic\u201c, \u201epublic\u201c, \u201eprivate\u201c, \u201evolatile\u201c\u2026
 
 {0} has {1} access in {2}
-\u00ab\u2026\u00bb m\u00e1 \u00ab\u2026\u00bb pr\u00edstup v\u00a0\u00ab\u2026\u00bb
-\u00a0
-Podrobnej\u0161\u00ed pomocn\u00edk nie je k\u00a0dispoz\u00edcii.
+\u00ab\u2026\u00bb m\u00e1 \u00ab\u2026\u00bb pr\u00edstup v \u00ab\u2026\u00bb
+ 
+Podrobnej\u0161\u00ed pomocn\u00edk nie je k dispoz\u00edcii.
 
 return outside method
 Bol n\u00e1jden\u00fd \u201ereturn\u201c mimo met\u00f3dy.
-\u00a0
+ 
 Pr\u00edkaz \u201ereturn\u201c smie by\u0165 pou\u017eit\u00fd len vo vn\u00fatri
-met\u00f3d. Nesmie sa vyskytn\u00fa\u0165 v\u00a0inicializa\u010dnom bloku
+met\u00f3d. Nesmie sa vyskytn\u00fa\u0165 v inicializa\u010dnom bloku
 ani \u017eiadnej inej \u010dasti zdrojov\u00e9ho k\u00f3du.
 
 signature does not match {0}; incompatible interfaces
 Ozna\u010denie nezodpoved\u00e1 \u00ab\u2026\u00bb; nekompatibiln\u00e9 rozhranie.
-\u00a0
-Podrobnej\u0161\u00ed pomocn\u00edk nie je k\u00a0dispoz\u00edcii.
+ 
+Podrobnej\u0161\u00ed pomocn\u00edk nie je k dispoz\u00edcii.
 
 signature does not match {0}; incompatible supertype
 Ozna\u010denie nezodpoved\u00e1 \u00ab\u2026\u00bb; nekompatibiln\u00e1 rodi\u010dovsk\u00e1 trieda.
-\u00a0
-Podrobnej\u0161\u00ed pomocn\u00edk nie je k\u00a0dispoz\u00edcii.
+ 
+Podrobnej\u0161\u00ed pomocn\u00edk nie je k dispoz\u00edcii.
 
 * should be declared abstract; it does not define *
 \u00ab\u2026\u00bb by malo by\u0165 deklarovan\u00e9 ako abstraktn\u00e9; preto\u017ee nedefinuje \u00ab\u2026\u00bb.
-\u00a0
-Aktu\u00e1lna trieda je odvoden\u00e1 z\u00a0abstraktnej triedy alebo
-rozhrania. Abstraktn\u00e9 triedy a\u00a0rozhrania definuj\u00fa met\u00f3dy
+ 
+Aktu\u00e1lna trieda je odvoden\u00e1 z abstraktnej triedy alebo
+rozhrania. Abstraktn\u00e9 triedy a rozhrania definuj\u00fa met\u00f3dy
 bez ich implement\u00e1cie. Implement\u00e1cia je ponechan\u00e1 na
 odvoden\u00e9 triedy. Ke\u010f\u017ee t\u00e1to trieda neimplementovala v\u0161etky
 doteraz abstraktn\u00e9 met\u00f3dy, zost\u00e1va na\u010falej abstraktnou!
@@ -709,10 +708,10 @@ namiesto:
     public class \u2026
 
 * is not abstract and does not override abstract method *
-\u00ab\u2026\u00bb nie je abstraktn\u00e1 a\u00a0nepre\u0165a\u017euje abstraktn\u00e9 met\u00f3dy \u00ab\u2026\u00bb.
-\u00a0
-Aktu\u00e1lna trieda je odvoden\u00e1 z\u00a0abstraktnej triedy alebo
-rozhrania. Abstraktn\u00e9 triedy a\u00a0rozhrania definuj\u00fa met\u00f3dy
+\u00ab\u2026\u00bb nie je abstraktn\u00e1 a nepre\u0165a\u017euje abstraktn\u00e9 met\u00f3dy \u00ab\u2026\u00bb.
+ 
+Aktu\u00e1lna trieda je odvoden\u00e1 z abstraktnej triedy alebo
+rozhrania. Abstraktn\u00e9 triedy a rozhrania definuj\u00fa met\u00f3dy
 bez ich implement\u00e1cie. Implement\u00e1cia je ponechan\u00e1 na
 odvoden\u00e9 triedy. Ke\u010f\u017ee t\u00e1to trieda neimplementovala v\u0161etky
 doteraz abstraktn\u00e9 met\u00f3dy, zost\u00e1va na\u010falej abstraktnou!
@@ -725,12 +724,12 @@ namiesto:
 
 error writing source; cannot overwrite input file *
 Chyba pri z\u00e1pise zdrojov\u00e9ho k\u00f3du; nie je mo\u017en\u00e9 prep\u00edsa\u0165 vstupn\u00fd s\u00fabor \u00ab\u2026\u00bb
-\u00a0
-Podrobnej\u0161\u00ed pomocn\u00edk nie je k\u00a0dispoz\u00edcii.
+ 
+Podrobnej\u0161\u00ed pomocn\u00edk nie je k dispoz\u00edcii.
 
 'try' without 'catch' or 'finally'
 Bola n\u00e1jden\u00e1 kon\u0161trukcia \u201etry\u201c bez prisl\u00fachaj\u00faceho \u201ecatch\u201c alebo \u201efinally\u201c.
-\u00a0
+ 
 Ako pou\u017eijete \u0161trukt\u00faru \u201etry\u201c, mus\u00edte zabezpe\u010di\u0165, aby bola
 nasledovan\u00e1 blokom \u201ecatch\u201c alebo \u201efinally\u201c (pr\u00edpadne oboma).
 Spr\u00e1vny z\u00e1pis kompletnej \u0161trukt\u00fary je nasledovn\u00fd:
@@ -746,58 +745,58 @@ Spr\u00e1vny z\u00e1pis kompletnej \u0161trukt\u00fary je nasledovn\u00fd:
 
 * does not take parameters
 \u00ab\u2026\u00bb neprij\u00edma parametre.
-\u00a0
+ 
 Pou\u017eit\u00fd \u00fadajov\u00fd typ nie je parametrizovan\u00fd,
 nedok\u00e1\u017ee prij\u00edma\u0165 parametre.
 
 wrong number of type arguments; required *
 Nespr\u00e1vny po\u010det primit\u00edvnych argumentov; po\u017eadovan\u00fdch: \u00ab\u2026\u00bb
-\u00a0
-Podrobnej\u0161\u00ed pomocn\u00edk nie je k\u00a0dispoz\u00edcii.
+ 
+Podrobnej\u0161\u00ed pomocn\u00edk nie je k dispoz\u00edcii.
 
 type variable {0} occurs more than once in result type of {1}; cannot be left uninstantiated
 Premenn\u00e1 primit\u00edvneho typu \u00ab\u2026\u00bb sa vyskytla viac ne\u017e raz pri v\u00fdsledku typu \u00ab\u2026\u00bb; toto nesmie zosta\u0165 bez vytvorenia novej in\u0161tancie.
-\u00a0
-Podrobnej\u0161\u00ed pomocn\u00edk nie je k\u00a0dispoz\u00edcii.
+ 
+Podrobnej\u0161\u00ed pomocn\u00edk nie je k dispoz\u00edcii.
 
 type variable {0} occurs more than once in type of {1}; cannot be left uninstantiated
 Premenn\u00e1 primit\u00edvneho typu \u00ab\u2026\u00bb sa vyskytla viac ne\u017e raz pri type \u00ab\u2026\u00bb; toto nesmie zosta\u0165 bez vytvorenia novej in\u0161tancie.
-\u00a0
-Podrobnej\u0161\u00ed pomocn\u00edk nie je k\u00a0dispoz\u00edcii.
+ 
+Podrobnej\u0161\u00ed pomocn\u00edk nie je k dispoz\u00edcii.
 
 unclosed character literal
 Neuzatvoren\u00fd znakov\u00fd liter\u00e1l.
-\u00a0
+ 
 Pravdepodobne ste deklarovali znakov\u00fd liter\u00e1l
-a\u00a0nezadali ste uzatv\u00e1raj\u00faci apostrof: '
+a nezadali ste uzatv\u00e1raj\u00faci apostrof: '
 
 unclosed comment
 Neuzatvoren\u00fd koment\u00e1r.
-\u00a0
+ 
 Pravdepodobne ste za\u010dali p\u00edsa\u0165 koment\u00e1r
-a\u00a0neuviedli ste znaky ukon\u010duj\u00face koment\u00e1re: */
+a neuviedli ste znaky ukon\u010duj\u00face koment\u00e1re: */
 
 unclosed string literal
 Neuzatvoren\u00fd re\u0165azcov\u00fd liter\u00e1l.
-\u00a0
+ 
 Pravdepodobne ste deklarovali re\u0165azcov\u00fd liter\u00e1l,
-ktor\u00fd za\u010d\u00edna \u00favodzovkami " a\u00a0zabudli ste ho ukon\u010di\u0165
+ktor\u00fd za\u010d\u00edna \u00favodzovkami " a zabudli ste ho ukon\u010di\u0165
 rovnak\u00fdmi \u00favodzovkami ". Re\u0165azec mus\u00ed kon\u010di\u0165 na
 rovnakom riadku ako za\u010d\u00edna.
 
 undefined label: *
 Nedefinovan\u00e1 menovka: \u00ab\u2026\u00bb
-\u00a0
+ 
 Menovka, na ktor\u00fa sa odvol\u00e1vate nebola n\u00e1jden\u00e1.
 Pravdepodobne ste pou\u017eili n\u00e1zov menovky, ktor\u00e1
-nebola definovan\u00e1 alebo nie je v\u00a0zornom poli
-aktu\u00e1lneho cyklu. Skontrolujte preklepy v\u00a0n\u00e1zve
-menovky a\u00a0to, \u010di sa nach\u00e1dza pred za\u010diatkom
+nebola definovan\u00e1 alebo nie je v zornom poli
+aktu\u00e1lneho cyklu. Skontrolujte preklepy v n\u00e1zve
+menovky a to, \u010di sa nach\u00e1dza pred za\u010diatkom
 aktu\u00e1lneho cyklu.
 
 unreachable statement
 Pr\u00edkaz nie je dostupn\u00fd.
-\u00a0
+ 
 Tento pr\u00edkaz nebude nikdy vykonan\u00fd. Ak si pozorne
 prezriete zdrojov\u00fd k\u00f3d, zist\u00edte, \u017ee tento pr\u00edkaz
 je uveden\u00fd na mieste, kde nebude nikdy vykonan\u00fd
@@ -807,19 +806,19 @@ nepotrebujete, alebo opravte zdrojov\u00fd k\u00f3d.
 
 initializer must be able to complete normally
 Inicializ\u00e1tor mus\u00ed ma\u0165 mo\u017enos\u0165 korektn\u00e9ho skon\u010denia.
-\u00a0
+ 
 Nem\u00f4\u017eete generova\u0165 v\u00fdnimky alebo inak ukon\u010dova\u0165
 statick\u00e9 inicializ\u00e1tory. Mus\u00edte im umo\u017eni\u0165 aspo\u0148
 jedn\u00fdm sp\u00f4sobom korektne dokon\u010di\u0165 svoju \u010dinnos\u0165.
 
 * must be caught or declared to be thrown
-\u00ab\u2026\u00bb mus\u00ed by\u0165 zachyten\u00e1 v\u00a0tejto met\u00f3de, alebo mus\u00ed by\u0165 t\u00e1to met\u00f3da deklarovan\u00e1 tak, aby mohla v\u00fdnimku generova\u0165.
-\u00a0
+\u00ab\u2026\u00bb mus\u00ed by\u0165 zachyten\u00e1 v tejto met\u00f3de, alebo mus\u00ed by\u0165 t\u00e1to met\u00f3da deklarovan\u00e1 tak, aby mohla v\u00fdnimku generova\u0165.
+ 
 Telo tejto met\u00f3dy obsahuje volanie inej met\u00f3dy, ktor\u00e1
 m\u00f4\u017ee vygenerova\u0165 v\u00fdnimku. V\u00fdnimky musia by\u0165 o\u0161etren\u00e9.
 M\u00e1te dve mo\u017enosti ako napravi\u0165 tento nedostatok: bu\u010f
 v\u00fdnimku na tomto mieste zachyt\u00edte, alebo deklarujete
-t\u00fato met\u00f3du tak, aby mohla v\u00fdnimku generova\u0165 a\u00a0posla\u0165
+t\u00fato met\u00f3du tak, aby mohla v\u00fdnimku generova\u0165 a posla\u0165
 ju volaj\u00facej met\u00f3de. Ak chcete v\u00fdnimku zachyti\u0165,
 pou\u017eite \u0161trukt\u00faru:
   try 
@@ -833,106 +832,106 @@ pou\u017eite \u0161trukt\u00faru:
 Ak chcete deklarova\u0165 t\u00fato met\u00f3du tak, aby mohla v\u00fdnimku
 generova\u0165, pridajte do deklar\u00e1cie hlavi\u010dky:
     throws <ExceptionName>
-kde ExceptionName je meno v\u00fdnimky.
+kde ExceptionName je n\u00e1zov v\u00fdnimky.
 
 'void' type not allowed here
 Na tomto mieste nie je povolen\u00e9 pou\u017eitie \u201evoid\u201c.
-\u00a0
-V\u00a0tomto kontexte nie je povolen\u00e9 pou\u017eitie k\u013e\u00fa\u010dov\u00e9ho
+ 
+V tomto kontexte nie je povolen\u00e9 pou\u017eitie k\u013e\u00fa\u010dov\u00e9ho
 slova \u201evoid\u201c. Pou\u017eitie tohto k\u013e\u00fa\u010dov\u00e9ho slova je
 povolen\u00e9 len pri deklar\u00e1ci\u00e1ch met\u00f3d, ktor\u00e9 neposkytuj\u00fa
-n\u00e1vratov\u00fa hodnotu. Nem\u00f4\u017ee by\u0165 pou\u017eit\u00e9 pre ur\u010denie
+n\u00e1vratov\u00fa hodnotu. Nem\u00f4\u017ee by\u0165 pou\u017eit\u00e9 na ur\u010denie
 \u00fadajov\u00e9ho typu premennej.
 
 * not allowed here
 \u00ab\u2026\u00bb nie je na tomto mieste povolen\u00e9.
-\u00a0
-Pou\u017eili ste modifik\u00e1tor pre stanovenie pr\u00edstupov\u00fdch
+ 
+Pou\u017eili ste modifik\u00e1tor na stanovenie pr\u00edstupov\u00fdch
 pr\u00e1v (napr\u00edklad \u201eprivate\u201c, \u201eprotected\u201c at\u010f.). Tento
 modifik\u00e1tor nie je mo\u017en\u00e9 pou\u017ei\u0165 na tomto mieste
 zdrojov\u00e9ho k\u00f3du.
 
 * might already have been assigned to
 Do \u00ab\u2026\u00bb bola u\u017e pravdepodobne priraden\u00e1 hodnota.
-\u00a0
+ 
 Do fin\u00e1lnych premenn\u00fdch m\u00f4\u017ee by\u0165 priraden\u00e1 hodnota len raz.
-(A\u00a0premenn\u00e1, ktorej sa t\u00fdka t\u00e1to chyba je fin\u00e1lna \u2013 deklarovan\u00e1
-ako \u201efinal\u201c.) V\u00a0zdrojovom k\u00f3de sa vyskytli dve priradenia
-hodn\u00f4t do tejto premennej, kompil\u00e1tor ich na\u0161iel a\u00a0mysl\u00ed si,
-\u017ee by v\u00a0r\u00f4znom \u010dase mohlo d\u00f4js\u0165 ku spusteniu obidvoch, \u010do
+(A premenn\u00e1, ktorej sa t\u00fdka t\u00e1to chyba je fin\u00e1lna \u2013 deklarovan\u00e1
+ako \u201efinal\u201c.) V zdrojovom k\u00f3de sa vyskytli dve priradenia
+hodn\u00f4t do tejto premennej, kompil\u00e1tor ich na\u0161iel a mysl\u00ed si,
+\u017ee by v r\u00f4znom \u010dase mohlo d\u00f4js\u0165 ku spusteniu obidvoch, \u010do
 by sp\u00f4sobilo probl\u00e9m.
 
 * might not have been initialized
 \u00ab\u2026\u00bb pravdepodobne nebolo inicializovan\u00e9.
-\u00a0
+ 
 Pou\u017e\u00edvate lok\u00e1lnu premenn\u00fa, ktorej hodnota nebola
-inicializovan\u00e1, alebo nie je zaru\u010den\u00e9, \u017ee bude v\u00a0tomto
+inicializovan\u00e1, alebo nie je zaru\u010den\u00e9, \u017ee bude v tomto
 bode inicializovan\u00e1. Aby bolo pred\u00edden\u00e9 pochybnostiam,
 inicializujte premenn\u00fa pri jej deklar\u00e1cii.
 
 variable {0} might be assigned in loop
-Premenn\u00e1 \u00ab\u2026\u00bb pravdepodobne men\u00ed hodnotu v\u00a0cykle.
-\u00a0
-Je mo\u017en\u00e9, \u017ee ste v\u00a0cykle priradili hodnotu premennej, ktor\u00e1
+Premenn\u00e1 \u00ab\u2026\u00bb pravdepodobne men\u00ed hodnotu v cykle.
+ 
+Je mo\u017en\u00e9, \u017ee ste v cykle priradili hodnotu premennej, ktor\u00e1
 je fin\u00e1lna. Takejto premennej m\u00f4\u017ee by\u0165 priraden\u00e1 hodnota
-len raz. Len\u017ee ak vykon\u00e1te pr\u00edkaz priradenia pre fin\u00e1lnu
-premenn\u00fa v\u00a0cykle, toto pravidlo poru\u0161\u00edte\u2026
+len raz. Len\u017ee ak sk\u00fasite aplikova\u0165 pr\u00edkaz priradenia hodnoty
+do fin\u00e1lnej premennej v cykle, toto pravidlo poru\u0161\u00edte\u2026
 
 error while writing *
 Chyba pri z\u00e1pise \u00ab\u2026\u00bb.
-\u00a0
-Podrobnej\u0161\u00ed pomocn\u00edk nie je k\u00a0dispoz\u00edcii.
+ 
+Podrobnej\u0161\u00ed pomocn\u00edk nie je k dispoz\u00edcii.
 
 * is public, should be declared in a file named *
-\u00ab\u2026\u00bb je verejn\u00e9, malo by by\u0165 deklarovan\u00e9 v\u00a0s\u00fabore s\u00a0menom \u00ab\u2026\u00bb.
-\u00a0
-Je po\u017eadovan\u00e9, aby verejn\u00e9 triedy boli ulo\u017een\u00e9 v\u00a0s\u00faboroch
-nazvan\u00fdch rovnak\u00fdm menom ako sa sami volaj\u00fa, samozrejme
-s\u00a0pr\u00edponou s\u00faboru \u201e.java\u201c. Napr\u00edklad verejn\u00e1 trieda \u201enie\u010do\u201c
-m\u00e1 by\u0165 ulo\u017een\u00e1 v\u00a0s\u00fabore \u201enie\u010do.java\u201c.
+\u00ab\u2026\u00bb je verejn\u00e9, malo by by\u0165 deklarovan\u00e9 v s\u00fabore s n\u00e1zvom \u00ab\u2026\u00bb.
+ 
+Je po\u017eadovan\u00e9, aby verejn\u00e9 triedy boli ulo\u017een\u00e9 v s\u00faboroch
+nazvan\u00fdch rovnak\u00fdm n\u00e1zvom ako sa sami volaj\u00fa, samozrejme
+s pr\u00edponou s\u00faboru \u201e.java\u201c. Napr\u00edklad verejn\u00e1 trieda \u201enie\u010do\u201c
+m\u00e1 by\u0165 ulo\u017een\u00e1 v s\u00fabore \u201enie\u010do.java\u201c.
 
 cannot read: *
 Nie je mo\u017en\u00e9 \u010d\u00edta\u0165: \u00ab\u2026\u00bb
-\u00a0
-Podrobnej\u0161\u00ed pomocn\u00edk nie je k\u00a0dispoz\u00edcii.
+ 
+Podrobnej\u0161\u00ed pomocn\u00edk nie je k dispoz\u00edcii.
 
 * uses or overrides a deprecated API.
 \u00ab\u2026\u00bb pou\u017e\u00edva alebo pre\u0165a\u017euje zastaran\u00fa met\u00f3du API.
-\u00a0
+ 
 Pou\u017eili ste met\u00f3du, ktorej pou\u017e\u00edvanie nie je \u010falej
-odpor\u00fa\u010dan\u00e9. S\u00a0najv\u00e4\u010d\u0161ou pravdepodobnos\u0165ou existuje
+odpor\u00fa\u010dan\u00e9. S najv\u00e4\u010d\u0161ou pravdepodobnos\u0165ou jestvuje
 in\u00e1 met\u00f3da, ktor\u00e1 poskytuje rovnak\u00fa alebo podobn\u00fa
 funkcionalitu. Pre\u0161tudujte si aktu\u00e1lnu verziu
-dokument\u00e1cie API, kde m\u00f4\u017ee by\u0165 uveden\u00e9, ako a\u00a0akou
+dokument\u00e1cie API, kde m\u00f4\u017ee by\u0165 uveden\u00e9, ako a akou
 met\u00f3dou je mo\u017en\u00e9 nahradi\u0165 t\u00fato zastaran\u00fa met\u00f3du.
 
 * has been deprecated
 \u00ab\u2026\u00bb je zastaran\u00e1.
-\u00a0
+ 
 Pou\u017eili ste met\u00f3du, ktorej pou\u017e\u00edvanie nie je \u010falej
-odpor\u00fa\u010dan\u00e9. S\u00a0najv\u00e4\u010d\u0161ou pravdepodobnos\u0165ou existuje
+odpor\u00fa\u010dan\u00e9. S najv\u00e4\u010d\u0161ou pravdepodobnos\u0165ou jestvuje
 in\u00e1 met\u00f3da, ktor\u00e1 poskytuje rovnak\u00fa alebo podobn\u00fa
 funkcionalitu. Pre\u0161tudujte si aktu\u00e1lnu verziu
-dokument\u00e1cie API, kde m\u00f4\u017ee by\u0165 uveden\u00e9, ako a\u00a0akou
+dokument\u00e1cie API, kde m\u00f4\u017ee by\u0165 uveden\u00e9, ako a akou
 met\u00f3dou je mo\u017en\u00e9 nahradi\u0165 t\u00fato zastaran\u00fa met\u00f3du.
 
 ';' expected
 O\u010dak\u00e1van\u00e1 bodko\u010diarka.
-\u00a0
+ 
 Na konci riadka ch\u00fdba bodko\u010diarka. M\u00f4\u017ee to by\u0165 riadok,
 ktor\u00fd bol ozna\u010den\u00fd editorom, alebo riadok pred n\u00edm.
 
 'case', 'default' or '}' expected
 Na tomto mieste s\u00fa o\u010dak\u00e1van\u00e9 len \u201ecase\u201c, \u201edefault\u201c, alebo \u201e}\u201c.
-\u00a0
-\u0160trukt\u00fara \u201eswitch\u201c je zlo\u017een\u00e1 z\u00a0nieko\u013ek\u00fdch vetiev \u201ecase\u201c,
-jednej nepovinnej vetvy \u201edefault\u201c a\u00a0mus\u00ed by\u0165 uzavret\u00e1
+ 
+\u0160trukt\u00fara \u201eswitch\u201c je zlo\u017een\u00e1 z nieko\u013ek\u00fdch vetiev \u201ecase\u201c,
+jednej nepovinnej vetvy \u201edefault\u201c a mus\u00ed by\u0165 uzavret\u00e1
 z\u00e1tvorkou \u201e}\u201c. Nespr\u00e1vne zap\u00edsali niektor\u00fa vetvu, alebo
 ste \u0161trukt\u00faru \u201eswitch\u201c neuzavreli z\u00e1tvorkou \u201e}\u201c.
 
 'class' or 'interface' expected
 O\u010dak\u00e1van\u00e9 \u201eclass\u201c alebo \u201einterface\u201c.
-\u00a0
+ 
 Na za\u010diatku zdrojov\u00e9ho k\u00f3du s\u00fa o\u010dak\u00e1van\u00e9 slov\u00e1
 \u201eclass\u201c alebo \u201einterface\u201c. Bu\u010f tam nie s\u00fa,
 alebo je pred nimi uveden\u00e1 \u010das\u0165 k\u00f3du, ktor\u00e1 tam
@@ -940,12 +939,12 @@ nepatr\u00ed.
 
 '.class' expected
 Je o\u010dak\u00e1van\u00e9 \u201e.class\u201c.
-\u00a0
-Podrobnej\u0161\u00ed pomocn\u00edk nie je k\u00a0dispoz\u00edcii.
+ 
+Podrobnej\u0161\u00ed pomocn\u00edk nie je k dispoz\u00edcii.
 
 '(' or '[' expected
 Je o\u010dak\u00e1van\u00e1 \u201e(\u201c alebo \u201e[\u201c.
-\u00a0
+ 
 Zd\u00e1 sa, \u017ee na tomto mieste k\u00f3du je nep\u00e1rny
 po\u010det z\u00e1tvoriek, \u010do zmiatlo kompil\u00e1tor.
 Starostlivo skontrolujte p\u00e1rovanie z\u00e1tvoriek.
@@ -954,38 +953,38 @@ svoje prisl\u00fachaj\u00face zatvorenie.
 
 * expected
 Je o\u010dak\u00e1van\u00e9 \u00ab\u2026\u00bb.
-\u00a0
+ 
 Na tomto mieste zdrojov\u00e9ho k\u00f3du je o\u010dak\u00e1van\u00fd symbol
-uveden\u00fd v\u00a0chybovom hl\u00e1sen\u00ed. Namiesto toho sa tu
+uveden\u00fd v chybovom hl\u00e1sen\u00ed. Namiesto toho sa tu
 nach\u00e1dza nie\u010do in\u00e9. Pouva\u017eujte, \u010di to sem patr\u00ed
-a\u00a0pre\u010do by tu mal by\u0165 o\u010dak\u00e1van\u00fd uveden\u00fd symbol.
+a pre\u010do by tu mal by\u0165 o\u010dak\u00e1van\u00fd uveden\u00fd symbol.
 
 orphaned *
 Osamoten\u00e9 \u00ab\u2026\u00bb.
-\u00a0
-Podrobnej\u0161\u00ed pomocn\u00edk nie je k\u00a0dispoz\u00edcii.
+ 
+Podrobnej\u0161\u00ed pomocn\u00edk nie je k dispoz\u00edcii.
 
 cannot access *
-Nie je mo\u017en\u00e9 pristupova\u0165 k\u00a0\u00ab\u2026\u00bb.
-\u00a0
-Pravdepodobne sa sna\u017e\u00edte pristupova\u0165 k\u00a0met\u00f3de
-\u010di objektu, ktor\u00fd nie je z\u00a0tohto miesta vidite\u013en\u00fd.
-Naj\u010dastej\u0161\u00edm d\u00f4vodom je pokus a\u00a0pou\u017eitie premennej
-zvonka bloku, v\u00a0ktorom bola definovan\u00e1.
+Nie je mo\u017en\u00e9 pristupova\u0165 k \u00ab\u2026\u00bb.
+ 
+Pravdepodobne sa sna\u017e\u00edte pristupova\u0165 k met\u00f3de
+\u010di objektu, ktor\u00fd nie je z tohto miesta vidite\u013en\u00fd.
+Naj\u010dastej\u0161\u00edm d\u00f4vodom je pokus a pou\u017eitie premennej
+zvonka bloku, v ktorom bola definovan\u00e1.
 
 type parameter {0} is not within its bound *
-Parameter primit\u00edvneho typu \u00ab\u2026\u00bb nie je v\u00a0r\u00e1mci hran\u00edc \u00ab\u2026\u00bb.
-\u00a0
-Podrobnej\u0161\u00ed pomocn\u00edk nie je k\u00a0dispoz\u00edcii.
+Parameter primit\u00edvneho typu \u00ab\u2026\u00bb nie je v r\u00e1mci hran\u00edc \u00ab\u2026\u00bb.
+ 
+Podrobnej\u0161\u00ed pomocn\u00edk nie je k dispoz\u00edcii.
 
 type parameters of {0} cannot be determined
 Parameter primit\u00edvneho typu \u00ab\u2026\u00bb nem\u00f4\u017ee by\u0165 determinovan\u00fd.
-\u00a0
-Podrobnej\u0161\u00ed pomocn\u00edk nie je k\u00a0dispoz\u00edcii.
+ 
+Podrobnej\u0161\u00ed pomocn\u00edk nie je k dispoz\u00edcii.
 
 incompatible types*
 Tieto typy nie s\u00fa vz\u00e1jomne zlu\u010dite\u013en\u00e9: \u00ab\u2026\u00bb
-\u00a0
+ 
 Na tomto mieste zdrojov\u00e9ho k\u00f3du je o\u010dak\u00e1van\u00e1 hodnota
 ist\u00e9ho \u00fadajov\u00e9ho typu, ale je tu uveden\u00fd v\u00fdraz, ktor\u00fd
 poskytuje hodnotu in\u00e9ho \u00fadajov\u00e9ho typu.
@@ -994,19 +993,19 @@ premennej.)
 
 inconvertible types*
 Tieto typy nie je mo\u017en\u00e9 vz\u00e1jomne konvertova\u0165: \u00ab\u2026\u00bb
-\u00a0
+ 
 \u00dadajov\u00fd typ, ktor\u00fd ste pou\u017eili na tomto mieste
 nem\u00f4\u017ee by\u0165 automaticky konvertovan\u00fd na \u010fal\u0161\u00ed
 uveden\u00fd \u00fadajov\u00fd typ.
 
 possible loss of precision
 Hroz\u00ed strata presnosti hodnoty.
-\u00a0
-Podrobnej\u0161\u00ed pomocn\u00edk nie je k\u00a0dispoz\u00edcii.
+ 
+Podrobnej\u0161\u00ed pomocn\u00edk nie je k dispoz\u00edcii.
 
 unexpected type
 Neo\u010dak\u00e1van\u00fd \u00fadajov\u00fd typ.
-\u00a0
+ 
 Na tomto mieste zdrojov\u00e9ho k\u00f3du je o\u010dak\u00e1van\u00e1 hodnota
 ist\u00e9ho \u00fadajov\u00e9ho typu, ale je tu uveden\u00fd v\u00fdraz, ktor\u00fd
 poskytuje hodnotu in\u00e9ho \u00fadajov\u00e9ho typu.
@@ -1014,102 +1013,101 @@ poskytuje hodnotu in\u00e9ho \u00fadajov\u00e9ho typu.
 premennej.)
 
 abstract {0} {1} cannot be accessed directly
-Nem\u00f4\u017eete z\u00edska\u0165 priamy pr\u00edstup k\u00a0abstraktnej/\u00e9mu \u00ab\u2026\u00bb \u00ab\u2026\u00bb
-\u00a0
-Podrobnej\u0161\u00ed pomocn\u00edk nie je k\u00a0dispoz\u00edcii.
+Nem\u00f4\u017eete z\u00edska\u0165 priamy pr\u00edstup k abstraktnej/\u00e9mu \u00ab\u2026\u00bb \u00ab\u2026\u00bb
+ 
+Podrobnej\u0161\u00ed pomocn\u00edk nie je k dispoz\u00edcii.
 
 *An explicit 'this' qualifier must be used to select the desired instance.
 Ak chcete pou\u017ei\u0165 vybran\u00fa in\u0161tanciu, mus\u00edte pou\u017ei\u0165 k\u013e\u00fa\u010dov\u00e9 slovo \u201ethis\u201c.
-\u00a0
-Podrobnej\u0161\u00ed pomocn\u00edk nie je k\u00a0dispoz\u00edcii.
+ 
+Podrobnej\u0161\u00ed pomocn\u00edk nie je k dispoz\u00edcii.
 
 *cannot be referenced from a static context
-\u00ab\u2026\u00bb nem\u00f4\u017ee by\u0165 odkazovan\u00e9 v\u00a0statickom kontexte
-\u00a0
-Pok\u00fa\u0161ate sa pristupova\u0165 k\u00a0atrib\u00fatu alebo met\u00f3de
+\u00ab\u2026\u00bb nem\u00f4\u017ee by\u0165 odkazovan\u00e9 v statickom kontexte
+ 
+Pok\u00fa\u0161ate sa pristupova\u0165 k atrib\u00fatu alebo met\u00f3de
 zo statickej met\u00f3dy. To nie je povolen\u00e9. Atrib\u00faty
-a\u00a0met\u00f3dy patria akt\u00edvnemu objektu. V\u00a0statickej
+a met\u00f3dy patria akt\u00edvnemu objektu. V statickej
 met\u00f3de nie je predvolene akt\u00edvny \u017eiadny objekt.
-Statick\u00e9 met\u00f3dy m\u00f4\u017eu preto vola\u0165 v\u00a0r\u00e1mci objektu
+Statick\u00e9 met\u00f3dy m\u00f4\u017eu preto vola\u0165 v r\u00e1mci objektu
 len in\u00e9 statick\u00e9 met\u00f3dy (alebo m\u00f4\u017eu vyu\u017ei\u0165 na volanie
 explicitn\u00e9 zadan\u00fd objekt).
 
 cannot find symbol*
 Nedok\u00e1\u017eem n\u00e1js\u0165 symbol \u00ab\u2026\u00bb.
-\u00a0
-Na tomto mieste ste pou\u017eili symbol (meno premennej,
-met\u00f3dy alebo triedy), ktor\u00fd nebol definovan\u00fd v\u00a0r\u00e1mci
+ 
+Na tomto mieste ste pou\u017eili symbol (n\u00e1zov premennej,
+met\u00f3dy alebo triedy), ktor\u00fd nebol definovan\u00fd v r\u00e1mci
 aktu\u00e1lneho zorn\u00e9ho po\u013ea. Overte, \u010di je n\u00e1zov spr\u00e1vne
 zap\u00edsan\u00fd (preklepy, ve\u013ekos\u0165 p\u00edsmen). Overte, \u010di je
-symbol deklarovan\u00fd a\u00a0\u010di sa jeho deklar\u00e1cia nach\u00e1dza
-v\u00a0r\u00e1mci aktu\u00e1lneho zorn\u00e9ho po\u013ea (bloku, triedy\u2026).
+symbol deklarovan\u00fd a \u010di sa jeho deklar\u00e1cia nach\u00e1dza
+v r\u00e1mci aktu\u00e1lneho zorn\u00e9ho po\u013ea (bloku, triedy\u2026).
 
 cannot resolve symbol*
 Nedok\u00e1\u017eem rozl\u00fa\u0161ti\u0165 symbol \u00ab\u2026\u00bb.
-\u00a0
-Na tomto mieste ste pou\u017eili symbol (meno premennej,
-met\u00f3dy alebo triedy), ktor\u00fd nebol definovan\u00fd v\u00a0r\u00e1mci
+ 
+Na tomto mieste ste pou\u017eili symbol (n\u00e1zov premennej,
+met\u00f3dy alebo triedy), ktor\u00fd nebol definovan\u00fd v r\u00e1mci
 aktu\u00e1lneho zorn\u00e9ho po\u013ea. Overte, \u010di je n\u00e1zov spr\u00e1vne
 zap\u00edsan\u00fd (preklepy, ve\u013ekos\u0165 p\u00edsmen). Overte, \u010di je
-symbol deklarovan\u00fd a\u00a0\u010di sa jeho deklar\u00e1cia nach\u00e1dza
-v\u00a0r\u00e1mci aktu\u00e1lneho zorn\u00e9ho po\u013ea (bloku, triedy\u2026).
+symbol deklarovan\u00fd a \u010di sa jeho deklar\u00e1cia nach\u00e1dza
+v r\u00e1mci aktu\u00e1lneho zorn\u00e9ho po\u013ea (bloku, triedy\u2026).
 
 {0}; {1} and {2} are static
-\u00ab\u2026\u00bb; \u00ab\u2026\u00bb a\u00a0\u00ab\u2026\u00bb s\u00fa statick\u00e9.
-\u00a0
-Podrobnej\u0161\u00ed pomocn\u00edk nie je k\u00a0dispoz\u00edcii.
+\u00ab\u2026\u00bb; \u00ab\u2026\u00bb a \u00ab\u2026\u00bb s\u00fa statick\u00e9.
+ 
+Podrobnej\u0161\u00ed pomocn\u00edk nie je k dispoz\u00edcii.
 
 {0}; overridden method is {1}
 \u00ab\u2026\u00bb; pre\u0165a\u017een\u00e1 met\u00f3da je \u00ab\u2026\u00bb.
-\u00a0
-Podrobnej\u0161\u00ed pomocn\u00edk nie je k\u00a0dispoz\u00edcii.
+ 
+Podrobnej\u0161\u00ed pomocn\u00edk nie je k dispoz\u00edcii.
 
 * attempting to assign weaker access privileges; was *
 \u00ab\u2026\u00bb sa pok\u00fasilo priradi\u0165 ni\u017e\u0161ie pr\u00edstupov\u00e9 pr\u00e1va; boli \u00ab\u2026\u00bb.
-\u00a0
-Na tomto mieste ste sa pok\u00fasili pre\u0165a\u017ei\u0165 existuj\u00facu met\u00f3du
-a\u00a0zmeni\u0165 jej pr\u00edstupov\u00e9 pr\u00e1va (\u201eprivate\u201c, \u201eprotected\u201c, \u201epublic\u201c).
+ 
+Na tomto mieste ste sa pok\u00fasili pre\u0165a\u017ei\u0165 jestvuj\u00facu met\u00f3du
+a zmeni\u0165 jej pr\u00edstupov\u00e9 pr\u00e1va (\u201eprivate\u201c, \u201eprotected\u201c, \u201epublic\u201c).
 Zmena pr\u00edstupov\u00fdch pr\u00e1v je povolen\u00e1 len smerom nahor, to
 znamen\u00e1, \u017ee je mo\u017en\u00e9 len roz\u0161\u00edri\u0165 pr\u00edstup (napr\u00edklad
-z\u00a0\u201eprivate\u201c na \u201epublic\u201c), nie naopak (teda z\u00a0\u201epublic\u201c na
+z \u201eprivate\u201c na \u201epublic\u201c), nie naopak (teda z \u201epublic\u201c na
 \u201eprivate\u201c). Samozrejme, \u017ee je mo\u017en\u00e9 ponecha\u0165 rovnak\u00fa \u00farove\u0148
 pr\u00e1vomoc\u00ed.
 
 * overridden method does not throw *
 \u00ab\u2026\u00bb pre\u0165a\u017een\u00e1 met\u00f3da negeneruje v\u00fdnimku \u00ab\u2026\u00bb.
-\u00a0
-Pre\u0165a\u017eili ste met\u00f3du a\u00a0pok\u00fasili ste sa ju predefinova\u0165
-tak, aby v\u00a0nej mohol vznikn\u00fa\u0165 jeden typ v\u00fdnimky, ktor\u00fd
-v\u00a0p\u00f4vodnej met\u00f3de (odvodenej z\u00a0nadtriedy) nevznik\u00e1.
+ 
+Pre\u0165a\u017eili ste met\u00f3du a pok\u00fasili ste sa ju predefinova\u0165
+tak, aby v nej mohol vznikn\u00fa\u0165 jeden typ v\u00fdnimky, ktor\u00fd
+v p\u00f4vodnej met\u00f3de (odvodenej z nadtriedy) nevznik\u00e1.
 Pre\u0165a\u017een\u00e1 met\u00f3da smie generova\u0165 len tie typy v\u00fdnimiek,
 ktor\u00e9 generuje p\u00f4vodn\u00e1 met\u00f3da. Nemus\u00ed generova\u0165 v\u0161etky,
 p\u00f4vodn\u00e9 typy v\u00fdnimiek, nesmie v\u0161ak prid\u00e1va\u0165 \u010fal\u0161ie.
 
 * attempting to use incompatible return type
-\u00ab\u2026\u00bb sa pok\u00fa\u0161a vyu\u017ei\u0165 n\u00e1vratov\u00fd, ktor\u00fd s \u0148ou nie je zlu\u010dite\u013en\u00fd.
-\u00a0
-Podrobnej\u0161\u00ed pomocn\u00edk nie je k\u00a0dispoz\u00edcii.
+\u00ab\u2026\u00bb sa pok\u00fa\u0161a vyu\u017ei\u0165 n\u00e1vratov\u00fd k\u00f3d, ktor\u00fd s \u0148ou nie je zlu\u010dite\u013en\u00fd.
+ 
+Podrobnej\u0161\u00ed pomocn\u00edk nie je k dispoz\u00edcii.
 
 * is already defined in this compilation unit
-\u00ab\u2026\u00bb u\u017e bolo definovan\u00e9 v\u00a0tejto kompila\u010dnej jednotke.
-\u00a0
-Pou\u017eili ste dva kr\u00e1t to ist\u00e9 meno, preto mus\u00edte pre
-tento identifik\u00e1tor zvoli\u0165 in\u00e9 meno.
+\u00ab\u2026\u00bb u\u017e bolo definovan\u00e9 v tejto kompila\u010dnej jednotke.
+ 
+Pou\u017eili ste dvakr\u00e1t ten ist\u00fd n\u00e1zov. Zvo\u013ete in\u00fd n\u00e1zov
+(identifik\u00e1tor)\u2026!
 
 {0} is already defined in a single-type import
 \u00ab\u2026\u00bb u\u017e bolo definovan\u00e9 pri importe jednoduch\u00e9ho typu.
-\u00a0
-Podrobnej\u0161\u00ed pomocn\u00edk nie je k\u00a0dispoz\u00edcii.
+ 
+Podrobnej\u0161\u00ed pomocn\u00edk nie je k dispoz\u00edcii.
 
 * conflicts with a compiler-synthesized symbol in *
-\u00ab\u2026\u00bb je v\u00a0konflikte so symbolom vytvoren\u00fdm kompil\u00e1torom v\u00a0\u00ab\u2026\u00bb.
-\u00a0
-Podrobnej\u0161\u00ed pomocn\u00edk nie je k\u00a0dispoz\u00edcii.
+\u00ab\u2026\u00bb je v konflikte so symbolom vytvoren\u00fdm kompil\u00e1torom v \u00ab\u2026\u00bb.
+ 
+Podrobnej\u0161\u00ed pomocn\u00edk nie je k dispoz\u00edcii.
 
 reached end of file while parsing
 Po\u010das prekladu bol pred\u010dasne dosiahnut\u00fd koniec s\u00faboru.
-\u00a0
-To znamen\u00e1, \u017ee ste otvorili blok pou\u017eit\u00edm \u201e{\u201c a\u00a0zabudli
+ 
+To znamen\u00e1, \u017ee ste otvorili blok pou\u017eit\u00edm \u201e{\u201c a zabudli
 ste ho zavrie\u0165 \u201e}\u201c. Bu\u010f m\u00e1te niekde navy\u0161e \u201e{\u201c, alebo
 ste niekde zabudli uvies\u0165 \u201e}\u201c.
-

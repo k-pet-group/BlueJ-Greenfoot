@@ -1,15 +1,15 @@
 compile-while-executing
-Nem\u00f4\u017eete preklada\u0165, pokia\u013e be\u017e\u00ed virtu\u00e1lny
-stroj Javy. Mohli by nasta\u0165 nepredv\u00eddate\u013en\u00e9
+Nem\u00f4\u017eete preklada\u0165 po\u010das \u010dinnosti virtu\u00e1lneho
+stroja Javy. Mohli by nasta\u0165 nepredv\u00eddate\u013en\u00e9
 probl\u00e9my!
 
 exception-thrown
-Bola vyvolan\u00e1 v\u00fdnimka:
+Vznikla v\u00fdnimka:
 
 break-no-source
-Chod programu sa zastavil na bode preru\u0161enia
+\u010cinnos\u0165 programu sa zastavila na bode preru\u0161enia
 v s\u00fabore, ku ktor\u00e9mu nie je dostupn\u00fd zdrojov\u00fd
-k\u00f3d. Meno s\u00faboru:
+k\u00f3d. N\u00e1zov s\u00faboru:
 
 error-in-file
 Nastala chyba v s\u00fabore, ku ktor\u00e9mu nie je
@@ -17,10 +17,10 @@ dostupn\u00fd zdrojov\u00fd k\u00f3d.
 trieda: \u010d\u00edslo riadka:
 
 no-help
-Pre t\u00fato spr\u00e1vu nie je dostupn\u00fd pomocn\u00edk.
-Po\u0161lite, pros\u00edm, text tejto spr\u00e1vy s vysvetlen\u00edm
-na email rhorvath@truni.sk (ak viete po anglicky,
-tak s prekladom priamo na mik@bluej.org) \u2013 pomocn\u00edk
+Pre t\u00fato spr\u00e1vu nie je dostupn\u00fd pomocn\u00edk. Po\u0161lite,
+pros\u00edm, text tejto spr\u00e1vy s vysvetlen\u00edm na email
+rhorvath@truni.sk (ak viete po anglicky, tak
+anglick\u00fd preklad priamo na mik@bluej.org) \u2013 pomocn\u00edk
 bude pridan\u00fd do na\u0161ej datab\u00e1zy. \u010eakujeme.
 
 editor-crashed
@@ -39,7 +39,7 @@ cannot-run-compiler
 Preklada\u010d nie je mo\u017en\u00e9 spusti\u0165.
 Overte, \u010di je tento preklada\u010d
 dostupn\u00fd na syst\u00e9movej ceste.
-Meno preklada\u010da:
+N\u00e1zov preklada\u010da:
 
 compiler-error
 Chyba prekladu:
@@ -59,7 +59,7 @@ appletviewer-error
 Chyba pri sp\u00fa\u0161\u0165an\u00ed aplik\u00e1cie appletviewer.
 
 error-no-name
-Mus\u00edte zada\u0165 platn\u00e9 meno.
+Mus\u00edte zada\u0165 platn\u00fd n\u00e1zov.
 
 error-save-file
 Nastala chyba pri ukladan\u00ed s\u00faboru.
@@ -71,33 +71,18 @@ chyba. Zmeny neboli ulo\u017een\u00e9.
 
 error-no-templates
 Prie\u010dinok so \u0161abl\u00f3nami (prie\u010dinok, v ktorom BlueJ h\u013ead\u00e1
-\u0161abl\u00f3ny tried) neexistuje. Skontrolujte a opravte, pros\u00edm,
+\u0161abl\u00f3ny tried) nejestvuje. Skontrolujte a opravte, pros\u00edm,
 nastavenie polo\u017eky \u201ebluej.templatePath\u201c v s\u00fabore
 <bluej-home>/lib/bluej.defs.
 
 skeleton-error
 Nie je mo\u017en\u00e9 vygenerova\u0165 v\u00fdchodiskov\u00fa kostru tejto
-triedy. Bu\u010f je chyba v konfigur\u00e1cii BlueJ, alebo
+triedy. Bu\u010f je chyba v konfigur\u00e1cii BlueJa, alebo
 je s\u00fabor nedostupn\u00fd.
 
 error-open-source
 Zdrojov\u00fd k\u00f3d tejto triedy
 nie je mo\u017en\u00e9 otvori\u0165.
-
-error-open-readme
-Nepodarilo sa otvori\u0165 textov\u00e9 pozn\u00e1mky (README)
-pre tento projekt. Bol vytvoren\u00fd nov\u00fd s\u00fabor pre
-textov\u00e9 pozn\u00e1mky.
-
-error-writing-readme
-Do s\u00faboru README sa nepodarilo prida\u0165
-inform\u00e1cie o triede s met\u00f3dou main.
-Pri zmene s\u00faboru nastala chyba.
-
-error-exporting
-Nastala chyba pri exporte aplik\u00e1cie.
-Niektor\u00e9 s\u00fabory (mo\u017eno v\u0161etky)
-neboli spr\u00e1vne skop\u00edrovan\u00e9.
 
 error-writing-jar
 Z\u00e1pis do s\u00faboru jar zlyhal.
@@ -105,41 +90,41 @@ Skontrolujte pr\u00edstupov\u00e9 pr\u00e1va a vo\u013en\u00e9 miesto
 na disku.
 
 error-file-exists
-Zvolen\u00fd s\u00fabor existuje.
+Zvolen\u00fd s\u00fabor u\u017e jestvuje.
 Chcete ho prep\u00edsa\u0165?
 Prep\u00edsa\u0165
 Zru\u0161i\u0165
 null
 
 invalid-class-name
-Neplatn\u00e9 meno triedy.
+Neplatn\u00fd n\u00e1zov triedy.
 
 invalid-package-name
-Neplatn\u00e9 meno bal\u00ed\u010dka.
+Neplatn\u00fd n\u00e1zov bal\u00ed\u010dka.
 
 must-be-identifier
-Meno nie je platn\u00e9, preto\u017ee nevyhovuje
+N\u00e1zov nie je platn\u00fd, preto\u017ee nevyhovuje
 po\u017eiadavk\u00e1m kladen\u00fdm na identifik\u00e1tory
 jazyka Java.
 
 directory-exists
 S\u00fabor alebo prie\u010dinok s t\u00fdmto
-menom u\u017e existuje.
+n\u00e1zvom u\u017e jestvuje.
 
 cannot-create-directory
 Nie je mo\u017en\u00e9 vytvori\u0165 prie\u010dinok.
-Skontrolujte, \u010di ste zadali platn\u00e9 meno,
-\u010di existuje jeho nadraden\u00fd prie\u010dinok
-a \u010di nie je pre nadraden\u00fd prie\u010dinok
-nastaven\u00fd z\u00e1kaz z\u00e1pisu.
+Skontrolujte, \u010di ste zadali platn\u00fd n\u00e1zov,
+\u010di jestvuj\u00fa v\u0161etky nadraden\u00e9 prie\u010dinky
+a \u010di nie je zak\u00e1zan\u00e9 zapisovanie do
+nadraden\u00fdch prie\u010dinkov.
 
-cannot-copy-package
-Nastal probl\u00e9m pri kop\u00edrovan\u00ed s\u00faboru
-bal\u00ed\u010dka. Bal\u00ed\u010dek neexistuje alebo
-je nekompletn\u00fd.
+cannot-save-project
+Projekt nemohol by\u0165 ulo\u017een\u00fd do zadan\u00e9ho
+umiestnenia. Skontrolujte, \u010di m\u00e1te pr\u00edstupov\u00e9 pr\u00e1va
+na z\u00e1pis alebo zvo\u013ete in\u00e9 umiestnenie.
 
 file-does-not-exist
-Zadan\u00fd s\u00fabor neexistuje.
+Zadan\u00fd s\u00fabor nejestvuje.
 
 cannot-import
 Nem\u00f4\u017eem importova\u0165 s\u00fabor. S\u00fabor
@@ -147,18 +132,18 @@ mus\u00ed obsahova\u0165 zdrojov\u00fd k\u00f3d
 Javy a mus\u00ed ma\u0165 pr\u00edponu \u201e.java\u201c.
 
 docdir-blocked-by-file
-Prie\u010dinok pre dokument\u00e1ciu nebolo mo\u017en\u00e9 vytvori\u0165,
-preto\u017ee v prie\u010dinku projektu sa u\u017e nach\u00e1dza s\u00fabor
-s rovnak\u00fdm n\u00e1zvom.
+Prie\u010dinok na dokument\u00e1ciu nebolo mo\u017en\u00e9 vytvori\u0165,
+preto\u017ee v prie\u010dinku projektu sa nach\u00e1dza s\u00fabor,
+ktor\u00fd m\u00e1 rovnak\u00fd n\u00e1zov (pravdepodobne \u201edoc\u201c).
 
 docdir-not-created
-Prie\u010dinok pre dokument\u00e1ciu nemohol by\u0165
-v prie\u010dinku projektu vytvoren\u00fd.
+Prie\u010dinok na dokument\u00e1ciu nemohol by\u0165 vytvoren\u00fd
+v prie\u010dinku projektu.
 
 no-permission-for-docdir
 V prie\u010dinku projektu nem\u00f4\u017ee by\u0165 vytvoren\u00fd
-prie\u010dinok pre dokument\u00e1ciu.
-Nem\u00e1te dostato\u010dn\u00e9 opr\u00e1vnenia.
+prie\u010dinok na dokument\u00e1ciu. Nem\u00e1te dostato\u010dn\u00e9
+opr\u00e1vnenia.
 
 show-or-generate
 \u017del\u00e1te si zobrazi\u0165 skor\u0161ie vytvoren\u00fa dokument\u00e1ciu
@@ -169,30 +154,30 @@ Zru\u0161i\u0165
 
 doctool-error
 Javadoc nahl\u00e1sila chybu. Mo\u017eno je v niektorom zdrojovom
-s\u00fabore, pre ktor\u00fd ste chceli generova\u0165 dokument\u00e1ciu,
-syntaktick\u00e1 chyba. Je taktie\u017e mo\u017en\u00e9, \u017ee bola nastaven\u00e1
-nespr\u00e1vna cesta URL k dokument\u00e1cii JDK v nastaveniach BlueJ.
-Uistite sa, \u017ee s\u00fa v\u0161etky s\u00fabory prelo\u017een\u00e9 a overte nastavenie
-cesty URL k \u0161pecifik\u00e1cii Java API. Opakujte generovanie
-dokument\u00e1cie. Ak probl\u00e9my pretrv\u00e1vaj\u00fa, skontrolujte v\u00fdpis
-ch\u00fdb z Javadoc:
+s\u00fabore ur\u010denom na generovanie dokument\u00e1cie syntaktick\u00e1
+chyba. Je tie\u017e mo\u017en\u00e9, \u017ee bola nastaven\u00e1 nespr\u00e1vna cesta
+URL k dokument\u00e1cii JDK (v nastaveniach BlueJa). Uistite
+sa, \u017ee s\u00fa v\u0161etky s\u00fabory prelo\u017een\u00e9 a overte nastavenie
+cesty URL k dokument\u00e1cii Java API. Potom zopakujte
+pokus o generovanie dokument\u00e1cie. Ak probl\u00e9my pretrv\u00e1vaj\u00fa,
+skontrolujte v\u00fdpis ch\u00fdb z Javadoc:
 
 severe-doc-trouble
 Nastala v\u00fdnimka pri volan\u00ed extern\u00e9ho
-n\u00e1stroja pre tvorbu dokument\u00e1cie.
+n\u00e1stroja na tvorbu dokument\u00e1cie.
 
 no-java-sources-found
 V zadanom prie\u010dinku neboli n\u00e1jden\u00e9
 \u017eiadne zdrojov\u00e9 s\u00fabory Javy.
 
 duplicate-name
-Trieda alebo bal\u00ed\u010dek sa rovnak\u00fdm menom
-u\u017e v tomto projekte existuje. Nem\u00f4\u017eete ma\u0165
-dve triedy alebo bal\u00ed\u010dky sa rovnak\u00fdm n\u00e1zvom.
+Trieda alebo bal\u00ed\u010dek sa rovnak\u00fdm n\u00e1zvom u\u017e v tomto
+projekte jestvuje. V jednom projekte nem\u00f4\u017eu jestvova\u0165
+dve triedy alebo bal\u00ed\u010dky s rovnak\u00fdm n\u00e1zvom.
 
 class-library-conflict
-Trieda s t\u00fdmto menom u\u017e existuje v kni\u017enici
-"$".
+Trieda s tak\u00fdmto n\u00e1zvom u\u017e jestvuje v kni\u017enici
+$.
 Ak teraz vytvor\u00edte nov\u00fa, budete ju s\u00edce m\u00f4c\u0165 upravova\u0165
 aj preklada\u0165, ale nebudete m\u00f4c\u0165 vola\u0165 jej met\u00f3dy.
 Zru\u0161i\u0165
@@ -200,27 +185,27 @@ Pokra\u010dova\u0165
 null
 
 compile-class-library-conflict
-Trieda s t\u00fdmto menom u\u017e existuje v kni\u017enici
-"$".
+Trieda s tak\u00fdmto n\u00e1zvom u\u017e jestvuje v kni\u017enici
+$.
 T\u00fato triedu m\u00f4\u017eete upravova\u0165 aj preklada\u0165, ale pokus
 o volanie jej met\u00f3d spust\u00ed k\u00f3d z p\u00f4vodnej triedy v kni\u017enici.
 
 windows-reserved-class-name
-Zvolen\u00e9 meno triedy je nepou\u017eite\u013en\u00e9, preto\u017ee
-je v konflikte s rezervovan\u00fdm n\u00e1zvom s\u00faboru
-niektor\u00e9ho opera\u010dn\u00e9ho syst\u00e9mu.
+Zvolen\u00fd n\u00e1zov triedy je nepou\u017eite\u013en\u00fd, preto\u017ee je
+v konflikte s rezervovan\u00fdm n\u00e1zvom s\u00faboru niektor\u00e9ho
+z opera\u010dn\u00fdch syst\u00e9mov podporuj\u00facich Javu.
 
 error-in-import
 Pri pokuse o import nastala chyba. Skontrolujte
 pr\u00edstupov\u00e9 pr\u00e1va a miesto na disku.
 
 no-class-selected-compile
-Nebola vybran\u00e1 trieda pre preklad.
+Nebola vybran\u00e1 trieda na preklad.
 Pred spusten\u00edm prekladu vyberte
 triedu kliknut\u00edm na \u0148u.
 
 no-class-selected
-Nebolo ni\u010d vybran\u00e9 pre odstr\u00e1nenie.
+Nebolo ni\u010d vybran\u00e9 na odstr\u00e1nenie.
 Ak chcete odstr\u00e1ni\u0165 s\u00fabor alebo bal\u00ed\u010dek,
 najsk\u00f4r ho mus\u00edte ozna\u010di\u0165.
 
@@ -241,19 +226,19 @@ Zru\u0161i\u0165
 null
 
 remove-package-open
-Bal\u00ed\u010dek ur\u010den\u00fd pre odstr\u00e1nenie obsahuje
+Bal\u00ed\u010dek ur\u010den\u00fd na odstr\u00e1nenie obsahuje
 in\u00fd bal\u00ed\u010dek alebo bal\u00ed\u010dky, ktor\u00e9 s\u00fa otvoren\u00e9
-v BlueJ. Tieto bal\u00ed\u010dky musia by\u0165 najsk\u00f4r
+v BlueJi. Tieto bal\u00ed\u010dky musia by\u0165 najsk\u00f4r
 zatvoren\u00e9.
 
 package-does-not-exist
 Chyba pri otv\u00e1ran\u00ed bal\u00ed\u010dka.
-Bal\u00ed\u010dek neexistuje:
+Bal\u00ed\u010dek nejestvuje:
 
 no-bluej-package
 Chyba pri otv\u00e1ran\u00ed bal\u00ed\u010dka.
-S\u00fabor/prie\u010dinok nie je platn\u00fd BlueJ
-bal\u00ed\u010dek:
+S\u00fabor/prie\u010dinok nie je platn\u00fdm
+bal\u00ed\u010dekom BlueJa:
 
 applet-height-width
 Mus\u00ed by\u0165 zadan\u00e1 v\u00fd\u0161ka a \u0161\u00edrka apletu.
@@ -293,7 +278,7 @@ Zru\u0161i\u0165
 null
 
 open-non-bluej-already-bluej
-Vybran\u00fd prie\u010dinok u\u017e je projektom BlueJ.
+Vybran\u00fd prie\u010dinok u\u017e je projektom BlueJa.
 
 open-non-bluej-no-java
 V tomto prie\u010dinku neboli n\u00e1jden\u00e9
@@ -308,7 +293,7 @@ prie\u010dinkov.
 v tvare \u201ecom.aa\u201c, tak s\u00fabor \u201eTvar.java\u201c mus\u00ed by\u0165
 v prie\u010dinku \u201eaa\u201c, ktor\u00fd sa nach\u00e1dza v prie\u010dinku
 \u201ecom\u201c. Prie\u010dinok \u201ecom\u201c mus\u00ed by\u0165 v prie\u010dinku, ktor\u00fd
-je dostupn\u00fd pre prostredie BlueJ.)
+je dostupn\u00fd prostrediu BlueJ.)
 
 import-into-current
 V tomto okne u\u017e m\u00e1te otvoren\u00fd bal\u00ed\u010dek.
@@ -321,15 +306,15 @@ Zru\u0161i\u0165
 
 package-name-invalid
 Vo v\u00fdroku \u201epackage\u201c ste pou\u017eili bal\u00ed\u010dek,
-ktor\u00fd v tomto projekte neexistuje. Ak chcete
+ktor\u00fd v tomto projekte nejestvuje. Ak chcete
 presun\u00fa\u0165 t\u00fato triedu do in\u00e9ho bal\u00ed\u010dka, mus\u00edte
 ho najsk\u00f4r vytvori\u0165. V\u00fdrok \u201epackage\u201c bol
 vr\u00e1ten\u00fd do p\u00f4vodn\u00e9ho tvaru.
 
 package-name-clash
 Zmenili ste v\u00fdrok \u201epackage\u201c na n\u00e1zov bal\u00ed\u010dka
-alebo triedy, ktor\u00fd u\u017e existuje. V pr\u00edpade, \u017ee
-bola trieda presunut\u00e1, existuj\u00faca trieda alebo
+alebo triedy, ktor\u00fd u\u017e jestvuje. V pr\u00edpade, \u017ee
+bola trieda presunut\u00e1, jestvuj\u00faca trieda alebo
 bal\u00ed\u010dek by mohol by\u0165 prep\u00edsan\u00fd, preto bol v\u00fdrok
 \u201epackage\u201c vr\u00e1ten\u00fd do p\u00f4vodn\u00e9ho tvaru.
 
@@ -353,13 +338,8 @@ Zmeny, ktor\u00e9 ste vykonali v nastaveniach kni\u017en\u00edc,
 sa prejavia a\u017e po najbli\u017e\u0161om re\u0161tarte
 virtu\u00e1lneho stroja Javy.
 
-pref-optimise-no-effect
-Zmeny v nastaveniach virtu\u00e1lneho stroja sa prejavia
-len v projektoch, ktor\u00e9 otvor\u00edte po zadan\u00ed tejto zmeny
-(alebo po re\u0161tarte virtu\u00e1lneho stroja).
-
 unittest-new-test-method
-Zadajte meno testu! Potom bude
+Zadajte n\u00e1zov testu! Potom bude
 zah\u00e1jen\u00e9 zaznamen\u00e1vanie testu.
 N\u00e1zov testovacej met\u00f3dy
 null
@@ -369,9 +349,9 @@ Pri \u010d\u00edtan\u00ed zdrojov\u00e9ho s\u00faboru
 testu nastala chyba.
 
 getobject-new-name
-Vlo\u017ete meno pre nov\u00fd objekt
+Vlo\u017ete n\u00e1zov nov\u00e9ho objektu
 v z\u00e1sobn\u00edku objektov.
-Meno nov\u00e9ho objektu
+N\u00e1zov nov\u00e9ho objektu
 null
 
 unittest-fixture-present
@@ -417,6 +397,17 @@ parametre protokolu TCP/IP a \u010fal\u0161ie parametre pripojenia.
 Pre viac inform\u00e1ci\u00ed (anglicky) nav\u0161t\u00edvte str\u00e1nku:
 http://www.bluej.org/help/faq.html#socket-exc
 
+project-is-readonly
+Projekt je ur\u010den\u00fd len na \u010d\u00edtanie. Preto nem\u00f4\u017eete vytv\u00e1ra\u0165 objekty ani
+vola\u0165 met\u00f3dy.
+Pr\u00ed\u010dinou je bu\u010f nastavenie pr\u00edstupov\u00fdch pr\u00e1v k s\u00faborom v prie\u010dinku projektu
+na \u201eread-only\u201c (len na \u010d\u00edtanie), alebo umiestnenie s\u00faborov v s\u00faborovom
+syst\u00e9me, ktor\u00fd nepovo\u013euje z\u00e1pis (napr. CD-ROM). Ak chcete s projektom
+norm\u00e1lne pracova\u0165, mus\u00edte zabezpe\u010di\u0165, aby bol umiesten\u00fd na zariaden\u00ed
+umo\u017e\u0148uj\u00facom z\u00e1pis (najlep\u0161ie na pevnom disku) a aby ste mali pr\u00e1vo zapisova\u0165
+do dan\u00e9ho prie\u010dinka a do v\u0161etk\u00fdch s\u00faborov projektu. \u010casto sta\u010d\u00ed po zatvoren\u00ed
+tohto dial\u00f3gu zvoli\u0165 \u201eUlo\u017ei\u0165 ako\u2026\u201c z ponuky \u201eProjekt\u201c.
+
 project-is-virtualized
 Projekt bol virtualizovan\u00fd syst\u00e9mom Windows. Toto sa obvykle st\u00e1va,
 ke\u010f je projekt ulo\u017een\u00fd niekde v prie\u010dinku \u201eProgram Files\u201c.
@@ -435,7 +426,7 @@ CD-ROM) a aby ste mali pr\u00e1vo z\u00e1pisu do prie\u010dinka projektu a jeho
 s\u00faborov.
 
 jar-output-dir-exists
-Prie\u010dinok, do ktor\u00e9ho by chcete rozbali\u0165 arch\u00edv JAR, u\u017e existuje.
+Prie\u010dinok, do ktor\u00e9ho by chcete rozbali\u0165 arch\u00edv JAR, u\u017e jestvuje.
 Predt\u00fdm, ne\u017e po\u017eiadate o rozbalenie arch\u00edvu, mus\u00edte prie\u010dinok
 odstr\u00e1ni\u0165.
 
@@ -458,7 +449,7 @@ generic-file-save-error
 Pri pokuse o ulo\u017eenie s\u00faboru nastala chyba.
 
 empty-assertion-text
-Nezadali ste o\u010dak\u00e1van\u00fd v\u00fdsledok pre toto volanie met\u00f3dy.
+Nezadali ste o\u010dak\u00e1van\u00fd v\u00fdsledok na toto volanie met\u00f3dy.
 Bez neho nie je v\u00e1\u0161 test kompletn\u00fd a testovacia trieda
 nebude prelo\u017een\u00e1. Ste si ist\u00ed, \u017ee chcete pokra\u010dova\u0165 bez
 zadania v\u00fdslednej hodnoty?
@@ -496,22 +487,21 @@ preto ju pred pr\u00edpadn\u00fdm odoslan\u00edm zmien
 mus\u00edte aktualizova\u0165.
 
 team-cant-connect
-Pripojenie k serveru sa nepodarilo.
-V Nastaveniach pre t\u00edmov\u00fa pr\u00e1cu overte,
-\u017ee adresa serveru je korektn\u00e1.
+Nepodarilo sa pripoji\u0165 k serveru.
+V nastaveniach t\u00edmovej pr\u00e1ce overte,
+\u010di je zadan\u00e1 korektn\u00e1 adresa servera.
 
 team-project-exists
-Projekt u\u017e na serveri existuje.
-Mo\u017eno ste chceli pou\u017ei\u0165 n\u00e1stroj pre overenie,
-pre zistenie rozdielov. Ak nie, premenujte svoj
-projekt a odoslanie opakujte.
+Projekt u\u017e na serveri jestvuje. Mo\u017eno ste
+chceli pou\u017ei\u0165 n\u00e1stroj na overenie rozdielov.
+Ak nie, premenujte svoj projekt a proces
+opakujte.
 
 team-cant-find-path
-Cesta nebola na serveri n\u00e1jden\u00e1.
-To m\u00f4\u017ee by\u0165 zapr\u00ed\u010dinen\u00e9 neexistenciou zadanej
-skupiny \u010di projektu. V Nastaveniach pre t\u00edmov\u00fa
-pr\u00e1cu overte, \u010di s\u00fa skupina aj projekt spr\u00e1vne
-zadan\u00e9.
+Cesta nebola na serveri n\u00e1jden\u00e1. To m\u00f4\u017ee by\u0165
+zapr\u00ed\u010dinen\u00e9 nejestvovan\u00edm zadanej skupiny \u010di
+projektu. V nastaveniach t\u00edmovej pr\u00e1ce overte,
+\u010di je zadan\u00e1 spr\u00e1vna skupina aj projekt.
 
 team-cant-find-module
 Projekt nie je v \u00falo\u017eisku. Pred overen\u00edm
@@ -520,21 +510,21 @@ a ulo\u017een\u00fd do \u00falo\u017eiska.
 
 team-cant-find-repository
 \u00dalo\u017eisko nebolo n\u00e1jden\u00e9.
-V Nastaveniach pre t\u00edmov\u00fa pr\u00e1cu overte,
-\u010di s\u00fa nastavenia spr\u00e1vne.
+V nastaveniach t\u00edmovej pr\u00e1ce overte,
+\u010di s\u00fa zadan\u00e9 spr\u00e1vne \u00fadaje.
 
 team-empty-message
-Vznikla nezn\u00e1ma chyba. Skontrolujte
-nastavenia v Nastaveniach pre t\u00edmov\u00fa pr\u00e1cu.
+Vznikla nezn\u00e1ma chyba. Skontrolujte \u00fadaje
+zadan\u00e9 v nastaveniach t\u00edmovej pr\u00e1ce.
 
 team-invalid-cvsroot
-Neplatn\u00fd kore\u0148 CVS. Skontrolujte
-nastavenia v Nastaveniach pre t\u00edmov\u00fa pr\u00e1cu.
+Neplatn\u00fd kore\u0148 CVS. Skontrolujte \u00fadaje
+zadan\u00e9 v nastaveniach t\u00edmovej pr\u00e1ce.
 
 team-authentication-problem
-Server v\u00e1s odmietol prihl\u00e1si\u0165 (log in).
-V Nastaveniach pre t\u00edmov\u00fa pr\u00e1cu
-overte svoje pou\u017e\u00edvate\u013esk\u00e9 meno a heslo
+Server odmietol prihl\u00e1senie pou\u017e\u00edvate\u013ea.
+Overte pou\u017e\u00edvate\u013esk\u00e9 meno, heslo a \u00falo\u017eisko
+zadan\u00e9 v nastaveniach t\u00edmovej pr\u00e1ce.
 
 team-binary-conflict
 Pri pokuse o aktualiz\u00e1ciu nasleduj\u00faceho s\u00faboru bol detegovan\u00fd konflikt:
@@ -546,7 +536,7 @@ null
 
 team-error-saving-project
 Nastala chyba pri pokuse o z\u00e1pis nasledovn\u00fdch s\u00faborov projektu:
-	$
+    $
 Potvrdenie zmien alebo aktualiz\u00e1cia m\u00f4\u017eu ma\u0165 ne\u017eelan\u00e9 d\u00f4sledky.
 
 not-all-compiled
@@ -563,15 +553,14 @@ Zru\u0161i\u0165
 null
 
 stuck-at-breakpoint
-V\u00e1\u0161 program u\u017e be\u017e\u00ed, ale pr\u00e1ve je zastaven\u00fd na
-bode preru\u0161enia. Nem\u00f4\u017eete ho spusti\u0165 e\u0161te raz,
-dokedy je jeho be\u017eiaca k\u00f3pia akt\u00edvna. Pou\u017eite
-n\u00e1stroje pre ladenie na jeho \u00fapln\u00e9 zastavenie
-alebo pokra\u010dovanie v behu.
+V\u00e1\u0161 program je pr\u00e1ve spusten\u00fd, av\u0161ak jeho \u010dinnos\u0165 je
+pozastaven\u00e1 na bode preru\u0161enia. Nem\u00f4\u017eete ho op\u00e4tovne
+spusti\u0165 dokedy nebude ukon\u010den\u00e1 jeho akt\u00edvna k\u00f3pia.
+Pou\u017eite n\u00e1stroje ladenia na jeho ukon\u010denie alebo
+pokra\u010dujte v pr\u00e1ci s n\u00edm.
 
 already-executing
-V\u00e1\u0161 program pr\u00e1ve be\u017e\u00ed. Nem\u00f4\u017eete ho znova spusti\u0165,
-ani prezera\u0165 obsah triedy, dokedy sa jeho vykon\u00e1vanie
-neskon\u010d\u00ed. Ak program uviazol v nekone\u010dnom cykle, m\u00f4\u017eete
-pou\u017ei\u0165 n\u00e1stroje na ladenie pre jeho ukon\u010denie.
-
+V\u00e1\u0161 program je pr\u00e1ve spusten\u00fd. Nem\u00f4\u017eete ho op\u00e4tovne spusti\u0165
+ani prezera\u0165 obsah triedy dokedy sa jeho vykon\u00e1vanie neskon\u010d\u00ed.
+Ak program uviazol v nekone\u010dnom cykle, m\u00f4\u017eete pou\u017ei\u0165 n\u00e1stroje
+ladenia na jeho ukon\u010denie.

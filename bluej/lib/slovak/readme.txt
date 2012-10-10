@@ -7,6 +7,12 @@ Aktualizácie a ďalšie informácie získate na adrese:
   * http://cec.truni.sk/horvath/personal.php?get_bluej_trans
 
 
+Poznámky k verzii prekladu 1.2 zo dňa 18.9.2012
+-----------------------------------------------
+
+Táto verzia prekladu zahŕňa množstvo drobných opráv. Zmenám sa nevyhli ani šablóny tried. Významná zmena nastala v šablóne „unittest.tmpl“, v ktorej chýbalo určenie nadradenej triedy „extends junit.framework.TestCase“. Bez neho testy nie sú schopné korektne fungovať. (Študenti by museli toto určenie zakaždým dopísať.) Zaujímavosťou je, že napriek tomu, že samotní autori na toto v minulosti upozorňovali, v anglických šablónach táto chyba stále pretrváva… (Informujeme sa, prečo to tak je a odpoveď publikujeme v rámci komentárov ďalších verzií prekladu…)
+
+
 Poznámky k verzii prekladu 1.1 zo dňa 18.7.2011
 -----------------------------------------------
 

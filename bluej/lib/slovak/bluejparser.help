@@ -1,0 +1,13 @@
+BJ00
+Za deklar\u00e1ciou met\u00f3dy by malo nasledova\u0165 jej telo (alebo \u201ethrows\u201c, alebo \u201e;\u201c)
+
+BJ01
+o\u010dak\u00e1van\u00e1 \u201e(\u201c; za k\u013e\u00fa\u010dov\u00fdmi slovami \u201eif\u201c/\u201ewhile\u201c/\u201eswitch\u201c mus\u00ed nasledova\u0165 \u201e(\u201c \u2013
+nezabudli ste uzavrie\u0165 podmienku medzi \u201e(\u201c a \u201e)\u201c?
+
+BJ02
+o\u010dak\u00e1van\u00e1 \u201e(\u201c; Podmienka mus\u00ed by\u0165 uzavret\u00e1 medzi \u201e(\u201c a \u201e)\u201c
+(a telo cyklu medzi \u201e{\u201c a \u201e}\u201c).
+
+BJ003
+tu je o\u010dak\u00e1van\u00e1 \u201e;\u201c.

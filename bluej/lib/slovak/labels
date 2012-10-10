@@ -1,4 +1,4 @@
-# Pondelok 18.07.2011
+# Utorok 18.09.2012
 # Texty pre ovladacie prvky v\u00a0BlueJ
 
 okay=OK
@@ -55,7 +55,7 @@ debugger.threadstatus.breakpoint=na bode preru\u0161enia
 debugger.threadstatus.stopped=zastaven\u00e9
 debugger.threadstatus.monitor=na monitore
 debugger.threadstatus.notstarted=nebolo od\u0161tartovan\u00e9
-debugger.threadstatus.running=be\u017eiace
+debugger.threadstatus.running=spusten\u00e9
 debugger.threadstatus.sleeping=spiace
 debugger.threadstatus.unknown=nezn\u00e1my stav
 debugger.threadstatus.waiting=\u010dak\u00e1
@@ -94,8 +94,8 @@ prefmgr.misc.linkToLib=Pou\u017ei\u0165 toto URL pri generovan\u00ed projektovej
 prefmgr.misc.linkToLibNoteLine1=Ak je toto URL pou\u017eit\u00e9, mus\u00ed by\u0165 v\u00a0okam\u017eiku generovania \u0161pecifik\u00e1cia Java API korektn\u00e1 a\u00a0dostupn\u00e1! V\u00a0opa\u010dnom pr\u00edpade
 prefmgr.misc.linkToLibNoteLine2=nebude dokument\u00e1cia projektu vygenerovan\u00e1 spr\u00e1vne. Ak nie je zadan\u00e1 dokument\u00e1cia API dostupn\u00e1, vypnite t\u00fato vo\u013ebu!
 prefmgr.misc.tools.title=Volite\u013en\u00e9 nastavenia n\u00e1strojov
-prefmgr.misc.showTesting=Zobrazi\u0165 n\u00e1stroje pre testovanie
-prefmgr.misc.showTeam=Zobrazi\u0165 n\u00e1stroje pre t\u00edmov\u00fa pr\u00e1cu
+prefmgr.misc.showTesting=Zobrazi\u0165 n\u00e1stroje testovania
+prefmgr.misc.showTeam=Zobrazi\u0165 n\u00e1stroje t\u00edmovej pr\u00e1ce
 prefmgr.misc.showJavaME=Zobrazi\u0165 n\u00e1stroje Java ME
 prefmgr.misc.vm.title=Nastavenia parametrov VM
 prefmgr.misc.optimiseVM=Pou\u017e\u00edva\u0165 optimaliz\u00e1ciu (m\u00f4\u017eu nasta\u0165 probl\u00e9my s\u00a0laden\u00edm)
@@ -120,14 +120,13 @@ prefmgr.edit.keybindingstitle=Kl\u00e1vesov\u00e9 skratky
 prefmgr.edit.highlightLighter=Svetlej\u0161ie
 prefmgr.edit.highlightDarker=Tmav\u0161ie
 
-
 # Extensions Manager Help panel
 extmgr.title=BlueJ:  In\u0161talovan\u00e9 roz\u0161\u00edrenia
 extmgr.extensions=Roz\u0161\u00edrenia
 extmgr.systemExtensionShort=Syst\u00e9m
-extmgr.systemExtensionLong=Roz\u0161\u00edrenia projektu (pre v\u0161etky projekty)
+extmgr.systemExtensionLong=Roz\u0161\u00edrenia projektu (v\u0161etky projekty)
 extmgr.projectExtensionShort=Projekt
-extmgr.projectExtensionLong=Roz\u0161\u00edrenia projektu (len pre aktu\u00e1lny projekt)
+extmgr.projectExtensionLong=Roz\u0161\u00edrenia projektu (aktu\u00e1lny projekt)
 extmgr.statuscolumn=Status
 extmgr.namecolumn=N\u00e1zov
 extmgr.typecolumn=Typ
@@ -207,7 +206,7 @@ editor.gotoline.notNumericMessage=Je o\u010dak\u00e1van\u00e1 numerick\u00e1 hod
 editor.implementationLabel=Zdrojov\u00fd k\u00f3d
 editor.interfaceLabel=Dokument\u00e1cia
 
-editor.state.readOnly=len pre \u010d\u00edtanie
+editor.state.readOnly=len na \u010d\u00edtanie
 editor.state.saved=ulo\u017een\u00e9
 editor.state.changed=zmenen\u00e9
 
@@ -331,22 +330,22 @@ pkgmgr.newMEpkg.title=Nov\u00fd projekt ME
 pkgmgr.newPkg.buttonLabel=Vytvori\u0165
 pkgmgr.openPkg.title=Otvori\u0165 projekt
 pkgmgr.openPkg.buttonLabel=Otvori\u0165
-pkgmgr.openNonBlueJPkg.title=Otvori\u0165 nie-BlueJ projekt
-pkgmgr.openNonBlueJPkg.buttonLabel=Otvori\u0165 v\u00a0BlueJ
+pkgmgr.openNonBlueJPkg.title=Otvori\u0165 projekt nevytvoren\u00fd v BlueJi
+pkgmgr.openNonBlueJPkg.buttonLabel=Otvori\u0165 v\u00a0BlueJi
 pkgmgr.saveAs.title=Ulo\u017ei\u0165 projekt
 pkgmgr.saveAs.buttonLabel=Ulo\u017ei\u0165
-pkgmgr.addClass.title=Vyberte Java triedu pre pridanie
+pkgmgr.addClass.title=Vyberte Java triedu na pridanie
 pkgmgr.addClass.buttonLabel=Prida\u0165
 pkgmgr.importPkg.title=Vyberte prie\u010dinok, z\u00a0ktor\u00e9ho chcete importova\u0165
 pkgmgr.importPkg.buttonLabel=Importova\u0165
 pkgmgr.importPkgNew.title=Nov\u00fd projekt, do ktor\u00e9ho m\u00e1 by\u0165 importovan\u00e9
 pkgmgr.importPkgNew.buttonLabel=Vytvori\u0165
 
-pkgmgr.newClass.msg=Zadajte meno triedy
+pkgmgr.newClass.msg=Zadajte n\u00e1zov triedy
 pkgmgr.newUses=Nov\u00e1 \u0161\u00edpka Pou\u017e\u00edva
 pkgmgr.newExtends=Nov\u00e1 \u0161\u00edpka Dedi\u010dnos\u0165
 pkgmgr.unimplemented=Je n\u00e1m \u013e\u00fato \u2013 t\u00e1to funkcia e\u0161te nebola implementovan\u00e1
-pkgmgr.pkgChooseError=Chyba pri vyberan\u00ed platn\u00e9ho mena bal\u00ed\u010dku
+pkgmgr.pkgChooseError=Chyba pri vyberan\u00ed platn\u00e9ho n\u00e1zvu bal\u00ed\u010dka
 pkgmgr.chooseWebPage.title=Vyberte cie\u013eov\u00fa HTML str\u00e1nku
 pkgmgr.chooseWebPage.buttonLabel=Ulo\u017ei\u0165 str\u00e1nku HTML
 
@@ -368,12 +367,12 @@ pkgmgr.test.record=z\u00e1znam
 pkgmgr.test.run=Spusti\u0165 testy
 pkgmgr.test.end=Ukon\u010di\u0165
 pkgmgr.test.succeeded=je OK
-pkgmgr.test.noTestName=Mus\u00edte zada\u0165 meno testu
-pkgmgr.test.invalidTestName=Meno testu mus\u00ed by\u0165 platn\u00fd Java identifik\u00e1tor
+pkgmgr.test.noTestName=Mus\u00edte zada\u0165 n\u00e1zov testu
+pkgmgr.test.invalidTestName=N\u00e1zov testu mus\u00ed by\u0165 platn\u00fd Java identifik\u00e1tor
 pkgmgr.test.recording=zaznamen\u00e1vam
 
 pkgmgr.test.popup.testAll=Testova\u0165 v\u0161etko
-pkgmgr.test.popup.noTests=Testovacie met\u00f3dy neexistuj\u00fa
+pkgmgr.test.popup.noTests=Testovacie met\u00f3dy nejestvuj\u00fa
 pkgmgr.test.popup.abstract=Testovacia trieda je abstraktn\u00e1
 pkgmgr.test.popup.createTest=Vytvori\u0165 testovaciu met\u00f3du\u2026
 pkgmgr.test.popup.benchToFixture=Z\u00e1sobn\u00edk objektov \u2013> Testovac\u00ed pr\u00edpravok
@@ -388,7 +387,7 @@ pkgmgr.codepad.redefinedVar=$ \u2013 identifik\u00e1tor je u\u017e pou\u017eit\u
 
 # "new class" dialog
 pkgmgr.newClass.title=BlueJ:  Vytvori\u0165 nov\u00fa triedu
-pkgmgr.newClass.label=Meno triedy:
+pkgmgr.newClass.label=N\u00e1zov triedy:
 pkgmgr.newClass.classType=Typ triedy
 pkgmgr.newClass.mainclass=Hlavn\u00e1 trieda aplik\u00e1cie
 pkgmgr.newClass.stdclass=\u0160tandardn\u00e1 trieda
@@ -403,7 +402,7 @@ pkgmgr.newClass.emptyclass=Pr\u00e1zdna trieda
 
 # "new package" dialog
 pkgmgr.newPackage.title=BlueJ:  Vytvori\u0165 nov\u00fd bal\u00ed\u010dek
-pkgmgr.newPackage.label=Meno bal\u00ed\u010dka:
+pkgmgr.newPackage.label=N\u00e1zov bal\u00ed\u010dka:
 pkgmgr.newPackage.newPackage=Bal\u00ed\u010dek
 
 # "Use Library Class" dialog
@@ -411,10 +410,10 @@ callLibraryDialog.title=BlueJ:  Vola\u0165 met\u00f3du triedy z\u00a0kni\u017eni
 callLibraryDialog.classLabel=Trieda:
 callLibraryDialog.docButton=Dokument\u00e1cia
 callLibraryDialog.listHeading=Kon\u0161truktory a\u00a0statick\u00e9 met\u00f3dy (met\u00f3dy triedy)
-callLibraryDialog.clickHere1=Zadajte cel\u00e9 meno triedy vr\u00e1tane bal\u00ed\u010dka a\u00a0po stla\u010den\u00ed
-callLibraryDialog.clickHere2=kl\u00e1vesu Enter, sa zobrazia jej kon\u0161truktory a\u00a0met\u00f3dy.
+callLibraryDialog.clickHere1=Zadajte cel\u00fd n\u00e1zov triedy (vr\u00e1tane bal\u00ed\u010dka) a\u00a0stla\u010dte
+callLibraryDialog.clickHere2=kl\u00e1ves Enter na zobrazenie kon\u0161truktorov a\u00a0met\u00f3d.
 callLibraryDialog.classNotFound1=Trieda nebola n\u00e1jden\u00e1.
-callLibraryDialog.classNotFound2=(Skontrolujte meno triedy a\u00a0stla\u010dte znova Enter.)
+callLibraryDialog.classNotFound2=(Skontrolujte n\u00e1zov triedy a\u00a0stla\u010dte znova Enter.)
 
 # "export" dialog
 pkgmgr.export.title=BlueJ:  Vytvorenie s\u00faboru JAR
@@ -432,7 +431,7 @@ pkgmgr.export.createJarText=Vytvori\u0165
 pkgmgr.importmismatch.title=BlueJ:  Probl\u00e9my pri otv\u00e1ran\u00ed bal\u00ed\u010dka
 pkgmgr.importmismatch.helpLine1=VAROVANIE: Vzh\u013eadom ku kol\u00edzii inform\u00e1ci\u00ed pri pr\u00edkaze \u201epackage\u201c
 pkgmgr.importmismatch.helpLine2=a\u00a0umiestnenie s\u00faborov v\u00a0prie\u010dinkoch je pravdepodobn\u00e9, \u017ee bol
-pkgmgr.importmismatch.helpLine3=zadan\u00fd nespr\u00e1vny prie\u010dinok pre import projektu. Jeho otvorenie
+pkgmgr.importmismatch.helpLine3=zadan\u00fd nespr\u00e1vny prie\u010dinok na import projektu. Jeho otvorenie
 pkgmgr.importmismatch.helpLine4=zmen\u00ed v\u0161etky pr\u00edkazy \u201epackage\u201c v\u00a0\u010fal\u0161\u00edch zdrojov\u00fdch s\u00faboroch.
 pkgmgr.importmismatch.helpLine5=Najsk\u00f4r mus\u00edte vybra\u0165 prie\u010dinok nadraden\u00fd tomuto prie\u010dinku.
 pkgmgr.importmismatch.helpLine6=Ak chcete napr. otvori\u0165 projekt obsahuj\u00faci bal\u00ed\u010dek \u201eorg.bluej\u201c,
@@ -444,16 +443,16 @@ pkgmgr.importmismatch.helpLine9=\u017del\u00e1te si pokra\u010dova\u0165 v\u00a0
 pkgmgr.importfailed.title=BlueJ:  V\u00fdsledok importu
 pkgmgr.importfailed.helpLine1=Pri importovan\u00ed neboli skop\u00edrovan\u00e9 nasledovn\u00e9 s\u00fabory:
 pkgmgr.importfailed.helpLine2=V\u00a0cie\u013eovom projekte pravdepodobne u\u017e boli
-pkgmgr.importfailed.helpLine3=s\u00fabory so zhodn\u00fdm menom.
+pkgmgr.importfailed.helpLine3=s\u00fabory so zhodn\u00fdm n\u00e1zvom.
 
 # "version check" dialog
 pkgmgr.versionDlg.title=BlueJ:  Skontrolova\u0165, \u010di je dostupn\u00e1 nov\u00e1 verzia
-pkgmgr.versionDlg.helpLine1=T\u00e1to funkcia zist\u00ed, \u010di je k\u00a0dispoz\u00edcii nov\u00e1 verzia BlueJ
+pkgmgr.versionDlg.helpLine1=T\u00e1to funkcia zist\u00ed, \u010di je k\u00a0dispoz\u00edcii nov\u00e1 verzia BlueJa
 pkgmgr.versionDlg.helpLine2=Aby bola t\u00e1to funkcia dostupn\u00e1, mus\u00edte by\u0165 pripojen\u00ed k\u00a0sieti internet.
 pkgmgr.versionDlg.check=Skontrolova\u0165 nov\u00e9 verzie
 pkgmgr.versionDlg.upToDate=T\u00e1to verzia je aktu\u00e1lna.
-pkgmgr.versionDlg.currentVersion=Va\u0161a s\u00fa\u010dasn\u00e1 verzia BlueJ je
-pkgmgr.versionDlg.newVersion=Posledn\u00e1 zn\u00e1ma verzia BlueJ je
+pkgmgr.versionDlg.currentVersion=Va\u0161a s\u00fa\u010dasn\u00e1 verzia BlueJa je
+pkgmgr.versionDlg.newVersion=Posledn\u00e1 zn\u00e1ma verzia BlueJa je
 
 # run applet dialog
 pkgmgr.runApplet.title=BlueJ:  Spusti\u0165 aplet
@@ -465,12 +464,12 @@ pkgmgr.runApplet.heightLbl=V\u00fd\u0161ka \=
 pkgmgr.runApplet.widthLbl=\u0160\u00edrka \= 
 pkgmgr.runApplet.newParameterLbl=Prida\u0165 nov\u00fd parameter
 pkgmgr.runApplet.appletParameterLbl=Parametre apletu
-pkgmgr.runApplet.nameLbl=Meno \= 
+pkgmgr.runApplet.nameLbl=N\u00e1zov \= 
 pkgmgr.runApplet.valueLbl=Hodnota \= 
 pkgmgr.runApplet.paramName=PARAM NAME
 pkgmgr.runApplet.value=VALUE
-pkgmgr.runApplet.htmlComment=<!-- Tento s\u00fabor je automaticky generovan\u00fd programom BlueJ. -->\n<!-- Po ka\u017edom spusten\u00ed apletu je automaticky obnoven\u00fd.     -->\n<!-- Ak\u00e9ko\u013evek zmeny bud\u00fa pri bud\u00facom spusten\u00ed apletu      -->\n<!-- z\u00a0prostredia BlueJ straten\u00e9. Ak chcete s\u00fabor zachova\u0165, -->\n<!-- mus\u00edte ho ulo\u017ei\u0165 do in\u00e9ho prie\u010dinka.                      -->
-pkgmgr.runApplet.htmlExportedComment=<!-- Tento s\u00fabor je automaticky generovan\u00fd programom BlueJ.              -->\n<!-- Premenn\u00e1 codebase je pri vytv\u00e1ran\u00ed tejto str\u00e1nky automaticky         -->\n<!-- nastaven\u00e1 na absol\u00fatnu cestu k\u00a0prie\u010dinku s\u00a0bal\u00ed\u010dkom dan\u00e9ho apletu.   -->\n<!-- Ak zmen\u00edte umiestenie tohto bal\u00ed\u010dka, mus\u00edte zmeni\u0165 hodnotu codebase. -->
+pkgmgr.runApplet.htmlComment=<!-- Tento s\u00fabor je automaticky generovan\u00fd prostred\u00edm BlueJ. -->\n<!-- Po ka\u017edom spusten\u00ed apletu je automaticky obnoven\u00fd.      -->\n<!-- Ak\u00e9ko\u013evek zmeny bud\u00fa pri bud\u00facom spusten\u00ed apletu        -->\n<!-- z\u00a0prostredia BlueJ straten\u00e9. Ak chcete s\u00fabor zachova\u0165,  -->\n<!-- mus\u00edte ho ulo\u017ei\u0165 do in\u00e9ho prie\u010dinka.                    -->
+pkgmgr.runApplet.htmlExportedComment=<!-- Tento s\u00fabor je automaticky generovan\u00fd prostred\u00edm BlueJ.              -->\n<!-- Premenn\u00e1 codebase je pri vytv\u00e1ran\u00ed tejto str\u00e1nky automaticky         -->\n<!-- nastaven\u00e1 na absol\u00fatnu cestu k\u00a0prie\u010dinku s\u00a0bal\u00ed\u010dkom dan\u00e9ho apletu.   -->\n<!-- Ak zmen\u00edte umiestenie tohto bal\u00ed\u010dka, mus\u00edte zmeni\u0165 hodnotu codebase. -->
 
 # print project dialog
 pkgmgr.printDialog.title=BlueJ:  Vytla\u010di\u0165 projekt
@@ -486,8 +485,8 @@ pkgmgr.methodCall.typeParametersPrompt=Parametre:
 pkgmgr.methodCall.typeParameterPrompt=Parameter:
 error.methodCall.emptyField=Chyba: Pol\u00ed\u010dko parametra je pr\u00e1zdne.
 error.methodCall.emptyTypeField=Chyba: Pol\u00ed\u010dko typov\u00e9ho parametra je pr\u00e1zdne.\nBu\u010f vypl\u0148te v\u0161etky typov\u00e9 parametre, alebo \u017eiadny.
-error.methodCall.illegalName=Meno in\u0161tancie mus\u00ed by\u0165 platn\u00fd identifik\u00e1tor Javy.
-error.methodCall.duplicateName=Objekt s\u00a0t\u00fdmto menom u\u017e existuje.\nVyberte pros\u00edm jedine\u010dn\u00e9 meno.
+error.methodCall.illegalName=N\u00e1zov in\u0161tancie mus\u00ed by\u0165 platn\u00fd identifik\u00e1tor Javy.
+error.methodCall.duplicateName=Objekt s\u00a0t\u00fdmto n\u00e1zvom u\u017e jestvuje.\nVyberte pros\u00edm jedine\u010dn\u00fd n\u00e1zov.
 
 # Debugger dialog (ExecControls.java)
 debugger.execControls.windowTitle=N\u00e1stroj na ladenie
@@ -551,7 +550,7 @@ pkgmgr.breakpointMsg=Aby mohli by\u0165 nastaven\u00e9 body preru\u0161enia, mus
 pkgmgr.appletInViewer=Sp\u00fa\u0161\u0165anie apletu pomocou appletviewera
 pkgmgr.appletInBrowser=Sp\u00fa\u0161\u0165anie apletu pomocou webov\u00e9ho prehliada\u010da
 pkgmgr.exported.jar=Export do jar s\u00faboru dokon\u010den\u00fd.
-pkgmgr.error.open=Projekt neexistuje.
+pkgmgr.error.open=Projekt nejestvuje.
 pkgmgr.checkingVersion=Zis\u0165ujem dostupnos\u0165 novej verzie\u2026
 pkgmgr.midlet.deploying=Zverej\u0148ujem MIDlet\u2026
 pkgmgr.midlet.deployed=Zverej\u0148ujem MIDlet\u2026 Hotov\u00e9.
@@ -600,7 +599,6 @@ menu.tools.teamwork=T\u00ed_mov\u00e1 pr\u00e1ca
 
 menu.tools.preferences=_Prevo\u013eby\u2026@,
 
-
 menu.view=_Zobrazi\u0165
 menu.view.showUses=Zobrazi\u0165 vz\u0165ahy \u201e_Pou\u017e\u00edva\u201c
 menu.view.showInherits=Zobrazi\u0165 vz\u0165ahy \u201e_Dedi\u010dnos\u0165\u201c
@@ -627,7 +625,7 @@ team.update.statusMessage=Aktualiz\u00e1cia projektu
 team.update.statusDone=Aktualiz\u00e1cia projektu\u2026 Hotov\u00e9.
 team.update.title=Aktualizuj s\u00fabory z\u00a0\u00falo\u017eiska
 team.update.includelayout=Aktualizuj rozlo\u017eenie diagramu
-team.update.files=S\u00fabory pre aktualiz\u00e1ciu
+team.update.files=S\u00fabory na aktualiz\u00e1ciu
 team.checkout=Preverenie projektu
 team.checkout.statusMessage=Preverenie zdie\u013ean\u00e9ho projektu
 team.history.allUsers=V\u0161etci pou\u017e\u00edvatelia
@@ -639,7 +637,7 @@ team.history.userfilter=Zobraz pou\u017e\u00edvate\u013ea:
 team.import=Zdie\u013eaj tento projekt
 team.import.statusMessage=Zdie\u013eanie projektu
 team.includeLayout=Vr\u00e1tane diagramu tried
-team.settings=Nastavenia pre t\u00edmov\u00fa pr\u00e1cu
+team.settings=Nastavenia t\u00edmovej pr\u00e1ce
 team.status=Stav
 team.status.status=Status t\u00edmovej pr\u00e1ce
 team.status.resource=T\u00edmov\u00e9 zdroje
@@ -648,9 +646,9 @@ team.status.refresh=Obnovenie
 team.conflicts.title=N\u00e1jden\u00e9 konflikty
 team.conflicts.classes=Nasleduj\u00face triedy mali konflikty
 team.conflicts.show=Zobrazi\u0165 konflikty
-team.error.username.at=Va\u0161e pou\u017e\u00edvate\u013esk\u00e9 meno obsahuje znak @, ktor\u00fd nie je v\u00a0BlueJ podporovan\u00fd.
-team.error.username.colon=Va\u0161e pou\u017e\u00edvate\u013esk\u00e9 meno obsahuje znak :, ktor\u00fd nie je v\u00a0BlueJ podporovan\u00fd.
-team.error.password.at=Va\u0161e heslo obsahuje znak @, ktor\u00fd nie je v\u00a0BlueJ podporovan\u00fd.
+team.error.username.at=Va\u0161e pou\u017e\u00edvate\u013esk\u00e9 meno obsahuje znak @, ktor\u00fd nie je BlueJom podporovan\u00fd.
+team.error.username.colon=Va\u0161e pou\u017e\u00edvate\u013esk\u00e9 meno obsahuje znak :, ktor\u00fd nie je v\u00a0BlueJom podporovan\u00fd.
+team.error.password.at=Va\u0161e heslo obsahuje znak @, ktor\u00fd nie je BlueJom podporovan\u00fd.
 
 # The following appear in brackets after a filename, in the
 # update/commit dialogs.
@@ -678,7 +676,7 @@ team.statusinfo.conflictAdd=Pridan\u00e9 lok\u00e1lne aj v\u00a0\u00falo\u017eis
 team.statusinfo.conflictLMRD=Zmenen\u00e9 lok\u00e1lne a\u00a0odstr\u00e1nen\u00e9 z\u00a0\u00falo\u017eiska (konflikt)
 team.statusinfo.conflictLDRM=Odstr\u00e1nen\u00e9 lok\u00e1lne a\u00a0zmenen\u00e9 v\u00a0\u00falo\u017eisku (konflikt)
 
-team.settings.title=Nastavenia pre t\u00edmov\u00fa pr\u00e1cu
+team.settings.title=Nastavenia t\u00edmovej pr\u00e1ce
 team.settings.personal=Osobn\u00e9
 team.settings.location=Umiestnenie
 team.settings.user=Pou\u017e\u00edvate\u013e
@@ -690,11 +688,11 @@ team.settings.prefix=Cesta k\u00a0\u00falo\u017eisku
 team.settings.ext=ext (pou\u017e\u00edva SSH)
 team.settings.pserver=Autentiza\u010dn\u00fd protokol
 team.settings.protocol=Protokol
-team.settings.rememberSettings=Zapam\u00e4ta\u0165 si nastavenie pre \u010fal\u0161ie projekty
+team.settings.rememberSettings=Zapam\u00e4ta\u0165 si nastavenie na \u010fal\u0161ie projekty
 team.settings.checkConnection=Overi\u0165 pripojenie
 
-team.moduleselect.title=Vyber projekt pre kontrolu
-team.moduleselect.label=Vyber \u010di zadaj meno projektu:
+team.moduleselect.title=Vyber projekt na kontrolu
+team.moduleselect.label=Vyber \u010di zadaj n\u00e1zov projektu:
 team.moduleselect.available=Dostupn\u00e9 projekty:
 team.moduleselect.show=Zobraz
 
@@ -733,12 +731,12 @@ midlet.deployment.midlets.moveup=Posun\u00fa\u0165 hore
 midlet.deployment.midlets.movedown=Posun\u00fa\u0165 dole
 
 menu.help=_Pomocn\u00edk
-menu.help.about=_O\u00a0BlueJ
+menu.help.about=_O\u00a0BlueJi
 menu.help.extensions=In\u0161talovan\u00e9 _roz\u0161\u00edrenia
 menu.help.versionCheck=Skontrolova\u0165 a_ktualiz\u00e1cie\u2026@V
 menu.help.copyright=_Autorsk\u00e9 pr\u00e1va
-menu.help.website=_Webov\u00e1 str\u00e1nka BlueJ
-menu.help.tutorial=BlueJ _Tutorial
+menu.help.website=_Webov\u00e1 str\u00e1nka BlueJa
+menu.help.tutorial=BlueJ _Tutori\u00e1l
 menu.help.standardApi=Opis \u0161tandardn\u00fdch trie_d\u00a0Java
 
 # Tool tips
@@ -760,7 +758,7 @@ graph.tooltip.classBroken=T\u00e1to trieda nemohla by\u0165 korektne spracovan\u
 
 # Copyright
 
-menu.help.copyright.title=Autorsk\u00e9 pr\u00e1va BlueJ
+menu.help.copyright.title=Autorsk\u00e9 pr\u00e1va n\u00e1stroja BlueJ
 menu.help.copyright.line1=Prostredie BlueJ je dostupn\u00e9 zdarma a\u00a0m\u00f4\u017ee by\u0165 \u010falej
 menu.help.copyright.line2=vo\u013ene \u0161\u00edren\u00e9. Bez predch\u00e1dzaj\u00faceho p\u00edsomn\u00e9ho s\u00fahlasu
 menu.help.copyright.line3=nesmie by\u0165 \u0161\u00edren\u00e9 za \u00fa\u010delom zisku ani by\u0165 s\u00fa\u010das\u0165ou
@@ -768,8 +766,8 @@ menu.help.copyright.line4=in\u00fdch produktov \u0161\u00edren\u00fdch za \u00fa
 
 # About
 
-about.bluej.version=BlueJ verzia
-about.java.version=Java verzia
+about.bluej.version=Verzia BlueJa
+about.java.version=Verzia Javy
 about.vm=Java VM:
 about.runningOn=Opera\u010dn\u00fd syst\u00e9m:
 about.javahome=Java \u2013 domovsk\u00fd prie\u010dinok:
@@ -779,4 +777,3 @@ about.theTeam=Slovensk\u00e1 lokaliz\u00e1cia:\n\u00a0     Roman Horv\u00e1th, A
 
 # Work Indicator
 workIndicator.resetMachine=Re\u0161tartova\u0165 _Java VM@^R 
-

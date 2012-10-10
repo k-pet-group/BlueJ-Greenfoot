@@ -75,15 +75,13 @@ caret-end=\n Posun\u00fa\u0165 kurzor na koniec textu.
 save=\n Ulo\u017ei\u0165 t\u00fato triedu. Za norm\u00e1lnych okolnost\u00ed nie je potrebn\u00e9 triedu uklada\u0165 ru\u010dne,\n trieda je ulo\u017een\u00e1 automaticky pred prekladom a\u00a0pri zatvoren\u00ed editora.
 reload=\n Nahra\u0165 triedu sp\u00e4tne zo s\u00faboru. Pri tejto oper\u00e1cii\n bud\u00fa zru\u0161en\u00e9 v\u0161etky zmeny od posledn\u00e9ho ulo\u017eenia (automatick\u00e9ho alebo ru\u010dn\u00e9ho).
 close=\n Zavrie\u0165 t\u00fato triedu. Zdrojov\u00fd k\u00f3d je automaticky ulo\u017een\u00fd.
-print=\n Otvori\u0165 tla\u010dov\u00fd dial\u00f3g pre zah\u00e1jenie tla\u010de.
+print=\n Otvori\u0165 tla\u010dov\u00fd dial\u00f3g na zah\u00e1jenie tla\u010de.
 page-setup=\n Otvori\u0165 dial\u00f3g s\u00a0nastaven\u00edm vzh\u013eadu tla\u010dovej str\u00e1nky.
-
 
 ## customisation functions
 
 key-bindings=\n Prezrie\u0165 a\u00a0nastavi\u0165 priradenie kl\u00e1vesov\u00fdch skratiek Moe editora.
 preferences=\n Nastavi\u0165 predvo\u013eby editora.
-
 
 ## help functions
 
@@ -92,13 +90,12 @@ help-mouse=\n Zobrazi\u0165 priradenie tla\u010didiel my\u0161i.
 show-manual=\n Otvori\u0165 prehliada\u010d a\u00a0zobrazi\u0165 n\u00e1vod k\u00a0editoru Moe.
 about-editor=\n Zobrazi\u0165 kr\u00e1tku pozn\u00e1mku k\u00a0Moe editoru.
 
-
 ## misc functions
 
 undo=\n Sp\u00e4\u0165 \u2013 vr\u00e1ti\u0165 sp\u00e4\u0165 posledn\u00fa akciu. (Toto m\u00f4\u017ee by\u0165 zru\u0161en\u00e9 pr\u00edkazom \u201eZnova\u201c.)
 redo=\n Znova \u2013 zru\u0161i\u0165 predch\u00e1dzaj\u00faci pr\u00edkaz Sp\u00e4\u0165.
 
-find=\n Otvori\u0165 dial\u00f3g pre h\u013eadanie textu. Dial\u00f3g dovo\u013euje\n h\u013eadanie textu dopredu aj dozadu.
+find=\n Otvori\u0165 dial\u00f3g na h\u013eadanie textu. Dial\u00f3g dovo\u013euje\n h\u013eadanie textu dopredu aj dozadu.
 find-next=\n Vyh\u013eada\u0165 \u010fal\u0161\u00ed v\u00fdskyt h\u013eadan\u00e9ho textu.
 find-next-backward=\n Vyh\u013eada\u0165 predo\u0161l\u00fd v\u00fdskyt h\u013eadan\u00e9ho textu.
 replace=\n Nahradi\u0165 \u010das\u0165 textu in\u00fdm.
@@ -110,5 +107,4 @@ toggle-breakpoint=\n Nastavi\u0165 alebo odstr\u00e1ni\u0165 bod preru\u0161enia
 ## help texts for adding key bindings
 
 press-key=\n Stla\u010dte kl\u00e1vesov\u00fa skratku, ktor\u00fa chcete priradi\u0165\u2026
-cannot-redefine=\n Kl\u00e1vesy pre p\u00edsanie be\u017en\u00fdch znakov nem\u00f4\u017eu by\u0165 priraden\u00e9 kl\u00e1vesov\u00fdm skratk\u00e1m.
-
+cannot-redefine=\n Kl\u00e1vesy na p\u00edsanie be\u017en\u00fdch znakov nem\u00f4\u017eu by\u0165 priraden\u00e9 kl\u00e1vesov\u00fdm skratk\u00e1m.

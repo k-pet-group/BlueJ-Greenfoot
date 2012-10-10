@@ -2,32 +2,33 @@ $PKGLINE
 import java.awt.*;
 import javax.swing.*;
 
-/*******************************************************************************
- * Trieda {@code $CLASSNAME} slúži na … – doplňte opis účelu triedy
+/**
+ * Trieda {@code $CLASSNAME} slúži na «doplňte opis»…
  *
  * @author		{meno autora}
- * @version		{verzia, napr.: 0.00.000, prípadne dátum}
+ * @version		{verzia alebo dátum}
  */
 public class $CLASSNAME extends JApplet
 {
-	// inštančné premenné – nahraďte nižšie uvedený príklad svojími
-	// vlastnými premennými
+	// inštančné premenné – «nahraďte nižšie uvedený
+	//                      príklad vlastnými premennými»…
 	private int x;
 
 
-	/***************************************************************************
+	/**
 	 * Táto metóda je volaná prehliadačom alebo appletviewerom, ktorý takto
-	 * informuje aplet o tom, že bol nahraný do systému. Je volaná ešte pred
+	 * informuje aplet o tom, že bol nahraný do systému. Je volaná ešte pred
 	 * prvým volaním metódy {@link #start()}.
 	 */
 	@Override
 	public void init()
 	{
 		/* Toto je len dočasné riešenie bezpečnostného konfliktu súčasných
-		 * prehliadačov vrátane Netscape & Internet Explorera, ktoré nedovoľujú
-		 * prístup k AWT systémovej fronte udalostí o ktorý sa JApplet pri
-		 * svojom štarte pokúša.
-		 * Nie je vylúčené, že váš prehliadač už jeho použitie nevyžaduje. */
+		 * prehliadačov (vrátane Netscape & Internet Explorera), ktoré
+		 * nedovoľujú prístup k systémovej AWT fronte udalostí, o ktorý sa
+		 * JApplet pri svojom štarte pokúša.
+		 * Nie je vylúčené, že váš prehliadač už toto riešenie nevyžaduje.
+		 */
 		JRootPane rootPane = this.getRootPane();
 		rootPane.putClientProperty("defeatSystemEventQueueCheck", Boolean.TRUE);
 
@@ -35,34 +36,33 @@ public class $CLASSNAME extends JApplet
 	}
 
 
-	/***************************************************************************
+	/**
 	 * Táto metóda je volaná prehliadačom alebo appletviewerom, ktorý takto
 	 * informuje aplet, že bol spustený. Je volaná po metóde {@link #init()}
-	 * a pri každom opätovnom navštívení stránky.
+	 * a pri každom opätovnom navštívení stránky.
 	 */
 	@Override
 	public void start()
 	{
-		/*# Kód potrebný pre spustenie apletu pri každej návšteve stránky. */
+		/*# Kód potrebný na spustenie apletu pri každej návšteve stránky. */
 	}
 
 
-	/***************************************************************************
+	/**
 	 * Táto metóda je volaná prehliadačom alebo appletviewerom, ktorý takto
-	 * oznamuje apletu, že má ukončiť svoju činnosť.
-	 * Je volaná pri prechode zo stránky s apletom na inú stránkou
-	 * a predtým, než je volaná metóda <code>destroy</code>.
-	 * V tejto metóde sú ukončované spustené vlákna.
+	 * oznamuje apletu, že má ukončiť svoju činnosť. Je volaná pri prechode
+	 * zo stránky s apletom na inú stránkou a predtým, než je volaná metóda
+	 * <code>destroy</code>.
 	 */
 	@Override
 	public void stop()
 	{
-		/*# Vložte kód potrebný pre zastavenie činnosti apletu. */
+		/*# Vložte kód potrebný na zastavenie činnosti apletu. */
 	}
 
 
-	/***************************************************************************
-	 * Toto je centrálna metóda apletu – tu je uvedený kód pre vykreslenie
+	/**
+	 * Toto je centrálna metóda apletu – tu je uvedený kód na vykreslenie
 	 * apletu na obrazovku.
 	 *
 	 * @param	g	objekt triedy {@link java.awt.Graphics} prostredníctvom
@@ -81,24 +81,24 @@ public class $CLASSNAME extends JApplet
 	}
 
 
-	/***************************************************************************
+	/**
 	 * Táto metóda je volaná prehliadačom alebo appletviewerom, ktorý takto
-	 * oznamuje apletu, že má uvoľniť všetky alokované zdroje.
-	 * Pred touto metódou je vždy volaná metóda {@link #stop()}.
+	 * oznamuje apletu, že má uvoľniť všetky alokované zdroje. Pred touto
+	 * metódou je vždy volaná metóda {@link #stop()}.
 	 */
 	@Override
 	public void destroy()
 	{
-		/*# Vložte kód potrebný pre uvoľnenie alokovaných zdrojov. */
+		/*# Vložte kód potrebný na uvoľnenie alokovaných zdrojov. */
 	}
 
 
-	/***************************************************************************
-	 * Vracia informácie o aplete.
-	 * Aplet by mal túto metódu prekryť a vrátiť reťazec obsahujúci
-	 * informácie o autorovi, verzii a autorských právach apletu.
+	/**
+	 * Vracia informácie o aplete. Aplet by mal túto metódu prekryť a vrátiť
+	 * reťazec obsahujúci informácie o autorovi, verzii a autorských právach
+	 * apletu.
 	 *
-	 * @return Reťazec obsahuje informácie o aplete
+	 * @return	reťazec obsahujúci informácie o aplete
 	 */
 	@Override
 	public String getAppletInfo()
@@ -110,14 +110,13 @@ public class $CLASSNAME extends JApplet
 	}
 
 
-	/***************************************************************************
+	/**
 	 * Vracia informácie o parametroch, ktoré tento aplet dokáže spracovať.
-	 * Aplet by mal prekryť túto metódu tak, aby vracala pole polí
-	 * textových reťazcov opisujúcich tieto parametre.
-	 * Každý prvok tohto poľa se skladá z troch reťazcov obsahujúcich
-	 * meno, typ a opis.
+	 * Aplet by mal prekryť túto metódu tak, aby vracala pole polí textových
+	 * reťazcov opisujúcich tieto parametre. Každý prvok tohto poľa sa
+	 * skladá z troch reťazcov obsahujúcich meno, typ a opis.
 	 *
-	 * @return Pole trojíc reťazcov reprezentujúcich parametre tohto apletu
+	 * @return	pole trojíc reťazcov reprezentujúcich parametre tohto apletu
 	 */
 	@Override
 	public String[][] getParameterInfo()
