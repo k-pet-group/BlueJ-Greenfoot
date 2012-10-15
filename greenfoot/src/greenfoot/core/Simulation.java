@@ -32,6 +32,7 @@ import greenfoot.event.WorldListener;
 import greenfoot.platforms.SimulationDelegate;
 import greenfoot.util.HDTimer;
 
+import java.awt.EventQueue;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -40,6 +41,7 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import javax.swing.JComponent;
 import javax.swing.event.EventListenerList;
 
 /**
@@ -544,7 +546,7 @@ public class Simulation extends Thread
         catch (InterruptedException e) {
             // Interrupted while trying to acquire lock
             throw new ActInterruptedException(e);
-        }    
+        }
 
         // We were interrupted while running through the act-loop. Throw now.
         if(interruptedException != null) {
@@ -605,6 +607,17 @@ public class Simulation extends Thread
                         // we are running at maximum speed, by making sure events on the
                         // event queue are processed.
 
+                        // Schedule a forced repaint, so that we don't deadlock while
+                        // waiting for a repaint if something stops the repaint from
+                        // occurring (no world for instance).
+                        EventQueue.invokeLater(new Runnable() {
+                            @Override
+                            public void run()
+                            {
+                                forcedRepaint();
+                            }
+                        });
+                        
                         while (paintPending) {
                             repaintLock.wait();
                         }
@@ -612,6 +625,21 @@ public class Simulation extends Thread
                 }
             }
             catch (InterruptedException ie) {}
+        }
+    }
+    
+    private void forcedRepaint()
+    {
+        JComponent wcanvas = WorldHandler.getInstance().getWorldCanvas();
+        synchronized (repaintLock) {
+            if (WorldHandler.getInstance().hasWorld()) {
+                wcanvas.paintImmediately(wcanvas.getBounds());
+            }
+            
+            if (paintPending) {
+                paintPending = false;
+                repaintLock.notify();
+            }
         }
     }
 
