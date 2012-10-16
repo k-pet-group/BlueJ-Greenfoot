@@ -24,6 +24,9 @@ to worry about thread safety when developing BlueJ, though there are some notabl
 exceptions, and the requirement to execute most code on the Swing event thread can
 sometimes be problematic.
 
+Note that any code which touches Swing/AWT controls, including updating models rendered by
+controls, must always run on the Swing/AWT event thread. This is a requirement of Swing/AWT.
+Violating this requirement can lead to subtle issues which only occur sporadically.
 
 Projects
 --------
