@@ -2493,7 +2493,6 @@ public class PkgMgrFrame extends JFrame
                 break;
             case BlueJEvent.CREATE_VM_FAILED :
                 DialogManager.showError(this, "error-create-vm");
-                bluej.Main.doQuit();
                 break;
         }
     }
