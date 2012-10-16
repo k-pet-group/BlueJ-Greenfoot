@@ -139,7 +139,7 @@ child to handle. The more difficult cases are:
   depends on the nature of the child node. If it "marks its own end" - that is, it contains
   a token which marks the end of the node - then the inserted text is really being inserted
   into the parent node. On the other hand, if the end of the child is marked by a token
-  in the parent node, the insertion of text has moved that node; in this case the child node
+  in the parent node, the insertion of text has moved that marker; in this case the child node
   must be grown to accommodate the inserted text, and re-parsed at the appropriate point.
 - Text removed from the end of a child node
 - Text inserted just before a child node

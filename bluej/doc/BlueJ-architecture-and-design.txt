@@ -1,0 +1,150 @@
+BlueJ architecture / design
+---------------------------
+
+Introduction
+------------
+
+BlueJ comprises a system for managing and editing projects (bluej.pkgmgr.Project). Each
+project consists of one or more packages (bluej.pkgmgr.Package) and a package is represented
+in a single window in the UI (bluej.pkgmgr.PkgMgrFrame). It is in the PkgMgrFrame class that
+most UI functionality resides. Most user actions that can be carried out from menus or
+buttons in the main window are represented as a class in the bluej.pkgmgr.actions package;
+this is often a good place to look when looking for how a certain function is implemented.
+
+
+Thread safety
+-------------
+
+Most of the BlueJ code base is intended to be single-threaded, that is, it isn't generally
+safe to call two methods on any object from two different threads at the same time; some
+external mechanism must be used for exclusion. At present this is achieved, mostly, by
+only executing most functions on the Swing/AWT event thread. More details can be found in
+the threading-issues.txt document. An effect of this is that there is not usually any need
+to worry about thread safety when developing BlueJ, though there are some notable
+exceptions, and the requirement to execute most code on the Swing event thread can
+sometimes be problematic.
+
+
+Projects
+--------
+
+As stated before, a project in BlueJ is represented as an instance of the
+bluej.pkgmgr.Project class. Each project has associated with it:
+ - a set of packages (bluej.pkgmgr.Package)
+ - a virtual machine instance, used to execute and debug user code, represented by an
+   implementation of the bluej.debugger.Debugger interface (see "Debugger" below).
+   This VM is sometimes referred to in BlueJ as "the debug VM".
+ - various user interface elements.
+
+The design is not particularly clean in the sense that some UI functionality is included as
+part of the Project class. It would be ideal if UI functionality was separated.
+
+
+The debugger interface and implementation
+-----------------------------------------
+
+The Debugger interface (bluej.debugger.Debugger) allows creation of and interaction with a
+Java Virtual Machine (JVM). This is used for the interactive capabilities of code - running,
+debugging and inspecting state of the user's program. The debugger provides notifications of 
+events (such as VM startup and termination, and change of execution state) via the
+DebuggerListener interface - these events are generated on the debugger's own event thread.
+
+The debugger implementation = JdiDebugger - uses the JDI (Java Debug Interface) to control
+and interface with the debug VM (the com.sun.jdi.* classes and interfaces). JDI is an
+implementation of the JDWP (Java Debugger Wire Protocol).
+
+JDI delivers debugger events on a single event queue. This queue is polled by the
+JdiDebugger implementation from a single thread and events are delivered to listeners
+on the same thread, therefore, listeners should generally process the events promptly
+(or pass them off to another thread) to avoid causing deadlocks (note that even some
+functionality of JdiDebugger which doens't generate an event to DebuggerListeners still
+generates and listens for JDI events).
+
+JDI presents significant functionality, but has been found to be buggy in the past; in some
+cases certain functions aren't used even they seem like they would be pertinent due to bugs,
+and there are some efforts to work around certain other JDI bugs. See for instance the
+JdiThread class and the comments within.
+
+In general, the main classes in the bluej.debugger.jdi package are:
+- JdiDebugger; the implementation of the Debugger. It mainly handles waiting for startup
+  of the debugee VM and delegates most functionality to VMReference.
+- VMReference, provides a lower-level interface to the remote VM.
+- VMEventHandler, which processes JDI events and dispatches to listeners. 
+
+The VM is launched with the ExecServer class (bluej.runtime.ExecServer) specified as the
+main class. When the ExecServer class is loaded, VMEventHandler sees the corresponding "class
+loaded" event and notifies VMReference via the serverClassPrepared() method. At this stage
+VMReference sets up some breakpoints with the ExecServer class, in the 'vmStarted()' and
+'vmSuspend()' methods. The ExecServer class is then controlled by setting the values of
+various public static variables, and resuming execution.
+
+There are two threads in the remote VM that are used to perform tasks: the "server" thread
+and the "worker" thread. The "server" thread is used primarily for operations which involve
+running user code (and which may therefore hang if the user code contains an infinite loop)
+whereas the worker thread performs other basic functions which do not involve execution of
+user code.
+
+The 'execAction' field (an int) specifies the action that the server thread should perform
+when it is resumed (possible actions are listed in ExecServer source). When it finishes the
+requested action it spawns a new server thread which immediately calls vmStarted(), causing
+the breakpoint to be triggered and thereby informing the main VM that the task is complete.
+
+The 'workerAction' field controls the worker thread in a similar way, with the exception
+that the same thread is re-used. 
+
+
+The Invoker
+-----------
+
+The Invoker (bluej.debugmgr.Invoker) is used for most execution of user code. The
+ResultWatcher interface is used by the Invoker to report results back to the caller.
+
+The invoker performs several tasks:
+
+- prompts the user for input parameters (if necessary). The user may elect to cancel the
+  invocation at this point.
+- writes the source code for a "Shell" class (with a generated name) to perform the execution.
+  In some cases, such as calling a constructor with no parameters, this isn't necessary and can be
+  skipped (because the Debugger interface allows performing the action directly).
+  
+  The shell source makes the object bench and codepad variables available by pulling their
+  values from a map that exists on the debug VM. When objects are added to the object bench,
+  this map needs to be updated (via the Debugger interface), or execution may fail at run time.
+  
+- The ResultWatcher's beginCompile() method is called (even if no shell file was written).
+- compiles the shell class (if one was generated). Any errors are reported back to the watcher,
+  and displayed in the parameter dialog (if one exists).
+  
+  If compilation was successful:
+
+- the watcher is notified of the successful compilation  
+- the Debugger is used to run the shell class
+- the result is reported back to the watcher
+
+
+The parser
+----------
+
+The parser is used to determine Java source code structure and extract certain information.
+Specifically, it is used:
+- to determine the inheritance hierarchy and 'uses' relationships which are displayed in
+  the package diagram
+- to determine the position of scopes for purposes of scope highlighting in the editor
+- to perform code completion in the editor
+- to determine the type of expressions which are entered in the code pad (which is
+  particularly necessary for generic types to be handled correctly)
+  
+The parser is complicated and is described more completely in a separate document:
+ BlueJ-parser.txt 
+
+
+More:
+----
+
+- Event interface (BlueJ event listeners)
+
+- Extensions
+
+- Language labels
+
+- logging
