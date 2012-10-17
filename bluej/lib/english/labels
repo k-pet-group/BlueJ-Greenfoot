@@ -117,6 +117,11 @@ prefmgr.edit.keybindingstitle=Key Bindings
 prefmgr.edit.highlightLighter=Lighter
 prefmgr.edit.highlightDarker=Darker
 
+# Interface preferences panel
+prefmgr.interface.title=Interface
+prefmgr.interface.language.title=Language selection
+prefmgr.interface.language=Language
+prefmgr.interface.language.restart=You will need to restart BlueJ for the language setting to take effect.
 
 # Extensions Manager Help panel
 extmgr.title=BlueJ:  Installed Extensions

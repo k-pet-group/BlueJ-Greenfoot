@@ -145,6 +145,8 @@ public class PrefMgrDialog extends JFrame
         add(kbPanel.makePanel(), Config.getString("prefmgr.edit.keybindingstitle"), kbPanel);
         MiscPrefPanel panel2 = new MiscPrefPanel();
         add(panel2, Config.getString("prefmgr.misc.prefpaneltitle"), panel2);
+        InterfacePanel panel3 = new InterfacePanel();
+        add(panel3, Config.getString("prefmgr.interface.title"), panel3);
         userConfigLibPanel = new ClassMgrPrefPanel();
         add(userConfigLibPanel, Config.getString("classmgr.prefpaneltitle"), userConfigLibPanel);
         if(!Config.isGreenfoot()) {
