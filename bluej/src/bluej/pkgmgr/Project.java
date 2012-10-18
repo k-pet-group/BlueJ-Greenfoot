@@ -553,6 +553,7 @@ public class Project implements DebuggerListener, InspectorManager
                             return true;
                         }
                         catch (IOException ioe) {
+                            // TODO should propagate this exception
                             Debug.message("I/O error while creating project.");
                         }
                     }
@@ -562,6 +563,7 @@ public class Project implements DebuggerListener, InspectorManager
             }
         }
 
+        Debug.message("Unable to create project directory: " + projectPath);
         return false;
     }
 

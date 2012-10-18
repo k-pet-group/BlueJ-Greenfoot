@@ -1232,6 +1232,7 @@ public class PkgMgrFrame extends JFrame
             return false;
 
         if(newnameFile.exists()) {
+            Debug.message("Attempt to create project with existing directory: " + newnameFile.getAbsolutePath());
             DialogManager.showErrorWithText(null, "directory-exists", newnameFile.getPath());
             return false;
         }
