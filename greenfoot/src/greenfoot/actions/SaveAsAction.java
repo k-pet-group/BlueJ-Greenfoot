@@ -97,7 +97,7 @@ public class SaveAsAction extends AbstractAction
                     break;
 
                 case FileUtility.DEST_EXISTS:
-                    DialogManager.showError(gfFrame, "directory-exists");
+                    DialogManager.showError(gfFrame, "project-already-exists");
                     return;
 
                 case FileUtility.SRC_NOT_DIRECTORY:
