@@ -311,6 +311,13 @@ class VMReference
                         catch (Throwable t) {
                             // failed to connect.
                             closeIO();
+                            try {
+                                // Ask for the exit value, since that allows us to test
+                                // whether the process has already exited.
+                                int exitCode = remoteVMprocess.exitValue();
+                                Debug.log("" + System.currentTimeMillis() + ": remote VM process has prematurely terminated with exit code: " + exitCode);
+                            }
+                            catch (IllegalThreadStateException itse) {}
                             remoteVMprocess.destroy();
                             remoteVMprocess = null;
                             throw t;
