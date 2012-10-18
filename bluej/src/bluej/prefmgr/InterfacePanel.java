@@ -117,6 +117,9 @@ public class InterfacePanel extends JPanel
             box.add(testPanel);
 
             box.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
+            
+            showJavaMEBox.addItemListener( this ); 
+            toolkitBrowseButton.addActionListener( this );
         }
         
         JPanel langPanel = new JPanel();
@@ -168,10 +171,7 @@ public class InterfacePanel extends JPanel
             t.setAlignmentX(0.0f);
             langPanel.add(t);
         }
-        box.add(langPanel);
-        
-        showJavaMEBox.addItemListener( this ); 
-        toolkitBrowseButton.addActionListener( this );
+        box.add(langPanel);        
     }
     
     @Override
