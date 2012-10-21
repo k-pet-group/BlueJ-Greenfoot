@@ -28,6 +28,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Reader;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.InetAddress;
 import java.net.URL;
@@ -298,7 +299,7 @@ class VMReference
                         paramList.remove(transportIndex);
                         
                         try {
-                            remoteVMprocess = launchVM(initDir, launchParams, term);
+                            remoteVMprocess = launchVM(initDir, launchParams);
                         }
                         catch (Throwable t) {
                             connector.stopListening(arguments);
@@ -307,6 +308,7 @@ class VMReference
 
                         try {
                             machine = connector.accept(arguments);
+                            redirectToTerminal(term);
                         }
                         catch (Throwable t) {
                             // failed to connect.
@@ -316,6 +318,7 @@ class VMReference
                                 // whether the process has already exited.
                                 int exitCode = remoteVMprocess.exitValue();
                                 Debug.log("" + System.currentTimeMillis() + ": remote VM process has prematurely terminated with exit code: " + exitCode);
+                                drainOutput();
                             }
                             catch (IllegalThreadStateException itse) {}
                             remoteVMprocess.destroy();
@@ -368,6 +371,33 @@ class VMReference
         return null;
     }
     
+    /**
+     * Read and log anything that the remote VM process output before it died.
+     */
+    private void drainOutput()
+    {
+        InputStreamReader stdout = new InputStreamReader(remoteVMprocess.getInputStream());
+        char charBuf[] = new char[2048];
+        
+        try {
+            int numRead = stdout.read(charBuf);
+            if (numRead != -1) {
+                String output = new String(charBuf, 0, numRead);
+                Debug.message("Output from remote process stdout: " + output);
+            }
+            
+            InputStreamReader stderr = new InputStreamReader(remoteVMprocess.getErrorStream());
+            numRead = stderr.read(charBuf);
+            if (numRead != -1) {
+                String output = new String(charBuf, 0, numRead);
+                Debug.message("Output from remote process stderr: " + output);
+            }
+        }
+        catch (IOException ioe) {
+            Debug.message("IOException while trying to draing stdout/stderr of remote process: " + ioe.getMessage());
+        }
+    }
+    
     private void setupEventHandling()
     {
         // indicate the events we want to receive
@@ -396,7 +426,7 @@ class VMReference
      *                  the debug vm process
      * @param term      the terminal to connect to process I/O
      */
-    private Process launchVM(File initDir, String [] params, DebuggerTerminal term)
+    private Process launchVM(File initDir, String [] params)
         throws IOException
     {    
         Process vmProcess = Runtime.getRuntime().exec(params, null, initDir);
@@ -445,6 +475,17 @@ class VMReference
         }
         catch (InterruptedException ie) {}
         
+        
+        return vmProcess;
+    }
+    
+    /**
+     * Redirect input, output and error streams of the remote process to the terminal.
+     */
+    private void redirectToTerminal(DebuggerTerminal term) throws UnsupportedEncodingException
+    {
+        Process vmProcess = remoteVMprocess;
+        
         // redirect standard streams from process to Terminal
         // error stream System.err
         Reader errorReader = null;
@@ -468,8 +509,6 @@ class VMReference
         errorStreamRedirector = redirectIOStream(errorReader, term.getErrorWriter());
         outputStreamRedirector = redirectIOStream(outReader, term.getWriter());
         inputStreamRedirector = redirectIOStream(term.getReader(), inputWriter);
-        
-        return vmProcess;
     }
 
     /**
