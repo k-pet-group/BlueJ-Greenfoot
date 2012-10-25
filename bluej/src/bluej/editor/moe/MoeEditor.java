@@ -101,10 +101,6 @@ import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.HTMLFrameHyperlinkEvent;
 
-import difflib.Delta;
-import difflib.DiffUtils;
-import difflib.Patch;
-
 import bluej.BlueJEvent;
 import bluej.BlueJEventListener;
 import bluej.BlueJTheme;
@@ -3013,10 +3009,6 @@ public final class MoeEditor extends JFrame
         actions = MoeActions.getActions(sourcePane);
         actions.setUndoEnabled(false);
         actions.setRedoEnabled(false);
-
-        // **** temporary: disable all unimplemented actions ****
-        actions.getActionByName("show-manual").setEnabled(false);
-        // ****
 
         // create menubar and menus
 

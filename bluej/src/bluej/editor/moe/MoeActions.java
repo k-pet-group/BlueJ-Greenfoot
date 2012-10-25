@@ -76,7 +76,6 @@ import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.prefmgr.PrefMgr;
 import bluej.prefmgr.PrefMgrDialog;
 import bluej.utility.Debug;
-import bluej.utility.DialogManager;
 
 /**
  * A set of actions supported by the Moe editor. This is a singleton: the
@@ -1562,22 +1561,6 @@ public final class MoeActions
 
     // --------------------------------------------------------------------
 
-    class ShowManualAction extends MoeAbstractAction
-    {
-
-        public ShowManualAction()
-        {
-            super("show-manual");
-        }
-
-        public void actionPerformed(ActionEvent e)
-        {
-            DialogManager.NYI(getEditor(e));
-        }
-    }
-
-    // --------------------------------------------------------------------
-
     class GoToLineAction extends MoeAbstractAction
     {
 
@@ -2161,13 +2144,11 @@ public final class MoeActions
                 new AboutAction(), 
                 new DescribeKeyAction(), 
                 new HelpMouseAction(), 
-                new ShowManualAction(),
 
                 new IncreaseFontAction(),
                 new DecreaseFontAction(),
 
-                new ContentAssistAction(),
-
+                new ContentAssistAction()
         };
 
         // insert all actions into a hash map
