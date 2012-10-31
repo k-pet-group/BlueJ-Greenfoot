@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,8 +27,6 @@ import java.util.List;
 
 import bluej.Config;
 import bluej.classmgr.BPClassLoader;
-import bluej.collect.DataCollectionCompileObserverWrapper;
-import bluej.pkgmgr.Project;
 
 /**
  * A compiler "job". A list of filenames to compile + parameters.
@@ -100,6 +98,9 @@ class Job
         } catch(Exception e) {
             System.err.println(Config.getString("compileException") + ": " + e);
             e.printStackTrace();
+            if (observer != null) {
+                observer.endCompile(sources, false);
+            }
         }
     }
 }
