@@ -175,6 +175,23 @@ This event will no attached data (though it will have a
 \texttt{project\_id}).  It occurs when the VM is resetting, triggered either
 by an explicit user request, or by a BlueJ extension.
 
+\subsection{\texttt{compile}}
+
+This event will link to an entry in the \texttt{compile\_events} table, which
+in turn will be linked to by many entries in the \texttt{compile\_outputs}
+table.  It occurs every time user source code is compiled.
+
+\subsection{\texttt{multi_line_edit}}
+
+This event is the central editing event in BlueJ.  These events are recorded
+when multiple lines are edited, or a single line has been edited but the caret
+has now left that line.  There is no guarantee as to how edits are grouped
+together into a single edit event, but an edit event will never span a
+compiler event (i.e. all edits will be flushed before a compiler).
+
+A multi line edit will have exactly associated entry in the
+\texttt{source\_histories} table.
+
 \chapter{TODO List}
 
 \begin{itemize}
@@ -190,6 +207,20 @@ UUID (or invalid UUID)
   rails to store capitalised version in the case where there is an event\_id.
   Add a new field for event\_name to store underscore version!
 \item Do/should we record which extensions are loaded?
+\item Have flag saying whether error was shown to user
+\item Make sure file contents are anonymised, for complete and for diffs
+\item Post-process this file to automatically inject schema contents
+\item Change hyperrefs to have section number displayed (for paper printing)
+  -- make new macro?
+\item What is the relation (if any) between compile event and codepad use?
+  Doesn't look like server supports code pad use (yet?)
+\item Should we rename multi-line edit and do away with [single] line edit?
+\item Are edits actually flushed before compilation?
+\item Each event should record which BlueJ version it was recorded with.
+  Also, we should probably record OS (in the BlueJ start event?).
+\item We don't seem to record construction at the moment -- should this be a
+  special case of the method invocation event, or something separate?
+  Probably need to record resulting object name.
 \end{itemize}
 
 
