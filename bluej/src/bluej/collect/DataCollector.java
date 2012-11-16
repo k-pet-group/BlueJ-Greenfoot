@@ -82,7 +82,7 @@ public class DataCollector
     {
         if (dontSend()) return;
         initUUidSequence();
-        submitEventNoProject("bluej_start");
+        submitEventNoProject(EventName.BLUEJ_START);
     }
     
     private static ArrayList<String> splitLines(String s)
@@ -129,7 +129,7 @@ public class DataCollector
             }
         }
         
-        submitEvent(proj.getProjectName(), "project_opening", new DataSubmitter.Event() {
+        submitEvent(proj.getProjectName(), EventName.PROJECT_OPENING, new DataSubmitter.Event() {
             
             @Override
             public void success(Map<FileKey, ArrayList<String>> fileVersions)
@@ -367,25 +367,25 @@ public class DataCollector
 
     public static void projectClosed(Project proj)
     {
-        submitEventNoData(proj.getProjectName(), "project_closing");
+        submitEventNoData(proj.getProjectName(), EventName.PROJECT_CLOSING);
     }
 
     public static void bluejClosed()
     {
-        submitEventNoProject("bluej_finish");        
+        submitEventNoProject(EventName.BLUEJ_FINISH);        
     }
     
-    private static void submitEventNoProject(String eventName)
+    private static void submitEventNoProject(EventName eventName)
     {
         submitEventNoData("", eventName);
     }
     
-    private static void submitEventNoData(String projectName, String eventName)
+    private static void submitEventNoData(String projectName, EventName eventName)
     {
         submitEvent(projectName, eventName, new PlainEvent(new MultipartEntity()));
     }
     
-    private static synchronized void submitEvent(final String projectName, final String eventName, final DataSubmitter.Event evt)
+    private static synchronized void submitEvent(final String projectName, final EventName eventName, final DataSubmitter.Event evt)
     {
         if (dontSend()) return;
         
@@ -407,7 +407,7 @@ public class DataCollector
                 mpe.addPart("user[uuid]", toBody(uuid));        
                 mpe.addPart("project[name]", toBody(projectName));
                 mpe.addPart("event[source_time]", toBody(DateFormat.getDateTimeInstance().format(new Date())));
-                mpe.addPart("event[event_type]", toBody(eventName));
+                mpe.addPart("event[event_type]", toBody(eventName.getName()));
                 mpe.addPart("event[sequence_id]", toBody(Integer.toString(sequenceNum)));
                 
                 return mpe;
@@ -432,7 +432,7 @@ public class DataCollector
             mpe.addPart("event[compile_output][][source_file_name]", toBody(relative));
             //TODO have a flag indicated whether the error was shown to the user
         }
-        submitEvent(proj.getProjectName(), "compile", new PlainEvent(mpe));
+        submitEvent(proj.getProjectName(), EventName.COMPILE, new PlainEvent(mpe));
     }
     
     private static StringBody toBody(String s)
@@ -463,14 +463,14 @@ public class DataCollector
 
     public static void restartVM(Project project)
     {
-        submitEventNoData(project.getProjectName(), "resetting_vm");        
+        submitEventNoData(project.getProjectName(), EventName.RESETTING_VM);        
     }
 
     public static void edit(final Project proj, final File path, final ArrayList<String> curDoc, final boolean includeOneLineEdits)
     {
         final FileKey key = new FileKey(proj, toPath(proj, path));
         
-        submitEvent(proj.getProjectName(), "multi_line_edit", new DataSubmitter.Event() {
+        submitEvent(proj.getProjectName(), EventName.MULTI_LINE_EDIT, new DataSubmitter.Event() {
 
             private boolean dontReplace = false;
             
