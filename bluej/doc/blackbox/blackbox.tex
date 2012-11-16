@@ -1,0 +1,198 @@
+\documentclass{book}
+
+\usepackage{hyperref}
+
+\begin{document}
+
+\chapter{User Interactions}
+
+
+\chapter{Concepts}
+
+\section{Users}
+
+\section{Projects}
+
+Projects are associated with particular user ids.  They are identified only by
+their name.  For anonymisation purposes, the name is only the name of the
+project directory itself (e.g. ``assignment-1'') and not the full path.  This
+means that two projects (belonging to the same user) in different locations with the same name will appear
+to be the same.
+
+When projects are opened, a \texttt{project\_opening} event is sent
+(containing all the source code information), and when
+a project is closed, a corresponding data-less \texttt{project\_opening} event
+is sent.
+
+\section{Sessions}
+\label{def:sequence_id}
+
+When BlueJ is first loaded, a \texttt{bluej\_start} event is sent to the
+server.  It contains no real event-specific data, but marks the beginning of a
+BlueJ session for that user.
+
+When BlueJ is closed, a \texttt{bluej\_finish} event is sent to the server.
+However, since this event is sent during closing, if it is delayed then BlueJ
+will close anyway, so we cannot guarantee that every start event will have a
+finish event (and besides, the connection might already have been interrupted
+-- see \hyperref[def:interruption]{the section on interruption}.
+
+The definitive way to spot sessions is to look at the sequence numbers on
+events -- a session ends when the next event sets the number back to zero.
+
+\section{Institutions}
+\label{def:institution_id}
+
+\section{Events}
+
+The BlueJ client sends a stream of events to the BlueJ server, which
+acknowledges them.  So each piece of data will be an event, with other
+information attached.  Each event has an entry in the \hyperref[tab:master_events]{\texttt{master\_events}}
+
+\section{Interrupted Connections}
+\label{def:interruption}
+
+There are potential problems with missing events or entire sessions in the stream.  You should
+never assume you have a user's complete history of interaction with BlueJ.
+Notably, entire sessions might be missing due to users using BlueJ without an
+internet connection (e.g. on an aeroplane).  Similarly, you should not assume
+that you can see all interactions with a project -- source code could be
+edited outside BlueJ, but even within BlueJ sessions might be missing.
+
+Within a session, you can assume that you have all BlueJ events, sequentially
+consistent, from the first \texttt{bluej\_start} event, up until the last
+event that is recorded in the session.  This may not be the final event -- the user's
+internet connection may drop, or BlueJ may crash or get killed before a batch of events
+is sent, and so on.  But there will never be a ``hole'' in the middle of a
+session where events are lost, then resumed again.  Any event that fails to
+send will cause the BlueJ client to stop sending for the rest of the session.
+
+\section{Spam}
+\label{def:spam}
+
+The BlueJ data collection project server is an open web server to which anyone
+can submit.  There is no technical way to \textit{a priori} guarantee that the
+data coming in is from an unmodified BlueJ client -- it could be modified, or
+it could simply be made-up spam data being submitted.
+
+\section{Source Code Consistency}
+
+TODO talk about edits being captured, but a project-open event may well be a
+huge edit, if project has been modified elsewhere
+
+\chapter{Database Tables}
+
+There are many database tables in the Blackbox schema.  These tables are
+written to using an object framework (Ruby on Rails) with its own persistence
+model.  Thus, each table has an \verb$id$ integer field which is the primary
+key, even if it would make sense for a different field to be primary key.  The
+\texttt{id} field is used internally for associations, but is assigned
+server-side, and never bears any relation to the BlueJ client.
+
+\section{Users}
+
+The \texttt{uuid} field is the unique user identifier.  Whenever the BlueJ
+client loads up and does not find a valid BlueJ profile file with an existing
+UUID inside it, it generates a new UUID.  This means:
+
+\begin{itemize}
+\item if the user does not retain their profile file (e.g. their university
+  does not have roaming profiles, or wipes profiles on logout), they will
+  appear with a new UUID each time they load BlueJ.
+\item if the same person uses BlueJ from home (or laptop, etc) and from
+  university, they will appear as two separate users.
+\item if two people share the same profile (e.g. a single-user home system),
+  they will appear as one user.
+\end{itemize}
+
+The \texttt{created\_at} field shows the time that this user record was
+created (the first time their UUID was seen), and the \texttt{last\_update} field shows the last time that data was entered for
+this user.
+
+The \texttt{last\_sequence\_id} field is the last \hyperref[def:sequence_id]{sequence identifier} seen for
+this user, and similarly the \texttt{last\_institution\_id} is the last
+\hyperref[def:institution_id]{institution identifier} seen for this user.
+
+\section{Master Events}
+\label{tab:master_events}
+
+The master events table is the place where all events are entered.  There are
+lots of different types of events that can be received, each with a variety of
+different data, but all of them get one entry in the \texttt{master\_event}
+table, with links to other tables where necessary.
+
+Each master event has a user ID and almost all have a project ID (the two
+exceptions being \texttt{bluej\_start} and \texttt{bluej\_finish} events) -- the
+\texttt{user\_id} and \texttt{project\_id} are foreign keys for the
+\texttt{users} and \texttt{projects} tables respectively.  Similarly, if
+present, the \texttt{institution\_id} field is a foregin key for the
+\texttt{insitutions} table.
+
+The \texttt{created\_at} field is a server-side, trustworthy datestamp of when
+the event was received.  The \texttt{source\_time} is the client-side time,
+which is likely (but not guaranteed) to be sequentially consistent, but should
+not be trusted to be accurate.
+
+The \texttt{event\_id} and \texttt{event\_type} fields describe a link to
+another table.  The \texttt{event\_type} field will be a capitalised
+camel-cased singular version of the table name, and the \texttt{event\_id} field will
+be a foreign key in that table.  So, for example, if \texttt{event\_type} is
+\texttt{"CompileEvent"}, then \texttt{event\_id} will match the appropriate
+\texttt{id} in the \texttt{compile\_events} table\footnote{This is how Ruby on
+  Rails stores polymorphic association, it's a little quirky but not too
+  horrific.}.
+
+The \texttt{event\_name} column stores the name of the event -- each event is
+detailed in the following subsections.
+
+All events will have a \texttt{user\_id}, an \texttt{event\_name}, a
+\texttt{created\_at}, a \texttt{source\_time},
+and an optional
+\texttt{institution\_id}.  Unless specified otherwise, they will also have a \texttt{project\_id}.
+
+\subsection{\texttt{bluej\_start} and \texttt{bluej_finish}}
+
+These two events have no extra accompanying data.  They have no
+\texttt{project\_id}, and no other data.
+
+\subsection{\texttt{project\_opening}}
+
+This event will update the list of source files contained in a project, by
+adding to the \texttt{source\_files} table.  This data is not stored with the
+event (because it is a subset of the source histories).
+
+The event will have an attached \hyperref[tab:source_histories]{collection of
+  source histories}, representing the state of the files as the project is
+opened (as a complete snapshot, not any kind of diff).
+
+\subsection{\texttt{project\_closing}}
+
+This event will no attached data (though it will have a \texttt{project\_id}).
+
+\subsection{\texttt{resetting\_vm}}
+
+This event will no attached data (though it will have a
+\texttt{project\_id}).  It occurs when the VM is resetting, triggered either
+by an explicit user request, or by a BlueJ extension.
+
+\chapter{TODO List}
+
+\begin{itemize}
+\item Check that the UUID is generated properly for new profiles, or profile without
+UUID (or invalid UUID)
+\item Could we do better with distinguishing different projects with same
+  name, e.g. hashing the path
+\item Pause for a second or so to wait for BlueJ closing event to have good
+  chance of succeeding
+\item Should we model a session in the database?
+\item FIX THE DOUBLE-USE OF EVENT\_TYPE IN THE MASTER\_EVENTS TABLE!  It's
+  currently used to store the underscore name with no link, but is re-used by
+  rails to store capitalised version in the case where there is an event\_id.
+  Add a new field for event\_name to store underscore version!
+\item Do/should we record which extensions are loaded?
+\end{itemize}
+
+
+
+
+\end{document}
