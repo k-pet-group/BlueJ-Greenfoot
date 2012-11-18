@@ -129,6 +129,10 @@ public final class BSPNode
         }
     }
     
+    /**
+     * Returns the area of this node. Careful! Modifying the returned Rect will modify the
+     * node's area!
+     */
     public Rect getArea()
     {
         return area;

@@ -342,7 +342,7 @@ public class IBSPColChecker implements CollisionChecker
             if (left == null) {
                 if (parent != null) {
                     if (right != null) {
-                        right.setArea(node.getArea());
+                        right.getArea().copyFrom(node.getArea());
                     }
                     parent.setChild(side, right);
                 }
@@ -359,7 +359,7 @@ public class IBSPColChecker implements CollisionChecker
             else if (right == null) {
                 if (parent != null) {
                     if (left != null) {
-                        left.setArea(node.getArea());
+                        left.getArea().copyFrom(node.getArea());
                     }
                     parent.setChild(side, left);
                 }
