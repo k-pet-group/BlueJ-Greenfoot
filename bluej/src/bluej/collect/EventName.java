@@ -19,6 +19,9 @@ enum EventName
     DEBUGGER_CLOSE("debugger_close"),
     DEBUGGER_TERMINATE("debugger_terminate"),
     
+    DEBUGGER_BREAKPOINT_ADD("debugger_breakpoint_add"),
+    DEBUGGER_BREAKPOINT_REMOVE("debugger_breakpoint_remove"),
+    
     RESETTING_VM("resetting_vm");
     
     private final String name;

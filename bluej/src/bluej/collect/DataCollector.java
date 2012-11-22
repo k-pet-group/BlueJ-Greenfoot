@@ -78,13 +78,6 @@ public class DataCollector
     /** map from package directory to information on the sources contained within */
     //private Map<File,Set<SourceInfo>> srcInfoMap = new HashMap<File,Set<SourceInfo>>();
 
-    public static void bluejOpened()
-    {
-        if (dontSend()) return;
-        initUUidSequence();
-        submitEventNoProject(EventName.BLUEJ_START);
-    }
-    
     private static ArrayList<String> splitLines(String s)
     {
         ArrayList<String> r = new ArrayList<String>();
@@ -102,48 +95,7 @@ public class DataCollector
         }
         return r;
     }
-    
-    public static void projectOpened(Project proj)
-    {   
-        final MultipartEntity mpe = new MultipartEntity();
-        
-        final Map<FileKey, ArrayList<String>> versions = new HashMap<FileKey, ArrayList<String>>();
-        
-        for (File f : proj.getFilesInProject(false, true))
-        {
-            if (f.getPath().toLowerCase().endsWith(".java"))
-            {
-                String relative = toPath(proj, f);
-                
-                mpe.addPart("project[source_files][][name]", toBody(relative));
-                
-                String contents = readFile(proj, f);
-                
-                if (contents != null)
-                {
-                    mpe.addPart("source_histories[][source_event_type]", toBody("complete"));
-                    mpe.addPart("source_histories[][name]", toBody(relative));
-                    mpe.addPart("source_histories[][text]", toBody(contents));
-                    versions.put(new FileKey(proj, relative), splitLines(contents));
-                }
-            }
-        }
-        
-        submitEvent(proj.getProjectName(), EventName.PROJECT_OPENING, new DataSubmitter.Event() {
-            
-            @Override
-            public void success(Map<FileKey, ArrayList<String>> fileVersions)
-            {
-                fileVersions.putAll(versions);                
-            }
-            
-            @Override
-            public MultipartEntity makeData(Map<FileKey, ArrayList<String>> fileVersions)
-            {
-                return mpe;
-            }
-        });
-    }
+       
     
     private static String readFile(Project proj, File f)
     {
@@ -364,30 +316,32 @@ public class DataCollector
         saveInfo();
     }
     */
-
-    public static void projectClosed(Project proj)
-    {
-        submitEventNoData(proj.getProjectName(), EventName.PROJECT_CLOSING);
-    }
-
-    public static void bluejClosed()
-    {
-        submitEventNoProject(EventName.BLUEJ_FINISH);        
-    }
-    
+        
     private static void submitEventNoProject(EventName eventName)
     {
-        submitEventNoData("", eventName);
+        submitEventNoData(null, eventName);
     }
     
-    private static void submitEventNoData(String projectName, EventName eventName)
+    private static void submitEventNoData(Project project, EventName eventName)
     {
-        submitEvent(projectName, eventName, new PlainEvent(new MultipartEntity()));
+        submitEvent(project, eventName, new PlainEvent(new MultipartEntity()));
     }
     
-    private static synchronized void submitEvent(final String projectName, final EventName eventName, final DataSubmitter.Event evt)
+    private static void submitEventWithLocation(Project project, EventName eventName, String sourceFileName, int lineNumber)
+    {
+        MultipartEntity mpe = new MultipartEntity();
+        
+        mpe.addPart("event[source_file_name]", toBody(sourceFileName));
+        mpe.addPart("event[line_number]", toBody(lineNumber));
+        
+        submitEvent(project, eventName, new PlainEvent(mpe));
+    }
+    
+    private static synchronized void submitEvent(final Project project, final EventName eventName, final DataSubmitter.Event evt)
     {
         if (dontSend()) return;
+        
+        final String projectName = project == null ? "" : project.getProjectName();
         
         /**
          * Wrap the Event we've been given to add the other normal expected fields:
@@ -435,7 +389,7 @@ public class DataCollector
             mpe.addPart("event[compile_output][][source_file_name]", toBody(relative));
             //TODO have a flag indicated whether the error was shown to the user
         }
-        submitEvent(proj.getProjectName(), EventName.COMPILE, new PlainEvent(mpe));
+        submitEvent(proj, EventName.COMPILE, new PlainEvent(mpe));
     }
     
     private static StringBody toBody(String s)
@@ -463,17 +417,77 @@ public class DataCollector
     {
         return toBody(Boolean.toString(b));
     }
+    
+
+    public static void bluejOpened()
+    {
+        if (dontSend()) return;
+        initUUidSequence();
+        submitEventNoProject(EventName.BLUEJ_START);
+    }
+    
+    public static void projectOpened(Project proj)
+    {   
+        final MultipartEntity mpe = new MultipartEntity();
+        
+        final Map<FileKey, ArrayList<String>> versions = new HashMap<FileKey, ArrayList<String>>();
+        
+        for (File f : proj.getFilesInProject(false, true))
+        {
+            if (f.getPath().toLowerCase().endsWith(".java"))
+            {
+                String relative = toPath(proj, f);
+                
+                mpe.addPart("project[source_files][][name]", toBody(relative));
+                
+                String contents = readFile(proj, f);
+                
+                if (contents != null)
+                {
+                    mpe.addPart("source_histories[][source_event_type]", toBody("complete"));
+                    mpe.addPart("source_histories[][name]", toBody(relative));
+                    mpe.addPart("source_histories[][text]", toBody(contents));
+                    versions.put(new FileKey(proj, relative), splitLines(contents));
+                }
+            }
+        }
+        
+        submitEvent(proj, EventName.PROJECT_OPENING, new DataSubmitter.Event() {
+            
+            @Override
+            public void success(Map<FileKey, ArrayList<String>> fileVersions)
+            {
+                fileVersions.putAll(versions);                
+            }
+            
+            @Override
+            public MultipartEntity makeData(Map<FileKey, ArrayList<String>> fileVersions)
+            {
+                return mpe;
+            }
+        });
+    }
+
+    public static void projectClosed(Project proj)
+    {
+        submitEventNoData(proj, EventName.PROJECT_CLOSING);
+    }
+
+    public static void bluejClosed()
+    {
+        submitEventNoProject(EventName.BLUEJ_FINISH);        
+    }
 
     public static void restartVM(Project project)
     {
-        submitEventNoData(project.getProjectName(), EventName.RESETTING_VM);        
+        submitEventNoData(project, EventName.RESETTING_VM);        
     }
 
     public static void edit(final Project proj, final File path, final ArrayList<String> curDoc, final boolean includeOneLineEdits)
     {
         final FileKey key = new FileKey(proj, toPath(proj, path));
         
-        submitEvent(proj.getProjectName(), EventName.MULTI_LINE_EDIT, new DataSubmitter.Event() {
+        submitEvent(proj, EventName.MULTI_LINE_EDIT, new DataSubmitter.Event() {
 
             private boolean dontReplace = false;
             
@@ -542,10 +556,14 @@ public class DataCollector
     
     public static void debuggerTerminate(Project project)
     {
-        submitEventNoData(project.getProjectName(), EventName.DEBUGGER_TERMINATE);        
+        submitEventNoData(project, EventName.DEBUGGER_TERMINATE);        
     }
     public static void debuggerChangeVisible(Project project, boolean newVis)
     {
-        submitEventNoData(project.getProjectName(), newVis ? EventName.DEBUGGER_OPEN : EventName.DEBUGGER_CLOSE);        
+        submitEventNoData(project, newVis ? EventName.DEBUGGER_OPEN : EventName.DEBUGGER_CLOSE);        
+    }
+    public static void debuggerBreakpointToggle(Project project, String sourceFileName, int lineNumber, boolean newState)
+    {
+        submitEventWithLocation(project, newState ? EventName.DEBUGGER_BREAKPOINT_ADD : EventName.DEBUGGER_BREAKPOINT_REMOVE, sourceFileName, lineNumber);
     }
 }
