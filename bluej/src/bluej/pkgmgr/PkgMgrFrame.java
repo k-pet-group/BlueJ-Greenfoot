@@ -80,6 +80,7 @@ import bluej.BlueJEvent;
 import bluej.BlueJEventListener;
 import bluej.BlueJTheme;
 import bluej.Config;
+import bluej.collect.DataCollector;
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.ExceptionDescription;
@@ -2344,7 +2345,10 @@ public class PkgMgrFrame extends JFrame
     public void restartDebugger()
     {
         if (!isEmptyFrame())
+        {
             getProject().restartVM();
+            DataCollector.restartVM(getProject());
+        }
     }
 
     /**

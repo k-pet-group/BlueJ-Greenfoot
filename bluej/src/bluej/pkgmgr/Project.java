@@ -1316,7 +1316,6 @@ public class Project implements DebuggerListener, InspectorManager
      */
     public void restartVM()
     {
-        DataCollector.restartVM(this);
         getDebugger().close(true);
         vmClosed();
         PkgMgrFrame.displayMessage(this, Config.getString("pkgmgr.creatingVM"));

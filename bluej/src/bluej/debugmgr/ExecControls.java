@@ -79,6 +79,7 @@ import javax.swing.tree.TreeSelectionModel;
 
 import bluej.BlueJTheme;
 import bluej.Config;
+import bluej.collect.DataCollector;
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerClass;
 import bluej.debugger.DebuggerField;
@@ -929,6 +930,7 @@ public class ExecControls extends JFrame
                 // if we press this whilst we are already
                 // restarting the remote VM
                 project.restartVM();
+                DataCollector.debuggerTerminate(project);
             }
             catch (IllegalStateException ise) { }
         }
@@ -965,4 +967,16 @@ public class ExecControls extends JFrame
             debugger.hideSystemThreads(systemThreadItem.isSelected());
         }
     }
+
+    @Override
+    public void setVisible(boolean b)
+    {
+        if (b != isVisible())
+        {
+            DataCollector.debuggerChangeVisible(project, b);
+        }
+        super.setVisible(b);
+    }
+    
+    
 }

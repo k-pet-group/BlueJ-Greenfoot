@@ -13,6 +13,12 @@ enum EventName
     MULTI_LINE_EDIT("multi_line_edit"),
     PROJECT_OPENING("project_opening"),
     PROJECT_CLOSING("project_closing"),
+    
+    // Debugger: 
+    DEBUGGER_OPEN("debugger_open"),
+    DEBUGGER_CLOSE("debugger_close"),
+    DEBUGGER_TERMINATE("debugger_terminate"),
+    
     RESETTING_VM("resetting_vm");
     
     private final String name;

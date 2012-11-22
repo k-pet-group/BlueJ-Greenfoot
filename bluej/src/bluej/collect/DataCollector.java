@@ -389,6 +389,9 @@ public class DataCollector
     {
         if (dontSend()) return;
         
+        /**
+         * Wrap the Event we've been given to add the other normal expected fields:
+         */
         DataSubmitter.submitEvent(new DataSubmitter.Event() {
             
             @Override public void success(Map<FileKey, ArrayList<String>> fileVersions)
@@ -407,7 +410,7 @@ public class DataCollector
                 mpe.addPart("user[uuid]", toBody(uuid));        
                 mpe.addPart("project[name]", toBody(projectName));
                 mpe.addPart("event[source_time]", toBody(DateFormat.getDateTimeInstance().format(new Date())));
-                mpe.addPart("event[event_type]", toBody(eventName.getName()));
+                mpe.addPart("event[event_name]", toBody(eventName.getName()));
                 mpe.addPart("event[sequence_id]", toBody(Integer.toString(sequenceNum)));
                 
                 return mpe;
@@ -537,26 +540,12 @@ public class DataCollector
     }
     
     
-    // An Event with no diffs to construct
-    private static class PlainEvent implements DataSubmitter.Event
+    public static void debuggerTerminate(Project project)
     {
-        private MultipartEntity mpe;
-        
-        public PlainEvent(MultipartEntity mpe)
-        {
-            this.mpe = mpe;
-        }
-
-        @Override
-        public MultipartEntity makeData(
-                Map<FileKey, ArrayList<String>> fileVersions)
-        {
-            return mpe;
-        }
-
-        @Override
-        public void success(Map<FileKey, ArrayList<String>> fileVersions)
-        {
-        }
+        submitEventNoData(project.getProjectName(), EventName.DEBUGGER_TERMINATE);        
+    }
+    public static void debuggerChangeVisible(Project project, boolean newVis)
+    {
+        submitEventNoData(project.getProjectName(), newVis ? EventName.DEBUGGER_OPEN : EventName.DEBUGGER_CLOSE);        
     }
 }
