@@ -583,7 +583,8 @@ LICENSE.txt file that accompanied this code.${line.separator}
             
             classpathref="bluej.class.path" 
             debug="true"
-            sourcepath=""            
+            sourcepath=""
+        	source="1.6"
             target="1.6"
         >
             <src path="${src}"/>
@@ -695,11 +696,14 @@ LICENSE.txt file that accompanied this code.${line.separator}
                 <include name="doc/THIRDPARTYLICENSE.txt" />
                 <include name="doc/LICENSE.txt" />  
                 <include name="doc/GREENFOOT_LICENSES.txt" />
-            	<include name="doc/README.TXT" />
+            	<include name="doc/Greenfoot-README.TXT" />
                 <patternset refid="distribution.scenarios"/>
                 <exclude name="scenarios/**/*.class" />    
-                <exclude name="scenarios/**/greenfoot/" />   
+                <exclude name="scenarios/**/greenfoot/" />
                 
+            	<include name="common/*.java" />
+                <include name="common/*.png" />
+                <include name="common/*.gif" />
                 <include name="imagelib/**/*" />           
                 <exclude name="images/**/*" />     
                 <include name="labels/**/*"/>
@@ -709,7 +713,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
                 <include name="package/jl*.jar"/>
                 <include name="projects/**/*" />   
                 <include name="resources/**/*" />    
-                <include name="test/**/*.java" />    
+                <include name="test/**/*.java" />
                     
                 <include name="build.properties" />   
                 <include name="build.xml" />  
