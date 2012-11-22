@@ -24,6 +24,8 @@ package bluej.debugger.jdi;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import bluej.debugger.DebuggerEvent;
+
 import com.sun.jdi.ReferenceType;
 import com.sun.jdi.VMDisconnectedException;
 import com.sun.jdi.VirtualMachine;
@@ -41,6 +43,8 @@ import com.sun.jdi.event.ThreadStartEvent;
 import com.sun.jdi.event.VMDeathEvent;
 import com.sun.jdi.event.VMDisconnectEvent;
 import com.sun.jdi.event.VMStartEvent;
+import com.sun.jdi.request.EventRequest;
+import com.sun.jdi.request.StepRequest;
 
 /**
  * Event handler class to handle events coming from the remote VM.
@@ -123,30 +127,30 @@ class VMEventHandler extends Thread
                 // From the JDK documentation
                 // The events that are grouped in an EventSet are restricted in the following ways:
                 //   * Always singleton sets:
-                //		 o VMStartEvent
-                //		 o VMDisconnectEvent 
+                //     o VMStartEvent
+                //     o VMDisconnectEvent 
                 //   * Only with other VMDeathEvents:
-                //		 o VMDeathEvent 
+                //     o VMDeathEvent 
                 //   * Only with other ThreadStartEvents for the same thread:
-                //		 o ThreadStartEvent 
+                //     o ThreadStartEvent 
                 //   * Only with other ThreadDeathEvents for the same thread:
-                //		 o ThreadDeathEvent 
+                //     o ThreadDeathEvent 
                 //   * Only with other ClassPrepareEvents for the same class:
-                //		 o ClassPrepareEvent 
+                //     o ClassPrepareEvent 
                 //   * Only with other ClassUnloadEvents for the same class:
-                //		 o ClassUnloadEvent 
+                //     o ClassUnloadEvent 
                 //   * Only with other AccessWatchpointEvents for the same field access:
-                //		 o AccessWatchpointEvent 
+                //     o AccessWatchpointEvent 
                 //   * Only with other ModificationWatchpointEvents for the same field modification:
-                //		 o ModificationWatchpointEvent 
+                //     o ModificationWatchpointEvent 
                 //   * Only with other ExceptionEvents for the same exception occurrence:
-                //		 o ExceptionEvent 
+                //     o ExceptionEvent 
                 //   * Only with other MethodExitEvents for the same method exit:
-                //		 o MethodExitEvent 
+                //     o MethodExitEvent 
                 //   * Only with other members of this group, at the same location and in the same thread:
-                //		 o BreakpointEvent
-                //		 o StepEvent
-                //		 o MethodEntryEvent 
+                //     o BreakpointEvent
+                //     o StepEvent
+                //     o MethodEntryEvent 
                 
                 boolean addToSuspendCount = true;
                 
@@ -245,12 +249,29 @@ class VMEventHandler extends Thread
         }
     }
     
+    private static int getStepType(StepEvent ev)
+    {
+        EventRequest req = ev.request();
+        if (req instanceof StepRequest)
+        {
+            int stepDepth = ((StepRequest)req).depth();
+            
+            if (stepDepth == StepRequest.STEP_INTO)
+                return DebuggerEvent.THREAD_HALT_STEP_INTO;
+            else if (stepDepth == StepRequest.STEP_OVER)
+                return DebuggerEvent.THREAD_HALT_STEP_OVER;
+            // Otherwise, fall-through:
+        }
+        
+        return DebuggerEvent.THREAD_HALT_UNKNOWN;
+    }
+    
     private boolean screenEvent(Event event)
     {
         if (event instanceof BreakpointEvent) {
-            return vm.screenBreakpointEvent((LocatableEvent)event, true);
+            return vm.screenBreakpointEvent((LocatableEvent)event, DebuggerEvent.THREAD_BREAKPOINT);
         } else if (event instanceof StepEvent) {
-            return vm.screenBreakpointEvent((LocatableEvent)event, false);
+            return vm.screenBreakpointEvent((LocatableEvent)event, getStepType((StepEvent)event));
         }
         return false;
     }
@@ -266,12 +287,12 @@ class VMEventHandler extends Thread
         } else if (event instanceof ExceptionEvent) {
             vm.exceptionEvent((ExceptionEvent)event);
         } else if (event instanceof BreakpointEvent) {
-            vm.breakpointEvent((LocatableEvent)event, true, skipUpdate);
+            vm.breakpointEvent((LocatableEvent)event, DebuggerEvent.THREAD_BREAKPOINT, skipUpdate);
         } else if (event instanceof StepEvent) {
             // If we get a step and hit a breakpoint at the same time,
             // we only report the breakpoint.
             if (! gotBP) {
-                vm.breakpointEvent((LocatableEvent)event, false, skipUpdate);
+                vm.breakpointEvent((LocatableEvent)event, getStepType((StepEvent)event), skipUpdate);
             }
         } else if (event instanceof ThreadStartEvent) {
             vm.threadStartEvent((ThreadStartEvent)event);

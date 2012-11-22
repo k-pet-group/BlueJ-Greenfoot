@@ -1166,7 +1166,7 @@ class VMReference
     /**
      * A breakpoint has been hit or step completed in a thread.
      */
-    public void breakpointEvent(LocatableEvent event, boolean breakpoint, boolean skipUpdate)
+    public void breakpointEvent(LocatableEvent event, int debuggerEventType, boolean skipUpdate)
     {
         // if the breakpoint is marked as with the SERVER_STARTED property
         // then this is our own breakpoint that is used to detect when a new
@@ -1221,7 +1221,7 @@ class VMReference
             }
 
             // signal the breakpoint/step to the user
-            owner.breakpoint(event.thread(), breakpoint, skipUpdate, makeBreakpointProperties(event.request()));
+            owner.breakpoint(event.thread(), debuggerEventType, skipUpdate, makeBreakpointProperties(event.request()));
         }
     }
 
@@ -1238,9 +1238,9 @@ class VMReference
             };
     }
 
-    public boolean screenBreakpointEvent(LocatableEvent event, boolean breakpoint)
+    public boolean screenBreakpointEvent(LocatableEvent event, int debuggerEventType)
     {
-        return owner.screenBreakpoint(event.thread(), breakpoint, makeBreakpointProperties(event.request()));
+        return owner.screenBreakpoint(event.thread(), debuggerEventType, makeBreakpointProperties(event.request()));
     }
 
     // ==== code for active debugging: setting breakpoints, stepping, etc ===

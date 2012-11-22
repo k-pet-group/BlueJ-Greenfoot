@@ -866,7 +866,7 @@ public class JdiDebugger extends Debugger
      * @param tr   the thread in which code hit the breakpoint/step
      * @param bp   true for a breakpoint, false for a step
      */
-    public void breakpoint(final ThreadReference tr, final boolean bp, boolean skipUpdate, DebuggerEvent.BreakpointProperties props)
+    public void breakpoint(final ThreadReference tr, final int debuggerEventType, boolean skipUpdate, DebuggerEvent.BreakpointProperties props)
     {
         final JdiThread breakThread = allThreads.find(tr);
         if (false == skipUpdate) {
@@ -887,12 +887,7 @@ public class JdiDebugger extends Debugger
             });
         }
 
-        if (bp) {
-            fireTargetEvent(new DebuggerEvent(this, DebuggerEvent.THREAD_BREAKPOINT, breakThread, props), skipUpdate);
-        }
-        else {
-            fireTargetEvent(new DebuggerEvent(this, DebuggerEvent.THREAD_HALT, breakThread, props), skipUpdate);
-        }
+        fireTargetEvent(new DebuggerEvent(this, debuggerEventType, breakThread, props), skipUpdate);
     }
     
     /**
@@ -905,19 +900,13 @@ public class JdiDebugger extends Debugger
      * @return   true if the event is screened, that is, the GUI should not be updated because the
      *                result of the event is temporary.
      */
-    public boolean screenBreakpoint(ThreadReference thread, boolean breakpoint,
+    public boolean screenBreakpoint(ThreadReference thread, int debuggerEventType,
             DebuggerEvent.BreakpointProperties props)
     {
         JdiThread breakThread = allThreads.find(thread);
         breakThread.stopped();
         
-        DebuggerEvent event;
-        if (breakpoint) {
-            event = new DebuggerEvent(this, DebuggerEvent.THREAD_BREAKPOINT, breakThread, props);
-        }
-        else {
-            event = new DebuggerEvent(this, DebuggerEvent.THREAD_HALT, breakThread, props);
-        }
+        DebuggerEvent event = new DebuggerEvent(this, debuggerEventType, breakThread, props);
         
         boolean done = false;
         // Guaranteed to return a non-null array
@@ -1180,7 +1169,7 @@ public class JdiDebugger extends Debugger
      */
     void threadHalted(final JdiThread thread)
     {
-        DebuggerEvent event = new DebuggerEvent(this, DebuggerEvent.THREAD_HALT, thread, null);
+        DebuggerEvent event = new DebuggerEvent(this, DebuggerEvent.THREAD_HALT_UNKNOWN, thread, null);
         
         boolean skipUpdate = false;
         // Guaranteed to return a non-null array

@@ -1802,11 +1802,15 @@ public class Project implements DebuggerListener, InspectorManager
                         pkg.hitBreakpoint(thr);
                         break;
 
-                    case DebuggerEvent.THREAD_HALT:
+                    case DebuggerEvent.THREAD_HALT_UNKNOWN:
+                    case DebuggerEvent.THREAD_HALT_STEP_INTO:
+                    case DebuggerEvent.THREAD_HALT_STEP_OVER:
                         pkg.hitHalt(thr);
                         break;
                     }
                 }
+                
+                // TODO record the event                
             }
         });
     }
