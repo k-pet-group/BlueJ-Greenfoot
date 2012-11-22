@@ -909,6 +909,7 @@ public class ExecControls extends JFrame
             project.removeStepMarks();
             if (selectedThread.isSuspended()) {
                 selectedThread.cont();
+                DataCollector.debuggerContinue(project, selectedThread.getName());
             }
         }
     }

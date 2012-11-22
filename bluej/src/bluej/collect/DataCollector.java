@@ -566,4 +566,12 @@ public class DataCollector
     {
         submitEventWithLocation(project, newState ? EventName.DEBUGGER_BREAKPOINT_ADD : EventName.DEBUGGER_BREAKPOINT_REMOVE, sourceFileName, lineNumber);
     }
+    public static void debuggerContinue(Project project, String threadName)
+    {
+        MultipartEntity mpe = new MultipartEntity();
+        
+        mpe.addPart("event[thread_name]", toBody(threadName));
+        
+        submitEvent(project, EventName.DEBUGGER_CONTINUE, new PlainEvent(mpe));        
+    }
 }

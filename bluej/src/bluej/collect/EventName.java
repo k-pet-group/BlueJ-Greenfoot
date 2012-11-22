@@ -18,6 +18,7 @@ enum EventName
     DEBUGGER_OPEN("debugger_open"),
     DEBUGGER_CLOSE("debugger_close"),
     DEBUGGER_TERMINATE("debugger_terminate"),
+    DEBUGGER_CONTINUE("debugger_continue"),
     
     DEBUGGER_BREAKPOINT_ADD("debugger_breakpoint_add"),
     DEBUGGER_BREAKPOINT_REMOVE("debugger_breakpoint_remove"),
