@@ -316,20 +316,40 @@ public class DataCollector
         saveInfo();
     }
     */
-        
+
+    /**
+     * Submits an event with the given name, but no project.
+     * Only used for BlueJ start/finish events -- everything else should have a project.
+     */
     private static void submitEventNoProject(EventName eventName)
     {
         submitEventNoData(null, eventName);
     }
     
+    /**
+     * Submits an event with no extra data.  A useful short-hand for calling submitEvent
+     * with no content in the event.
+     */
     private static void submitEventNoData(Project project, EventName eventName)
     {
         submitEvent(project, eventName, new PlainEvent(new MultipartEntity()));
     }
     
-    private static void submitEventWithLocation(Project project, EventName eventName, String sourceFileName, int lineNumber)
+    /**
+     * Submits an event and adds a source location.
+     * 
+     * @param project
+     * @param eventName
+     * @param mpe You can pass null if you have no other data to give
+     * @param sourceFileName
+     * @param lineNumber
+     */
+    private static void submitEventWithLocation(Project project, EventName eventName, MultipartEntity mpe, String sourceFileName, int lineNumber)
     {
-        MultipartEntity mpe = new MultipartEntity();
+        if (mpe == null)
+        {
+            mpe = new MultipartEntity();
+        }
         
         mpe.addPart("event[source_file_name]", toBody(sourceFileName));
         mpe.addPart("event[line_number]", toBody(lineNumber));
@@ -342,6 +362,8 @@ public class DataCollector
         if (dontSend()) return;
         
         final String projectName = project == null ? "" : project.getProjectName();
+        // Must take copy to avoid problems with later modification:
+        final int thisSequenceNum = sequenceNum;  
         
         /**
          * Wrap the Event we've been given to add the other normal expected fields:
@@ -365,7 +387,7 @@ public class DataCollector
                 mpe.addPart("project[name]", toBody(projectName));
                 mpe.addPart("event[source_time]", toBody(DateFormat.getDateTimeInstance().format(new Date())));
                 mpe.addPart("event[event_type]", toBody(eventName.getName()));
-                mpe.addPart("event[sequence_id]", toBody(Integer.toString(sequenceNum)));
+                mpe.addPart("event[sequence_id]", toBody(Integer.toString(thisSequenceNum)));
                 
                 return mpe;
             }
@@ -564,7 +586,7 @@ public class DataCollector
     }
     public static void debuggerBreakpointToggle(Project project, String sourceFileName, int lineNumber, boolean newState)
     {
-        submitEventWithLocation(project, newState ? EventName.DEBUGGER_BREAKPOINT_ADD : EventName.DEBUGGER_BREAKPOINT_REMOVE, sourceFileName, lineNumber);
+        submitEventWithLocation(project, newState ? EventName.DEBUGGER_BREAKPOINT_ADD : EventName.DEBUGGER_BREAKPOINT_REMOVE, null, sourceFileName, lineNumber);
     }
     public static void debuggerContinue(Project project, String threadName)
     {
@@ -574,4 +596,5 @@ public class DataCollector
         
         submitEvent(project, EventName.DEBUGGER_CONTINUE, new PlainEvent(mpe));        
     }
+
 }
