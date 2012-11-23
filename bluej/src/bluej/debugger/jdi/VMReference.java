@@ -1622,6 +1622,7 @@ class VMReference
     {
         synchronized (eventHandler) {
             serverThread.resume();
+            owner.serverThreadResumed(serverThread);
             owner.raiseStateChangeEvent(Debugger.RUNNING);
         }
         // Note, we do the state change after the resume because the state

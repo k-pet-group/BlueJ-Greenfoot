@@ -1225,4 +1225,14 @@ public class JdiDebugger extends Debugger
         
         fireTargetEvent(event, skipUpdate);
     }
+
+    /**
+     * The server thread has been resumed: updated its internal isSuspended status,
+     * but no need to fire listeners
+     * @param serverThread
+     */
+    public void serverThreadResumed(ThreadReference serverThread)
+    {
+        allThreads.find(serverThread).notifyResumed();
+    }
 }

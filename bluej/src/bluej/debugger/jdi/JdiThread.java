@@ -643,4 +643,13 @@ class JdiThread extends DebuggerThread
             return false;
         }
     }
+
+    /**
+     * Called when we are the serverThread, to let us know we've been resumed
+     * (and should update our internal status accordingly)
+     */
+    public void notifyResumed()
+    {
+        isSuspended = false;
+    }
 }
