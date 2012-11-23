@@ -33,20 +33,17 @@
            <DialogRef Id="UserExit" />
            
            <!-- A lot of these are taken from the original WixUI_InstallDir, but I've
-                added in the JDKDlg and the CheckboxExtrasDlg, at what seemed like the appropriate points. -->
+                added in the CheckboxExtrasDlg, at what seemed like the appropriate point. -->
            
            <Publish Dialog="BrowseDlg" Control="OK" Event="DoAction" Value="WixUIValidatePath" Order="3">1</Publish>
            <Publish Dialog="BrowseDlg" Control="OK" Event="SpawnDialog" Value="InvalidDirDlg" Order="4"><![CDATA[WIXUI_INSTALLDIR_VALID<>"1"]]></Publish>
 
            <Publish Dialog="ExitDialog" Control="Finish" Event="EndDialog" Value="Return" Order="999">1</Publish>
 
-           <Publish Dialog="WelcomeDlg" Control="Next" Event="NewDialog" Value="JDKDlg">NOT Installed</Publish>
+           <Publish Dialog="WelcomeDlg" Control="Next" Event="NewDialog" Value="InstallScopeDlg">NOT Installed</Publish>
            <Publish Dialog="WelcomeDlg" Control="Next" Event="NewDialog" Value="VerifyReadyDlg">Installed AND PATCH</Publish>
 
-           <Publish Dialog="JDKDlg" Control="Back" Event="NewDialog" Value="WelcomeDlg">1</Publish>
-           <Publish Dialog="JDKDlg" Control="Next" Event="NewDialog" Value="InstallScopeDlg">1</Publish>
-           
-           <Publish Dialog="InstallScopeDlg" Control="Back" Event="NewDialog" Value="JDKDlg">1</Publish>
+           <Publish Dialog="InstallScopeDlg" Control="Back" Event="NewDialog" Value="WelcomeDlg">1</Publish>
            <Publish Dialog="InstallScopeDlg" Control="Next" Event="NewDialog" Value="CheckboxExtrasDlg">1</Publish>
            <Publish Dialog="InstallScopeDlg" Control="Next" Property="ALLUSERS" Value="{}">WixAppFolder="WixPerUserFolder"</Publish>
            <Publish Dialog="InstallScopeDlg" Control="Next" Property="ALLUSERS" Value="1">WixAppFolder="WixPerMachineFolder"</Publish>           

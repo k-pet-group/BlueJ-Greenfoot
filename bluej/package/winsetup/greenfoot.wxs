@@ -32,10 +32,6 @@
          common to both BlueJ and Greenfoot -->
     <?include common.wxi ?>
     
-    <!-- jdkversion.wxi tries to find installed JDKs on the user's machine,
-         and sets corresponding properties which are used in the UI (JDKDlg) -->
-    <?include jdkversion.wxi ?>
-    
     <!-- TARGETDIR is special and must be used.  SourceDir is also special, I think,
          and that's where the ant rules unzip all the files that we want distributed. -->
     <Directory Id='TARGETDIR' Name='SourceDir'>

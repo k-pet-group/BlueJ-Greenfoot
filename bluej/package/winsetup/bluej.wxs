@@ -6,7 +6,7 @@
         Change Version in SOFTWAREVERSION property, below -->
 
 <Product Name='BlueJ' Id='7d66971c-652b-4065-a6b1-b3ee313c254b' UpgradeCode='f4b4357e-6101-4cb1-8e38-3d4f3afb4be2'
-    Language='1033' Codepage='1252' Version='3.0.7' Manufacturer='BlueJ Team'>
+    Language='1033' Codepage='1252' Version='3.0.9' Manufacturer='BlueJ Team'>
     
     <Package Id='*' Keywords='Installer' Description="BlueJ Installer"
       Manufacturer='BlueJ'
@@ -18,7 +18,7 @@
     <Property Id="ALLUSERS" Secure="yes" />
     
     <Property Id="SOFTWARE" Value="BlueJ"/>
-    <Property Id="SOFTWAREVERSION" Value="3.0.7"/>
+    <Property Id="SOFTWAREVERSION" Value="3.0.9"/>
     <Property Id="SOFTWAREPROJECTEXT" Value="bluej"/>
     <Property Id="SOFTWAREARCHIVEEXT" Value="bjar"/>
     <!-- Define all the necessary GUIDs here, to make sure they are different from Greenfoot -->
@@ -31,10 +31,6 @@
     <!-- common.wxi is an include file with the UI and other settings
          common to both BlueJ and Greenfoot -->
     <?include common.wxi ?>
-    
-    <!-- jdkversion.wxi tries to find installed JDKs on the user's machine,
-         and sets corresponding properties which are used in the UI (JDKDlg) -->
-    <?include jdkversion.wxi ?>
     
     <!-- TARGETDIR is special and must be used.  SourceDir is also special, I think,
          and that's where the ant rules unzip all the files that we want distributed. -->         
@@ -58,7 +54,7 @@
     
     <?include registry.wxi ?>
     
-    <Feature Title='Greenfoot' Id='FeatureCore' Level='1' ConfigurableDirectory="INSTALLDIR">
+    <Feature Title='BlueJ' Id='FeatureCore' Level='1' ConfigurableDirectory="INSTALLDIR">
       <ComponentGroupRef Id='BlueJFiles' />
       <ComponentRef Id='CompLauncher' />
       <!-- The shortcuts and associations are optional, and turned on/off via the installer GUI -->
