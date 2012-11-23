@@ -412,7 +412,7 @@ public class ExecControls extends JFrame
             String className = loc.getClassName();
 
             // ensure that the bluej.runtime.ExecServer frames are not shown
-            if (className.startsWith("bluej.runtime.")) {
+            if (className.startsWith("bluej.runtime.") && !className.equals(bluej.runtime.BJInputStream.class.getCanonicalName())) {
                 break;
             }
 
