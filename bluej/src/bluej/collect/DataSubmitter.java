@@ -53,7 +53,7 @@ public class DataSubmitter
 {
     private static final String submitUrl = "http://localhost:3000/master_events";
     
-    private static boolean givenUp = false;
+    private static volatile boolean givenUp = false;
     
     private static boolean isRunning = false;
     
