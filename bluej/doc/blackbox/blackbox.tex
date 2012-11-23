@@ -1,13 +1,23 @@
 \documentclass{book}
 
 \usepackage{hyperref}
+\usepackage{listings}
+
+\lstMakeShortInline{|}
 
 \begin{document}
 
 \chapter{User Interactions}
 
 
+\section{Debugger}
+
+BlueJ has a built-in debugger with support for multiple threads, and the usual
+interactions: continue/stop, step into/over, and terminate.
+
 \chapter{Concepts}
+
+\section{The Debug VM}
 
 \section{Users}
 
@@ -150,7 +160,7 @@ All events will have a \texttt{user\_id}, an \texttt{event\_name}, a
 and an optional
 \texttt{institution\_id}.  Unless specified otherwise, they will also have a \texttt{project\_id}.
 
-\subsection{\texttt{bluej\_start} and \texttt{bluej_finish}}
+\subsection{\texttt{bluej\_start} and \texttt{bluej\_finish}}
 
 These two events have no extra accompanying data.  They have no
 \texttt{project\_id}, and no other data.
@@ -181,7 +191,7 @@ This event will link to an entry in the \texttt{compile\_events} table, which
 in turn will be linked to by many entries in the \texttt{compile\_outputs}
 table.  It occurs every time user source code is compiled.
 
-\subsection{\texttt{multi_line_edit}}
+\subsection{\texttt{multi\_line\_edit}}
 
 This event is the central editing event in BlueJ.  These events are recorded
 when multiple lines are edited, or a single line has been edited but the caret
@@ -192,35 +202,109 @@ compiler event (i.e. all edits will be flushed before a compiler).
 A multi line edit will have exactly associated entry in the
 \texttt{source\_histories} table.
 
+\subsection{\lstinline|debugger_open| and \lstinline|debugger_close|}
+
+These events occur when the debugger window is opened or closed.  No further
+data is attached.
+
+\subsection{\lstinline|debugger_terminate|}
+
+This event occurs when the user clicks the Terminate button in the debugger.
+It kills the current debug VM, and thus all currently-executing user code.  No
+further data is attached.
+
+\subsection{\lstinline|debugger_continue|}
+
+This event occurs when the user clicks the Continue button in the debugger.
+It makes the selected thread continue execution (until Halt is clicked, or a
+breakpoint is hit).  An accompanying entry in the |debugger_events| table will
+have the |thread_name|, but no source location.
+
+\subsection{\lstinline|debugger_hit_breakpoint|,
+  \lstinline|debugger_stepinto|, \lstinline|debugger_stepover| and
+  \lstinline|debugger_halt|}
+
+These events occur when the user code in a thread becomes suspended.  The
+|debugger_hit_breakpoint| event indicates that the suspension was due to
+hitting a breakpoint, while |debugger_stepinto| and |debugger_stepover|
+indicate that the thread has just completed a step request.  (If a step
+request ends on a breakpoint, only the breakpoint is reported.)  The
+|debugger_halt| is reported in the remaining case, that the user has
+clicked the Halt button in the debugger.
+
+For |debugger_hit_breakpoint|, there will be a link to the |breakpoints|
+table, which will specify a source file and a line number.  For breakpoints,
+it is guaranteed that the source file will be within the project.
+
+For the other events, the location where the execution may have halted could
+be in user code, but it could also be in external code, such as user
+libraries, or system libraries.  For the other three events, the link is to
+the |debugger_events| table, with a |thread_name| and a |class_source_name|
+and |line_number|.  Checking the class source against local source files must
+be done in a post-processing step.
+
+\subsection{\lstinline|debugger_breakpoint_add| and
+  \lstinline|debugger_breakpoint_remove|}
+
+These events occur when a user adds/removes a breakpoint.  They have a link to
+the |breakpoints| table which details the location of the breakpoint.
+
 \chapter{TODO List}
+
+\section{Tasks}
 
 \begin{itemize}
 \item Check that the UUID is generated properly for new profiles, or profile without
 UUID (or invalid UUID)
-\item Could we do better with distinguishing different projects with same
-  name, e.g. hashing the path
+\item Create opt-in dialog, and allow later change
+\item Let extensions find out UUID
+\item Implement institution ID
 \item Pause for a second or so to wait for BlueJ closing event to have good
   chance of succeeding
-\item Should we model a session in the database?
 \item FIX THE DOUBLE-USE OF EVENT\_TYPE IN THE MASTER\_EVENTS TABLE!  It's
   currently used to store the underscore name with no link, but is re-used by
   rails to store capitalised version in the case where there is an event\_id.
   Add a new field for event\_name to store underscore version!
-\item Do/should we record which extensions are loaded?
 \item Have flag saying whether error was shown to user
 \item Make sure file contents are anonymised, for complete and for diffs
 \item Post-process this file to automatically inject schema contents
 \item Change hyperrefs to have section number displayed (for paper printing)
   -- make new macro?
-\item What is the relation (if any) between compile event and codepad use?
-  Doesn't look like server supports code pad use (yet?)
 \item Should we rename multi-line edit and do away with [single] line edit?
 \item Are edits actually flushed before compilation?
 \item Each event should record which BlueJ version it was recorded with.
   Also, we should probably record OS (in the BlueJ start event?).
-\item We don't seem to record construction at the moment -- should this be a
+\item Refactor server to have one table for source locations (and have
+  |debugger_breakpoint_add| and |debugger_breakpoint_remove| events)
+\item Check that all source file names are sent correctly (and are not class
+  names -- breakpoints are almost certainly wrong)
+\item Make sure multi-threading is properly supported in the debugger
+\item How long should we give the BlueJ-closing event to send before we force a
+quit?
+\end{itemize}
+
+\section{Questions}
+
+\begin{itemize}
+\item Could we do better with distinguishing different projects with same
+  name, e.g. hashing the path
+\item Should we model a session in the database?
+\item Do/should we record which extensions are loaded?
+\item What is the relation (if any) between compile event and codepad use?
+  Doesn't look like server supports code pad use (yet?)
+\item We don't seem to record object construction at the moment -- should this be a
   special case of the method invocation event, or something separate?
   Probably need to record resulting object name.
+\item Should we record events when they are triggered by extensions?
+  (e.g. restart VM) -- DECIDED no, very invasive, not always possible
+\item Should we record full stack trace during debugger, not just top line?
+\item Do we need sequence numbers from client?  Just record on server?
+\item Is it worth trying to coalesce identical records (e.g. source locations)
+  -- speed vs space-and-simplicity?
+\item Should we check halt/step locations against local source files
+  ourselves, or leave it to post-processing?
+\item Should there be project_opening and package_opening -- they are potentially
+different?
 \end{itemize}
 
 
