@@ -49,6 +49,7 @@ import bluej.collect.DataSubmitter.FileKey;
 import bluej.compiler.Diagnostic;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.Package;
+import bluej.utility.FileUtility;
 import bluej.utility.Utility;
 
 /**
@@ -336,22 +337,47 @@ public class DataCollector
     }
     
     /**
-     * Submits an event and adds a source location.
+     * Submits an event and adds a source location.  This should be used if the file
+     * is within the project (otherwise see submitEventWithClassLocation)
      * 
      * @param project
      * @param eventName
      * @param mpe You can pass null if you have no other data to give
-     * @param sourceFileName
+     * @param sourceFile
      * @param lineNumber
      */
-    private static void submitEventWithLocation(Project project, EventName eventName, MultipartEntity mpe, String sourceFileName, int lineNumber)
+    private static void submitEventWithLocalLocation(Project project, EventName eventName, MultipartEntity mpe, File sourceFile, int lineNumber)
     {
         if (mpe == null)
         {
             mpe = new MultipartEntity();
         }
         
-        mpe.addPart("event[source_file_name]", toBody(sourceFileName));
+        mpe.addPart("event[source_file_name]", toBody(FileUtility.makeRelativePath(project.getProjectDir(), sourceFile)));
+        mpe.addPart("event[line_number]", toBody(lineNumber));
+        
+        submitEvent(project, eventName, new PlainEvent(mpe));
+    }
+    
+    /**
+     * Submits an event and adds a source location.  This should be used if it is not
+     * known whether the class is in the project, or whether it might be from a library
+     * (e.g. java.io.*) or wherever.
+     * 
+     * @param project
+     * @param eventName
+     * @param mpe You can pass null if you have no other data to give
+     * @param classSourceName
+     * @param lineNumber
+     */
+    private static void submitEventWithClassLocation(Project project, EventName eventName, MultipartEntity mpe, String classSourceName, int lineNumber)
+    {
+        if (mpe == null)
+        {
+            mpe = new MultipartEntity();
+        }
+        
+        mpe.addPart("event[class_source_name]", toBody(classSourceName));
         mpe.addPart("event[line_number]", toBody(lineNumber));
         
         submitEvent(project, eventName, new PlainEvent(mpe));
@@ -584,17 +610,42 @@ public class DataCollector
     {
         submitEventNoData(project, newVis ? EventName.DEBUGGER_OPEN : EventName.DEBUGGER_CLOSE);        
     }
-    public static void debuggerBreakpointToggle(Project project, String sourceFileName, int lineNumber, boolean newState)
+    public static void debuggerBreakpointToggle(Project project, File sourceFile, int lineNumber, boolean newState)
     {
-        submitEventWithLocation(project, newState ? EventName.DEBUGGER_BREAKPOINT_ADD : EventName.DEBUGGER_BREAKPOINT_REMOVE, null, sourceFileName, lineNumber);
+        submitEventWithLocalLocation(project, newState ? EventName.DEBUGGER_BREAKPOINT_ADD : EventName.DEBUGGER_BREAKPOINT_REMOVE, null, sourceFile, lineNumber);
     }
     public static void debuggerContinue(Project project, String threadName)
     {
         MultipartEntity mpe = new MultipartEntity();
-        
         mpe.addPart("event[thread_name]", toBody(threadName));
-        
         submitEvent(project, EventName.DEBUGGER_CONTINUE, new PlainEvent(mpe));        
     }
 
+    public static void debuggerHalt(Project project, String threadName, String sourceFileName, int lineNumber)
+    {
+        MultipartEntity mpe = new MultipartEntity();
+        mpe.addPart("event[thread_name]", toBody(threadName));
+        submitEventWithClassLocation(project, EventName.DEBUGGER_HALT, mpe, sourceFileName, lineNumber);
+    }
+    
+    public static void debuggerStepInto(Project project, String threadName, String sourceFileName, int lineNumber)
+    {
+        MultipartEntity mpe = new MultipartEntity();
+        mpe.addPart("event[thread_name]", toBody(threadName));
+        submitEventWithClassLocation(project, EventName.DEBUGGER_STEP_INTO, mpe, sourceFileName, lineNumber);
+    }
+    
+    public static void debuggerStepOver(Project project, String threadName, String sourceFileName, int lineNumber)
+    {
+        MultipartEntity mpe = new MultipartEntity();
+        mpe.addPart("event[thread_name]", toBody(threadName));
+        submitEventWithClassLocation(project, EventName.DEBUGGER_STEP_OVER, mpe, sourceFileName, lineNumber);
+    }
+    
+    public static void debuggerHitBreakpoint(Project project, String threadName, String sourceFileName, int lineNumber)
+    {
+        MultipartEntity mpe = new MultipartEntity();
+        mpe.addPart("event[thread_name]", toBody(threadName));
+        submitEventWithClassLocation(project, EventName.DEBUGGER_HIT_BREAKPOINT, mpe, sourceFileName, lineNumber);
+    }
 }

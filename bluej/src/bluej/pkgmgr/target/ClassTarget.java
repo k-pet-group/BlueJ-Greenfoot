@@ -983,7 +983,7 @@ public class ClassTarget extends DependentTarget
             
             if (possibleError == null && getPackage() != null)
             {
-                DataCollector.debuggerBreakpointToggle(getPackage().getProject(), getSourceFile().getPath(), lineNo, set);
+                DataCollector.debuggerBreakpointToggle(getPackage().getProject(), getSourceFile(), lineNo, set);
             }
             
             return possibleError;
