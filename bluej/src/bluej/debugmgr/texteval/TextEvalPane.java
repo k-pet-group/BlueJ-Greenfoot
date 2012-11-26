@@ -303,11 +303,13 @@ public class TextEvalPane extends JEditorPane
                 if(isObject) {
                     DebuggerObject resultObject = resultField.getValueObject(null);
                     String resultType = resultObject.getGenType().toString(true);
-                    objectOutput(resultString + "   (" + resultType + ")",  new ObjectInfo(resultObject, ir));
+                    String resultOutputString = resultString + "   (" + resultType + ")";
+                    objectOutput(resultOutputString,  new ObjectInfo(resultObject, ir));
                 }
                 else {
                     String resultType = resultField.getType().toString(true);
-                    output(resultString + "   (" + resultType + ")");
+                    String resultOutputString = resultString + "   (" + resultType + ")";
+                    output(resultOutputString);
                 }
             }            
         } 
@@ -386,7 +388,7 @@ public class TextEvalPane extends JEditorPane
         }
         
         removeNewlyDeclareds();
-        showErrorMsg(exception.getText());
+        showExceptionMsg(exception.getClassName(), exception.getText());
     }
     
     /**
@@ -400,7 +402,9 @@ public class TextEvalPane extends JEditorPane
         
         removeNewlyDeclareds();
         
-        append(Config.getString("pkgmgr.codepad.vmTerminated"));
+        
+        String message = Config.getString("pkgmgr.codepad.vmTerminated");
+        append(message);
         markAs(TextEvalSyntaxView.ERROR, Boolean.TRUE);
         
         completeExecution();
@@ -429,7 +433,17 @@ public class TextEvalPane extends JEditorPane
     private void showErrorMsg(final String message)
     {
         append(" ");
-        error(message);
+        error("Error: " + message);
+        completeExecution();
+    }
+    
+    /**
+     * Show an exception message, and allow further command input.
+     */
+    private void showExceptionMsg(final String name, final String text)
+    {
+        append(" ");
+        error("Exception: " + name + " (" + text + ")");
         completeExecution();
     }
     
@@ -517,7 +531,7 @@ public class TextEvalPane extends JEditorPane
     private void error(String s)
     {
         try {
-            doc.insertString(doc.getLength(), "Error: " + s, null);
+            doc.insertString(doc.getLength(), s, null);
             markAs(TextEvalSyntaxView.ERROR, Boolean.TRUE);
         }
         catch(BadLocationException exc) {
