@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -546,8 +546,7 @@ public class JdiReflective extends Reflective
         if (c == '[') {
             // array
             JavaType t = typeFromSignature(i, tparams, parent);
-            JdiArrayReflective ar = new JdiArrayReflective(t, parent.classLoader(), parent.virtualMachine());
-            return new GenTypeArrayClass(ar, t);
+            return t.getArray();
         }
         if (c == 'T') {
             // type parameter
