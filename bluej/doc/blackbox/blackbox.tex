@@ -261,10 +261,6 @@ UUID (or invalid UUID)
 \item Implement institution ID
 \item Pause for a second or so to wait for BlueJ closing event to have good
   chance of succeeding
-\item FIX THE DOUBLE-USE OF EVENT\_TYPE IN THE MASTER\_EVENTS TABLE!  It's
-  currently used to store the underscore name with no link, but is re-used by
-  rails to store capitalised version in the case where there is an event\_id.
-  Add a new field for event\_name to store underscore version!
 \item Have flag saying whether error was shown to user
 \item Make sure file contents are anonymised, for complete and for diffs
 \item Post-process this file to automatically inject schema contents
@@ -277,10 +273,18 @@ UUID (or invalid UUID)
 \item Refactor server to have one table for source locations (and have
   |debugger_breakpoint_add| and |debugger_breakpoint_remove| events)
 \item Check that all source file names are sent correctly (and are not class
-  names -- breakpoints are almost certainly wrong)
+  names -- or at least, make sure distinction is clear)
 \item Make sure multi-threading is properly supported in the debugger
-\item How long should we give the BlueJ-closing event to send before we force a
-quit?
+\item Fix missing events in AJAX live stream
+\item Have whizzy expansion/closing for events in AJAX live stream
+\item Make sure AJAX live stream is off in production!
+\item Check speed (especially loading up)
+\item Spurious multi_line_edit at end of file on first load? (Adding final
+  line break on load-up?)
+\item Look for other coalescing opportunities
+\item Sessions aren't being tracked very easily: user only keeps last sequence id,
+  but currently you need to look for a bluej_start event to group sessions
+\item TODO model sessions in database!
 \end{itemize}
 
 \section{Questions}
@@ -288,26 +292,26 @@ quit?
 \begin{itemize}
 \item Could we do better with distinguishing different projects with same
   name, e.g. hashing the path
-\item Should we model a session in the database?
 \item Do/should we record which extensions are loaded?
-\item What is the relation (if any) between compile event and codepad use?
-  Doesn't look like server supports code pad use (yet?)
 \item We don't seem to record object construction at the moment -- should this be a
   special case of the method invocation event, or something separate?
   Probably need to record resulting object name.
-\item Should we record events when they are triggered by extensions?
-  (e.g. restart VM) -- DECIDED no, very invasive, not always possible
 \item Should we record full stack trace during debugger, not just top line?
 \item Do we need sequence numbers from client?  Just record on server?
-\item Is it worth trying to coalesce identical records (e.g. source locations)
-  -- speed vs space-and-simplicity?
-\item Should we check halt/step locations against local source files
-  ourselves, or leave it to post-processing?
 \item Should there be project_opening and package_opening -- they are potentially
 different?
+\item What do we want from object bench and methods?  E.g. parameter values,
+  return values, ``Get'' operations, Inspects
+\item Do we want to record any Terminal usage?
 \end{itemize}
 
+\section{Answers}
 
+\begin{itemize}
+\item Should we record events when they are triggered by extensions?
+  (e.g. restart VM) -- DECIDED no, very invasive, not always possible
+\item Should we model a session in the database? -- YES!
+\end{itemize}
 
 
 \end{document}

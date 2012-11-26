@@ -412,7 +412,7 @@ public class DataCollector
                 mpe.addPart("user[uuid]", toBody(uuid));        
                 mpe.addPart("project[name]", toBody(projectName));
                 mpe.addPart("event[source_time]", toBody(DateFormat.getDateTimeInstance().format(new Date())));
-                mpe.addPart("event[event_type]", toBody(eventName.getName()));
+                mpe.addPart("event[name]", toBody(eventName.getName()));
                 mpe.addPart("event[sequence_id]", toBody(Integer.toString(thisSequenceNum)));
                 
                 return mpe;
