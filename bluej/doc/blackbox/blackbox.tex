@@ -249,6 +249,23 @@ be done in a post-processing step.
 These events occur when a user adds/removes a breakpoint.  They have a link to
 the |breakpoints| table which details the location of the breakpoint.
 
+\subsection{\lstinline|codepad_success|, \lstinline|codepad_error| and
+  \lstinline|codepad_exception|}
+
+These events occur each time that the user types something into the codepad
+window and gets a response.  The success event indicates that the code
+successfully compiled, and executed without throwing an exception or without
+exiting the VM early.  In this case, the entry in the |codepad_events| table
+will have the fields |command| and |result| filled in with the input and
+output respectively.
+
+The |codepad_error| event indicates a compiler error occurred, or that the VM
+exited during execution: the
+|codepad_events| table will have |command| and |error| filled in with the
+input and error respectively.  The |codepad_exception| event indicates an exception occurred: the
+|codepad_events| table will have |command| and |exception| filled in with the
+input and exception respectively.
+
 \chapter{TODO List}
 
 \section{Tasks}
@@ -282,9 +299,6 @@ UUID (or invalid UUID)
 \item Spurious multi_line_edit at end of file on first load? (Adding final
   line break on load-up?)
 \item Look for other coalescing opportunities
-\item Sessions aren't being tracked very easily: user only keeps last sequence id,
-  but currently you need to look for a bluej_start event to group sessions
-\item TODO model sessions in database!
 \end{itemize}
 
 \section{Questions}
@@ -297,12 +311,13 @@ UUID (or invalid UUID)
   special case of the method invocation event, or something separate?
   Probably need to record resulting object name.
 \item Should we record full stack trace during debugger, not just top line?
-\item Do we need sequence numbers from client?  Just record on server?
 \item Should there be project_opening and package_opening -- they are potentially
 different?
 \item What do we want from object bench and methods?  E.g. parameter values,
   return values, ``Get'' operations, Inspects
 \item Do we want to record any Terminal usage?
+\item Events have a user id, a project id, and a session id -- but the last
+  one is sufficient to get the first two.  Should we normalise?
 \end{itemize}
 
 \section{Answers}
