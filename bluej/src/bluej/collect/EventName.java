@@ -48,6 +48,10 @@ enum EventName
     DEBUGGER_BREAKPOINT_ADD("debugger_breakpoint_add"),
     DEBUGGER_BREAKPOINT_REMOVE("debugger_breakpoint_remove"),
     
+    CODEPAD_SUCCESS("codepad_success"),
+    CODEPAD_ERROR("codepad_error"),
+    CODEPAD_EXCEPTION("codepad_exception"),
+    
     RESETTING_VM("resetting_vm");
     
     private final String name;

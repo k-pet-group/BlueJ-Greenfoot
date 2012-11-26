@@ -284,4 +284,9 @@ public abstract class InvokerRecord
     public void incUsageCount()
     {
     }
+    
+    /**
+     * Gets the original command.  Used by the Data Collection mechanism.
+     */
+    public String getOriginalCommand() { return null; }
 }

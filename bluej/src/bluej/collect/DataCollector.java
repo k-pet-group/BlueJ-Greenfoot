@@ -648,4 +648,28 @@ public class DataCollector
         mpe.addPart("event[thread_name]", toBody(threadName));
         submitEventWithClassLocation(project, EventName.DEBUGGER_HIT_BREAKPOINT, mpe, sourceFileName, lineNumber);
     }
+    
+    public static void codePadSuccess(Project project, String command, String output)
+    {
+        MultipartEntity mpe = new MultipartEntity();
+        mpe.addPart("event[codepad][command]", toBody(command));
+        mpe.addPart("event[codepad][result]", toBody(output));
+        submitEvent(project, EventName.CODEPAD_SUCCESS, new PlainEvent(mpe));
+    }
+    
+    public static void codePadError(Project project, String command, String error)
+    {
+        MultipartEntity mpe = new MultipartEntity();
+        mpe.addPart("event[codepad][command]", toBody(command));
+        mpe.addPart("event[codepad][error]", toBody(error));
+        submitEvent(project, EventName.CODEPAD_ERROR, new PlainEvent(mpe));
+    }
+    
+    public static void codePadException(Project project, String command, String exception)
+    {
+        MultipartEntity mpe = new MultipartEntity();
+        mpe.addPart("event[codepad][command]", toBody(command));
+        mpe.addPart("event[codepad][exception]", toBody(exception));
+        submitEvent(project, EventName.CODEPAD_EXCEPTION, new PlainEvent(mpe));
+    }
 }

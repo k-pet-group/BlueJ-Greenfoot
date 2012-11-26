@@ -107,8 +107,6 @@ public class DataSubmitter
                 return false;
             return true;
         }
-        
-        
     }
     
     public static interface Event

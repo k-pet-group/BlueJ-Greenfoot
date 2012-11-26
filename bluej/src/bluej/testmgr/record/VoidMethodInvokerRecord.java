@@ -93,4 +93,12 @@ public class VoidMethodInvokerRecord extends InvokerRecord
     {
         return command;
     }
+
+    @Override
+    public String getOriginalCommand()
+    {
+        return command;
+    }
+    
+    
 }
