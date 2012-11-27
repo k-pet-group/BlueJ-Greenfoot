@@ -426,15 +426,18 @@ public class DataCollector
         MultipartEntity mpe = new MultipartEntity();
         for (Diagnostic d : diagnostics)
         {
-            mpe.addPart("event[compile_output][][start_line]", toBody(d.getStartLine()));
-            mpe.addPart("event[compile_output][][end_line]", toBody(d.getEndLine()));
-            mpe.addPart("event[compile_output][][start_column]", toBody(d.getStartColumn()));
-            mpe.addPart("event[compile_output][][end_column]", toBody(d.getEndColumn()));
             mpe.addPart("event[compile_output][][is_error]", toBody(d.getType() == Diagnostic.ERROR));
             mpe.addPart("event[compile_output][][message]", toBody(d.getMessage()));
-            // Must make file name relative for anonymisation:
-            String relative = toPath(proj, new File(d.getFileName()));
-            mpe.addPart("event[compile_output][][source_file_name]", toBody(relative));
+            if (d.getFileName() != null)
+            {
+                mpe.addPart("event[compile_output][][start_line]", toBody(d.getStartLine()));
+                mpe.addPart("event[compile_output][][end_line]", toBody(d.getEndLine()));
+                mpe.addPart("event[compile_output][][start_column]", toBody(d.getStartColumn()));
+                mpe.addPart("event[compile_output][][end_column]", toBody(d.getEndColumn()));
+                // Must make file name relative for anonymisation:
+                String relative = toPath(proj, new File(d.getFileName()));
+                mpe.addPart("event[compile_output][][source_file_name]", toBody(relative));
+            }
             //TODO have a flag indicated whether the error was shown to the user
         }
         submitEvent(proj, EventName.COMPILE, new PlainEvent(mpe));
