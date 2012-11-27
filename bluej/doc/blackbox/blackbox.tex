@@ -299,6 +299,8 @@ UUID (or invalid UUID)
 \item Spurious multi_line_edit at end of file on first load? (Adding final
   line break on load-up?)
 \item Look for other coalescing opportunities
+\item TODO document that rename only happens on save/compile, up until then
+  edits will be recorded, but will show as being on the old file.
 \end{itemize}
 
 \section{Questions}
@@ -316,8 +318,7 @@ different?
 \item What do we want from object bench and methods?  E.g. parameter values,
   return values, ``Get'' operations, Inspects
 \item Do we want to record any Terminal usage?
-\item Events have a user id, a project id, and a session id -- but the last
-  one is sufficient to get the first two.  Should we normalise?
+\item What do we record for JUNit -- generated code?
 \end{itemize}
 
 \section{Answers}

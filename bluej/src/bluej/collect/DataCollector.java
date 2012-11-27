@@ -353,10 +353,16 @@ public class DataCollector
             mpe = new MultipartEntity();
         }
         
-        mpe.addPart("event[source_file_name]", toBody(FileUtility.makeRelativePath(project.getProjectDir(), sourceFile)));
+        mpe.addPart("event[source_file_name]", toBodyLocal(project, sourceFile));
         mpe.addPart("event[line_number]", toBody(lineNumber));
         
         submitEvent(project, eventName, new PlainEvent(mpe));
+    }
+
+
+    private static StringBody toBodyLocal(Project project, File sourceFile)
+    {
+        return toBody(FileUtility.makeRelativePath(project.getProjectDir(), sourceFile));
     }
     
     /**
@@ -674,5 +680,15 @@ public class DataCollector
         mpe.addPart("event[codepad][command]", toBody(command));
         mpe.addPart("event[codepad][exception]", toBody(exception));
         submitEvent(project, EventName.CODEPAD_EXCEPTION, new PlainEvent(mpe));
+    }
+
+
+    public static void renamedClass(Project project, File oldSourceFile, File newSourceFile)
+    {
+        MultipartEntity mpe = new MultipartEntity();
+        mpe.addPart("source_histories[][source_event_type]", toBody("rename"));
+        mpe.addPart("source_histories[][oldname]", toBodyLocal(project, oldSourceFile));
+        mpe.addPart("source_histories[][name]", toBodyLocal(project, newSourceFile));
+        submitEvent(project, EventName.RENAME, new PlainEvent(mpe));
     }
 }

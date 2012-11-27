@@ -1400,7 +1400,7 @@ public class ClassTarget extends DependentTarget
 
         File newSourceFile = new File(getPackage().getPath(), newName + ".java");
         File oldSourceFile = getSourceFile();
-
+        
         try {
             FileUtility.copyFile(oldSourceFile, newSourceFile);
             
@@ -1443,6 +1443,8 @@ public class ClassTarget extends DependentTarget
                 BDependency bDependency = incomingDependency.getBDependency();
                 ExtensionBridge.changeBDependencyTargetName(bDependency, getQualifiedName());
             }
+            
+            DataCollector.renamedClass(getPackage().getProject(), oldSourceFile, newSourceFile);
             
             // Inform all listeners about the name change
             ClassEvent event = new ClassEvent(ClassEvent.CHANGED_NAME, getPackage(), getBClass(), oldName);

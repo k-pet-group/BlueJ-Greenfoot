@@ -30,10 +30,12 @@ enum EventName
 {
     BLUEJ_START("bluej_start"),
     BLUEJ_FINISH("bluej_finish"),
-    COMPILE("compile"),
-    MULTI_LINE_EDIT("multi_line_edit"),
     PROJECT_OPENING("project_opening"),
     PROJECT_CLOSING("project_closing"),
+
+    RENAME("rename"),
+    MULTI_LINE_EDIT("multi_line_edit"),
+    COMPILE("compile"),
     
     // Debugger: 
     DEBUGGER_OPEN("debugger_open"),
