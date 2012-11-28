@@ -126,6 +126,8 @@ this user, and similarly the \texttt{last\_institution\_id} is the last
 \section{Master Events}
 \label{tab:master_events}
 
+%schema:master_events
+
 The master events table is the place where all events are entered.  There are
 lots of different types of events that can be received, each with a variety of
 different data, but all of them get one entry in the \texttt{master\_event}
@@ -285,22 +287,22 @@ UUID (or invalid UUID)
   -- make new macro?
 \item Should we rename multi-line edit and do away with [single] line edit?
 \item Are edits actually flushed before compilation?
-\item Each event should record which BlueJ version it was recorded with.
+\item Each event (actually, session should do) should record which BlueJ version it was recorded with.
   Also, we should probably record OS (in the BlueJ start event?).
-\item Refactor server to have one table for source locations (and have
-  |debugger_breakpoint_add| and |debugger_breakpoint_remove| events)
 \item Check that all source file names are sent correctly (and are not class
   names -- or at least, make sure distinction is clear)
 \item Make sure multi-threading is properly supported in the debugger
 \item Fix missing events in AJAX live stream
-\item Have whizzy expansion/closing for events in AJAX live stream
 \item Make sure AJAX live stream is off in production!
 \item Check speed (especially loading up)
-\item Spurious multi_line_edit at end of file on first load? (Adding final
+\item Spurious |multi_line_edit| at end of file on first load? (Adding final
   line break on load-up?)
 \item Look for other coalescing opportunities
 \item TODO document that rename only happens on save/compile, up until then
   edits will be recorded, but will show as being on the old file.
+\item Record which extensions are loaded?
+\item Record the call-library-class thing?
+\item Record version control
 \end{itemize}
 
 \section{Questions}
@@ -308,17 +310,18 @@ UUID (or invalid UUID)
 \begin{itemize}
 \item Could we do better with distinguishing different projects with same
   name, e.g. hashing the path
-\item Do/should we record which extensions are loaded?
 \item We don't seem to record object construction at the moment -- should this be a
   special case of the method invocation event, or something separate?
   Probably need to record resulting object name.
 \item Should we record full stack trace during debugger, not just top line?
-\item Should there be project_opening and package_opening -- they are potentially
+\item Should there be |project_opening| and |package_opening| -- they are potentially
 different?
 \item What do we want from object bench and methods?  E.g. parameter values,
   return values, ``Get'' operations, Inspects
 \item Do we want to record any Terminal usage?
 \item What do we record for JUNit -- generated code?
+\item Do we want to record settings, e.g. whether scope highlighting is in
+  use
 \end{itemize}
 
 \section{Answers}
@@ -328,6 +331,5 @@ different?
   (e.g. restart VM) -- DECIDED no, very invasive, not always possible
 \item Should we model a session in the database? -- YES!
 \end{itemize}
-
 
 \end{document}
