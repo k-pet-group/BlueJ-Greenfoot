@@ -691,4 +691,12 @@ public class DataCollector
         mpe.addPart("source_histories[][name]", toBodyLocal(project, newSourceFile));
         submitEvent(project, EventName.RENAME, new PlainEvent(mpe));
     }
+    
+    public static void removeClass(Project project, File sourceFile)
+    {
+        MultipartEntity mpe = new MultipartEntity();
+        mpe.addPart("source_histories[][source_event_type]", toBody("file_delete"));
+        mpe.addPart("source_histories[][name]", toBodyLocal(project, sourceFile));
+        submitEvent(project, EventName.DELETE, new PlainEvent(mpe));
+    }
 }

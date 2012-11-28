@@ -1934,6 +1934,8 @@ public class ClassTarget extends DependentTarget
     @Override
     public void remove()
     {
+        DataCollector.removeClass(getPackage().getProject(), getSourceFile());
+        
         prepareForRemoval();
         getPackage().removeTarget(this);
     }

@@ -33,6 +33,7 @@ enum EventName
     PROJECT_OPENING("project_opening"),
     PROJECT_CLOSING("project_closing"),
 
+    DELETE("file_delete"),
     RENAME("rename"),
     MULTI_LINE_EDIT("multi_line_edit"),
     COMPILE("compile"),
