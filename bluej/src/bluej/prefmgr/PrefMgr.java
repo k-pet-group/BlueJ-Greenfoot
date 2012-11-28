@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -96,7 +96,7 @@ public class PrefMgr
 
     // list of recently used projects
     private static List<String> recentProjects;
-	
+    
     // flags are all boolean preferences
     private static HashMap<String,String> flags = new HashMap<String,String>();
 
@@ -125,7 +125,7 @@ public class PrefMgr
         targetFont = Config.getFont("bluej.target.font", "SansSerif-bold", targetFontSize);
         
         // preferences other than fonts:
-        highlightStrength = Config.getPropInteger(SCOPE_HIGHLIGHTING_STRENGTH, 10);
+        highlightStrength = Config.getPropInteger(SCOPE_HIGHLIGHTING_STRENGTH, 20);
         isNaviviewExpanded=Boolean.parseBoolean(Config.getPropString(NAVIVIEW_EXPANDED, "true"));
         
         projectDirectory = Config.getPropString("bluej.projectPath");
