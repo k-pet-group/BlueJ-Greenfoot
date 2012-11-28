@@ -501,7 +501,7 @@ public class DataCollector
                 
                 if (contents != null)
                 {
-                    mpe.addPart("source_histories[][source_event_type]", toBody("complete"));
+                    mpe.addPart("source_histories[][source_history_type]", toBody("complete"));
                     mpe.addPart("source_histories[][name]", toBody(relative));
                     mpe.addPart("source_histories[][text]", toBody(contents));
                     versions.put(new FileKey(proj, relative), splitLines(contents));
@@ -590,7 +590,7 @@ public class DataCollector
                 }
                 
                 mpe.addPart("source_histories[][diff]", toBody(diff.toString()));
-                mpe.addPart("source_histories[][source_event_type]", toBody("multi_line_edit"));
+                mpe.addPart("source_histories[][source_history_type]", toBody("multi_line_edit"));
                 mpe.addPart("source_histories[][name]", toBody(toPath(proj, path))); 
                 
                 return mpe;
@@ -686,7 +686,7 @@ public class DataCollector
     public static void renamedClass(Project project, File oldSourceFile, File newSourceFile)
     {
         MultipartEntity mpe = new MultipartEntity();
-        mpe.addPart("source_histories[][source_event_type]", toBody("rename"));
+        mpe.addPart("source_histories[][source_history_type]", toBody("rename"));
         mpe.addPart("source_histories[][oldname]", toBodyLocal(project, oldSourceFile));
         mpe.addPart("source_histories[][name]", toBodyLocal(project, newSourceFile));
         submitEvent(project, EventName.RENAME, new PlainEvent(mpe));
@@ -695,7 +695,7 @@ public class DataCollector
     public static void removeClass(Project project, File sourceFile)
     {
         MultipartEntity mpe = new MultipartEntity();
-        mpe.addPart("source_histories[][source_event_type]", toBody("file_delete"));
+        mpe.addPart("source_histories[][source_history_type]", toBody("file_delete"));
         mpe.addPart("source_histories[][name]", toBodyLocal(project, sourceFile));
         submitEvent(project, EventName.DELETE, new PlainEvent(mpe));
     }
