@@ -1210,6 +1210,9 @@ public class PkgMgrFrame extends JFrame
         if (target.getRole() instanceof UnitTestClassRole) {
             pkg.compileQuiet(target);
         }
+        
+        DataCollector.addClass(pkg.getProject(), target.getSourceFile());
+        
         return true;
     }
 

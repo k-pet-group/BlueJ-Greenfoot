@@ -59,6 +59,12 @@ public class DataSubmitter
     
     private static List<Event> queue = new LinkedList<Event>();
 
+    /**
+     * The versions of the files as we have last sent them to the server.
+     * 
+     * Should only be accessed by the postData method, which is running on
+     * the event-sending thread
+     */
     private static Map<FileKey, ArrayList<String> > fileVersions = new HashMap<FileKey, ArrayList<String> >();
     
     public static class FileKey
@@ -109,10 +115,28 @@ public class DataSubmitter
         }
     }
     
+    /**
+     * An Event to be submitted to the server.
+     */
     public static interface Event
     {
+        /**
+         * Given the current versions of the files as we have last sent them to the server,
+         * forms a new record to be sent to the server
+         * 
+         * @param fileVersions Our local version of the files, as we have last
+         * successfully sent them to the server.  Maps a file identifier to a list
+         * of lines in the file
+         * @return A MultipartEntity to send to the server
+         */
         MultipartEntity makeData(Map<FileKey, ArrayList<String> > fileVersions);
         
+        /**
+         * A callback that is called after the event has been successfully sent to
+         * the server.  If necessary, it should update the passed-in map with the
+         * file contents
+         * @param fileVersions Map, to be modified by the method
+         */
         void success(Map<FileKey, ArrayList<String> > fileVersions);
     }
     

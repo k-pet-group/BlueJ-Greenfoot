@@ -42,6 +42,7 @@ import java.util.Set;
 
 import bluej.Config;
 import bluej.collect.DataCollectionCompileObserverWrapper;
+import bluej.collect.DataCollector;
 import bluej.compiler.CompileObserver;
 import bluej.compiler.Diagnostic;
 import bluej.compiler.EventqueueCompileObserver;
@@ -1107,6 +1108,8 @@ public final class Package extends Graph
 
         findSpaceForVertex(t);
         t.analyseSource();
+        
+        DataCollector.addClass(project, destFile);
 
         return NO_ERROR;
     }

@@ -362,7 +362,7 @@ public class DataCollector
 
     private static StringBody toBodyLocal(Project project, File sourceFile)
     {
-        return toBody(FileUtility.makeRelativePath(project.getProjectDir(), sourceFile));
+        return toBody(toPath(project, sourceFile));
     }
     
     /**
@@ -698,5 +698,38 @@ public class DataCollector
         mpe.addPart("source_histories[][source_history_type]", toBody("file_delete"));
         mpe.addPart("source_histories[][name]", toBodyLocal(project, sourceFile));
         submitEvent(project, EventName.DELETE, new PlainEvent(mpe));
+    }
+    
+    public static void addClass(Project project, File sourceFile)
+    {
+        final MultipartEntity mpe = new MultipartEntity();
+        
+        final String contents = readFile(project, sourceFile);
+                
+        if (contents == null)
+        {
+            return;
+        }
+        
+        mpe.addPart("project[source_files][][name]", toBodyLocal(project, sourceFile));
+        mpe.addPart("source_histories[][source_history_type]", toBody("complete"));
+        mpe.addPart("source_histories[][name]", toBodyLocal(project, sourceFile));
+        mpe.addPart("source_histories[][text]", toBody(contents));
+        final FileKey key = new FileKey(project, toPath(project, sourceFile));
+        
+        submitEvent(project, EventName.ADD, new DataSubmitter.Event() {
+            
+            @Override
+            public void success(Map<FileKey, ArrayList<String>> fileVersions)
+            {
+                fileVersions.put(key, splitLines(contents));                
+            }
+            
+            @Override
+            public MultipartEntity makeData(Map<FileKey, ArrayList<String>> fileVersions)
+            {
+                return mpe;
+            }
+        });
     }
 }
