@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -154,7 +154,9 @@ public class SvnUpdateToCommand extends SvnCommand implements UpdateResults
                     Depth.immediates, false, false, false);
         }
         catch (ClientException ce) {
-            if (! isCancelled()) {
+            if (isCancelled()) {
+                return new TeamworkCommandAborted();
+            } else {
                 return new TeamworkCommandError(ce.getMessage(), ce.getLocalizedMessage());
             }
         }
