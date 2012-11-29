@@ -307,6 +307,8 @@ UUID (or invalid UUID)
 
 \section{Questions}
 
+Meeting: talk about adding sessions, then making them per-project.  Or per-package?
+
 \begin{itemize}
 \item Could we do better with distinguishing different projects with same
   name, e.g. hashing the path
@@ -315,11 +317,11 @@ UUID (or invalid UUID)
   Probably need to record resulting object name.
 \item Should we record full stack trace during debugger, not just top line?
 \item Should there be |project_opening| and |package_opening| -- they are potentially
-different?
+different?  Sessions should be per-project at least, but should they actually be per-package?
 \item What do we want from object bench and methods?  E.g. parameter values,
   return values, ``Get'' operations, Inspects
 \item Do we want to record any Terminal usage?
-\item What do we record for JUNit -- generated code?
+\item What do we record for JUnit -- generated code?
 \item Do we want to record settings, e.g. whether scope highlighting is in
   use
 \end{itemize}
