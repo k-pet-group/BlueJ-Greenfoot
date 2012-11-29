@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -84,6 +84,7 @@ public class CvsRepository implements Repository
 
     //CVS specific members
     private CVSRoot cvsroot;
+    private String protocol; // Only for data collection
     private GlobalOptions globalOptions;
     private boolean printCommand = true;
     private File projectPath;
@@ -94,9 +95,10 @@ public class CvsRepository implements Repository
     /**
      * constructor
      */
-    public CvsRepository(File projectPath, String cvsrootString, BlueJAdminHandler adminHandler)
+    public CvsRepository(File projectPath, String protocol, String cvsrootString, BlueJAdminHandler adminHandler)
     {
         // this.project = project;
+        this.protocol = protocol;
         this.projectPath = projectPath;
         globalOptions = new GlobalOptions();
         setCvsRoot(cvsrootString);
@@ -134,12 +136,12 @@ public class CvsRepository implements Repository
      */
     public void setPassword(TeamSettings newSettings)
     {
-    	try {
-    		setCvsRoot(CvsProvider.makeCvsRoot(newSettings));
-    	}
-    	catch (UnsupportedSettingException e) {
-    		Debug.reportError("CvsRepository.setPassword error", e);
-    	}
+    try {
+    setCvsRoot(CvsProvider.makeCvsRoot(newSettings));
+    }
+    catch (UnsupportedSettingException e) {
+    Debug.reportError("CvsRepository.setPassword error", e);
+    }
     }
     
     /**
@@ -1108,6 +1110,18 @@ public class CvsRepository implements Repository
             cvsEntry.setRevision(revision);
         }
         adminHandler.setEntry(file, cvsEntry);
+    }
+
+    @Override
+    public String getVCSType()
+    {
+        return "CVS";
+    }
+
+    @Override
+    public String getVCSProtocol()
+    {
+        return protocol;
     }
 
 }

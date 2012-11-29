@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,6 +29,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import bluej.Config;
+import bluej.collect.DataCollector;
 import bluej.groupwork.Repository;
 import bluej.groupwork.TeamSettingsController;
 import bluej.groupwork.TeamUtils;
@@ -50,18 +51,18 @@ public class ImportAction extends TeamAction
     {
         super("team.import");
     }
-	
+    
     /* (non-Javadoc)
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
     public void actionPerformed(PkgMgrFrame pmf)
     {
         Project project = pmf.getProject();
-	    
+        
         if (project == null) {
             return;
         }
-	    
+        
         doImport(pmf, project);
     }
 
@@ -120,6 +121,7 @@ public class ImportAction extends TeamAction
                         handleServerResponse(result);
                         if(! result.isError()) {
                             setStatus(Config.getString("team.shared"));
+                            DataCollector.teamShareProject(project, repository);
                         }
                         else {
                             clearStatus();

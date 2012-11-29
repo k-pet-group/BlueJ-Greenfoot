@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,12 +26,15 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -40,7 +43,15 @@ import javax.swing.JTable;
 
 import bluej.BlueJTheme;
 import bluej.Config;
-import bluej.groupwork.*;
+import bluej.collect.DataCollector;
+import bluej.groupwork.Repository;
+import bluej.groupwork.StatusHandle;
+import bluej.groupwork.StatusListener;
+import bluej.groupwork.TeamStatusInfo;
+import bluej.groupwork.TeamUtils;
+import bluej.groupwork.TeamViewFilter;
+import bluej.groupwork.TeamworkCommand;
+import bluej.groupwork.TeamworkCommandResult;
 import bluej.pkgmgr.Project;
 import bluej.utility.EscapeDialog;
 import bluej.utility.SwingWorker;
@@ -49,7 +60,6 @@ import bluej.utility.SwingWorker;
  * Main frame for CVS Status Dialog
  *
  * @author bquig
- * @version $Id: StatusFrame.java 6215 2009-03-30 13:28:25Z polle $
  */
 public class StatusFrame extends EscapeDialog
 {
@@ -261,6 +271,15 @@ public class StatusFrame extends EscapeDialog
                         }                        
                     }
                     statusModel.setStatusData(resources);
+                    
+                    Map<File, String> statusMap = new HashMap<File, String>();
+                    
+                    for (TeamStatusInfo s : resources)
+                    {
+                        statusMap.put(s.getFile(), TeamStatusInfo.getStatusString(s.getStatus()));
+                    }
+                    
+                    DataCollector.teamStatusProject(project, repository, statusMap);
                 }
                 refreshButton.setEnabled(true);
             }

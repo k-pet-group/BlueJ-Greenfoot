@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -73,10 +73,10 @@ public class CvsProvider
         // Password can be null if we are doing a task that doesn't require
         // connection to the server.
         if (password != null && password.contains("@")) {
-        	throw new UnsupportedSettingException(Config.getString("team.error.password.at"));
+            throw new UnsupportedSettingException(Config.getString("team.error.password.at"));
         }
         if (userName.contains(":")) {
-        	throw new UnsupportedSettingException(Config.getString("team.error.username.colon"));
+            throw new UnsupportedSettingException(Config.getString("team.error.username.colon"));
         }
         
         String cvsRoot = ":" + protocol + ":" + userName + ":" + password + "@" +
@@ -114,16 +114,16 @@ public class CvsProvider
     
     public Repository getRepository(File projectDir, TeamSettings settings)
     {
-    	try {
-    		String cvsRoot = makeCvsRoot(settings);
-    		BlueJAdminHandler adminHandler = new BlueJAdminHandler(projectDir);
-    		return new CvsRepository(projectDir, cvsRoot, adminHandler);
-    	}
-    	catch (UnsupportedSettingException e) {
-    		Debug.reportError("CvsProvider.getRepository", e);
-    		return null;
-    	}
-    	
+        try {
+            String cvsRoot = makeCvsRoot(settings);
+            BlueJAdminHandler adminHandler = new BlueJAdminHandler(projectDir);
+            return new CvsRepository(projectDir, settings.getProtocol(), cvsRoot, adminHandler);
+        }
+        catch (UnsupportedSettingException e) {
+            Debug.reportError("CvsProvider.getRepository", e);
+            return null;
+        }
+        
     }
     
 }

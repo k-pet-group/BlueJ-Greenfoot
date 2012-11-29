@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -30,6 +30,7 @@ import java.util.Set;
 import javax.swing.AbstractAction;
 
 import bluej.Config;
+import bluej.collect.DataCollector;
 import bluej.groupwork.StatusHandle;
 import bluej.groupwork.TeamStatusInfo;
 import bluej.groupwork.TeamUtils;
@@ -188,6 +189,7 @@ public class CommitAction extends AbstractAction
             if (! aborted) {
                 commitCommentsFrame.stopProgress();
                 if (! result.isError() && ! result.wasAborted()) {
+                    DataCollector.teamCommitProject(project, statusHandle.getRepository(), files);
                     EventQueue.invokeLater(new Runnable() {
                         public void run() {
                             PkgMgrFrame.displayMessage(project, Config.getString("team.commit.statusDone"));

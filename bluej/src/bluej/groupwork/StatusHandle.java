@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -62,4 +62,10 @@ public interface StatusHandle
      * was performed.
      */
     public TeamworkCommand updateTo(UpdateListener listener, Set<File> files, Set<File> forceFiles);
+    
+    /**
+     * Gets the repository.  Used for data collection.
+     * @return
+     */
+    public Repository getRepository();
 }

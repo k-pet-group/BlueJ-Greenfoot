@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -107,7 +107,7 @@ public class SubversionProvider implements TeamworkProvider
             return new TeamworkCommandError(ce.getMessage(), ce.getLocalizedMessage());
         }
         catch (UnsupportedSettingException e) {
-        	return new TeamworkCommandUnsupportedSetting(e.getLocalizedMessage());
+            return new TeamworkCommandUnsupportedSetting(e.getLocalizedMessage());
         }
         
     }
@@ -129,16 +129,16 @@ public class SubversionProvider implements TeamworkProvider
     
     public Repository getRepository(File projectDir, TeamSettings settings)
     {
-    	try {
-    		SVNClientInterface client = getClient();
-    		client.username(settings.getUserName());
-    		client.password(settings.getPassword());
-    		return new SvnRepository(projectDir, makeSvnUrl(settings), client);
-    	}
-    	catch (UnsupportedSettingException e) {
-    		Debug.reportError("SubversionProvider.getRepository", e);
-    		return null;
-    	}
+        try {
+            SVNClientInterface client = getClient();
+            client.username(settings.getUserName());
+            client.password(settings.getPassword());
+            return new SvnRepository(projectDir, settings.getProtocol(), makeSvnUrl(settings), client);
+        }
+        catch (UnsupportedSettingException e) {
+            Debug.reportError("SubversionProvider.getRepository", e);
+            return null;
+        }
     }
     
     /**
@@ -155,7 +155,7 @@ public class SubversionProvider implements TeamworkProvider
         String group = settings.getGroup();
         
         if (userName.contains("@")) {
-        	throw new UnsupportedSettingException(Config.getString("team.error.username.at"));
+            throw new UnsupportedSettingException(Config.getString("team.error.username.at"));
         }
         
         String svnUrl = protocol + "://" + userName + "@" + server;

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -32,6 +32,7 @@ import javax.swing.AbstractAction;
 import javax.swing.SwingUtilities;
 
 import bluej.Config;
+import bluej.collect.DataCollector;
 import bluej.groupwork.*;
 import bluej.groupwork.ui.ConflictsDialog;
 import bluej.groupwork.ui.UpdateFilesFrame;
@@ -448,6 +449,10 @@ public class UpdateAction extends AbstractAction
             updateFrame.stopProgress();
 
             if (! result.isError() && ! aborted) {
+                Set<File> files = new HashSet<File>();
+                files.addAll(filesToUpdate);
+                files.addAll(filesToForceUpdate);
+                DataCollector.teamUpdateProject(project, statusHandle.getRepository(), files);
                 PkgMgrFrame.displayMessage(project, Config.getString("team.update.statusDone"));
             }
             else {

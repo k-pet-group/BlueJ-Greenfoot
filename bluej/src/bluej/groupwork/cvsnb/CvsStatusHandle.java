@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,6 +24,7 @@ package bluej.groupwork.cvsnb;
 import java.io.File;
 import java.util.Set;
 
+import bluej.groupwork.Repository;
 import bluej.groupwork.StatusHandle;
 import bluej.groupwork.TeamStatusInfo;
 import bluej.groupwork.TeamworkCommand;
@@ -62,5 +63,10 @@ public class CvsStatusHandle implements StatusHandle
     {
         return repository.updateFiles(listener, files, forceFiles);
     }
-
+    
+    @Override
+    public Repository getRepository()
+    {
+        return repository;
+    }
 }

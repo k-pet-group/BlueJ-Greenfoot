@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -50,14 +50,16 @@ public class SvnRepository
     implements Repository
 {
     private File projectPath;
+    private String protocol; // Only for data collection
     private String reposUrl;
     
     private SVNClientInterface client;
     private Object clientLock = new Object();
     
-    public SvnRepository(File projectPath, String reposUrl, SVNClientInterface client)
+    public SvnRepository(File projectPath, String protocol, String reposUrl, SVNClientInterface client)
     {
         this.projectPath = projectPath;
+        this.protocol = protocol;
         this.reposUrl = reposUrl;
         this.client = client;
     }
@@ -242,5 +244,17 @@ public class SvnRepository
     public SVNClientInterface getClient()
     {
         return client;
+    }
+
+    @Override
+    public String getVCSType()
+    {
+        return "SVN";
+    }
+
+    @Override
+    public String getVCSProtocol()
+    {
+        return protocol;
     }
 }
