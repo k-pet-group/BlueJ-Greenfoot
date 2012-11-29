@@ -56,6 +56,12 @@ enum EventName
     CODEPAD_ERROR("codepad_error"),
     CODEPAD_EXCEPTION("codepad_exception"),
     
+    VCS_COMMIT("vcs_commit"),
+    VCS_HISTORY("vcs_history"),
+    VCS_SHARE("vcs_share"),
+    VCS_STATUS("vcs_status"),
+    VCS_UPDATE("vcs_update"),
+    
     RESETTING_VM("resetting_vm");
     
     private final String name;

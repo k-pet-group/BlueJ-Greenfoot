@@ -31,6 +31,7 @@ import java.nio.charset.Charset;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -47,6 +48,7 @@ import difflib.Patch;
 import bluej.Config;
 import bluej.collect.DataSubmitter.FileKey;
 import bluej.compiler.Diagnostic;
+import bluej.groupwork.Repository;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.Package;
 import bluej.utility.FileUtility;
@@ -731,5 +733,54 @@ public class DataCollector
                 return mpe;
             }
         });
+    }
+    
+    private static MultipartEntity getRepoMPE(Repository repo)
+    {
+        MultipartEntity mpe = new MultipartEntity();
+        mpe.addPart("event[vcs][vcs_type]", toBody(repo.getVCSType()));
+        mpe.addPart("event[vcs][protocol]", toBody(repo.getVCSProtocol()));
+        return mpe;
+    }
+
+    public static void teamShareProject(Project project, Repository repo)
+    {
+        submitEvent(project, EventName.VCS_SHARE, new PlainEvent(getRepoMPE(repo)));    
+    }
+    
+    public static void teamCommitProject(Project project, Repository repo, Collection<File> committedFiles)
+    {
+        MultipartEntity mpe = getRepoMPE(repo);
+        for (File f : committedFiles)
+        {
+            mpe.addPart("vcs_files[][file]", toBodyLocal(project, f));
+        }
+        submitEvent(project, EventName.VCS_COMMIT, new PlainEvent(mpe));
+    }
+    
+    public static void teamUpdateProject(Project project, Repository repo, Collection<File> updatedFiles)
+    {
+        MultipartEntity mpe = getRepoMPE(repo);
+        for (File f : updatedFiles)
+        {
+            mpe.addPart("vcs_files[][file]", toBodyLocal(project, f));
+        }
+        submitEvent(project, EventName.VCS_UPDATE, new PlainEvent(mpe));
+    }
+    
+    public static void teamStatusProject(Project project, Repository repo, Map<File, String> status)
+    {
+        MultipartEntity mpe = getRepoMPE(repo);
+        for (Map.Entry<File, String> s : status.entrySet())
+        {
+            mpe.addPart("vcs_files[][file]", toBodyLocal(project, s.getKey()));
+            mpe.addPart("vcs_files[][status]", toBody(s.getValue()));
+        }
+        submitEvent(project, EventName.VCS_STATUS, new PlainEvent(mpe));
+    }
+    
+    public static void teamHistoryProject(Project project, Repository repo)
+    {
+        submitEvent(project, EventName.VCS_HISTORY, new PlainEvent(getRepoMPE(repo)));    
     }
 }
