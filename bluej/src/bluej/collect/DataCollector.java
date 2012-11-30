@@ -841,6 +841,25 @@ public class DataCollector
         addInvokeResult(mpe, result, objName);
         submitEvent(project, EventName.INVOKE_DEFAULT_CONSTRUCTOR, new PlainEvent(mpe));        
     }
+    
+    public static void invokeMethod(Project project, String code, String objName, DebuggerResult result)
+    {
+        MultipartEntity mpe = new MultipartEntity();
+        
+        mpe.addPart("invoke[code]", toBody(code));
+        addInvokeResult(mpe, result, objName);
+        submitEvent(project, EventName.INVOKE_METHOD, new PlainEvent(mpe));        
+    }
+    
+    public static void invokeFail(Project project, String code, String compilationError)
+    {
+        MultipartEntity mpe = new MultipartEntity();
+        
+        mpe.addPart("invoke[code]", toBody(code));
+        mpe.addPart("invoke[result][result]", toBody("compile_error"));
+        mpe.addPart("invoke[result][compile_error]", toBody(compilationError));
+        submitEvent(project, EventName.INVOKE_FAIL, new PlainEvent(mpe));        
+    }
 
 
     private static void addInvokeResult(MultipartEntity mpe, DebuggerResult result, String objName)

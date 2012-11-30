@@ -53,6 +53,8 @@ enum EventName
     DEBUGGER_BREAKPOINT_REMOVE("debugger_breakpoint_remove"),
     
     INVOKE_DEFAULT_CONSTRUCTOR("invoke_default_constructor"),
+    INVOKE_METHOD("invoke_method"),
+    INVOKE_FAIL("invoke_fail"),
     
     CODEPAD_SUCCESS("codepad_success"),
     CODEPAD_ERROR("codepad_error"),

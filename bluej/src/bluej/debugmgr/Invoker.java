@@ -96,6 +96,7 @@ public class Invoker
 
     private JFrame pmf;
     private Project project; //For data collection purposes
+    private boolean codepad; //Used to decide whether to do data collection (don't record if for codepad)
     private File pkgPath;
     private String pkgName;
     private String pkgScopeId;
@@ -182,6 +183,7 @@ public class Invoker
         this.localVars = localVars;
 
         constructing = false;
+        codepad = true;
         commandString = command;
     }
     
@@ -203,6 +205,7 @@ public class Invoker
         this.member = member;
         this.watcher = watcher;
         this.shellName = getShellName();
+        codepad = false;
 
         // in the case of a constructor, we need to construct an object name
         if (member instanceof ConstructorView) {
@@ -237,6 +240,7 @@ public class Invoker
         this.member = member;
         this.watcher = watcher;
         this.shellName = getShellName();
+        codepad = false;
 
         // We want a map of all the type parameters that may appear in the
         // method signature to the corresponding instantiation types from the
@@ -1043,6 +1047,8 @@ public class Invoker
      */
     private void errorMessage(String filename, long lineNo, String message)
     {
+        DataCollector.invokeFail(project, commandString, message);
+        
         if (dialog != null) {
             dialog.setErrorMessage("Error: " + message);
         }
@@ -1143,6 +1149,12 @@ public class Invoker
             public void run() {
                 try {
                     final DebuggerResult result = debugger.runClassMain(shellClassName);
+                    
+                    if (!codepad)
+                    {
+                        //Only record this if it wasn't on behalf of the codepad (codepad records separately):
+                        DataCollector.invokeMethod(project, commandString, objName, result);
+                    }
                     
                     EventQueue.invokeLater(new Runnable() {
                         public void run() {
