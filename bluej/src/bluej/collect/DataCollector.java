@@ -787,4 +787,10 @@ public class DataCollector
     {
         submitEvent(project, EventName.VCS_HISTORY, new PlainEvent(getRepoMPE(repo)));    
     }
+
+
+    public static void showHideTerminal(Project project, boolean show)
+    {
+        submitEventNoData(project, show ? EventName.TERMINAL_OPEN : EventName.TERMINAL_CLOSE);      
+    }
 }

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2011,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -64,6 +64,7 @@ import bluej.BlueJEvent;
 import bluej.BlueJEventListener;
 import bluej.BlueJTheme;
 import bluej.Config;
+import bluej.collect.DataCollector;
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerField;
 import bluej.debugger.DebuggerObject;
@@ -190,6 +191,8 @@ public final class Terminal extends JFrame
      */
     public void showHide(boolean show)
     {
+        DataCollector.showHideTerminal(project, show);
+        
         initialise();
         setVisible(show);
         if(show) {
@@ -625,6 +628,7 @@ public final class Terminal extends JFrame
                     if (project.getDebugger().getStatus() == Debugger.RUNNING)
                         return;
                 }
+                DataCollector.showHideTerminal(project, false);
                 win.setVisible(false);
             }
         });

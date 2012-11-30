@@ -56,6 +56,9 @@ enum EventName
     CODEPAD_ERROR("codepad_error"),
     CODEPAD_EXCEPTION("codepad_exception"),
     
+    TERMINAL_OPEN("terminal_open"),
+    TERMINAL_CLOSE("terminal_close"),
+    
     VCS_COMMIT("vcs_commit"),
     VCS_HISTORY("vcs_history"),
     VCS_SHARE("vcs_share"),
