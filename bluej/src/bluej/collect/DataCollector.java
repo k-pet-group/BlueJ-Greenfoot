@@ -838,32 +838,32 @@ public class DataCollector
         MultipartEntity mpe = new MultipartEntity();
         
         mpe.addPart("invoke[class_name]", toBody(className));
-        mpe.addPart("invoke[result_name]", toBody(objName));
-        addInvokeResult(mpe, result);        
+        addInvokeResult(mpe, result, objName);
         submitEvent(project, EventName.INVOKE_DEFAULT_CONSTRUCTOR, new PlainEvent(mpe));        
     }
 
 
-    private static void addInvokeResult(MultipartEntity mpe, DebuggerResult result)
+    private static void addInvokeResult(MultipartEntity mpe, DebuggerResult result, String objName)
     {
         ExceptionDescription ed;
         switch (result.getExitStatus())
         {
         case Debugger.NORMAL_EXIT:
-            mpe.addPart("invoke[result_type]", toBody("success"));
+            mpe.addPart("invoke[result][result]", toBody("success"));
+            mpe.addPart("invoke[result][name]", toBody(objName));
             break;
         case Debugger.TERMINATED:
-            mpe.addPart("invoke[result_type]", toBody("terminated"));
+            mpe.addPart("invoke[result][result]", toBody("terminated"));
             break;
         case Debugger.EXCEPTION:
-            mpe.addPart("invoke[result_type]", toBody("exception"));
+            mpe.addPart("invoke[result][result]", toBody("exception"));
             ed = result.getException();
-            mpe.addPart("invoke[result_exception_class]", toBody(ed.getClassName()));
-            mpe.addPart("invoke[result_exception_message]", toBody(ed.getText()));
-            addStackTrace(mpe, "invoke[result_exception_stack", ed.getStack().toArray(new SourceLocation[0]));
+            mpe.addPart("invoke[result][exception_class]", toBody(ed.getClassName()));
+            mpe.addPart("invoke[result][exception_message]", toBody(ed.getText()));
+            addStackTrace(mpe, "invoke[result][exception_stack]", ed.getStack().toArray(new SourceLocation[0]));
             break;
         default:
-            mpe.addPart("invoke[result_type]", toBody("unknown"));
+            mpe.addPart("invoke[result][result]", toBody("unknown"));
             break;
         }
     }
