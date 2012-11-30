@@ -55,6 +55,9 @@ public class DataSubmitter
     
     private static volatile boolean givenUp = false;
     
+    /**
+     * isRunning is only touched while synchonized on queue
+     */
     private static boolean isRunning = false;
     
     private static List<Event> queue = new LinkedList<Event>();
@@ -235,6 +238,12 @@ public class DataSubmitter
                     System.err.println("Problem response: " + mpe.toString() + " " + response.toString());
                     return false;
                 }
+            }
+            
+            if (response.getStatusLine().getStatusCode() != 200)
+            {
+                System.err.println("Problem code: " + response.getStatusLine().getStatusCode());
+                return false;
             }
             
             evt.success(fileVersions);
