@@ -377,10 +377,11 @@ public class DataCollector
             mpe = new MultipartEntity();
         }
         
-        for (SourceLocation sl : stack)
+        for (int i = 0; i < stack.length; i++)
         {
-            mpe.addPart("event[stack][][class_source_name]", toBody(sl.getFileName()));
-            mpe.addPart("event[stack][][line_number]", toBody(sl.getLineNumber()));
+            mpe.addPart("event[stack][][entry]", toBody(i));
+            mpe.addPart("event[stack][][class_source_name]", toBody(stack[i].getFileName()));
+            mpe.addPart("event[stack][][line_number]", toBody(stack[i].getLineNumber()));
         }
         
         submitEvent(project, eventName, new PlainEvent(mpe));
