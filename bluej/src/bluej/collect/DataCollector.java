@@ -28,6 +28,8 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -52,6 +54,7 @@ import bluej.debugger.SourceLocation;
 import bluej.groupwork.Repository;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.Package;
+import bluej.utility.Debug;
 import bluej.utility.FileUtility;
 import bluej.utility.Utility;
 
@@ -387,11 +390,36 @@ public class DataCollector
         submitEvent(project, eventName, new PlainEvent(mpe));
     }
     
+    private static String md5Hash(String src)
+    {
+        byte[] hash;
+        try {
+            hash = MessageDigest.getInstance("MD5").digest(src.getBytes("UTF-8"));
+        }
+        catch (NoSuchAlgorithmException e) {
+            //Oracle comes with MD5, unlikely that any other JDK wouldn't:
+            Debug.reportError(e);
+            return "";
+        }
+        catch (UnsupportedEncodingException e) {
+            //Shouldn't happen -- no UTF-8?!
+            Debug.reportError(e);
+            return "";
+        }
+        StringBuilder s = new StringBuilder();
+        for (byte b : hash)
+        {
+            s.append(String.format("%02X", b));
+        }
+        return s.toString();
+    }
+    
     private static synchronized void submitEvent(final Project project, final EventName eventName, final DataSubmitter.Event evt)
     {
         if (dontSend()) return;
         
         final String projectName = project == null ? "" : project.getProjectName();
+        final String projectPathHash = project == null ? "" : md5Hash(project.getProjectDir().getAbsolutePath());
         // Must take copy to avoid problems with later modification:
         final int thisSequenceNum = sequenceNum;  
         
@@ -415,6 +443,7 @@ public class DataCollector
                 
                 mpe.addPart("user[uuid]", toBody(uuid));        
                 mpe.addPart("project[name]", toBody(projectName));
+                mpe.addPart("project[path_hash]", toBody(projectPathHash));
                 mpe.addPart("event[source_time]", toBody(DateFormat.getDateTimeInstance().format(new Date())));
                 mpe.addPart("event[name]", toBody(eventName.getName()));
                 mpe.addPart("event[sequence_id]", toBody(Integer.toString(thisSequenceNum)));
