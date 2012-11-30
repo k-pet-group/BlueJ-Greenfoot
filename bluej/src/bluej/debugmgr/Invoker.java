@@ -36,6 +36,7 @@ import java.util.Map;
 import javax.swing.JFrame;
 
 import bluej.Config;
+import bluej.collect.DataCollector;
 import bluej.compiler.CompileObserver;
 import bluej.compiler.Diagnostic;
 import bluej.compiler.EventqueueCompileObserver;
@@ -94,6 +95,7 @@ public class Invoker
         new HashMap<ConstructorView, ConstructorDialog>();
 
     private JFrame pmf;
+    private Project project; //For data collection purposes
     private File pkgPath;
     private String pkgName;
     private String pkgScopeId;
@@ -255,6 +257,7 @@ public class Invoker
     private void initialize(final PkgMgrFrame pmf)
     {
         this.pmf = pmf;
+        this.project = pmf.getProject();
         final Package pkg = pmf.getPackage();
         this.pkgPath = pkg.getPath();
         this.pkgName = pkg.getQualifiedName();
@@ -520,6 +523,8 @@ public class Invoker
                     });
                     
                     final DebuggerResult result = debugger.instantiateClass(className);
+                    
+                    DataCollector.invokeDefaultConstructor(project, className, objName, result);
                     
                     EventQueue.invokeLater(new Runnable() {
                         public void run() {

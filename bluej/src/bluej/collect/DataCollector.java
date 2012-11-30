@@ -50,6 +50,9 @@ import difflib.Patch;
 import bluej.Config;
 import bluej.collect.DataSubmitter.FileKey;
 import bluej.compiler.Diagnostic;
+import bluej.debugger.Debugger;
+import bluej.debugger.DebuggerResult;
+import bluej.debugger.ExceptionDescription;
 import bluej.debugger.SourceLocation;
 import bluej.groupwork.Repository;
 import bluej.pkgmgr.Project;
@@ -380,14 +383,20 @@ public class DataCollector
             mpe = new MultipartEntity();
         }
         
-        for (int i = 0; i < stack.length; i++)
-        {
-            mpe.addPart("event[stack][][entry]", toBody(i));
-            mpe.addPart("event[stack][][class_source_name]", toBody(stack[i].getFileName()));
-            mpe.addPart("event[stack][][line_number]", toBody(stack[i].getLineNumber()));
-        }
+        addStackTrace(mpe, "event[stack]", stack);
         
         submitEvent(project, eventName, new PlainEvent(mpe));
+    }
+
+
+    private static void addStackTrace(MultipartEntity mpe, String listName, SourceLocation[] stack)
+    {
+        for (int i = 0; i < stack.length; i++)
+        {
+            mpe.addPart(listName + "[][entry]", toBody(i));
+            mpe.addPart(listName + "[][class_source_name]", toBody(stack[i].getFileName()));
+            mpe.addPart(listName + "[][line_number]", toBody(stack[i].getLineNumber()));
+        }
     }
     
     private static String md5Hash(String src)
@@ -479,7 +488,7 @@ public class DataCollector
     private static StringBody toBody(String s)
     {
         try {
-            return new StringBody(s, utf8);
+            return new StringBody(s == null ? "" : s, utf8);
         }
         catch (UnsupportedEncodingException e) {
             // Shouldn't happen, because UTF-8 is required to be supported
@@ -821,5 +830,41 @@ public class DataCollector
     public static void showHideTerminal(Project project, boolean show)
     {
         submitEventNoData(project, show ? EventName.TERMINAL_OPEN : EventName.TERMINAL_CLOSE);      
+    }
+
+
+    public static void invokeDefaultConstructor(Project project, String className, String objName, DebuggerResult result)
+    {
+        MultipartEntity mpe = new MultipartEntity();
+        
+        mpe.addPart("invoke[class_name]", toBody(className));
+        mpe.addPart("invoke[result_name]", toBody(objName));
+        addInvokeResult(mpe, result);        
+        submitEvent(project, EventName.INVOKE_DEFAULT_CONSTRUCTOR, new PlainEvent(mpe));        
+    }
+
+
+    private static void addInvokeResult(MultipartEntity mpe, DebuggerResult result)
+    {
+        ExceptionDescription ed;
+        switch (result.getExitStatus())
+        {
+        case Debugger.NORMAL_EXIT:
+            mpe.addPart("invoke[result_type]", toBody("success"));
+            break;
+        case Debugger.TERMINATED:
+            mpe.addPart("invoke[result_type]", toBody("terminated"));
+            break;
+        case Debugger.EXCEPTION:
+            mpe.addPart("invoke[result_type]", toBody("exception"));
+            ed = result.getException();
+            mpe.addPart("invoke[result_exception_class]", toBody(ed.getClassName()));
+            mpe.addPart("invoke[result_exception_message]", toBody(ed.getText()));
+            addStackTrace(mpe, "invoke[result_exception_stack", ed.getStack().toArray(new SourceLocation[0]));
+            break;
+        default:
+            mpe.addPart("invoke[result_type]", toBody("unknown"));
+            break;
+        }
     }
 }
