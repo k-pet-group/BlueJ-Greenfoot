@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,6 +25,7 @@ import bluej.Config;
 import bluej.debugger.DebuggerObject;
 import bluej.utility.JavaUtils;
 
+import com.sun.jdi.CharValue;
 import com.sun.jdi.ClassType;
 import com.sun.jdi.Field;
 import com.sun.jdi.LocalVariable;
@@ -106,6 +107,9 @@ public abstract class JdiUtils
         }
         else if (val instanceof ObjectReference) {
             return DebuggerObject.OBJECT_REFERENCE;
+        }
+        else if (val instanceof CharValue) {
+            return "\'" + JavaUtils.escapeString(val.toString()) + "\'";
         }
         return val.toString();
     }
