@@ -321,15 +321,6 @@ public class DataCollector
     */
 
     /**
-     * Submits an event with the given name, but no project.
-     * Only used for BlueJ start/finish events -- everything else should have a project.
-     */
-    private static void submitEventNoProject(EventName eventName)
-    {
-        submitEventNoData(null, eventName);
-    }
-    
-    /**
      * Submits an event with no extra data.  A useful short-hand for calling submitEvent
      * with no content in the event.
      */
@@ -478,11 +469,19 @@ public class DataCollector
     }
     
 
-    public static void bluejOpened()
+    public static void bluejOpened(String osVersion, String javaVersion, String bluejVersion, String interfaceLanguage)
     {
         if (dontSend()) return;
         initUUidSequence();
-        submitEventNoProject(EventName.BLUEJ_START);
+        
+        MultipartEntity mpe = new MultipartEntity();
+        
+        mpe.addPart("installation[operating_system]", toBody(osVersion));
+        mpe.addPart("installation[java_version]", toBody(javaVersion));
+        mpe.addPart("installation[bluej_version]", toBody(bluejVersion));
+        mpe.addPart("installation[interface_language]", toBody(interfaceLanguage));
+        
+        submitEvent(null, EventName.BLUEJ_START, new PlainEvent(mpe));
     }
     
     public static void projectOpened(Project proj)
@@ -534,7 +533,7 @@ public class DataCollector
 
     public static void bluejClosed()
     {
-        submitEventNoProject(EventName.BLUEJ_FINISH);        
+        submitEventNoData(null, EventName.BLUEJ_FINISH);        
     }
 
     public static void restartVM(Project project)
