@@ -48,6 +48,7 @@ import difflib.Patch;
 import bluej.Config;
 import bluej.collect.DataSubmitter.FileKey;
 import bluej.compiler.Diagnostic;
+import bluej.debugger.SourceLocation;
 import bluej.groupwork.Repository;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.Package;
@@ -369,15 +370,18 @@ public class DataCollector
      * @param classSourceName
      * @param lineNumber
      */
-    private static void submitEventWithClassLocation(Project project, EventName eventName, MultipartEntity mpe, String classSourceName, int lineNumber)
+    private static void submitEventWithDebuggerLocation(Project project, EventName eventName, MultipartEntity mpe, SourceLocation[] stack)
     {
         if (mpe == null)
         {
             mpe = new MultipartEntity();
         }
         
-        mpe.addPart("event[class_source_name]", toBody(classSourceName));
-        mpe.addPart("event[line_number]", toBody(lineNumber));
+        for (SourceLocation sl : stack)
+        {
+            mpe.addPart("event[stack][][class_source_name]", toBody(sl.getFileName()));
+            mpe.addPart("event[stack][][line_number]", toBody(sl.getLineNumber()));
+        }
         
         submitEvent(project, eventName, new PlainEvent(mpe));
     }
@@ -631,32 +635,32 @@ public class DataCollector
         submitEvent(project, EventName.DEBUGGER_CONTINUE, new PlainEvent(mpe));        
     }
 
-    public static void debuggerHalt(Project project, String threadName, String sourceFileName, int lineNumber)
+    public static void debuggerHalt(Project project, String threadName, SourceLocation[] stack)
     {
         MultipartEntity mpe = new MultipartEntity();
         mpe.addPart("event[thread_name]", toBody(threadName));
-        submitEventWithClassLocation(project, EventName.DEBUGGER_HALT, mpe, sourceFileName, lineNumber);
+        submitEventWithDebuggerLocation(project, EventName.DEBUGGER_HALT, mpe, stack);
     }
     
-    public static void debuggerStepInto(Project project, String threadName, String sourceFileName, int lineNumber)
+    public static void debuggerStepInto(Project project, String threadName, SourceLocation[] stack)
     {
         MultipartEntity mpe = new MultipartEntity();
         mpe.addPart("event[thread_name]", toBody(threadName));
-        submitEventWithClassLocation(project, EventName.DEBUGGER_STEP_INTO, mpe, sourceFileName, lineNumber);
+        submitEventWithDebuggerLocation(project, EventName.DEBUGGER_STEP_INTO, mpe, stack);
     }
     
-    public static void debuggerStepOver(Project project, String threadName, String sourceFileName, int lineNumber)
+    public static void debuggerStepOver(Project project, String threadName, SourceLocation[] stack)
     {
         MultipartEntity mpe = new MultipartEntity();
         mpe.addPart("event[thread_name]", toBody(threadName));
-        submitEventWithClassLocation(project, EventName.DEBUGGER_STEP_OVER, mpe, sourceFileName, lineNumber);
+        submitEventWithDebuggerLocation(project, EventName.DEBUGGER_STEP_OVER, mpe, stack);
     }
     
-    public static void debuggerHitBreakpoint(Project project, String threadName, String sourceFileName, int lineNumber)
+    public static void debuggerHitBreakpoint(Project project, String threadName, SourceLocation[] stack)
     {
         MultipartEntity mpe = new MultipartEntity();
         mpe.addPart("event[thread_name]", toBody(threadName));
-        submitEventWithClassLocation(project, EventName.DEBUGGER_HIT_BREAKPOINT, mpe, sourceFileName, lineNumber);
+        submitEventWithDebuggerLocation(project, EventName.DEBUGGER_HIT_BREAKPOINT, mpe, stack);
     }
     
     public static void codePadSuccess(Project project, String command, String output)

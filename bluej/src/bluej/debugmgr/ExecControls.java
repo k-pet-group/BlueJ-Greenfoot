@@ -403,7 +403,7 @@ public class ExecControls extends JFrame
         }
     }
     
-    private SourceLocation [] getFilteredStack(List<SourceLocation> stack)
+    public static SourceLocation [] getFilteredStack(List<SourceLocation> stack)
     {
         int first = -1;
         int i;

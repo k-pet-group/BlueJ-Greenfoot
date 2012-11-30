@@ -1813,16 +1813,16 @@ public class Project implements DebuggerListener, InspectorManager
                 switch (event.getID())
                 {
                     case DebuggerEvent.THREAD_HALT_UNKNOWN:
-                        DataCollector.debuggerHalt(Project.this, thr.getName(), thr.getClassSourceName(0), thr.getLineNumber(0));
+                        DataCollector.debuggerHalt(Project.this, thr.getName(), ExecControls.getFilteredStack(thr.getStack()));
                         break;
                     case DebuggerEvent.THREAD_HALT_STEP_INTO:
-                        DataCollector.debuggerStepInto(Project.this, thr.getName(), thr.getClassSourceName(0), thr.getLineNumber(0));
+                        DataCollector.debuggerStepInto(Project.this, thr.getName(), ExecControls.getFilteredStack(thr.getStack()));
                         break;
                     case DebuggerEvent.THREAD_HALT_STEP_OVER:
-                        DataCollector.debuggerStepOver(Project.this, thr.getName(), thr.getClassSourceName(0), thr.getLineNumber(0));
+                        DataCollector.debuggerStepOver(Project.this, thr.getName(), ExecControls.getFilteredStack(thr.getStack()));
                         break;
                     case DebuggerEvent.THREAD_BREAKPOINT:
-                        DataCollector.debuggerHitBreakpoint(Project.this, thr.getName(), thr.getClassSourceName(0), thr.getLineNumber(0));
+                        DataCollector.debuggerHitBreakpoint(Project.this, thr.getName(), ExecControls.getFilteredStack(thr.getStack()));
                         break;
                 }
             }
