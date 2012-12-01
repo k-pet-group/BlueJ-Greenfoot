@@ -3846,6 +3846,9 @@ public final class MoeEditor extends JFrame
     {
         ArrayList<String> curDoc = new ArrayList<String>();
         getLines(curDoc);
-        watcher.recordEdit(curDoc, includeOneLineEdits);
+        if (watcher != null)
+        {
+            watcher.recordEdit(curDoc, includeOneLineEdits);
+        }
     }
 }
