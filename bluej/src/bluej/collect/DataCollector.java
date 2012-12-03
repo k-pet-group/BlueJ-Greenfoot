@@ -894,4 +894,38 @@ public class DataCollector
         mpe.addPart("event[object_name]", toBody(name));
         submitEvent(project, EventName.REMOVE_OBJECT, new PlainEvent(mpe));
     }
+
+
+    public static void inspectorClassShow(Project project, String name)
+    {
+        MultipartEntity mpe = new MultipartEntity();
+        mpe.addPart("event[inspect][object_name]", toBody(".class"));
+        mpe.addPart("event[inspect][class_name]", toBody(name));
+        submitEvent(project, EventName.INSPECTOR_SHOW, new PlainEvent(mpe));
+    }
+    
+    public static void inspectorObjectShow(Project project, String uniqueId, String className, String displayName)
+    {
+        MultipartEntity mpe = new MultipartEntity();
+        mpe.addPart("event[inspect][object_name]", toBody(displayName));
+        mpe.addPart("event[inspect][class_name]", toBody(className));
+        mpe.addPart("event[inspect][object_unique]", toBody(uniqueId));
+        submitEvent(project, EventName.INSPECTOR_SHOW, new PlainEvent(mpe));
+    }
+    
+    public static void inspectorClassHide(Project project, String name)
+    {
+        MultipartEntity mpe = new MultipartEntity();
+        mpe.addPart("event[inspect][object_name]", toBody(".class"));
+        mpe.addPart("event[inspect][class_name]", toBody(name));
+        submitEvent(project, EventName.INSPECTOR_HIDE, new PlainEvent(mpe));
+    }
+    
+    public static void inspectorObjectHide(Project project, String uniqueId)
+    {
+        MultipartEntity mpe = new MultipartEntity();
+
+        mpe.addPart("event[inspect][object_unique]", toBody(uniqueId));
+        submitEvent(project, EventName.INSPECTOR_HIDE, new PlainEvent(mpe));
+    }
 }

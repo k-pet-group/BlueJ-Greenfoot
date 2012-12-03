@@ -57,6 +57,9 @@ enum EventName
     
     REMOVE_OBJECT("remove_object"),
     
+    INSPECTOR_SHOW("inspector_show"),
+    INSPECTOR_HIDE("inspector_hide"),
+    
     CODEPAD_SUCCESS("codepad_success"),
     CODEPAD_ERROR("codepad_error"),
     CODEPAD_EXCEPTION("codepad_exception"),

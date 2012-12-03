@@ -41,6 +41,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -720,6 +721,8 @@ public class Project implements DebuggerListener, InspectorManager
         else {
             updateInspector(inspector);
         }
+        
+        DataCollector.inspectorObjectShow(pkg.getProject(), Long.toString(obj.getObjectReference().uniqueID()), obj.getClassName(), name);
 
         return inspector;
     }
@@ -742,6 +745,7 @@ public class Project implements DebuggerListener, InspectorManager
      */
     public void removeInspector(DebuggerObject obj) 
     {
+        DataCollector.inspectorObjectHide(this, Long.toString(obj.getObjectReference().uniqueID()));
         inspectors.remove(obj);
     }
     
@@ -751,6 +755,7 @@ public class Project implements DebuggerListener, InspectorManager
      */
     public void removeInspector(DebuggerClass cls) 
     {
+        DataCollector.inspectorClassHide(this, cls.getName());
         inspectors.remove(cls.getName());
     }
 
@@ -776,10 +781,18 @@ public class Project implements DebuggerListener, InspectorManager
      */
     public void removeAllInspectors() 
     {
-        for (Iterator<Inspector> it = inspectors.values().iterator(); it.hasNext();) {
-            Inspector inspector = it.next();
+        for (Entry<Object, Inspector> entry : inspectors.entrySet()) {
+            Inspector inspector = entry.getValue();
             inspector.setVisible(false);
             inspector.dispose();
+            if (entry.getKey() instanceof String)
+            {
+                DataCollector.inspectorClassHide(this, (String)entry.getKey());
+            }
+            else if (entry.getKey() instanceof DebuggerObject)
+            {
+                DataCollector.inspectorObjectHide(this, Long.toString(((DebuggerObject)entry.getKey()).getObjectReference().uniqueID()));
+            } 
         }
 
         inspectors.clear();
@@ -815,6 +828,8 @@ public class Project implements DebuggerListener, InspectorManager
         else {
             updateInspector(inspector);
         }
+        
+        DataCollector.inspectorClassShow(pkg.getProject(), clss.getName());
 
         return inspector;
     }

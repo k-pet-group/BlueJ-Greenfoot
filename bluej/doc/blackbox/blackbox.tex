@@ -317,6 +317,28 @@ In both cases, the |result| field will have the result, which will be one of:
   |invocations| entry, not the |master_events| entry).
 \end{itemize}
 
+\section{Inspector}
+
+%schema:inspectors
+
+\subsection{\lstinline|inspector_show| and \lstinline|inspector_hide|}
+
+Both of these events link to an entry in the |inspectors| table.
+
+For the |inspector_show| event, the |object_name| will either be the special
+value |".class"|, indicating that this is a class inspector, or an object name
+(whatever is displayed on the left-hand side of the title in the object
+inspector).  Regardless, the |class_name| will be the name of the class
+involved.  For object-inspection only, the |object_unique| will be a unique
+identifier for the object.  It has no intrinsic meaning, but it can be used to
+match up to |inspector_hide| events:
+
+For the |inspector_hide| event, either the |object_unique| field will be
+present, indicating that an object inspector was closed, or the |object_name|
+and |class_name| will be supplied to indicate that a class inspector was
+closed.  In each case, the fields will match up to the corresponding fields in
+the |inspector_show| event.
+
 \chapter{TODO List}
 
 \section{Answers}
