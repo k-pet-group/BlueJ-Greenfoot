@@ -55,6 +55,8 @@ enum EventName
     INVOKE_DEFAULT_CONSTRUCTOR("invoke_default_constructor"),
     INVOKE_METHOD("invoke_method"),
     
+    REMOVE_OBJECT("remove_object"),
+    
     CODEPAD_SUCCESS("codepad_success"),
     CODEPAD_ERROR("codepad_error"),
     CODEPAD_EXCEPTION("codepad_exception"),

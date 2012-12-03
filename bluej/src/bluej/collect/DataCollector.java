@@ -887,4 +887,11 @@ public class DataCollector
             break;
         }
     }
+    
+    public static void removeObject(Project project, String name)
+    {
+        MultipartEntity mpe = new MultipartEntity();
+        mpe.addPart("event[object_name]", toBody(name));
+        submitEvent(project, EventName.REMOVE_OBJECT, new PlainEvent(mpe));
+    }
 }

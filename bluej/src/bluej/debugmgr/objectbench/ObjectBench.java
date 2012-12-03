@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -33,6 +33,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 import bluej.Config;
+import bluej.collect.DataCollector;
 import bluej.debugmgr.NamedValue;
 import bluej.debugmgr.ValueCollection;
 import bluej.pkgmgr.PkgMgrFrame;
@@ -189,7 +190,9 @@ public class ObjectBench extends JPanel implements ValueCollection,
     {
         if(wrapper == selectedObject)
             setSelectedObject(null);
-            
+     
+        DataCollector.removeObject(wrapper.getPackage().getProject(), wrapper.getName());
+        
         wrapper.prepareRemove();
         wrapper.getPackage().getDebugger().removeObject(scopeId, wrapper.getName());
         obp.remove(wrapper);
