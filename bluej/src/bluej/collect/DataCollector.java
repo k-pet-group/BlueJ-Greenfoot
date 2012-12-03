@@ -852,7 +852,7 @@ public class DataCollector
         MultipartEntity mpe = new MultipartEntity();
         
         mpe.addPart("event[invoke][code]", toBody(code));
-        mpe.addPart("event[invoke][class_name]", toBody(typeName));
+        mpe.addPart("event[invoke][type_name]", toBody(typeName));
         mpe.addPart("event[invoke][result]", toBody("success"));
         if (objName != null)
         {
