@@ -101,6 +101,8 @@ server-side, and never bears any relation to the BlueJ client.
 
 \section{Users}
 
+%schema:users
+
 The \texttt{uuid} field is the unique user identifier.  Whenever the BlueJ
 client loads up and does not find a valid BlueJ profile file with an existing
 UUID inside it, it generates a new UUID.  This means:
@@ -123,7 +125,7 @@ The \texttt{last\_sequence\_id} field is the last \hyperref[def:sequence_id]{seq
 this user, and similarly the \texttt{last\_institution\_id} is the last
 \hyperref[def:institution_id]{institution identifier} seen for this user.
 
-\section{Master Events}
+\chapter{Master Events}
 \label{tab:master_events}
 
 %schema:master_events
@@ -162,12 +164,16 @@ All events will have a \texttt{user\_id}, an \texttt{event\_name}, a
 and an optional
 \texttt{institution\_id}.  Unless specified otherwise, they will also have a \texttt{project\_id}.
 
-\subsection{\texttt{bluej\_start} and \texttt{bluej\_finish}}
+\section{Start/Finish Events}
+
+\subsection{\lstinline|bluej_start| and \lstinline|bluej_finish|}
 
 These two events have no extra accompanying data.  They have no
-\texttt{project\_id}, and no other data.
+|project_id|, and no other data.
 
-\subsection{\texttt{project\_opening}}
+\section{Project Events}
+
+\subsection{\lstinline|project_opening|}
 
 This event will update the list of source files contained in a project, by
 adding to the \texttt{source\_files} table.  This data is not stored with the
@@ -177,9 +183,11 @@ The event will have an attached \hyperref[tab:source_histories]{collection of
   source histories}, representing the state of the files as the project is
 opened (as a complete snapshot, not any kind of diff).
 
-\subsection{\texttt{project\_closing}}
+\subsection{\lstinline|project_closing|}
 
 This event will no attached data (though it will have a \texttt{project\_id}).
+
+\section{Misc}
 
 \subsection{\texttt{resetting\_vm}}
 
@@ -203,6 +211,10 @@ compiler event (i.e. all edits will be flushed before a compiler).
 
 A multi line edit will have exactly associated entry in the
 \texttt{source\_histories} table.
+
+\section{Debugger Events}
+
+%schema:debugger_events
 
 \subsection{\lstinline|debugger_open| and \lstinline|debugger_close|}
 
@@ -245,11 +257,17 @@ the |debugger_events| table, with a |thread_name| and a |class_source_name|
 and |line_number|.  Checking the class source against local source files must
 be done in a post-processing step.
 
+%TODO update this to talk about whole stack trace
+
 \subsection{\lstinline|debugger_breakpoint_add| and
   \lstinline|debugger_breakpoint_remove|}
 
 These events occur when a user adds/removes a breakpoint.  They have a link to
 the |breakpoints| table which details the location of the breakpoint.
+
+\section{Codepad}
+
+%schema:codepad_events
 
 \subsection{\lstinline|codepad_success|, \lstinline|codepad_error| and
   \lstinline|codepad_exception|}
@@ -268,63 +286,38 @@ input and error respectively.  The |codepad_exception| event indicates an except
 |codepad_events| table will have |command| and |exception| filled in with the
 input and exception respectively.
 
+\section{Method Invocation}
+
+%schema:invocations
+
+\subsection{\lstinline|invoke_default_constructor| and
+  \lstinline|invoke_method|}
+
+These events occur when the user interactively (i.e. via a menu) invokes a
+static method on a class or an instance method on an object on the object
+bench.  Each event will have an attached entry in the |invocations| table.
+In the case of |invoke_default_constructor|, the |class_name| field will have
+the name of the class, and for |invoke_method|, the |code| field will have the
+code that was generated to execute the invocation.
+
+In both cases, the |result| field will have the result, which will be one of:
+
+\begin{itemize}
+\item |success| -- method was invoked successfully, the |object_name| field will have the name of the resulting
+  field (if applicable)
+\item |compile_error| -- an error occurred while compiling the generated code
+  (e.g. because the user entered invalid parameters), the |compile_error|
+  field will have the full message.
+\item |terminated| -- the VM terminated during execution, e.g. due to a
+  |System.exit| call.
+\item |exception| -- an uncaught exception occurred during execution.  The
+  |exception_class| field will have the class of the exception, the
+  |exception_message| field will have the message, and there will be
+  associated entries in the |stack_entries| table linking to this event (the
+  |invocations| entry, not the |master_events| entry).
+\end{itemize}
+
 \chapter{TODO List}
-
-\section{Tasks}
-
-\begin{itemize}
-\item Check that the UUID is generated properly for new profiles, or profile without
-UUID (or invalid UUID)
-\item Create opt-in dialog, and allow later change
-\item Let extensions find out UUID
-\item Implement institution ID
-\item Pause for a second or so to wait for BlueJ closing event to have good
-  chance of succeeding
-\item Have flag saying whether error was shown to user
-\item Make sure file contents are anonymised, for complete and for diffs
-\item Post-process this file to automatically inject schema contents
-\item Change hyperrefs to have section number displayed (for paper printing)
-  -- make new macro?
-\item Should we rename multi-line edit and do away with [single] line edit?
-\item Are edits actually flushed before compilation?
-\item Each event (actually, session should do) should record which BlueJ version it was recorded with.
-  Also, we should probably record OS (in the BlueJ start event?).
-\item Check that all source file names are sent correctly (and are not class
-  names -- or at least, make sure distinction is clear)
-\item Make sure multi-threading is properly supported in the debugger
-\item Fix missing events in AJAX live stream
-\item Make sure AJAX live stream is off in production!
-\item Check speed (especially loading up)
-\item Spurious |multi_line_edit| at end of file on first load? (Adding final
-  line break on load-up?)
-\item Look for other coalescing opportunities
-\item TODO document that rename only happens on save/compile, up until then
-  edits will be recorded, but will show as being on the old file.
-\item Record which extensions are loaded?
-\item Record the call-library-class thing?
-\item Record version control
-\end{itemize}
-
-\section{Questions}
-
-Meeting: talk about adding sessions, then making them per-project.  Or per-package?
-
-\begin{itemize}
-\item Could we do better with distinguishing different projects with same
-  name, e.g. hashing the path
-\item We don't seem to record object construction at the moment -- should this be a
-  special case of the method invocation event, or something separate?
-  Probably need to record resulting object name.
-\item Should we record full stack trace during debugger, not just top line?
-\item Should there be |project_opening| and |package_opening| -- they are potentially
-different?  Sessions should be per-project at least, but should they actually be per-package?
-\item What do we want from object bench and methods?  E.g. parameter values,
-  return values, ``Get'' operations, Inspects
-\item Do we want to record any Terminal usage?
-\item What do we record for JUnit -- generated code?
-\item Do we want to record settings, e.g. whether scope highlighting is in
-  use
-\end{itemize}
 
 \section{Answers}
 
@@ -332,6 +325,61 @@ different?  Sessions should be per-project at least, but should they actually be
 \item Should we record events when they are triggered by extensions?
   (e.g. restart VM) -- DECIDED no, very invasive, not always possible
 \item Should we model a session in the database? -- YES!
+\item Should we record full stack trace during debugger, not just top line? -- YES
+\item Do we want to record any Terminal usage? -- YES: open, close
+\item Could we do better with distinguishing different projects with same
+  name, e.g. hashing the path -- YES
+\end{itemize}
+
+\section{Tasks}
+
+\begin{itemize}
+\item Check that the UUID is generated properly for new profiles, or profile without
+UUID (or invalid UUID), and is separate to phone-home UUID
+\item Create opt-in dialog, and allow later change
+\item Let extensions find out UUID
+\item Implement institution ID
+\item Pause for a second or so to wait for BlueJ closing event to have good
+  chance of succeeding
+\item Have flag saying whether error was shown to user
+\item Make sure file contents are anonymised, for complete and for diffs
+\item Change hyperrefs to have section number displayed (for paper printing)
+  -- make new macro?
+\item Should we rename multi-line edit and do away with [single] line edit?
+\item Are edits actually flushed before compilation?
+\item Check that all source file names are sent correctly (and are not class
+  names -- or at least, make sure distinction is clear)
+\item Make sure multi-threading is properly supported in the debugger
+\item Make sure AJAX live stream is off in production!
+\item Check speed (especially loading up)
+\item Look for other coalescing opportunities
+\item TODO document that rename only happens on save/compile, up until then
+  edits will be recorded, but will show as being on the old file.
+\item Record which extensions are loaded?
+\item Record the call-library-class thing?
+\item Optimise MySQL database, reduce varchar sizes?
+\item Add views for white, remove visibility of ip and institution?
+\item Move IP address to its own table
+\end{itemize}
+
+\section{Questions}
+
+Old:
+\begin{itemize}
+\item Added sessions, think they should become per-project, and maybe even per-package?
+\item Should there be |project_opening| and |package_opening| events
+  (basically, what about packages?)
+\item What do we want from object bench and methods?  E.g. parameter values,
+  return values, ``Get'' operations, Inspects
+\item What do we record for JUnit -- generated code?
+\item Do we want to record settings, e.g. whether scope highlighting is in
+  use
+\end{itemize}
+
+New:
+\begin{itemize}
+\item Spurious |multi_line_edit| at end of file on first load, I think it is adding final
+  line break on load-up.  Is it worth trying to suppress this?
 \end{itemize}
 
 \end{document}

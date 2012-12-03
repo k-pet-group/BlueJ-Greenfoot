@@ -1047,7 +1047,7 @@ public class Invoker
      */
     private void errorMessage(String filename, long lineNo, String message)
     {
-        DataCollector.invokeFail(project, commandString, message);
+        DataCollector.invokeCompileError(project, commandString, message);
         
         if (dialog != null) {
             dialog.setErrorMessage("Error: " + message);

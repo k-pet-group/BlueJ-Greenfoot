@@ -837,28 +837,29 @@ public class DataCollector
     {
         MultipartEntity mpe = new MultipartEntity();
         
-        mpe.addPart("invoke[class_name]", toBody(className));
+        mpe.addPart("event[invoke][class_name]", toBody(className));
         addInvokeResult(mpe, result, objName);
-        submitEvent(project, EventName.INVOKE_DEFAULT_CONSTRUCTOR, new PlainEvent(mpe));        
+        submitEvent(project, EventName.INVOKE_DEFAULT_CONSTRUCTOR, new PlainEvent(mpe));
+        //TODO should we merge this with invoke method?
     }
     
     public static void invokeMethod(Project project, String code, String objName, DebuggerResult result)
     {
         MultipartEntity mpe = new MultipartEntity();
         
-        mpe.addPart("invoke[code]", toBody(code));
+        mpe.addPart("event[invoke][code]", toBody(code));
         addInvokeResult(mpe, result, objName);
         submitEvent(project, EventName.INVOKE_METHOD, new PlainEvent(mpe));        
     }
     
-    public static void invokeFail(Project project, String code, String compilationError)
+    public static void invokeCompileError(Project project, String code, String compilationError)
     {
         MultipartEntity mpe = new MultipartEntity();
         
-        mpe.addPart("invoke[code]", toBody(code));
-        mpe.addPart("invoke[result][result]", toBody("compile_error"));
-        mpe.addPart("invoke[result][compile_error]", toBody(compilationError));
-        submitEvent(project, EventName.INVOKE_FAIL, new PlainEvent(mpe));        
+        mpe.addPart("event[invoke][code]", toBody(code));
+        mpe.addPart("event[invoke][result]", toBody("compile_error"));
+        mpe.addPart("event[invoke][compile_error]", toBody(compilationError));
+        submitEvent(project, EventName.INVOKE_METHOD, new PlainEvent(mpe));        
     }
 
 
@@ -868,21 +869,21 @@ public class DataCollector
         switch (result.getExitStatus())
         {
         case Debugger.NORMAL_EXIT:
-            mpe.addPart("invoke[result][result]", toBody("success"));
-            mpe.addPart("invoke[result][name]", toBody(objName));
+            mpe.addPart("event[invoke][result]", toBody("success"));
+            mpe.addPart("event[invoke][object_name]", toBody(objName));
             break;
         case Debugger.TERMINATED:
-            mpe.addPart("invoke[result][result]", toBody("terminated"));
+            mpe.addPart("event[invoke][result]", toBody("terminated"));
             break;
         case Debugger.EXCEPTION:
-            mpe.addPart("invoke[result][result]", toBody("exception"));
+            mpe.addPart("event[invoke][result]", toBody("exception"));
             ed = result.getException();
-            mpe.addPart("invoke[result][exception_class]", toBody(ed.getClassName()));
-            mpe.addPart("invoke[result][exception_message]", toBody(ed.getText()));
-            addStackTrace(mpe, "invoke[result][exception_stack]", ed.getStack().toArray(new SourceLocation[0]));
+            mpe.addPart("event[invoke][exception_class]", toBody(ed.getClassName()));
+            mpe.addPart("event[invoke][exception_message]", toBody(ed.getText()));
+            addStackTrace(mpe, "event[invoke][exception_stack]", ed.getStack().toArray(new SourceLocation[0]));
             break;
         default:
-            mpe.addPart("invoke[result][result]", toBody("unknown"));
+            mpe.addPart("event[invoke][result]", toBody("unknown"));
             break;
         }
     }
