@@ -54,6 +54,7 @@ import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerResult;
 import bluej.debugger.ExceptionDescription;
 import bluej.debugger.SourceLocation;
+import bluej.debugmgr.inspector.Inspector;
 import bluej.groupwork.Repository;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.Package;
@@ -870,7 +871,8 @@ public class DataCollector
         {
         case Debugger.NORMAL_EXIT:
             mpe.addPart("event[invoke][result]", toBody("success"));
-            mpe.addPart("event[invoke][object_name]", toBody(objName));
+            mpe.addPart("event[invoke][bench_object][class_name]", toBody(result.getResultObject().getClassName()));
+            mpe.addPart("event[invoke][bench_object][name]", toBody(objName));
             break;
         case Debugger.TERMINATED:
             mpe.addPart("event[invoke][result]", toBody("terminated"));
@@ -896,36 +898,31 @@ public class DataCollector
     }
 
 
-    public static void inspectorClassShow(Project project, String name)
+    public static void inspectorClassShow(Project project, Inspector inspector, String className)
     {
         MultipartEntity mpe = new MultipartEntity();
-        mpe.addPart("event[inspect][object_name]", toBody(".class"));
-        mpe.addPart("event[inspect][class_name]", toBody(name));
+        mpe.addPart("event[inspect][unique]", toBody(inspector.getUniqueId()));
+        mpe.addPart("event[inspect][static_class]", toBody(className));
         submitEvent(project, EventName.INSPECTOR_SHOW, new PlainEvent(mpe));
     }
     
-    public static void inspectorObjectShow(Project project, String uniqueId, String className, String displayName)
+    public static void inspectorObjectShow(Project project, Inspector inspector, String benchName, String className, String displayName)
     {
         MultipartEntity mpe = new MultipartEntity();
-        mpe.addPart("event[inspect][object_name]", toBody(displayName));
+        mpe.addPart("event[inspect][unique]", toBody(inspector.getUniqueId()));
+        mpe.addPart("event[inspect][display_name]", toBody(displayName));
         mpe.addPart("event[inspect][class_name]", toBody(className));
-        mpe.addPart("event[inspect][object_unique]", toBody(uniqueId));
+        if (benchName != null)
+        {
+            mpe.addPart("event[inspect][bench_object_name]", toBody(benchName));
+        }
         submitEvent(project, EventName.INSPECTOR_SHOW, new PlainEvent(mpe));
     }
     
-    public static void inspectorClassHide(Project project, String name)
+    public static void inspectorHide(Project project, Inspector inspector)
     {
         MultipartEntity mpe = new MultipartEntity();
-        mpe.addPart("event[inspect][object_name]", toBody(".class"));
-        mpe.addPart("event[inspect][class_name]", toBody(name));
-        submitEvent(project, EventName.INSPECTOR_HIDE, new PlainEvent(mpe));
-    }
-    
-    public static void inspectorObjectHide(Project project, String uniqueId)
-    {
-        MultipartEntity mpe = new MultipartEntity();
-
-        mpe.addPart("event[inspect][object_unique]", toBody(uniqueId));
+        mpe.addPart("event[inspect][unique]", toBody(inspector.getUniqueId()));
         submitEvent(project, EventName.INSPECTOR_HIDE, new PlainEvent(mpe));
     }
 }

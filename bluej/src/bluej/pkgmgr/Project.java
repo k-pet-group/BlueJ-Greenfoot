@@ -68,6 +68,7 @@ import bluej.debugmgr.inspector.Inspector;
 import bluej.debugmgr.inspector.InspectorManager;
 import bluej.debugmgr.inspector.ObjectInspector;
 import bluej.debugmgr.inspector.ResultInspector;
+import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.editor.Editor;
 import bluej.extensions.BProject;
 import bluej.extensions.ExtensionBridge;
@@ -722,7 +723,15 @@ public class Project implements DebuggerListener, InspectorManager
             updateInspector(inspector);
         }
         
-        DataCollector.inspectorObjectShow(pkg.getProject(), Long.toString(obj.getObjectReference().uniqueID()), obj.getClassName(), name);
+        // See if it is on the bench:
+        String benchName = null;
+        for (ObjectWrapper ow : PkgMgrFrame.findFrame(pkg).getObjectBench().getObjects())
+        {
+            if (ow.getObject().equals(obj))
+                benchName = ow.getName();
+        }
+        
+        DataCollector.inspectorObjectShow(pkg.getProject(), inspector, benchName, obj.getClassName(), name);
 
         return inspector;
     }
@@ -745,8 +754,8 @@ public class Project implements DebuggerListener, InspectorManager
      */
     public void removeInspector(DebuggerObject obj) 
     {
-        DataCollector.inspectorObjectHide(this, Long.toString(obj.getObjectReference().uniqueID()));
-        inspectors.remove(obj);
+        Inspector inspector = inspectors.remove(obj);
+        DataCollector.inspectorHide(this, inspector);
     }
     
     /**
@@ -755,8 +764,8 @@ public class Project implements DebuggerListener, InspectorManager
      */
     public void removeInspector(DebuggerClass cls) 
     {
-        DataCollector.inspectorClassHide(this, cls.getName());
-        inspectors.remove(cls.getName());
+        Inspector inspector = inspectors.remove(cls.getName());
+        DataCollector.inspectorHide(this, inspector);
     }
 
     /**
@@ -781,18 +790,10 @@ public class Project implements DebuggerListener, InspectorManager
      */
     public void removeAllInspectors() 
     {
-        for (Entry<Object, Inspector> entry : inspectors.entrySet()) {
-            Inspector inspector = entry.getValue();
+        for (Inspector inspector : inspectors.values()) {
             inspector.setVisible(false);
             inspector.dispose();
-            if (entry.getKey() instanceof String)
-            {
-                DataCollector.inspectorClassHide(this, (String)entry.getKey());
-            }
-            else if (entry.getKey() instanceof DebuggerObject)
-            {
-                DataCollector.inspectorObjectHide(this, Long.toString(((DebuggerObject)entry.getKey()).getObjectReference().uniqueID()));
-            } 
+            DataCollector.inspectorHide(this, inspector);
         }
 
         inspectors.clear();
@@ -829,7 +830,7 @@ public class Project implements DebuggerListener, InspectorManager
             updateInspector(inspector);
         }
         
-        DataCollector.inspectorClassShow(pkg.getProject(), clss.getName());
+        DataCollector.inspectorClassShow(pkg.getProject(), inspector, clss.getName());
 
         return inspector;
     }
