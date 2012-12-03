@@ -51,10 +51,13 @@ import bluej.Config;
 import bluej.collect.DataSubmitter.FileKey;
 import bluej.compiler.Diagnostic;
 import bluej.debugger.Debugger;
+import bluej.debugger.DebuggerObject;
 import bluej.debugger.DebuggerResult;
 import bluej.debugger.ExceptionDescription;
 import bluej.debugger.SourceLocation;
+import bluej.debugmgr.inspector.ClassInspector;
 import bluej.debugmgr.inspector.Inspector;
+import bluej.debugmgr.inspector.ObjectInspector;
 import bluej.groupwork.Repository;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.Package;
@@ -833,25 +836,6 @@ public class DataCollector
         submitEventNoData(project, show ? EventName.TERMINAL_OPEN : EventName.TERMINAL_CLOSE);      
     }
 
-
-    public static void invokeDefaultConstructor(Project project, String className, String objName, DebuggerResult result)
-    {
-        MultipartEntity mpe = new MultipartEntity();
-        
-        mpe.addPart("event[invoke][class_name]", toBody(className));
-        addInvokeResult(mpe, result, objName);
-        submitEvent(project, EventName.INVOKE_DEFAULT_CONSTRUCTOR, new PlainEvent(mpe));
-        //TODO should we merge this with invoke method?
-    }
-    
-    public static void invokeMethod(Project project, String code, String objName, DebuggerResult result)
-    {
-        MultipartEntity mpe = new MultipartEntity();
-        
-        mpe.addPart("event[invoke][code]", toBody(code));
-        addInvokeResult(mpe, result, objName);
-        submitEvent(project, EventName.INVOKE_METHOD, new PlainEvent(mpe));        
-    }
     
     public static void invokeCompileError(Project project, String code, String compilationError)
     {
@@ -862,32 +846,40 @@ public class DataCollector
         mpe.addPart("event[invoke][compile_error]", toBody(compilationError));
         submitEvent(project, EventName.INVOKE_METHOD, new PlainEvent(mpe));        
     }
-
-
-    private static void addInvokeResult(MultipartEntity mpe, DebuggerResult result, String objName)
+    
+    public static void invokeMethodSuccess(Project project, String code, String objName, String typeName)
     {
-        ExceptionDescription ed;
-        switch (result.getExitStatus())
+        MultipartEntity mpe = new MultipartEntity();
+        
+        mpe.addPart("event[invoke][code]", toBody(code));
+        mpe.addPart("event[invoke][class_name]", toBody(typeName));
+        mpe.addPart("event[invoke][result]", toBody("success"));
+        if (objName != null)
         {
-        case Debugger.NORMAL_EXIT:
-            mpe.addPart("event[invoke][result]", toBody("success"));
-            mpe.addPart("event[invoke][bench_object][class_name]", toBody(result.getResultObject().getClassName()));
+            mpe.addPart("event[invoke][bench_object][class_name]", toBody(typeName));
             mpe.addPart("event[invoke][bench_object][name]", toBody(objName));
-            break;
-        case Debugger.TERMINATED:
-            mpe.addPart("event[invoke][result]", toBody("terminated"));
-            break;
-        case Debugger.EXCEPTION:
-            mpe.addPart("event[invoke][result]", toBody("exception"));
-            ed = result.getException();
-            mpe.addPart("event[invoke][exception_class]", toBody(ed.getClassName()));
-            mpe.addPart("event[invoke][exception_message]", toBody(ed.getText()));
-            addStackTrace(mpe, "event[invoke][exception_stack]", ed.getStack().toArray(new SourceLocation[0]));
-            break;
-        default:
-            mpe.addPart("event[invoke][result]", toBody("unknown"));
-            break;
         }
+        submitEvent(project, EventName.INVOKE_METHOD, new PlainEvent(mpe));        
+    }
+    
+    public static void invokeMethodException(Project project, String code, ExceptionDescription ed)
+    {
+        MultipartEntity mpe = new MultipartEntity();
+        
+        mpe.addPart("event[invoke][code]", toBody(code));
+        mpe.addPart("event[invoke][result]", toBody("exception"));
+        mpe.addPart("event[invoke][exception_class]", toBody(ed.getClassName()));
+        mpe.addPart("event[invoke][exception_message]", toBody(ed.getText()));
+        addStackTrace(mpe, "event[invoke][exception_stack]", ed.getStack().toArray(new SourceLocation[0]));
+        submitEvent(project, EventName.INVOKE_METHOD, new PlainEvent(mpe));        
+    }
+    
+    public static void invokeMethodTerminated(Project project, String code)
+    {
+        MultipartEntity mpe = new MultipartEntity();
+        mpe.addPart("event[invoke][code]", toBody(code));
+        mpe.addPart("event[invoke][result]", toBody("terminated"));
+        submitEvent(project, EventName.INVOKE_METHOD, new PlainEvent(mpe));        
     }
     
     public static void removeObject(Project project, String name)
@@ -923,6 +915,9 @@ public class DataCollector
     {
         MultipartEntity mpe = new MultipartEntity();
         mpe.addPart("event[inspect][unique]", toBody(inspector.getUniqueId()));
-        submitEvent(project, EventName.INSPECTOR_HIDE, new PlainEvent(mpe));
+        if (inspector instanceof ClassInspector || inspector instanceof ObjectInspector)
+        {
+            submitEvent(project, EventName.INSPECTOR_HIDE, new PlainEvent(mpe));
+        }
     }
 }

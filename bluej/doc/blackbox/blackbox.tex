@@ -290,21 +290,21 @@ input and exception respectively.
 
 %schema:invocations
 
-\subsection{\lstinline|invoke_default_constructor| and
-  \lstinline|invoke_method|}
+\subsection{\lstinline|invoke_method|}
 
-These events occur when the user interactively (i.e. via a menu) invokes a
+This event occurs when the user interactively (i.e. via a menu) invokes a
 static method on a class or an instance method on an object on the object
 bench.  Each event will have an attached entry in the |invocations| table.
-In the case of |invoke_default_constructor|, the |class_name| field will have
-the name of the class, and for |invoke_method|, the |code| field will have the
-code that was generated to execute the invocation.
+The |code| field will have the
+code that was generated to execute the invocation, and the |type_name| field
+will have the type of the result.
 
 In both cases, the |result| field will have the result, which will be one of:
 
 \begin{itemize}
-\item |success| -- method was invoked successfully, the |object_name| field will have the name of the resulting
-  field (if applicable)
+\item |success| -- method was invoked successfully, the |bench_object_id|
+  field will link to the |bench_objects| entry (if the result was added to the
+  object bench, i.e. if the method was a constructor)
 \item |compile_error| -- an error occurred while compiling the generated code
   (e.g. because the user entered invalid parameters), the |compile_error|
   field will have the full message.
@@ -325,19 +325,25 @@ In both cases, the |result| field will have the result, which will be one of:
 
 Both of these events link to an entry in the |inspectors| table.
 
-For the |inspector_show| event, the |object_name| will either be the special
-value |".class"|, indicating that this is a class inspector, or an object name
-(whatever is displayed on the left-hand side of the title in the object
-inspector).  Regardless, the |class_name| will be the name of the class
-involved.  For object-inspection only, the |object_unique| will be a unique
-identifier for the object.  It has no intrinsic meaning, but it can be used to
-match up to |inspector_hide| events:
+For the |inspector_show| event, there are two cases:
 
-For the |inspector_hide| event, either the |object_unique| field will be
-present, indicating that an object inspector was closed, or the |object_name|
-and |class_name| will be supplied to indicate that a class inspector was
-closed.  In each case, the fields will match up to the corresponding fields in
-the |inspector_show| event.
+\begin{enumerate}
+\item The inspection was on a class.  In this case, the |static_class| field
+  will have the name of the class, and the other fields will be empty.
+\item The inspection was on an object.  In this case, the |class_name| field
+  indicates the type of the object, the |display_name| (whatever is displayed
+  on the left-hand side of the title in the object inspector) will be present,
+  and the |bench_object_id| will link to a |bench_object| if the inspected
+  object is on the object bench (regardless of whether that was how this
+  object was reached for inspection).
+\end{enumerate}
+
+In both cases, the |unique| will have some string that uniquely identifies an
+inspector within the session (this is useful during collection, and is of no
+use afterwards, because the record will be unique per inspector).
+
+For the |inspector_hide| event, there will be a link back to the |inspectors|
+entry that was hidden.
 
 \chapter{TODO List}
 

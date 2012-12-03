@@ -53,6 +53,7 @@ import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
+import bluej.runtime.Shell;
 import bluej.testmgr.record.ConstructionInvokerRecord;
 import bluej.testmgr.record.ExpressionInvokerRecord;
 import bluej.testmgr.record.InvokerRecord;
@@ -106,6 +107,9 @@ public class Invoker
     private String shellName;
     /** Name of the result object */
     private String objName;
+    /** The name that the object will have on the object bench.
+        Used by data collection. */
+    private String benchName;
     private Map<String,GenTypeParameter> typeMap; // map type parameter names to types
     private ValueCollection localVars;
     private ValueCollection objectBenchVars;
@@ -210,6 +214,7 @@ public class Invoker
         // in the case of a constructor, we need to construct an object name
         if (member instanceof ConstructorView) {
             this.objName = pmf.getProject().getDebugger().guessNewName(member.getClassName());
+            benchName = objName;
             constructing = true;
         }
         else if (member instanceof MethodView) {
@@ -363,7 +368,8 @@ public class Invoker
         else if (event == CallDialog.OK) {
             gotError = false;
             dialog.setEnabled(false);
-            objName = dialog.getNewInstanceName();                
+            objName = dialog.getNewInstanceName();
+            benchName = objName;
             String[] actualTypeParams = dialog.getTypeParams();
             doInvocation(dialog.getArgs(), dialog.getArgGenTypes(true), actualTypeParams);
         }
@@ -527,9 +533,7 @@ public class Invoker
                     });
                     
                     final DebuggerResult result = debugger.instantiateClass(className);
-                    
-                    DataCollector.invokeDefaultConstructor(project, className, objName, result);
-                    
+
                     EventQueue.invokeLater(new Runnable() {
                         public void run() {
                             // the execution is completed, get the result if there was one
@@ -1150,12 +1154,6 @@ public class Invoker
                 try {
                     final DebuggerResult result = debugger.runClassMain(shellClassName);
                     
-                    if (!codepad)
-                    {
-                        //Only record this if it wasn't on behalf of the codepad (codepad records separately):
-                        DataCollector.invokeMethod(project, commandString, objName, result);
-                    }
-                    
                     EventQueue.invokeLater(new Runnable() {
                         public void run() {
                             // the execution is completed, get the result if there was one
@@ -1197,16 +1195,55 @@ public class Invoker
                         // For constructor calls, the result is expected to be the created object.
                         resultObj = resultObj.getInstanceField(0).getValueObject(null);
                     }
+                    if (!codepad)
+                    {
+                        String resultType;
+                        //Only record this if it wasn't on behalf of the codepad (codepad records separately):
+                        if (resultObj.getClassName().startsWith(Shell.class.getCanonicalName()))
+                        {
+                            //Wrapped by Shell class, grab from first field.
+                            if (resultObj.getInstanceField(0).getType().isPrimitive())
+                            {
+                                // If it's a field with primitive type, use type of field:
+                                resultType = resultObj.getInstanceField(0).getType().toString();  
+                            }
+                            else
+                            {
+                                // Take type from resulting object:
+                                resultType = resultObj.getInstanceField(0).getValueObject(null).getClassName();
+                            }
+                        }
+                        else
+                        {
+                            resultType = resultObj.getClassName();
+                            if (resultType.equals(""))
+                            {
+                                resultType = "void";
+                            }
+                        }
+                        DataCollector.invokeMethodSuccess(project, commandString, benchName, resultType);
+                    }
+                    
                     ir.setResultObject(resultObj);
                     watcher.putResult(resultObj, objName, ir);
                     break;
 
                 case Debugger.EXCEPTION :
                     ExceptionDescription exc = result.getException();
+                    if (!codepad)
+                    {
+                        //Only record this if it wasn't on behalf of the codepad (codepad records separately):
+                        DataCollector.invokeMethodException(project, commandString, exc);
+                    }
                     watcher.putException(exc, ir);
                     break;
 
                 case Debugger.TERMINATED : // terminated by user
+                    if (!codepad)
+                    {
+                        //Only record this if it wasn't on behalf of the codepad (codepad records separately):
+                        DataCollector.invokeMethodTerminated(project, commandString);
+                    }
                     watcher.putVMTerminated(ir);
                     break;
 
