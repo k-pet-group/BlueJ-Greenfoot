@@ -32,6 +32,8 @@ enum EventName
     BLUEJ_FINISH("bluej_finish"),
     PROJECT_OPENING("project_opening"),
     PROJECT_CLOSING("project_closing"),
+    PACKAGE_OPENING("package_opening"),
+    PACKAGE_CLOSING("package_closing"),
 
     ADD("file_add"),
     DELETE("file_delete"),

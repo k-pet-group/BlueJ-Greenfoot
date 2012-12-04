@@ -731,7 +731,7 @@ public class Project implements DebuggerListener, InspectorManager
                 benchName = ow.getName();
         }
         
-        DataCollector.inspectorObjectShow(pkg.getProject(), inspector, benchName, obj.getClassName(), name);
+        DataCollector.inspectorObjectShow(pkg, inspector, benchName, obj.getClassName(), name);
 
         return inspector;
     }
@@ -830,7 +830,7 @@ public class Project implements DebuggerListener, InspectorManager
             updateInspector(inspector);
         }
         
-        DataCollector.inspectorClassShow(pkg.getProject(), inspector, clss.getName());
+        DataCollector.inspectorClassShow(pkg, inspector, clss.getName());
 
         return inspector;
     }

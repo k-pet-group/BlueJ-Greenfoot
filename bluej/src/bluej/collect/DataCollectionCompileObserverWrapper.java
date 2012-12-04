@@ -23,7 +23,9 @@ package bluej.collect;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import bluej.compiler.CompileObserver;
 import bluej.compiler.Diagnostic;
@@ -66,7 +68,17 @@ public class DataCollectionCompileObserverWrapper implements CompileObserver
     @Override
     public void endCompile(File[] sources, boolean succesful)
     {
-        DataCollector.compiled(project, sources, diagnostics);
+        // Heuristic: if all files are in the same package, record the compile as being with that package
+        // (I'm fairly sure the BlueJ interface doesn't let you do cross-package compile,
+        // so I think this should always produce one package)
+        Set<String> packages = new HashSet<String>();
+        for (File f : sources)
+        {
+            packages.add(project.getPackageForFile(f));
+        }
+        bluej.pkgmgr.Package pkg = packages.size() == 1 ? project.getPackage(packages.iterator().next()) : null;
+        
+        DataCollector.compiled(project, pkg, sources, diagnostics);
         wrapped.endCompile(sources, succesful);
     }
 

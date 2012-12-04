@@ -191,7 +191,7 @@ public class ObjectBench extends JPanel implements ValueCollection,
         if(wrapper == selectedObject)
             setSelectedObject(null);
      
-        DataCollector.removeObject(wrapper.getPackage().getProject(), wrapper.getName());
+        DataCollector.removeObject(wrapper.getPackage(), wrapper.getName());
         
         wrapper.prepareRemove();
         wrapper.getPackage().getDebugger().removeObject(scopeId, wrapper.getName());

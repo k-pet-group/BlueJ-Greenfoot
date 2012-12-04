@@ -296,7 +296,7 @@ public class TextEvalPane extends JEditorPane
             String resultString = resultField.getValueString();
             
             if(resultString.equals(nullLabel)) {
-                DataCollector.codePadSuccess(frame.getProject(), ir.getOriginalCommand(), resultString);
+                DataCollector.codePadSuccess(frame.getPackage(), ir.getOriginalCommand(), resultString);
                 output(resultString);
             }
             else {
@@ -306,13 +306,13 @@ public class TextEvalPane extends JEditorPane
                     DebuggerObject resultObject = resultField.getValueObject(null);
                     String resultType = resultObject.getGenType().toString(true);
                     String resultOutputString = resultString + "   (" + resultType + ")";
-                    DataCollector.codePadSuccess(frame.getProject(), ir.getOriginalCommand(), resultOutputString);
+                    DataCollector.codePadSuccess(frame.getPackage(), ir.getOriginalCommand(), resultOutputString);
                     objectOutput(resultOutputString,  new ObjectInfo(resultObject, ir));
                 }
                 else {
                     String resultType = resultField.getType().toString(true);
                     String resultOutputString = resultString + "   (" + resultType + ")";
-                    DataCollector.codePadSuccess(frame.getProject(), ir.getOriginalCommand(), resultOutputString);
+                    DataCollector.codePadSuccess(frame.getPackage(), ir.getOriginalCommand(), resultOutputString);
                     output(resultOutputString);
                 }
             }            
@@ -370,7 +370,7 @@ public class TextEvalPane extends JEditorPane
             }
             
             removeNewlyDeclareds();
-            DataCollector.codePadError(frame.getProject(), ir.getOriginalCommand(), errorMessage);
+            DataCollector.codePadError(frame.getPackage(), ir.getOriginalCommand(), errorMessage);
             showErrorMsg(errorMessage);
             errorMessage = null;
         }
@@ -394,7 +394,7 @@ public class TextEvalPane extends JEditorPane
         
         removeNewlyDeclareds();
         String message = exception.getClassName() + " (" + exception.getText() + ")";
-        DataCollector.codePadException(frame.getProject(), ir.getOriginalCommand(), message);
+        DataCollector.codePadException(frame.getPackage(), ir.getOriginalCommand(), message);
         showExceptionMsg(message);
     }
     
@@ -411,7 +411,7 @@ public class TextEvalPane extends JEditorPane
         
         
         String message = Config.getString("pkgmgr.codepad.vmTerminated");
-        DataCollector.codePadError(frame.getProject(), ir.getOriginalCommand(), message);
+        DataCollector.codePadError(frame.getPackage(), ir.getOriginalCommand(), message);
         append(message);
         markAs(TextEvalSyntaxView.ERROR, Boolean.TRUE);
         

@@ -96,7 +96,7 @@ public class Invoker
         new HashMap<ConstructorView, ConstructorDialog>();
 
     private JFrame pmf;
-    private Project project; //For data collection purposes
+    private Package pkg; //For data collection purposes
     private boolean codepad; //Used to decide whether to do data collection (don't record if for codepad)
     private File pkgPath;
     private String pkgName;
@@ -266,7 +266,7 @@ public class Invoker
     private void initialize(final PkgMgrFrame pmf)
     {
         this.pmf = pmf;
-        this.project = pmf.getProject();
+        this.pkg = pmf.getPackage();
         final Package pkg = pmf.getPackage();
         this.pkgPath = pkg.getPath();
         this.pkgName = pkg.getQualifiedName();
@@ -1051,7 +1051,7 @@ public class Invoker
      */
     private void errorMessage(String filename, long lineNo, String message)
     {
-        DataCollector.invokeCompileError(project, commandString, message);
+        DataCollector.invokeCompileError(pkg, commandString, message);
         
         if (dialog != null) {
             dialog.setErrorMessage("Error: " + message);
@@ -1221,7 +1221,7 @@ public class Invoker
                                 resultType = "void";
                             }
                         }
-                        DataCollector.invokeMethodSuccess(project, commandString, benchName, resultType);
+                        DataCollector.invokeMethodSuccess(pkg, commandString, benchName, resultType);
                     }
                     
                     ir.setResultObject(resultObj);
@@ -1233,7 +1233,7 @@ public class Invoker
                     if (!codepad)
                     {
                         //Only record this if it wasn't on behalf of the codepad (codepad records separately):
-                        DataCollector.invokeMethodException(project, commandString, exc);
+                        DataCollector.invokeMethodException(pkg, commandString, exc);
                     }
                     watcher.putException(exc, ir);
                     break;
@@ -1242,7 +1242,7 @@ public class Invoker
                     if (!codepad)
                     {
                         //Only record this if it wasn't on behalf of the codepad (codepad records separately):
-                        DataCollector.invokeMethodTerminated(project, commandString);
+                        DataCollector.invokeMethodTerminated(pkg, commandString);
                     }
                     watcher.putVMTerminated(ir);
                     break;

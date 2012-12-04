@@ -983,7 +983,7 @@ public class ClassTarget extends DependentTarget
             
             if (possibleError == null && getPackage() != null)
             {
-                DataCollector.debuggerBreakpointToggle(getPackage().getProject(), getSourceFile(), lineNo, set);
+                DataCollector.debuggerBreakpointToggle(getPackage(), getSourceFile(), lineNo, set);
             }
             
             return possibleError;
@@ -1444,7 +1444,7 @@ public class ClassTarget extends DependentTarget
                 ExtensionBridge.changeBDependencyTargetName(bDependency, getQualifiedName());
             }
             
-            DataCollector.renamedClass(getPackage().getProject(), oldSourceFile, newSourceFile);
+            DataCollector.renamedClass(getPackage(), oldSourceFile, newSourceFile);
             
             // Inform all listeners about the name change
             ClassEvent event = new ClassEvent(ClassEvent.CHANGED_NAME, getPackage(), getBClass(), oldName);
@@ -1934,7 +1934,7 @@ public class ClassTarget extends DependentTarget
     @Override
     public void remove()
     {
-        DataCollector.removeClass(getPackage().getProject(), getSourceFile());
+        DataCollector.removeClass(getPackage(), getSourceFile());
         
         prepareForRemoval();
         getPackage().removeTarget(this);
@@ -2037,7 +2037,7 @@ public class ClassTarget extends DependentTarget
     @Override
     public void recordEdit(ArrayList<String> latest, boolean includeOneLineEdits)
     {
-        DataCollector.edit(getPackage().getProject(), getSourceFile(), latest, includeOneLineEdits);
+        DataCollector.edit(getPackage(), getSourceFile(), latest, includeOneLineEdits);
     }
    
 }

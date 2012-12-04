@@ -756,6 +756,8 @@ public class PkgMgrFrame extends JFrame
                 showTestingTools(wantToSeeTestingTools());
             }                
         }
+        
+        DataCollector.packageOpened(pkg);
 
         extMgr.packageOpened(pkg);
     }
@@ -829,6 +831,8 @@ public class PkgMgrFrame extends JFrame
         }
 
         getPackage().closeAllEditors();
+        
+        DataCollector.packageClosed(pkg);
 
         Project proj = getProject();
 
@@ -1075,7 +1079,7 @@ public class PkgMgrFrame extends JFrame
                         tryAgain = false; // cancelled
                     }
                     else if (JavaNames.isIdentifier(newObjectName)) {
-                        DataCollector.benchGet(getProject(), newObjectName, e.getDebuggerObject().getClassName());
+                        DataCollector.benchGet(getPackage(), newObjectName, e.getDebuggerObject().getClassName());
                         putObjectOnBench(newObjectName, e.getDebuggerObject(), e.getIType(), e.getInvokerRecord());
                         tryAgain = false;
                     }
@@ -1212,7 +1216,7 @@ public class PkgMgrFrame extends JFrame
             pkg.compileQuiet(target);
         }
         
-        DataCollector.addClass(pkg.getProject(), target.getSourceFile());
+        DataCollector.addClass(pkg, target.getSourceFile());
         
         return true;
     }
