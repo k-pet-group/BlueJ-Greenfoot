@@ -920,4 +920,15 @@ public class DataCollector
             submitEvent(project, EventName.INSPECTOR_HIDE, new PlainEvent(mpe));
         }
     }
+
+
+    public static void benchGet(Project project, String benchName, String typeName)
+    {
+        MultipartEntity mpe = new MultipartEntity();
+        
+        mpe.addPart("event[bench_object][class_name]", toBody(typeName));
+        mpe.addPart("event[bench_object][name]", toBody(benchName));
+        submitEvent(project, EventName.BENCH_GET, new PlainEvent(mpe));
+        
+    }
 }

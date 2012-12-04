@@ -55,6 +55,7 @@ enum EventName
     INVOKE_DEFAULT_CONSTRUCTOR("invoke_default_constructor"),
     INVOKE_METHOD("invoke_method"),
     
+    BENCH_GET("bench_get"),    
     REMOVE_OBJECT("remove_object"),
     
     INSPECTOR_SHOW("inspector_show"),

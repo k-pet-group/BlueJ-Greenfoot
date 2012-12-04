@@ -1075,6 +1075,7 @@ public class PkgMgrFrame extends JFrame
                         tryAgain = false; // cancelled
                     }
                     else if (JavaNames.isIdentifier(newObjectName)) {
+                        DataCollector.benchGet(getProject(), newObjectName, e.getDebuggerObject().getClassName());
                         putObjectOnBench(newObjectName, e.getDebuggerObject(), e.getIType(), e.getInvokerRecord());
                         tryAgain = false;
                     }
