@@ -142,7 +142,7 @@ public final class JavaLexer implements TokenStream
             StringBuilder whitespaceBuffer = new StringBuilder();
             while (Character.isWhitespace((char)rChar))
             {
-                whitespaceBuffer.append(rChar);                
+                whitespaceBuffer.append((char)rChar);                
                 readNextChar();
             }
             return makeToken(JavaTokenTypes.WHITESPACE, whitespaceBuffer.toString());
