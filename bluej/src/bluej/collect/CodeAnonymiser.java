@@ -21,99 +21,60 @@
  */
 package bluej.collect;
 
+import java.io.StringReader;
+
+import bluej.parser.lexer.JavaLexer;
+import bluej.parser.lexer.JavaTokenTypes;
+import bluej.parser.lexer.LocatableToken;
 import bluej.utility.Utility;
 
 public class CodeAnonymiser
 {
     public static String anonymise(String sourceCode)
     {
-        String[] lines = Utility.splitLines(sourceCode);
-        String[] result = new String[lines.length];
-        int i = 0;
+        StringBuilder result = new StringBuilder();
         
-        // We keep going round this loop while we're still in the header of the file
-        // (i.e. while it's only import, package, and code):
-        while (i < lines.length)
-        {
-            // Start the result accumulator as blank:
-            result[i] = "";
-            
-            String white = "";
-            String content = lines[i]; //TODO
-
-                        
-            // This loop consumes any inline/multiline comments we find, so that
-            // when it exits, we will find something other than a /*:
-            while (content.startsWith("/*"))
+        int importOrPackageLine;
+        
+        JavaLexer lexer = new JavaLexer(new StringReader(sourceCode));
+        lexer.setGenerateWhitespaceTokens(true);
+        
+        importOrPackageLine = -1;
+        for (LocatableToken token = lexer.nextToken(); token.getType() != JavaTokenTypes.EOF; token = lexer.nextToken())
+        {   
+            switch (token.getType())
             {
-                content = content.substring(2); //skip the /*
-                int endPoint = content.indexOf("*/");
-                if (endPoint != -1)
+            case JavaTokenTypes.ML_COMMENT:
+            case JavaTokenTypes.SL_COMMENT:
+                result.append(replaceWords(token.getText()));
+                break;
+            case JavaTokenTypes.WHITESPACE:
+                result.append(token.getText());
+                break;
+            case JavaTokenTypes.LITERAL_import:
+            case JavaTokenTypes.LITERAL_package:
+                // Count all tokens on rest of line as part of declaration, regardless
+                // of syntax:
+                importOrPackageLine = token.getLine();
+                result.append(token.getText());
+                break;
+            default:
+                if (token.getLine() == importOrPackageLine)
                 {
-                    //Comment ends on same line:
-                    result[i] += white + "/*" + replaceWords(content.substring(0, endPoint)) + "*/";
-                    content = content.substring(endPoint + 2);
-                    white = ""; // we've appended whitespace, so consume it
+                    result.append(token.getText());
                 }
                 else
                 {
-                    //Comment ends on different line:
-                    result[i] += white + "/*" + replaceWords(content);
-                    white = ""; // we've appended whitespace, so consume it
-                    i += 1;
-                    // Copy all the lines in the middle of the comment, or until end of file:
-                    while (!lines[i].contains("*/") && i < lines.length)
-                    {
-                        result[i] = replaceWords(lines[i]);
-                    }
-                    if (i == lines.length)
-                    {
-                        //Comment never ended, done:
-                        return recombine(result);
-                    }
-                    // Now it ends on current line:
-                    endPoint = lines[i].indexOf("*/");
-                    result[i] = replaceWords(lines[i].substring(0, endPoint)) + "*/";
-                    content = lines[i].substring(endPoint + 2);
+                    // Start of real program; copy everything else from hereon in:
+                    result.append(sourceCode.substring(token.getPosition()));
+                    // Done:
+                    return result.toString();
                 }
+                break;
             }
-            
-            // We append to the result, not just assign, because we may already have put an anonymised inline
-            // comment onto the result
-            if (content.startsWith("package") || content.startsWith("import"))
-            {
-                result[i] += white + content;
-            }
-            else if (content.startsWith("//"))
-            {
-                result[i] += white + "//" + replaceWords(content);
-            }            
-            else
-            {
-                result[i] += white + content;
-                i += 1;
-                //Whatever else is there, that's where we'll count the code as starting
-                // So copy everything from hereon:
-                for (;i < lines.length; i++)
-                {
-                    result[i] = lines[i];
-                }
-                return recombine(result);                          
-            }
-
-            i += 1;
         }
-        return recombine(result);
-    }
-
-    private static String recombine(String[] lines)
-    {
-        StringBuilder s = new StringBuilder();
-        for (String line : lines)
-        {
-            s.append(line).append("\n");
-        }
-        return s.toString();
+        
+        return result.toString();
     }
 
     private static String replaceWords(String substring)
