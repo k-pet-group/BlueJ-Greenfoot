@@ -150,7 +150,7 @@ public class DataCollector
     
     private static boolean dontSend()
     {
-        return Config.isGreenfoot(); //TODO or opted out or send failed
+        return Config.isGreenfoot() || "optout".equals(uuid);
     }
 
     private static void initUUidSequence()
@@ -159,6 +159,8 @@ public class DataCollector
         uuid = Config.getPropString(PROPERTY_UUID, null);
         if (uuid == null)
         {
+            //TODO display opt-in dialog
+            
             uuid = UUID.randomUUID().toString();
             Config.putPropString(PROPERTY_UUID, uuid);
             
@@ -452,13 +454,13 @@ public class DataCollector
          */
         DataSubmitter.submitEvent(new DataSubmitter.Event() {
             
-            @Override public void success(Map<FileKey, ArrayList<String>> fileVersions)
+            @Override public void success(Map<FileKey, List<String>> fileVersions)
             {
                 evt.success(fileVersions);
             }
             
             @Override
-            public MultipartEntity makeData(Map<FileKey, ArrayList<String>> fileVersions)
+            public MultipartEntity makeData(Map<FileKey, List<String>> fileVersions)
             {
                 MultipartEntity mpe = evt.makeData(fileVersions);
                 
@@ -538,7 +540,7 @@ public class DataCollector
 
     public static void bluejOpened(String osVersion, String javaVersion, String bluejVersion, String interfaceLanguage)
     {
-        if (dontSend()) return;
+        if (Config.isGreenfoot()) return; //Don't even look for UUID
         initUUidSequence();
         
         MultipartEntity mpe = new MultipartEntity();
@@ -581,23 +583,24 @@ public class DataCollector
             
             if (contents != null)
             {
+                String anonymisedContent = CodeAnonymiser.anonymise(contents);
                 mpe.addPart("source_histories[][source_history_type]", toBody("complete"));
                 mpe.addPart("source_histories[][name]", toBody(relative));
-                mpe.addPart("source_histories[][text]", toBody(contents));
-                versions.put(new FileKey(proj, relative), splitLines(contents));
+                mpe.addPart("source_histories[][text]", toBody(anonymisedContent));
+                versions.put(new FileKey(proj, relative), splitLines(anonymisedContent));
             }
         }
         
         submitEvent(proj, pkg, EventName.PACKAGE_OPENING, new DataSubmitter.Event() {
             
             @Override
-            public void success(Map<FileKey, ArrayList<String>> fileVersions)
+            public void success(Map<FileKey, List<String>> fileVersions)
             {
                 fileVersions.putAll(versions);                
             }
             
             @Override
-            public MultipartEntity makeData(Map<FileKey, ArrayList<String>> fileVersions)
+            public MultipartEntity makeData(Map<FileKey, List<String>> fileVersions)
             {
                 return mpe;
             }
@@ -619,11 +622,13 @@ public class DataCollector
         submitEventNoData(project, null, EventName.RESETTING_VM);        
     }
 
-    public static void edit(final Package pkg, final File path, final ArrayList<String> curDoc, final boolean includeOneLineEdits)
+    public static void edit(final Package pkg, final File path, final String source, final boolean includeOneLineEdits)
     {
         final Project proj = pkg.getProject();
         final FileKey key = new FileKey(proj, toPath(proj, path));
-        
+        final String anonSource = CodeAnonymiser.anonymise(source);
+        final List<String> anonDoc = Arrays.asList(Utility.splitLines(anonSource));
+                
         submitEvent(proj, pkg, EventName.MULTI_LINE_EDIT, new DataSubmitter.Event() {
 
             private boolean dontReplace = false;
@@ -639,15 +644,15 @@ public class DataCollector
             
             
             @Override
-            public MultipartEntity makeData(Map<FileKey, ArrayList<String>> fileVersions)
+            public MultipartEntity makeData(Map<FileKey, List<String>> fileVersions)
             {
-                ArrayList<String> previousDoc = fileVersions.get(key);
+                List<String> previousDoc = fileVersions.get(key);
                 if (previousDoc == null)
                     previousDoc = new ArrayList<String>(); // Diff against empty file
                 
                 MultipartEntity mpe = new MultipartEntity();
                 
-                Patch patch = DiffUtils.diff(previousDoc, curDoc);
+                Patch patch = DiffUtils.diff(previousDoc, anonDoc);
                 
                 if (patch.getDeltas().isEmpty() || (isOneLineDiff(patch) && !includeOneLineEdits))
                 {
@@ -678,11 +683,11 @@ public class DataCollector
 
 
             @Override
-            public void success(Map<FileKey, ArrayList<String>> fileVersions)
+            public void success(Map<FileKey, List<String>> fileVersions)
             {
                 if (!dontReplace)
                 {
-                    fileVersions.put(key, curDoc);
+                    fileVersions.put(key, anonDoc);
                 }
             }
             
@@ -802,13 +807,13 @@ public class DataCollector
         submitEvent(project, pkg, EventName.ADD, new DataSubmitter.Event() {
             
             @Override
-            public void success(Map<FileKey, ArrayList<String>> fileVersions)
+            public void success(Map<FileKey, List<String>> fileVersions)
             {
                 fileVersions.put(key, splitLines(contents));                
             }
             
             @Override
-            public MultipartEntity makeData(Map<FileKey, ArrayList<String>> fileVersions)
+            public MultipartEntity makeData(Map<FileKey, List<String>> fileVersions)
             {
                 return mpe;
             }

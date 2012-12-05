@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -230,7 +230,7 @@ public class ReadmeTarget extends EditableTarget
     }
     
     @Override
-    public void recordEdit(ArrayList<String> diff, boolean includeOneLineEdits)
+    public void recordEdit(String curSource, boolean includeOneLineEdits)
     {
         
     }

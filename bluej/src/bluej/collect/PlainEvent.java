@@ -21,7 +21,7 @@
  */
 package bluej.collect;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.http.entity.mime.MultipartEntity;
@@ -42,13 +42,13 @@ class PlainEvent implements DataSubmitter.Event
 
     @Override
     public MultipartEntity makeData(
-            Map<FileKey, ArrayList<String>> fileVersions)
+            Map<FileKey, List<String>> fileVersions)
     {
         return mpe;
     }
 
     @Override
-    public void success(Map<FileKey, ArrayList<String>> fileVersions)
+    public void success(Map<FileKey, List<String>> fileVersions)
     {
     }
 }

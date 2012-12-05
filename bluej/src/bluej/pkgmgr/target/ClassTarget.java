@@ -2035,7 +2035,7 @@ public class ClassTarget extends DependentTarget
     }
     
     @Override
-    public void recordEdit(ArrayList<String> latest, boolean includeOneLineEdits)
+    public void recordEdit(String latest, boolean includeOneLineEdits)
     {
         DataCollector.edit(getPackage(), getSourceFile(), latest, includeOneLineEdits);
     }

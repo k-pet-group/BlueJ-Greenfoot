@@ -3844,11 +3844,14 @@ public final class MoeEditor extends JFrame
     
     private void recordEdit(boolean includeOneLineEdits)
     {
-        ArrayList<String> curDoc = new ArrayList<String>();
-        getLines(curDoc);
         if (watcher != null)
         {
-            watcher.recordEdit(curDoc, includeOneLineEdits);
+            try {
+                watcher.recordEdit(sourceDocument.getText(0, sourceDocument.getLength()), includeOneLineEdits);
+            }
+            catch (BadLocationException e) {
+                e.printStackTrace();
+            }
         }
     }
 }

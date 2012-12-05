@@ -68,7 +68,7 @@ public class DataSubmitter
      * Should only be accessed by the postData method, which is running on
      * the event-sending thread
      */
-    private static Map<FileKey, ArrayList<String> > fileVersions = new HashMap<FileKey, ArrayList<String> >();
+    private static Map<FileKey, List<String> > fileVersions = new HashMap<FileKey, List<String> >();
     
     public static class FileKey
     {
@@ -132,7 +132,7 @@ public class DataSubmitter
          * of lines in the file
          * @return A MultipartEntity to send to the server
          */
-        MultipartEntity makeData(Map<FileKey, ArrayList<String> > fileVersions);
+        MultipartEntity makeData(Map<FileKey, List<String> > fileVersions);
         
         /**
          * A callback that is called after the event has been successfully sent to
@@ -140,7 +140,7 @@ public class DataSubmitter
          * file contents
          * @param fileVersions Map, to be modified by the method
          */
-        void success(Map<FileKey, ArrayList<String> > fileVersions);
+        void success(Map<FileKey, List<String> > fileVersions);
     }
     
     /**
