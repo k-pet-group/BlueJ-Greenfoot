@@ -51,20 +51,25 @@ public class JavaParser
     protected JavaTokenFilter tokenStream;
     protected LocatableToken lastToken;
 
-    public static TokenStream getLexer(Reader r, int line, int col)
+    public static TokenStream getLexer(Reader r)
     {
-        return new JavaLexer(r, line, col);
+        return new JavaLexer(r);
+    }
+    
+    private static TokenStream getLexer(Reader r, int line, int col, int pos)
+    {
+        return new JavaLexer(r, line, col, pos);
     }
     
     public JavaParser(Reader r)
     {
-        TokenStream lexer = getLexer(r, 1, 1);
+        TokenStream lexer = getLexer(r);
         tokenStream = new JavaTokenFilter(lexer, this);
     }
     
-    public JavaParser(Reader r, int line, int col)
+    public JavaParser(Reader r, int line, int col, int pos)
     {
-        TokenStream lexer = getLexer(r, line, col);
+        TokenStream lexer = getLexer(r, line, col, pos);
         tokenStream = new JavaTokenFilter(lexer, this);
     }
     

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -52,10 +52,11 @@ public final class EscapedUnicodeReader extends Reader
         sourceReader = source;
     }
     
-    public void setLineCol(int line, int column)
+    public void setLineColPos(int line, int column, int position)
     {
         this.line = line;
         this.column = column;
+        this.position = position;
     }
 
     public int read(char [] buffer, int off, int len) throws IOException

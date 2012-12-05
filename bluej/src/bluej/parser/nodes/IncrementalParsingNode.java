@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -184,7 +184,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
         int pline = document.getDefaultRootElement().getElementIndex(offset) + 1;
         int pcol = offset - document.getDefaultRootElement().getElement(pline - 1).getStartOffset() + 1;
         Reader r = new DocumentReader(document, offset, parseEnd);
-        EditorParser parser = new EditorParser(document, r, pline, pcol, buildScopeStack());
+        EditorParser parser = new EditorParser(document, r, pline, pcol, offset, buildScopeStack());
                 
         LocatableToken laToken = parser.getTokenStream().LA(1);
         int ttype = laToken.getType();
@@ -258,7 +258,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
                     pline = document.getDefaultRootElement().getElementIndex(offset) + 1;
                     pcol = offset - document.getDefaultRootElement().getElement(pline - 1).getStartOffset() + 1;
                     r = new DocumentReader(document, offset, parseEnd);
-                    parser = new EditorParser(document, r, pline, pcol, buildScopeStack());
+                    parser = new EditorParser(document, r, pline, pcol, offset, buildScopeStack());
                     laToken = parser.getTokenStream().LA(1);
                     tokpos = lineColToPos(document, laToken.getLine(), laToken.getColumn());
                 }

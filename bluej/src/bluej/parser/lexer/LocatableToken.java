@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,6 +27,7 @@ public class LocatableToken
     private int endLine, endColumn;
     private LocatableToken hiddenBefore;
     private int type;
+    private int position, length; // position and length in original source
     private String text;
     
     public LocatableToken(int t, String txt)
@@ -56,14 +57,14 @@ public class LocatableToken
         return beginLine;
     }
 
-    public void setLine(int line)
+    public void setPosition(int beginLine, int beginColumn, int endLine, int endColumn, int position, int length)
     {
-        beginLine = line;
-    }
-    
-    public void setColumn(int col)
-    {
-        beginColumn = col;
+        this.beginLine = beginLine;
+        this.beginColumn = beginColumn;
+        this.endLine = endLine;
+        this.endColumn = endColumn;
+        this.position = position;
+        this.length = length;
     }
     
     public int getColumn()
@@ -76,14 +77,34 @@ public class LocatableToken
         return type;
     }
     
+    /**
+     * Gets the text of the token, with any unicode escapes from the original
+     * taken care of.
+     * 
+     * For example, the original code may have String with the capital S escaped,
+     * like "\u0053tring".  In this case, getText() would return "String".
+     */
     public String getText()
     {
         return text;
     }
     
+    /**
+     * Returns the length of the token in the original source.  Note that
+     * this is not necessarily the same as getText().length(), because the original
+     * token may have contained unicode escapes.  In this case, getText() will
+     * return the processed version, without escapes, but getLength() will
+     * still return the length of the original token in the document, including
+     * all the escapes.
+     */
     public int getLength()
     {
-        return endColumn - beginColumn;
+        return length;
+    }
+    
+    public int getPosition()
+    {
+        return position;
     }
     
     public void setHiddenBefore(LocatableToken t)

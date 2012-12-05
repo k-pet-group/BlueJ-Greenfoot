@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2011,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -82,9 +82,9 @@ public class CompletionParser extends TextParser
      * @param  col     The source column where the expression begins
      */
     public CompletionParser(EntityResolver resolver, Reader reader,
-            JavaEntity defaultEnt, int line, int col)
+            JavaEntity defaultEnt, int line, int col, int pos)
     {
-        super(resolver, reader, defaultEnt, false, line, col);
+        super(resolver, reader, defaultEnt, false, line, col, pos);
         suggestionEntity = defaultEnt;
     }
     

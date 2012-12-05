@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2010,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 2010,2011,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -135,9 +135,9 @@ public class EditorParser extends JavaParser
         //pcuNode = new ParsedCUNode(document);
     }
     
-    public EditorParser(Document document, Reader r, int line, int col, Stack<JavaParentNode> scopeStack)
+    public EditorParser(Document document, Reader r, int line, int col, int pos, Stack<JavaParentNode> scopeStack)
     {
-        super(r, line, col);
+        super(r, line, col, pos);
         this.document = document;
         this.scopeStack = scopeStack;
         pcuNode = (ParsedCUNode) scopeStack.get(0);

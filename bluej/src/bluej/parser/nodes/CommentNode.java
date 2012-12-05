@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -148,7 +148,7 @@ public class CommentNode extends ParsedNode
         int pline = document.getDefaultRootElement().getElementIndex(nodePos) + 1;
         int pcol = nodePos - document.getDefaultRootElement().getElement(pline - 1).getStartOffset() + 1;
         Reader r = new DocumentReader(document, nodePos, nodePos + getSize());
-        JavaLexer lexer = new JavaLexer(r, pline, pcol);
+        JavaLexer lexer = new JavaLexer(r, pline, pcol, nodePos);
 
         LocatableToken commentToken = lexer.nextToken();
         if (commentToken.getType() != JavaTokenTypes.SL_COMMENT &&

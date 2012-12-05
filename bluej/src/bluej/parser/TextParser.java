@@ -150,9 +150,9 @@ public class TextParser extends JavaParser
      * @param col         The column in the source where the expression occurs
      */
     public TextParser(EntityResolver resolver, Reader r, JavaEntity accessType, boolean staticAccess,
-            int line, int col)
+            int line, int col, int pos)
     {
-        super(r, line, col);
+        super(r, line, col, pos);
         this.resolver = resolver;
         this.accessType = accessType;
         this.staticAccess = staticAccess;

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -266,7 +266,7 @@ public abstract class JavaParentNode extends ParentParsedNode
         int col = startpos - map.getElement(line - 1).getStartOffset() + 1;
         Reader r = new DocumentReader(document, startpos, pos);
         
-        JavaLexer lexer = new JavaLexer(r, line, col);
+        JavaLexer lexer = new JavaLexer(r, line, col, startpos);
         JavaTokenFilter filter = new JavaTokenFilter(lexer);
         LocatableToken token = filter.nextToken();
         LocatableToken prevToken = null;
@@ -360,7 +360,7 @@ public abstract class JavaParentNode extends ParentParsedNode
     protected static Token tokenizeText(Document document, int pos, int length)
     {
         DocumentReader dr = new DocumentReader(document, pos, pos+length);
-        TokenStream lexer = JavaParser.getLexer(dr,1,1);
+        TokenStream lexer = JavaParser.getLexer(dr);
         TokenStream tokenStream = new JavaTokenFilter(lexer, null);
 
         Token dummyTok = new Token(0, Token.END);

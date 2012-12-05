@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2009,2010,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 2009,2010,2011,2012  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -41,8 +41,9 @@ public final class JavaLexer implements TokenStream
     private StringBuffer textBuffer; // text of current token
     private EscapedUnicodeReader reader;
     private int rChar; 
-    private int beginColumn, beginLine;
-    private int endColumn, endLine;
+    private int beginColumn, beginLine, beginPosition;
+    private int endColumn, endLine, endPosition;
+    private boolean generateWhitespaceTokens = false;
     
     private static Map<String,Integer> keywords = new HashMap<String,Integer>();
     
@@ -106,7 +107,7 @@ public final class JavaLexer implements TokenStream
      */
     public JavaLexer(Reader in)
     {
-        this(in, 1, 1);
+        this(in, 1, 1, 0);
     }
 
     /**
@@ -114,12 +115,13 @@ public final class JavaLexer implements TokenStream
      * reader is already positioned at the given line and column within the source
      * document.
      */
-    public JavaLexer(Reader in, int line, int col)
+    public JavaLexer(Reader in, int line, int col, int position)
     {
         reader = new EscapedUnicodeReader(in);
-        reader.setLineCol(line, col);
+        reader.setLineColPos(line, col, position);
         endColumn = beginColumn = col;
         endLine = beginLine = line;
+        endPosition = beginPosition = position;
         try {
             rChar = reader.read();
         }
@@ -134,10 +136,25 @@ public final class JavaLexer implements TokenStream
     public LocatableToken nextToken()
     {  
         textBuffer=new StringBuffer();
-        while (Character.isWhitespace((char)rChar)) {
-            beginLine = reader.getLine();
-            beginColumn = reader.getColumn();
-            readNextChar();
+        
+        if (generateWhitespaceTokens && Character.isWhitespace((char)rChar))
+        {
+            StringBuilder whitespaceBuffer = new StringBuilder();
+            while (Character.isWhitespace((char)rChar))
+            {
+                whitespaceBuffer.append(rChar);                
+                readNextChar();
+            }
+            return makeToken(JavaTokenTypes.WHITESPACE, whitespaceBuffer.toString());
+        }
+        else
+        {        
+            while (Character.isWhitespace((char)rChar)) {
+                beginLine = reader.getLine();
+                beginColumn = reader.getColumn();
+                beginPosition = reader.getPosition();
+                readNextChar();
+            }
         }
 
         if (rChar == -1) {
@@ -163,11 +180,10 @@ public final class JavaLexer implements TokenStream
     private LocatableToken makeToken(int type, String txt)
     {           
         LocatableToken tok = new LocatableToken(type, txt);
-        tok.setColumn(beginColumn);
-        tok.setLine(beginLine);  
-        tok.setEndLineAndCol(endLine, endColumn);
+        tok.setPosition(beginLine, beginColumn, endLine, endColumn, beginPosition, endPosition - beginPosition);
         beginColumn = endColumn;
         beginLine = endLine;
+        beginPosition = endPosition;
         return tok;
     }
 
@@ -774,6 +790,7 @@ public final class JavaLexer implements TokenStream
     {
         endColumn = reader.getColumn();
         endLine = reader.getLine();
+        endPosition = reader.getPosition();
         try{
             rChar = reader.read();
         } catch(IOException e) {
@@ -791,5 +808,10 @@ public final class JavaLexer implements TokenStream
             return JavaTokenTypes.IDENT;
         }
         return i;
+    }
+
+    public void setGenerateWhitespaceTokens(boolean generateWhitespaceTokens)
+    {
+        this.generateWhitespaceTokens = generateWhitespaceTokens;
     }
 }
