@@ -26,9 +26,9 @@ import java.io.StringReader;
 import bluej.parser.lexer.JavaLexer;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
-import bluej.utility.Utility;
 
-public class CodeAnonymiser
+//package-visible
+class CodeAnonymiser
 {
     public static String anonymise(String sourceCode)
     {
