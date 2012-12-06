@@ -41,9 +41,9 @@ import bluej.pkgmgr.Project;
 public class DataCollectionCompileObserverWrapper implements CompileObserver
 {
     private CompileObserver wrapped;
-    private List<Diagnostic> diagnostics = new ArrayList<Diagnostic>();
+    private List<DiagnosticWithShown> diagnostics = new ArrayList<DiagnosticWithShown>();
     private Project project;
-
+    
     public DataCollectionCompileObserverWrapper(Project project, CompileObserver wrapped)
     {
         this.project = project;
@@ -59,10 +59,11 @@ public class DataCollectionCompileObserverWrapper implements CompileObserver
     }
 
     @Override
-    public void compilerMessage(Diagnostic diagnostic)
+    public boolean compilerMessage(Diagnostic diagnostic)
     {
-        diagnostics.add(diagnostic);
-        wrapped.compilerMessage(diagnostic);
+        boolean shownToUser = wrapped.compilerMessage(diagnostic);
+        diagnostics.add(new DiagnosticWithShown(diagnostic, shownToUser));
+        return shownToUser;
     }
 
     @Override
@@ -78,7 +79,7 @@ public class DataCollectionCompileObserverWrapper implements CompileObserver
         }
         bluej.pkgmgr.Package pkg = packages.size() == 1 ? project.getPackage(packages.iterator().next()) : null;
         
-        DataCollector.compiled(project, pkg, sources, diagnostics);
+        DataCollector.compiled(project, pkg, sources, diagnostics, succesful);
         wrapped.endCompile(sources, succesful);
     }
 

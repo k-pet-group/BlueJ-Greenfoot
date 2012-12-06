@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -19,33 +19,29 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package bluej.compiler;
+package bluej.collect;
 
-import java.io.File;
+import bluej.compiler.Diagnostic;
 
-/**
- * Observer interface for classes that are interested in compilation.
- *
- * All events are generated on the compiler thread.
- *
- * @author  Michael Cahill
- */
-public interface CompileObserver
+// package-visible
+class DiagnosticWithShown
 {
-    /**
-     * A compilation job has started.
-     */
-    void startCompile(File[] sources);
+    private Diagnostic diagnostic;
+    private boolean shownToUser;
     
-    /**
-     * An error or warning message occurred during compilation
-     * 
-     * Returns whether or not the error was shown to the user (for data collection purposes)
-     */
-    boolean compilerMessage(Diagnostic diagnostic);
+    public DiagnosticWithShown(Diagnostic diagnostic, boolean shownToUser)
+    {
+        this.diagnostic = diagnostic;
+        this.shownToUser = shownToUser;
+    }
+    public Diagnostic getDiagnostic()
+    {
+        return diagnostic;
+    }
+    public boolean wasShownToUser()
+    {
+        return shownToUser;
+    }
     
-    /**
-     * A Compilation job finished.
-     */
-    void endCompile(File[] sources, boolean succesful);
+    
 }

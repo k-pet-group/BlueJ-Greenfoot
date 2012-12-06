@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -46,6 +46,8 @@ final public class EventqueueCompileObserver
     
     // parameters for COMMAND_DIAG
     private Diagnostic diagnostic;
+    // return value for COMMAND_DIAG:
+    private boolean wasShown;
     
     /**
      * Constructor for EventqueueCompileObserver. The link parameter is a compiler
@@ -70,11 +72,12 @@ final public class EventqueueCompileObserver
     
     // ---------------- CompileObserver interface ---------------------
     
-    public synchronized void compilerMessage(Diagnostic diagnostic)
+    public synchronized boolean compilerMessage(Diagnostic diagnostic)
     {
         command = COMMAND_DIAG;
         this.diagnostic = diagnostic;
         runOnEventQueue();
+        return wasShown;
     }
     
     public synchronized void startCompile(File[] csources)
@@ -104,10 +107,11 @@ final public class EventqueueCompileObserver
                 link.startCompile(sources);
                 break;
             case COMMAND_DIAG:
-                link.compilerMessage(diagnostic);
+                wasShown = link.compilerMessage(diagnostic);
                 break;
             case COMMAND_END:
                 link.endCompile(sources, successful);
+                break;
         }
     }
 

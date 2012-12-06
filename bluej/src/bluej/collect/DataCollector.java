@@ -489,12 +489,23 @@ public class DataCollector
         sequenceNum += 1;
     }
 
-    public static void compiled(Project proj, Package pkg, File[] sources, List<Diagnostic> diagnostics)
+    public static void compiled(Project proj, Package pkg, File[] sources, List<DiagnosticWithShown> diagnostics, boolean success)
     {
         MultipartEntity mpe = new MultipartEntity();
-        for (Diagnostic d : diagnostics)
+        
+        mpe.addPart("event[compile_success]", toBody(success));
+        
+        for (File src : sources)
         {
+            mpe.addPart("event[compile_input][][source_file_name]", toBody(toPath(proj, src)));
+        }        
+        
+        for (DiagnosticWithShown dws : diagnostics)
+        {
+            final Diagnostic d = dws.getDiagnostic();
+            
             mpe.addPart("event[compile_output][][is_error]", toBody(d.getType() == Diagnostic.ERROR));
+            mpe.addPart("event[compile_output][][shown]", toBody(dws.wasShownToUser()));
             mpe.addPart("event[compile_output][][message]", toBody(d.getMessage()));
             if (d.getFileName() != null)
             {
@@ -506,7 +517,6 @@ public class DataCollector
                 String relative = toPath(proj, new File(d.getFileName()));
                 mpe.addPart("event[compile_output][][source_file_name]", toBody(relative));
             }
-            //TODO have a flag indicated whether the error was shown to the user
         }
         submitEvent(proj, pkg, EventName.COMPILE, new PlainEvent(mpe));
     }

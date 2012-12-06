@@ -1035,15 +1035,17 @@ public class Invoker
      * @see bluej.compiler.CompileObserver#compilerMessage(bluej.compiler.Diagnostic)
      */
     @Override
-    public void compilerMessage(Diagnostic diagnostic)
+    public boolean compilerMessage(Diagnostic diagnostic)
     {
         if (diagnostic.getType() == Diagnostic.ERROR) {
             if (! gotError) {
                 gotError = true;
                 errorMessage(diagnostic.getFileName(), diagnostic.getStartLine(), diagnostic.getMessage());
+                return true;
             }
         }
         // We ignore warnings for shell classes
+        return false;
     }
     
     /**

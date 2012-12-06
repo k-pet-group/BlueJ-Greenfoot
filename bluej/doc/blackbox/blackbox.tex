@@ -370,7 +370,6 @@ UUID (or invalid UUID), and is separate to phone-home UUID
 \item Pause for a second or so to wait for BlueJ closing event to have good
   chance of succeeding
 \item Have flag saying whether error was shown to user
-\item Make sure file contents are anonymised, for complete and for diffs
 \item Change hyperrefs to have section number displayed (for paper printing)
   -- make new macro?
 \item Should we rename multi-line edit and do away with [single] line edit?
@@ -385,9 +384,9 @@ UUID (or invalid UUID), and is separate to phone-home UUID
   edits will be recorded, but will show as being on the old file.
 \item Record which extensions are loaded?
 \item Record the call-library-class thing?
-\item Optimise MySQL database, reduce varchar sizes?
 \item Add views for white, remove visibility of ip and institution?
-\item Move IP address to its own table
+\item Handle READMEs and classes without source
+\item Restructure compile_events -- remove table?
 \end{itemize}
 
 \section{Questions}
@@ -408,6 +407,7 @@ New:
 \begin{itemize}
 \item Spurious |multi_line_edit| at end of file on first load, I think it is adding final
   line break on load-up.  Is it worth trying to suppress this?
+\item Add new package, remove package actions?
 \end{itemize}
 
 \end{document}
