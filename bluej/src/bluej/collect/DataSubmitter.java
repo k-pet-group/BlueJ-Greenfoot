@@ -127,6 +127,7 @@ class DataSubmitter
             synchronized (queue) {
                 if (queue.isEmpty()) {
                     isRunning = false;
+                    queue.notifyAll(); // in case anyone is waiting for us to finish
                     return;
                 }
                 evt = queue.remove(0);
@@ -208,5 +209,31 @@ class DataSubmitter
         }
         
         return true;
+    }
+    
+    /**
+     * Waits until all pending events have been sent to the server, or the timeout expires.  If events are still being added in parallel
+     * to this call, there will be undefined behaviour.
+     */
+    public static void waitForQueueFlush(int maxMillis)
+    {
+        final long endTime = System.currentTimeMillis() + maxMillis; 
+        
+        try
+        {
+            synchronized (queue)
+            {
+                // Keep waiting if there is anything in the queue,
+                // or the queue is empty but the submitter thread is still running.
+                while (!queue.isEmpty() || isRunning)
+                {
+                    queue.wait(endTime - System.currentTimeMillis());
+                }
+            }
+        }
+        catch (InterruptedException e)
+        {
+            //Just finish anyway...
+        }
     }
 }

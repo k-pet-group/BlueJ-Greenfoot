@@ -620,7 +620,11 @@ public class DataCollector
 
     public static void bluejClosed()
     {
-        submitEventNoData(null, null, EventName.BLUEJ_FINISH);        
+        submitEventNoData(null, null, EventName.BLUEJ_FINISH);
+        
+        // Give the queue 1 second to be flushed, so that the finish event gets time to be sent,
+        // but otherwise, return anyway (can't wait forever):
+        DataSubmitter.waitForQueueFlush(1000);
     }
 
     public static void restartVM(Project project)
