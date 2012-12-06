@@ -1,129 +1,166 @@
 \documentclass{book}
 
 \usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=blue}
+
 \usepackage{listings}
 
 \lstMakeShortInline{|}
 
 \begin{document}
 
-\chapter{User Interactions}
-
-
-\section{Debugger}
-
-BlueJ has a built-in debugger with support for multiple threads, and the usual
-interactions: continue/stop, step into/over, and terminate.
+This document acts as a manual for the BlueJ data collection project,
+``Blackbox''.  It is intended to explain, in detail, the schema of the
+collected data, and how the data relates to the BlueJ IDE.  It assumes a basic
+familiarity with BlueJ's capabilities, such as the debugger, codepad, object
+bench and so on.
 
 \chapter{Concepts}
 
-\section{The Debug VM}
+There are several concepts involved in the Blackbox project, and it is
+very important when doing analysis on the data to understand the concepts
+involved, and particularly the limitations of the data collection.  If you
+naively assume that one virtual user is one real person, you may draw false
+conclusions from your analysis.
 
 \section{Users}
 
+BlueJ stores its properties file in a per-user location.  For example, on
+Linux, it uses |~/.bluej/bluej.properties|, on Windows 7 it is (on a typical
+home installation) |C:\Users\Joe\bluej\bluej.properties|.
+
+This properties file is the only mechanism that BlueJ has to have any sense of
+identity.  If two physical people use the same account, they will appear to
+BlueJ as a single user (this is still quite common on home Windows systems).
+If someone uses BlueJ on a university machine, and on a laptop, and on a home
+machine, they will appear to be three users.
+If the computer is set up to not maintain a user's profile correctly (e.g. a
+school system which wipes a user's profile on logout -- we know some systems
+do this!), they will get a new profile each time they load BlueJ, and thus
+will always appear to be a new user.
+
+The user's unique identifier or opt-out preference is stored in this
+properties file.  Thus the concept of a ``user'' is tied to the properties
+file.  It is important to understand this when reasoning about users.
+
 \section{Projects}
 
-Projects are associated with particular user ids.  They are identified only by
-their name.  For anonymisation purposes, the name is only the name of the
-project directory itself (e.g. ``assignment-1'') and not the full path.  This
-means that two projects (belonging to the same user) in different locations with the same name will appear
-to be the same.
+BlueJ deals with projects.  A project is a directory with a BlueJ project
+file, and source files (and class files, and maybe a README, and whatever else
+the user stores in the directory).  In Blackbox terms, projects are associated
+with particular user ids.  They are identified only by the associated user,
+and their full path (hashed, for anonymity).
 
-When projects are opened, a \texttt{project\_opening} event is sent
-(containing all the source code information), and when
-a project is closed, a corresponding data-less \texttt{project\_opening} event
-is sent.
+If a user makes a copy of a project and opens it, it will appear to be an
+entirely separate project (though you could post-process the data to see that
+the project has the same source code as another of the user's projects).  If a
+user has the project on a USB memory stick, and it gets assigned a different
+drive letter next time they plug the stick in, the project will appear to be
+different.  If a person loads the project from two different machines, even if
+the project has the same path on both machines, they will appear as separate
+projects belonging to separate users.
+
+\section{Packages}
+
+A project will have at least one package (the unnamed, default Java package),
+and potentially many.  BlueJ displays a main interface window for each package
+that the user opens within the project.  Thus there can be as many codepads as
+there are packages in the project.  Some BlueJ features are per-package (codepad,
+object bench), while others are per-project (debugger, version control).
 
 \section{Sessions}
 \label{def:sequence_id}
 
-When BlueJ is first loaded, a \texttt{bluej\_start} event is sent to the
-server.  It contains no real event-specific data, but marks the beginning of a
-BlueJ session for that user.
+Each time that BlueJ is opened, we deem the time from the opening to the
+closing to be ``a session''.  Each time BlueJ is loaded, the client generates
+a unique session identifier to label all events from that session with.
 
-When BlueJ is closed, a \texttt{bluej\_finish} event is sent to the server.
-However, since this event is sent during closing, if it is delayed then BlueJ
-will close anyway, so we cannot guarantee that every start event will have a
-finish event (and besides, the connection might already have been interrupted
--- see \hyperref[def:interruption]{the section on interruption}.
-
-The definitive way to spot sessions is to look at the sequence numbers on
-events -- a session ends when the next event sets the number back to zero.
+If a user loads many projects at once in a single instance of BlueJ, these
+will all count as one session.  If a user loads BlueJ twice in parallel
+(e.g. by clicking the shortcut too many times), both sessions will be
+recorded.  But for this reason, it is usually a good idea to use sessions to
+process events, rather than solely relying on event timestamps (which will
+interleave events from the two sessions).  If a user accidentally closes BlueJ
+and immediately re-opens it, that will count as two sessions (though you could
+spot this using the timestamps on the events in post-processing).
 
 \section{Institutions}
 \label{def:institution_id}
 
+TODO
+
 \section{Events}
 
 The BlueJ client sends a stream of events to the BlueJ server, which
-acknowledges them.  So each piece of data will be an event, with other
-information attached.  Each event has an entry in the \hyperref[tab:master_events]{\texttt{master\_events}}
+acknowledges them.  Ultimately, all the information recorded on the server
+came by way of these discrete events.  Things like users or sessions are
+reconstructed from the individual events that have been sent.  Every event
+that the server receives, bar none, is recorded with an entry in the master
+events table (see \autoref{tab:master_events}).
 
 \section{Interrupted Connections}
 \label{def:interruption}
 
-There are potential problems with missing events or entire sessions in the stream.  You should
+There are potential problems with missing events or entire sessions in the
+event stream for a user.  You should
 never assume you have a user's complete history of interaction with BlueJ.
 Notably, entire sessions might be missing due to users using BlueJ without an
 internet connection (e.g. on an aeroplane).  Similarly, you should not assume
 that you can see all interactions with a project -- source code could be
 edited outside BlueJ, but even within BlueJ sessions might be missing.
 
-Within a session, you can assume that you have all BlueJ events, sequentially
+Within a session, you can assume that you have all events, sequentially
 consistent, from the first \texttt{bluej\_start} event, up until the last
-event that is recorded in the session.  This may not be the final event -- the user's
+event that is recorded in the session.  This may not be the actual final event
+that the user performed in their real session -- the user's
 internet connection may drop, or BlueJ may crash or get killed before a batch of events
 is sent, and so on.  But there will never be a ``hole'' in the middle of a
 session where events are lost, then resumed again.  Any event that fails to
-send will cause the BlueJ client to stop sending for the rest of the session.
+send will cause the BlueJ client to stop sending for the rest of the session
+-- each event is only sent once the event before it in the session has succeeded.
 
 \section{Spam}
 \label{def:spam}
 
 The BlueJ data collection project server is an open web server to which anyone
-can submit.  There is no technical way to \textit{a priori} guarantee that the
-data coming in is from an unmodified BlueJ client -- it could be modified, or
-it could simply be made-up spam data being submitted.
+can submit, and the BlueJ client is an open-source program.  There is no
+technical way to guarantee that the data coming in is from an unmodified BlueJ
+client -- it could be modified, or it could simply be made-up spam data being
+submitted.  It remains to be seen whether this will be an issue.
 
 \section{Source Code Consistency}
 
 TODO talk about edits being captured, but a project-open event may well be a
 huge edit, if project has been modified elsewhere
 
-\chapter{Database Tables}
+\section{The Debug VM}
 
-There are many database tables in the Blackbox schema.  These tables are
-written to using an object framework (Ruby on Rails) with its own persistence
-model.  Thus, each table has an \verb$id$ integer field which is the primary
-key, even if it would make sense for a different field to be primary key.  The
-\texttt{id} field is used internally for associations, but is assigned
-server-side, and never bears any relation to the BlueJ client.
-
-\section{Users}
-
-%schema:users
-
-The \texttt{uuid} field is the unique user identifier.  Whenever the BlueJ
-client loads up and does not find a valid BlueJ profile file with an existing
-UUID inside it, it generates a new UUID.  This means:
+BlueJ has two virtual machines.  One, generally known as the server VM,
+handles:
 
 \begin{itemize}
-\item if the user does not retain their profile file (e.g. their university
-  does not have roaming profiles, or wipes profiles on logout), they will
-  appear with a new UUID each time they load BlueJ.
-\item if the same person uses BlueJ from home (or laptop, etc) and from
-  university, they will appear as two separate users.
-\item if two people share the same profile (e.g. a single-user home system),
-  they will appear as one user.
+\item The graphical interface
+\item Code editing
+\item Compilation
 \end{itemize}
 
-The \texttt{created\_at} field shows the time that this user record was
-created (the first time their UUID was seen), and the \texttt{last\_update} field shows the last time that data was entered for
-this user.
+No user code is ever run on the server VM.  All user code is run on a second
+VM, known as the client VM or the debug VM.  (There is only ever one debug VM
+at a time, for each project.)  So things like:
 
-The \texttt{last\_sequence\_id} field is the last \hyperref[def:sequence_id]{sequence identifier} seen for
-this user, and similarly the \texttt{last\_institution\_id} is the last
-\hyperref[def:institution_id]{institution identifier} seen for this user.
+\begin{itemize}
+\item Object construction
+\item Method invocations
+\item Codepad use
+\item JUnit tests
+\end{itemize}
+
+Are all run on the debug VM.  When the debugger is used, the interface and
+control code are in the server VM, using hooks into the debug VM to do
+stepping and so on.  Whenever user code is executed, it is possible that the
+result is that the debug VM terminates, but this does not mean that BlueJ has
+exited.  User code that runs forever will not interrupt BlueJ, but will
+prevent further use of the debug VM.
 
 \chapter{Master Events}
 \label{tab:master_events}
@@ -349,6 +386,42 @@ use afterwards, because the record will be unique per inspector).
 For the |inspector_hide| event, there will be a link back to the |inspectors|
 entry that was hidden.
 
+\chapter{Other Database Tables}
+
+There are many database tables in the Blackbox schema.  These tables are
+written to using an object framework (Ruby on Rails) with its own persistence
+model.  Thus, each table has an \verb$id$ integer field which is the primary
+key, even if it would make sense for a different field to be primary key.  The
+\texttt{id} field is used internally for associations, but is assigned
+server-side, and never bears any relation to the BlueJ client.
+
+\section{Users}
+
+%schema:users
+
+The \texttt{uuid} field is the unique user identifier.  Whenever the BlueJ
+client loads up and does not find a valid BlueJ profile file with an existing
+UUID inside it, it generates a new UUID.  This means:
+
+\begin{itemize}
+\item if the user does not retain their profile file (e.g. their university
+  does not have roaming profiles, or wipes profiles on logout), they will
+  appear with a new UUID each time they load BlueJ.
+\item if the same person uses BlueJ from home (or laptop, etc) and from
+  university, they will appear as two separate users.
+\item if two people share the same profile (e.g. a single-user home system),
+  they will appear as one user.
+\end{itemize}
+
+The \texttt{created\_at} field shows the time that this user record was
+created (the first time their UUID was seen), and the \texttt{last\_update} field shows the last time that data was entered for
+this user.
+
+The \texttt{last\_sequence\_id} field is the last \hyperref[def:sequence_id]{sequence identifier} seen for
+this user, and similarly the \texttt{last\_institution\_id} is the last
+\hyperref[def:institution_id]{institution identifier} seen for this user.
+
+
 \chapter{TODO List}
 
 \section{Answers}
@@ -361,6 +434,8 @@ entry that was hidden.
 \item Do we want to record any Terminal usage? -- YES: open, close
 \item Could we do better with distinguishing different projects with same
   name, e.g. hashing the path -- YES
+\item Should we hard-code submit URL, or put it in properties?  Don't want to
+  allow redirection too easily. -- hardcode, like stats
 \end{itemize}
 
 \section{Tasks}
@@ -368,20 +443,21 @@ entry that was hidden.
 \begin{itemize}
 \item Check that the UUID is generated properly for new profiles, or profile without
 UUID (or invalid UUID), and is separate to phone-home UUID
-\item Create opt-in dialog, and allow later change
-\item Let extensions find out UUID -- ask Davin if this needs version bump.
-\item Implement institution ID
+\item Finish opt-in dialog, and allow later opt-in/opt-out via prefs.
+\item Implement institution ID, and changing thereof in the prefs.
 \item Change hyperrefs to have section number displayed (for paper printing)
   -- make new macro?
-\item Should we rename multi-line edit and do away with [single] line edit?
+\item Should we rename multi-line edit?
 \item Are edits actually flushed before compilation?
 \item Look for other coalescing opportunities
 \item TODO document that rename only happens on save/compile, up until then
   edits will be recorded, but will show as being on the old file.
-\item Record the call-library-class thing?
 \item Put in the actual URL for data submission (and set up black.bluej.org,
   or whatever)
-\item Handle READMEs and classes without source
+\item Handle READMEs and classes without source code (e.g. in invoker?)
+\item Clear out unused database objects and tables (e.g. line edits)
+\item We should generate a unique session identifier, to solve problem of
+  parallel sessions -- I've already written the manual as if this has been done.
 \end{itemize}
 
 Testing/deployment:
@@ -414,8 +490,6 @@ New:
 \item Spurious |multi_line_edit| at end of file on first load, I think it is adding final
   line break on load-up.  Is it worth trying to suppress this?
 \item Add new package, remove package actions?
-\item Should we hard-code submit URL, or put it in properties?  Don't want to
-  allow redirection too easily.
 \end{itemize}
 
 \end{document}
