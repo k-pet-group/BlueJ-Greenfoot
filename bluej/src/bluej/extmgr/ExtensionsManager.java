@@ -57,7 +57,6 @@ public class ExtensionsManager
     public static synchronized ExtensionsManager getInstance()
     {
         if (instance == null) {
-            try { throw new Exception (); } catch (Exception e) { Debug.reportError(e); }
             instance = new ExtensionsManager();
             instance.loadExtensions();
         }
