@@ -168,8 +168,10 @@ and an optional
 
 \subsection{\lstinline|bluej_start| and \lstinline|bluej_finish|}
 
-These two events have no extra accompanying data.  They have no
-|project_id|, and no other data.
+These two events have no extra accompanying event.  They have no
+|project_id| and no |package_id|.  However, the |bluej_start| event may have
+attached entries in the |extensions| table -- these are extensions loaded from
+the system directories.
 
 \section{Project Events}
 
@@ -181,7 +183,9 @@ event (because it is a subset of the source histories).
 
 The event will have an attached \hyperref[tab:source_histories]{collection of
   source histories}, representing the state of the files as the project is
-opened (as a complete snapshot, not any kind of diff).
+opened (as a complete snapshot, not any kind of diff).  The event may have
+entries in the |extensions| table, which represent extensions loaded from this
+project's directory.
 
 \subsection{\lstinline|project_closing|}
 
