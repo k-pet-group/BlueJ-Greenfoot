@@ -149,6 +149,11 @@ public class DataCollector
     {
         return Config.isGreenfoot() || "optout".equals(uuid);
     }
+    
+    public static String getUserID()
+    {
+        return Config.getPropString(PROPERTY_UUID, null);
+    }
 
     private static void initUUidSequence()
     {

@@ -22,6 +22,7 @@
 package bluej.extensions;
 
 import bluej.*;
+import bluej.collect.DataCollector;
 import bluej.extensions.event.*;
 import bluej.extensions.painter.ExtensionClassTargetPainter;
 import bluej.extmgr.*;
@@ -68,7 +69,7 @@ import javax.swing.*;
  * after its <code>terminate()</code> method has been called will result
  * in an (unchecked) <code>ExtensionUnloadedException</code> being thrown.
  *
- * @version    $Id: BlueJ.java 9624 2012-03-29 17:04:54Z davmac $
+ * @version    $Id: BlueJ.java 10080 2012-12-06 16:39:26Z nccb $
  */
 
 /*
@@ -379,6 +380,19 @@ public final class BlueJ
             throw new ExtensionUnloadedException();
 
         return Config.getUserConfigDir();
+    }
+    
+    /**
+     * Returns the data-collection user ID, for use with extensions that
+     * aim to augment the BlueJ data collection project.
+     * 
+     * Since extension version 2.10
+     * 
+     * @return the user ID, as read from the properties file.
+     */
+    public String getDataCollectionUniqueID()
+    {
+        return DataCollector.getUserID();
     }
 
 
