@@ -26,7 +26,6 @@ import java.util.Map;
 
 import org.apache.http.entity.mime.MultipartEntity;
 
-import bluej.collect.DataSubmitter.FileKey;
 
 /**
  * An Event with no diffs to construct.  Package-visible.

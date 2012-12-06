@@ -49,11 +49,7 @@ import difflib.DiffUtils;
 import difflib.Patch;
 
 import bluej.Config;
-import bluej.collect.DataSubmitter.FileKey;
 import bluej.compiler.Diagnostic;
-import bluej.debugger.Debugger;
-import bluej.debugger.DebuggerObject;
-import bluej.debugger.DebuggerResult;
 import bluej.debugger.ExceptionDescription;
 import bluej.debugger.SourceLocation;
 import bluej.debugmgr.inspector.ClassInspector;

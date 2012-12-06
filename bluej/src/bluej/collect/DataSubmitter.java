@@ -21,10 +21,7 @@
  */
 package bluej.collect;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.charset.UnsupportedCharsetException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -39,17 +36,15 @@ import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 
-import bluej.pkgmgr.Project;
-
 /**
  * This class that handles submitting compilation data to the remote server.
  * 
  * The class has nothing to do with collecting the data, and deliberately
- * does not depend on any other BlueJ classes.
+ * does not depend on any other BlueJ classes.  Package-visible.
  * 
  * @author Davin McCall
  */
-public class DataSubmitter
+class DataSubmitter
 {
     private static final String submitUrl = "http://localhost:3000/master_events";
     
@@ -69,54 +64,6 @@ public class DataSubmitter
      * the event-sending thread
      */
     private static Map<FileKey, List<String> > fileVersions = new HashMap<FileKey, List<String> >();
-    
-    public static class FileKey
-    {
-        private File projDir;
-        private String file;
-        public FileKey(Project proj, String path)
-        {
-            this.projDir = proj.getProjectDir();
-            this.file = path;
-        }
-        
-        //Eclipse-generated hashCode and equals methods:
-        
-        @Override
-        public int hashCode()
-        {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + ((file == null) ? 0 : file.hashCode());
-            result = prime * result
-                    + ((projDir == null) ? 0 : projDir.hashCode());
-            return result;
-        }
-        @Override
-        public boolean equals(Object obj)
-        {
-            if (this == obj)
-                return true;
-            if (obj == null)
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
-            FileKey other = (FileKey) obj;
-            if (file == null) {
-                if (other.file != null)
-                    return false;
-            }
-            else if (!file.equals(other.file))
-                return false;
-            if (projDir == null) {
-                if (other.projDir != null)
-                    return false;
-            }
-            else if (!projDir.equals(other.projDir))
-                return false;
-            return true;
-        }
-    }
     
     /**
      * An Event to be submitted to the server.
