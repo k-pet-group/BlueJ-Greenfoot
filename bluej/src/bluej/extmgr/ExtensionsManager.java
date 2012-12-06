@@ -57,6 +57,7 @@ public class ExtensionsManager
     public static synchronized ExtensionsManager getInstance()
     {
         if (instance == null) {
+            try { throw new Exception (); } catch (Exception e) { Debug.reportError(e); }
             instance = new ExtensionsManager();
             instance.loadExtensions();
         }
@@ -421,5 +422,26 @@ public class ExtensionsManager
                 extension.safeDrawExtensionClassTarget(layer, bClassTarget, graphics, width, height);
             }
         }
+    }
+    
+    /**
+     * Gets the loaded extensions, for data collection purposes.
+     * 
+     * @param proj Pass a project to get the project-specific extensions,
+     *             pass null to get *only* extensions that are not project-specific
+     */
+    public List<ExtensionWrapper> getLoadedExtensions(Project proj)
+    {
+        ArrayList<ExtensionWrapper> r = new ArrayList<ExtensionWrapper>();
+        
+        for (ExtensionWrapper ext : extensions)
+        {
+            if (ext.getProject() == proj)
+            {
+                r.add(ext);
+            }
+        }
+        
+        return r;
     }
 }

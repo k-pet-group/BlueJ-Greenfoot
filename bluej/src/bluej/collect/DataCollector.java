@@ -55,6 +55,7 @@ import bluej.debugger.SourceLocation;
 import bluej.debugmgr.inspector.ClassInspector;
 import bluej.debugmgr.inspector.Inspector;
 import bluej.debugmgr.inspector.ObjectInspector;
+import bluej.extmgr.ExtensionWrapper;
 import bluej.groupwork.Repository;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.Package;
@@ -544,7 +545,7 @@ public class DataCollector
     }
     
 
-    public static void bluejOpened(String osVersion, String javaVersion, String bluejVersion, String interfaceLanguage)
+    public static void bluejOpened(String osVersion, String javaVersion, String bluejVersion, String interfaceLanguage, List<ExtensionWrapper> extensions)
     {
         if (Config.isGreenfoot()) return; //Don't even look for UUID
         initUUidSequence();
@@ -556,11 +557,28 @@ public class DataCollector
         mpe.addPart("installation[bluej_version]", toBody(bluejVersion));
         mpe.addPart("installation[interface_language]", toBody(interfaceLanguage));
         
+        addExtensions(mpe, extensions);
+        
         submitEvent(null, null, EventName.BLUEJ_START, new PlainEvent(mpe));
     }
-    
-    public static void projectOpened(Project proj)
+
+
+    private static void addExtensions(MultipartEntity mpe,
+            List<ExtensionWrapper> extensions)
     {
+        for (ExtensionWrapper ext : extensions)
+        {
+            mpe.addPart("extensions[][name]", toBody(ext.safeGetExtensionName()));
+            mpe.addPart("extensions[][version]", toBody(ext.safeGetExtensionVersion()));
+        }
+    }
+    
+    public static void projectOpened(Project proj, List<ExtensionWrapper> projectExtensions)
+    {
+        MultipartEntity mpe = new MultipartEntity();
+        
+        addExtensions(mpe, projectExtensions);
+        
         submitEventNoData(proj, null, EventName.PROJECT_OPENING);
     }
     

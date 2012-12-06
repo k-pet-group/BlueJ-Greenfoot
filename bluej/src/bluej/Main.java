@@ -90,7 +90,7 @@ public class Main
         if (Config.isMacOS())
             prepareMacOSApp();
         
-        DataCollector.bluejOpened(getOperatingSystem(), getJavaVersion(), getBlueJVersion(), getInterfaceLanguage());
+        DataCollector.bluejOpened(getOperatingSystem(), getJavaVersion(), getBlueJVersion(), getInterfaceLanguage(), ExtensionsManager.getInstance().getLoadedExtensions(null));
 
         // process command line arguments, start BlueJ!
         EventQueue.invokeLater(new Runnable() {

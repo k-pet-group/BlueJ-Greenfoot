@@ -467,8 +467,9 @@ public class Project implements DebuggerListener, InspectorManager
             proj.initialPackageName = startingPackageName;
         }
         
-        DataCollector.projectOpened(proj);
         ExtensionsManager.getInstance().projectOpening(proj);
+        DataCollector.projectOpened(proj, ExtensionsManager.getInstance().getLoadedExtensions(proj));
+        
 
         return proj;
     }
