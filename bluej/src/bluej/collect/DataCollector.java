@@ -786,25 +786,28 @@ public class DataCollector
     public static void codePadSuccess(Package pkg, String command, String output)
     {
         MultipartEntity mpe = new MultipartEntity();
+        mpe.addPart("event[codepad][outcome]", toBody("success"));
         mpe.addPart("event[codepad][command]", toBody(command));
         mpe.addPart("event[codepad][result]", toBody(output));
-        submitEvent(pkg.getProject(), pkg, EventName.CODEPAD_SUCCESS, new PlainEvent(mpe));
+        submitEvent(pkg.getProject(), pkg, EventName.CODEPAD, new PlainEvent(mpe));
     }
     
     public static void codePadError(Package pkg, String command, String error)
     {
         MultipartEntity mpe = new MultipartEntity();
+        mpe.addPart("event[codepad][outcome]", toBody("error"));
         mpe.addPart("event[codepad][command]", toBody(command));
         mpe.addPart("event[codepad][error]", toBody(error));
-        submitEvent(pkg.getProject(), pkg, EventName.CODEPAD_ERROR, new PlainEvent(mpe));
+        submitEvent(pkg.getProject(), pkg, EventName.CODEPAD, new PlainEvent(mpe));
     }
     
     public static void codePadException(Package pkg, String command, String exception)
     {
         MultipartEntity mpe = new MultipartEntity();
+        mpe.addPart("event[codepad][outcome]", toBody("exception"));
         mpe.addPart("event[codepad][command]", toBody(command));
         mpe.addPart("event[codepad][exception]", toBody(exception));
-        submitEvent(pkg.getProject(), pkg, EventName.CODEPAD_EXCEPTION, new PlainEvent(mpe));
+        submitEvent(pkg.getProject(), pkg, EventName.CODEPAD, new PlainEvent(mpe));
     }
 
 

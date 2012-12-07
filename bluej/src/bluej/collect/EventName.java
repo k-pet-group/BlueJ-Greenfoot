@@ -62,9 +62,7 @@ enum EventName
     INSPECTOR_SHOW("inspector_show"),
     INSPECTOR_HIDE("inspector_hide"),
     
-    CODEPAD_SUCCESS("codepad_success"),
-    CODEPAD_ERROR("codepad_error"),
-    CODEPAD_EXCEPTION("codepad_exception"),
+    CODEPAD("codepad"),
     
     TERMINAL_OPEN("terminal_open"),
     TERMINAL_CLOSE("terminal_close"),
