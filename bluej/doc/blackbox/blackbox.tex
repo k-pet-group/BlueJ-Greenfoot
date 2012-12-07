@@ -249,6 +249,19 @@ These two events have no extra accompanying event.  They have no
 the system directories.
 \end{itemize}
 
+The |installation_details| table contains the BlueJ |interface_language| -- the
+possible options are listed in the bluej.defs file.  The |operating_system|
+field glues together (with slashes) the output of Java's |System.getProperty|
+call for the keys |"os.name"|, |"os.arch"| and |"os.version"|.  The
+|bluej_version| is the version of BlueJ they are running, and |java_version|
+is the Java version being used to run BlueJ.
+
+%schema:installation_details
+
+The |extensions| table contains the (self-reported) name and version of a
+BlueJ extension.  BlueJ comes with the submitter extension installed by default.
+
+%schema:extensions
 
 \section{Project Events}
 
@@ -335,7 +348,6 @@ appear some time after the actual relevant source code edit takes place.
 
 The event will always have exactly one associated entry in the
 \tabref{source_histories}, which will be a |rename| event.
-
 
 \section{Compilation}
 
@@ -607,15 +619,58 @@ The \texttt{last\_sequence\_id} field is the last \hyperref[def:sequence_id]{seq
 this user, and similarly the \texttt{last\_institution\_id} is the last
 \hyperref[def:institution_id]{institution identifier} seen for this user.
 
-\section{Stack Entries}
+TODO make sure this is up-to-date
+
+\section{Sessions}
 
 \section{Projects}
 
+%schema:projects
+
+Each project is associated with a specific user.  A project is stored with the
+md5 hash of its full path (|path_hash|), to try to identify the project across multiple
+sessions.  For anonymity purposes, the full path is not sent to the server
+(because it will typically have the user-name in the path), but the directory
+name of the project (|name|) is sent, as this may be informative.
+
 \section{Packages}
+
+%schema:packages
+
+Each package belongs to a specific project.  A package is identified by its
+fully-qualified package name.  The default, unnamed package will have the
+empty string as its name.
 
 \section{Source Files}
 
 \section{Source Histories}
+
+%schema:source_histories
+
+Each entry in the |source_histories| table belongs to a particular
+|master_event|, and is associated with a given |source_file|.  Based on the
+|source_event_type| field, there can be a link to a number of other
+tables:
+
+\begin{itemize}
+\item |"Complete"| -- |source_event_id| references an item in the |completes|
+  table, which just has the complete text of the source file.  This will be
+  used by file additions, and source histories added on loading a package.
+\item |"MultiLineEdit"| -- |source_event_id| references an item in the
+  |multi_line_edits| table, which has the diff (in unified diff format) from
+  the previous version of the file.
+\item |"Rename"| -- |source_event_id| references an item in the |renames|
+  table, which holds the name of the file before the rename.  During the
+  rename, the source history will be updated to feature the new name of the file.
+\end{itemize}
+
+%schema:completes
+
+%schema:multi_line_edits
+
+%schema:renames
+
+\section{Stack Entries}
 
 \section{Bench Objects}
 
@@ -652,8 +707,14 @@ UUID (or invalid UUID), and is separate to phone-home UUID
 \item Check that a file added through version control fires the |file_add| event
   (or, stop |file_delete| being generated for version control removes)
 \item Should we make everything link to master event where possible, not the sub-events?
-\item Make the codepad one event, and push the result down into the
-  sub-table, like method invocation? (more consistent with everything else)
+\item After removing old tables, change the |source_file| table to be
+  |source_file_path| (or similar), remove the project link, and use it like
+  |client_address| (i.e. a giant interned table for strings).  Although, is it
+  being relied upon as a uniqueness measure by some things (e.g. renames)?
+\item Put a version number in source histories, to ease putting the diffs back together.
+\item We could roll all the edit types back into the |source_histories| table,
+  by just having a text field that we re-use (all the links out are to tables
+  with a single string or text field).o
 \end{itemize}
 
 Testing/deployment:

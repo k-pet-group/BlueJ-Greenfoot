@@ -35,6 +35,8 @@ all_tables.map(&:chomp).reject {|tab| shown_tables.include? tab}.each do |table|
   $stderr.puts "Table not described: \"#{table}\""
 end
 
+#Could also make sure all fields are documented...
+
 #TODO enable this:
 #exit result_code
 
