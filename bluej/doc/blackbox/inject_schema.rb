@@ -22,3 +22,19 @@ while gets
     puts line
   end
 end
+
+all_tables = `mysql -u root blackbox_development -e "show tables" | tail -n +2`.lines
+
+# Treat Rails' internal tables as shown:
+shown_tables << "schema_migrations"
+
+result_code = 0
+
+all_tables.map(&:chomp).reject {|tab| shown_tables.include? tab}.each do |table|
+  result_code = 1
+  $stderr.puts "Table not described: \"#{table}\""
+end
+
+#TODO enable this:
+#exit result_code
+
