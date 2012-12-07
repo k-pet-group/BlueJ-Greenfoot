@@ -1,11 +1,16 @@
 \documentclass{book}
 
+\usepackage[margin=1.5in]{geometry}
+
 \usepackage{hyperref}
 \hypersetup{colorlinks=true,linkcolor=blue}
 
 \usepackage{listings}
-
 \lstMakeShortInline{|}
+\lstset{columns=fixed,language=SQL,basicstyle=\ttfamily}
+
+\newcommand{\myref}[1]{\autoref{#1} on page \pageref*{#1}}
+\newcommand{\tabref}[1]{\lstinline|#1| table (see \myref{tab:#1})}
 
 \begin{document}
 
@@ -37,7 +42,9 @@ machine, they will appear to be three users.
 If the computer is set up to not maintain a user's profile correctly (e.g. a
 school system which wipes a user's profile on logout -- we know some systems
 do this!), they will get a new profile each time they load BlueJ, and thus
-will always appear to be a new user.
+will always appear to be a new user.  If the same bluej.properties file is
+shared between many physical users (e.g. they all get the same profile on
+login), they will all appear to be the same user (operating with many parallel sessions).
 
 The user's unique identifier or opt-out preference is stored in this
 properties file.  Thus the concept of a ``user'' is tied to the properties
@@ -95,8 +102,7 @@ The BlueJ client sends a stream of events to the BlueJ server, which
 acknowledges them.  Ultimately, all the information recorded on the server
 came by way of these discrete events.  Things like users or sessions are
 reconstructed from the individual events that have been sent.  Every event
-that the server receives, bar none, is recorded with an entry in the master
-events table (see \autoref{tab:master_events}).
+that the server receives, bar none, is recorded with an entry in the \tabref{master_events}.
 
 \section{Interrupted Connections}
 \label{def:interruption}
@@ -162,122 +168,277 @@ result is that the debug VM terminates, but this does not mean that BlueJ has
 exited.  User code that runs forever will not interrupt BlueJ, but will
 prevent further use of the debug VM.
 
-\chapter{Master Events}
-\label{tab:master_events}
 
+\section{Extensions}
+
+TODO say that extensions can trigger pretty much every event here, and it is
+indistinguishable from user-triggered -- but you do at least get a list of
+loaded extensions.
+
+\chapter{Database Structure}
+\label{sec:assoc}
+
+The database is used as a persistence layer by our Ruby on Rails server, which
+uses an object-store model.  Every table in the database, bar none, has an
+integer |id| field which acts as a primary key.  Relations in the database are
+handled in two ways:
+
+\begin{enumerate}
+\item When the destination table is fixed, e.g. a master event has a user,
+  there is a field in the |master_events| table named |user_id| which links to
+  the |users| table.
+\item When the destination table may vary, e.g. a master event has a sub
+  ``event'' record which may be from one of many tables, there is both an
+  |event_id| and an |event_type| field.  The |event_type| field contains an
+  uppercased camel-cased, non-underscored\footnote{This is Rails' doing -- don't ask.} version
+  of the table name.  So if a particular master event links to a compile
+  event, the |event_type| field will have |"CompileEvent"|, and the |event_id|
+  will correspond to an |id| in the |compile_events| table.
+\end{enumerate}
+
+\chapter{Master Events}
 %schema:master_events
 
 The master events table is the place where all events are entered.  There are
 lots of different types of events that can be received, each with a variety of
-different data, but all of them get one entry in the \texttt{master\_event}
+different data, but all of them get one entry in the |master_events|
 table, with links to other tables where necessary.
 
-Each master event has a user ID and almost all have a project ID (the two
-exceptions being \texttt{bluej\_start} and \texttt{bluej\_finish} events) -- the
-\texttt{user\_id} and \texttt{project\_id} are foreign keys for the
-\texttt{users} and \texttt{projects} tables respectively.  Similarly, if
-present, the \texttt{institution\_id} field is a foregin key for the
-\texttt{insitutions} table.
+The most important field in the table is the |name| field, which describes
+which kind of event it is, and determines which of the other fields will be present.
 
-The \texttt{created\_at} field is a server-side, trustworthy datestamp of when
-the event was received.  The \texttt{source\_time} is the client-side time,
+Each master event has links (as per \myref{sec:assoc}) to other tables:
+\begin{itemize}
+\item |user_id| -- present for all events
+\item |session_id| -- present for all events
+\item |project_id| -- present for all events except |bluej_start| and |bluej_finish|
+\item |package_id| -- present for some events (see further details below).
+\item |event_id|, |event_type| -- present for some events (see further details below).
+\item |institution_id| -- present for all events, if the user currently has an
+  institution specified.
+\item |client_address_id| -- present for all events.
+\end{itemize}
+
+The |created_at| field is a server-side, trustworthy datestamp of when
+the event was received.  The |source_time| is the client-side time,
 which is likely (but not guaranteed) to be sequentially consistent, but should
 not be trusted to be accurate.
 
-The \texttt{event\_id} and \texttt{event\_type} fields describe a link to
-another table.  The \texttt{event\_type} field will be a capitalised
-camel-cased singular version of the table name, and the \texttt{event\_id} field will
-be a foreign key in that table.  So, for example, if \texttt{event\_type} is
-\texttt{"CompileEvent"}, then \texttt{event\_id} will match the appropriate
-\texttt{id} in the \texttt{compile\_events} table\footnote{This is how Ruby on
-  Rails stores polymorphic association, it's a little quirky but not too
-  horrific.}.
+The |sequence_num| field is provided by the client to make sure events are
+received in correct sequence (within a given session).  The server ensures
+that the sequence numbers are valid (i.e. that they begin at 1, and each
+subsequent event increments the sequence number by 1).
 
-The \texttt{event\_name} column stores the name of the event -- each event is
-detailed in the following subsections.
+The subsequent sections describe the different values for the
+|master_events.name| field, and what that means for the other fields,
+especially what may be linked to by the |event_id| and |event_type| fields.
 
-All events will have a \texttt{user\_id}, an \texttt{event\_name}, a
-\texttt{created\_at}, a \texttt{source\_time},
-and an optional
-\texttt{institution\_id}.  Unless specified otherwise, they will also have a \texttt{project\_id}.
 
 \section{Start/Finish Events}
 
 \subsection{\lstinline|bluej_start| and \lstinline|bluej_finish|}
 
 These two events have no extra accompanying event.  They have no
-|project_id| and no |package_id|.  However, the |bluej_start| event may have
-attached entries in the |extensions| table -- these are extensions loaded from
+|project_id| and no |package_id|.  However, the |bluej_start| event:
+
+\begin{itemize}
+\item will have an entry in the \tabref{installation_details} that links back to this
+  master event, and
+\item  will have zero or more attached entries in the \tabref{extensions} that link back to this master event
+-- these are extensions loaded from
 the system directories.
+\end{itemize}
+
 
 \section{Project Events}
 
 \subsection{\lstinline|project_opening|}
 
-This event will update the list of source files contained in a project, by
-adding to the \texttt{source\_files} table.  This data is not stored with the
-event (because it is a subset of the source histories).
+This event has no |package_id|.
 
-The event will have an attached \hyperref[tab:source_histories]{collection of
-  source histories}, representing the state of the files as the project is
-opened (as a complete snapshot, not any kind of diff).  The event may have
-entries in the |extensions| table, which represent extensions loaded from this
-project's directory.
+This event will have zero or more entries in the \tabref{extensions}, which
+represent extensions loaded from this project's directory.
 
 \subsection{\lstinline|project_closing|}
 
-This event will no attached data (though it will have a \texttt{project\_id}).
+This event will no attached data, and will have no |package_id|.
 
-\section{Misc}
 
-\subsection{\texttt{resetting\_vm}}
+\section{Package Events}
 
-This event will no attached data (though it will have a
-\texttt{project\_id}).  It occurs when the VM is resetting, triggered either
-by an explicit user request, or by a BlueJ extension.
+\subsection{\lstinline|package_opening|}
+
+This event will have a |package_id|.
+
+The event will have zero or more entries in the \tabref{source_histories} that
+link back to this event.  These represent the state of the files as the project is
+opened (as a |complete| snapshot, not a diff).
+
+\subsection{\lstinline|package_closing|}
+
+This event will have a |package_id|, but no other associated data.
+
+
+\section{Editing}
+
+\subsection{\lstinline|multi_line_edit|}
+
+This event is the central editing event in BlueJ.  These events are recorded
+when multiple lines are edited at once (e.g. via paste, or deleting a
+selection, or so on), or a single line has been edited and the caret
+has now left that edited line.  An edit event is not generated by every single
+keystroke.
+
+There is currently no guarantee as to how edits are grouped together into a single edit
+event (e.g. highlighting a selection and then pasting may appear as one event
+or two events, auto-indent may appear as one edit or several edits, and many
+other such examples), but an edit event will never span a compiler event, and
+all edits will be flushed before a compile event.
+
+The event will always have exactly one associated entry in the
+\tabref{source_histories}, which will be a |diff| event.
+
+\subsection{\lstinline|file_add|}
+
+This event will have a |package_id|, which indicates which package the file
+was added to.
+
+This event is fired whenever a class is added to the BlueJ project.  This may
+be via the New Class menu item, or via the Import Class menu item, or via
+version control.
+
+The event will always have exactly one associated entry in the
+\tabref{source_histories}, which will be a |complete| event.
+
+\subsection{\lstinline|file_delete|}
+
+This event will have a |package_id|, which indicates which package the file
+was deleted from.
+
+This event is fired whenever a class is removed from a BlueJ project.  This
+may be via the interface, or via version control.
+
+The event will always have exactly one associated entry in the
+\tabref{source_histories}, which will be a |file_delete| event.
+
+\subsection{\lstinline|rename|}
+
+This event will have a |package_id|, which indicates which package the file
+was renamed in.
+
+This event is fired whenever a class is renamed in a BlueJ project.  A rename
+occurs in BlueJ when a Java file is saved, and is parseable, and has a
+different top-level class name to the name of the file.  At this point, BlueJ
+silently renames the file to match the class name.  But note that until this
+save occurs, many more edits may take place, so the rename of the file may
+appear some time after the actual relevant source code edit takes place.
+
+The event will always have exactly one associated entry in the
+\tabref{source_histories}, which will be a |rename| event.
+
+
+\section{Compilation}
 
 \subsection{\texttt{compile}}
 
-This event will link to an entry in the \texttt{compile\_events} table, which
-in turn will be linked to by many entries in the \texttt{compile\_outputs}
-table.  It occurs every time user source code is compiled.
+This event will have a |package_id| if and only if all the compiled files were
+in the same package.  However, having a |package_id| does not necessarily
+indicate that the user asked for the whole package to be compiled.
 
-\subsection{\texttt{multi\_line\_edit}}
+This event occurs whenever a compilation of the user's classes is triggered.
+(This does not include things like codepad interactions).
 
-This event is the central editing event in BlueJ.  These events are recorded
-when multiple lines are edited, or a single line has been edited but the caret
-has now left that line.  There is no guarantee as to how edits are grouped
-together into a single edit event, but an edit event will never span a
-compiler event (i.e. all edits will be flushed before a compiler).
+This master event will always have |event_type| set to |"CompileEvent"|, and
+|event_id| will reference an entry in the \tabref{compile_events}.  (In turn,
+that entry in the |compile_events| table, will be linked to by one or more
+|compile_inputs| and zero or more |compile_outputs|, but see the
+\tabref{compile_events} for more details.)
 
-A multi line edit will have exactly associated entry in the
-\texttt{source\_histories} table.
+\subsection{Related Tables}
+
+The |compile_events| table records whether the compilation was a success
+(i.e. no errors -- but there could be warnings) or not.
+
+%schema:compile_events
+
+The |compile_events| may then linked to by entries in the |compile_inputs| and
+|compile_outputs| table.
+
+The |compile_inputs| table is really just a link table, linking one compile
+event to many source files.
+
+%schema:compile_inputs
+
+The |compile_outputs| table has an entry for each warning and each error that
+occurred.  Note that these warnings and errors are reported from the standard Java
+compiler from the JDK.  However, BlueJ may alter the format of some messages,
+and will only display at most one error, and may ignore some warnings.  The
+message recorded here is the altered format, and the |shown| flag indicates
+whether or not this error or warning was actually displayed to the user.  The
+|is_error| flag indicates if it was an error (otherwise it was a warning), the
+|message| field shows the text that would be displayed to the user, and the
+line and column fields indicate the error's location, as reported by the
+compiler  (lines and columns begin at 1, not 0).
+
+%schema:compile_outputs
+
+\section{Miscellaneous Events}
+
+\subsection{\texttt{resetting\_vm}}
+
+This event has no |package_id|, because the debug VM is per-project.
+
+The event occurs when the VM is restarted due to an explicit user request (via
+a menu).  Although it has the same effect as the |debugger_terminate| event,
+it is recorded separately.
+
 
 \section{Debugger Events}
 
+Some, but not all, debugger events link to the |debugger_events|
+table, which can store thread names.
+
 %schema:debugger_events
+
+Other debugger events will link to the |breakpoints| table, which references a
+source file and a line number (line numbers begin at 1, not 0).
+
+%schema:breakpoints
 
 \subsection{\lstinline|debugger_open| and \lstinline|debugger_close|}
 
-These events occur when the debugger window is opened or closed.  No further
-data is attached.
+These events have no |package_id| (because the debugger is per-project).
+
+These events occur when the debugger window is opened or closed.  The debugger
+may open because the user explicitly opened the debugger (via the menu), or
+because the code has hit a breakpoint.  No further data is attached.
 
 \subsection{\lstinline|debugger_terminate|}
 
+This event has no |package_id| (because the debugger is per-project).
+
 This event occurs when the user clicks the Terminate button in the debugger.
-It kills the current debug VM, and thus all currently-executing user code.  No
+It kills the current debug VM (which will be subsequently restarted, but will
+be idle), and thus all currently-executing user code.  No
 further data is attached.
 
 \subsection{\lstinline|debugger_continue|}
 
-This event occurs when the user clicks the Continue button in the debugger.
-It makes the selected thread continue execution (until Halt is clicked, or a
-breakpoint is hit).  An accompanying entry in the |debugger_events| table will
-have the |thread_name|, but no source location.
+This event has no |package_id| (because the debugger is per-project).
+
+This event occurs when the user clicks the Continue button in the debugger on
+a thread which is currently not executing.
+It makes the selected thread resume execution.  
+
+The |event_type| field will always be |DebuggerEvent|, and the |event_id| will
+reference an entry in the \tabref{debugger_events}.  The |debugger_events|
+entry will have the |thread_name| filled in, but there will be no further information.
 
 \subsection{\lstinline|debugger_hit_breakpoint|,
   \lstinline|debugger_stepinto|, \lstinline|debugger_stepover| and
   \lstinline|debugger_halt|}
+
+These events have no |package_id| (because the debugger is per-project).
 
 These events occur when the user code in a thread becomes suspended.  The
 |debugger_hit_breakpoint| event indicates that the suspension was due to
@@ -285,36 +446,44 @@ hitting a breakpoint, while |debugger_stepinto| and |debugger_stepover|
 indicate that the thread has just completed a step request.  (If a step
 request ends on a breakpoint, only the breakpoint is reported.)  The
 |debugger_halt| is reported in the remaining case, that the user has
-clicked the Halt button in the debugger.
+clicked the Halt button in the debugger (which pauses execution of the thread).
 
-For |debugger_hit_breakpoint|, there will be a link to the |breakpoints|
-table, which will specify a source file and a line number.  For breakpoints,
-it is guaranteed that the source file will be within the project.
+For these events, the |event_type| field will be always be |DebuggerEvent|,
+and the |event_id| will reference an entry in the \tabref{debugger_events},
+which will have the |thread_name| filled in.
 
-For the other events, the location where the execution may have halted could
-be in user code, but it could also be in external code, such as user
-libraries, or system libraries.  For the other three events, the link is to
-the |debugger_events| table, with a |thread_name| and a |class_source_name|
-and |line_number|.  Checking the class source against local source files must
-be done in a post-processing step.
-
-%TODO update this to talk about whole stack trace
+There will also be one or more entries in the \tabref{stack_entries} which
+will link to the |debugger_event| (not the master event) via the
+|stack_entries.sub_event_type| and |stack_entries.sub_event_id| fields.
 
 \subsection{\lstinline|debugger_breakpoint_add| and
   \lstinline|debugger_breakpoint_remove|}
 
-These events occur when a user adds/removes a breakpoint.  They have a link to
-the |breakpoints| table which details the location of the breakpoint.
+These events do have a |package_id|, which indicates the package that the
+involved source file is in.
+
+These events occur when a user adds/removes a breakpoint.  The |event_type|
+field will be |"Breakpoint"| and the |event_id| will reference an entry in
+the \tabref{breakpoints}, which details the location of the breakpoint.
+
 
 \section{Codepad}
+
+All of the codepad events link to an item in the |codepad_events| table (the
+|event_type| will be |"CodepadEvent"|, and the |event_id| will reference an
+entry in the |codepad_events| table).
 
 %schema:codepad_events
 
 \subsection{\lstinline|codepad_success|, \lstinline|codepad_error| and
   \lstinline|codepad_exception|}
 
+These events have a |package_id|, which indicates which package window the
+codepad being used corresponds to (more by accident than by design, each
+package window has its own codepad).
+
 These events occur each time that the user types something into the codepad
-window and gets a response.  The success event indicates that the code
+window, presses return and gets a response.  The success event indicates that the code
 successfully compiled, and executed without throwing an exception or without
 exiting the VM early.  In this case, the entry in the |codepad_events| table
 will have the fields |command| and |result| filled in with the input and
@@ -327,31 +496,40 @@ input and error respectively.  The |codepad_exception| event indicates an except
 |codepad_events| table will have |command| and |exception| filled in with the
 input and exception respectively.
 
+
 \section{Method Invocation}
+
+Method invocations reference the |invocations| table.
 
 %schema:invocations
 
 \subsection{\lstinline|invoke_method|}
 
+This event has a |package_id| field, which indicates which package window the
+method was invoked from.  The method invoked is not guaranteed to be in this
+package, as the user may have used the call-library-class function to invoke a
+method on String, or any other class.
+
 This event occurs when the user interactively (i.e. via a menu) invokes a
 static method on a class or an instance method on an object on the object
-bench.  Each event will have an attached entry in the |invocations| table.
-The |code| field will have the
-code that was generated to execute the invocation, and the |type_name| field
-will have the type of the result.
+bench, or uses the call-library-class menu function.  The |event_type| will
+always be |Invocation| and the |event_id| will reference an entry in the
+|invocations| table.  
 
-In both cases, the |result| field will have the result, which will be one of:
+In the |invocations| table, the |code| field will have the code that was generated
+to execute the invocation.  The |result| field will have the result, which will be one of:
 
 \begin{itemize}
-\item |success| -- method was invoked successfully, the |bench_object_id|
+\item |"success"| -- method was invoked successfully, the |bench_object_id|
   field will link to the |bench_objects| entry (if the result was added to the
-  object bench, i.e. if the method was a constructor)
-\item |compile_error| -- an error occurred while compiling the generated code
+  object bench, i.e. if the method was a constructor) and the the |type_name|
+  field will have the type of the result.
+\item |"compile_error"| -- an error occurred while compiling the generated code
   (e.g. because the user entered invalid parameters), the |compile_error|
   field will have the full message.
-\item |terminated| -- the VM terminated during execution, e.g. due to a
+\item |"terminated"| -- the VM terminated during execution, e.g. due to a
   |System.exit| call.
-\item |exception| -- an uncaught exception occurred during execution.  The
+\item |"exception"| -- an uncaught exception occurred during execution.  The
   |exception_class| field will have the class of the exception, the
   |exception_message| field will have the message, and there will be
   associated entries in the |stack_entries| table linking to this event (the
@@ -360,11 +538,19 @@ In both cases, the |result| field will have the result, which will be one of:
 
 \section{Inspector}
 
+The inspector events reference the inspectors table.
+
 %schema:inspectors
 
 \subsection{\lstinline|inspector_show| and \lstinline|inspector_hide|}
 
-Both of these events link to an entry in the |inspectors| table.
+This event has a |package_id| field, which indicates which package window the
+inspection was invoked from.  This is transitive, for occasions where users
+inspect an object in an inspector.
+
+Both of these events link to an entry in the |inspectors| table: the
+|event_type| field will be |"Inspector"|, and the |event_id| field will be a
+reference to an entry in the |inspectors| table.
 
 For the |inspector_show| event, there are two cases:
 
@@ -421,6 +607,17 @@ The \texttt{last\_sequence\_id} field is the last \hyperref[def:sequence_id]{seq
 this user, and similarly the \texttt{last\_institution\_id} is the last
 \hyperref[def:institution_id]{institution identifier} seen for this user.
 
+\section{Stack Entries}
+
+\section{Projects}
+
+\section{Packages}
+
+\section{Source Files}
+
+\section{Source Histories}
+
+\section{Bench Objects}
 
 \chapter{TODO List}
 
@@ -445,19 +642,18 @@ this user, and similarly the \texttt{last\_institution\_id} is the last
 UUID (or invalid UUID), and is separate to phone-home UUID
 \item Finish opt-in dialog, and allow later opt-in/opt-out via prefs.
 \item Implement institution ID, and changing thereof in the prefs.
-\item Change hyperrefs to have section number displayed (for paper printing)
-  -- make new macro?
 \item Should we rename multi-line edit?
 \item Are edits actually flushed before compilation?
 \item Look for other coalescing opportunities
-\item TODO document that rename only happens on save/compile, up until then
-  edits will be recorded, but will show as being on the old file.
 \item Put in the actual URL for data submission (and set up black.bluej.org,
   or whatever)
 \item Handle READMEs and classes without source code (e.g. in invoker?)
 \item Clear out unused database objects and tables (e.g. line edits)
-\item We should generate a unique session identifier, to solve problem of
-  parallel sessions -- I've already written the manual as if this has been done.
+\item Check that a file added through version control fires the |file_add| event
+  (or, stop |file_delete| being generated for version control removes)
+\item Should we make everything link to master event where possible, not the sub-events?
+\item Make the codepad one event, and push the result down into the
+  sub-table, like method invocation? (more consistent with everything else)
 \end{itemize}
 
 Testing/deployment:
@@ -490,6 +686,7 @@ New:
 \item Spurious |multi_line_edit| at end of file on first load, I think it is adding final
   line break on load-up.  Is it worth trying to suppress this?
 \item Add new package, remove package actions?
+\item Should we mark auto-indent, add method, or find/replace separately to other edit events?
 \end{itemize}
 
 \end{document}

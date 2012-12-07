@@ -54,7 +54,6 @@ enum EventName
     DEBUGGER_BREAKPOINT_ADD("debugger_breakpoint_add"),
     DEBUGGER_BREAKPOINT_REMOVE("debugger_breakpoint_remove"),
     
-    INVOKE_DEFAULT_CONSTRUCTOR("invoke_default_constructor"),
     INVOKE_METHOD("invoke_method"),
     
     BENCH_GET("bench_get"),    
