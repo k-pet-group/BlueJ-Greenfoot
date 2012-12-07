@@ -74,8 +74,6 @@ import bluej.utility.Utility;
  */
 public class DataCollector
 {
-    private static final String VERSION = "1.0";
-    
     private static final String PROPERTY_UUID = "blackbox.uuid";
     
     private static final Charset utf8 = Charset.forName("UTF-8");
@@ -86,6 +84,7 @@ public class DataCollector
     //private boolean seenFirstError;
     
     private static String uuid;
+    private static String sessionUuid;
     private static int sequenceNum;
     
     /**
@@ -154,10 +153,15 @@ public class DataCollector
     {
         return Config.getPropString(PROPERTY_UUID, null);
     }
+    
+    private static void initSessionId()
+    {
+        sessionUuid = UUID.randomUUID().toString();
+    }
 
     private static void initUUidSequence()
     {
-        sequenceNum = 1;
+        sequenceNum = 1; //Server relies on it starting at 1, do not change
         uuid = Config.getPropString(PROPERTY_UUID, null);
         if (uuid == null)
         {
@@ -469,7 +473,8 @@ public class DataCollector
                 if (mpe == null)
                     return null;
                 
-                mpe.addPart("user[uuid]", toBody(uuid));   
+                mpe.addPart("user[uuid]", toBody(uuid));
+                mpe.addPart("session[id]", toBody(sessionUuid));
                 if (projectName != null)
                 {
                     mpe.addPart("project[name]", toBody(projectName));
@@ -554,6 +559,7 @@ public class DataCollector
     {
         if (Config.isGreenfoot()) return; //Don't even look for UUID
         initUUidSequence();
+        initSessionId();
         
         MultipartEntity mpe = new MultipartEntity();
         
