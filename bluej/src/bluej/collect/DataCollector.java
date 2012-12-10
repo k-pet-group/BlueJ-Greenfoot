@@ -161,7 +161,7 @@ public class DataCollector
 
     private static void initUUidSequence()
     {
-        sequenceNum = 1; //Server relies on it starting at 1, do not change
+        DataSubmitter.initSequence();
         uuid = Config.getPropString(PROPERTY_UUID, null);
         if (uuid == null)
         {
@@ -466,9 +466,9 @@ public class DataCollector
             }
             
             @Override
-            public MultipartEntity makeData(Map<FileKey, List<String>> fileVersions)
+            public MultipartEntity makeData(int sequenceNum, Map<FileKey, List<String>> fileVersions)
             {
-                MultipartEntity mpe = evt.makeData(fileVersions);
+                MultipartEntity mpe = evt.makeData(sequenceNum, fileVersions);
                 
                 if (mpe == null)
                     return null;
@@ -488,7 +488,7 @@ public class DataCollector
                 
                 mpe.addPart("event[source_time]", toBody(DateFormat.getDateTimeInstance().format(new Date())));
                 mpe.addPart("event[name]", toBody(eventName.getName()));
-                mpe.addPart("event[sequence_id]", toBody(Integer.toString(thisSequenceNum)));
+                mpe.addPart("event[sequence_id]", toBody(Integer.toString(sequenceNum)));
                 
                 return mpe;
             }
@@ -635,7 +635,7 @@ public class DataCollector
             }
             
             @Override
-            public MultipartEntity makeData(Map<FileKey, List<String>> fileVersions)
+            public MultipartEntity makeData(int sequenceNum, Map<FileKey, List<String>> fileVersions)
             {
                 return mpe;
             }
@@ -683,7 +683,7 @@ public class DataCollector
             
             
             @Override
-            public MultipartEntity makeData(Map<FileKey, List<String>> fileVersions)
+            public MultipartEntity makeData(int sequenceNum, Map<FileKey, List<String>> fileVersions)
             {
                 List<String> previousDoc = fileVersions.get(key);
                 if (previousDoc == null)
@@ -855,7 +855,7 @@ public class DataCollector
             }
             
             @Override
-            public MultipartEntity makeData(Map<FileKey, List<String>> fileVersions)
+            public MultipartEntity makeData(int sequenceNum, Map<FileKey, List<String>> fileVersions)
             {
                 return mpe;
             }

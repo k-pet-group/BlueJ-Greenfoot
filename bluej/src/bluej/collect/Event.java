@@ -35,12 +35,13 @@ interface Event
      * Given the current versions of the files as we have last sent them to the server,
      * forms a new record to be sent to the server
      * 
+     * @param sequenceNum The sequence number to use for the event
      * @param fileVersions Our local version of the files, as we have last
      * successfully sent them to the server.  Maps a file identifier to a list
      * of lines in the file
      * @return A MultipartEntity to send to the server
      */
-    MultipartEntity makeData(Map<FileKey, List<String> > fileVersions);
+    MultipartEntity makeData(int sequenceNum, Map<FileKey, List<String> > fileVersions);
     
     /**
      * A callback that is called after the event has been successfully sent to

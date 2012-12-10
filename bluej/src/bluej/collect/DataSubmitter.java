@@ -56,6 +56,8 @@ class DataSubmitter
     private static boolean isRunning = false;
     
     private static List<Event> queue = new LinkedList<Event>();
+    
+    private static int sequenceNum;
 
     /**
      * The versions of the files as we have last sent them to the server.
@@ -147,9 +149,11 @@ class DataSubmitter
                         changedFile.getFilePath()));
             }
             */
-            MultipartEntity mpe = evt.makeData(fileVersions);
+            MultipartEntity mpe = evt.makeData(sequenceNum, fileVersions);
             if (mpe == null)
                 return true; // nothing to send, no error
+            //Only increment sequence number if we actually send data:
+            sequenceNum += 1;
             post.setEntity(mpe);
             HttpResponse response = client.execute(post);
             
@@ -210,5 +214,11 @@ class DataSubmitter
         {
             //Just finish anyway...
         }
+    }
+
+    public static void initSequence()
+    {
+        sequenceNum = 1; //Server relies on it starting at 1, do not change
+        
     }
 }

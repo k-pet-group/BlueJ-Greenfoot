@@ -40,7 +40,7 @@ class PlainEvent implements Event
     }
 
     @Override
-    public MultipartEntity makeData(
+    public MultipartEntity makeData(int sequenceNum,
             Map<FileKey, List<String>> fileVersions)
     {
         return mpe;
