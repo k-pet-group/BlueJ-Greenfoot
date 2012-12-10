@@ -445,7 +445,7 @@ public class DataCollector
         return s.toString();
     }
     
-    private static synchronized void submitEvent(final Project project, final Package pkg, final EventName eventName, final DataSubmitter.Event evt)
+    private static synchronized void submitEvent(final Project project, final Package pkg, final EventName eventName, final Event evt)
     {
         if (dontSend()) return;
         
@@ -458,7 +458,7 @@ public class DataCollector
         /**
          * Wrap the Event we've been given to add the other normal expected fields:
          */
-        DataSubmitter.submitEvent(new DataSubmitter.Event() {
+        DataSubmitter.submitEvent(new Event() {
             
             @Override public void success(Map<FileKey, List<String>> fileVersions)
             {
@@ -626,7 +626,7 @@ public class DataCollector
             }
         }
         
-        submitEvent(proj, pkg, EventName.PACKAGE_OPENING, new DataSubmitter.Event() {
+        submitEvent(proj, pkg, EventName.PACKAGE_OPENING, new Event() {
             
             @Override
             public void success(Map<FileKey, List<String>> fileVersions)
@@ -668,7 +668,7 @@ public class DataCollector
         final String anonSource = CodeAnonymiser.anonymise(source);
         final List<String> anonDoc = Arrays.asList(Utility.splitLines(anonSource));
                 
-        submitEvent(proj, pkg, EventName.MULTI_LINE_EDIT, new DataSubmitter.Event() {
+        submitEvent(proj, pkg, EventName.MULTI_LINE_EDIT, new Event() {
 
             private boolean dontReplace = false;
             
@@ -846,7 +846,7 @@ public class DataCollector
         mpe.addPart("source_histories[][text]", toBody(contents));
         final FileKey key = new FileKey(project, toPath(project, sourceFile));
         
-        submitEvent(project, pkg, EventName.ADD, new DataSubmitter.Event() {
+        submitEvent(project, pkg, EventName.ADD, new Event() {
             
             @Override
             public void success(Map<FileKey, List<String>> fileVersions)

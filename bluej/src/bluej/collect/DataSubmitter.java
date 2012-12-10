@@ -66,31 +66,6 @@ class DataSubmitter
     private static Map<FileKey, List<String> > fileVersions = new HashMap<FileKey, List<String> >();
     
     /**
-     * An Event to be submitted to the server.
-     */
-    public static interface Event
-    {
-        /**
-         * Given the current versions of the files as we have last sent them to the server,
-         * forms a new record to be sent to the server
-         * 
-         * @param fileVersions Our local version of the files, as we have last
-         * successfully sent them to the server.  Maps a file identifier to a list
-         * of lines in the file
-         * @return A MultipartEntity to send to the server
-         */
-        MultipartEntity makeData(Map<FileKey, List<String> > fileVersions);
-        
-        /**
-         * A callback that is called after the event has been successfully sent to
-         * the server.  If necessary, it should update the passed-in map with the
-         * file contents
-         * @param fileVersions Map, to be modified by the method
-         */
-        void success(Map<FileKey, List<String> > fileVersions);
-    }
-    
-    /**
      * Submit data to be posted to the server. The data is added to a queue which is processed by
      * another thread.
      * 

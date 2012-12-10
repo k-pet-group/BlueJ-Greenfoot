@@ -26,28 +26,27 @@ import java.util.Map;
 
 import org.apache.http.entity.mime.MultipartEntity;
 
-
 /**
- * An Event with no diffs to construct.  Package-visible.
+ * An Event to be submitted to the server.
  */
-class PlainEvent implements Event
+interface Event
 {
-    private MultipartEntity mpe;
+    /**
+     * Given the current versions of the files as we have last sent them to the server,
+     * forms a new record to be sent to the server
+     * 
+     * @param fileVersions Our local version of the files, as we have last
+     * successfully sent them to the server.  Maps a file identifier to a list
+     * of lines in the file
+     * @return A MultipartEntity to send to the server
+     */
+    MultipartEntity makeData(Map<FileKey, List<String> > fileVersions);
     
-    public PlainEvent(MultipartEntity mpe)
-    {
-        this.mpe = mpe;
-    }
-
-    @Override
-    public MultipartEntity makeData(
-            Map<FileKey, List<String>> fileVersions)
-    {
-        return mpe;
-    }
-
-    @Override
-    public void success(Map<FileKey, List<String>> fileVersions)
-    {
-    }
+    /**
+     * A callback that is called after the event has been successfully sent to
+     * the server.  If necessary, it should update the passed-in map with the
+     * file contents
+     * @param fileVersions Map, to be modified by the method
+     */
+    void success(Map<FileKey, List<String> > fileVersions);
 }
