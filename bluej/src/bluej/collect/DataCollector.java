@@ -93,7 +93,7 @@ public class DataCollector
      * to record this association (which we know when an inspector is shown)
      * so that we can re-use it when the inspector is hidden. 
      */
-    private static IdentityHashMap<Inspector, Package> inspectorPackages;
+    private static IdentityHashMap<Inspector, Package> inspectorPackages = new IdentityHashMap<Inspector, Package>();
     
     /** map from package directory to information on the sources contained within */
     //private Map<File,Set<SourceInfo>> srcInfoMap = new HashMap<File,Set<SourceInfo>>();
@@ -905,13 +905,15 @@ public class DataCollector
         submitEvent(pkg.getProject(), pkg, EventName.INVOKE_METHOD, new PlainEvent(mpe));        
     }
     
-    public static void invokeMethodSuccess(Package pkg, String code, String objName, String typeName)
+    public static void invokeMethodSuccess(Package pkg, String code, String objName, String typeName, int testIdentifier, int invocationIdentifier)
     {
         MultipartEntity mpe = new MultipartEntity();
         
         mpe.addPart("event[invoke][code]", toBody(code));
         mpe.addPart("event[invoke][type_name]", toBody(typeName));
         mpe.addPart("event[invoke][result]", toBody("success"));
+        mpe.addPart("event[invoke][test_identifier]", toBody(testIdentifier));
+        mpe.addPart("event[invoke][invoke_identifier]", toBody(invocationIdentifier));
         if (objName != null)
         {
             mpe.addPart("event[invoke][bench_object][class_name]", toBody(typeName));
@@ -982,13 +984,60 @@ public class DataCollector
     }
 
 
-    public static void benchGet(Package pkg, String benchName, String typeName)
+    public static void benchGet(Package pkg, String benchName, String typeName, int testIdentifier)
     {
         MultipartEntity mpe = new MultipartEntity();
         
         mpe.addPart("event[bench_object][class_name]", toBody(typeName));
         mpe.addPart("event[bench_object][name]", toBody(benchName));
+        mpe.addPart("event[test_identifier]", toBody(testIdentifier));
         submitEvent(pkg.getProject(), pkg, EventName.BENCH_GET, new PlainEvent(mpe));
+        
+    }
+
+    public static void startTestMethod(Package pkg, int testIdentifier, File sourceFile, String testName)
+    {
+        MultipartEntity mpe = new MultipartEntity();
+        
+        mpe.addPart("event[test][test_identifier]", toBody(testIdentifier));
+        mpe.addPart("event[test][source_file]", toBodyLocal(pkg.getProject(), sourceFile));
+        mpe.addPart("event[test][method_name]", toBody(testName));
+        
+        submitEvent(pkg.getProject(), pkg, EventName.START_TEST, new PlainEvent(mpe));
+        
+    }
+
+    public static void cancelTestMethod(Package pkg, int testIdentifier)
+    {
+        MultipartEntity mpe = new MultipartEntity();
+        
+        mpe.addPart("event[test][test_identifier]", toBody(testIdentifier));
+        
+        submitEvent(pkg.getProject(), pkg, EventName.CANCEL_TEST, new PlainEvent(mpe));
+    }
+
+    public static void endTestMethod(Package pkg, int testIdentifier)
+    {
+        MultipartEntity mpe = new MultipartEntity();
+        
+        mpe.addPart("event[test][test_identifier]", toBody(testIdentifier));
+        
+        submitEvent(pkg.getProject(), pkg, EventName.END_TEST, new PlainEvent(mpe));
+        
+    }
+
+    public static void assertTestMethod(Package pkg, int testIdentifier, int invocationIdentifier, 
+            String assertion, String param1, String param2)
+    {
+        MultipartEntity mpe = new MultipartEntity();
+        
+        mpe.addPart("event[assert][test_identifier]", toBody(testIdentifier));
+        mpe.addPart("event[assert][invoke_identifier]", toBody(invocationIdentifier));
+        mpe.addPart("event[assert][assertion]", toBody(assertion));
+        mpe.addPart("event[assert][param1]", toBody(param1));
+        mpe.addPart("event[assert][param2]", toBody(param2));
+        
+        submitEvent(pkg.getProject(), pkg, EventName.ASSERTION, new PlainEvent(mpe));
         
     }
 }

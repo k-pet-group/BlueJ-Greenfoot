@@ -51,6 +51,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Properties;
 import java.util.StringTokenizer;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.AbstractButton;
 import javax.swing.Action;
@@ -203,6 +204,8 @@ public class PkgMgrFrame extends JFrame
 
     private ClassTarget testTarget = null;
     private String testTargetMethod;
+    private static AtomicInteger nextTestIdentifier = new AtomicInteger(0); 
+    private int testIdentifier = 0;
 
     private JMenuBar menubar = null;
     private JMenu recentProjectsMenu;
@@ -1079,7 +1082,7 @@ public class PkgMgrFrame extends JFrame
                         tryAgain = false; // cancelled
                     }
                     else if (JavaNames.isIdentifier(newObjectName)) {
-                        DataCollector.benchGet(getPackage(), newObjectName, e.getDebuggerObject().getClassName());
+                        DataCollector.benchGet(getPackage(), newObjectName, e.getDebuggerObject().getClassName(), getTestIdentifier());
                         putObjectOnBench(newObjectName, e.getDebuggerObject(), e.getIType(), e.getInvokerRecord());
                         tryAgain = false;
                     }
@@ -1097,6 +1100,14 @@ public class PkgMgrFrame extends JFrame
     public void recordInteraction(InvokerRecord ir)
     {
         getObjectBench().addInteraction(ir);
+    }
+    
+    /**
+     * Gets the current test identifier (used to identify tests during the data recording)
+     */
+    public int getTestIdentifier()
+    {
+        return testIdentifier;
     }
 
 
@@ -2158,6 +2169,8 @@ public class PkgMgrFrame extends JFrame
         if (testTarget != null) {
             testRecordingEnded();
             
+            DataCollector.endTestMethod(getPackage(), testIdentifier);
+            
             if (testTarget.getRole() instanceof UnitTestClassRole) {
                 UnitTestClassRole utcr = (UnitTestClassRole) testTarget.getRole();
                 
@@ -2183,6 +2196,8 @@ public class PkgMgrFrame extends JFrame
     public void doCancelTest()
     {
         testRecordingEnded();
+        
+        DataCollector.cancelTestMethod(getPackage(), testIdentifier);
 
         // remove objects from object bench (may have been put there
         // when testing was started)
@@ -2232,6 +2247,8 @@ public class PkgMgrFrame extends JFrame
     {
         this.testTargetMethod = testName;
         this.testTarget = testClass;
+        this.testIdentifier = nextTestIdentifier.incrementAndGet(); // Allocate next test identifier
+        DataCollector.startTestMethod(getPackage(), testIdentifier, testClass.getSourceFile(), testName);
     }
 
     /**

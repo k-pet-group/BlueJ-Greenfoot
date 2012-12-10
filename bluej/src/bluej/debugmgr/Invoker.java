@@ -1223,7 +1223,10 @@ public class Invoker
                                 resultType = "void";
                             }
                         }
-                        DataCollector.invokeMethodSuccess(pkg, commandString, benchName, resultType);
+                        
+                        PkgMgrFrame pmf = PkgMgrFrame.findFrame(pkg);
+                        
+                        DataCollector.invokeMethodSuccess(pkg, commandString, benchName, resultType, pmf == null ? -1 : pmf.getTestIdentifier(), ir.getUniqueIdentifier());
                     }
                     
                     ir.setResultObject(resultObj);

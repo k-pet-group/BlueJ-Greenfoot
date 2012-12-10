@@ -67,6 +67,11 @@ enum EventName
     TERMINAL_OPEN("terminal_open"),
     TERMINAL_CLOSE("terminal_close"),
     
+    START_TEST("start_test"),
+    CANCEL_TEST("cancel_test"),
+    END_TEST("end_test"),
+    ASSERTION("assertion"),
+    
     VCS_COMMIT("vcs_commit"),
     VCS_HISTORY("vcs_history"),
     VCS_SHARE("vcs_share"),

@@ -50,7 +50,15 @@ public abstract class InvokerRecord
     private ArrayList<String> assertions = new ArrayList<String>();
     private DebuggerObject resultObject;
     
+    private static int nextUniqueIdentifier = 1;
+    private final int uniqueIdentifier;
+    
     // -------------- instance methods -----------------
+    
+    public InvokerRecord()
+    {
+        uniqueIdentifier = nextUniqueIdentifier++;
+    }
     
     /**
      * If this invoker record represents a method or constructor call,
@@ -289,4 +297,12 @@ public abstract class InvokerRecord
      * Gets the original command.  Used by the Data Collection mechanism.
      */
     public String getOriginalCommand() { return null; }
+
+    /**
+     * Gets a unique identifier for this invoker.  For data collection purposes.
+     */
+    public int getUniqueIdentifier()
+    {
+        return uniqueIdentifier;
+    }
 }

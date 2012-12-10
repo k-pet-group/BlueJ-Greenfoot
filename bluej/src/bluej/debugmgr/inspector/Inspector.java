@@ -45,6 +45,7 @@ import java.awt.event.WindowEvent;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -63,6 +64,7 @@ import bluej.debugger.DebuggerField;
 import bluej.debugger.DebuggerObject;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PackageEditor;
+import bluej.pkgmgr.PkgMgrFrame;
 import bluej.testmgr.record.GetInvokerRecord;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.testmgr.record.ObjectInspectInvokerRecord;
@@ -114,7 +116,7 @@ public abstract class Inspector extends JFrame
     
     // Each inspector is uniquely numbered in a session, for the purposes
     // of data collection:
-    private static int nextUniqueId = 1;
+    private static AtomicInteger nextUniqueId = new AtomicInteger(1);
     private final int uniqueId;
 
     //The width of the list of fields
@@ -174,7 +176,7 @@ public abstract class Inspector extends JFrame
         this.inspectorManager = inspectorManager;
         this.pkg = pkg;
         this.ir = ir;
-        this.uniqueId = nextUniqueId++;
+        this.uniqueId = nextUniqueId.incrementAndGet();
 
         // We want to be able to veto a close
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
@@ -503,6 +505,12 @@ public abstract class Inspector extends JFrame
             }
             
             ir.addAssertion(assertPanel.getAssertStatement());
+            
+            PkgMgrFrame pmf = PkgMgrFrame.findFrame(pkg);
+            if (pmf != null)
+            {
+                assertPanel.recordAssertion(pkg, pmf.getTestIdentifier(), ir.getUniqueIdentifier());
+            }
         }
         return true;
     }
