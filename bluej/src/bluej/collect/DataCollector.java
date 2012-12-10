@@ -98,26 +98,9 @@ public class DataCollector
     /** map from package directory to information on the sources contained within */
     //private Map<File,Set<SourceInfo>> srcInfoMap = new HashMap<File,Set<SourceInfo>>();
 
-    private static ArrayList<String> splitLines(String s)
-    {
-        ArrayList<String> r = new ArrayList<String>();
-             
-        int i, prev = 0;
-        for (i = s.indexOf('\n'); i != -1; i = s.indexOf('\n', i+1))
-        {
-            r.add(s.substring(prev, i + 1));
-            prev = i + 1;
-        }
-        
-        if (prev < s.length() - 1)
-        {
-            r.add(s.substring(prev, s.length()));
-        }
-        return r;
-    }
        
     
-    private static String readFile(Project proj, File f)
+    private static String readFileAndAnonymise(Project proj, File f)
     {
         try {
             StringBuilder sb = new StringBuilder();
@@ -134,7 +117,7 @@ public class DataCollector
             
             reader.close();
             inputStream.close();
-            return sb.toString();
+            return CodeAnonymiser.anonymise(sb.toString());
         }
         catch (IOException ioe) {return null;}
     }
@@ -604,7 +587,7 @@ public class DataCollector
         
         final MultipartEntity mpe = new MultipartEntity();
         
-        final Map<FileKey, ArrayList<String>> versions = new HashMap<FileKey, ArrayList<String>>();
+        final Map<FileKey, List<String>> versions = new HashMap<FileKey, List<String>>();
         
         //TODO what about README, .class files with no source
         for (ClassTarget ct : pkg.getClassTargets())
@@ -614,15 +597,14 @@ public class DataCollector
             
             mpe.addPart("project[source_files][][name]", toBody(relative));
             
-            String contents = readFile(proj, ct.getSourceFile());
+            String anonymisedContent = readFileAndAnonymise(proj, ct.getSourceFile());
             
-            if (contents != null)
+            if (anonymisedContent != null)
             {
-                String anonymisedContent = CodeAnonymiser.anonymise(contents);
                 mpe.addPart("source_histories[][source_history_type]", toBody("complete"));
                 mpe.addPart("source_histories[][name]", toBody(relative));
                 mpe.addPart("source_histories[][text]", toBody(anonymisedContent));
-                versions.put(new FileKey(proj, relative), splitLines(anonymisedContent));
+                versions.put(new FileKey(proj, relative), Arrays.asList(Utility.splitLines(anonymisedContent)));
             }
         }
         
@@ -705,11 +687,11 @@ public class DataCollector
                     diff.append("@@ -" + (delta.getOriginal().getPosition() + 1) + "," + delta.getOriginal().size() + " +" + (delta.getRevised().getPosition() + 1) + "," + delta.getRevised().size() + " @@\n");
                     for (String l : (List<String>)delta.getOriginal().getLines())
                     {
-                        diff.append("-" + l); //l already has newline in it
+                        diff.append("-" + l + "\n");
                     }
                     for (String l : (List<String>)delta.getRevised().getLines())
                     {
-                        diff.append("+" + l); //l already has newline in it
+                        diff.append("+" + l + "\n");
                     }
                 }
                 
@@ -833,12 +815,7 @@ public class DataCollector
         final MultipartEntity mpe = new MultipartEntity();
         final Project project = pkg.getProject();
         
-        final String contents = readFile(project, sourceFile);
-                
-        if (contents == null)
-        {
-            return;
-        }
+        final String contents = readFileAndAnonymise(project, sourceFile);
         
         mpe.addPart("project[source_files][][name]", toBodyLocal(project, sourceFile));
         mpe.addPart("source_histories[][source_history_type]", toBody("complete"));
@@ -851,7 +828,7 @@ public class DataCollector
             @Override
             public void success(Map<FileKey, List<String>> fileVersions)
             {
-                fileVersions.put(key, splitLines(contents));                
+                fileVersions.put(key, Arrays.asList(Utility.splitLines(contents)));
             }
             
             @Override
