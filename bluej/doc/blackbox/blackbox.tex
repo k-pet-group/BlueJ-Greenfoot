@@ -591,7 +591,24 @@ entry that was hidden.
 
 \section{Object Bench}
 
+\section{Testing}
 
+\subsection{\lstinline|assertion|}
+
+This event has a |package_id|, linking to which package the test was
+recorded for.
+
+The event links to an entry in the |assertions| table.
+
+%schema:assertions
+
+The |assertions| table links to an entry in the |invocations| table that the assertion
+relates to, and to an entry in the |tests| table for the test which
+this assertion will be recorded into.
+
+The |assertion| field is the JUnit function that will be recorded,
+e.g. |"assertEquals"|.  The |param1| field and |param2| fields are
+the other parameters to the assertion.
 
 \section{Version Control}
 
