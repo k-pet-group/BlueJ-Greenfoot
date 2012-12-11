@@ -603,7 +603,7 @@ public class DataCollector
             {
                 mpe.addPart("source_histories[][source_history_type]", toBody("complete"));
                 mpe.addPart("source_histories[][name]", toBody(relative));
-                mpe.addPart("source_histories[][text]", toBody(anonymisedContent));
+                mpe.addPart("source_histories[][content]", toBody(anonymisedContent));
                 versions.put(new FileKey(proj, relative), Arrays.asList(Utility.splitLines(anonymisedContent)));
             }
         }
@@ -650,7 +650,7 @@ public class DataCollector
         final String anonSource = CodeAnonymiser.anonymise(source);
         final List<String> anonDoc = Arrays.asList(Utility.splitLines(anonSource));
                 
-        submitEvent(proj, pkg, EventName.MULTI_LINE_EDIT, new Event() {
+        submitEvent(proj, pkg, EventName.EDIT, new Event() {
 
             private boolean dontReplace = false;
             
@@ -695,8 +695,8 @@ public class DataCollector
                     }
                 }
                 
-                mpe.addPart("source_histories[][diff]", toBody(diff.toString()));
-                mpe.addPart("source_histories[][source_history_type]", toBody("multi_line_edit"));
+                mpe.addPart("source_histories[][content]", toBody(diff.toString()));
+                mpe.addPart("source_histories[][source_history_type]", toBody("diff"));
                 mpe.addPart("source_histories[][name]", toBody(toPath(proj, path))); 
                 
                 return mpe;
@@ -797,7 +797,7 @@ public class DataCollector
     {
         MultipartEntity mpe = new MultipartEntity();
         mpe.addPart("source_histories[][source_history_type]", toBody("rename"));
-        mpe.addPart("source_histories[][oldname]", toBodyLocal(pkg.getProject(), oldSourceFile));
+        mpe.addPart("source_histories[][content]", toBodyLocal(pkg.getProject(), oldSourceFile));
         mpe.addPart("source_histories[][name]", toBodyLocal(pkg.getProject(), newSourceFile));
         submitEvent(pkg.getProject(), pkg, EventName.RENAME, new PlainEvent(mpe));
     }

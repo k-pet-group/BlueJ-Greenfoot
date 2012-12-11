@@ -38,7 +38,7 @@ enum EventName
     ADD("file_add"),
     DELETE("file_delete"),
     RENAME("rename"),
-    MULTI_LINE_EDIT("multi_line_edit"),
+    EDIT("edit"),
     COMPILE("compile"),
     
     // Debugger: 
