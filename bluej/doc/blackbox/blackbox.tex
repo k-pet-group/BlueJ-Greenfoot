@@ -12,6 +12,11 @@
 \newcommand{\myref}[1]{\autoref{#1} on page \pageref*{#1}}
 \newcommand{\tabref}[1]{\lstinline|#1| table (see \myref{tab:#1})}
 
+\newcommand{\intern}{When the server comes to add a record to this table with
+  duplicate data to a previous record, it might reference the existing
+  record instead, to save space.  This is a performance optimisation that should have
+  no effect on the semantics.}
+
 \begin{document}
 
 This document acts as a manual for the BlueJ data collection project,
@@ -233,6 +238,16 @@ The subsequent sections describe the different values for the
 |master_events.name| field, and what that means for the other fields,
 especially what may be linked to by the |event_id| and |event_type| fields.
 
+%hidden:institutions
+
+The |institution_id| field links to a hidden |institutions| table.
+
+%hidden:client_addresses
+
+The |client_address_id| field links to a hidden |client_address| table.
+However, you can assume that there is a one-to-one mapping between
+|client_address_id| and IP addresses from which the event is sent.
+
 
 \section{Start/Finish Events}
 
@@ -256,7 +271,7 @@ call for the keys |"os.name"|, |"os.arch"| and |"os.version"|.  The
 |bluej_version| is the version of BlueJ they are running, and |java_version|
 is the Java version being used to run BlueJ.
 
-%schema:installation_details
+%schema:installation_details \intern
 
 The |extensions| table contains the (self-reported) name and version of a
 BlueJ extension.  BlueJ comes with the submitter extension installed by default.
@@ -294,7 +309,7 @@ This event will have a |package_id|, but no other associated data.
 
 \section{Editing}
 
-\subsection{\lstinline|multi_line_edit|}
+\subsection{\lstinline|edit|}
 
 This event is the central editing event in BlueJ.  These events are recorded
 when multiple lines are edited at once (e.g. via paste, or deleting a
@@ -712,26 +727,19 @@ empty string as its name.
 
 Each entry in the |source_histories| table belongs to a particular
 |master_event|, and is associated with a given |source_file|.  Based on the
-|source_event_type| field, there can be a link to a number of other
-tables:
+|source_history_type| field, there can be different meanings to the |content| field:
 
 \begin{itemize}
-\item |"Complete"| -- |source_event_id| references an item in the |completes|
-  table, which just has the complete text of the source file.  This will be
+\item |source_history_type| is |"complete"| -- |content| has the complete text
+  of the source file (anonymised).  This will be
   used by file additions, and source histories added on loading a package.
-\item |"MultiLineEdit"| -- |source_event_id| references an item in the
-  |multi_line_edits| table, which has the diff (in unified diff format) from
+\item |source_history_type| is |"diff"| -- |content| has the diff (in unified diff format) from
   the previous version of the file.
-\item |"Rename"| -- |source_event_id| references an item in the |renames|
-  table, which holds the name of the file before the rename.  During the
-  rename, the source history will be updated to feature the new name of the file.
+\item |source_history_type| is |"rename"| -- |content| holds the name of the file before the rename.  During the
+  rename, the source history will be updated to feature the new name of the
+  file.
+\item |source_history_type| is |"file_delete"| -- |content| will be blank.
 \end{itemize}
-
-%schema:completes
-
-%schema:multi_line_edits
-
-%schema:renames
 
 \section{Stack Entries}
 
@@ -777,13 +785,9 @@ when this object was added to the bench.
 UUID (or invalid UUID), and is separate to phone-home UUID
 \item Finish opt-in dialog, and allow later opt-in/opt-out via prefs.
 \item Implement institution ID, and changing thereof in the prefs.
-\item Should we rename multi-line edit?
-\item Are edits actually flushed before compilation?
-\item Look for other coalescing opportunities
 \item Put in the actual URL for data submission (and set up black.bluej.org,
   or whatever)
 \item Handle READMEs and classes without source code (e.g. in invoker?)
-\item Clear out unused database objects and tables (e.g. line edits)
 \item Check that a file added through version control fires the |file_add| event
   (or, stop |file_delete| being generated for version control removes)
 \item Check if stack entries are useful when you have a stack trace
@@ -794,10 +798,11 @@ UUID (or invalid UUID), and is separate to phone-home UUID
   |source_file_path| (or similar), remove the project link, and use it like
   |client_address| (i.e. a giant interned table for strings).  Although, is it
   being relied upon as a uniqueness measure by some things (e.g. renames)?
-\item Put a version number in source histories, to ease putting the diffs back together.
-\item We could roll all the edit types back into the |source_histories| table,
-  by just having a text field that we re-use (all the links out are to tables
-  with a single string or text field).o
+\item Put a version number in source histories, to ease putting the diffs back
+  together.  Although, |id| will be sufficient for ordering, right?
+\item Make an md5sum of source code state on server, to help easily spot book projects
+\item What happens with duplicate-named objects in different benches in same session
+  (per-package, and per-project)?  I suspect it doesn't work right...
 \end{itemize}
 
 Testing/deployment:
@@ -809,6 +814,7 @@ Testing/deployment:
 \item Make sure AJAX live stream is off in production!
 \item Check speed (especially loading up)
 \item Add views for white, remove visibility of ip and institution?
+\item Are edits actually flushed before compilation?
 \end{itemize}
 
 \section{Questions}
@@ -827,7 +833,7 @@ Old:
 
 New:
 \begin{itemize}
-\item Spurious |multi_line_edit| at end of file on first load, I think it is adding final
+\item Spurious |edit| at end of file on first load, I think it is adding final
   line break on load-up.  Is it worth trying to suppress this?
 \item Add new package, remove package actions?
 \item Should we mark auto-indent, add method, or find/replace separately to other edit events?

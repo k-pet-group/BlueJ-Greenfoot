@@ -3,8 +3,9 @@ mentioned_event_names = []
 
 while gets
   line = $_
-  if line =~ /^%schema:(\S+)/
+  if line =~ /^%schema:(\S+)(\s.*)?/
     table_name = $1
+    caption = $2
     shown_tables << table_name
     puts "\\label{tab:#{table_name}}" # Label the section, not the figure
     puts "\\begin{figure}[h!]"
@@ -16,7 +17,7 @@ while gets
       puts "|#{cols[0]}| & |#{cols[1]}| & |#{cols[2]}| \\\\"
     end
     puts "\\end{tabular}"
-    puts "\\caption{Schema for \\lstinline|#{table_name}|}"
+    puts "\\caption{Schema for \\lstinline|#{table_name}|. #{caption}}"
     puts "\\end{center}"
     puts "\\end{figure}"
   else
@@ -27,6 +28,10 @@ while gets
     line.scan(/\\lstinline\|([^|]+)\|/).each do |groups|
       mentioned_event_names << groups[0]
     end
+  end
+
+  if line =~ /^%hidden:(\S+)/
+    shown_tables << $1
   end
 end
 
