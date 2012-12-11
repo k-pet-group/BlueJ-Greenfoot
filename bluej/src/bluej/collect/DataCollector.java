@@ -1040,4 +1040,54 @@ public class DataCollector
         submitEvent(pkg.getProject(), pkg, EventName.ASSERTION, new PlainEvent(mpe));
         
     }
+
+    public static void objectBenchToFixture(Package pkg, File sourceFile, List<String> benchNames)
+    {
+        MultipartEntity mpe = new MultipartEntity();
+        
+        mpe.addPart("event[source_file_name]", toBodyLocal(pkg.getProject(), sourceFile));
+        for (String name : benchNames)
+        {
+            mpe.addPart("event[bench_objects][][name]", toBody(name));
+        }        
+        
+        submitEvent(pkg.getProject(), pkg, EventName.BENCH_TO_FIXTURE, new PlainEvent(mpe));
+        
+    }
+    
+    public static class NamedTyped
+    {
+        private  String name;
+        private  String type;
+        
+        public NamedTyped(String name, String type)
+        {
+            this.name = name;
+            this.type = type;
+        }
+        public String getName()
+        {
+            return name;
+        }
+        public String getType()
+        {
+            return type;
+        }
+        
+        
+    };
+    
+    public static void fixtureToObjectBench(Package pkg, File sourceFile, List<NamedTyped> objects)
+    {
+        MultipartEntity mpe = new MultipartEntity();
+        
+        mpe.addPart("event[source_file_name]", toBodyLocal(pkg.getProject(), sourceFile));
+        for (NamedTyped obj : objects)
+        {
+            mpe.addPart("event[bench_objects][][name]", toBody(obj.getName()));
+            mpe.addPart("event[bench_objects][][type]", toBody(obj.getType()));
+        }        
+        
+        submitEvent(pkg.getProject(), pkg, EventName.FIXTURE_TO_BENCH, new PlainEvent(mpe));
+    }
 }

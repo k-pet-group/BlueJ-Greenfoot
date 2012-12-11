@@ -58,6 +58,8 @@ enum EventName
     
     BENCH_GET("bench_get"),    
     REMOVE_OBJECT("remove_object"),
+    BENCH_TO_FIXTURE("bench_to_fixture"),
+    FIXTURE_TO_BENCH("fixture_to_bench"),
     
     INSPECTOR_SHOW("inspector_show"),
     INSPECTOR_HIDE("inspector_hide"),
