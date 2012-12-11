@@ -1,4 +1,5 @@
 shown_tables = []
+mentioned_event_names = []
 
 while gets
   line = $_
@@ -21,6 +22,12 @@ while gets
   else
     puts line
   end
+
+  if line =~ /^\\\S*section\{/
+    line.scan(/lstinline|([^|]+)|/) do |groups|
+      mentioned_event_names << groups[0]
+    end
+  end
 end
 
 all_tables = `mysql -u root blackbox_development -e "show tables" | tail -n +2`.lines
@@ -36,6 +43,19 @@ all_tables.map(&:chomp).reject {|tab| shown_tables.include? tab}.each do |table|
 end
 
 #Could also make sure all fields are documented...
+
+all_events = []
+`cat ../../src/bluej/collect/EventName.java`.lines.each do |enum_line|
+  if enum_line =~ /\S+\("(\S+)\"\)/
+    all_events << $1
+  end
+end
+
+all_events.reject {|evt| mentioned_event_names.include? evt}.each do |event|
+  result_code = 1
+  $stderr.puts "Event not described: \"#{event}\""
+end
+
 
 #TODO enable this:
 #exit result_code
