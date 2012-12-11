@@ -820,7 +820,7 @@ public class DataCollector
         mpe.addPart("project[source_files][][name]", toBodyLocal(project, sourceFile));
         mpe.addPart("source_histories[][source_history_type]", toBody("complete"));
         mpe.addPart("source_histories[][name]", toBodyLocal(project, sourceFile));
-        mpe.addPart("source_histories[][text]", toBody(contents));
+        mpe.addPart("source_histories[][content]", toBody(contents));
         final FileKey key = new FileKey(project, toPath(project, sourceFile));
         
         submitEvent(project, pkg, EventName.ADD, new Event() {
