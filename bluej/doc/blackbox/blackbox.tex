@@ -776,6 +776,15 @@ when this object was added to the bench.
   name, e.g. hashing the path -- YES
 \item Should we hard-code submit URL, or put it in properties?  Don't want to
   allow redirection too easily. -- hardcode, like stats
+\item After removing old tables, change the |source_file| table to be
+  |source_file_path| (or similar), remove the project link, and use it like
+  |client_address| (i.e. a giant interned table for strings).  Although, is it
+  being relied upon as a uniqueness measure by some things (e.g. renames)? --
+  NO, I'm not sure this would save much anyway.
+\item Put a version number in source histories, to ease putting the diffs back
+  together -- NO, |id| will be sufficient for ordering, I think.  
+\item Should we make everything link to master event where possible, not the
+  sub-events? -- NO, if anything, probably the opposite
 \end{itemize}
 
 \section{Tasks}
@@ -785,24 +794,14 @@ when this object was added to the bench.
 UUID (or invalid UUID), and is separate to phone-home UUID
 \item Finish opt-in dialog, and allow later opt-in/opt-out via prefs.
 \item Implement institution ID, and changing thereof in the prefs.
-\item Put in the actual URL for data submission (and set up black.bluej.org,
-  or whatever)
 \item Handle READMEs and classes without source code (e.g. in invoker?)
-\item Check that a file added through version control fires the |file_add| event
-  (or, stop |file_delete| being generated for version control removes)
 \item Check if stack entries are useful when you have a stack trace
   running through two classes with same name but different package.
 \item Add a |package_id| to |bench_objects|, as well as keeping |session_id|
-\item Should we make everything link to master event where possible, not the sub-events?
-\item After removing old tables, change the |source_file| table to be
-  |source_file_path| (or similar), remove the project link, and use it like
-  |client_address| (i.e. a giant interned table for strings).  Although, is it
-  being relied upon as a uniqueness measure by some things (e.g. renames)?
-\item Put a version number in source histories, to ease putting the diffs back
-  together.  Although, |id| will be sufficient for ordering, right?
-\item Make an md5sum of source code state on server, to help easily spot book projects
 \item What happens with duplicate-named objects in different benches in same session
   (per-package, and per-project)?  I suspect it doesn't work right...
+\item Make an md5sum of source code state on server, to help easily spot book projects
+\item Clear up various uses of find_by, and where.exists into helpers
 \end{itemize}
 
 Testing/deployment:
@@ -815,6 +814,8 @@ Testing/deployment:
 \item Check speed (especially loading up)
 \item Add views for white, remove visibility of ip and institution?
 \item Are edits actually flushed before compilation?
+\item Put in the actual URL for data submission (and set up black.bluej.org,
+  or whatever)
 \end{itemize}
 
 \section{Questions}
