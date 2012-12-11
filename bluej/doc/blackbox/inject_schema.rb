@@ -24,7 +24,7 @@ while gets
   end
 
   if line =~ /^\\\S*section\{/
-    line.scan(/lstinline|([^|]+)|/) do |groups|
+    line.scan(/\\lstinline\|([^|]+)\|/).each do |groups|
       mentioned_event_names << groups[0]
     end
   end
@@ -54,6 +54,11 @@ end
 all_events.reject {|evt| mentioned_event_names.include? evt}.each do |event|
   result_code = 1
   $stderr.puts "Event not described: \"#{event}\""
+end
+
+mentioned_event_names.reject {|evt| all_events.include? evt}.each do |event|
+  result_code = 1
+  $stderr.puts "Old event described: \"#{event}\""
 end
 
 
