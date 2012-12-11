@@ -205,6 +205,7 @@ public class UpdateAction extends AbstractAction
                         if (ct == null) {
                             ct = pkg.addClass(name);
                             pkg.positionNewTarget(ct);
+                            DataCollector.addClass(pkg, f);
                         }
                         ct.reload();
                     }
