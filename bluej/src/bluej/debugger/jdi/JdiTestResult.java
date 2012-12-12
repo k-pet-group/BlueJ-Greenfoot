@@ -48,6 +48,16 @@ public class JdiTestResult extends DebuggerTestResult
         this.exceptionMsg = null;
         this.traceMsg = null;
     }
+    
+    public String getQualifiedClassName()
+    {
+        return className;
+    }
+    
+    public String getMethodName()
+    {
+        return methodName;
+    }
 
     /**
      * @see bluej.debugger.DebuggerTestResult#getExceptionMessage()
@@ -55,16 +65,6 @@ public class JdiTestResult extends DebuggerTestResult
     public String getExceptionMessage()
     {
         throw new IllegalStateException("getting Exception message from successful test");
-    }
-
-    /**
-     * 
-     * 
-     * @see bluej.debugger.DebuggerTestResult#getName()
-     */
-    public String getName()
-    {
-        return className + "." + methodName;
     }
 
     /**

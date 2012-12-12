@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -35,8 +35,22 @@ public abstract class DebuggerTestResult
      * @return  the name of the test method in the
      *          form ClassName.methodName
      */
-    abstract public String getName();
+    public String getName()
+    {
+        return getQualifiedClassName() + "." + getMethodName();
+    }
+
     
+    /**
+     * Get the name of the test method.
+     */
+    public abstract String getMethodName();
+
+    /**
+     * Get the fully qualified class name which the test method belongs to
+     */
+    public abstract String getQualifiedClassName();
+
     /**
      * Return the run time of the test in milliseconds
      * 
