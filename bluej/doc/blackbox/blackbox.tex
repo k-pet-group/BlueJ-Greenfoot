@@ -302,6 +302,15 @@ The event will have zero or more entries in the \tabref{source_histories} that
 link back to this event.  These represent the state of the files as the project is
 opened (as a |complete| snapshot, not a diff).
 
+The event will link to an entry in the |SourceHashes| table
+(|event_type| will be |"SourceHash"|), which will contain a hash of
+the source code in the package.  The exact details of the hash are
+unimportant, but this hash can be used to quickly narrow down likely
+duplicate projects (for example, spotting the starting projects from
+the BlueJ book).
+
+%schema:source_hashes
+
 \subsection{\lstinline|package_closing|}
 
 This event will have a |package_id|, but no other associated data.
@@ -502,31 +511,31 @@ the \tabref{breakpoints}, which details the location of the breakpoint.
 
 \section{Codepad}
 
-All of the codepad events link to an item in the |codepad_events| table (the
-|event_type| will be |"CodepadEvent"|, and the |event_id| will reference an
-entry in the |codepad_events| table).
-
-%schema:codepad_events
-
-\subsection{\lstinline|codepad_success|, \lstinline|codepad_error| and \lstinline|codepad_exception|}
+\subsection{\lstinline|codepad|}
 
 These events have a |package_id|, which indicates which package window the
 codepad being used corresponds to (more by accident than by design, each
 package window has its own codepad).
 
 These events occur each time that the user types something into the codepad
-window, presses return and gets a response.  The success event indicates that the code
-successfully compiled, and executed without throwing an exception or without
-exiting the VM early.  In this case, the entry in the |codepad_events| table
-will have the fields |command| and |result| filled in with the input and
-output respectively.
+window, presses return and gets a response.  The codepad event links to an item in the |codepad_events| table (the
+|event_type| will be |"CodepadEvent"|, and the |event_id| will reference an
+entry in the |codepad_events| table).
 
-The |codepad_error| event indicates a compiler error occurred, or that the VM
-exited during execution: the
-|codepad_events| table will have |command| and |error| filled in with the
-input and error respectively.  The |codepad_exception| event indicates an exception occurred: the
-|codepad_events| table will have |command| and |exception| filled in with the
-input and exception respectively.
+%schema:codepad_events
+
+The |outcome| field indicates what happened when the code was
+executed.  An |outcome| of |"success"| indicates that the code
+successfully compiled, and executed without throwing an exception or without
+exiting the VM early.  In this case, the fields |command| and |result|
+will be filled in with the input and output respectively.
+
+
+The |outcome| field being |"error"| indicates a compiler error occurred, or that the VM
+exited during execution: the |command| and |error| fields will be filled in with the
+input and error respectively.  The |outcome| field being |"exception"|
+indicates an exception occurred: the |command| and |exception| fields
+will be filled in with the input and exception respectively.
 
 
 \section{Method Invocation}
@@ -721,6 +730,18 @@ empty string as its name.
 
 \section{Source Files}
 
+%schema:source_files
+
+Each entry in the |source_files| table corresponds to a particular
+source path in a project.  (That is, if you delete a source file and
+generate a new file with the same name, it may share the entry of the
+original file.)
+
+Each source file will have its path relative to the base of the
+project.  So files that are within packages will have a path with the
+parent package names as directories (which may use forward slash or
+backslash for separation).
+
 \section{Source Histories}
 
 %schema:source_histories
@@ -743,6 +764,30 @@ Each entry in the |source_histories| table belongs to a particular
 
 \section{Stack Entries}
 
+%schema:stack_entries
+
+Any time that an event is associated with a stack trace, it will have
+zero or more entries in this table: one for each line in the stack
+trace.  (Some stack traces may be filtered by BlueJ -- the recorded
+trace will always be the filtered version, i.e. the version that the
+user actually sees.)
+
+The |entry| field will be the index within the stack trace.  The top
+line (typically, the actual location of the thrown exception, or
+breakpoint, etc) of the trace will have |entry| of zero, with an
+increasing |entry| index for each subsequent line.
+
+The |class_source_name| field will be the name of the file involved,
+and |line_number| will be the line number (line numbers start at 1).
+So if an exception is thrown in an anonymous inner class of class Foo,
+this field will be |"Foo.java"| -- even if Foo is inside a package.
+The source name loses all package information, but this can be
+recovered via the |class_name| field, which is the fully qualified
+name of the class at the specific source location.
+
+The |sub_event_id| and |sub_event_type| fields are what is used to
+link the stack entries to their parent event -- see documentation
+throughout the manual for events that have associated stack traces.
 \section{Bench Objects}
 
 %schema:bench_objects
