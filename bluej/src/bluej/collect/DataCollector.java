@@ -76,6 +76,7 @@ import bluej.utility.Utility;
 public class DataCollector
 {
     private static final String PROPERTY_UUID = "blackbox.uuid";
+    private static final String OPT_OUT = "optout";
     
     private static final Charset utf8 = Charset.forName("UTF-8");
 
@@ -130,7 +131,7 @@ public class DataCollector
     
     private static boolean dontSend()
     {
-        return Config.isGreenfoot() || "optout".equals(uuid);
+        return Config.isGreenfoot() || !isOptedIn();
     }
     
     public static String getUserID()
@@ -149,13 +150,8 @@ public class DataCollector
         uuid = Config.getPropString(PROPERTY_UUID, null);
         if (uuid == null || true /* temporary */)
         {
-            DataCollectionDialog dlg = new DataCollectionDialog();
-            dlg.setLocationRelativeTo(null); // Centre on screen
-            dlg.setVisible(true);
-            
-            uuid = UUID.randomUUID().toString();
-            Config.putPropString(PROPERTY_UUID, uuid);
-            
+            // If they have no uuid stored, they haven't yet opted in or opted out:
+            changeOptInOut();
         }
         /*
         else {
@@ -185,6 +181,33 @@ public class DataCollector
         }
         */
     }
+    
+    private static boolean isOptedIn()
+    {
+        return !(OPT_OUT.equals(uuid));
+    }
+
+    public static String getOptInOutStatus()
+    {
+        return "You are currently opted " + (DataCollector.isOptedIn() ? "in to" : "out of") + " the data collection research";
+    }
+
+    public static void changeOptInOut()
+    {
+        DataCollectionDialog dlg = new DataCollectionDialog();
+        dlg.setLocationRelativeTo(null); // Centre on screen
+        dlg.setVisible(true);
+        
+        if (dlg.optedIn())
+        {
+            uuid = UUID.randomUUID().toString();
+        }
+        else
+        {
+            uuid = OPT_OUT;
+        }
+        Config.putPropString(PROPERTY_UUID, uuid);
+    }    
     
     /**
      * Save information which should be persistent across sessions.
@@ -1118,4 +1141,5 @@ public class DataCollector
         
         submitEvent(pkg.getProject(), pkg, EventName.RUN_TEST, new PlainEvent(mpe));
     }
+
 }

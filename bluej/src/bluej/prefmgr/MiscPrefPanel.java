@@ -22,13 +22,17 @@
 package bluej.prefmgr;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -37,6 +41,7 @@ import javax.swing.KeyStroke;
 
 import bluej.BlueJTheme;
 import bluej.Config;
+import bluej.collect.DataCollector;
 import bluej.pkgmgr.PkgMgrFrame;
 
 /**
@@ -181,6 +186,35 @@ public class MiscPrefPanel extends JPanel
                 }
             }
             box.add(vmPanel);
+            
+            {
+                JPanel dataCollectionPanel = new JPanel();
+                dataCollectionPanel.setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createTitledBorder("Data Collection"),
+                         BlueJTheme.generalBorder));
+                dataCollectionPanel.setAlignmentX(LEFT_ALIGNMENT);
+                
+                {
+                    final JLabel statusLabel = new JLabel(DataCollector.getOptInOutStatus());
+                    JButton optButton = new JButton("Change");
+                    optButton.addActionListener(new ActionListener() {
+                        
+                        @Override
+                        public void actionPerformed(ActionEvent e)
+                        {
+                            DataCollector.changeOptInOut();
+                            statusLabel.setText(DataCollector.getOptInOutStatus());
+                        }
+                    });
+                    JPanel statusPanel = new JPanel();
+                    statusPanel.setLayout(new BoxLayout(statusPanel, BoxLayout.X_AXIS));
+                    statusPanel.add(statusLabel);
+                    statusPanel.add(Box.createRigidArea(new Dimension(15, 0)));
+                    statusPanel.add(optButton);
+                    dataCollectionPanel.add(statusPanel);
+                }
+                box.add(dataCollectionPanel);
+            }
         }
         box.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
     }
