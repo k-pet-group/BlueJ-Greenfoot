@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2010,2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2010,2011,2012  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -88,7 +88,7 @@ public class RJobQueueImpl extends java.rmi.server.UnicastRemoteObject
                 }
             }
             @Override
-            public void compilerMessage(Diagnostic diagnostic)
+            public boolean compilerMessage(Diagnostic diagnostic)
             {
                 try {
                     observer.compilerMessage(diagnostic);
@@ -102,6 +102,7 @@ public class RJobQueueImpl extends java.rmi.server.UnicastRemoteObject
                 catch (RemoteException re) {
                     // probably, connection broken
                 }
+                return true;
             }
         };
         queue.addJob(files, cobserver, pkg.getProject().getClassLoader(), pkg.getPath(), true,

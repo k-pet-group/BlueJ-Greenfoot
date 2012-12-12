@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2010,2011 Poul Henriksen and Michael Kolling 
+ Copyright (C) 2010,2011,2012 Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -117,7 +117,9 @@ public class GreenfootDebugHandler implements DebuggerListener
     private void addRunResetBreakpoints(Debugger debugger)
     {
         try {
-            simulationClass = debugger.getClass(SIMULATION_CLASS, false);
+            // We have to initialise the class; the IBM JDK otherwise throws an ObjectCollectedException
+            // exception, seemingly in error.
+            simulationClass = debugger.getClass(SIMULATION_CLASS, true);
 
             Map<String, String> simulationRunBreakpointProperties = new HashMap<String, String>();
             simulationRunBreakpointProperties.put(SIMULATION_THREAD_RUN_KEY, "TRUE");
@@ -137,6 +139,15 @@ public class GreenfootDebugHandler implements DebuggerListener
     private boolean isSimulationThread(DebuggerThread dt)
     {
         return dt != null && simulationThread != null && simulationThread.sameThread(dt);
+    }
+    
+    private boolean isThreadHaltEvent(DebuggerEvent e)
+    {
+        int id = e.getID();
+        return id == DebuggerEvent.THREAD_BREAKPOINT
+                || id == DebuggerEvent.THREAD_HALT_STEP_INTO
+                || id == DebuggerEvent.THREAD_HALT_STEP_OVER
+                || id == DebuggerEvent.THREAD_HALT_UNKNOWN;
     }
 
     // ------------- DebuggerListener interface ------------
@@ -197,8 +208,7 @@ public class GreenfootDebugHandler implements DebuggerListener
             });
             
             return true;
-        } else if ((e.getID() == DebuggerEvent.THREAD_BREAKPOINT || e.getID() == DebuggerEvent.THREAD_HALT)
-                && isSimulationThread(e.getThread())) {
+        } else if (isThreadHaltEvent(e) && isSimulationThread(e.getThread())) {
             if (atPauseBreakpoint(e.getBreakpointProperties())) {
                 // They are going to pause; remove all special breakpoints and set them going
                 // (so that they actually hit the pause):
@@ -463,7 +473,7 @@ public class GreenfootDebugHandler implements DebuggerListener
         public synchronized void processDebuggerEvent(DebuggerEvent e, boolean skipUpdate)
         {
             final String stateVar;
-            if (e.getID() == DebuggerEvent.THREAD_BREAKPOINT || e.getID() == DebuggerEvent.THREAD_HALT) {
+            if (isThreadHaltEvent(e)) {
                 if (isSimulationThread(e.getThread())) {
                     stateVar = "NOT_RUNNING";
                 }
@@ -486,7 +496,7 @@ public class GreenfootDebugHandler implements DebuggerListener
             
             /* We are on the BlueJ VM, but we need to adjust the state of the buttons
              * on the Greenfoot VM (aka Debug VM).  We use this slight hack of constructing
-             * a class on the Greenfoot VM that will do the work for us there.
+             * an object on the Greenfoot VM that will do the work for us there.
              * 
              * For a parameter, we pass one of the static objects that the class holds
              * (this was more obviously do-able than passing a boolean constant, fix it if you know how)
