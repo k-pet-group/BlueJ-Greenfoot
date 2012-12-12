@@ -615,7 +615,48 @@ entry that was hidden.
 
 \section{Object Bench}
 
+\subsection{\lstinline|bench_get|}
+
+This event has a |package_id|, linking to which package the object
+bench is associated with.
+
+The event occurs when a user is inspecting something (an object,
+class, or method result) and uses the Get button to transfer the
+object to the object bench -- or when they drag a result object over
+from the codepad.
+  
+The event links to an entry in the |bench_objects| table, indicating
+the object which was added to the bench.
+
+If a test was being recorded at the time, the |bench_objects| entry
+will have a link to the |tests| table, indicating which test was being recorded.
+
+\subsection{\lstinline|remove_object|}
+
+This event has a |package_id|, linking to which package the object
+bench is associated with.
+
+The event occurs when a user explicitly removes an object from the object bench.
+  
+The event links to an entry in the |bench_objects| tables, indicating
+the object which was removed from the bench.
+
 \section{Testing}
+
+\subsection{\lstinline|run_test|}
+
+This event has a |package_id|, linking to which package the test class
+is in.
+
+The event occurs when the user executes a test, either by using the
+Test All command, or individually invoking a test.  Each test that is
+run will get its own |run_test| event.
+
+The event links to an entry in the |test_results| table.
+
+%TODO document test_results
+
+
 
 \subsection{\lstinline|assertion|}
 
