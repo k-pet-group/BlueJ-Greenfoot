@@ -141,17 +141,6 @@ public class GreenfootDebugHandler implements DebuggerListener
         return dt != null && simulationThread != null && simulationThread.sameThread(dt);
     }
     
-    private boolean isThreadHaltEvent(DebuggerEvent e)
-    {
-        int id = e.getID();
-        return id == DebuggerEvent.THREAD_BREAKPOINT
-                || id == DebuggerEvent.THREAD_HALT_STEP_INTO
-                || id == DebuggerEvent.THREAD_HALT_STEP_OVER
-                || id == DebuggerEvent.THREAD_HALT_UNKNOWN;
-    }
-
-    // ------------- DebuggerListener interface ------------
-    
     /**
      * An early examination of the debugger event (gets called before processDebuggerEvent)
      * 
@@ -208,7 +197,7 @@ public class GreenfootDebugHandler implements DebuggerListener
             });
             
             return true;
-        } else if (isThreadHaltEvent(e) && isSimulationThread(e.getThread())) {
+        } else if (e.isHalt() && isSimulationThread(e.getThread())) {
             if (atPauseBreakpoint(e.getBreakpointProperties())) {
                 // They are going to pause; remove all special breakpoints and set them going
                 // (so that they actually hit the pause):
@@ -473,7 +462,7 @@ public class GreenfootDebugHandler implements DebuggerListener
         public synchronized void processDebuggerEvent(DebuggerEvent e, boolean skipUpdate)
         {
             final String stateVar;
-            if (isThreadHaltEvent(e)) {
+            if (e.isHalt()) {
                 if (isSimulationThread(e.getThread())) {
                     stateVar = "NOT_RUNNING";
                 }
