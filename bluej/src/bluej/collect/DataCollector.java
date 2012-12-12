@@ -147,9 +147,11 @@ public class DataCollector
     {
         DataSubmitter.initSequence();
         uuid = Config.getPropString(PROPERTY_UUID, null);
-        if (uuid == null)
+        if (uuid == null || true /* temporary */)
         {
-            //TODO display opt-in dialog
+            DataCollectionDialog dlg = new DataCollectionDialog();
+            dlg.setLocationRelativeTo(null); // Centre on screen
+            dlg.setVisible(true);
             
             uuid = UUID.randomUUID().toString();
             Config.putPropString(PROPERTY_UUID, uuid);
@@ -591,7 +593,6 @@ public class DataCollector
         
         final Map<FileKey, List<String>> versions = new HashMap<FileKey, List<String>>();
         
-        //TODO what about README, .class files with no source
         for (ClassTarget ct : pkg.getClassTargets())
         {
 
