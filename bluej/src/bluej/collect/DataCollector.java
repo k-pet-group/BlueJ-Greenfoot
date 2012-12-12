@@ -50,6 +50,7 @@ import difflib.Patch;
 
 import bluej.Config;
 import bluej.compiler.Diagnostic;
+import bluej.debugger.DebuggerTestResult;
 import bluej.debugger.ExceptionDescription;
 import bluej.debugger.SourceLocation;
 import bluej.debugmgr.inspector.ClassInspector;
@@ -1089,5 +1090,30 @@ public class DataCollector
         }        
         
         submitEvent(pkg.getProject(), pkg, EventName.FIXTURE_TO_BENCH, new PlainEvent(mpe));
+    }
+
+    public static void testResult(Package pkg, DebuggerTestResult lastResult)
+    {
+        MultipartEntity mpe = new MultipartEntity();
+        
+        mpe.addPart("event[class_name]", toBody(lastResult.getQualifiedClassName()));
+        mpe.addPart("event[method_name]", toBody(lastResult.getMethodName()));
+        mpe.addPart("event[run_time]", toBody(lastResult.getRunTimeMs()));
+        String status = "unknown";
+        if (lastResult.isSuccess())
+            status = "success";
+        else if (lastResult.isFailure())
+            status = "failure";
+        else if (lastResult.isError())
+            status = "error";
+        mpe.addPart("event[result]", toBody(status));
+        
+        if (!lastResult.isSuccess())
+        {
+            mpe.addPart("event[exception_message]", toBody(lastResult.getExceptionMessage()));
+            mpe.addPart("event[exception_trace]", toBody(lastResult.getTrace()));
+        }
+        
+        submitEvent(pkg.getProject(), pkg, EventName.RUN_TEST, new PlainEvent(mpe));
     }
 }

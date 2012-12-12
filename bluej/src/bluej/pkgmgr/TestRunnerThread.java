@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,6 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import bluej.Config;
+import bluej.collect.DataCollector;
 import bluej.debugger.DebuggerTestResult;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.role.UnitTestClassRole;
@@ -153,6 +154,8 @@ public class TestRunnerThread extends Thread
                 if (quiet)
                     pmf.setStatus(methodName + " " + Config.getString("pkgmgr.test.succeeded"));
 
+                DataCollector.testResult(pmf.getPackage(), lastResult);
+                
                 break;
 
             // Now we are finished.

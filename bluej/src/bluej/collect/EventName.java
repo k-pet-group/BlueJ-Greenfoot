@@ -72,6 +72,7 @@ enum EventName
     START_TEST("start_test"),
     CANCEL_TEST("cancel_test"),
     END_TEST("end_test"),
+    RUN_TEST("run_test"),
     ASSERTION("assertion"),
     
     VCS_COMMIT("vcs_commit"),
