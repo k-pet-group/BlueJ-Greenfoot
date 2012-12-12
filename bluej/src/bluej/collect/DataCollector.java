@@ -400,6 +400,7 @@ public class DataCollector
         for (int i = 0; i < stack.length; i++)
         {
             mpe.addPart(listName + "[][entry]", toBody(i));
+            mpe.addPart(listName + "[][class_name]", toBody(stack[i].getClassName()));
             mpe.addPart(listName + "[][class_source_name]", toBody(stack[i].getFileName()));
             mpe.addPart(listName + "[][line_number]", toBody(stack[i].getLineNumber()));
         }

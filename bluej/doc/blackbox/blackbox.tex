@@ -439,7 +439,7 @@ table, which can store thread names.
 Other debugger events will link to the |breakpoints| table, which references a
 source file and a line number (line numbers begin at 1, not 0).
 
-%schema:breakpoints
+%schema:breakpoints \intern
 
 \subsection{\lstinline|debugger_open| and \lstinline|debugger_close|}
 
@@ -795,13 +795,7 @@ UUID (or invalid UUID), and is separate to phone-home UUID
 \item Finish opt-in dialog, and allow later opt-in/opt-out via prefs.
 \item Implement institution ID, and changing thereof in the prefs.
 \item Handle READMEs and classes without source code (e.g. in invoker?)
-\item Check if stack entries are useful when you have a stack trace
-  running through two classes with same name but different package.
-\item Add a |package_id| to |bench_objects|, as well as keeping |session_id|
-\item What happens with duplicate-named objects in different benches in same session
-  (per-package, and per-project)?  I suspect it doesn't work right...
 \item Make an md5sum of source code state on server, to help easily spot book projects
-\item Clear up various uses of find_by, and where.exists into helpers
 \end{itemize}
 
 Testing/deployment:
