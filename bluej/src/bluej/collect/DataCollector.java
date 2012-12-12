@@ -1085,7 +1085,7 @@ public class DataCollector
         for (NamedTyped obj : objects)
         {
             mpe.addPart("event[bench_objects][][name]", toBody(obj.getName()));
-            mpe.addPart("event[bench_objects][][type]", toBody(obj.getType()));
+            mpe.addPart("event[bench_objects][][class_name]", toBody(obj.getType()));
         }        
         
         submitEvent(pkg.getProject(), pkg, EventName.FIXTURE_TO_BENCH, new PlainEvent(mpe));

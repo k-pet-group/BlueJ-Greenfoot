@@ -1938,8 +1938,9 @@ public class PkgMgrFrame extends JFrame
      *               for purposes of method calls etc if the actual type is inaccessible
      *               (private to another package or class).
      * @param ir    The invoker record (for recording interaction). May be null.
+     * @return The actual instance name (which might be different from parameter, if there was a name clash)
      */
-    public void putObjectOnBench(String newInstanceName, DebuggerObject object, GenTypeClass iType, InvokerRecord ir)
+    public String putObjectOnBench(String newInstanceName, DebuggerObject object, GenTypeClass iType, InvokerRecord ir)
     {
         if (!object.isNullObject()) {
             ObjectWrapper wrapper = ObjectWrapper.getWrapper(this, getObjectBench(), object, iType, newInstanceName);
@@ -1952,6 +1953,11 @@ public class PkgMgrFrame extends JFrame
             if (ir != null) {
                 ir.setBenchName(newInstanceName, wrapper.getTypeName());
             }
+            return newInstanceName;
+        }
+        else
+        {
+            return null;
         }
     }
 

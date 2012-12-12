@@ -460,8 +460,8 @@ public class UnitTestClassRole extends ClassRole
                             DebuggerObject objVal = mapent.getValue();
                             
                             if (! objVal.isNullObject()) {
-                                pmf.putObjectOnBench(mapent.getKey(), objVal, objVal.getGenType(), null);
-                                recordObjects.add(new DataCollector.NamedTyped(mapent.getKey(), objVal.getClassName()));
+                                String actualName = pmf.putObjectOnBench(mapent.getKey(), objVal, objVal.getGenType(), null);
+                                recordObjects.add(new DataCollector.NamedTyped(actualName, objVal.getClassName()));
                             }
                         }
                         
