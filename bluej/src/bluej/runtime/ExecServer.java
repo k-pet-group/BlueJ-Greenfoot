@@ -604,7 +604,7 @@ public class ExecServer
             List<Failure> failures = res.getFailures();
             for (Iterator<Failure> iterator = failures.iterator(); iterator.hasNext();) {
                 Failure failure = (Failure) iterator.next();
-                if (failure.getException().getClass() == java.lang.AssertionError.class
+                if (java.lang.AssertionError.class.isAssignableFrom(failure.getException().getClass()) 
                         || failure.getException().getClass() == junit.framework.AssertionFailedError.class) {
                     result[7] = "failure";
                 }

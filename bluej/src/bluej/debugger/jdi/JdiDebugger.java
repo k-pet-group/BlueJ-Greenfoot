@@ -580,7 +580,6 @@ public class JdiDebugger extends Debugger
                     int lineNo = Integer.parseInt(((StringReference) arrayRef.getValue(6)).value());
                     SourceLocation failPoint = new SourceLocation(failureClass, failureSource, failureMethod, lineNo);
                     
-                    // junit4 no longer distinguishes between errors and failures
                     if (failureType.equals("failure")) {
                         return new JdiTestResultFailure(className, methodName, exMsg, traceMsg, failPoint, runTimeMs);
                     }
