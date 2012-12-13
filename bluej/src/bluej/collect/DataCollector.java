@@ -62,7 +62,6 @@ import bluej.pkgmgr.Project;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.utility.Debug;
-import bluej.utility.FileUtility;
 import bluej.utility.Utility;
 
 /**
@@ -614,6 +613,9 @@ public class DataCollector
     
     public static void packageOpened(Package pkg)
     {
+        if (dontSend())
+            return;
+        
         final Project proj = pkg.getProject();
         
         final MultipartEntity mpe = new MultipartEntity();
@@ -675,6 +677,9 @@ public class DataCollector
 
     public static void edit(final Package pkg, final File path, final String source, final boolean includeOneLineEdits)
     {
+        if (dontSend())
+            return;
+        
         final Project proj = pkg.getProject();
         final FileKey key = new FileKey(proj, toPath(proj, path));
         final String anonSource = CodeAnonymiser.anonymise(source);
