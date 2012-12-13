@@ -77,7 +77,7 @@ class DataCollectionDialog extends JDialog
         setModal(true);
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         
-        setTitle("BlueJ - Data Collection");
+        setTitle("BlueJ - " + Config.getString("collect.dialog.title"));
         
         JPanel body = new JPanel();
         body.setLayout(new BorderLayout());
@@ -112,7 +112,9 @@ class DataCollectionDialog extends JDialog
         JEditorPane text = new JEditorPane();
         text.setContentType("text/html");
 
-        String content = "<p>If you agree to take part, you will permit us to collect anonymous data about your use of BlueJ, including the features you use and the code you write. This will be used by the BlueJ group and other academic researchers to help understand how students learn to program and to improve BlueJ itself. No personal information will be transmitted to, or stored by, us and any Java class comments you write will be removed before transmission.  <a href='http://www.bluej.org/blackbox.html'>See more information</a></p><p>If you change your mind about helping us with this work, you can stop contributing at any time using the checkbox in the Tools/Preferences/Miscellaneous dialog.</p>";
+        String content = "<p>" + Config.getString("collect.dialog.ethics1") + 
+                "  <a href='http://www.bluej.org/blackbox.html'>" + Config.getString("collect.dialog.ethics.seemore") + "</a>.</p>" +
+                "<p>" + Config.getString("collect.dialog.ethics2") + "</p>";
         text.setText(content);
         text.setEditable(false);
         text.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -196,7 +198,10 @@ class DataCollectionDialog extends JDialog
         headerPanel.add(Box.createHorizontalStrut(20));
         
         JLabel headerLabel = new JLabel();
-        headerLabel.setText("<html><body><b>The BlueJ team are running a data collection project to help researchers<br>understand how students learn to program.<br><br>Please help us by participating.</b></body></html>");
+        headerLabel.setText("<html><body><b><p>"
+          + Config.getString("collect.dialog.header1") + "<br>"
+          + Config.getString("collect.dialog.header2") + "</p><br>"
+          + "<p>" + Config.getString("collect.dialog.header3") + "</p></b></body></html>");
         headerLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
         
         headerPanel.add(headerLabel);
@@ -214,7 +219,7 @@ class DataCollectionDialog extends JDialog
         buttonPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         
         JButton buttonNo = new JButton();
-        buttonNo.setText("No thanks");
+        buttonNo.setText(Config.getString("collect.dialog.no"));
         buttonNo.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e)
@@ -226,7 +231,7 @@ class DataCollectionDialog extends JDialog
         buttonPanel.add(buttonNo, BorderLayout.WEST);
         
         JButton buttonYes = new JButton();
-        buttonYes.setText("I agree to take part, and I certify that I am 16 or older.");
+        buttonYes.setText(Config.getString("collect.dialog.yes"));
         buttonYes.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e)

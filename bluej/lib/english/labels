@@ -767,6 +767,22 @@ menu.help.copyright.line2=version 2 with Classpath exception.
 menu.help.copyright.line3=For more information please see the files LICENSE.txt 
 menu.help.copyright.line4=and THIRDPARTYLICENSE.txt.
 
+#Collection
+# The content for these is HTML, so don't use <, > or & without escaping:
+
+collect.dialog.title=Research Participation
+
+collect.dialog.header1=The BlueJ team are running a data collection project to help researchers
+collect.dialog.header2=understand how students learn to program.
+collect.dialog.header3=Please help us by participating.
+
+collect.dialog.no=No thanks
+collect.dialog.yes=I agree to take part, and I certify that I am 16 or older
+
+collect.dialog.ethics1=If you agree to take part, you will permit us to collect anonymous data about your use of BlueJ, including the features you use and the code you write. This will be used by the BlueJ group and other academic researchers to help understand how students learn to program and to improve BlueJ itself. No personal information will be transmitted to, or stored by, us and any Java class comments you write will be removed before transmission.
+collect.dialog.ethics.seemore=See more information
+collect.dialog.ethics2=If you change your mind about helping us with this work, you can stop contributing at any time using the checkbox in the Tools/Preferences/Miscellaneous dialog.
+
 # About
 
 about.bluej.version=BlueJ version
