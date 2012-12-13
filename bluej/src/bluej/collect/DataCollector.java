@@ -184,7 +184,7 @@ public class DataCollector
     
     private static boolean isOptedIn()
     {
-        return !(OPT_OUT.equals(uuid));
+        return !(OPT_OUT.equals(uuid) || uuid == null);
     }
 
     public static String getOptInOutStatus()
@@ -200,7 +200,11 @@ public class DataCollector
         
         if (dlg.optedIn())
         {
-            uuid = UUID.randomUUID().toString();
+            if (!isOptedIn())
+            {
+                // Only generate new UUID if didn't have one already:
+                uuid = UUID.randomUUID().toString();
+            }
         }
         else
         {
