@@ -22,8 +22,10 @@
 package bluej.collect;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -39,14 +41,21 @@ import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
 import javax.swing.JTextArea;
+import javax.swing.JTextPane;
 import javax.swing.SwingConstants;
+import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.MutableAttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
 
+import bluej.Config;
 import bluej.utility.Debug;
 
-public class DataCollectionDialog extends JDialog
+class DataCollectionDialog extends JDialog
 {
     private JButton buttonYes;
     private boolean optedIn = false;
@@ -63,34 +72,38 @@ public class DataCollectionDialog extends JDialog
         body.setBorder(BorderFactory.createEmptyBorder(10, 20, 20, 20));
         body.setAlignmentX(Component.LEFT_ALIGNMENT);
         
-        JPanel headerPanel = new JPanel();
-        {
-            headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.X_AXIS));
-            headerPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-            
-            headerPanel.add(new JLabel(new ImageIcon("/home/neil/work/bluej/lib/images/bluej-icon-48.png")));
-            headerPanel.add(Box.createRigidArea(new Dimension(10,0)));
-            
-            JLabel headerLabel = new JLabel();
-            headerLabel.setText("<html><body><b>The BlueJ team are running a data collection project to help researchers<br>understand how students learn to program.<br></b></body></html>");
-            headerLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-            
-            headerPanel.add(headerLabel);
+        JPanel topHalf = new JPanel();
+        topHalf.setLayout(new BoxLayout(topHalf, BoxLayout.Y_AXIS));
+        
+        JPanel headerPanel = makeHeaderPanel();
             
             //headerPanel.add(Box.createRigidArea(new Dimension(0,10)));
-            
-            body.add(headerPanel, BorderLayout.NORTH);
-        }
+        topHalf.add(headerPanel);
+        topHalf.add(Box.createVerticalStrut(10));
+        topHalf.add(makeButtonPanel());
+        topHalf.add(Box.createVerticalStrut(5));
+        topHalf.add(new JSeparator(SwingConstants.HORIZONTAL));
+        topHalf.add(Box.createVerticalStrut(5));
+        body.add(topHalf, BorderLayout.NORTH);
+        
         
         {
             JTextArea text = new JTextArea();
-            text.setText("If you click Yes below, you will permit us to collect anonymous data about your use of BlueJ, including the features you use and the code you write. This will be used by the BlueJ group and other academic researchers to help understand how students learn to program and to improve BlueJ itself. No personal information will be transmitted to, or stored by, us and any Java class comments you write will be blanked out before transmission.\n\nIf you change your mind about helping us with this work, you can stop contributing at any time using the checkbox in the Tools/Preferences/Miscellaneous dialog.");
+
+            String content = "If you agree to take part, you will permit us to collect anonymous data about your use of BlueJ, including the features you use and the code you write. This will be used by the BlueJ group and other academic researchers to help understand how students learn to program and to improve BlueJ itself. No personal information will be transmitted to, or stored by, us and any Java class comments you write will be removed before transmission.\n\nIf you change your mind about helping us with this work, you can stop contributing at any time using the checkbox in the Tools/Preferences/Miscellaneous dialog.";
+            text.setText(content);
             text.setEditable(false);
             text.setLineWrap(true);
             text.setWrapStyleWord(true);
+            text.setBackground(getBackground());
+            Font labelFont = UIManager.getFont("Label.font");
+            Debug.message("UIM Font: " + labelFont.getFontName() + "," + labelFont.getSize2D());
+            Debug.message("JLabel Font: " + new JLabel().getFont().getFontName() + "," + new JLabel().getFont().getSize2D());
+            Debug.message("JTextArea Font: " + new JTextArea().getFont().getFontName() + "," + new JTextArea().getFont().getSize2D());
+            text.setFont(labelFont.deriveFont(labelFont.getSize2D() - 2.0f));
             text.setAlignmentX(Component.LEFT_ALIGNMENT);
             
-            // To get the JTextArea to fit its content, we first have to set it to a size
+            // To get the control to fit its content, we first have to set it to a size
             // with the right width (we use headerPanel as it's likely the widest component
             // in the dialog:            
             text.setSize(new Dimension(headerPanel.getPreferredSize().width, 300));
@@ -107,77 +120,70 @@ public class DataCollectionDialog extends JDialog
             }            
 
             // Now set the size so it will fit the last character
-            // (plus spacing/fudge-factor of 15):
-            Dimension d = new Dimension(text.getMinimumSize().width, r.y + r.height + 15);
+            // (plus spacing/fudge-factor of 5):
+            Dimension d = new Dimension(text.getMinimumSize().width, r.y + r.height + 5);
             text.setPreferredSize(d);
             text.setSize(d);
             
             //I know the above seems crazy, but I spent a long time trying other methods,
             //and this was the only one that worked.
+            
+            
 
             body.add(text, BorderLayout.CENTER);
         }
-        
-        JPanel controls = new JPanel();
-        controls.setLayout(new BoxLayout(controls, BoxLayout.Y_AXIS));
-        
-        {
-            JCheckBox checkBox = new JCheckBox();
-            checkBox.setText("I agree to take part, and I certify that I am 16 or older.");
-            checkBox.setHorizontalTextPosition(SwingConstants.LEFT);
-            checkBox.addItemListener(new ItemListener() {
-                @Override
-                public void itemStateChanged(ItemEvent e)
-                {
-                    buttonYes.setEnabled(e.getStateChange() == ItemEvent.SELECTED);                    
-                }
-            });
-            
-            JPanel checkPanel = new JPanel();
-            checkPanel.setLayout(new BorderLayout());
-            checkPanel.add(checkBox, BorderLayout.EAST);
-            checkPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-            checkPanel.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
-            controls.add(checkPanel);
-        }
-        
-        {
-            JPanel buttonPanel = new JPanel();
-            buttonPanel.setLayout(new BorderLayout());
-            buttonPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-            
-            JButton buttonNo = new JButton();
-            buttonNo.setText("No");
-            buttonNo.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e)
-                {
-                    optedIn = false;
-                    DataCollectionDialog.this.setVisible(false);                    
-                }
-            });
-            buttonPanel.add(buttonNo, BorderLayout.WEST);
-            
-            buttonYes = new JButton();
-            buttonYes.setText("Yes");
-            buttonYes.setEnabled(false);
-            buttonYes.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e)
-                {
-                    optedIn = true;
-                    DataCollectionDialog.this.setVisible(false);                    
-                }
-            });
-            buttonPanel.add(buttonYes, BorderLayout.EAST);
     
-            controls.add(buttonPanel);
-        }
-        
-        body.add(controls, BorderLayout.SOUTH);
-        
         getContentPane().add(body);
         pack();
+    }
+
+    private JPanel makeHeaderPanel() {
+        JPanel headerPanel = new JPanel();
+    
+        headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.X_AXIS));
+        headerPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        headerPanel.add(new JLabel(Config.getFixedImageAsIcon("bluej-icon-48.png")));
+        headerPanel.add(Box.createHorizontalStrut(20));
+        
+        JLabel headerLabel = new JLabel();
+        headerLabel.setText("<html><body><b>The BlueJ team are running a data collection project to help researchers<br>understand how students learn to program.<br><br>Please help us by participating.</b></body></html>");
+        headerLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        headerPanel.add(headerLabel);
+        
+        return headerPanel;
+    }
+
+    private JPanel makeButtonPanel() {
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new BorderLayout());
+        buttonPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        JButton buttonNo = new JButton();
+        buttonNo.setText("No thanks");
+        buttonNo.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                optedIn = false;
+                DataCollectionDialog.this.setVisible(false);                    
+            }
+        });
+        buttonPanel.add(buttonNo, BorderLayout.WEST);
+        
+        buttonYes = new JButton();
+        buttonYes.setText("I agree to take part, and I certify that I am 16 or older.");
+        buttonYes.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                optedIn = true;
+                DataCollectionDialog.this.setVisible(false);                    
+            }
+        });
+        buttonPanel.add(buttonYes, BorderLayout.EAST);
+        return buttonPanel;
     }
     
     public boolean optedIn()
