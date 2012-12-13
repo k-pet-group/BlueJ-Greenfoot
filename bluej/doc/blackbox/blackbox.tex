@@ -880,8 +880,6 @@ when this object was added to the bench.
 UUID (or invalid UUID), and is separate to phone-home UUID
 \item Finish opt-in dialog, and allow later opt-in/opt-out via prefs.
 \item Implement institution ID, and changing thereof in the prefs.
-\item Handle READMEs and classes without source code (e.g. in invoker?)
-\item Make an md5sum of source code state on server, to help easily spot book projects
 \end{itemize}
 
 Testing/deployment:
@@ -891,11 +889,7 @@ Testing/deployment:
   names -- or at least, make sure distinction is clear)
 \item Make sure multi-threading is properly supported in the debugger
 \item Make sure AJAX live stream is off in production!
-\item Check speed (especially loading up)
 \item Add views for white, remove visibility of ip and institution?
-\item Are edits actually flushed before compilation?
-\item Put in the actual URL for data submission (and set up black.bluej.org,
-  or whatever)
 \end{itemize}
 
 \section{Questions}
@@ -918,6 +912,7 @@ New:
   line break on load-up.  Is it worth trying to suppress this?
 \item Add new package, remove package actions?
 \item Should we mark auto-indent, add method, or find/replace separately to other edit events?
+\item Should we coalesce edits that occur next to each other?
 \end{itemize}
 
 \end{document}

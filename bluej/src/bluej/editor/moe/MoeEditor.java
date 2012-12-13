@@ -481,6 +481,9 @@ public final class MoeEditor extends JFrame
     {
         IOException failureException = null;
         if (saveState.isChanged()) {
+            // Record any edits with the data collection system:
+            recordEdit(true);
+            
             Writer writer = null;
             try {
                 // The crash file is used during writing and will remain in
