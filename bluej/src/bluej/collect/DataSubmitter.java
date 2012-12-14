@@ -47,6 +47,8 @@ import org.apache.http.util.EntityUtils;
 class DataSubmitter
 {
     private static final String submitUrl = "http://blackbox.bluej.org/master_events";
+        //For testing: "http://localhost:3000/master_events"; 
+
     
     private static volatile boolean givenUp = false;
     

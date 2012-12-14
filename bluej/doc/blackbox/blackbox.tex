@@ -878,7 +878,6 @@ when this object was added to the bench.
 \begin{itemize}
 \item Check that the UUID is generated properly for new profiles, or profile without
 UUID (or invalid UUID), and is separate to phone-home UUID
-\item Implement institution ID, and changing thereof in the prefs.
 \end{itemize}
 
 Testing/deployment:
@@ -912,6 +911,13 @@ New:
 \item Add new package, remove package actions?
 \item Should we mark auto-indent, add method, or find/replace separately to other edit events?
 \item Should we coalesce edits that occur next to each other?
+\end{itemize}
+
+\chapter{Beta Artificialities}
+
+\begin{itemize}
+\item UUID is shown in preferences dialog
+\item Message logged to debug log if there is a problem with event submission
 \end{itemize}
 
 \end{document}
