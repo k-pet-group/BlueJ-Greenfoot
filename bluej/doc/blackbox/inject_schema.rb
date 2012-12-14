@@ -17,7 +17,7 @@ while gets
       puts "|#{cols[0]}| & |#{cols[1]}| & |#{cols[2]}| \\\\"
     end
     puts "\\end{tabular}"
-    puts "\\caption{Schema for \\lstinline|#{table_name}|. #{caption}}"
+    puts "\\caption{Schema for \\lstinline!#{table_name}!. #{caption}}"
     puts "\\end{center}"
     puts "\\end{figure}"
   else
@@ -25,7 +25,7 @@ while gets
   end
 
   if line =~ /^\\\S*section\{/
-    line.scan(/\\lstinline\|([^|]+)\|/).each do |groups|
+    line.scan(/\\lstinline\!([^!]+)\!/).each do |groups|
       mentioned_event_names << groups[0]
     end
   end

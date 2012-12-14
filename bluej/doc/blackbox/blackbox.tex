@@ -1,4 +1,4 @@
-\documentclass{book}
+\documentclass{report}
 
 \usepackage[margin=1.5in]{geometry}
 
@@ -24,6 +24,11 @@ This document acts as a manual for the BlueJ data collection project,
 collected data, and how the data relates to the BlueJ IDE.  It assumes a basic
 familiarity with BlueJ's capabilities, such as the debugger, codepad, object
 bench and so on.
+
+\begingroup
+\let\clearpage\relax
+\tableofcontents*
+\endgroup
 
 \chapter{Concepts}
 
@@ -96,10 +101,33 @@ interleave events from the two sessions).  If a user accidentally closes BlueJ
 and immediately re-opens it, that will count as two sessions (though you could
 spot this using the timestamps on the events in post-processing).
 
-\section{Institutions}
-\label{def:institution_id}
+\section{Participants}
+\label{sec:participants}
 
-TODO
+All the data in the BlueJ data collection is anonymous.  Part of the intention
+of the project is to support local experiments, where you, the local
+researchers, collect additional information about users.  The additional
+information should be held by you, and the experiment approved and conducted
+according to your local ethics committee.
+
+To allow you to link your participant data with our data, we have a mechanism
+for BlueJ users to specify an experiment identifier and a participant
+identifier (strings, up to 32 characters).  These two identifiers should be
+assigned by you, the local researcher.  We request that you assign an
+experiment identifier that is unlikely to clash with any other researchers'
+identifier.  The participant identifier is entirely up to you, although we
+would expect that you use a generic identifier (e.g. a number), and that you
+hold the mapping between the participant's real identity and the participant
+number, as is standard practice.  (Do not ask the participants to store their name, or
+university login or similar, in the participant identifier.)
+
+As described in section \ref{sec:views}, you will be able to retrieve
+participant identifiers for a specific experiment identifier, and retrieve
+session data for known experiment identifiers and participant identifiers.
+This means that you will not be able to see experiment or participant
+identifiers for experiments for which you do  not know the identifier.  This
+is deliberate, to help protect information about experiment participation and
+participant identification.
 
 \section{Events}
 
@@ -219,8 +247,8 @@ Each master event has links (as per \myref{sec:assoc}) to other tables:
 \item |project_id| -- present for all events except |bluej_start| and |bluej_finish|
 \item |package_id| -- present for some events (see further details below).
 \item |event_id|, |event_type| -- present for some events (see further details below).
-\item |institution_id| -- present for all events, if the user currently has an
-  institution specified.
+\item |participant_id| -- present for all events, if the user currently has
+  participant information specified.
 \item |client_address_id| -- present for all events.
 \end{itemize}
 
@@ -238,9 +266,11 @@ The subsequent sections describe the different values for the
 |master_events.name| field, and what that means for the other fields,
 especially what may be linked to by the |event_id| and |event_type| fields.
 
-%hidden:institutions
+%hidden:participants
 
-The |institution_id| field links to a hidden |institutions| table.
+The |participant_id| field links to a hidden |participants| table.  If you
+want to investigate this information, see section \ref{sec:views} on how to
+access this information.
 
 %hidden:client_addresses
 
@@ -248,10 +278,9 @@ The |client_address_id| field links to a hidden |client_address| table.
 However, you can assume that there is a one-to-one mapping between
 |client_address_id| and IP addresses from which the event is sent.
 
-
 \section{Start/Finish Events}
 
-\subsection{\lstinline|bluej_start| and \lstinline|bluej_finish|}
+\subsection{\lstinline!bluej_start! and \lstinline!bluej_finish!}
 
 These two events have no extra accompanying event.  They have no
 |project_id| and no |package_id|.  However, the |bluej_start| event:
@@ -280,21 +309,21 @@ BlueJ extension.  BlueJ comes with the submitter extension installed by default.
 
 \section{Project Events}
 
-\subsection{\lstinline|project_opening|}
+\subsection{\lstinline!project_opening!}
 
 This event has no |package_id|.
 
 This event will have zero or more entries in the \tabref{extensions}, which
 represent extensions loaded from this project's directory.
 
-\subsection{\lstinline|project_closing|}
+\subsection{\lstinline!project_closing!}
 
 This event will no attached data, and will have no |package_id|.
 
 
 \section{Package Events}
 
-\subsection{\lstinline|package_opening|}
+\subsection{\lstinline!package_opening!}
 
 This event will have a |package_id|.
 
@@ -311,14 +340,14 @@ the BlueJ book).
 
 %schema:source_hashes
 
-\subsection{\lstinline|package_closing|}
+\subsection{\lstinline!package_closing!}
 
 This event will have a |package_id|, but no other associated data.
 
 
 \section{Editing}
 
-\subsection{\lstinline|edit|}
+\subsection{\lstinline!edit!}
 
 This event is the central editing event in BlueJ.  These events are recorded
 when multiple lines are edited at once (e.g. via paste, or deleting a
@@ -335,7 +364,7 @@ all edits will be flushed before a compile event.
 The event will always have exactly one associated entry in the
 \tabref{source_histories}, which will be a |diff| event.
 
-\subsection{\lstinline|file_add|}
+\subsection{\lstinline!file_add!}
 
 This event will have a |package_id|, which indicates which package the file
 was added to.
@@ -347,7 +376,7 @@ version control.
 The event will always have exactly one associated entry in the
 \tabref{source_histories}, which will be a |complete| event.
 
-\subsection{\lstinline|file_delete|}
+\subsection{\lstinline!file_delete!}
 
 This event will have a |package_id|, which indicates which package the file
 was deleted from.
@@ -358,7 +387,7 @@ may be via the interface, or via version control.
 The event will always have exactly one associated entry in the
 \tabref{source_histories}, which will be a |file_delete| event.
 
-\subsection{\lstinline|rename|}
+\subsection{\lstinline!rename!}
 
 This event will have a |package_id|, which indicates which package the file
 was renamed in.
@@ -375,7 +404,7 @@ The event will always have exactly one associated entry in the
 
 \section{Compilation}
 
-\subsection{\lstinline|compile|}
+\subsection{\lstinline!compile!}
 
 This event will have a |package_id| if and only if all the compiled files were
 in the same package.  However, having a |package_id| does not necessarily
@@ -420,7 +449,7 @@ compiler  (lines and columns begin at 1, not 0).
 
 \section{Miscellaneous Events}
 
-\subsection{\lstinline|resetting_vm|}
+\subsection{\lstinline!resetting_vm!}
 
 This event has no |package_id|, because the debug VM is per-project.
 
@@ -428,7 +457,7 @@ The event occurs when the VM is restarted due to an explicit user request (via
 a menu).  Although it has the same effect as the |debugger_terminate| event,
 it is recorded separately.
 
-\subsection{\lstinline|terminal_open| and \lstinline|terminal_close|}
+\subsection{\lstinline!terminal_open! and \lstinline!terminal_close!}
 
 These events have no |package_id|, because there is only one terminal
 per project.
@@ -450,7 +479,7 @@ source file and a line number (line numbers begin at 1, not 0).
 
 %schema:breakpoints \intern
 
-\subsection{\lstinline|debugger_open| and \lstinline|debugger_close|}
+\subsection{\lstinline!debugger_open! and \lstinline!debugger_close!}
 
 These events have no |package_id| (because the debugger is per-project).
 
@@ -458,7 +487,7 @@ These events occur when the debugger window is opened or closed.  The debugger
 may open because the user explicitly opened the debugger (via the menu), or
 because the code has hit a breakpoint.  No further data is attached.
 
-\subsection{\lstinline|debugger_terminate|}
+\subsection{\lstinline!debugger_terminate!}
 
 This event has no |package_id| (because the debugger is per-project).
 
@@ -467,7 +496,7 @@ It kills the current debug VM (which will be subsequently restarted, but will
 be idle), and thus all currently-executing user code.  No
 further data is attached.
 
-\subsection{\lstinline|debugger_continue|}
+\subsection{\lstinline!debugger_continue!}
 
 This event has no |package_id| (because the debugger is per-project).
 
@@ -479,7 +508,7 @@ The |event_type| field will always be |DebuggerEvent|, and the |event_id| will
 reference an entry in the \tabref{debugger_events}.  The |debugger_events|
 entry will have the |thread_name| filled in, but there will be no further information.
 
-\subsection{\lstinline|debugger_hit_breakpoint|, \lstinline|debugger_stepinto|, \lstinline|debugger_stepover| and \lstinline|debugger_halt|}
+\subsection{\lstinline!debugger_hit_breakpoint!, \lstinline!debugger_stepinto!, \lstinline!debugger_stepover! and \lstinline!debugger_halt!}
 
 These events have no |package_id| (because the debugger is per-project).
 
@@ -499,7 +528,7 @@ There will also be one or more entries in the \tabref{stack_entries} which
 will link to the |debugger_event| (not the master event) via the
 |stack_entries.sub_event_type| and |stack_entries.sub_event_id| fields.
 
-\subsection{\lstinline|debugger_breakpoint_add| and \lstinline|debugger_breakpoint_remove|}
+\subsection{\lstinline!debugger_breakpoint_add! and \lstinline!debugger_breakpoint_remove!}
 
 These events do have a |package_id|, which indicates the package that the
 involved source file is in.
@@ -511,7 +540,7 @@ the \tabref{breakpoints}, which details the location of the breakpoint.
 
 \section{Codepad}
 
-\subsection{\lstinline|codepad|}
+\subsection{\lstinline!codepad!}
 
 These events have a |package_id|, which indicates which package window the
 codepad being used corresponds to (more by accident than by design, each
@@ -544,7 +573,7 @@ Method invocations reference the |invocations| table.
 
 %schema:invocations
 
-\subsection{\lstinline|invoke_method|}
+\subsection{\lstinline!invoke_method!}
 
 This event has a |package_id| field, which indicates which package window the
 method was invoked from.  The method invoked is not guaranteed to be in this
@@ -583,7 +612,7 @@ The inspector events reference the inspectors table.
 
 %schema:inspectors
 
-\subsection{\lstinline|inspector_show| and \lstinline|inspector_hide|}
+\subsection{\lstinline!inspector_show! and \lstinline!inspector_hide!}
 
 This event has a |package_id| field, which indicates which package window the
 inspection was invoked from.  This is transitive, for occasions where users
@@ -615,7 +644,7 @@ entry that was hidden.
 
 \section{Object Bench}
 
-\subsection{\lstinline|bench_get|}
+\subsection{\lstinline!bench_get!}
 
 This event has a |package_id|, linking to which package the object
 bench is associated with.
@@ -631,7 +660,7 @@ the object which was added to the bench.
 If a test was being recorded at the time, the |bench_objects| entry
 will have a link to the |tests| table, indicating which test was being recorded.
 
-\subsection{\lstinline|remove_object|}
+\subsection{\lstinline!remove_object!}
 
 This event has a |package_id|, linking to which package the object
 bench is associated with.
@@ -643,7 +672,7 @@ the object which was removed from the bench.
 
 \section{Testing}
 
-\subsection{\lstinline|run_test|}
+\subsection{\lstinline!run_test!}
 
 This event has a |package_id|, linking to which package the test class
 is in.
@@ -654,11 +683,21 @@ run will get its own |run_test| event.
 
 The event links to an entry in the |test_results| table.
 
-%TODO document test_results
+%schema:test_results
 
+The |class_name| and |method_name| fields describe which test method was
+executed.  The |run_time| field has the number of milliseconds that the test
+took to execute.  The |result| field will have one of three values:
 
+\begin{itemize}
+\item |"success"| -- the test passed, no further information is supplied.
+\item |"failure"| -- the test failed with a failed assertion.  The
+  |exception_message| and |exception_trace| fields have more information.
+\item |"error"| -- the test failed due to an exception (other than an assertion).  The
+  |exception_message| and |exception_trace| fields have more information.
+\end{itemize}
 
-\subsection{\lstinline|assertion|}
+\subsection{\lstinline!assertion!}
 
 This event has a |package_id|, linking to which package the test was
 recorded for.
@@ -685,18 +724,18 @@ Each version control event has an associated entry in the
 |version_control_events| table, with a |vcs_type| (built-in options:
 |"CVS"|, |"SVN"|) and a |protocol| (e.g. |"http"| or |"svn+ssh"|).
 
-\subsection{\lstinline|vcs_history| and \lstinline|vcs_share|}
+\subsection{\lstinline!vcs_history! and \lstinline!vcs_share!}
 
 These events get an associated entry in the |version_control_events|
 table, but no more data than that.
 
-\subsection{\lstinline|vcs_commit| and \lstinline|vcs_update|}
+\subsection{\lstinline!vcs_commit! and \lstinline!vcs_update!}
 
 These events get an associated entry in the |version_control_events|
 table, and also zero or more entries in the |version_control_files|
 table, with just the |file| field filled in.
 
-\subsection{\lstinline|vcs_status|}
+\subsection{\lstinline!vcs_status!}
 
 This event gets an associated entry in the |version_control_events|
 table, and also zero or more entries in the |version_control_files|
@@ -735,8 +774,7 @@ created (the first time their UUID was seen), and the \texttt{last\_update} fiel
 this user.
 
 The \texttt{last\_sequence\_id} field is the last \hyperref[def:sequence_id]{sequence identifier} seen for
-this user, and similarly the \texttt{last\_institution\_id} is the last
-\hyperref[def:institution_id]{institution identifier} seen for this user.
+this user.
 
 TODO make sure this is up-to-date
 
@@ -748,8 +786,7 @@ Each session is associated with a specific user.  There is a link to
 the \tabref{installation_details} -- specifically, the entry that
 accompanied the |bluej_start| event that began this session.  The
 |identifier| and |last_sequence_id| fields are used for internal
-book-keeping, and can be ignored.  The |institution_id| field is set
-to the last institution seen during the session.
+book-keeping, and can be ignored.
 
 \section{Projects}
 
@@ -844,9 +881,57 @@ The |test_id| field links to an entry in the \tabref{tests} -- this
 link is present if (and only if) the given test was being recorded
 when this object was added to the bench.
 
-\section{Version Control}
+\section{Participant Information}
+\label{sec:views}
+
+To keep participant information (see section \ref{sec:participants}) hidden,
+we hide the actual table involved, |participants|, and instead offer three
+database views of the information.
+
+%schema:participant_identifiers_for_experiment
+
+The |participant_identifiers_for_experiment| view allows you to see the
+available participant identifiers for a given experiment identifier.  You can
+call the view using a statement such as:
+
+\begin{lstlisting}
+select p.participant_identifier from (select @experiment:="myexperiment") unused, participant_identifiers_for_experiment p;
+\end{lstlisting}
+
+The inner select is a trick to set the |@experiment| parameter to be the
+experiment identifier.  The view then retrieves a list of participant
+identifiers based on the experiment identifier that you supply.
 
 
+%schema:sessions_for_experiment
+
+The |sessions_for_experiment| view allows you to retrieve information for all
+the sessions associated with a given experiment identifier.  A session is
+associated with an experiment identifier (and similarly with a participant
+identifier) if during the last event logged in that session, the user had
+their experiment identifier set to the given value.  So if a user sets their
+identifiers partway through a session (and does not change it again before the
+end of the session), the whole session is deemed to be part of the experiment.
+
+The columns returned are those from the \tabref{sessions}, plus the
+|participant_identifier| column.
+
+The view can be called using a statement such as:
+
+\begin{lstlisting}
+select s.* from (select @experiment:="myexperiment") unused, sessions_for_experiment s;
+\end{lstlisting}
+
+%schema:sessions_for_experiment_participant
+
+The |sessions_for_experiment_participant| view is very similar to
+|sessions_for_experiment|, but also allows you to specify the
+|participant_identifier|.  The columns returned are those from the
+\tabref{sessions}, and the view can be called using:
+
+\begin{lstlisting}
+select s.* from (select @experiment:="myexperiment", @participant:="p001") unused, sessions_for_experiment_participant s;
+\end{lstlisting}
 
 \chapter{TODO List}
 
@@ -875,11 +960,6 @@ when this object was added to the bench.
 
 \section{Tasks}
 
-\begin{itemize}
-\item Check that the UUID is generated properly for new profiles, or profile without
-UUID (or invalid UUID), and is separate to phone-home UUID
-\end{itemize}
-
 Testing/deployment:
 
 \begin{itemize}
@@ -887,7 +967,6 @@ Testing/deployment:
   names -- or at least, make sure distinction is clear)
 \item Make sure multi-threading is properly supported in the debugger
 \item Make sure AJAX live stream is off in production!
-\item Add views for white, remove visibility of ip and institution?
 \end{itemize}
 
 \section{Questions}
