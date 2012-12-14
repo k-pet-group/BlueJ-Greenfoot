@@ -85,6 +85,160 @@ public class MiscPrefPanel extends JPanel
 
         box.add(Box.createVerticalGlue());
 
+        box.add(makeDocumentationPanel());
+        
+        if (Config.isGreenfoot()) {
+            box.add(makePlayerNamePanel());
+        }
+        else {
+            box.add(makeVMPanel());
+            box.add(makeDataCollectionPanel());
+        }
+        box.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
+    }
+
+    private JPanel makeDataCollectionPanel()
+    {
+        JPanel dataCollectionPanel = new JPanel();
+        dataCollectionPanel.setLayout(new BoxLayout(dataCollectionPanel, BoxLayout.Y_AXIS));
+        dataCollectionPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createTitledBorder(Config.getString("prefmgr.collection.title")),
+                 BlueJTheme.generalBorder));
+        dataCollectionPanel.setAlignmentX(LEFT_ALIGNMENT);
+        
+        
+        {
+            statusLabel = new JLabel();
+            JButton optButton = new JButton(Config.getString("prefmgr.collection.change"));
+            optButton.addActionListener(new ActionListener() {
+                
+                @Override
+                public void actionPerformed(ActionEvent e)
+                {
+                    DataCollector.changeOptInOut();
+                    statusLabel.setText(DataCollector.getOptInOutStatus());
+                }
+            });
+            JPanel statusPanel = new JPanel();
+            statusPanel.setLayout(new BoxLayout(statusPanel, BoxLayout.X_AXIS));
+            statusPanel.add(statusLabel);
+            statusPanel.add(Box.createHorizontalStrut(15));
+            statusPanel.add(optButton);
+            statusPanel.setAlignmentX(LEFT_ALIGNMENT);
+            dataCollectionPanel.add(statusPanel);
+        }
+        
+        {
+            JLabel identifierLabel = new JLabel(Config.getString("prefmgr.collection.identifier.explanation") + ":");
+            identifierLabel.setAlignmentX(LEFT_ALIGNMENT);
+            dataCollectionPanel.add(Box.createVerticalStrut(4 * BlueJTheme.generalSpacingWidth));
+            dataCollectionPanel.add(identifierLabel);
+            dataCollectionPanel.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
+            
+            JPanel experimentPanel = new JPanel();
+            experimentPanel.setLayout(new BoxLayout(experimentPanel, BoxLayout.X_AXIS));
+            
+            JLabel experimentLabel = new JLabel(Config.getString("prefmgr.collection.identifier.experiment"));
+            experimentPanel.add(experimentLabel);
+            experimentPanel.add(Box.createHorizontalStrut(BlueJTheme.generalSpacingWidth));
+            experimentIdentifierField = new JTextField(32);
+            experimentIdentifierField.setMaximumSize(experimentIdentifierField.getPreferredSize());
+            experimentPanel.add(experimentIdentifierField);
+            experimentPanel.add(Box.createHorizontalGlue());
+            
+            JPanel participantPanel = new JPanel();
+            participantPanel.setLayout(new BoxLayout(participantPanel, BoxLayout.X_AXIS));
+            
+            JLabel participantLabel = new JLabel(Config.getString("prefmgr.collection.identifier.participant"));
+            participantPanel.add(participantLabel);
+            participantPanel.add(Box.createHorizontalStrut(BlueJTheme.generalSpacingWidth));
+            participantIdentifierField = new JTextField(32);
+            participantIdentifierField.setMaximumSize(participantIdentifierField.getPreferredSize());
+            participantPanel.add(participantIdentifierField);
+            participantPanel.add(Box.createHorizontalGlue());
+            
+            // Make labels same width:
+            Dimension labelSize = maxByWidth(participantLabel.getPreferredSize(), experimentLabel.getPreferredSize());
+            experimentLabel.setPreferredSize(labelSize);
+            participantLabel.setPreferredSize(labelSize);
+            
+            experimentPanel.setAlignmentX(LEFT_ALIGNMENT);
+            participantPanel.setAlignmentX(LEFT_ALIGNMENT);
+            dataCollectionPanel.add(experimentPanel);
+            dataCollectionPanel.add(participantPanel);
+        }
+        return dataCollectionPanel;
+    }
+
+    private JPanel makeVMPanel()
+    {
+        JPanel vmPanel = new JPanel(new GridLayout(0,1,0,0));
+        {
+            vmPanel.setBorder(BorderFactory.createCompoundBorder(
+                                          BorderFactory.createTitledBorder(
+                                                 Config.getString("prefmgr.misc.vm.title")),
+                                          BlueJTheme.generalBorder));
+            vmPanel.setAlignmentX(LEFT_ALIGNMENT);
+
+            showUncheckedBox = new JCheckBox(Config.getString("prefmgr.misc.showUnchecked"));
+            if (Config.isJava15()) {
+                // "unchecked" warnings only occur in Java 5.
+                vmPanel.add(showUncheckedBox);
+            }
+        }
+        return vmPanel;
+    }
+
+    private JPanel makePlayerNamePanel()
+    {
+        JPanel playerNamePanel = new JPanel();
+                  
+        playerNamePanel.setLayout(new BoxLayout(playerNamePanel, BoxLayout.Y_AXIS));
+        String playerNameTitle = Config.getString("prefmgr.misc.playername.title");
+        playerNamePanel.setBorder(BorderFactory.createCompoundBorder(
+                                    BorderFactory.createTitledBorder(playerNameTitle),
+                                    BlueJTheme.generalBorder));
+        playerNamePanel.setAlignmentX(LEFT_ALIGNMENT);
+        
+        // get Accelerator text
+        String shortcutText = " ";
+        KeyStroke accelerator = Config.GREENFOOT_SET_PLAYER_NAME_SHORTCUT;
+        if (accelerator != null) {
+            int modifiers = accelerator.getModifiers();
+            if (modifiers > 0) {
+                shortcutText += KeyEvent.getKeyModifiersText(modifiers);
+                shortcutText += Config.isMacOS() ? "" : "+";
+            }
+
+            int keyCode = accelerator.getKeyCode();
+            if (keyCode != 0) {
+                shortcutText += KeyEvent.getKeyText(keyCode);
+            } else {
+                shortcutText += accelerator.getKeyChar();
+            }
+        }
+        
+        playerNamePanel.add(new JLabel(Config.getString("playername.dialog.help")));
+        
+        playerNameField = new JTextField(Config.getPropString("extensions.rmiextension.RMIExtension.settings.greenfoot.player.name", "Player"), 20);
+        playerNameField.setMaximumSize(playerNameField.getPreferredSize());
+        JPanel namePanel = new JPanel();
+        namePanel.setLayout(new BoxLayout(namePanel, BoxLayout.X_AXIS));
+        namePanel.add(playerNameField);
+        namePanel.add(Box.createHorizontalGlue());
+        playerNamePanel.add(namePanel);
+        
+        
+        JLabel playerNameNote = new JLabel(
+                Config.getString("prefmgr.misc.playerNameNote") + shortcutText);
+        Font smallFont = playerNameNote.getFont().deriveFont(10);
+        playerNameNote.setFont(smallFont);
+        playerNamePanel.add(playerNameNote);
+        return playerNamePanel;
+    }
+
+    private JPanel makeDocumentationPanel()
+    {
         JPanel docPanel = new JPanel();
         {
             docPanel.setLayout(new BoxLayout(docPanel, BoxLayout.Y_AXIS));
@@ -125,146 +279,7 @@ public class MiscPrefPanel extends JPanel
             linkToLibNoteLine2.setAlignmentX(LEFT_ALIGNMENT);
             docPanel.add(linkToLibNoteLine2);
         }
-        box.add(docPanel);
-        
-        if (Config.isGreenfoot()) {
-            JPanel playerNamePanel = new JPanel();
-                      
-            playerNamePanel.setLayout(new BoxLayout(playerNamePanel, BoxLayout.Y_AXIS));
-            String playerNameTitle = Config.getString("prefmgr.misc.playername.title");
-            playerNamePanel.setBorder(BorderFactory.createCompoundBorder(
-                                        BorderFactory.createTitledBorder(playerNameTitle),
-                                        BlueJTheme.generalBorder));
-            playerNamePanel.setAlignmentX(LEFT_ALIGNMENT);
-            
-            // get Accelerator text
-            String shortcutText = " ";
-            KeyStroke accelerator = Config.GREENFOOT_SET_PLAYER_NAME_SHORTCUT;
-            if (accelerator != null) {
-                int modifiers = accelerator.getModifiers();
-                if (modifiers > 0) {
-                    shortcutText += KeyEvent.getKeyModifiersText(modifiers);
-                    shortcutText += Config.isMacOS() ? "" : "+";
-                }
-
-                int keyCode = accelerator.getKeyCode();
-                if (keyCode != 0) {
-                    shortcutText += KeyEvent.getKeyText(keyCode);
-                } else {
-                    shortcutText += accelerator.getKeyChar();
-                }
-            }
-            
-            playerNamePanel.add(new JLabel(Config.getString("playername.dialog.help")));
-            
-            playerNameField = new JTextField(Config.getPropString("extensions.rmiextension.RMIExtension.settings.greenfoot.player.name", "Player"), 20);
-            playerNameField.setMaximumSize(playerNameField.getPreferredSize());
-            JPanel namePanel = new JPanel();
-            namePanel.setLayout(new BoxLayout(namePanel, BoxLayout.X_AXIS));
-            namePanel.add(playerNameField);
-            namePanel.add(Box.createHorizontalGlue());
-            playerNamePanel.add(namePanel);
-            
-            
-            JLabel playerNameNote = new JLabel(
-                    Config.getString("prefmgr.misc.playerNameNote") + shortcutText);
-            Font smallFont = playerNameNote.getFont().deriveFont(10);
-            playerNameNote.setFont(smallFont);
-            playerNamePanel.add(playerNameNote);
-                        
-            box.add(playerNamePanel);
-        }
-        else {
-            JPanel vmPanel = new JPanel(new GridLayout(0,1,0,0));
-            {
-                vmPanel.setBorder(BorderFactory.createCompoundBorder(
-                                              BorderFactory.createTitledBorder(
-                                                     Config.getString("prefmgr.misc.vm.title")),
-                                              BlueJTheme.generalBorder));
-                vmPanel.setAlignmentX(LEFT_ALIGNMENT);
-
-                showUncheckedBox = new JCheckBox(Config.getString("prefmgr.misc.showUnchecked"));
-                if (Config.isJava15()) {
-                    // "unchecked" warnings only occur in Java 5.
-                    vmPanel.add(showUncheckedBox);
-                }
-            }
-            box.add(vmPanel);
-            
-            {
-                JPanel dataCollectionPanel = new JPanel();
-                dataCollectionPanel.setLayout(new BoxLayout(dataCollectionPanel, BoxLayout.Y_AXIS));
-                dataCollectionPanel.setBorder(BorderFactory.createCompoundBorder(
-                        BorderFactory.createTitledBorder(Config.getString("prefmgr.collection.title")),
-                         BlueJTheme.generalBorder));
-                dataCollectionPanel.setAlignmentX(LEFT_ALIGNMENT);
-                
-                
-                {
-                    statusLabel = new JLabel();
-                    JButton optButton = new JButton(Config.getString("prefmgr.collection.change"));
-                    optButton.addActionListener(new ActionListener() {
-                        
-                        @Override
-                        public void actionPerformed(ActionEvent e)
-                        {
-                            DataCollector.changeOptInOut();
-                            statusLabel.setText(DataCollector.getOptInOutStatus());
-                        }
-                    });
-                    JPanel statusPanel = new JPanel();
-                    statusPanel.setLayout(new BoxLayout(statusPanel, BoxLayout.X_AXIS));
-                    statusPanel.add(statusLabel);
-                    statusPanel.add(Box.createHorizontalStrut(15));
-                    statusPanel.add(optButton);
-                    statusPanel.setAlignmentX(LEFT_ALIGNMENT);
-                    dataCollectionPanel.add(statusPanel);
-                }
-                
-                {
-                    JLabel identifierLabel = new JLabel(Config.getString("prefmgr.collection.identifier.explanation") + ":");
-                    identifierLabel.setAlignmentX(LEFT_ALIGNMENT);
-                    dataCollectionPanel.add(Box.createVerticalStrut(4 * BlueJTheme.generalSpacingWidth));
-                    dataCollectionPanel.add(identifierLabel);
-                    dataCollectionPanel.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
-                    
-                    JPanel experimentPanel = new JPanel();
-                    experimentPanel.setLayout(new BoxLayout(experimentPanel, BoxLayout.X_AXIS));
-                    
-                    JLabel experimentLabel = new JLabel(Config.getString("prefmgr.collection.identifier.experiment"));
-                    experimentPanel.add(experimentLabel);
-                    experimentPanel.add(Box.createHorizontalStrut(BlueJTheme.generalSpacingWidth));
-                    experimentIdentifierField = new JTextField(32);
-                    experimentIdentifierField.setMaximumSize(experimentIdentifierField.getPreferredSize());
-                    experimentPanel.add(experimentIdentifierField);
-                    experimentPanel.add(Box.createHorizontalGlue());
-                    
-                    JPanel participantPanel = new JPanel();
-                    participantPanel.setLayout(new BoxLayout(participantPanel, BoxLayout.X_AXIS));
-                    
-                    JLabel participantLabel = new JLabel(Config.getString("prefmgr.collection.identifier.participant"));
-                    participantPanel.add(participantLabel);
-                    participantPanel.add(Box.createHorizontalStrut(BlueJTheme.generalSpacingWidth));
-                    participantIdentifierField = new JTextField(32);
-                    participantIdentifierField.setMaximumSize(participantIdentifierField.getPreferredSize());
-                    participantPanel.add(participantIdentifierField);
-                    participantPanel.add(Box.createHorizontalGlue());
-                    
-                    // Make labels same width:
-                    Dimension labelSize = maxByWidth(participantLabel.getPreferredSize(), experimentLabel.getPreferredSize());
-                    experimentLabel.setPreferredSize(labelSize);
-                    participantLabel.setPreferredSize(labelSize);
-                    
-                    experimentPanel.setAlignmentX(LEFT_ALIGNMENT);
-                    participantPanel.setAlignmentX(LEFT_ALIGNMENT);
-                    dataCollectionPanel.add(experimentPanel);
-                    dataCollectionPanel.add(participantPanel);
-                }
-                
-                box.add(dataCollectionPanel);
-            }
-        }
-        box.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
+        return docPanel;
     }
 
     private Dimension maxByWidth(Dimension a, Dimension b)
