@@ -59,9 +59,9 @@ import bluej.utility.Utility;
  * DataCollector for sending off data.
  * 
  * You can call these methods under any setting. It is this class's responsibility to check:
- *  - That the user has actually opted in (TODO)
+ *  - That the user has actually opted in
  *  - That we're not running Greenfoot
- *  - That we don't keep attempting to send when there's no net connection (TODO)
+ *  - That we don't keep attempting to send when there's no net connection (actually, DataSubmitter checks this for us)
  */
 public class DataCollector
 {
@@ -74,11 +74,19 @@ public class DataCollector
      * We decide at the very beginning of the session whether we are recording, based
      * on whether the user was opted in.  Starting to record mid-session is fairly
      * useless, so even if the user opts in during the session, we won't record
-     * their data until the next session begins:
+     * their data until the next session begins.  Thus, this variable
+     * will never change after startSession() has been called:
      */
     private static boolean recordingThisSession;
-    private static String uuid;
+    /**
+     * Session identifier.  Never changes after startSession() has been called:
+     */
     private static String sessionUuid;
+    
+    /**
+     * These three variables can change during the execution:
+     */
+    private static String uuid;
     private static String experimentIdentifier;
     private static String participantIdentifier;
     
@@ -90,45 +98,68 @@ public class DataCollector
      */
     private static IdentityHashMap<Inspector, Package> inspectorPackages = new IdentityHashMap<Inspector, Package>();
 
-
+    /**
+     * Checks whether we should send data.  This takes into account whether we
+     * are in Greenfoot, and opt-in status.  It doesn't check whether we have stopped
+     * sending due to connection problems -- DataSubmitter keeps track of that.
+     */
     private static boolean dontSend()
     {
         return Config.isGreenfoot() || !recordingThisSession;
     }
     
-    public static String getUserID()
-    {
-        return Config.getPropString(PROPERTY_UUID, null);
-    }
-    
-    private static void initSessionId()
-    {
-        sessionUuid = UUID.randomUUID().toString();
-    }
-
-    private static void loadUserInformation()
-    {
-        DataSubmitter.initSequence();
-        uuid = Config.getPropString(PROPERTY_UUID, null);
-        if (uuid == null || true /* temporary */)
-        {
-            // If they have no uuid stored, they haven't yet opted in or opted out:
-            changeOptInOut();
-        }
-        
-        recordingThisSession = uuidValidForRecording();
-
-        //experimentIdentifier = Config.getPropString(PROPERTY_EXPERIMENT, null);
-        //participantIdentifier = Config.getPropString(PROPERTY_PARTICIPANT, null);
-    }
-    
-    private static boolean uuidValidForRecording()
+    /**
+     * Checks if the user's UUID would be valid for recording, which is another way
+     * of asking if the user has opted in.  However, this is not the same as "are we currently
+     * sending data for this user", because if they opt-in mid-session, this method
+     * will return true, but dontSend() will also return true (because recordingThisSession
+     * will be false; it is set once at the very beginning of the session).
+     */
+    private static synchronized boolean uuidValidForRecording()
     {
         return !(OPT_OUT.equals(uuid) || uuid == null);
     }
 
+    private static synchronized void startSession()
+    {
+        // Look for an existing UUID:
+        uuid = Config.getPropString(PROPERTY_UUID, null);
+        
+        // If there is no UUID in the file, ask them if they want to opt in or opt out:
+        if (uuid == null || true /* temporary */)
+        {
+            changeOptInOut();
+        }
+        
+        recordingThisSession = uuidValidForRecording();
+        
+        if (recordingThisSession)
+        {
+            // Initialise the session:
+            DataSubmitter.initSequence();
+            sessionUuid = UUID.randomUUID().toString();
+        }
+        
+        // We fetch these regardless, so that everything is consistent
+        // if the user opts in and edits them mid-session:
+        experimentIdentifier = Config.getPropString(PROPERTY_EXPERIMENT, null);
+        participantIdentifier = Config.getPropString(PROPERTY_PARTICIPANT, null);
+    }
+    
+    /**
+     * Gets the user's UUID
+     */
+    public static synchronized String getUserID()
+    {
+        return uuid;
+    }
+
+    /**
+     * Gets a String to display to the user in the preferences, explaining their
+     * current opt-in/recording status
+     */
     //TODO localise
-    public static String getOptInOutStatus()
+    public static synchronized String getOptInOutStatus()
     {
         if (recordingThisSession)
         {
@@ -144,7 +175,11 @@ public class DataCollector
         }
     }
 
-    public static void changeOptInOut()
+    /**
+     * Show a dialog to ask the user for their opt-in/opt-out preference,
+     * and then update the UUID accordingly
+     */
+    public static synchronized void changeOptInOut()
     {
         DataCollectionDialog dlg = new DataCollectionDialog();
         dlg.setLocationRelativeTo(null); // Centre on screen
@@ -152,9 +187,9 @@ public class DataCollector
         
         if (dlg.optedIn())
         {
+            // Only generate new UUID if didn't have one already:
             if (!uuidValidForRecording())
             {
-                // Only generate new UUID if didn't have one already:
                 uuid = UUID.randomUUID().toString();
             }
         }
@@ -230,6 +265,12 @@ public class DataCollector
         final String projectPathHash = project == null ? null : CollectUtility.md5Hash(project.getProjectDir().getAbsolutePath());
         final String packageName = pkg == null ? null : pkg.getQualifiedName();
         
+        // We take a copy of these internal variables, so that we don't have a race hazard
+        // if the variable changes between now and the event being sent:
+        final String uuidCopy = uuid;
+        final String experimentCopy = experimentIdentifier;
+        final String participantCopy = participantIdentifier;
+        
         /**
          * Wrap the Event we've been given to add the other normal expected fields:
          */
@@ -248,8 +289,11 @@ public class DataCollector
                 if (mpe == null)
                     return null;
                 
-                mpe.addPart("user[uuid]", CollectUtility.toBody(uuid));
+                mpe.addPart("user[uuid]", CollectUtility.toBody(uuidCopy));
                 mpe.addPart("session[id]", CollectUtility.toBody(sessionUuid));
+                mpe.addPart("participant[experiment]", CollectUtility.toBody(experimentCopy));
+                mpe.addPart("participant[participant]", CollectUtility.toBody(participantCopy));
+                
                 if (projectName != null)
                 {
                     mpe.addPart("project[name]", CollectUtility.toBody(projectName));
@@ -305,8 +349,7 @@ public class DataCollector
     public static void bluejOpened(String osVersion, String javaVersion, String bluejVersion, String interfaceLanguage, List<ExtensionWrapper> extensions)
     {
         if (Config.isGreenfoot()) return; //Don't even look for UUID
-        loadUserInformation();
-        initSessionId();
+        startSession();
         
         MultipartEntity mpe = new MultipartEntity();
         
@@ -900,6 +943,28 @@ public class DataCollector
         mpe.addPart("event[vcs][vcs_type]", CollectUtility.toBody(repo.getVCSType()));
         mpe.addPart("event[vcs][protocol]", CollectUtility.toBody(repo.getVCSProtocol()));
         return mpe;
+    }
+
+    public static String getExperimentIdentifier()
+    {
+        return experimentIdentifier;
+    }
+
+    public static synchronized void setExperimentIdentifier(String experimentIdentifier)
+    {
+        DataCollector.experimentIdentifier = experimentIdentifier;
+        Config.putPropString(PROPERTY_EXPERIMENT, experimentIdentifier);
+    }
+
+    public static String getParticipantIdentifier()
+    {
+        return participantIdentifier;
+    }
+
+    public static synchronized void setParticipantIdentifier(String participantIdentifier)
+    {
+        DataCollector.participantIdentifier = participantIdentifier;
+        Config.putPropString(PROPERTY_PARTICIPANT, experimentIdentifier);
     }
 
 }
