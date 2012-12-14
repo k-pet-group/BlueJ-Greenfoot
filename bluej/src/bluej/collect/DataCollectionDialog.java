@@ -24,39 +24,27 @@ package bluej.collect;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.io.IOException;
-import java.net.URISyntaxException;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
-import javax.swing.JTextArea;
-import javax.swing.JTextPane;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.MutableAttributeSet;
-import javax.swing.text.StyleConstants;
-import javax.swing.text.StyledDocument;
 import javax.swing.text.html.HTMLDocument;
 
 import bluej.Config;
@@ -112,14 +100,22 @@ class DataCollectionDialog extends JDialog
         JEditorPane text = new JEditorPane();
         text.setContentType("text/html");
 
-        String content = "<p>" + Config.getString("collect.dialog.ethics1") + 
+        String content = "<html><body><p>" + Config.getString("collect.dialog.ethics1") + 
                 "  <a href='http://www.bluej.org/blackbox.html'>" + Config.getString("collect.dialog.ethics.seemore") + "</a>.</p>" +
-                "<p>" + Config.getString("collect.dialog.ethics2") + "</p>";
+                "<p>" + Config.getString("collect.dialog.ethics2") + "</p></body></html>";
         text.setText(content);
         text.setEditable(false);
         text.setAlignmentX(Component.LEFT_ALIGNMENT);
-        // Make it same background colour as the window:
-        text.setBackground(getBackground());
+
+        // We want to make it same background colour as the window.  However,
+        // setBackground doesn't work reliably with Nimbus (at least on Linux),
+        // so making the background transparent is a more reliable way to have
+        // the background the same colour as the underlying window
+        // (although there is an old bug that may cause problems on early JDK 6:
+        //  http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6687960 )
+        text.setOpaque(false);
+        text.setBackground(new Color(0,0,0,0));
+        
         // Make it same font as the top label:
         Font labelFont = UIManager.getFont("Label.font");
         // but slightly smaller, to de-emphasise the large chunk of text.
