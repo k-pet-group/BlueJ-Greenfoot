@@ -23,6 +23,7 @@ package bluej.prefmgr;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
@@ -127,6 +128,17 @@ public class MiscPrefPanel extends JPanel
             statusPanel.setAlignmentX(LEFT_ALIGNMENT);
             dataCollectionPanel.add(statusPanel);
         }
+        
+        //Just for the 3.1.0 beta:
+        JPanel uuidPanel = new JPanel();
+        uuidPanel.setLayout(new BoxLayout(uuidPanel, BoxLayout.X_AXIS));
+        uuidPanel.add(new JLabel("UUID [only shown in beta]:"));
+        JTextField uuidField = new JTextField(DataCollector.getUserID());
+        uuidField.setEditable(false);
+        uuidPanel.add(uuidField);
+        uuidPanel.setAlignmentX(LEFT_ALIGNMENT);
+        dataCollectionPanel.add(uuidPanel);
+        
         
         {
             JLabel identifierLabel = new JLabel(Config.getString("prefmgr.collection.identifier.explanation") + ":");
