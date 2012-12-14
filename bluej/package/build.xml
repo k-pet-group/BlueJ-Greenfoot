@@ -410,11 +410,17 @@
 			<fileset dir="bluejdeb">
 				<patternset includes="**" />
 			</fileset>
+			<dirset dir="bluejdeb">
+				<patternset includes="**" />
+			</dirset>			
 		</chown>
 		<chgrp group="root">
 			<fileset dir="bluejdeb">
 				<patternset includes="**" />
 			</fileset>
+			<dirset dir="bluejdeb">
+				<patternset includes="**" />
+			</dirset>			
 		</chgrp>
 		
 		<chmod perm="+x" file="bluejdeb/DEBIAN/postinst" />
