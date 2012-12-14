@@ -118,7 +118,7 @@ public class DataCollector
      */
     private static synchronized boolean uuidValidForRecording()
     {
-        return !(OPT_OUT.equals(uuid) || uuid == null);
+        return uuid != null && !(OPT_OUT.equals(uuid)) && uuid.length() >= 32;
     }
 
     private static synchronized void startSession()
@@ -126,8 +126,8 @@ public class DataCollector
         // Look for an existing UUID:
         uuid = Config.getPropString(PROPERTY_UUID, null);
         
-        // If there is no UUID in the file, ask them if they want to opt in or opt out:
-        if (uuid == null)
+        // If there is no UUID in the file, or it's invalid, ask them if they want to opt in or opt out:
+        if (!(OPT_OUT.equals(uuid)) && !uuidValidForRecording() )
         {
             changeOptInOut();
         }
