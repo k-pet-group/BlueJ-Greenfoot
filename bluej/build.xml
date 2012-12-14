@@ -14,11 +14,11 @@
      This is the only place you need to change the version number.
      After changing the version number the target "update-version-number" should be run -->
     <property name="bluej.version.major" value="3" />
-    <property name="bluej.version.minor" value="0" />
-    <property name="bluej.version.release" value="7" />
-    <property name="bluej.version.suffix" value="" />
+    <property name="bluej.version.minor" value="1" />
+    <property name="bluej.version.release" value="0" />
+    <property name="bluej.version.suffix" value="beta1" />
 	<!-- suffix with no spaces, eg "pre2" -->
-	<property name="bluej.version.nonspace.suffix" value="" />
+	<property name="bluej.version.nonspace.suffix" value="beta1" />
     
 	<property name="bluej.version" value="${bluej.version.major}.${bluej.version.minor}.${bluej.version.release}${bluej.version.suffix}" />
     <property name="bluej.version.nodots" value="${bluej.version.major}${bluej.version.minor}${bluej.version.release}${bluej.version.suffix}" />
