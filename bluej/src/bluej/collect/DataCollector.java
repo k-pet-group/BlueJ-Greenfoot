@@ -75,12 +75,23 @@ import bluej.utility.Utility;
 public class DataCollector
 {
     private static final String PROPERTY_UUID = "blackbox.uuid";
+    private static final String PROPERTY_EXPERIMENT = "blackbox.experiment";
+    private static final String PROPERTY_PARTICIPANT = "blackbox.participant";
     private static final String OPT_OUT = "optout";
     
     private static final Charset utf8 = Charset.forName("UTF-8");
     
+    /**
+     * We decide at the very beginning of the session whether we are recording, based
+     * on whether the user was opted in.  Starting to record mid-session is fairly
+     * useless, so even if the user opts in during the session, we won't record
+     * their data until the next session begins:
+     */
+    private static boolean recordingThisSession;
     private static String uuid;
     private static String sessionUuid;
+    private static String experimentIdentifier;
+    private static String participantIdentifier;
     
     /**
      * In BlueJ, the Project holds the list of inspectors, even though really
@@ -120,7 +131,7 @@ public class DataCollector
     
     private static boolean dontSend()
     {
-        return Config.isGreenfoot() || !isOptedIn();
+        return Config.isGreenfoot() || !recordingThisSession;
     }
     
     public static String getUserID()
@@ -142,16 +153,33 @@ public class DataCollector
             // If they have no uuid stored, they haven't yet opted in or opted out:
             changeOptInOut();
         }
+        
+        recordingThisSession = uuidValidForRecording();
+
+        //experimentIdentifier = Config.getPropString(PROPERTY_EXPERIMENT, null);
+        //participantIdentifier = Config.getPropString(PROPERTY_PARTICIPANT, null);
     }
     
-    private static boolean isOptedIn()
+    private static boolean uuidValidForRecording()
     {
         return !(OPT_OUT.equals(uuid) || uuid == null);
     }
 
+    //TODO localise
     public static String getOptInOutStatus()
     {
-        return "You are currently opted " + (DataCollector.isOptedIn() ? "in to" : "out of") + " the data collection research";
+        if (recordingThisSession)
+        {
+            return "You are currently opted in to the data collection research";
+        }
+        else if (uuidValidForRecording())
+        {
+            return "You have opted in to the data collection research; recording will begin next time BlueJ is loaded";
+        }
+        else
+        {
+            return "You are currently not participating in the data collection research";
+        }
     }
 
     public static void changeOptInOut()
@@ -162,7 +190,7 @@ public class DataCollector
         
         if (dlg.optedIn())
         {
-            if (!isOptedIn())
+            if (!uuidValidForRecording())
             {
                 // Only generate new UUID if didn't have one already:
                 uuid = UUID.randomUUID().toString();
