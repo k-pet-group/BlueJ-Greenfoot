@@ -965,7 +965,7 @@ public class DataCollector
     public static synchronized void setParticipantIdentifier(String participantIdentifier)
     {
         DataCollector.participantIdentifier = participantIdentifier;
-        Config.putPropString(PROPERTY_PARTICIPANT, experimentIdentifier);
+        Config.putPropString(PROPERTY_PARTICIPANT, participantIdentifier);
     }
 
 }
