@@ -78,11 +78,6 @@ public class DataCollector
     private static final String OPT_OUT = "optout";
     
     private static final Charset utf8 = Charset.forName("UTF-8");
-
-    //private List<BPackage> openPkgs = new ArrayList<BPackage>();
-    
-    /** Whether we've seen the first error in the current compilation yet */
-    //private boolean seenFirstError;
     
     private static String uuid;
     private static String sessionUuid;
@@ -94,12 +89,8 @@ public class DataCollector
      * so that we can re-use it when the inspector is hidden. 
      */
     private static IdentityHashMap<Inspector, Package> inspectorPackages = new IdentityHashMap<Inspector, Package>();
-    
-    /** map from package directory to information on the sources contained within */
-    //private Map<File,Set<SourceInfo>> srcInfoMap = new HashMap<File,Set<SourceInfo>>();
 
-       
-    
+
     private static String readFileAndAnonymise(Project proj, File f)
     {
         try {
@@ -142,7 +133,7 @@ public class DataCollector
         sessionUuid = UUID.randomUUID().toString();
     }
 
-    private static void initUUidSequence()
+    private static void loadUserInformation()
     {
         DataSubmitter.initSequence();
         uuid = Config.getPropString(PROPERTY_UUID, null);
@@ -151,33 +142,6 @@ public class DataCollector
             // If they have no uuid stored, they haven't yet opted in or opted out:
             changeOptInOut();
         }
-        /*
-        else {
-            try {
-                int numFiles = Integer.parseInt(bluej.getExtensionPropertyString(PROPERTY_NUMFILES, "0"));
-                // Read known file change times
-                for (int i = 0; i < numFiles; i++) {
-                    String fname = bluej.getExtensionPropertyString(PROPERTY_FILENAME + i, null);
-                    if (fname == null) break;
-                    String lastModString = bluej.getExtensionPropertyString(PROPERTY_LASTMOD + i, "0");
-                    long lastMod = Long.parseLong(lastModString);
-                    File file = new File(fname);
-                    File parentFile = file.getParentFile();
-
-                    Set<SourceInfo> infoSet = srcInfoMap.get(parentFile);
-                    if (infoSet == null) {
-                        infoSet = new HashSet<SourceInfo>();
-                        srcInfoMap.put(parentFile, infoSet);
-                    }
-
-                    infoSet.add(new SourceInfo(file.getName(), lastMod));
-                }
-            }
-            catch (NumberFormatException nfe) {
-                // Shouldn't happen; just ignore it.
-            }
-        }
-        */
     }
     
     private static boolean isOptedIn()
@@ -209,156 +173,7 @@ public class DataCollector
             uuid = OPT_OUT;
         }
         Config.putPropString(PROPERTY_UUID, uuid);
-    }    
-    
-    /**
-     * Save information which should be persistent across sessions.
-     */
-    private void saveInfo()
-    {
-        /*
-        bluej.setExtensionPropertyString(PROPERTY_UUID, uuid);
-        Set<Map.Entry<File,Set<SourceInfo>>> entrySet = srcInfoMap.entrySet();
-        int fileCount = 0;
-        for (Map.Entry<File,Set<SourceInfo>> entry : entrySet) {
-            File baseDir = entry.getKey();
-            Set<SourceInfo> infoSet = entry.getValue();
-            int i = 0;
-            for (SourceInfo info : infoSet) {
-                File fullFile = new File(baseDir, info.getFilename());
-                bluej.setExtensionPropertyString(PROPERTY_FILENAME + i, fullFile.getPath());
-                bluej.setExtensionPropertyString(PROPERTY_LASTMOD + i, Long.toString(info.getLastModified()));
-                i++;
-                fileCount++;
-            }
-            
-            // Hmm, this doesn't work - causes an exception, BlueJ 3.0.4:
-            // bluej.setExtensionPropertyString(PROPERTY_FILENAME + i, null);
-            // bluej.setExtensionPropertyString(PROPERTY_LASTMOD + i, null);
-        }
-        
-        bluej.setExtensionPropertyString(PROPERTY_NUMFILES, "" + fileCount);
-        */
     }
-    
-    /**
-     * Handle a compilation event - collection information and submit it to the
-     * data collection server in another thread.
-     * 
-     * @param files  the files being compiled (or with the error)
-     * @param lineNum  the line number of the error (ignored if errMsg is null)
-     * @param errMsg  the error message, or null if the compilation succeeded
-     */
-    private void handleCompilationEvent(File[] files, int lineNum, String errMsg)
-    {
-        /*
-        if (files == null || files.length == 0) {
-            return;
-        }
-        
-        File errFile = files[0];
-        File errDir = errFile.getParentFile();
-        
-        // Find what package the error was in:
-        BPackage errPkg = getPackageForDir(errDir);
-        if (errPkg == null) {
-            return;
-        }
-        
-        // Determine which classes have changed, get their content
-        try {
-            BClass[] bclasses = errPkg.getClasses();
-            List<SourceContent> changedFiles = new ArrayList<SourceContent>();
-            
-            classLoop:
-            for (BClass bclass : bclasses) {
-                File sourceFile = bclass.getJavaFile();
-                long lastMod = sourceFile.lastModified();
-                Set<SourceInfo> infoSet = srcInfoMap.get(sourceFile.getParentFile());
-                
-                checkExistingInfo:
-                if (infoSet != null) {
-                    for (SourceInfo info : infoSet) {
-                        if (info.getFilename().equals(sourceFile.getName())) {
-                            if (info.getLastModified() == lastMod) {
-                                continue classLoop;
-                            }
-                            try {
-                                changedFiles.add(new SourceContent(sourceFile));
-                                info.setLastModified(lastMod);
-                                break checkExistingInfo;
-                            }
-                            catch (IOException ioe) {
-                                // Don't really want to cause issues, so just ignore it.
-                                break checkExistingInfo;
-                            }
-                        }
-                    }
-                    // If we get here, there's no existing info for the file:
-                    try {
-                        infoSet.add(new SourceInfo(sourceFile.getName(), lastMod));
-                        changedFiles.add(new SourceContent(sourceFile));
-                    }
-                    catch (IOException ioe) {}
-                }
-                else {
-                    try {
-                        infoSet = new HashSet<SourceInfo>();
-                        infoSet.add(new SourceInfo(sourceFile.getName(), lastMod));
-                        changedFiles.add(new SourceContent(sourceFile));
-                        srcInfoMap.put(sourceFile.getParentFile(), infoSet);
-                    }
-                    catch (IOException ioe) {
-                        // Just ignore.
-                    }
-                }
-            }
-            String errPath = (errMsg == null) ? null : errFile.getPath();
-            //DataSubmitter.submit(uuid, lineNum, errMsg, errPath, changedFiles);
-        }
-        catch (PackageNotFoundException pnfe) {}
-        catch (ProjectNotOpenException pnoe) {}
-        */
-    }
-    
-    /**
-     * Find the open package corresponding to the given directory.
-     */
-    /*
-    private BPackage getPackageForDir(File dir)
-    {
-        BPackage thePkg = null;
-        for (BPackage pkg : openPkgs) {
-            try {
-                if (pkg.getDir().equals(dir)) {
-                    thePkg = pkg;
-                    break;
-                }
-            }
-            catch (PackageNotFoundException pnfe) { }
-            catch (ProjectNotOpenException pnoe) { }
-        }
-        return thePkg;
-    }
-    */
-    /*
-    public static void packageOpened(Package pkg)
-    {
-        if (dontSend()) return;
-        
-        //TODO should this do something?
-    }
-    */
-    /*
-    @Override
-    public void packageClosing(PackageEvent event)
-    {
-        if (Config.isGreenfoot()) return;
-        
-        openPkgs.remove(event.getPackage());
-        saveInfo();
-    }
-    */
 
     /**
      * Submits an event with no extra data.  A useful short-hand for calling submitEvent
@@ -567,7 +382,7 @@ public class DataCollector
     public static void bluejOpened(String osVersion, String javaVersion, String bluejVersion, String interfaceLanguage, List<ExtensionWrapper> extensions)
     {
         if (Config.isGreenfoot()) return; //Don't even look for UUID
-        initUUidSequence();
+        loadUserInformation();
         initSessionId();
         
         MultipartEntity mpe = new MultipartEntity();
