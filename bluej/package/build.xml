@@ -423,8 +423,8 @@
 			</dirset>			
 		</chgrp>
 		
-		<chmod perm="+x" file="bluejdeb/DEBIAN/postinst" />
-		<chmod perm="+x" file="bluejdeb/DEBIAN/postrm" />
+		<chmod perm="755" file="bluejdeb/DEBIAN/postinst" />
+		<chmod perm="755" file="bluejdeb/DEBIAN/postrm" />
 		<exec executable="dpkg-deb" searchpath="true">
 			<arg value="-b" />
 			<arg file="bluejdeb" />
