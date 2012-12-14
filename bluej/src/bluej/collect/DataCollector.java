@@ -75,7 +75,8 @@ public class DataCollector
      * on whether the user was opted in.  Starting to record mid-session is fairly
      * useless, so even if the user opts in during the session, we won't record
      * their data until the next session begins.  Thus, this variable
-     * will never change after startSession() has been called:
+     * will never become true after startSession() has been called, althoug
+     * it may become false if the user opts out mid-session
      */
     private static boolean recordingThisSession;
     /**
@@ -103,7 +104,7 @@ public class DataCollector
      * are in Greenfoot, and opt-in status.  It doesn't check whether we have stopped
      * sending due to connection problems -- DataSubmitter keeps track of that.
      */
-    private static boolean dontSend()
+    private static synchronized boolean dontSend()
     {
         return Config.isGreenfoot() || !recordingThisSession;
     }
@@ -126,7 +127,7 @@ public class DataCollector
         uuid = Config.getPropString(PROPERTY_UUID, null);
         
         // If there is no UUID in the file, ask them if they want to opt in or opt out:
-        if (uuid == null || true /* temporary */)
+        if (uuid == null)
         {
             changeOptInOut();
         }
@@ -158,20 +159,19 @@ public class DataCollector
      * Gets a String to display to the user in the preferences, explaining their
      * current opt-in/recording status
      */
-    //TODO localise
     public static synchronized String getOptInOutStatus()
     {
         if (recordingThisSession)
         {
-            return "You are currently opted in to the data collection research";
+            return Config.getString("collect.status.optedin");
         }
         else if (uuidValidForRecording())
         {
-            return "You have opted in to the data collection research; recording will begin next time BlueJ is loaded";
+            return Config.getString("collect.status.nextsession");
         }
         else
         {
-            return "You are currently not participating in the data collection research";
+            return Config.getString("collect.status.optedout");
         }
     }
 
@@ -196,6 +196,7 @@ public class DataCollector
         else
         {
             uuid = OPT_OUT;
+            recordingThisSession = false;
         }
         Config.putPropString(PROPERTY_UUID, uuid);
     }

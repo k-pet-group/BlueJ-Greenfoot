@@ -66,6 +66,7 @@ public class MiscPrefPanel extends JPanel
     private JTextField participantIdentifierField;
     private JTextField experimentIdentifierField;
     private JLabel statusLabel;
+    private JTextField uuidField;
      
     /**
      * Setup the UI for the dialog and event handlers for the buttons.
@@ -118,6 +119,7 @@ public class MiscPrefPanel extends JPanel
                 {
                     DataCollector.changeOptInOut();
                     statusLabel.setText(DataCollector.getOptInOutStatus());
+                    uuidField.setText(DataCollector.getUserID());
                 }
             });
             JPanel statusPanel = new JPanel();
@@ -133,7 +135,7 @@ public class MiscPrefPanel extends JPanel
         JPanel uuidPanel = new JPanel();
         uuidPanel.setLayout(new BoxLayout(uuidPanel, BoxLayout.X_AXIS));
         uuidPanel.add(new JLabel("UUID [only shown in beta]:"));
-        JTextField uuidField = new JTextField(DataCollector.getUserID());
+        uuidField = new JTextField();
         uuidField.setEditable(false);
         uuidPanel.add(uuidField);
         uuidPanel.setAlignmentX(LEFT_ALIGNMENT);
@@ -308,6 +310,7 @@ public class MiscPrefPanel extends JPanel
             statusLabel.setText(DataCollector.getOptInOutStatus());
             experimentIdentifierField.setText(DataCollector.getExperimentIdentifier());
             participantIdentifierField.setText(DataCollector.getParticipantIdentifier());
+            uuidField.setText(DataCollector.getUserID());
         }
         else
         {
