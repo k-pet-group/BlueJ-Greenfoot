@@ -353,15 +353,21 @@
             <fileset dir="gfdeb">
                 <patternset includes="**" />
             </fileset>
+            <dirset dir="gfdeb">
+                <patternset includes="**" />
+            </dirset>
         </chown>
         <chgrp group="root">
             <fileset dir="gfdeb">
                 <patternset includes="**" />
             </fileset>
+            <dirset dir="gfdeb">
+                <patternset includes="**" />
+            </dirset>
         </chgrp>
         
-        <chmod perm="+x" file="gfdeb/DEBIAN/postinst" />
-        <chmod perm="+x" file="gfdeb/DEBIAN/postrm" />
+        <chmod perm="755" file="gfdeb/DEBIAN/postinst" />
+        <chmod perm="755" file="gfdeb/DEBIAN/postrm" />
         <exec executable="dpkg-deb" searchpath="true">
             <arg value="-b" />
             <arg file="gfdeb" />
