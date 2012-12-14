@@ -86,7 +86,6 @@ public class DataCollector
     
     private static String uuid;
     private static String sessionUuid;
-    private static int sequenceNum;
     
     /**
      * In BlueJ, the Project holds the list of inspectors, even though really
@@ -465,8 +464,6 @@ public class DataCollector
         final String projectName = project == null ? null : project.getProjectName();
         final String projectPathHash = project == null ? null : md5Hash(project.getProjectDir().getAbsolutePath());
         final String packageName = pkg == null ? null : pkg.getQualifiedName();
-        // Must take copy to avoid problems with later modification:
-        final int thisSequenceNum = sequenceNum;  
         
         /**
          * Wrap the Event we've been given to add the other normal expected fields:
@@ -506,7 +503,6 @@ public class DataCollector
                 return mpe;
             }
         });
-        sequenceNum += 1;
     }
 
     public static void compiled(Project proj, Package pkg, File[] sources, List<DiagnosticWithShown> diagnostics, boolean success)
