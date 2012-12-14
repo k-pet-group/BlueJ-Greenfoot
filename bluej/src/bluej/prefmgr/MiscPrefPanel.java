@@ -22,6 +22,7 @@
 package bluej.prefmgr;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
@@ -61,6 +62,9 @@ public class MiscPrefPanel extends JPanel
     private JCheckBox showUncheckedBox; // show "unchecked" compiler warning
     private String jdkURLPropertyName;
     private JTextField playerNameField;
+    private JTextField participantIdentifierField;
+    private JTextField experimentIdentifierField;
+    private JLabel statusLabel;
      
     /**
      * Setup the UI for the dialog and event handlers for the buttons.
@@ -189,14 +193,16 @@ public class MiscPrefPanel extends JPanel
             
             {
                 JPanel dataCollectionPanel = new JPanel();
+                dataCollectionPanel.setLayout(new BoxLayout(dataCollectionPanel, BoxLayout.Y_AXIS));
                 dataCollectionPanel.setBorder(BorderFactory.createCompoundBorder(
-                        BorderFactory.createTitledBorder("Data Collection"),
+                        BorderFactory.createTitledBorder(Config.getString("prefmgr.collection.title")),
                          BlueJTheme.generalBorder));
                 dataCollectionPanel.setAlignmentX(LEFT_ALIGNMENT);
                 
+                
                 {
-                    final JLabel statusLabel = new JLabel(DataCollector.getOptInOutStatus());
-                    JButton optButton = new JButton("Change");
+                    statusLabel = new JLabel();
+                    JButton optButton = new JButton(Config.getString("prefmgr.collection.change"));
                     optButton.addActionListener(new ActionListener() {
                         
                         @Override
@@ -209,14 +215,61 @@ public class MiscPrefPanel extends JPanel
                     JPanel statusPanel = new JPanel();
                     statusPanel.setLayout(new BoxLayout(statusPanel, BoxLayout.X_AXIS));
                     statusPanel.add(statusLabel);
-                    statusPanel.add(Box.createRigidArea(new Dimension(15, 0)));
+                    statusPanel.add(Box.createHorizontalStrut(15));
                     statusPanel.add(optButton);
+                    statusPanel.setAlignmentX(LEFT_ALIGNMENT);
                     dataCollectionPanel.add(statusPanel);
                 }
+                
+                {
+                    JLabel identifierLabel = new JLabel(Config.getString("prefmgr.collection.identifier.explanation") + ":");
+                    identifierLabel.setAlignmentX(LEFT_ALIGNMENT);
+                    dataCollectionPanel.add(Box.createVerticalStrut(4 * BlueJTheme.generalSpacingWidth));
+                    dataCollectionPanel.add(identifierLabel);
+                    dataCollectionPanel.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
+                    
+                    JPanel experimentPanel = new JPanel();
+                    experimentPanel.setLayout(new BoxLayout(experimentPanel, BoxLayout.X_AXIS));
+                    
+                    JLabel experimentLabel = new JLabel(Config.getString("prefmgr.collection.identifier.experiment"));
+                    experimentPanel.add(experimentLabel);
+                    experimentPanel.add(Box.createHorizontalStrut(BlueJTheme.generalSpacingWidth));
+                    experimentIdentifierField = new JTextField(32);
+                    experimentIdentifierField.setMaximumSize(experimentIdentifierField.getPreferredSize());
+                    experimentPanel.add(experimentIdentifierField);
+                    experimentPanel.add(Box.createHorizontalGlue());
+                    
+                    JPanel participantPanel = new JPanel();
+                    participantPanel.setLayout(new BoxLayout(participantPanel, BoxLayout.X_AXIS));
+                    
+                    JLabel participantLabel = new JLabel(Config.getString("prefmgr.collection.identifier.participant"));
+                    participantPanel.add(participantLabel);
+                    participantPanel.add(Box.createHorizontalStrut(BlueJTheme.generalSpacingWidth));
+                    participantIdentifierField = new JTextField(32);
+                    participantIdentifierField.setMaximumSize(participantIdentifierField.getPreferredSize());
+                    participantPanel.add(participantIdentifierField);
+                    participantPanel.add(Box.createHorizontalGlue());
+                    
+                    // Make labels same width:
+                    Dimension labelSize = maxByWidth(participantLabel.getPreferredSize(), experimentLabel.getPreferredSize());
+                    experimentLabel.setPreferredSize(labelSize);
+                    participantLabel.setPreferredSize(labelSize);
+                    
+                    experimentPanel.setAlignmentX(LEFT_ALIGNMENT);
+                    participantPanel.setAlignmentX(LEFT_ALIGNMENT);
+                    dataCollectionPanel.add(experimentPanel);
+                    dataCollectionPanel.add(participantPanel);
+                }
+                
                 box.add(dataCollectionPanel);
             }
         }
         box.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
+    }
+
+    private Dimension maxByWidth(Dimension a, Dimension b)
+    {
+        return (a.width > b.width ? a : b);
     }
 
     public void beginEditing()
@@ -225,6 +278,9 @@ public class MiscPrefPanel extends JPanel
         jdkURLField.setText(Config.getPropString(jdkURLPropertyName));
         if(!Config.isGreenfoot()) {
             showUncheckedBox.setSelected(PrefMgr.getFlag(PrefMgr.SHOW_UNCHECKED));
+            statusLabel.setText(DataCollector.getOptInOutStatus());
+            experimentIdentifierField.setText(DataCollector.getExperimentIdentifier());
+            participantIdentifierField.setText(DataCollector.getParticipantIdentifier());
         }
         else
         {
@@ -245,6 +301,9 @@ public class MiscPrefPanel extends JPanel
             PkgMgrFrame.updateTestingStatus();
             PkgMgrFrame.updateTeamStatus();
             PkgMgrFrame.updateJavaMEstatus(); 
+            
+            DataCollector.setExperimentIdentifier(experimentIdentifierField.getText());
+            DataCollector.setParticipantIdentifier(participantIdentifierField.getText());
         }
         
         String jdkURL = jdkURLField.getText();

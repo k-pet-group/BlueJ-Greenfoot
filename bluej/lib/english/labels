@@ -102,6 +102,11 @@ prefmgr.misc.showUnchecked=Show compiler warnings when unsafe collections are us
 prefmgr.misc.wtk.dir.label=Wireless Toolkit directory
 prefmgr.misc.wtk.button=Browse
 prefmgr.misc.filechooser.title=Select Wireless Toolkit directory
+prefmgr.collection.title=Research Participation
+prefmgr.collection.change=Change
+prefmgr.collection.identifier.explanation=You only need to fill in the information below if asked to by a researcher
+prefmgr.collection.identifier.experiment=Experiment Identifier
+prefmgr.collection.identifier.participant=Participant Identifier
 
 # Editor Preferences panel
 prefmgr.edit.prefpaneltitle=Editor
