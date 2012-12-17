@@ -1,0 +1,94 @@
+<style>
+body {
+  font-size: 10pt;
+  font-family: sans-serif;
+}
+  
+.question-heading {
+  display:block;
+  font-size: 18pt;
+  margin-top: 20px;
+  margin-bottom: 5px;
+}
+.answer {
+  display: block;
+  margin-left: 20px;
+}
+
+#container{
+  width: 600px;
+  margin: 10px auto;
+}
+</style>
+
+<div id="container">
+
+Frequently Asked Questions:
+
+<ul>
+  <li><a href="#what_data">What data will be sent?</a></li>
+  <li><a href="#who">Who will the data be sent to?</a></li>
+  <li><a href="#anon">How will the data be anonymised?</a></li>
+  <li>How much traffic will this generate?</li>
+  <li><a href="#opt_in_out">How can I opt in/out?</a></li>
+  <li><a href="#repeated">Why do I repeatedly get asked if I want to opt in?</a></li>
+</ul>
+
+<span class="question-heading" id="what_data">What data will be sent?</span>
+
+
+
+
+<span class="question-heading" id="who">Who will the data be sent to?</span>
+
+<div class="answer">
+The data will be sent to a server hosted at the University of Kent in the UK.
+Researchers at the University of Kent will have access to the data in order to
+analyse it, and access will also be provided to other recognised computing
+education researchers for the purpose of analysis.
+</div>
+
+
+<span class="question-heading" id="anon">How will the data be anonymised?</span>
+
+<div class="answer">
+No identifying information (e.g. username, machine name) is sent to the
+server.  The name of the project is sent, but the full path (which probably
+contains your username) is not.  Source code is sent, but all comments before
+the class begins are blanked out -- that is, the top comment before your class
+will be blanked, as that typically contains your name.  All other code (and
+comments) are sent to the server.
+</div>
+
+
+<span class="question-heading" id="opt_in_out">How can I opt in/out?</span>
+
+<div class="answer">
+To change your participation in this research, in BlueJ 3.1.0 and later, go to
+the Preferences window, and under the Miscellaneous tab there is an option to
+change your current participation.
+</div>
+
+
+<span class="question-heading" id="repeated">Why do I repeatedly get asked if
+  I want to opt in?</span>
+
+<div class="answer">
+<p>
+Your participation status is stored in BlueJ's properties file.  This is
+stored in your user profile directory on your machine.  For a home machine, or
+a school network which supports persistent profiles, you should be asked once,
+and this decision stored thereafter.
+</p>
+
+<p>However if your network does not keep your profile, you will be asked every
+  time you load BlueJ, because BlueJ cannot tell that you have been asked
+  before.  In this case, you will need to contact your network administrator
+  and tell them to either let profiles persist (the ideal solution), or
+  otherwise to alter the bluej.defs file supplied with BlueJ to include the
+  line:</p>
+
+<pre>blackbox.uuid=optout</pre>
+</div>
+
+</div>
