@@ -2,6 +2,8 @@
 
 \usepackage[margin=1.5in]{geometry}
 
+\usepackage{float}
+\usepackage{graphicx}
 \usepackage{hyperref}
 \hypersetup{colorlinks=true,linkcolor=blue}
 
@@ -9,15 +11,25 @@
 \lstMakeShortInline{|}
 \lstset{columns=fixed,language=SQL,basicstyle=\ttfamily}
 
+\def\sectionautorefname{Section}
+\def\subsectionautorefname{Section}
+\def\subsubsectionautorefname{Section}
+
 \newcommand{\myref}[1]{\autoref{#1} on page \pageref*{#1}}
 \newcommand{\tabref}[1]{\lstinline|#1| table (see \myref{tab:#1})}
 
-\newcommand{\intern}{When the server comes to add a record to this table with
-  duplicate data to a previous record, it might reference the existing
-  record instead, to save space.  This is a performance optimisation that should have
-  no effect on the semantics.}
+\newcommand{\intern}{This table may be interned, see \myref{def:intern}.}
+
+\setlength{\belowcaptionskip}{10pt}
 
 \begin{document}
+
+\begin{titlepage}
+  \begin{center}
+    \includegraphics[width=10cm]{../../lib/images/bluej-icon-256.png}\\
+    \huge BlueJ Blackbox Data Collection\\~\\Researchers' Handbook
+  \end{center}
+\end{titlepage}
 
 This document acts as a manual for the BlueJ data collection project,
 ``Blackbox''.  It is intended to explain, in detail, the schema of the
@@ -27,10 +39,22 @@ bench and so on.
 
 \begingroup
 \let\clearpage\relax
-\tableofcontents*
+\tableofcontents
 \endgroup
 
-\chapter{Concepts}
+\listoftables
+
+\begin{table}
+\caption[Possible \lstinline!master_events.name! values]{List of different
+  values allowed for the \lstinline!name! column in the \lstinline!master_events! column, with
+  links to sections in which that event is described.}
+\label{tab:event_names}
+\begin{center}
+%table:event_names
+\end{center}
+\end{table}
+
+\chapter{Concepts and Caveats}
 
 There are several concepts involved in the Blackbox project, and it is
 very important when doing analysis on the data to understand the concepts
@@ -41,7 +65,7 @@ conclusions from your analysis.
 \section{Users}
 
 BlueJ stores its properties file in a per-user location.  For example, on
-Linux, it uses |~/.bluej/bluej.properties|, on Windows 7 it is (on a typical
+Linux, it uses |~/.bluej/bluej.properties|, whereas on Windows 7 it is (on a typical
 home installation) |C:\Users\Joe\bluej\bluej.properties|.
 
 This properties file is the only mechanism that BlueJ has to have any sense of
@@ -61,6 +85,7 @@ properties file.  Thus the concept of a ``user'' is tied to the properties
 file.  It is important to understand this when reasoning about users.
 
 \section{Projects}
+\label{def:projects}
 
 BlueJ deals with projects.  A project is a directory with a BlueJ project
 file, and source files (and class files, and maybe a README, and whatever else
@@ -78,6 +103,7 @@ the project has the same path on both machines, they will appear as separate
 projects belonging to separate users.
 
 \section{Packages}
+\label{def:packages}
 
 A project will have at least one package (the unnamed, default Java package),
 and potentially many.  BlueJ displays a main interface window for each package
@@ -95,11 +121,20 @@ a unique session identifier to label all events from that session with.
 If a user loads many projects at once in a single instance of BlueJ, these
 will all count as one session.  If a user loads BlueJ twice in parallel
 (e.g. by clicking the shortcut too many times), both sessions will be
-recorded.  But for this reason, it is usually a good idea to use sessions to
+recorded.  But for this reason, it is usually a good idea to use sessions and projects to
 process events, rather than solely relying on event timestamps (which will
 interleave events from the two sessions).  If a user accidentally closes BlueJ
 and immediately re-opens it, that will count as two sessions (though you could
 spot this using the timestamps on the events in post-processing).
+
+There is no time limit on how long a session can last -- the client-generated
+identifier is relied upon to differentiate sessions.  It is possible for a
+session to last for weeks if a user keeps BlueJ open on their always-on
+machine.  One potentially common case is that if a user never shuts down their
+laptop, and instead always makes it sleep, the session can last for a long
+time if they leave BlueJ open on their laptop (but see
+\myref{def:interruption} for why they may not send us much data this way, if the session
+stops sending data at any point).
 
 \section{Participants}
 \label{sec:participants}
@@ -114,14 +149,14 @@ To allow you to link your participant data with our data, we have a mechanism
 for BlueJ users to specify an experiment identifier and a participant
 identifier (strings, up to 32 characters).  These two identifiers should be
 assigned by you, the local researcher.  We request that you assign an
-experiment identifier that is unlikely to clash with any other researchers'
-identifier.  The participant identifier is entirely up to you, although we
+experiment identifier that is unlikely to clash with other researcher's
+identifiers.  The participant identifier is entirely up to you, although we
 would expect that you use a generic identifier (e.g. a number), and that you
 hold the mapping between the participant's real identity and the participant
-number, as is standard practice.  (Do not ask the participants to store their name, or
+number, as is standard practice.  (That is: do not ask the participants to store their name, or
 university login or similar, in the participant identifier.)
 
-As described in section \ref{sec:views}, you will be able to retrieve
+As described in section \myref{sec:views}, you will be able to retrieve
 participant identifiers for a specific experiment identifier, and retrieve
 session data for known experiment identifiers and participant identifiers.
 This means that you will not be able to see experiment or participant
@@ -135,7 +170,7 @@ The BlueJ client sends a stream of events to the BlueJ server, which
 acknowledges them.  Ultimately, all the information recorded on the server
 came by way of these discrete events.  Things like users or sessions are
 reconstructed from the individual events that have been sent.  Every event
-that the server receives, bar none, is recorded with an entry in the \tabref{master_events}.
+that the server receives, without exception, is recorded with an entry in the \tabref{master_events}.
 
 \section{Interrupted Connections}
 \label{def:interruption}
@@ -146,7 +181,7 @@ never assume you have a user's complete history of interaction with BlueJ.
 Notably, entire sessions might be missing due to users using BlueJ without an
 internet connection (e.g. on an aeroplane).  Similarly, you should not assume
 that you can see all interactions with a project -- source code could be
-edited outside BlueJ, but even within BlueJ sessions might be missing.
+edited outside BlueJ.
 
 Within a session, you can assume that you have all events, sequentially
 consistent, from the first \texttt{bluej\_start} event, up until the last
@@ -154,9 +189,22 @@ event that is recorded in the session.  This may not be the actual final event
 that the user performed in their real session -- the user's
 internet connection may drop, or BlueJ may crash or get killed before a batch of events
 is sent, and so on.  But there will never be a ``hole'' in the middle of a
-session where events are lost, then resumed again.  Any event that fails to
-send will cause the BlueJ client to stop sending for the rest of the session
+session where events are lost, then resumed again.  \textbf{Any event that fails to
+send will cause the BlueJ client to stop sending for the rest of the session}
 -- each event is only sent once the event before it in the session has succeeded.
+
+It is a deliberate decision to not attempt to resume sending data if previous
+data has failed to send.  Part of this decision is technical -- we do not want
+to keep retrying a send if the user has no Internet connection (or if our own
+server is inaccessible for some reason), and we do not want to cache lots of
+events on the client in the hope that the connection one day re-appears.
+
+The other reason is that analysis becomes much harder if events within a session
+may be missing -- data consistency is a nightmare.  For example, you may see
+that a user has closed an inspector, but not how that inspector appeared.  Or
+you may see an execution take place, but not know what breakpoints are set in
+the code.  If gaps are allowed in the event stream, we would have to send a
+lot more state information with each event to make analysis possible.
 
 \section{Spam}
 \label{def:spam}
@@ -169,8 +217,18 @@ submitted.  It remains to be seen whether this will be an issue.
 
 \section{Source Code Consistency}
 
-TODO talk about edits being captured, but a project-open event may well be a
-huge edit, if project has been modified elsewhere
+When a package is opened, the full state of the source code of the project is
+sent to the server.  Similarly, when a class is added to the project while
+BlueJ is running, the full code is sent.  For all other edit events within a session, a diff is sent
+between the last successfully sent source code state (during that session) and
+the new state.  Using a diff minimises the amount of data sent and stored.
+
+You can assume that the source code diffs within a session are consistent.
+However, you should not assume that you have seen the full state of the source
+code between sessions.  Source code may be edited outside BlueJ or may be edited
+by BlueJ when the user has no Internet connection.  You should be able to
+detect this by comparing the source code state between the end of one session
+and the start of the next.
 
 \section{The Debug VM}
 
@@ -204,23 +262,32 @@ prevent further use of the debug VM.
 
 \section{Extensions}
 
-TODO say that extensions can trigger pretty much every event here, and it is
-indistinguishable from user-triggered -- but you do at least get a list of
-loaded extensions.
+BlueJ has an extension mechanism that allows programmatic operation of BlueJ
+from third-party extensions.  (Not to mention that BlueJ is open-source,
+anyway.)  The extensions can trigger many of the events described in this
+document.  We do not annotate which events are triggered by extensions and
+which are not.  This annotation would be a lot of extra technical work, and
+probably for not much purpose, since we do not believe many BlueJ users use
+extensions that will trigger these events.
 
-\chapter{Database Structure}
+We do record which extensions are loaded in the blackbox data, so you can use
+this to rule out any extensions which could be problematic (or more likely, to
+whitelist extensions that are not an issue).
+
+
+\section{Database Structure and Notes}
 \label{sec:assoc}
 
 The database is used as a persistence layer by our Ruby on Rails server, which
-uses an object-store model.  Every table in the database, bar none, has an
+uses an object-store model.  Every table in the database, except many-to-many link tables, has an
 integer |id| field which acts as a primary key.  Relations in the database are
 handled in two ways:
 
 \begin{enumerate}
-\item When the destination table is fixed, e.g. a master event has a user,
+\item When the destination table is fixed and known -- e.g. a master event has a user --
   there is a field in the |master_events| table named |user_id| which links to
   the |users| table.
-\item When the destination table may vary, e.g. a master event has a sub
+\item When the destination table may vary, e.g. a master event has a subordinate
   ``event'' record which may be from one of many tables, there is both an
   |event_id| and an |event_type| field.  The |event_type| field contains an
   uppercased camel-cased, non-underscored\footnote{This is Rails' doing -- don't ask.} version
@@ -229,22 +296,34 @@ handled in two ways:
   will correspond to an |id| in the |compile_events| table.
 \end{enumerate}
 
-\chapter{Master Events}
-%schema:master_events
+\subsection{Interning}
+\label{def:intern}
+
+There are some tables in the database which are likely to feature the same
+information over and over again, such as the installation details.  When the
+server comes to add a record to these tables with duplicate data to a previous
+record, it \textit{may} reference the existing record instead, to save space, like
+interning strings.  This is a performance optimisation that should have no
+effect on the semantics.  Tables that do this are tagged as such.
+
+\chapter{Master Events Table}
 
 The master events table is the place where all events are entered.  There are
 lots of different types of events that can be received, each with a variety of
 different data, but all of them get one entry in the |master_events|
 table, with links to other tables where necessary.
 
+%schema:master_events
+
 The most important field in the table is the |name| field, which describes
-which kind of event it is, and determines which of the other fields will be present.
+which kind of event it is, and determines which of the other fields will be
+present.  The possible values for the |name| field are given in \myref{tab:event_names}.
 
 Each master event has links (as per \myref{sec:assoc}) to other tables:
 \begin{itemize}
 \item |user_id| -- present for all events
 \item |session_id| -- present for all events
-\item |project_id| -- present for all events except |bluej_start| and |bluej_finish|
+\item |project_id| -- present for all events except |"bluej_start"| and |"bluej_finish"|
 \item |package_id| -- present for some events (see further details below).
 \item |event_id|, |event_type| -- present for some events (see further details below).
 \item |participant_id| -- present for all events, if the user currently has
@@ -262,68 +341,66 @@ received in correct sequence (within a given session).  The server ensures
 that the sequence numbers are valid (i.e. that they begin at 1, and each
 subsequent event increments the sequence number by 1).
 
-The subsequent sections describe the different values for the
-|master_events.name| field, and what that means for the other fields,
-especially what may be linked to by the |event_id| and |event_type| fields.
-
 %hidden:participants
 
 The |participant_id| field links to a hidden |participants| table.  If you
-want to investigate this information, see section \ref{sec:views} on how to
+want to investigate this information, see \myref{sec:views} on how to
 access this information.
 
 %hidden:client_addresses
 
 The |client_address_id| field links to a hidden |client_address| table.
-However, you can assume that there is a one-to-one mapping between
+However, you can reasonably assume that there is a one-to-one mapping between
 |client_address_id| and IP addresses from which the event is sent.
+
+
+The subsequent sections in this chapter describe the different possible values for the
+|master_events.name| field, and what that means for the other fields,
+especially what is linked to by the |event_id| and |event_type| fields.  Each
+section title has a string, which is the value of the |name| field.
 
 \section{Start/Finish Events}
 
-\subsection{\lstinline!bluej_start! and \lstinline!bluej_finish!}
+Two bookend events are sent, one when BlueJ starts (before it has loaded up a
+project or done anything) and one when BlueJ exits (after it has closed all
+projects and finished everything).  The data will likely contain more start
+events than finish events, for reasons explained in \myref{def:interruption}.
 
-These two events have no extra accompanying event.  They have no
-|project_id| and no |package_id|.  However, the |bluej_start| event:
+\subsection{\lstinline!"bluej_start"! and \lstinline!"bluej_finish"!}
 
-\begin{itemize}
-\item will have an entry in the \tabref{installation_details} that links back to this
-  master event, and
-\item  will have zero or more attached entries in the \tabref{extensions} that link back to this master event
--- these are extensions loaded from
-the system directories.
-\end{itemize}
+These two events have no extra accompanying event.  They have no |project_id|
+and no |package_id|.  However, the |"bluej_start"| event will have zero or more
+attached entries in the \tabref{extensions} that link back to this master
+event -- these are extensions loaded from the system directories.
 
-The |installation_details| table contains the BlueJ |interface_language| -- the
-possible options are listed in the bluej.defs file.  The |operating_system|
-field glues together (with slashes) the output of Java's |System.getProperty|
-call for the keys |"os.name"|, |"os.arch"| and |"os.version"|.  The
-|bluej_version| is the version of BlueJ they are running, and |java_version|
-is the Java version being used to run BlueJ.
-
-%schema:installation_details \intern
-
-The |extensions| table contains the (self-reported) name and version of a
-BlueJ extension.  BlueJ comes with the submitter extension installed by default.
-
-%schema:extensions
+The |"bluej_start"| event will always create a new entry in the
+\tabref{sessions} -- the installation details for this copy of BlueJ will be
+recorded there.
 
 \section{Project Events}
 
-\subsection{\lstinline!project_opening!}
+When a project is opened or closed in BlueJ, corresponding events will be
+sent.  See \myref{def:projects} for details on how projects are
+distinguished.  A project-open event will be followed by at least one
+package-open event.
+
+\subsection{\lstinline!"project_opening"!}
 
 This event has no |package_id|.
 
-This event will have zero or more entries in the \tabref{extensions}, which
-represent extensions loaded from this project's directory.
+This event will have zero or more entries in the \tabref{extensions} linking
+back to this event, which represent extensions loaded from this project's directory.
 
-\subsection{\lstinline!project_closing!}
+\subsection{\lstinline!"project_closing"!}
 
 This event will no attached data, and will have no |package_id|.
 
-
 \section{Package Events}
 
-\subsection{\lstinline!package_opening!}
+When a package is opened or closed in BlueJ, a corresponding event is
+generated.  Note that each window in BlueJ actually belongs to a package.
+
+\subsection{\lstinline!"package_opening"!}
 
 This event will have a |package_id|.
 
@@ -331,23 +408,29 @@ The event will have zero or more entries in the \tabref{source_histories} that
 link back to this event.  These represent the state of the files as the project is
 opened (as a |complete| snapshot, not a diff).
 
-The event will link to an entry in the |SourceHashes| table
+The event will link to an entry in the |source_hashes| table
 (|event_type| will be |"SourceHash"|), which will contain a hash of
 the source code in the package.  The exact details of the hash are
 unimportant, but this hash can be used to quickly narrow down likely
 duplicate projects (for example, spotting the starting projects from
 the BlueJ book).
 
-%schema:source_hashes
+%schema:source_hashes \intern
 
-\subsection{\lstinline!package_closing!}
+\subsection{\lstinline!"package_closing"!}
 
 This event will have a |package_id|, but no other associated data.
 
 
 \section{Editing}
 
-\subsection{\lstinline!edit!}
+We do not capture all the different edit operations (e.g. paste, indent), we
+only capture the resulting effect on the source code.
+
+\subsection{\lstinline!"edit"!}
+
+This event will have a |package_id|, pointing to the package of the class that
+is edited.
 
 This event is the central editing event in BlueJ.  These events are recorded
 when multiple lines are edited at once (e.g. via paste, or deleting a
@@ -362,9 +445,9 @@ other such examples), but an edit event will never span a compiler event, and
 all edits will be flushed before a compile event.
 
 The event will always have exactly one associated entry in the
-\tabref{source_histories}, which will be a |diff| event.
+\tabref{source_histories}, which will be a |"diff"| event.
 
-\subsection{\lstinline!file_add!}
+\subsection{\lstinline!"file_add"!}
 
 This event will have a |package_id|, which indicates which package the file
 was added to.
@@ -374,9 +457,9 @@ be via the New Class menu item, or via the Import Class menu item, or via
 version control.
 
 The event will always have exactly one associated entry in the
-\tabref{source_histories}, which will be a |complete| event.
+\tabref{source_histories}, which will be a |"complete"| event.
 
-\subsection{\lstinline!file_delete!}
+\subsection{\lstinline!"file_delete"!}
 
 This event will have a |package_id|, which indicates which package the file
 was deleted from.
@@ -385,9 +468,9 @@ This event is fired whenever a class is removed from a BlueJ project.  This
 may be via the interface, or via version control.
 
 The event will always have exactly one associated entry in the
-\tabref{source_histories}, which will be a |file_delete| event.
+\tabref{source_histories}, which will be a |"file_delete"| event.
 
-\subsection{\lstinline!rename!}
+\subsection{\lstinline!"rename"!}
 
 This event will have a |package_id|, which indicates which package the file
 was renamed in.
@@ -404,7 +487,7 @@ The event will always have exactly one associated entry in the
 
 \section{Compilation}
 
-\subsection{\lstinline!compile!}
+\subsection{\lstinline!"compile"!}
 
 This event will have a |package_id| if and only if all the compiled files were
 in the same package.  However, having a |package_id| does not necessarily
@@ -426,13 +509,15 @@ The |compile_events| table records whether the compilation was a success
 
 %schema:compile_events
 
-The |compile_events| may then linked to by entries in the |compile_inputs| and
+The |compile_events| may then be linked to by entries in the |compile_inputs| and
 |compile_outputs| table.
+
+%schema:compile_inputs
 
 The |compile_inputs| table is really just a link table, linking one compile
 event to many source files.
 
-%schema:compile_inputs
+%schema:compile_outputs
 
 The |compile_outputs| table has an entry for each warning and each error that
 occurred.  Note that these warnings and errors are reported from the standard Java
@@ -445,11 +530,9 @@ whether or not this error or warning was actually displayed to the user.  The
 line and column fields indicate the error's location, as reported by the
 compiler  (lines and columns begin at 1, not 0).
 
-%schema:compile_outputs
-
 \section{Miscellaneous Events}
 
-\subsection{\lstinline!resetting_vm!}
+\subsection{\lstinline!"resetting_vm"!}
 
 This event has no |package_id|, because the debug VM is per-project.
 
@@ -457,7 +540,7 @@ The event occurs when the VM is restarted due to an explicit user request (via
 a menu).  Although it has the same effect as the |debugger_terminate| event,
 it is recorded separately.
 
-\subsection{\lstinline!terminal_open! and \lstinline!terminal_close!}
+\subsection{\lstinline!"terminal_open"! and \lstinline!"terminal_close"!}
 
 These events have no |package_id|, because there is only one terminal
 per project.
@@ -479,7 +562,7 @@ source file and a line number (line numbers begin at 1, not 0).
 
 %schema:breakpoints \intern
 
-\subsection{\lstinline!debugger_open! and \lstinline!debugger_close!}
+\subsection{\lstinline!"debugger_open"! and \lstinline!"debugger_close"!}
 
 These events have no |package_id| (because the debugger is per-project).
 
@@ -487,7 +570,7 @@ These events occur when the debugger window is opened or closed.  The debugger
 may open because the user explicitly opened the debugger (via the menu), or
 because the code has hit a breakpoint.  No further data is attached.
 
-\subsection{\lstinline!debugger_terminate!}
+\subsection{\lstinline!"debugger_terminate"!}
 
 This event has no |package_id| (because the debugger is per-project).
 
@@ -496,7 +579,7 @@ It kills the current debug VM (which will be subsequently restarted, but will
 be idle), and thus all currently-executing user code.  No
 further data is attached.
 
-\subsection{\lstinline!debugger_continue!}
+\subsection{\lstinline!"debugger_continue"!}
 
 This event has no |package_id| (because the debugger is per-project).
 
@@ -504,15 +587,16 @@ This event occurs when the user clicks the Continue button in the debugger on
 a thread which is currently not executing.
 It makes the selected thread resume execution.  
 
-The |event_type| field will always be |DebuggerEvent|, and the |event_id| will
+The |event_type| field will always be |"DebuggerEvent"|, and the |event_id| will
 reference an entry in the \tabref{debugger_events}.  The |debugger_events|
 entry will have the |thread_name| filled in, but there will be no further information.
 
-\subsection{\lstinline!debugger_hit_breakpoint!, \lstinline!debugger_stepinto!, \lstinline!debugger_stepover! and \lstinline!debugger_halt!}
+\subsection{\lstinline!"debugger_hit_breakpoint"!, \lstinline!"debugger_stepinto"!,\\ \lstinline!"debugger_stepover"! and \lstinline!"debugger_halt"!}
 
 These events have no |package_id| (because the debugger is per-project).
 
-These events occur when the user code in a thread becomes suspended.  The
+These events occur when the user code in a thread becomes suspended, for
+different reasons.  The
 |debugger_hit_breakpoint| event indicates that the suspension was due to
 hitting a breakpoint, while |debugger_stepinto| and |debugger_stepover|
 indicate that the thread has just completed a step request.  (If a step
@@ -520,15 +604,16 @@ request ends on a breakpoint, only the breakpoint is reported.)  The
 |debugger_halt| is reported in the remaining case, that the user has
 clicked the Halt button in the debugger (which pauses execution of the thread).
 
-For these events, the |event_type| field will be always be |DebuggerEvent|,
+For these events, the |event_type| field will be always be |"DebuggerEvent"|,
 and the |event_id| will reference an entry in the \tabref{debugger_events},
 which will have the |thread_name| filled in.
 
 There will also be one or more entries in the \tabref{stack_entries} which
-will link to the |debugger_event| (not the master event) via the
-|stack_entries.sub_event_type| and |stack_entries.sub_event_id| fields.
+will link to the |debugger_event| (not the master event) via the fields in
+that table
+|stack_entries.sub_event_type| and |stack_entries.sub_event_id|.
 
-\subsection{\lstinline!debugger_breakpoint_add! and \lstinline!debugger_breakpoint_remove!}
+\subsection{\lstinline!"debugger_breakpoint_add"! and \lstinline!"debugger_breakpoint_remove"!}
 
 These events do have a |package_id|, which indicates the package that the
 involved source file is in.
@@ -540,11 +625,11 @@ the \tabref{breakpoints}, which details the location of the breakpoint.
 
 \section{Codepad}
 
-\subsection{\lstinline!codepad!}
+\subsection{\lstinline!"codepad"!}
 
 These events have a |package_id|, which indicates which package window the
-codepad being used corresponds to (more by accident than by design, each
-package window has its own codepad).
+codepad being used corresponds to -- more by accident than by design, each
+package window has its own codepad.
 
 These events occur each time that the user types something into the codepad
 window, presses return and gets a response.  The codepad event links to an item in the |codepad_events| table (the
@@ -573,7 +658,7 @@ Method invocations reference the |invocations| table.
 
 %schema:invocations
 
-\subsection{\lstinline!invoke_method!}
+\subsection{\lstinline!"invoke_method"!}
 
 This event has a |package_id| field, which indicates which package window the
 method was invoked from.  The method invoked is not guaranteed to be in this
@@ -583,7 +668,7 @@ method on String, or any other class.
 This event occurs when the user interactively (i.e. via a menu) invokes a
 static method on a class or an instance method on an object on the object
 bench, or uses the call-library-class menu function.  The |event_type| will
-always be |Invocation| and the |event_id| will reference an entry in the
+always be |"Invocation"| and the |event_id| will reference an entry in the
 |invocations| table.  
 
 In the |invocations| table, the |code| field will have the code that was generated
@@ -591,8 +676,8 @@ to execute the invocation.  The |result| field will have the result, which will 
 
 \begin{itemize}
 \item |"success"| -- method was invoked successfully, the |bench_object_id|
-  field will link to the |bench_objects| entry (if the result was added to the
-  object bench, i.e. if the method was a constructor) and the the |type_name|
+  field will link to an entry in the \tabref{bench_objects} -- if the result was added to the
+  object bench, i.e. if the method was a constructor -- and the the |type_name|
   field will have the type of the result.
 \item |"compile_error"| -- an error occurred while compiling the generated code
   (e.g. because the user entered invalid parameters), the |compile_error|
@@ -602,7 +687,7 @@ to execute the invocation.  The |result| field will have the result, which will 
 \item |"exception"| -- an uncaught exception occurred during execution.  The
   |exception_class| field will have the class of the exception, the
   |exception_message| field will have the message, and there will be
-  associated entries in the |stack_entries| table linking to this event (the
+  associated entries in the \tabref{stack_entries} linking to this event (the
   |invocations| entry, not the |master_events| entry).
 \end{itemize}
 
@@ -612,7 +697,7 @@ The inspector events reference the inspectors table.
 
 %schema:inspectors
 
-\subsection{\lstinline!inspector_show! and \lstinline!inspector_hide!}
+\subsection{\lstinline!"inspector_show"! and \lstinline!"inspector_hide"!}
 
 This event has a |package_id| field, which indicates which package window the
 inspection was invoked from.  This is transitive, for occasions where users
@@ -644,7 +729,7 @@ entry that was hidden.
 
 \section{Object Bench}
 
-\subsection{\lstinline!bench_get!}
+\subsection{\lstinline!"bench_get"!}
 
 This event has a |package_id|, linking to which package the object
 bench is associated with.
@@ -654,25 +739,26 @@ class, or method result) and uses the Get button to transfer the
 object to the object bench -- or when they drag a result object over
 from the codepad.
   
-The event links to an entry in the |bench_objects| table, indicating
+The event links to an entry in the \tabref{bench_objects} (|event_type| will
+be |"BenchObject"|), indicating
 the object which was added to the bench.
 
 If a test was being recorded at the time, the |bench_objects| entry
 will have a link to the |tests| table, indicating which test was being recorded.
 
-\subsection{\lstinline!remove_object!}
+\subsection{\lstinline!"remove_object"!}
 
 This event has a |package_id|, linking to which package the object
 bench is associated with.
 
 The event occurs when a user explicitly removes an object from the object bench.
   
-The event links to an entry in the |bench_objects| tables, indicating
+The event links to an entry in the \tabref{bench_objects}, indicating
 the object which was removed from the bench.
 
-\section{Testing}
+\section{Executing Tests}
 
-\subsection{\lstinline!run_test!}
+\subsection{\lstinline!"run_test"!}
 
 This event has a |package_id|, linking to which package the test class
 is in.
@@ -697,7 +783,31 @@ took to execute.  The |result| field will have one of three values:
   |exception_message| and |exception_trace| fields have more information.
 \end{itemize}
 
-\subsection{\lstinline!assertion!}
+\section{Recording Tests}
+
+\subsection{\lstinline!"start_test"!, \lstinline!"cancel_test"! and \lstinline!"end_test"!}
+
+This event has a |package_id|, linking to which package the test class
+is in.
+
+These events relate to recording a test.  The user performs various actions,
+and at the end of the recording, code is generated in a new test method to
+mirror the user's actions.  Each of these events links to an entry in the
+|tests| table.
+
+%schema:tests
+
+Each entry in the |tests| table is one attempt (either ongoing, successful, or
+aborted) at recording a test.  The |source_file_id| links to the source file
+in which the final test method (named according to |method_name|) will be
+generated.  The |status| field will be |"Recording"|, |"Recorded"| or
+|"Cancelled"|, according to the test's current status.
+
+The |session_subid| field is an internal identifier used by the client to
+identify tests, and can be ignored.  The |session_id| field links to the
+session in which the test was recorded.
+
+\subsection{\lstinline!"assertion"!}
 
 This event has a |package_id|, linking to which package the test was
 recorded for.
@@ -707,12 +817,37 @@ The event links to an entry in the |assertions| table.
 %schema:assertions
 
 The |assertions| table links to an entry in the |invocations| table that the assertion
-relates to, and to an entry in the |tests| table for the test which
+relates to, and to an entry in the \tabref{tests} for the test which
 this assertion will be recorded into.
 
 The |assertion| field is the JUnit function that will be recorded,
 e.g. |"assertEquals"|.  The |param1| field and |param2| fields are
 the other parameters to the assertion.
+
+\subsection{\lstinline!"bench_to_fixture"! and \lstinline!"fixture_to_bench"!}
+
+These events have a |package_id|, linking to the package in which the object bench
+and test class are.
+
+These events occur when the user captures all the objects on the object bench
+and turns their creation into a test setup phase (bench to fixture) or runs a
+test setup to put the objects back onto the object bench (fixture to bench).
+
+These events link to an entry in the |fixtures| table.
+
+%schema:fixtures
+
+Each entry in the |fixtures| table links to the source file holding the test
+class involved.  A new fixture will be created for each |"bench_to_fixture"|
+or |"fixture_to_bench"| event.
+
+%schema:bench_objects_fixtures
+
+The |bench_objects_fixtures| table is a simple link table that links object
+bench objects to test fixtures.  In the case of |"bench_to_fixture"|, these
+objects are already on the bench and will be removed by this event.  In the
+case of |"fixture_to_bench"|, these objects will be added to the bench, and
+are created by this event.
 
 \section{Version Control}
 
@@ -724,18 +859,18 @@ Each version control event has an associated entry in the
 |version_control_events| table, with a |vcs_type| (built-in options:
 |"CVS"|, |"SVN"|) and a |protocol| (e.g. |"http"| or |"svn+ssh"|).
 
-\subsection{\lstinline!vcs_history! and \lstinline!vcs_share!}
+\subsection{\lstinline!"vcs_history"! and \lstinline!"vcs_share"!}
 
 These events get an associated entry in the |version_control_events|
 table, but no more data than that.
 
-\subsection{\lstinline!vcs_commit! and \lstinline!vcs_update!}
+\subsection{\lstinline!"vcs_commit"! and \lstinline!"vcs_update"!}
 
 These events get an associated entry in the |version_control_events|
 table, and also zero or more entries in the |version_control_files|
 table, with just the |file| field filled in.
 
-\subsection{\lstinline!vcs_status!}
+\subsection{\lstinline!"vcs_status"!}
 
 This event gets an associated entry in the |version_control_events|
 table, and also zero or more entries in the |version_control_files|
@@ -786,7 +921,26 @@ Each session is associated with a specific user.  There is a link to
 the \tabref{installation_details} -- specifically, the entry that
 accompanied the |bluej_start| event that began this session.  The
 |identifier| and |last_sequence_id| fields are used for internal
-book-keeping, and can be ignored.
+book-keeping, and can be ignored.  There is a link to an entry in the
+\tabref{installation_details}.
+
+\section{Installation Details}
+
+%schema:installation_details \intern
+
+The |installation_details| table contains the BlueJ |interface_language| -- the
+possible options are listed in the bluej.defs file.  The |operating_system|
+field glues together (with slashes) the output of Java's |System.getProperty|
+call for the keys |"os.name"|, |"os.arch"| and |"os.version"|.  The
+|bluej_version| is the version of BlueJ they are running, and |java_version|
+is the Java version being used to run BlueJ.
+
+\section{Extensions}
+
+%schema:extensions
+
+The |extensions| table contains the (self-reported) name and version of a
+BlueJ extension.  BlueJ comes with the submitter extension installed by default.
 
 \section{Projects}
 
@@ -884,7 +1038,7 @@ when this object was added to the bench.
 \section{Participant Information}
 \label{sec:views}
 
-To keep participant information (see section \ref{sec:participants}) hidden,
+To keep participant information (see \myref{sec:participants}) hidden,
 we hide the actual table involved, |participants|, and instead offer three
 database views of the information.
 
@@ -935,64 +1089,21 @@ select s.* from (select @experiment:="myexperiment", @participant:="p001") unuse
 
 \chapter{TODO List}
 
-\section{Answers}
+TODO mention the spurious line-ending-adding edit
 
-\begin{itemize}
-\item Should we record events when they are triggered by extensions?
-  (e.g. restart VM) -- DECIDED no, very invasive, not always possible
-\item Should we model a session in the database? -- YES!
-\item Should we record full stack trace during debugger, not just top line? -- YES
-\item Do we want to record any Terminal usage? -- YES: open, close
-\item Could we do better with distinguishing different projects with same
-  name, e.g. hashing the path -- YES
-\item Should we hard-code submit URL, or put it in properties?  Don't want to
-  allow redirection too easily. -- hardcode, like stats
-\item After removing old tables, change the |source_file| table to be
-  |source_file_path| (or similar), remove the project link, and use it like
-  |client_address| (i.e. a giant interned table for strings).  Although, is it
-  being relied upon as a uniqueness measure by some things (e.g. renames)? --
-  NO, I'm not sure this would save much anyway.
-\item Put a version number in source histories, to ease putting the diffs back
-  together -- NO, |id| will be sufficient for ordering, I think.  
-\item Should we make everything link to master event where possible, not the
-  sub-events? -- NO, if anything, probably the opposite
-\end{itemize}
+TODO what about test classes with no source?
 
-\section{Tasks}
+\chapter{Data Access}
 
-Testing/deployment:
+TODO talk about machine address, accounts, MySQL (SSH tunnels?), etc
 
-\begin{itemize}
-\item Check that all source file names are sent correctly (and are not class
-  names -- or at least, make sure distinction is clear)
-\item Make sure multi-threading is properly supported in the debugger
-\item Make sure AJAX live stream is off in production!
-\end{itemize}
+\chapter{Beta}
 
-\section{Questions}
+\section{Aims}
 
-Old:
-\begin{itemize}
-\item Added sessions, think they should become per-project, and maybe even per-package?
-\item Should there be |project_opening| and |package_opening| events
-  (basically, what about packages?)
-\item What do we want from object bench and methods?  E.g. parameter values,
-  return values, ``Get'' operations, Inspects
-\item What do we record for JUnit -- generated code?
-\item Do we want to record settings, e.g. whether scope highlighting is in
-  use
-\end{itemize}
+TODO
 
-New:
-\begin{itemize}
-\item Spurious |edit| at end of file on first load, I think it is adding final
-  line break on load-up.  Is it worth trying to suppress this?
-\item Add new package, remove package actions?
-\item Should we mark auto-indent, add method, or find/replace separately to other edit events?
-\item Should we coalesce edits that occur next to each other?
-\end{itemize}
-
-\chapter{Beta Artificialities}
+\section{Artificialities}
 
 \begin{itemize}
 \item UUID is shown in preferences dialog
