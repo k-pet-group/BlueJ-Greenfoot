@@ -34,6 +34,9 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
 
 /**
@@ -126,8 +129,11 @@ class DataSubmitter
      * Returns false if there was an error.
      */
     private static boolean postData(Event evt)
-    {        
-        HttpClient client = new DefaultHttpClient();
+    {   
+        HttpParams params = new BasicHttpParams();
+        HttpConnectionParams.setConnectionTimeout(params, 10000);
+        HttpConnectionParams.setSoTimeout(params, 10000);
+        HttpClient client = new DefaultHttpClient(params);
         
         try {
             HttpPost post = new HttpPost(submitUrl);
