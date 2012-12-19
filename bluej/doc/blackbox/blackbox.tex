@@ -9,7 +9,7 @@
 
 \usepackage{listings}
 \lstMakeShortInline{|}
-\lstset{columns=fixed,language=SQL,basicstyle=\ttfamily}
+\lstset{columns=flexible,language=SQL,basicstyle=\ttfamily}
 
 \def\sectionautorefname{Section}
 \def\subsectionautorefname{Section}
@@ -63,6 +63,7 @@ naively assume that one virtual user is one real person, you may draw false
 conclusions from your analysis.
 
 \section{Users}
+\label{def:users}
 
 BlueJ stores its properties file in a per-user location.  For example, on
 Linux, it uses |~/.bluej/bluej.properties|, whereas on Windows 7 it is (on a typical
@@ -879,39 +880,14 @@ in.
 
 \chapter{Other Database Tables}
 
-There are many database tables in the Blackbox schema.  These tables are
-written to using an object framework (Ruby on Rails) with its own persistence
-model.  Thus, each table has an \verb$id$ integer field which is the primary
-key, even if it would make sense for a different field to be primary key.  The
-\texttt{id} field is used internally for associations, but is assigned
-server-side, and never bears any relation to the BlueJ client.
-
 \section{Users}
 
 %schema:users
 
-The \texttt{uuid} field is the unique user identifier.  Whenever the BlueJ
-client loads up and does not find a valid BlueJ profile file with an existing
-UUID inside it, it generates a new UUID.  This means:
-
-\begin{itemize}
-\item if the user does not retain their profile file (e.g. their university
-  does not have roaming profiles, or wipes profiles on logout), they will
-  appear with a new UUID each time they load BlueJ.
-\item if the same person uses BlueJ from home (or laptop, etc) and from
-  university, they will appear as two separate users.
-\item if two people share the same profile (e.g. a single-user home system),
-  they will appear as one user.
-\end{itemize}
-
-The \texttt{created\_at} field shows the time that this user record was
-created (the first time their UUID was seen), and the \texttt{last\_update} field shows the last time that data was entered for
+The |uuid| field is the unique user identifier, as discussed in \myref{def:users}.
+The |created_at| field shows the time that this user record was
+created (the first time their UUID was seen), and the |last_update| field shows the last time that data was entered for
 this user.
-
-The \texttt{last\_sequence\_id} field is the last \hyperref[def:sequence_id]{sequence identifier} seen for
-this user.
-
-TODO make sure this is up-to-date
 
 \section{Sessions}
 
@@ -922,7 +898,8 @@ the \tabref{installation_details} -- specifically, the entry that
 accompanied the |bluej_start| event that began this session.  The
 |identifier| and |last_sequence_id| fields are used for internal
 book-keeping, and can be ignored.  There is a link to an entry in the
-\tabref{installation_details}.
+\tabref{participants} if this user had participant information filled in
+during the last event that was added to this session.
 
 \section{Installation Details}
 
@@ -1049,7 +1026,9 @@ available participant identifiers for a given experiment identifier.  You can
 call the view using a statement such as:
 
 \begin{lstlisting}
-select p.participant_identifier from (select @experiment:="myexperiment") unused, participant_identifiers_for_experiment p;
+select p.participant_identifier from
+  (select @experiment:="myexperiment") unused,
+  participant_identifiers_for_experiment p;
 \end{lstlisting}
 
 The inner select is a trick to set the |@experiment| parameter to be the
@@ -1073,19 +1052,23 @@ The columns returned are those from the \tabref{sessions}, plus the
 The view can be called using a statement such as:
 
 \begin{lstlisting}
-select s.* from (select @experiment:="myexperiment") unused, sessions_for_experiment s;
+select s.* from
+  (select @experiment:="myexperiment") unused,
+  sessions_for_experiment s;
 \end{lstlisting}
 
-%schema:sessions_for_experiment_participant
+%hidden:sessions_for_experiment_participant
 
-The |sessions_for_experiment_participant| view is very similar to
-|sessions_for_experiment|, but also allows you to specify the
-|participant_identifier|.  The columns returned are those from the
-\tabref{sessions}, and the view can be called using:
+% The |sessions_for_experiment_participant| view is very similar to
+% |sessions_for_experiment|, but also allows you to specify the
+% |participant_identifier|.  The columns returned are those from the
+% \tabref{sessions}, and the view can be called using:
 
-\begin{lstlisting}
-select s.* from (select @experiment:="myexperiment", @participant:="p001") unused, sessions_for_experiment_participant s;
-\end{lstlisting}
+% \begin{lstlisting}
+% select s.* from
+%   (select @experiment:="myexperiment", @participant:="p001") unused,
+%   sessions_for_experiment_participant s;
+% \end{lstlisting}
 
 \chapter{TODO List}
 
@@ -1095,13 +1078,116 @@ TODO what about test classes with no source?
 
 \chapter{Data Access}
 
-TODO talk about machine address, accounts, MySQL (SSH tunnels?), etc
+TODO talk about machine address, accounts, MySQL (SSH tunnels?), feed, etc
+
+The data collection project involves two machines, running Ubuntu.  Each
+machine has two 6-core hyperthreaded 2.5Ghz Xeon processors, with 32GB of RAM,
+and four 2TB drives set up in RAID 5 configuration to hold the database.
+
+One machine, nicknamed black, is
+responsible for collecting the data.  It solely runs the MySQL database, and
+the Ruby on Rails server.  
+
+The second machine, nicknamed white, has a live-cloned database from the recording
+machine.  White is the machine to which you will have an account, and be able
+to log in and perform data analysis.  The intention is that this way, nothing
+that anyone does while examining the database on white can affect the
+recording on black.
+
+\section{SSH Access}
+
+The white machine can be accessed by SSHing to |white.kent.ac.uk| on the
+standard port (22).  The machine runs Ubuntu.  If you need any software
+installed, then we can install any standard Ubuntu packages for you (email
+|nccb@bluej.org| and |davmac@bluej.org|).
+
+\section{MySQL}
+
+The white machine runs MySQL on the standard port (3306) on the localhost
+interface.  If you want to access the database directly from your own machine,
+you can use an SSH tunnel:
+
+\begin{lstlisting}
+ssh -L 3306:localhost:3306 white.kent.ac.uk
+\end{lstlisting}
+
+While that SSH session is open, you can access the database by running
+|mysql -u username -p|.
+
+\section{Feed}
+
+To get familiarity with the data collection, we provide a mechanism to observe
+a live feed of your own data.  The live feed is available, from the
+white machine, on |http://localhost:3080/feed|.  It is probably easiest to
+port-forward 3080 to your local machine using:
+
+\begin{lstlisting}
+ssh -L 3080:localhost:3080 white.kent.ac.uk
+\end{lstlisting}
+
+Then access |http://localhost:3080/feed| on your own machine.  You can find
+your own UUID in your |bluej.properties| file -- look for the line
+|blackbox.uuid=...|.  If you paste your UUID into the feed page and click the
+button, it will refresh every five seconds until closed (be warned!) to show
+you the data for that UUID.  Looking at this webpage while running BlueJ
+should give a good feel for what is being recorded.
+
+\section{Analysis Process}
+
+We anticipate that researchers will do some of their analysis on the white
+machine, and some on their own machine.  The advantage of using the white
+machine is that it is high-powered, and has immediate access to all of the
+data, without needing to copy the data across the Internet.  The disadvantage
+is that it can be a bit restrictive to operate on a remote machine for all
+analysis.  Researchers may therefore want to do a split, with some
+pre-processing on the white machine, followed by more investigation on their
+own machine.
+
+\chapter{Data Use Policies}
+
+The data that we collect is not public.  This is part of our ethics approval
+-- it is only visible to us, and selected researchers (i.e. those to whom we
+give an account on the white machine).  
+
+\section{Data Copying}
+
+We realise that researchers will ultimately end up taking some data (probably
+processed) on to their own machine.  We ask that you act responsibly, and make
+sure that the raw data is not made public, and also that you take care to not
+let your account on the white machine be compromised.  If you need multiple
+researchers at your institution to have access, we would prefer giving them
+all accounts to encouraging the practice of sharing accounts (and thus passwords).
+
+\section{Data Use}
+
+The data is intended for education research, and is anonymous.  We expect you
+to not attempt to identify any students or data within the database, except
+your own, and that of any participants in a study for which you have ethical
+approval.  In particular, we forbid any use of the data for the purposes of
+plagiarism detection (and similar) in students at your local institution.  The
+participation of the users in the experiment is conditional on the data being
+anonymous, and should not have any negative impacts for the participants.
+
+TODO talk about if they are allowed to take data, who to share it with
 
 \chapter{Beta}
 
 \section{Aims}
 
-TODO
+The aim of the beta is two-fold:
+
+\begin{itemize}
+\item Firstly, we want to test the software outside of our local setup.  We
+  would appreciate if you were able to test the software in a variety of
+  settings, e.g. from your home machine, from a student machine in your labs.
+  This will help pick up any technical problems with slow connections, or
+  firewalls, or unexpected lab setups and so on.
+\item Secondly, we invite feedback on the data schema (described in this
+  document).  Is there something we're not recording that you want to know?
+  Are we recording something in a way that will inhibit easy analysis?  Are
+  some of our caveats too big, or our guarantees too weak?  The recording
+  mechanism is much easier to alter before the public release than afterwards.
+\end{itemize}
 
 \section{Artificialities}
 
