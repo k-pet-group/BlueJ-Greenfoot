@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,6 +29,8 @@ import java.util.Set;
  * a type that the user has supplied in a text box, and which we haven't yet
  * parsed or performed equivalent magic with.<p>
  * 
+ * This is an actual type, not a wildcard, and not a primitive.<p>
+ * 
  * Most operations on this type fail with an UnsupportedOperationException.
  * 
  * @author Davin McCall
@@ -55,12 +57,13 @@ public class TextType extends GenTypeSolid
         throw new UnsupportedOperationException();
     }
 
-    /* (non-Javadoc)
+    /*
      * @see bluej.debugger.gentype.GenType#isPrimitive()
      */
+    @Override
     public boolean isPrimitive()
     {
-        throw new UnsupportedOperationException();
+        return false;
     }
 
     /* (non-Javadoc)
@@ -95,26 +98,6 @@ public class TextType extends GenTypeSolid
         throw new UnsupportedOperationException();
     }
 
-    public boolean isNumeric()
-    {
-        throw new UnsupportedOperationException();
-    }
-    
-    public boolean isIntegralType()
-    {
-        throw new UnsupportedOperationException();
-    }
-    
-    public boolean couldHold(int n)
-    {
-        throw new UnsupportedOperationException();
-    }
-    
-    public boolean typeIs(int v)
-    {
-        throw new UnsupportedOperationException();
-    }
-    
     public GenTypeClass asClass()
     {
         throw new UnsupportedOperationException();
@@ -148,10 +131,10 @@ public class TextType extends GenTypeSolid
     public String toTypeArgString(NameTransform nt)
     {
         // throw new UnsupportedOperationException();
-    	
-    	// Text types are generally typed in by the user, and require
-    	// no transformation.
-    	return text;
+        
+        // Text types are generally typed in by the user, and require
+        // no transformation.
+        return text;
     }
     
     public GenTypeSolid [] getUpperBounds()
@@ -174,13 +157,13 @@ public class TextType extends GenTypeSolid
     @Override
     public GenTypeArray getArray()
     {
-        throw new UnsupportedOperationException();
+        return new GenTypeArray(this);
     }
     
     @Override
     public boolean isWildcard()
     {
-        throw new UnsupportedOperationException();
+        return false;
     }
     
     @Override
