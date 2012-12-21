@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2011,2012  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -444,7 +444,7 @@ public final class MoeActions
                 // currently, the only character upon which we act is the
                 // closing brace ('}')
 
-                if (ch == '}') {
+                if (ch == '}' && PrefMgr.getFlag(PrefMgr.AUTO_INDENT)) {
                     closingBrace(textPane, doc, offset);
                 }
             }

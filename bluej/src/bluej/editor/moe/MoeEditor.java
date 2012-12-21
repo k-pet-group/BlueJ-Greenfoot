@@ -1245,6 +1245,11 @@ public final class MoeEditor extends JFrame
         }
         actions.userAction();
         doTextInsert.setEvent(e, sourcePane);
+        
+        // This may handle re-indentation; as this mutates the
+        // document, it must be done outside the notification.
+        // Really, this should be done via another mechanism - i.e.
+        // by binding '}' key to a specialised action. TODO.
         SwingUtilities.invokeLater(doTextInsert);
         
         recordEdit(false);        
