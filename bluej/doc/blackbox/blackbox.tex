@@ -1070,15 +1070,7 @@ select s.* from
 %   sessions_for_experiment_participant s;
 % \end{lstlisting}
 
-\chapter{TODO List}
-
-TODO mention the spurious line-ending-adding edit
-
-TODO what about test classes with no source?
-
 \chapter{Data Access}
-
-TODO talk about machine address, accounts, MySQL (SSH tunnels?), feed, etc
 
 The data collection project involves two machines, running Ubuntu.  Each
 machine has two 6-core hyperthreaded 2.5Ghz Xeon processors, with 32GB of RAM,
@@ -1088,7 +1080,7 @@ One machine, nicknamed black, is
 responsible for collecting the data.  It solely runs the MySQL database, and
 the Ruby on Rails server.  
 
-The second machine, nicknamed white, has a live-cloned database from the recording
+The second machine, nicknamed white, has a live-cloned database (named |blackbox_production|) from the recording
 machine.  White is the machine to which you will have an account, and be able
 to log in and perform data analysis.  The intention is that this way, nothing
 that anyone does while examining the database on white can affect the
@@ -1112,7 +1104,7 @@ ssh -L 3306:localhost:3306 white.kent.ac.uk
 \end{lstlisting}
 
 While that SSH session is open, you can access the database by running
-|mysql -u username -p|.
+|mysql -u username -p blackbox_production|.
 
 \section{Feed}
 
@@ -1143,20 +1135,35 @@ analysis.  Researchers may therefore want to do a split, with some
 pre-processing on the white machine, followed by more investigation on their
 own machine.
 
+\section{Data Snapshot}
+
+When researchers publish their data, they will specify their data source.  It
+is worth remembering that the Blackbox data is continually being added to, so
+it is also necessary to specify which time period data was used from.  We
+suggest choosing a cut-off date (e.g. the beginning date of the analysis) and
+ensuring that only data up until that cut-off date is used, so that the source
+of the data can be correctly specified as ``the Blackbox data repository was
+used, up until 2013-03-31''.  You can use the date stamps in the
+\tabref{master_events} to decide which data to use in your study.  (Bear in
+mind that this may bisect some sessions -- make sure you do not process the
+events in a session which fall outside your cut-off date).
+
 \chapter{Data Use Policies}
 
 The data that we collect is not public.  This is part of our ethics approval
 -- it is only visible to us, and selected researchers (i.e. those to whom we
 give an account on the white machine).  
 
-\section{Data Copying}
+\section{Data Caching/Copying}
 
 We realise that researchers will ultimately end up taking some data (probably
-processed) on to their own machine.  We ask that you act responsibly, and make
-sure that the raw data is not made public, and also that you take care to not
-let your account on the white machine be compromised.  If you need multiple
-researchers at your institution to have access, we would prefer giving them
-all accounts to encouraging the practice of sharing accounts (and thus passwords).
+processed) on to their own machine, as a pragmatic step during the analysis.
+We ask that you act responsibly, and make sure that the raw data is not made
+public, and also that you take care to not let your account on the white
+machine be compromised.  If you need multiple researchers at your institution
+to have access, we would prefer giving them all accounts rather than
+encouraging the practice of sharing accounts (and thus passwords).
+
 
 \section{Data Use}
 
@@ -1168,7 +1175,14 @@ plagiarism detection (and similar) in students at your local institution.  The
 participation of the users in the experiment is conditional on the data being
 anonymous, and should not have any negative impacts for the participants.
 
-TODO talk about if they are allowed to take data, who to share it with
+\section{Sharing and Publication}
+
+Researchers should not share the data with anyone -- any other researchers
+wanting access should ask us for accounts.  Obviously, at some point,
+researchers may want to publish their findings.  We expect that the data will
+either be published in an aggregated form (which thus retains anonymity), and
+that any individual case studies/vignettes will be manually anonymised, if
+necessary.
 
 \chapter{Beta}
 
@@ -1195,5 +1209,13 @@ The aim of the beta is two-fold:
 \item UUID is shown in preferences dialog
 \item Message logged to debug log if there is a problem with event submission
 \end{itemize}
+
+\section{Notes}
+
+During the beta, it may prove necessary to change the data schema.  In this
+case, data may be wiped, and analysis tools may need adjusting.  This is in
+order to provide the best setting for collecting the actual data: once the
+beta is over, there will be a stable interface to code against, and no data
+will be removed.
 
 \end{document}
