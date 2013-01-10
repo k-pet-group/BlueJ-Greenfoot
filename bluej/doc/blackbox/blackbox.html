@@ -1,7 +1,14 @@
 <style>
 body {
-  font-size: 10pt;
+  font-size: 11pt;
   font-family: sans-serif;
+}
+
+.heading {
+  display:block;
+  font-size: 24pt;
+  margin-top: 20px;
+  margin-bottom: 5px;
 }
   
 .question-heading {
@@ -10,20 +17,42 @@ body {
   margin-top: 20px;
   margin-bottom: 5px;
 }
-.answer {
+.answer, p {
   display: block;
   margin-left: 20px;
 }
 
 #container{
   width: 600px;
+  margin-top: 20px;
+  margin-bottom: 50px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+img {
+  display: block;
   margin: 10px auto;
 }
+
 </style>
 
 <div id="container">
 
-Frequently Asked Questions:
+<img src="http://bluej.org/images/decor/blueroom-icon.png"
+     align="center" />
+
+<div class="heading">BlueJ Blackbox Data Collection Project</div>
+
+<p>
+The BlueJ Blackbox data collection project is an initiative by the
+developers of BlueJ to collect data on how BlueJ is used, in order to
+increase understanding of how students learn to program.  The data
+collected is for the purposes of academic research, and will only be
+used by computing education researchers.
+</p>
+
+<div class="heading">Frequently Asked Questions:</div>
 
 <ul>
   <li><a href="#what_data">What data will be sent?</a></li>
@@ -32,12 +61,19 @@ Frequently Asked Questions:
   <li>How much traffic will this generate?</li>
   <li><a href="#opt_in_out">How can I opt in/out?</a></li>
   <li><a href="#repeated">Why do I repeatedly get asked if I want to opt in?</a></li>
+  <li><a href="#contact">My question isn't answered here</a></li>
 </ul>
 
 <span class="question-heading" id="what_data">What data will be sent?</span>
 
-
-
+<div class="answer">
+The main data that will be sent is the
+(<a href="#anon">anonymised</a>) source code from your projects.  We
+also record the use of the BlueJ interface: for example, which methods
+are invoked, use of the codepad, use of the debugger, and how you use
+other features of BlueJ.  No identifying information (e.g. username)
+will be sent with the data.
+</div>
 
 <span class="question-heading" id="who">Who will the data be sent to?</span>
 
@@ -89,6 +125,17 @@ and this decision stored thereafter.
   line:</p>
 
 <pre>blackbox.uuid=optout</pre>
+</div>
+
+<span class="question-heading" id="contact">My question isn't
+  answered here</span>
+
+<div class="answer">
+If you are having a technical problem with BlueJ, even if it is
+related to the Blackbox project, please contact us
+via <a href="http://bluej.org/help/supportform.html">our standard support form</a>.  If you have a question about the
+research side of the Blackbox project, you can contact us
+at <a href="mailto:blackbox-admin@bluej.org">blackbox-admin@bluej.org</a>.
 </div>
 
 </div>
