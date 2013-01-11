@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2012,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -811,7 +811,7 @@ public final class Config
             mnemonic = KeyEvent.VK_UNDEFINED;
         }
         else {
-            mnemonic = getKeyCodeAt(str, index + 1);
+            mnemonic = str.codePointAt(index + 1);
         }
         return mnemonic;
     }
@@ -847,7 +847,7 @@ public final class Config
         }
         keyString = str.substring(index).toUpperCase();
         if(keyString.length() == 1) {
-            return KeyStroke.getKeyStroke(getKeyCodeAt(keyString, 0), modifiers);
+            return KeyStroke.getKeyStroke(keyString.codePointAt(0), modifiers);
         }
         else {
             KeyStroke k1= KeyStroke.getKeyStroke(keyString);
@@ -855,36 +855,6 @@ public final class Config
         }
     }
     
-    /**
-     * Gets the keycode at the given position. On Java 1.5 this will be the code
-     * point which can also handle supplementary characters. On previous java
-     * versions it will return the BMP (Basic Multilingual Plane) character.
-     * 
-     * @return The keycode
-     * @throws IndexOutOfBoundsException if the index argument is negative or
-     *             not less than the length of this string.
-     */
-    private static int getKeyCodeAt(String str, int index)
-    {
-        // Currently the only use for this method is for retrieving mnemonics
-        // and accelerator keys. I have no idea if supplementary characters will
-        // ever be used for mnemonics or accelerators, but at least it should be
-        // supported.
-        // Poul Henriksen 11/04-2006
-        int code;
-        if (isJava15()) {
-            // Supplementary unicode characters are only supported in Java
-            // 1.5
-            code = str.codePointAt(index);
-        }
-        else {
-            // Will get the BMP (Basic Multilingual Plane) character and
-            // hence will not work with supplementary characters
-            code = str.charAt(index);
-        }
-        return code;
-    }
-        
     /**
      * Get a system-dependent string from the BlueJ properties
      * System-dependent strings are properties that can
