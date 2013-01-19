@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 2012,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,7 +22,6 @@
 package bluej.collect;
 
 import java.io.File;
-import java.io.Reader;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -207,6 +206,7 @@ public class DataCollector
      */
     private static void submitEventNoData(Project project, Package pkg, EventName eventName)
     {
+        if (dontSend()) return;
         submitEvent(project, pkg, eventName, new PlainEvent(new MultipartEntity()));
     }
     
@@ -317,6 +317,8 @@ public class DataCollector
 
     public static void compiled(Project proj, Package pkg, File[] sources, List<DiagnosticWithShown> diagnostics, boolean success)
     {
+        if (dontSend()) return;
+        
         MultipartEntity mpe = new MultipartEntity();
         
         mpe.addPart("event[compile_success]", CollectUtility.toBody(success));
@@ -377,6 +379,10 @@ public class DataCollector
     
     public static void projectOpened(Project proj, List<ExtensionWrapper> projectExtensions)
     {
+        if (dontSend()) {
+            return;
+        }
+        
         MultipartEntity mpe = new MultipartEntity();
         
         addExtensions(mpe, projectExtensions);
@@ -477,6 +483,7 @@ public class DataCollector
             }
             
             
+            @SuppressWarnings("unchecked")
             @Override
             public MultipartEntity makeData(int sequenceNum, Map<FileKey, List<String>> fileVersions)
             {
@@ -524,8 +531,6 @@ public class DataCollector
                     fileVersions.put(key, anonDoc);
                 }
             }
-            
-            
         });
     }
     
@@ -534,12 +539,18 @@ public class DataCollector
     {
         submitEventNoData(project, null, EventName.DEBUGGER_TERMINATE);        
     }
+    
     public static void debuggerChangeVisible(Project project, boolean newVis)
     {
         submitEventNoData(project, null, newVis ? EventName.DEBUGGER_OPEN : EventName.DEBUGGER_CLOSE);        
     }
+    
     public static void debuggerBreakpointToggle(Package pkg, File sourceFile, int lineNumber, boolean newState)
     {
+        if (dontSend()) {
+            return;
+        }
+
         submitEventWithLocalLocation(pkg.getProject(), pkg, newState ? EventName.DEBUGGER_BREAKPOINT_ADD : EventName.DEBUGGER_BREAKPOINT_REMOVE, null, sourceFile, lineNumber);
     }
     
@@ -552,6 +563,10 @@ public class DataCollector
 
     public static void debuggerHalt(Project project, String threadName, SourceLocation[] stack)
     {
+        if (dontSend()) {
+            return;
+        }
+
         MultipartEntity mpe = new MultipartEntity();
         mpe.addPart("event[thread_name]", CollectUtility.toBody(threadName));
         submitDebuggerEventWithLocation(project, EventName.DEBUGGER_HALT, mpe, stack);
@@ -559,6 +574,10 @@ public class DataCollector
     
     public static void debuggerStepInto(Project project, String threadName, SourceLocation[] stack)
     {
+        if (dontSend()) {
+            return;
+        }
+
         MultipartEntity mpe = new MultipartEntity();
         mpe.addPart("event[thread_name]", CollectUtility.toBody(threadName));
         submitDebuggerEventWithLocation(project, EventName.DEBUGGER_STEP_INTO, mpe, stack);
@@ -566,6 +585,10 @@ public class DataCollector
     
     public static void debuggerStepOver(Project project, String threadName, SourceLocation[] stack)
     {
+        if (dontSend()) {
+            return;
+        }
+
         MultipartEntity mpe = new MultipartEntity();
         mpe.addPart("event[thread_name]", CollectUtility.toBody(threadName));
         submitDebuggerEventWithLocation(project, EventName.DEBUGGER_STEP_OVER, mpe, stack);
@@ -573,6 +596,10 @@ public class DataCollector
     
     public static void debuggerHitBreakpoint(Project project, String threadName, SourceLocation[] stack)
     {
+        if (dontSend()) {
+            return;
+        }
+
         MultipartEntity mpe = new MultipartEntity();
         mpe.addPart("event[thread_name]", CollectUtility.toBody(threadName));
         submitDebuggerEventWithLocation(project, EventName.DEBUGGER_HIT_BREAKPOINT, mpe, stack);
@@ -608,6 +635,10 @@ public class DataCollector
 
     public static void renamedClass(Package pkg, File oldSourceFile, File newSourceFile)
     {
+        if (dontSend()) {
+            return;
+        }
+
         MultipartEntity mpe = new MultipartEntity();
         mpe.addPart("source_histories[][source_history_type]", CollectUtility.toBody("rename"));
         mpe.addPart("source_histories[][content]", CollectUtility.toBodyLocal(pkg.getProject(), oldSourceFile));
@@ -617,6 +648,10 @@ public class DataCollector
     
     public static void removeClass(Package pkg, File sourceFile)
     {
+        if (dontSend()) {
+            return;
+        }
+        
         MultipartEntity mpe = new MultipartEntity();
         mpe.addPart("source_histories[][source_history_type]", CollectUtility.toBody("file_delete"));
         mpe.addPart("source_histories[][name]", CollectUtility.toBodyLocal(pkg.getProject(), sourceFile));
@@ -625,6 +660,10 @@ public class DataCollector
     
     public static void addClass(Package pkg, File sourceFile)
     {
+        if (dontSend()) {
+            return;
+        }
+        
         final MultipartEntity mpe = new MultipartEntity();
         final Project project = pkg.getProject();
         
@@ -702,89 +741,105 @@ public class DataCollector
     
     public static void invokeCompileError(Package pkg, String code, String compilationError)
     {
-        MultipartEntity mpe = new MultipartEntity();
-        
-        mpe.addPart("event[invoke][code]", CollectUtility.toBody(code));
-        mpe.addPart("event[invoke][result]", CollectUtility.toBody("compile_error"));
-        mpe.addPart("event[invoke][compile_error]", CollectUtility.toBody(compilationError));
-        submitEvent(pkg.getProject(), pkg, EventName.INVOKE_METHOD, new PlainEvent(mpe));        
+        if (! dontSend()) {
+            MultipartEntity mpe = new MultipartEntity();
+
+            mpe.addPart("event[invoke][code]", CollectUtility.toBody(code));
+            mpe.addPart("event[invoke][result]", CollectUtility.toBody("compile_error"));
+            mpe.addPart("event[invoke][compile_error]", CollectUtility.toBody(compilationError));
+            submitEvent(pkg.getProject(), pkg, EventName.INVOKE_METHOD, new PlainEvent(mpe));
+        }
     }
     
     public static void invokeMethodSuccess(Package pkg, String code, String objName, String typeName, int testIdentifier, int invocationIdentifier)
     {
-        MultipartEntity mpe = new MultipartEntity();
-        
-        mpe.addPart("event[invoke][code]", CollectUtility.toBody(code));
-        mpe.addPart("event[invoke][type_name]", CollectUtility.toBody(typeName));
-        mpe.addPart("event[invoke][result]", CollectUtility.toBody("success"));
-        mpe.addPart("event[invoke][test_identifier]", CollectUtility.toBody(testIdentifier));
-        mpe.addPart("event[invoke][invoke_identifier]", CollectUtility.toBody(invocationIdentifier));
-        if (objName != null)
-        {
-            mpe.addPart("event[invoke][bench_object][class_name]", CollectUtility.toBody(typeName));
-            mpe.addPart("event[invoke][bench_object][name]", CollectUtility.toBody(objName));
+        if (! dontSend()) {
+            MultipartEntity mpe = new MultipartEntity();
+
+            mpe.addPart("event[invoke][code]", CollectUtility.toBody(code));
+            mpe.addPart("event[invoke][type_name]", CollectUtility.toBody(typeName));
+            mpe.addPart("event[invoke][result]", CollectUtility.toBody("success"));
+            mpe.addPart("event[invoke][test_identifier]", CollectUtility.toBody(testIdentifier));
+            mpe.addPart("event[invoke][invoke_identifier]", CollectUtility.toBody(invocationIdentifier));
+            if (objName != null)
+            {
+                mpe.addPart("event[invoke][bench_object][class_name]", CollectUtility.toBody(typeName));
+                mpe.addPart("event[invoke][bench_object][name]", CollectUtility.toBody(objName));
+            }
+            submitEvent(pkg.getProject(), pkg, EventName.INVOKE_METHOD, new PlainEvent(mpe));
         }
-        submitEvent(pkg.getProject(), pkg, EventName.INVOKE_METHOD, new PlainEvent(mpe));        
     }
     
     public static void invokeMethodException(Package pkg, String code, ExceptionDescription ed)
     {
-        MultipartEntity mpe = new MultipartEntity();
-        
-        mpe.addPart("event[invoke][code]", CollectUtility.toBody(code));
-        mpe.addPart("event[invoke][result]", CollectUtility.toBody("exception"));
-        mpe.addPart("event[invoke][exception_class]", CollectUtility.toBody(ed.getClassName()));
-        mpe.addPart("event[invoke][exception_message]", CollectUtility.toBody(ed.getText()));
-        DataCollector.addStackTrace(mpe, "event[invoke][exception_stack]", ed.getStack().toArray(new SourceLocation[0]));
-        submitEvent(pkg.getProject(), pkg, EventName.INVOKE_METHOD, new PlainEvent(mpe));        
+        if (! dontSend()) {
+            MultipartEntity mpe = new MultipartEntity();
+
+            mpe.addPart("event[invoke][code]", CollectUtility.toBody(code));
+            mpe.addPart("event[invoke][result]", CollectUtility.toBody("exception"));
+            mpe.addPart("event[invoke][exception_class]", CollectUtility.toBody(ed.getClassName()));
+            mpe.addPart("event[invoke][exception_message]", CollectUtility.toBody(ed.getText()));
+            DataCollector.addStackTrace(mpe, "event[invoke][exception_stack]", ed.getStack().toArray(new SourceLocation[0]));
+            submitEvent(pkg.getProject(), pkg, EventName.INVOKE_METHOD, new PlainEvent(mpe));
+        }
     }
     
     public static void invokeMethodTerminated(Package pkg, String code)
     {
-        MultipartEntity mpe = new MultipartEntity();
-        mpe.addPart("event[invoke][code]", CollectUtility.toBody(code));
-        mpe.addPart("event[invoke][result]", CollectUtility.toBody("terminated"));
-        submitEvent(pkg.getProject(), pkg, EventName.INVOKE_METHOD, new PlainEvent(mpe));        
+        if (! dontSend()) {
+            MultipartEntity mpe = new MultipartEntity();
+            mpe.addPart("event[invoke][code]", CollectUtility.toBody(code));
+            mpe.addPart("event[invoke][result]", CollectUtility.toBody("terminated"));
+            submitEvent(pkg.getProject(), pkg, EventName.INVOKE_METHOD, new PlainEvent(mpe));
+        }
     }
     
     public static void removeObject(Package pkg, String name)
     {
-        MultipartEntity mpe = new MultipartEntity();
-        mpe.addPart("event[object_name]", CollectUtility.toBody(name));
-        submitEvent(pkg.getProject(), pkg, EventName.REMOVE_OBJECT, new PlainEvent(mpe));
+        if (! dontSend()) {
+            MultipartEntity mpe = new MultipartEntity();
+            mpe.addPart("event[object_name]", CollectUtility.toBody(name));
+            submitEvent(pkg.getProject(), pkg, EventName.REMOVE_OBJECT, new PlainEvent(mpe));
+        }
     }
 
 
     public static void inspectorClassShow(Package pkg, Inspector inspector, String className)
     {
-        MultipartEntity mpe = new MultipartEntity();
-        mpe.addPart("event[inspect][unique]", CollectUtility.toBody(inspector.getUniqueId()));
-        mpe.addPart("event[inspect][static_class]", CollectUtility.toBody(className));
-        inspectorPackages.put(inspector, pkg);
-        submitEvent(pkg.getProject(), pkg, EventName.INSPECTOR_SHOW, new PlainEvent(mpe));
+        if (! dontSend()) {
+            MultipartEntity mpe = new MultipartEntity();
+            mpe.addPart("event[inspect][unique]", CollectUtility.toBody(inspector.getUniqueId()));
+            mpe.addPart("event[inspect][static_class]", CollectUtility.toBody(className));
+            inspectorPackages.put(inspector, pkg);
+            submitEvent(pkg.getProject(), pkg, EventName.INSPECTOR_SHOW, new PlainEvent(mpe));
+        }
     }
     
     public static void inspectorObjectShow(Package pkg, Inspector inspector, String benchName, String className, String displayName)
     {
-        MultipartEntity mpe = new MultipartEntity();
-        mpe.addPart("event[inspect][unique]", CollectUtility.toBody(inspector.getUniqueId()));
-        mpe.addPart("event[inspect][display_name]", CollectUtility.toBody(displayName));
-        mpe.addPart("event[inspect][class_name]", CollectUtility.toBody(className));
-        if (benchName != null)
-        {
-            mpe.addPart("event[inspect][bench_object_name]", CollectUtility.toBody(benchName));
+        if (! dontSend()) {
+            MultipartEntity mpe = new MultipartEntity();
+            mpe.addPart("event[inspect][unique]", CollectUtility.toBody(inspector.getUniqueId()));
+            mpe.addPart("event[inspect][display_name]", CollectUtility.toBody(displayName));
+            mpe.addPart("event[inspect][class_name]", CollectUtility.toBody(className));
+            if (benchName != null)
+            {
+                mpe.addPart("event[inspect][bench_object_name]", CollectUtility.toBody(benchName));
+            }
+            inspectorPackages.put(inspector, pkg);
+            submitEvent(pkg.getProject(), pkg, EventName.INSPECTOR_SHOW, new PlainEvent(mpe));
         }
-        inspectorPackages.put(inspector, pkg);
-        submitEvent(pkg.getProject(), pkg, EventName.INSPECTOR_SHOW, new PlainEvent(mpe));
     }
     
     public static void inspectorHide(Project project, Inspector inspector)
     {
-        MultipartEntity mpe = new MultipartEntity();
-        mpe.addPart("event[inspect][unique]", CollectUtility.toBody(inspector.getUniqueId()));
-        if (inspector instanceof ClassInspector || inspector instanceof ObjectInspector)
-        {
-            submitEvent(project, inspectorPackages.get(project), EventName.INSPECTOR_HIDE, new PlainEvent(mpe));
+        if (! dontSend()) {
+            MultipartEntity mpe = new MultipartEntity();
+            mpe.addPart("event[inspect][unique]", CollectUtility.toBody(inspector.getUniqueId()));
+            if (inspector instanceof ClassInspector || inspector instanceof ObjectInspector)
+            {
+                submitEvent(project, inspectorPackages.get(project), EventName.INSPECTOR_HIDE, new PlainEvent(mpe));
+            }
         }
     }
 
