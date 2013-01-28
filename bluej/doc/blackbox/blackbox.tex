@@ -6,6 +6,7 @@
 \usepackage{graphicx}
 \usepackage{hyperref}
 \hypersetup{colorlinks=true,linkcolor=blue}
+\usepackage{pdfpages}
 
 \usepackage{listings}
 \lstMakeShortInline{|}
@@ -31,11 +32,25 @@
   \end{center}
 \end{titlepage}
 
+\section*{Getting Started}
+
 This document acts as a manual for the BlueJ data collection project,
 ``Blackbox''.  It is intended to explain, in detail, the schema of the
 collected data, and how the data relates to the BlueJ IDE.  It assumes a basic
 familiarity with BlueJ's capabilities, such as the debugger, codepad, object
 bench and so on.
+
+Chapter \ref{sec:concepts} explains the concepts, assumptions and caveats
+associated with the data recording.  It is important to read this chapter
+before carrying out any detailed analysis, so that you do not proceed with
+false assumptions.  Chapters \ref{sec:master_events} and
+\ref{sec:other_tables} contain technical detail on the data schema.
+
+Chapter \ref{sec:data_access} contains details on how to actually access the
+data (MySQL details, etc), and chapter \ref{sec:data_use} contains the
+data-use policies which we expect all researchers to read.  Finally, chapter
+\ref{sec:example_codeview} has details on the example application we have
+provided, and chapter \ref{sec:beta} has a few brief notes about the beta phase.
 
 \begingroup
 \let\clearpage\relax
@@ -55,6 +70,7 @@ bench and so on.
 \end{table}
 
 \chapter{Concepts and Caveats}
+\label{sec:concepts}
 
 There are several concepts involved in the Blackbox project, and it is
 very important when doing analysis on the data to understand the concepts
@@ -308,6 +324,7 @@ interning strings.  This is a performance optimisation that should have no
 effect on the semantics.  Tables that do this are tagged as such.
 
 \chapter{Master Events Table}
+\label{sec:master_events}
 
 The master events table is the place where all events are entered.  There are
 lots of different types of events that can be received, each with a variety of
@@ -879,6 +896,7 @@ table, with the |file| field filled in, and the |status| field filled
 in.
 
 \chapter{Other Database Tables}
+\label{sec:other_tables}
 
 \section{Users}
 
@@ -1070,7 +1088,17 @@ select s.* from
 %   sessions_for_experiment_participant s;
 % \end{lstlisting}
 
+\section{Schema Diagram}
+
+The next page has an overview diagram for all the tables in the database, and
+how they connect
+
+\newpage
+
+\includepdf[pages={1},landscape=true]{models.pdf}
+
 \chapter{Data Access}
+\label{sec:data_access}
 
 The data collection project involves two machines, running Ubuntu.  Each
 machine has two 6-core hyperthreaded 2.5Ghz Xeon processors, with 32GB of RAM,
@@ -1094,6 +1122,7 @@ installed, then we can install any standard Ubuntu packages for you (email
 |nccb@bluej.org| and |davmac@bluej.org|).
 
 \section{MySQL}
+\label{sec:ssh-tunnel}
 
 The white machine runs MySQL on the standard port (3306) on the localhost
 interface.  If you want to access the database directly from your own machine,
@@ -1149,6 +1178,7 @@ mind that this may bisect some sessions -- make sure you do not process the
 events in a session which fall outside your cut-off date).
 
 \chapter{Data Use Policies}
+\label{sec:data_use}
 
 The data that we collect is not public.  This is part of our ethics approval
 -- it is only visible to us, and selected researchers (i.e. those to whom we
@@ -1184,7 +1214,35 @@ either be published in an aggregated form (which thus retains anonymity), and
 that any individual case studies/vignettes will be manually anonymised, if
 necessary.
 
+\chapter{Analysis Example: CodeView}
+\label{sec:example_codeview}
+
+We have created a simple proof-of-concept analysis tool (``CodeView'') to give a quick idea
+of how analysis might work.  It appears to have a lot of code, but almost all
+of it (in the |bluej.*| packages) is ripped from BlueJ -- code for displaying
+the editor.
+
+In the default package are five classes.  |IdName| is a simple data holder,
+and |ListDialog| is a class to ask the user to pick an item from a list.  The
+class |DatabaseInterface| has some Java code for interfacing with the
+database.  It connects to localhost (assuming you are running the SSH tunnel
+as described in section \ref{sec:ssh-tunnel}).  It demonstrates running a few
+queries, given the UUID, to find a user's projects, and the files within a
+chosen project.  For that file, the full history of the file is pulled.
+
+The |SourceHistory| class uses the DiffUtils Java library to apply the
+necessary diffs to reconstruct the source history.  You can also use the
+command-line |patch| application (available on all Unix-like systems) or any
+similar library in other languages.  The |Viewer| class ties all this
+together, and displays the source in a BlueJ editor window, and binds the
+scroll wheel to moving backwards and forwards through the version history.
+
+(Note: the sample has a slight irritation that the cursor is always moved to the end
+of the file during scrolling, but the point is to demonstrate the database
+queries and diffs and so on.)
+
 \chapter{Beta}
+\label{sec:beta}
 
 \section{Aims}
 
