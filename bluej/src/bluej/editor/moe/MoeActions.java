@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2011,2012,2013  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -1661,6 +1661,9 @@ public final class MoeActions
      * Do some semi-intelligent indentation. That is: indent the current line to
      * the same depth, using the same characters (TABs or spaces) as the line
      * immediately above.
+     * 
+     * @param isNewLine   true if the action was to insert a line or closing brace;
+     *                     false if the action was to tab/indent
      */
     private void doIndent(JTextComponent textPane, boolean isNewLine)
     {
@@ -1720,6 +1723,11 @@ public final class MoeActions
             }
 
             int indentPos = MoeIndent.findFirstNonIndentChar(prevLineText, isCommentEnd);
+            String indent = prevLineText.substring(0, indentPos);
+            
+            if (isOpenBrace) {
+                indentPos += tabSize;
+            }
 
             // if the cursor is already past the indentation point, insert tab
             // (unless we just did a line break, then we just stop)
@@ -1730,8 +1738,6 @@ public final class MoeActions
                     insertSpacedTab(textPane);
                 return;
             }
-
-            String indent = prevLineText.substring(0, indentPos);
 
             if (isNewLine && isNewCommentStart(indent, doc, lineStart)) {
                 completeNewCommentBlock(textPane, indent);
@@ -1902,8 +1908,12 @@ public final class MoeActions
     }
 
     /**
-     * Transform indentation string to ensure: after " / *" follows " *" after " / * *"
-     * follows " *" after " * /" follows ""
+     * Transform indentation string to ensure:
+     * <ul>
+     * <li>after " / *" follows " *"
+     * <li>after " / * *" follows " *"
+     * <li>after " * /" follows ""
+     * </ul>
      */
     private String nextIndent(String s, boolean openBrace, boolean commentEndOnly)
     {
