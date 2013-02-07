@@ -1,0 +1,41 @@
+editor-crashed
+Greenfoot is gecrashed terwijl we deze klasse aan het
+wegschrijven waren naar je schijf. De broncode kan ontbreken of
+onvolledig zijn. Er zou een backup van deze klasse in de project
+map moeten staan. Als deze klasse er beschadigd uitziet,
+   1 - sluit Greenfoot
+   2 - neem een backup van je project map (voor het geval dat...)
+   3 - zoek in de projectmap naar een backup van het javabestand. 
+       Geef het zijn originele naam terug (met een '.java' suffix)
+
+error-create-vm
+Greenfoot kon geen virtual machine (VM) creëren om scenario's uit te voeren.
+Dit is dikwijls het gevolg van te strikte firewall instellingen.
+Kijk hier [ http://www.bluej.org/help/faq.html#socket-exc ] voor meer
+informatie, of contacteer support@greenfoot.org.
+
+project-is-readonly
+Het geopende scenario is alleen-lezen:
+:
+    $
+:
+Om dit scenario te gebruiken, zal je eerst een nieuwe locatie moeten
+kiezen om het te bewaren.
+
+cannot-save-project
+Het scenario kon niet bewaard worden op de opgegeven locatie. 
+Controleer of je schrijfrechten hebt, of
+kies een andere locatie.
+
+cannot-create-project
+Het scenario kon niet gemaakt worden. Controleer of
+je kan schrijven in de gekozen map.
+
+project-already-exists
+Het opgegeven scenario bestaat reeds. Om een nieuw scenario
+te maken, kies je een locatie en geef je een unieke naam op
+(dit doe je in de bestandsdialoog).
+
+archive-not-greenfoot-project
+Het geselecteerde archief bevat geen Greenfoot project 
+(probeer de archiefinhoud uit te pakken met een andere tool).
