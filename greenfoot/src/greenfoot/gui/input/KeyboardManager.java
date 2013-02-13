@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2011,2012  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2011,2012,2013  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -340,7 +340,6 @@ public class KeyboardManager implements TriggeredKeyListener, FocusListener
                 keycode = KeyEvent.VK_DOWN;
             }
             else if (keycode == KeyEvent.VK_KP_LEFT) {
-                System.out.println("VK_KP_LEFT!");
                 keycode = KeyEvent.VK_LEFT;
             }
             else if (keycode == KeyEvent.VK_KP_RIGHT) {
