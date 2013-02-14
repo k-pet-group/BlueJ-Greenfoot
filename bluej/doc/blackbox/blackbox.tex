@@ -1119,7 +1119,7 @@ recording on black.
 The white machine can be accessed by SSHing to |white.kent.ac.uk| on the
 standard port (22).  The machine runs Ubuntu.  If you need any software
 installed, then we can install any standard Ubuntu packages for you (email
-|nccb@bluej.org| and |davmac@bluej.org|).
+|blackbox-admin@bluej.org|).
 
 \section{MySQL}
 \label{sec:ssh-tunnel}
@@ -1129,11 +1129,12 @@ interface.  If you want to access the database directly from your own machine,
 you can use an SSH tunnel:
 
 \begin{lstlisting}
-ssh -L 3306:localhost:3306 white.kent.ac.uk
+ssh -L 3306:localhost:3306 ssh_username@white.kent.ac.uk
 \end{lstlisting}
 
 While that SSH session is open, you can access the database by running
-|mysql -u username -p blackbox_production|.
+|mysql -u username -p blackbox_production|.  You will have been given
+the MySQL details separately when you got an account on the machine.
 
 \section{Feed}
 
@@ -1143,7 +1144,7 @@ white machine, on |http://localhost:3080/feed|.  It is probably easiest to
 port-forward 3080 to your local machine using:
 
 \begin{lstlisting}
-ssh -L 3080:localhost:3080 white.kent.ac.uk
+ssh -L 3080:localhost:3080 ssh_username@white.kent.ac.uk
 \end{lstlisting}
 
 Then access |http://localhost:3080/feed| on your own machine.  You can find
@@ -1254,12 +1255,19 @@ The aim of the beta is two-fold:
   settings, e.g. from your home machine, from a student machine in your labs.
   This will help pick up any technical problems with slow connections, or
   firewalls, or unexpected lab setups and so on.
-\item Secondly, we invite feedback on the data schema (described in this
-  document).  Is there something we're not recording that you want to know?
-  Are we recording something in a way that will inhibit easy analysis?  Are
-  some of our caveats too big, or our guarantees too weak?  The recording
-  mechanism is much easier to alter before the public release than afterwards.
+\item Secondly, we invite feedback on the data schema (described in
+  this document).  Is there something we're not recording that you want to
+  know?  Are we recording something in a way that will inhibit easy
+  analysis?  Are some of our caveats too big, or our guarantees too
+  weak?  The recording mechanism is much easier to alter before the
+  public release than afterwards.
 \end{itemize}
+
+We also welcome feedback on this document: is there anything that is
+not clear, or missing, or that could be improved?
+
+Send comments either to the mailing list |blackbox@bluej.org| or
+directly to us at |blackbox-admin@bluej.org|.
 
 \section{Artificialities}
 
