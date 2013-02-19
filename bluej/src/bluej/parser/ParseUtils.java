@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -322,7 +322,7 @@ public class ParseUtils
      * Process tokens as type arguments
      * @param base  The base type, i.e. the type to which the arguments are applied
      * @param i     A ListIterator to iterate through the tokens
-     * @param depthRef  The argument depth
+     * @param depthRef  The current argument depth; will be adjusted on return
      * @return   A JavaEntity representing the type with type arguments applied (or null)
      */
     private static JavaEntity processTypeArgs(EntityResolver resolver, Reflective querySource, 
@@ -366,6 +366,11 @@ public class ParseUtils
                     return null;
                 }
                 taList.add(new SolidTargEntity(taEnt));
+            }
+            
+            if (depthRef.depth <= startDepth) {
+                // We've hit the closing '>' already
+                break;
             }
             
             if (! i.hasNext()) {
