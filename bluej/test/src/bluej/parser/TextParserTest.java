@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2012,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -892,6 +892,13 @@ public class TextParserTest extends TestCase
         
         r = tp.parseCommand("12345L");
         assertEquals("long", r);
+        
+        // Obscure hexadecimal floating point - value after P is exponent (in decimal)
+        r = tp.parseCommand("0xabcP2");
+        assertEquals("double", r);
+        
+        r = tp.parseCommand("0xabcP2f");
+        assertEquals("float", r);
     }
     
     //test behaviour of parsing of statements and expressions
