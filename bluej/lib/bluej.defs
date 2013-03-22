@@ -9,8 +9,11 @@
 ## in the user property file. The user property file is in
 ##
 ##    <USER_HOME>/.bluej/bluej.properties                     (Unix)
-##    C:\Winnt\profiles\<USER_NAME>\bluej\bluej.properties    (WinNT)
-##    C:\<JDK_HOME>\bluej\bluej.properties                    (Win9x)
+##    C:\Users\<USER_NAME>\bluej\bluej.properties           (Windows)
+##
+## (The location of the properties file is the same as the location
+##  of the debug log file, and this location is displayed in the
+##  "About BlueJ" dialog).
 ##
 ## Each of the properties in this file may be copied to the user
 ## properties file. Settings in the user file override the system
