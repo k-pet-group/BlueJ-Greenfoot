@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 2012,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,43 +29,35 @@ import bluej.extensions.MenuGenerator;
 import bluej.pkgmgr.Package;
 
 /**
- * Implementation of the {@link ExtensionMenuObject} interface for the Tools
+ * Implementation of the {@link ExtensionMenu} interface for the View
  * menu.
  * 
  * @author Simon Gerlach
  */
-public class ToolsMenuObject implements ExtensionMenuObject
+public class ViewExtensionMenu implements ExtensionMenu
 {
     private Package bluejPackage;
-    
+
     /**
-     * Constructor. Creates a new {@link ToolsMenuObject}.
+     * Constructor. Creates a new {@link ViewExtensionMenu}.
      * 
      * @param bluejPackage
      *            The current package opened in BlueJ.
      */
-    public ToolsMenuObject(Package bluejPackage)
+    public ViewExtensionMenu(Package bluejPackage)
     {
         this.bluejPackage = bluejPackage;
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public JMenuItem getMenuItem(MenuGenerator menuGenerator)
     {
         if (bluejPackage == null) {
-            JMenuItem menuItem = menuGenerator.getToolsMenuItem(null);
-
-            if (menuItem != null) {
-                return menuItem;
-            }
-
-            // Try to use the old deprecated method.
-            return menuGenerator.getMenuItem();
+            return menuGenerator.getViewMenuItem(null);
         }
 
         BPackage bPackage = ExtensionBridge.newBPackage(bluejPackage);
-        return menuGenerator.getToolsMenuItem(bPackage);
+        return menuGenerator.getViewMenuItem(bPackage);
     }
 
     @Override
@@ -73,10 +65,10 @@ public class ToolsMenuObject implements ExtensionMenuObject
     {
         if (bluejPackage == null) {
             // Only BPackages can be null when a menu is invoked
-            menuGenerator.notifyPostToolsMenu(null, onThisItem);
+            menuGenerator.notifyPostViewMenu(null, onThisItem);
         } else {
             BPackage bPackage = ExtensionBridge.newBPackage(bluejPackage);
-            menuGenerator.notifyPostToolsMenu(bPackage, onThisItem);
+            menuGenerator.notifyPostViewMenu(bPackage, onThisItem);
         }
     }
 }

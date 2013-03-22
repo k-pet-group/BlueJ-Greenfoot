@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 2012,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,35 +29,43 @@ import bluej.extensions.MenuGenerator;
 import bluej.pkgmgr.Package;
 
 /**
- * Implementation of the {@link ExtensionMenuObject} interface for the View
- * menu.
+ * Implementation of the {@link ExtensionMenu} interface for the Tools
+ * menu, allowing extensions to add menu items to the Tools menu.
  * 
  * @author Simon Gerlach
  */
-public class ViewMenuObject implements ExtensionMenuObject
+public class ToolsExtensionMenu implements ExtensionMenu
 {
     private Package bluejPackage;
-
+    
     /**
-     * Constructor. Creates a new {@link ViewMenuObject}.
+     * Constructor. Creates a new {@link ToolsExtensionMenu}.
      * 
      * @param bluejPackage
-     *            The current package opened in BlueJ.
+     *            The package to generate the menu for; null for no open package.
      */
-    public ViewMenuObject(Package bluejPackage)
+    public ToolsExtensionMenu(Package bluejPackage)
     {
         this.bluejPackage = bluejPackage;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public JMenuItem getMenuItem(MenuGenerator menuGenerator)
     {
         if (bluejPackage == null) {
-            return menuGenerator.getViewMenuItem(null);
+            JMenuItem menuItem = menuGenerator.getToolsMenuItem(null);
+
+            if (menuItem != null) {
+                return menuItem;
+            }
+
+            // Try to use the old deprecated method.
+            return menuGenerator.getMenuItem();
         }
 
         BPackage bPackage = ExtensionBridge.newBPackage(bluejPackage);
-        return menuGenerator.getViewMenuItem(bPackage);
+        return menuGenerator.getToolsMenuItem(bPackage);
     }
 
     @Override
@@ -65,10 +73,10 @@ public class ViewMenuObject implements ExtensionMenuObject
     {
         if (bluejPackage == null) {
             // Only BPackages can be null when a menu is invoked
-            menuGenerator.notifyPostViewMenu(null, onThisItem);
+            menuGenerator.notifyPostToolsMenu(null, onThisItem);
         } else {
             BPackage bPackage = ExtensionBridge.newBPackage(bluejPackage);
-            menuGenerator.notifyPostViewMenu(bPackage, onThisItem);
+            menuGenerator.notifyPostToolsMenu(bPackage, onThisItem);
         }
     }
 }

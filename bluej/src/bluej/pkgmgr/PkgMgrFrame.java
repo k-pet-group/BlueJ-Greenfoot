@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2011,2012,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -96,8 +96,8 @@ import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.debugmgr.texteval.TextEvalArea;
 import bluej.extmgr.ExtensionsManager;
 import bluej.extmgr.MenuManager;
-import bluej.extmgr.ToolsMenuObject;
-import bluej.extmgr.ViewMenuObject;
+import bluej.extmgr.ToolsExtensionMenu;
+import bluej.extmgr.ViewExtensionMenu;
 import bluej.groupwork.actions.CheckoutAction;
 import bluej.groupwork.actions.TeamActionGroup;
 import bluej.groupwork.ui.ActivityIndicator;
@@ -739,10 +739,10 @@ public class PkgMgrFrame extends JFrame
             
             updateTextEvalBackground(isEmptyFrame());
                     
-            this.toolsMenuManager.setAttachedObject(new ToolsMenuObject(pkg));
+            this.toolsMenuManager.setMenuGenerator(new ToolsExtensionMenu(pkg));
             this.toolsMenuManager.addExtensionMenu(pkg.getProject());
 
-            this.viewMenuManager.setAttachedObject(new ViewMenuObject(pkg));
+            this.viewMenuManager.setMenuGenerator(new ViewExtensionMenu(pkg));
             this.viewMenuManager.addExtensionMenu(pkg.getProject());
         
             teamActions = pkg.getProject().getTeamActions();
@@ -823,8 +823,8 @@ public class PkgMgrFrame extends JFrame
             classScroller.setBorder(Config.normalBorder);
             editor.removeMouseListener(this);
             editor.removeFocusListener(this);
-            this.toolsMenuManager.setAttachedObject(new ToolsMenuObject(pkg));
-            this.viewMenuManager.setAttachedObject(new ViewMenuObject(pkg));
+            this.toolsMenuManager.setMenuGenerator(new ToolsExtensionMenu(pkg));
+            this.viewMenuManager.setMenuGenerator(new ViewExtensionMenu(pkg));
             
             getObjectBench().removeAllObjects(getProject().getUniqueId());
             clearTextEval();
@@ -3046,8 +3046,10 @@ public class PkgMgrFrame extends JFrame
 
             // If this is the first frame create the extension tools menu now.
             // (Otherwise, it will be created during project open.)
-            if (frames.size() <= 1)
+            if (frames.size() <= 1) {
+                toolsMenuManager.setMenuGenerator(new ToolsExtensionMenu(null));
                 toolsMenuManager.addExtensionMenu(null);
+            }
         }
 
         menu = new JMenu(Config.getString("menu.view"));

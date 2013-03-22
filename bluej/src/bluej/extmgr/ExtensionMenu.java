@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 2012,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -32,7 +32,7 @@ import bluej.extensions.MenuGenerator;
  * 
  * @author Simon Gerlach
  */
-public interface ExtensionMenuObject
+public interface ExtensionMenu
 {
     /**
      * Calls the extension to get a menu item.

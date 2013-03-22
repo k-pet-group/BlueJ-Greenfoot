@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -30,7 +30,7 @@ import javax.swing.JPopupMenu;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.extmgr.MenuManager;
-import bluej.extmgr.PackageMenuObject;
+import bluej.extmgr.PackageExtensionMenu;
 import bluej.graph.GraphEditor;
 import bluej.pkgmgr.actions.NewClassAction;
 import bluej.pkgmgr.actions.NewPackageAction;
@@ -43,7 +43,7 @@ import bluej.views.CallableView;
  * Canvas to allow editing of packages
  *
  * @author  Andrew Patterson
- * @version $Id: PackageEditor.java 9624 2012-03-29 17:04:54Z davmac $
+ * @version $Id: PackageEditor.java 10528 2013-03-22 14:09:18Z davmac $
  */
 public final class PackageEditor extends GraphEditor
 {
@@ -145,7 +145,7 @@ public final class PackageEditor extends GraphEditor
 
         Package bluejPackage = (Package) getGraph();
         MenuManager menuManager = new MenuManager(menu);
-        menuManager.setAttachedObject(new PackageMenuObject(bluejPackage));
+        menuManager.setMenuGenerator(new PackageExtensionMenu(bluejPackage));
         menuManager.addExtensionMenu(bluejPackage.getProject());
 
         return menu;

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2012,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -31,8 +31,9 @@ import javax.swing.event.*;
 
 
 /**
- * Manages the menus being added by extensions.
- * An instance of this class is attached to each popup menu that needs to be aware of extensions menu.
+ * Manages the interface between a menu and extensions.
+ * An instance of this class is attached to each popup menu that extensions
+ * may add items to.
  *
  * @author Damiano Bolla, University of Kent at Canterbury, 2003,2004,2005
  */
@@ -41,7 +42,7 @@ public final class MenuManager implements PopupMenuListener
     private final ExtensionsManager extMgr;
     private final JPopupMenu.Separator menuSeparator;
     private final JPopupMenu popupMenu;
-    private ExtensionMenuObject attachedObject;
+    private ExtensionMenu menuGenerator;
 
     /**
      * Constructor for the MenuManager object.
@@ -65,7 +66,7 @@ public final class MenuManager implements PopupMenuListener
     public void addExtensionMenu(Project onThisProject)
     {
         // Get all menus that can be possibly be generated now.
-        List<JMenuItem> menuItems = extMgr.getMenuItems(attachedObject, onThisProject);
+        List<JMenuItem> menuItems = extMgr.getMenuItems(menuGenerator, onThisProject);
 
         // Retrieve all the items from the current menu
         MenuElement[] elements = popupMenu.getSubElements();
@@ -106,13 +107,13 @@ public final class MenuManager implements PopupMenuListener
     }
 
     /**
-     * Sets the object being attached to this menu.
+     * Sets the menu generator for this MenuManager.
      *
-     * @param  attachedTo  The new attachedObject value
+     * @param  menuGenerator  The new attachedObject value
      */
-    public void setAttachedObject(ExtensionMenuObject attachedTo)
+    public void setMenuGenerator(ExtensionMenu menuGenerator)
     {
-        attachedObject = attachedTo;
+        this.menuGenerator = menuGenerator;
     }
 
     /**
@@ -153,7 +154,7 @@ public final class MenuManager implements PopupMenuListener
                 continue;
             }
 
-            aWrapper.safePostMenuItem(attachedObject, (JMenuItem) aComponent);
+            aWrapper.safePostMenuItem(menuGenerator, (JMenuItem) aComponent);
 
             itemsCount++;
         }

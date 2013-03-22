@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 2012,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,22 +29,22 @@ import bluej.extensions.ExtensionBridge;
 import bluej.extensions.MenuGenerator;
 
 /**
- * Implementation of the {@link ExtensionMenuObject} interface for the Object
+ * Implementation of the {@link ExtensionMenu} interface for the Object
  * menu.
  * 
  * @author Simon Gerlach
  */
-public class ObjectMenuObject implements ExtensionMenuObject
+public class ObjectExtensionMenu implements ExtensionMenu
 {
     private ObjectWrapper objectWrapper;
 
     /**
-     * Constructor. Creates a new {@link ObjectMenuObject}.
+     * Constructor. Creates a new {@link ObjectExtensionMenu}.
      * 
      * @param objectWrapper
      *            The object which was selected by the user.
      */
-    public ObjectMenuObject(ObjectWrapper objectWrapper)
+    public ObjectExtensionMenu(ObjectWrapper objectWrapper)
     {
         this.objectWrapper = objectWrapper;
     }

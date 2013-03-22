@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2011,2012,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -64,7 +64,7 @@ import bluej.debugmgr.ResultWatcher;
 import bluej.extensions.BObject;
 import bluej.extensions.ExtensionBridge;
 import bluej.extmgr.MenuManager;
-import bluej.extmgr.ObjectMenuObject;
+import bluej.extmgr.ObjectExtensionMenu;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.prefmgr.PrefMgr;
@@ -358,7 +358,7 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
         item.setForeground(envOpColour);
 
         MenuManager menuManager = new MenuManager (menu); 
-        menuManager.setAttachedObject(new ObjectMenuObject(this));
+        menuManager.setMenuGenerator(new ObjectExtensionMenu(this));
         menuManager.addExtensionMenu(pkg.getProject());
 
         add(menu);

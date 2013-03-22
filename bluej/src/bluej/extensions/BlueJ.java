@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -69,7 +69,7 @@ import javax.swing.*;
  * after its <code>terminate()</code> method has been called will result
  * in an (unchecked) <code>ExtensionUnloadedException</code> being thrown.
  *
- * @version    $Id: BlueJ.java 10080 2012-12-06 16:39:26Z nccb $
+ * @version    $Id: BlueJ.java 10528 2013-03-22 14:09:18Z davmac $
  */
 
 /*
@@ -935,7 +935,7 @@ public final class BlueJ
      * @param  attachedObject  Description of the Parameter
      * @return                 The menuItem value
      */
-    JMenuItem getMenuItem(ExtensionMenuObject attachedObject)
+    JMenuItem getMenuItem(ExtensionMenu attachedObject)
     {
         if ((currentMenuGen == null) || (attachedObject == null)) {
             return null;
@@ -948,7 +948,7 @@ public final class BlueJ
     /**
      * Post a notification of a menu going to be displayed
      */
-    void postMenuItem(ExtensionMenuObject attachedObject, JMenuItem onThisItem)
+    void postMenuItem(ExtensionMenu attachedObject, JMenuItem onThisItem)
     {
         if ((currentMenuGen != null) && (attachedObject != null)) {
             attachedObject.postMenuItem(currentMenuGen, onThisItem);

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2012,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,7 +28,7 @@ import javax.swing.JMenuItem;
 import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.extensions.BDependency.Type;
 import bluej.extensions.event.ExtensionEvent;
-import bluej.extmgr.ExtensionMenuObject;
+import bluej.extmgr.ExtensionMenu;
 import bluej.extmgr.ExtensionPrefManager;
 import bluej.extmgr.ExtensionWrapper;
 import bluej.pkgmgr.Package;
@@ -128,12 +128,12 @@ public final class ExtensionBridge
         bDependency.targetNameChanged(newTargetName);
     }
 
-    public static JMenuItem getMenuItem(BlueJ aBluej, ExtensionMenuObject attachedObject)
+    public static JMenuItem getMenuItem(BlueJ aBluej, ExtensionMenu attachedObject)
     {
         return aBluej.getMenuItem(attachedObject);
     }
 
-    public static void postMenuItem(BlueJ aBluej, ExtensionMenuObject attachedObject,
+    public static void postMenuItem(BlueJ aBluej, ExtensionMenu attachedObject,
         JMenuItem onThisItem)
     {
         aBluej.postMenuItem(attachedObject, onThisItem);

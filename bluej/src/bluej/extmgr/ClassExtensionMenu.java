@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 2012,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,43 +23,43 @@ package bluej.extmgr;
 
 import javax.swing.JMenuItem;
 
-import bluej.extensions.BPackage;
+import bluej.extensions.BClass;
 import bluej.extensions.ExtensionBridge;
 import bluej.extensions.MenuGenerator;
-import bluej.pkgmgr.Package;
+import bluej.pkgmgr.target.ClassTarget;
 
 /**
- * Implementation of the {@link ExtensionMenuObject} interface for the Package
+ * Implementation of the {@link ExtensionMenu} interface for the Class
  * menu.
  * 
  * @author Simon Gerlach
  */
-public class PackageMenuObject implements ExtensionMenuObject
+public class ClassExtensionMenu implements ExtensionMenu
 {
-    private Package bluejPackage;
+    private ClassTarget classTarget;
 
     /**
-     * Constructor. Creates a new {@link PackageMenuObject}.
+     * Constructor. Creates a new {@link ClassExtensionMenu}.
      * 
-     * @param bluejPackage
-     *            The current package opened in BlueJ.
+     * @param classTarget
+     *            The class target which was selected by the user.
      */
-    public PackageMenuObject(Package bluejPackage)
+    public ClassExtensionMenu(ClassTarget classTarget)
     {
-        this.bluejPackage = bluejPackage;
+        this.classTarget = classTarget;
     }
 
     @Override
     public JMenuItem getMenuItem(MenuGenerator menuGenerator)
     {
-        BPackage bPackage = ExtensionBridge.newBPackage(bluejPackage);
-        return menuGenerator.getPackageMenuItem(bPackage);
+        BClass bClass = ExtensionBridge.newBClass(classTarget);
+        return menuGenerator.getClassMenuItem(bClass);
     }
 
     @Override
     public void postMenuItem(MenuGenerator menuGenerator, JMenuItem onThisItem)
     {
-        BPackage bPackage = ExtensionBridge.newBPackage(bluejPackage);
-        menuGenerator.notifyPostPackageMenu(bPackage, onThisItem);
+        BClass bClass = ExtensionBridge.newBClass(classTarget);
+        menuGenerator.notifyPostClassMenu(bClass, onThisItem);
     }
 }
