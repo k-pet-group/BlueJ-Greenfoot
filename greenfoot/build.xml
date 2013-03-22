@@ -26,7 +26,7 @@
     unlikely to break scenarios (documentation changes, addition of method).
     Changing this number will stripe the user's classes and require a recompile.
     Do not change this number if the changes cannot break older scenarios. -->
-    <property name="greenfoot.apiversion.nonbreaking" value="4"/>
+    <property name="greenfoot.apiversion.nonbreaking" value="5"/>
     
     <!-- Change when API has only changed internally and not in any way visible to the user. 
     It should not be possible for this change to break existing scenarios. 
@@ -234,7 +234,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <macrodef name="compile-scenario">
             <attribute name="scenario" />
             <sequential>
-                <javac srcdir="scenarios/@{scenario}" debug="true" target="1.6">
+                <javac srcdir="scenarios/@{scenario}" debug="true" target="1.6" source="1.6">
                     <classpath>
                         <path refid="greenfoot.class.path"/>
                         <path refid="bluej.class.path"/>

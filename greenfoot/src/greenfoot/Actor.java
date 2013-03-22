@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2013  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -43,7 +43,7 @@ import java.util.List;
  * The method here is empty, and subclasses normally provide their own implementations.
  * 
  * @author Poul Henriksen
- * @version 2.4
+ * @version 2.5
  */
 public abstract class Actor
 {
@@ -911,6 +911,36 @@ public abstract class Actor
     {
         failIfNotInWorld();
         return world.getOneIntersectingObject(this, cls);
+    }
+    
+    /**
+     * Checks whether this actor is touching any other objects
+     * of the given class.
+     * 
+     * @param cls Class of objects to look for (passing 'null' will check for all actors).
+     */
+    @SuppressWarnings("rawtypes")
+    protected boolean isTouching(Class cls)
+    {
+        failIfNotInWorld();
+        return getOneIntersectingObject(cls) != null;
+    }
+    
+    /**
+     * Removes one object of the given class that this actor is
+     * currently touching (if any exist). 
+     * 
+     * @param cls Class of objects to remove (passing 'null' will remove any actor).
+     */
+    @SuppressWarnings("rawtypes")
+    protected void removeTouching(Class cls)
+    {
+        failIfNotInWorld();
+        Actor a = getOneIntersectingObject(cls);
+        if (a != null)
+        {
+            world.removeObject(a);
+        }
     }
     
     /**
