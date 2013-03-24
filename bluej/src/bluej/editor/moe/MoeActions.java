@@ -38,8 +38,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
@@ -71,8 +72,8 @@ import bluej.editor.moe.MoeIndent.AutoIndentInformation;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.nodes.CommentNode;
 import bluej.parser.nodes.MethodNode;
-import bluej.parser.nodes.ParsedNode;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
+import bluej.parser.nodes.ParsedNode;
 import bluej.prefmgr.PrefMgr;
 import bluej.prefmgr.PrefMgrDialog;
 import bluej.utility.Debug;
@@ -385,6 +386,7 @@ public final class MoeActions
             if (Config.isMacOS() && (version < 140)) {
                 // do not attempt to load old bindings on MacOS when switching
                 // to jdk 1.4.1
+                istream.close();
                 return false;
             }
 
@@ -2021,7 +2023,10 @@ public final class MoeActions
     {
         try {
             File template = Config.getTemplateFile(templateName);
-            BufferedReader in = new BufferedReader(new FileReader(template));
+            
+            InputStream fileStream = new FileInputStream(template);
+            BufferedReader in = new BufferedReader(new InputStreamReader(fileStream, "UTF-8"));
+            
             int addedTextLength = 0;
             String line = in.readLine();
             while (line != null) {
@@ -2040,6 +2045,8 @@ public final class MoeActions
             int caretPos = editor.getSourcePane().getCaretPosition();
             AutoIndentInformation info = MoeIndent.calculateIndentsAndApply(editor.getSourceDocument(),caretPos - addedTextLength,caretPos+2,caretPos);
             editor.setCaretPositionForward(info.getNewCaretPosition() - editor.getSourcePane().getCaretPosition());
+            
+            in.close();
         }
         catch (IOException exc) {
             Debug.reportError("Could not read method template.");
