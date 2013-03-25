@@ -1,0 +1,30 @@
+editor-crashed
+Il semblerait que Greenfoot ait plant\u00e9 en \u00e9crivant cette
+classe sur le disque la derni\u00e8re fois. Le code source est
+peut-\u00eatre manquant ou incomplet. Il devrait y avoir une
+sauvegarde de cette classe dans le dossier du projet. Si
+cette classe semble endommag\u00e9e,
+   1 - quittez BlueJ
+   2 - sauvegardez le dossier du projet (au cas o\u00f9)
+   3 - recherchez une sauvegarde de cette classe dans le
+       dossier du projet. Renommez-le en .java (son nom
+       d'origine)
+
+error-create-vm
+Greenfoot n'a pas pu cr\u00e9er de machine virtuelle (VM) pour ex\u00e9cuter les sc\u00e9narios.
+Cela est souvent caus\u00e9 par des param\u00e8tres de pare-feu trop resctrictifs.
+Pour plus d'informations, voir [ http://www.bluej.org/help/faq.html#socket-exc ],
+ou contacter support@greenfoot.org.
+
+project-is-readonly
+Le scenario en cours d'ouverture est en lecture seule:
+:
+    $
+:
+Pour utiliser ce scenario, vous devrez d'abord choisir un
+nouvel emplacement o\u00f9 l'enregistrer.
+
+cannot-save-project
+Le scenario n'a pas pu \u00eatre enregistr\u00e9 \u00e0 l'emplacement sp\u00e9cifi\u00e9.
+V\u00e9rifiez que vous y avez acc\u00e8s en \u00e9criture, ou choisissez un
+nouvel emplacement.
