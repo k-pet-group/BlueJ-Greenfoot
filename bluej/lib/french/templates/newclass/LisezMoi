@@ -1,41 +1,41 @@
 LISEZMOI - <bluej-home>/lib/<french_canadian>/templates/newclass/LisezMoi
 --------------------------------------------------------------
 
-Ce r\u00e9pertoire contient les mod\u010dles de classe pour BlueJ.
+Ce répertoire contient les modčles de classe pour BlueJ.
 
-Ces mod\u010dles de classe sont propos\u00e9s par la fonction "Nouvelle classe"
+Ces modčles de classe sont proposés par la fonction "Nouvelle classe"
 de l'environnement BlueJ.
 
 
-Modification des mod\u010dles
+Modification des modčles
 --------------------------
-Les mod\u010dles peuvent \u0119tre facilement modifi\u00e9s en \u00e9ditant ces fichiers.
+Les modčles peuvent ętre facilement modifiés en éditant ces fichiers.
 
 
-Ajouter de nouveaux mod\u010dles
+Ajouter de nouveaux modčles
 -----------------------------
-Pour ajouter un mod\u010dle, cr\u00e9ez un nouveau fichier dans ce r\u00e9pertoire
+Pour ajouter un modčle, créez un nouveau fichier dans ce répertoire
 avec l'extension ".tmpl" (par exemple "mainclass.tmpl").
 
 Les noms pour les applets, interfaces ou classes abstraites doivent commencer
 par "applet", "interface" ou "abstract" respectivement.
-Tout autre nom sera consid\u00e9r\u00e9 comme une classe standard.
+Tout autre nom sera considéré comme une classe standard.
 
-Par d\u00e9faut, ce mod\u010dle appara\u00eetra en fin de liste de s\u00e9lection dans
+Par défaut, ce modčle apparaîtra en fin de liste de sélection dans
 la fonction "Nouvelle classe" de BlueJ avec son nom ("mainclass").
 
-Le nom apparaissant dans la liste peut \u0119tre d\u00e9fini
-en renseignant la propri\u00e9t\u00e9 "pkgmgr.newClass.<template-name>" dans le fichier
-d'\u00e9tiquettes BlueJ (<bluej-home>/lib/<language>/labels).
-Par exemple, en d\u00e9finissant
+Le nom apparaissant dans la liste peut ętre défini
+en renseignant la propriété "pkgmgr.newClass.<template-name>" dans le fichier
+d'étiquettes BlueJ (<bluej-home>/lib/<language>/labels).
+Par exemple, en définissant
 
    pkgmgr.newClass.mainclass=Class with Main
 
-le nom "Class with Main" appara\u00eetra dans la liste pour votre nouveau choix.
+le nom "Class with Main" apparaîtra dans la liste pour votre nouveau choix.
 
-La position dans la liste peut \u0119tre sp\u00e9cifi\u00e9e en
-ajoutant ce nouveau mod\u010dle \u0155 la liste d\u00e9finie par la propri\u00e9t\u00e9
-"bluej.classTemplates" du fichier de d\u00e9finitions BlueJ
+La position dans la liste peut ętre spécifiée en
+ajoutant ce nouveau modčle ŕ la liste définie par la propriété
+"bluej.classTemplates" du fichier de définitions BlueJ
 (<bluej-home>/lib/bluej.defs).
-Tous les mod\u010dles qui y sont indiqu\u00e9s appara\u00eetront dans l'ordre indiqu\u00e9,
-les autres mod\u010dles seront pr\u00e9sent\u00e9s dans un ordre al\u00e9atoire.
+Tous les modčles qui y sont indiqués apparaîtront dans l'ordre indiqué,
+les autres modčles seront présentés dans un ordre aléatoire.

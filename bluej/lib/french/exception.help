@@ -80,6 +80,22 @@ premier cas est probable - r\u00e9-installez le JDK.
 Sinon, essayez de recompiler votre projet en
 entier.
 
+StackOverflowError*
+L'erreur indique que vous avez d\u00e9pass\u00e9 la m\u00e9moire disponible.
+Cela se produit g\u00e9n\u00e9ralement quand votre programme a une erreur
+sp\u00e9cifique appel\u00e9e "boucle infinie".
+Boucle signifie qu'une m\u00e9thode s'appelle elle-m\u00eame. Boucle
+infinie signifie que vous faites cela ind\u00e9finiment, et que
+finalement vous d\u00e9passez la m\u00e9moire disponible.
+Regardez votre code et cherchez si l'une des m\u00e9thodes
+contient un appel \u00e0 elle-m\u00eame. Ce n'est pas un probl\u00e8me en
+soit, sauf si elle s'appelle encore et encore et encore
+\u00e0 l'infini.
+Le m\u00eame probl\u00e8me arrive aussi si vous avez un constructeur
+qui instantie un autre objet de la m\u00eame classe. Dans ce cas
+votre constructeur va s'appeler lui-m\u00eame, qui va faire de m\u00eame,
+etc... Vous avez saisi l'id\u00e9e.
+
 ArrayStoreException*
 Vous avez tent\u00e9 d'assigner un objet d'un certain
 type \u00e0 un tableau d'objets d'un autre type.

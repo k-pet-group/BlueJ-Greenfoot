@@ -1,20 +1,16 @@
 fichier: lisezmoi
-description: Traduction française du logiciel BlueJ
-Date: 2007-07-10
-Auteur: Patrice Moreaux
-        Polytech'Savoie, Université de Savoie, Anecy, FRANCE
-        (patrice.moreaux@univ-savoie.fr)
+description: Traduction franï¿½aise du logiciel BlueJ
+===================================================
 
-Version BlueJ concernée: 2.2.0 (2007-07-09)
+Date: 2013-02-05
+Auteur: Ludovic Borie
+        Romain Sertelon,
+        pour Programatoo (programatoo@sfeir.com)
 
+Version BlueJ concernÃ©e: 2.2.1
 
-Remerciements
--------------
-Cette traduction est basée sur la version du 2003-12-06.
-La traduction du 2003-12-06 est basée sur celle fournie par
-  Daniel U. Thibault R & D pour la défense Canada - Valcartier (Daniel.Thibault@DRDC-RDDC.GC.Ca)
-  pour la version 1.3.0beta4 (2003-07-14)
-elle-même basée sur ma traduction pour la version 1.2.2
+Cette traduction est disponible et ouverte Ã  participation sur Github
+https://github.com/lborie/FrenchGreenfoot
 
 
 Principes de traduction
@@ -23,18 +19,18 @@ La traduction concerne l'environnement BlueJ :
 - menus
 - commentaires d'erreur
 - messages d'aide de BlueJ
-- les aides de l'éditeur "moe" liées aux associations de touches
+- les aides de l'ï¿½diteur "moe" liï¿½es aux associations de touches
   (key bindings)
-- les messages du système sous-jacent Java
+- les messages du systï¿½me sous-jacent Java
 - le texte des exemples
-- le texte des modèles (templates)
+- le texte des modï¿½les (templates)
 
-Je considère qu'un programmeur francophone, même débutant,
-peut programmer aussi bien en anglais qu'en français, pour
-ce qui est des noms d'entités privées (variables, méthodes,
-classes, etc.).  Cependant, il est préférable que les noms
-d'entités publiques et la documentation du code soient en
-anglais afin de préserver l'universalité du code.
+Je considï¿½re qu'un programmeur francophone, mï¿½me dï¿½butant,
+peut programmer aussi bien en anglais qu'en franï¿½ais, pour
+ce qui est des noms d'entitï¿½s privï¿½es (variables, mï¿½thodes,
+classes, etc.).  Cependant, il est prï¿½fï¿½rable que les noms
+d'entitï¿½s publiques et la documentation du code soient en
+anglais afin de prï¿½server l'universalitï¿½ du code.
 
 
 Terminologie
@@ -44,61 +40,61 @@ Concernant les aspects cvs/subversion (versionnement):
 - le terme "Commit" est traduit par "Validation", "Valider".
 - le terme "Checkout" est traduit par "Extraction", Extraire".
 - le terme "merge" est traduit par "fusion".
-- le terme "repository" est traduit par "dépôt".
+- le terme "repository" est traduit par "dï¿½pï¿½t".
 - le terme "location" est traduit par "localisation".
-- le terme "pserver" est conservé.
-- le terme "OK" a été conservé.
+- le terme "pserver" est conservï¿½.
+- le terme "OK" a ï¿½tï¿½ conservï¿½.
 Concernant les aspects "Diagram" (diagrammes):
 - le terme "layout" est traduit par "agencement".
-Concernant les aspects "Team" (travail en équipe):
-- le terme "Team" est traduit par "équipe".
+Concernant les aspects "Team" (travail en ï¿½quipe):
+- le terme "Team" est traduit par "ï¿½quipe".
 
 (P. Moreaux, 2003-12-06):
 - le terme "Object Bench" est traduit par "Bureau Objets"
-- le terme "Debugger", traduit par "Navigateur" a été traduit dans tous les
-  fichiers. Il était, de manière incohérente, traduit par "fureteur" dans
+- le terme "Debugger", traduit par "Navigateur" a ï¿½tï¿½ traduit dans tous les
+  fichiers. Il ï¿½tait, de maniï¿½re incohï¿½rente, traduit par "fureteur" dans
   plusieurs fichiers.
 ---------------------------------------------------------------------------
 
 
 
-Les équivalences signalées par l'abréviation CGTN sont celles
-suggérées par la Commission générale de terminologie et de néologie
+Les ï¿½quivalences signalï¿½es par l'abrï¿½viation CGTN sont celles
+suggï¿½rï¿½es par la Commission gï¿½nï¿½rale de terminologie et de nï¿½ologie
 de France.
 
 
-Anglais       Français
+Anglais       Franï¿½ais
 ------------|---------------------------------------------------
 applet        applet (CGTN : appliquette)
 appletviewer  visualiseur d'applet
 backup        sauvegarde, sauvegarder
-boot          amorcer, démarrer
-breakpoint    point d'arrêt, d'interruption
+boot          amorcer, dï¿½marrer
+breakpoint    point d'arrï¿½t, d'interruption
 browser       navigateur
 buffer        tampon
 catch         attraper (une exception)
 commit        valider
 crash         se planter, plantage
-debugger      débogueur
+debugger      dï¿½bogueur
 exception     exception
 'extends'     clause 'extends'
 fixture       engagements (au sens junit.framework.TestCase)
 font          police
-handler       gestionnaire (pilote, dans le cas d'un périphérique)
+handler       gestionnaire (pilote, dans le cas d'un pï¿½riphï¿½rique)
 identifier    identificateur, identifiant
-inner class   classe imbriquée
-jar           (extension des fichiers compressés Java)
+inner class   classe imbriquï¿½e
+jar           (extension des fichiers compressï¿½s Java)
 key bindings  raccourcis-clavier
-label         étiquette
-library       bibliothèque
+label         ï¿½tiquette
+library       bibliothï¿½que
 log           journal
-'main'        méthode 'main'
+'main'        mï¿½thode 'main'
 modifier      modificateur
-native        intrinsèque
+native        intrinsï¿½que
 notify        aviser
 override      remplacer
 package       paquetage
-path          chemin d'accès
+path          chemin d'accï¿½s
 proxy         mandataire
 raster        trame
 save          enregistrer
@@ -106,29 +102,30 @@ scope         contexte
 stream        flot
 tab           tabulation
 tag           balise
-template      modèle
+template      modï¿½le
 thread        fil
 throw         lever, lancer (une exception)
 token         atome (au sens syntactique)
-typecast      forçage de type
+typecast      forï¿½age de type
 url           adresse Internet
 'uses'        clause 'uses'
 web           Web (CGTN : Toile)
 
 
-Contenu et installation de la traduction
-----------------------------------------
-le répertoire "french" contient tous les fichiers remplacés par
-leur traduction :
-- dialogues
-- étiquettes
-- sous-répertoire 'templates'
-  - readme
-  - sous-répertoire newclass
-    - readme
-On trouvera de plus:
-- lisezmoi (le présent fichier)
-- bluej.defs: version avec langage français sélectionné
+PrÃ©cÃ©demment
+------------
+Date: 2007-07-10
+Auteur: Patrice Moreaux
+        Polytech'Savoie, Universitï¿½ de Savoie, Anecy, FRANCE
+        (patrice.moreaux@univ-savoie.fr)
 
+Version BlueJ concernÃ©e: 2.2.0 (2007-07-09)
+
+Cette traduction est basÃ©e sur la version du 2003-12-06.
+La traduction du 2003-12-06 est basÃ©e sur celle fournie par
+  Daniel U. Thibault R & D pour la dÃ©fense Canada - Valcartier (Daniel.Thibault@DRDC-RDDC.GC.Ca)
+  pour la version 1.3.0beta4 (2003-07-14)
+elle-mÃªme basÃ©e sur ma traduction pour la version 1.2.2
 
 fin du fichier lisezmoi
+

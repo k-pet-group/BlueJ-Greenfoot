@@ -14,26 +14,26 @@ import org.junit.Test;
  * Les classes-test sont documentées ici :
  * http://junit.sourceforge.net/javadoc/junit/framework/TestCase.html
  * et sont basées sur le document Š 2002 Robert A. Ballance intitulé
- * ŤJUnit: Unit Testing Frameworkť.
+ * "JUnit: Unit Testing Framework".
  *
- * Les objets Test (et TestSuite) sont associés aux classes ŕ tester
+ * Les objets Test (et TestSuite) sont associés aux classes à tester
  * par la simple relation yyyTest (e.g. qu'un Test de la classe Name.java
  * se nommera NameTest.java); les deux se retrouvent dans le męme paquetage.
  * Les "engagements" (anglais : "fixture") forment un ensemble de conditions
- * qui sont vraies pour chaque méthode Test ŕ exécuter.  Il peut y avoir
+ * qui sont vraies pour chaque méthode Test à exécuter.  Il peut y avoir
  * plus d'une méthode Test dans une classe Test; leur ensemble forme un
  * objet TestSuite.
  * BlueJ découvrira automatiquement (par introspection) les méthodes
  * Test de votre classe Test et générera la TestSuite conséquente.
  * Chaque appel d'une méthode Test sera précédé d'un appel de setUp(),
- * qui réalise les engagements, et suivi d'un appel ŕ tearDown(), qui les
+ * qui réalise les engagements, et suivi d'un appel à tearDown(), qui les
  * détruit.
  */
 public class $CLASSNAME
 {
-    // Définissez ici les variables d'instance nécessaires ŕ vos engagements;
+    // Définissez ici les variables d'instance nécessaires à vos engagements;
     // Vous pouvez également les saisir automatiquement du présentoir
-    // ŕ l'aide du menu contextuel "Présentoir --> Engagements".
+    // à l'aide du menu contextuel "Présentoir --> Engagements".
     // Notez cependant que ce dernier ne peut saisir les objets primitifs
     // du présentoir (les objets sans constructeur, comme int, float, etc.).
     protected double fValeur1;
@@ -62,29 +62,11 @@ public class $CLASSNAME
     /**
      * Supprime les engagements
      *
-     * Méthode appelée aprčs chaque appel de méthode de test.
+     * Méthode appelée après chaque appel de méthode de test.
      */
     @After
     public void tearDown() // throws java.lang.Exception
     {
         //Libérez ici les ressources engagées par setUp()
-    }
-
-    /**
-     * Il ne vous reste plus qu'ŕ définir une ou plusieurs méthodes de test.
-     * Ces méthodes doivent vérifier les résultats attendus ŕ l'aide d'assertions
-     * assertTrue(<boolean>).
-     * Par convention, leurs noms devraient débuter par "test".
-     * Vous pouvez ébaucher le corps grâce au menu contextuel "Enregistrer une méthode de test".
-     */
-    public void testAdd()
-    {
-        double somme = fValeur1 + fValeur2;
-        assertTrue(somme == 5.0);
-    }
-    public void testFail()
-    {
-        double somme = fValeur1 + fValeur2;
-        assertTrue(somme == 15.0);
     }
 }

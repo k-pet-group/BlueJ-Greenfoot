@@ -1,0 +1,60 @@
+$PKGLINE
+
+import javax.microedition.midlet.MIDlet;
+
+/**
+ * Classe $CLASSNAME - Décrivez votre classe Midlet ici
+ *
+ * @author     Votre nom ici
+ * @version    Un numéro de version ou une date
+ */
+public class $CLASSNAME extends MIDlet
+{
+    /**
+     * Appelé par le logiciel de Gestion des applications
+     * (Application Management Software (AMS)) quand le MIDlet démarre.
+     * L'AMS est le logiciel qui gère le cycle de vie des MIDlets.
+     * Quand ce constructeur retourne quelque chose, l'AMS positionne
+     * cette MIDlet à l'état Pause.
+     */
+    public $CLASSNAME()
+    {
+        // Fournit toute l'initialisation nécessaire au MIDlet
+    }
+
+    /**
+     * Appelé par l'AMS pour basculer le MIDlet de l'état Pause à l'état
+     * Actif. Tant que le MIDlet est actif, l'AMS peut suspendre son exécution
+     * en appelant pauseApp().
+     */
+    public void startApp()
+    {
+        // Alloue les ressources nécessaires telles que les connexions réseaux.
+    }
+
+    /**
+     * Appelé par l'AMS pour basculer le MIDlet de l'état Actif à l'état
+     * Pause. Tant que le MIDlet est à l'état Pause, l'AMS peut reprendre son
+     * exécution par l'appel à la méthode startApp().
+     * Il est possible de faire ce basulement autant de fois qu'on le souhaite.
+     */
+    public void pauseApp()
+    {
+        // Libère les ressources partagées qui ont été allouées dans startApp().
+    }
+
+    /**
+     * Invoqué par l'AMS pour finir l'exécution du MIDlet.
+     * Une fois terminée, le MIDlet passe à l'état Détruit
+     *
+     * @param unconditional   Destruction inconditionnelle? Si à true alors le
+     *                        MIDlet va passer à l'état détruit quelle que soit
+     *                        la façon dont la méthode se termine. Si à false
+     *                        le MIDlet peut lancer une MIDletStateChangeException
+     *                        pour prévenir qu'il n'est actuellement pas détruit.
+     */
+    public void destroyApp(boolean unconditional)
+    {
+        // Libère les ressources acquises dans le constructeur.
+    }
+}

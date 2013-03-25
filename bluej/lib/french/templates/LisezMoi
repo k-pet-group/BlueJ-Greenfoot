@@ -1,10 +1,10 @@
-Ce r\u00e9pertoire contient quelques mod\u010dles utilis\u00e9s par BlueJ pour g\u00e9n\u00e9rer des fichiers.
-On peut modifier (\u00e9diter) ces mod\u010dles pour changer le contenu par d\u00e9faut
-des fichiers g\u00e9n\u00e9r\u00e9s.
+Ce répertoire contient quelques modčles utilisés par BlueJ pour générer des fichiers.
+On peut modifier (éditer) ces modčles pour changer le contenu par défaut
+des fichiers générés.
 
- - Les mod\u010dles readme et readmeexp peuvent \u0119tre librement modifi\u00e9s.
- - Le mod\u010dle html doit \u0119tre modifi\u00e9 avec pr\u00e9caution - il peut y avoir des
-   probl\u010dmes si sa structure est modifi\u00e9e.
+ - Les modčles readme et readmeexp peuvent ętre librement modifiés.
+ - Le modčle html doit ętre modifié avec précaution - il peut y avoir des
+   problčmes si sa structure est modifiée.
 
-Le sous-r\u00e9pertoire "newclass" contient des mod\u010dles pour les classes g\u00e9n\u00e9r\u00e9es
+Le sous-répertoire "newclass" contient des modčles pour les classes générées
 via la fonction "Nouvelle classe" de BlueJ.
