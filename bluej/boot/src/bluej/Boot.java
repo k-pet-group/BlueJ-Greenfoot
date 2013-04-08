@@ -100,7 +100,7 @@ public class Boot
         "bluejcore.jar", "bluejeditor.jar", "bluejext.jar",
         "AppleJavaExtensions.jar", "junit-4.8.2.jar", "bluej.jar",
         "diffutils-1.2.1.jar", 
-        "commons-httpclient-3.1.jar", "commons-logging-api-1.1.1.jar",
+        "commons-httpclient-3.1.jar", "commons-logging-api-1.1.2.jar",
         "commons-codec-1.3.jar", JLAYER_MP3_JAR, "opencsv-2.3.jar",
         "httpclient-4.1.1.jar", "httpcore-4.1.jar", "httpmime-4.1.1.jar",
         "commons-logging-1.1.1.jar"};
