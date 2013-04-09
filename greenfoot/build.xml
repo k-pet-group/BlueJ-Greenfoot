@@ -132,6 +132,8 @@
 	<!-- License files that will be included in the distribution -->
     <fileset id="greenfoot.license.files" dir="doc/">
         <include name="GREENFOOT_LICENSES.txt" />
+    	<include name="LICENSE.txt" />
+    	<include name="THIRDPARTYLICENSE.txt" />
     </fileset>
 
     <!-- If you change the first or last lines of this license you might want
