@@ -393,7 +393,7 @@ The Apache Software Foundation (http://www.apache.org/).
 Below is the text of the Apache License, which applies to the following libraries shipped with
 Greenfoot:
     commons-codec-1.3.jar                 Apache Commons - Codec
-    commons-logging-api-1.1.1.jar         Apache Commons - Logging
+    commons-logging-api-1.1.2.jar         Apache Commons - Logging
     commons-httpclient-3.1.jar            Apache Commons - Http Client
 
 This license is included with Greenfoot so as to satisfy its own requirements.
