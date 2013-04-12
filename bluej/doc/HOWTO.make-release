@@ -26,22 +26,23 @@ PART I - BUILDING BLUEJ
     (make sure the JDK version used for the build is the lowest
      compatible JDK for BlueJ)
     This will create 
-        bluej/package/bluej-dist.jar            -- the core jar for building the win release
+        bluej/package/bluej-dist.jar            -- the core jar for building release bundles
         bluej/package/BlueJ-generic-VERSION.jar -- the cross platform installer
-        bluej/package/BlueJ-mac-VERSION.zip       -- the Mac installer
         bluej/package/BlueJ-source-VERSION.zip    -- the source bundle
     NOTE: for some mysterious reason, distributions are larger when
     built on Windows. Preferably build on Solaris or Mac.
     
- 4. Run "ant debian-dist" to build the Debian/Ubuntu ".deb" package. You can only do this
-    on a system which has the "dpkg-deb" utility installed, and you should do it as the
-    root user. 
+ 4. Run "sudo ant debian-dist" to build the Debian/Ubuntu ".deb" package. You can only do this
+    on a system which has the "dpkg-deb" utility installed. It is necessary that this build
+    target runs as root.
 
- 5. See HOWTO.make-win-version for building the Windows release.
+ 5. See HOWTO.make-win-version for building the Windows release bundle.
+ 
+ 6. See HOWTO.make-mac-release for building the Mac release bundles.
 
- 6. Rename (usually by adding a release candidate string like "BlueJ*rc1.???").
+ 7. Rename (usually by adding a release candidate string like "BlueJ*rc1.???").
 
- 7. Test. When okay, rename to final distribution name.
+ 8. Test. When okay, rename to final distribution name.
  
 
 PART II - RELEASING BLUEJ

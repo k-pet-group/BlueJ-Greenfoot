@@ -1,0 +1,21 @@
+Building Mac OS X release bundles
+---------------------------------
+
+There are two bundles generated for Mac OS X: The regular bundle which includes
+a JDK, and the "legacy" bundle which uses the system JDK (JDK 6).
+
+1. Follow instructions in HOWTO.make-release, up to the point where you have
+   run the "ant dist" target. Your build.properties file must specify a
+   suitable mac_bundled_jdk_path.
+
+2. Build the native Mac launcher. You will need the command-line development
+   utilities (C compiler) installed.
+   
+   a. Enter the 'package/macfiles/nativelauncher' directory
+   
+   b. "export JAVA_HOME=(path to Java home directory)"
+      See the compile.sh script for examples.
+      
+   c. "./compile.sh"
+
+3. From the BlueJ source directory, run "ant mac-dist".

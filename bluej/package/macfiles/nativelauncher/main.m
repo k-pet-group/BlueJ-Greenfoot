@@ -182,9 +182,15 @@ int launch(char *commandName) {
     if (vmProps == nil) {
         vmProps = [NSDictionary dictionary];
     }
+    
+    // Get the application arguments
+    NSArray *appArgs = [javaDictionary objectForKey:@"Arguments"];
+    if (appArgs == nil) {
+    	appArgs = [NSArray array];
+    }
 
     // Initialize the arguments to JLI_Launch()
-    int argc = 3 + [vmProps count] + 1 + 1;
+    int argc = 3 + [vmProps count] + 1 + 1 + [appArgs count];
     char *argv[argc];
 
     int i = 0;
@@ -203,6 +209,10 @@ int launch(char *commandName) {
     }];
 
     argv[i++] = strdup([mainClassName UTF8String]);
+    
+    for (id arg in appArgs) {
+    	argv[i++] = strdup([arg UTF8String]);
+    }
 
     // Invoke JLI_Launch()
     return jli_LaunchFxnPtr(argc, argv,
