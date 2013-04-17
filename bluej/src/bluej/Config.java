@@ -573,7 +573,7 @@ public final class Config
     }
     
     /**
-     * Tell us whether we are using a Mac screen menubar
+     * Get the name of this application.
      */
     public static String getApplicationName()
     {
