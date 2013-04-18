@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -39,6 +39,7 @@ public abstract class DebuggerObject
     
     /**
      * Get the fully qualified name of the class of this object.
+     * If this object is the "null object", return an empty string.
      *
      * @return  the fully qualified class name
      */
