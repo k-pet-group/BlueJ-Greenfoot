@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,6 +27,24 @@ import java.util.Properties;
 
 /**
  * Handling of property value parsing - substitution of variable values etc.
+ * 
+ * <p>Variable substitution is performed for ${variableName} and $variableName -
+ * the variable name is terminated by any non-name character, but in either case a
+ * '$' escapes the next character. In the first form anything after the variable
+ * name is ignored (up to the closing '}').
+ * 
+ * <p>The double dollar sign '$$' is an escaped '$'. If a variable name begins with
+ * a dollar sign, the variable must be written as '${$$name}' where name is the part
+ * of the name after the initial dollar sign.
+ * 
+ * <p>The following functions are also supported:
+ * 
+ * <ul>
+ * <li>${filepath x y} - concatenates file paths x and y to form a complete path
+ * <li>${fileUrl x} - returns the given file path x as a file:// URL.
+ * </ul>
+ * 
+ * <p>Function arguments can contain variable/function substitutions.
  * 
  * @author Davin McCall
  */
