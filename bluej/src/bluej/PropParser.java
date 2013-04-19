@@ -124,7 +124,7 @@ public class PropParser
             return false;
         }
         if (cc == '/' || cc == '\\' || cc == '{' || cc == '}' || cc == '\"'
-            || cc == '$' || cc == '(' || cc == ')' || cc == ' ') {
+            || cc == '$' || cc == '(' || cc == ')' || cc == ' ' || cc == ':') {
             return false;
         }
         if (cc == ',') {
