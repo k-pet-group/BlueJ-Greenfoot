@@ -21,12 +21,12 @@ debugger.assert.notNull=not null
 debugger.assert.null=null
 debugger.assert.delta=delta
 
-debugger.inspector.title=BlueJ:  Inspector
-debugger.inspector.object.title=BlueJ:  Object Inspector
-debugger.inspector.class.title=BlueJ:  Class Inspector
-debugger.inspector.enum.title=BlueJ:  Enum Inspector
-debugger.inspector.interface.title=BlueJ:  Interface Inspector
-debugger.inspector.result.title=BlueJ:  Method Result
+debugger.inspector.title=$APPNAME:  Inspector
+debugger.inspector.object.title=$APPNAME:  Object Inspector
+debugger.inspector.class.title=$APPNAME:  Class Inspector
+debugger.inspector.enum.title=$APPNAME:  Enum Inspector
+debugger.inspector.interface.title=$APPNAME:  Interface Inspector
+debugger.inspector.result.title=$APPNAME:  Method Result
 debugger.inspector.result.returned=returned:
 debugger.inspector.object.noFields=No fields
 debugger.inspector.class.noFields=No fields
@@ -126,7 +126,7 @@ prefmgr.edit.highlightDarker=Darker
 prefmgr.interface.title=Interface
 prefmgr.interface.language.title=Language selection
 prefmgr.interface.language=Language
-prefmgr.interface.language.restart=You will need to restart BlueJ for the language setting to take effect.
+prefmgr.interface.language.restart=You will need to restart $APPNAME for the language setting to take effect.
 
 # Extensions Manager Help panel
 extmgr.title=BlueJ:  Installed Extensions

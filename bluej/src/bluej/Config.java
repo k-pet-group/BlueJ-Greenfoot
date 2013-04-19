@@ -130,6 +130,7 @@ public final class Config
                                                        // specified on the
                                                        // command line
     private static Properties langProps;        // international labels
+    private static Properties langVarProps;     // language label variables (APPNAME)
 
     private static BlueJPropStringSource propSource; // source for properties
 
@@ -781,6 +782,11 @@ public final class Config
      */
     public static String getString(String strname, String def)
     {
+        if (langVarProps == null) {
+            langVarProps = new Properties();
+            langVarProps.put("APPNAME", getApplicationName());
+        }
+        
         int index;
         String str = langProps.getProperty(strname, def);
         // remove all underscores
@@ -791,6 +797,9 @@ public final class Config
             //remove everything from @
             str = str.substring(0, index);
         }
+        
+        str = PropParser.parsePropString(str, langVarProps);
+        
         return str;
     }
     
@@ -1472,7 +1481,6 @@ public final class Config
      * Checks for optional bluej.defs settings for vm language and
      * country. If either are specified, a Locale object is created
      * and it becomes the default locale for BlueJ. 
-     *
      */
     private static void setVMLocale()
     {
