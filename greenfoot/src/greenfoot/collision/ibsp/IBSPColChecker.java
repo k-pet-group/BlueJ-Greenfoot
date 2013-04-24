@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2012  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2012,2013  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -73,7 +73,7 @@ public class IBSPColChecker implements CollisionChecker
      */
     public void addObject(Actor actor)
     {
-        // checkConsistency();
+        // checkConsistency(true);
         Rect bounds = getActorBounds(actor);
         if (bspTree == null) {
             // The tree is currently empty; just create a new node containing only the one actor
@@ -153,14 +153,13 @@ public class IBSPColChecker implements CollisionChecker
             
             insertObject(actor, bounds, bounds, treeArea, bspTree);
         }
-        // checkConsistency();
+        // checkConsistency(true);
     }
     
     /**
      * Check the consistency of the tree, useful for debugging.
      */
-    /*
-    public void checkConsistency()
+    public void checkConsistency(boolean checkActorBounds)
     {
         if (! debugging) {
             return;
@@ -172,22 +171,31 @@ public class IBSPColChecker implements CollisionChecker
         while(! stack.isEmpty()) {
             BSPNode node = stack.removeLast();
             if (node != null) {
-                //Actor actor = node.getActor();
-                //Rect actorBounds = getActorBounds(actor);
                 Rect nodeArea = node.getArea();
-                //if (movingActor != actor && Rect.getIntersection(actorBounds, nodeArea) == null) {
-                //    println("Node doesn't contain part of actor!");
-                //    throw new IllegalStateException();
-                //}
+                List<Actor> actors = node.getActorsList();
                 
-                // check the same actor doesn't occur further up tree
-                BSPNode p = node.getParent();
-                while (p != null) {
-                    if (p.getActor() == actor) {
-                        println("Actor " + actor + " occurs further up tree! node=" + node);
-                        throw new IllegalStateException();
+                for (Actor actor : actors) {
+                    // The actor is really in this node
+                    Rect actorBounds = getActorBounds(actor);
+                    if (checkActorBounds && ! nodeArea.intersects(actorBounds)) {
+                        throw new IllegalStateException("Actor not contained within region bounds?");
                     }
-                    p = p.getParent();
+                }
+                
+                // check the same actor doesn't occur further up tree // TODO
+                
+                if (node.getLeft() != null) {
+                    Rect leftArea = node.getLeft().getArea();
+                    if (! Rect.equals(leftArea, node.getLeftArea())) {
+                        throw new IllegalStateException("Areas wrong!");
+                    }
+                }
+                
+                if (node.getRight() != null) {
+                    Rect rightArea = node.getRight().getArea();
+                    if (! Rect.equals(rightArea, node.getRightArea())) {
+                        throw new IllegalStateException("Areas wrong!");
+                    }
                 }
                 
                 stack.add(node.getLeft());
@@ -195,7 +203,6 @@ public class IBSPColChecker implements CollisionChecker
             }
         }
     }
-    */
     
     /**
      * Insert an actor into the tree at the given position
@@ -316,7 +323,7 @@ public class IBSPColChecker implements CollisionChecker
     
     public void removeObject(Actor object)
     {
-        // checkConsistency();
+        // checkConsistency(true);
         ActorNode node = getNodeForActor(object);
         
         while (node != null) {
@@ -325,7 +332,7 @@ public class IBSPColChecker implements CollisionChecker
             checkRemoveNode(bspNode);
             node = getNodeForActor(object);
         }
-        // checkConsistency();
+        // checkConsistency(true);
     }
     
     /**
@@ -334,6 +341,7 @@ public class IBSPColChecker implements CollisionChecker
      */
     private BSPNode checkRemoveNode(BSPNode node)
     {
+        // checkConsistency(false); // may be due to actor moving
         while (node != null && node.isEmpty()) {
             BSPNode parent = node.getParent();
             int side = (parent != null) ? parent.getChildSide(node) : PARENT_NONE;
@@ -343,6 +351,7 @@ public class IBSPColChecker implements CollisionChecker
                 if (parent != null) {
                     if (right != null) {
                         right.getArea().copyFrom(node.getArea());
+                        right.areaChanged();
                     }
                     parent.setChild(side, right);
                 }
@@ -360,6 +369,7 @@ public class IBSPColChecker implements CollisionChecker
                 if (parent != null) {
                     if (left != null) {
                         left.getArea().copyFrom(node.getArea());
+                        left.areaChanged();
                     }
                     parent.setChild(side, left);
                 }
@@ -378,6 +388,7 @@ public class IBSPColChecker implements CollisionChecker
             }
         }
         
+        // checkConsistency(false);
         return node;
     }
     
@@ -406,7 +417,7 @@ public class IBSPColChecker implements CollisionChecker
      */
     private void updateObject(Actor object)
     {
-        //checkConsistency();
+        // checkConsistency(false); // can't check actor bounds - actor has moved, may be inconsistent
         ActorNode node = getNodeForActor(object);
         if (node == null) {
             // It seems that this can get called before the actor is added to the
@@ -507,7 +518,7 @@ public class IBSPColChecker implements CollisionChecker
             node = node.getNext();
         }
         
-        // checkConsistency();
+        // checkConsistency(true);
     }
     
     public void updateObjectLocation(Actor object, int oldX, int oldY)
