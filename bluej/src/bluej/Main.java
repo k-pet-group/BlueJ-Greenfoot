@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2012,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -118,6 +118,12 @@ public class Main
      */
     private static void processArgs(String[] args)
     {
+        if (Config.isGreenfoot()) {
+            // Avoid having to put the Greenfoot classes on the system classpath:
+            // (only an issue with JDK 7u21, 6u45, and later).
+            System.setProperty("java.rmi.server.useCodebaseOnly", "false");
+        }
+        
         launched = true;
         
         boolean oneOpened = false;
@@ -426,8 +432,9 @@ public class Main
      */
     private static void exit()
     {
-        if (PkgMgrFrame.frameCount() > 0)
+        if (PkgMgrFrame.frameCount() > 0) {
             Debug.reportError("Frame count was not zero when exiting. Work may not have been saved");
+        }
 
         DataCollector.bluejClosed();
         
