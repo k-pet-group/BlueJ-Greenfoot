@@ -568,7 +568,7 @@ bluej.vm.args=-ea
 ## Java defaults need to be modified.  
 #####################################################################
 
-bluej.windows.vm.args=-Djava.rmi.server.useCodebaseOnly=false
+#bluej.windows.vm.args=
 
 
 #####################################################################
