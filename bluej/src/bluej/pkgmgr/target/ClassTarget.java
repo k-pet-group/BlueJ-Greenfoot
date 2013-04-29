@@ -888,7 +888,7 @@ public class ClassTarget extends DependentTarget
             
             editor = EditorManager.getEditorManager().openClass(filename, docFilename,
                     project.getProjectCharset(),
-                    getBaseName(), this, isCompiled(), editorBounds, resolver,
+                    getBaseName() + " - " + project.getProjectName(), this, isCompiled(), editorBounds, resolver,
                     project.getJavadocResolver());
             
             // editor may be null if source has been deleted
