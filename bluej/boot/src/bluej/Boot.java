@@ -495,7 +495,7 @@ public class Boot
         else {
             // on other systems where we don't find it, we just warn. We don't expect it
             // to happen, but you never know...
-            System.err.println("class Boot: tools.jar not found. Potential problem for execution.");
+            System.err.println("class Boot: tools.jar not found. Potential problem for execution.  (Java Home: " + javaHomeDir.getAbsolutePath() + ")");
             return null;
         }
     }
