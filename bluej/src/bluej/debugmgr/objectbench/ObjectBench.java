@@ -381,10 +381,8 @@ public class ObjectBench extends JPanel implements Accessible, ValueCollection,
                 break;
 
             case KeyEvent.VK_ENTER:
-                showPopupMenu();
-                break;
-
             case KeyEvent.VK_SPACE:
+            case KeyEvent.VK_CONTEXT_MENU:
                 showPopupMenu();
                 break;
 
