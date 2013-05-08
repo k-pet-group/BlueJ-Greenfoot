@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2012,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.accessibility.Accessible;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
@@ -47,7 +48,7 @@ import bluej.utility.JavaNames;
  * @author  Michael Cahill
  * @author  Andrew Patterson
  */
-public class ObjectBench extends JPanel implements ValueCollection,
+public class ObjectBench extends JPanel implements Accessible, ValueCollection,
     FocusListener, KeyListener, MouseListener, ObjectBenchInterface
 {
     private static final Color BACKGROUND_COLOR = Config.getOptionalItemColour("colour.objectbench.background");
@@ -71,6 +72,7 @@ public class ObjectBench extends JPanel implements ValueCollection,
         objects = new ArrayList<ObjectWrapper>();
         createComponent();
         this.pkgMgrFrame = pkgMgrFrame;
+        getAccessibleContext().setAccessibleName(Config.getString("pkgmgr.objBench.title"));
     }
 
     /**

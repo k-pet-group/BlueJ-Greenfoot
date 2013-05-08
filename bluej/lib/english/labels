@@ -386,6 +386,9 @@ pkgmgr.test.popup.createTest=Create Test Method...
 pkgmgr.test.popup.benchToFixture=Object Bench to Test Fixture
 pkgmgr.test.popup.fixtureToBench=Test Fixture to Object Bench
 
+#Accessibility
+pkgmgr.objBench.title=Object Bench
+
 # codepad messages
 pkgmgr.codepad.uninitialized=Note: Codepad variables are automatically initialized\n in the same way as instance fields.
 pkgmgr.codepad.vmTerminated=VM reset occurred
