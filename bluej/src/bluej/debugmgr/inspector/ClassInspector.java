@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -60,7 +60,7 @@ import bluej.utility.JavaNames;
  * 
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: ClassInspector.java 9024 2011-06-21 03:07:08Z davmac $
+ * @version $Id: ClassInspector.java 10647 2013-05-08 18:25:01Z neil $
  */
 public class ClassInspector extends Inspector
 {
@@ -119,13 +119,13 @@ public class ClassInspector extends Inspector
         String className = JavaNames.stripPrefix(myClass.getName());
         String headerString = null;
         if(myClass.isEnum()) {
-            setTitle(ENUM_INSPECT_TITLE);
+            setTitle(ENUM_INSPECT_TITLE + " " + className);
             headerString = ENUM_NAME_LABEL + " " + className;
         } else if (myClass.isInterface()) {
-            setTitle(INTERFACE_INSPECT_TITLE);
+            setTitle(INTERFACE_INSPECT_TITLE + " " + className);
             headerString = INTERFACE_NAME_LABEL + " " + className;
         } else {
-            setTitle(CLASS_INSPECT_TITLE);
+            setTitle(CLASS_INSPECT_TITLE + " " + className);
             headerString = CLASS_NAME_LABEL + " " + className;
         }
         

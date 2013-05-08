@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2011,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -163,7 +163,6 @@ public class ObjectInspector extends Inspector
      */
     protected void makeFrame()
     {
-        setTitle(inspectTitle);
         setUndecorated(true);
         setLayout(new BorderLayout());
         setBackground(new Color(232,230,218));
@@ -179,10 +178,12 @@ public class ObjectInspector extends Inspector
 
         String fullTitle = null;
         if(objName != null) {
-            fullTitle = objName + " : " + className;   
+            fullTitle = objName + " : " + className;
+            setTitle(inspectTitle + " - " + objName);
         }
         else {
             fullTitle = " : " + className;
+            setTitle(inspectTitle);
         }
         JLabel headerLabel = new JLabel(fullTitle, JLabel.CENTER);
         Font font = headerLabel.getFont();
