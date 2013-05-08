@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -603,6 +603,7 @@ public abstract class CallDialog extends EscapeDialog
             if(type!=null) {
                     constraints.gridx = 3;
                     tmpPanel.add(type, constraints);
+                    type.setLabelFor(component);
             }            
 
             constraints.gridx = 2;
