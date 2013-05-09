@@ -1219,7 +1219,7 @@ public class PkgMgrFrame extends JFrame
 
         if (editor != null) {
             editor.revalidate();
-            editor.scrollRectToVisible(target.getRectangle());
+            editor.scrollRectToVisible(target.getBounds());
             editor.repaint();
         }
 

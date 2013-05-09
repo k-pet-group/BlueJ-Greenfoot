@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -93,7 +93,7 @@ public final class Marquee
         //find the intersecting vertices
         for (Iterator<? extends Vertex> it = graph.getVertices(); it.hasNext();) {
             Vertex v = it.next();
-            if (v.getRectangle().intersects(x, y, w, h)) {
+            if (v.getBounds().intersects(x, y, w, h)) {
                 selected.add(v);
             }
         }

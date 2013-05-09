@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,87 +23,28 @@ package bluej.graph;
 
 import java.awt.*;
 
+import javax.swing.JComponent;
+
 /**
  * General graph vertices
  * 
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Vertex.java 6215 2009-03-30 13:28:25Z polle $
  */
-public abstract class Vertex extends SelectableGraphElement
+public abstract class Vertex extends JComponent implements SelectableGraphElement
 {
-    private int x, y; // position
-    private int width, height; // size
-
-    /**
-     * Create this vertex with given specific position.
-     */
     public Vertex(int x, int y, int width, int height)
     {
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
+        setBounds(x, y, width, height);
     }
-
-    /**
-     * Set the position to the specified coordinates.
-     */
+    
+    
     public void setPos(int x, int y)
     {
-        this.x = x;
-        this.y = y;
+        setLocation(x, y);
     }
-
-    /**
-     * Set the size to the specified height and width.
-     */
-    public void setSize(int width, int height)
-    {
-        this.width = (width > 0 ? width : 10);
-        this.height = (height > 0 ? height : 10);
-    }
-
-    /**
-     * Get this vertex's enclosing rectangle.
-     */
-    public Rectangle getRectangle()
-    {
-        return new Rectangle(x, y, width, height);
-    }
-
-    /**
-     * Get this vertex's x position.
-     */
-    public int getX()
-    {
-        return this.x;
-    }
-
-    /**
-     * Get this vertex's y position.
-     */
-    public int getY()
-    {
-        return this.y;
-    }
-
-    /**
-     * Get this vertex's width.
-     */
-    public int getWidth()
-    {
-        return this.width;
-    }
-
-    /**
-     * Get this vertex's height.
-     */
-    public int getHeight()
-    {
-        return this.height;
-    }
-
+            
+    
     /**
      * The default shape for a vertex is a rectangle. Child classes can override
      * this method to define more complex shapes.

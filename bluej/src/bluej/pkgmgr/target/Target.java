@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -35,7 +35,6 @@ import java.awt.geom.*;
  * A general target in a package
  * 
  * @author Michael Cahill
- * @version $Id: Target.java 6963 2010-01-05 05:41:50Z davmac $
  */
 public abstract class Target extends Vertex
     implements Comparable<Target>
@@ -209,7 +208,7 @@ public abstract class Target extends Vertex
      */
     public Rectangle getBoundingBox()
     {
-        return getRectangle();
+        return getBounds();
     }
 
     public void toggleSelected()

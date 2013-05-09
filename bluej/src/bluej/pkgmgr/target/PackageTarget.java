@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -353,5 +353,11 @@ public class PackageTarget extends Target
     public void setIsMoveable(boolean isMoveable)
     {
         this.isMoveable = isMoveable;
+    }
+
+    @Override
+    public String getTooltipText()
+    {
+        return getIdentifierName();
     }
 }

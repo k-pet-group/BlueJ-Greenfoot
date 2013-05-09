@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,15 +21,18 @@
  */
 package bluej.graph;
 
+import java.awt.event.MouseEvent;
+
 /**
  * A superclass for all kinds of edges in th graph.
  * 
- * @version $Id: Edge.java 6215 2009-03-30 13:28:25Z polle $ *
  * @author Michael Cahill
  */
-public abstract class Edge extends SelectableGraphElement
+public abstract class Edge implements SelectableGraphElement
 {
     public Vertex from, to;
+    
+    private boolean visible = true;
 
     public Edge(Vertex from, Vertex to)
     {
@@ -37,4 +40,23 @@ public abstract class Edge extends SelectableGraphElement
         this.to = to;
     }
 
+    public boolean isVisible()
+    {
+        return visible;
+    }
+
+    public void setVisible(boolean visible)
+    {
+        this.visible = visible;
+    }
+
+    public String getTooltipText()
+    {
+        return null;
+    }
+    
+    public void doubleClick(MouseEvent e)
+    {
+        //Default: do nothing
+    }
 }

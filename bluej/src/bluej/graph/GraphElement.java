@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,10 +28,8 @@ import java.awt.event.MouseEvent;
  * @author fisker
  * 
  */
-public abstract class GraphElement {
-    /** Indicates whether this element shall be visible in the graph. */
-    private boolean visible = true;
-    
+public interface GraphElement
+{   
     /**
      * Remove this element from the graph.
      */
@@ -48,7 +46,7 @@ public abstract class GraphElement {
     /**
      * A double click was done on this element.
      */
-    public void doubleClick(MouseEvent evt) {}
+    abstract public void doubleClick(MouseEvent evt);
 
     /**
      * Post the context menu for this target.
@@ -59,10 +57,7 @@ public abstract class GraphElement {
      * Get the text to display as a tool tip when the user hovers over this element
      * @return null for no tool-tip, otherwise return the text
      */
-    public String getTooltipText()
-    {
-        return null;
-    }
+    abstract public String getTooltipText();
     
     /**
      * Indicates whether this element shall be visible in the graph.
@@ -70,10 +65,7 @@ public abstract class GraphElement {
      * @return <code>true</code> if the element is visible, <code>false</code>
      *         otherwise.
      */
-    public boolean isVisible()
-    {
-        return visible;
-    }
+    abstract public boolean isVisible();
 
     /**
      * Sets the visible setting of this element.
@@ -81,8 +73,5 @@ public abstract class GraphElement {
      * @param visible
      *            The new visible setting.
      */
-    public void setVisible(boolean visible)
-    {
-        this.visible = visible;
-    }
+    abstract public void setVisible(boolean visible);
 }
