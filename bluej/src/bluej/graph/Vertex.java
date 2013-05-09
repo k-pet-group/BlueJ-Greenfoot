@@ -24,7 +24,11 @@ package bluej.graph;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 
+import javax.accessibility.Accessible;
+import javax.accessibility.AccessibleContext;
+import javax.accessibility.AccessibleRole;
 import javax.swing.JComponent;
+import javax.swing.JComponent.AccessibleJComponent;
 
 /**
  * General graph vertices
@@ -38,9 +42,9 @@ public abstract class Vertex implements SelectableGraphElement
     
     public Vertex(int x, int y, int width, int height)
     {
-        component = new JComponent() { }; //TODO custom component that paints        
+        component = new VertexJComponent();        
         component.setBounds(x, y, width, height);
-        setVisible(true);
+        component.setVisible(true);
     }
     
     
@@ -186,6 +190,31 @@ public abstract class Vertex implements SelectableGraphElement
         return component.getBounds();
     }
     
+    /**
+     * Gets the display name of the vertex
+     */
+    protected abstract String getDisplayName();
     
-    
+    private class VertexJComponent extends JComponent implements Accessible
+    {
+        public AccessibleContext getAccessibleContext() {
+            if (accessibleContext == null) {
+                accessibleContext = new AccessibleJComponent() {
+                    @Override
+                    public String getAccessibleName() {
+                        return Vertex.this.getDisplayName();
+                    }
+
+                    // If we leave the default role, NVDA ignores this component.
+                    // List item works, and seemed like an okay fit
+                    @Override
+                    public AccessibleRole getAccessibleRole() {
+                        return AccessibleRole.LIST_ITEM;
+                    }                
+                    
+                };
+            }
+            return accessibleContext;
+        }
+    };
 }
