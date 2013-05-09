@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2012,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -72,9 +72,10 @@ public class GraphPainterStdImpl
         this.graphEditor = graphEditor;
         Graph graph = graphEditor.getGraph();
         paintEdges(g, graph);
-        paintVertices(g, graph);
+        //paintVertices(g, graph);
         paintGhosts(g, graph);
         paintIntermediateDependency(g, graph);
+        
     }
 
     /**

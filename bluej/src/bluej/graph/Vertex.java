@@ -22,6 +22,7 @@
 package bluej.graph;
 
 import java.awt.*;
+import java.awt.event.MouseEvent;
 
 import javax.swing.JComponent;
 
@@ -31,17 +32,21 @@ import javax.swing.JComponent;
  * @author Michael Cahill
  * @author Michael Kolling
  */
-public abstract class Vertex extends JComponent implements SelectableGraphElement
+public abstract class Vertex implements SelectableGraphElement
 {
+    private final JComponent component;
+    
     public Vertex(int x, int y, int width, int height)
     {
-        setBounds(x, y, width, height);
+        component = new JComponent() { }; //TODO custom component that paints        
+        component.setBounds(x, y, width, height);
+        setVisible(true);
     }
     
     
     public void setPos(int x, int y)
     {
-        setLocation(x, y);
+        component.setLocation(x, y);
     }
             
     
@@ -51,7 +56,136 @@ public abstract class Vertex extends JComponent implements SelectableGraphElemen
      */
     public boolean contains(int x, int y)
     {
-        return (getX() <= x) && (x < getX() + getWidth()) && 
-               (getY() <= y) && (y < getY() + getHeight());
+        return (component.getX() <= x) && (x < component.getX() + component.getWidth()) && 
+               (component.getY() <= y) && (y < component.getY() + component.getHeight());
     }
+
+
+    @Override
+    public void remove()
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+
+    @Override
+    public void doubleClick(MouseEvent evt)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+
+    @Override
+    public void popupMenu(int x, int y, GraphEditor graphEditor)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+
+    @Override
+    public String getTooltipText()
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+
+    @Override
+    public void setSelected(boolean selected)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+
+    @Override
+    public boolean isSelected()
+    {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+
+    @Override
+    public boolean isHandle(int x, int y)
+    {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+
+    @Override
+    public boolean isResizable()
+    {
+        // TODO Auto-generated method stub
+        return false;
+    }
+    
+    /**
+     * Get this vertex's x position.
+     */
+    public int getX()
+    {
+        return component.getX();
+    }
+
+    /**
+     * Get this vertex's y position.
+     */
+    public int getY()
+    {
+        return component.getY();
+    }
+
+    /**
+     * Get this vertex's width.
+     */
+    public int getWidth()
+    {
+        return component.getWidth();
+    }
+
+    /**
+     * Get this vertex's height.
+     */
+    public int getHeight()
+    {
+        return component.getHeight();
+    }
+
+
+    public boolean isVisible()
+    {
+        return component.isVisible();
+    }
+
+
+    public void setVisible(boolean aFlag)
+    {
+        component.setVisible(aFlag);
+    }
+
+
+    public void setSize(int width, int height)
+    {
+        component.setSize(width, height);
+    }
+
+
+    public JComponent getComponent()
+    {
+        return component;
+    }
+
+
+    public Rectangle getBounds()
+    {
+        return component.getBounds();
+    }
+    
+    
+    
 }
