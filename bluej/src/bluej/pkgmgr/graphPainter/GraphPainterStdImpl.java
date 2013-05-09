@@ -72,7 +72,7 @@ public class GraphPainterStdImpl
         this.graphEditor = graphEditor;
         Graph graph = graphEditor.getGraph();
         paintEdges(g, graph);
-        //paintVertices(g, graph);
+        paintVertices(g, graph);
         paintGhosts(g, graph);
         paintIntermediateDependency(g, graph);
         
