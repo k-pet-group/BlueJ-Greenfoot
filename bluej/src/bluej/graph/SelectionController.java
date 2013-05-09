@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -64,7 +64,7 @@ public class SelectionController
 
     private int currentDependencyIndex;  // for cycling through dependencies
 
-    private TraverseStragegy traverseStragegiImpl = new TraverseStragegyImpl();
+    private TraverseStrategy traverseStragegiImpl = new TraverseStrategyImpl();
 
     
     /**
