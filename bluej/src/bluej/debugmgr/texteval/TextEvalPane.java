@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2012,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.accessibility.Accessible;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JEditorPane;
@@ -77,7 +78,7 @@ import bluej.utility.Utility;
  * @author Michael Kolling
  */
 public class TextEvalPane extends JEditorPane 
-    implements ValueCollection, ResultWatcher, MouseMotionListener
+    implements Accessible, ValueCollection, ResultWatcher, MouseMotionListener
 {
     // The cursor to use while hovering over object icon
     private static final Cursor defaultCursor = new Cursor(Cursor.DEFAULT_CURSOR);
@@ -112,6 +113,7 @@ public class TextEvalPane extends JEditorPane
     public TextEvalPane(PkgMgrFrame frame)
     {
         super();
+        getAccessibleContext().setAccessibleName(Config.getString("pkgmgr.codepad.title"));
         this.frame = frame;
         setEditorKit(new MoeSyntaxEditorKit(true, null));
         doc = (MoeSyntaxDocument) getDocument();
