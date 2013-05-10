@@ -42,7 +42,8 @@ public abstract class Vertex implements SelectableGraphElement
     
     public Vertex(int x, int y, int width, int height)
     {
-        component = new VertexJComponent();        
+        component = new VertexJComponent();
+        component.setFocusable(true);
         component.setBounds(x, y, width, height);
         component.setVisible(true);
     }
@@ -217,4 +218,12 @@ public abstract class Vertex implements SelectableGraphElement
             return accessibleContext;
         }
     };
+    
+    public void singleSelected()
+    {
+        if (!component.hasFocus())
+        {
+            component.requestFocusInWindow();
+        }
+    }
 }

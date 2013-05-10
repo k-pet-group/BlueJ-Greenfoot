@@ -29,6 +29,7 @@ import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.PrintGraphics;
+import java.awt.event.FocusListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.util.HashMap;
@@ -46,7 +47,7 @@ import bluej.utility.Debug;
  * 
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: GraphEditor.java 10649 2013-05-09 14:27:38Z nccb $
+ * @version $Id: GraphEditor.java 10654 2013-05-10 09:39:02Z neil $
  */
 public class GraphEditor extends JPanel
     implements MouseMotionListener, GraphListener
@@ -67,12 +68,14 @@ public class GraphEditor extends JPanel
     private SelectionController selectionController;
 
     private Cursor currentCursor = defaultCursor;  // currently shown cursor
+
+    private FocusListener focusListener;
     
     /**
      * Create a graph editor.
      * @param graph The graph being edited by this editor.
      */
-    public GraphEditor(Graph graph)
+    public GraphEditor(Graph graph, FocusListener focusListener)
     {
         this.graph = graph;
         marqueePainter = new MarqueePainter();
@@ -80,6 +83,8 @@ public class GraphEditor extends JPanel
         selectionController = new SelectionController(this);
         graph.addListener(this);
         setToolTipText(""); // Turn on tool-tips for this component
+        
+        this.focusListener = focusListener;
         
         // Get everything added:
         setLayout(null);
@@ -289,8 +294,10 @@ public class GraphEditor extends JPanel
             Vertex v = it.next();
             if (!keep.containsKey(v))
             {
-                Debug.message("Adding: " + v);
                 add(v.getComponent());
+                v.getComponent().addFocusListener(focusListener);
+                v.getComponent().addFocusListener(selectionController);
+                v.getComponent().addKeyListener(selectionController);
             }
             // If it's in the vertices, keep it:
             keep.put(v.getComponent(), true);
@@ -305,5 +312,17 @@ public class GraphEditor extends JPanel
         }
         
         repaint();
+    }
+    
+    public boolean isGraphComponent(Component c)
+    {
+        Iterator<? extends Vertex> it = graph.getVertices();
+        while (it.hasNext())
+        {
+            Vertex v = it.next();
+            if (v.getComponent() == c)
+                return true;
+        }
+        return false;
     }
 }

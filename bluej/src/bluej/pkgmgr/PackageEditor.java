@@ -22,6 +22,7 @@
 package bluej.pkgmgr;
 
 import java.awt.Component;
+import java.awt.event.FocusListener;
 
 import javax.swing.Action;
 import javax.swing.JMenuItem;
@@ -43,15 +44,15 @@ import bluej.views.CallableView;
  * Canvas to allow editing of packages
  *
  * @author  Andrew Patterson
- * @version $Id: PackageEditor.java 10528 2013-03-22 14:09:18Z davmac $
+ * @version $Id: PackageEditor.java 10654 2013-05-10 09:39:02Z neil $
  */
 public final class PackageEditor extends GraphEditor
 {
     private PackageEditorListener listener;
     
-    public PackageEditor(Package pkg, PackageEditorListener listener)
+    public PackageEditor(Package pkg, PackageEditorListener listener, FocusListener focusListener)
     {
-        super(pkg);
+        super(pkg, focusListener);
         this.listener = listener;
     }
 

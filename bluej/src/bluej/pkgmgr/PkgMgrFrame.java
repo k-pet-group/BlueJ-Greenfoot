@@ -684,7 +684,8 @@ public class PkgMgrFrame extends JFrame
         this.pkg = pkg;
 
         if(! Config.isGreenfoot()) {
-            this.editor = new PackageEditor(pkg, this);
+            this.editor = new PackageEditor(pkg, this, this);
+            editor.getAccessibleContext().setAccessibleName(Config.getString("pkgmgr.graphEditor.title"));
             editor.setFocusable(true);
             editor.setTransferHandler(new FileTransferHandler(this));
             editor.addMouseListener(this); // This mouse listener MUST be before
@@ -1017,7 +1018,7 @@ public class PkgMgrFrame extends JFrame
      */
     public void focusLost(FocusEvent e)
     {
-        if (!e.isTemporary()) {
+        if (!e.isTemporary() && e.getOppositeComponent() != editor && !editor.isGraphComponent(e.getOppositeComponent())) {
             classScroller.setBorder(Config.normalBorder);
             editor.setHasFocus(false);
         }

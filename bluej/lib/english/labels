@@ -389,6 +389,7 @@ pkgmgr.test.popup.fixtureToBench=Test Fixture to Object Bench
 #Accessibility
 pkgmgr.objBench.title=Object Bench
 pkgmgr.codepad.title=Codepad
+pkgmgr.graphEditor.title=Class Diagram
 
 # codepad messages
 pkgmgr.codepad.uninitialized=Note: Codepad variables are automatically initialized\n in the same way as instance fields.

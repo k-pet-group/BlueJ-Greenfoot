@@ -27,4 +27,5 @@ package bluej.graph;
  */
 public abstract interface SelectableGraphElement extends GraphElement, Selectable
 {
+    public abstract void singleSelected();
 }
