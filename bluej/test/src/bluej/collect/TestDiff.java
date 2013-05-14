@@ -33,7 +33,7 @@ public class TestDiff extends TestCase
     {
         // Get the diff using our library:
         Patch patch = DiffUtils.diff(Arrays.asList(orig), Arrays.asList(mod));
-        String diff = DataCollector.makeDiff(Arrays.asList(orig), patch);
+        String diff = DataCollector.makeDiff(patch);
         // Now send it on a round trip with the system diff.
         
         //   Make temp file and fill it with original:
@@ -94,6 +94,7 @@ public class TestDiff extends TestCase
 "}"});
     }
     
+    // This test can take a little while -- 75 seconds on my machine
     public void testBruteForceDiffs() throws IOException, InterruptedException
     {
         String[] choices = new String[] {"aaaa", "bbbb", ""};
