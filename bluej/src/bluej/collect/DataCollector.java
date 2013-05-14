@@ -482,8 +482,6 @@ public class DataCollector
                 return theDelta.getOriginal().size() == 1 && theDelta.getRevised().size() == 1;
             }
             
-            
-            @SuppressWarnings("unchecked")
             @Override
             public MultipartEntity makeData(int sequenceNum, Map<FileKey, List<String>> fileVersions)
             {
@@ -521,6 +519,7 @@ public class DataCollector
         });
     }
     
+    @SuppressWarnings("unchecked")
     // protected for testing purposes
     protected static String makeDiff(Patch patch)
     {
