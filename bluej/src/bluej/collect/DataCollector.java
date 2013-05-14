@@ -501,27 +501,14 @@ public class DataCollector
                     return null;
                 }
                 
-                StringBuilder diff = new StringBuilder();
+                String diff = makeDiff(patch);
                 
-                for (Delta delta: patch.getDeltas()) {
-                    diff.append("@@ -" + (delta.getOriginal().getPosition() + 1) + "," + delta.getOriginal().size() + " +" + (delta.getRevised().getPosition() + 1) + "," + delta.getRevised().size() + " @@\n");
-                    for (String l : (List<String>)delta.getOriginal().getLines())
-                    {
-                        diff.append("-" + l + "\n");
-                    }
-                    for (String l : (List<String>)delta.getRevised().getLines())
-                    {
-                        diff.append("+" + l + "\n");
-                    }
-                }
-                
-                mpe.addPart("source_histories[][content]", CollectUtility.toBody(diff.toString()));
+                mpe.addPart("source_histories[][content]", CollectUtility.toBody(diff));
                 mpe.addPart("source_histories[][source_history_type]", CollectUtility.toBody("diff"));
                 mpe.addPart("source_histories[][name]", CollectUtility.toBody(CollectUtility.toPath(proj, path))); 
                 
                 return mpe;
             }
-
 
             @Override
             public void success(Map<FileKey, List<String>> fileVersions)
@@ -532,6 +519,25 @@ public class DataCollector
                 }
             }
         });
+    }
+    
+    // protected for testing purposes
+    protected static String makeDiff(Patch patch)
+    {
+        StringBuilder diff = new StringBuilder();
+        
+        for (Delta delta: patch.getDeltas()) {
+            diff.append("@@ -" + (delta.getOriginal().getPosition() + 1) + "," + delta.getOriginal().size() + " +" + (delta.getRevised().getPosition() + 1) + "," + delta.getRevised().size() + " @@\n");
+            for (String l : (List<String>)delta.getOriginal().getLines())
+            {
+                diff.append("-" + l + "\n");
+            }
+            for (String l : (List<String>)delta.getRevised().getLines())
+            {
+                diff.append("+" + l + "\n");
+            }
+        }
+        return diff.toString();
     }
     
     
