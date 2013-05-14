@@ -525,9 +525,27 @@ public class DataCollector
     protected static String makeDiff(Patch patch)
     {
         StringBuilder diff = new StringBuilder();
+        // There is a DiffUtils.generateUnifiedDiff function, but don't use it
+        // It's broken in 1.2.1 for patches that purely add lines
         
         for (Delta delta: patch.getDeltas()) {
-            diff.append("@@ -" + (delta.getOriginal().getPosition() + 1) + "," + delta.getOriginal().size() + " +" + (delta.getRevised().getPosition() + 1) + "," + delta.getRevised().size() + " @@\n");
+            int srcLine, srcSize, destLine, destSize;
+            srcSize = delta.getOriginal().size();
+            destSize = delta.getRevised().size();
+            // It seems that the line numbers given back when the patch is a pure-insert
+            // (i.e. zero lines are modified in the original file) are off by one, so
+            // correct for this:
+            if (srcSize > 0)
+            {
+                srcLine = delta.getOriginal().getPosition() + 1;
+                destLine = delta.getRevised().getPosition() + 1;
+            }
+            else
+            {
+                srcLine = delta.getOriginal().getPosition();
+                destLine = delta.getRevised().getPosition();
+            }
+            diff.append("@@ -" + srcLine + "," + srcSize + " +" + destLine + "," + destSize + " @@\n");
             for (String l : (List<String>)delta.getOriginal().getLines())
             {
                 diff.append("-" + l + "\n");
