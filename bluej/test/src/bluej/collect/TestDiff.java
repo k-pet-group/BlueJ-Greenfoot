@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 
 import junit.framework.TestCase;
 import difflib.DiffUtils;
@@ -32,7 +33,7 @@ public class TestDiff extends TestCase
     {
         // Get the diff using our library:
         Patch patch = DiffUtils.diff(Arrays.asList(orig), Arrays.asList(mod));
-        String diff = DataCollector.makeDiff(patch);
+        String diff = DataCollector.makeDiff(Arrays.asList(orig), patch);
         // Now send it on a round trip with the system diff.
         
         //   Make temp file and fill it with original:
@@ -56,24 +57,28 @@ public class TestDiff extends TestCase
         //   Read back the original and check:
         String[] patched = readFile(tempFile);
         
-        assertEqualStringArray(mod, patched);
+        assertEqualStringArray(orig, diff, mod, patched);
     }
     
     
-    private void assertEqualStringArray(String[] a, String[] b)
+    private void assertEqualStringArray(String[] orig, String diff, String[] a, String[] b)
     {
-        assertEquals("Array length: " + printArrays(a, b), a.length, b.length);
+        assertEquals("Array length: " + printInfo(orig, diff, a, b), a.length, b.length);
         for (int i = 0; i < a.length; i++)
-            assertEquals("Line " + i + " for "  + printArrays(a, b), a[i], b[i]);
+            assertEquals("Line " + i + " for\n"  + printInfo(orig, diff, a, b), a[i], b[i]);
         
     }
 
-    private String printArrays(String[] a, String[] b)
+    private String printInfo(String[] orig, String diff, String[] a, String[] b)
     {
         StringBuilder s = new StringBuilder();
+        s.append("### Original:\n");
+        for (String line : orig) s.append(line + "\n");
+        s.append("### Diff:\n").append(diff).append("### Expected:\n");
         for (String line : a) s.append(line + "\n");
-        s.append("###\n");
+        s.append("### Actual:\n");
         for (String line : b) s.append(line + "\n");
+        s.append("###\n");
         return s.toString();
     }
 
@@ -87,5 +92,50 @@ public class TestDiff extends TestCase
 "{",
 "  public int x;",
 "}"});
+    }
+    
+    public void testBruteForceDiffs() throws IOException, InterruptedException
+    {
+        String[] choices = new String[] {"aaaa", "bbbb", ""};
+        //Forms all files of length 0 to 4 with all possible combinations of those three lines:
+        final int LONGEST_FILE = 4;
+        Collection<String[]>[] allFiles = new Collection[LONGEST_FILE + 1];
+        
+        allFiles[0] = new ArrayList<String[]>();
+        allFiles[0].add(new String[0]);
+        
+        for (int length = 1; length <= LONGEST_FILE; length++)
+        {
+            allFiles[length] = new ArrayList<String[]>();
+            // For that length, create all possible files by building on all files of previous length:
+            for (int chosenNew = 0; chosenNew < choices.length; chosenNew++)
+            {
+                for (String[] shorterFile : allFiles[length - 1])
+                {
+                    String[] newFile = Arrays.copyOf(shorterFile, length);
+                    newFile[length - 1] = choices[chosenNew];
+                    allFiles[length].add(newFile);
+                }
+            }
+        }
+        
+        // Now flatten:
+        ArrayList<String[]> flattened = new ArrayList<String[]>();
+        for (Collection<String[]> coll : allFiles)
+        {
+            for (String[] f : coll)
+            {
+                flattened.add(f);
+            }
+        }
+        allFiles = null;
+        
+        for (int i = 0; i < flattened.size(); i++)
+        {
+            for (int j = 0; j < flattened.size(); j++)
+            {
+                assertDiffRoundTrip(flattened.get(i), flattened.get(j));
+            }
+        }
     }
 }
