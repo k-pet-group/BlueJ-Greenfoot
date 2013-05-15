@@ -627,7 +627,7 @@ public class ObjectWrapper extends JComponent implements Accessible, FocusListen
      */
     protected void drawUMLObjectShape(Graphics2D g, int x, int y, int w, int h, int shad, int corner)
     {
-        g.drawImage(isSelected ? selectedObjectImage : objectImage, x, y, null);
+        g.drawImage(isSelected() ? selectedObjectImage : objectImage, x, y, null);
     }
 
     /**
@@ -854,7 +854,7 @@ public class ObjectWrapper extends JComponent implements Accessible, FocusListen
      */
     public boolean isSelected() 
     {
-        return isSelected;
+        return isSelected && isFocusOwner();
     }
 
     /**
