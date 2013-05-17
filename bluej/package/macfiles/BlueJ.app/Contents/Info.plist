@@ -53,7 +53,7 @@
 	<string>bluJ</string>
 	<key>CFBundleVersion</key>
 	<string>VERSION</string>
-	<key>Java</key>
+	<key>JavaProps</key>
 	<dict>
 		<key>ClassPath</key>
 		<array>

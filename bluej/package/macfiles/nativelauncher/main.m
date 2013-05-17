@@ -84,7 +84,7 @@ int launch(char *commandName) {
 
     // Get the main bundle's info dictionary and Java dictionary
     NSDictionary *infoDictionary = [mainBundle infoDictionary];
-	NSDictionary *javaDictionary = [infoDictionary objectForKey:@"Java"];
+	NSDictionary *javaDictionary = [infoDictionary objectForKey:@"JavaProps"];
 	if (javaDictionary == nil) {
         [[NSException exceptionWithName:@JAVA_LAUNCH_ERROR
             reason:NSLocalizedString(@"NoJavaDictionary", @UNSPECIFIED_ERROR)
