@@ -551,7 +551,7 @@ bluej.javame.corelibraries=midpapi20.jar cldcapi11.jar
 ##            abcde\\\\fg => 1 argument: 'abcde\fg'
 #####################################################################
 
-bluej.vm.args=-ea
+bluej.vm.args=-ea -Djavafx.macosx.embedded=true
 
 # -ea : enable assertions
 
