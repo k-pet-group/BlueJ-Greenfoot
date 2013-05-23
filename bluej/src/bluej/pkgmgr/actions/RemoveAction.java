@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,7 +29,7 @@ import bluej.pkgmgr.PkgMgrFrame;
  * relation, modify the source to reflect the change.
  * 
  * @author Davin McCall.
- * @version $Id: RemoveAction.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: RemoveAction.java 10678 2013-05-23 11:03:44Z nccb $
  */
 final public class RemoveAction extends PkgMgrAction
 {
@@ -37,10 +37,20 @@ final public class RemoveAction extends PkgMgrAction
     {
         super("menu.edit.remove");
     }
+
+    // There is a bug on Mac OS X/Java 7 where this remove action
+    // gets called twice (because the cmd+backspace key is processed twice)
+    // This flag makes sure the dialog doesn't get called twice by preventing re-entry:
+    private boolean processing = false;
     
     public void actionPerformed(PkgMgrFrame pmf)
     {
-        pmf.menuCall();
-        pmf.doRemove();
+        if (!processing)
+        {
+             processing = true;
+             pmf.menuCall();
+             pmf.doRemove();
+             processing = false;
+        }
     }
 }
