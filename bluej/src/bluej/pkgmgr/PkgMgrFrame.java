@@ -45,6 +45,7 @@ import java.awt.print.PageFormat;
 import java.awt.print.Paper;
 import java.awt.print.PrinterJob;
 import java.io.File;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -2064,7 +2065,7 @@ public class PkgMgrFrame extends JFrame
     public void doRemove()
     {
         Component permanentFocusOwner = KeyboardFocusManager.getCurrentKeyboardFocusManager().getPermanentFocusOwner();
-        if (permanentFocusOwner == editor) { // focus in diagram
+        if (permanentFocusOwner == editor || Arrays.asList(editor.getComponents()).contains(permanentFocusOwner)) { // focus in diagram
             if (!(doRemoveTargets() || doRemoveDependency())) {
                 DialogManager.showError(this, "no-class-selected");
             }
