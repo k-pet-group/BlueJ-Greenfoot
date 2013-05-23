@@ -2069,7 +2069,7 @@ public class PkgMgrFrame extends JFrame
                 DialogManager.showError(this, "no-class-selected");
             }
         }
-        else if (permanentFocusOwner == objbench) { // focus in object bench
+        else if (permanentFocusOwner == objbench || objbench.getObjects().contains(permanentFocusOwner)) { // focus in object bench
             objbench.removeSelectedObject(pkg.getId());
         }
         else {
