@@ -83,6 +83,8 @@ int launch(char *commandName) {
     // chdir([NSHomeDirectory() UTF8String]);
 
     // Get the main bundle's info dictionary and Java dictionary
+    // Note, this dictionary must not be named just "Java" - otherwise OS X 
+    // insists that Java 6 be installed before allowing the application to run.
     NSDictionary *infoDictionary = [mainBundle infoDictionary];
 	NSDictionary *javaDictionary = [infoDictionary objectForKey:@"JavaProps"];
 	if (javaDictionary == nil) {
