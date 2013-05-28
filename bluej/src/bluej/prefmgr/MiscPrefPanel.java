@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2012,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -66,7 +66,6 @@ public class MiscPrefPanel extends JPanel
     private JTextField participantIdentifierField;
     private JTextField experimentIdentifierField;
     private JLabel statusLabel;
-    private JTextField uuidField;
      
     /**
      * Setup the UI for the dialog and event handlers for the buttons.
@@ -119,7 +118,6 @@ public class MiscPrefPanel extends JPanel
                 {
                     DataCollector.changeOptInOut();
                     statusLabel.setText(DataCollector.getOptInOutStatus());
-                    uuidField.setText(DataCollector.getUserID());
                 }
             });
             JPanel statusPanel = new JPanel();
@@ -130,16 +128,6 @@ public class MiscPrefPanel extends JPanel
             statusPanel.setAlignmentX(LEFT_ALIGNMENT);
             dataCollectionPanel.add(statusPanel);
         }
-        
-        //Just for the 3.1.0 beta:
-        JPanel uuidPanel = new JPanel();
-        uuidPanel.setLayout(new BoxLayout(uuidPanel, BoxLayout.X_AXIS));
-        uuidPanel.add(new JLabel("UUID [only shown in beta]:"));
-        uuidField = new JTextField();
-        uuidField.setEditable(false);
-        uuidPanel.add(uuidField);
-        uuidPanel.setAlignmentX(LEFT_ALIGNMENT);
-        dataCollectionPanel.add(uuidPanel);
         
         
         {
@@ -310,7 +298,6 @@ public class MiscPrefPanel extends JPanel
             statusLabel.setText(DataCollector.getOptInOutStatus());
             experimentIdentifierField.setText(DataCollector.getExperimentIdentifier());
             participantIdentifierField.setText(DataCollector.getParticipantIdentifier());
-            uuidField.setText(DataCollector.getUserID());
         }
         else
         {
