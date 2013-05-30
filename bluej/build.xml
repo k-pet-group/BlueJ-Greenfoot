@@ -79,6 +79,7 @@
                 target="1.6"
                 deprecation="yes"
                 includeantruntime="false"
+                encoding="utf-8"
         >
         </javac>
 
@@ -100,6 +101,7 @@
                 debug="on"
                 deprecation="yes"
                 includeantruntime="false"
+                encoding="utf-8"
                 excludes="de/**,
 
                     archiver/**, gnu/**, javax/**, kopi/**,
