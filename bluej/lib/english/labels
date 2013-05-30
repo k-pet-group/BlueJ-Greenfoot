@@ -782,7 +782,7 @@ menu.help.copyright.line4=and THIRDPARTYLICENSE.txt.
 
 collect.dialog.title=Research Participation
 
-collect.dialog.header1=The BlueJ team are running a data collection project to help researchers
+collect.dialog.header1=BlueJ collects anonymous interaction information to improve the software and help researchers
 collect.dialog.header2=understand how students learn to program.
 collect.dialog.header3=Please help us by participating.
 
@@ -793,9 +793,9 @@ collect.dialog.ethics1=If you agree to take part, you will permit us to collect 
 collect.dialog.ethics.seemore=See more information
 collect.dialog.ethics2=If you change your mind about helping us with this work, you can stop contributing at any time using the checkbox in the Tools/Preferences/Miscellaneous dialog.
 
-collect.status.optedin=You are currently taking part in the data collection research
-collect.status.nextsession=You will begin taking part in the data collection research next time BlueJ is started
-collect.status.optedout=You are currently not participating in the data collection research
+collect.status.optedin=You are currently allowing anonymous research data collection
+collect.status.nextsession=You will allow anonymous data collection research next time BlueJ is started
+collect.status.optedout=You are currently not participating in the anonymous research data collection
 
 # About
 
