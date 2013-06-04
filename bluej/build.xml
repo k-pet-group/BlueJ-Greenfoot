@@ -102,15 +102,9 @@
                 deprecation="yes"
                 includeantruntime="false"
                 encoding="utf-8"
-                excludes="de/**,
-
-                    archiver/**, gnu/**, javax/**, kopi/**,
-                    net/**/test/**,
-                    net/**,
-                    bluej/tester/**,
-                    bluej/browser/**,
-                    bluej/guibuilder/**,
-                    bluej/editor/moe/Moe.java">
+                excludes="bluej/editor/moe/Moe.java,
+                	bluej/editor/moe/**,
+        			${srcexcludes}">
 
             <classpath>
                 <path refid="bluej.class.path"/>
@@ -200,6 +194,12 @@
 
     <target name="ready-to-run" depends="jar-core, jar-editor, jar-extension">
     </target>
+	
+	<target name="ready-to-run-greenfoot" description="prepare to run Greenfoot">
+		<!-- We can exclude version control from the build -->
+		<property name="srcexcludes" value="${src}/bluej/groupwork/cvsnb/**,${src}/bluej/groupwork/svn/**" />
+		<antcall target="ready-to-run" />
+	</target>
 
     <target name="run">
         <!-- delete the greenfoot jar (if it exists) since it screws up BlueJ -->
