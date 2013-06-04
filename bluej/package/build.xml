@@ -486,8 +486,11 @@
             	<include name="doc/threading-issues.txt" />
 	            <include name="examples/**/*" />          
 	            <include name="icons/**/*" />           
-	            <include name="lib/**/*" />     
-	            <exclude name="lib/commons-*"/>
+	            <include name="lib/**/*" />
+            	
+            	<!-- exclude Greenfoot files -->
+	            <exclude name="lib/commons-httpclient-*"/>
+	            <exclude name="lib/commons-codec-*"/>
 	            <exclude name="lib/jl*"/>
 	            <exclude name="lib/bluej.jar"/>
 	            <exclude name="lib/bluejcore.jar"/>
@@ -495,6 +498,7 @@
 		        <exclude name="lib/bluejext.jar"/>
 		        <exclude name="lib/extensions/greenfoot.jar"/>
 		        <exclude name="lib/greenfoot/"/>
+            	
 	            <include name="package/**/*" />     
 	            <exclude name="package/commons-*"/>
 	            <exclude name="package/${bluej.source.zip}"/>
