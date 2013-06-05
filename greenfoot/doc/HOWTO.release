@@ -11,7 +11,7 @@ Building Greenfoot:
     updated with a description of the changes in the API!
     (project.version.changes.XX)
     
- 3. Run "ant ready-to-run" in the BlueJ directory.
+ 3. Run "ant ready-to-run-greenfoot" in the BlueJ directory.
  4. Run "ant dist" in the Greenfoot directory
  5. Build the windows installer (see below).
  6. Copy the builds and source to greenfoot.org.
