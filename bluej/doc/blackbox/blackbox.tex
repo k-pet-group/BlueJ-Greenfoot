@@ -29,6 +29,7 @@
   \begin{center}
     \includegraphics[width=10cm]{../../lib/images/bluej-icon-256.png}\\
     \huge BlueJ Blackbox Data Collection\\~\\Researchers' Handbook
+    (version 1.1)
   \end{center}
 \end{titlepage}
 
@@ -1231,57 +1232,13 @@ as described in section \ref{sec:ssh-tunnel}).  It demonstrates running a few
 queries, given the UUID, to find a user's projects, and the files within a
 chosen project.  For that file, the full history of the file is pulled.
 
-The |SourceHistory| class uses the DiffUtils Java library to apply the
-necessary diffs to reconstruct the source history.  You can also use the
-command-line |patch| application (available on all Unix-like systems) or any
-similar library in other languages.  The |Viewer| class ties all this
+The |SourceHistory| class uses the command-line |patch| application (available on all Unix-like systems) or any
+to put the histories back together.  The |Viewer| class ties all this
 together, and displays the source in a BlueJ editor window, and binds the
 scroll wheel to moving backwards and forwards through the version history.
 
 (Note: the sample has a slight irritation that the cursor is always moved to the end
 of the file during scrolling, but the point is to demonstrate the database
 queries and diffs and so on.)
-
-\chapter{Beta}
-\label{sec:beta}
-
-\section{Aims}
-
-The aim of the beta is two-fold:
-
-\begin{itemize}
-\item Firstly, we want to test the software outside of our local setup.  We
-  would appreciate if you were able to test the software in a variety of
-  settings, e.g. from your home machine, from a student machine in your labs.
-  This will help pick up any technical problems with slow connections, or
-  firewalls, or unexpected lab setups and so on.
-\item Secondly, we invite feedback on the data schema (described in
-  this document).  Is there something we're not recording that you want to
-  know?  Are we recording something in a way that will inhibit easy
-  analysis?  Are some of our caveats too big, or our guarantees too
-  weak?  The recording mechanism is much easier to alter before the
-  public release than afterwards.
-\end{itemize}
-
-We also welcome feedback on this document: is there anything that is
-not clear, or missing, or that could be improved?
-
-Send comments either to the mailing list |blackbox@bluej.org| or
-directly to us at |blackbox-admin@bluej.org|.
-
-\section{Artificialities}
-
-\begin{itemize}
-\item UUID is shown in preferences dialog
-\item Message logged to debug log if there is a problem with event submission
-\end{itemize}
-
-\section{Notes}
-
-During the beta, it may prove necessary to change the data schema.  In this
-case, data may be wiped, and analysis tools may need adjusting.  This is in
-order to provide the best setting for collecting the actual data: once the
-beta is over, there will be a stable interface to code against, and no data
-will be removed.
 
 \end{document}
