@@ -10,7 +10,7 @@ elif [ -x /usr/bin/arch ]; then
     ARCH=`/usr/bin/arch`
 fi
 
-for VMNAME in java-7-sun java-7-openjdk java-6-sun java-6-openjdk ; do
+for VMNAME in java-7-oracle java-7-sun java-7-openjdk java-6-oracle java-6-sun java-6-openjdk ; do
     if [ -e /usr/lib/jvm/$VMNAME/lib/tools.jar ]; then
 	    JAVAPATH="/usr/lib/jvm/$VMNAME"
 	    break
