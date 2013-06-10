@@ -26,6 +26,7 @@ public class Viewer
     // Warning -- the path below needs to be changed if not on Linux:
     // Change to the path that contains bluej.jar
     private static final String BLUEJ_INSTALL_PATH = "/usr/share/bluej";
+    // e.g. for Mac: /Applications/BlueJ.app/Contents/Resources/Java
     
     public static void main(String[] args)
     {
