@@ -51,8 +51,9 @@ public class TestDiff extends TestCase
         Process p = Runtime.getRuntime().exec("patch --force " + tempFile.getAbsolutePath());
         p.getOutputStream().write(diff.getBytes(Charset.forName("UTF-8")));
         p.getOutputStream().close();
-        
-        assertEquals("Patch exit code", 0, p.waitFor());
+
+        int returnCode = p.waitFor();        
+        assertEquals("Patch exit code", 0, returnCode);
         
         //   Read back the original and check:
         String[] patched = readFile(tempFile);
