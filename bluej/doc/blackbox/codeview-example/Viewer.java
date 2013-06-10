@@ -49,6 +49,7 @@ public class Viewer
             
             final ArrayList<SourceHistory> history = db.getHistoriesForFile(sourceFile.id);
             
+            final ArrayList<String> versions = SourceHistory.getAllVersions(history);
             
             // Show the history in a BlueJ editor:
             
@@ -83,7 +84,7 @@ public class Viewer
                             // This replacement does have the disadvantage of always pinging the cursor to the end of the file,
                             // and causing a flicker and re-parse, but this is only a quick demonstration...
                             doc.remove(0, doc.getLength());
-                            doc.insertString(0, SourceHistory.getVersion(history, curVersion), null);
+                            doc.insertString(0, versions.get(curVersion), null);
                         }
                         catch (Exception e1) {
                             e1.printStackTrace();
@@ -99,7 +100,7 @@ public class Viewer
             EventQueue.invokeLater(new Runnable() { public void run() {
                 // Start with first version:
                 try {
-                    moe.getSourceDocument().insertString(0, SourceHistory.getVersion(history, 0), null);
+                    moe.getSourceDocument().insertString(0, versions.get(0), null);
                 }
                 catch (Exception e1) {
                     e1.printStackTrace();
@@ -110,7 +111,7 @@ public class Viewer
                 moe.getSourceDocument().flushReparseQueue();
             }});
         }
-        catch (SQLException e)
+        catch (Exception e)
         {
             e.printStackTrace();
         }
