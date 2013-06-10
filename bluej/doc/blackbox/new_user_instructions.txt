@@ -1,0 +1,1 @@
+useradd -m -U -G researchers -s /bin/bash
