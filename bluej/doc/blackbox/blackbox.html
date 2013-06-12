@@ -65,6 +65,8 @@ used by computing education researchers.
   <li><a href="#traffic">How much traffic will this generate?</a></li>
   <li><a href="#opt_in_out">How can I opt in/out?</a></li>
   <li><a href="#repeated">Why do I repeatedly get asked if I want to opt in?</a></li>
+  <li><a href="#global_optout">I'm a network administrator; how I do
+  disable participation for my users?</a></li>
   <li><a href="#contact">My question isn't answered here</a></li>
 </ul>
 
@@ -105,9 +107,13 @@ comments) are sent to the server.
 
 <div class="answer">
 The exact rate at which data will be sent is dependent on the actions
-you are performing.  As an estimate, we believe that the upload will
-be around 3 Megabytes each hour of continued use, and the download
-will be around 1 Megabyte each hour.  As a quick point of comparison, loading the BBC front page once involves downloading around 0.5 Megabytes of data and uploading 0.06 Megabytes.
+you are performing and the size of your source code base.  As an
+estimate, we believe for a handful of small classes (e.g. the projects
+accompanying the textbook) that the upload will
+be around 3-4 Megabytes each hour of continued use, and the download
+will be around 1 Megabyte each hour.  As a quick point of comparison,
+loading the BBC news front page once involves downloading around 0.5
+Megabytes of data and uploading 0.06 Megabytes.
 </div>
 
 <span class="question-heading" id="opt_in_out">How can I opt in/out?</span>
@@ -138,6 +144,26 @@ and this decision stored thereafter.
   line:</p>
 
 <pre>blackbox.uuid=optout</pre>
+</div>
+
+<span class="question-heading" id="global_optout">I'm a network administrator; how I do
+  disable participation for my users?</span>
+
+<div class="answer">
+<p>
+  If you want to opt-out your users by default but still allow them to
+  choose to opt-in later, you can alter the bluej.defs file that is
+  install with BlueJ to include the line:
+</p>
+<pre>blackbox.uuid=optout</pre>
+<p>
+  Alternatively, if you want to opt-out your users and prevent them
+  from re-enabling participation, we have provided an alternate BlueJ
+  release that completely disables the data participation mechanism.
+  You can <a href="http://www.bluej.org/download/files/bluej-310b.msi">download
+  the release here</a> -- it should act as a drop-in 
+  replacement for the usual BlueJ installer.
+</p>
 </div>
 
 <span class="question-heading" id="contact">My question isn't
