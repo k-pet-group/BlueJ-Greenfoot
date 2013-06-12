@@ -70,18 +70,14 @@ PART II - RELEASING BLUEJ
 12. In the bugs database (http://bugs.bluej.org/trac/bluej),
 
    1. Add a future release milestone ("Roadmap", "New Milestone").
-   
-   2. Make sure that there are no open bugs for the new release milestone (i.e. the milestone
-      for the release which is about to happen).
-      
-      If there are any bugs open, they should be re-assigned to the (newly created) future
-      release milestone.
+
+   2. Mark the new release milestone as completed.  Use the option that
+      Trac provides to retarget open bugs to the future milestone.
    
    3. Also check that there are no bugs against the current release which are marked as
       FIXED but for which the milestone isn't set. Set the milestone to the new release
       for such bugs.
       
-   4. Mark the new release milestone as completed.  
    
 13. Also in the bugs database, add the new version so that bugs can be reported against
     it.
