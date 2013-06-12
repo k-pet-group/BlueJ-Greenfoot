@@ -73,6 +73,8 @@ PART II - RELEASING BLUEJ
 
    2. Mark the new release milestone as completed.  Use the option that
       Trac provides to retarget open bugs to the future milestone.
+      ("Roadmap" -> click on milestone -> "Edit milestone";
+       do not go through the Admin panel!).
    
    3. Also check that there are no bugs against the current release which are marked as
       FIXED but for which the milestone isn't set. Set the milestone to the new release
