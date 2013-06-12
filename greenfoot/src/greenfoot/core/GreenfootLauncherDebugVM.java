@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2013  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -79,7 +79,8 @@ public class GreenfootLauncherDebugVM
                 try {           
                     client.initialise();
                     File libdir = blueJ.getSystemLibDir();
-                    Config.initializeVMside(libdir, blueJ.getInitialCommandLineProperties(), true, client);
+                    Config.initializeVMside(libdir, blueJ.getUserPrefDir(),
+                            blueJ.getInitialCommandLineProperties(), true, client);
                     final RPrintStream rprintStream = blueJ.getDebugPrinter();
                     Debug.setDebugStream(new Writer() {
                         @Override

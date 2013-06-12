@@ -333,10 +333,14 @@ public final class Config
      * Alternative to "initialise", to be used in the debugee-VM by
      * applications which require it (ie. greenfoot).
      */    
-    public static void initializeVMside(File bluejLibDir, Properties tempCommandLineProps, boolean bootingGreenfoot, BlueJPropStringSource propSource)
+    public static void initializeVMside(File bluejLibDir,
+            File userConfigDir,
+            Properties tempCommandLineProps, boolean bootingGreenfoot,
+            BlueJPropStringSource propSource)
     {
         isDebugVm = true;
         Config.propSource = propSource;
+        Config.userPrefDir = userConfigDir;
 
         // Set up the properties so that they use the properties from the
         // BlueJVM
