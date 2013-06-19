@@ -324,7 +324,9 @@ LICENSE.txt file that accompanied this code.${line.separator}
     </target>
 	
 	<target name="copy-common-class" depends="compile-scenarios">
-		<javadoc destdir="common" sourcefiles="common/${common.class}.java" Version="yes" notree="yes" noindex="yes" nohelp="yes" nonavbar="yes" classpath="${build}"/> 
+		<javadoc destdir="common" sourcefiles="common/${common.class}.java"
+			Version="yes" notree="yes" noindex="yes" nohelp="yes" nonavbar="yes"
+			classpath="${build}" docletpath="${bluej.projectdir}/lib/bjdoclet.jar" doclet="bluej.doclet.doclets.formats.html.HtmlDoclet"/> 
 		
 		<copy todir="${bluej.lib.greenfoot}" preservelastmodified="true">
 		  <fileset dir=".">
