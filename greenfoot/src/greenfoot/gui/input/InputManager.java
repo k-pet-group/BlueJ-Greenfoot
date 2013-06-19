@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2013  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -41,6 +41,7 @@ import greenfoot.gui.input.states.QuickAddDragState;
 import greenfoot.gui.input.states.RunningState;
 import greenfoot.gui.input.states.State;
 
+import java.awt.EventQueue;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -202,14 +203,21 @@ public class InputManager
     /**
      * Used for changing between running and stopped state.
      */
-    public void simulationChanged(SimulationEvent e)
+    public void simulationChanged(final SimulationEvent e)
     {
-        if (e.getType() == SimulationEvent.STARTED) {
-            state.switchToNextState(State.Event.SIMULATION_STARTED, null);
-        }
-        else if (e.getType() == SimulationEvent.STOPPED) {
-            state.switchToNextState(State.Event.SIMULATION_STOPPED, null);
-        }
+        // Simulation events occur on the simulation thread.
+        EventQueue.invokeLater(new Runnable() {
+           @Override
+            public void run()
+            {
+               if (e.getType() == SimulationEvent.STARTED) {
+                   state.switchToNextState(State.Event.SIMULATION_STARTED, null);
+               }
+               else if (e.getType() == SimulationEvent.STOPPED) {
+                   state.switchToNextState(State.Event.SIMULATION_STOPPED, null);
+               }
+            } 
+        });
     }
 
     /**
