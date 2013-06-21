@@ -15,7 +15,8 @@ import java.util.List;
 import java.util.ArrayList;
 
 /**
- * 
+ * This class can be used to read animated gif image files and extract the individual
+ * images of the animation sequence.
  * 
  * @author Michael Berry
  * @author Neil Brown
