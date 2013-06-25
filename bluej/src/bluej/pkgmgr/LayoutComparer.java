@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -30,7 +30,6 @@ import bluej.pkgmgr.target.*;
  * An ordering on targets to make layout nicer (reduce line intersections, etc.)
  *
  * @author Michael Cahill
- * @version $Id: LayoutComparer.java 6683 2009-09-16 10:17:14Z davmac $
  */
 public class LayoutComparer implements Comparator<Dependency>
 {
@@ -65,6 +64,17 @@ public class LayoutComparer implements Comparator<Dependency>
         int cx = centre.getX() + centre.getWidth()/2;
         int cy = centre.getY() + centre.getHeight()/2;
 
+        return compare(ax, ay, bx, by, cx, cy);
+    }
+
+    /**
+     * Separate method to allow testing:
+     */
+    protected int compare(int ax, int ay, int bx, int by, int cx, int cy)
+    {
+        if((ax == bx) && (ay == by))
+            return 0;
+        
         boolean a_above = (ay < cy);
         boolean a_left = (ax < cx);
         int a_quad = (a_above ? 0 : 2) + (a_left ? 0 : 1);
