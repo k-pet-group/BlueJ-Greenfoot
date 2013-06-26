@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2013  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -33,7 +33,6 @@ import java.util.List;
 
 import javax.swing.Action;
 import javax.swing.JPopupMenu;
-import javax.swing.SwingUtilities;
 
 import bluej.Config;
 
@@ -98,24 +97,16 @@ public class ActorClassRole extends ImageClassRole
     @Override
     public void worldCreated(WorldEvent e) {
         enableConstructors = true;
-        SwingUtilities.invokeLater(new Thread() {
-            public void run() {
-                for (Action action : constructorItems) {
-                    action.setEnabled(true);
-                }
-            }
-        });
+        for (Action action : constructorItems) {
+            action.setEnabled(true);
+        }
     }
 
     @Override
     public void worldRemoved(WorldEvent e) {
         enableConstructors = false;
-        SwingUtilities.invokeLater(new Thread() {
-            public void run() {
-                for (Action action : constructorItems) {
-                    action.setEnabled(false);
-                }
-            }
-        });
+        for (Action action : constructorItems) {
+            action.setEnabled(false);
+        }
     }   
 }
