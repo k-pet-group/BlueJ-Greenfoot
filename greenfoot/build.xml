@@ -720,6 +720,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
                 <include name="doc/LICENSE.txt" />  
                 <include name="doc/GREENFOOT_LICENSES.txt" />
             	<include name="doc/Greenfoot-README.txt" />
+            	<include name="doc/Greenfoot-architecture-and-design.txt" />
                 <patternset refid="distribution.scenarios"/>
                 <exclude name="scenarios/**/*.class" />    
                 <exclude name="scenarios/**/greenfoot/" />
