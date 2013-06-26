@@ -1,0 +1,153 @@
+Greenfoot Architecture and Design
+---------------------------------
+
+Davin McCall, 2013
+
+This document describes the architecture and design of the Greenfoot software.
+
+
+1. INTRODUCTION
+
+This document is written for the benefit of anyone who wants to develop, fix bugs in,
+or otherwise understand the Greenfoot software. It describes the overall design and
+points out key locations in code.
+
+
+2. OVERVIEW
+
+Importantly, Greenfoot is essentially an extension to BlueJ; to understand Greenfoot it
+is first necessary to understand BlueJ. Please see BlueJ documentation. In particular,
+it is important to understand the separate virtual machines - the "main VM" for BlueJ
+itself (including the user interface) and the "debug VM" which runs user code (and small
+pieces of BlueJ support code).
+
+In Greenfoot, the role of the two VMs is somewhat reversed. Much of Greenfoot - including
+most of the user interface - runs on the secondary (or "debug") VM. BlueJ runs, as before,
+on the main VM, however its user interface is not made visible. An important consequence
+of this is that Greenfoot cannot run with just a single VM; if no scenario is open, a
+secondary VM is still required to present the Greenfoot interface.
+
+
+3. GREENFOOT STARTUP
+
+The BlueJ part of Greenfoot launches first. BlueJ is run in a special "Greenfoot" mode
+which changes certain aspects of its behaviour; so, there is some Greenfoot-specific code
+in BlueJ (however this is and should be kept to a practical minimum).
+
+BlueJ will load Greenfoot as an extension - the class rmiextension.RMIExtension is loaded
+and the startup method is called. At this point Greenfoot registers an event listener
+(using BlueJ's extensions mechanism) to be notified when BlueJ has finished starting up;
+also, an RMI server object is created, which can later be connected to and used by Greenfoot
+when running on the second VM. (RMI = Remote Method Invocation).
+
+The RMI server (BlueJRMIServer) also adds a ProjectManager instance as a listener to be
+notified when packages are opened and closed.
+
+When BlueJ has completed normal startup, it calls the bluejReady(...) method, which creates
+a GreenfootLauncherBlueJVM instance. For the first ever launch of Greenfoot, this class
+presents a menu with some helpful choices (open tutorial scenario etc); otherwise, it merely
+ensures that at least one project is open, to force creation of the secondary VM. (If
+no project was open, the special 'startup project' is opened; this is an empty Greenfoot
+project which is bundled with Greenfoot).
+
+So far, everything described as occurred on the main VM.
+
+When the ProjectManager is notified that a project has been opened, it registers a listener
+on the debugger for the project (GreenfootDebugHandler) which will be notified when the
+secondary VM has started (processDebuggerEvent(...)) and which will launch the secondary
+VM side of Greenfoot using BlueJ's invocation mechanism. Specifically it creates an instance
+of GreenfootLauncherDebugVM in the debug VM, passing the address of the RMI server as an
+argument.
+
+At this point, the GUI is created and presented, and startup is complete. Most of the
+Greenfoot GUI runs on the secondary VM, with the notable exceptions of the editor windows
+and the debugger window.
+
+
+4. THE SIMULATION THREAD AND EXECUTION OF USER CODE
+
+To avoid race conditions access to the current world class must be serialised. This is
+tricky since the world is accessed both by user code and by the Greenfoot system (when
+it paints the world, or when it allows interactive method calls on objects for example).
+
+The main mechanism for serialisation is the world lock. The WorldHandler class
+(greenfoot.core.WorldHandler) maintains this lock, which is a re-entrant ReadWriteLock;
+reading from the world (eg obtaining the list of actors and their positions) requires
+first obtaining the read lock; performing modifications (including calling user code, or
+calling a method that can be overridden by the user) requires obtaining the write lock.
+
+The world repaint handler (WorldCanvas) obtains the read lock with a timeout, to avoid
+locking up the GUI in case user code has gone into an infinite loop.
+
+The Simulation class, derived from Thread, represents the simulation thread. It can be paused,
+resumed and disabled; listeners can be attached to be notified of changes in the simulation
+state. A 'runLater' method is provided, similar to EventQueue.invokeLater(...), to queue a task
+to be run on the simulation thread (with the world write lock held).
+
+ 
+5. THE LOCAL DEBUGGER
+
+Greenfoot runs certain parts of BlueJ that would normally run on the main VM on the secondary
+VM instead. These include:
+
+ - inspector windows (unless opened via the debugger window)
+ - the interaction invocation functionality (in bluej.debugmgr.*)
+
+To facilitate this, Greenfoot has a bluej.debugger.Debugger implementation (called
+LocalDebugger) which provides object introspection etc via normal Java reflection, and
+invocation functionality via the runLater(...) method of the Simulation class.
+
+
+6. GRAPHICAL USER INTERFACE
+
+The GUI elements are in the greenfoot.gui.* package. The main windows is represented by
+greenfoot.gui.GreenfootFrame. The class browser (the tree view that displays classes) is in
+greenfoot.gui.classbrowser.*.
+
+Code editor windows are hosted in the main VM, so they must be opened via an RMI call;
+See greenfoot.actions.EditClassAction.
+
+
+7. RMI SERVER AND THREAD SAFETY
+
+The RMI server runs in the main VM. RMI calls are dispatched from an unspecified thread,
+in practice this is a special purpose RMI thread created to handle a request. The secondary
+VM may request classes to be added or removed from project, or for code editor windows to be
+opened, for example (see the rmiextension.wrappers.* classes).
+
+However, BlueJ was written with a primarily single-threaded idiom; most parts of the code do
+not need explicit synchronisation, because they can only normally be executed on the Swing/
+AWT Event Dispatch Thread (the EDT). In Greenfoot, some calls arrive on an RMI thread and
+such calls cannot call directly into BlueJ code.
+
+The simple solution, then, is to use EventQueue.invokeLater(...) or invokeAndWait(...) to
+transition to the EDT before calling from the RMI server into the BlueJ codebase. In practice
+it is often necessary to use invokeAndWait(...) when a result is required. This works well,
+except it can cause a deadlock when the main VM's EDT is currently performing an RMI call
+(such as a listener notification) back to the secondary VM. In detail:
+
+  (1) Main VM EDT:  event occurs; notifies listeners; listener notifies remote VM via RMI
+  (2) Secondary VM: receives event notification; makes call back to main VM via RMI
+  (3) Main VM:  receives RMI call, attempts transition to EDT via invokeAndWait(...).
+  
+      At this point, deadlock has occurred.
+
+Note that the transition to EDT in (3) above is not actually necessary in this case. While
+it's true that the EDT is used for serialisation, the EDT is actually already held in the
+example above - although calling directly into BlueJ from the RMI server would not be
+executing code on the EDT (which is nominally required) it has the same effect as if it were,
+since nothing else can happen on the EDT simultaneously.
+
+So:
+ - Some RMI methods can only be called while the EDT is already blocked; (type A)
+ - Some RMI methods can only be called when the EDT is NOT already blocked (type B).
+
+Calling a type A method when the EDT is not blocked in the server causes a race hazard
+(but not necessarily a deadlock). Calling a type B method when the EDT is blocked will cause
+a deadlock.
+
+There is a third type of method - one which may be called in both situations. Examples of
+these "type C" methods are RClass.getSuperclass(...) and RClass.isCompiled(...). These
+methods have a boolean "in callback" parameter which tells the RMI server whether or not
+the EDT is blocked and thus whether or not EventQueue.invokeLater(...) is needed or must be
+avoided.
