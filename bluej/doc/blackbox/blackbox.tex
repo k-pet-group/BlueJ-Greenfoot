@@ -29,7 +29,7 @@
   \begin{center}
     \includegraphics[width=10cm]{../../lib/images/bluej-icon-256.png}\\
     \huge BlueJ Blackbox Data Collection\\~\\Researchers' Handbook
-    (version 1.1)
+    (version 1.2)
   \end{center}
 \end{titlepage}
 
@@ -51,7 +51,8 @@ Chapter \ref{sec:data_access} contains details on how to actually access the
 data (MySQL details, etc), and chapter \ref{sec:data_use} contains the
 data-use policies which we expect all researchers to read.  Finally, chapter
 \ref{sec:example_codeview} has details on the example application we have
-provided, and chapter \ref{sec:beta} has a few brief notes about the beta phase.
+provided, and chapter \ref{sec:postprocess} has some details on
+post-processing we have in place.
 
 \begingroup
 \let\clearpage\relax
@@ -1240,5 +1241,53 @@ scroll wheel to moving backwards and forwards through the version history.
 (Note: the sample has a slight irritation that the cursor is always moved to the end
 of the file during scrolling, but the point is to demonstrate the database
 queries and diffs and so on.)
+
+\chapter{Post Processing}
+\label{sec:postprocess}
+
+\textit{In time we will set up an area for this kind of information, but for
+now, here are some details on postprocessing tasks that we have
+running on the ``white'' machine to aid analysis.}
+
+The main likely area of analysis in the Blackbox project is looking at
+the source code, especially at compilation time.  The way that the
+source code is stored in the database (as a series of complete
+snapshots, plus a stream of diffs) makes it a bit irritating to do the
+source code analysis of compilations directly, as you have to
+reconsitute the state of the source at each compilation.
+
+To ease this process and save shared effort, we have a task that pulls
+out the state of the source files each time they are compiled.  The
+task runs overnight (GMT) in order to process the previous day.  In
+the directory \texttt{/data/compile-inputs/} there is a series of files, one
+per day, with all the compile inputs for that day.
+
+The files named payload-YYYY-MM-DD are just one long stream of UTF8 strings;
+to slice it up correctly you need to cross-reference
+index-YYYY-MM-DD.  The index files are a long sequence of records,
+with 32 bytes per record -- in order, they are:
+
+\begin{itemize}
+\item 64-bit integer for source file id.  (Corresponds to ``id'' column in
+\tabref{source_files}.)
+\item 64-bit integer for master event id for the compilation
+event. (Corresponds to ``id'' column in \tabref{master_events}.)
+\item 64-bit integer for the starting position within the payload
+file. (Byte position in file, not character position in UTF8 string.)
+\item 32-bit integer for the length within the payload file. (Again, byte
+length, not character length.)
+\item 32-bit integer that is 1 if the compile was successful, 0 if it was an
+error.  (Copied from database for easy reference.)
+\end{itemize}
+
+All integers are big-endian.  If all you want to do is work
+through all sources, you can just go through each index-payload pair
+in turn, using the index records to slice the payload into different
+inputs.  Otherwise, you can work forwards from the database: once you
+find a compilation event you're interested in (say, one with a
+particular error), look at the day on the master event.  Load the
+index-payload for that day, and scan through to find the master event
+id that you're looking for.  Obviously you can speed things up by
+preloading all the indexes and forming a few hash maps or whatever.
 
 \end{document}
