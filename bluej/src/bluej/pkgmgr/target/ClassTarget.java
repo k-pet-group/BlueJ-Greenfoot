@@ -1044,7 +1044,13 @@ public class ClassTarget extends DependentTarget
     @Override
     public void compile(Editor editor)
     {
-        getPackage().compile(this);
+        if (Config.isGreenfoot()) {
+            getPackage().compile();
+        }
+        else {
+            getPackage().compile(this);
+        }
+        
     }
 
     /**
