@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2013  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -122,12 +122,19 @@ public abstract class ClassRole implements WorldListener
      * Create the popup menu for the given class
      */
     public JPopupMenu createPopupMenu(ClassBrowser classBrowser, ClassView classView,
-            InteractionListener interactionListener)
+            InteractionListener interactionListener, boolean isUncompiled)
     {
         GClass gClass = classView.getGClass();
         JPopupMenu popupMenu = new JPopupMenu();
         GProject project = null;
         project = gClass.getPackage().getProject();
+        
+        if (isUncompiled) {
+            JMenuItem needsCompileItem = popupMenu.add(Config.getString("classPopup.needsCompile"));
+            needsCompileItem.setEnabled(false);
+            needsCompileItem.setFont(PrefMgr.getPopupMenuFont());
+            popupMenu.addSeparator();
+        }
 
         Class<?> realClass = gClass.getJavaClass();
         if (realClass != null) {

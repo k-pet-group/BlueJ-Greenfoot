@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012,2013  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -160,7 +160,7 @@ public class ClassView extends ClassButton
     public JPopupMenu getPopupMenu()
     {
         if (popupMenu == null) {
-            popupMenu = role.createPopupMenu(classBrowser, this, interactionListener);
+            popupMenu = role.createPopupMenu(classBrowser, this, interactionListener, isUncompiled());
             popupMenu.setInvoker(this);
         }
         return popupMenu;

@@ -291,6 +291,9 @@ menu.help.website=Greenfoot Web Site
 menu.help.moreScenarios=Get more scenarios
 menu.help.discuss=Greenfoot Discussion
 
+# Popup menu
+classPopup.needsCompile=Needs compile
+
 # Project does not exist dialog
 noproject.dialog.title=Error opening project
 noproject.dialog.msg=Project does not exist: 
