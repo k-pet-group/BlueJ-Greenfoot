@@ -159,10 +159,8 @@ public class ClassView extends ClassButton
 
     public JPopupMenu getPopupMenu()
     {
-        if (popupMenu == null) {
-            popupMenu = role.createPopupMenu(classBrowser, this, interactionListener, isUncompiled());
-            popupMenu.setInvoker(this);
-        }
+        popupMenu = role.createPopupMenu(classBrowser, this, interactionListener, isUncompiled());
+        popupMenu.setInvoker(this);
         return popupMenu;
     }
 
