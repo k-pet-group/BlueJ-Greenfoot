@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009, 2010  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012,2013  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -51,7 +51,7 @@ public abstract class ImageClassRole extends ClassRole
     
     public ImageClassRole(GProject project)
     {
-    	this.project = project;
+        this.project = project;
     }
     
     @Override
@@ -163,10 +163,6 @@ public abstract class ImageClassRole extends ClassRole
         else {
             classView.setIcon(null);
         }
-        //resets the pop up menu to ensure that a new one is created when next it is requested
-        //this is required because the constructor action images are out of date because of the
-        //image change
-        classView.setPopupMenu(null);
     }
 
     @Override    

@@ -59,7 +59,6 @@ public class ClassView extends ClassButton
     GClass gClass;
     private ClassRole role;
     ClassBrowser classBrowser;
-    JPopupMenu popupMenu;
     private String superclass; //Holds the current superclass. Used to determine wether the superclass has changed.
     private InteractionListener interactionListener;
         
@@ -157,9 +156,9 @@ public class ClassView extends ClassButton
         return gClass;
     }
 
-    public JPopupMenu getPopupMenu()
+    private JPopupMenu getPopupMenu()
     {
-        popupMenu = role.createPopupMenu(classBrowser, this, interactionListener, isUncompiled());
+        JPopupMenu popupMenu = role.createPopupMenu(classBrowser, this, interactionListener, isUncompiled());
         popupMenu.setInvoker(this);
         return popupMenu;
     }
@@ -184,9 +183,6 @@ public class ClassView extends ClassButton
         clearUI();
         setRole(determineRole(classBrowser.getProject()));
         role.buildUI(this, gClass);
-        
-        // Popup menu needs to be re-built
-        popupMenu = null;
         
         updateSuperClass();
     }
@@ -438,10 +434,5 @@ public class ClassView extends ClassButton
         if (e.isPopupTrigger()) {
             getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
         }
-    }
-
-    public void setPopupMenu(JPopupMenu popupMenu)
-    {
-        this.popupMenu = popupMenu;
     }
 }
