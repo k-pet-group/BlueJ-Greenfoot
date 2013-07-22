@@ -21,7 +21,9 @@
  */
 package bluej;
 
+import java.awt.EventQueue;
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -215,14 +217,29 @@ public class Boot
      * @param args the arguments with which main() was invoked
      * @param props the properties (created from the args)
      */
-    private Boot(String[] args, Properties props, SplashLabel image)
+    private Boot(String[] args, Properties props, final SplashLabel image)
     {
         // Display the splash window, and wait until it's been painted before
         // proceeding. Otherwise, the event thread may be occupied by BlueJ
         // starting up and the window might *never* be painted.
-        splashWindow = new SplashWindow(image);
-        splashWindow.repaint(); // avoid delay before painting
-        splashWindow.waitUntilPainted();
+        
+        try {
+            EventQueue.invokeAndWait(new Runnable() {
+                @Override
+                public void run()
+                {
+                    splashWindow = new SplashWindow(image);
+                    splashWindow.repaint(); // avoid delay before painting
+                }
+            });
+            splashWindow.waitUntilPainted();
+        }
+        catch (InvocationTargetException ite) {
+            ite.printStackTrace();
+        }
+        catch (InterruptedException ie) {
+            ie.printStackTrace();
+        }
 
         this.args = args;
         this.commandLineProps = props;

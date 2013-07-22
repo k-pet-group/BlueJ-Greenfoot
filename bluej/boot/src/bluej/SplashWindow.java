@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -32,17 +32,19 @@ import java.awt.Toolkit;
  * starting up.
  *
  * @author  Michael Kolling
- * @version $Id: SplashWindow.java 6215 2009-03-30 13:28:25Z polle $
  */
-
 public class SplashWindow extends Frame
 {
     private boolean painted = false;
     
+    /**
+     * Construct a splash window.
+     * @param image
+     */
     public SplashWindow(SplashLabel image)
     {
         setLayout(new FlowLayout(FlowLayout.LEFT,0,0));
-    	setUndecorated(true);
+        setUndecorated(true);
 
         add(image);
         pack();
@@ -54,6 +56,7 @@ public class SplashWindow extends Frame
         //try { Thread.sleep(11000);} catch(Exception e) {}  // for testing: show longer
     }
     
+    @Override
     public synchronized void paint(Graphics g)
     {
         painted = true;
@@ -61,16 +64,21 @@ public class SplashWindow extends Frame
         notify();
     }
     
+    /**
+     * Wait until the splash screen has actually been painted, with a timeout of
+     * 3 seconds.
+     */
     public synchronized void waitUntilPainted()
     {
-        while (!painted) {
+        long startTime = System.currentTimeMillis();
+        long timePast = System.currentTimeMillis() - startTime; 
+        while (!painted && timePast < 3000) {
             try {
-                wait();
+                wait(3000 - timePast);
             }
-            catch (InterruptedException ie) {
-                painted = true;
-            }
+            catch (InterruptedException ie) { }
         }
+        painted = true;
     }
 }
 
