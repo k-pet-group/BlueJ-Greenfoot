@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2010  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2010,2013  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -171,6 +171,10 @@ public class LocalDebugger extends Debugger
                 ite.getCause().printStackTrace(System.err);
                 ExceptionDescription exception = getExceptionDescription(ite.getCause());
                 result = new DebuggerResult(exception);
+            }
+            catch (LinkageError le) {
+                le.printStackTrace();
+                result = new DebuggerResult(getExceptionDescription(le));
             }
             notify();
         }
