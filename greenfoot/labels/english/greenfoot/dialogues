@@ -12,8 +12,8 @@ in the project folder. If this class seems damaged,
 error-create-vm
 Greenfoot was unable to create a virtual machine (VM) to execute scenarios.
 Often this is caused by overly restrictive firewall settings.
-Please see [ http://www.bluej.org/help/faq.html#socket-exc ] for more
-information, or contact support@greenfoot.org.
+Please see [ http://www.greenfoot.org/doc/firewall ] for more
+information.
 
 project-is-readonly
 The scenario being opened is read-only:
