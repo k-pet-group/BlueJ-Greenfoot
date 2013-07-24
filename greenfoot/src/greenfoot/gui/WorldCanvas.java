@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012,2013  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,19 +27,23 @@ import greenfoot.GreenfootImage;
 import greenfoot.ImageVisitor;
 import greenfoot.World;
 import greenfoot.WorldVisitor;
+import greenfoot.core.TextLabel;
 import greenfoot.core.WorldHandler;
 import greenfoot.util.GreenfootUtil;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -66,6 +70,8 @@ public class WorldCanvas extends JPanel
     private BufferedImage dragImage;
     /** Preferred size (not counting insets) */
     private Dimension size;
+    /** Font for text labels on the world */
+    private Font textLabelFont;
     
     public WorldCanvas(World world)
     {
@@ -189,6 +195,7 @@ public class WorldCanvas extends JPanel
                     paintObjects(g2);
                     paintDraggedObject(g2);
                     WorldVisitor.paintDebug(world, g2);
+                    paintWorldText(g2, world);
                     g.translate(-insets.left, -insets.top);
                 }
                 finally {
@@ -206,6 +213,52 @@ public class WorldCanvas extends JPanel
         }
     }
 
+    /**
+     * Paint text labels that have been placed on the world using World.showText(...).
+     * @param g   The graphics context to draw on
+     * @param world   The world
+     */
+    private void paintWorldText(Graphics2D g, World world)
+    {
+        List<TextLabel> labels = WorldVisitor.getTextLabels(world);
+        
+        if (labels.isEmpty()) {
+            return;
+        }
+
+        Font origFont = g.getFont();
+
+        if (textLabelFont == null) {
+            // textLabelFont = origFont.deriveFont(Font.BOLD, 20.0f);
+            textLabelFont = new Font("Sans Serif", Font.BOLD, 20);
+            
+            int fontHeight = g.getFontMetrics(textLabelFont).getHeight();
+            if (fontHeight != 20) {
+                // Try to make the font a standard 20 pixels high:
+                //    (20/fontheight) is the ratio of font size to pixel height,
+                //    so: 20 * (20/fontHeight) = font size for pixel height of 20.
+                textLabelFont = textLabelFont.deriveFont(400.0f/fontHeight);
+            }
+        }
+        
+        g.setFont(textLabelFont);
+        
+        // Set up rendering context:
+        Color orig = g.getColor();
+        Object origAntiAliasing = g.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        
+        int cellsize = WorldVisitor.getCellSize(world);
+        for (TextLabel label : labels) {
+            label.draw(g, cellsize);
+        }
+        
+        // Restore graphics context state:
+        g.setFont(origFont);
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, origAntiAliasing);
+        g.setColor(orig);
+    }
+    
     /**
      * If an object is being dragged, paint it.
      */

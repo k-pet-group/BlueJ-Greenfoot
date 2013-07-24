@@ -17,6 +17,9 @@
     <property name="greenfoot.version.minor" value="3"/>
     <property name="greenfoot.version.micro" value="0"/>
     
+	<!-- Greenfoot version to API mapping:        -->
+	<!--    Greenfoot 2.3.0 = API version 2.5.0   -->
+	
     <!-- Change when API has changed in a way that is likely to break some scenarios. 
     A warning will be shown to the user - update the greenfoot-labels file to
     specify the breaking changes introduced in this version. -->
@@ -28,7 +31,7 @@
     Changing this number will stripe the user's classes and require a recompile.
     Do not change this number if the changes cannot break older scenarios. -->
 	<!-- YOU SHOULD UPDATE THE GREENFOOT LABELS if you change this -->
-    <property name="greenfoot.apiversion.nonbreaking" value="5"/>
+    <property name="greenfoot.apiversion.nonbreaking" value="6"/>
     
     <!-- Change when API has only changed internally and not in any way visible to the user. 
     It should not be possible for this change to break existing scenarios. 

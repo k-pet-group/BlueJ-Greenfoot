@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2010,2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2010,2011,2013  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,8 +21,11 @@
  */
 package greenfoot;
 
+import greenfoot.core.TextLabel;
+
 import java.awt.Graphics;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Class that makes it possible for classes outside the greenfoot package to get
@@ -108,9 +111,8 @@ public class WorldVisitor
     
     /**
      * Get the list of all objects in the world. This returns a live list which
-     * should not be modified by the caller. If iterating over this list, it
-     * should be synchronized on itself or the World to avoid concurrent
-     * modifications.
+     * should not be modified by the caller. While iterating over this list, the
+     * world lock should be held.
      */
     public static TreeActorSet getObjectsListInActOrder(World world)
     {
@@ -125,5 +127,13 @@ public class WorldVisitor
     public static GreenfootImage getBackgroundImage(World world)
     {
         return world.getBackgroundNoInit();
+    }
+    
+    /**
+     * Get the list of text labels to be displayed on the world.
+     */
+    public static List<TextLabel> getTextLabels(World world)
+    {
+        return world.textLabels;
     }
 }

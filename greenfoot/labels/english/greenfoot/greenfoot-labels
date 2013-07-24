@@ -40,6 +40,7 @@ project.version.changes.8=2.3.0 Greenfoot.getMouseInfo() now only returns null i
 project.version.changes.9=2.3.0 A 'turnTowards(int,int)' method has been added to the Actor class.
 project.version.changes.10=2.4.0 A 'UserInfo' class was added (renamed from 'PlayerData' in the Greenfoot 2.2.0 beta).
 project.version.changes.11=2.5.0 The 'isTouching' and 'removeTouching' methods were added to the Actor class.
+project.version.changes.12=2.6.0 The 'showText' method was added to the World class.
 
 project.version.newer.part1=The scenario being opened has been written using a newer version of Greenfoot (API version 
 # project version inserted here by Greenfoot

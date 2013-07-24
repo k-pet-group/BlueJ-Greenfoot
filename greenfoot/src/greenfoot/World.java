@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2013  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,6 +25,7 @@ package greenfoot;
 import greenfoot.collision.ColManager;
 import greenfoot.collision.CollisionChecker;
 import greenfoot.collision.ibsp.Rect;
+import greenfoot.core.TextLabel;
 import greenfoot.core.WorldHandler;
 
 import java.awt.Color;
@@ -52,7 +53,7 @@ import java.util.List;
  * @see greenfoot.Actor
  * @author Poul Henriksen
  * @author Michael Kolling
- * @version 2.4
+ * @version 2.6
  */
 public abstract class World
 {    
@@ -74,6 +75,9 @@ public abstract class World
     private TreeActorSet objectsDisordered = new TreeActorSet(); 
     private TreeActorSet objectsInPaintOrder;    
     private TreeActorSet objectsInActOrder;
+    
+    // List of text labels displayed over the world
+    List<TextLabel> textLabels = new ArrayList<TextLabel>(); 
 
     /** The size of the cell in pixels. */
     int cellSize = 1;
@@ -553,6 +557,35 @@ public abstract class World
     public List getObjectsAt(int x, int y, Class cls)
     {
         return collisionChecker.getObjectsAt(x, y, cls);
+    }
+
+    /**
+     * Show some text centred at the given position in the world. The text will be
+     * displayed above actors. Any previous text shown at the same location will
+     * first be removed.
+     *  
+     * @param text   The text to display; can be null to show no text
+     * @param x      X-coordinate of the text
+     * @param y      Y-coordinate of the text
+     */
+    public void showText(String text, int x, int y)
+    {
+        for (Iterator<TextLabel> i = textLabels.iterator(); i.hasNext(); ) {
+            TextLabel label = i.next();
+            if (label.getX() == x && label.getY() == y) {
+                if (label.getText().equals(text)) {
+                    // Already have that text at that location
+                    return;
+                }
+                // Have different text at that location
+                i.remove();
+                break;
+            }
+        }
+        
+        if (text != null && text.length() != 0) {
+            textLabels.add(new TextLabel(text, x, y));
+        }
     }
 
     // =================================================
