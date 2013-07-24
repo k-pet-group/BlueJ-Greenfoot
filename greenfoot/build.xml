@@ -637,6 +637,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
             <include name="greenfoot/core/ObjectDragProxy.java"/>
             <include name="greenfoot/core/ActInterruptedException.java"/>
         	<include name="greenfoot/core/ImageCache.java"/>
+        	<include name="greenfoot/core/TextLabel.java"/>
 
             <include name="greenfoot/event/SimulationEvent.java"/>
             <include name="greenfoot/event/SimulationListener.java"/>
