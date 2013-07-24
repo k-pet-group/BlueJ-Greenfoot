@@ -2,9 +2,11 @@ import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
 
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.Graphics2D;
 import java.awt.Shape;
+import java.awt.Graphics2D;
+import java.awt.FontMetrics;
 import java.awt.font.TextLayout;
+
 
 /**
  * A Label class that allows you to display a textual value on screen.
@@ -13,11 +15,11 @@ import java.awt.font.TextLayout;
  * in Greenfoot.  If you keep a reference to the Counter then you can adjust its value.  
  *
  * @author Amjad Altadmri 
- * @version 1.0
+ * @version 1.1
  */
 public class Label extends Actor
 {
-    private String text;
+    private String value;
     private int fontSize;
     private String fontFamilyName = "Arial";
     private Color lineColor = Color.BLACK;
@@ -38,21 +40,43 @@ public class Label extends Actor
     /**
      * Create a new label, initialise it with the needed text and the font size 
      */
-    public Label(String text, int fontSize)
+    public Label(String value, int fontSize)
     {
-        this.text = text;
+        this.value = value;
         this.fontSize = fontSize;
         updateImage();
     }
     
     /**
-     * Animate will just refresh the label display.
+     * No action needed.
      */
     public void act() 
     {
-        updateImage();
+        
     }
 
+    /**
+     * Sets the value  as text
+     * 
+     * @param value the text to be show
+     */
+    public void setValue(String value)
+    {
+        this.value = value;
+        updateImage();
+    }
+    
+    /**
+     * Sets the value as integer
+     * 
+     * @param value the value to be show
+     */
+    public void setValue(int value)
+    {
+        this.value = Integer.toString(value);
+        updateImage();
+    }
+    
     /**
      * Sets the font family
      * 
@@ -92,7 +116,7 @@ public class Label extends Actor
      */
     private void updateImage()
     {
-        GreenfootImage backgroundImage = new GreenfootImage(text, fontSize, transparent, transparent);
+        GreenfootImage backgroundImage = new GreenfootImage(value, fontSize, transparent, transparent);
         Graphics2D g = (Graphics2D) backgroundImage.getAwtImage().getGraphics();
 
         Font font = new Font(fontFamilyName, Font.PLAIN, fontSize);
@@ -107,14 +131,14 @@ public class Label extends Actor
             g.setFont(font);
         }
         
-        TextLayout textLayout = new TextLayout(text, font, g.getFontRenderContext());
+        TextLayout textLayout = new TextLayout(value, font, g.getFontRenderContext());
         Shape outline = textLayout.getOutline(null);
         
-        GreenfootImage textImage = drawOutlinedText(outline, textLayout);
+        GreenfootImage textImage = drawOutlinedText(outline, textLayout, g.getFontMetrics());
         
         if (textImage.getWidth() > backgroundImage.getWidth())
         {
-            backgroundImage.scale(textImage.getWidth(), textImage.getHeight());
+            backgroundImage.scale(textImage.getWidth(), backgroundImage.getHeight());
         }
         
         backgroundImage.drawImage(textImage, (backgroundImage.getWidth()-textImage.getWidth())/2, 
@@ -123,17 +147,15 @@ public class Label extends Actor
         setImage(backgroundImage);
     }
     
-    private GreenfootImage drawOutlinedText(Shape outline, TextLayout textLayout)
+    private GreenfootImage drawOutlinedText(Shape outline, TextLayout textLayout, FontMetrics metrics)
     {
-        
-        GreenfootImage textImage = new GreenfootImage(outline.getBounds().width + 10,
-                                   outline.getBounds().height + 10);
+        GreenfootImage textImage = new GreenfootImage(outline.getBounds().width + 1, metrics.getHeight() +1);
         Graphics2D g = (Graphics2D) textImage.getAwtImage().getGraphics();
 
-        g.translate(0, outline.getBounds().height);
+        g.translate(0 - outline.getBounds().x, metrics.getAscent());
      
         g.setColor(fillColor);
-        textLayout.draw(g, 0, 0);
+        g.fill(outline);
         
         g.setColor(lineColor);
         g.draw(outline);
