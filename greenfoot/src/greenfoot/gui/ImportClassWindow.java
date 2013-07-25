@@ -59,7 +59,6 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JRootPane;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
 import javax.swing.border.EmptyBorder;
@@ -450,6 +449,15 @@ public class ImportClassWindow extends JFrame
             // Copy the java/class file cross:
             File destFile = new File(project.getDir(), srcFile.getName());
             GreenfootUtil.copyFile(srcFile, destFile);
+            
+            // Copy the lib files cross:
+            File libFolder = new File(srcFile.getParentFile(), className + "_lib");
+            if ( libFolder.exists() ) {
+                for (File srcLibFile : libFolder.listFiles()) {
+                    File destLibFile = new File(project.getDir(), "+libs/" + srcLibFile.getName());
+                    GreenfootUtil.copyFile(srcLibFile, destLibFile);
+                }
+            }
             
             // We must reload the package to be able to access the GClass object:
             project.getDefaultPackage().reload();
