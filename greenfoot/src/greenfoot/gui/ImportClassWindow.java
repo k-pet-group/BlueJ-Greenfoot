@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2011,2013  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -74,7 +74,7 @@ import bluej.utility.DialogManager;
  * The window showing a library of supplied classes
  * (with associated image and javadoc), from which
  * you can select one to import into the current project.
- *  
+ * 
  * @author neil
  */
 public class ImportClassWindow extends JFrame
