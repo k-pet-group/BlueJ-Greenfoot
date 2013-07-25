@@ -450,6 +450,8 @@ public class ImportClassWindow extends JFrame
     
     private void importClass(File srcFile, File srcImage)
     {
+        boolean librariesImportedFlag = false;
+        
         if (srcFile != null) {
             String className = GreenfootUtil.removeExtension(srcFile.getName());
             
@@ -478,11 +480,12 @@ public class ImportClassWindow extends JFrame
             
             // Copy the lib files cross:
             File libFolder = new File(srcFile.getParentFile(), className + "_lib");
-            if ( libFolder.exists() ) {
+            if ( (libFolder.exists()) && (libFolder.listFiles().length > 0) ) {
                 for (File srcLibFile : libFolder.listFiles()) {
                     File destLibFile = new File(project.getDir(), "+libs/" + srcLibFile.getName());
                     GreenfootUtil.copyFile(srcLibFile, destLibFile);
                 }
+                librariesImportedFlag = true;
             }
             
             // We must reload the package to be able to access the GClass object:
@@ -503,6 +506,10 @@ public class ImportClassWindow extends JFrame
             //Finally, update the class browser:
             classBrowser.addClass(new ClassView(classBrowser, gclass, interactionListener));
             classBrowser.updateLayout();
+        }
+        
+        if (librariesImportedFlag) {
+            JOptionPane.showMessageDialog(gfFrame, "Greenfoot has to be restarted for this project to work properly");
         }
     }
 
