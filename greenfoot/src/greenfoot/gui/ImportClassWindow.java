@@ -341,41 +341,67 @@ public class ImportClassWindow extends JFrame
     //File dir = new File(Config.getGreenfootLibDir(), "common");
     private void findAddImportableClasses(File dir, int indent)
     {
-        File[] files = dir.listFiles(new FileFilter() {
-            @Override
-            public boolean accept(File pathname)
-            {
-                return pathname.getAbsolutePath().endsWith(".class") || pathname.getAbsolutePath().endsWith(".java") || pathname.isDirectory();
-            }
-        });
-        
-        if (files == null) //Problem finding classes
-            return;
-
         // List all files before all directories:
-        
-        boolean hasAnyFiles = false;
-        for (File file : files) {
-            if (file.isFile()) {
+        File[] files = dir.listFiles(new ImportableClassesFileFilter()); 
+        if (files != null) {
+            for (File file : files) {
                 ImportableClassButton button = new ImportableClassButton(file);
                 addWithIndent(indent, button);
                 buttonGroup.add(button);
-                hasAnyFiles = true;
             }
+            // Only indent if there is a class in the current category to be distinguished from:
+            indent += INDENT_HIERARCHY;
         }
         
-        // Only indent if there is a class in the current category to be distinguished from:
-        if (hasAnyFiles)
-            indent += INDENT_HIERARCHY;
-        
-        for (File file : files) {
-            if (file.isDirectory()) {
-                JLabel label = new JLabel(file.getName());
-                label.setFont(label.getFont().deriveFont(16.0f));
-                addWithIndent(indent, label);
+        // List all directories:
+        File[] folders = dir.listFiles(new ImportableFoldersFileFilter()); 
+        if (folders != null) {
+            for (File folder : folders) {
+                if (hasImportableClasses(folder)) {
+                    JLabel label = new JLabel(folder.getName());
+                    label.setFont(label.getFont().deriveFont(16.0f));
+                    addWithIndent(indent, label);
+                }
                 // Recurse to process sub-directories:
-                findAddImportableClasses(file, indent);
+                findAddImportableClasses(folder, indent);
             }
+        }
+    }
+    
+    private boolean hasImportableClasses(File dir)
+    {
+        File[] files = dir.listFiles(new ImportableClassesFileFilter()); 
+        if ( (files != null) && (files.length > 0) ){
+            return true;
+        }
+        
+        File[] folders = dir.listFiles(new ImportableFoldersFileFilter()); 
+        if (folders != null) {
+            for (File folder : folders) {
+                if (hasImportableClasses(folder)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
+    
+    private class ImportableClassesFileFilter implements FileFilter
+    {
+        @Override
+        public boolean accept(File pathname)
+        {
+            return pathname.getAbsolutePath().endsWith(".class") || pathname.getAbsolutePath().endsWith(".java");
+        }
+    }
+    
+    private class ImportableFoldersFileFilter implements FileFilter
+    {
+        @Override
+        public boolean accept(File pathname)
+        {
+            return pathname.isDirectory();
         }
     }
     
