@@ -16,6 +16,12 @@ Next, you need to set up a Greenfoot project.
    * source folder 'greenfoot/src' should have output folder 'greenfoot/classes'
    * source folder 'greenfoot/test/src' should have output folder 'greenfoot/test/classes'
 
+
+ In the projects tab:
+ 
+   * Select the BlueJ project.
+
+   
  In the libraries tab:
    
    * Add all the jars in the 'greenfoot/lib' folder, at time of writing these are:
@@ -24,10 +30,10 @@ Next, you need to set up a Greenfoot project.
      - commons-logging-api-1.1.2.jar
      - jl1.0.1.jar
      - opencsv-2.3.jar
- 
- In the projects tab:
- 
-   * Select the BlueJ project.
+
+   * Add next jars in the 'bluej/lib' folder, at time of writing these are:
+     - junit-4.8.2.jar
+     - commons-logging-api-1.1.2.jar
 
 2. You will need to use the ant scripts to put things in the right places. So, you need to
    edit the build.properties file for *both* the BlueJ and Greenfoot projects.

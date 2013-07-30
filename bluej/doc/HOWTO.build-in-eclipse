@@ -21,7 +21,14 @@ you then need to do the following:
    * add all the necessary jars from the lib directory:
      AppleJavaExtensions.jar, bjdoclet.jar, junit-4.8.2.jar, org-netbeans-lib-cvsclient.jar,
      svnkit-javahl.jar, trilead.jar
-   * You also need to add the 'tools.jar' file from your JDK
+   * You also need to add the 'tools.jar' file from your JDK, except in case of Mac.
+   
+   
+   In some versions, you may find some errors related to "Access restriction", to solve it:
+   
+   Project properties -> Java compiler –> Errors/Warnings -> Deprecated and restricted API
+   Then in the "Forbidden reference (access rules)" change the default “Error” to “Ignore“. 
+
 
 2. Run / Debug
 
@@ -33,7 +40,8 @@ you then need to do the following:
    * in the Arguments tab, set the Program arguments to '-useclassesdir=true -bluej.debug=true'
    * In the Classpath tab:
      - The bootstrap entries should contain only the JRE
-     - The user entries should contain the 'boot/classes' folder (Advanced..., folder), and
-       the tools.jar from the JDK (Add External Jars...). You do not need the 'classes' folder
-       nor any of the other jar files.
+     - The user entries should contain:
+     	a. the 'boot/classes' folder (Advanced..., folder)
+     	b. Except in case of Mac, the tools.jar from the JDK (Add External Jars...).
+     	You do not need the 'classes' folder nor any of the other jar files.
  
