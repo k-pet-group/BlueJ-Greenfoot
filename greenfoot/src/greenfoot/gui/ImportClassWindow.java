@@ -253,6 +253,7 @@ public class ImportClassWindow extends JFrame
                .replace("./resources/inherit.gif", new File(Config.getGreenfootLibDir(), "common/inherit.gif").toURI().toURL().toString())
                //And, while I'm at it, fix that damn missing space:
                .replace("</B><DT>extends", "</B><DT> extends")
+               .replace("../images/", new File(Config.getGreenfootLibDir(), "common/").toURI().toURL().toString())
                ;
             
             

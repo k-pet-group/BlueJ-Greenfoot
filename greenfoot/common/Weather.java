@@ -3,13 +3,20 @@ import weather.util.Locator;
 import weather.util.WeatherGrabber;
 
 /**
- * A helper class that fetch weather status from weather stations 
- * for a specific location.
- * 
+ * A helper class that fetch weather status from weather stations
+ * for a specific location. 
+ * <br> It uses "The Weather Underground LLC" API.
+ * <img src="../images/Weather.png" width="175" height="24"/> 
+ * <br><br>
+ * As it is based on service from online provider,
+ * each individual user has have an API key.
+ * <br>
+ * It could be generated for free from: http://api.wunderground.com/api/ 
+ * <br><br>
  * <pre>
  * class WeatherQuery
  * {
- *     private Weather weather = new Weather();
+ *     private Weather weather = new Weather("your generated key");
  *     
  *     public exampleMethod()
  *     {
@@ -26,7 +33,20 @@ import weather.util.WeatherGrabber;
  */
 public class Weather 
 {
-    private static WeatherGrabber weatherGrabber = WeatherGrabber.getInstance();
+    private String apiUrl = "http://api.wunderground.com/api/";
+    private static WeatherGrabber weatherGrabber;
+    
+    /**
+     * Constructor passes the API Key, which has to be unique for
+     * each individual user. you can generate one for free from:
+     * http://api.wunderground.com/api/ 
+     * 
+     * @param apiKey the unique individual user key
+     */
+    public Weather(String apiKey)
+    {
+        weatherGrabber = WeatherGrabber.getInstance(apiKey, apiUrl);
+    }
     
     /**
      * Return the local weather condition.
