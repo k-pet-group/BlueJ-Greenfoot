@@ -5,14 +5,16 @@ import weather.util.WeatherGrabber;
 /**
  * A helper class that fetch weather status from weather stations
  * for a specific location. 
- * <br> It uses "The Weather Underground LLC" API.
+ * 
+ * <p>It uses "The Weather Underground LLC" API.
  * <img src="../images/Weather.png" width="175" height="24"/> 
- * <br><br>
- * As it is based on service from online provider,
- * each individual user has have an API key.
- * <br>
- * It could be generated for free from: http://api.wunderground.com/api/ 
- * <br><br>
+ * 
+ * <p>As it is based on service from online provider,
+ * each individual user needs an API key in order to use this class.
+ * 
+ * <p>An API key can be obtained from: http://api.wunderground.com/api/ 
+ * 
+ * <p>Example of use:</p>
  * <pre>
  * class WeatherQuery
  * {
@@ -37,8 +39,8 @@ public class Weather
     private static WeatherGrabber weatherGrabber;
     
     /**
-     * Constructor passes the API Key, which has to be unique for
-     * each individual user. you can generate one for free from:
+     * Create an instance of the Weather class, using the specified
+     * API Key. You can get a key from:
      * http://api.wunderground.com/api/ 
      * 
      * @param apiKey the unique individual user key
@@ -65,7 +67,7 @@ public class Weather
      * @param country     The country name
      * @param city         The city name
      * 
-     * @return            A string describes the weather condition
+     * @return            A string describing the weather condition
      */
     public String getCondition(String country, String city)
     {
@@ -79,7 +81,7 @@ public class Weather
      * @param latitude        The latitude value of the location
      * @param longitude     The longitude value of the location
      * 
-     * @return                A string describes the weather condition
+     * @return                A string describing the weather condition
      */
     public String getCondition(double latitude, double longitude)
     {

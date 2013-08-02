@@ -623,12 +623,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ***************************************************************************
 
-The user has an option, in the the helper common classes, to import a "Weather" class.
+The common classes included with Greenfoot (which can be imported into scenarios using
+the "Import Class" menu item) include a "Weather" class. This class uses "Weather
+Underground API". The Weather Underground, LLC (WUL) is credited by name and brand logo
+in the class documentation and source. 
 
-This class uses "Weather Underground API". The Weather Underground, LLC (WUL) is credited
-by name and brand logo in the class. 
-
-For full Terms and Conditions" of use, please refer to:
+For full terms and conditions of use, please refer to:
 
 http://www.wunderground.com/weather/api/d/terms.html
 
