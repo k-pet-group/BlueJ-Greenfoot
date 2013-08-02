@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2013  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -100,6 +100,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -152,6 +153,10 @@ public class GreenfootFrame extends JFrame
     private JScrollPane classScrollPane;
     /** The panel that needs to be revalidated when the world size changes */
     private JComponent centrePanel;
+
+    private JMenu recentProjectsMenu;
+    private JPanel messagePanel;
+    private JLabel messageLabel;
     
     private NewClassAction newClassAction;
     private ImportClassAction importClassAction;
@@ -168,8 +173,6 @@ public class GreenfootFrame extends JFrame
     
     private ToggleDebuggerAction toggleDebuggerAction;
     private ToggleSoundAction toggleSoundAction;
-    
-    private JMenu recentProjectsMenu;
     
     /**
      * Specifies whether the project has been closed and only the empty frame is showing.
@@ -346,6 +349,7 @@ public class GreenfootFrame extends JFrame
             toggleSoundAction.setProject(project);
             isClosedProject = false;
         }
+        updateBackgroundmessage();
     }
     
     /**
@@ -362,6 +366,9 @@ public class GreenfootFrame extends JFrame
         enableProjectActions();
         repaint();
         isClosedProject = true;
+        
+        //TODO is next line needed?
+        updateBackgroundmessage();
     }
 
     /**
@@ -453,6 +460,11 @@ public class GreenfootFrame extends JFrame
             }
         });
         
+        messagePanel = new JPanel();
+        messageLabel = new JLabel("");
+        messagePanel.add(messageLabel, BorderLayout.CENTER);
+        messagePanel.setVisible(false);
+        
         JScrollPane worldScrollPane = new JScrollPane(worldCanvas);
         //Stop the world scroll pane scrolling when arrow keys are pressed - stops it interfering with the scenario.
         String[] scrollLabels = new String[]{"unitScrollLeft", "unitScrollRight", "unitScrollUp", "unitScrollDown"};
@@ -465,6 +477,7 @@ public class GreenfootFrame extends JFrame
             });
         }
         DBox worldBox = new DBox(DBox.Y_AXIS, 0.5f); // scroll pane
+        worldBox.add(messagePanel, BorderLayout.CENTER);
         worldBox.addAligned(worldScrollPane);
 
         canvasPanel.add(worldBox);
@@ -533,6 +546,7 @@ public class GreenfootFrame extends JFrame
         contentPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(Config.GREENFOOT_SET_PLAYER_NAME_SHORTCUT, "setPlayerAction");
         contentPane.getActionMap().put("setPlayerAction", setPlayerAction);
         
+        updateBackgroundmessage();
         pack();
     }
 
@@ -927,6 +941,41 @@ public class GreenfootFrame extends JFrame
         this.resizeWhenPossible = b;
     }
     
+    private void updateBackgroundmessage()
+    {
+        if(worldCanvas.isVisible()) {
+            messageLabel.setText("");
+            messagePanel.setVisible(false);
+         }
+         else {
+             String message = Config.getString("centrePanel.message.other");
+             if (project == null) {
+                 message = Config.getString("centrePanel.message.openScenario");
+             }
+             else {
+                 boolean noWorldClassFound = true;
+                 boolean noCompiledWorldClassFound = true;
+                 GClass[] projectClasses = project.getDefaultPackage().getClasses(false);
+                 for (GClass projectClass : projectClasses) {
+                     if (projectClass.isWorldSubclass()) {
+                         noWorldClassFound = false;
+                         if (projectClass.isCompiled()) {
+                             noCompiledWorldClassFound = false;
+                         }
+                     }
+                 }
+                 if (noWorldClassFound) {
+                     message = Config.getString("centrePanel.message.createWorldClass");
+                 }
+                 else if (noCompiledWorldClassFound) {
+                     message = Config.getString("centrePanel.message.compile");
+                 }
+             }
+             messageLabel.setText(message);
+             messagePanel.setVisible(true);
+         }
+    }
+    
     // ----------- WindowListener interface -----------
     
     public void windowOpened(WindowEvent e) {}
@@ -997,6 +1046,8 @@ public class GreenfootFrame extends JFrame
         worldCanvas.setVisible(true);
         centrePanel.revalidate();
         worldDimensions = worldCanvas.getPreferredSize();
+        
+        updateBackgroundmessage();
     }
     
     @Override
@@ -1004,6 +1055,8 @@ public class GreenfootFrame extends JFrame
     {
         inspectorManager.removeAllInspectors();
         worldCanvas.setVisible(false);
+        
+        updateBackgroundmessage();
     }
 
     // ------------- end of WorldListener interface ------------
@@ -1028,6 +1081,7 @@ public class GreenfootFrame extends JFrame
         else {
             removeSelectedClassAction.setEnabled(false);
         }
+        updateBackgroundmessage();
     }
     
     // ------------- end of SelectionListener interface --------
