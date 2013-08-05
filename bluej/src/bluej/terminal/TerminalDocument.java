@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program.
- Copyright (C) 2011  Michael Kolling and John Rosenberg
+ Copyright (C) 2011,2013  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -255,8 +255,11 @@ public class TerminalDocument extends AbstractDocument
             removed.add(last);
         }
         
+        // The first line now extends to the end of the last line, since all intermediate
+        // line breaks were removed:
         first.end = last.end;
-        lineMap.replace(index, lastIndex - index, new Element[0]);
+        lineMap.replace(index + 1, removed.size(), new Element[0]);
+        
         Element[] removedArr = new Element[removed.size()];
         removed.toArray(removedArr);
         ElementEdit ee = new ElementEdit(lineMap, index + 1, removedArr, new Element[0]);
@@ -342,6 +345,7 @@ public class TerminalDocument extends AbstractDocument
             return true;
         }
         
+        @SuppressWarnings("rawtypes")
         @Override
         public Enumeration children()
         {
