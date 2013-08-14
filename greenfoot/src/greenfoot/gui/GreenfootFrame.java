@@ -75,6 +75,7 @@ import greenfoot.sound.SoundFactory;
 import greenfoot.util.GreenfootUtil;
 
 import java.awt.BorderLayout;
+import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
@@ -157,6 +158,8 @@ public class GreenfootFrame extends JFrame
     private JMenu recentProjectsMenu;
     private JPanel messagePanel;
     private JLabel messageLabel;
+    private CardLayout card;
+    private DBox worldBox;
     
     private NewClassAction newClassAction;
     private ImportClassAction importClassAction;
@@ -173,6 +176,11 @@ public class GreenfootFrame extends JFrame
     
     private ToggleDebuggerAction toggleDebuggerAction;
     private ToggleSoundAction toggleSoundAction;
+    
+    /**
+     * Specifies whether a compilation operation is in progress
+     */
+    private boolean isCompiling = false;
     
     /**
      * Specifies whether the project has been closed and only the empty frame is showing.
@@ -460,10 +468,9 @@ public class GreenfootFrame extends JFrame
             }
         });
         
-        messagePanel = new JPanel();
+        messagePanel = new JPanel(new CenterLayout());
         messageLabel = new JLabel("");
-        messagePanel.add(messageLabel, BorderLayout.CENTER);
-        messagePanel.setVisible(false);
+        messagePanel.add(messageLabel);
         
         JScrollPane worldScrollPane = new JScrollPane(worldCanvas);
         //Stop the world scroll pane scrolling when arrow keys are pressed - stops it interfering with the scenario.
@@ -476,9 +483,12 @@ public class GreenfootFrame extends JFrame
                 }
             });
         }
-        DBox worldBox = new DBox(DBox.Y_AXIS, 0.5f); // scroll pane
-        worldBox.add(messagePanel, BorderLayout.CENTER);
-        worldBox.addAligned(worldScrollPane);
+
+        card=new CardLayout();
+        worldBox = new DBox(DBox.Y_AXIS, 0.5f); // scroll pane
+        worldBox.setLayout(card);
+        worldBox.add(worldScrollPane, "worldPanel"); // worldPanel is an ID that refers to the World Panel
+        worldBox.add(messagePanel, "messagePanel"); // messagePanel is an ID that refers to the Message Panel
 
         canvasPanel.add(worldBox);
         // Set the scroll bar increments so that using the scroll wheel works well:
@@ -943,37 +953,36 @@ public class GreenfootFrame extends JFrame
     
     private void updateBackgroundmessage()
     {
+        String message = "";
         if(worldCanvas.isVisible()) {
-            messageLabel.setText("");
-            messagePanel.setVisible(false);
-         }
-         else {
-             String message = Config.getString("centrePanel.message.other");
-             if (project == null) {
-                 message = Config.getString("centrePanel.message.openScenario");
-             }
-             else {
-                 boolean noWorldClassFound = true;
-                 boolean noCompiledWorldClassFound = true;
-                 GClass[] projectClasses = project.getDefaultPackage().getClasses(false);
-                 for (GClass projectClass : projectClasses) {
-                     if (projectClass.isWorldSubclass()) {
-                         noWorldClassFound = false;
-                         if (projectClass.isCompiled()) {
-                             noCompiledWorldClassFound = false;
-                         }
-                     }
-                 }
-                 if (noWorldClassFound) {
-                     message = Config.getString("centrePanel.message.createWorldClass");
-                 }
-                 else if (noCompiledWorldClassFound) {
-                     message = Config.getString("centrePanel.message.compile");
-                 }
-             }
-             messageLabel.setText(message);
-             messagePanel.setVisible(true);
-         }
+            card.show(worldBox, "worldPanel");
+        }
+        else if(!isCompiling){
+            if (project == null) {
+                message = Config.getString("centrePanel.message.openScenario");
+            }
+            else {
+                boolean noWorldClassFound = true;
+                boolean noCompiledWorldClassFound = true;
+                GClass[] projectClasses = project.getDefaultPackage().getClasses(false);
+                for (GClass projectClass : projectClasses) {
+                    if (projectClass.isWorldSubclass()) {
+                        noWorldClassFound = false;
+                        if (projectClass.isCompiled()) {
+                            noCompiledWorldClassFound = false;
+                        }
+                    }
+                }
+                if (noWorldClassFound) {
+                    message = Config.getString("centrePanel.message.createWorldClass");
+                }
+                else if (noCompiledWorldClassFound) {
+                    message = Config.getString("centrePanel.message.compile");
+                }
+            }
+            card.show(worldBox, "messagePanel");
+        }
+        messageLabel.setText(message);
     }
     
     // ----------- WindowListener interface -----------
@@ -1000,11 +1009,22 @@ public class GreenfootFrame extends JFrame
     public void compileStarted(RCompileEvent event)
     {
         WorldHandler.getInstance().discardWorld();
+        this.isCompiling = true;
     }
 
-    public void compileError(RCompileEvent event) { }
+    public void compileError(RCompileEvent event)
+    {
+        // TODO is it needed here?
+        this.isCompiling = false;
+        updateBackgroundmessage();
+    }
 
-    public void compileWarning(RCompileEvent event) { }
+    public void compileWarning(RCompileEvent event)
+    {
+        // TODO is it needed here?
+        this.isCompiling = false;
+        updateBackgroundmessage();
+    }
 
     public void compileSucceeded(RCompileEvent event)
     {
@@ -1016,6 +1036,8 @@ public class GreenfootFrame extends JFrame
                 compileAllAction.setEnabled(project != null);
             }
         });
+        this.isCompiling = false;
+        updateBackgroundmessage();
     }
 
     public void compileFailed(RCompileEvent event)
@@ -1026,6 +1048,8 @@ public class GreenfootFrame extends JFrame
                 compileAllAction.setEnabled(project != null);
             }
         });
+        this.isCompiling = false;
+        updateBackgroundmessage();
     }
     
     // ----------- end of WindowListener interface -----------

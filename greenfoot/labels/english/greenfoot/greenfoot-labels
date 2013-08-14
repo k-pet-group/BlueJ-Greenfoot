@@ -316,7 +316,6 @@ greenfoot.cannotFindAPIDocumentation=The API documentation seems to be missing, 
 sound-line-unavailable=Cannot get access to the sound card. If you have a sound \ncard installed, check your system settings, and close down \nany other programs that might be using the sound card.
 
 # MainFrame central messages when No world instantiated
-centrePanel.message.other=Check the World Class
 centrePanel.message.openScenario=Create or Open a Scenario
 centrePanel.message.createWorldClass=Create a new World Class
 centrePanel.message.compile=Compile to instantiate the World Class
