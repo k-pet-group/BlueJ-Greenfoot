@@ -1006,26 +1006,20 @@ public class GreenfootFrame extends JFrame
 
     // ----------- CompileListener interface -----------
     
+    @Override
     public void compileStarted(RCompileEvent event)
     {
         WorldHandler.getInstance().discardWorld();
         this.isCompiling = true;
     }
 
-    public void compileError(RCompileEvent event)
-    {
-        // TODO is it needed here?
-        this.isCompiling = false;
-        updateBackgroundmessage();
-    }
+    @Override
+    public void compileError(RCompileEvent event) { }
 
-    public void compileWarning(RCompileEvent event)
-    {
-        // TODO is it needed here?
-        this.isCompiling = false;
-        updateBackgroundmessage();
-    }
+    @Override
+    public void compileWarning(RCompileEvent event) { }
 
+    @Override
     public void compileSucceeded(RCompileEvent event)
     {
         EventQueue.invokeLater(new Runnable() {
@@ -1034,22 +1028,23 @@ public class GreenfootFrame extends JFrame
                 WorldHandler.getInstance().instantiateNewWorld();
                 classBrowser.repaint();
                 compileAllAction.setEnabled(project != null);
+                isCompiling = false;
+                updateBackgroundmessage();
             }
         });
-        this.isCompiling = false;
-        updateBackgroundmessage();
     }
 
+    @Override
     public void compileFailed(RCompileEvent event)
     {
         EventQueue.invokeLater(new Runnable() {
             public void run()
             {
                 compileAllAction.setEnabled(project != null);
+                isCompiling = false;
+                updateBackgroundmessage();
             }
         });
-        this.isCompiling = false;
-        updateBackgroundmessage();
     }
     
     // ----------- end of WindowListener interface -----------
