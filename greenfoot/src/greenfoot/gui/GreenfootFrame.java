@@ -115,6 +115,7 @@ import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.DBox;
+import bluej.utility.CenterLayout;
 
 import com.apple.eawt.AboutHandler;
 import com.apple.eawt.AppEvent.AboutEvent;

@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012,2013  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,7 +27,6 @@ import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
 import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
-import greenfoot.gui.CenterLayout;
 import greenfoot.gui.ControlPanel;
 import greenfoot.gui.WorldCanvas;
 import greenfoot.gui.input.mouse.LocationTracker;
@@ -47,14 +46,15 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import javax.swing.BorderFactory;
 import javax.swing.JApplet;
 import javax.swing.JPanel;
 import javax.swing.JRootPane;
+import javax.swing.JScrollPane;
+import javax.swing.BorderFactory;
 import javax.swing.RootPaneContainer;
 
 import bluej.Config;
-import javax.swing.JScrollPane;
+import bluej.utility.CenterLayout;
 
 /**
  * This class can view and run a Greenfoot scenario. It is not possible to

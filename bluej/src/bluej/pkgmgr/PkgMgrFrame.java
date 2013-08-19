@@ -301,6 +301,8 @@ public class PkgMgrFrame extends JFrame
 
     private ExportManager exporter;
 
+    private NoProjectMessagePanel noProjectMessagePanel = new NoProjectMessagePanel();
+
     /**
      * Open a PkgMgrFrame with no package. Packages can be installed into this
      * frame using the methods openPackage/closePackage.
@@ -662,7 +664,7 @@ public class PkgMgrFrame extends JFrame
 
             setupActionDisableSet();
             makeFrame();
-            updateWindowTitle();
+            updateWindow();
             setStatus(bluej.Boot.BLUEJ_VERSION_TITLE);
         }
     }
@@ -736,7 +738,7 @@ public class PkgMgrFrame extends JFrame
             editor.requestFocus();
             
             enableFunctions(true); // changes menu items
-            updateWindowTitle();
+            updateWindow();
             setVisible(true);
             
             updateTextEvalBackground(isEmptyFrame());
@@ -896,11 +898,11 @@ public class PkgMgrFrame extends JFrame
     /**
      * Set the window title to show the current package name.
      */
-    protected final String updateWindowTitle()
+    private void updateWindowTitle()
     {
+        
         if (isEmptyFrame()) {
             setTitle("BlueJ");
-            return "BlueJ";
         }
         else {
             String title = Config.getString("pkgmgr.title") + getProject().getProjectName();
@@ -912,8 +914,19 @@ public class PkgMgrFrame extends JFrame
                 title = title + " (" + Config.getString("team.project.marker") + ")";
 
             setTitle(title);
-            return title;
         }
+    }
+    
+    /**
+     * Update the window title and show needed messages
+     */
+    private void updateWindow()
+    {
+        
+        if (isEmptyFrame()) {
+            classScroller.setViewportView(noProjectMessagePanel);
+        }
+        updateWindowTitle();
     }
 
     /**
@@ -1452,10 +1465,10 @@ public class PkgMgrFrame extends JFrame
                 testRecordingEnded(); // disable test controls
                 closePackage();
                 
-                updateWindowTitle();
+                updateWindow();
                 updateRecentProjects();
                 enableFunctions(false); // changes menu items
-                updateWindowTitle();
+                updateWindow();
                 toolsMenuManager.addExtensionMenu(null);
                 viewMenuManager.addExtensionMenu(null);
             }
@@ -2451,7 +2464,7 @@ public class PkgMgrFrame extends JFrame
      */
     public void updateSharedStatus(boolean shared)
     {
-        updateWindowTitle();
+        updateWindow();
     }
     
     /**
