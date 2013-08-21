@@ -83,8 +83,6 @@ public class GreenfootDebugHandler implements DebuggerListener
     private DebuggerThread simulationThread;
     private DebuggerClass simulationClass;
     
-    private boolean currentlyResetting;
-    
     private GreenfootDebugHandler(BProject project)
     {
         this.project = project;
@@ -174,10 +172,7 @@ public class GreenfootDebugHandler implements DebuggerListener
             
         } else if (e.getID() == DebuggerEvent.THREAD_BREAKPOINT
                 && atResetBreakpoint(e.getBreakpointProperties())) {
-            // The user has clicked reset:
-            currentlyResetting = true;
-            
-            setSpecialBreakpoints(debugger);
+            // The user has clicked reset,
             // Set the simulation thread going if it's suspended:
             if (simulationThread.isSuspended()) {
                 simulationThread.cont();
@@ -202,12 +197,6 @@ public class GreenfootDebugHandler implements DebuggerListener
                 // They are going to pause; remove all special breakpoints and set them going
                 // (so that they actually hit the pause):
                 debugger.removeBreakpointsForClass(SIMULATION_CLASS);
-                e.getThread().cont();
-                // We also hit pause when a reset has completed:
-                currentlyResetting = false;
-                return true;
-            } else if (currentlyResetting) {
-                // Run through all breakpoints:
                 e.getThread().cont();
                 return true;
             } else if (insideUserCode(stack)) {
