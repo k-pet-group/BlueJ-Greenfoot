@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2010,2011,2012  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2010,2011,2012,2013  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -238,7 +238,7 @@ public class Simulation extends Thread
             if(isRunning) {
                 World world = worldHandler.getWorld();
                 if (world != null) {
-                    world.stopped();
+                    worldStopped(world);
                 }
                 isRunning = false;
             } 
@@ -246,7 +246,8 @@ public class Simulation extends Thread
     }   
 
     /**
-     * Schedule some task to run on the simulation thread.
+     * Schedule some task to run on the simulation thread. The task will be run with the
+     * world write lock held.
      */
     public synchronized void runLater(Runnable r)
     {
@@ -264,6 +265,20 @@ public class Simulation extends Thread
     private void simulationWait() throws InterruptedException
     {
         this.wait();
+    }
+    
+    public final static String WORLD_STARTED = "worldStarted";
+    
+    private static void worldStarted(World world)
+    {
+        world.started();
+    }
+    
+    public final static String WORLD_STOPPED = "worldStopped";
+    
+    private static void worldStopped(World world)
+    {
+        world.stopped();
     }
     
     /**
@@ -388,7 +403,7 @@ public class Simulation extends Thread
             }
                 
             try {
-                world.started(); // may cause us to pause
+                worldStarted(world); // may cause us to pause
             }
             catch (Throwable t) {
                 isRunning = false;
@@ -418,7 +433,7 @@ public class Simulation extends Thread
             ReentrantReadWriteLock lock = worldHandler.getWorldLock();
             lock.writeLock().lockInterruptibly();
             try {
-                world.stopped(); // may un-pause
+                worldStopped(world); // may un-pause
             }
             catch (ActInterruptedException aie) {
                 synchronized (this) {

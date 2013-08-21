@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2010,2011,2012 Poul Henriksen and Michael Kolling 
+ Copyright (C) 2010,2011,2012,2013 Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -67,7 +67,7 @@ public class GreenfootDebugHandler implements DebuggerListener
 {  
     private static final String SIMULATION_CLASS = Simulation.class.getName();   
     private static final String[] INVOKE_METHODS = {Simulation.ACT_WORLD, Simulation.ACT_ACTOR,
-            Simulation.NEW_INSTANCE, Simulation.RUN_QUEUED_TASKS};
+            Simulation.NEW_INSTANCE, Simulation.RUN_QUEUED_TASKS, Simulation.WORLD_STARTED, Simulation.WORLD_STOPPED};
     private static final String SIMULATION_INVOKE_KEY = SIMULATION_CLASS + "INTERNAL";
     
     private static final String PAUSED_METHOD = Simulation.PAUSED;
