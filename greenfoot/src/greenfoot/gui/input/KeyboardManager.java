@@ -101,18 +101,18 @@ public class KeyboardManager implements TriggeredKeyListener, FocusListener
         addKey("space", KeyEvent.VK_SPACE);
         addKey("enter", KeyEvent.VK_ENTER);
         addKey("escape", KeyEvent.VK_ESCAPE);
-        addKey("F1", KeyEvent.VK_F1);
-        addKey("F2", KeyEvent.VK_F2);
-        addKey("F3", KeyEvent.VK_F3);
-        addKey("F4", KeyEvent.VK_F4);
-        addKey("F5", KeyEvent.VK_F5);
-        addKey("F6", KeyEvent.VK_F6);
-        addKey("F7", KeyEvent.VK_F7);
-        addKey("F8", KeyEvent.VK_F8);
-        addKey("F9", KeyEvent.VK_F9);
-        addKey("F10", KeyEvent.VK_F10);
-        addKey("F11", KeyEvent.VK_F11);
-        addKey("F12", KeyEvent.VK_F12);
+        addKey("f1", KeyEvent.VK_F1);
+        addKey("f2", KeyEvent.VK_F2);
+        addKey("f3", KeyEvent.VK_F3);
+        addKey("f4", KeyEvent.VK_F4);
+        addKey("f5", KeyEvent.VK_F5);
+        addKey("f6", KeyEvent.VK_F6);
+        addKey("f7", KeyEvent.VK_F7);
+        addKey("f8", KeyEvent.VK_F8);
+        addKey("f9", KeyEvent.VK_F9);
+        addKey("f10", KeyEvent.VK_F10);
+        addKey("f11", KeyEvent.VK_F11);
+        addKey("f12", KeyEvent.VK_F12);
         addKey("backspace", KeyEvent.VK_BACK_SPACE);
         addKey("\'", KeyEvent.VK_QUOTE);
         addKey("shift", KeyEvent.VK_SHIFT);
@@ -221,7 +221,7 @@ public class KeyboardManager implements TriggeredKeyListener, FocusListener
      */
     public boolean isKeyDown(String keyId)
     {
-        Integer code = keyCodeMap.get(keyId);
+        Integer code = keyCodeMap.get(keyId.toLowerCase());
         if (code != null) {
             return isKeyDown(code);
         }
@@ -234,7 +234,8 @@ public class KeyboardManager implements TriggeredKeyListener, FocusListener
                 keyChar = Character.toUpperCase(keyChar);
                 return isKeyDown(keyChar);
             }
-            return false;
+            throw new IllegalArgumentException("\"" + keyId + "\" key doesn't exist. "
+                    + "Please change the key name while invoking Greenfoot.isKeyDown() method"); 
         }
     }
     
