@@ -221,7 +221,7 @@ class VMReference
         paramList.add(allClassPath);
         if (Config.isMacOS()) {
             paramList.add("-Xdock:icon=" + Config.getBlueJIconPath() + "/" + Config.getVMIconsName());
-            paramList.add("-Xdock:name=" + Config.getVMDockName());
+            paramList.add("-Xdock:name=" + Config.getVMDockName(initDir));
         }
         
         // Index for where the transport parameter is to be added

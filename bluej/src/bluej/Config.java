@@ -443,6 +443,13 @@ public final class Config
         }
     }
     
+    public static String getVMDockName(File initDir) {
+        if ( (isGreenfoot()) && (initDir != null) ) {
+            return initDir.getName();
+        }
+        return getVMDockName();
+    }
+    
     /**
      * True if this is the debugVM or false if not.
      */

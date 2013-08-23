@@ -129,6 +129,7 @@ public class Boot
      */
     public static void main(String[] args)
     {
+        System.setProperty("com.apple.mrj.application.apple.menu.about.name", "Greenfoot: Engine");
         if((args.length >= 1) && "-version".equals(args[0])) {
             System.out.println("BlueJ version " + BLUEJ_VERSION
                                + " (Java version "
