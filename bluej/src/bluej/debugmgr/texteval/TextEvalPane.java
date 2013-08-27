@@ -149,8 +149,7 @@ public class TextEvalPane extends JEditorPane
      */
     public void clear()
     {
-        setText(" ");
-        caretToEnd();
+        setText("");
     }
     
     /**
@@ -240,20 +239,22 @@ public class TextEvalPane extends JEditorPane
     /*
      * @see bluej.debugmgr.ResultWatcher#beginExecution()
      */
+    @Override
     public void beginCompile() { }
     
     /*
      * @see bluej.debugmgr.ResultWatcher#beginExecution()
      */
+    @Override
     public void beginExecution(InvokerRecord ir)
     { 
         BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, ir);
     }
     
-    /**
-     * An invocation has completed - here is the result.
-     * If the invocation has a void result (note that is a void type), result == null.
+    /*
+     * @see bluej.debugmgr.ResultWatcher#putResult(bluej.debugger.DebuggerObject, java.lang.String, bluej.testmgr.record.InvokerRecord)
      */
+    @Override
     public void putResult(final DebuggerObject result, final String name, final InvokerRecord ir)
     {
         frame.getObjectBench().addInteraction(ir);
@@ -269,7 +270,6 @@ public class TextEvalPane extends JEditorPane
             newlyDeclareds = null;
         }
         
-        append(" ");
         boolean giveUninitializedWarning = autoInitializedVars != null && autoInitializedVars.size() != 0; 
         
         if (giveUninitializedWarning && Utility.firstTimeThisRun("TextEvalPane.uninitializedWarning")) {
@@ -293,7 +293,7 @@ public class TextEvalPane extends JEditorPane
             autoInitializedVars.clear();
         }
         
-        if (result != null && !result.isNullObject()) {
+        if (!result.isNullObject()) {
             DebuggerField resultField = result.getField(0);
             String resultString = resultField.getValueString();
             
@@ -319,6 +319,9 @@ public class TextEvalPane extends JEditorPane
                 }
             }            
         } 
+        else {
+            markCurrentAs(TextEvalSyntaxView.OUTPUT, false);
+        }
         
         ExecutionEvent executionEvent = new ExecutionEvent(frame.getPackage());
         executionEvent.setCommand(currentCommand);
@@ -442,7 +445,6 @@ public class TextEvalPane extends JEditorPane
      */
     private void showErrorMsg(final String message)
     {
-        append(" ");
         error("Error: " + message);
         completeExecution();
     }
@@ -452,7 +454,6 @@ public class TextEvalPane extends JEditorPane
      */
     private void showExceptionMsg(final String message)
     {
-        append(" ");
         error("Exception: " + message);
         completeExecution();
     }
@@ -617,7 +618,7 @@ public class TextEvalPane extends JEditorPane
     {
         AbstractDocument doc = (AbstractDocument) getDocument();
         Element line = doc.getParagraphElement(doc.getLength());
-        return line.getStartOffset() + 1;  // ignore space at front
+        return line.getStartOffset();
     }
     
     /**
@@ -627,7 +628,7 @@ public class TextEvalPane extends JEditorPane
     private String getCurrentLine()
     {
         Element line = doc.getParagraphElement(doc.getLength());
-        int lineStart = line.getStartOffset() + 1;  // ignore space at front
+        int lineStart = line.getStartOffset();
         int lineEnd = line.getEndOffset() - 1;      // ignore newline char
         
         try {
@@ -650,7 +651,7 @@ public class TextEvalPane extends JEditorPane
     }
 
     /**
-     * Return tha column for a given position.
+     * Return the column for a given position.
      */
     private int getColumnFromPosition(int pos)
     {
@@ -664,7 +665,7 @@ public class TextEvalPane extends JEditorPane
      */
     private void markAs(String flag, Object value)
     {
-        append("\n ");          // ensure space at the beginning of every line
+        append("\n");
         SimpleAttributeSet a = new SimpleAttributeSet();
         a.addAttribute(flag, value);
         doc.setParagraphAttributes(doc.getLength()-2, a);
@@ -688,7 +689,7 @@ public class TextEvalPane extends JEditorPane
     private void replaceLine(String s)
     {
         Element line = doc.getParagraphElement(doc.getLength());
-        int lineStart = line.getStartOffset() + 1;  // ignore space at front
+        int lineStart = line.getStartOffset();
         int lineEnd = line.getEndOffset() - 1;      // ignore newline char
         
         try {
@@ -844,8 +845,7 @@ public class TextEvalPane extends JEditorPane
             if(currentCommand.length() != 0) {
                        
                 history.add(line);
-                append("\n");      // ensure space at the beginning of every line, because
-                                    // line properties do not work otherwise
+                append("\n");
                 markCurrentAs(TextEvalSyntaxView.OUTPUT, Boolean.TRUE);
                 firstTry = true;
                 setEditable(false);    // don't allow input while we're thinking
@@ -956,21 +956,22 @@ public class TextEvalPane extends JEditorPane
          */
         final public void actionPerformed(ActionEvent event)
         {
-            if (busy)
+            if (busy) {
                 return;
+            }
             
-            if(getCurrentColumn() > 1) {
-                try {
-                    if(getSelectionEnd() == getSelectionStart()) { // no selection
+            try {
+                if(getSelectionEnd() == getSelectionStart()) { // no selection
+                    if (getCurrentColumn() > 0) {
                         doc.remove(getCaretPosition()-1, 1);
                     }
-                    else {
-                        replaceSelection("");
-                    }
                 }
-                catch(BadLocationException exc) {
-                    Debug.reportError("bad location in text eval operation");
+                else {
+                    replaceSelection("");
                 }
+            }
+            catch(BadLocationException exc) {
+                Debug.reportError("bad location in text eval operation");
             }
         }
     }
@@ -990,10 +991,11 @@ public class TextEvalPane extends JEditorPane
          */
         final public void actionPerformed(ActionEvent event)
         {
-            if (busy)
+            if (busy) {
                 return;
+            }
             
-            if(getCurrentColumn() > 1) {
+            if(getCurrentColumn() > 0) {
                 Caret caret = getCaret();
                 caret.setDot(caret.getDot() - 1);
             }
@@ -1016,13 +1018,15 @@ public class TextEvalPane extends JEditorPane
          */
         public void actionPerformed(ActionEvent event)
         {
-            if (busy)
+            if (busy) {
                 return;
+            }
             
             Caret caret = getCaret();
             int curCol = getColumnFromPosition(caret.getDot());
-            if (curCol != 1)
-                caret.setDot(caret.getDot() - curCol + 1);
+            if (curCol != 1) {
+                caret.setDot(caret.getDot() - curCol);
+            }
         }
     }
 

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2012,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -32,7 +32,6 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Element;
 import javax.swing.text.MutableAttributeSet;
-import javax.swing.text.PlainDocument;
 
 import bluej.Config;
 import bluej.parser.entity.EntityResolver;
@@ -42,6 +41,7 @@ import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.nodes.ParsedNode;
 import bluej.utility.Debug;
+import bluej.utility.PersistentMarkDocument;
 
 
 /**
@@ -51,7 +51,7 @@ import bluej.utility.Debug;
  * @author Bruce Quig
  * @author Jo Wood (Modified to allow user-defined colours, March 2001)
  */
-public class MoeSyntaxDocument extends PlainDocument
+public class MoeSyntaxDocument extends PersistentMarkDocument
 {
     private static Color[] colors = null;
     

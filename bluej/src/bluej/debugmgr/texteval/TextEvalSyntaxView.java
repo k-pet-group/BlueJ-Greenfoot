@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -41,15 +41,12 @@ import bluej.editor.moe.MoeSyntaxDocument;
  *
  * @author Bruce Quig
  * @author Michael Kolling
- *
- * @version $Id: TextEvalSyntaxView.java 9133 2011-07-27 04:19:22Z davmac $
  */
-
 public class TextEvalSyntaxView extends BlueJSyntaxView
 {
     public static final short TAG_WIDTH = 14;
     protected static final int BREAKPOINT_OFFSET = TAG_WIDTH + 2;
-    protected static final int LEFT_MARGIN = BREAKPOINT_OFFSET;
+    protected static final int LEFT_MARGIN = BREAKPOINT_OFFSET + 5;
 
     // Attributes for lines and document
     public static final String OUTPUT = "output";
@@ -91,17 +88,17 @@ public class TextEvalSyntaxView extends BlueJSyntaxView
             Utilities.drawTabbedText(lineText, x, y, g, tx, 0);
         }
         else if(hasObject(line, OBJECT)) {
-            g.drawImage(objectImage, x-1-BREAKPOINT_OFFSET, y+3-objectImage.getHeight(null), null);
+            g.drawImage(objectImage, x-1-LEFT_MARGIN, y+3-objectImage.getHeight(null), null);
             g.setColor(outputColor);
             Utilities.drawTabbedText(lineText, x, y, g, tx, 0);
         }
         else if(hasTag(line, CONTINUE)) {
-            g.drawImage(continueImage, x-1-BREAKPOINT_OFFSET, y+3-continueImage.getHeight(null), null);
+            g.drawImage(continueImage, x-1-LEFT_MARGIN, y+3-continueImage.getHeight(null), null);
             paintSyntaxLine(lineText, lineIndex, x, y, g, 
                     document, def, tx);   
         }
         else {
-            g.drawImage(promptImage, x-1-BREAKPOINT_OFFSET, y+3-promptImage.getHeight(null), null);
+            g.drawImage(promptImage, x-1-LEFT_MARGIN, y+3-promptImage.getHeight(null), null);
             paintSyntaxLine(lineText, lineIndex, x, y, g, 
                     document, def, tx);   
         }
