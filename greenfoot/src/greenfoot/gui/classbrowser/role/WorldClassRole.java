@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2011,2013  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -36,17 +36,23 @@ import bluej.Config;
  */
 public class WorldClassRole extends ImageClassRole
 {
-    private final static String template = "worldclass.tmpl";
+    boolean subWorld;
+    private final static String worldTemplate = "worldclass.tmpl";
+    private final static String subWorldTemplate = "subworldclass.tmpl";
     
-    public WorldClassRole(GProject project)
+    public WorldClassRole(GProject project, boolean subWorld)
     {
-    	super(project);
+        super(project);
+        this.subWorld = subWorld;
     }
     
     @Override
     public String getTemplateFileName()
     {
-        return template;
+        if (subWorld) {
+            return subWorldTemplate;
+        }
+        return worldTemplate;
     }
     
     @Override

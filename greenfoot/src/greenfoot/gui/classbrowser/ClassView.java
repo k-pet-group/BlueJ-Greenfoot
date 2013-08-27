@@ -115,13 +115,13 @@ public class ClassView extends ClassButton
             classRole = new ActorClassRole(project);
         }
         else if (gClass.isWorldClass()) {
-            classRole = new WorldClassRole(project);
+            classRole = new WorldClassRole(project, false);
         }
         else if (gClass.isActorSubclass()) {
             classRole = new ActorClassRole(project);
         }
         else if (gClass.isWorldSubclass()) {
-            classRole = new WorldClassRole(project);
+            classRole = new WorldClassRole(project, true);
         }
         else {
             // everything else
