@@ -783,10 +783,11 @@ public class TextEvalPane extends JEditorPane
     {
         Keymap newmap = JTextComponent.addKeymap("texteval", getKeymap());
 
-        Action action = new InsertCharacterAction();
-        newmap.setDefaultAction(action);
+        // Note that we rely on behavior of the current DefaultEditorKit default key typed
+        // handler to actually insert characters (it calls replaceSelection to do so,
+        // which we've overridden).
 
-        action = new ExecuteCommandAction();
+        Action action = new ExecuteCommandAction();
         newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), action);
 
         softReturnAction = new ContinueCommandAction();
@@ -817,33 +818,6 @@ public class TextEvalPane extends JEditorPane
         newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_HOME, 0), action);
 
         setKeymap(newmap);
-    }
-    
-    
-    final class InsertCharacterAction extends AbstractAction {
-
-        /**
-         * Create a new action object. This action executes the current command.
-         */
-        public InsertCharacterAction()
-        {
-            super("InsertCharacter");
-        }
-        
-        /**
-         * Insert a character into the text.
-         */
-        final public void actionPerformed(ActionEvent event)
-        {
-            if(!isEditable())
-                return;
-            
-            String s = event.getActionCommand();  // will always be length 1
-            if(s.charAt(0) != '\n') {             // bug workaround: enter goes through default
-                                                  //  action as well as set action
-                replaceSelection(s);
-            }
-        }
     }
 
     final class ExecuteCommandAction extends AbstractAction {
