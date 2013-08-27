@@ -33,6 +33,7 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.awt.KeyboardFocusManager;
 import java.awt.Point;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -41,12 +42,13 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
 import java.awt.print.PageFormat;
 import java.awt.print.Paper;
 import java.awt.print.PrinterJob;
 import java.io.File;
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
@@ -178,6 +180,9 @@ public class PkgMgrFrame extends JFrame
     private static boolean testToolsShown = wantToSeeTestingTools();
     private static boolean teamToolsShown = wantToSeeTeamTools();
     private static boolean javaMEtoolsShown = wantToSeeJavaMEtools();
+    
+    /** Frame most recently having focus */
+    private static PkgMgrFrame recentFrame = null;
 
     // instance fields:
 
@@ -312,6 +317,26 @@ public class PkgMgrFrame extends JFrame
         PkgMgrFrame frame = new PkgMgrFrame();
         frames.add(frame);
         BlueJEvent.addListener(frame);
+        
+        frame.addWindowFocusListener(new WindowFocusListener() {
+            
+            @Override
+            public void windowLostFocus(WindowEvent e)
+            {
+                // Nothing to do...
+            }
+            
+            @Override
+            public void windowGainedFocus(WindowEvent e)
+            {
+                Window w = e.getWindow();
+                if (w instanceof PkgMgrFrame) {
+                    // This *should* always be the case
+                    recentFrame = (PkgMgrFrame) w;
+                }
+            }
+        });
+        
         return frame;
     }
 
@@ -458,19 +483,26 @@ public class PkgMgrFrame extends JFrame
      */
     public static PkgMgrFrame getMostRecent()
     {
+        if (recentFrame != null) {
+            return recentFrame;
+        }
+        
         PkgMgrFrame[] allFrames = getAllFrames();
 
         // If there are no frames open, yet...
-        if (allFrames.length < 1)
+        if (allFrames.length < 1) {
             return null;
+        }
 
         // Assume that the most recent is the first one. Not really the best
         // thing to do...
         PkgMgrFrame mostRecent = allFrames[0];
 
-        for (int i = 0; i < allFrames.length; i++)
-            if (allFrames[i].getFocusOwner() != null)
+        for (int i = 0; i < allFrames.length; i++) {
+            if (allFrames[i].getFocusOwner() != null) {
                 mostRecent = allFrames[i];
+            }
+        }
 
         return mostRecent;
     }
