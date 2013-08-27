@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2010  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2010,2013  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,6 +29,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.Properties;
 
@@ -74,22 +75,40 @@ public class GreenfootScenarioMain
         initProperties(); // discover scenario name
         System.setProperty("com.apple.mrj.application.apple.menu.about.name", scenarioName);
         
-        EventQueue.invokeLater(new Runnable() {
-            public void run()
-            {
-                JFrame frame = new JFrame(scenarioName);
-                new GreenfootScenarioViewer(frame);
-                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                frame.setResizable(false);
-                
-                URL resource = this.getClass().getClassLoader().getResource("greenfoot.png");
-                ImageIcon icon = new ImageIcon(resource);
-                frame.setIconImage(icon.getImage());
-                
-                frame.pack();
-                frame.setVisible(true);
-            }
-        });
+        final GreenfootScenarioViewer[] gsv = new GreenfootScenarioViewer[1];
+        final JFrame[] frame = new JFrame[1];
+        
+        try {
+            EventQueue.invokeAndWait(new Runnable() {
+                public void run()
+                {
+                    frame[0] = new JFrame(scenarioName);
+                    gsv[0] = new GreenfootScenarioViewer(frame[0]);
+                    frame[0].setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                    frame[0].setResizable(false);
+                    
+                    URL resource = this.getClass().getClassLoader().getResource("greenfoot.png");
+                    ImageIcon icon = new ImageIcon(resource);
+                    frame[0].setIconImage(icon.getImage());
+                }
+            });
+            
+            // Apparently an applet's init() method is *not* called on the EDT.
+            gsv[0].init();
+            
+            EventQueue.invokeAndWait(new Runnable() {
+                public void run()
+                {
+                    frame[0].pack();
+                    frame[0].setVisible(true);
+                }
+            });
+            
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
     }
     
     /**

@@ -40,6 +40,7 @@ import greenfoot.util.GreenfootUtil;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.lang.reflect.Constructor;
@@ -90,9 +91,9 @@ public class GreenfootScenarioViewer extends JApplet
      */
     public GreenfootScenarioViewer(RootPaneContainer rootPane)
     {
+        super();
         rootPaneContainer = rootPane;
         isApplet = false;
-        init();
     }
 
     /**
@@ -163,8 +164,8 @@ public class GreenfootScenarioViewer extends JApplet
         JRootPane rootPane = this.getRootPane();
         rootPane.putClientProperty("defeatSystemEventQueueCheck", Boolean.TRUE);
         
-        String worldClassName = Config.getPropString("main.class"); 
-        boolean lockScenario = Config.getPropBoolean("scenario.lock");
+        final String worldClassName = Config.getPropString("main.class"); 
+        final boolean lockScenario = Config.getPropBoolean("scenario.lock");
 
         try {
             GreenfootUtil.initialise(new GreenfootUtilDelegateStandAlone(storageStandalone, storageHost, storagePort, storagePasscode, storageScenarioId, storageUserId, storageUserName));
@@ -176,75 +177,101 @@ public class GreenfootScenarioViewer extends JApplet
             // We must construct the simulation before the world, as a call to
             // Greenfoot.setSpeed() requires a call to the simulation instance.
             Simulation.initialize(new SimulationDelegateStandAlone());
-            canvas = new WorldCanvas(null);
-            canvas.addMouseListener(new MouseAdapter() {
-                public void mouseClicked(MouseEvent e)
-                {
-                    canvas.requestFocusInWindow();
-                    // Have to use requestFocus, since it is the only way to
-                    // make it work in some browsers (Ubuntu's Firefox 1.5
-                    // and 2.0)
-                    canvas.requestFocus();
-                }
-            });        
             
-            WorldHandler.initialise(canvas, new WorldHandlerDelegateStandAlone(this, lockScenario));
-            WorldHandler worldHandler = WorldHandler.getInstance();
-            sim = Simulation.getInstance();
-            sim.attachWorldHandler(worldHandler);
-            LocationTracker.initialize();
-            controls = new ControlPanel(sim, ! lockScenario);
-
-            // Make sure the SoundCollection is initialized and listens for events
-            sim.addSimulationListener(SoundFactory.getInstance().getSoundCollection());
-            
-            sim.addSimulationListener(new SimulationListener() {
-                public void simulationChanged(SimulationEvent e)
+            EventQueue.invokeAndWait(new Runnable() {
+                @Override
+                public void run()
                 {
-                    // If the simulation starts, try to transfer keyboard
-                    // focus to the world canvas to allow control of Actors
-                    // via the keyboard
-                    if (e.getType() == SimulationEvent.STARTED) {
-                        canvas.requestFocusInWindow();
-                        // Have to use requestFocus, since it is the only way to
-                        // make it work in some browsers: (Ubuntu's Firefox 1.5
-                        // and 2.0)
-                        canvas.requestFocus();
-                    }
+                    guiSetup(lockScenario, worldClassName);
                 }
             });
-            
-            try {
-                int initialSpeed = properties.getInt("simulation.speed");
-                sim.setSpeed(initialSpeed);
-            } catch (NumberFormatException nfe) {
-                // If there is no speed info in the properties we don't care...
-            }
-            
+
+            WorldHandler worldHandler = WorldHandler.getInstance();
             Class<?> worldClass = Class.forName(worldClassName);
             worldConstructor = worldClass.getConstructor(new Class[]{});
             World world = instantiateNewWorld();
             if (! worldHandler.checkWorldSet()) {
                 worldHandler.setWorld(world);
             }
-            // Although setting the world on worldHandler also sets it on canvas,
-            // it does so later (via EventQueue.invokeLater()). We need to do it
-            // here and now, so that the canvas size will be calculated correctly.
-            canvas.setWorld(worldHandler.getWorld());
             
-            buildGUI();
-        }
-        catch (ClassNotFoundException e) {
+            EventQueue.invokeAndWait(new Runnable() {
+                @Override
+                public void run()
+                {
+                    buildGUI();
+                }
+            });
+        }        
+        catch (SecurityException e) {
             e.printStackTrace();
         }
-        catch (SecurityException e) {
+        catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+        catch (InvocationTargetException ite) {
+            ite.printStackTrace();
+        }
+        catch (InterruptedException ie) {
+            ie.printStackTrace();
+        }
+        catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
         catch (NoSuchMethodException e) {
             e.printStackTrace();
         }
-        catch (IllegalArgumentException e) {
-            e.printStackTrace();
+    }
+    
+    /**
+     * Perform gui setup; this needs to be done on the Event Dispatch Thread.
+     * @param lockScenario   whether the scenario is "locked" (speed slider and actor dragging disabled)
+     * @param worldClassName  the name of the world class to instantiate
+     */
+    private void guiSetup(boolean lockScenario, String worldClassName)
+    {
+        canvas = new WorldCanvas(null);
+        canvas.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e)
+            {
+                canvas.requestFocusInWindow();
+                // Have to use requestFocus, since it is the only way to
+                // make it work in some browsers (Ubuntu's Firefox 1.5
+                // and 2.0)
+                canvas.requestFocus();
+            }
+        });        
+
+        WorldHandler.initialise(canvas, new WorldHandlerDelegateStandAlone(this, lockScenario));
+        WorldHandler worldHandler = WorldHandler.getInstance();
+        sim = Simulation.getInstance();
+        sim.attachWorldHandler(worldHandler);
+        LocationTracker.initialize();
+        controls = new ControlPanel(sim, ! lockScenario);
+
+        // Make sure the SoundCollection is initialized and listens for events
+        sim.addSimulationListener(SoundFactory.getInstance().getSoundCollection());
+
+        sim.addSimulationListener(new SimulationListener() {
+            public void simulationChanged(SimulationEvent e)
+            {
+                // If the simulation starts, try to transfer keyboard
+                // focus to the world canvas to allow control of Actors
+                // via the keyboard
+                if (e.getType() == SimulationEvent.STARTED) {
+                    canvas.requestFocusInWindow();
+                    // Have to use requestFocus, since it is the only way to
+                    // make it work in some browsers: (Ubuntu's Firefox 1.5
+                    // and 2.0)
+                    canvas.requestFocus();
+                }
+            }
+        });
+
+        try {
+            int initialSpeed = properties.getInt("simulation.speed");
+            sim.setSpeed(initialSpeed);
+        } catch (NumberFormatException nfe) {
+            // If there is no speed info in the properties we don't care...
         }
     }
     
