@@ -22,6 +22,8 @@
 
 #define UNICODE
 
+#define _WIN32_WINNT 0x0502
+
 #include <windows.h>
 #include "resources.h"
 #include <set>
@@ -294,7 +296,7 @@ bool launchVMexternal(string jdkLocation)
 
     DWORD error = ERROR_SUCCESS;
     if (!CreateProcess(javaCommand.c_str(), cmdLineCopy, NULL, NULL, TRUE, 0, NULL,
-            bluejPath.c_str(), &startupInfo, &processInfo)) {
+            NULL, &startupInfo, &processInfo)) {
         // Error - try java.exe instead of javaw.exe
         error = GetLastError();
         lstrcpy(cmdLineCopy, commandLine.c_str());
@@ -347,26 +349,16 @@ bool launchVM(string jdkLocation)
 
     // Loading the JVM dll then requires loading msvcr71.dll (Java 6) or msvcr100.dll (Java 7).
     // The msvcrXXX.dll is sometimes in the system directory, but if it's not it won't be found
-    // automatically. The simplest way to resolve this is to set the current working directory.
+    // automatically. We use SetDllDirectory to specify the search location:
 
-    // First we save the current working directory:
-    DWORD curDirLen =  GetCurrentDirectory(0, NULL);
-    LPTSTR curDir = (LPTSTR) malloc(curDirLen * sizeof(TCHAR));
-    GetCurrentDirectory(curDirLen, curDir);
-
-    // Now set the directory:
     string jvmDllPath = jdkLocation + TEXT("\\jre\\bin");
-    SetCurrentDirectory(jvmDllPath.c_str());
+    SetDllDirectory(jvmDllPath.c_str());
 
     // Now load the JVM.
     HINSTANCE hJavalib;
-    hJavalib = LoadLibrary( (jdkLocation + TEXT("\\jre\\bin\\client\\jvm.dll")).c_str() );
-
-    // Restore the working directory:
-    if (curDirLen != 0) {
-        SetCurrentDirectory(curDir);
-    }
-    free(curDir);
+    jvmDllPath += TEXT("\\client\\jvm.dll");
+    hJavalib = LoadLibrary(jvmDllPath.c_str());
+    SetDllDirectory(NULL);
 
     if (hJavalib == NULL) {
         return launchVMexternal(jdkLocation);

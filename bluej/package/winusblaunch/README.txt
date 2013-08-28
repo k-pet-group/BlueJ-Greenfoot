@@ -23,10 +23,10 @@ Example:
 
     bluej.windows.vm=jdk1.6.0_27
 
-It may also be desirable to set the 'bluej.userHome' setting in the bluej.defs file. *** This time, the path
-should be relative to the standard launcher ***. Example:
+It may also be desirable to set the 'bluej.userHome' setting in the bluej.defs file. Again (as of BlueJ 3.1.1)
+this should be relative to the USB launcher executable. Example:
 
-    bluej.userHome=..\\userhome 
+    bluej.userHome=userhome 
 
 TO BUILD:
 
