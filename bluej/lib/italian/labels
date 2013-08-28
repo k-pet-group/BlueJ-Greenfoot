@@ -131,7 +131,7 @@ prefmgr.edit.highlightDarker=Scuro
 prefmgr.interface.title=Interfaccia
 prefmgr.interface.language.title=Selezione della lingua
 prefmgr.interface.language=Lingua
-prefmgr.interface.language.restart=Sar‡ necessario riavviare $APPNAME affinche l'impostazione della lingua abbia effetto.
+prefmgr.interface.language.restart=Sar\u00e0 necessario riavviare $APPNAME affinche l'impostazione della lingua abbia effetto.
 
 # Extensions Manager Help panel
 extmgr.title=BlueJ:  Estensioni installate

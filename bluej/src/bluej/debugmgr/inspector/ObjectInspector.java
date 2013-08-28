@@ -151,9 +151,10 @@ public class ObjectInspector extends Inspector
             // than those on which it's known to work: MacOS and Windows.
             thisInspector.setWindowOpaque(false);
         }
-        if (!Config.isMacOS()) {
-            // MacOS automatically makes tranparent windows draggable by their
-            // content - no need to do it ourselves.
+        if (! (Config.isMacOS() && (System.getProperty("java.specification.version").compareTo("1.6") <= 0)) ) {
+            // Java 1.6 on MacOS automatically makes tranparent windows
+            // draggable by their content - no need to do it ourselves.
+            // It has to be done on Java 1.7
             thisInspector.installListenersForMoveDrag();
         }
     }

@@ -21,7 +21,7 @@ you then need to do the following:
    * add all the necessary jars from the lib directory:
      AppleJavaExtensions.jar, bjdoclet.jar, junit-4.8.2.jar, org-netbeans-lib-cvsclient.jar,
      svnkit-javahl.jar, trilead.jar
-   * You also need to add the 'tools.jar' file from your JDK, except in case of Mac.
+   * You also need to add the 'tools.jar' file from your JDK (except in case of Mac JDK 1.6).
    
    
    In some versions, you may find some errors related to "Access restriction", to solve it:
