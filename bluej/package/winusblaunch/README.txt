@@ -26,7 +26,10 @@ Example:
 It may also be desirable to set the 'bluej.userHome' setting in the bluej.defs file. Again (as of BlueJ 3.1.1)
 this should be relative to the USB launcher executable. Example:
 
-    bluej.userHome=userhome 
+    bluej.userHome=userhome
+    
+For Greenfoot (2.3.0), the settings are greenfoot.windows.vm in greenfoot.defs and (inconsistently)
+bluej.userHome in bluej.defs.  
 
 TO BUILD:
 
