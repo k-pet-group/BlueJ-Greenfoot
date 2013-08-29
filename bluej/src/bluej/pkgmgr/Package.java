@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2011,2012, 2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -2888,10 +2888,10 @@ public final class Package extends Graph
      */
     public void closeAllEditors()
     {
-        for (Iterator<Target> it = targets.iterator(); it.hasNext();) {
-            Target t = it.next();
-            if (t instanceof EditableTarget) {
-                EditableTarget et = (EditableTarget) t;
+        Object[] targetsArray = targets.toArray();
+        for (Object target : targetsArray) {
+            if (target instanceof EditableTarget) {
+                EditableTarget et = (EditableTarget) target;
                 if (et.editorOpen()) {
                     et.getEditor().close();
                 }
