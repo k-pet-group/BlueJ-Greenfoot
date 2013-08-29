@@ -33,6 +33,9 @@ import javax.swing.text.GapContent;
 import javax.swing.text.PlainDocument;
 import javax.swing.text.Position;
 import javax.swing.text.Segment;
+import javax.swing.undo.AbstractUndoableEdit;
+import javax.swing.undo.CannotRedoException;
+import javax.swing.undo.CannotUndoException;
 
 /**
  * Document implementation for the terminal editor pane and codepad.
@@ -74,9 +77,71 @@ public class PersistentMarkDocument extends AbstractDocument
     {
         BranchElement map = (BranchElement) createBranchElement(null, null);
         Element[] lines = new Element[1];
-        lines[0] = new LeafElement(map, null, 0, 1);;
+        lines[0] = new LeafElement(map, null, 0, 1);
         map.replace(0, 0, lines);
         return map;
+    }
+    
+    /**
+     * An undo/redo-able edit setting the start position of an element.
+     */
+    private class SetStartPos extends AbstractUndoableEdit
+    {
+        private LeafElement element;
+        private Position oldStart;
+        private Position newStart;
+        
+        public SetStartPos(LeafElement el, Position oldStart, Position newStart)
+        {
+            this.element = el;
+            this.oldStart = oldStart;
+            this.newStart = newStart;
+        }
+        
+        @Override
+        public void undo() throws CannotUndoException
+        {
+            super.undo();
+            element.start = oldStart;
+        }
+        
+        @Override
+        public void redo() throws CannotRedoException
+        {
+            super.redo();
+            element.start = newStart;
+        }
+    }
+
+    /**
+     * An undo/redo-able edit setting the end position of an element.
+     */
+    private class SetEndPos extends AbstractUndoableEdit
+    {
+        private LeafElement element;
+        private Position oldEnd;
+        private Position newEnd;
+        
+        public SetEndPos(LeafElement el, Position oldEnd, Position newEnd)
+        {
+            this.element = el;
+            this.oldEnd = oldEnd;
+            this.newEnd = newEnd;
+        }
+        
+        @Override
+        public void undo() throws CannotUndoException
+        {
+            super.undo();
+            element.end = oldEnd;
+        }
+        
+        @Override
+        public void redo() throws CannotRedoException
+        {
+            super.redo();
+            element.end = newEnd;
+        }
     }
     
     @Override
@@ -104,8 +169,13 @@ public class PersistentMarkDocument extends AbstractDocument
             // Inserting at a position moves the position, unless the position is 0.
             // So inserting at the beginning of a line moves the line start position,
             // and the previous line end position, which need to be reset:
+            Position origEndPos = firstAffected.end;
             firstAffected.setEndOffset(offset);
+            chng.addEdit(new SetEndPos(firstAffected, origEndPos, firstAffected.end));
             nextLine.setStartOffset(offset);
+            Position origStartPos = nextLine.start;
+            chng.addEdit(new SetStartPos(nextLine, origStartPos, nextLine.start));
+            
             firstAffected = nextLine;
             nextLine = (LeafElement) lineMap.getElement(lindex + 1);
         }
@@ -116,7 +186,9 @@ public class PersistentMarkDocument extends AbstractDocument
             if (s.charAt(i) == '\n') {
                 // line break!
                 int origEnd = firstAffected.getEndOffset();
+                Position origEndPos = firstAffected.end;
                 firstAffected.setEndOffset(i + offset + 1);
+                chng.addEdit(new SetEndPos(firstAffected, origEndPos, firstAffected.end));
                 LeafElement newFirst = new LeafElement(root, attr, i + offset + 1, origEnd);
                 added.add(newFirst);
                 firstAffected = newFirst;
@@ -162,7 +234,9 @@ public class PersistentMarkDocument extends AbstractDocument
         
         // The first line now extends to the end of the last line, since all intermediate
         // line breaks were removed:
+        Position origEnd = first.end;
         first.end = last.end;
+        chng.addEdit(new SetEndPos(first, origEnd, first.end));
         lineMap.replace(index + 1, removed.size(), new Element[0]);
         
         Element[] removedArr = new Element[removed.size()];
