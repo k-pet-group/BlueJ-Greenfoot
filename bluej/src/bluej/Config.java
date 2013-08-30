@@ -432,23 +432,21 @@ public final class Config
     
     /**
      * Get the name of the debug VM to appear in the dock (Mac).
+     * 
+     * @param projectDir the root directory of the current project 
      */
-    public static String getVMDockName()
+    public static String getVMDockName(File projectDir)
     {
-        if(isGreenfoot()) {
-            return GREENFOOT_DEBUG_DOCK_NAME;
+        if (isGreenfoot()) {
+            String postfix = "";
+            if (projectDir != null) {
+                postfix = " - " + projectDir.getName();
+            }
+            return GREENFOOT_DEBUG_DOCK_NAME + postfix;
         }
         else {
             return BLUEJ_DEBUG_DOCK_NAME;
         }
-    }
-    
-    public static String getVMDockName(File initDir) {
-        String postfix = "";
-        if ( (isGreenfoot()) && (initDir != null) ) {
-            postfix = " - " + initDir.getName();
-        }
-        return getVMDockName() + postfix;
     }
     
     /**
