@@ -2888,6 +2888,9 @@ public final class Package extends Graph
      */
     public void closeAllEditors()
     {
+        // ToArray has been used here rather than Iterator, to avoid
+        // ConcurrentModificationException which happened on closing
+        // BlueJ main frame after renaming a class without compile.
         Object[] targetsArray = targets.toArray();
         for (Object target : targetsArray) {
             if (target instanceof EditableTarget) {

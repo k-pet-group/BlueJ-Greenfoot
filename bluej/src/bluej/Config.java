@@ -444,10 +444,11 @@ public final class Config
     }
     
     public static String getVMDockName(File initDir) {
+        String postfix = "";
         if ( (isGreenfoot()) && (initDir != null) ) {
-            return initDir.getName();
+            postfix = " - " + initDir.getName();
         }
-        return getVMDockName();
+        return getVMDockName() + postfix;
     }
     
     /**
