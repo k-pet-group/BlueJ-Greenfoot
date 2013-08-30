@@ -1064,6 +1064,10 @@ public class PkgMgrFrame extends JFrame
      */
     public void focusLost(FocusEvent e)
     {
+        if (editor == null) {
+            return;
+        }
+        
         if (!e.isTemporary() && e.getOppositeComponent() != editor && !editor.isGraphComponent(e.getOppositeComponent())) {
             classScroller.setBorder(Config.normalBorder);
             editor.setHasFocus(false);
