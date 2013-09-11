@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 2012,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -153,6 +153,12 @@ public class InterfacePanel extends JPanel
                     
                     allLangsInternal.add(langString.substring(0, colonIndex));
                     allLangsReadable.add(langString.substring(colonIndex + 1));
+                }
+                
+                if (allLangsInternal.isEmpty()) {
+                    // Guard against modified or corrupted bluej.defs file
+                    allLangsInternal.add(Config.language);
+                    allLangsReadable.add(Config.language);
                 }
                 
                 String [] langs = new String[allLangsReadable.size()];
