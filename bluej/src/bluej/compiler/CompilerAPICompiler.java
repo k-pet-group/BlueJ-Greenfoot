@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2012,2013  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -124,6 +124,11 @@ public class CompilerAPICompiler extends Compiler
                         // Java 7 produces this warning if "-source 1.6" is specified
                         return;
                     }
+                    if (message.startsWith("未与 -source") && message.endsWith("一起设置引导类路径")) {
+                        // Chinese version of above
+                        return;
+                    }
+                    System.out.println(message); 
                     diagType = bluej.compiler.Diagnostic.WARNING;
                     long beginCol = diag.getColumnNumber();
                     long endCol = diag.getEndPosition() - diag.getPosition() + beginCol;
