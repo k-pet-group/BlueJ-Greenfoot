@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012,2013  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -481,7 +481,26 @@ public class WorldHandler
     public void keyTyped(KeyEvent e) {}
 
     @Override
-    public void keyPressed(KeyEvent e) {}
+    public void keyPressed(KeyEvent e) {
+        if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+            if (dragActor != null) {
+                dragActorMoved = false;
+                Simulation.getInstance().runLater(new Runnable() {
+                    private Actor dragActor = WorldHandler.this.dragActor;
+                    private int dragBeginX = WorldHandler.this.dragBeginX;
+                    private int dragBeginY = WorldHandler.this.dragBeginY;
+                    @Override
+                    public void run()
+                    {
+                        ActorVisitor.setLocationInPixels(dragActor, dragBeginX, dragBeginY);
+                        repaint();
+                    }
+                });
+                dragActor = null;
+                worldCanvas.setCursor(defaultCursor);
+            }
+        }
+    }
 
     @Override
     public void keyReleased(KeyEvent e)

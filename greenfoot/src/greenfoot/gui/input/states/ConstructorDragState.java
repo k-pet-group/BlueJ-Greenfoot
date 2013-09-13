@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2013  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -68,6 +68,9 @@ public class ConstructorDragState extends State
                 switchAndActivateState(QuickAddDragState.getInstance(), obj);
                 break;
             case MOUSE_RELEASED :
+                switchAndActivateState(IdleState.getInstance(), obj);
+                break;
+            case ESC_PRESSED :
                 switchAndActivateState(IdleState.getInstance(), obj);
                 break;
         }

@@ -244,6 +244,9 @@ public class InputManager
         if (e.getKeyCode() == KeyEvent.VK_SHIFT) {
             state.switchToNextState(State.Event.SHIFT_PRESSED, null);
         }
+        if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+            state.switchToNextState(State.Event.ESC_PRESSED, null); 
+        }
         activeKeyListener.keyPressed(e);
     }
 

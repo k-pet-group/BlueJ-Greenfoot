@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2013  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -45,7 +45,7 @@ public abstract class State
      * Represents the different events that can tricker state changes.
      */
     public static enum Event {
-         CONSTRUCTOR_INVOKED,  MOUSE_RELEASED,  SHIFT_PRESSED,  SHIFT_RELEASED,  MOUSE_PRESSED,  SIMULATION_STARTED,  SIMULATION_STOPPED,  WORLD_CREATED,  WORLD_REMOVED, OBJECT_MOVED;        
+         CONSTRUCTOR_INVOKED,  MOUSE_RELEASED,  SHIFT_PRESSED,  SHIFT_RELEASED,  MOUSE_PRESSED,  SIMULATION_STARTED,  SIMULATION_STOPPED,  WORLD_CREATED,  WORLD_REMOVED, OBJECT_MOVED,  ESC_PRESSED;        
     }
 
     protected InputManager inputManager;
