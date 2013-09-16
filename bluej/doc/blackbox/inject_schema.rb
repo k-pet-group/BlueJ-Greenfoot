@@ -1,14 +1,22 @@
 require 'rubygems'
 require 'active_support/inflector'
 
+# This program preprocesses the blackbox.tex to insert all the schemas automatically (to save keeping
+# them up to date manually).  For this to run, you need on your machine:
+# - a checked out version of blackboxserver, with an up-to-date database named blackbox_development
+# - access to Ruby, including the active_support gem (`sudo gem install active_support` should do it)
+
 shown_tables = []
 mentioned_event_names = []
 
+# We fetch the list of tables direct from MySQL (assuming you have no root password set):
 all_tables = `mysql -u root blackbox_development -e "show tables" | tail -n +2`.lines.map(&:chomp)
 
+# We read the tex file from stdin:
 input_contents = $stdin.readlines
 
-#First pass to find event names -- we need these for a substitution:
+# First pass to find event names in the tex file -- we need these for a substitution.
+# We search all \section (and \subsection etc) titles for \lstinline!"blah"! entries: 
 input_contents.each do |line|
   if line =~ /^\\\S*section\{/
     line.scan(/\\lstinline\!"([^!"]+)"\!/).each do |groups|
@@ -80,6 +88,7 @@ end
 
 #Could also make sure all fields are documented...
 
+# We find all events in the EventName class by looking for allStrings:
 all_events = []
 `cat ../../src/bluej/collect/EventName.java`.lines.each do |enum_line|
   if enum_line =~ /\S+\("(\S+)\"\)/
@@ -87,6 +96,7 @@ all_events = []
   end
 end
 
+#Then we check that all event names mentioned in the manual match those in the source:
 all_events.reject {|evt| mentioned_event_names.include? evt}.each do |event|
   result_code = 1
   $stderr.puts "Event not described: \"#{event}\""
