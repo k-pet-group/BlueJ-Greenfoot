@@ -29,7 +29,7 @@
   \begin{center}
     \includegraphics[width=10cm]{../../lib/images/bluej-icon-256.png}\\
     \huge BlueJ Blackbox Data Collection\\~\\Researchers' Handbook
-    (version 1.2)
+    (version 1.3, 16 Sep 2013)
   \end{center}
 \end{titlepage}
 
@@ -985,9 +985,10 @@ Each entry in the |source_histories| table belongs to a particular
   used by file additions, and source histories added on loading a package.
 \item |source_history_type| is |"diff"| -- |content| has the diff (in unified diff format) from
   the previous version of the file.
-\item |source_history_type| is |"rename"| -- |content| holds the name of the file before the rename.  During the
-  rename, the source history will be updated to feature the new name of the
-  file.
+\item |source_history_type| is |"rename"| -- |old_source_file_id| will contain the
+  id (in the |source_files| table) of the old file id before the rename.  |content| will be blank.
+  Note that renames were broken at the start of the project; if |old_source_file_id| is null, you should
+  treat the rename as broken and ignore it.
 \item |source_history_type| is |"file_delete"| -- |content| will be blank.
 \end{itemize}
 
@@ -1216,6 +1217,23 @@ researchers may want to publish their findings.  We expect that the data will
 either be published in an aggregated form (which thus retains anonymity), and
 that any individual case studies/vignettes will be manually anonymised, if
 necessary.
+
+\chapter{Blackbox Bugs and Interruptions}
+
+\section{Known Interruptions}
+
+From time to time, the Blackbox data recording may be interrupted, for routine maintenance or to deploy changes/fixes to the data recording mechanism.
+Unless otherwise noted below, the effects are the same each time: all sessions that attempt to send data during the time that the server is unavailable will stop sending data.  So many sessions will simply end when the server is taken down, and recording will only be resumed for that user next time they start BlueJ.
+
+\textbf{02 Jul 2013, time unknown}: Server restarted to deploy new indexes and extension of the |project_name| field to 255 characters (from 64).
+
+\textbf{16 Sep 2013, approx 09:40AM to 09:48AM UTC}: Server restarted to deploy fixes for rename problem. Last master event id before interruption: 15537697.
+
+\section{Known Recording Bugs/Changes}
+
+From the beginning of the project until 2nd July 2013, the project name field was 64 characters.  A small handful of projects exceeded this length and were thus not recorded.  The length of the field was extended to 255 characters.
+
+From the beginning of the project until 16th September 2013, renames were not being handled properly by the server.  These were relatively rare: for the 30 days leading up to the fix, there were around five renames each day.  Details are noted in the section on renames (essentially, the |old_source_file_id| column was added to fix this; if this is NULL for a rename event, it's because it predates the fix.)
 
 \chapter{Analysis Example: CodeView}
 \label{sec:example_codeview}
