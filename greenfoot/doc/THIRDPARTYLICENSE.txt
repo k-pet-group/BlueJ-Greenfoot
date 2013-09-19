@@ -623,18 +623,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ***************************************************************************
 
-The common classes included with Greenfoot (which can be imported into scenarios using
-the "Import Class" menu item) include a "Weather" class. This class uses "Weather
-Underground API". The Weather Underground, LLC (WUL) is credited by name and brand logo
-in the class documentation and source. 
-
-For full terms and conditions of use, please refer to:
-
-http://www.wunderground.com/weather/api/d/terms.html
-
-
-***************************************************************************
-
 JLayer
 
 The use of JLayer is governed by the terms of the GNU Lesser General 
@@ -1144,5 +1132,11 @@ necessary.  Here is a sample; alter the names:
 
 That's all there is to it!
 
+***************************************************************************
 
-
+The common classes included with Greenfoot (which can be imported into scenarios using
+the "Import Class" menu item) include a "Weather" class.
+This class uses two APIs:
+ 1- "Weather Underground core" public API, which is under GNU license.
+ 2- "MyGeoLoc" API, which is under GNU Lesser GPL (LGPL).
+Both these licenses are included above.
