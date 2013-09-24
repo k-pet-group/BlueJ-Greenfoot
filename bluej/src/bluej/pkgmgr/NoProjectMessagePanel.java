@@ -33,18 +33,18 @@ import bluej.utility.CenterLayout;
  * This class is a container to show a message for the user 
  * when no project is opened
  * 
- * @author Amjad Altadmri
- * 
- * @version 1.0
+ * @author amjad
  */
 public class NoProjectMessagePanel extends JPanel {
 
     private JLabel noProjectMessageLabel;
+    private static final Color TRANSPARANT = new Color(0f, 0f, 0f, 0.0f);
 
     public NoProjectMessagePanel() {
         super(new CenterLayout());
-        setBackground(Color.WHITE);
+        setBackground(TRANSPARANT);
         noProjectMessageLabel = new JLabel(Config.getString("pkgmgr.noProjectOpened.message"));
+        noProjectMessageLabel.setEnabled(false);
         add(noProjectMessageLabel);
     }
 }

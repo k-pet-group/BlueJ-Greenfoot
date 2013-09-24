@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009, 2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -34,11 +34,11 @@ import bluej.prefmgr.PrefMgr;
  * A customised text area for use in the BlueJ Java text evaluation.
  *
  * @author  Michael Kolling
- * @version $Id: TextEvalArea.java 7725 2010-05-24 17:05:43Z nccb $
  */
 public final class TextEvalArea extends JScrollPane
     implements KeyListener, FocusListener
 {
+    private static final Color TRANSPARANT = new Color(0f, 0f, 0f, 0.0f);
     private static final Color selectionColour = Config.getSelectionColour();
 
     private TextEvalPane text;
@@ -172,8 +172,11 @@ public final class TextEvalArea extends JScrollPane
         text.setFont(font);
         text.setSelectionColor(selectionColour);
         text.setOpaque(false);
+        
+        setBackground(TRANSPARANT);
+        viewport.setBackground(TRANSPARANT);
         //To get fill working properly under Nimbus L&F, set background to transparent, too:
-        text.setBackground(new Color(0,0,0,0));
+        text.setBackground(TRANSPARANT);
 
         setViewportView(text);
         updateBackground(frame.isEmptyFrame());

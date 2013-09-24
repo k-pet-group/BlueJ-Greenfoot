@@ -360,7 +360,7 @@ pkgmgr.chooseWebPage.buttonLabel=Save HTML page
 pkgmgr.parentpackagetarget.open=Open
 pkgmgr.parentpackagetarget.openunamed=Open unnamed package
 
-pkgmgr.noProjectOpened.message=Create or Open a Project
+pkgmgr.noProjectOpened.message=Use the Project menu to create or open a project
 
 pkgmgr.packagemenu.open=Open
 pkgmgr.packagemenu.remove=Remove

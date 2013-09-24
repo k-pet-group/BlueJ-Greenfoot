@@ -51,7 +51,7 @@ import bluej.utility.JavaNames;
 public class ObjectBench extends JPanel implements Accessible, ValueCollection,
     FocusListener, KeyListener, MouseListener, ObjectBenchInterface
 {
-    private static final Color BACKGROUND_COLOR = Config.getOptionalItemColour("colour.objectbench.background");
+    private static final Color TRANSPARANT = new Color(0f, 0f, 0f, 0.0f);
 
     private JScrollPane scroll;
     private ObjectBenchPanel obp;
@@ -294,6 +294,7 @@ public class ObjectBench extends JPanel implements Accessible, ValueCollection,
     {
         super.setEnabled(enable);
         if(!enable) {
+            obp.setOpaque(true);
             showFocusHiLight(false);
         }
     }
@@ -555,7 +556,7 @@ public class ObjectBench extends JPanel implements Accessible, ValueCollection,
 
         // a panel holding the actual object components
         obp = new ObjectBenchPanel();
-        obp.setBackground(BACKGROUND_COLOR);
+        obp.setBackground(TRANSPARANT);
         obp.setOpaque(false);
         setOpaque(false);
         
@@ -662,11 +663,9 @@ public class ObjectBench extends JPanel implements Accessible, ValueCollection,
                         w*3/4, h, new Color(209, 203, 179));
                 }
    
-                g2d.setPaint(BACKGROUND_COLOR != null ? BACKGROUND_COLOR : gp);
+                g2d.setPaint(gp);
                 g2d.fillRect(0, 0, w+1, h+1);
             }
         }
-        
-        
     }
 }
