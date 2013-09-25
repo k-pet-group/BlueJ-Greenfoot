@@ -181,7 +181,7 @@ public final class TextEvalArea extends JScrollPane
         setViewportView(text);
         updateBackground(frame.isEmptyFrame());
 
-        setVerticalScrollBarPolicy(VERTICAL_SCROLLBAR_ALWAYS);
+        setVerticalScrollBarPolicy(VERTICAL_SCROLLBAR_AS_NEEDED);
         setPreferredSize(new Dimension(300,100));
     }
     
