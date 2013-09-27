@@ -332,13 +332,8 @@ public class GreenfootFrame extends JFrame
             enableProjectActions();
 
             worldCanvas.setVisible(false);
-
             // Class browser
-            buildClassBrowser();
-            populateClassBrowser(classBrowser, project);
-            classBrowser.setVisible(true);
-            classScrollPane.setViewportView(classBrowser);
-
+            constructClassBrowser(project);
             restoreFrameState();
 
             try {
@@ -359,6 +354,13 @@ public class GreenfootFrame extends JFrame
             isClosedProject = false;
         }
         updateBackgroundmessage();
+    }
+
+    private void constructClassBrowser(final GProject project) {
+        buildClassBrowser();
+        populateClassBrowser(classBrowser, project);
+        classBrowser.setVisible(true);
+        classScrollPane.setViewportView(classBrowser);
     }
     
     /**
@@ -1027,7 +1029,7 @@ public class GreenfootFrame extends JFrame
             public void run()
             {
                 WorldHandler.getInstance().instantiateNewWorld();
-                classBrowser.repaint();
+                constructClassBrowser(project);
                 compileAllAction.setEnabled(project != null);
                 isCompiling = false;
                 updateBackgroundmessage();
