@@ -958,6 +958,7 @@ public class Utility
                     }
                     
                     jarInStream.closeEntry();
+                    os.close();
                 }
                 je = jarInStream.getNextJarEntry();
             }
