@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2013  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -70,8 +70,8 @@ public class ClassBrowser extends JPanel
      */
     public ClassBrowser(GProject project, GreenfootFrame frame)
     {
-    	this.project = project;
-    	this.frame = frame;
+        this.project = project;
+        this.frame = frame;
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
         setBackground(Color.WHITE);
@@ -121,8 +121,8 @@ public class ClassBrowser extends JPanel
      */
     public void removeClass(ClassView classView) 
     {
-    	// We have to remove the class view from the button group first;
-    	// otherwise it's deselecting the button doesn't work.
+        // We have to remove the class view from the button group first;
+        // otherwise it's deselecting the button doesn't work.
         buttonGroup.remove(classView);
         classView.deselect();
 
@@ -130,7 +130,8 @@ public class ClassBrowser extends JPanel
         List<TreeEntry> children = treeEntry.getChildren();
         for (TreeEntry child : children) {
             otherClasses.add(child);
-		}
+            child.getData().setSuperclass(null);
+        }
         
         classView.removeSelectionChangeListener(selectionManager);
         updateLayout();
@@ -138,18 +139,18 @@ public class ClassBrowser extends JPanel
 
     private TreeEntry removeFromForest(ClassView classView)
     {
-    	TreeEntry removedEntry = greenfootClasses.remove(classView);
-    	if(removedEntry == null) {
-    		removedEntry = worldClasses.remove(classView);
-    	}
-    	if(removedEntry == null) {
-    		removedEntry = otherClasses.remove(classView);
-    	}    	
-    	return removedEntry;
+        TreeEntry removedEntry = greenfootClasses.remove(classView);
+        if(removedEntry == null) {
+            removedEntry = worldClasses.remove(classView);
+        }
+        if(removedEntry == null) {
+            removedEntry = otherClasses.remove(classView);
+        }
+        return removedEntry;
     }
     
 
-	/**
+    /**
      * Notify the class browser that a class has changed name
      * @param classView  The classView of the class which name has named
      * @param oldName    The original name of the class
@@ -225,7 +226,7 @@ public class ClassBrowser extends JPanel
         // Poul 30/10/2006
         JRootPane rootPane = getRootPane();
         if (rootPane != null) {
-        	getRootPane().revalidate();
+            getRootPane().revalidate();
         }
     }
 
@@ -353,7 +354,7 @@ public class ClassBrowser extends JPanel
     
     public GProject getProject()
     {
-    	return project;
+        return project;
     }
 
     /** 

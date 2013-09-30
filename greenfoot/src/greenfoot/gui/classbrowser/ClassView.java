@@ -130,6 +130,11 @@ public class ClassView extends ClassButton
         return classRole;
     }
 
+    public void setSuperclass(String superclass)
+    {
+        this.superclass = superclass;
+    }
+
     private void init(GClass gClass)
     {
         this.gClass = gClass;

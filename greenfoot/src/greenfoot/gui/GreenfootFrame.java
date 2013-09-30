@@ -356,7 +356,8 @@ public class GreenfootFrame extends JFrame
         updateBackgroundmessage();
     }
 
-    private void constructClassBrowser(final GProject project) {
+    private void constructClassBrowser(final GProject project)
+    {
         buildClassBrowser();
         populateClassBrowser(classBrowser, project);
         classBrowser.setVisible(true);
@@ -1029,7 +1030,7 @@ public class GreenfootFrame extends JFrame
             public void run()
             {
                 WorldHandler.getInstance().instantiateNewWorld();
-                constructClassBrowser(project);
+                classBrowser.repaint();
                 compileAllAction.setEnabled(project != null);
                 isCompiling = false;
                 updateBackgroundmessage();
