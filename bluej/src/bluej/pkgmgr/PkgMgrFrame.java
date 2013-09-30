@@ -957,8 +957,6 @@ public class PkgMgrFrame extends JFrame
         
         if (isEmptyFrame()) {
             classScroller.setViewportView(noProjectMessagePanel);
-            objbench.setEnabled(false);
-            textEvaluator.setEnabled(false);
             repaint();
         }
         updateWindowTitle();
@@ -1504,7 +1502,6 @@ public class PkgMgrFrame extends JFrame
                 testRecordingEnded(); // disable test controls
                 closePackage();
                 
-                updateWindow();
                 updateRecentProjects();
                 enableFunctions(false); // changes menu items
                 updateWindow();
