@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2012,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,6 +22,7 @@
 package bluej.runtime;
 
 import java.awt.AWTEvent;
+import java.awt.KeyboardFocusManager;
 import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.AWTEventListener;
@@ -239,6 +240,10 @@ public class ExecServer
                     if (source instanceof Window) {
                         addWindow((Window) source);
                         Utility.bringToFront((Window) source);
+                        // To make sure that screen readers announce the window being open,
+                        // we de-focus and re-focus it once the right application has focus:
+                        KeyboardFocusManager.getCurrentKeyboardFocusManager().clearGlobalFocusOwner();
+                        ((Window)source).requestFocus();
                     }
                 } else if(event.getID() == WindowEvent.WINDOW_CLOSED) {
                     if (source instanceof Window) {
@@ -249,7 +254,7 @@ public class ExecServer
         };
 
         toolkit.addAWTEventListener(listener, AWTEvent.WINDOW_EVENT_MASK);
-
+        
         // signal with a breakpoint that we have performed our VM
         // initialization, at the same time, create the initial server thread.
         newThread();
