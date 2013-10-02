@@ -72,7 +72,19 @@ public class ObjectBench extends JPanel implements Accessible, ValueCollection,
         objects = new ArrayList<ObjectWrapper>();
         createComponent();
         this.pkgMgrFrame = pkgMgrFrame;
-        getAccessibleContext().setAccessibleName(Config.getString("pkgmgr.objBench.title"));
+        updateAccessibleName();
+    }
+    
+    /**
+     * Updates the accessible name for screen readers, based on the number
+     * of objects currently on the bench
+     */
+    private void updateAccessibleName()
+    {
+        String name = Config.getString("pkgmgr.objBench.title");
+        final int n = getObjectCount();
+        name += " " + n + " " + Config.getString(n == 1 ? "pkgmgr.objBench.suffix.singular" : "pkgmgr.objBench.suffix.plural");
+        getAccessibleContext().setAccessibleName(name);
     }
 
     /**
@@ -100,6 +112,7 @@ public class ObjectBench extends JPanel implements Accessible, ValueCollection,
         objects.add(wrapper);
         obp.revalidate();
         obp.repaint();
+        updateAccessibleName();
     }
 
     
@@ -180,6 +193,7 @@ public class ObjectBench extends JPanel implements Accessible, ValueCollection,
         resetRecordingInteractions();
         obp.revalidate();
         obp.repaint();
+        updateAccessibleName();
     }
 
     
@@ -202,6 +216,7 @@ public class ObjectBench extends JPanel implements Accessible, ValueCollection,
 
         obp.revalidate();
         obp.repaint();
+        updateAccessibleName();
     }
 
     
