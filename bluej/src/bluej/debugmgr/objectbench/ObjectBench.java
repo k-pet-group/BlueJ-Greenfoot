@@ -83,7 +83,7 @@ public class ObjectBench extends JPanel implements Accessible, ValueCollection,
     {
         String name = Config.getString("pkgmgr.objBench.title");
         final int n = getObjectCount();
-        name += " " + n + " " + Config.getString(n == 1 ? "pkgmgr.objBench.suffix.singular" : "pkgmgr.objBench.suffix.plural");
+        name += ": " + n + " " + Config.getString(n == 1 ? "pkgmgr.objBench.suffix.singular" : "pkgmgr.objBench.suffix.plural");
         getAccessibleContext().setAccessibleName(name);
     }
 
