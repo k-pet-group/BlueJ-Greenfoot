@@ -195,7 +195,7 @@ class VMReference
     public VirtualMachine localhostSocketLaunch(File initDir, URL[] libraries, DebuggerTerminal term,
             VirtualMachineManager mgr)
     {
-        final int CONNECT_TRIES = 2; // try to connect max of 5 times
+        final int CONNECT_TRIES = 1; // try to connect max of 5 times
         final int CONNECT_WAIT = 500; // wait half a sec between each connect
 
         String [] launchParams;
@@ -265,7 +265,7 @@ class VMReference
                     if (timeoutArg != null) {
                         // The timeout appears to be in milliseconds.
                         // The default is apparently no timeout.
-                        String timeOutVal = Config.getPropString("bluej.vm.connect.timeout", "5000");
+                        String timeOutVal = Config.getPropString("bluej.vm.connect.timeout", "10000");
                         timeoutArg.setValue(timeOutVal);
                     }
                     
