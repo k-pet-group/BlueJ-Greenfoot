@@ -201,7 +201,6 @@ public class ObjectWrapper extends JComponent implements Accessible, FocusListen
         setSize(WIDTH, HEIGHT);
         setFocusable(true);
         setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        ob.setSelectedObject(this);
         addFocusListener(this);
         addKeyListener(this);
     }
@@ -627,7 +626,7 @@ public class ObjectWrapper extends JComponent implements Accessible, FocusListen
      */
     protected void drawUMLObjectShape(Graphics2D g, int x, int y, int w, int h, int shad, int corner)
     {
-        g.drawImage(isSelected() ? selectedObjectImage : objectImage, x, y, null);
+        g.drawImage(isSelected ? selectedObjectImage : objectImage, x, y, null);
     }
 
     /**
@@ -694,11 +693,10 @@ public class ObjectWrapper extends JComponent implements Accessible, FocusListen
             else { //single click
                 ob.fireObjectEvent(this);
             }
-
         }
         //manage focus
         if (evt.getID() == MouseEvent.MOUSE_CLICKED || evt.isPopupTrigger()) {
-            ob.setSelectedObject(this);
+            requestFocusInWindow();
         }
     }
 
@@ -850,14 +848,6 @@ public class ObjectWrapper extends JComponent implements Accessible, FocusListen
     }
 
     /**
-     * @return Returns the isSelected.
-     */
-    public boolean isSelected() 
-    {
-        return isSelected && isFocusOwner();
-    }
-
-    /**
      * @param isSelected The isSelected to set.
      */
     public void setSelected(boolean isSelected) 
@@ -865,12 +855,14 @@ public class ObjectWrapper extends JComponent implements Accessible, FocusListen
         this.isSelected = isSelected;
         if(isSelected) {
             pmf.setStatus(getName() + " : " + displayClassName);
+            scrollRectToVisible(new Rectangle(0, 0, WIDTH, HEIGHT));
         }
         repaint();
-        scrollRectToVisible(new Rectangle(0, 0, WIDTH, HEIGHT));
     }
     
-    public AccessibleContext getAccessibleContext() {
+    @Override
+    public AccessibleContext getAccessibleContext()
+    {
         if (accessibleContext == null) {
             accessibleContext = new AccessibleJComponent() {
 
@@ -892,38 +884,35 @@ public class ObjectWrapper extends JComponent implements Accessible, FocusListen
     }
 
     @Override
-    public void keyPressed(KeyEvent arg0) {
+    public void keyPressed(KeyEvent arg0)
+    {
         ob.keyPressed(arg0);
-        
     }
 
     @Override
-    public void keyReleased(KeyEvent arg0) {
+    public void keyReleased(KeyEvent arg0)
+    {
         ob.keyReleased(arg0);
-        
     }
 
     @Override
-    public void keyTyped(KeyEvent arg0) {
+    public void keyTyped(KeyEvent arg0)
+    {
         ob.keyTyped(arg0);
-        
     }
 
     @Override
-    public void focusGained(FocusEvent arg0) {
-        if (ob.getSelectedObject() != this)
-        {
-            ob.setSelectedObject(this);
-        }
-        
+    public void focusGained(FocusEvent arg0)
+    {
+        ob.objectGotFocus(this);
     }
 
     @Override
-    public void focusLost(FocusEvent arg0) {
+    public void focusLost(FocusEvent arg0)
+    {
         if (ob.getSelectedObject() == this)
         {
             ob.setSelectedObject(null);
         }
-        
     }
 }

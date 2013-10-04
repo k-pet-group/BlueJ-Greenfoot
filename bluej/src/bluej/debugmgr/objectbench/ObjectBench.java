@@ -204,8 +204,9 @@ public class ObjectBench extends JPanel implements Accessible, ValueCollection,
      */
     public void removeObject(ObjectWrapper wrapper, String scopeId)
     {
-        if(wrapper == selectedObject)
+        if(wrapper == selectedObject) {
             setSelectedObject(null);
+        }
      
         DataCollector.removeObject(wrapper.getPackage(), wrapper.getName());
         
@@ -244,11 +245,26 @@ public class ObjectBench extends JPanel implements Accessible, ValueCollection,
         selectedObject = aWrapper;
         
         if (selectedObject != null) {
-            selectedObject.setSelected(true);
             selectedObject.requestFocusInWindow();
         }
     }
-
+    
+    /**
+     * Notify that an object has gained focus. The object becomes the selected object.
+     */
+    public void objectGotFocus(ObjectWrapper aWrapper)
+    {
+        if (selectedObject == aWrapper) {
+            return;
+        }
+        
+        if (selectedObject != null) {
+            selectedObject.setSelected(false);
+        }
+        
+        selectedObject = aWrapper;
+        selectedObject.setSelected(true);
+    }
     
     /**
      * Returns the currently selected object wrapper. 
@@ -287,12 +303,12 @@ public class ObjectBench extends JPanel implements Accessible, ValueCollection,
      */
     public void fireObjectEvent(ObjectWrapper wrapper)
     {
-        setSelectedObject(wrapper);
         // guaranteed to return a non-null array
         Object[] listeners = listenerList.getListenerList();
         // process the listeners last to first, notifying
         // those that are interested in this event
-        for (int i = listeners.length-2; i>=0; i-=2) {   // I don't understand this - why step 2? (mik)
+        for (int i = listeners.length-2; i>=0; i-=2) {
+            // Loop steps by 2 because the list is a list of pairs: [listener class, listener]
             if (listeners[i] == ObjectBenchListener.class) {
                 ((ObjectBenchListener)listeners[i+1]).objectEvent(
                         new ObjectBenchEvent(this,
@@ -360,10 +376,12 @@ public class ObjectBench extends JPanel implements Accessible, ValueCollection,
     public void keyPressed(KeyEvent e) 
     {
         int selectedObjectIndex;
-        if(selectedObject == null)
+        if(selectedObject == null) {
             selectedObjectIndex = -1;
-        else
+        }
+        else {
             selectedObjectIndex = objects.indexOf(selectedObject);
+        }
         int key = e.getKeyCode();
         
         switch (key){
@@ -402,11 +420,6 @@ public class ObjectBench extends JPanel implements Accessible, ValueCollection,
             case KeyEvent.VK_CONTEXT_MENU:
                 showPopupMenu();
                 break;
-
-            case KeyEvent.VK_ESCAPE:
-                setSelectedObject(null);
-                repaint();
-                break;
         }
     }
 
@@ -416,8 +429,7 @@ public class ObjectBench extends JPanel implements Accessible, ValueCollection,
      */
     private void setSelectedObjectByIndex(int i)
     {
-        setSelectedObject((ObjectWrapper) objects.get(i));
-        repaint();
+        ((ObjectWrapper) objects.get(i)).requestFocusInWindow();
     }
     
     /**
