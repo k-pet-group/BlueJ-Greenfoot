@@ -484,4 +484,15 @@ public class NewParserTest extends TestCase
         JavaParser ip = new JavaParser(sr);
         ip.parseExpression();
     }
+    
+    public void testTopLevelExtraSemis()
+    {
+        StringReader sr = new StringReader(
+                "import java.lang.*; ;" +
+                "interface A {" +
+                "};"
+        );
+        JavaParser ip = new JavaParser(sr);
+        ip.parseCU();
+    }
 }
