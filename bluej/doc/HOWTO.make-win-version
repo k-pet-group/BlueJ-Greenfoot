@@ -1,9 +1,26 @@
 How to make a BlueJ release for Windows
 ---------------------------------------
 
+Requirements:
+-------------
+
+Building the new Windows installer (msi package) requires the WiX toolset:
+
+http://wixtoolset.org/
+
+(To build the old Windows installer, you will need InnoSetup:
+
+http://jrsoftware.org/isinfo.php
+
+Version 5.2.3 should be fine).
+
+
+Procedure:
+----------
+
  1. Build a BlueJ release (see HOWTO.make-release)
 
- 2. Building the BlueJ release ("ant dist") should have left a bluej-dist.jar
+ 2. Building the BlueJ release ("ant dist") should have left a "bluej-dist.jar"
     file in the package directory. 
 
  3. Build the Windows launcher (bjlaunch.exe).

@@ -7,11 +7,6 @@ http://www.mingw.org/
 
 See MINGW.TXT for information on required packages and setup.
 
-If you want to build the Windows installer, you will also need InnoSetup:
-
-http://jrsoftware.org/isinfo.php
-
-(Version 5.2.3 should be fine).
 
 
 Step 1.
@@ -73,15 +68,5 @@ Step 4.
 
 You can now build the Windows installer.
 
-For BlueJ:
+See HOWTO.make-win-version in the doc folder (for Greenfoot, see HOWTO.release).
 
-First, run the "ready-to-run" ant task in the build.xml file in the root
-of the BlueJ source distribution. The "build.properties" file (in the same location)
-will need to be edited first (specify the BlueJ build location and JDK location, etc).
-
-Then run the "windows-dist" ant task in the same build file.
-
-The installer will be generated in the package/winsetup subdirectory.
-
-For Greenfoot:
-See the build instructions included with Greenfoot.
