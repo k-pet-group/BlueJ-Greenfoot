@@ -495,4 +495,14 @@ public class NewParserTest extends TestCase
         JavaParser ip = new JavaParser(sr);
         ip.parseCU();
     }
+    
+    public void testParenthesizedInTrinary()
+    {
+        StringReader sr = new StringReader(
+                "sb.append((isFilled) ? \"yes\": \"no\");"
+        );
+        JavaParser ip = new JavaParser(sr);
+        ip.parseStatement();
+        
+    }
 }

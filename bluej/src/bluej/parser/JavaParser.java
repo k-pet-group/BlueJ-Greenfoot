@@ -2967,6 +2967,7 @@ public class JavaParser
                             && tt2 != JavaTokenTypes.RCURLY && tt2 != JavaTokenTypes.EOF;
                     isCast &= tt2 != JavaTokenTypes.COMMA && tt2 != JavaTokenTypes.COLON
                             && tt2 != JavaTokenTypes.RBRACK;
+                    isCast &= tt2 != JavaTokenTypes.QUESTION;
                 }
 
                 if (isCast) {
