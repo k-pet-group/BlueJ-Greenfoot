@@ -19,8 +19,9 @@ you then need to do the following:
    In the Libraries tab:
    
    * add all the necessary jars from the lib directory:
-     AppleJavaExtensions.jar, bjdoclet.jar, junit-4.8.2.jar, org-netbeans-lib-cvsclient.jar,
-     svnkit-javahl.jar, trilead.jar
+     AppleJavaExtensions.jar, bjdoclet.jar, diffutils-1.2.1.jar,
+     httpclient-4.1.jar, httpcore-4.1.jar, httpmime-4.1.1.jar, 
+     junit-4.8.2.jar, org-netbeans-lib-cvsclient.jar, svnkit-javahl.jar, trilead.jar
    * You also need to add the 'tools.jar' file from your JDK (except in case of Mac JDK 1.6).
    
    
