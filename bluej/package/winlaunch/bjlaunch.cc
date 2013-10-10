@@ -648,10 +648,10 @@ int WINAPI WinMain
             lstrcpy(userHomePath, userHomeString.c_str());
         }
         else {
-            DWORD envHomeSize = GetEnvironmentVariable(TEXT("APPDATA"), NULL, 0);
+            DWORD envHomeSize = GetEnvironmentVariable(TEXT("HOME"), NULL, 0);
             if (envHomeSize != 0) {
                 userHomePath = new TCHAR[envHomeSize];
-                GetEnvironmentVariable(TEXT("APPDATA"), userHomePath, envHomeSize);
+                GetEnvironmentVariable(TEXT("HOME"), userHomePath, envHomeSize);
             }
         }
     }
