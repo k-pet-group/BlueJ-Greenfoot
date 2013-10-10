@@ -290,7 +290,11 @@ public final class Config
     private static void initUserHome()
     {
         File userHome;
-        String homeDir = getPropString("bluej.userHome", "$user.home");
+        String defHomeDir = "$user.home";
+        if (isWinOS()) {
+            defHomeDir = System.getenv("APPDATA");
+        }
+        String homeDir = getPropString("bluej.userHome", defHomeDir);
         userHome = new File(homeDir);
 
         String prefDirName = getBlueJPrefDirName();
@@ -750,7 +754,26 @@ public final class Config
             props.load(new FileInputStream(propsFile));
         }
         catch(IOException e) {
-            // ignore exception - this will hapen on first run of BlueJ
+            // this will happen on first run of BlueJ/Greenfoot
+            // or a first run for some new versions.
+            loadPropertiesFromOlderVersions(filename, props);
+        }
+    }
+    
+    /**
+     * Load local BlueJ/Greenfoot properties from files produced by
+     * older versions (prior to BlueJ 3.1.1 and Greenfoot 2.4.0).
+     */
+    private static void loadPropertiesFromOlderVersions(String filename, Properties props)
+    {
+        File oldUserHome = new File (System.getProperty("user.home"), getBlueJPrefDirName());
+        File propsFile = new File(oldUserHome, filename + ".properties");
+
+        try {
+            props.load(new FileInputStream(propsFile));
+        }
+        catch(IOException e) {
+            // ignore exception - this will happen on first run of BlueJ/Greenfoot
         }
     }
 
