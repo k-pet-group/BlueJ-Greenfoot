@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -56,6 +56,7 @@ public class PrefMgr
     public static final String SHOW_UNCHECKED = "bluej.compiler.showunchecked";
     public static final String SCOPE_HIGHLIGHTING_STRENGTH = "bluej.editor.scopeHilightingStrength";
     public static final String NAVIVIEW_EXPANDED="bluej.naviviewExpanded.default";
+    public static final String ACCESSIBILITY_SUPPORT = "bluej.accessibility.support";
     
     public static final String USE_THEMES = "bluej.useTheme";
     // font property names
