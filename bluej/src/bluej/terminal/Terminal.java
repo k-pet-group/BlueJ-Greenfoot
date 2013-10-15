@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2011,2012,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -461,7 +461,14 @@ public final class Terminal extends JFrame
         
         char ch = event.getKeyChar();
         switch (ch) {
-            
+        case KeyEvent.VK_UP:
+        case KeyEvent.VK_DOWN:
+        case KeyEvent.VK_LEFT:
+        case KeyEvent.VK_RIGHT:
+            if (PrefMgr.getFlag(PrefMgr.ACCESSIBILITY_SUPPORT))
+                return; // Let the arrow keys take effect
+        
+        
         case KeyEvent.VK_EQUALS: // increase the font size
         case KeyEvent.VK_PLUS: // increase the font size (non-uk keyboards)
             if (event.getModifiers() == SHORTCUT_MASK) {
@@ -597,7 +604,7 @@ public final class Terminal extends JFrame
                         // Handled via paste() in TermTextArea
                         return actionName;
                     }
-                    return null;
+                    return PrefMgr.getFlag(PrefMgr.ACCESSIBILITY_SUPPORT) ? actionName : null;
                 }
                 
                 return actionName;
