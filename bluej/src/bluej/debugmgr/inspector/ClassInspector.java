@@ -60,7 +60,7 @@ import bluej.utility.JavaNames;
  * 
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: ClassInspector.java 10647 2013-05-08 18:25:01Z neil $
+ * @version $Id: ClassInspector.java 10908 2013-10-15 18:32:37Z nccb $
  */
 public class ClassInspector extends Inspector
 {
@@ -76,6 +76,7 @@ public class ClassInspector extends Inspector
     protected final static String INTERFACE_NAME_LABEL = Config.getString("debugger.inspector.interface.nameLabel");
 
     protected final static String noFieldsMsg = Config.getString("debugger.inspector.class.noFields");
+    protected final static String numFields = Config.getString("debugger.inspector.numFields");
     
     // === instance variables ===
 
@@ -118,14 +119,15 @@ public class ClassInspector extends Inspector
         
         String className = JavaNames.stripPrefix(myClass.getName());
         String headerString = null;
+        String suffix = " " + numFields + " " + getListData().size();
         if(myClass.isEnum()) {
-            setTitle(ENUM_INSPECT_TITLE + " " + className);
+            setTitle(ENUM_INSPECT_TITLE + " " + className + suffix);
             headerString = ENUM_NAME_LABEL + " " + className;
         } else if (myClass.isInterface()) {
-            setTitle(INTERFACE_INSPECT_TITLE + " " + className);
+            setTitle(INTERFACE_INSPECT_TITLE + " " + className + suffix);
             headerString = INTERFACE_NAME_LABEL + " " + className;
         } else {
-            setTitle(CLASS_INSPECT_TITLE + " " + className);
+            setTitle(CLASS_INSPECT_TITLE + " " + className + suffix);
             headerString = CLASS_NAME_LABEL + " " + className;
         }
         
