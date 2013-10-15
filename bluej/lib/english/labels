@@ -36,6 +36,7 @@ debugger.inspector.get=Get
 debugger.inspector.class.nameLabel=Class
 debugger.inspector.enum.nameLabel=Enum
 debugger.inspector.interface.nameLabel=Interface
+debugger.inspector.numFields=Number of fields
 
 debugger.objectwrapper.methodException=Exception accessing methods:
 debugger.objectwrapper.invocationException=Exception during invocation:

@@ -82,6 +82,7 @@ public class ObjectInspector extends Inspector
 
     protected final static String inspectTitle = Config.getString("debugger.inspector.object.title");
     protected final static String noFieldsMsg = Config.getString("debugger.inspector.object.noFields");
+    protected final static String numFields = Config.getString("debugger.inspector.numFields");
 
     // === instance variables ===
     
@@ -180,7 +181,7 @@ public class ObjectInspector extends Inspector
         String fullTitle = null;
         if(objName != null) {
             fullTitle = objName + " : " + className;
-            setTitle(inspectTitle + " - " + objName);
+            setTitle(inspectTitle + " - " + objName + ", " + className + " " + numFields + " " + getListData().size());
         }
         else {
             fullTitle = " : " + className;
