@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,12 +25,15 @@ import bluej.Config;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.DialogManager;
 import bluej.utility.BlueJFileReader;
-
 import bluej.utility.Utility;
+
 import java.awt.*;              // MenuBar, MenuItem, Menu, Button, etc.
 import java.awt.event.*;        // New Event model
+
 import javax.swing.*;           // all the GUI components
+
 import java.io.*;
+
 import javax.swing.border.EmptyBorder;
 
 /**
@@ -113,7 +116,10 @@ public final class Info extends JPanel
     }
 
     /**
-     * display a one- or two-line message (using '\n' to separate multiple lines)
+     * display a one- or two-line message (using '\n' to separate multiple lines).
+     * 
+     * If important is true, the message may be displayed in a pop-up dialog if the user
+     * has enabled this preference (e.g. for blind users with screen readers)
      */
     public void message(String msg)
     {
@@ -121,6 +127,20 @@ public final class Info extends JPanel
         rebreakLine();
         isClear = false;
         hideHelp();
+    }
+    
+    /**
+     * Like message(String), but the message may be displayed in a pop-up dialog if the user
+     * has enabled this preference (e.g. for blind users with screen readers)
+     */
+    public void messageImportant(String msg)
+    {
+        message(msg);
+        if (PrefMgr.getFlag(PrefMgr.ACCESSIBILITY_SUPPORT))
+        {
+            // Pop up in a dialog:
+            DialogManager.showText(this, msg);
+        }
     }
     
     /**
@@ -220,6 +240,12 @@ public final class Info extends JPanel
     public void warning(String msg)
     {
         message (msg);
+        MoeEditorManager.editorManager.beep();
+    }
+    
+    public void warningImportant(String msg)
+    {
+        messageImportant(msg);
         MoeEditorManager.editorManager.beep();
     }
 

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2011,2012,2013  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -586,10 +586,10 @@ public final class MoeEditor extends JFrame
         // display the message
 
         if (beep) {
-            info.warning(message);
+            info.warningImportant(message);
         }
         else {
-            info.message(message);
+            info.messageImportant(message);
         }
 
         if (help != null) {
@@ -626,7 +626,7 @@ public final class MoeEditor extends JFrame
 
         // display the message
 
-        info.message(diagnostic.getMessage());
+        info.messageImportant(diagnostic.getMessage());
         info.setHelp("javac"); // TODO the compiler name, or the additional help text,
                                // should really be a property of the diagnostic object.
     }
@@ -756,7 +756,7 @@ public final class MoeEditor extends JFrame
     {
         setCompileStatus(compiled);
         if (compiled) {
-            info.message(Config.getString("editor.info.compiled"));
+            info.messageImportant(Config.getString("editor.info.compiled"));
             errorManager.removeErrorHighlight();
         }
     }
