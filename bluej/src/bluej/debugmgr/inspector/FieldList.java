@@ -290,6 +290,9 @@ public class FieldList extends JTable
             else {
                 this.setHorizontalAlignment(JLabel.LEADING);
             }
+            
+            getAccessibleContext().setAccessibleName(table.getModel().getValueAt(row, 0) + " = " + table.getModel().getValueAt(row, 1));
+            
             return this;
         }
     }
