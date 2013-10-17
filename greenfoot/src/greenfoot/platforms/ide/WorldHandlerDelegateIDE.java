@@ -53,8 +53,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.rmi.RemoteException;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -62,6 +60,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 
 import rmiextension.wrappers.RObject;
 import rmiextension.wrappers.RProject;
@@ -377,7 +376,6 @@ public class WorldHandlerDelegateIDE
             if (!rProject.isVMRestarted()) {
                 greenfootRecorder.reset();
                 worldInitialising = true;
-                final Timer timer = new Timer();
                 Class<? extends World> cls = getLastWorldClass();
                 GClass lastWorldGClass = getLastWorldGClass();
 
@@ -410,9 +408,9 @@ public class WorldHandlerDelegateIDE
                     return;
                 }
 
-                timer.schedule(new TimerTask() {
+                final Timer timer = new Timer(TIMEOUT, new ActionListener() {
                     @Override
-                    public void run()
+                    public void actionPerformed(ActionEvent e)
                     {
                         try {
                             if (worldInitialising) {
@@ -429,7 +427,9 @@ public class WorldHandlerDelegateIDE
                             Debug.reportError("ProjectNotOpenException restarting VM in WorldHandlerDelegateIDE", ex);
                         }
                     }
-                },TIMEOUT);
+                });
+                timer.setRepeats(false);
+                timer.start();
                 
                 final Class<? extends World> icls = cls;
                 Simulation.getInstance().runLater(new Runnable() {
@@ -463,7 +463,7 @@ public class WorldHandlerDelegateIDE
                             ite.getCause().printStackTrace();
                         }
                         worldInitialising = false;
-                        timer.cancel();
+                        timer.stop();
                     }
                 });
             }
