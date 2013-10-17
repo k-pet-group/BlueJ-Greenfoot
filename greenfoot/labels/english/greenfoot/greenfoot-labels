@@ -304,8 +304,9 @@ noproject.dialog.msg=Project does not exist:
 properties.heading.greenfoot=Greenfoot properties. Settings in this file override \"bluej.defs\" and \"greenfoot.defs\"
 
 # Message to display if there is no default world constructor
-world.missing.constructor.title=Error when instantiating World.
+world.error.constructor.title=Error when instantiating World.
 world.missing.constructor.msg=It was not possible to instantiate a new world. The reason for this is usually that the world does not have a public default constructor (a constructor that takes no parameters) or that the world is not a public class.
+world.infinite.constructor.msg=World constructor took longer than expected.\n It is advised to restart Greenfoot to be able to check your code
 
 # Message to display if a file cannot be created
 greenfoot.cannotCreateClass=The class file could not be created. Check that the project folder is writable.

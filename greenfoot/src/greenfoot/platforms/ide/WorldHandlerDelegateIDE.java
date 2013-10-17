@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012,2013  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -53,14 +53,18 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.rmi.RemoteException;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
+import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 import rmiextension.wrappers.RObject;
+import rmiextension.wrappers.RProject;
 import bluej.Config;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.gentype.JavaType;
@@ -69,6 +73,7 @@ import bluej.debugmgr.objectbench.ObjectBenchEvent;
 import bluej.debugmgr.objectbench.ObjectBenchInterface;
 import bluej.debugmgr.objectbench.ObjectBenchListener;
 import bluej.debugmgr.objectbench.ObjectWrapper;
+import bluej.extensions.ProjectNotOpenException;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
 import bluej.views.CallableView;
@@ -84,8 +89,11 @@ public class WorldHandlerDelegateIDE
 {
     protected final Color envOpColour = Config.ENV_COLOUR;
 
-    private final static String missingConstructorTitle = Config.getString("world.missing.constructor.title");
+    private final int TIMEOUT = Config.WORLD_INITIALISING_TIMEOUT;
+
+    private final static String errorConstructorTitle = Config.getString("world.error.constructor.title");
     private final static String missingConstructorMsg = Config.getString("world.missing.constructor.msg");
+    private final static String infiniteConstructorMsg = Config.getString("world.infinite.constructor.msg");
     private final static String continueButtonText = Config.getString("greenfoot.continue");
 
     private WorldHandler worldHandler;
@@ -364,80 +372,114 @@ public class WorldHandlerDelegateIDE
     @Override
     public void instantiateNewWorld()
     {
-        greenfootRecorder.reset();
-        worldInitialising = true;
-        Class<? extends World> cls = getLastWorldClass();
-        GClass lastWorldGClass = getLastWorldGClass();
-        
-        if (lastWorldGClass == null) {
-            // Either the last instantiated world no longer exists, or there is no record
-            // of a last instantiated world class. Find a world arbitrarily.
-            List<Class<? extends World>> worldClasses = project.getDefaultPackage().getWorldClasses();
-            if(worldClasses.isEmpty() ) {
-                return;
-            }
-            
-            for (Class<? extends World> wclass : worldClasses) {
-                try {
-                    wclass.getConstructor(new Class<?>[0]);
-                    cls = wclass;
-                    break;
-                }
-                catch (LinkageError le) { }
-                catch (NoSuchMethodException nsme) { }
-            }
-            if (cls == null) {
-                // Couldn't find a world with a suitable constructor
-                showMissingConstructorDialog();
-                return;
-            }
-        }
-        
-        if (cls == null) {
-            // Can occur if last instantiated world class is not compiled.
-            return;
-        }
-        
-        final Class<? extends World> icls = cls;
-        Simulation.getInstance().runLater(new Runnable() {
-            @Override
-            public void run()
-            {
-                try {
-                    Constructor<?> cons = icls.getConstructor(new Class<?>[0]);
-                    WorldHandler.getInstance().clearWorldSet();
-                    World newWorld = (World) Simulation.newInstance(cons);
-                    if (! WorldHandler.getInstance().checkWorldSet()) {
-                        ImageCache.getInstance().clearImageCache();
-                        WorldHandler.getInstance().setWorld(newWorld);
+        final RProject rProject = project.getRProject();
+        try {
+            if (!rProject.isVMRestarted()) {
+                greenfootRecorder.reset();
+                worldInitialising = true;
+                final Timer timer = new Timer();
+                Class<? extends World> cls = getLastWorldClass();
+                GClass lastWorldGClass = getLastWorldGClass();
+
+                if (lastWorldGClass == null) {
+                    // Either the last instantiated world no longer exists, or there is no record
+                    // of a last instantiated world class. Find a world arbitrarily.
+                    List<Class<? extends World>> worldClasses = project.getDefaultPackage().getWorldClasses();
+                    if(worldClasses.isEmpty() ) {
+                        return;
                     }
-                    saveWorldAction.setRecordingValid(true);
-                    project.setLastWorldClassName(icls.getName());
+
+                    for (Class<? extends World> wclass : worldClasses) {
+                        try {
+                            wclass.getConstructor(new Class<?>[0]);
+                            cls = wclass;
+                            break;
+                        }
+                        catch (LinkageError le) { }
+                        catch (NoSuchMethodException nsme) { }
+                    }
+                    if (cls == null) {
+                        // Couldn't find a world with a suitable constructor
+                        showMissingConstructorDialog();
+                        return;
+                    }
                 }
-                catch (LinkageError e) { }
-                catch (NoSuchMethodException nsme) {
-                    showMissingConstructorDialog();
+
+                if (cls == null) {
+                    // Can occur if last instantiated world class is not compiled.
+                    return;
                 }
-                catch (InstantiationException e) {
-                    // abstract class; shouldn't happen
-                }
-                catch (IllegalAccessException e) {
-                    showMissingConstructorDialog();
-                }
-                catch (InvocationTargetException ite) {
-                    // This can happen if a static initializer block throws a Throwable.
-                    // Or for other reasons.
-                    ite.getCause().printStackTrace();
-                }
-                worldInitialising = false;
+
+                timer.schedule(new TimerTask() {
+                    @Override
+                    public void run()
+                    {
+                        try {
+                            if (worldInitialising) {
+                                int result = JOptionPane.showConfirmDialog(frame, infiniteConstructorMsg, errorConstructorTitle, JOptionPane.OK_CANCEL_OPTION);
+                                if (result == JOptionPane.OK_OPTION) {
+                                    rProject.restartVM();
+                                }
+                            }
+                        }
+                        catch (RemoteException ex) {
+                            Debug.reportError("RemoteException restarting VM in WorldHandlerDelegateIDE", ex);
+                        }
+                        catch (ProjectNotOpenException ex) {
+                            Debug.reportError("ProjectNotOpenException restarting VM in WorldHandlerDelegateIDE", ex);
+                        }
+                    }
+                },TIMEOUT);
+                
+                final Class<? extends World> icls = cls;
+                Simulation.getInstance().runLater(new Runnable() {
+                    @Override
+                    public void run()
+                    {
+                        try {
+                            Constructor<?> cons = icls.getConstructor(new Class<?>[0]);
+                            WorldHandler.getInstance().clearWorldSet();
+                            World newWorld = (World) Simulation.newInstance(cons);
+                            if (! WorldHandler.getInstance().checkWorldSet()) {
+                                ImageCache.getInstance().clearImageCache();
+                                WorldHandler.getInstance().setWorld(newWorld);
+                            }
+                            saveWorldAction.setRecordingValid(true);
+                            project.setLastWorldClassName(icls.getName());
+                        }
+                        catch (LinkageError e) { }
+                        catch (NoSuchMethodException nsme) {
+                            showMissingConstructorDialog();
+                        }
+                        catch (InstantiationException e) {
+                            // abstract class; shouldn't happen
+                        }
+                        catch (IllegalAccessException e) {
+                            showMissingConstructorDialog();
+                        }
+                        catch (InvocationTargetException ite) {
+                            // This can happen if a static initializer block throws a Throwable.
+                            // Or for other reasons.
+                            ite.getCause().printStackTrace();
+                        }
+                        worldInitialising = false;
+                        timer.cancel();
+                    }
+                });
             }
-        });
+            else {
+                rProject.setVmRestarted(false);
+            }
+        }
+        catch (RemoteException ex) {
+            Debug.reportError("RemoteException checking VM state in WorldHandlerDelegateIDE", ex);
+        }
     }
 
     private void showMissingConstructorDialog()
     {
         JButton button = new JButton(continueButtonText);
-        MessageDialog msgDialog = new MessageDialog(frame, missingConstructorMsg, missingConstructorTitle, 50, new JButton[]{button});
+        MessageDialog msgDialog = new MessageDialog(frame, missingConstructorMsg, errorConstructorTitle, 50, new JButton[]{button});
         msgDialog.display();
     }
     

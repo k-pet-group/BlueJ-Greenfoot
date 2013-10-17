@@ -154,4 +154,16 @@ public interface RProject
      */
     public abstract void restartVM()
         throws RemoteException, ProjectNotOpenException;
+
+    /**
+     * @return Whether or not the VM had been restarted
+     * @throws RemoteException   if an RMI error occurs
+     */
+    public abstract boolean isVMRestarted() throws RemoteException;
+
+    /**
+     * Change the state of VM that indicates if it had been restarted
+     * @throws RemoteException   if an RMI error occurs
+     */
+    public void setVmRestarted(boolean vmRestarted) throws RemoteException;
 }

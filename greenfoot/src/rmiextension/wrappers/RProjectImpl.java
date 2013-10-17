@@ -72,6 +72,8 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
     
     private List<RProjectListener> listeners = new ArrayList<RProjectListener>();
 
+    private boolean vmRestarted = false;
+
     /**
      * Construct an RProjectImpl - generally only should be called from
      * WrapperPool (use WrapperPool.instance().getWrapper(...)).
@@ -398,9 +400,22 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
             // throws an illegal state exception
             // if this is called whilst the remote VM
             // is already restarting 
+            vmRestarted = true;
             bProject.restartVM();
         }
         catch (IllegalStateException ise) {
         }
+    }
+
+    @Override
+    public boolean isVMRestarted() throws RemoteException
+    {
+        return vmRestarted;
+    }
+
+    @Override
+    public void setVmRestarted(boolean vmRestarted)
+    {
+        this.vmRestarted = vmRestarted;
     }
 }
