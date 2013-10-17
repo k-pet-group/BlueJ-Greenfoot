@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2013  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -140,10 +140,18 @@ public interface RProject
         throws RemoteException;
 
     /**
-     * @return	Whether or not the debugger window is currently visible
+     * @return Whether or not the debugger window is currently visible
      * @throws RemoteException   if an RMI error occurs
      * @throws ProjectNotOpenException   if the project is no longer open
      */
     public abstract boolean isExecControlVisible()
+        throws RemoteException, ProjectNotOpenException;
+
+    /**
+     * Restart the debug VM
+     * @throws RemoteException   if an RMI error occurs
+     * @throws ProjectNotOpenException   if the project is no longer open
+     */
+    public abstract void restartVM()
         throws RemoteException, ProjectNotOpenException;
 }
