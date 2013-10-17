@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,6 +29,7 @@ import java.util.ListIterator;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
+import bluej.collect.DataCollector;
 
 /**
  * A wrapper for a BlueJ project.
@@ -102,6 +103,7 @@ public class BProject
     public void restartVM() throws ProjectNotOpenException
     {
         projectId.getBluejProject().restartVM();
+        DataCollector.debuggerTerminate(projectId.getBluejProject());
     }
     
     /**
