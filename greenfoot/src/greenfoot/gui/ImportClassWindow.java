@@ -44,6 +44,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FileReader;
 import java.io.IOException;
+import java.rmi.RemoteException;
 
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
@@ -68,6 +69,7 @@ import javax.swing.text.html.HTMLEditorKit;
 import bluej.Config;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
+import bluej.extensions.ProjectNotOpenException;
 
 /**
  * The window showing a library of supplied classes
@@ -507,11 +509,21 @@ public class ImportClassWindow extends JFrame
             //Finally, update the class browser:
             classBrowser.addClass(new ClassView(classBrowser, gclass, interactionListener));
             classBrowser.updateLayout();
-        }
         
-        if (librariesImportedFlag) {
-            JOptionPane.showMessageDialog(gfFrame, "Greenfoot has to be restarted for this project to work properly");
+            if (librariesImportedFlag) {
+                int option = JOptionPane.showConfirmDialog(gfFrame, Config.getString("import.restartMessage"), null, JOptionPane.OK_CANCEL_OPTION);
+                if (option == JOptionPane.OK_OPTION) {
+                    try {
+                        project.getRProject().restartVM();
+                    }
+                    catch (RemoteException ex) {
+                        Debug.reportError("RemoteException restarting VM in ImportClassWindow", ex);
+                    }
+                    catch (ProjectNotOpenException ex) {
+                        Debug.reportError("ProjectNotOpenException restarting VM in ImportClassWindow", ex);
+                    }
+                }
+            }
         }
     }
-
 }

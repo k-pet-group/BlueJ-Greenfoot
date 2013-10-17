@@ -260,6 +260,7 @@ soundRecorder.closeQuestion=Sound has been changed since you last saved.  If you
 import.import=Import
 import.dialogTitle=Import Class
 import.action=Import Class...
+import.restartMessage=Greenfoot has to be restarted for this project to work properly
 
 set.player=Set Player Name
 playername.dialog.title=Set Player Name
