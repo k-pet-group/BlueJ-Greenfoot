@@ -3,16 +3,16 @@
 # Must set below, and edit version in bjlaunch.rc and in bjmanifest.xml or gfmanifest.xml
 
 # For BlueJ
-#APPNAME=\"BlueJ\"
-#GREENFOOTDEF=
-#EXECNAME=bjlaunch.exe
-#REQUIREDJAVA=\"1.6\"
+APPNAME=\"BlueJ\"
+GREENFOOTDEF=
+EXECNAME=bjlaunch.exe
+REQUIREDJAVA=\"1.6\"
 
 # For Greenfoot
-APPNAME=\"Greenfoot\"
-GREENFOOTDEF=-DGREENFOOT
-EXECNAME=gflaunch.exe
-REQUIREDJAVA=\"1.6\"
+#APPNAME=\"Greenfoot\"
+#GREENFOOTDEF=-DGREENFOOT
+#EXECNAME=gflaunch.exe
+#REQUIREDJAVA=\"1.6\"
 
 JDKDIR=/c/Program Files/Java/jdk1.6.0_39
 
