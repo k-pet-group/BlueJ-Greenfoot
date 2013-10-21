@@ -114,8 +114,12 @@ string readJavaProperty(string file, std::string propertyName)
                 if (line.compare(0, propSize, propertyName) == 0) {
                         // it's a match
                         // Remove the "property=" part and the trailing newline.
-                        // TODO check there actually is a trailing newline before removing it...
-                        std::string matchPart = line.substr(propSize, line.length() - propSize - 1);
+
+                	    // Check there actually is a trailing newline before removing it...
+                		TCHAR lineEndChar = line[line.length() - 1];
+                		int lineEndStrip = (lineEndChar == TEXT('\r') || lineEndChar == TEXT('\n')) ? 1 : 0;
+
+                        std::string matchPart = line.substr(propSize, line.length() - propSize - lineEndStrip);
                         retval = dePropify(matchPart);
                         // break; - no; later values override earlier ones
                 }
