@@ -320,10 +320,10 @@
 		<unzip src="${dist.jar}" dest="winsetup/SourceDir" />
 
         <!-- make sure line endings are in windows format -->
-        <fixcrlf srcdir="install_tmp" eol="crlf" encoding="ISO-8859-1">
+        <fixcrlf srcdir="winsetup/SourceDir" eol="crlf" encoding="ISO-8859-1">
             <patternset refid="bluej.textfiles.iso88591" />
         </fixcrlf>
-        <fixcrlf srcdir="install_tmp" eol="crlf" encoding="UTF-8">
+        <fixcrlf srcdir="winsetup/SourceDir" eol="crlf" encoding="UTF-8">
             <patternset refid="bluej.textfiles.utf8" />
         </fixcrlf>
 		
@@ -358,7 +358,15 @@
 		<delete dir="winsetup/SourceDir" />
 		<delete dir="winsetup" includes="*.wixobj" />
 		<unzip src="${dist.jar}" dest="winsetup/SourceDir" />
-				
+
+        <!-- make sure line endings are in windows format -->
+        <fixcrlf srcdir="winsetup/SourceDir" eol="crlf" encoding="ISO-8859-1">
+            <patternset refid="bluej.textfiles.iso88591" />
+        </fixcrlf>
+        <fixcrlf srcdir="winsetup/SourceDir" eol="crlf" encoding="UTF-8">
+            <patternset refid="bluej.textfiles.utf8" />
+        </fixcrlf>
+		
 		<!-- Fix the path to the JDK in bluej.defs -->
         <replaceregexp byline="true">
             <regexp pattern="#bluej\.windows\.vm=.*"/>
