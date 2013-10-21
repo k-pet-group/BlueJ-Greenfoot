@@ -354,6 +354,51 @@
 		<delete dir="winsetup/SourceDir" />
 	</target>
 
+	<target name="windows-msi-bundled-dist" depends="dist">
+		<delete dir="winsetup/SourceDir" />
+		<delete dir="winsetup" includes="*.wixobj" />
+		<unzip src="${dist.jar}" dest="winsetup/SourceDir" />
+				
+		<!-- Fix the path to the JDK in bluej.defs -->
+        <replaceregexp byline="true">
+            <regexp pattern="#bluej\.windows\.vm=.*"/>
+            <substitution expression="bluej.windows.vm=jdk"/>
+            <fileset dir="winsetup/SourceDir/lib" includes="bluej.defs"/>
+        </replaceregexp>
+
+		<!-- Copy the JDK to be bundled -->
+		<copy todir="winsetup/SourceDir/jdk">
+			<fileset dir="${win_bundled_jdk_path}" />
+		</copy>
+		
+		<!-- The heat tool scans all the files in SourceDir and generates
+		     a WiX file that has all the XML needed for installing all those files -->
+		<exec dir="winsetup" executable="${wix_bin}/heat.exe">
+			<arg line="dir SourceDir -cg BlueJFiles -dr INSTALLDIR -ke -gg -srd -sfrag -sreg -scom template fragment -out bluej-install-files.wxs"/>
+		</exec>
+
+		<exec dir="winsetup" executable="${wix_bin}/candle.exe">
+			<arg line="CheckboxExtrasDlg.wxs"/>
+		</exec>
+			
+		<exec dir="winsetup" executable="${wix_bin}/candle.exe">
+			<arg line="ui.wxs"/>
+		</exec>
+			
+		<exec dir="winsetup" executable="${wix_bin}/candle.exe">
+			<arg line="bluej.wxs"/>
+		</exec>
+			
+		<exec dir="winsetup" executable="${wix_bin}/candle.exe">
+			<arg line="bluej-install-files.wxs"/>
+		</exec>
+			
+		<exec dir="winsetup" executable="${wix_bin}/light.exe">
+			<arg line="-ext WixUIExtension -loc bluej.wxl bluej.wixobj CheckboxExtrasDlg.wixobj ui.wixobj bluej-install-files.wixobj -o bluej-${bluej.version}.msi"/>
+		</exec>
+		<delete dir="winsetup/SourceDir" />
+	</target>
+		
 	<target name="debian-dist">
 		<mkdir dir="bluejdeb" />
 		<copy todir="bluejdeb">

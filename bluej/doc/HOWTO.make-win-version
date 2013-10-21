@@ -43,5 +43,7 @@ Procedure:
      to the appropriate directory (something like: C:/Program Files/Windows Installer XML v3.5/bin)
      The resulting winsetup/blueJ-VERSION.msi is the distributable file
      (where VERSION is the version number).
+     
+     To make the MSI package with a bundled JDK, use the "windows-msi-bundled-dist" target instead.
 
 Done.
