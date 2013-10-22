@@ -144,6 +144,7 @@ public class PrefMgr
         flags.put(SHOW_JAVAME_TOOLS, Config.getPropString(SHOW_JAVAME_TOOLS, "false"));        
         flags.put(SHOW_TEXT_EVAL, Config.getPropString(SHOW_TEXT_EVAL, "false"));
         flags.put(SHOW_UNCHECKED, Config.getPropString(SHOW_UNCHECKED, "true"));
+        flags.put(ACCESSIBILITY_SUPPORT, Config.getPropString(ACCESSIBILITY_SUPPORT, "false"));
     }
 
     /**
