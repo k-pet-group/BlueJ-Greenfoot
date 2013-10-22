@@ -66,6 +66,7 @@ import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.editor.moe.MoeSyntaxEditorKit;
 import bluej.parser.TextAnalyzer;
 import bluej.pkgmgr.PkgMgrFrame;
+import bluej.prefmgr.PrefMgr;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
@@ -558,19 +559,12 @@ public class TextEvalPane extends JEditorPane
     {
         try {
             doc.insertString(doc.getLength(), s, null);
-            caretToEnd();
+            setCaretPosition(doc.getLength());
+        
         }
         catch(BadLocationException exc) {
             Debug.reportError("bad location in terminal operation");
         }
-    }
-    
-    /**
-     * Move the caret to the end of the text.
-     */
-    private void caretToEnd() 
-    {
-        setCaretPosition(doc.getLength());
     }
 
     /**
@@ -801,14 +795,17 @@ public class TextEvalPane extends JEditorPane
         newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), action);
         newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_KP_LEFT, 0), action);
 
-        action = new HistoryBackAction();
-        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), action);
-        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_KP_UP, 0), action);
+        if (PrefMgr.getFlag(PrefMgr.ACCESSIBILITY_SUPPORT) == false)
+        {
+            action = new HistoryBackAction();
+            newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), action);
+            newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_KP_UP, 0), action);
 
-        action = new HistoryForwardAction();
-        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), action);
-        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_KP_DOWN, 0), action);
-
+            action = new HistoryForwardAction();
+            newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), action);
+            newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_KP_DOWN, 0), action);
+        }
+        
         action = new TransferFocusAction(true);
         newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_TAB, 0), action);
 
