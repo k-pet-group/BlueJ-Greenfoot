@@ -43,16 +43,16 @@ public class Map {
 
     private GreenfootImage image;
     
-    private enum maptype { roadmap, satellite, hybrid, terrain;}
-    private maptype type = maptype.roadmap;
+    private enum MapType { ROADMAP, SATELLITE, HYBRID, TERRAIN;}
+    private MapType type = MapType.ROADMAP;
     
     /**
-     * Construct a map object that build a map of a specific location,
+     * Constructs a map object that build a map of a specific location,
      * e.g."-15.800513, -47.91378" or "Brooklyn Bridge, New York, NY".
-     * The width and height fields will be set to default values as 600 x 400
-     * The zoom field will be set to default as 5
+     * The width and height fields will be set to default values as 600 x 400.
+     * The zoom field will be set to default as 5.
      * 
-     *  @param location  the location represents the center the map
+     *  @param location  the location represents the center the map.
      */
     public Map(String location)
     {
@@ -60,13 +60,13 @@ public class Map {
     }
     
     /**
-     * Construct a map object that build a map of a specific location,
+     * Constructs a map object that build a map of a specific location,
      * e.g."-15.800513, -47.91378" or "Brooklyn Bridge, New York, NY".
      * 
-     *  @param location  the location represents the center the map
-     *  @param width     the image's width
-     *  @param height    the image's height
-     *  @param zoom      the zoom factor of the map [0-20]
+     *  @param location  the location represents the center the map.
+     *  @param width     the image's width.
+     *  @param height    the image's height.
+     *  @param zoom      the zoom factor of the map [0-20].
      */
     public Map(String location, int width, int height, int zoom)
     {
@@ -76,6 +76,11 @@ public class Map {
         setZoom(zoom);
     }
     
+    /**
+     * Sets the zoom factor insuring it is in the range [0-20].
+     * 
+     * @param value the zoom factor.
+     */
     public void setZoom(int value)
     {
         zoom = value;
@@ -88,26 +93,40 @@ public class Map {
         buildImage();
     }
     
+    /**
+     * Prepares the url of the map and retrieves an image representation of this map.
+     */
     private void buildImage()
     {
         String urlAddress = urlBase;
         urlAddress += "&center=" + location;
         urlAddress += "&size=" + width + "x" + height;
         urlAddress += "&zoom=" + zoom;
-        urlAddress += "&maptype=" + type;
+        urlAddress += "&maptype=" + type.toString().toLowerCase();
         
         image = new GreenfootImage(urlAddress);
     }
     
+    /**
+     * Returns the map represented as GreenfootImage.
+     * 
+     * @return GreenfootImage of the map. 
+     */
     public GreenfootImage getImage()
     {
         return image;
     }
     
+    /**
+     * Sets the type of the map as one of: roadmap, satellite, hybrid or terrain.
+     * 
+     * @param type  the type of the map.
+     * @exception if the passed parameter is not one of the predefined types.
+     */
     public void setType(String type)
     {
         try {
-            this.type = maptype.valueOf(type);
+            this.type = MapType.valueOf(type.toUpperCase());
         }
         catch(IllegalArgumentException ex) {
             System.err.println(type + " is not a valid map type. Please use: roadmap, satellite, hybrid or terrain");
@@ -115,11 +134,21 @@ public class Map {
         buildImage();
     }
     
+    /**
+     * Increases the zoom factor.
+     * 
+     * @param value  the change of the zoom factor.
+     */
     public void zoomIn(int value)
     {
         setZoom(zoom + value);
     }
     
+    /**
+     * Decreases the zoom factor.
+     * 
+     * @param value  the change of the zoom factor.
+     */
     public void zoomOut(int value)
     {
         setZoom(zoom - value);
