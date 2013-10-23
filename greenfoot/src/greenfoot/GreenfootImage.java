@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012,2013  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -169,6 +169,7 @@ public class GreenfootImage
         String[] lines = string.replaceAll("\r", "").split("\n");
         image = GraphicsUtilities.createCompatibleTranslucentImage(1, 1);
         Graphics2D g = (Graphics2D)image.getGraphics();
+        g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         Font font = g.getFont().deriveFont((float)size);
         g.setFont(font);
         
@@ -643,7 +644,6 @@ public class GreenfootImage
     public void clear()
     {
         Graphics2D g = getGraphics();
-        //TODO clearRect might be very slow on mac with Sun Rendere
         g.clearRect(0, 0, getWidth(), getHeight());
         g.dispose();
     }
@@ -679,6 +679,7 @@ public class GreenfootImage
     public void drawString(String string, int x, int y)
     {
         Graphics2D g = getGraphics();
+        g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         g.drawString(string, x, y);
         g.dispose();
     }
