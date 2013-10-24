@@ -2,6 +2,7 @@ import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.Graphics2D;
 import java.awt.FontMetrics;
@@ -12,7 +13,8 @@ import java.awt.font.TextLayout;
  * A Label class that allows you to display a textual value on screen.
  * 
  * The Label is an actor, so you will need to create it, and then add it to the world
- * in Greenfoot.  If you keep a reference to the Counter then you can adjust its value.  
+ * in Greenfoot.  If you keep a reference to the Label then you can change the text it
+ * displays.  
  *
  * @author Amjad Altadmri 
  * @version 1.1
@@ -151,6 +153,8 @@ public class Label extends Actor
     {
         GreenfootImage textImage = new GreenfootImage(outline.getBounds().width + 1, metrics.getHeight() +1);
         Graphics2D g = (Graphics2D) textImage.getAwtImage().getGraphics();
+
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         g.translate(0 - outline.getBounds().x, metrics.getAscent());
      
