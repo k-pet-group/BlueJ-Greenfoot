@@ -68,9 +68,9 @@ public class TextLabel
         }
         
         // Position of base line:
-        int ydraw = ypos * cellsize - metrics.getHeight() / 2 + metrics.getAscent();
+        int ydraw = ypos * cellsize - metrics.getHeight() / 2 + metrics.getAscent() + cellsize / 2;
         
-        int xdraw = xpos * cellsize - width / 2;
+        int xdraw = xpos * cellsize - width / 2 + cellsize / 2;
         
         g.translate(xdraw, ydraw);
         
