@@ -327,13 +327,29 @@ LICENSE.txt file that accompanied this code.${line.separator}
     	<antcall target="copy-common-class">
     	  <param name="common.class" value="Label"/>
     	</antcall>
-       	<antcall target="copy-common-class">
+    	<antcall target="copy-common-class">
+    	    <param name="common.class" value="Map"/>
+    	</antcall>
+    	
+    	<antcall target="build-common-jar">
+    		<param name="common.class" value="Weather"/>
+        </antcall>
+    	<antcall target="copy-common-class">
        	  <param name="common.class" value="Weather"/>
        	</antcall>
-    	<antcall target="copy-common-class">
-    	  <param name="common.class" value="Map"/>
-    	</antcall>
     </target>
+
+	<target name="build-common-jar" description="Create a jar with a common class dependencies." >
+	    <!-- Should first delete the class files in common (depend on clean-common) -->
+		<javac srcdir="common/${common.class}/src" destdir="common/${common.class}/classes" debug="true" target="1.6" source="1.6">
+			<classpath>
+				<fileset dir="common/${common.class}/lib/">
+				    <include name="*.jar"/>
+				</fileset>
+			</classpath>
+		</javac>
+		<jar jarfile="common/${common.class}/lib/${common.class}.jar" basedir="common/${common.class}/classes"/>
+	</target>
 	
 	<target name="copy-common-class" depends="compile-scenarios">
 		<javadoc destdir="common" sourcefiles="common/${common.class}.java"
@@ -349,7 +365,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
 	          <include name="common/${common.class}.png" />
 	          <include name="common/${common.class}.jpg" />
 	          <include name="common/${common.class}.jpeg" />
-              <include name="common/${common.class}_lib/**" />
+              <include name="common/${common.class}/lib/**" />
 	          <include name="common/inherit.gif" />
 	        </patternset>
 	      </fileset>
@@ -504,7 +520,19 @@ LICENSE.txt file that accompanied this code.${line.separator}
         </delete>
         
         <delete dir="${package}/scenarios"/>
+        
+    	<!-- Weather helper classes and jars -->
+    	<antcall target="clean-common-weather"/>
     </target>
+
+
+	<target name="clean-common-weather" description="clean up Weather .jar and .class files to be built again" >
+		<delete file="common/Weather/lib/Weather.jar"/>
+		<delete includeemptydirs="true">
+    	  <fileset dir="common/Weather/classes" includes="**/*" defaultexcludes="no"/>
+	    </delete>
+	</target>
+	
 
 	<!--include name="lib/*/greenfootAPI/**" /-->
 

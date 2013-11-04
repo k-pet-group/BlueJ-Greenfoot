@@ -482,7 +482,7 @@ public class ImportClassWindow extends JFrame
             GreenfootUtil.copyFile(srcFile, destFile);
             
             // Copy the lib files cross:
-            File libFolder = new File(srcFile.getParentFile(), className + "_lib");
+            File libFolder = new File(srcFile.getParentFile(), className + "/lib");
             if ( (libFolder.exists()) && (libFolder.listFiles().length > 0) ) {
                 for (File srcLibFile : libFolder.listFiles()) {
                     File destLibFile = new File(project.getDir(), "+libs/" + srcLibFile.getName());

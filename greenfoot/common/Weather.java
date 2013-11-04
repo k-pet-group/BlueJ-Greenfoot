@@ -1,4 +1,3 @@
-
 import weather.util.WeatherGrabber;
 
 /**
@@ -7,7 +6,7 @@ import weather.util.WeatherGrabber;
  * <pre>
  * class WeatherQuery
  * {
- *     private Weather weather = new Weather("Germany", "Berlin");
+ *     private Weather weather = new Weather("France", "Paris");
  *     
  *     public exampleMethod()
  *     {
@@ -24,8 +23,8 @@ import weather.util.WeatherGrabber;
  * @author amjad
  * @version 2.0
  */
-public class Weather 
-{
+public class Weather {
+    
     private WeatherGrabber weatherGrabber;
 
     /**
@@ -58,42 +57,48 @@ public class Weather
     /**
      * Fetch the current speed of the wind in km/h.
      */
-    public double getWindSpeed() {
+    public double getWindSpeed()
+    {
         return weatherGrabber.getDataset().getWindSpeedKmh();
     }
 
     /**
      * Fetch the direction of the wind.
      */
-    public String getWindDirection() {
+    public String getWindDirection()
+    {
         return weatherGrabber.getDataset().getWindDirection();
     }
 
     /**
      * Fetch the current humidity.
     */
-    public int getHumidity() {
+    public int getHumidity()
+    {
         return weatherGrabber.getDataset().getHumidity();
     }
 
     /**
      * Fetch the current atmospheric air pressure in hectopascal (hPa).
     */
-    public double getPressure() {
+    public double getPressure()
+    {
         return weatherGrabber.getDataset().getPressurehPa();
     }
     
     /**
      * get the city name.
     */
-    public String getCity() {
+    public String getCity()
+    {
         return weatherGrabber.getCity();
     }
     
     /**
      * get the country name.
     */
-    public String getCountry() {
+    public String getCountry()
+    {
         return weatherGrabber.getCountry();
     }
 }
