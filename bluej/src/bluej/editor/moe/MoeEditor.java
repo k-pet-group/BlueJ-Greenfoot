@@ -1194,12 +1194,13 @@ public final class MoeEditor extends JFrame
      */
     private void scheduleReparseRunner()
     {
-        if (reparseRunner == null) {
-            reparseRunner = new ReparseRunner(this);
-            EventQueue.invokeLater(reparseRunner);
-        }
+        if (PrefMgr.getScopeHighlightStrength() != 0) {
+            if (reparseRunner == null) {
+                reparseRunner = new ReparseRunner(this);
+                EventQueue.invokeLater(reparseRunner);
+                }
+            }
     }
-    
     /**
      * Informs the editor that the re-parse runner has de-scheduled itself due to lack
      * of work.
