@@ -6,10 +6,10 @@ import javax.imageio.ImageIO;
  * as an Image.
  * 
  * <pre>
- * public class mapActor extends Actor
+ * public class MapActor extends Actor
  * {
  *     Map map;
- *     public mapActor() 
+ *     public MapActor() 
  *     {
  *         map = new Map("Brazil");
  *         setImage(map.getImage());
