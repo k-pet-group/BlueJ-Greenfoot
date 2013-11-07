@@ -77,6 +77,7 @@ public class SplashWindow extends Frame
                 wait(3000 - timePast);
             }
             catch (InterruptedException ie) { }
+            timePast = System.currentTimeMillis() - startTime;
         }
         painted = true;
     }
