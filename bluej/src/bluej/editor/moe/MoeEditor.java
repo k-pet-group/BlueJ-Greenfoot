@@ -1192,14 +1192,11 @@ public final class MoeEditor extends JFrame
     /**
      * Schedule the ReparseRunner on the AWT event queue, if it is not already scheduled.
      */
-    private void scheduleReparseRunner()
-    {
-        if (PrefMgr.getScopeHighlightStrength() != 0) {
-            if (reparseRunner == null) {
-                reparseRunner = new ReparseRunner(this);
-                EventQueue.invokeLater(reparseRunner);
-                }
-            }
+    private void scheduleReparseRunner() {
+        if (reparseRunner == null) {
+            reparseRunner = new ReparseRunner(this);
+            EventQueue.invokeLater(reparseRunner);
+        }
     }
     /**
      * Informs the editor that the re-parse runner has de-scheduled itself due to lack

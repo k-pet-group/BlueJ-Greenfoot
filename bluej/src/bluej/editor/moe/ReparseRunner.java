@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,6 +21,7 @@
  */
 package bluej.editor.moe;
 
+import bluej.prefmgr.PrefMgr;
 import java.awt.EventQueue;
 
 /**
@@ -47,7 +48,7 @@ public class ReparseRunner implements Runnable
         long begin = System.currentTimeMillis();
         if (document != null && document.pollReparseQueue()) {
             // Continue processing
-            while (System.currentTimeMillis() - begin < 5) {
+            while (System.currentTimeMillis() - begin < 5 && PrefMgr.getScopeHighlightStrength() != 0) {
                 if (! document.pollReparseQueue()) {
                     break;
                 }
