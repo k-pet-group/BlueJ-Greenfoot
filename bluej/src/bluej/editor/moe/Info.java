@@ -117,9 +117,6 @@ public final class Info extends JPanel
 
     /**
      * display a one- or two-line message (using '\n' to separate multiple lines).
-     * 
-     * If important is true, the message may be displayed in a pop-up dialog if the user
-     * has enabled this preference (e.g. for blind users with screen readers)
      */
     public void message(String msg)
     {
@@ -139,7 +136,7 @@ public final class Info extends JPanel
         if (PrefMgr.getFlag(PrefMgr.ACCESSIBILITY_SUPPORT))
         {
             // Pop up in a dialog:
-            DialogManager.showText(this, msg);
+            DialogManager.showText(this.getTopLevelAncestor(), msg);
         }
     }
     
