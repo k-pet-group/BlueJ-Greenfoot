@@ -2487,7 +2487,7 @@ public final class Package extends Graph
     private class QuietPackageCompileObserver
         implements CompileObserver
     {
-        private CompileObserver chainObserver;
+        protected CompileObserver chainObserver;
         
         /**
          * Construct a new QuietPackageCompileObserver. The chained observer (if
@@ -2901,6 +2901,20 @@ public final class Package extends Graph
             bluej.compiler.CompilerWarningDialog.getDialog().addWarningMessage(message);
             
             return true;
+        }
+        
+        @Override
+        public void endCompile(File[] sources, boolean successful)
+        {
+            super.endCompile(sources, successful);
+            
+            // Display status dialog for accessibility. If chainObserver is set, we assume
+            // that the chained observer will fulfill this responsibility instead.
+            if (successful && chainObserver == null && PrefMgr.getFlag(PrefMgr.ACCESSIBILITY_SUPPORT)) {
+                if (getEditor().isVisible()) {
+                    DialogManager.showText(getEditor(), Config.getString("pkgmgr.accessibility.compileDone"));
+                }
+            }
         }
     }
 
