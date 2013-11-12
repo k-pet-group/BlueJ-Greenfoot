@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -198,6 +198,13 @@ public interface Editor
      * @param compiled    true if the class has been compiled
      */
     void setCompiled(boolean compiled);
+    
+    /**
+     * Informs the editor that a compilation requested via the EditorWatcher interface has finished.
+     * 
+     * @param successful   whether the compilation was successful
+     */
+    void compileFinished(boolean successful);
 
     /**
      * All breakpoints have been cleared for this class, update the

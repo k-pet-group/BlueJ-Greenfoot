@@ -1225,7 +1225,7 @@ public final class Package extends Graph
 
             project.removeClassLoader();
             project.newRemoteClassLoaderLeavingBreakpoints();
-            doCompile(toCompile, new PackageCompileObserver());
+            doCompile(toCompile, new PackageCompileObserver(null));
         }
         catch (IOException ioe) {
             // Abort compile
@@ -1241,13 +1241,13 @@ public final class Package extends Graph
      */
     public void compile(ClassTarget ct)
     {
-        compile(ct, false);
+        compile(ct, false, null);
     }
     
     /**
      * Compile a single class.
      */
-    public void compile(ClassTarget ct, boolean forceQuiet)
+    public void compile(ClassTarget ct, boolean forceQuiet, CompileObserver compObserver)
     {
         if (!checkCompile()) {
             return;
@@ -1281,15 +1281,15 @@ public final class Package extends Graph
             if (ct != null) {
                 CompileObserver observer;
                 if (forceQuiet) {
-                    observer = new QuietPackageCompileObserver();
+                    observer = new QuietPackageCompileObserver(compObserver);
                 } else {
-                    observer = new PackageCompileObserver();
+                    observer = new PackageCompileObserver(compObserver);
                 }
                 searchCompile(ct, observer);
             }
 
             if (assocTarget != null) {
-                searchCompile(assocTarget, new QuietPackageCompileObserver());
+                searchCompile(assocTarget, new QuietPackageCompileObserver(null));
             }
         }
     }
@@ -1304,7 +1304,7 @@ public final class Package extends Graph
         }
 
         ct.setInvalidState(); // to force compile
-        searchCompile(ct, new QuietPackageCompileObserver());
+        searchCompile(ct, new QuietPackageCompileObserver(null));
     }
 
     /**
@@ -1346,7 +1346,7 @@ public final class Package extends Graph
             // Clear-down the compiler Warning dialog box singleton
             bluej.compiler.CompilerWarningDialog.getDialog().reset();
 
-            doCompile(compileTargets, new PackageCompileObserver());
+            doCompile(compileTargets, new PackageCompileObserver(null));
         }
         catch (IOException ioe) {
             showMessageWithText("file-save-error-before-compile", ioe.getLocalizedMessage());
@@ -2487,6 +2487,17 @@ public final class Package extends Graph
     private class QuietPackageCompileObserver
         implements CompileObserver
     {
+        private CompileObserver chainObserver;
+        
+        /**
+         * Construct a new QuietPackageCompileObserver. The chained observer (if
+         * specified) is notified when the compilation ends.
+         */
+        public QuietPackageCompileObserver(CompileObserver chainObserver)
+        {
+            this.chainObserver = chainObserver;
+        }
+        
         private void markAsCompiling(File[] sources)
         {
             for (int i = 0; i < sources.length; i++) {
@@ -2635,7 +2646,11 @@ public final class Package extends Graph
             // Send a compilation done event to extensions.
             int eventId = successful ? CompileEvent.COMPILE_DONE_EVENT : CompileEvent.COMPILE_FAILED_EVENT;
             CompileEvent aCompileEvent = new CompileEvent(eventId, sources);
-            ExtensionsManager.getInstance().delegateEvent(aCompileEvent);        
+            ExtensionsManager.getInstance().delegateEvent(aCompileEvent);
+            
+            if (chainObserver != null) {
+                chainObserver.endCompile(sources, successful);
+            }
         }
     }
     
@@ -2803,6 +2818,15 @@ public final class Package extends Graph
     private class PackageCompileObserver extends QuietPackageCompileObserver
     {
         private boolean hadError;
+        
+        /**
+         * Construct a new PackageCompileObserver. The chained observer (if specified)
+         * is notified when the compilation ends.
+         */
+        public PackageCompileObserver(CompileObserver chainObserver)
+        {
+            super(chainObserver);
+        }
         
         @Override
         public void startCompile(File[] sources)

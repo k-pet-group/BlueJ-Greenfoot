@@ -44,6 +44,8 @@ import javax.swing.JPopupMenu;
 
 import bluej.Config;
 import bluej.collect.DataCollector;
+import bluej.compiler.CompileObserver;
+import bluej.compiler.Diagnostic;
 import bluej.debugger.DebuggerClass;
 import bluej.debugger.gentype.Reflective;
 import bluej.debugmgr.objectbench.InvokeListener;
@@ -1042,13 +1044,26 @@ public class ClassTarget extends DependentTarget
      * @param editor Description of the Parameter
      */
     @Override
-    public void compile(Editor editor)
+    public void compile(final Editor editor)
     {
         if (Config.isGreenfoot()) {
             getPackage().compile();
         }
         else {
-            getPackage().compile(this);
+            getPackage().compile(this, false, new CompileObserver() {
+                
+                @Override
+                public void startCompile(File[] sources) {}
+
+                @Override
+                public boolean compilerMessage(Diagnostic diagnostic) { return false; }
+                
+                @Override
+                public void endCompile(File[] sources, boolean succesful)
+                {
+                    editor.compileFinished(succesful);
+                }
+            });
         }
         
     }

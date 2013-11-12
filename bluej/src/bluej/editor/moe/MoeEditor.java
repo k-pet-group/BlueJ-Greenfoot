@@ -756,8 +756,16 @@ public final class MoeEditor extends JFrame
     {
         setCompileStatus(compiled);
         if (compiled) {
-            info.messageImportant(Config.getString("editor.info.compiled"));
             errorManager.removeErrorHighlight();
+        }
+    }
+    
+    @Override
+    public void compileFinished(boolean successful)
+    {
+        // Compilation requested via the editor interface has completed
+        if (successful && isVisible()) {
+            info.messageImportant(Config.getString("editor.info.compiled"));
         }
     }
 
