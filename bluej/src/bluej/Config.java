@@ -32,6 +32,7 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -41,6 +42,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
+import java.util.Scanner;
 
 import javax.swing.ImageIcon;
 import javax.swing.KeyStroke;
@@ -472,7 +474,24 @@ public final class Config
      */
     public static boolean isRasperryPi()
     {
-        return System.getProperty("os.arch", "").startsWith("arm");
+        boolean result = false;
+        if (Config.isLinux())
+        {
+            try{
+            Scanner scanner = new Scanner(new File("/proc/cpuinfo"));
+            while (scanner.hasNextLine()){
+                String lineFromFile = scanner.nextLine();
+                if (lineFromFile.contains("BCM2708")){
+                    result = true;
+                    break;
+                }
+            }
+            scanner.close();
+            }catch(FileNotFoundException fne){
+                
+            }
+        }
+        return result;
     }
 
     /**
