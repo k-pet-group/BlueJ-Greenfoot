@@ -466,6 +466,14 @@ public final class Config
     {
         return osname.startsWith("Mac");
     }
+    
+    /**
+     * Tell us whether we are running on Raspberry Pi
+     */
+    public static boolean isRasperryPi()
+    {
+        return System.getProperty("os.arch", "").startsWith("arm");
+    }
 
     /**
      * Tell us whether we are running on MacOS 10.5 (Leopard) or later

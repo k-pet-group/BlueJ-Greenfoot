@@ -161,8 +161,7 @@ public class PrefMgr
      */
     public static int initializeHighlighStrengh()
     {
-     String osArch = System.getProperty("os.arch", "");
-     if (osArch.equals("arm")) {
+     if (Config.isRasperryPi()) {
          return Config.getPropInteger(SCOPE_HIGHLIGHTING_STRENGTH, 0);
      }else{
          return Config.getPropInteger(SCOPE_HIGHLIGHTING_STRENGTH, 20);
@@ -176,8 +175,7 @@ public class PrefMgr
      */
     public static boolean initializeisNavivewExpanded()
     {
-     String osArch = System.getProperty("os.arch", "");
-     if (osArch.equals("arm")) {
+     if (Config.isRasperryPi()) {
          return Boolean.parseBoolean(Config.getPropString(NAVIVIEW_EXPANDED, "false"));
      }else{
          return Boolean.parseBoolean(Config.getPropString(NAVIVIEW_EXPANDED, "true"));
