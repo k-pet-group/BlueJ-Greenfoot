@@ -126,8 +126,8 @@ public class PrefMgr
         targetFont = Config.getFont("bluej.target.font", "SansSerif-bold", targetFontSize);
         
         // preferences other than fonts:
-        highlightStrength = Config.getPropInteger(SCOPE_HIGHLIGHTING_STRENGTH, 20);
-        isNaviviewExpanded=Boolean.parseBoolean(Config.getPropString(NAVIVIEW_EXPANDED, "true"));
+        highlightStrength = initializeHighlighStrengh();
+        isNaviviewExpanded=initializeisNavivewExpanded();
         
         projectDirectory = Config.getPropString("bluej.projectPath");
         recentProjects = readRecentProjects();
@@ -153,6 +153,36 @@ public class PrefMgr
     private PrefMgr()
     {
         
+    }
+    
+    /**
+     * Check if BlueJ is runnung on a ARM processor (Raspberry Pi). If so, sets highlighStrengh to 0.
+     * @return 0 if ARM processor. 20 otherwise
+     */
+    public static int initializeHighlighStrengh()
+    {
+     String osArch = System.getProperty("os.arch", "");
+     if (osArch.equals("arm")) {
+         return Config.getPropInteger(SCOPE_HIGHLIGHTING_STRENGTH, 0);
+     }else{
+         return Config.getPropInteger(SCOPE_HIGHLIGHTING_STRENGTH, 20);
+     }
+     
+    }
+    
+    /**
+     * Check if BlueJ is runnung on a ARM processor (Raspberry Pi). If so, sets hides the code preview.
+     * @return false if ARM processor. true otherwise.
+     */
+    public static boolean initializeisNavivewExpanded()
+    {
+     String osArch = System.getProperty("os.arch", "");
+     if (osArch.equals("arm")) {
+         return Boolean.parseBoolean(Config.getPropString(NAVIVIEW_EXPANDED, "false"));
+     }else{
+         return Boolean.parseBoolean(Config.getPropString(NAVIVIEW_EXPANDED, "true"));
+     }
+     
     }
     
     // ----- system interface to read or set prefences: -----
