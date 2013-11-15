@@ -346,6 +346,7 @@ public class Utility
 
             String cmd = mergeStrings(Config.getPropString("browserCmd1"), url.toString());
             String cmd2 = mergeStrings(Config.getPropString("browserCmd2"), url.toString());
+            String cmd3 = mergeStrings("xdg-open $", url.toString());
 
             Process p = null;
             try {
@@ -357,8 +358,14 @@ public class Utility
                     cmd2 = null;
                 }
                 catch (IOException e2) {
-                    Debug.reportError("could not start web browser.  exc: " + e);
-                    return false;
+                    try{
+                        p = Runtime.getRuntime().exec(cmd3);
+                        cmd3 = null;
+                    }
+                    catch (IOException e3) {
+                        Debug.reportError("could not start web browser.  exc: " + e);
+                        return false;
+                    }
                 }
             }
 
