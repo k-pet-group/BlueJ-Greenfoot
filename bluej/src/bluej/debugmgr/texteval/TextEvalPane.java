@@ -843,7 +843,6 @@ public class TextEvalPane extends JEditorPane
                        
                 history.add(line);
                 append("\n");
-                markCurrentAs(TextEvalSyntaxView.OUTPUT, Boolean.TRUE);
                 firstTry = true;
                 setEditable(false);    // don't allow input while we're thinking
                 busy = true;
