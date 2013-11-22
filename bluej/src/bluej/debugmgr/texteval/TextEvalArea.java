@@ -215,4 +215,9 @@ public final class TextEvalArea extends JScrollPane
         setOpaque(frameEmpty);
         
     }
+
+    public JComponent getFocusableComponent()
+    {
+        return text;
+    }
 }

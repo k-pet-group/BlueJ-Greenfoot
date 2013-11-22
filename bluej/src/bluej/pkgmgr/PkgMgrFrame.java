@@ -38,6 +38,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
@@ -56,6 +58,7 @@ import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -690,6 +693,7 @@ public class PkgMgrFrame extends JFrame
         this.pkg = null;
         this.editor = null;
         objbench = new ObjectBench(this);
+        addCtrlTabShortcut(objbench);
         if(!Config.isGreenfoot()) {
             teamActions = new TeamActionGroup(false);
             teamActions.setAllDisabled();
@@ -727,6 +731,7 @@ public class PkgMgrFrame extends JFrame
             editor.addFocusListener(this); //  the editor's listener itself!
             editor.startMouseListening();
             pkg.setEditor(this.editor);
+            addCtrlTabShortcut(editor);
             
             classScroller.setViewportView(editor);
             
@@ -2922,6 +2927,7 @@ public class PkgMgrFrame extends JFrame
             objectBenchSplitPane.setDividerSize(5);
             objectBenchSplitPane.setOpaque(false);
             itemsToDisable.add(textEvaluator);
+            addCtrlTabShortcut(textEvaluator.getFocusableComponent());
         }
         else {
             objectBenchSplitPane.setLeftComponent(objbench);
@@ -3310,6 +3316,66 @@ public class PkgMgrFrame extends JFrame
         return pkg.getProject().isJavaMEProject();
     }        
     
+    /**
+     * Adds shortcuts for Ctrl-TAB and Ctrl-Shift-TAB to the given pane, which move to the
+     * next/previous pane of the main three (package editor, object bench, code pad) that are visible
+     */
+    private void addCtrlTabShortcut(final JComponent toPane)
+    {
+        toPane.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(
+                KeyStroke.getKeyStroke(KeyEvent.VK_TAB, InputEvent.CTRL_DOWN_MASK), "nextPMFPane");
+        toPane.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(
+                KeyStroke.getKeyStroke(KeyEvent.VK_TAB, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK), "prevPMFPane");
+        toPane.getActionMap().put("nextPMFPane", new AbstractAction() {
+            
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                movePaneFocus(toPane, +1);
+            }
+        });
+        toPane.getActionMap().put("prevPMFPane", new AbstractAction() {
+            
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                movePaneFocus(toPane, -1);
+            }
+        });
+    }
+    
+    /**
+     * Moves focus from given pane to prev (-1)/next (+1) pane.
+     */
+    private void movePaneFocus(final JComponent fromPane, int direction)
+    {
+        List<JComponent> visiblePanes = new ArrayList<JComponent>();
+        if (editor != null)
+        {
+            // editor is null if no package is open
+            visiblePanes.add(editor);
+        }
+        // Object bench is always present, even if no package open:
+        visiblePanes.add(objbench);
+        if (showingTextEvaluator)
+        {
+            visiblePanes.add(textEvaluator.getFocusableComponent());
+        }
+        
+        for (int i = 0; i < visiblePanes.size(); i++)
+        {
+            if (visiblePanes.get(i) == fromPane)
+            {
+                int destination = i + direction;
+                // Wrap around:
+                if (destination >= visiblePanes.size()) destination = 0;
+                if (destination < 0) destination = visiblePanes.size() - 1;
+                
+                visiblePanes.get(destination).requestFocusInWindow();
+            }
+        }
+    }
+
     class URLDisplayer
         implements ActionListener
     {
