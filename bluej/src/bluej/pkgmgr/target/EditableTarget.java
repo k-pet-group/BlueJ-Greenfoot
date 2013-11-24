@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -96,14 +96,19 @@ public abstract class EditableTarget extends Target
         return (editor!=null);
     }
     
-    public void load(Properties props, String prefix) throws NumberFormatException
+    public void load(Properties props, String prefix)
     {
         super.load(props, prefix);
-        if(props.getProperty(prefix + ".editor.x") != null) {
-            editorBounds = new Rectangle(Integer.parseInt(props.getProperty(prefix + ".editor.x")),
-                    Integer.parseInt(props.getProperty(prefix + ".editor.y")), 
-                    Integer.parseInt(props.getProperty(prefix + ".editor.width")),
-                    Integer.parseInt(props.getProperty(prefix + ".editor.height")));
+        try {
+            if(props.getProperty(prefix + ".editor.x") != null) {
+                editorBounds = new Rectangle(Integer.parseInt(props.getProperty(prefix + ".editor.x")),
+                        Integer.parseInt(props.getProperty(prefix + ".editor.y")), 
+                        Integer.parseInt(props.getProperty(prefix + ".editor.width")),
+                        Integer.parseInt(props.getProperty(prefix + ".editor.height")));
+            }
+        }
+        catch (NumberFormatException nfe) {
+            // Corrupt properties file?
         }
     }
 

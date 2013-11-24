@@ -574,7 +574,6 @@ public class ClassTarget extends DependentTarget
      */
     @Override
     public void load(Properties props, String prefix)
-        throws NumberFormatException
     {
         super.load(props, prefix);
 
