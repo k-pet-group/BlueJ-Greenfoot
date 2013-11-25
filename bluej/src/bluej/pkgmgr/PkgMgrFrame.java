@@ -744,6 +744,13 @@ public class PkgMgrFrame extends JFrame
                 
                 classScroller.setPreferredSize(new Dimension(Integer.parseInt(width_str), Integer.parseInt(height_str)));
                 
+                String objectBench_height_str = p.getProperty("objectbench.height");
+                String objectBench_width_str = p.getProperty("objectbench.width");
+                if (objectBench_height_str != null && objectBench_width_str != null) {
+                    objbench.setPreferredSize(new Dimension(Integer.parseInt(objectBench_width_str),
+                            Integer.parseInt(objectBench_height_str)));
+                }
+                
                 String x_str = p.getProperty("package.editor.x", "30");
                 String y_str = p.getProperty("package.editor.y", "30");
                 
@@ -1543,15 +1550,19 @@ public class PkgMgrFrame extends JFrame
         }
         
         if(!Config.isGreenfoot()) {
-            Dimension d = classScroller.getSize(null);
+            Dimension d = classScroller.getSize();
     
             p.put("package.editor.width", Integer.toString(d.width));
             p.put("package.editor.height", Integer.toString(d.height));
-    
+            
             Point point = getLocation();
     
             p.put("package.editor.x", Integer.toString(point.x));
             p.put("package.editor.y", Integer.toString(point.y));
+            
+            d = objbench.getSize();
+            p.put("objectbench.width", Integer.toString(d.width));
+            p.put("objectbench.height", Integer.toString(d.height));
     
             p.put("package.showUses", Boolean.toString(isShowUses()));
             p.put("package.showExtends", Boolean.toString(isShowExtends()));
