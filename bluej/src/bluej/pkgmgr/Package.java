@@ -1210,9 +1210,7 @@ public final class Package extends Graph
 
         try {
             // build the list of targets that need to be compiled
-            for (Iterator<Target> it = targets.iterator(); it.hasNext();) {
-                Target target = it.next();
-
+            for (Target target : targets.toArray()) {
                 if (target instanceof ClassTarget) {
                     ClassTarget ct = (ClassTarget) target;
                     if (ct.isInvalidState() && ! ct.isQueued()) {
@@ -1359,14 +1357,17 @@ public final class Package extends Graph
      */
     public void saveFilesInEditors() throws IOException
     {
-        for (Iterator<Target> it = targets.iterator(); it.hasNext();) {
-            Target target = it.next();
+        // Because we call editor.save() on targets, which can result in
+        // a renamed class target, we need to iterate through a copy of
+        // the collection - hence the toArray() call here:
+        for (Target target : targets.toArray()) {
             if (target instanceof ClassTarget) {
                 ClassTarget ct = (ClassTarget) target;
                 Editor ed = ct.getEditor();
                 // Editor can be null eg. class file and no src file
-                if(ed != null)
+                if(ed != null) {
                     ed.save();
+                }
             }
         }
     }
@@ -1946,31 +1947,6 @@ public final class Package extends Graph
             }
         }
         return names;
-    }
-
-    /**
-     * Given a file name, find the target that represents that file.
-     * 
-     * @return The target with the given file name or <null>if not found.
-     */
-    public ClassTarget getTargetFromFilename(String filename)
-    {
-        getProject().convertPathToPackageName(filename);
-
-        for (Iterator<Target> it = targets.iterator(); it.hasNext();) {
-            Target t = it.next();
-            if (!(t instanceof ClassTarget)) {
-                continue;
-            }
-
-            ClassTarget ct = (ClassTarget) t;
-
-            if (filename.equals(ct.getSourceFile().getPath())) {
-                return ct;
-            }
-        }
-
-        return null;
     }
 
     public void setShowUses(boolean state)
@@ -2929,8 +2905,7 @@ public final class Package extends Graph
         // ToArray has been used here rather than Iterator, to avoid
         // ConcurrentModificationException which happened on closing
         // BlueJ main frame after renaming a class without compile.
-        Object[] targetsArray = targets.toArray();
-        for (Object target : targetsArray) {
+        for (Target target : targets.toArray()) {
             if (target instanceof EditableTarget) {
                 EditableTarget et = (EditableTarget) target;
                 if (et.editorOpen()) {
