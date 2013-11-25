@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009, 2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -33,6 +33,11 @@ public class TargetCollection
     /** all the targets in a package */
     protected HashMap<String,Target> targets = new HashMap<String,Target>();
 
+    /**
+     * Obtain an iterator that can be used to iterate through the targets in the
+     * collection. The iterator becomes invalid if the collection is modified
+     * (including if a target is renamed).
+     */
     public Iterator<Target> iterator()
     {
         return targets.values().iterator();
@@ -43,9 +48,12 @@ public class TargetCollection
         return new TreeSet<Target>(targets.values()).iterator();
     }
     
-    public Object[] toArray()
+    /**
+     * Get an array of the targets currently in the collection.
+     */
+    public Target[] toArray()
     {
-        return targets.values().toArray();
+        return targets.values().toArray(new Target[targets.size()]);
     }
 
     public Target get(String identifierName)
