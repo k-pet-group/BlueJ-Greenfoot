@@ -209,7 +209,12 @@ class VMReference
         System.arraycopy(libraryPaths, 0, classPath, filesPath.length, libraryPaths.length);
         String allClassPath = Utility.toClasspathString(classPath);
         
-        ArrayList<String> paramList = new ArrayList<String>(10);
+        ArrayList<String> paramList = new ArrayList<String>(11);
+        
+        //check if it is a raspberry pi. if so, in order to make Pi4J work out of the box, run JVM with sudo.
+        if (Config.isRasperryPi()) {
+            paramList.add("/usr/bin/sudo");
+        }
         paramList.add(Config.getJDKExecutablePath(null, "java"));
         
         //check if any vm args are specified in Config, at the moment these
