@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -290,5 +290,38 @@ public class EditorParserTest extends TestCase
         assertTrue(bClass.getReflective().isPublic());
         assertTrue(bClass.getReflective().isStatic());
         assertFalse(bClass.isInterface());
+    }
+    
+    public void testIfNesting()
+    {
+        String sourceCode = ""
+                + "class A\n"    // 0 - 8 
+                + "{\n"             //   8 - 10
+                + "  void method() {\n"  // 10 - 28
+                + "    if (true)\n"      // 28 - 42
+                + "      if (true)\n"       // 42 - 58
+                + "        hashCode();\n"   // 58 - 78
+                + "      else\n"            // 78 - 89 
+                + "        hashCode();\n"   // 89 - 109 
+                + "    else\n"              // 109 - 118 
+                + "      hashCode();\n"     // 118 - 136
+                + "  }\n"                   // 126 - 130 
+                + "}\n";                    // 130 - 132
+                
+        ParsedCUNode pcuNode = cuForSource(sourceCode, "");
+        resolver.addCompilationUnit("", pcuNode);
+            
+        NodeAndPosition<ParsedNode> nap = pcuNode.findNodeAt(0, 0);  // class
+        nap = nap.getNode().findNodeAt(9, nap.getPosition());        // class inner
+        nap = nap.getNode().findNodeAt(12, nap.getPosition());       // method
+        nap = nap.getNode().findNodeAt(27, nap.getPosition());       // method inner
+
+        nap = nap.getNode().findNodeAt(32, nap.getPosition());       // outer if
+        assertEquals(32, nap.getPosition());
+        assertEquals(135, nap.getEnd());
+        
+        nap = nap.getNode().findNodeAt(48, nap.getPosition());       // inner if
+        assertEquals(48, nap.getPosition());
+        assertEquals(108, nap.getEnd());
     }
 }
