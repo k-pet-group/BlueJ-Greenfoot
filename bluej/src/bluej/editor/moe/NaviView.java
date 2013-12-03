@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -97,15 +97,14 @@ public class NaviView extends JPanel implements AdjustmentListener
     
     /**
      * Set the document displayed in this NaviView.
+     * @param document  the document to be displayed - cannot be null.
      */
     public void setDocument(Document document)
     {
         scrollBar.removeAdjustmentListener(this);
         this.document = document;
         editorPane.setDocument(document);
-        if (document != null) {
-            scrollBar.addAdjustmentListener(this);
-        }
+        scrollBar.addAdjustmentListener(this);
         documentChangedLength();
     }
     

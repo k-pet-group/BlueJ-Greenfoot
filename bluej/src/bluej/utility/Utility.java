@@ -528,7 +528,7 @@ public class Utility
                 }
             }
             catch (IOException e) {
-                Debug.reportError("While trying to launch \"" + command + "\", got this IOException:", e);
+                Debug.reportError("While trying to launch \"" + command[0] + "\", got this IOException:", e);
             }
             catch (InterruptedException ie) {}
         }

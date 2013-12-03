@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -31,7 +31,7 @@ import bluej.Config;
  * Class to maintain a single file/directory location in a classpath
  *
  * @author  Andrew Patterson
- * @version $Id: ClassPathEntry.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: ClassPathEntry.java 10992 2013-12-03 15:44:20Z davmac $
  */
 public class ClassPathEntry implements Cloneable
 {
@@ -254,6 +254,9 @@ public class ClassPathEntry implements Cloneable
 
     public boolean equals(Object o)
     {
+        if (o == null) {
+            return false;
+        }
         return this.file.equals(((ClassPathEntry)o).file);
     }
 

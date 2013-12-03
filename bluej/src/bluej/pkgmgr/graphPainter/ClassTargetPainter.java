@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2012,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -65,7 +65,6 @@ public class ClassTargetPainter
     private static final int TEXT_HEIGHT = GraphPainterStdImpl.TEXT_HEIGHT;
     private static final int TEXT_BORDER = GraphPainterStdImpl.TEXT_BORDER;
     private static final AlphaComposite alphaComposite = GraphPainterStdImpl.alphaComposite;
-    private static Composite oldComposite;
 
     /**
      * Construct the ClassTargetPainter
@@ -92,7 +91,7 @@ public class ClassTargetPainter
     public void paintGhost(Graphics2D g, Target target, boolean hasFocus)
     {
         ClassTarget classTarget = (ClassTarget) target;
-        oldComposite = g.getComposite();
+        Composite oldComposite = g.getComposite();
         g.translate(classTarget.getGhostX(), classTarget.getGhostY());
         int width = classTarget.getGhostWidth();
         int height = classTarget.getGhostHeight();

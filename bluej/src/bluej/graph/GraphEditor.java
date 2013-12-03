@@ -47,7 +47,7 @@ import bluej.utility.Debug;
  * 
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: GraphEditor.java 10654 2013-05-10 09:39:02Z neil $
+ * @version $Id: GraphEditor.java 10992 2013-12-03 15:44:20Z davmac $
  */
 public class GraphEditor extends JPanel
     implements MouseMotionListener, GraphListener
@@ -282,6 +282,9 @@ public class GraphEditor extends JPanel
     public void graphChanged()
     {
         HashMap<Component, Boolean> keep = new HashMap<Component, Boolean>();
+
+        // We assume all components currently in the graph belong to vertices.
+        // We first mark all of them as no longer needed:
         for (Component c : getComponents())
         {
             keep.put(c, false);
@@ -292,7 +295,7 @@ public class GraphEditor extends JPanel
         while (it.hasNext())
         {
             Vertex v = it.next();
-            if (!keep.containsKey(v))
+            if (!keep.containsKey(v.getComponent()))
             {
                 add(v.getComponent());
                 v.getComponent().addFocusListener(focusListener);

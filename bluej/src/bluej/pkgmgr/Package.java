@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2012, 2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2011,2012,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -324,10 +324,12 @@ public final class Package extends Graph
         String retName = "";
 
         while (!currentPkg.isUnnamedPackage()) {
-            if (retName == "")
+            if (retName.equals("")) {
                 retName = currentPkg.getBaseName();
-            else
+            }
+            else {
                 retName = currentPkg.getBaseName() + "." + retName;
+            }
 
             currentPkg = currentPkg.getParent();
         }
@@ -2183,7 +2185,7 @@ public final class Package extends Graph
         ClassTarget t = null;
 
         // check if the error is from a file belonging to another package
-        if (packageName != getQualifiedName()) {
+        if (! packageName.equals(getQualifiedName())) {
 
             Package pkg = getProject().getPackage(packageName);
             
@@ -2245,7 +2247,7 @@ public final class Package extends Graph
         ClassTarget t = null;
 
         // check if the error is from a file belonging to another package
-        if (packageName != getQualifiedName()) {
+        if (! packageName.equals(getQualifiedName())) {
 
             Package pkg = getProject().getPackage(packageName);
             
@@ -2382,17 +2384,21 @@ public final class Package extends Graph
     }
 
     /**
-     * Use the resource name in order to return the classpath of the jar file.
-     * If it is not a jar file it returns the original resource
-     * @param fullName resource (full path of the resource)
-     * @return A string indicating the classpath of the jar file (if applicable
-     * and if not, it returns the original String)
+     * Use the resource name in order to return the path of the jar file
+     * containing the given resource.
+     * <p>
+     * If it is not in a jar file it returns the original resource path
+     * (URL).
+     * 
+     * @param c  The class to get the path to
+     * @return A string indicating the path of the jar file (if applicable
+     * and if not, it returns the path/URL to the resource)
      */
     protected static String getResourcePath(Class<?> c)
     { 
         URL srcUrl = c.getResource(c.getSimpleName()+".class");
         try {
-            if (srcUrl!=null){
+            if (srcUrl != null) {
                 if (srcUrl.getProtocol().equals("file")) {
                     File srcFile = new File(srcUrl.toURI());
                     return srcFile.toString();
@@ -2410,6 +2416,9 @@ public final class Package extends Graph
                         return srcUrl.toString().substring(4, classIndex);
                     }
                 }
+            }
+            else {
+                return null;
             }
         }
         catch (URISyntaxException uriSE) {

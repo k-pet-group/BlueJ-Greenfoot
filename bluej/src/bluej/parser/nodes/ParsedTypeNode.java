@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -274,6 +274,8 @@ public class ParsedTypeNode extends IncrementalParsingNode
                 int oldStateMarker = stateMarkers[1];
                 last = params.parser.parseTypeBody(type, last);
                 if (last.getType() == JavaTokenTypes.RCURLY) {
+                    // "inner" is now non-null due to the call to parseTypeBody above,
+                    // so this line is not erroneous:
                     inner.setComplete(true);
                 }
                 params.tokenStream.pushBack(last);

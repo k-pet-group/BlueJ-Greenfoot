@@ -3240,7 +3240,7 @@ public final class MoeEditor extends JFrame
     /**
      * Create a button on the toolbar.
      * 
-     * @param key  The internal key identifyting the action and label
+     * @param key  The internal key identifying the action and label
      * @param position  The position in the button group. One of "first", 
      *                  "middle", "last", "only". Only used on MacOS.
      */
@@ -3254,10 +3254,15 @@ public final class MoeEditor extends JFrame
             actionName = key;
         }
         Action action = actions.getActionByName(actionName);
-        Action tbAction = new ToolbarAction(action, label);
+        
+        if (action != null) {
+            Action tbAction = new ToolbarAction(action, label);
+            button = new JButton(tbAction);
+        }
+        else {
+            button = new JButton("Unknown");
+        }
 
-
-        button = new JButton(tbAction);
         button.setName(actionName);
 
         if (action == null) {

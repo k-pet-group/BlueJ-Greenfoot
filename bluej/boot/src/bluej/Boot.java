@@ -251,7 +251,9 @@ public class Boot
      */
     public void disposeSplashWindow()
     {
-        splashWindow.dispose();
+        if (splashWindow != null) {
+            splashWindow.dispose();
+        }
     }
 
     /**

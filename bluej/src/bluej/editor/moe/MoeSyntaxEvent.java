@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -111,7 +111,7 @@ public class MoeSyntaxEvent implements DocumentEvent, NodeStructureListener
     public void nodeRemoved(NodeAndPosition<ParsedNode> node)
     {
         removedNodes.add(node);
-        changedNodes.remove(node);
+        changedNodes.remove(node.getNode());
     }
     
     public void nodeChangedLength(NodeAndPosition<ParsedNode> nap, int oldPos,

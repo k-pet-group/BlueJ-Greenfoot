@@ -2430,7 +2430,9 @@ public final class MoeActions
             try {
                 doc.insertString(lineStart, "// ", null);
             }
-            catch (Exception exc) {}
+            catch (BadLocationException exc) {
+                throw new RuntimeException(exc);
+            }
         }
     }
 
@@ -2475,7 +2477,9 @@ public final class MoeActions
             try {
                 doc.insertString(lineStart, spaces.substring(0, tabSize), null);
             }
-            catch (Exception exc) {}
+            catch (BadLocationException exc) {
+                throw new RuntimeException(exc);
+            }
         }
     }
 

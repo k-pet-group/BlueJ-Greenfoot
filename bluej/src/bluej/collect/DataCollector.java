@@ -861,7 +861,7 @@ public class DataCollector
             mpe.addPart("event[inspect][unique]", CollectUtility.toBody(inspector.getUniqueId()));
             if (inspector instanceof ClassInspector || inspector instanceof ObjectInspector)
             {
-                submitEvent(project, inspectorPackages.get(project), EventName.INSPECTOR_HIDE, new PlainEvent(mpe));
+                submitEvent(project, inspectorPackages.get(inspector), EventName.INSPECTOR_HIDE, new PlainEvent(mpe));
             }
         }
     }
