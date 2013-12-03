@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2013  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -37,7 +37,6 @@ import java.util.TreeSet;
  * A forest of trees. The roots are sorted alphabetically on their keys
  * 
  * @author Poul Henriksen
- * @version $Id: ClassForest.java 8232 2010-09-02 10:06:20Z nccb $
  */
 public class ClassForest
 {
@@ -80,7 +79,6 @@ public class ClassForest
         {
             return children;
         }
-
        
         public String toString()
         {
@@ -132,8 +130,7 @@ public class ClassForest
     private SortedSet<TreeEntry> roots = new TreeSet<TreeEntry>();
     private Map<String, TreeEntry> treeEntryMap = new LinkedHashMap<String, TreeEntry>();
     
-    public ClassForest()
-    { }
+    public ClassForest() { }
 
     /**
      * Get the root classes of this ClassForest (i.e. classes which have no
@@ -164,18 +161,19 @@ public class ClassForest
         treeEntryMap.put(name, entry);
     }
 
-	public void add(TreeEntry entry) {
-		treeEntryMap.put(entry.getKey(), entry);
-		List<TreeEntry> children = entry.getChildren();
-		for (TreeEntry treeEntry : children) {
-		    add(treeEntry);
-		}
-	}
+    public void add(TreeEntry entry)
+    {
+        treeEntryMap.put(entry.getKey(), entry);
+        List<TreeEntry> children = entry.getChildren();
+        for (TreeEntry treeEntry : children) {
+            add(treeEntry);
+        }
+    }
 
-	/**
-	 * Remove a class from this forest, including all its children if it has
-	 * any. Returns the removed TreeEntry.
-	 */
+    /**
+     * Remove a class from this forest, including all its children if it has
+     * any. Returns the removed TreeEntry.
+     */
     public synchronized TreeEntry remove(ClassView cls)
     {        
         String name =  cls.getClassName();
@@ -183,16 +181,16 @@ public class ClassForest
         if (removedEntry != null) {
             // Make sure to update the key in the entry if it has changed.
             String oldName = removedEntry.getKey();
-            if(oldName != name) {
+            if(!name.equals(oldName)) {
                 removedEntry.rename(name);                
             }
-			List<TreeEntry> children = removedEntry.getChildren();
-			for (TreeEntry child : children) {
-				remove(child.getData());	
-			}
-		}
+            List<TreeEntry> children = removedEntry.getChildren();
+            for (TreeEntry child : children) {
+                remove(child.getData());    
+            }
+        }
 
-		return removedEntry;
+        return removedEntry;
     }
     
     /**
@@ -248,7 +246,7 @@ public class ClassForest
             } else {
                 //We couldn't find the superclass, so we just add it as a root
                 roots.add(child);
-            }             	
+            }
         }
     }
 }
