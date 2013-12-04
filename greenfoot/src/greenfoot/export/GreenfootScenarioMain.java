@@ -140,7 +140,9 @@ public class GreenfootScenarioMain
 
             // set bluej Config to use the standalone prop values
             Config.initializeStandalone(new StandalonePropStringManager(p));
-            is.close();
+            if (is != null) {
+                is.close();
+            }
         }
         catch (FileNotFoundException e) {
             e.printStackTrace();

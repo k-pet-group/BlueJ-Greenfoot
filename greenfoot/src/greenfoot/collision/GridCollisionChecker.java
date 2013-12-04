@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2013  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -159,13 +159,11 @@ public class GridCollisionChecker
             y = wrap(y, getHeight());
             world[x][y] = cell;
         }
-
-        
     }
 
     public static class Statistics {
         
-        private static final String format = "%15s%15s%15s%15s%15s";
+        private static final String format = "%15s%15s%15s%15s%15s%15s";
         private long objectsAt;
         private long intersectionObjects;
         private long objectsInRange;

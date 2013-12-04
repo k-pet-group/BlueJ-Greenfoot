@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2013  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -79,8 +79,6 @@ import javax.swing.SwingUtilities;
  * dragFinished() is sent to the drag listener
  * 
  * @author Poul Henriksen
- * @version $Id: DragGlassPane.java 8232 2010-09-02 10:06:20Z nccb $
- * 
  */
 public class DragGlassPane extends JComponent
     implements TriggeredMouseMotionListener, TriggeredMouseListener, DragListener
@@ -481,16 +479,21 @@ public class DragGlassPane extends JComponent
      */
     private boolean canBeInstantiatedWithoutParams(ClassView cls)
     {
-        if(cls == null) 
+        if(cls == null) {
             return false;
-        if(! (cls.getRole() instanceof ActorClassRole))
+        }
+        if(! (cls.getRole() instanceof ActorClassRole) ) {
             return false;
+        }
         GClass gCls = cls.getGClass();
-        if(! gCls.isCompiled()) {
+        if(! gCls.isCompiled() ) {
             return false;
         }
         Class<?> realClass = gCls.getJavaClass();
-        if(realClass != null && java.lang.reflect.Modifier.isAbstract(realClass.getModifiers())) {
+        if(realClass == null) {
+            return false;
+        }
+        if(java.lang.reflect.Modifier.isAbstract(realClass.getModifiers())) {
             return false;
         }
         try {

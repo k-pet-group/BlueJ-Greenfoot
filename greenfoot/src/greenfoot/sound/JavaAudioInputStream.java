@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2013  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -32,8 +32,8 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import bluej.utility.Debug;
 
 /**
- * Wrapper classer for a AudioInputStream. It just delegates all method to the
- * wrapped class except for restart().
+ * Wrapper classer for a AudioInputStream. It just delegates all methods
+ * to the wrapped class except for restart().
  * 
  * @author Poul Henriksen
  */
@@ -60,17 +60,13 @@ public class JavaAudioInputStream implements GreenfootAudioInputStream
                 try {
                     stream.close();
                 } catch (IOException e) {
-                    // An exception here is probably not fatal, so we just log
-                    // it and continue.
-                    Debug.reportError(
-                            "Exception while closing java audio input stream.",
-                            e);
+                    // This exception is probably not fatal, so just log it and continue.
+                    Debug.reportError("Exception while closing java audio input stream.", e);
                 }
             }
             stream = AudioSystem.getAudioInputStream(url);
             open = true;
         }
-
     }
 
     public void restart() throws UnsupportedAudioFileException, IOException
@@ -78,7 +74,7 @@ public class JavaAudioInputStream implements GreenfootAudioInputStream
         if(!open || readingHasStarted() || stream == null) {
             open = false;
             open();
-        }		
+        }
     }
 
     /**
@@ -110,7 +106,13 @@ public class JavaAudioInputStream implements GreenfootAudioInputStream
 
     public boolean equals(Object obj)
     {
-        return stream.equals(obj);
+        if (obj == null) {
+            return false;
+        }
+        if (! (obj instanceof JavaAudioInputStream) ) {
+            return false;
+        }
+        return stream.equals(((JavaAudioInputStream)obj).stream);
     }
 
     public AudioFormat getFormat()
@@ -171,5 +173,4 @@ public class JavaAudioInputStream implements GreenfootAudioInputStream
     {
         return stream.toString();
     }
-
 }

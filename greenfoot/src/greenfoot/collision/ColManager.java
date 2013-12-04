@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2013  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -42,8 +42,7 @@ import java.util.Map.Entry;
  * 
  * @author Poul Henriksen
  */
-public class ColManager
-    implements CollisionChecker
+public class ColManager implements CollisionChecker
 {
 
     /** Map from classes to objects that are not part of the collision checking (yet). */
@@ -93,10 +92,10 @@ public class ColManager
         }
 
         if (includeSubclasses) {
+            // Clone it to avoid concurrent modification:
+            Set<Entry<Class<? extends Actor>, LinkedList<Actor>>> entries = 
+                    new HashSet<Entry<Class<? extends Actor>, LinkedList<Actor>>>(freeObjects.entrySet());
             // Run through all classes to see if any of them is a subclass.
-            Set<Entry<Class<? extends Actor>, LinkedList<Actor>>> entries = freeObjects.entrySet();
-            // Clone it, so we avoid concurrent modification:
-            entries = new HashSet<Entry<Class<? extends Actor>, LinkedList<Actor>>>(entries);
             for (Entry<Class<? extends Actor>, LinkedList<Actor>> entry : entries) {
                 if(cls.isAssignableFrom(entry.getKey())) {
                     makeCollisionObjects(entry.getKey(), false);
@@ -233,5 +232,4 @@ public class ColManager
             collisionChecker.updateObjectSize(object);
         }
     }
-
 }

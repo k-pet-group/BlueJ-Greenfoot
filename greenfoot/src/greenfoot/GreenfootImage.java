@@ -51,7 +51,6 @@ import java.net.URL;
  * and/or drawn by using various drawing methods.
  * 
  * @author Poul Henriksen
- * @version 2.4
  */
 public class GreenfootImage
 {
@@ -211,12 +210,11 @@ public class GreenfootImage
         try {
             image = GraphicsUtilities.loadCompatibleTranslucentImage(imageData);
         } catch (IOException ex) {
-            throw new IllegalArgumentException("Could not load image from: " + imageFileName);
+            throw new IllegalArgumentException("Could not load image" + (imageFileName != null ? (" from: " + imageFileName) : ""));
         }
     }  
 
-    private GreenfootImage() {        
-    } 
+    private GreenfootImage() { }
     
     /**
      * Create a copy-on-write image based on this image. If the new image is
@@ -894,6 +892,4 @@ public class GreenfootImage
             e.printStackTrace();
         }
     }
-
-   
 }

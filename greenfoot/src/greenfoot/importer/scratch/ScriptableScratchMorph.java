@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2010  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2010,2013  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -216,8 +216,8 @@ public abstract class ScriptableScratchMorph extends Morph
             String soundName = ScratchImport.mungeUnique("snd" + (String)blockContents[1].getValue());
             decl.append("GreenfootSound ").append(soundName).append(";\n");
             method.append("if (" + soundName + " == null || !" + soundName + ".isPlaying()) {\n")
-            	  .append(soundName).append(" = new GreenfootSound(\"")
-            	  .append(getObjNameJava()).append("_")
+                  .append(soundName).append(" = new GreenfootSound(\"")
+                  .append(getObjNameJava()).append("_")
                   .append(blockContents[1].getValue())
                   .append(".wav\");\n")
                   .append(soundName).append(".play();\n}\n");
@@ -232,7 +232,7 @@ public abstract class ScriptableScratchMorph extends Morph
         else if ("setGraphicEffect:to:".equals(blockContents[0].getValue())) {
             if ("ghost".equals(blockContents[1].getValue())) {
                 method.append("getImage().setTransparency(")
-                      .append(new BigDecimal(255).subtract(((BigDecimal)blockContents[2].getValue()).multiply(new BigDecimal(255.0 / 100.0))).intValue())
+                      .append(new BigDecimal(255).subtract(((BigDecimal)blockContents[2].getValue()).multiply(BigDecimal.valueOf(255.0 / 100.0))).intValue())
                       .append(");\n");
             }
         }
