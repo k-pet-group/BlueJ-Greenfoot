@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2011,2013  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,20 +21,12 @@
  */
 package greenfoot.actions;
 
-import greenfoot.core.GClass;
-import greenfoot.core.GProject;
 import greenfoot.gui.GreenfootFrame;
 import greenfoot.gui.ImportClassWindow;
-import greenfoot.gui.classbrowser.ClassBrowser;
-import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.record.InteractionListener;
-import greenfoot.util.GreenfootUtil;
 
 import java.awt.event.ActionEvent;
-import java.io.File;
-
 import javax.swing.AbstractAction;
-import javax.swing.JOptionPane;
 
 import bluej.Config;
 
@@ -69,5 +61,4 @@ public class ImportClassAction extends AbstractAction
         
         dlg.setVisible(true);
     }
-
 }

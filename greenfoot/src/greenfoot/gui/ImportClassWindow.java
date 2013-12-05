@@ -263,6 +263,8 @@ public class ImportClassWindow extends JFrame
             htmlPane.setCaretPosition(0);
             
             //((HTMLDocument)htmlPane.getDocument()).setBase(new URL(fullURL));
+            
+            br.close();
         }
         catch (IOException e) {
             Debug.reportError("Problem showing HTML for importable class " + stem, e);

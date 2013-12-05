@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2013  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -30,8 +30,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.List;
 
-public class CollisionProfiler
-    implements CollisionChecker
+public class CollisionProfiler implements CollisionChecker
 {
     // Set this to true for output to console
     private static boolean to_console = true;
@@ -57,7 +56,6 @@ public class CollisionProfiler
     private long getObjectsTime;
     private long getOneObjectAtTime;
     private long getOneIntersectingObjectTime;
-    private long getObjectsListTime;
 
     private int sequenceCount;
     private int sequences;
@@ -189,14 +187,9 @@ public class CollisionProfiler
     
     public List<Actor> getObjectsList()
     {
-        long t1 = System.nanoTime();
-        List<Actor> l = checker.getObjectsList();
-        long t2 = System.nanoTime();
-        getObjectsListTime += t2 - t1;
-        return l;
+        return checker.getObjectsList();
     }
     
-
     public void startSequence()
     {
         checker.startSequence();
@@ -218,7 +211,6 @@ public class CollisionProfiler
             getObjectsTime = 0;
             getOneObjectAtTime = 0;
             getOneIntersectingObjectTime = 0;
-            getObjectsListTime = 0;
             
             objectCount = 0;
             
@@ -250,8 +242,6 @@ public class CollisionProfiler
         totalTime += getOneObjectAtTime;
         totalTime += getOneIntersectingObjectTime;
         // totalTime += getObjectsListTime;
-        
-    
         
         if (verbose) {
             fileStream.println("addObjectTime                : " + addObjectTime);
@@ -295,5 +285,4 @@ public class CollisionProfiler
     {
      //    checker.paintDebug(g);
     }
-
 }

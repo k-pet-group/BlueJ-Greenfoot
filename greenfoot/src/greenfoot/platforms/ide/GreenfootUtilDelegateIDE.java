@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2013  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,7 +29,6 @@ import greenfoot.platforms.GreenfootUtilDelegate;
 import java.awt.Component;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -54,7 +53,6 @@ import bluej.utility.DialogManager;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 
 /**
@@ -331,6 +329,7 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
                 rank++;
             }
             
+            csv.close();
             return ret;
         }
         catch (FileNotFoundException e)
@@ -425,6 +424,4 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
             return all.subList(index - desiredBefore, index + desiredAfter + 1);
         }
     }
-    
-    
 }

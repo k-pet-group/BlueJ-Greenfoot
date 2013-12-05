@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2013  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -41,7 +41,7 @@ import bluej.utility.Debug;
 /**
  * This is the starting point of Greenfoot as a BlueJ Extension.
  * 
- * @author Poul Henriksen <polle@mip.sdu.dk>
+ * @author Poul Henriksen
  */
 public class RMIExtension extends Extension implements ApplicationListener
 {
@@ -50,7 +50,6 @@ public class RMIExtension extends Extension implements ApplicationListener
     /**
      * When this method is called, the extension may start its work.
      */
-    @SuppressWarnings("ResultOfObjectAllocationIgnored")
     public void startup(BlueJ bluej)
     {
         theBlueJ = bluej;
@@ -111,7 +110,6 @@ public class RMIExtension extends Extension implements ApplicationListener
             Debug.reportError("Could not open scenario: " + projectPath);
         }
         ProjectManager.instance().removeNewProject(projectPath);
-
     }
 
     /**
@@ -166,5 +164,4 @@ public class RMIExtension extends Extension implements ApplicationListener
     {
         GreenfootLauncherBlueJVM.getInstance().launch(this);
     }
-
 }
