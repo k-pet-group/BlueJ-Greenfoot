@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2012,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,7 +22,6 @@
 package bluej.terminal;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Event;
 import java.awt.EventQueue;
 import java.awt.Font;
@@ -57,7 +56,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
-import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 
 import bluej.BlueJEvent;
@@ -444,14 +442,10 @@ public final class Terminal extends JFrame
     // ---- KeyListener interface ----
 
     @Override
-    public void keyPressed(KeyEvent event)
-    {
-    }
+    public void keyPressed(KeyEvent event) { }
     
     @Override
-    public void keyReleased(KeyEvent event)
-    {
-    }
+    public void keyReleased(KeyEvent event) { }
 
     @Override
     public void keyTyped(KeyEvent event)
@@ -704,7 +698,8 @@ public final class Terminal extends JFrame
             
         if(isFirstShow) {
             pack();
-        } else {
+        }
+        else {
             validate();
         }
         
@@ -853,7 +848,8 @@ public final class Terminal extends JFrame
             super(Config.getString("terminal.recordCalls"));
         }
 
-        public void actionPerformed(ActionEvent e) {
+        public void actionPerformed(ActionEvent e)
+        {
             recordMethodCalls = recordCalls.isSelected();
             Config.putPropBoolean(RECORDMETHODCALLSPROPNAME, recordMethodCalls);
         }
@@ -866,7 +862,8 @@ public final class Terminal extends JFrame
             super(Config.getString("terminal.buffering"));
         }
 
-        public void actionPerformed(ActionEvent e) {
+        public void actionPerformed(ActionEvent e)
+        {
             unlimitedBufferingCall = unlimitedBuffering.isSelected();
             text.setUnlimitedBuffering(unlimitedBufferingCall);
             Config.putPropBoolean(UNLIMITEDBUFFERINGCALLPROPNAME, unlimitedBufferingCall);
@@ -898,9 +895,7 @@ public final class Terminal extends JFrame
             return ! buffer.isEmpty();
         }
         
-        public void close()
-        {
-        }
+        public void close() { }
     }
 
     /**
@@ -939,13 +934,8 @@ public final class Terminal extends JFrame
             catch (InterruptedException ie) {}
         }
 
-        public void flush()
-        {
-        }
+        public void flush() { }
 
-        public void close()
-        {
-        }
+        public void close() { }
     }
-
 }

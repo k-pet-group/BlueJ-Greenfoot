@@ -22,8 +22,6 @@
 package bluej.prefmgr;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
@@ -305,9 +303,7 @@ public class MiscPrefPanel extends JPanel
         }
     }
 
-    public void revertEditing()
-    {
-    }
+    public void revertEditing() { }
 
     public void commitEditing()
     {
@@ -329,6 +325,5 @@ public class MiscPrefPanel extends JPanel
         if (Config.isGreenfoot()) {
             Config.putPropString("extensions.rmiextension.RMIExtension.settings.greenfoot.player.name", playerNameField.getText());
         }
-        
     }
 }

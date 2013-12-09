@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.tigris.subversion.javahl.ClientException;
+import org.tigris.subversion.javahl.Depth;
 import org.tigris.subversion.javahl.Revision;
 import org.tigris.subversion.javahl.SVNClientInterface;
 
@@ -93,7 +94,7 @@ public class SvnCommitCommand extends SvnCommitAllCommand
                 file.delete();
             }
 
-            client.update(paths, Revision.getInstance(revision), true, false);
+            client.update(paths, Revision.getInstance(revision), Depth.infinity, false, false, false); 
             
             TeamworkCommandResult result = super.doCommand();
             return result; // finally clause below restores backups

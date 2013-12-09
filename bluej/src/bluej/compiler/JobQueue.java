@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2012,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,7 +28,6 @@ import java.util.List;
 
 import bluej.Config;
 import bluej.classmgr.BPClassLoader;
-import bluej.pkgmgr.Project;
 import bluej.utility.Utility;
 
 /**

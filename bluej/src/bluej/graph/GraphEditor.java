@@ -40,14 +40,12 @@ import javax.swing.JPanel;
 
 import bluej.Config;
 import bluej.pkgmgr.graphPainter.GraphPainterStdImpl;
-import bluej.utility.Debug;
 
 /**
  * Component to allow editing of general graphs.
  * 
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: GraphEditor.java 10992 2013-12-03 15:44:20Z davmac $
  */
 public class GraphEditor extends JPanel
     implements MouseMotionListener, GraphListener
@@ -153,9 +151,7 @@ public class GraphEditor extends JPanel
     /**
      * The mouse was dragged.
      */
-    public void mouseDragged(MouseEvent evt)
-    {
-    }
+    public void mouseDragged(MouseEvent evt) { }
 
     /**
      * The mouse was moved - check whether we should adjust the cursor.

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2012,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -670,6 +670,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
         EscapedUnicodeReader eur = new EscapedUnicodeReader(r);
         try {
             if (eur.read() == '/' && eur.read() == '/') {
+                eur.close();
                 // It's a single-line comment
                 String str = document.getText(end, 1);
                 if (str.charAt(0) != '\n') {

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,7 +24,10 @@ package bluej.groupwork.svn;
 import java.util.List;
 
 import org.tigris.subversion.javahl.ClientException;
+import org.tigris.subversion.javahl.Depth;
 import org.tigris.subversion.javahl.DirEntry;
+import org.tigris.subversion.javahl.ListCallback;
+import org.tigris.subversion.javahl.Lock;
 import org.tigris.subversion.javahl.NodeKind;
 import org.tigris.subversion.javahl.Revision;
 import org.tigris.subversion.javahl.SVNClientInterface;
@@ -53,16 +56,21 @@ public class SvnModulesCommand extends SvnCommand
         SVNClientInterface client = getClient();
         
         try {
-            DirEntry [] entries = client.list(getRepository().getReposUrl(), Revision.HEAD, false);
             if (! isCancelled()) {
-                for (int i = 0; i < entries.length; i++) {
-                    if (entries[i].getNodeKind() == NodeKind.dir) {
-                        modulesList.add(entries[i].getPath());
-                    }
-                }
-                
+                client.list(getRepository().getReposUrl(), Revision.HEAD, Revision.BASE, Depth.immediates, DirEntry.Fields.all, false,
+                        new ListCallback() {
+                      
+                            @Override
+                            public void doEntry(DirEntry entry, Lock arg1)
+                            {
+                                if (entry.getNodeKind() == NodeKind.dir) {
+                                    modulesList.add(entry.getPath());
+                                }
+                            }
+                });
+
                 return new TeamworkCommandResult();
-            }
+              }
         }
         catch (ClientException ce) {
             if (! isCancelled()) {

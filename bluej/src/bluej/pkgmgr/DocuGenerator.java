@@ -502,6 +502,7 @@ public class DocuGenerator
         {
             BufferedReader logReader = new BufferedReader(new FileReader(logFile));
             String header = logReader.readLine();
+            logReader.close();
             return header.equals(projectLogHeader);
         }
         catch(Exception e)
