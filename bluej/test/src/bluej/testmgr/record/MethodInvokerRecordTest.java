@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -42,7 +42,7 @@ public class MethodInvokerRecordTest extends junit.framework.TestCase
     @Override
     protected void setUp()
     {
-        JavaType mathType = JavaUtils.getJavaUtils().genTypeFromClass(java.lang.Math.class);
+        JavaType mathType = JavaUtils.genTypeFromClass(java.lang.Math.class);
         lotsOfAssertions = new MethodInvokerRecord(mathType,
                 "Math.pow(4,3)", new String [] {"3", "4"});
         lotsOfAssertions.addAssertion(

@@ -25,7 +25,8 @@ public class TestDiff extends TestCase
         while( ( line = reader.readLine() ) != null ) {
             lines.add(line);
         }
-
+        
+        reader.close();
         return lines.toArray(new String[0]);
     }
     
