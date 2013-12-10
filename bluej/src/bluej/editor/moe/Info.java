@@ -43,8 +43,7 @@ import javax.swing.border.EmptyBorder;
  *
  * @author Michael Kolling
  */
-public final class Info extends JPanel
-    implements ActionListener
+public final class Info extends JPanel implements ActionListener
 {
     static final ImageIcon helpImage = Config.getFixedImageAsIcon("help.png");
 
@@ -74,13 +73,14 @@ public final class Info extends JPanel
         body.setBackground(MoeEditor.infoColor);
         body.setBorder(new EmptyBorder(0,6,0,4));
         line1 = new JLabel() {
+            @Override
             public void setBounds(int x, int y, int width, int height)
             {
                 super.setBounds(x,y,width,height);
                 if (originalMsg != null) {
                     rebreakLine();
                 }
-            };
+            }
         };
         line2 = new JLabel();
         body.add(line1);
@@ -237,13 +237,13 @@ public final class Info extends JPanel
     public void warning(String msg)
     {
         message (msg);
-        MoeEditorManager.editorManager.beep();
+        MoeEditorManager.beep();
     }
     
     public void warningImportant(String msg)
     {
         messageImportant(msg);
-        MoeEditorManager.editorManager.beep();
+        MoeEditorManager.beep();
     }
 
     /**
@@ -252,7 +252,7 @@ public final class Info extends JPanel
     public void warning(String msg1, String msg2)
     {
         message (msg1, msg2);
-        MoeEditorManager.editorManager.beep();
+        MoeEditorManager.beep();
     }
 
     /**
@@ -295,6 +295,7 @@ public final class Info extends JPanel
 
     // ---- ActionListener interface ----
 
+    @Override
     public void actionPerformed(ActionEvent evt)
     {
         displayHelp(helpGroup);
@@ -308,7 +309,8 @@ public final class Info extends JPanel
         String line;
         if (i<0) {
             line = originalMsg;
-        } else {
+        }
+        else {
             line = originalMsg.substring(0,i);   
         }
         

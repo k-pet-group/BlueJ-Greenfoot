@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 2011,2013  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,16 +22,10 @@
 package bluej.editor.moe;
 
 import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import javax.swing.JEditorPane;
-import javax.swing.Timer;
 import javax.swing.event.DocumentEvent;
 import javax.swing.text.BadLocationException;
-
-import bluej.parser.nodes.NodeTree;
-import bluej.parser.nodes.NodeTree.NodeAndPosition;
 
 /**
  * Manages the display of parse and compiler errors for a MoeEditor instance.
@@ -41,7 +35,7 @@ import bluej.parser.nodes.NodeTree.NodeAndPosition;
 public class MoeErrorManager implements MoeDocumentListener
 {
     /** Parse error delay in milliseconds */
-    private static final int ERR_DISPLAY_DELAY = 1000;
+    //private static final int ERR_DISPLAY_DELAY = 1000;
     
     // Error highlight colors
     private static final Color ERROR_HIGHLIGHT_GRADIENT1 = new Color(240,128,128);
@@ -54,7 +48,7 @@ public class MoeErrorManager implements MoeDocumentListener
     private Object errorHighlightTag = null;
     
     /** A timer used to delay the appearance of parse errors until the user is idle */
-    private Timer timer;
+    //private Timer timer;
     
     /** Parse errors that are currently being displayed */
 //    private NodeTree<ParseErrorNode> parseErrors = new NodeTree<ParseErrorNode>();

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2012,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2013  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -111,27 +111,33 @@ public final class MoeActions
     private Action[] actionTable; // table of all known actions
     private HashMap<Object, Action> actions; // the same actions in a hash-map
     private String[] categories;
-    public Action[] getActionTable() {
+    public Action[] getActionTable()
+    {
         return actionTable;
     }
 
-    public void setActionTable(Action[] actionTable) {
+    public void setActionTable(Action[] actionTable)
+    {
         this.actionTable = actionTable;
     }
 
-    public String[] getCategories() {
+    public String[] getCategories()
+    {
         return categories;
     }
 
-    public void setCategories(String[] categories) {
+    public void setCategories(String[] categories)
+    {
         this.categories = categories;
     }
 
-    public int[] getCategoryIndex() {
+    public int[] getCategoryIndex()
+    {
         return categoryIndex;
     }
 
-    public void setCategoryIndex(int[] categoryIndex) {
+    public void setCategoryIndex(int[] categoryIndex) 
+    {
         this.categoryIndex = categoryIndex;
     }
 
@@ -167,8 +173,9 @@ public final class MoeActions
      */
     public static MoeActions getActions(JTextComponent textComponent)
     {
-        if (moeActions == null)
+        if (moeActions == null) {
             moeActions = new MoeActions(textComponent);
+        }
 
         if (textComponent != null) {
             textComponent.setKeymap(moeActions.keymap);
@@ -263,7 +270,7 @@ public final class MoeActions
      */
     public Action getActionByName(String name)
     {
-        return (Action) (actions.get(name));
+        return actions.get(name);
     }
 
     /**
@@ -275,8 +282,7 @@ public final class MoeActions
         keys = addComponentKeyStrokes(action, keys); // BUG workaround
         if (keys != null && keys.length > 0)
             return keys;
-        else
-            return null;
+        return null;
     }
 
     /**
@@ -301,15 +307,16 @@ public final class MoeActions
         // test whether this keyStroke was redefined in keymap
         if (keyStrokes != null) {
             for (Iterator<KeyStroke> i = keyStrokes.iterator(); i.hasNext();) {
-                if (keymap.getAction((KeyStroke) i.next()) != null) {
+                if (keymap.getAction(i.next()) != null) {
                     i.remove();
                 }
             }
         }
 
         // merge found keystrokes into key array
-        if ((keyStrokes == null) || (keyStrokes.isEmpty()))
+        if ((keyStrokes == null) || (keyStrokes.isEmpty())) {
             return keys;
+        }
 
         KeyStroke[] allKeys;
         if (keys == null) {
@@ -393,7 +400,7 @@ public final class MoeActions
             for (int i = 0; i < count; i++) {
                 KeyStroke key = (KeyStroke) stream.readObject();
                 String actionName = (String) stream.readObject();
-                Action action = (Action) (actions.get(actionName));
+                Action action = actions.get(actionName);
                 if (action != null) {
                     keymap.addActionForKeyStroke(key, action);
                 }
@@ -403,16 +410,12 @@ public final class MoeActions
             // set up bindings for new actions in recent releases
 
             if (version < 252) {
-                keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, SHORTCUT_MASK),
-                        (Action) (actions.get("increase-font")));
-                keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, SHORTCUT_MASK),
-                        (Action) (actions.get("decrease-font")));
+                keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, SHORTCUT_MASK), actions.get("increase-font"));
+                keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, SHORTCUT_MASK), actions.get("decrease-font"));
             }
             if (version < 300) {
-                keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, Event.CTRL_MASK), (Action) (actions
-                        .get("code-completion")));
-                keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_I, SHIFT_SHORTCUT_MASK ), (Action) (actions
-                        .get("autoindent")));
+                keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, Event.CTRL_MASK), actions.get("code-completion"));
+                keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_I, SHIFT_SHORTCUT_MASK ), actions.get("autoindent"));
             }
             return true;
         }
@@ -457,8 +460,7 @@ public final class MoeActions
     /**
      * We just typed a closing brace character - indent appropriately.
      */
-    private void closingBrace(JTextComponent textPane, Document doc, int offset)
-    throws BadLocationException
+    private void closingBrace(JTextComponent textPane, Document doc, int offset) throws BadLocationException
     {
         int lineIndex = getCurrentLineIndex(textPane);
         Element line = getLine(textPane, lineIndex);
@@ -514,8 +516,9 @@ public final class MoeActions
                         ed = (MoeEditor) c;
                 }
             }
-            if (ed != null)
+            if (ed != null) {
                 ed.clearMessage();
+            }
             return ed;
         }
     }
@@ -531,6 +534,7 @@ public final class MoeActions
             super("save");
         }
 
+        @Override
         public void actionPerformed(ActionEvent e)
         {
             getEditor(e).userSave();
@@ -551,6 +555,7 @@ public final class MoeActions
             super("reload");
         }
 
+        @Override
         public void actionPerformed(ActionEvent e)
         {
             getEditor(e).reload();
@@ -567,6 +572,7 @@ public final class MoeActions
             super("print");
         }
 
+        @Override
         public void actionPerformed(ActionEvent e)
         {
             getEditor(e).print();
@@ -583,9 +589,10 @@ public final class MoeActions
             super("page-setup");
         }
 
+        @Override
         public void actionPerformed(ActionEvent e)
         {
-            getEditor(e).pageSetup();
+            MoeEditor.pageSetup();
         }
     }
 
@@ -599,6 +606,7 @@ public final class MoeActions
             super("close");
         }
 
+        @Override
         public void actionPerformed(ActionEvent e)
         {
             getEditor(e).close();
@@ -617,6 +625,7 @@ public final class MoeActions
             this.setEnabled(false);
         }
 
+        @Override
         public void actionPerformed(ActionEvent e)
         {
             MoeEditor editor = getEditor(e);
@@ -642,6 +651,7 @@ public final class MoeActions
             this.setEnabled(false);
         }
 
+        @Override
         public void actionPerformed(ActionEvent e)
         {
             MoeEditor editor = getEditor(e);
@@ -666,6 +676,7 @@ public final class MoeActions
             super("comment-block");
         }
 
+        @Override
         public void actionPerformed(ActionEvent e)
         {
             MoeEditor editor = getEditor(e);
@@ -685,6 +696,7 @@ public final class MoeActions
             super("uncomment-block");
         }
 
+        @Override
         public void actionPerformed(ActionEvent e)
         {
             MoeEditor editor = getEditor(e);
@@ -704,6 +716,7 @@ public final class MoeActions
             super("indent-block");
         }
 
+        @Override
         public void actionPerformed(ActionEvent e)
         {
             doBlockIndent(getEditor(e));
@@ -720,6 +733,7 @@ public final class MoeActions
             super("deindent-block");
         }
 
+        @Override
         public void actionPerformed(ActionEvent e)
         {
             doBlockDeIndent(getEditor(e));
@@ -735,6 +749,7 @@ public final class MoeActions
             super("autoindent");
         }
 
+        @Override
         public void actionPerformed(ActionEvent e)
         {
             MoeEditor editor = getEditor(e);
@@ -769,6 +784,7 @@ public final class MoeActions
             super("insert-method");
         }
 
+        @Override
         public void actionPerformed(ActionEvent e)
         {
             MoeEditor editor = getEditor(e);
@@ -791,6 +807,7 @@ public final class MoeActions
             super ("add-javadoc");
         }
 
+        @Override
         public void actionPerformed(ActionEvent e)
         {
             MoeEditor editor = getEditor(e);
@@ -875,6 +892,7 @@ public final class MoeActions
             super("indent");
         }
 
+        @Override
         public void actionPerformed(ActionEvent e)
         {
             JTextComponent textPane = getTextComponent(e);
@@ -893,13 +911,16 @@ public final class MoeActions
                     ed.setCaretActive(true);
                 }
 
-                if (PrefMgr.getFlag(PrefMgr.AUTO_INDENT))
+                if (PrefMgr.getFlag(PrefMgr.AUTO_INDENT)) {
                     doIndent(textPane, false);
-                else
+                }
+                else {
                     insertSpacedTab(textPane);
+                }
 
-                if (converted > 0)
+                if (converted > 0) {
                     ed.writeMessage(Config.getString("editor.info.tabsExpanded"));
+                }
             }
         }
     }
@@ -908,12 +929,12 @@ public final class MoeActions
 
     class DeIndentAction extends MoeAbstractAction
     {
-
         public DeIndentAction()
         {
             super("de-indent");
         }
 
+        @Override
         public void actionPerformed(ActionEvent e)
         {
             JTextComponent textPane = getTextComponent(e);
@@ -941,16 +962,16 @@ public final class MoeActions
 
     class NewLineAction extends MoeAbstractAction
     {
-
         public NewLineAction()
         {
             super("new-line");
         }
 
+        @Override
         public void actionPerformed(ActionEvent e)
         {
 
-            Action action = (Action) (actions.get(DefaultEditorKit.insertBreakAction));
+            Action action = actions.get(DefaultEditorKit.insertBreakAction);
             action.actionPerformed(e);
 
             if (PrefMgr.getFlag(PrefMgr.AUTO_INDENT)) {
@@ -964,21 +985,23 @@ public final class MoeActions
 
     class CopyLineAction extends MoeAbstractAction
     {
-
         public CopyLineAction()
         {
             super("copy-line");
         }
 
+        @Override
         public void actionPerformed(ActionEvent e)
         {
             boolean addToClipboard = lastActionWasCut;
             getActionByName("caret-begin-line").actionPerformed(e);
             getActionByName("selection-down").actionPerformed(e);
-            if (addToClipboard)
+            if (addToClipboard) {
                 addSelectionToClipboard(getTextComponent(e));
-            else
+            }
+            else {
                 getActionByName("copy-to-clipboard").actionPerformed(e);
+            }
             lastActionWasCut = true;
         }
     }
@@ -987,12 +1010,12 @@ public final class MoeActions
 
     class CutLineAction extends MoeAbstractAction
     {
-
         public CutLineAction()
         {
             super("cut-line");
         }
 
+        @Override
         public void actionPerformed(ActionEvent e)
         {
             boolean addToClipboard = lastActionWasCut;
@@ -1002,8 +1025,9 @@ public final class MoeActions
                 addSelectionToClipboard(getTextComponent(e));
                 getActionByName("delete-previous").actionPerformed(e);
             }
-            else
+            else {
                 getActionByName("cut-to-clipboard").actionPerformed(e);
+            }
             lastActionWasCut = true;
         }
     }
@@ -1012,12 +1036,12 @@ public final class MoeActions
 
     class IncreaseFontAction extends MoeAbstractAction
     {
-
         public IncreaseFontAction()
         {
             super("increase-font");
         }
 
+        @Override
         public void actionPerformed(ActionEvent e)
         {           
             JTextComponent textPane = getTextComponent(e);
@@ -1032,12 +1056,12 @@ public final class MoeActions
 
     class DecreaseFontAction extends MoeAbstractAction
     {
-
         public DecreaseFontAction()
         {
             super("decrease-font");
         }
 
+        @Override
         public void actionPerformed(ActionEvent e)
         {     
             JTextComponent textPane = getTextComponent(e);
@@ -1058,6 +1082,7 @@ public final class MoeActions
             super("cut-end-of-line");
         }
 
+        @Override
         public void actionPerformed(ActionEvent e)
         {
             boolean addToClipboard = lastActionWasCut;
@@ -1072,8 +1097,9 @@ public final class MoeActions
                 addSelectionToClipboard(textComponent);
                 getActionByName("delete-previous").actionPerformed(e);
             }
-            else
+            else {
                 getActionByName("cut-to-clipboard").actionPerformed(e);
+            }
             lastActionWasCut = true;
         }
     }
@@ -1082,12 +1108,12 @@ public final class MoeActions
 
     class CutWordAction extends MoeAbstractAction
     {
-
         public CutWordAction()
         {
             super("cut-word");
         }
 
+        @Override
         public void actionPerformed(ActionEvent e)
         {
             boolean addToClipboard = lastActionWasCut;
@@ -1097,8 +1123,9 @@ public final class MoeActions
                 addSelectionToClipboard(getTextComponent(e));
                 getActionByName("delete-previous").actionPerformed(e);
             }
-            else
+            else {
                 getActionByName("cut-to-clipboard").actionPerformed(e);
+            }
             lastActionWasCut = true;
         }
     }
@@ -1107,12 +1134,12 @@ public final class MoeActions
 
     class ContentAssistAction extends MoeAbstractAction
     {
-
         public ContentAssistAction()
         {
             super("code-completion");
         }
 
+        @Override
         public void actionPerformed(ActionEvent e)
         { 
             MoeEditor editor = getEditor(e);
@@ -1126,12 +1153,12 @@ public final class MoeActions
 
     class CutEndOfWordAction extends MoeAbstractAction
     {
-
         public CutEndOfWordAction()
         {
             super("cut-end-of-word");
         }
 
+        @Override
         public void actionPerformed(ActionEvent e)
         {
             boolean addToClipboard = lastActionWasCut;
@@ -1140,8 +1167,9 @@ public final class MoeActions
                 addSelectionToClipboard(getTextComponent(e));
                 getActionByName("delete-previous").actionPerformed(e);
             }
-            else
+            else {
                 getActionByName("cut-to-clipboard").actionPerformed(e);
+            }
             lastActionWasCut = true;
         }
     }
@@ -1162,7 +1190,8 @@ public final class MoeActions
         {
             if (withSelection) {
                 c.getCaret().moveDot(pos);
-            } else {
+            }
+            else {
                 c.setCaretPosition(pos);
             }
         }       
@@ -1177,6 +1206,7 @@ public final class MoeActions
             super(withSelection ? DefaultEditorKit.selectionNextWordAction : DefaultEditorKit.nextWordAction, withSelection);
         }
         
+        @Override
         public void actionPerformed(ActionEvent e)
         {
             JTextComponent c = getTextComponent(e);
@@ -1187,18 +1217,19 @@ public final class MoeActions
                     // Whitespace region follows, find the end of it:
                     int endOfWS = findWordLimit(c, end, true);
                     moveCaret(c, endOfWS);
-                } else {
+                }
+                else {
                     // A different "word" follows immediately, stay where we are:
                     moveCaret(c, end);
                 }
-            } catch (BadLocationException ex) {
+            }
+            catch (BadLocationException ex) {
                 // End of file already, just set the caret there:
                 moveCaret(c, end);
             }
         }
-        
-
     }
+    
     
     private static int findWordLimit(JTextComponent c, int pos, boolean forwards)
     {
@@ -1212,7 +1243,8 @@ public final class MoeActions
                 // If we are going back, we'll have gone one character too far
                 // so adjust for that; but if going forwards, the limit is exclusive
                 return forwards ? pos : pos + 1;
-            } else if (Character.isJavaIdentifierPart(curChar)) {
+            }
+            else if (Character.isJavaIdentifierPart(curChar)) {
                 while (Character.isJavaIdentifierPart(curChar)) {
                     if (forwards) pos++; else pos--;
                     curChar = c.getText(pos, 1).charAt(0);
@@ -1220,13 +1252,15 @@ public final class MoeActions
                 // If we are going back, we'll have gone one character too far
                 // so adjust for that; but if going forwards, the limit is exclusive
                 return forwards ? pos : pos + 1;
-            } else {
+            }
+            else {
                 // Can't form an identifier, isn't a space, therefore
                 // this char is a word by itself.  If we're looking for the start,
                 // this is it, and the end is one character on 
                 return forwards ? pos + 1 : pos;
             }
-        } catch (BadLocationException e) {
+        }
+        catch (BadLocationException e) {
             return forwards ? c.getText().length() : 0;
         }
     }
@@ -1240,6 +1274,7 @@ public final class MoeActions
             super(withSelection ? DefaultEditorKit.selectionPreviousWordAction : DefaultEditorKit.previousWordAction, withSelection);
         }
         
+        @Override
         public void actionPerformed(ActionEvent e)
         {
             JTextComponent c = getTextComponent(e);
@@ -1250,12 +1285,14 @@ public final class MoeActions
                     int startOfWS = findWordLimit(c, origPos - 1, false);
                     int startOfPrevWord = findWordLimit(c, startOfWS - 1, false);
                     moveCaret(c, startOfPrevWord);
-                } else {
+                }
+                else {
                     // We're in the middle of a word already, find the start:
                     int startOfWord = findWordLimit(c, origPos - 1, false);
                     moveCaret(c, startOfWord);
                 }
-            } catch (BadLocationException ex) {
+            }
+            catch (BadLocationException ex) {
                 // Start of file already, just set the caret there:
                 moveCaret(c, 0);
             }            
@@ -1271,6 +1308,7 @@ public final class MoeActions
             super(withSelection ? DefaultEditorKit.selectionEndWordAction : DefaultEditorKit.endWordAction, withSelection);
         }
         
+        @Override
         public void actionPerformed(ActionEvent e)
         {
             JTextComponent c = getTextComponent(e);
@@ -1289,6 +1327,7 @@ public final class MoeActions
             super(withSelection ? DefaultEditorKit.selectionBeginWordAction : DefaultEditorKit.beginWordAction, withSelection);
         }
         
+        @Override
         public void actionPerformed(ActionEvent e)
         {
             JTextComponent c = getTextComponent(e);
@@ -1306,6 +1345,7 @@ public final class MoeActions
             super("delete-previous-word");
         }
 
+        @Override
         public void actionPerformed(ActionEvent e)
         {
             JTextComponent c = getTextComponent(e);
@@ -1315,7 +1355,8 @@ public final class MoeActions
             int begin = c.getCaret().getDot();
             try {
                 c.getDocument().remove(begin, end - begin);
-            } catch (BadLocationException ex) {
+            }
+            catch (BadLocationException ex) {
             }
         }
         
@@ -1330,6 +1371,7 @@ public final class MoeActions
             super(DefaultEditorKit.selectWordAction);
         }
         
+        @Override
         public void actionPerformed(ActionEvent e)
         {
             JTextComponent c = getTextComponent(e);
@@ -1346,18 +1388,19 @@ public final class MoeActions
 
     class FindAction extends MoeAbstractAction
     {
-
         public FindAction()
         {
             super("find");
         }
 
+        @Override
         public void actionPerformed(ActionEvent e)
         {
             //getEditor(e).find();
             MoeEditor editor=getEditor(e);
-            if (editor!=null)
+            if (editor!=null) {
                 editor.initFindPanel();
+            }
         }
     }
 
@@ -1365,12 +1408,12 @@ public final class MoeActions
 
     public class FindNextAction extends MoeAbstractAction
     {
-
         public FindNextAction()
         {
             super("find-next");
         }
 
+        @Override
         public void actionPerformed(ActionEvent e)
         {
             getEditor(e).findNext(false);
@@ -1381,12 +1424,12 @@ public final class MoeActions
 
     public class FindNextBackwardAction extends MoeAbstractAction
     {
-
         public FindNextBackwardAction()
         {
             super("find-next-backward");
         }
 
+        @Override
         public void actionPerformed(ActionEvent e)
         {
             getEditor(e).findNext(true);
@@ -1397,12 +1440,12 @@ public final class MoeActions
 
     class ReplaceAction extends MoeAbstractAction
     {
-
         public ReplaceAction()
         {
             super("replace");
         }
 
+        @Override
         public void actionPerformed(ActionEvent e)
         {
             MoeEditor editor=getEditor(e);
@@ -1420,12 +1463,12 @@ public final class MoeActions
 
     class CompileAction extends MoeAbstractAction
     {
-
         public CompileAction()
         {
             super("compile");
         }
 
+        @Override
         public void actionPerformed(ActionEvent e)
         {
             getEditor(e).compile();
@@ -1436,19 +1479,21 @@ public final class MoeActions
 
     class ToggleInterfaceAction extends MoeAbstractAction
     {
-
         public ToggleInterfaceAction()
         {
             super("toggle-interface-view");
         }
 
+        @Override
         public void actionPerformed(ActionEvent e)
         {
             Object source = e.getSource();
-            if (source instanceof JComboBox)
+            if (source instanceof JComboBox) {
                 getEditor(e).toggleInterface();
-            else
+            }
+            else {
                 getEditor(e).toggleInterfaceMenu();
+            }
         }
     }
 
@@ -1463,6 +1508,7 @@ public final class MoeActions
             super("toggle-breakpoint");
         }
 
+        @Override
         public void actionPerformed(ActionEvent e)
         {
             getEditor(e).toggleBreakpoint();
@@ -1474,12 +1520,12 @@ public final class MoeActions
 
     class KeyBindingsAction extends MoeAbstractAction
     {
-
         public KeyBindingsAction()
         {
             super("key-bindings");
         }
 
+        @Override
         public void actionPerformed(ActionEvent e)
         {
             PrefMgrDialog.showDialog(1); // 1 is the index of the key bindings pane in the pref dialog
@@ -1490,12 +1536,12 @@ public final class MoeActions
 
     class PreferencesAction extends MoeAbstractAction
     {
-
         public PreferencesAction()
         {
             super("preferences");
         }
 
+        @Override
         public void actionPerformed(ActionEvent e)
         {
             PrefMgrDialog.showDialog(0); // 0 is the index of the editor pane in
@@ -1508,12 +1554,12 @@ public final class MoeActions
 
     class AboutAction extends MoeAbstractAction
     {
-
         public AboutAction()
         {
             super("about-editor");
         }
 
+        @Override
         public void actionPerformed(ActionEvent e)
         {
             JOptionPane.showMessageDialog(getEditor(e), new String[]{"Moe", "Version " + MoeEditor.versionString, " ",
@@ -1526,12 +1572,12 @@ public final class MoeActions
 
     class DescribeKeyAction extends MoeAbstractAction
     {
-
         public DescribeKeyAction()
         {
             super("describe-key");
         }
 
+        @Override
         public void actionPerformed(ActionEvent e)
         {
             JTextComponent textComponent = getTextComponent(e);
@@ -1546,12 +1592,12 @@ public final class MoeActions
 
     class HelpMouseAction extends MoeAbstractAction
     {
-
         public HelpMouseAction()
         {
             super("help-mouse");
         }
 
+        @Override
         public void actionPerformed(ActionEvent e)
         {
             JOptionPane.showMessageDialog(getEditor(e), new String[]{"Moe Mouse Buttons:", " ", "left button:",
@@ -1565,12 +1611,12 @@ public final class MoeActions
 
     class GoToLineAction extends MoeAbstractAction
     {
-
         public GoToLineAction()
         {
             super("go-to-line");
         }
 
+        @Override
         public void actionPerformed(ActionEvent e)
         {
             getEditor(e).goToLine();
@@ -1595,7 +1641,7 @@ public final class MoeActions
      * Check whether any text is currently selected.
      * @return True, if a selection is active.
      */
-    private boolean haveSelection(JTextComponent textPane)
+    private static boolean haveSelection(JTextComponent textPane)
     {
         Caret caret = textPane.getCaret();
         return caret.getMark() != caret.getDot();
@@ -1628,7 +1674,7 @@ public final class MoeActions
     /**
      * Return the current column number.
      */
-    private int getCurrentColumn(JTextComponent textPane)
+    private static int getCurrentColumn(JTextComponent textPane)
     {
         Caret caret = textPane.getCaret();
         int pos = Math.min(caret.getMark(), caret.getDot());
@@ -1642,7 +1688,7 @@ public final class MoeActions
     /**
      * Find and return a line by line number
      */
-    private Element getLine(JTextComponent text, int lineNo)
+    private static Element getLine(JTextComponent text, int lineNo)
     {
         return text.getDocument().getDefaultRootElement().getElement(lineNo);
     }
@@ -1651,7 +1697,7 @@ public final class MoeActions
     /**
      * Return the number of the current line.
      */
-    private int getCurrentLineIndex(JTextComponent text)
+    private static int getCurrentLineIndex(JTextComponent text)
     {
         MoeSyntaxDocument document = (MoeSyntaxDocument) text.getDocument();
         return document.getDefaultRootElement().getElementIndex(text.getCaretPosition());
@@ -1671,8 +1717,9 @@ public final class MoeActions
     {
         int lineIndex = getCurrentLineIndex(textPane);
         if (lineIndex == 0) { // first line
-            if(!isNewLine)
+            if(!isNewLine) {
                 insertSpacedTab(textPane);
+            }
             return;
         }
 
@@ -1717,8 +1764,9 @@ public final class MoeActions
                 return;
             }
 
-            if (isOpenBrace(prevLineText))
+            if (isOpenBrace(prevLineText)) {
                 isOpenBrace = true;
+            }
             else {
                 isCommentEnd = prevLineText.trim().endsWith("*/");
                 isCommentEndOnly = prevLineText.trim().equals("*/");
@@ -1736,8 +1784,9 @@ public final class MoeActions
 
             int caretColumn = getCurrentColumn(textPane);
             if (caretColumn >= indentPos) {
-                if (!isNewLine)
+                if (!isNewLine) {
                     insertSpacedTab(textPane);
+                }
                 return;
             }
 
@@ -1754,11 +1803,13 @@ public final class MoeActions
             char firstChar = lineText.charAt(indentPos);
             doc.remove(lineStart, indentPos);
             String newIndent = nextIndent(indent, isOpenBrace, isCommentEndOnly);
-            if (firstChar == '*')
+            if (firstChar == '*') {
                 newIndent = newIndent.replace('*', ' ');
+            }
             doc.insertString(lineStart, newIndent, null);
-            if(firstChar == '}')
+            if(firstChar == '}') {
                 removeTab(textPane, doc);
+            }
         }
         catch (BadLocationException exc) {}
     }
@@ -1845,7 +1896,7 @@ public final class MoeActions
      * Check whether the indentation s opens a new multi-line comment
      * @param lineStart The position in the document of the (newly-added) line start
      */
-    private boolean isNewCommentStart(String s, MoeSyntaxDocument doc, int lineStart)
+    private static boolean isNewCommentStart(String s, MoeSyntaxDocument doc, int lineStart)
     {
         s = s.trim();
         if (s.endsWith("/**") || s.endsWith("/*"))
@@ -1862,9 +1913,10 @@ public final class MoeActions
                 curNode = curNode.getNode().findNodeAt(lineStart, curNode.getPosition());
             }
             
-            if (curNode == null)
+            if (curNode == null) {
                 //Can't work it out; it's probably a new comment that is unterminated:
                 return true;
+            }
             
             String comment = getNodeContents(doc, curNode);
             
@@ -1873,12 +1925,10 @@ public final class MoeActions
             // down.  If it has no comment begin inside it, it's probably a pre-existing
             // valid comment.
             comment = comment.substring(2);
-            boolean commentHasBeginning = comment.contains("/*");
-            
-            return commentHasBeginning;
+            // if comment has beginning return true
+            return comment.contains("/*");
         }
-        else
-            return false;
+        return false;
     }
 
     /**
@@ -1887,7 +1937,7 @@ public final class MoeActions
      * 
      * The indentString passed in always ends with "/*".
      */
-    private void completeNewCommentBlock(JTextComponent textPane, String indentString)
+    private static void completeNewCommentBlock(JTextComponent textPane, String indentString)
     {
         String nextIndent = indentString.substring(0, indentString.length() - 2);
         textPane.replaceSelection(nextIndent + " * ");
@@ -1900,11 +1950,12 @@ public final class MoeActions
     /**
      * Check whether the given line ends with an opening brace.
      */
-    private boolean isOpenBrace(String s)
+    private static boolean isOpenBrace(String s)
     {
         int index = s.lastIndexOf('{');
-        if (index == -1)
+        if (index == -1) {
             return false;
+        }
 
         return s.indexOf('}', index + 1) == -1;
     }
@@ -1917,17 +1968,20 @@ public final class MoeActions
      * <li>after " * /" follows ""
      * </ul>
      */
-    private String nextIndent(String s, boolean openBrace, boolean commentEndOnly)
+    private static String nextIndent(String s, boolean openBrace, boolean commentEndOnly)
     {
         // after an opening brace, add some spaces to the indentation
-        if (openBrace)
+        if (openBrace) {
             return s + spaces.substring(0, tabSize);
+        }
 
-        if (commentEndOnly)
+        if (commentEndOnly) {
             return s.substring(0, s.length() - 1);
+        }
 
-        if (s.endsWith("/*"))
+        if (s.endsWith("/*")) {
             return s.substring(0, s.length() - 2) + " * ";
+        }
 
         return s;
     }
@@ -1935,7 +1989,7 @@ public final class MoeActions
     /**
      * Insert a spaced tab at the current caret position in to the textPane.
      */
-    private void insertSpacedTab(JTextComponent textPane)
+    private static void insertSpacedTab(JTextComponent textPane)
     {
         int numSpaces = tabSize - (getCurrentColumn(textPane) % tabSize);
         textPane.replaceSelection(spaces.substring(0, numSpaces));
@@ -1947,14 +2001,14 @@ public final class MoeActions
      * of characters those are - the caller should make sure they can be 
      * removed (usually they should be whitespace).
      */
-    private void removeTab(JTextComponent textPane, Document doc)
-    throws BadLocationException
+    private static void removeTab(JTextComponent textPane, Document doc) throws BadLocationException
     {
         int col = getCurrentColumn(textPane);
         if(col > 0) {
             int remove = col % tabSize;
-            if(remove == 0)
+            if(remove == 0) {
                 remove = tabSize;
+            }
             int pos = textPane.getCaretPosition();
             doc.remove(pos-remove, remove);
         }
@@ -2000,7 +2054,7 @@ public final class MoeActions
         return count;
     }
 
-    private String expandTab(String s, int idx)
+    private static String expandTab(String s, int idx)
     {
         int numSpaces = tabSize - (idx % tabSize);
         return s.substring(0, idx) + spaces.substring(0, numSpaces) + s.substring(idx + 1);
@@ -2019,7 +2073,7 @@ public final class MoeActions
      * @param templateName
      *            The name of the template (without path or suffix)
      */
-    private void insertTemplate(JTextComponent textPane, MoeEditor editor, String templateName)
+    private static void insertTemplate(JTextComponent textPane, MoeEditor editor, String templateName)
     {
         try {
             File template = Config.getTemplateFile(templateName);
@@ -2057,7 +2111,7 @@ public final class MoeActions
     /**
      * Perform an action on all selected lines in the source document.
      */
-    private void blockAction(MoeEditor editor, LineAction lineAction)
+    private static void blockAction(MoeEditor editor, LineAction lineAction)
     {
         editor.setCaretActive(false);
         
@@ -2072,7 +2126,7 @@ public final class MoeActions
         if (selectionStart != selectionEnd)
             selectionEnd = selectionEnd - 1; // skip last position
 
-        MoeSyntaxDocument doc = (MoeSyntaxDocument) editor.getSourceDocument();
+        MoeSyntaxDocument doc = editor.getSourceDocument();
         Element text = doc.getDefaultRootElement();
 
         int firstLineIndex = text.getElementIndex(selectionStart);
@@ -2188,101 +2242,96 @@ public final class MoeActions
 
         actionTable = new Action[] {
 
-                // edit functions
-                (Action) (actions.get(DefaultEditorKit.deletePrevCharAction)), // 0
-                (Action) (actions.get(DefaultEditorKit.deleteNextCharAction)),
-                (Action) (actions.get("delete-previous-word")),
-                (Action) (actions.get(DefaultEditorKit.copyAction)),
-                (Action) (actions.get(DefaultEditorKit.cutAction)), 
-                (Action) (actions.get("copy-line")),
-                (Action) (actions.get("cut-line")), 
-                (Action) (actions.get("cut-end-of-line")),
-                (Action) (actions.get("cut-word")), 
-                (Action) (actions.get("cut-end-of-word")),
-                (Action) (actions.get(DefaultEditorKit.pasteAction)), 
-                (Action) (actions.get("indent")),
-                (Action) (actions.get("de-indent")),
-                (Action) (actions.get(DefaultEditorKit.insertTabAction)), 
-                (Action) (actions.get("new-line")),
-                (Action) (actions.get(DefaultEditorKit.insertBreakAction)), 
-                (Action) (actions.get("insert-method")),
-                (Action) (actions.get("comment-block")), 
-                (Action) (actions.get("uncomment-block")),
-                (Action) (actions.get("autoindent")), 
-                (Action) (actions.get("indent-block")), 
-                (Action) (actions.get("deindent-block")),
+                actions.get(DefaultEditorKit.deletePrevCharAction), // 0
+                actions.get(DefaultEditorKit.deleteNextCharAction),
+                actions.get("delete-previous-word"),
+                actions.get(DefaultEditorKit.copyAction),
+                actions.get(DefaultEditorKit.cutAction), 
+                actions.get("copy-line"),
+                actions.get("cut-line"), 
+                actions.get("cut-end-of-line"),
+                actions.get("cut-word"), 
+                actions.get("cut-end-of-word"),
+                actions.get(DefaultEditorKit.pasteAction), 
+                actions.get("indent"),
+                actions.get("de-indent"),
+                actions.get(DefaultEditorKit.insertTabAction), 
+                actions.get("new-line"),
+                actions.get(DefaultEditorKit.insertBreakAction), 
+                actions.get("insert-method"),
+                actions.get("comment-block"), 
+                actions.get("uncomment-block"),
+                actions.get("autoindent"), 
+                actions.get("indent-block"), 
+                actions.get("deindent-block"),
 
-                (Action) (actions.get(DefaultEditorKit.selectWordAction)), // 22
-                (Action) (actions.get(DefaultEditorKit.selectLineAction)),
-                (Action) (actions.get(DefaultEditorKit.selectParagraphAction)),
-                (Action) (actions.get(DefaultEditorKit.selectAllAction)),
-                (Action) (actions.get(DefaultEditorKit.selectionBackwardAction)),
-                (Action) (actions.get(DefaultEditorKit.selectionForwardAction)),
-                (Action) (actions.get(DefaultEditorKit.selectionUpAction)),
-                (Action) (actions.get(DefaultEditorKit.selectionDownAction)),
-                (Action) (actions.get(DefaultEditorKit.selectionBeginWordAction)),
-                (Action) (actions.get(DefaultEditorKit.selectionEndWordAction)),
-                (Action) (actions.get(DefaultEditorKit.selectionPreviousWordAction)), // 32
-                (Action) (actions.get(DefaultEditorKit.selectionNextWordAction)),
-                (Action) (actions.get(DefaultEditorKit.selectionBeginLineAction)),
-                (Action) (actions.get(DefaultEditorKit.selectionEndLineAction)),
-                (Action) (actions.get(DefaultEditorKit.selectionBeginParagraphAction)),
-                (Action) (actions.get(DefaultEditorKit.selectionEndParagraphAction)),
-                (Action) (actions.get("selection-page-up")), 
-                (Action) (actions.get("selection-page-down")),
-                (Action) (actions.get(DefaultEditorKit.selectionBeginAction)),
-                (Action) (actions.get(DefaultEditorKit.selectionEndAction)), 
-                (Action) (actions.get("unselect")),
+                actions.get(DefaultEditorKit.selectWordAction), // 22
+                actions.get(DefaultEditorKit.selectLineAction),
+                actions.get(DefaultEditorKit.selectParagraphAction),
+                actions.get(DefaultEditorKit.selectAllAction),
+                actions.get(DefaultEditorKit.selectionBackwardAction),
+                actions.get(DefaultEditorKit.selectionForwardAction),
+                actions.get(DefaultEditorKit.selectionUpAction),
+                actions.get(DefaultEditorKit.selectionDownAction),
+                actions.get(DefaultEditorKit.selectionBeginWordAction),
+                actions.get(DefaultEditorKit.selectionEndWordAction),
+                actions.get(DefaultEditorKit.selectionPreviousWordAction), // 32
+                actions.get(DefaultEditorKit.selectionNextWordAction),
+                actions.get(DefaultEditorKit.selectionBeginLineAction),
+                actions.get(DefaultEditorKit.selectionEndLineAction),
+                actions.get(DefaultEditorKit.selectionBeginParagraphAction),
+                actions.get(DefaultEditorKit.selectionEndParagraphAction),
+                actions.get("selection-page-up"), 
+                actions.get("selection-page-down"),
+                actions.get(DefaultEditorKit.selectionBeginAction),
+                actions.get(DefaultEditorKit.selectionEndAction), 
+                actions.get("unselect"),
 
-                // move and scroll functions
-                (Action) (actions.get(DefaultEditorKit.backwardAction)), // 43
-                (Action) (actions.get(DefaultEditorKit.forwardAction)),
-                (Action) (actions.get(DefaultEditorKit.upAction)), 
-                (Action) (actions.get(DefaultEditorKit.downAction)),
-                (Action) (actions.get(DefaultEditorKit.beginWordAction)),
-                (Action) (actions.get(DefaultEditorKit.endWordAction)),
-                (Action) (actions.get(DefaultEditorKit.previousWordAction)),
-                (Action) (actions.get(DefaultEditorKit.nextWordAction)),
-                (Action) (actions.get(DefaultEditorKit.beginLineAction)),
-                (Action) (actions.get(DefaultEditorKit.endLineAction)),    // 52
-                (Action) (actions.get(DefaultEditorKit.beginParagraphAction)),
-                (Action) (actions.get(DefaultEditorKit.endParagraphAction)),
-                (Action) (actions.get(DefaultEditorKit.pageUpAction)),
-                (Action) (actions.get(DefaultEditorKit.pageDownAction)),
-                (Action) (actions.get(DefaultEditorKit.beginAction)),
-                (Action) (actions.get(DefaultEditorKit.endAction)),
+                actions.get(DefaultEditorKit.backwardAction), // 43
+                actions.get(DefaultEditorKit.forwardAction),
+                actions.get(DefaultEditorKit.upAction), 
+                actions.get(DefaultEditorKit.downAction),
+                actions.get(DefaultEditorKit.beginWordAction),
+                actions.get(DefaultEditorKit.endWordAction),
+                actions.get(DefaultEditorKit.previousWordAction),
+                actions.get(DefaultEditorKit.nextWordAction),
+                actions.get(DefaultEditorKit.beginLineAction),
+                actions.get(DefaultEditorKit.endLineAction),    // 52
+                actions.get(DefaultEditorKit.beginParagraphAction),
+                actions.get(DefaultEditorKit.endParagraphAction),
+                actions.get(DefaultEditorKit.pageUpAction),
+                actions.get(DefaultEditorKit.pageDownAction),
+                actions.get(DefaultEditorKit.beginAction),
+                actions.get(DefaultEditorKit.endAction),
 
-                // class functions
-                (Action) (actions.get("save")), // 59
-                (Action) (actions.get("reload")), 
-                (Action) (actions.get("close")), 
-                (Action) (actions.get("print")),
-                (Action) (actions.get("page-setup")),
+                actions.get("save"), // 59
+                actions.get("reload"), 
+                actions.get("close"), 
+                actions.get("print"),
+                actions.get("page-setup"),
 
-                // customisation functions
-                (Action) (actions.get("key-bindings")), // 64
-                (Action) (actions.get("preferences")),
+                actions.get("key-bindings"), // 64
+                actions.get("preferences"),
 
-                // help functions
-                (Action) (actions.get("describe-key")), // 66
-                (Action) (actions.get("help-mouse")), 
-                (Action) (actions.get("show-manual")),
-                (Action) (actions.get("about-editor")),
+                actions.get("describe-key"), // 66
+                actions.get("help-mouse"), 
+                actions.get("show-manual"),
+                actions.get("about-editor"),
 
                 // misc functions
                 undoAction, // 70
                 redoAction, 
-                (Action) (actions.get("find")), 
-                (Action) (actions.get("find-next")),
-                (Action) (actions.get("find-next-backward")), 
-                (Action) (actions.get("replace")),
-                (Action) (actions.get("compile")), 
-                (Action) (actions.get("toggle-interface-view")),
-                (Action) (actions.get("toggle-breakpoint")), 
-                (Action) (actions.get("go-to-line")),
-                (Action) (actions.get("increase-font")),
-                (Action) (actions.get("decrease-font")),
-                (Action) (actions.get("code-completion")),
+                actions.get("find"), 
+                actions.get("find-next"),
+                actions.get("find-next-backward"), 
+                actions.get("replace"),
+                actions.get("compile"), 
+                actions.get("toggle-interface-view"),
+                actions.get("toggle-breakpoint"), 
+                actions.get("go-to-line"),
+                actions.get("increase-font"),
+                actions.get("decrease-font"),
+                actions.get("code-completion"),
 
         }; // 83
 
@@ -2306,98 +2355,59 @@ public final class MoeActions
     {
         keymap.removeBindings();
 
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_S, SHORTCUT_MASK), 
-                (Action) (actions.get("save")));
+        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_S, SHORTCUT_MASK), actions.get("save"));
         // "reload" not bound
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_P, SHORTCUT_MASK), 
-                (Action) (actions.get("print")));
+        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_P, SHORTCUT_MASK), actions.get("print"));
         // "page-setup" not bound
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_W, SHORTCUT_MASK), (Action) (actions
-                .get("close")));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_Z, SHORTCUT_MASK), (Action) (actions
-                .get("undo")));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_Y, SHORTCUT_MASK), (Action) (actions
-                .get("redo")));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_F8, 0), (Action) (actions
-                .get("comment-block")));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_F7, 0), (Action) (actions
-                .get("uncomment-block")));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_F6, 0), (Action) (actions.get("indent-block")));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0),
-                (Action) (actions.get("deindent-block")));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_M, SHORTCUT_MASK), 
-                (Action) (actions.get("insert-method")));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_TAB, 0), 
-                (Action) (actions.get("indent")));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_TAB, Event.SHIFT_MASK), 
-                (Action) (actions.get("de-indent")));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_I, SHORTCUT_MASK), 
-                (Action) (actions.get("insert-tab")));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), 
-                (Action) (actions.get("new-line")));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, Event.SHIFT_MASK), 
-                (Action) (actions.get("insert-break")));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_F, SHORTCUT_MASK), 
-                (Action) (actions.get("find")));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_G, SHORTCUT_MASK), 
-                (Action) (actions.get("find-next")));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_G, SHIFT_SHORTCUT_MASK), (Action) (actions
-                .get("find-next-backward")));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_R, SHORTCUT_MASK), (Action) (actions
-                .get("replace")));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_L, SHORTCUT_MASK), (Action) (actions
-                .get("go-to-line")));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_K, SHORTCUT_MASK), (Action) (actions
-                .get("compile")));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_J, SHORTCUT_MASK), (Action) (actions
-                .get("toggle-interface-view")));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_B, SHORTCUT_MASK), (Action) (actions
-                .get("toggle-breakpoint")));
+        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_W, SHORTCUT_MASK), actions.get("close"));
+        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_Z, SHORTCUT_MASK), actions.get("undo"));
+        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_Y, SHORTCUT_MASK), actions.get("redo"));
+        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_F8, 0), actions.get("comment-block"));
+        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_F7, 0), actions.get("uncomment-block"));
+        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_F6, 0), actions.get("indent-block"));
+        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0), actions.get("deindent-block"));
+        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_M, SHORTCUT_MASK), actions.get("insert-method"));
+        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_TAB, 0), actions.get("indent"));
+        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_TAB, Event.SHIFT_MASK), actions.get("de-indent"));
+        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_I, SHORTCUT_MASK), actions.get("insert-tab"));
+        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), actions.get("new-line"));
+        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, Event.SHIFT_MASK), actions.get("insert-break"));
+        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_F, SHORTCUT_MASK), actions.get("find"));
+        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_G, SHORTCUT_MASK), actions.get("find-next"));
+        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_G, SHIFT_SHORTCUT_MASK), actions.get("find-next-backward"));
+        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_R, SHORTCUT_MASK), actions.get("replace"));
+        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_L, SHORTCUT_MASK), actions.get("go-to-line"));
+        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_K, SHORTCUT_MASK), actions.get("compile"));
+        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_J, SHORTCUT_MASK), actions.get("toggle-interface-view"));
+        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_B, SHORTCUT_MASK), actions.get("toggle-breakpoint"));
         // "key-bindings" not bound
         // "preferences" not bound
         // "about-editor" not bound
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_D, SHORTCUT_MASK), (Action) (actions
-                .get("describe-key")));
+        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_D, SHORTCUT_MASK), actions.get("describe-key"));
         // "help-mouse" not bound
         // "show-manual" not bound
 
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_C, SHORTCUT_MASK), (Action) (actions
-                .get(DefaultEditorKit.copyAction)));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_X, SHORTCUT_MASK), (Action) (actions
-                .get(DefaultEditorKit.cutAction)));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_V, SHORTCUT_MASK), (Action) (actions
-                .get(DefaultEditorKit.pasteAction)));
+        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_C, SHORTCUT_MASK), actions.get(DefaultEditorKit.copyAction));
+        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_X, SHORTCUT_MASK), actions.get(DefaultEditorKit.cutAction));
+        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_V, SHORTCUT_MASK), actions.get(DefaultEditorKit.pasteAction));
 
         // F2, F3, F4
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_F2, 0), (Action) (actions.get("copy-line")));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_F3, 0), (Action) (actions
-                .get(DefaultEditorKit.pasteAction)));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_F4, 0), (Action) (actions.get("cut-line")));
+        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_F2, 0), actions.get("copy-line"));
+        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_F3, 0), actions.get(DefaultEditorKit.pasteAction));
+        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_F4, 0), actions.get("cut-line"));
 
         // cursor block
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_UP, ALT_SHORTCUT_MASK), (Action) (actions
-                .get(DefaultEditorKit.pasteAction)));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, ALT_SHORTCUT_MASK), (Action) (actions
-                .get(DefaultEditorKit.deletePrevCharAction)));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, ALT_SHORTCUT_MASK), (Action) (actions
-                .get(DefaultEditorKit.deleteNextCharAction)));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, SHIFT_ALT_SHORTCUT_MASK),
-                (Action) (actions.get("cut-line")));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, SHIFT_ALT_SHORTCUT_MASK),
-                (Action) (actions.get("cut-end-of-line")));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, DOUBLE_SHORTCUT_MASK), (Action) (actions
-                .get("cut-word")));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, DOUBLE_SHORTCUT_MASK), (Action) (actions
-                .get("cut-end-of-word")));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, SHORTCUT_MASK), (Action) (actions
-                .get("increase-font")));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, SHORTCUT_MASK), (Action) (actions
-                .get("decrease-font")));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, Event.CTRL_MASK), (Action) (actions
-                .get("code-completion")));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_I, SHIFT_SHORTCUT_MASK ), (Action) (actions
-                .get("autoindent")));
-
+        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_UP, ALT_SHORTCUT_MASK), actions.get(DefaultEditorKit.pasteAction));
+        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, ALT_SHORTCUT_MASK), actions.get(DefaultEditorKit.deletePrevCharAction));
+        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, ALT_SHORTCUT_MASK), actions.get(DefaultEditorKit.deleteNextCharAction));
+        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, SHIFT_ALT_SHORTCUT_MASK), actions.get("cut-line"));
+        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, SHIFT_ALT_SHORTCUT_MASK), actions.get("cut-end-of-line"));
+        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, DOUBLE_SHORTCUT_MASK), actions.get("cut-word"));
+        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, DOUBLE_SHORTCUT_MASK), actions.get("cut-end-of-word"));
+        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, SHORTCUT_MASK), actions.get("increase-font"));
+        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, SHORTCUT_MASK), actions.get("decrease-font"));
+        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, Event.CTRL_MASK), actions.get("code-completion"));
+        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_I, SHIFT_SHORTCUT_MASK ), actions.get("autoindent"));
     }
 
     /**
@@ -2424,6 +2434,7 @@ public final class MoeActions
         /**
          * Comment the given line
          */
+        @Override
         public void apply(Element line, MoeSyntaxDocument doc)
         {
             int lineStart = line.getStartOffset();
@@ -2441,9 +2452,9 @@ public final class MoeActions
      * Class UncommentLineAction - remove the comment symbol (if any) from the
      * given line.
      */
-    class UncommentLineAction
-    implements LineAction
+    class UncommentLineAction implements LineAction
     {
+        @Override
         public void apply(Element line, MoeSyntaxDocument doc)
         {
             int lineStart = line.getStartOffset();
@@ -2452,13 +2463,16 @@ public final class MoeActions
                 String lineText = doc.getText(lineStart, lineEnd - lineStart);
                 if (lineText.trim().startsWith("//")) {
                     int cnt = 0;
-                    while (lineText.charAt(cnt) != '/')
+                    while (lineText.charAt(cnt) != '/') {
                         // whitespace chars
                         cnt++;
-                    if (lineText.charAt(cnt + 2) == ' ')
+                    }
+                    if (lineText.charAt(cnt + 2) == ' ') {
                         doc.remove(lineStart, cnt + 3);
-                    else
+                    }
+                    else {
                         doc.remove(lineStart, cnt + 2);
+                    }
                 }
             }
             catch (Exception exc) {}
@@ -2468,9 +2482,9 @@ public final class MoeActions
     /**
      * Class IndentLineAction - add one level of indentation to the given line.
      */
-    class IndentLineAction
-    implements LineAction
+    class IndentLineAction implements LineAction
     {
+        @Override
         public void apply(Element line, MoeSyntaxDocument doc)
         {
             int lineStart = line.getStartOffset();
@@ -2487,9 +2501,9 @@ public final class MoeActions
      * Class DeindentLineAction - remove one indentation level from the given
      * line.
      */
-    class DeindentLineAction
-    implements LineAction
+    class DeindentLineAction implements LineAction
     {
+        @Override
         public void apply(Element line, MoeSyntaxDocument doc)
         {
             int lineStart = line.getStartOffset();
@@ -2497,15 +2511,18 @@ public final class MoeActions
             try {
                 String lineText = doc.getText(lineStart, lineEnd - lineStart);
                 String spacedTab = spaces.substring(0, tabSize);
-                if (lineText.startsWith(spacedTab))
+                if (lineText.startsWith(spacedTab)) {
                     doc.remove(lineStart, tabSize); // remove spaced tab
-                else if (lineText.charAt(0) == TAB_CHAR)
+                }
+                else if (lineText.charAt(0) == TAB_CHAR) {
                     doc.remove(lineStart, 1); // remove hard tab
+                }
                 else {
                     int cnt = 0;
-                    while (lineText.charAt(cnt) == ' ')
+                    while (lineText.charAt(cnt) == ' ') {
                         // remove spaces
                         cnt++;
+                    }
                     doc.remove(lineStart, cnt);
                 }
             }

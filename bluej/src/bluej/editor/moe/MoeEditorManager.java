@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -41,8 +41,7 @@ import bluej.pkgmgr.JavadocResolver;
  * @author Michael Kolling
  */
 
-public final class MoeEditorManager
-    extends bluej.editor.EditorManager
+public final class MoeEditorManager extends bluej.editor.EditorManager
 {
     // public static variables
 
@@ -121,19 +120,19 @@ public final class MoeEditorManager
      * @returns                 the new editor, or null if there was a problem
      */
     @Override
-    public Editor openText(String filename, Charset charset, String windowTitle,
-                           Rectangle bounds)
+    public Editor openText(String filename, Charset charset, String windowTitle, Rectangle bounds)
     {
         return openEditor(filename, null, charset, false, windowTitle, null, false, bounds, null, null);
     }
 
+    @Override
     public void refreshAll()
     {
         Iterator<MoeEditor> e = editors.iterator();
 
         while(e.hasNext()) {
             Editor ed = e.next();
-
+            
             if(ed.isShowing()) {
                 ed.refresh();
             }
@@ -145,9 +144,10 @@ public final class MoeEditorManager
     /**
      * Sound a beep if the "beep with warning" option is true
      */
-    public void beep()
+    public static void beep()
     {
-        if(true) // if beepWarning option is on...
+        // TODO if beepWarning option is on... 
+        //if(true) 
             Toolkit.getDefaultToolkit().beep();
     }
 
@@ -157,6 +157,7 @@ public final class MoeEditorManager
      * Discard the given editor and leave it to be collected by the garbage
      * collector.
      */
+    @Override
     public void discardEditor(Editor ed)
     {
         ed.close();
@@ -210,10 +211,7 @@ public final class MoeEditorManager
         if (editor.showFile(filename, charset, compiled, docFilename, bounds)) {
             return editor;
         }
-        else {
-            editor.doClose();           // editor will remove itself
-            return null;
-        }
+        editor.doClose();           // editor will remove itself
+        return null;
     }
-
 }
