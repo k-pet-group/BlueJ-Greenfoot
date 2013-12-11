@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -30,6 +30,8 @@ import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -349,17 +351,20 @@ public final class Config
         // Set up the properties so that they use the properties from the
         // BlueJVM
         systemProps = new Properties() {
+            @Override
             public String getProperty(String key)
             {
                 return Config.propSource.getBlueJPropertyString(key, null);
             }
 
+            @Override
             public String getProperty(String key, String def)
             {
                 return Config.propSource.getBlueJPropertyString(key, def);
             }
         };
         userProps = new Properties(systemProps) {
+            @Override
             public Object setProperty(String key, String val)
             {
                 String rval = getProperty(key);
@@ -367,11 +372,13 @@ public final class Config
                 return rval;
             }
             
+            @Override
             public String getProperty(String key)
             {
                 return Config.propSource.getBlueJPropertyString(key, null);
             }
 
+            @Override
             public String getProperty(String key, String def)
             {
                 return Config.propSource.getBlueJPropertyString(key, def);
@@ -403,11 +410,13 @@ public final class Config
         Config.propSource = propSource;
         
         langProps =  new Properties() {
+            @Override
             public String getProperty(String key)
             {
                 return Config.propSource.getLabel(key);
             }
             
+            @Override
             public String getProperty(String key, String def)
             {
                 return Config.propSource.getLabel(key);
@@ -429,9 +438,7 @@ public final class Config
         if(isGreenfoot()) {
             return GREENFOOT_DEBUG_DOCK_ICON;
         }
-        else {
-            return BLUEJ_DEBUG_DOCK_ICON;
-        }
+        return BLUEJ_DEBUG_DOCK_ICON;
     }
     
     /**
@@ -448,9 +455,7 @@ public final class Config
             }
             return GREENFOOT_DEBUG_DOCK_NAME + postfix;
         }
-        else {
-            return BLUEJ_DEBUG_DOCK_NAME;
-        }
+        return BLUEJ_DEBUG_DOCK_NAME;
     }
     
     /**
@@ -620,9 +625,7 @@ public final class Config
         if(isGreenfoot) {
             return "Greenfoot";
         }
-        else {
-            return "BlueJ";
-        }
+        return "BlueJ";
     }
     
     /**
@@ -653,17 +656,18 @@ public final class Config
                 File debugLogFile = new File(userdir, debugLogName);
                 // simple diversion of output stream to a log file
                 try {
-                    PrintStream outStream =
-                        new PrintStream(new FileOutputStream(debugLogFile));
+                    PrintStream outStream = new PrintStream(new FileOutputStream(debugLogFile));
                     System.setOut(outStream);
                     System.setErr(outStream);
                     Debug.setDebugStream(new OutputStreamWriter(outStream));
 
                     Debug.message(getApplicationName() + " run started: " + new Date());
-                    if(isGreenfoot())
+                    if(isGreenfoot()) {
                         Debug.message("Greenfoot version: " + Boot.GREENFOOT_VERSION);
-                    else
+                    }
+                    else {
                         Debug.message("BlueJ version " + Boot.BLUEJ_VERSION);
+                    }
                     Debug.message("Java version " + System.getProperty("java.version"));
                     Debug.message("Virtual machine: " +
                             System.getProperty("java.vm.name") + " " +
@@ -891,16 +895,14 @@ public final class Config
         index++;
         if(str.charAt(index) == '^') { //then the modifiers is CTRL + SHIFT
             index++;
-            modifiers |= KeyEvent.SHIFT_MASK;
+            modifiers |= InputEvent.SHIFT_MASK;
         }
         keyString = str.substring(index).toUpperCase();
         if(keyString.length() == 1) {
             return KeyStroke.getKeyStroke(keyString.codePointAt(0), modifiers);
         }
-        else {
-            KeyStroke k1= KeyStroke.getKeyStroke(keyString);
-            return KeyStroke.getKeyStroke(k1.getKeyCode(), modifiers);
-        }
+        KeyStroke k1= KeyStroke.getKeyStroke(keyString);
+        return KeyStroke.getKeyStroke(k1.getKeyCode(), modifiers);
     }
     
     /**
@@ -994,9 +996,7 @@ public final class Config
         if (propVal != null) {
             return PropParser.parsePropString(propVal, props);
         }
-        else {
-            return null;
-        }
+        return null;
     }
     
     /**
@@ -1042,9 +1042,7 @@ public final class Config
         if (propval == null) {
             return def;
         }
-        else {
-            return parseBoolean(propval);
-        }
+        return parseBoolean(propval);
     }
     
     /**
@@ -1237,10 +1235,10 @@ public final class Config
     public static File getClassTemplateDir()
     {
         String path = commandProps.getProperty("bluej.templatePath" , "");
-        if(path.length() == 0)
+        if(path.length() == 0) {
             return getLanguageFile("templates/newclass");
-        else
-            return new File(path);
+        }
+        return new File(path);
     }
 
     /**
@@ -1326,18 +1324,18 @@ public final class Config
             String rgbStr = getPropString(itemname, null);
             if (rgbStr == null) {
                 return null;
-            } else {
-                String rgbVal[] = Utility.split(rgbStr, ",");
-
-                if (rgbVal.length < 3)
-                    Debug.reportError("Error reading colour ["+itemname+"]");
-                else {
-                    int r = Integer.parseInt(rgbVal[0].trim());
-                    int g = Integer.parseInt(rgbVal[1].trim());
-                    int b = Integer.parseInt(rgbVal[2].trim());
-
-                    return new Color(r, g, b);
-                }
+            }
+            
+            String rgbVal[] = Utility.split(rgbStr, ",");
+            if (rgbVal.length < 3) {
+                Debug.reportError("Error reading colour ["+itemname+"]");
+            }
+            else {
+                int r = Integer.parseInt(rgbVal[0].trim());
+                int g = Integer.parseInt(rgbVal[1].trim());
+                int b = Integer.parseInt(rgbVal[2].trim());
+                
+                return new Color(r, g, b);
             }
         }
         catch(Exception e) {
@@ -1649,5 +1647,31 @@ public final class Config
     public static final boolean isGreenfoot()
     {
         return isGreenfoot;
+    }
+    
+    /**
+     * Determine whether a file is a ZIP File.
+     */
+    public static boolean isZipFile(File file)
+    {
+        try {
+            if(file.isDirectory()) {
+                return false;
+            }
+            if(!file.canRead()) {
+                throw new IOException();
+            }
+            if(file.length() < 4) {
+                return false;
+            }
+            DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(file)));
+            int magicNumber = in.readInt();
+            in.close();
+            return magicNumber == 0x504b0304;
+        }
+        catch (IOException exc) {
+            Debug.reportError("Could not read file: " + file.getAbsolutePath(), exc);
+        }
+        return false;
     }
 }

@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2013  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -73,8 +73,7 @@ import bluej.views.View;
  * project is opened in its own JVM there can be several Greenfoot instances,
  * but each will be in its own JVM so it is effectively a singleton.
  * 
- * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 9926 2012-09-24 15:01:52Z davmac $
+ * @author Poul Henriksen
  */
 public class GreenfootMain extends Thread implements CompileListener, RProjectListener
 {
@@ -128,6 +127,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
 
     /** Filter that matches class files */
     private static FilenameFilter classFilter = new FilenameFilter() {
+        @Override
         public boolean accept(File dir, String name)
         {
             return name.toLowerCase().endsWith(".class");
@@ -192,6 +192,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             ActorDelegateIDE.setupAsActorDelegate(project);
 
             EventQueue.invokeLater(new Runnable() {
+                @Override
                 public void run() {
                     if (!isStartupProject()) {
                         try {
@@ -276,7 +277,8 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             if (projectDirFile.getName().endsWith(".sb")) {
                 projectDirFile = ScratchImport.convert(projectDirFile);
                 autoIndentAllFiles = true;
-            } else {
+            }
+            else {
                 projectDirFile = Utility.maybeExtractArchive(projectDirFile, frame);
                 if (projectDirFile == null) {
                     return;
@@ -303,7 +305,8 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                         }
                     }
                 // If there any problems, never mind about it:
-                } catch(ProjectNotOpenException e) { }
+                }
+                catch(ProjectNotOpenException e) { }
                 catch (PackageNotFoundException e) { }
             }
 
@@ -322,11 +325,16 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
         File dirName = FileChoosers.getScenario(frame);
 
         if (dirName != null) {
-            try {
-                openProject(dirName.getAbsolutePath());
+            if (Config.isZipFile(dirName)) {
+                JOptionPane.showMessageDialog(frame, Config.getString("open.project.message.zip"));
             }
-            catch (Exception exc) {
-                Debug.reportError("Could not open scenario", exc);
+            else{
+                try {
+                    openProject(dirName.getAbsolutePath());
+                }
+                catch (Exception exc) {
+                    Debug.reportError("Could not open scenario", exc);
+                }
             }
         }
     }
@@ -353,13 +361,16 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                 if (windowClosing) {
                     // This happens to be the only way the startup project can be closed
                     rBlueJ.exit();
-                } else {
+                }
+                else {
                     frame.closeProject();
                 }
-            } else {
+            }
+            else {
                 project.close();
             }
-        } catch (RemoteException re) {
+        }
+        catch (RemoteException re) {
             Debug.reportError("Error while closing", re);
         }
     }
@@ -377,6 +388,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
     /*
      * @see rmiextension.wrappers.event.RProjectListener#projectClosing()
      */
+    @Override
     public void projectClosing()
     {
         try {
@@ -475,9 +487,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                     
                     return rproj;
                 }
-                else {
-                    DialogManager.showError(frame, "cannot-create-project");
-                }
+                DialogManager.showError(frame, "cannot-create-project");
             }
             catch (ServerError se) {
                 Debug.reportError("Problems when trying to create new scenario", se);
@@ -581,44 +591,55 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                 if (actorJava.exists()) {
                     actorJava.delete();
                 }
-            } catch (SecurityException e) {
+            }
+            catch (SecurityException e) {
                 // If we don't have permission to delete, just leave them there.
             }
+            
             try {
                 File worldJava = new File(greenfootDir, "World.java");
                 if (worldJava.exists()) {
                     worldJava.delete();
                 }
-            } catch (SecurityException e) {
+            }
+            catch (SecurityException e) {
                 // If we don't have permission to delete, just leave them there.
             }
+            
             try {
                 File actorJava = new File(greenfootDir, "Actor.class");
                 if (actorJava.exists()) {
                     actorJava.delete();
                 }
-            } catch (SecurityException e) {
+            }
+            catch (SecurityException e) {
                 // If we don't have permission to delete, just leave them there.
             }
+            
             try {
                 File worldJava = new File(greenfootDir, "World.class");
                 if (worldJava.exists()) {
                     worldJava.delete();
                 }
-            } catch (SecurityException e) {
+            }
+            catch (SecurityException e) {
                 // If we don't have permission to delete, just leave them there.
             }
+            
             try {
                 File worldJava = new File(greenfootDir, "project.greenfoot");
                 if (worldJava.exists()) {
                     worldJava.delete();
                 }
-            } catch (SecurityException e) {
+            }
+            catch (SecurityException e) {
                 // If we don't have permission to delete, just leave them there.
             }
+            
             try {
                 greenfootDir.delete();
-            } catch (SecurityException e) {
+            }
+            catch (SecurityException e) {
                 // If we don't have permission to delete, just leave them there.
             }
         }
@@ -680,11 +701,8 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             if (pressed == cancelButton) {
                 return VERSION_BAD;
             }
-            else {
-                prepareGreenfootProject(greenfootLibDir, projectDir,
-                        newProperties, true, greenfootApiVersion);
-                return VERSION_UPDATED;
-            }
+            prepareGreenfootProject(greenfootLibDir, projectDir, newProperties, true, greenfootApiVersion);
+            return VERSION_UPDATED;
         }
         else if (projectVersion.isNonBreaking(apiVersion) ) {
             prepareGreenfootProject(greenfootLibDir, projectDir,
@@ -794,24 +812,29 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
 
     // ------------ CompileListener interface -------------
 
+    @Override
     public void compileStarted(RCompileEvent event)
     {
         checkClassLoader();
     }
 
+    @Override
     public void compileSucceeded(RCompileEvent event)
     {
         checkClassLoader();
 
     }
 
+    @Override
     public void compileFailed(RCompileEvent event)
     {
         checkClassLoader();
     }
 
+    @Override
     public void compileError(RCompileEvent event) {}
 
+    @Override
     public void compileWarning(RCompileEvent event){}
 
     public void showPreferences()
@@ -823,5 +846,4 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             Debug.reportError("Problem showing preferences dialog", e);
         }
     }
-
 }

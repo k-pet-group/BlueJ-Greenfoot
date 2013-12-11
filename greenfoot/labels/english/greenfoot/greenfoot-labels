@@ -257,6 +257,7 @@ soundRecorder.closeAnyway=Close anyway
 soundRecorder.closeTitle=Close without saving
 soundRecorder.closeQuestion=Sound has been changed since you last saved.  If you close the sound recorder, these changes will be lost.
 
+# Import 
 import.import=Import
 import.dialogTitle=Import Class
 import.action=Import Class...
@@ -310,6 +311,9 @@ world.infinite.constructor.msg=World constructor took longer than expected.\n It
 
 # Message to display if a file cannot be created
 greenfoot.cannotCreateClass=The class file could not be created. Check that the project folder is writable.
+
+# Message to display when a project is opened from a zip file
+open.project.message.zip=The selected file is inside a Zip file. Please extract it \n outside Greenfoot first, then retry to open the scenario.   
 
 # General error messages
 greenfoot.cannotFindAPIDocumentation=The API documentation seems to be missing, or unreadable.
