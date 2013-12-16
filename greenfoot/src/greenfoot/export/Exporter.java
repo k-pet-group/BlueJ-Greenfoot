@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2013  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -18,16 +18,7 @@
  
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
- */
-/*
- * Class Exporter manages the various possible export functions, such as writing 
- * jar files or publishing to the scenario web server.
- *
- * The exporter is a singleton
- *
- * @author Michael Kolling
- */
-
+*/
 package greenfoot.export;
 
 import greenfoot.core.GProject;
@@ -39,6 +30,7 @@ import greenfoot.export.mygame.ScenarioInfo;
 import greenfoot.gui.WorldCanvas;
 import greenfoot.gui.export.ExportAppPane;
 import greenfoot.gui.export.ExportDialog;
+import greenfoot.gui.export.ExportProjectPane;
 import greenfoot.gui.export.ExportPublishPane;
 import greenfoot.gui.export.ExportWebPagePane;
 import greenfoot.gui.export.ProxyAuthDialog;
@@ -60,6 +52,14 @@ import bluej.Boot;
 import bluej.Config;
 import bluej.pkgmgr.Project;
 
+/**
+ * Class Exporter manages the various possible export functions, such as writing 
+ * jar files or publishing to the scenario web server.
+ *
+ * The exporter is a singleton
+ *
+ * @author Michael Kolling
+ */
 public class Exporter implements PublishListener
 {
     private static final String GREENFOOT_CORE_JAR = getGreenfootCoreJar();
@@ -95,7 +95,7 @@ public class Exporter implements PublishListener
      */
     public Exporter() { }
     
-   /**
+    /**
      * Publish this scenario to the web server.
      */
     public void publishToWebServer(GProject project, ExportPublishPane pane, ExportDialog dlg)
@@ -183,7 +183,7 @@ public class Exporter implements PublishListener
         }
                   
         // Create image file     
-        if (!pane.keepSavedScenarioScreenshot()){
+        if (!pane.keepSavedScenarioScreenshot()) {
             String formatName = "png";
             try {
                 tmpImgFile = File.createTempFile("greenfoot", "." + formatName, null);
@@ -205,7 +205,6 @@ public class Exporter implements PublishListener
         if(scenarioName != null && scenarioName.length() < 1) {
             scenarioName = "NO_NAME";
         }       
-        
         
         if(webPublisher == null) {
             webPublisher = new MyGameClient(this);
@@ -299,11 +298,12 @@ public class Exporter implements PublishListener
         dlg.setProgress(false, Config.getString("export.progress.complete")); 
     }
 
-    private File[] getJarsInPlusLib(GProject project)
+    private static File[] getJarsInPlusLib(GProject project)
     {
         File[] jarFiles = null;
         File plusLibsDir = new File(project.getDir(), Project.projectLibDirName);
         jarFiles = plusLibsDir.listFiles(new FilenameFilter() {
+            @Override
             public boolean accept(File dir, String name)
             {
                 return name.toLowerCase().endsWith(".jar");
@@ -355,7 +355,8 @@ public class Exporter implements PublishListener
             if(license.exists()) {
                 jarCreator.addFile(license);
             }
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             // Ignore exceptions with license file since it is not a crucial thing to include.
         }
         
@@ -365,12 +366,31 @@ public class Exporter implements PublishListener
         jarCreator.create();
         dlg.setProgress(false, Config.getString("export.progress.complete")); 
     }
+    
+    /**
+     * Create an standalone project (gfar-file)
+     */
+    public void makeProject(GProject project, ExportProjectPane pane, ExportDialog dlg)
+    {
+        dlg.setProgress(true, Config.getString("export.progress.writingGfar"));
+        
+        File exportFile = new File(pane.getExportName());
+        File exportDir = exportFile.getParentFile();
+        String gfarName = exportFile.getName();
+       
+        // Build gfar with source code        
+        JarCreator gfarCrator = new JarCreator(project, exportDir, gfarName);
+        gfarCrator.create();
+       
+        dlg.setProgress(false, Config.getString("export.progress.complete")); 
+    }
+
 
     /**
      * Get the size needed to display the application and control panel.
      * @return
      */
-    private Dimension getSize(boolean includeControls)
+    private static Dimension getSize(boolean includeControls)
     {     
         //The control panel size is hard coded for now, since it has different sizes on different platforms. 
         //It is bigger on windows than most other platforms, so this is the size that is used.
@@ -396,10 +416,12 @@ public class Exporter implements PublishListener
     /**
      * Something went wrong when publishing.
      */
+    @Override
     public void errorRecieved(final PublishEvent event)
     {
         deleteTmpFiles();
         SwingUtilities.invokeLater(new Runnable() {
+            @Override
             public void run()
             {
                 dlg.publishFinished(false,  Config.getString("export.publish.fail") + " " + event.getMessage());
@@ -410,10 +432,12 @@ public class Exporter implements PublishListener
     /**
      * Publish succeeded.
      */    
+    @Override
     public void uploadComplete(PublishEvent event)
     {
         deleteTmpFiles();
         SwingUtilities.invokeLater(new Runnable() {
+            @Override
             public void run()
             {
                 dlg.publishFinished(true, Config.getString("export.publish.complete"));
@@ -443,6 +467,7 @@ public class Exporter implements PublishListener
     public void gotUploadSize(final int size)
     {
         SwingUtilities.invokeLater(new Runnable() {
+            @Override
             public void run()
             {
                 dlg.gotUploadSize(size);
@@ -453,9 +478,11 @@ public class Exporter implements PublishListener
     /**
      * Upload progress made.
      */
+    @Override
     public void progressMade(final PublishEvent event)
     {
         SwingUtilities.invokeLater(new Runnable() {
+            @Override
             public void run()
             {
                 dlg.progressMade(event.getBytes());

@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2013  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -169,19 +169,22 @@ public class ExportDialog extends EscapeDialog
      */
     public void setProgress(final boolean showProgress, final String text)
     {
-        SwingUtilities.invokeLater(new Runnable() { public void run() { 
-            progressBar.setVisible(showProgress);
-            if (! showProgress) {
-                progressBar.setIndeterminate(true);
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() { 
+                progressBar.setVisible(showProgress);
+                if (! showProgress) {
+                    progressBar.setIndeterminate(true);
+                }
+                if(text == null) {
+                    progressLabel.setVisible(false);
+                }
+                else {
+                    progressLabel.setText(text);
+                    progressLabel.setVisible(true);
+                }
             }
-            if(text == null) {
-                progressLabel.setVisible(false);
-            }
-            else {
-                progressLabel.setText(text);
-                progressLabel.setVisible(true);
-            }
-        }});
+        });
     }
 
     /**
@@ -229,6 +232,7 @@ public class ExportDialog extends EscapeDialog
      * A separate thread to execute the actual exporting.
      */
     class ExportThread extends Thread {
+        @Override
         public void run() 
         {
             try {
@@ -246,9 +250,13 @@ public class ExportDialog extends EscapeDialog
                 if(function.equals(ExportAppPane.FUNCTION)) {
                     exporter.makeApplication(project, (ExportAppPane)pane, ExportDialog.this);
                 }
+                if(function.equals(ExportProjectPane.FUNCTION)) {
+                    exporter.makeProject(project, (ExportProjectPane)pane, ExportDialog.this);
+                }
             }
             finally {
                 SwingUtilities.invokeLater(new Runnable() {
+                    @Override
                     public void run()
                     {
                         enableButtons(true);
@@ -298,6 +306,7 @@ public class ExportDialog extends EscapeDialog
     /** 
      * Called when the selection of the tabs changes.
      */
+    @Override
     public void tabSelected(String function)
     {
         showPane(function, true);
@@ -337,9 +346,9 @@ public class ExportDialog extends EscapeDialog
         panes.put(ExportPublishPane.FUNCTION, new ExportPublishPane(project, this));
         panes.put(ExportWebPagePane.FUNCTION, new ExportWebPagePane(project.getName(), defaultExportDir));
         panes.put(ExportAppPane.FUNCTION, new ExportAppPane(project.getName(), defaultExportDir));
+        panes.put(ExportProjectPane.FUNCTION, new ExportProjectPane(project.getName(), defaultExportDir));
         
         fixSizes(panes);
-        
     }
 
     /**
@@ -348,11 +357,9 @@ public class ExportDialog extends EscapeDialog
      */
     private void makeDialog()
     {
-        String preferredPane = Config.getPropString("greenfoot.lastExportPane",
-                                                    ExportPublishPane.FUNCTION);
+        String preferredPane = Config.getPropString("greenfoot.lastExportPane", ExportPublishPane.FUNCTION);
 
         contentPane = (JPanel) getContentPane();
-        
         contentPane.setLayout(new BorderLayout());
         contentPane.setBorder(null);
         contentPane.setBackground(new Color(220, 220, 220));
@@ -383,12 +390,20 @@ public class ExportDialog extends EscapeDialog
 
                 continueButton = new JButton(Config.getString("export.dialog.continue"));
                 continueButton.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent evt) { doOK(); }                
+                    @Override
+                    public void actionPerformed(ActionEvent evt)
+                    {
+                        doOK();
+                    }                
                 });
 
                 closeButton = BlueJTheme.getCloseButton();
                 closeButton.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent evt) { doClose(); }                
+                    @Override
+                    public void actionPerformed(ActionEvent evt)
+                    {
+                        doClose();
+                    }                
                 });
 
                 if (Config.isMacOS()) {

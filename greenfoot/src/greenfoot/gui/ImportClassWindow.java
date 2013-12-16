@@ -62,6 +62,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
+import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
@@ -132,6 +133,7 @@ public class ImportClassWindow extends JFrame
         setContentPane(main);
         
         ActionListener actionListener = new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent actionEvent) {
               setVisible(false);
             }
@@ -147,6 +149,7 @@ public class ImportClassWindow extends JFrame
             getRootPane().setDefaultButton(okButton);
 
             JButton cancelButton = new JButton(new AbstractAction(Config.getString("greenfoot.cancel")) {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     setVisible(false);                                                
@@ -165,6 +168,7 @@ public class ImportClassWindow extends JFrame
         findAddImportableClasses(new File(Config.getGreenfootLibDir(), "common"), 0);
                     
         JScrollPane classScrollPane = new JScrollPane(classList) {
+            @Override
             public Dimension getPreferredSize()
             {
                 Dimension size = super.getPreferredSize();
@@ -174,6 +178,7 @@ public class ImportClassWindow extends JFrame
                 return size;
             }
             
+            @Override
             public Dimension getMaximumSize()
             {
                 return getPreferredSize();
@@ -198,10 +203,10 @@ public class ImportClassWindow extends JFrame
         JPanel classInfo = new JPanel();
         classInfo.setBorder(new EmptyBorder(10, 5, 10, 5));
         classInfo.setLayout(new GridLayout(1, 2));
-        classLabel = new JLabel("", JLabel.CENTER);
+        classLabel = new JLabel("", SwingConstants.CENTER);
         classLabel.setFont(classLabel.getFont().deriveFont(24.0f));
         classInfo.add(classLabel);
-        classPicture = new JLabel((String)null, JLabel.CENTER);
+        classPicture = new JLabel((String)null, SwingConstants.CENTER);
         classInfo.add(classPicture);
         rightPane.add(classInfo, BorderLayout.NORTH);
         rightPane.add(new JScrollPane(htmlPane), BorderLayout.CENTER);
@@ -285,20 +290,20 @@ public class ImportClassWindow extends JFrame
             initUI();
         }
         
+        @Override
         protected boolean isValidClass()
         {
             return true;
         }
 
+        @Override
         protected boolean isUncompiled()
         {
             return false;
         }
 
         @Override
-        protected void doubleClick()
-        {
-        }
+        protected void doubleClick() {}
 
         @Override
         public void select()
@@ -338,9 +343,7 @@ public class ImportClassWindow extends JFrame
         }
 
         @Override
-        protected void maybeShowPopup(MouseEvent e)
-        {          
-        }
+        protected void maybeShowPopup(MouseEvent e) {}
     }
     
     //File dir = new File(Config.getGreenfootLibDir(), "common");

@@ -19,7 +19,6 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-
 package greenfoot.gui.export;
 
 import greenfoot.util.FileChoosers;
@@ -38,54 +37,48 @@ import javax.swing.JTextField;
 
 import bluej.BlueJTheme;
 import bluej.Config;
+import javax.swing.JOptionPane;
 
 /**
- * ExportWebPagePane.java
- *
- * @author Michael Kolling
+ * Export dialog pane for exporting to a gfar project.
+ * 
+ * @author Amjad Altadmri
  */
-public class ExportWebPagePane extends ExportPane
+public class ExportProjectPane extends ExportPane
 {
-    public static final String FUNCTION = "WEB";
+    public static final String FUNCTION = "PROJECT";
     
-    private static final String helpLine1 = Config.getString("export.web.help");
-    private static final String exportLocationLabelText = Config.getString("export.web.exportLocation");
-
+    private static final String helpLine1 = Config.getString("export.project.help");
+    private static final String exportLocationLabelText = Config.getString("export.project.location");
+    
     private JTextField targetDirField;
-
-    /** 
-     * Create a an export pane for export to web pages.
-     */
-    public ExportWebPagePane(String scenarioName, File defaultExportDir) 
+    
+    /** Creates a new instance of ExportAppPane */
+    public ExportProjectPane(String scenarioName, File defaultExportDir) 
     {
         super();
-        File exportDir = new File(defaultExportDir, scenarioName + "-export");
-
-        if (exportDir.exists()) {
-            exportDir.delete();
-        }
-        
-        makePane(exportDir);
+        File targetFile = new File(defaultExportDir, scenarioName + ".gfar");
+        makePane(targetFile);
     }
     
     /**
      * Return the directory where the scenario should be exported.
      */
-    public String getExportLocation()
+    public String getExportName()
     {
         return targetDirField.getText();
     }
-
+    
     /**
      * Build the component.
      */
-    private void makePane(final File defaultDir)
+    private void makePane(final File targetFile)
     {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(BlueJTheme.dialogBorder);
         setBackground(backgroundColor);
 
-        targetDirField = new JTextField(defaultDir.toString(), 24);
+        targetDirField = new JTextField(targetFile.toString(), 26);
         targetDirField.setEditable(false);
 
         JLabel helpText1 = new JLabel(helpLine1);
@@ -109,35 +102,60 @@ public class ExportWebPagePane extends ExportPane
 
                 exportLocationPanel.add(targetDirField);
 
-                JButton browse = new JButton(Config.getString("export.web.browse"));
+                JButton browse = new JButton(Config.getString("export.project.browse"));
                 exportLocationPanel.add(browse);
                 browse.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e)
-                    {
-                        File file = FileChoosers.getFileName(ExportWebPagePane.this, defaultDir,
-                                                              Config.getString("export.web.choose"));
-                        if(file != null) {
-                            targetDirField.setText(file.getPath());
-                        }
+                    { 
+                        getFileName(targetFile); 
                     }
-                });                    
+                });                  
             }
             exportLocationPanel.setAlignmentX(LEFT_ALIGNMENT);
             inputPanel.add(exportLocationPanel);
-            inputPanel.add(Box.createVerticalStrut(4));
-
-            inputPanel.add(lockScenario);
+            inputPanel.add(Box.createVerticalStrut(5));
         }
 
         add(inputPanel);
+    }
+    
+    /**
+     * Get a user-chosen file name via a file system browser.
+     * Set the pane's text field to the selected file.
+     */
+    private void getFileName(File targetFile)
+    {
+        File file = FileChoosers.getFileName(this, targetFile, Config.getString("export.project.choose"));
+        if(file != null) {
+            String newName = file.getPath();
+            if(!newName.endsWith(".gfar")) {
+                if(! newName.toLowerCase().endsWith(".gfar")) {
+                    newName += ".gfar";
+                }
+                else {
+                    newName = newName.substring(0, newName.length()-".gfar".length());
+                    newName += ".gfar";
+                }
+            }
+            targetDirField.setText(newName);
+            if(file.exists()) {
+                String message = newName + " " + Config.getString("export.fileExists.message");
+                String title = "Warning";
+                int result = JOptionPane.showConfirmDialog(this, message, title, JOptionPane.YES_NO_OPTION);
+                if(result==JOptionPane.NO_OPTION) {
+                    getFileName(targetFile);
+                    return;
+                }
+            }
+        }
     }
 
     @Override
     public void activated()
     {
-        // Nothing special to do here        
-    }   
+        // Nothing special to do here
+    }    
     
     @Override
     public boolean prePublish()

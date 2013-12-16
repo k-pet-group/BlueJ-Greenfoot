@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2012  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2013  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,8 +29,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JPanel;
+import javax.swing.WindowConstants;
 
 import bluej.BlueJTheme;
 import bluej.utility.DialogManager;
@@ -61,7 +61,7 @@ public class MessageDialog extends EscapeDialog implements ActionListener
     public MessageDialog(Dialog owner, String message, String title, int width, JButton[] buttons)
     {
         super(owner, title);
-        setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         createDialog(message, buttons, width);
     }
     /**
@@ -77,7 +77,7 @@ public class MessageDialog extends EscapeDialog implements ActionListener
     public MessageDialog(Frame owner, String message, String title, int width, JButton[] buttons)
     {
         super(owner, title);
-        setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         createDialog(message, buttons, width);
     }
     
@@ -128,6 +128,7 @@ public class MessageDialog extends EscapeDialog implements ActionListener
     /**
      * Store the button pressed so that it can be returned. Close the dialog.
      */
+    @Override
     public void actionPerformed(ActionEvent e)
     {
         JButton button = (JButton) e.getSource();

@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2013  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2013  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -84,6 +84,7 @@ import java.awt.Image;
 import java.awt.Menu;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -140,7 +141,7 @@ public class GreenfootFrame extends JFrame
     private static final int WORLD_MARGIN = 40;
 
     private static final int accelModifier = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
-    private static final int shiftAccelModifier = accelModifier | KeyEvent.SHIFT_MASK;
+    private static final int shiftAccelModifier = accelModifier | InputEvent.SHIFT_MASK;
 
     private RBlueJ rBlueJ;
     private GProject project;
@@ -278,7 +279,6 @@ public class GreenfootFrame extends JFrame
             setBounds(40, 40, 700, 500);
             setResizeWhenPossible(true);
         }
-        
     }
 
     
@@ -340,7 +340,8 @@ public class GreenfootFrame extends JFrame
                 ProjectProperties props = project.getProjectProperties();
                 int initialSpeed = props.getInt("simulation.speed");
                 Simulation.getInstance().setSpeed(initialSpeed);
-            } catch (NumberFormatException nfe) {
+            }
+            catch (NumberFormatException nfe) {
                 // If there is no speed info in the properties we don't care...
             }
             
@@ -440,6 +441,7 @@ public class GreenfootFrame extends JFrame
         };
 
         sim.addSimulationListener(new SimulationListener() {
+            @Override
             public void simulationChanged(SimulationEvent e)
             {
                 // If the simulation starts, try to transfer keyboard
@@ -524,6 +526,7 @@ public class GreenfootFrame extends JFrame
         // the class browser 
         
         classScrollPane = new JScrollPane(classBrowser) {
+            @Override
             public Dimension getPreferredSize()
             {
                 Dimension size = super.getPreferredSize();
@@ -583,6 +586,7 @@ public class GreenfootFrame extends JFrame
      * 
      * <p>Call on event thread only.
      */
+    @Override
     public void pack()
     {
         super.pack();
@@ -608,6 +612,7 @@ public class GreenfootFrame extends JFrame
      * Return the preferred size for the frame. The preferred size adds a bit of
      * spacing to the default size to get a margin around the world display.
      */
+    @Override
     public  Dimension getPreferredSize()
     {
         Dimension dim = super.getPreferredSize();
@@ -756,7 +761,7 @@ public class GreenfootFrame extends JFrame
     /** 
      * Add a menu to a menu bar.
      */
-    private JMenu addMenu(String name, JMenuBar menubar, char mnemonic)
+    private static JMenu addMenu(String name, JMenuBar menubar, char mnemonic)
     {
         JMenu menu = new JMenu(name);
         if(!Config.isMacOS()) {
@@ -769,7 +774,7 @@ public class GreenfootFrame extends JFrame
     /** 
      * Add a menu item to a menu.
      */
-    private void addMenuItem(Action action, JMenu menu, int accelKey, boolean shift, int mnemonicKey)
+    private static void addMenuItem(Action action, JMenu menu, int accelKey, boolean shift, int mnemonicKey)
     {
         if(accelKey != -1) {
             if(shift) {
@@ -798,7 +803,7 @@ public class GreenfootFrame extends JFrame
      * @param shift         Used to determine if the accelKey needs shift pressed to happen
      * @param mnemonicKey   Quick keyboard shortcut via the menu for this action.
      */
-    private void createCheckboxMenuItem(ToggleAction action, boolean selected, JMenu menu, int accelKey, boolean shift, int mnemonicKey)
+    private static void createCheckboxMenuItem(ToggleAction action, boolean selected, JMenu menu, int accelKey, boolean shift, int mnemonicKey)
     {
         if(accelKey != -1) {
             if(shift) {
@@ -815,7 +820,8 @@ public class GreenfootFrame extends JFrame
         ButtonModel bm = action.getToggleModel();
         if (bm == null) {
             item.setSelected(selected);
-        } else {
+        }
+        else {
             item.setModel(bm);
         }
         menu.add(item);
@@ -892,6 +898,7 @@ public class GreenfootFrame extends JFrame
      * @see java.awt.Window#dispose()
      * @see #exit()
      */
+    @Override
     public void dispose()
     {
         // I will not close :-)
@@ -900,6 +907,7 @@ public class GreenfootFrame extends JFrame
     /**
      * Returns the maximum size, which is the size of the screen.
      */
+    @Override
     public Dimension getMaximumSize()
     {
         return Toolkit.getDefaultToolkit().getScreenSize();
@@ -929,9 +937,7 @@ public class GreenfootFrame extends JFrame
         else if ( worldDimensions.width < dim.width || worldDimensions.height < dim.height ) {
             return true;
         }
-        else {
-            return false;
-        }
+        return false;
     }
     
     /**
@@ -991,21 +997,28 @@ public class GreenfootFrame extends JFrame
     
     // ----------- WindowListener interface -----------
     
+    @Override
     public void windowOpened(WindowEvent e) {}
 
+    @Override
     public void windowClosing(WindowEvent e)
     {
         GreenfootMain.closeProject(this, true);
     }
 
+    @Override
     public void windowClosed(WindowEvent e) {}
 
+    @Override
     public void windowIconified(WindowEvent e) {}
 
+    @Override
     public void windowDeiconified(WindowEvent e) {}
 
+    @Override
     public void windowActivated(WindowEvent e) {}
 
+    @Override
     public void windowDeactivated(WindowEvent e) {}
 
     // ----------- CompileListener interface -----------
@@ -1027,6 +1040,7 @@ public class GreenfootFrame extends JFrame
     public void compileSucceeded(RCompileEvent event)
     {
         EventQueue.invokeLater(new Runnable() {
+            @Override
             public void run()
             {
                 WorldHandler.getInstance().instantiateNewWorld();
@@ -1042,6 +1056,7 @@ public class GreenfootFrame extends JFrame
     public void compileFailed(RCompileEvent event)
     {
         EventQueue.invokeLater(new Runnable() {
+            @Override
             public void run()
             {
                 compileAllAction.setEnabled(project != null);
@@ -1086,6 +1101,7 @@ public class GreenfootFrame extends JFrame
     
     // ------------- SelectionListener interface ---------------
     
+    @Override
     public void selectionChange(Selectable source)
     {
         if (source instanceof ClassView) {

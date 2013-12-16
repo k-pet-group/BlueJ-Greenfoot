@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2013  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -106,6 +106,7 @@ public class ExportAppPane extends ExportPane
                 JButton browse = new JButton(Config.getString("export.app.browse"));
                 exportLocationPanel.add(browse);
                 browse.addActionListener(new ActionListener() {
+                    @Override
                     public void actionPerformed(ActionEvent e) { getFileName(targetFile); }
                 });                    
             }
@@ -139,7 +140,7 @@ public class ExportAppPane extends ExportPane
             }
             targetDirField.setText(newName);
             if(file.exists()) {
-                String message = newName + " already exists. Overwrite?";
+                String message = newName + " " + Config.getString("export.fileExists.message");
                 String title = "Warning";
                 int result = JOptionPane.showConfirmDialog(this, message, title, JOptionPane.YES_NO_OPTION);
                 if(result==JOptionPane.NO_OPTION) {

@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2013  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,16 +21,6 @@
  */
 package greenfoot.gui.export;
 
-/*
- * Class TabbedIconPane is a component that holds a few mutually exclusive
- * selectable icons - a bit like a JTabbedPane.
- *
- * Currently hardcoded for one set of icons. Could be generalised if needed.
- *
- * @author Michael Kolling
- * @version $Id: TabbedIconPane.java 8827 2011-04-04 10:08:45Z nccb $
- */
-
 import bluej.Config;
 import java.awt.Color;
 import java.awt.FlowLayout;
@@ -41,7 +31,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -50,8 +39,15 @@ import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 
-public class TabbedIconPane extends JPanel
-        implements ActionListener
+/**
+ * Class TabbedIconPane is a component that holds a few mutually exclusive
+ * selectable icons - a bit like a JTabbedPane.
+ *
+ * Currently hardcoded for one set of icons. Could be generalised if needed.
+ *
+ * @author Michael Kolling
+ */
+public class TabbedIconPane extends JPanel implements ActionListener
 {
     private static final Color backgroundColor = new Color(250, 250, 250);
     private static final Color selectedColor = new Color(220, 220, 220);
@@ -93,11 +89,10 @@ public class TabbedIconPane extends JPanel
         panel.setBorder(null);
         panel.setBackground(backgroundColor);
 
-        ButtonGroup group = new ButtonGroup();
-
-        makeButton(Config.getString("export.icontab.publish"), "export-publish", ExportPublishPane.FUNCTION, initialSelect, group, panel);
-        makeButton(Config.getString("export.icontab.webpage"), "export-webpage", ExportWebPagePane.FUNCTION, initialSelect, group, panel);
-        makeButton(Config.getString("export.icontab.application"), "export-app", ExportAppPane.FUNCTION, initialSelect, group, panel);
+        makeButton(Config.getString("export.icontab.publish"), "export-publish", ExportPublishPane.FUNCTION, initialSelect, panel);
+        makeButton(Config.getString("export.icontab.webpage"), "export-webpage", ExportWebPagePane.FUNCTION, initialSelect, panel);
+        makeButton(Config.getString("export.icontab.application"), "export-app", ExportAppPane.FUNCTION, initialSelect, panel);
+        makeButton(Config.getString("export.icontab.project"), "export-project", ExportProjectPane.FUNCTION, initialSelect, panel);
 
         return panel;
     }
@@ -106,7 +101,7 @@ public class TabbedIconPane extends JPanel
      * Make one of the buttons to go into this component.
      */
     private JRadioButton makeButton(String text, String iconName, String command, 
-                                    String selectCommand, ButtonGroup group, JPanel parent)
+                                    String selectCommand, JPanel parent)
     {
         URL iconFile = this.getClass().getClassLoader().getResource(iconName + ".png");
         ImageIcon icon = null;
@@ -149,6 +144,7 @@ public class TabbedIconPane extends JPanel
     /**
      * A tab in this tabbed pane has been selected.
      */
+    @Override
     public void actionPerformed(ActionEvent e) 
     {
         deselect(selected);
@@ -171,7 +167,7 @@ public class TabbedIconPane extends JPanel
     /**
      * Decorate the given button so that it appears deselected.
      */
-    private void deselect(JRadioButton button)
+    private static void deselect(JRadioButton button)
     {
         JPanel parent = (JPanel)button.getParent();
         parent.setBackground(backgroundColor);

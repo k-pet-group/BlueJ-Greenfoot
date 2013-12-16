@@ -199,7 +199,8 @@ LICENSE.txt file that accompanied this code.${line.separator}
                 srcdir="${src}" 
                 destdir="${build}" 
                 classpathref="bluej.class.path" 
-                debug="true">
+                debug="true"
+        		includeantruntime="false">
             <compilerarg line="-target 1.6" />
             <compilerarg line="-source 1.6" /> <!-- Otherwise Java 7 (and above) complains -->
         </javac>
@@ -242,7 +243,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <macrodef name="compile-scenario">
             <attribute name="scenario" />
             <sequential>
-                <javac srcdir="scenarios/@{scenario}" debug="true" target="1.6" source="1.6">
+                <javac srcdir="scenarios/@{scenario}" debug="true" target="1.6" source="1.6" includeantruntime="false">
                     <classpath>
                         <path refid="greenfoot.class.path"/>
                         <path refid="bluej.class.path"/>
@@ -341,7 +342,8 @@ LICENSE.txt file that accompanied this code.${line.separator}
 
 	<target name="build-common-jar" description="Create a jar with a common class dependencies." >
 	    <!-- Should first delete the class files in common (depend on clean-common) -->
-		<javac srcdir="common/${common.class}/src" destdir="common/${common.class}/classes" debug="true" target="1.6" source="1.6">
+		<javac srcdir="common/${common.class}/src" destdir="common/${common.class}/classes"
+			debug="true" target="1.6" source="1.6" includeantruntime="false">
 			<classpath>
 				<fileset dir="common/${common.class}/lib/">
 				    <include name="*.jar"/>
@@ -436,6 +438,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <copy file="resources/images/reset.png" todir="images"/>
         <!-- Export icons -->
         <copy file="resources/images/export-app.png" todir="images"/>
+        <copy file="resources/images/export-project.png" todir="images"/>
         <copy file="resources/images/export-publish.png" todir="images"/>
         <copy file="resources/images/export-publish-small.png" todir="images"/>
         <copy file="resources/images/export-webpage.png" todir="images"/>
@@ -650,6 +653,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
             sourcepath=""
         	source="1.6"
             target="1.6"
+        	includeantruntime="false"
         >
             <src path="${src}"/>
 

@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2013  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -239,7 +239,7 @@ public class ExportPublishPane extends ExportPane implements ChangeListener
     private void setTags(List<String> tags)
     {
         StringBuilder newTags = new StringBuilder();
-        boolean isFirstNewTag = true;;
+        boolean isFirstNewTag = true;
         for (Iterator<String> iterator = tags.iterator(); iterator.hasNext();) {
             String tag = iterator.next();
             if(WITH_SOURCE_TAG.equals(tag)) {
@@ -390,7 +390,7 @@ public class ExportPublishPane extends ExportPane implements ChangeListener
      * Build a help box with a link to appropriate help
      * @return help box
      */
-    private Box getHelpBox()
+    private static Box getHelpBox()
     {
         Box helpBox = new Box(BoxLayout.X_AXIS);
         helpBox.setAlignmentX(LEFT_ALIGNMENT);
@@ -459,7 +459,8 @@ public class ExportPublishPane extends ExportPane implements ChangeListener
         
         if(includeSourceCode() && !tagList.contains(WITH_SOURCE_TAG)) {
             tagList.add(WITH_SOURCE_TAG);
-        } else if (!includeSourceCode()){
+        }
+        else if (!includeSourceCode()){
             tagList.remove(WITH_SOURCE_TAG);
         }
         return tagList;
@@ -595,7 +596,8 @@ public class ExportPublishPane extends ExportPane implements ChangeListener
                         tags = client.getCommonTags(hostAddress, popTags.length + 1);
                         if(tags.contains(WITH_SOURCE_TAG)) {
                             tags.remove(WITH_SOURCE_TAG);
-                        } else {
+                        }
+                        else {
                             if (! tags.isEmpty()) {
                                 tags.remove(tags.size() - 1);
                             }
@@ -652,9 +654,7 @@ public class ExportPublishPane extends ExportPane implements ChangeListener
         if (hostname.endsWith("/")) {
             return hostname;
         }
-        else {
-            return hostname + "/";
-        }
+        return hostname + "/";
     }
     
     /**
@@ -851,11 +851,11 @@ public class ExportPublishPane extends ExportPane implements ChangeListener
      * Of interest is the state of the keep scenario checkbox as that
      * determines whether the image panel is enabled or disabled
      */
+    @Override
     public void stateChanged(ChangeEvent e)
     {
         if (e.getSource().equals(keepScenarioScreenshot)){
-            if (keepScenarioScreenshot.isSelected())
-            {
+            if (keepScenarioScreenshot.isSelected()) {
                 imagePanel.enableImageEditPanel(false);
             }
             else {
@@ -891,5 +891,4 @@ public class ExportPublishPane extends ExportPane implements ChangeListener
             updateScenarioDisplay();
         }
     }
-
 }
