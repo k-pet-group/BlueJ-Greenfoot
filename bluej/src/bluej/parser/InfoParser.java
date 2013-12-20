@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -193,9 +193,7 @@ public class InfoParser extends EditorParser
             infoParser.resolveComments();
             return infoParser.info;
         }
-        else {
-            return null;
-        }
+        return null;
     }
     
     /**
@@ -441,6 +439,13 @@ public class InfoParser extends EditorParser
     }
 
     @Override
+    protected void gotTypeParam(LocatableToken idToken)
+    {
+        super.gotTypeParam(idToken);
+        info.addTypeParameterText(idToken.getText());
+    }
+    
+    @Override
     protected void gotTypeParamBound(List<LocatableToken> tokens)
     {
         super.gotTypeParamBound(tokens);
@@ -505,6 +510,7 @@ public class InfoParser extends EditorParser
         }
     }
     
+    @Override
     protected void gotMethodDeclaration(LocatableToken token, LocatableToken hiddenToken)
     {
         super.gotMethodDeclaration(token, hiddenToken);
@@ -518,6 +524,7 @@ public class InfoParser extends EditorParser
         arrayCount = 0;
     }
 
+    @Override
     protected void gotConstructorDecl(LocatableToken token, LocatableToken hiddenToken)
     {
         super.gotConstructorDecl(token, hiddenToken);
@@ -530,6 +537,7 @@ public class InfoParser extends EditorParser
         arrayCount = 0;
     }
 
+    @Override
     protected void gotMethodParameter(LocatableToken token, LocatableToken ellipsisToken)
     {
         super.gotMethodParameter(token, ellipsisToken);
@@ -555,6 +563,7 @@ public class InfoParser extends EditorParser
         arrayCount++;
     }
 
+    @Override
     protected void gotAllMethodParameters()
     {
         super.gotAllMethodParameters();
@@ -573,6 +582,7 @@ public class InfoParser extends EditorParser
         lastTdType = tdType;
     }
 
+    @Override
     protected void gotTypeDefName(LocatableToken nameToken)
     {
         super.gotTypeDefName(nameToken);
@@ -593,12 +603,14 @@ public class InfoParser extends EditorParser
                             joinTokens(packageTokens), getSelection(pkgSemiToken));
                 }
                 storeCurrentClassInfo = true;
-            } else {
+            }
+            else {
                 storeCurrentClassInfo = false;
             }
         }
     }
 
+    @Override
     protected void gotTypeDefExtends(LocatableToken extendsToken)
     {
         super.gotTypeDefExtends(extendsToken);
@@ -623,6 +635,7 @@ public class InfoParser extends EditorParser
         }
     }
 
+    @Override
     protected void gotTypeDefImplements(LocatableToken implementsToken)
     {
         super.gotTypeDefImplements(implementsToken);
@@ -635,18 +648,21 @@ public class InfoParser extends EditorParser
         }
     }
 
+    @Override
     protected void beginPackageStatement(LocatableToken token)
     {
         super.beginPackageStatement(token);
         pkgLiteralToken = token;
     }
 
+    @Override
     protected void gotPackage(List<LocatableToken> pkgTokens)
     {
         super.gotPackage(pkgTokens);
         packageTokens = pkgTokens;
     }
 
+    @Override
     protected void gotPackageSemi(LocatableToken token)
     {
         super.gotPackageSemi(token);

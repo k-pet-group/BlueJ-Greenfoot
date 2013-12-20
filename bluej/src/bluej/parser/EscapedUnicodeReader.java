@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2013  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -59,6 +59,7 @@ public final class EscapedUnicodeReader extends Reader
         this.position = position;
     }
 
+    @Override
     public int read(char [] buffer, int off, int len) throws IOException
     {
         int numRead = 0;
@@ -77,9 +78,7 @@ public final class EscapedUnicodeReader extends Reader
                 if (numRead == 0) {
                     throw ioe;
                 }
-                else { 
-                    break;
-                }
+                break;
             }
         }
 
@@ -90,6 +89,7 @@ public final class EscapedUnicodeReader extends Reader
         return numRead;
     }
 
+    @Override
     public void close() throws IOException
     {
         sourceReader.close();
@@ -109,9 +109,7 @@ public final class EscapedUnicodeReader extends Reader
             }
             return bufferedChar;
         }
-        else {
-            rchar = readSourceChar();
-        }
+        rchar = readSourceChar();
 
         if (rchar == '\\') {
             // This could be the beginning of an escaped unicode sequence,
@@ -122,10 +120,8 @@ public final class EscapedUnicodeReader extends Reader
                 column++; position++;
                 return readEscapedUnicodeSequence();
             }
-            else {
-                putBuffer(nchar);             
-                return '\\';
-            }
+            putBuffer(nchar);             
+            return '\\';
         }
 
         return rchar;

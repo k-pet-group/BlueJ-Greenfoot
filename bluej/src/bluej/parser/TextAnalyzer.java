@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -181,16 +181,14 @@ public class TextAnalyzer
                     if (exprType == null) {
                         return "";
                     }
-                    else {
-                        JavaEntity rval =  exprType.resolveAsValue();
-                        if (rval != null) {
-                            if (rval.getType().typeIs(JavaPrimitiveType.JT_VOID)) {
-                                return null;
-                            }
-                            return rval.getType().toString();
+                    JavaEntity rval =  exprType.resolveAsValue();
+                    if (rval != null) {
+                        if (rval.getType().typeIs(JavaType.JT_VOID)) {
+                            return null;
                         }
-                        return "";
+                        return rval.getType().toString();
                     }
+                    return "";
                 }
             }
             catch (ParseFailure e) {}
@@ -209,11 +207,13 @@ public class TextAnalyzer
     {
         EntityResolver resolver = new EntityResolver()
         {
+            @Override
             public TypeEntity resolveQualifiedClass(String name)
             {
                 return parentResolver.resolveQualifiedClass(name);
             }
             
+            @Override
             public PackageOrClass resolvePackageOrClass(String name, Reflective querySource)
             {
                 String pkgScopePrefix = packageScope;
@@ -250,6 +250,7 @@ public class TextAnalyzer
                 return new PackageEntity(name, this);
             }
             
+            @Override
             public JavaEntity getValueEntity(String name, Reflective querySource)
             {
                 NamedValue obVal = objectBench.getNamedValue(name);
@@ -434,7 +435,7 @@ public class TextAnalyzer
         JavaType conditionType = condition.getType();
         
         // The condition must be boolean:
-        if (conditionType == null || ! conditionType.typeIs(JavaPrimitiveType.JT_BOOLEAN)) {
+        if (conditionType == null || ! conditionType.typeIs(JavaType.JT_BOOLEAN)) {
             return null;
         }
         
@@ -556,10 +557,10 @@ public class TextAnalyzer
     private static JavaType captureConversion(JavaType o)
     {
         GenTypeClass c = o.asClass();
-        if (c != null)
+        if (c != null) {
             return captureConversion(c, new HashMap<String,GenTypeSolid>());
-        else
-            return o;
+        }
+        return o;
     }
     
     /**
@@ -584,8 +585,8 @@ public class TextAnalyzer
         Iterator<? extends GenTypeParameter> i = oldArgs.iterator();
         Iterator<GenTypeDeclTpar> boundsIterator = c.getReflective().getTypeParams().iterator();
         while (i.hasNext()) {
-            GenTypeParameter targ = (GenTypeParameter) i.next();
-            GenTypeDeclTpar tpar = (GenTypeDeclTpar) boundsIterator.next();
+            GenTypeParameter targ = i.next();
+            GenTypeDeclTpar tpar = boundsIterator.next();
             GenTypeSolid newArg;
             if (targ instanceof GenTypeWildcard) {
                 GenTypeWildcard wc = (GenTypeWildcard) targ;
@@ -638,9 +639,7 @@ public class TextAnalyzer
         if (ua.isNumeric() && ub.isNumeric()) {
             return JavaPrimitiveType.getInt();
         }
-        else {
-            return null;
-        }
+        return null;
     }
     
     /**
@@ -664,9 +663,7 @@ public class TextAnalyzer
         if (ua.isNumeric()) {
             return JavaPrimitiveType.getInt();
         }
-        else {
-            return null;
-        }
+        return null;
     }
     
     /**
@@ -919,7 +916,7 @@ public class TextAnalyzer
             // Our initial map has the class type parameters, minus those which are
             // shadowed by the method's type parameters (map to themselves).
             for (Iterator<GenTypeDeclTpar> i = tparams.iterator(); i.hasNext(); ) {
-                GenTypeDeclTpar tpar = (GenTypeDeclTpar) i.next();
+                GenTypeDeclTpar tpar = i.next();
                 tparMap.put(tpar.getTparName(), tpar);
             }
             
@@ -943,14 +940,14 @@ public class TextAnalyzer
             targs = new ArrayList<GenTypeParameter>();
             Iterator<GenTypeDeclTpar> i = tparams.iterator();
             while (i.hasNext()) {
-                GenTypeDeclTpar fTpar = (GenTypeDeclTpar) i.next();
+                GenTypeDeclTpar fTpar = i.next();
                 String tparName = fTpar.getTparName();
-                GenTypeSolid eqConstraint = (GenTypeSolid) teqConstraints.get(tparName);
+                GenTypeSolid eqConstraint = teqConstraints.get(tparName);
                 // If there's no equality constraint, use the lower bound constraints
                 if (eqConstraint == null) {
                     Set<GenTypeSolid> lbConstraintSet = tlbConstraints.get(tparName);
                     if (lbConstraintSet != null) {
-                        GenTypeSolid [] lbounds = (GenTypeSolid []) lbConstraintSet.toArray(new GenTypeSolid[lbConstraintSet.size()]);
+                        GenTypeSolid [] lbounds = lbConstraintSet.toArray(new GenTypeSolid[lbConstraintSet.size()]);
                         eqConstraint = GenTypeSolid.lub(lbounds); 
                     }
                     else {
@@ -960,7 +957,7 @@ public class TextAnalyzer
                     }
                 }
                 eqConstraint = (GenTypeSolid) eqConstraint.mapTparsToTypes(tparMap);
-                targs.add((GenTypeClass) eqConstraint);
+                targs.add(eqConstraint);
                 tparMap.put(tparName, eqConstraint);
             }
         }
@@ -970,7 +967,7 @@ public class TextAnalyzer
             Iterator<GenTypeDeclTpar> formalI = tparams.iterator();
             Iterator<GenTypeParameter> actualI = targs.iterator();
             while (formalI.hasNext()) {
-                GenTypeDeclTpar formalTpar = (GenTypeDeclTpar) formalI.next();
+                GenTypeDeclTpar formalTpar = formalI.next();
                 GenTypeSolid argTpar = (GenTypeSolid) actualI.next();
                 
                 // first we check that the argument type is a subtype of the
@@ -1389,7 +1386,7 @@ public class TextAnalyzer
                     boolean replaced = false;
                     for (int j = 0; j < suitableMethods.size(); j++) {
                         //suitableMethods.add(methods[i]);
-                        MethodCallDesc mc = (MethodCallDesc) suitableMethods.get(j);
+                        MethodCallDesc mc = suitableMethods.get(j);
                         int compare = mcd.compareSpecificity(mc);
                         if (compare == 1) {
                             // this method is more specific
@@ -1453,13 +1450,8 @@ public class TextAnalyzer
             else if (cName.equals("java.lang.Boolean")) {
                 return JavaPrimitiveType.getBoolean();
             }
-            else {
-                return b;
-            }
         }
-        else {
-            return b;
-        }
+        return b;
     }
     
     /**

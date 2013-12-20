@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -61,7 +61,7 @@ public final class ClassInfo
     private List<String> used = new ArrayList<String>();
     private List<SavedComment> comments = new LinkedList<SavedComment>();
     
-    private List<String> typeParameterTexts;
+    private List<String> typeParameterTexts = new ArrayList<String>();
     private Selection typeParametersSelection;
     private Selection extendsReplaceSelection;
 
@@ -166,38 +166,45 @@ public final class ClassInfo
 
     public void addImplements(String name)
     {
-        if(name.equals(this.name))
+        if(name.equals(this.name)) {
             return;
+        }
 
-        if(!implemented.contains(name))
+        if(!implemented.contains(name)) {
             implemented.add(name);
+        }
     }
     
     public void addImported(String name)
     {
-        if(name.equals(this.name))
+        if(name.equals(this.name)) {
             return;
+        }
     
-        if(!imported.contains(name))
+        if(!imported.contains(name)) {
             imported.add(name);
+        }
     }
 
     public void addUsed(String name)
     {
-        if(name.equals(this.name))
+        if(name.equals(this.name)) {
             return;
+        }
 
         // don't add predefined types (int, boolean, String, etc)
         //if(SymbolTable.getPredefined().contains(name))
         //    return;
 
         // don't add superclass
-        if(name.equals(superclass))
+        if(name.equals(superclass)) {
             return;
+        }
 
         // don't add if already there
-        if(! used.contains(name))
+        if(! used.contains(name)) {
             used.add(name);
+        }
     }
 
     /**
@@ -357,6 +364,11 @@ public final class ClassInfo
     public void setInterfaceSelections(List<Selection> selections)
     {
         interfaceSelections = selections;
+    }
+    
+    public void addTypeParameterText(String typeParameterText)
+    {
+        typeParameterTexts.add(typeParameterText);
     }
     
     public List<String> getTypeParameterTexts()
@@ -537,19 +549,22 @@ public final class ClassInfo
         System.out.println();
         System.out.println("implements:");
         Iterator<String> it = implemented.iterator();
-        while(it.hasNext())
-            System.out.println("   " + (String)it.next());
+        while(it.hasNext()) {
+            System.out.println("   " + it.next());
+        }
 
         System.out.println();
         System.out.println("uses:");
         it = used.iterator();
-        while(it.hasNext())
-            System.out.println("   " + (String)it.next());
+        while(it.hasNext()) {
+            System.out.println("   " + it.next());
+        }
 
         System.out.println();
         System.out.println("imports:");
         it = imported.iterator();
-        while(it.hasNext())
-            System.out.println("   " + (String)it.next());
+        while(it.hasNext()) {
+            System.out.println("   " + it.next());
+        }
     }
 }

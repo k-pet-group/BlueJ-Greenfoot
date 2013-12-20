@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2010,2011,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 2010-2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -280,7 +280,7 @@ public class EditorParser extends JavaParser
     /**
      * Join a sequence of tokens together to form a string.
      */
-    protected String joinTokens(List<LocatableToken> tokens)
+    protected static String joinTokens(List<LocatableToken> tokens)
     {
         StringBuffer r = new StringBuffer();
         for (LocatableToken token : tokens) {

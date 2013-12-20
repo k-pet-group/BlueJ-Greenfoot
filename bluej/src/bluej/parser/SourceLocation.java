@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -35,8 +35,9 @@ public class SourceLocation
     
     public SourceLocation(int line, int column)
     {
-        if (line < 1 || column < 1)
+        if (line < 1 || column < 1) {
             throw new IllegalArgumentException("line/column numbers must be > 0");
+        }
 
         this.line = line;
         this.column = column;
@@ -59,6 +60,7 @@ public class SourceLocation
         return column;
     }
 
+    @Override
     public String toString()
     {   
         return "<" + line + "," + column + ">";

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -87,6 +87,7 @@ public class ParseUtils
                     // For code completion purposes, consider this as an array of object with a tweaked name:
                     exprType = new GenTypeArrayClass(new ParsedArrayReflective(new JavaReflective(Object.class),"Object")
                     {
+                        @Override
                         public String getSimpleName()
                         {
                             return arrayComponent.toString() + "[]";
@@ -159,13 +160,14 @@ public class ParseUtils
 
             // Sort the completions by name
             Collections.sort(completions, new Comparator<AssistContent>() {
+                @Override
                 public int compare(AssistContent o1, AssistContent o2)
                 {
                     return o1.getDisplayName().compareTo(o2.getDisplayName());
                 }
             });
 
-            return (AssistContent []) completions.toArray(new AssistContent[completions.size()]);
+            return completions.toArray(new AssistContent[completions.size()]);
         }
 
         return null; // no completions
@@ -382,10 +384,13 @@ public class ParseUtils
                 switch (ttype) {
                 case JavaTokenTypes.BSR:
                     depthRef.depth--;
+                    break;
                 case JavaTokenTypes.SR:
                     depthRef.depth--;
+                    break;
                 default:
                     depthRef.depth--;
+                    break;
                 }
                 if (! i.hasNext()) {
                     break mainLoop;

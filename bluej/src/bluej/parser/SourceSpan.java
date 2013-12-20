@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -33,7 +33,7 @@ public class SourceSpan
     
     /**
      * @param start  the line/column location where the span starts
-     * @param end	 the line/column location where the span ends
+     * @param end    the line/column location where the span ends
      */
     public SourceSpan(SourceLocation start, SourceLocation end)
     {
@@ -91,6 +91,7 @@ public class SourceSpan
         return end.getLine();
     }
     
+    @Override
     public String toString()
     {
         return start.toString() + "-" + end.toString();
