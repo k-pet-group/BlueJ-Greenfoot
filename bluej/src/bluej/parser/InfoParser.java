@@ -443,6 +443,7 @@ public class InfoParser extends EditorParser
     {
         super.gotTypeParam(idToken);
         info.addTypeParameterText(idToken.getText());
+        info.setTypeParametersSelection(getSelection(idToken));
     }
     
     @Override

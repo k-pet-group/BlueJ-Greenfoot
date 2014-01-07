@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2012,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -613,6 +613,16 @@ public class ClassTarget extends DependentTarget
             setNaviviewExpanded(Boolean.parseBoolean(value));
             setProperty(NAVIVIEW_EXPANDED_PROPERTY, String.valueOf(value));
         }
+        
+        String typeParams = props.getProperty(prefix + ".typeParameters");
+        //typeParams is null only if the properties file is saved by an older
+        //version of Bluej, thus the type parameters have to fetched from the code
+        if (typeParams == null) {
+            analyseSource();    
+        }
+        else {
+            typeParameters = typeParams;
+        }
     }
 
     /**
@@ -640,14 +650,15 @@ public class ClassTarget extends DependentTarget
         //else if there was a previous setting use that
         if (editorOpen() && getProperty(NAVIVIEW_EXPANDED_PROPERTY)!=null){
             props.put(prefix + ".naviview.expanded", String.valueOf(getProperty(NAVIVIEW_EXPANDED_PROPERTY)));
-        } else if (isNaviviewExpanded!=null)
+        }
+        else if (isNaviviewExpanded!=null) {
                 props.put(prefix + ".naviview.expanded", String.valueOf(isNaviviewExpanded()));
-            
+        }
+        
         props.put(prefix + ".showInterface", new Boolean(openWithInterface).toString());
+        props.put(prefix + ".typeParameters", getTypeParameters());
 
         getRole().save(props, 0, prefix);
-     
-        
     }
 
     /**
