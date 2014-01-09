@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2011,2012,2013  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -2896,10 +2896,12 @@ public final class MoeEditor extends JFrame
         String title = windowTitle;
 
         if (title == null) {
-            if (filename == null)
+            if (filename == null) {
                 title = "Moe:  <no name>";
-            else
+            }
+            else {
                 title = "Moe:  " + filename;
+            }
         }
         setTitle(title);
     }
@@ -3440,6 +3442,7 @@ public final class MoeEditor extends JFrame
         /**
          * Main processing method for the TextInsertNotifier object
          */
+        @Override
         public void run()
         {
             actions.textInsertAction(evt, editorPane);
