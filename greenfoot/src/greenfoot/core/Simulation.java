@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2010,2011,2012,2013  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2010,2011,2012,2013,2014  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -699,6 +699,11 @@ public class Simulation extends Thread
     {
         // Don't call runOneLoop directly as that executes user code
         // and might hang.
+        if (enabled) {
+            synchronized (interruptLock) {
+                interruptDelay = false;
+            }
+        }
         runOnce = true;
         notifyAll();
     }
