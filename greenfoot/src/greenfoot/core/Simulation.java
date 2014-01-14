@@ -779,6 +779,7 @@ public class Simulation extends Thread
         else {
             paused = true;
             // isRunning = false; // cause a started event if necessary, when the simulation is enabled again
+            interruptDelay = true;
             interruptDelay();
             fireSimulationEvent(disabledEvent);
         }
