@@ -94,11 +94,12 @@ int launch(char *commandName) {
 	}
 
     // Locate the JLI_Launch() function
-    NSString *runtime = [javaDictionary objectForKey:@JVM_RUNTIME_KEY];
+    // NSString *runtime = [javaDictionary objectForKey:@JVM_RUNTIME_KEY];
 
     const char *libjliPath = NULL;
     NSString *runtimePath = nil;
     
+    /*
     if (runtime != nil) {
         runtimePath = [[[NSBundle mainBundle] builtInPlugInsPath] stringByAppendingPathComponent:runtime];
         libjliPath = [[runtimePath stringByAppendingPathComponent:@"Contents/Home/jre/lib/jli/libjli.dylib"] fileSystemRepresentation];
@@ -107,6 +108,10 @@ int launch(char *commandName) {
     	runtimePath = @"/System/Library/Frameworks/JavaVM.framework/Versions/CurrentJDK";
         libjliPath = LIBJLI_DYLIB;
     }
+    */
+    
+    runtimePath = [[[NSBundle mainBundle] privateFrameworksPath] stringByAppendingPathComponent:@"jdk.framework/Versions/A"];
+    libjliPath = [[runtimePath stringByAppendingPathComponent:@"Contents/Home/jre/lib/jli/libjli.dylib"] fileSystemRepresentation];
 
     void *libJLI = dlopen(libjliPath, RTLD_LAZY);
 
