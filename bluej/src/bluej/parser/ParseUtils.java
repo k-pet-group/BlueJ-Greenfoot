@@ -381,12 +381,13 @@ public class ParseUtils
             token = i.next();
             int ttype = token.getType();
             while (ttype == JavaTokenTypes.GT || ttype == JavaTokenTypes.SR || ttype == JavaTokenTypes.BSR) {
-                //It meant to fall through, so break is not needed
                 switch (ttype) {
                 case JavaTokenTypes.BSR:
                     depthRef.depth--;
+                    // fall through to next case:
                 case JavaTokenTypes.SR:
                     depthRef.depth--;
+                    // fall through to default cause:
                 default:
                     depthRef.depth--;
                 }
