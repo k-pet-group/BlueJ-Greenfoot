@@ -198,9 +198,12 @@ LICENSE.txt file that accompanied this code.${line.separator}
                 fork="yes"
                 srcdir="${src}" 
                 destdir="${build}" 
-                classpathref="bluej.class.path" 
                 debug="true"
         		includeantruntime="false">
+        	<classpath>
+        	    <path refid="bluej.class.path"/>
+        	    <pathelement location="${build_java_home}/lib/tools.jar"/>
+        	</classpath>
             <compilerarg line="-target 1.6" />
             <compilerarg line="-source 1.6" /> <!-- Otherwise Java 7 (and above) complains -->
         </javac>
