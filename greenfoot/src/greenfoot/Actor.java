@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2013  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2013,2014  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -237,6 +237,24 @@ public abstract class Actor
     {
         double a = Math.atan2(y - this.y, x - this.x);
         setRotation((int) Math.toDegrees(a));
+    }
+    
+    /**
+     * Detect whether the actor has reached the edge of the world.
+     * 
+     * The actor is at the edge of the world if their position is
+     * at, or beyond, the cells at the very edge of the world.  For example,
+     * if your world is 640 by 480 pixels, an actor is at the edge if its
+     * X position is <= 0 or >= 639, or its Y position is <= 0 or >= 479.
+     * 
+     * @return True if the actor is at or beyond the edge cell of the world, and false otherwise.
+     */
+    public boolean isAtEdge()
+    {
+        failIfNotInWorld();
+        // We use <=,>= not == because actors can be outside the world bounds, and 
+        // the method should still return true in this case
+        return (x <= 0 || y <= 0 || x >= getWorld().getWidth() - 1 || y >= getWorld().getHeight() - 1);
     }
 
     /**
