@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2013,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -381,16 +381,14 @@ public class ParseUtils
             token = i.next();
             int ttype = token.getType();
             while (ttype == JavaTokenTypes.GT || ttype == JavaTokenTypes.SR || ttype == JavaTokenTypes.BSR) {
+                //It meant to fall through, so break is not needed
                 switch (ttype) {
                 case JavaTokenTypes.BSR:
                     depthRef.depth--;
-                    break;
                 case JavaTokenTypes.SR:
                     depthRef.depth--;
-                    break;
                 default:
                     depthRef.depth--;
-                    break;
                 }
                 if (! i.hasNext()) {
                     break mainLoop;
