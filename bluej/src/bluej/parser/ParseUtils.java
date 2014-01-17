@@ -387,7 +387,7 @@ public class ParseUtils
                     // fall through to next case:
                 case JavaTokenTypes.SR:
                     depthRef.depth--;
-                    // fall through to default cause:
+                    // fall through to default case:
                 default:
                     depthRef.depth--;
                 }
