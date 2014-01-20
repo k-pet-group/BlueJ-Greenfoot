@@ -171,15 +171,6 @@ newclass.dialog.className=New class name:
 newclass.dialog.err.classExists=Class with that name already exists.
 newclass.dialog.err.classNameIllegal=Not a valid Java class name.
 
-# Initial startup dialog
-startup.header=Welcome to Greenfoot!
-startup.welcome=Greenfoot lets you work on projects (also called 'scenarios'). To use Greenfoot, you first have to open an existing scenario, or create a new one. Several sample scenarios are included in a standard Greenfoot installation.
-startup.question=What would you like to do?
-startup.tutorial.button=Open tutorial and tutorial scenario
-startup.open.button=Choose a scenario
-startup.create.button=Create a new scenario
-startup.continue.button=Continue without scenario
-
 # Image Lib Preview
 imagelib.title=Select class image:
 imagelib.newClass=New class
