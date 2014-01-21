@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2013  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2013,2014  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -35,6 +35,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -694,7 +696,12 @@ public class JarCreator
         }
         catch (MalformedURLException e) {}*/
 
-        translations.put("ARCHIVE", jarName);
+        try {
+            translations.put("ARCHIVE", URLEncoder.encode(jarName, "UTF-8"));
+        }
+        catch (UnsupportedEncodingException uee) {
+            // This can't happen; Java always supports UTF-8.
+        }
 
 
         String baseName = "greenfoot/templates/html.tmpl";
