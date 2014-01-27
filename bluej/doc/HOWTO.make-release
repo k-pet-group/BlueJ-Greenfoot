@@ -51,19 +51,14 @@ PART II - RELEASING BLUEJ
  8. Move the distribution files and the source to the public 
     server (currently www.bluej.org/download/files/).
 
- 9. Update the BlueJ web site to announce the new version. At least:
-     - update the "old downloads" section (add the previous release)
-        - download/download-old.html 
-     - update the "change history" section - help/changes.html
-     - update the "download" section (bluej system, install instructions)
-        - download/download.html
-        - download/install.html
-     - update the source download page
-        - download/source-download.html
-     - put a notice on the front page
-
+ 9. Update the BlueJ web site to announce the new version (available in SVN as trunk/www-bluej):
+     - update the front page (index.html)
+        - change version, date, and download links 
+     - update the versions page (versions.html)
+        - add section with version, date, changes and download links
+        
 10. Update the file www.bluej.org/version.info
-    The real location currently is: dodo:~bluej/www/version.info
+    The real location currently is: bluej:/home/bluej/www/version.info
 
 11. Intentionally left blank
 
