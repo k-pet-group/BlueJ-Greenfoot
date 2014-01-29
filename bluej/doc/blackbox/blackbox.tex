@@ -29,7 +29,7 @@
   \begin{center}
     \includegraphics[width=10cm]{../../lib/images/bluej-icon-256.png}\\
     \huge BlueJ Blackbox Data Collection\\~\\Researchers' Handbook
-    (version 1.3, 16 Sep 2013)
+    (version 1.4, 29 Jan 2014)
   \end{center}
 \end{titlepage}
 
@@ -949,6 +949,12 @@ sessions.  For anonymity purposes, the full path is not sent to the server
 (because it will typically have the user-name in the path), but the directory
 name of the project (|name|) is sent, as this may be informative.
 
+Note that the |path_hash| uses the full path as read by the client.  It is possible on
+a case-insensitive operating system for a user to change the case of their path (e.g. change
+|C:\BLUEJPROJ\proj1| to |C:\BlueJproj\proj1|) and thus alter their |path_hash| despite not
+really changing the effective location.  Additionally, on an OS with symlinks, a user might
+access the same project from two different paths.  We believe both cases are relatively rare.
+
 \section{Packages}
 
 %schema:packages
@@ -1132,11 +1138,11 @@ interface.  If you want to access the database directly from your own machine,
 you can use an SSH tunnel:
 
 \begin{lstlisting}
-ssh -L 3306:localhost:3306 ssh_username@white.kent.ac.uk
+ssh -L 3307:localhost:3306 ssh_username@white.kent.ac.uk
 \end{lstlisting}
 
 While that SSH session is open, you can access the database by running
-|mysql -u username -p blackbox_production|.  You will have been given
+|mysql -h 127.0.0.1 -P 3307 -u username -p blackbox_production|.  You will have been given
 the MySQL details separately when you got an account on the machine.
 
 \section{Feed}
@@ -1223,17 +1229,115 @@ necessary.
 \section{Known Interruptions}
 
 From time to time, the Blackbox data recording may be interrupted, for routine maintenance or to deploy changes/fixes to the data recording mechanism.
-Unless otherwise noted below, the effects are the same each time: all sessions that attempt to send data during the time that the server is unavailable will stop sending data.  So many sessions will simply end when the server is taken down, and recording will only be resumed for that user next time they start BlueJ.
+Unless otherwise noted below, the effects are the same each time: all sessions that attempt to send data during the time that the server is unavailable will stop sending data.  So many sessions will simply end when the server is taken down, and recording will only be resumed for that user next time they start BlueJ.  Known outages of longer than 1 minute are listed below:
 
-\textbf{02 Jul 2013, time unknown}: Server restarted to deploy new indexes and extension of the |project_name| field to 255 characters (from 64).
-
-\textbf{16 Sep 2013, approx 09:40AM to 09:48AM UTC}: Server restarted to deploy fixes for rename problem. Last master event id before interruption: 15537697.
+\begin{itemize}
+\item 28 Jun 2013, approx 0722 to 0724 UTC (2 minutes), before master event 731142
+\item 16 Sep 2013, approx 0942 to 0949 UTC (7 minutes), before master event 15537698
+\item 17 Sep 2013, approx 1345 to 1351 UTC (6 minutes), before master event 15884081
+\item 23 Sep 2013, approx 1338 to 1354 UTC (16 minutes), before master event 21192150
+\end{itemize}
 
 \section{Known Recording Bugs/Changes}
 
-From the beginning of the project until 2nd July 2013, the project name field was 64 characters.  A small handful of projects exceeded this length and were thus not recorded.  The length of the field was extended to 255 characters.
+These sections are roughly ordered by the date at which they were fixed.
 
-From the beginning of the project until 16th September 2013, renames were not being handled properly by the server.  These were relatively rare: for the 30 days leading up to the fix, there were around five renames each day.  Details are noted in the section on renames (essentially, the |old_source_file_id| column was added to fix this; if this is NULL for a rename event, it's because it predates the fix.)
+\subsection{Project Name Length}
+
+From the beginning of the project until 28 June 2013 (master event 731142), the project name field was 64 characters.  A small handful of projects exceeded this length and were thus not recorded.  The length of the field was extended to 255 characters.
+
+\subsection{Renames}
+
+From the beginning of the project until 16 September 2013 (master event 15537698), renames were not being handled properly by the server.  These were relatively rare: for the 30 days leading up to the fix, there were around five renames each day.  Details are noted in the section on renames (essentially, the |old_source_file_id| column was added to fix this; if this is NULL for a rename event, it's because it predates the fix.)
+
+\subsection{Case Sensitivity}
+
+From the beginning of the project until 23 September 2013 (master event 21192150), the database was using a case-insensitive comparison on all fields.  This affected the following features.
+
+Objects on the object bench would be located via a case-insensitive search for their name.  This means that if the user had two objects on the object bench with names that differ only by case (e.g. ``Obj1'' and ''obj1''), further events like method invocations may have referenced the wrong object.  Although you cannot be certain when the wrong object is referenced, it is possible to find if a session/package had two objects whose names differed only by case (i.e. where the error \textit{could} have occurred).  As of 26 September 2013, shortly after the fix, of 80567 sessions that used the object bench, 464 had objects with names that differed only in case (0.6\% of all sessions).
+
+Packages within a project would be found via a case-insensitive search for their name.  Thus, if the user had two packages in the same project that differed only by case (e.g. ``MyPKG'' and ``mypkg''), further events may have referenced the wrong package.  Note that this problem is irrelevant on Windows, as it has a case-insensitive file system that would not permit two packages which differ only by case.  Having said that, changes to the case of a package may not have been correctly recorded by the system.  Use of any packages other than the default is relatively rare: less than 3\% of projects have a non-default package at the time of writing (26 September 2013).
+
+Source files within a project would be found via a case-insensitive search for their name.  Thus, if the user had two source files in the same project that differed only by case (e.g. ``FOO.java'' and ``Foo.java''), further events may have referenced the wrong source file until the start of a new session after the server was fixed.  Note again that this problem is not possible on Windows.
+
+Changes in the case of a source file (e.g. if a user renames their class from "FOO" to "Foo", causing a rename of the file from "FOO.java" to "Foo.java") would not have been noticed by the server: the case of the filename would not be kept up to date on the server side.  This would also have upset the source hash generated for this project thereafter.  Around 2\% of source hashes during the period were affected by these problematic renames.
+
+\subsection{Source Hashes}
+\lstset{columns=flexible,language=SQL,basicstyle=\ttfamily\color{black},keywordstyle=\bfseries\ttfamily\color{blue}}
+
+From the beginning of the project until 17 September 2013 (master event 15884081), source hashes were \textit{potentially} different for two projects with the same contents.  Specifically, the order in which the source files were fed into the hashing was arbitrary.  Thus, assuming no interference from the case sensitivity mentioned above, a project with one file would always have generated the same hash.  A project with two files would have generated one of two different hashes, a project with three files would have generated one of six different hashes and so on.  During the period affected, around half of all source hashes were potentially affected (hashing was done when the source files were not in alphabetical order).
+
+There is now a table available, named |source_hash_fix|, in a supplementary database also named |source_hash_fix| (on the same machine, with access available to the relevant MySQL users) that contains a list of fixed hashes to cope with the problems of ordering.  The |source_hash_fix| table has two columns: |master_event_id| (integer) and |source_hash| (string).  Simply, |master_event_id| is the |id| from the |master_events| table of a |"package_opening"| event, and |source_hash| is the fixed source hash for that |"package_opening"| event.  Running this query (which looks long due to including all the prefixes) shows us how many hashes were broken:
+
+\begin{lstlisting}
+select (blackbox_production.source_hashes.source_hash
+          = source_hash_fix.source_hash_fix.source_hash) as matches,
+       count(*) as count
+  from blackbox_production.master_events
+    inner join (blackbox_production.source_hashes, source_hash_fix.source_hash_fix)
+      on (blackbox_production.master_events.event_id =
+                blackbox_production.source_hashes.id
+          and blackbox_production.master_events.id =
+                source_hash_fix.source_hash_fix.master_event_id)
+  where blackbox_production.master_events.name="package_opening"
+        and blackbox_production.master_events.id < 15884081 group by matches
+\end{lstlisting}
+
+The output is:
+
+\begin{tabular}{cc}
+matches & count \\
+0 & 242457 \\
+1 & 297968 \\
+\end{tabular}
+
+Which is to say, 242,457 hashes were broken -- slightly under half of them.  To give an example of how you might use this fixed hash table, here is some SQL code I had written before I realised that the hashes were broken.  It retrieves all known hashes for a given project name:
+
+\begin{lstlisting}
+select source_hash
+  from source_hashes
+    inner join (master_events, projects)
+      on (master_events.project_id = projects.id
+          and master_events.event_id = source_hashes.id)
+  where master_events.name='package_opening' and projects.name = ?
+\end{lstlisting}
+
+Afterwards, the same code concatenates the results of two queries:
+
+\begin{lstlisting}
+select source_hash
+  from source_hashes
+    inner join (master_events, projects)
+      on (master_events.project_id = projects.id
+          and master_events.event_id = source_hashes.id)
+  where master_events.id >= 15884081
+        and master_events.name='package_opening'
+        and projects.name = ?
+
+select source_hash
+  from source_hash_fix.source_hash_fix
+    inner join (master_events, projects)
+      on (master_events.project_id = projects.id
+          and master_events.id = source_hash_fix.source_hash_fix.master_event_id)
+  where master_events.id < 15884081
+        and master_events.name='package_opening'
+        and projects.name=?
+\end{lstlisting}
+
+\lstset{columns=flexible,language=SQL,basicstyle=\ttfamily}
+\subsection{Missing Data}
+
+From the beginning of the project until 17 September 2013 (master event 15884081), the server was running slowly enough that we believe some data was lost.  This would manifest as some sessions ending early (as if the internet connection to the server had been severed) -- all received data should still be internally consistent and complete over the duration of the session until it cut out.  We believe this affected roughly the period from 26th August to 17th September (increasingly so towards the end of the period).
+
+We are using figure \ref{fig:data-loss} -- our guess is as good as yours as to exactly how long before the fix we were losing data.  The cap on server load looks to have been around 15,000 events and it looks like this was reached the week beginning 26 August.  So the period of lost data might be around 26 August to 21 September.  Note that we would expect that the ramp-up from 24 August would not necessarily be proportional to the number of sessions -- because term starts in September, users are likely to use BlueJ for longer periods.  For example, compare the ratio of events to sessions or users in July (when we were unlikely to have been losing data) to the latest data in September: it is clear that the ratio is not constant.
+
+\begin{figure}
+\includegraphics[width=\textwidth]{data-loss.png}
+\label{fig:data-loss}
+\caption{A graph up to 25 September 2013 illustrating the data loss until 17 September 2013.  The green line shows the number of users on each day, and the blue line shows the number of sessions on each day.  The weekly cycle is obvious.  You can see that the number of users and sessions did not increase after the date of the fix.  However, the amount of events received did increase markedly, as shown by the red bars.  To generate the red bars, we take the 24 hours of each day and work out the number of events in each hour.  Then we order the hours by their activity, and use the upper quartile (roughly, the 6th busiest hour), median (12th busiest) and lower quartile (18th busiest) to plot the bar which gives the spread of activity during the day.
+}
+\end{figure}
+
 
 \chapter{Analysis Example: CodeView}
 \label{sec:example_codeview}
@@ -1260,12 +1364,14 @@ scroll wheel to moving backwards and forwards through the version history.
 of the file during scrolling, but the point is to demonstrate the database
 queries and diffs and so on.)
 
-\chapter{Post Processing}
+\chapter{Additional Tools}
 \label{sec:postprocess}
 
 \textit{In time we will set up an area for this kind of information, but for
-now, here are some details on postprocessing tasks that we have
+now, here are some details on tools and postprocessing tasks that we have
 running on the ``white'' machine to aid analysis.}
+
+\section{Extracted Compile Inputs}
 
 The main likely area of analysis in the Blackbox project is looking at
 the source code, especially at compilation time.  The way that the
@@ -1307,5 +1413,26 @@ particular error), look at the day on the master event.  Load the
 index-payload for that day, and scan through to find the master event
 id that you're looking for.  Obviously you can speed things up by
 preloading all the indexes and forming a few hash maps or whatever.
+
+\section{Tools}
+
+In /tools/nccb/bin there are a couple of tools that you can use.
+
+\begin{itemize}
+\item |/tools/nccb/bin/print-source-hashes| takes a project name and then prints
+a frequency table of source hashes for projects with that name.  You can use the
+|--min-freq N| flag to set a minimum frequency (defaults to 5).
+For example:
+
+|/tools/nccb/bin/print-source-hashes shapes --min-freq 50|
+
+\item |/tools/nccb/bin/print-compile-input| takes a path to the post-processed compile inputs
+(|/data/compile-inputs| and then a numeric (denary) source file identifier and master event
+identifier.  It then prints out the exact state of the source file at that compilation master
+event.  For example:
+
+|/tools/nccb/bin/print-compile-input /data/compile-inputs 1246 35238|
+\end{itemize}
+(Any other tools in /home/nccb/bin are irrelevant dependencies.)
 
 \end{document}
