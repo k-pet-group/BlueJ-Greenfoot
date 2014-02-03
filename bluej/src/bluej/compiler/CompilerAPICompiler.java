@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -74,6 +74,13 @@ public class CompilerAPICompiler extends Compiler
         boolean result = true;
         JavaCompiler jc = ToolProvider.getSystemJavaCompiler();
         List<String> optionsList = new ArrayList<String>();
+        
+        if (jc == null) {
+            // We'd expect that this should never happen, but it's been reported once.
+            observer.compilerMessage(new bluej.compiler.Diagnostic(bluej.compiler.Diagnostic.ERROR,
+                    "The compiler does not appear to be available."));
+            return false;
+        }
         
         DiagnosticListener<JavaFileObject> diagListener = new DiagnosticListener<JavaFileObject>() {
             @Override
