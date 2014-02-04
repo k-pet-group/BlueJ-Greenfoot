@@ -1964,10 +1964,12 @@ public class ClassTarget extends DependentTarget
     @Override
     public void remove()
     {
-        DataCollector.removeClass(getPackage(), getSourceFile());
-        
         prepareForRemoval();
         getPackage().removeTarget(this);
+        
+        // We must remove after the above, because it might involve saving, 
+        // and thus recording edits to the file
+        DataCollector.removeClass(getPackage(), getSourceFile());
     }
 
     @Override

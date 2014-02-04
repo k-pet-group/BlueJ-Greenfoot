@@ -1339,6 +1339,10 @@ We are using figure \ref{fig:data-loss} -- our guess is as good as yours as to e
 }
 \end{figure}
 
+\subsection{Edits on Deleted Files}
+
+There was a bug in BlueJ 3.1.0 and 3.1.1 where if you had edited a file immediately prior to its deletion, the events would be sent in the wrong order: the deletion event would be sent, followed by the pending edit.  This is relatively benign, but you must write your analysis software to cope: if you simply silently ignore all edits that occur on currently-deleted files, there should no negative consequence.  (It is unlikely you care what the edit was, given that the file was deleted immediately after, but if you do care you could just look for this situation and apply the edit before the deletion.)  This bug will be fixed in versions of BlueJ after 3.1.1.
+
 
 \chapter{Analysis Example: CodeView}
 \label{sec:example_codeview}
