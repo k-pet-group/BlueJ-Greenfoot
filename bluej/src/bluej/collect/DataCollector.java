@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2012,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 2012,2013,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -656,7 +656,7 @@ public class DataCollector
     }
 
 
-    public static void renamedClass(Package pkg, File oldSourceFile, File newSourceFile)
+    public static void renamedClass(Package pkg, final File oldSourceFile, final File newSourceFile)
     {
         if (dontSend()) {
             return;
@@ -666,10 +666,26 @@ public class DataCollector
         mpe.addPart("source_histories[][source_history_type]", CollectUtility.toBody("rename"));
         mpe.addPart("source_histories[][content]", CollectUtility.toBodyLocal(pkg.getProject(), oldSourceFile));
         mpe.addPart("source_histories[][name]", CollectUtility.toBodyLocal(pkg.getProject(), newSourceFile));
-        submitEvent(pkg.getProject(), pkg, EventName.RENAME, new PlainEvent(mpe));
+        final Project project = pkg.getProject();
+        submitEvent(pkg.getProject(), pkg, EventName.RENAME, new PlainEvent(mpe) {
+
+            @Override
+            public MultipartEntity makeData(int sequenceNum,
+                    Map<FileKey, List<String>> fileVersions)
+            {
+                // We need to change the fileVersions hash to move the content across from the old file
+                // to the new file:
+                FileKey oldKey = new FileKey(project, CollectUtility.toPath(project, oldSourceFile));
+                FileKey newKey = new FileKey(project, CollectUtility.toPath(project, newSourceFile));
+                fileVersions.put(newKey, fileVersions.get(oldKey));
+                fileVersions.remove(oldKey);
+                return super.makeData(sequenceNum, fileVersions);
+            }
+            
+        });
     }
     
-    public static void removeClass(Package pkg, File sourceFile)
+    public static void removeClass(Package pkg, final File sourceFile)
     {
         if (dontSend()) {
             return;
@@ -678,7 +694,19 @@ public class DataCollector
         MultipartEntity mpe = new MultipartEntity();
         mpe.addPart("source_histories[][source_history_type]", CollectUtility.toBody("file_delete"));
         mpe.addPart("source_histories[][name]", CollectUtility.toBodyLocal(pkg.getProject(), sourceFile));
-        submitEvent(pkg.getProject(), pkg, EventName.DELETE, new PlainEvent(mpe));
+        final Project project = pkg.getProject();
+        submitEvent(pkg.getProject(), pkg, EventName.DELETE, new PlainEvent(mpe) {
+
+            @Override
+            public MultipartEntity makeData(int sequenceNum,
+                    Map<FileKey, List<String>> fileVersions)
+            {
+                // We should remove the old source from the fileVersions hash:
+                fileVersions.remove(new FileKey(project, CollectUtility.toPath(project, sourceFile)));
+                return super.makeData(sequenceNum, fileVersions);
+            }
+            
+        });
     }
     
     public static void addClass(Package pkg, File sourceFile)

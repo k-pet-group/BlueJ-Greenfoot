@@ -1343,6 +1343,19 @@ We are using figure \ref{fig:data-loss} -- our guess is as good as yours as to e
 
 There was a bug in BlueJ 3.1.0 and 3.1.1 where if you had edited a file immediately prior to its deletion, the events would be sent in the wrong order: the deletion event would be sent, followed by the pending edit.  This is relatively benign, but you must write your analysis software to cope: if you simply silently ignore all edits that occur on currently-deleted files, there should no negative consequence.  (It is unlikely you care what the edit was, given that the file was deleted immediately after, but if you do care you could just look for this situation and apply the edit before the deletion.)  This bug will be fixed in versions of BlueJ after 3.1.1.
 
+\subsection{Renames and Bad Diffs}
+
+There was a bug in BlueJ 3.1.0 and 3.1.1 that could occur surrounding renamed files and diffs.  There are two situations:
+
+\begin{itemize}
+\item If the destination file name had not existed before in this project and session, the next diff to the file would be against
+a blank file, not against the contents of the file just before it was renamed.
+\item If the destination file name had existed in this project and session (but had been deleted, or itself had been renamed),
+the next diff would be against the old destination file (the deleted/renamed one) not the file that is the source of the rename.
+\end{itemize}
+
+In each case, it should be possible to work around this issue during the analysis stage by looking up the state of the destination file.
+This problem will be fixed in versions of BlueJ after 3.1.1.
 
 \chapter{Analysis Example: CodeView}
 \label{sec:example_codeview}
