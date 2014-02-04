@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2012,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2011,2012,2013,2014  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -269,7 +269,6 @@ public final class MoeEditor extends JFrame
     private HashMap<String,Object> propertyMap = new HashMap<String,Object>();
     
     // Blackbox data recording:
-    private ArrayList<String> previousDoc = null;
     private int oldCaretLineNumber = -1;
 
 
@@ -350,8 +349,6 @@ public final class MoeEditor extends JFrame
                 File file = new File(filename);
                 lastModified = file.lastModified();
                 
-                recordLoadContent();
-
                 sourcePane.addMouseListener(this);
                 sourceDocument = (MoeSyntaxDocument) sourcePane.getDocument();
                 naviView.setDocument(sourceDocument);
@@ -2683,8 +2680,6 @@ public final class MoeEditor extends JFrame
             File file = new File(filename);
             lastModified = file.lastModified();
             
-            recordLoadContent();
-
             sourceDocument = (MoeSyntaxDocument) sourcePane.getDocument();
             sourceDocument.enableParser(false);
             naviView.setDocument(sourceDocument);
@@ -3886,30 +3881,11 @@ public final class MoeEditor extends JFrame
         return sourceIsCode;
     }
     
-    private void recordLoadContent()
-    {
-        previousDoc = new ArrayList<String>();
-        getLines(previousDoc);
-    }
-    
-    private void getLines(ArrayList<String> lines)
-    {
-        Element parent = sourceDocument.getDefaultRootElement();
-        lines.ensureCapacity(parent.getElementCount());
-        for (int i = 0; i < parent.getElementCount(); i++)
-        {
-            String line = "";
-            try {
-                line = sourceDocument.getText(parent.getElement(i).getStartOffset(), parent.getElement(i).getEndOffset() - parent.getElement(i).getStartOffset());
-            }
-            catch (BadLocationException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            lines.add(line);
-        }
-    }
-    
+    /**
+     * Notify the editor watcher of an edit (or save).
+     * @param includeOneLineEdits - will be true if it is considered unlikely that further edits will
+     *                     be localised to previous edit locations (line), or if the file has been saved.
+     */
     private void recordEdit(boolean includeOneLineEdits)
     {
         if (watcher != null)
