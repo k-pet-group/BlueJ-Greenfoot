@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2014  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -64,13 +64,11 @@ public class ShowCopyrightAction extends AbstractAction
      */
     public void actionPerformed(ActionEvent e)
     {
-            JOptionPane.showMessageDialog(parent, new String[]{
-                "Greenfoot \u00a9 2005-2011 Michael K\u00F6lling, Poul Henriksen.", " ",
-                "Greenfoot is available under the GNU General Public License",
-                "version 2 with Classpath exception.",
-                "For more information please see the files LICENSE.txt",
-                "and THIRDPARTYLICENSE.txt."
+        JOptionPane.showMessageDialog(parent, new String[]{
+                Config.getString("menu.help.copyright.line0"), " ",
+                Config.getString("menu.help.copyright.line1"), Config.getString("menu.help.copyright.line2"),
+                Config.getString("menu.help.copyright.line3"), Config.getString("menu.help.copyright.line4"),
                 }, 
-                "Copyright, License and Redistribution", JOptionPane.INFORMATION_MESSAGE);
+                Config.getString("menu.help.copyright.title"), JOptionPane.INFORMATION_MESSAGE);
     }
 }

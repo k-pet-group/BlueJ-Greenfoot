@@ -4,6 +4,11 @@ Prerequisites:
 
 
 Building Greenfoot:
+
+Before start building, check the copyright years, which is usually needed only once every year.
+The line to be updated is 'menu.help.copyright.line0', which is in the labels file:
+'labels/english/greenfoot/greenfoot-labels'.
+
  1. Update version number in build.xml and run "ant update-version-number".
  2. Test bundled scenarios and make sure they are upgraded to new API version.
  
