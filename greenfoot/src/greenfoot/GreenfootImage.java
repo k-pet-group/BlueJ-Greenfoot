@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012,2013  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012,2013,2014  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -242,7 +242,6 @@ public class GreenfootImage
         this.copyOnWrite = true;
         this.image = cachedImage.image;
         copyStates(cachedImage, this);
-
     }
     
     /**
@@ -325,7 +324,6 @@ public class GreenfootImage
     
     /**
      * Remember to call dispose() when no longer using the graphics object.
-     * 
      */
     private Graphics2D getGraphics()
     {
@@ -410,7 +408,6 @@ public class GreenfootImage
 
     /**
      * Mirrors the image vertically (the top of the image becomes the bottom, and vice versa).
-     * 
      */
     public void mirrorVertically()
     {
@@ -422,7 +419,6 @@ public class GreenfootImage
 
     /**
      * Mirrors the image horizontally (the left of the image becomes the right, and vice versa).
-     * 
      */
     public void mirrorHorizontally()
     {
@@ -433,8 +429,7 @@ public class GreenfootImage
     }
 
     /**
-     * Fill the entire image with the current drawing dcolor.
-     * 
+     * Fill the entire image with the current drawing color.
      */
     public void fill()
     {
@@ -536,7 +531,7 @@ public class GreenfootImage
     }
     
     /**
-     * Sets the color at the given pixel to the given color.
+     * Sets the given pixel to the given color.
      */
     public void setColorAt(int x, int y, Color color) {
         setRGBAt(x, y, color.getRGB());
@@ -637,7 +632,6 @@ public class GreenfootImage
 
     /**
      * Clears the image.
-     * 
      */
     public void clear()
     {
@@ -699,7 +693,7 @@ public class GreenfootImage
      * Draw a filled shape directly on the image. Shapes are specified by the
      * <a href="http://java.sun.com/javase/6/docs/api/java/awt/Shape.html">shape
      * interface</a>.
-     * @param shape the shape to be drawn.
+     * @param shape the shape to be filled.
      */
     public void fillShape(Shape shape)
     {
@@ -731,11 +725,11 @@ public class GreenfootImage
      * color.
      * 
      * @param x the <i>x </i> coordinate of the upper left corner of the oval to
-     *            be filled.
+     *            be drawn.
      * @param y the <i>y </i> coordinate of the upper left corner of the oval to
-     *            be filled.
-     * @param width the width of the oval to be filled.
-     * @param height the height of the oval to be filled.
+     *            be drawn.
+     * @param width the width of the oval to be drawn.
+     * @param height the height of the oval to be drawn.
      */
     public void drawOval(int x, int y, int width, int height)
     {
@@ -760,9 +754,9 @@ public class GreenfootImage
      * The area inside the polygon is defined using an even-odd fill rule, also
      * known as the alternating rule.
      * 
-     * @param xPoints a an array of <code>x</code> coordinates.
-     * @param yPoints a an array of <code>y</code> coordinates.
-     * @param nPoints a the total number of points.
+     * @param xPoints an array of <code>x</code> coordinates.
+     * @param yPoints an array of <code>y</code> coordinates.
+     * @param nPoints the total number of points.
      */
     public void fillPolygon(int[] xPoints, int[] yPoints, int nPoints)
     {
