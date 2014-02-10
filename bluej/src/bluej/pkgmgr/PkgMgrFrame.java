@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2012,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2011,2012,2013,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -1769,10 +1769,11 @@ public class PkgMgrFrame extends JFrame
     public void showCopyright()
     {
         JOptionPane.showMessageDialog(this, new String[]{
-                "BlueJ \u00a9 2000-2011 Michael K\u00F6lling, John Rosenberg.", " ",
+                Config.getString("menu.help.copyright.line0"), " ",
                 Config.getString("menu.help.copyright.line1"), Config.getString("menu.help.copyright.line2"),
-                Config.getString("menu.help.copyright.line3"), Config.getString("menu.help.copyright.line4"),}, Config
-                .getString("menu.help.copyright.title"), JOptionPane.INFORMATION_MESSAGE);
+                Config.getString("menu.help.copyright.line3"), Config.getString("menu.help.copyright.line4"),
+                },
+                Config.getString("menu.help.copyright.title"), JOptionPane.INFORMATION_MESSAGE);
     }
 
     /**
