@@ -688,7 +688,7 @@ public class GraphicsUtilities {
         // An inch is 72 points, so range is something like 1 pixel per point to 8 pixels per point
         // So we explore from 1 point, up to the desired pixel size in points.
         // e.g. if we want 40 pixels, then a 40 point font is going to be bigger than 40 pixels if the display is above 72 DPI
-        Font font = new Font("Sans Serif", style, 1);
+        Font font = new Font("SansSerif", style, 1);
         
         for (int i = 1; i < targetSize; i++)
         {
