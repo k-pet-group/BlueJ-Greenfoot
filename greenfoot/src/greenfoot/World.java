@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2013  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2013,2014  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -556,7 +556,7 @@ public abstract class World
 
     /**
      * Show some text centred at the given position in the world. The text will be
-     * displayed above actors. Any previous text shown at the same location will
+     * displayed in front of any actors. Any previous text shown at the same location will
      * first be removed.
      *  
      * @param text   The text to display; can be null to show no text
