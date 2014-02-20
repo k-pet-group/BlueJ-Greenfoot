@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2013  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2013,2014  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,13 +21,11 @@
  */
 package greenfoot.core;
 
+import greenfoot.util.GraphicsUtilities;
+
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.FontMetrics;
 import java.awt.Graphics2D;
-import java.awt.Shape;
-import java.awt.font.FontRenderContext;
-import java.awt.font.TextLayout;
 
 /**
  * Representation for text labels appearing on the world.
@@ -36,11 +34,11 @@ import java.awt.font.TextLayout;
  */
 public class TextLabel
 {
-    private int xpos;
-    private int ypos;
-    private String text;
-    private Shape outline;
-    private int width;
+    private final int xpos;
+    private final int ypos;
+    private final String text;
+    private final String[] lines;
+    private GraphicsUtilities.MultiLineStringDimensions dimensions;
     
     /**
      * Construct a TextLabel with the given text and position.
@@ -48,9 +46,9 @@ public class TextLabel
     public TextLabel(String s, int xpos, int ypos)
     {
         text = s;
+        lines = GraphicsUtilities.splitLines(text);
         this.xpos = xpos;
         this.ypos = ypos;
-        width = -1;
     }
     
     /**
@@ -60,36 +58,20 @@ public class TextLabel
      */
     public void draw(Graphics2D g, int cellsize)
     {
-        FontMetrics metrics = g.getFontMetrics();
-        
-        if (outline == null) {
-            getOutline(g.getFont(), g.getFontRenderContext());
-            width = outline.getBounds().width;
+        if (dimensions == null) {
+            dimensions = GraphicsUtilities.getMultiLineStringDimensions(lines, Font.BOLD, 25.0);
         }
         
         // Position of base line:
-        int ydraw = ypos * cellsize - metrics.getHeight() / 2 + metrics.getAscent() + cellsize / 2;
+        int ydraw = ypos * cellsize - dimensions.getHeight() / 2 + cellsize / 2;
         
-        int xdraw = xpos * cellsize - width / 2 + cellsize / 2;
+        int xdraw = xpos * cellsize - dimensions.getWidth() / 2 + cellsize / 2;
         
         g.translate(xdraw, ydraw);
         
-        g.setColor(Color.WHITE);
-        g.fill(outline);
-        
-        g.setColor(Color.BLACK);
-        g.draw(outline);
+        GraphicsUtilities.drawOutlinedText(g, dimensions, Color.WHITE, Color.BLACK);
         
         g.translate(-xdraw, -ydraw);
-    }
-    
-    private Shape getOutline(Font font, FontRenderContext frc)
-    {
-        if (outline == null) {
-            TextLayout tl = new TextLayout(text, font, frc);
-            outline = tl.getOutline(null);
-        }
-        return outline;
     }
     
     /**

@@ -716,7 +716,9 @@ public class GraphicsUtilities {
 
     /**
      * Given a list of lines, gets the dimensions/outlines of the lines when drawn in the given style,
-     * one above the other, horizontally centred.
+     * one above the other, horizontally centred.  The shapes will be drawn relative to the
+     * top-left of the image.
+     * 
      * @param lines The text lines to draw.  Should be the output of splitLines
      * @param style The style (e.g. Font.PLAIN)
      * @param size The height in pixels of each line of text

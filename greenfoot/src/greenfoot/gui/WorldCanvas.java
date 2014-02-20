@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012,2013  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012,2013,2014  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -225,28 +225,11 @@ public class WorldCanvas extends JPanel
         if (labels.isEmpty()) {
             return;
         }
-
-        Font origFont = g.getFont();
-
-        if (textLabelFont == null) {
-            // textLabelFont = origFont.deriveFont(Font.BOLD, 20.0f);
-            textLabelFont = new Font("Sans Serif", Font.BOLD, 20);
-            
-            int fontHeight = g.getFontMetrics(textLabelFont).getHeight();
-            if (fontHeight != 20) {
-                // Try to make the font a standard 20 pixels high:
-                //    (20/fontheight) is the ratio of font size to pixel height,
-                //    so: 20 * (20/fontHeight) = font size for pixel height of 20.
-                textLabelFont = textLabelFont.deriveFont(400.0f/fontHeight);
-            }
-        }
-        
-        g.setFont(textLabelFont);
         
         // Set up rendering context:
+        Font origFont = g.getFont();
         Color orig = g.getColor();
         Object origAntiAliasing = g.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         
         int cellsize = WorldVisitor.getCellSize(world);
         for (TextLabel label : labels) {
@@ -258,6 +241,8 @@ public class WorldCanvas extends JPanel
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, origAntiAliasing);
         g.setColor(orig);
     }
+    
+    
     
     /**
      * If an object is being dragged, paint it.
