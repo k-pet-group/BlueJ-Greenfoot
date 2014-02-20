@@ -39,7 +39,7 @@ public class WeatherGrabber {
             city = Geobytes.get(Geobytes.City);
         }
         catch(Exception e) {
-            throw new NullPointerException("Can not detect current location, check your internet connection");
+            throw new RuntimeException("Can not detect current location, check your internet connection");
         }
         setLocation(country, city);
     }
@@ -78,7 +78,7 @@ public class WeatherGrabber {
                 return weatherStation;
             }
         }
-        throw new NullPointerException("Can not find wheather information for " + city + ", " + country + ". Please check spelling or try another location");
+        throw new RuntimeException("Can not find weather information for " + city + ", " + country + ". Please check spelling or try another location");
     }
 
     private synchronized void initializeDataset(HttpDataReaderService reader, String country, String city)
@@ -97,7 +97,7 @@ public class WeatherGrabber {
         while(dataset == null && wait < TIMEOUT);
 
         if (dataset == null) {
-            throw new NullPointerException("Can not find wheather information for " + city + ", " + country + ". Please check spelling or try another location");
+            throw new RuntimeException("Can not find weather information for " + city + ", " + country + ". Please check spelling or try another location");
         }
     }
 
