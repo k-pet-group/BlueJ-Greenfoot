@@ -30,11 +30,20 @@ package greenfoot.util;
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+import java.awt.font.FontRenderContext;
+import java.awt.font.GlyphVector;
+import java.awt.font.TextLayout;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GraphicsConfiguration;
+import java.awt.Shape;
 import java.awt.Transparency;
 import java.awt.Graphics;
 import java.awt.GraphicsEnvironment;
@@ -72,6 +81,7 @@ import javax.imageio.ImageIO;
  * @author Romain Guy <romain.guy@mac.com>
  */
 public class GraphicsUtilities {
+
     private GraphicsUtilities() {
     }
 
@@ -627,6 +637,145 @@ public class GraphicsUtilities {
         } else {
             // Unmanages the image
             img.setRGB(x, y, w, h, pixels, 0, w);
+        }
+    }
+
+    /**
+     * Given the dimensions of a series of lines of text, draws those shapes using the given colours.
+     * @param g The Graphics context to use for drawing.
+     * @param d The dimensions of the lines to be drawn (from getMultiLineStringDimensions)
+     * @param foreground The colour to draw the foreground in.  BLACK is used if null
+     * @param outline The colour to draw the outline in.  Not drawn if null
+     */
+    public static void drawOutlinedText(Graphics2D g, MultiLineStringDimensions d, Color foreground, Color outline)
+    {
+        if (foreground == null)
+            foreground = Color.BLACK;
+        
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        
+        for (int i = 0; i < d.lineShapes.length;i++) {
+            g.setColor(foreground);
+            //
+            g.fill(d.lineShapes[i]);
+            if (outline != null)
+            {
+                g.setColor(outline);
+                g.draw(d.lineShapes[i]);
+            }
+                
+        }
+    }
+
+    // Gets the height of the given string in the given graphics context 
+    // From: http://stackoverflow.com/questions/368295/how-to-get-real-string-height-in-java
+    private static double getStringHeight(Graphics2D g, String str)
+    {
+        FontRenderContext frc = g.getFontRenderContext();
+        GlyphVector gv = g.getFont().createGlyphVector(frc, str);
+        return gv.getPixelBounds(null, 0, 0).getHeight();
+    }
+
+    /**
+     * Sets the font on the given graphics context to have the given style and target size
+     * @param g
+     * @param style The font style (e.g. Font.PLAIN)
+     * @param targetSize The target height of the line
+     */
+    private static void setFontOfPixelHeight(Graphics2D g, int style, double targetSize)
+    {
+        // Likely DPI ranges for a monitor: 120 to 500 pixels per inch (via wikipedia)
+        // An inch is 72 points, so range is something like 1 pixel per point to 8 pixels per point
+        // So we explore from 1 point, up to the desired pixel size in points.
+        // e.g. if we want 40 pixels, then a 40 point font is going to be bigger than 40 pixels if the display is above 72 DPI
+        Font font = new Font("Sans Serif", style, 1);
+        
+        for (int i = 1; i < targetSize; i++)
+        {
+            Font bigger = font.deriveFont((float)i);
+            g.setFont(bigger);
+            // This string should be full height in the font:
+            if (bigger.getLineMetrics("WBLMNqpyg", g.getFontRenderContext()).getHeight() < targetSize) // getStringHeight(g, "WBLMNqpyg") < targetSize)
+            {
+                font = bigger;
+            }
+            else
+            {
+                break; // Too big; keep previous
+            }
+        }
+        g.setFont(font);
+    
+    }
+
+    // Splits lines by newlines, and strips \r:
+    public static String[] splitLines(String string)
+    {
+        return string.replaceAll("\r", "").split("\n");
+    }
+
+    /**
+     * Given a list of lines, gets the dimensions/outlines of the lines when drawn in the given style,
+     * one above the other, horizontally centred.
+     * @param lines The text lines to draw.  Should be the output of splitLines
+     * @param style The style (e.g. Font.PLAIN)
+     * @param size The height in pixels of each line of text
+     * @return The dimensions of the lines
+     */
+    public static MultiLineStringDimensions getMultiLineStringDimensions(String[] lines, int style, double size)
+    {
+        BufferedImage image = createCompatibleTranslucentImage(1, 1);
+        MultiLineStringDimensions r = new MultiLineStringDimensions(lines.length);
+        Graphics2D g = (Graphics2D)image.getGraphics();
+        g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        setFontOfPixelHeight(g, style, size);
+        
+        FontRenderContext frc = g.getFontRenderContext();
+        Rectangle2D[] lineBounds = new Rectangle2D[lines.length];
+        int maxX = 1;
+        int y = 0;
+        for (int i = 0; i < lines.length;i++)
+        {
+            lineBounds[i] = g.getFontMetrics().getStringBounds(lines[i], g);
+            maxX = Math.max(maxX, (int)Math.ceil(lineBounds[i].getWidth()));
+            y += Math.ceil(lineBounds[i].getHeight());
+        }
+        y = Math.max(y + 1, 1);
+        r.overallBounds = new Dimension(maxX, y);
+        
+        y = 0;
+        for (int i = 0; i < lines.length;i++)
+        {
+            // Draw the shape in the right space in the overall text, by translating it down and moving to middle:
+            AffineTransform translate = AffineTransform.getTranslateInstance((r.overallBounds.getWidth() - lineBounds[i].getWidth()) / 2, y - lineBounds[i].getMinY() /* add on to baseline */);
+            r.lineShapes[i] = new TextLayout(lines[i], g.getFont(), frc).getOutline(translate);
+            y += Math.ceil(lineBounds[i].getHeight());
+        }
+        // Make it at least one pixel, and add one for the outline width:
+        
+        g.dispose();
+        
+        return r;
+    }
+    
+    public static class MultiLineStringDimensions
+    {
+        private Shape[] lineShapes;
+        private Dimension overallBounds;
+        
+        public MultiLineStringDimensions(int length)
+        {
+            lineShapes = new Shape[length];
+        }
+        
+        public int getWidth()
+        {
+            return overallBounds.width;
+        }
+        
+        public int getHeight()
+        {
+            return overallBounds.height;
         }
     }
 }

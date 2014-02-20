@@ -36,7 +36,6 @@ import java.awt.MediaTracker;
 import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
@@ -165,45 +164,33 @@ public class GreenfootImage
      */
     public GreenfootImage(String string, int size, Color foreground, Color background)
     {
-        String[] lines = string.replaceAll("\r", "").split("\n");
-        image = GraphicsUtilities.createCompatibleTranslucentImage(1, 1);
-        Graphics2D g = (Graphics2D)image.getGraphics();
-        g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-        Font font = g.getFont().deriveFont((float)size);
-        g.setFont(font);
-        
-        // If you ask for a height of size 40, you may well get a font of size 48
-        // (I did on my Ubuntu system).  So we compensate if that happens by
-        // scaling down our request to one that we expect should get the right size.
-        // We don't loop because it may not converge.
-        if (g.getFontMetrics().getHeight() != size) {
-            font = g.getFont().deriveFont((float)size * (float)size / (float)g.getFontMetrics().getHeight());
-            g.setFont(font);
-        }
-        
-        Rectangle2D[] bounds = new Rectangle2D[lines.length];
-        int maxX = 1; int y = 0;
-        for (int i = 0; i < lines.length;i++) {
-            bounds[i] = g.getFontMetrics().getStringBounds(lines[i], g);
-            maxX = Math.max(maxX, (int)Math.ceil(bounds[i].getWidth()));
-            y += Math.ceil(bounds[i].getHeight());
-        }
-        y = Math.max(y, 1);
-        g.dispose();
-        image = GraphicsUtilities.createCompatibleTranslucentImage(maxX, y);
-        g = (Graphics2D)image.getGraphics();
-        g.setFont(font);
-        g.setColor(background == null ? new Color(0, 0, 0, 0) : background);
-        g.fillRect(0, 0, image.getWidth(), image.getHeight());
-        g.setColor(foreground == null ? Color.BLACK : foreground);
-        y = 0;
-        for (int i = 0; i < lines.length;i++) {
-            g.drawString(lines[i], ((maxX - (int)bounds[i].getWidth()) / 2) - (int)bounds[i].getX(), y - (int)bounds[i].getY());
-            y += Math.ceil(bounds[i].getHeight());
-        }
-        g.dispose();
+        this(string, size, foreground, background, null);
     }
     
+    /**
+     * Creates an image with the given string drawn as text using the given font size, with the given foreground
+     * color on the given background color.  If the string has newline characters, it
+     * is split into multiple lines which are drawn horizontally-centred.
+     * 
+     * @param string the string to be drawn
+     * @param size the requested height in pixels of each line of text (the actual height may be different by a pixel or so)
+     * @param foreground the color of the text.  Since Greenfoot 2.2.0, passing null will use black.
+     * @param background the color of the image behind the text.  Since Greenfoot 2.2.0, passing null with leave the background transparent.
+     * @param outline the colour of the outline that will be drawn around the text.  Passing null will draw no outline.
+     * @since 2.4.0
+     */
+    public GreenfootImage(String string, int size, Color foreground, Color background, Color outline)
+    {
+        String[] lines = GraphicsUtilities.splitLines(string);
+        GraphicsUtilities.MultiLineStringDimensions d = GraphicsUtilities.getMultiLineStringDimensions(lines, Font.BOLD, size);
+        image = GraphicsUtilities.createCompatibleTranslucentImage(d.getWidth(), d.getHeight());
+        Graphics2D g = (Graphics2D)image.getGraphics();
+        g.setColor(background == null ? new Color(0, 0, 0, 0) : background);
+        g.fillRect(0, 0, image.getWidth(), image.getHeight());
+        GraphicsUtilities.drawOutlinedText(g, d, foreground, outline);
+        g.dispose();
+    }
+
     //Package-visible:
     GreenfootImage(byte[] imageData)
     {
