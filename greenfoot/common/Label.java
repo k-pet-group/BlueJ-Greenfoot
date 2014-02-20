@@ -23,11 +23,9 @@ public class Label extends Actor
 {
     private String value;
     private int fontSize;
-    private String fontFamilyName = "Arial";
     private Color lineColor = Color.BLACK;
     private Color fillColor = Color.WHITE;
     
-    private GreenfootImage background;
     private static final Color transparent = new Color(0,0,0,0);
 
     
@@ -47,14 +45,6 @@ public class Label extends Actor
         this.value = value;
         this.fontSize = fontSize;
         updateImage();
-    }
-    
-    /**
-     * No action needed.
-     */
-    public void act() 
-    {
-        
     }
 
     /**
@@ -76,17 +66,6 @@ public class Label extends Actor
     public void setValue(int value)
     {
         this.value = Integer.toString(value);
-        updateImage();
-    }
-    
-    /**
-     * Sets the font family
-     * 
-     * @param fontFamilyName the name of the font family only
-     */
-    public void setFont(String fontFamilyName)
-    {
-        this.fontFamilyName = fontFamilyName;
         updateImage();
     }
     
@@ -118,52 +97,6 @@ public class Label extends Actor
      */
     private void updateImage()
     {
-        GreenfootImage backgroundImage = new GreenfootImage(value, fontSize, transparent, transparent);
-        Graphics2D g = (Graphics2D) backgroundImage.getAwtImage().getGraphics();
-
-        Font font = new Font(fontFamilyName, Font.PLAIN, fontSize);
-        g.setFont(font);
-        
-        // If you ask for a height of size 40, you may well get a font of size 48
-        // (I did on my Ubuntu system).  So we compensate if that happens by
-        // scaling down our request to one that we expect should get the right size.
-        // We don't loop because it may not converge.
-        if (g.getFontMetrics().getHeight() != fontSize) {
-            font = g.getFont().deriveFont((float)fontSize * (float)fontSize / (float)g.getFontMetrics().getHeight());
-            g.setFont(font);
-        }
-        
-        TextLayout textLayout = new TextLayout(value, font, g.getFontRenderContext());
-        Shape outline = textLayout.getOutline(null);
-        
-        GreenfootImage textImage = drawOutlinedText(outline, textLayout, g.getFontMetrics());
-        
-        if (textImage.getWidth() > backgroundImage.getWidth())
-        {
-            backgroundImage.scale(textImage.getWidth(), backgroundImage.getHeight());
-        }
-        
-        backgroundImage.drawImage(textImage, (backgroundImage.getWidth()-textImage.getWidth())/2, 
-                        (backgroundImage.getHeight()-textImage.getHeight())/2);
-        
-        setImage(backgroundImage);
-    }
-    
-    private GreenfootImage drawOutlinedText(Shape outline, TextLayout textLayout, FontMetrics metrics)
-    {
-        GreenfootImage textImage = new GreenfootImage(outline.getBounds().width + 1, metrics.getHeight() +1);
-        Graphics2D g = (Graphics2D) textImage.getAwtImage().getGraphics();
-
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-        g.translate(0 - outline.getBounds().x, metrics.getAscent());
-     
-        g.setColor(fillColor);
-        g.fill(outline);
-        
-        g.setColor(lineColor);
-        g.draw(outline);
-        
-        return textImage;
+        setImage(new GreenfootImage(value, fontSize, fillColor, transparent, lineColor));
     }
 }
