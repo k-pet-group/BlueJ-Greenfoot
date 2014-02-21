@@ -1,4 +1,6 @@
 import greenfoot.*;
+import java.net.URLEncoder;
+import java.io.UnsupportedEncodingException;
 import javax.imageio.ImageIO;
 
 /**
@@ -99,7 +101,14 @@ public class Map {
     private void buildImage()
     {
         String urlAddress = urlBase;
-        urlAddress += "&center=" + location;
+        try
+        {
+            urlAddress += "&center=" + URLEncoder.encode(location, "UTF-8");
+        }
+        catch (UnsupportedEncodingException e)
+        {
+            e.printStackTrace();
+        }
         urlAddress += "&size=" + width + "x" + height;
         urlAddress += "&zoom=" + zoom;
         urlAddress += "&maptype=" + type.toString().toLowerCase();
@@ -118,7 +127,7 @@ public class Map {
     }
     
     /**
-     * Sets the type of the map as one of: roadmap, satellite, hybrid or terrain.
+     * Sets the type of the map as one of: "roadmap" (the default), "satellite", "hybrid" or "terrain".
      * 
      * @param type  the type of the map.
      * @exception if the passed parameter is not one of the predefined types.
