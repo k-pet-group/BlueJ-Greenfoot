@@ -1057,7 +1057,22 @@ public class ClassTarget extends DependentTarget
     public void compile(final Editor editor)
     {
         if (Config.isGreenfoot()) {
-            getPackage().compile();
+            // Even though we do a package compile, we must let the editor know when
+            // the compile finishes, so that it updates its status correctly:
+            getPackage().compile(new CompileObserver() {
+                
+                @Override
+                public void startCompile(File[] sources) { }
+                
+                @Override
+                public void endCompile(File[] sources, boolean successful)
+                {
+                    editor.compileFinished(successful);
+                }
+                
+                @Override
+                public boolean compilerMessage(Diagnostic diagnostic) { return false; }
+            });
         }
         else {
             getPackage().compile(this, false, new CompileObserver() {

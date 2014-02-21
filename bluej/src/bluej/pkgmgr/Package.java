@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2012,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2011,2012,2013,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -1202,7 +1202,7 @@ public final class Package extends Graph
      * The standard compile user function: Find and compile all uncompiled
      * classes.
      */
-    public void compile()
+    public void compile(CompileObserver compObserver)
     {
         if (!checkCompile()) {
             return;
@@ -1225,7 +1225,7 @@ public final class Package extends Graph
 
             project.removeClassLoader();
             project.newRemoteClassLoaderLeavingBreakpoints();
-            doCompile(toCompile, new PackageCompileObserver(null));
+            doCompile(toCompile, new PackageCompileObserver(compObserver));
         }
         catch (IOException ioe) {
             // Abort compile
@@ -1234,6 +1234,15 @@ public final class Package extends Graph
                 ct.setQueued(false);
             }
         }
+    }
+    
+    /**
+     * The standard compile user function: Find and compile all uncompiled
+     * classes.
+     */
+    public void compile()
+    {
+        compile((CompileObserver)null);
     }
     
     /**
