@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2013  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2013,2014  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -77,6 +77,7 @@ import greenfoot.util.GreenfootUtil;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.HeadlessException;
@@ -84,18 +85,23 @@ import java.awt.Image;
 import java.awt.Menu;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.rmi.RemoteException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.ButtonModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -114,9 +120,11 @@ import rmiextension.wrappers.RBlueJ;
 import rmiextension.wrappers.event.RCompileEvent;
 import bluej.BlueJTheme;
 import bluej.Config;
+import bluej.extensions.ProjectNotOpenException;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.DBox;
 import bluej.utility.CenterLayout;
+import bluej.utility.Debug;
 
 import com.apple.eawt.AboutHandler;
 import com.apple.eawt.AppEvent.AboutEvent;
@@ -160,6 +168,8 @@ public class GreenfootFrame extends JFrame
     private JMenu recentProjectsMenu;
     private JPanel messagePanel;
     private JLabel messageLabel;
+    private JLabel messageLabel2;
+    private JButton tooLongRestartButton;
     private CardLayout card;
     private DBox worldBox;
     
@@ -354,7 +364,7 @@ public class GreenfootFrame extends JFrame
             toggleSoundAction.setProject(project);
             isClosedProject = false;
         }
-        updateBackgroundmessage();
+        updateBackgroundMessage();
     }
 
     private void constructClassBrowser(final GProject project)
@@ -381,7 +391,7 @@ public class GreenfootFrame extends JFrame
         isClosedProject = true;
         
         //TODO is next line needed?
-        updateBackgroundmessage();
+        updateBackgroundMessage();
     }
 
     /**
@@ -475,8 +485,35 @@ public class GreenfootFrame extends JFrame
         });
         
         messagePanel = new JPanel(new CenterLayout());
+        JPanel subPanel = new JPanel();
+        subPanel.setLayout(new BoxLayout(subPanel, BoxLayout.Y_AXIS));
         messageLabel = new JLabel("");
-        messagePanel.add(messageLabel);
+        messageLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        subPanel.add(messageLabel);
+        messageLabel2 = new JLabel("");
+        messageLabel2.setAlignmentX(Component.CENTER_ALIGNMENT);
+        subPanel.add(messageLabel2);
+        subPanel.add(Box.createVerticalStrut(15));
+        tooLongRestartButton = new JButton(Config.getString("centrePanel.restartButton.label"));
+        tooLongRestartButton.setVisible(false);
+        tooLongRestartButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        tooLongRestartButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                try {
+                    project.getRProject().restartVM();
+                }
+                catch (RemoteException e1) {
+                    Debug.reportError(e1);
+                }
+                catch (ProjectNotOpenException e1) {
+                    Debug.reportError(e1);
+                }                
+            }
+        });
+        subPanel.add(tooLongRestartButton);
+        messagePanel.add(subPanel);
         
         JScrollPane worldScrollPane = new JScrollPane(worldCanvas);
         //Stop the world scroll pane scrolling when arrow keys are pressed - stops it interfering with the scenario.
@@ -563,7 +600,7 @@ public class GreenfootFrame extends JFrame
         contentPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(Config.GREENFOOT_SET_PLAYER_NAME_SHORTCUT, "setPlayerAction");
         contentPane.getActionMap().put("setPlayerAction", setPlayerAction);
         
-        updateBackgroundmessage();
+        updateBackgroundMessage();
         pack();
     }
 
@@ -961,9 +998,10 @@ public class GreenfootFrame extends JFrame
         this.resizeWhenPossible = b;
     }
     
-    private void updateBackgroundmessage()
+    public void updateBackgroundMessage()
     {
         String message = "";
+        String message2 = "";
         if(worldCanvas.isVisible()) {
             card.show(worldBox, "worldPanel");
         }
@@ -983,16 +1021,27 @@ public class GreenfootFrame extends JFrame
                         }
                     }
                 }
+                 
+                tooLongRestartButton.setVisible(false);
                 if (noWorldClassFound) {
                     message = Config.getString("centrePanel.message.createWorldClass");
                 }
                 else if (noCompiledWorldClassFound) {
                     message = Config.getString("centrePanel.message.compile");
                 }
+                else if (worldHandlerDelegate.initialisingForTooLong()) {
+                    message = Config.getString("centrePanel.message.initialisingTooLong1");
+                    message2 = Config.getString("centrePanel.message.initialisingTooLong2");
+                    tooLongRestartButton.setVisible(true);
+                }
+                else if (worldHandlerDelegate.initialising()) {
+                    message = Config.getString("centrePanel.message.initialising");
+                }
             }
             card.show(worldBox, "messagePanel");
         }
         messageLabel.setText(message);
+        messageLabel2.setText(message2);
     }
     
     // ----------- WindowListener interface -----------
@@ -1047,7 +1096,7 @@ public class GreenfootFrame extends JFrame
                 classBrowser.repaint();
                 compileAllAction.setEnabled(project != null);
                 isCompiling = false;
-                updateBackgroundmessage();
+                updateBackgroundMessage();
             }
         });
     }
@@ -1061,7 +1110,7 @@ public class GreenfootFrame extends JFrame
             {
                 compileAllAction.setEnabled(project != null);
                 isCompiling = false;
-                updateBackgroundmessage();
+                updateBackgroundMessage();
             }
         });
     }
@@ -1085,7 +1134,7 @@ public class GreenfootFrame extends JFrame
         centrePanel.revalidate();
         worldDimensions = worldCanvas.getPreferredSize();
         
-        updateBackgroundmessage();
+        updateBackgroundMessage();
     }
     
     @Override
@@ -1094,7 +1143,7 @@ public class GreenfootFrame extends JFrame
         inspectorManager.removeAllInspectors();
         worldCanvas.setVisible(false);
         
-        updateBackgroundmessage();
+        updateBackgroundMessage();
     }
 
     // ------------- end of WorldListener interface ------------
@@ -1120,7 +1169,7 @@ public class GreenfootFrame extends JFrame
         else {
             removeSelectedClassAction.setEnabled(false);
         }
-        updateBackgroundmessage();
+        updateBackgroundMessage();
     }
     
     // ------------- end of SelectionListener interface --------
@@ -1132,4 +1181,5 @@ public class GreenfootFrame extends JFrame
     {
         return inspectorManager;
     }
+
 }

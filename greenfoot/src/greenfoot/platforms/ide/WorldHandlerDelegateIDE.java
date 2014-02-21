@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012,2013  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012,2013,2014  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -88,7 +88,7 @@ public class WorldHandlerDelegateIDE
 {
     protected final Color envOpColour = Config.ENV_COLOUR;
 
-    private final int TIMEOUT = Config.WORLD_INITIALISING_TIMEOUT;
+    private final static int WORLD_INITIALISING_TIMEOUT = 4000;
 
     private final static String errorConstructorTitle = Config.getString("world.error.constructor.title");
     private final static String missingConstructorMsg = Config.getString("world.missing.constructor.msg");
@@ -108,6 +108,8 @@ public class WorldHandlerDelegateIDE
 
     private boolean worldInitialising;
 
+    private long startedInitialisingAt;
+
     public WorldHandlerDelegateIDE(GreenfootFrame frame, InspectorManager inspectorManager,
             ClassStateManager classStateManager)
     {
@@ -122,7 +124,7 @@ public class WorldHandlerDelegateIDE
      * Make a popup menu suitable for calling methods on, inspecting and
      * removing an object in the world.
      */
-    private JPopupMenu makeActorPopupMenu(final Actor obj)
+    public JPopupMenu makeActorPopupMenu(final Actor obj)
     {
         JPopupMenu menu = new JPopupMenu();
 
@@ -154,7 +156,7 @@ public class WorldHandlerDelegateIDE
      * Create a pop-up allowing the user to call methods, inspect and "Save the World"
      * on the World object.
      */
-    private JPopupMenu makeWorldPopupMenu(final World world)
+    public JPopupMenu makeWorldPopupMenu(final World world)
     {
         if (world == null)
             return null;
@@ -407,24 +409,16 @@ public class WorldHandlerDelegateIDE
                     // Can occur if last instantiated world class is not compiled.
                     return;
                 }
+                
+                startedInitialisingAt = System.currentTimeMillis();
+                frame.updateBackgroundMessage();
 
-                final Timer timer = new Timer(TIMEOUT, new ActionListener() {
+                final Timer timer = new Timer(WORLD_INITIALISING_TIMEOUT, new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e)
                     {
-                        try {
-                            if (worldInitialising) {
-                                int result = JOptionPane.showConfirmDialog(frame, infiniteConstructorMsg, errorConstructorTitle, JOptionPane.OK_CANCEL_OPTION);
-                                if (result == JOptionPane.OK_OPTION) {
-                                    rProject.restartVM();
-                                }
-                            }
-                        }
-                        catch (RemoteException ex) {
-                            Debug.reportError("RemoteException restarting VM in WorldHandlerDelegateIDE", ex);
-                        }
-                        catch (ProjectNotOpenException ex) {
-                            Debug.reportError("ProjectNotOpenException restarting VM in WorldHandlerDelegateIDE", ex);
+                        if (worldInitialising) {
+                            frame.updateBackgroundMessage();
                         }
                     }
                 });
@@ -648,5 +642,21 @@ public class WorldHandlerDelegateIDE
     public SaveWorldAction getSaveWorldAction()
     {
         return saveWorldAction;
+    }
+    
+    /**
+     * Is the world currently initialising?
+     */
+    public boolean initialising()
+    {
+        return worldInitialising;
+    }
+
+    /**
+     * Returns true if the world is currently initialising, and has gone behind its timeout
+     */
+    public boolean initialisingForTooLong()
+    {
+        return worldInitialising && System.currentTimeMillis() > startedInitialisingAt + WORLD_INITIALISING_TIMEOUT;
     }
 }

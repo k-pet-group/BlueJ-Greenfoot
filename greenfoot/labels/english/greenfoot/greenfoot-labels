@@ -40,7 +40,7 @@ project.version.changes.8=2.3.0 Greenfoot.getMouseInfo() now only returns null i
 project.version.changes.9=2.3.0 A 'turnTowards(int,int)' method has been added to the Actor class.
 project.version.changes.10=2.4.0 A 'UserInfo' class was added (renamed from 'PlayerData' in the Greenfoot 2.2.0 beta).
 project.version.changes.11=2.5.0 The 'isTouching' and 'removeTouching' methods were added to the Actor class.
-project.version.changes.12=2.6.0 The 'showText' method was added to the World class.
+project.version.changes.12=2.6.0 The 'showText' method was added to the World class, and a new constructor added to GreenfootImage.
 
 project.version.newer.part1=The scenario being opened has been written using a newer version of Greenfoot (API version 
 # project version inserted here by Greenfoot
@@ -333,3 +333,7 @@ sound-line-unavailable=Cannot get access to the sound card. If you have a sound 
 centrePanel.message.openScenario=\u2196 Create or Open a Scenario using the Scenario menu
 centrePanel.message.createWorldClass=Create a new World Class
 centrePanel.message.compile=Use the "Compile" button to instantiate the World Class \u2198
+centrePanel.message.initialising=World is being constructed...
+centrePanel.message.initialisingTooLong1=The constructor for the world is taking a long time.
+centrePanel.message.initialisingTooLong2=You may have an infinite loop.
+centrePanel.restartButton.label=Restart
