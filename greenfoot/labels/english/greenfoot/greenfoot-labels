@@ -337,3 +337,5 @@ centrePanel.message.initialising=World is being constructed...
 centrePanel.message.initialisingTooLong1=The constructor for the world is taking a long time.
 centrePanel.message.initialisingTooLong2=You may have an infinite loop.
 centrePanel.restartButton.label=Restart
+centrePanel.message.error1=The world constructor threw an exception.
+centrePanel.message.error2=See the Terminal window for more details.

@@ -1029,6 +1029,10 @@ public class GreenfootFrame extends JFrame
                 else if (noCompiledWorldClassFound) {
                     message = Config.getString("centrePanel.message.compile");
                 }
+                else if (worldHandlerDelegate.initialisationError()) {
+                    message = Config.getString("centrePanel.message.error1");
+                    message2 = Config.getString("centrePanel.message.error2");
+                }
                 else if (worldHandlerDelegate.initialisingForTooLong()) {
                     message = Config.getString("centrePanel.message.initialisingTooLong1");
                     message2 = Config.getString("centrePanel.message.initialisingTooLong2");

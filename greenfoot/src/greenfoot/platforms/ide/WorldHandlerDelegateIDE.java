@@ -107,8 +107,8 @@ public class WorldHandlerDelegateIDE
     private SaveWorldAction saveWorldAction;
 
     private boolean worldInitialising;
-
     private long startedInitialisingAt;
+    private boolean worldInvocationError;
 
     public WorldHandlerDelegateIDE(GreenfootFrame frame, InspectorManager inspectorManager,
             ClassStateManager classStateManager)
@@ -262,6 +262,7 @@ public class WorldHandlerDelegateIDE
     @Override
     public void setWorld(final World oldWorld, final World newWorld)
     {
+        worldInvocationError = false;
         greenfootRecorder.clearCode(false);
         greenfootRecorder.setWorld(newWorld);
         if (oldWorld != null) {
@@ -378,6 +379,7 @@ public class WorldHandlerDelegateIDE
             if (!rProject.isVMRestarted()) {
                 greenfootRecorder.reset();
                 worldInitialising = true;
+                worldInvocationError = false;
                 Class<? extends World> cls = getLastWorldClass();
                 GClass lastWorldGClass = getLastWorldGClass();
 
@@ -427,6 +429,7 @@ public class WorldHandlerDelegateIDE
                 
                 final Class<? extends World> icls = cls;
                 Simulation.getInstance().runLater(new Runnable() {
+
                     @Override
                     public void run()
                     {
@@ -455,6 +458,14 @@ public class WorldHandlerDelegateIDE
                             // This can happen if a static initializer block throws a Throwable.
                             // Or for other reasons.
                             ite.getCause().printStackTrace();
+                            worldInvocationError = true;
+                            frame.updateBackgroundMessage();
+                        }
+                        catch (Exception e) {
+                            System.err.println("Exception during World initialisation:");
+                            e.printStackTrace();
+                            worldInvocationError = true;
+                            frame.updateBackgroundMessage();
                         }
                         worldInitialising = false;
                         timer.stop();
@@ -658,5 +669,13 @@ public class WorldHandlerDelegateIDE
     public boolean initialisingForTooLong()
     {
         return worldInitialising && System.currentTimeMillis() > startedInitialisingAt + WORLD_INITIALISING_TIMEOUT;
+    }
+    
+    /**
+     * Did the last world invocation end in an error?
+     */
+    public boolean initialisationError()
+    {
+        return worldInvocationError;
     }
 }
