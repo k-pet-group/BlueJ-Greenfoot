@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -101,8 +101,6 @@ public final class Config
     public static final String bluejDebugLogName = "bluej-debuglog.txt";
     public static final String greenfootDebugLogName = "greenfoot-debuglog.txt";
     public static String debugLogName = bluejDebugLogName;
-
-    public static final int WORLD_INITIALISING_TIMEOUT = 5000;
 
     public static final Color ENV_COLOUR = new Color(152,32,32);
 
