@@ -1,5 +1,8 @@
 package weather.util;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.List;
 
 import com.smartechz.tools.mygeoloc.Geobytes;
@@ -16,11 +19,12 @@ import de.mbenning.weather.wunderground.impl.services.WeatherStationService;
  */
 public class WeatherGrabber {
 
-    String city;
-    String country;
-    DataSet dataset;
+    private String city;
+    private String country;
+    private final HttpDataReaderService reader = new HttpDataReaderService();;
+    private DataSet dataset;
 
-    private static final int TIMEOUT = 1300;
+    private static final int TIMEOUT = 10000; // Takes about 5 seconds on my machine
     
     public WeatherGrabber()
     {
@@ -46,73 +50,75 @@ public class WeatherGrabber {
 
     private void setLocation(String country, String city)
     {
-        if ( country.toLowerCase().equals("united kingdom") ) {
-            country = "UK";
+        // Wunderground have an entry under UK with outdated stations; up-to-date version is under United Kingdom:
+        if ( country.toLowerCase().equals("UK") ) {
+            country = "United Kingdom";
         }
         this.country = country;
         this.city = city;
         
         new Thread(new Runnable() {
             public void run() {
-                initializeData();
+                fetchData();
             }
         }).start();
     }
 
-    private void initializeData()
+    private void fetchData()
     {
-        WeatherStation weatherStation = getWeatherStation(country, city);
-        HttpDataReaderService reader = new HttpDataReaderService();
-        reader.setWeatherStation(weatherStation);
-        initializeDataset(reader, country, city);
+        reader.setWeatherStation(getWeatherStation(country, city));
+        DataSet t = reader.getCurrentData();
+        synchronized (this) {
+            dataset = t;
+            notify();
+        }       
+    }
+    
+    // It seems that the API doesn't encode strings into URLs properly, so we must do it: 
+    private static String encode(String s)
+    {
+        try
+        {
+            return URLEncoder.encode(s, "UTF-8");
+        }
+        catch (UnsupportedEncodingException e)
+        {
+            e.printStackTrace();
+            return null;
+        }
     }
     
     private WeatherStation getWeatherStation(String country, String city)
     {
         // find all weather stations for the country
-        List<WeatherStation> stations = new WeatherStationService().findAllWeatherStationsByCountry(country);
+        List<WeatherStation> stations = new WeatherStationService().findAllWeatherStationsByCountry(encode(country));
 
         // iterate over all founded weather stations to get one in the city
         for (WeatherStation weatherStation : stations) {
-            if ( weatherStation.getCity().toLowerCase().contains(city.toLowerCase()) ) {
+            if (weatherStation.getCity() != null &&  weatherStation.getCity().toLowerCase().contains(city.toLowerCase()) ) {
                 return weatherStation;
             }
         }
         throw new RuntimeException("Can not find weather information for " + city + ", " + country + ". Please check spelling or try another location");
     }
 
-    private synchronized void initializeDataset(HttpDataReaderService reader, String country, String city)
+    public synchronized DataSet getDataset()
     {
-        int wait = 10;
-        do {
-            try {
-                Thread.sleep(wait);
+        if (dataset == null)
+        {
+            try
+            {
+                wait(TIMEOUT);
             }
             catch (InterruptedException e) { }
-            finally {
-                wait *= 2;
-                dataset = reader.getCurrentData();
-            }
         }
-        while(dataset == null && wait < TIMEOUT);
-
+        
         if (dataset == null) {
-            throw new RuntimeException("Can not find weather information for " + city + ", " + country + ". Please check spelling or try another location");
-        }
-    }
-
-    public DataSet getDataset()
-    {
-        if (dataset == null) {
-            synchronized (this) {
-                if (dataset == null) {
-                    initializeData();
-                }
-            }
+            throw new RuntimeException("Can not find weather information for " + city + ", " + country + ". Operation timed out.");
         }
         return dataset;
     }
-
+    
     public String getCity()
     {
         return city;
