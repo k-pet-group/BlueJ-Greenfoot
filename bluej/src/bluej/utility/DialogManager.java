@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2012,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,7 +23,9 @@ package bluej.utility;
 
 import java.awt.Component;
 import java.awt.Point;
+import java.awt.Toolkit;
 import java.awt.Window;
+import java.awt.datatransfer.StringSelection;
 import java.io.File;
 
 import javax.swing.JButton;
@@ -145,6 +147,14 @@ public class DialogManager
     public static void showText(Component parent, String text)
     {
         JOptionPane.showMessageDialog(parent, text);
+    }
+    
+    public static void showTextWithCopyButton(Component parent, String text, String title)
+    {
+        if (JOptionPane.showOptionDialog(parent, text, title, 0, 0, null, new String [] {Config.getString("okay"), Config.getString("editor.copy-to-clipboardLabel")}, null) == 1)
+        {
+            Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(text), null);
+        }
     }
 
 
