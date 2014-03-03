@@ -29,7 +29,7 @@
   \begin{center}
     \includegraphics[width=10cm]{../../lib/images/bluej-icon-256.png}\\
     \huge BlueJ Blackbox Data Collection\\~\\Researchers' Handbook
-    (version 1.4, 29 Jan 2014)
+    (version 1.5, 3 Mar 2014)
   \end{center}
 \end{titlepage}
 
@@ -1141,9 +1141,13 @@ you can use an SSH tunnel:
 ssh -L 3307:localhost:3306 ssh_username@white.kent.ac.uk
 \end{lstlisting}
 
-While that SSH session is open, you can access the database by running
-|mysql -h 127.0.0.1 -P 3307 -u username -p blackbox_production|.  You will have been given
-the MySQL details separately when you got an account on the machine.
+While that SSH session is open, you can access the database by running:
+
+\begin{lstlisting}
+mysql -h 127.0.0.1 -P 3307 -u username -p blackbox_production
+\end{lstlisting}
+
+You will have been given the MySQL details separately when you got an account on the machine.
 
 \section{Feed}
 
@@ -1450,6 +1454,12 @@ identifier.  It then prints out the exact state of the source file at that compi
 event.  For example:
 
 |/tools/nccb/bin/print-compile-input /data/compile-inputs 1246 35238|
+
+\item |/tools/nccb/bin/view-source-history| takes a source file identifier and then
+allows you to scroll through the file, its source history and compile history.  For example:
+
+|view-source-historyview-source-history 1234|
+
 \end{itemize}
 (Any other tools in /home/nccb/bin are irrelevant dependencies.)
 
