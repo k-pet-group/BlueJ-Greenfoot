@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2013,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -43,6 +43,7 @@ import java.awt.event.FocusListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -918,9 +919,7 @@ public abstract class CallDialog extends EscapeDialog
         }
         
         // handle varargs expansion
-        boolean hasVarArgs = method.isVarArgs() && parameterList != null
-                && parameterList.size() >= params.length;
-        if (hasVarArgs && varArgsExpanded) {
+        if (hasVarArgs(method, params) && varArgsExpanded) {
             int totalParams = parameterList.size();
             JavaType[] allParams = new JavaType[totalParams];
             System.arraycopy(params, 0, allParams, 0, params.length);
@@ -929,9 +928,33 @@ public abstract class CallDialog extends EscapeDialog
                 allParams[i] = varArgType;
             }
             return allParams;
-        } else {
+        }
+        else {
             return params;
         }
+    }
+
+    private boolean hasVarArgs(CallableView method, JavaType[] params)
+    {
+        if (!method.isVarArgs()) {
+            return false;
+        }
+        if (parameterList == null) {
+            return false;
+        }
+        if (parameterList.size() < params.length) {
+            return false;
+        }
+        if (getArgs().length == 1 && isEmptyArg(getArgs()[0]) ) {
+            return false;
+        }
+        return true;
+    }
+
+    private boolean isEmptyArg(String value)
+    {
+        String[] emptyArgs = {"{ }", "{}", ""};
+        return  Arrays.asList(emptyArgs).contains(value.trim());
     }
 
     /**
