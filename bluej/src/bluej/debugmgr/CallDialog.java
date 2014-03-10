@@ -61,6 +61,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 
 import bluej.BlueJTheme;
 import bluej.Config;
@@ -130,6 +131,7 @@ public abstract class CallDialog extends EscapeDialog
             this.history = history;
         }
         
+        @Override
         public JComponent createComponent(JButton addButton, JButton removeButton)
         {
             Box container = new Box(BoxLayout.X_AXIS);
@@ -179,15 +181,16 @@ public abstract class CallDialog extends EscapeDialog
 
         public JComponent getParameterComponent(int index)
         {
-            return (JComponent) parameters.get(index);
+            return parameters.get(index);
         }
 
         public String getType(int index)
         {
             if (isVarArgs && index >= (parameters.size() - 1)) {
-                return (String) types.get(types.size() - 1);
-            } else {
-                return (String) types.get(index);
+                return types.get(types.size() - 1);
+            } 
+            else {
+                return types.get(index);
             }
         }
 
@@ -199,7 +202,8 @@ public abstract class CallDialog extends EscapeDialog
             Object c = parameters.get(parameters.size() - 1);
             if (c instanceof GrowableBox) {
                 return (GrowableBox) parameters.get(parameters.size() - 1);
-            } else {
+            }
+            else {
                 return null;
             }
         }
@@ -224,7 +228,8 @@ public abstract class CallDialog extends EscapeDialog
         {
             if (isVarArgs) {
                 return parameters.size() + getGrowableBox().getComponentCountWithoutEmpty() - 1;
-            } else {
+            }
+            else {
                 return parameters.size();
             }
         }
@@ -235,7 +240,8 @@ public abstract class CallDialog extends EscapeDialog
                 JComponent element = iter.next();
                 if (isVarArgs && !iter.hasNext()) {
                     ((GrowableBox) element).clear();
-                } else {
+                }
+                else {
                     ((JComboBox) element).setSelectedIndex(0);
                 }
             }
@@ -256,7 +262,8 @@ public abstract class CallDialog extends EscapeDialog
                 GrowableBox varArgs = getGrowableBox();
                 VarArgFactory factory = (VarArgFactory) varArgs.getComponentFactory();
                 factory.setHistory(historyList);
-            } else {
+            }
+            else {
                 getParameter(i).setModel(new DefaultComboBoxModel(historyList.toArray()));
                 getParameter(i).insertItemAt(defaultParamValue, 0);
             }
@@ -308,10 +315,12 @@ public abstract class CallDialog extends EscapeDialog
      */
     public void setWaitCursor(boolean wait)
     {
-        if(wait)
+        if(wait) {
             setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-        else
+        }
+        else {
             setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        }
     }
 
     /**
@@ -364,8 +373,9 @@ public abstract class CallDialog extends EscapeDialog
     {
         // cut the "location: __SHELL3" bit from some error messages
         int index = message.indexOf("location:");
-        if(index != -1)
+        if(index != -1) {
             message = message.substring(0,index-1);
+        }
 
         errorLabel.setText(message);
         pack();
@@ -379,6 +389,7 @@ public abstract class CallDialog extends EscapeDialog
      * The object was selected interactively (by clicking
      * on it with the mouse pointer).
      */
+    @Override
     public void objectEvent(ObjectBenchEvent obe)
     {
         NamedValue value = obe.getValue();
@@ -403,16 +414,24 @@ public abstract class CallDialog extends EscapeDialog
             //JButton okButton = BlueJTheme.getOkButton();
             okButton = BlueJTheme.getOkButton();
             okButton.addActionListener(new ActionListener() {
-                        public void actionPerformed(ActionEvent evt) { doOk(); }
-                    });
+
+                @Override
+                public void actionPerformed(ActionEvent evt)
+                { 
+                    doOk();
+                }
+            });
 
             JButton cancelButton = BlueJTheme.getCancelButton();
             cancelButton.addActionListener(new ActionListener() {
-                        public void actionPerformed(ActionEvent evt) { doCancel(); }
-                    });
+                @Override
+                public void actionPerformed(ActionEvent evt)
+                { 
+                    doCancel(); 
+                }
+            });
                     
             DialogManager.addOKCancelButtons(buttonPanel, okButton, cancelButton);
-
             getRootPane().setDefaultButton(okButton);
         }
 
@@ -420,10 +439,12 @@ public abstract class CallDialog extends EscapeDialog
         contentPane.setLayout(new BorderLayout(6,6));
         contentPane.setBorder(BlueJTheme.generalBorder);
 
-        if(topComponent != null)
+        if(topComponent != null) {
             contentPane.add(topComponent, BorderLayout.NORTH);
-        if(centerComponent != null)
+        }
+        if(centerComponent != null) {
             contentPane.add(centerComponent, BorderLayout.CENTER);
+        }
         contentPane.add(buttonPanel, BorderLayout.SOUTH);
 
         pack();
@@ -431,10 +452,12 @@ public abstract class CallDialog extends EscapeDialog
 
         // Close Action when close button is pressed
         addWindowListener(new WindowAdapter() {
-                public void windowClosing(WindowEvent event) {
-                    setVisible(false);
-                }
-            });
+            @Override
+            public void windowClosing(WindowEvent event)
+            {
+                setVisible(false);
+            }
+        });
     }
     
     /**
@@ -477,9 +500,10 @@ public abstract class CallDialog extends EscapeDialog
         }
         // treat 'return' in text field as OK
         component.getEditor().addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent evt)
             {
-               doOk();
+                doOk();
             }
         });
         // add FocusListener for text insertion
@@ -520,25 +544,30 @@ public abstract class CallDialog extends EscapeDialog
                         BoxLayout.Y_AXIS, INSETS.top + INSETS.bottom);
                 //We want the dialog to resize when new args are added
                 component.addComponentListener(new ComponentListener() {
+                    @Override
                     public void componentResized(ComponentEvent e)
                     {
                         CallDialog.this.pack();
                     }
 
+                    @Override
                     public void componentMoved(ComponentEvent e)
                     {
                     }
 
+                    @Override
                     public void componentShown(ComponentEvent e)
                     {
                     }
 
+                    @Override
                     public void componentHidden(ComponentEvent e)
                     {
                     }
                 });
                 parameterList.setVarArg(component, paramString);
-            } else {
+            } 
+            else {
                 List<String> historyList = history.getHistory(paramClasses[i]);
                 JComboBox component = createComboBox(historyList);
                 parameterList.addParameter(i, component, paramString);
@@ -588,8 +617,8 @@ public abstract class CallDialog extends EscapeDialog
             gridBag.setConstraints(component, constraints);
             tmpPanel.add(component);
 
-            JLabel eol = new JLabel(",", JLabel.LEFT);
-            JLabel type = new JLabel(" " + parameterList.getType(i), JLabel.LEFT);
+            JLabel eol = new JLabel(",", SwingConstants.LEFT);
+            JLabel type = new JLabel(" " + parameterList.getType(i), SwingConstants.LEFT);
             if (i == (parameterList.size() - 1)) {
                 eol.setText(endString);
                 eol.setFont(parenthesisFont);
@@ -643,7 +672,8 @@ public abstract class CallDialog extends EscapeDialog
                 allParams[i] = varArgType;
             }
             return allParams;
-        } else {
+        }
+        else {
             return params;
         }
     }
@@ -673,8 +703,9 @@ public abstract class CallDialog extends EscapeDialog
         if (parameterList != null) {            
             for (int i = 0; i < parameterList.size(); i++) {
                 String arg = (String) parameterList.getParameter(i).getEditor().getItem();
-                if (arg == null || arg.trim().equals(""))
-                    return false;                
+                if (arg == null || arg.trim().equals("")) {
+                    return false;
+                }
             }
         }
         return true;
@@ -693,12 +724,13 @@ public abstract class CallDialog extends EscapeDialog
                 String arg = (String) typeParameterList.getParameter(i).getEditor().getItem();
                 if (arg == null || arg.trim().equals("")) {
                     oneIsEmpty = true;                     
-                } else {
+                }
+                else {
                     oneIsTypedIn = true;
                 }
-                if(oneIsEmpty && oneIsTypedIn) {
+                if (oneIsEmpty && oneIsTypedIn) {
                     return false;
-                }                
+                }             
             }
         }
         return true;
@@ -721,6 +753,7 @@ public abstract class CallDialog extends EscapeDialog
      * Set the visibility of the dialog, clearing parameter edit fields
      * and setting focus.
      */
+    @Override
     public void setVisible(boolean show)
     {
         if (! show) {
@@ -735,6 +768,7 @@ public abstract class CallDialog extends EscapeDialog
     protected void makeDialog(String className, String instanceName)
     {
         super.setContentPane(new JPanel() {
+            @Override
             protected void paintComponent(Graphics g)
             {
                 super.paintComponent(g);
@@ -986,6 +1020,7 @@ public abstract class CallDialog extends EscapeDialog
      * Assigns focusedTextField to work around difficulties in JComboBox
      * firing focus gained events.
      */
+    @Override
     public void focusGained(FocusEvent fe)
     {
         if (fe.getComponent() instanceof JTextField) {
@@ -999,6 +1034,7 @@ public abstract class CallDialog extends EscapeDialog
      * Does nothing at present except for debug message.
      *
      */
+    @Override
     public void focusLost(FocusEvent fe)
     {
         //Debug.message(" Focus Lost: " + fe.paramString());

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,13 +23,13 @@ package bluej.debugmgr;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.event.FocusListener;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
 import bluej.Config;
@@ -50,7 +50,7 @@ import bluej.views.MethodView;
  * @author  Bruce Quig
  * @author  Poul Henriksen <polle@mip.sdu.dk>
  */
-public class MethodDialog extends CallDialog implements FocusListener
+public class MethodDialog extends CallDialog
 {
     private boolean okCalled;
     private boolean rawObject;
@@ -100,18 +100,22 @@ public class MethodDialog extends CallDialog implements FocusListener
      * doOk - Process an "Ok" event to invoke a Constructor or Method.
      * Collects arguments and calls watcher objects (Invoker).
      */
+    @Override
     public void doOk()
     {
         if(!okCalled) {
             if (!parameterFieldsOk()) {
                 setErrorMessage(emptyFieldMsg);            
-            } else if(!typeParameterFieldsOk()) {     
+            }
+            else if(!typeParameterFieldsOk()) {
                 setErrorMessage(emptyTypeFieldMsg);
-            } else {
+            } 
+            else {
                 setWaitCursor(true);
                 okButton.requestFocus();
                 SwingUtilities.invokeLater(new Runnable()
                 {
+                    @Override
                     public void run()
                     {
                         callWatcher(OK);
@@ -142,6 +146,7 @@ public class MethodDialog extends CallDialog implements FocusListener
         // focus requests have been wrapped in invokeLater method to resolve issues 
         // with focus confusion on Mac OSX (BlueJ 2.0, JDK 1.4.2)
         SwingUtilities.invokeLater(new Runnable() {
+            @Override
             public void run()
             {
                 if (typeParameterList != null) {
@@ -179,8 +184,7 @@ public class MethodDialog extends CallDialog implements FocusListener
     /**
      * makeCallDialog - create a dialog to make a method call
      */
-    private void makeCallDialog(String className, String instanceName, CallableView method,
-            JPanel panel)
+    private void makeCallDialog(String className, String instanceName, CallableView method, JPanel panel)
     {
         JPanel tmpPanel;
         setTitle(wCallRoutineTitle);
@@ -191,7 +195,7 @@ public class MethodDialog extends CallDialog implements FocusListener
         tmpPanel.setLayout(gridBag);
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.insets = INSETS;
-        callLabel = new JLabel("", JLabel.RIGHT);
+        callLabel = new JLabel("", SwingConstants.RIGHT);
         if (method.isStatic()) {
             setCallLabel(className);
         }
@@ -237,6 +241,7 @@ public class MethodDialog extends CallDialog implements FocusListener
      * <p>The okCalled flag is used to prevent multiple rapid button presses before
      * the button and dialog are disabled.
      */
+    @Override
     public void setEnabled(boolean state)
     {
         okButton.setEnabled(state);
