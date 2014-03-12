@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2013  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2013,2014  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -469,7 +469,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                 Config.getString("pkgmgr.newPkg.buttonLabel"),
                 false, true);
         if (newFile != null) {
-            if (newFile.exists()) {
+            if (newFile.exists() && (!newFile.isDirectory() || newFile.list().length > 0)) {
                 DialogManager.showError(frame, "project-already-exists");
                 return null;
             }

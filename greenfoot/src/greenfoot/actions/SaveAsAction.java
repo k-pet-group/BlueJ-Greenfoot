@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2012  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2012,2014  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -96,8 +96,11 @@ public class SaveAsAction extends AbstractAction
                 case FileUtility.NO_ERROR:
                     break;
 
-                case FileUtility.DEST_EXISTS:
-                    DialogManager.showError(gfFrame, "project-already-exists");
+                case FileUtility.DEST_EXISTS_NOT_DIR:
+                    DialogManager.showError(gfFrame, "directory-exists-file");
+                    return;
+                case FileUtility.DEST_EXISTS_NON_EMPTY:
+                    DialogManager.showError(gfFrame, "directory-exists-non-empty");
                     return;
 
                 case FileUtility.SRC_NOT_DIRECTORY:
