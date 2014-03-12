@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012,2014  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -203,7 +203,7 @@ public class WorldInvokeListener
                     update();
                     if (callable instanceof MethodView) {
                         MethodView m = (MethodView) callable;
-                        interactionListener.methodCall(obj, instanceName, m.getName(), ir.getArgumentValues(), paramTypes);
+                        interactionListener.methodCall(obj, instanceName, m.getMethod(), ir.getArgumentValues(), paramTypes);
                     }
                 }
 

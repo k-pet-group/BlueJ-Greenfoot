@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -54,7 +54,7 @@ public class JavaUtils15 extends JavaUtils
             String name = JavaUtils14.getTypeName(method.getReturnType()) + " " + method.getName();
             Class<?>[] params = method.getParameterTypes();
             String[] paramTypes = JavaUtils14.getParameterTypes(params);
-            return makeDescription(name, paramTypes, paramnames, longDesc, false);
+            return makeDescription(name, paramTypes, paramnames, longDesc, method.isVarArgs());
         }
         
         // Don't want to modify the map which was passed in, so make a copy:
@@ -311,7 +311,7 @@ public class JavaUtils15 extends JavaUtils
             }
             JavaType [] gentypes = new JavaType[params.length];
             for(int i = 0; i < params.length; i++) {
-                gentypes[i] = (JavaType) genTypeFromType(params[i]);
+                gentypes[i] = genTypeFromType(params[i]);
             }
             return gentypes;
         }
@@ -341,7 +341,7 @@ public class JavaUtils15 extends JavaUtils
             Type [] params = constructor.getGenericParameterTypes();
             JavaType [] gentypes = new JavaType[params.length];
             for(int i = 0; i < params.length; i++) {
-                gentypes[i] = (JavaType) genTypeFromType(params[i]);
+                gentypes[i] = genTypeFromType(params[i]);
             }
             return gentypes;
         }

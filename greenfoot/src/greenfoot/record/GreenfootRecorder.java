@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2010,2011 Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2010,2011,2014 Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,6 +25,7 @@ import greenfoot.Actor;
 import greenfoot.ObjectTracker;
 import greenfoot.World;
 
+import java.lang.reflect.Method;
 import java.rmi.RemoteException;
 import java.util.IdentityHashMap;
 import java.util.LinkedList;
@@ -67,7 +68,7 @@ public class GreenfootRecorder
         Class<?> theClass = actor.getClass();
         String name = nameActor(actor);
         if (name != null) {
-            code.add(theClass.getCanonicalName() + " " + name + " = new " + theClass.getCanonicalName() + "(" + withCommas(args, paramTypes) + ");");
+            code.add(theClass.getCanonicalName() + " " + name + " = new " + theClass.getCanonicalName() + "(" + withCommas(args, paramTypes, false) + ");");
         }
     }
     
@@ -102,7 +103,7 @@ public class GreenfootRecorder
      * @param paramTypes  The parameter types of the method/constructor
      * @return  The arguments as a comma-separated list
      */
-    private static String withCommas(String[] args, JavaType[] paramTypes)
+    private static String withCommas(String[] args, JavaType[] paramTypes, boolean isVarArgs)
     {
         if (args == null) {
             return "";
@@ -113,7 +114,15 @@ public class GreenfootRecorder
         for (int i = 0; i < args.length;i++) {
             String arg = args[i].trim();
             if (arg.startsWith("{") && arg.endsWith("}")) {
-                arg = "new " + paramTypes[i] + " " + arg;
+                String paramTypeName;
+                if (isVarArgs && i >= paramTypes.length - 1) {
+                    paramTypeName = paramTypes[paramTypes.length - 1].toString();
+                    paramTypeName = paramTypeName.substring(0,paramTypeName.length()-2);
+                }
+                else {
+                    paramTypeName = paramTypes[i].toString();
+                }
+                arg = "new " + paramTypeName + " " + arg;
             }
             commaArgs.append(arg);
             if (i != args.length - 1) {
@@ -145,11 +154,11 @@ public class GreenfootRecorder
      * 
      * @param obj        The object on which the method was invoked
      * @param actorName  The assigned object name
-     * @param methodName  The method name
+     * @param method     The method being called
      * @param args       The arguments to the method, as Java expressions
      * @param paramTypes  The parameter types of the method
      */
-    public synchronized void callActorMethod(Object obj, String actorName, String methodName,
+    public synchronized void callActorMethod(Object obj, String actorName, Method method,
             String[] args, JavaType[] paramTypes)
     {
         if (obj != null && null == objectNames.get(obj) && obj != world) {
@@ -157,12 +166,13 @@ public class GreenfootRecorder
             return;
         }
         
+        String methodCallingString = method.getName() + "(" + withCommas(args, paramTypes, method.isVarArgs()) + ");";
         if (world != null && world == obj) {
             // Called on the world, so don't use the world's object name before the call:
-            code.add(methodName + "(" + withCommas(args, paramTypes) + ");");
+            code.add(methodCallingString);
         }
         else {
-            code.add(actorName + "." + methodName + "(" + withCommas(args, paramTypes) + ");");
+            code.add(actorName + "." + methodCallingString);
         }
     }
 
@@ -175,10 +185,10 @@ public class GreenfootRecorder
      * @param args       The arguments to the method, as a
      * @param argTypes
      */
-    public void callStaticMethod(String className, String name, String[] args, JavaType[] argTypes)
+    public void callStaticMethod(String className, Method method, String[] args, JavaType[] argTypes)
     {
         // No difference in syntax, so no need to replicate the code:
-        callActorMethod(null, className, name, args, argTypes);
+        callActorMethod(null, className, method, args, argTypes);
     }
     
     /**
@@ -218,7 +228,7 @@ public class GreenfootRecorder
      * thread (i.e. with the world locked).
      */
     public synchronized void moveActor(Actor actor, int xCell, int yCell)
-    {        
+    {
         String actorObjectName = objectNames.get(actor);
         if (null == actorObjectName) {
             // This could happen with programmatically generated actors (e.g. in a World's method)

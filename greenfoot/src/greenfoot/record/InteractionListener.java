@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2010,2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2010,2011,2014  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -20,6 +20,8 @@
  LICENSE.txt file that accompanied this code.
  */
 package greenfoot.record;
+
+import java.lang.reflect.Method;
 
 import greenfoot.Actor;
 import bluej.debugger.gentype.JavaType;
@@ -60,7 +62,7 @@ public interface InteractionListener
      * @param args       The method arguments (as java expressions)
      * @param argTypes   The argument types of the method. For a varargs method the last type will be an array.
      */
-    public void methodCall(Object obj, String targetName, String methodName, String[] args, JavaType[] argTypes);
+    public void methodCall(Object obj, String targetName, Method method, String[] args, JavaType[] argTypes);
 
     public void removedActor(Actor obj);
 

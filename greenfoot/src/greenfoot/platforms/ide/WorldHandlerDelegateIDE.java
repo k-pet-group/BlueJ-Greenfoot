@@ -51,6 +51,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.rmi.RemoteException;
 import java.util.List;
 
@@ -58,7 +59,6 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
-import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
@@ -72,7 +72,6 @@ import bluej.debugmgr.objectbench.ObjectBenchEvent;
 import bluej.debugmgr.objectbench.ObjectBenchInterface;
 import bluej.debugmgr.objectbench.ObjectBenchListener;
 import bluej.debugmgr.objectbench.ObjectWrapper;
-import bluej.extensions.ProjectNotOpenException;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
 import bluej.views.CallableView;
@@ -569,13 +568,13 @@ public class WorldHandlerDelegateIDE
     }
 
     @Override
-    public void methodCall(Object obj, String actorName, String name, String[] args, JavaType[] argTypes)
+    public void methodCall(Object obj, String actorName, Method method, String[] args, JavaType[] argTypes)
     {
         if (obj != null) {
-            greenfootRecorder.callActorMethod(obj, actorName, name, args, argTypes);
+            greenfootRecorder.callActorMethod(obj, actorName, method, args, argTypes);
         }
         else {
-            greenfootRecorder.callStaticMethod(actorName, name, args, argTypes);
+            greenfootRecorder.callStaticMethod(actorName, method, args, argTypes);
         }
     }
     
