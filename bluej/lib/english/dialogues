@@ -104,9 +104,13 @@ must-be-identifier
 The name is not valid. It
 must be a Java identifier.
 
-directory-exists
-A file or directory with this
-name already exists.
+directory-exists-file
+A file with this name already exists,
+so the directory cannot be created.
+
+directory-exists-non-empty
+This directory is not empty, so cannot
+be used as a destination for a project.
 
 cannot-create-directory
 Cannot create the directory. Check that 

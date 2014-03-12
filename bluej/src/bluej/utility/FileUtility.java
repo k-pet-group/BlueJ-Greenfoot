@@ -404,20 +404,30 @@ public class FileUtility
      * Copy (recursively) a whole directory.
      */
     public static final int NO_ERROR = 0;
-    public static final int DEST_EXISTS = 1;
     public static final int SRC_NOT_DIRECTORY = 2;
     public static final int COPY_ERROR = 3;
+    public static final int DEST_EXISTS_NOT_DIR = 4;
+    public static final int DEST_EXISTS_NON_EMPTY = 5;
 
     public static int copyDirectory(File srcFile, File destFile)
     {
         if(!srcFile.isDirectory())
             return SRC_NOT_DIRECTORY;
 
-        if(destFile.exists())
-            return DEST_EXISTS;
-
-        if(!destFile.mkdir())
-            return COPY_ERROR;
+        if(destFile.exists() && !destFile.isDirectory())
+            return DEST_EXISTS_NOT_DIR;
+        
+        // It's okay if it exists ,provided it is empty:
+        if (destFile.exists())
+        {
+            if (destFile.list().length > 0)
+                return DEST_EXISTS_NON_EMPTY;
+        }
+        else
+        {
+            if(!destFile.mkdir())
+                return COPY_ERROR;
+        }
 
         String[] dir = srcFile.list();
         for(int i=0; i<dir.length; i++) {

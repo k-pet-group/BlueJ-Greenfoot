@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -67,8 +67,11 @@ final public class SaveProjectAsAction extends PkgMgrAction
             case FileUtility.NO_ERROR:
                 break;
 
-            case FileUtility.DEST_EXISTS:
-                DialogManager.showError(frame, "directory-exists");
+            case FileUtility.DEST_EXISTS_NOT_DIR:
+                DialogManager.showError(frame, "directory-exists-file");
+                return;
+            case FileUtility.DEST_EXISTS_NON_EMPTY:
+                DialogManager.showError(frame, "directory-exists-non-empty");
                 return;
 
             case FileUtility.SRC_NOT_DIRECTORY:
