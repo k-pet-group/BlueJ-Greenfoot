@@ -480,10 +480,9 @@ public final class Config
          * variable with the same same. Other calls just return the result
          * stored in the variable.
          */
-        public static boolean isRasperryPi()
+        public static boolean isRaspberryPi()
             {
                 if (Config.isRaspberryPi == null) {
-                    System.out.println("calculating");
                     boolean result = false;
                     if (Config.isLinux()) {
                         try {

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2012,2013, 2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -212,7 +212,7 @@ class VMReference
         ArrayList<String> paramList = new ArrayList<String>(11);
         
         //check if it is a raspberry pi. if so, in order to make Pi4J work out of the box, run JVM with sudo.
-        if (Config.isRasperryPi()) {
+        if (Config.isRaspberryPi()) {
             paramList.add("/usr/bin/sudo");
         }
         paramList.add(Config.getJDKExecutablePath(null, "java"));

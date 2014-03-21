@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012,2013, 2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -161,7 +161,7 @@ public class PrefMgr
      */
     public static int initializeHighlighStrengh()
     {
-     if (Config.isRasperryPi()) {
+     if (Config.isRaspberryPi()) {
          return Config.getPropInteger(SCOPE_HIGHLIGHTING_STRENGTH, 0);
      }else{
          return Config.getPropInteger(SCOPE_HIGHLIGHTING_STRENGTH, 20);
@@ -175,7 +175,7 @@ public class PrefMgr
      */
     public static boolean initializeisNavivewExpanded()
     {
-     if (Config.isRasperryPi()) {
+     if (Config.isRaspberryPi()) {
          return Boolean.parseBoolean(Config.getPropString(NAVIVIEW_EXPANDED, "false"));
      }else{
          return Boolean.parseBoolean(Config.getPropString(NAVIVIEW_EXPANDED, "true"));
