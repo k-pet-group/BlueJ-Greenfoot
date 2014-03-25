@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program.
- Copyright (C) 2011,2013  Michael Kolling and John Rosenberg
+ Copyright (C) 2011,2013,2014  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -217,6 +217,27 @@ public class PersistentMarkDocument extends AbstractDocument
         int index = lineMap.getElementIndex(offset);
         
         LeafElement first = (LeafElement) lineMap.getElement(index);
+        
+        if (offset != 0 && first.getStartOffset() == offset) {
+            // Removing from the start of a line has the effect that an undo will
+            // insert at the *end of the previous line*, which moves the position of the end
+            // and the start of this line. We need to add undo records to correct the line end
+            // position and line start position.
+            LeafElement prev = (LeafElement) lineMap.getElement(index - 1);
+            try {
+                // These positions are the same, but it's probably not wise to share Position
+                // objects between line elements, so we'll create two:
+                Position newEnd = createPosition(offset + length);
+                Position newStart = createPosition(offset + length);
+                chng.addEdit(new SetEndPos(prev, prev.end, newEnd));
+                chng.addEdit(new SetStartPos(first, first.start, newStart));
+            }
+            catch (BadLocationException ble) {
+                // shouldn't happen
+                throw new RuntimeException(ble);
+            }
+        }
+        
         if (first.getEndOffset() > (offset + length)) {
             return; // only removing part of a line
         }
