@@ -1,0 +1,261 @@
+Using the Eclipse IDE to build and run BlueJ v1.5
+-------------------------------------------------
+Josh Buhl (buhl@stormarnschule.de)
+Davin McCall (support@greenfoot.org)
+-------------------------------------------------
+
+There are two possibilities to import the source into Eclipse, from
+the source bundle or directly from the svn repository:
+
+
+1a. Import source code into eclipse from source bundle:
+
+   NOTE: This procedure depends upon whether the source is located in
+         the Eclipse Workspace folder or not. See NOTE at the end of
+         this file for details.
+
+   * Start Eclipse. Select File->New->Project
+
+   * In selection Wizard choose "Java Project"
+
+
+   * Case 1: The source folder is in the Eclipse Workspace
+             folder:
+
+    - "Project name": Enter the name of the source folder to import
+      exactly as it is named as a subdirectory in the Eclipse
+      Workspace folder, e.g. "bluej", as the project name.
+
+
+   * Case 2: The source folder is not in the Eclipse Workspace folder:
+
+    - Uncheck the "use default location" checkbox
+
+    - "browse" for the location and select the source folder that you
+       extracted from the source bundle wherever it is.
+
+    - Set a project name
+
+
+   * Click "Finish".
+
+   
+Alternatively:
+
+1b. Import source code into eclipse from Subversion repository:
+   
+   NOTE: The main development repository is not public. These
+         instructions are applicable for BlueJ developers or if you
+         have imported the source code into a repository of your
+         own. Either the "subversive" or the "subclipse" plugin is
+         required for Eclipse. These instructions are written for the
+         "subversive" plugin.
+
+   * Use the "SVN Repository Exploring Perspective"
+     (Window -> Open Perspective...).
+
+   * Add the repository location, if you haven't already done so,
+     with the "New Repository Location" button (small button with
+     an icon depicting a cylinder overlaid with a "+" sign).
+
+   * Locate the bluej folder (under trunk). Right-click it and
+     "Find/Check out as..."
+
+   * Select "Check out as a new project configured using the New
+     Project Wizard" and then "Finish"
+
+   * Choose "Java Project" and click "Next"
+
+   * Enter a project name and "Finish".
+
+
+2. JRE: set up the jre to use for the workspace and/or project.
+
+   The jre used needs to be the jdk and not just the jre that gets
+   installed alongside the jdk (which seems to be the default setting
+   on a virgin installation of jdk + eclipse on windows).
+  
+   You can either set the jre to use for the workspace (all projects),
+   or alternatively, set the jre to use just for this project (see
+   below.)
+   
+   To check/add the JDK JRE as JRE for the workspace:
+
+   Window->Preferences->Java->Installed JREs
+
+   * check that the jdk jre is available as jre. 
+
+   * if e.g. only c:\Programs\Java\jre7 is available, then
+     add a new JRE, and select the jdk dir, e.g. 
+     c:\Programs\Java\jdk1.7.0_45
+
+   * to set the jdk to be the default jre for the workspace, check
+     that box.
+
+
+3. Project Properties: Set up source and output paths, and char encoding.
+
+   NOTE: These instructions assume that the project is named "bluej".
+         Some paths in the following steps may need to be adjusted if
+         you use a different project name.
+
+
+   Project properties -> Resource
+
+   * Select "UTF-8" as the character encoding.
+   * Select unix style line breaks
+
+
+   Project properties -> Java Build Path
+
+   In the Source tab:
+   
+   * check the "Allow output folders for source folders" option.
+
+   * Add source folders as necessary with "Add Folder..." 
+     and set output folder (click on Output folder, then "Edit").
+     There should be three source folders:
+
+      - source folder "bluej/src" 
+        should have output folder "bluej/classes"
+      - source folder "bluej/boot/src" 
+        should have output folder "bluej/boot/classes"
+      - source folder "bluej/test/src"
+        should have output folder "bluej/test/classes"
+      
+   In the Libraries tab:
+   
+   * "Add JARs" (or "Add Variable..." if using classpath vars): add all the
+     necessary jars from the bluej/lib directory.  At the time of this 
+     writing (01/2014 v3.1.0) these are:
+
+       - AppleJavaExtensions.jar
+       - junit-4.8.2.jar
+       - org-netbeans-lib-cvsclient.jar
+       - svnkit-javahl.jar
+       - trilead.jar
+
+   * "Add External JARs" (or "Add Variable..." if using classpath vars): 
+     add the "tools.jar" file from your JDK in [your jdk root]\lib
+
+
+4. Configuring and running ant
+
+   * Edit the bluej/build.properties file to set local paths.  
+
+     Eclipse likes to open the file build.properties with a "Build
+     Configuration" editor - you don't want that.  Right-click and
+     choose "open with", "Properties file editor".
+
+   * Right click in project view on build.xml-> Run as "ant build..."
+     (ellipis important).
+
+   * Click in jre tab and make sure that the jdk (not just a jre) is
+     selected.
+
+
+   Window->Show View->Other... 
+
+   * select Ant->Ant in pop-up dialog
+
+   * drag-n-drop the bluej/build.xml file from the bluej project into
+     the Ant view.
+
+   * double click on the "ready-to-run" target to build.
+
+
+5. Running BlueJ from within Eclipse
+
+   Most edits will not require re-running the ant build targets nor
+   installing bluej to test.
+
+   You can edit the source and run BlueJ from within Eclipse. To do
+   this you need to have Eclipse set to "build automatically"
+   (Project->"build automatically") and you need a run configuration:
+
+
+   Run->Run Configurations...
+   
+   * Select "Java Application" and click the "New" button to create a
+     new run configuration for bluej
+   
+   * Name it whatever you like, e.g. 'bluej_runconfig'.
+
+   In the Main tab:
+
+   * Project should be the bluej project
+   * Main class should be bluej.Boot.
+
+   In the Arguments tab:
+
+   * Set the Program arguments to (not indented for easier copy&paste):
+
+-useclassesdir=true 
+-bluej.debug=true
+
+
+   In the JRE tab:
+
+   * check that the jre being used for the project is the jdk jre as
+     described above.
+
+
+   In the Classpath tab:
+
+   * The bootstrap entries should contain only the JRE Sytem Library
+
+   * The user entries should contain the "bluej/boot/classes" folder
+     (Advanced..., Add Folder), and the tools.jar from the JDK (Add
+     External Jars... or Advanced..., Add Classpath Var if using
+     classpath vars).  You do not need the "classes" folder nor any of
+     the other jar files.
+
+   * Apply the changes and run the configuration to test.
+
+
+6. Hacking BlueJ
+
+   * Hack the source and run the run configuration using the "run"
+     button in the toolbar to test.
+
+   * Happy Hacking ;-)
+
+
+
+======================================================================
+Appendix
+
+NOTE 1. on Eclipse Workspace folders:
+
+How you import source code into Eclipse and how you may or may not
+name the corresponding projects depends upon where the source is
+located.
+
+The default eclipse configuration is to have the source folders as
+subdirectories in the eclipse workspace folder with the subdirs named
+exactly the same as the projects themselves, e.g. "bluej"
+and "greenfoot", but you can also have them in another directory and
+then name the projects however you like, e.g. "bj" and "gf" or
+even "fred" and "george". ;-) Buildpath folders, etc., are then
+relative to these project names instead of the actual subdirectory
+names.
+
+You can have multiple workspace folders, e.g. a separate AndroidWS for
+your android projects, and a BluejWS folder with the bluej source
+folder in it for hacking BlueJ. Eclipse can prompt you on startup to
+select a workspace folder to use for the session (set in Eclipse in
+Window->Preferences->Startup and Shutdown->Workspaces. See Eclipse help
+for further information.)
+
+* Decide whether you want to have the bluej source folder in the
+  eclipse workspace folder or not (similarly for the greenfoot source
+  folder, if you are building Greenfoot; note that your BlueJ and
+  Greenfoot folders should be in the same workspace as each other).
+
+Tip: Extract the source into a folder called e.g. "BluejWS" and
+     use this folder as your workspace folder when working on
+     BlueJ.
+
+* Start Eclipse. Select the appropriate workspace folder either at
+  start up (see above) or in File->Switch Workspace.
+
