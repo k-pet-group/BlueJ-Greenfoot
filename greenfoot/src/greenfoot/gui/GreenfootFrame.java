@@ -134,6 +134,7 @@ import com.apple.eawt.Application;
 import com.apple.eawt.PreferencesHandler;
 import com.apple.eawt.QuitHandler;
 import com.apple.eawt.QuitResponse;
+import java.awt.Font;
 
 /**
  * The main frame for a Greenfoot project (one per project)
@@ -488,10 +489,16 @@ public class GreenfootFrame extends JFrame
         JPanel subPanel = new JPanel();
         subPanel.setLayout(new BoxLayout(subPanel, BoxLayout.Y_AXIS));
         messageLabel = new JLabel("");
+        final Font msgFont = messageLabel.getFont().deriveFont(Font.BOLD + Font.ITALIC, 16.0f);
+        final Color msgColor = new Color(150,150,150);
         messageLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        messageLabel.setForeground(msgColor);
+        messageLabel.setFont(msgFont);
         subPanel.add(messageLabel);
         messageLabel2 = new JLabel("");
         messageLabel2.setAlignmentX(Component.CENTER_ALIGNMENT);
+        messageLabel2.setForeground(msgColor);
+        messageLabel2.setFont(msgFont);
         subPanel.add(messageLabel2);
         subPanel.add(Box.createVerticalStrut(15));
         tooLongRestartButton = new JButton(Config.getString("centrePanel.restartButton.label"));
