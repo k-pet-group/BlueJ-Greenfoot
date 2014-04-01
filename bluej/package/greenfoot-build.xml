@@ -250,7 +250,7 @@
         	todir="${zip_dir}/Greenfoot.app/Contents/Resources" />
     	
     	<!-- Copy the JDK to the app -->
-    	<copy  todir="${zip_dir}/Greenfoot.app/Contents/PlugIns/jdk">
+    	<copy  todir="${zip_dir}/Greenfoot.app/Contents/Frameworks/jdk.framework/Versions/A">
     		<fileset dir="${mac_bundled_jdk_path}" />
     	</copy>
     	
