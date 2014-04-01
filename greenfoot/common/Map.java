@@ -4,8 +4,10 @@ import java.io.UnsupportedEncodingException;
 import javax.imageio.ImageIO;
 
 /**
- * A helper class that fetch a googleMap for a specific location
+ * A helper class that fetches a Google map for a specific location
  * as an Image.
+ * 
+ * Example of use:
  * 
  * <pre>
  * public class MapActor extends Actor
