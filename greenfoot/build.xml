@@ -359,7 +359,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
 	<target name="copy-common-class" depends="compile-scenarios">
 		<javadoc destdir="common" sourcefiles="common/${common.class}.java"
 			Version="yes" notree="yes" noindex="yes" nohelp="yes" nonavbar="yes"
-			classpath="${build}" docletpath="${bluej.projectdir}/lib/bjdoclet.jar" doclet="bluej.doclet.doclets.formats.html.HtmlDoclet"/> 
+			classpath="${build}:common/${common.class}/lib/${common.class}.jar" docletpath="${bluej.projectdir}/lib/bjdoclet.jar" doclet="bluej.doclet.doclets.formats.html.HtmlDoclet"/> 
 		
 		<copy todir="${bluej.lib.greenfoot}" preservelastmodified="true">
 		  <fileset dir=".">
