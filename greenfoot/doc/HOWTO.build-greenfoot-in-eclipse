@@ -1,0 +1,291 @@
+Using the Eclipse IDE to build and run Greenfoot v1.5
+-----------------------------------------------------
+Josh Buhl (buhl@stormarnschule.de)
+Davin McCall (support@greenfoot.org)
+-----------------------------------------------------
+
+Greenfoot is built as an extension to BlueJ. The Greenfoot source
+bundle contains both the bluej and greenfoot (extension) project
+trees. In order to build Greenfoot in Eclipse you need to set up two
+separate projects in eclipse, one for the BlueJ core and one for the
+Greenfoot extension. The BlueJ core project must be set up before you
+proceed with setting up the (separate) Greenfoot project.
+
+
+0. First follow the instructions for configuring and building BlueJ in
+   Eclipse in the bluej/doc/HOWTO.build-bluej-in-eclipse document.
+
+
+Next, you need to set up a Greenfoot project.
+
+1. Import the greenfoot source code into eclipse as per Step 1 in
+   the HOWTO instructions for BlueJ, but this time for the "greenfoot"
+   folder.
+
+
+2. JRE: Check to make sure that the jdk jre (and not just the non-jdk
+        jre installed alongside the jdk) is available. This should
+        have already been performed while setting up BlueJ. See the
+        BlueJ instructions as noted above for details.
+
+
+3. Project Properties: Set up source and output paths, and char encoding.
+
+   NOTE: These instructions assume that the projects are named "bluej"
+         and "greenfoot" respectively. Some paths in the following steps
+         may need to be adjusted if you use different project names.
+
+
+   Project properties -> Resource
+
+   * Select "UTF-8" as the character encoding.
+   * Select unix style line breaks.
+
+
+   Project properties -> Java Build Path
+
+   In the Source tab:
+
+   * Check the "Allow output folders for source folders" option.
+
+   * Add source folders as necessary with "Add Folder..." 
+     and set output folder (click on Output folder, then "Edit").
+     There should be two source folders:
+
+     - source folder "greenfoot/src" 
+       should have output folder "greenfoot/classes"
+     - source folder "greenfoot/test/src" 
+       should have output folder "greenfoot/test/classes"
+
+   * Remove any additional source folders
+
+
+   In the projects tab:
+ 
+   * Select the BlueJ project as required project.
+
+
+   In the libraries tab:
+   
+   * "Add JARs" (or "Add Variable..." if using classpath vars): add all
+     the jars in the "greenfoot/lib" folder (remove any 'persisted
+     containers'.)  At the time of this writing (01/2014 v2.3.0) these
+     are:
+
+     - commons-codec-1.3.jar
+     - commons-httpclient-3.1.jar
+     - commons-logging-api-1.1.2.jar
+     - jl1.0.1.jar
+     - opencsv-2.3.jar
+     - AppleJavaExtensions.jar (NOTE: add from bluej/lib if not in greenfoot/lib)
+     - junit-4.8.2.jar (NOTE: add from bluej/lib if not in greenfoot/lib)
+
+   * "Add External JARs" (or Add Variable... if using classpath vars): 
+     add the "tools.jar" file from your JDK in [your jdk root]\lib
+      
+
+4. Configuring and running ant
+
+   You need to run the ant build scripts to put certain files in the
+   correct places before you can build and run greenfoot:
+
+   * Edit the greenfoot/build.properties to set local paths.
+
+     Eclipse likes to open the file build.properties with a "Build
+     Configuration" editor - you don't want that.  Right-click and
+     choose "open with", "Properties file editor".
+
+   * Right click in greenfoot project view on
+     build.xml->Run as "ant build..." (ellipis important). 
+
+   * Click on jre tab and make sure that the jdk (not just a jre) 
+     is selected. 
+
+
+   Window->Show View->Other... 
+
+   * Select Ant->Ant in pop-up dialog
+
+   * Drag-n-drop the greenfoot/build.xml file from the greenfoot
+     project into the Ant view.
+
+   * (Repeat the step above for bluej/build.xml if you haven't already)
+
+   * Run the bluej "ready-to-run" target by double clicking on it in
+     the Ant view .
+
+   * Run the greenfoot "ready-to-run" target by double clicking on it
+     in the Ant view
+     
+   * In the package explorer view, right click on bluej/boot/src/bluej
+     and choose "refresh". greenfootsplash.jpg should now be listed in
+     bluej/boot/src/bluej as a resource.
+
+
+5. Running Greenfoot from within Eclipse
+
+   Most edits will not require re-running the ant build targets nor
+   installing greenfoot to test (although editing some classes will
+   require re-running the ant targets before you can test.)
+
+   You can edit the source and run Greenfoot from within Eclipse (but
+   the ant "ready-to-run" targets must have been built at least once
+   for this to work.)  To do this you need to have Eclipse set to
+   "build automatically" (Project->"build automatically") and you need
+   a run configuration:
+
+
+   Run->Run Configurations...
+   
+   * Select "Java Application" and click the "New" button to create a
+     new run configuration for greenfoot
+
+   * Name it whatever you like, e.g. 'greenfoot_runconfig'.
+
+   In the Main tab:
+
+   * Project should be the bluej project (not the greenfoot project.)
+   * Main class should be bluej.Boot.
+
+   In the Arguments tab:
+
+   * Set the Program arguments:
+    (Not indented for easier copy&paste, but *don't* *forget* to set
+    the -greenfootclassesdir=../greenfoot/classes option
+    appropriately, otherwise you'll get a lot of weird file not found
+    exceptions (and Greenfoot reports that "an error occurred in
+    extracting the archive contents") that you'll have to trace back
+    to this faulty option.)
+
+-greenfoot=true
+-greenfootclassesdir=[path to 'classes' directory within greenfoot as seen from bluej project, e.g. ../greenfoot/classes]
+-useclassesdir=true
+-bluej.debug=true
+-bluej.compiler.showunchecked=false
+
+
+   In the JRE tab:
+
+   * check that the jre being used is the jdk jre. 
+     If necessary, add the jdk as jre as described in
+     the bluej/doc/HOWTO.build-bluej-in-eclipse document.
+
+
+   In the Classpath tab:
+
+   * The bootstrap entries should contain only the JRE Sytem Library
+
+   * The user entries should contain the "bluej/boot/classes" folder
+     (Advanced..., Add folder), and the tools.jar from the JDK (Add
+     External Jars... or Advanced..., Add Classpath Var if using
+     classpath vars).  You do not need the "classes" folder nor any of
+     the other jar files.
+
+   * Apply the changes and run the configuration to test.
+
+   
+6. Hacking Greenfoot
+
+   * Hack the source and run the run configuration using the "run"
+     button in the toolbar to test.
+
+   * Some changes (e.g. to the RMI classes) may require re-running the
+     "ready-to-run" ant target in the greenfoot build.xml file.
+
+   * If you are editing classes that require an ant re-build to test,
+     you might want to *temporarily* remove the javadoc target
+     dependencies "create-api-docs" and "copy-apidocs" from the
+     "ready-to-run" target and comment out the javadoc target in the
+     "copy-common-class" target in the build.xml file to reduce the
+     build time considerably.  Don't forget to put them back in 
+     when you're done testing!
+
+   * Happy Hacking ;-)
+
+
+==========================================================================
+Common problems and their solution (if all the steps above are
+followed to the letter, then none of the problems should occur):
+
+
+1. Launching Greenfoot fails/complains because greenfootsplash.jpg isn't 
+   found, even though it's in the bluej/boot/src/ dir.  Attempting to 
+   add the image to the bluej/boot/src resource in eclipse fails.
+
+This is because even though the ant ready-to-run target has copied the
+image to bluej/boot/src, the resource hasn't been imported into
+eclipse. Importing in eclipse now fails, because the file already
+exists in the destination dir, yet isn't listed in the project view.
+
+Simply refreshing bluej/boot/src/bluej solves this.
+
+In the package explorer view in eclipse, after running the greenfoot
+ant "ready-to-run target" right click on bluej/boot/src/bluej 
+and choose "refresh". greenfootsplash.jpg should now be listed in
+bluej/boot/src/bluej as a resource.
+
+
+2. When attempting to run greenfoot runconfig, bluej.Boot can't find
+   tools.jar.
+
+This is (probably) because the call System.getProperty("java.home") in
+bluej.Boot is returning C:\Programme\Java\jre7 or similar and the
+regular non-jdk jre doesn't contain the tools.jar.  The default (and
+only) jre set in eclipse after a virgin installation of jdk + eclipse
+in windows seems to be just the regular non-jdk jre.
+
+This also isn't a windows environment var problem, rather an eclipse
+setting (default jre). Setting JAVA_HOME as env var in windows doesn't
+help because eclipse sets it's own JAVA_HOME according to workspace
+and/or project settings.
+
+Add the jdk dir as jre in eclipse (Window->Preference->Java->Installed
+JREs) and select as project/workspace jre (either select as default
+jre for the whole workspace or for this project in the project run
+configuration). Now JAVA_HOME in eclipse is the jdk dir and the system
+call in the bluej code finds the tools.jar.
+
+
+3. Eclipse complains with thousands of "cannot resolve type/variable"
+   errors for classes which are in the bluej project.
+
+I've had this error sporadically. It seems to be due to
+inconsistencies arising between the eclipse and ant build systems.
+Usually running project->clean->"clean all" in Eclipse and both ant
+clean targets for bluej and greenfoot fixes it. After this you'll need
+to re-run the ant ready-to-run targets as described above.
+
+
+4. The ant target ready-to-run fails to build because javadoc isn't found:
+
+This results when ant is configured to use a non-jdk jre and javadoc
+isn't in the system path.
+
+Right click on build.xml->run as "ant build..." (ellipis important).
+Click on jre tab and make sure that the jdk (not just a jre) is
+selected.
+
+Alternative solution: add the tools.jar to the ant classpath in
+Window->Preferences->Ant->Runtime global settings.
+
+Alternative solution: make sure that javadoc is in the system path.
+
+
+5. Ant target run-greenfoot fails with class not found exception 
+for com.apple.eawt.AboutHandler
+
+This occurs when the AppleJavaExtensions.jar isn't found in the 
+classpath of the run-greenfoot ant target for some reason.
+
+If everything is configured properly, then this shouldn't occur.
+However, it can happen after following the steps for the initial
+import and after having run project->clean->"clean all" in
+Eclipse. Re-running both ant clean targets and then both ant
+ready-to-run targets usually fixes this.
+
+A hack to avoid this permanently is to simply add the following
+pathelement in the run-greenfoot target in greenfoot/build.xml:
+
+<pathelement location="${bluej.projectdir}/lib/AppleJavaExtensions.jar" />
+
+
