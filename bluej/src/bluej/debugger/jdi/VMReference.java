@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013, 2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -226,7 +226,7 @@ class VMReference
         paramList.add(allClassPath);
         if (Config.isMacOS()) {
             paramList.add("-Xdock:icon=" + Config.getBlueJIconPath() + "/" + Config.getVMIconsName());
-            paramList.add("-Xdock:name=" + Config.getVMDockName(initDir));
+            paramList.add("-Xdock:name=" + Config.getVMDockName());
         }
         
         // Index for where the transport parameter is to be added
