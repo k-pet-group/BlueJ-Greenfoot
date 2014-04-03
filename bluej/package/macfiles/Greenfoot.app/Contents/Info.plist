@@ -56,7 +56,10 @@
 	<key>JavaProps</key>
 	<dict>
 		<key>Arguments</key>
-		<string>-greenfoot=true -bluej.compiler.showunchecked=false</string>
+			<array>
+				<string>-greenfoot=true</string>
+				<string>-bluej.compiler.showunchecked=false</string>
+			</array>
 		<key>ClassPath</key>
 		<array>
 			<string>$JAVAROOT/bluej.jar</string>
