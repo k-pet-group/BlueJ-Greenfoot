@@ -471,6 +471,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
 	
 	<target name="windows-msi-dist" depends="update-images, dist">
 	    <ant dir="${bluej.projectdir}/package" antfile="greenfoot-build.xml" target="windows-msi-dist" />
+		<ant dir="${bluej.projectdir}/package" antfile="greenfoot-build.xml" target="windows-msi-bundled-dist" />
 	</target>
 	
 	<target name="mac-dist">
