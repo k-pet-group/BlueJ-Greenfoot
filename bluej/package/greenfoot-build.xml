@@ -305,7 +305,7 @@
         <!-- The heat tool scans all the files in SourceDir and generates
              a WiX file that has all the XML needed for installing all those files -->
         <exec dir="winsetup" executable="${wix_bin}/heat.exe">
-            <arg line="dir SourceDir -cg GreenfootFiles -dr INSTALLDIR -ke -gg -srd -sfrag -template fragment -out greenfoot-install-files.wxs"/>
+            <arg line="dir SourceDir -cg GreenfootFiles -dr INSTALLDIR -ke -gg -srd -sfrag -sreg -template fragment -out greenfoot-install-files.wxs"/>
         </exec>
         <exec dir="winsetup" executable="${wix_bin}/candle.exe">
             <arg line="greenfoot-install-files.wxs"/>
@@ -316,6 +316,51 @@
         </exec>
         <delete dir="winsetup/SourceDir" />
     </target>
+
+	<target name="windows-msi-bundled-dist" depends="dist">
+		<delete dir="winsetup/SourceDir" />
+		<delete dir="winsetup" includes="*.wixobj" />
+		<unzip src="greenfoot-dist.jar" dest="winsetup/SourceDir" />
+		
+		<!-- Fix the path to the JDK in bluej.defs -->
+        <replaceregexp byline="true">
+            <regexp pattern="#greenfoot\.windows\.vm=.*"/>
+            <substitution expression="greenfoot.windows.vm=jdk"/>
+            <fileset dir="winsetup/SourceDir/lib" includes="greenfoot.defs"/>
+        </replaceregexp>
+
+		<!-- Copy the JDK to be bundled -->
+		<copy todir="winsetup/SourceDir/jdk">
+			<fileset dir="${win_bundled_jdk_path}" />
+		</copy>
+		
+		<!-- The heat tool scans all the files in SourceDir and generates
+		     a WiX file that has all the XML needed for installing all those files -->
+		<exec dir="winsetup" executable="${wix_bin}/heat.exe">
+		    <arg line="dir SourceDir -cg GreenfootFiles -dr INSTALLDIR -ke -gg -srd -sfrag -template fragment -out greenfoot-install-files.wxs"/>
+		</exec>
+
+		<exec dir="winsetup" executable="${wix_bin}/candle.exe">
+			<arg line="CheckboxExtrasDlg.wxs"/>
+		</exec>
+			
+		<exec dir="winsetup" executable="${wix_bin}/candle.exe">
+			<arg line="ui.wxs"/>
+		</exec>
+			
+		<exec dir="winsetup" executable="${wix_bin}/candle.exe">
+			<arg line="greenfoot.wxs"/>
+		</exec>
+			
+		<exec dir="winsetup" executable="${wix_bin}/candle.exe">
+			<arg line="greenfoot-install-files.wxs"/>
+		</exec>
+			
+		<exec dir="winsetup" executable="${wix_bin}/light.exe">
+			<arg line="-ext WixUIExtension -loc greenfoot.wxl greenfoot.wixobj CheckboxExtrasDlg.wixobj ui.wixobj greenfoot-install-files.wixobj -o greenfoot-${greenfoot.version}-bundled.msi"/>
+		</exec>
+		<delete dir="winsetup/SourceDir" />
+	</target>
 
     <target name="debian-dist">
         <mkdir dir="gfdeb" />

@@ -111,6 +111,8 @@ bluej.vm.args=-Xincgc -Dawt.useSystemAAFontSettings=on
 #####################################################################
 #greenfoot.editor.image=/Applications/Adobe Photoshop CS3/Adobe Photoshop CS3.app
 
+#greenfoot.windows.vm=
+
 greenfoot.image.create.width=150
 greenfoot.image.create.height=150
 
