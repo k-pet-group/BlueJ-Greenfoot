@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2014  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -48,7 +48,6 @@ import bluej.utility.MultiLineLabel;
  * The BlueJ about box.
  * 
  * @author Poul Henriksen
- * @version $Id: AboutGreenfootDialog.java 9003 2011-06-16 13:11:18Z mik $
  */
 public class AboutGreenfootDialog extends JDialog
 {
@@ -74,13 +73,12 @@ public class AboutGreenfootDialog extends JDialog
         MultiLineLabel text = new MultiLineLabel(LEFT_ALIGNMENT, 6);
         text.setBackground(Color.white);
         text.addText("The Greenfoot team:" + "\n ", false, true);
-        text.addText("      Neil Brown\n");     
+        text.addText("      Amjad Altadmri\n");
+        text.addText("      Neil Brown\n");
+        text.addText("      Fabio Hedayioglu\n");
         text.addText("      Michael K\u00F6lling\n");
-        text.addText("      Davin McCall\n");
-        text.addText("      John Rosenberg\n");
-        text.addText("      Philip Stevens\n");        
+        text.addText("      Davin McCall\n");        
         text.addText("      Ian Utting\n");
-        text.addText("      Marion Zalk\n");        
         aboutPanel.add(text, BorderLayout.CENTER);
 
         // footer text
