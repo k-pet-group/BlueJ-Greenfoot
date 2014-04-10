@@ -132,14 +132,14 @@ public class ReplacePanel extends JPanel implements ActionListener, DocumentList
         DBox replaceBody = new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.0f);
         DBox optionsBody = new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.0f);
 
-        rBody.setOpaque(false);
-        replaceBody.setOpaque(false);
-        optionsBody.setOpaque(false);
+        if (!Config.isRaspberryPi()) rBody.setOpaque(false);
+        if (!Config.isRaspberryPi()) replaceBody.setOpaque(false);
+        if (!Config.isRaspberryPi()) optionsBody.setOpaque(false);
 
         JLabel replaceLabel = new JLabel(Config.getString("editor.replacePanel.replaceLabel") + " ");
         replaceLabel.setFont(font);
         DBox replaceLabelBox = new DBox(DBox.X_AXIS, 0.5f);
-        replaceLabelBox.setOpaque(false);
+        if (!Config.isRaspberryPi()) replaceLabelBox.setOpaque(false);
         replaceLabelBox.add(Box.createHorizontalGlue());
         replaceLabelBox.add(replaceLabel);
         Dimension d = replaceLabelBox.getPreferredSize();

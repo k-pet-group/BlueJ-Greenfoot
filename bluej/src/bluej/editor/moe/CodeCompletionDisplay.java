@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2012,2014  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -40,7 +40,6 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 import java.awt.event.WindowListener;
 import java.util.Vector;
-
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ActionMap;
@@ -66,6 +65,7 @@ import bluej.parser.SourceLocation;
 import bluej.parser.lexer.LocatableToken;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.JavaUtils;
+import bluej.utility.Utility;
 
 
 /**
@@ -179,7 +179,7 @@ public class CodeCompletionDisplay extends JFrame
                 BorderFactory.createEmptyBorder(0, 10, 5, 10));
         methodDescription.setBorder(mdBorder);
         methodDescription.setEditable(false);
-        methodDescription.setOpaque(false);
+        if (!Config.isRaspberryPi()) methodDescription.setOpaque(false);
         
         methodDescription.setEditorKit(new HTMLEditorKit());
         methodDescription.setEditable(false);
@@ -202,7 +202,11 @@ public class CodeCompletionDisplay extends JFrame
         // To make the gradient fill show up on the Nimbus look and feel,
         // we set the background with an alpha component of zero to get transparency
         // (see http://forums.java.net/jive/thread.jspa?messageID=267839)
-        methodDescription.setBackground(new Color(0,0,0,0));
+        if (!Config.isRaspberryPi()){
+            methodDescription.setBackground(new Color(0,0,0,0));
+        }else{
+            methodDescription.setBackground(new Color(0,0,0));//no Alpha channel.
+        }
         methodDescription.setFont(methodDescription.getFont().deriveFont((float)PrefMgr.getEditorFontSize()));
         
         methodList = new JList();
@@ -211,7 +215,7 @@ public class CodeCompletionDisplay extends JFrame
         methodList.addMouseListener(this);
         methodList.requestFocusInWindow();
         methodList.setCellRenderer(new CodeCompleteCellRenderer(suggestionType));
-        methodList.setOpaque(false);
+        if (!Config.isRaspberryPi()) methodList.setOpaque(false);
         
         // To allow continued typing of method name prefix, we map keys to equivalent actions
         // within the editor. I.e. typing a key inserts that key character.
@@ -282,13 +286,21 @@ public class CodeCompletionDisplay extends JFrame
         Dimension size = new Dimension(metrics.charWidth('m') * 30, metrics.getHeight() * 15);
 
         JScrollPane scrollPane;
-        scrollPane = new GradientFillScrollPane(methodList, new Color(250,246,229), new Color(233,210,132));
+        if (!Config.isRaspberryPi()){
+            scrollPane = new GradientFillScrollPane(methodList, new Color(250,246,229), new Color(233,210,132));
+        }else{
+            scrollPane = new FillScrollPane(methodList, new Color (250,246,229));
+        }
         scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scrollPane.setPreferredSize(size);
         methodPanel.add(scrollPane);
         methodPanel.setFont(mlFont);
         
-        scrollPane = new GradientFillScrollPane(methodDescription, new Color(250,246,229), new Color(240,220,140));
+        if (!Config.isRaspberryPi()){
+            scrollPane = new GradientFillScrollPane(methodDescription, new Color(250,246,229), new Color(240,220,140));
+        }else{
+            scrollPane = new FillScrollPane(methodDescription, new Color (250,246,229));
+        }
         scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scrollPane.setPreferredSize(size);
 
@@ -414,6 +426,7 @@ public class CodeCompletionDisplay extends JFrame
     public void valueChanged(ListSelectionEvent e) 
     {
         AssistContent selected = (AssistContent) methodList.getSelectedValue();
+        
         if (selected != null) {
             String jdHtml = selected.getJavadoc();
             if (jdHtml != null) {
@@ -422,7 +435,6 @@ public class CodeCompletionDisplay extends JFrame
             else {
                 jdHtml = "";
             }
-            
             String sig = escapeAngleBrackets(selected.getReturnType())
                        + " <b>" + escapeAngleBrackets(selected.getDisplayMethodName()) + "</b>"
                        + escapeAngleBrackets(selected.getDisplayMethodParams());
@@ -430,12 +442,24 @@ public class CodeCompletionDisplay extends JFrame
             jdHtml = "<h3>" + selected.getDeclaringClass() + "</h3>" + 
                 "<blockquote><tt>" + sig + "</tt></blockquote><br>" +
                 jdHtml;
+            
+//            
+//            if (Config.isRaspberryPi()) {
+//                jdHtml = "<body bgcolor=\"#FAF6E5\">" + jdHtml;
+//                methodDescription.setBorder(BorderFactory.createLineBorder(new Color(250,246,229), 12));
+//            }
+            
 
             methodDescription.setText(jdHtml);
             methodDescription.setCaretPosition(0); // scroll to top
         }
         else {
-            methodDescription.setText("");
+//            if (!Config.isRaspberryPi()){
+                methodDescription.setText("");
+//            }else{
+//                methodDescription.setText("<body bgcolor=\"#FAF6E5\">");
+//                methodDescription.setBorder(BorderFactory.createLineBorder(new Color(250,246,229), 12));
+//            }
         }
     }
 
@@ -444,6 +468,54 @@ public class CodeCompletionDisplay extends JFrame
         return sig.replace("<", "&lt;").replace(">", "&gt;");
     }
 
+    
+    /**
+     * A JScrollPane variant that paints a single colour fill as the background.
+     * 
+     * Used for the Raspberry Pi.
+     */
+    private static class FillScrollPane extends JScrollPane
+    {
+        private Color c;
+        private Component v;
+        
+        private FillScrollPane(Component view, Color color)
+        {
+            super(view);
+            this.c = color;
+            this.v = view;
+            //the background of a JScroolPane is the viewport.
+            //Changing the viewport colour, changes the background of the JScroolPane
+            view.setBackground(this.c);
+
+            if (this.v instanceof JEditorPane){
+                JEditorPane jEditorPane = (JEditorPane) this.v;
+                Color bgColor = new Color(250,246,229);
+                Utility.setJEditorPaneBackground(jEditorPane, bgColor);
+            }
+        }
+
+        @Override
+        protected void paintComponent(Graphics g)
+        {
+            super.paintComponent(g);
+            //fillRect doesn't work on JEditorPane. 
+            if ((g instanceof Graphics2D) && !(this.v instanceof JEditorPane)){
+                Graphics2D g2d = (Graphics2D)g;
+                
+                int w = getWidth();
+                int h = getHeight();
+                 
+                Paint origPaint = g2d.getPaint();
+                g2d.setPaint(this.c);
+                g2d.fillRect(0, 0, w, h);
+                g2d.setPaint(origPaint);
+            }
+            
+        }
+    }
+       
+    
     /**
      * A JScrollPane variant that paints a gradient fill as the background.
      * 
@@ -485,6 +557,8 @@ public class CodeCompletionDisplay extends JFrame
             }
         }
     }    
+    
+    
 
     // ===== the glass pane for messages on this component =====
 

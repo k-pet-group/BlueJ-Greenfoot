@@ -2940,7 +2940,13 @@ public final class MoeEditor extends JFrame
 
         // prepare the content pane
 
-        JPanel contentPane = new GradientFillPanel(new BorderLayout(6,6));
+        JPanel contentPane;
+        if (!Config.isRaspberryPi()){
+            contentPane = new GradientFillPanel(new BorderLayout(6,6));
+        }else{
+            contentPane = new JPanel(new BorderLayout(6,6));
+        }
+        
         contentPane.setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
         setContentPane(contentPane);
 
@@ -2950,11 +2956,11 @@ public final class MoeEditor extends JFrame
 
         // create panel for info/status
         bottomArea.setLayout(new BorderLayout(6, 1));
-        bottomArea.setOpaque(false);
+        if (!Config.isRaspberryPi()) bottomArea.setOpaque(false);
         
         JPanel finderPanel = new JPanel(new DBoxLayout(DBox.Y_AXIS, 0, 0));
         finderPanel.setBorder(BorderFactory.createEmptyBorder(0, BlueJTheme.componentSpacingLarge, 0, 0));
-        finderPanel.setOpaque(false);
+        if (!Config.isRaspberryPi()) finderPanel.setOpaque(false);
         
         int smallSpc = BlueJTheme.componentSpacingSmall;
         
@@ -2964,14 +2970,14 @@ public final class MoeEditor extends JFrame
         finder.setBorder(BorderFactory.createEmptyBorder(0, 0, smallSpc, 0));
         finder.setName("FinderPanel");
         finder.setAlignmentX(0.0f);
-        finder.setOpaque(false);
+        if (!Config.isRaspberryPi()) finder.setOpaque(false);
         finderPanel.add(finder);
 
         replacer=new ReplacePanel(this, finder);
         replacer.setVisible(false);
         replacer.setBorder(BorderFactory.createEmptyBorder(0, 0, smallSpc, 0));
         replacer.setAlignmentX(0.0f);
-        replacer.setOpaque(false);
+        if (!Config.isRaspberryPi()) replacer.setOpaque(false);
         finderPanel.add(replacer);
         
         bottomArea.add(finderPanel, BorderLayout.NORTH);
@@ -2988,7 +2994,7 @@ public final class MoeEditor extends JFrame
 
         info = new Info();
         JPanel commentsPanel=new JPanel(new BorderLayout(6,1));
-        commentsPanel.setOpaque(false);
+        if (!Config.isRaspberryPi()) commentsPanel.setOpaque(false);
         commentsPanel.add(info, BorderLayout.CENTER);
         commentsPanel.add(statusArea, BorderLayout.EAST);
 
@@ -3034,7 +3040,7 @@ public final class MoeEditor extends JFrame
 
         JPanel editorPane = new JPanel();
         editorPane.setLayout(new BoxLayout(editorPane, BoxLayout.X_AXIS));
-        editorPane.setOpaque(false);
+        if (!Config.isRaspberryPi()) editorPane.setOpaque(false);
         scrollPane = new JScrollPane(currentTextPane);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
         
@@ -3044,7 +3050,7 @@ public final class MoeEditor extends JFrame
         naviView.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
         
         dividerPanel=new EditorDividerPanel(naviView, getNaviviewExpandedProperty());
-        dividerPanel.setOpaque(false);
+        if (!Config.isRaspberryPi()) dividerPanel.setOpaque(false);
       
         editorPane.add(scrollPane);
         editorPane.add(dividerPanel);
@@ -3068,7 +3074,7 @@ public final class MoeEditor extends JFrame
 
         toolbar = createToolbar();
         toolbar.setName("toolbar");
-        toolbar.setOpaque(false);
+        if (!Config.isRaspberryPi()) toolbar.setOpaque(false);
         contentPane.add(toolbar, BorderLayout.NORTH);
         
         //add popup menu
@@ -3340,7 +3346,7 @@ public final class MoeEditor extends JFrame
         interfaceToggle.setFont(PrefMgr.getStandardFont());
         interfaceToggle.setBorder(new EmptyBorder(2, 2, 2, 2));
         interfaceToggle.setForeground(envOpColour);
-        interfaceToggle.setOpaque(false);
+        if (!Config.isRaspberryPi()) interfaceToggle.setOpaque(false);
 
         String actionName = "toggle-interface-view";
         Action action = actions.getActionByName(actionName);

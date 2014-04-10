@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2010,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 2010,2011,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -96,12 +96,12 @@ public class CodeCompleteCellRenderer extends JPanel implements ListCellRenderer
         if (isSelected) {
             setBackground(list.getSelectionBackground());
             setForeground(list.getSelectionForeground());
-            setOpaque(true);
+            if (!Config.isRaspberryPi()) setOpaque(true);
         }
         else {
             setBackground(list.getBackground());
             setForeground(list.getForeground());
-            setOpaque(false);
+            if (!Config.isRaspberryPi()) setOpaque(false);
         }
         
         return this;

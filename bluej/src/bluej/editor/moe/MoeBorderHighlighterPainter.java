@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2011,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -33,6 +33,8 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.Position;
 import javax.swing.text.View;
+
+import bluej.Config;
 
 /**
  * Highlighter for the border and fill of the found search instances.<p>
@@ -101,7 +103,13 @@ public class MoeBorderHighlighterPainter implements AdvancedHighlightPainter
             Shape s = view.modelToView(offs0, Position.Bias.Forward, offs1, Position.Bias.Backward, bounds);
             Rectangle r = s.getBounds();
             
-            paintGradient(g, r, innerColor1, innerColor2);
+            if (!Config.isRaspberryPi()){
+                paintGradient(g, r, innerColor1, innerColor2);
+            }else{
+                //fill with average colour colour
+                g.setColor(new Color(Math.round((innerColor1.getRed()+innerColor2.getRGB())/2)));
+                g.fillRoundRect(r.x - 2, r.y, r.width + 2, r.height, 6, 6);
+            }
 
             g.setColor(borderColor);
             
@@ -129,7 +137,13 @@ public class MoeBorderHighlighterPainter implements AdvancedHighlightPainter
                 }
 
                 g.setClip(clip);
-                paintGradient(g, r, selectionColor1, selectionColor2);
+                if (!Config.isRaspberryPi()){
+                    paintGradient(g, r, selectionColor1, selectionColor2);
+                }else{
+                    //fill with average colour colour
+                    g.setColor(new Color(Math.round((innerColor1.getRed()+innerColor2.getRGB())/2)));
+                    g.fillRoundRect(r.x - 2, r.y, r.width + 2, r.height, 6, 6);
+                }
                 g.setClip(origClip);
             }
 

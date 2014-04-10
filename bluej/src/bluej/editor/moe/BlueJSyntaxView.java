@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2014  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -256,6 +256,7 @@ public abstract class BlueJSyntaxView extends MoePlainView
     protected void paintScopeMarkers(Graphics g, MoeSyntaxDocument document, Shape a,
             int firstLine, int lastLine, boolean onlyMethods, boolean small)
     {
+        //optimization for the raspberry pi.
         if (strength == 0) {
             return;
         }

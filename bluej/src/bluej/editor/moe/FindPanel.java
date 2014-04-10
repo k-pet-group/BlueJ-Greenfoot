@@ -1,6 +1,6 @@
 /*
 This file is part of the BlueJ program. 
-Copyright (C) 1999-2010,2011  Michael Kolling and John Rosenberg 
+Copyright (C) 1999-2010,2011,2014  Michael Kolling and John Rosenberg 
 
 This program is free software; you can redistribute it and/or 
 modify it under the terms of the GNU General Public License 
@@ -155,13 +155,13 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         optionsBody = new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.5f);
         mcBody = new DBox(DBoxLayout.X_AXIS, 0, 0, 0.5f);
 
-        findBody.setOpaque(false);
-        findTextBody.setOpaque(false);
-        optionsBody.setOpaque(false);
-        mcBody.setOpaque(false);
+        if (!Config.isRaspberryPi()) findBody.setOpaque(false);
+        if (!Config.isRaspberryPi()) findTextBody.setOpaque(false);
+        if (!Config.isRaspberryPi()) optionsBody.setOpaque(false);
+        if (!Config.isRaspberryPi()) mcBody.setOpaque(false);
 
         closeBody = new JPanel(new BorderLayout());
-        closeBody.setOpaque(false);
+        if (!Config.isRaspberryPi()) closeBody.setOpaque(false);
     }
 
     /**
@@ -229,7 +229,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         matchCaseCheckBox.setSelected(false);
         matchCaseCheckBox.setFont(findFont);
         matchCaseCheckBox.addActionListener(this);
-        matchCaseCheckBox.setOpaque(false);
+        if (!Config.isRaspberryPi()) matchCaseCheckBox.setOpaque(false);
     }
 
     /**
@@ -272,7 +272,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
 
         if (Config.isMacOS()) {
             DBox buttonBox = new DBox(DBoxLayout.X_AXIS, 0.5f);
-            buttonBox.setOpaque(false);
+            if (!Config.isRaspberryPi()) buttonBox.setOpaque(false);
             buttonBox.add(previousButton);
             buttonBox.add(nextButton);
             optionsBody.add(buttonBox);

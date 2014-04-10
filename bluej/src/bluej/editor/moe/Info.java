@@ -85,7 +85,7 @@ public final class Info extends JPanel implements ActionListener
         line2 = new JLabel();
         body.add(line1);
         body.add(line2);
-        body.setOpaque(false);
+        if (!Config.isRaspberryPi()) body.setOpaque(false);
         add(body, BorderLayout.CENTER);
 
         helpButton = new JButton(helpImage);
@@ -98,7 +98,7 @@ public final class Info extends JPanel implements ActionListener
         helpButton.addActionListener(this);
         helpButton.setRequestFocusEnabled(false);   // never get focus
         add(helpButton, BorderLayout.EAST);
-        helpButton.setVisible(false);
+        if (!Config.isRaspberryPi()) helpButton.setVisible(false);
 
         isClear = true;
         helpGroup = "";
