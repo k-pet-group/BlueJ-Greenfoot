@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2013,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -132,11 +132,17 @@ public class GraphEditor extends JPanel
         //draw background
         if (!(g2D instanceof PrintGraphics)) {
             Dimension d = getSize();
-            GradientPaint gp = new GradientPaint(
+            if (!Config.isRaspberryPi()) { 
+                GradientPaint gp;
+                gp = new GradientPaint(
                     d.width/4, 0, new Color(253,253,250),
                     d.width*3/4, d.height, new Color(241,231,196));
+                g2D.setPaint(gp);
+            }else{
+                g2D.setPaint(new Color(247, 242, 223));
+            }
 
-            g2D.setPaint(gp);
+            
             g2D.fillRect(0, 0, d.width, d.height);
         }
 
