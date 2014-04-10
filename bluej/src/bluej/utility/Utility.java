@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2012,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2012,2013,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,6 +21,7 @@
  */
 package bluej.utility;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Desktop;
 import java.awt.FontMetrics;
@@ -49,6 +50,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
 import javax.swing.AbstractButton;
+import javax.swing.UIDefaults;
 import javax.swing.border.Border;
 import javax.swing.text.TabExpander;
 
@@ -1110,5 +1112,20 @@ public class Utility
         }
         
         return strings;        
+    }
+    /**
+     * Set background colour of a JEditorPane.
+     * based on fix from: https://community.oracle.com/thread/1356459
+     * @param JeditorPane
+     * @param the colour to be applied to the panel.
+     * @return 
+     */
+    public static void setJEditorPaneBackground(javax.swing.JEditorPane jEditorPane, Color color){
+            Color bgColor = new Color(250, 246, 229);
+            UIDefaults defaults = new UIDefaults();
+            defaults.put("EditorPane[Enabled].backgroundPainter", bgColor);
+            jEditorPane.putClientProperty("Nimbus.Overrides", defaults);
+            jEditorPane.putClientProperty("Nimbus.Overrides.InheritDefaults", true);
+            jEditorPane.setBackground(bgColor);
     }
 }
