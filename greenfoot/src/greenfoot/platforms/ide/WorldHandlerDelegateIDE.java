@@ -36,7 +36,6 @@ import greenfoot.core.WorldInvokeListener;
 import greenfoot.event.SimulationUIListener;
 import greenfoot.gui.DragGlassPane;
 import greenfoot.gui.GreenfootFrame;
-import greenfoot.gui.MessageDialog;
 import greenfoot.gui.input.InputManager;
 import greenfoot.localdebugger.LocalObject;
 import greenfoot.platforms.WorldHandlerDelegate;
@@ -55,7 +54,6 @@ import java.lang.reflect.Method;
 import java.rmi.RemoteException;
 import java.util.List;
 
-import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
@@ -89,11 +87,6 @@ public class WorldHandlerDelegateIDE
 
     private final static int WORLD_INITIALISING_TIMEOUT = 4000;
 
-    private final static String errorConstructorTitle = Config.getString("world.error.constructor.title");
-    private final static String missingConstructorMsg = Config.getString("world.missing.constructor.msg");
-    private final static String infiniteConstructorMsg = Config.getString("world.infinite.constructor.msg");
-    private final static String continueButtonText = Config.getString("greenfoot.continue");
-
     private WorldHandler worldHandler;
 
     private GProject project;
@@ -108,7 +101,9 @@ public class WorldHandlerDelegateIDE
     private boolean worldInitialising;
     private long startedInitialisingAt;
     private boolean worldInvocationError;
-
+    private boolean missingConstructor;
+    private boolean vmRestarted;
+    
     public WorldHandlerDelegateIDE(GreenfootFrame frame, InspectorManager inspectorManager,
             ClassStateManager classStateManager)
     {
@@ -401,7 +396,7 @@ public class WorldHandlerDelegateIDE
                     }
                     if (cls == null) {
                         // Couldn't find a world with a suitable constructor
-                        showMissingConstructorDialog();
+                        missingConstructor = true;
                         return;
                     }
                 }
@@ -445,13 +440,13 @@ public class WorldHandlerDelegateIDE
                         }
                         catch (LinkageError e) { }
                         catch (NoSuchMethodException nsme) {
-                            showMissingConstructorDialog();
+                            missingConstructor = true;
                         }
                         catch (InstantiationException e) {
                             // abstract class; shouldn't happen
                         }
                         catch (IllegalAccessException e) {
-                            showMissingConstructorDialog();
+                            missingConstructor = true;
                         }
                         catch (InvocationTargetException ite) {
                             // This can happen if a static initializer block throws a Throwable.
@@ -472,6 +467,7 @@ public class WorldHandlerDelegateIDE
                 });
             }
             else {
+                vmRestarted = true;
                 rProject.setVmRestarted(false);
             }
         }
@@ -480,13 +476,6 @@ public class WorldHandlerDelegateIDE
         }
     }
 
-    private void showMissingConstructorDialog()
-    {
-        JButton button = new JButton(continueButtonText);
-        MessageDialog msgDialog = new MessageDialog(frame, missingConstructorMsg, errorConstructorTitle, 50, new JButton[]{button});
-        msgDialog.display();
-    }
-    
     /**
      * Get the last-instantiated world class if known and possible. May return null.
      */
@@ -676,5 +665,25 @@ public class WorldHandlerDelegateIDE
     public boolean initialisationError()
     {
         return worldInvocationError;
+    }
+
+    public boolean isMissingConstructor()
+    {
+        return missingConstructor;
+    }
+
+    public void setMissingConstructor(boolean missingConstructor)
+    {
+        this.missingConstructor = missingConstructor;
+    }
+
+    public boolean isVmRestarted()
+    {
+        return vmRestarted;
+    }
+
+    public void setVmRestarted(boolean vmRestarted)
+    {
+        this.vmRestarted = vmRestarted;
     }
 }

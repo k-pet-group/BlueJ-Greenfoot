@@ -95,7 +95,6 @@ import java.awt.event.WindowListener;
 import java.rmi.RemoteException;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Properties;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -1047,6 +1046,16 @@ public class GreenfootFrame extends JFrame
                 }
                 else if (worldHandlerDelegate.initialising()) {
                     message = Config.getString("centrePanel.message.initialising");
+                }
+                else if (worldHandlerDelegate.isVmRestarted()) {
+                    message = Config.getString("centrePanel.message.afterRestarting1");
+                    message2 = Config.getString("centrePanel.message.afterRestarting2");
+                    worldHandlerDelegate.setVmRestarted(false);
+                }
+                else if (worldHandlerDelegate.isMissingConstructor()) {
+                    message = Config.getString("centrePanel.message.missingWorldConstructor1");
+                    message2 = Config.getString("centrePanel.message.missingWorldConstructor2");
+                    worldHandlerDelegate.setMissingConstructor(false);
                 }
             }
             card.show(worldBox, "messagePanel");
