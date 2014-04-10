@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -128,7 +128,11 @@ public class TestDisplayFrame
     protected void createUI()
     {
         frame = new JFrame(Config.getString("testdisplay.title"));
-        frame.setContentPane(new GradientFillPanel(frame.getContentPane().getLayout()));
+        if (! Config.isRaspberryPi()) {
+            frame.setContentPane(new GradientFillPanel(frame.getContentPane().getLayout()));
+        }else{
+            frame.setContentPane(new JPanel(frame.getContentPane().getLayout()));
+        }
 
         Image icon = BlueJTheme.getIconImage();
         if (icon != null) {
@@ -147,7 +151,7 @@ public class TestDisplayFrame
         JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
         splitPane.setBorder(BlueJTheme.generalBorder);
         splitPane.setResizeWeight(0.5);
-        splitPane.setOpaque(false);
+        if (!Config.isRaspberryPi()) splitPane.setOpaque(false);
         
         JScrollPane resultScrollPane = new JScrollPane();
         {
@@ -162,7 +166,7 @@ public class TestDisplayFrame
         splitPane.setTopComponent(resultScrollPane);
         
         bottomPanel = new JPanel();
-        bottomPanel.setOpaque(false);
+        if (!Config.isRaspberryPi()) bottomPanel.setOpaque(false);
         {
             bottomPanel.setLayout(new GridBagLayout());
             GridBagConstraints constraints = new GridBagConstraints();
@@ -178,7 +182,7 @@ public class TestDisplayFrame
             bottomPanel.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth), constraints);
             
             counterPanel = new CounterPanel();
-            counterPanel.setOpaque(false);
+            if (!Config.isRaspberryPi()) counterPanel.setOpaque(false);
             bottomPanel.add(counterPanel, constraints);
             bottomPanel.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth), constraints);
         
@@ -211,7 +215,7 @@ public class TestDisplayFrame
             
             // Panel for "show source" and "close" buttons
             JPanel buttonPanel = new JPanel();
-            buttonPanel.setOpaque(false);
+            if (!Config.isRaspberryPi()) buttonPanel.setOpaque(false);
             buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
             buttonPanel.add(showSourceButton);
             buttonPanel.add(Box.createHorizontalGlue());
