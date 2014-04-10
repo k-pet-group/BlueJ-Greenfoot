@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2012,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -122,9 +122,15 @@ public class UnitTestClassRole extends ClassRole
         if (unittestbg != null) {
             return unittestbg;
         } else {
-            return new GradientPaint(
-                    0, 0, new Color(197,211,165),
-                    0, height, new Color(170,190,140)); 
+            Paint result;
+            if (!Config.isRaspberryPi()){
+                result = new GradientPaint(
+                        0, 0, new Color(197,211,165),
+                        0, height, new Color(170,190,140));
+            }else{
+                result = new Color(184, 201, 153);
+            }
+            return  result;
         }
     }
 

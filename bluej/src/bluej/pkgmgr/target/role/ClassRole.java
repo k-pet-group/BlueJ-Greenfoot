@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -34,6 +34,7 @@ import java.util.Properties;
 
 import javax.swing.Action;
 import javax.swing.JMenuItem;
+import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 
 import bluej.Config;
@@ -110,9 +111,16 @@ public abstract class ClassRole
         if (defaultbg != null) {
             return defaultbg;
         } else {
-            return new GradientPaint(
-                0, 0, new Color(246,221,192),
-                0, height, new Color(245,204,155)); 
+            Paint result;
+            if (!Config.isRaspberryPi()){
+                result = new GradientPaint(
+                    0, 0, new Color(246,221,192),
+                    0, height, new Color(245,204,155)); 
+            }else{
+                //return the average colour.
+                result = new Color(246, 233, 174);
+            }
+            return result;
         }
     }
 

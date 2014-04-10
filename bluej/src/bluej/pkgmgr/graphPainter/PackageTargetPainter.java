@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,6 +23,7 @@ package bluej.pkgmgr.graphPainter;
 
 import java.awt.*;
 
+import bluej.Config;
 import bluej.pkgmgr.target.*;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Utility;
@@ -89,11 +90,16 @@ public class PackageTargetPainter
             thickness = 2;
 
         Paint fill;
-        fill = new GradientPaint(
-                width/4, 0, new Color(229, 183, 173),
-                width*3/4, height, new Color(207, 130, 117));
+        if (!Config.isRaspberryPi()){
+            fill = new GradientPaint(
+                    width/4, 0, new Color(229, 183, 173),
+                    width*3/4, height, new Color(207, 130, 117));
+        }else{
+            fill = new Color(253, 157, 145);
+        }
         
-        drawShadow(g, packageTarget, tabWidth, width, height);
+        
+        if (!Config.isRaspberryPi()) drawShadow(g, packageTarget, tabWidth, width, height);
 
         g.setPaint(fill);
         g.fillRoundRect(0, 0, tabWidth, TAB_HEIGHT+5, 5, 5);

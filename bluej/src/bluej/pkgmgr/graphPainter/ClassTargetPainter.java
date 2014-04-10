@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2012,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2012,2013,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -81,7 +81,7 @@ public class ClassTargetPainter
         int height = classTarget.getHeight();
         
         // draw the stationary class
-        drawShadow(g, width, height);
+        if (!Config.isRaspberryPi()) drawShadow(g, width, height);
         drawSkeleton(g, classTarget, width, height);
         drawUMLStyle(g, classTarget, hasFocus, width, height);
         // drawRole(g);  // currently, roles don't draw
@@ -96,11 +96,11 @@ public class ClassTargetPainter
         int width = classTarget.getGhostWidth();
         int height = classTarget.getGhostHeight();
         
-        g.setComposite(alphaComposite);
+        if (!Config.isRaspberryPi()) g.setComposite(alphaComposite);
         drawSkeleton(g, classTarget, width, height);
         drawUMLStyle(g, classTarget, hasFocus, width, height);
         // drawRole(g);  // currently, roles don't draw
-        g.setComposite(oldComposite);
+        if (!Config.isRaspberryPi()) g.setComposite(oldComposite);
         g.translate(-classTarget.getGhostX(), -classTarget.getGhostY());
     }
 

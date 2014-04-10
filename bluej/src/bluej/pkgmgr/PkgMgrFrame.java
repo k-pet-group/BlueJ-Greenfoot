@@ -2687,7 +2687,11 @@ public class PkgMgrFrame extends JFrame
         // paintComponent method to use a gradient fill (no other way to do it)
         // Hence this code, that sets the content pane to be a standard JPanel with
         // the same layout as before, but with paintComponent performing a gradient fill:
-        setContentPane(new GradientFillPanel(getContentPane().getLayout()));
+        if (!Config.isRaspberryPi()){
+            setContentPane(new GradientFillPanel(getContentPane().getLayout()));
+        }else{
+            setContentPane(new JPanel(getContentPane().getLayout()));
+        }
         // To let that gradient fill show through, all the other panes that sit
         // on top of the frame must have setOpaque(false) called, hence all the calls
         // of that type throughout the code below
@@ -2698,7 +2702,7 @@ public class PkgMgrFrame extends JFrame
         // create the main panel holding the diagram and toolbar on the left
 
         JPanel mainPanel = new JPanel(new BorderLayout(5, 5));
-        mainPanel.setOpaque(false);
+        if (!Config.isRaspberryPi()) mainPanel.setOpaque(false);
 
         // Install keystroke to restart the VM
         Action action = RestartVMAction.getInstance();
@@ -2708,10 +2712,10 @@ public class PkgMgrFrame extends JFrame
 
         // create the left hand side toolbar
         JPanel toolPanel = new JPanel();
-        toolPanel.setOpaque(false);
+        if (!Config.isRaspberryPi()) toolPanel.setOpaque(false);
         {
             buttonPanel = new JPanel();
-            buttonPanel.setOpaque(false);
+            if (!Config.isRaspberryPi()) buttonPanel.setOpaque(false);
             {
                 buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
                 buttonPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 0, 5));
@@ -2736,7 +2740,7 @@ public class PkgMgrFrame extends JFrame
             }
 
             testPanel = new JPanel();
-            testPanel.setOpaque(false);
+            if (!Config.isRaspberryPi()) testPanel.setOpaque(false);
             {
                 testPanel.setLayout(new BoxLayout(testPanel, BoxLayout.Y_AXIS));
 
@@ -2780,7 +2784,7 @@ public class PkgMgrFrame extends JFrame
             testItems.add(testPanel);
             
             teamPanel = new JPanel();
-            teamPanel.setOpaque(false);
+            if (!Config.isRaspberryPi()) teamPanel.setOpaque(false);
             {
                 teamPanel.setLayout(new BoxLayout(teamPanel, BoxLayout.Y_AXIS));
 
@@ -2806,7 +2810,7 @@ public class PkgMgrFrame extends JFrame
             teamItems.add(teamPanel);
 
             javaMEPanel = new JPanel();
-            javaMEPanel.setOpaque(false);
+            if (!Config.isRaspberryPi()) javaMEPanel.setOpaque(false);
             {
                 javaMEPanel.setLayout(new BoxLayout(javaMEPanel, BoxLayout.Y_AXIS));
 
@@ -2852,7 +2856,7 @@ public class PkgMgrFrame extends JFrame
         classScroller.setFocusable(false);
         classScroller.getVerticalScrollBar().setUnitIncrement(10);
         classScroller.getHorizontalScrollBar().setUnitIncrement(20);
-        classScroller.setOpaque(false);
+        if (!Config.isRaspberryPi()) classScroller.setOpaque(false);
         mainPanel.add(classScroller, BorderLayout.CENTER);
 
         itemsToDisable.add(objbench);
@@ -2861,13 +2865,13 @@ public class PkgMgrFrame extends JFrame
         splitPane.setBorder(null);
         splitPane.setResizeWeight(1.0);
         splitPane.setDividerSize(5);
-        splitPane.setOpaque(false);
+        if (!Config.isRaspberryPi()) splitPane.setOpaque(false);
         contentPane.add(splitPane, BorderLayout.CENTER);
 
         // create the bottom status area
 
         JPanel statusArea = new JPanel(new BorderLayout());
-        statusArea.setOpaque(false);
+        if (!Config.isRaspberryPi()) statusArea.setOpaque(false);
         {
             statusArea.setBorder(BorderFactory.createEmptyBorder(2, 0, 4, 6));
 
@@ -2937,7 +2941,7 @@ public class PkgMgrFrame extends JFrame
             objectBenchSplitPane.setBorder(null);
             objectBenchSplitPane.setResizeWeight(1.0);
             objectBenchSplitPane.setDividerSize(5);
-            objectBenchSplitPane.setOpaque(false);
+            if (!Config.isRaspberryPi()) objectBenchSplitPane.setOpaque(false);
             itemsToDisable.add(textEvaluator);
             addCtrlTabShortcut(textEvaluator.getFocusableComponent());
         }
