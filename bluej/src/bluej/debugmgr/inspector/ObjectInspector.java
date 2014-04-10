@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2011,2013,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -197,7 +197,11 @@ public class ObjectInspector extends Inspector
         header.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
         JSeparator sep = new JSeparator();
         sep.setForeground(new Color(214, 92, 92));
-        sep.setBackground(new Color(0, 0, 0, 0));
+        if (!Config.isRaspberryPi()) {
+            sep.setBackground(new Color(0, 0, 0, 0));
+        }else{
+            sep.setBackground(new Color (0,0,0));
+        }
         header.add(sep);
 
         // Create the main panel (field list, Get/Inspect buttons)
@@ -243,10 +247,10 @@ public class ObjectInspector extends Inspector
             }
         });
         buttonPanel.add(classButton, BorderLayout.WEST);
-        buttonPanel.setDoubleBuffered(false);
+        if (!Config.isRaspberryPi()) buttonPanel.setDoubleBuffered(false);
 
         bottomPanel.add(buttonPanel);
-        bottomPanel.setDoubleBuffered(false);
+        if (!Config.isRaspberryPi()) bottomPanel.setDoubleBuffered(false);
 
         // add the components
 
@@ -258,28 +262,42 @@ public class ObjectInspector extends Inspector
                 Graphics2D g2d = (Graphics2D)g.create();
                 {
                     GraphicsConfiguration gc = g2d.getDeviceConfiguration();
-                    BufferedImage img = gc.createCompatibleImage(getWidth(),
-                                    getHeight(),
-                                    Transparency.TRANSLUCENT);
+                    BufferedImage img;
+                    if (!Config.isRaspberryPi()) {
+                        img = gc.createCompatibleImage(getWidth(),
+                              getHeight(),
+                              Transparency.TRANSLUCENT);
+                    }else{
+                        img = gc.createCompatibleImage(getWidth(),
+                                getHeight());
+                    }
                     Graphics2D imgG = img.createGraphics();
 
-                    imgG.setComposite(AlphaComposite.Clear);
+                    if (!Config.isRaspberryPi()) imgG.setComposite(AlphaComposite.Clear);
                     imgG.fillRect(0, 0, getWidth(), getHeight());
     
-                    imgG.setComposite(AlphaComposite.Src);
-                    imgG.setRenderingHint(
-                            RenderingHints.KEY_ANTIALIASING,
-                            RenderingHints.VALUE_ANTIALIAS_ON);
+                    if (!Config.isRaspberryPi()) imgG.setComposite(AlphaComposite.Src);
+                    if (!Config.isRaspberryPi()) {
+                        imgG.setRenderingHint(
+                             RenderingHints.KEY_ANTIALIASING,
+                             RenderingHints.VALUE_ANTIALIAS_ON);
+                    }
                     imgG.setColor(Color.WHITE);
                     imgG.fillRoundRect(0, 0, getWidth(), getHeight(), 30, 30);
-    
-                    imgG.setComposite(AlphaComposite.SrcAtop);
-                    imgG.setPaint(new GradientPaint(getWidth() / 2, getHeight() / 2, new Color(227, 71, 71)
-                                                   ,getWidth() / 2, getHeight(), new Color(205, 39, 39)));
-                    imgG.fillRect(0, 0, getWidth(), getHeight());
                     
-                    imgG.setPaint(new GradientPaint(getWidth() / 2, 0, new Color(248, 120, 120)
-                                                   ,getWidth() / 2, getHeight() / 2, new Color(231, 96, 96)));
+                    if (!Config.isRaspberryPi()){
+                        imgG.setComposite(AlphaComposite.SrcAtop);
+                        imgG.setPaint(new GradientPaint(getWidth() / 2, getHeight() / 2, new Color(227, 71, 71)
+                                                       ,getWidth() / 2, getHeight(), new Color(205, 39, 39)));
+                        imgG.fillRect(0, 0, getWidth(), getHeight());
+                        
+                        imgG.setPaint(new GradientPaint(getWidth() / 2, 0, new Color(248, 120, 120)
+                                                       ,getWidth() / 2, getHeight() / 2, new Color(231, 96, 96)));
+                    }else{
+                        imgG.setPaint(new Color(216, 95, 83));
+                        imgG.fillRect(0, 0, getWidth(), getHeight());
+                        imgG.setPaint(new Color(239, 108, 67));
+                    }
                     imgG.fill(new Ellipse2D.Float(-2*getWidth(),-5*getHeight()/2,5*getWidth(),3*getHeight()));
 
                     imgG.setColor(Color.BLACK);

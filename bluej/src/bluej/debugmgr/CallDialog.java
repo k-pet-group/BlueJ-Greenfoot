@@ -407,7 +407,7 @@ public abstract class CallDialog extends EscapeDialog
 
         // create the ok/cancel button panel
         JPanel buttonPanel = new JPanel();
-        buttonPanel.setOpaque(false);
+        if (!Config.isRaspberryPi()) buttonPanel.setOpaque(false);
         {
             buttonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
 
@@ -777,24 +777,29 @@ public abstract class CallDialog extends EscapeDialog
                 int width = getWidth();
                 int height = getHeight();
                 
-                g2d.setPaint(new GradientPaint(width/4, 0, new Color(230,229,228),
-                                               width*3/4, height, new Color(191,186,178)));
+                if (!Config.isRaspberryPi()){
+                    g2d.setPaint(new GradientPaint(width/4, 0, new Color(230,229,228),
+                            width*3/4, height, new Color(191,186,178)));
+                }else{
+                    g2d.setPaint(new Color(214, 217, 223));
+                }
+                
                 g2d.fillRect(0, 0, width, height);
             }
         });
         
         JPanel dialogPanel = new JPanel();
-        dialogPanel.setOpaque(false);
+        if (!Config.isRaspberryPi()) dialogPanel.setOpaque(false);
         {
             descPanel = new JPanel();
-            descPanel.setOpaque(false);
+            if (!Config.isRaspberryPi()) descPanel.setOpaque(false);
             {
                 descPanel.setLayout(new BoxLayout(descPanel, BoxLayout.Y_AXIS));
                 descPanel.setAlignmentX(LEFT_ALIGNMENT);
             }
 
             JPanel centerPanel = new JPanel();
-            centerPanel.setOpaque(false);
+            if (!Config.isRaspberryPi()) centerPanel.setOpaque(false);
             {
                 centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
                 centerPanel.setAlignmentX(LEFT_ALIGNMENT);
@@ -810,7 +815,11 @@ public abstract class CallDialog extends EscapeDialog
             dialogPanel.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
             JSeparator sep = new JSeparator();
             sep.setForeground(new Color(191,190,187));
-            sep.setBackground(new Color(0,0,0,0));
+            if (!Config.isRaspberryPi()) {
+                sep.setBackground(new Color(0,0,0,0));
+            }else {
+                sep.setBackground(new Color(0,0,0));
+            }
             dialogPanel.add(sep);
             dialogPanel.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
             dialogPanel.add(centerPanel);
@@ -827,7 +836,7 @@ public abstract class CallDialog extends EscapeDialog
         label.setAlignmentX(LEFT_ALIGNMENT);
         descPanel.removeAll();
         descPanel.add(label);
-        label.setOpaque(false);
+        if (!Config.isRaspberryPi()) label.setOpaque(false);
         invalidate();
         validate();
     }

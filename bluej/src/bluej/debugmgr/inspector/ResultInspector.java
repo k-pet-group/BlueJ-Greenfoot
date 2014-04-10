@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2011,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -210,14 +210,14 @@ public class ResultInspector extends Inspector
         // Create the header
 
         JComponent header = new JPanel();
-        header.setOpaque(false);
+        if (!Config.isRaspberryPi()) header.setOpaque(false);
         header.setLayout(new BoxLayout(header, BoxLayout.Y_AXIS));
 
         Comment comment = expressionInformation.getComment();
         LabelPrintWriter commentLabelPrintWriter = new LabelPrintWriter();
         comment.print(commentLabelPrintWriter);
         MultiLineLabel commentLabel = commentLabelPrintWriter.getLabel();
-        commentLabel.setOpaque(false);
+        if (!Config.isRaspberryPi()) commentLabel.setOpaque(false);
         header.add(commentLabel);
         JLabel sig = new JLabel(expressionInformation.getSignature());
         sig.setForeground(Color.BLACK);
@@ -226,16 +226,16 @@ public class ResultInspector extends Inspector
         header.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
         JSeparator sep = new JSeparator();
         sep.setForeground(new Color(191,190,187));
-        sep.setBackground(new Color(0,0,0,0));
+        if (!Config.isRaspberryPi()) sep.setBackground(new Color(0,0,0,0));
         header.add(sep);
 
         // Create the main part that shows the expression and the result
 
         JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
-        mainPanel.setOpaque(false);
+        if (!Config.isRaspberryPi()) mainPanel.setOpaque(false);
 
         Box result = Box.createVerticalBox();
-        result.setOpaque(false);
+        if (!Config.isRaspberryPi()) result.setOpaque(false);
 
         final JLabel expression = new JLabel(expressionInformation.getExpression(), JLabel.LEFT);
         expression.setAlignmentX(JComponent.LEFT_ALIGNMENT);
@@ -277,9 +277,14 @@ public class ResultInspector extends Inspector
                 Graphics2D g2d = (Graphics2D)g;
                 int width = getWidth();
                 int height = getHeight();
-                
-                g2d.setPaint(new GradientPaint(width/4, 0, new Color(236,235,234),
-                                               width*3/4, height, new Color(220,218,214)));
+                Color color1 = new Color(236,235,234);
+                Color color2 = new Color(220,218,214);
+                if (!Config.isRaspberryPi()){
+                    g2d.setPaint(new GradientPaint(width/4, 0, color1,
+                                                   width*3/4, height, color2));
+                }else{
+                    g2d.setPaint(new Color(228, 227, 224));
+                }
                 g2d.fillRect(0, 0, width, height);
             }
         };
@@ -304,7 +309,7 @@ public class ResultInspector extends Inspector
         // create bottom button pane with "Close" button
 
         JPanel bottomPanel = new JPanel();
-        bottomPanel.setOpaque(false);
+        if (!Config.isRaspberryPi()) bottomPanel.setOpaque(false);
         bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.Y_AXIS));
         bottomPanel.setBorder(BorderFactory.createEmptyBorder(10, 5, 5, 5));
 
@@ -319,7 +324,7 @@ public class ResultInspector extends Inspector
         
         JPanel buttonPanel;
         buttonPanel = new JPanel(new BorderLayout());
-        buttonPanel.setOpaque(false);
+        if (!Config.isRaspberryPi()) buttonPanel.setOpaque(false);
         JButton button = createCloseButton();
         buttonPanel.add(button, BorderLayout.EAST);
 
@@ -334,9 +339,14 @@ public class ResultInspector extends Inspector
                 Graphics2D g2d = (Graphics2D)g;
                 int width = getWidth();
                 int height = getHeight();
-                
-                g2d.setPaint(new GradientPaint(width/4, 0, new Color(230,229,228),
-                                               width*3/4, height, new Color(191,186,178)));
+                Color color1 = new Color(230,229,228);
+                Color color2 = new Color(191,186,178);
+                if (!Config.isRaspberryPi()){
+                    g2d.setPaint(new GradientPaint(width/4, 0, color1,
+                                                   width*3/4, height, color2));
+                }else{
+                    g2d.setPaint(new Color(214, 217, 223));
+                }
                 g2d.fillRect(0, 0, width, height);
             }
         };

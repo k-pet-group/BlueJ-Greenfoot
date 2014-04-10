@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -584,13 +584,13 @@ public class ObjectBench extends JPanel implements Accessible, ValueCollection,
 
         // a panel holding the actual object components
         obp = new ObjectBenchPanel();
-        obp.setBackground(TRANSPARENT);
-        obp.setOpaque(true);
-        setOpaque(false);
+        if (!Config.isRaspberryPi()) obp.setBackground(TRANSPARENT);
+        if (!Config.isRaspberryPi()) obp.setOpaque(true);
+        if (!Config.isRaspberryPi()) setOpaque(false);
         
         scroll = new JScrollPane(obp);
         scroll.setBorder(Config.normalBorder);
-        scroll.setOpaque(false);
+        if (!Config.isRaspberryPi()) scroll.setOpaque(false);
         Dimension sz = obp.getMinimumSize();
         Insets in = scroll.getInsets();
         sz.setSize(sz.getWidth()+in.left+in.right, sz.getHeight()+in.top+in.bottom);
@@ -680,19 +680,24 @@ public class ObjectBench extends JPanel implements Accessible, ValueCollection,
                 boolean codePadVisible = pkgMgrFrame.isTextEvalVisible();
                  
                 // Paint a gradient from top to bottom:
-                GradientPaint gp;
-                if (codePadVisible) {
-                    gp = new GradientPaint(
-                            w/4, 0, new Color(209, 203, 179),
-                            w*3/4, h, new Color(235, 230, 200));
-                } else {
-                    gp = new GradientPaint(
-                        w/4, 0, new Color(235, 230, 200),
-                        w*3/4, h, new Color(209, 203, 179));
+                if (!Config.isRaspberryPi()){
+                    GradientPaint gp;
+                    if (codePadVisible) {
+                        gp = new GradientPaint(
+                                w/4, 0, new Color(209, 203, 179),
+                                w*3/4, h, new Color(235, 230, 200));
+                    } else {
+                        gp = new GradientPaint(
+                            w/4, 0, new Color(235, 230, 200),
+                            w*3/4, h, new Color(209, 203, 179));
+                    }
+       
+                    g2d.setPaint(gp);
+                }else{
+                    g2d.setPaint(new Color(222,217, 190));
                 }
-   
-                g2d.setPaint(gp);
                 g2d.fillRect(0, 0, w+1, h+1);
+
             }
         }
     }

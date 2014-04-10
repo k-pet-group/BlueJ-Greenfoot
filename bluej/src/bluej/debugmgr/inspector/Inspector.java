@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2011,2012,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -216,7 +216,7 @@ public abstract class Inspector extends JFrame
     {
         fieldList = new FieldList(MAX_LIST_WIDTH, fieldListBackgroundColor);
         fieldList.setBackground(this.getBackground());
-        fieldList.setOpaque(true);
+        if (!Config.isRaspberryPi()) fieldList.setOpaque(true);
         fieldList.setSelectionBackground(Config.getSelectionColour());
         fieldList.getSelectionModel().addListSelectionListener(this);
         // add mouse listener to monitor for double clicks to inspect list
@@ -536,8 +536,8 @@ public abstract class Inspector extends JFrame
     {
         // Create panel with "inspect" and "get" buttons
         JPanel buttonPanel = new JPanel();
-        buttonPanel.setOpaque(false);
-        buttonPanel.setDoubleBuffered(false);
+        if (!Config.isRaspberryPi()) buttonPanel.setOpaque(false);
+        if (!Config.isRaspberryPi()) buttonPanel.setDoubleBuffered(false);
         buttonPanel.setLayout(new GridLayout(0, 1));
         inspectButton = new JButton(inspectLabel);
         inspectButton.addActionListener(new ActionListener() {
@@ -560,8 +560,8 @@ public abstract class Inspector extends JFrame
         buttonPanel.add(getButton);
 
         JPanel buttonFramePanel = new JPanel();
-        buttonFramePanel.setOpaque(false);
-        buttonFramePanel.setDoubleBuffered(false);
+        if (!Config.isRaspberryPi()) buttonFramePanel.setOpaque(false);
+        if (!Config.isRaspberryPi()) buttonFramePanel.setDoubleBuffered(false);
         buttonFramePanel.setLayout(new BorderLayout(0, 0));
         buttonFramePanel.add(buttonPanel, BorderLayout.NORTH);
         return buttonFramePanel;

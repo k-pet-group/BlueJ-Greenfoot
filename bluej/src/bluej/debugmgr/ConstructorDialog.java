@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2010,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 2010,2013,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -128,7 +128,7 @@ public class ConstructorDialog extends CallDialog
         });
 
         JPanel tmpPanel = new JPanel();
-        tmpPanel.setOpaque(false);
+        if (!Config.isRaspberryPi()) tmpPanel.setOpaque(false);
 
         GridBagLayout gridBag = new GridBagLayout();
         tmpPanel.setLayout(gridBag);
@@ -167,7 +167,7 @@ public class ConstructorDialog extends CallDialog
             tmpPanel.add(name);
 
             JPanel typeParameterPanel = createTypeParameterPanel();
-            typeParameterPanel.setOpaque(false);
+            if (!Config.isRaspberryPi()) typeParameterPanel.setOpaque(false);
             constraints.gridwidth = 1;
             constraints.gridx = 1;
             constraints.anchor = GridBagConstraints.WEST;
@@ -190,14 +190,14 @@ public class ConstructorDialog extends CallDialog
             constraints.gridx = 1;
             constraints.fill = GridBagConstraints.HORIZONTAL;
             JPanel parameterPanel = createParameterPanel();
-            parameterPanel.setOpaque(false);
+            if (!Config.isRaspberryPi()) parameterPanel.setOpaque(false);
             tmpPanel.add(parameterPanel, constraints);
 
             constraints.gridx = 3;
             constraints.gridy = 0;
             constraints.weightx = 1.0;
             JPanel filler = new JPanel();
-            filler.setOpaque(false);
+            if (!Config.isRaspberryPi()) filler.setOpaque(false);
             gridBag.setConstraints(filler, constraints);
             tmpPanel.add(filler);
         }

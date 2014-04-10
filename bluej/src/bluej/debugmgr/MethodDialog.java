@@ -190,7 +190,7 @@ public class MethodDialog extends CallDialog
         setTitle(wCallRoutineTitle);
         MethodView methView = (MethodView) method;
         tmpPanel = new JPanel();
-        tmpPanel.setOpaque(false);
+        if (!Config.isRaspberryPi()) tmpPanel.setOpaque(false);
         GridBagLayout gridBag = new GridBagLayout();
         tmpPanel.setLayout(gridBag);
         GridBagConstraints constraints = new GridBagConstraints();
@@ -212,7 +212,7 @@ public class MethodDialog extends CallDialog
         gridBag.setConstraints(callLabel, constraints);
         tmpPanel.add(callLabel);
         JPanel parameterPanel = createParameterPanel();
-        parameterPanel.setOpaque(false);
+        if (!Config.isRaspberryPi()) parameterPanel.setOpaque(false);
         constraints.gridy++;
         tmpPanel.add(parameterPanel, constraints);
         tmpPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
