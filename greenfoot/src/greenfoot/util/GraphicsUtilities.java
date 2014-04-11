@@ -750,7 +750,7 @@ public class GraphicsUtilities {
         {
             // Draw the shape in the right space in the overall text, by translating it down and moving to middle:
             AffineTransform translate = AffineTransform.getTranslateInstance((r.overallBounds.getWidth() - lineBounds[i].getWidth()) / 2, y - lineBounds[i].getMinY() /* add on to baseline */);
-            r.lineShapes[i] = new TextLayout(lines[i], g.getFont(), frc).getOutline(translate);
+            r.lineShapes[i] = new TextLayout(!lines[i].isEmpty()? lines[i] : " ", g.getFont(), frc).getOutline(translate);
             y += Math.ceil(lineBounds[i].getHeight());
         }
         // Make it at least one pixel, and add one for the outline width:
