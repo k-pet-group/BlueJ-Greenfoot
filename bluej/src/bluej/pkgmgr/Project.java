@@ -21,7 +21,6 @@
  */
 package bluej.pkgmgr;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.Window;
