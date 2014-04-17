@@ -98,7 +98,7 @@ public final class Info extends JPanel implements ActionListener
         helpButton.addActionListener(this);
         helpButton.setRequestFocusEnabled(false);   // never get focus
         add(helpButton, BorderLayout.EAST);
-        if (!Config.isRaspberryPi()) helpButton.setVisible(false);
+        helpButton.setVisible(false);
 
         isClear = true;
         helpGroup = "";
