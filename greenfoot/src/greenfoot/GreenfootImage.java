@@ -660,10 +660,11 @@ public class GreenfootImage
     {
         Graphics2D g = getGraphics();
         g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        int height = g.getFontMetrics(g.getFont()).getHeight();
         
         String[] lines = GraphicsUtilities.splitLines(string);
         for (int i = 0; i < lines.length; i++) {
-            g.drawString(lines[i], x, y + i*g.getFontMetrics(g.getFont()).getHeight());
+            g.drawString(lines[i], x, y + (i * height));
         }
         
         g.dispose();
