@@ -663,7 +663,7 @@ public class GreenfootImage
         
         String[] lines = GraphicsUtilities.splitLines(string);
         for (int i = 0; i < lines.length; i++) {
-            g.drawString(lines[i], x, y + i*g.getFont().getSize());
+            g.drawString(lines[i], x, y + i*g.getFontMetrics(g.getFont()).getHeight());
         }
         
         g.dispose();
