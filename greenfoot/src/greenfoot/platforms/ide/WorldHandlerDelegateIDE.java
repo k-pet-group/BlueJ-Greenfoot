@@ -152,8 +152,9 @@ public class WorldHandlerDelegateIDE
      */
     public JPopupMenu makeWorldPopupMenu(final World world)
     {
-        if (world == null)
+        if (world == null) {
             return null;
+        }
         
         JPopupMenu menu = new JPopupMenu();
         
@@ -217,9 +218,11 @@ public class WorldHandlerDelegateIDE
             // if null then the user clicked on the world
             if (obj == null) {
                 menu = makeWorldPopupMenu(worldHandler.getWorld());
-            } else {
+            }
+            else {
                 menu = makeActorPopupMenu(obj);
             }
+            
             if (menu != null) {
                 menu.show(worldHandler.getWorldCanvas(), e.getX(), e.getY());
             }
@@ -344,7 +347,8 @@ public class WorldHandlerDelegateIDE
             Actor actor = worldHandler.getObject(e.getX(), e.getY());
             if (actor == null) {
                 worldHandler.getWorldCanvas().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-            } else {
+            }
+            else {
                 worldHandler.getWorldCanvas().setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
             }
         }
@@ -667,21 +671,42 @@ public class WorldHandlerDelegateIDE
         return worldInvocationError;
     }
 
+    /**
+     * Is there a default constructor in the world subclass?
+     * 
+     * @return true if the world subclass does not have a default constructor
+     */
     public boolean isMissingConstructor()
     {
         return missingConstructor;
     }
 
+    /**
+     * Sets a flag which indicates whether the world subclass misses a default constructor or not
+     * 
+     * @param missingConstructor a boolean flag, which is true if there is no default constructor
+     * in the world subclass
+     */
     public void setMissingConstructor(boolean missingConstructor)
     {
         this.missingConstructor = missingConstructor;
     }
 
+    /**
+     * Has the VM just been restarted?
+     * 
+     * @return true if the VM just been restarted 
+     */
     public boolean isVmRestarted()
     {
         return vmRestarted;
     }
 
+    /**
+     * Sets the VM state, has it just been restarted or not 
+     * 
+     * @param vmRestarted a boolean flag, which is true if the VM just been restarted
+     */
     public void setVmRestarted(boolean vmRestarted)
     {
         this.vmRestarted = vmRestarted;
