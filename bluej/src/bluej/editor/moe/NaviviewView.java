@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -112,18 +112,14 @@ public class NaviviewView extends BlueJSyntaxView
             }
 
             // Filter the image - adjust alpha channel to darken the image.
-            for (int iy = 0; iy < img.getHeight(); iy++) {
-                for (int ix = 0; ix < img.getWidth(); ix++) {
-                    int rgb = img.getRGB(ix, iy);
-                    Color c = new Color(rgb, true);
-                    int red = c.getRed();
-                    int green = c.getGreen();
-                    int blue = c.getBlue();
-                    int alpha = c.getAlpha();
-
-                    // Make it more opaque
-                    alpha = darken(alpha);
-                    img.setRGB(ix, iy, new Color(red, green, blue, alpha).getRGB());
+            int argb;
+            int alpha;           
+                for (int iy = 0; iy < img.getHeight(); iy++) {
+                    for (int ix = 0; ix < img.getWidth(); ix++) {
+                    argb = img.getRGB(ix, iy);
+                    alpha = (argb >>> 24)<<DARKEN_AMOUNT;//get the alpha channel and apply the darken effect
+                    if (alpha >255) alpha=255; //prevent saturation
+                    img.setRGB(ix, iy, (alpha<<24)|(argb & 0xffffff));//apply the new aplha channel to the image
                 }
             }
 
@@ -159,12 +155,6 @@ public class NaviviewView extends BlueJSyntaxView
         super.paint(g, a);
     }
     
-    private int darken(int c)
-    {
-        c = c << DARKEN_AMOUNT;
-        if(c>255) c = 255;
-        return c;
-    }
 
     @Override
     protected void updateDamage(DocumentEvent changes, Shape a, ViewFactory f)
