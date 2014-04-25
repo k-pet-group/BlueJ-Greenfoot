@@ -113,13 +113,15 @@ public class NaviviewView extends BlueJSyntaxView
 
             // Filter the image - adjust alpha channel to darken the image.
             int argb;
-            int alpha;           
-                for (int iy = 0; iy < img.getHeight(); iy++) {
-                    for (int ix = 0; ix < img.getWidth(); ix++) {
+            int alpha;
+            for (int iy = 0; iy < img.getHeight(); iy++) {
+                for (int ix = 0; ix < img.getWidth(); ix++) {
                     argb = img.getRGB(ix, iy);
-                    alpha = (argb >>> 24)<<DARKEN_AMOUNT;//get the alpha channel and apply the darken effect
-                    if (alpha >255) alpha=255; //prevent saturation
-                    img.setRGB(ix, iy, (alpha<<24)|(argb & 0xffffff));//apply the new aplha channel to the image
+                    alpha = (argb >>> 24) << DARKEN_AMOUNT;//get the alpha channel and apply the darken effect
+                    if (alpha > 255) {
+                        alpha = 255; //prevent saturation
+                    }
+                    img.setRGB(ix, iy, (alpha << 24) | (argb & 0xffffff));//apply the new aplha channel to the image
                 }
             }
 
