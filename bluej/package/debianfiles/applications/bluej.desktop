@@ -6,7 +6,7 @@ Name=BlueJ
 Comment=A simple powerful Java IDE
 Categories=Application;Development;
 Exec=bluej
-Icon=/usr/share/pixmaps/bluej.xpm
+Icon=bluej
 Terminal=false
 Type=Application
 

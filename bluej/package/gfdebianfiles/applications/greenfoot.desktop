@@ -5,6 +5,6 @@ Name=Greenfoot
 Comment=A simple Java IDE and animation framework
 Categories=Application;Development;
 Exec=greenfoot
-Icon=/usr/share/pixmaps/greenfoot.xpm
+Icon=greenfoot
 Terminal=false
 Type=Application
