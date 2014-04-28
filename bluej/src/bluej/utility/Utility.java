@@ -1114,18 +1114,20 @@ public class Utility
         return strings;        
     }
     /**
-     * Set background colour of a JEditorPane.
-     * based on fix from: https://community.oracle.com/thread/1356459
+     * Set background colour of a JEditorPane. based on fix from:
+     * https://community.oracle.com/thread/1356459
+     *
      * @param JeditorPane
      * @param the colour to be applied to the panel.
-     * @return 
+     * @return
      */
-    public static void setJEditorPaneBackground(javax.swing.JEditorPane jEditorPane, Color color){
-            Color bgColor = new Color(250, 246, 229);
-            UIDefaults defaults = new UIDefaults();
-            defaults.put("EditorPane[Enabled].backgroundPainter", bgColor);
-            jEditorPane.putClientProperty("Nimbus.Overrides", defaults);
-            jEditorPane.putClientProperty("Nimbus.Overrides.InheritDefaults", true);
-            jEditorPane.setBackground(bgColor);
+    public static void setJEditorPaneBackground(javax.swing.JEditorPane jEditorPane, Color color)
+    {
+        Color bgColor = new Color(250, 246, 229);
+        UIDefaults defaults = new UIDefaults();
+        defaults.put("EditorPane[Enabled].backgroundPainter", bgColor);
+        jEditorPane.putClientProperty("Nimbus.Overrides", defaults);
+        jEditorPane.putClientProperty("Nimbus.Overrides.InheritDefaults", true);
+        jEditorPane.setBackground(bgColor);
     }
 }
