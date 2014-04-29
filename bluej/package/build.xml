@@ -132,7 +132,11 @@
 
         <!-- make sure the people .class files are dated in the future so they
              will appear to be compiled -->
-        <touch datetime="1/1/2010 12:00 pm">
+         <tstamp>
+            <format property="touch.time" pattern="MM/dd/yyyy hh:mm aa" offset="+5" unit="year"/>
+        </tstamp>
+
+        <touch datetime="${touch.time}">
             <fileset dir="install_tmp" >
                 <patternset refid="bluej.examples.classes"/>
             </fileset>
