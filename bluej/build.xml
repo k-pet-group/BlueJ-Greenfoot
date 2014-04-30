@@ -102,9 +102,7 @@
                 deprecation="yes"
                 includeantruntime="false"
                 encoding="utf-8"
-                excludes="bluej/editor/moe/Moe.java,
-                	bluej/editor/moe/**,
-        			${srcexcludes}">
+                >
 
             <classpath>
                 <path refid="bluej.class.path"/>
