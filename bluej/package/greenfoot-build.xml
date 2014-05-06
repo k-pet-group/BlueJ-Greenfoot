@@ -257,7 +257,7 @@
     	<!-- Remove the legacy app -->
     	<delete dir="${zip_dir}/Greenfoot-legacy.app" />
     	
-        <property name="executable_files2" value="**/PkgInfo,**/JavaAppLauncher,**/Contents/Frameworks/jdk.framework/Versions/A/Contents/**/bin/*" />
+        <property name="executable_files2" value="**/PkgInfo,**/JavaAppLauncher,**/Contents/Frameworks/jdk.framework/Versions/A/Contents/**/bin/*,**/Contents/Frameworks/jdk.framework/Versions/A/Contents/Home/jre/lib/jspawnhelper,**/Contents/Frameworks/jdk.framework/Versions/A/Contents/Home/jre/lib/fxplugins.dylib" />
 
         <!-- ZIP it -->
         <zip destfile="${greenfoot.dist.mac}" duplicate="fail">
