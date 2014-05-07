@@ -111,8 +111,21 @@ bluej.vm.args=-Xincgc -Dawt.useSystemAAFontSettings=on
 #####################################################################
 #greenfoot.editor.image=/Applications/Adobe Photoshop CS3/Adobe Photoshop CS3.app
 
-#greenfoot.windows.vm=
-
 greenfoot.image.create.width=150
 greenfoot.image.create.height=150
 
+#####################################################################
+## The VM that the windows client should use. When Greenfoot is
+## bundled with a JDK, this will refer to the bundled JDK.
+## Otherwise this can be used to specify an arbitrary JDK that
+## Greenfoot should use.
+##
+## NOTE: this setting is _only_ used under windows, and only when
+##       Greenfoot is launched with the standard windows launcher
+#####################################################################
+
+# This setting is an example only:
+#greenfoot.windows.vm=X\:\\Programming Apps\\JDK_1.7.0_55
+
+# command line arguments, if any:
+#greenfoot.windows.vm.args=
