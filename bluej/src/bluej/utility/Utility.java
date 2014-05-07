@@ -1113,13 +1113,12 @@ public class Utility
         
         return strings;        
     }
+    
     /**
-     * Set background colour of a JEditorPane. based on fix from:
-     * https://community.oracle.com/thread/1356459
-     *
-     * @param JeditorPane
-     * @param the colour to be applied to the panel.
-     * @return
+     * Set background colour of a JEditorPane.
+     * based on fix from: https://community.oracle.com/thread/1356459
+     * @param JEditorPane     the pane to apply the background colour to
+     * @param color           the colour to be applied to the panel.
      */
     public static void setJEditorPaneBackground(javax.swing.JEditorPane jEditorPane, Color color)
     {
