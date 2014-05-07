@@ -124,7 +124,7 @@ greenfoot.image.create.height=150
 ##       Greenfoot is launched with the standard windows launcher
 #####################################################################
 
-# This setting is an example only:
+# This setting is an example only (unless the JDK is bundled):
 #greenfoot.windows.vm=X\:\\Programming Apps\\JDK_1.7.0_55
 
 # command line arguments, if any:
