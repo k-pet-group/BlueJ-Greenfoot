@@ -288,7 +288,7 @@ public abstract class Configuration {
     public Configuration() {
         message =
             new MessageRetriever(this,
-            "com.sun.tools.doclets.internal.toolkit.resources.doclets");
+            "bluej.doclet.doclets.internal.toolkit.resources.doclets");
         excludedDocFileDirs = new HashSet();
         excludedQualifiers = new HashSet();
     }
