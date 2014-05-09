@@ -14,6 +14,7 @@ import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.Properties;
+import java.util.Scanner;
 import java.util.StringTokenizer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
@@ -38,7 +39,7 @@ import javax.swing.text.Keymap;
   * Modified by Davin McCall, 2005-09-06, and 2010-09-24
   */
 public class Installer extends JFrame
-	implements ActionListener
+    implements ActionListener
 {
     private static final String nl = System.getProperty("line.separator");
     private static final char slash = File.separatorChar;
@@ -298,7 +299,7 @@ public class Installer extends JFrame
             // Write the scripts, if this is an application
             if (getProperty("exeName") != null) {
 
-                if(osname == null) {	// if we don't know, write both
+                if(osname == null) {    // if we don't know, write both
                     writeWindows();
                     writeUnix(false);
                 }
@@ -336,6 +337,30 @@ public class Installer extends JFrame
         installationDir = directoryField.getText();
         javaPath = javaField.getText();
         //isJDK12 = jdk12Button.isSelected();
+    }
+
+    /*
+     * Check if it is a Raspberry Pi.
+     */
+    public static boolean isRaspberryPi()
+    {
+        boolean result = false;
+        try {
+            Scanner scanner = new Scanner(new File(
+                    "/proc/cpuinfo"));
+            while (scanner.hasNextLine()) {
+                String lineFromFile = scanner.nextLine();
+                if (lineFromFile.contains("BCM2708")) {
+                    result = true;
+                    break;
+                }
+            }
+            scanner.close();
+        } catch (FileNotFoundException fne) {
+            //it is not unix.
+            return false;
+        }
+        return result;
     }
 
     /**
@@ -609,6 +634,10 @@ public class Installer extends JFrame
         }
         else {
             commands = getProperty("commands.unix").toString();
+            //check if it is a Raspberry Pi.
+            if (isRaspberryPi()) {
+                out.write("export J2D_PIXMAP=shared\n");
+            }
         }
 
         if(commands != null) {
@@ -621,7 +650,7 @@ public class Installer extends JFrame
         out.close();
 
         try {
-        	String cmdArray[] = { "chmod", "755", outputFile.toString() };
+            String cmdArray[] = { "chmod", "755", outputFile.toString() };
             Runtime.getRuntime().exec(cmdArray);
         } catch(Exception e) {
             // ignore it - might not be Unix
