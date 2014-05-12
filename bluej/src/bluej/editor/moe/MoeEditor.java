@@ -84,6 +84,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
+import javax.swing.UIDefaults;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
@@ -3032,6 +3033,17 @@ public final class MoeEditor extends JFrame
         moeCaret = new MoeCaret(this);
         sourcePane.setCaret(moeCaret);
         sourcePane.setBackground(MoeSyntaxDocument.getBackgroundColor());
+        
+        // The Nimbus look-and-feel doesn't normally respect the background colour setting;
+        // try to encourage it to do so:
+        UIDefaults defaults = new UIDefaults();
+        // We can set this to anything as long it's not actually a background painter. In that case
+        // Nimbus will use the background color that's been set with setBackground(...) - which is
+        // what we want.
+        defaults.put("EditorPane[Enabled].backgroundPainter", versionString);
+        sourcePane.putClientProperty("Nimbus.Overrides", defaults);
+        sourcePane.putClientProperty("Nimbus.Overrides.InheritDefaults", true);
+        
         sourcePane.setSelectionColor(selectionColour);
         sourcePane.setCaretColor(cursorColor);
 
