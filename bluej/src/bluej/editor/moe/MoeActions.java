@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2012,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2011,2012,2013,2014  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -1233,11 +1233,17 @@ public final class MoeActions
     
     private static int findWordLimit(JTextComponent c, int pos, boolean forwards)
     {
+        int maxLen = c.getDocument().getLength();
+        if (forwards && pos == maxLen) return maxLen;
+        if (! forwards && pos == 0) return 0;
+        
         try {
             char curChar = c.getText(pos, 1).charAt(0);
             if (Character.isWhitespace(curChar)) { 
                 while (Character.isWhitespace(curChar)) {
                     if (forwards) pos++; else pos--;
+                    if (pos == maxLen) return pos;
+                    if (pos == 0) return 0;
                     curChar = c.getText(pos, 1).charAt(0);
                 }
                 // If we are going back, we'll have gone one character too far
@@ -1247,6 +1253,8 @@ public final class MoeActions
             else if (Character.isJavaIdentifierPart(curChar)) {
                 while (Character.isJavaIdentifierPart(curChar)) {
                     if (forwards) pos++; else pos--;
+                    if (pos == maxLen) return pos;
+                    if (pos == 0) return 0;
                     curChar = c.getText(pos, 1).charAt(0);
                 }
                 // If we are going back, we'll have gone one character too far
@@ -1261,7 +1269,7 @@ public final class MoeActions
             }
         }
         catch (BadLocationException e) {
-            return forwards ? c.getText().length() : 0;
+            throw new RuntimeException(e);
         }
     }
 
