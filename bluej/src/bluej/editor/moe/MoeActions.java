@@ -454,7 +454,9 @@ public final class MoeActions
                 }
             }
         }
-        catch (BadLocationException e) {}
+        catch (BadLocationException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -1224,8 +1226,7 @@ public final class MoeActions
                 }
             }
             catch (BadLocationException ex) {
-                // End of file already, just set the caret there:
-                moveCaret(c, end);
+                throw new RuntimeException(ex);
             }
         }
     }
@@ -1287,6 +1288,7 @@ public final class MoeActions
         {
             JTextComponent c = getTextComponent(e);
             int origPos = c.getCaret().getDot();
+            if (origPos == 0) return;
             try {
                 if (Character.isWhitespace(c.getText(origPos - 1, 1).charAt(0))) {
                     // Whitespace region precedes, find the beginning of it:
@@ -1301,8 +1303,7 @@ public final class MoeActions
                 }
             }
             catch (BadLocationException ex) {
-                // Start of file already, just set the caret there:
-                moveCaret(c, 0);
+                throw new RuntimeException(ex);
             }            
         }
     }
@@ -1365,6 +1366,7 @@ public final class MoeActions
                 c.getDocument().remove(begin, end - begin);
             }
             catch (BadLocationException ex) {
+                throw new RuntimeException(ex);
             }
         }
         
@@ -1819,7 +1821,9 @@ public final class MoeActions
                 removeTab(textPane, doc);
             }
         }
-        catch (BadLocationException exc) {}
+        catch (BadLocationException exc) {
+            throw new RuntimeException(exc);
+        }
     }
 
     /**
@@ -1875,7 +1879,9 @@ public final class MoeActions
                 removeTab(textPane, doc);
             }
         }
-        catch (BadLocationException exc) {}
+        catch (BadLocationException exc) {
+            throw new RuntimeException(exc);
+        }
     }
 
     /**
@@ -2057,7 +2063,7 @@ public final class MoeActions
             }
         }
         catch (BadLocationException exc) {
-            Debug.reportError("stuffed up in 'convertTabsToSpaces'");
+            throw new RuntimeException(exc);
         }
         return count;
     }
@@ -2606,8 +2612,7 @@ public final class MoeActions
             return doc.getText(nap.getPosition(), nap.getSize());
         }
         catch (BadLocationException e) {
-            Debug.reportError("Error getting node contents in document", e);
-            return "";
+            throw new RuntimeException(e);
         }
     }
 
