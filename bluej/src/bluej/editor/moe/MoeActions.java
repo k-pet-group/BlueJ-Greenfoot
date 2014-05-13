@@ -1234,8 +1234,8 @@ public final class MoeActions
     private static int findWordLimit(JTextComponent c, int pos, boolean forwards)
     {
         int maxLen = c.getDocument().getLength();
-        if (forwards && pos == maxLen) return maxLen;
-        if (! forwards && pos == 0) return 0;
+        if (forwards && pos >= maxLen) return maxLen;
+        if (! forwards && pos <= 0) return 0;
         
         try {
             char curChar = c.getText(pos, 1).charAt(0);
