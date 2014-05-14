@@ -43,6 +43,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.MissingResourceException;
 import java.util.Properties;
 import java.util.Scanner;
 
@@ -295,36 +296,41 @@ public final class Config
         
         // If no language is set, try to auto-detect from locale:
         if (language == null) {
-            String iso3lang = Locale.getDefault().getISO3Language();
             language = DEFAULT_LANGUAGE;
-            
-            for (int i = 1; ; i++) {
-                String langString = Config.getPropString("bluej.language" + i, null);
-                if (langString == null) {
-                    break;
+            try {
+                String iso3lang = Locale.getDefault().getISO3Language();
+
+                for (int i = 1; ; i++) {
+                    String langString = Config.getPropString("bluej.language" + i, null);
+                    if (langString == null) {
+                        break;
+                    }
+
+                    // The format of a language string is:
+                    //    internal-name:display-name:iso3cc
+                    // The iso3cc (ISO country code) is optional.
+
+                    int colonIndex = langString.indexOf(':');
+                    if (colonIndex == -1) {
+                        continue; // don't understand this one
+                    }
+
+                    int secondColon = langString.indexOf(':', colonIndex + 1);
+                    if (secondColon == -1) {
+                        continue;
+                    }
+
+                    if (langString.substring(secondColon + 1).equals(iso3lang)) {
+                        language = langString.substring(0, colonIndex);
+                        break;
+                    }
                 }
-                
-                // The format of a language string is:
-                //    internal-name:display-name:iso3cc
-                // The iso3cc (ISO country code) is optional.
-                
-                int colonIndex = langString.indexOf(':');
-                if (colonIndex == -1) {
-                    continue; // don't understand this one
-                }
-                
-                int secondColon = langString.indexOf(':', colonIndex + 1);
-                if (secondColon == -1) {
-                    continue;
-                }
-                
-                if (langString.substring(secondColon + 1).equals(iso3lang)) {
-                    language = langString.substring(0, colonIndex);
-                    break;
-                }
+
+                Debug.log("Detected language \"" + language + "\" based on iso639-2 code \"" + iso3lang + "\"");
             }
-            
-            Debug.log("Detected language \"" + language + "\" based on iso639-2 code \"" + iso3lang + "\"");
+            catch (MissingResourceException mre) {
+                Debug.log("Using default language \"" + language + "\"");
+            }
         }
         
         langProps = loadLanguageLabels(language);
