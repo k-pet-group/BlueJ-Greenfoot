@@ -254,9 +254,7 @@ public final class Config
             checkDebug(userPrefDir);
         }
         
-        // find our language (but default to english if none found)
-        language = commandProps.getProperty("bluej.language", DEFAULT_LANGUAGE);
-        langProps = loadLanguageLabels(language);
+        initLanguage();
 
         moeSystemProps = loadDefs("moe.defs", System.getProperties());
         moeUserProps = new Properties(moeSystemProps);
@@ -284,6 +282,52 @@ public final class Config
         // Create a property containing the BlueJ version string
         // put it in command_props so it won't be saved to a file
         commandProps.setProperty("bluej.version", Boot.BLUEJ_VERSION);
+    }
+    
+    /**
+     * Determine the configured language, or detect the language from the locale.
+     * Fall back to the DEFAULT_LANGUAGE if language cannot be determined.
+     * Load language-specific labels for the determined language.
+     */
+    private static void initLanguage()
+    {
+        language = commandProps.getProperty("bluej.language", null);
+        
+        // If no language is set, try to auto-detect from locale:
+        if (language == null) {
+            String iso3lang = Locale.getDefault().getISO3Language();
+            language = DEFAULT_LANGUAGE;
+            
+            for (int i = 1; ; i++) {
+                String langString = Config.getPropString("bluej.language" + i, null);
+                if (langString == null) {
+                    break;
+                }
+                
+                // The format of a language string is:
+                //    internal-name:display-name:iso3cc
+                // The iso3cc (ISO country code) is optional.
+                
+                int colonIndex = langString.indexOf(':');
+                if (colonIndex == -1) {
+                    continue; // don't understand this one
+                }
+                
+                int secondColon = langString.indexOf(':', colonIndex + 1);
+                if (secondColon == -1) {
+                    continue;
+                }
+                
+                if (langString.substring(secondColon + 1).equals(iso3lang)) {
+                    language = langString.substring(0, colonIndex);
+                    break;
+                }
+            }
+            
+            Debug.log("Detected language \"" + language + "\" based on iso639-2 code \"" + iso3lang + "\"");
+        }
+        
+        langProps = loadLanguageLabels(language);
     }
 
     /**

@@ -29,31 +29,32 @@
 ## a new language, please send it to bluej@bluej.org
 #####################################################################
 
-bluej.language=english
+#bluej.language=english
 
 # A list of available languages, in the form:
-#   internal-name:human-readable-name
+#   internal-name:human-readable-name:iso639-2
 # The internal-name controls the name of the directory that BlueJ
-# will look for translations in.
+# will look for translations in. The iso639-2 code is optional;
+# it allows auto-detection of the correct language setting.
 
-bluej.language1=english:English
-bluej.language2=afrikaans:Afrikaans
-bluej.language3=catalan:Catalan
-bluej.language4=chinese:Chinese
-bluej.language5=czech:Czech
-bluej.language6=danish:Danish
-bluej.language7=dutch:Dutch
-bluej.language8=french:French
-bluej.language9=german:German
-bluej.language10=greek:Greek
-bluej.language11=italian:Italian
-bluej.language12=japanese:Japanese
-bluej.language13=korean:Korean
-bluej.language14=portuguese:Portuguese
-bluej.language15=russian:Russian
-bluej.language16=slovak:Slovak
-bluej.language17=spanish:Spanish
-bluej.language18=swedish:Swedish
+bluej.language1=english:English:eng
+bluej.language2=afrikaans:Afrikaans:afr
+bluej.language3=catalan:Catalan:cat
+bluej.language4=chinese:Chinese:chi
+bluej.language5=czech:Czech:cze
+bluej.language6=danish:Danish:dan
+bluej.language7=dutch:Dutch:dum
+bluej.language8=french:French:fre
+bluej.language9=german:German:ger
+bluej.language10=greek:Greek:gre
+bluej.language11=italian:Italian:ita
+bluej.language12=japanese:Japanese:jpn
+bluej.language13=korean:Korean:kor
+bluej.language14=portuguese:Portuguese:por
+bluej.language15=russian:Russian:rus
+bluej.language16=slovak:Slovak:slo
+bluej.language17=spanish:Spanish:spa
+bluej.language18=swedish:Swedish:swe
 
 
 #####################################################################
