@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2010,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 2010, 2011, 2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -39,7 +39,7 @@ import java.util.zip.ZipFile;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.MethodReflective;
 import bluej.debugger.gentype.Reflective;
-import bluej.parser.InfoParser;
+import bluej.parser.JavadocParser;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.PackageResolver;
 import bluej.parser.symtab.ClassInfo;
@@ -151,7 +151,7 @@ public class ProjectJavadocResolver implements JavadocResolver
                     if (zipEnt != null) {
                         InputStream zeis = zipFile.getInputStream(zipEnt);
                         r = new InputStreamReader(zeis, project.getProjectCharset());
-                        ClassInfo info = InfoParser.parse(r, resolver, null);
+                        ClassInfo info = JavadocParser.parse(r, resolver, null);
                         if (info == null) {
                             return null;
                         }
@@ -181,7 +181,7 @@ public class ProjectJavadocResolver implements JavadocResolver
                     if (srcFile.canRead()) {
                         fis = new FileInputStream(srcFile);
                         Reader r = new InputStreamReader(fis, project.getProjectCharset());
-                        ClassInfo info = InfoParser.parse(r, resolver, null);
+                        ClassInfo info = JavadocParser.parse(r, resolver, null);
                         r.close();
                         if (info == null) {
                             return null;
@@ -207,7 +207,7 @@ public class ProjectJavadocResolver implements JavadocResolver
         if (srcUrl != null) {
             try {
                 Reader r = new InputStreamReader(srcUrl.openStream(), project.getProjectCharset());
-                ClassInfo info = InfoParser.parse(r, resolver, null);
+                ClassInfo info = JavadocParser.parse(r, resolver, null);
                 if (info != null) {
                     return info.getComments();
                 }
