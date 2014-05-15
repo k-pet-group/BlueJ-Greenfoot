@@ -71,8 +71,8 @@ import bluej.utility.JavaNames;
  */
 public class InfoParser extends EditorParser
 {
-    private String targetPkg;
-    private ClassInfo info;
+    protected String targetPkg;
+    protected ClassInfo info;
     private int classLevel = 0; // number of nested classes
     private boolean isPublic;
     private boolean isAbstract;
@@ -119,7 +119,7 @@ public class InfoParser extends EditorParser
     private List<Selection> interfaceSelections;
     private Selection lastCommaSelection;
 
-    private boolean hadError;
+    protected boolean hadError;
 
     private LocatableToken pkgLiteralToken;
     private List<LocatableToken> packageTokens;
@@ -197,10 +197,9 @@ public class InfoParser extends EditorParser
     }
     
     /**
-     * All type references and method declarations are unresolved after parsing.
-     * Call this method to resolve them.
+     * Resolve the method parameter and return types to their fully qualified types.
      */
-    public void resolveComments()
+    protected void resolveMethodTypes()
     {
         methodLoop:
         for (MethodDesc md : methodDescs) {
@@ -239,7 +238,16 @@ public class InfoParser extends EditorParser
             md.paramNames = md.paramNames.trim();
             info.addComment(methodSig, md.javadocText, md.paramNames);
         }
+    }
     
+    /**
+     * All type references and method declarations are unresolved after parsing.
+     * Call this method to resolve them.
+     */
+    public void resolveComments()
+    {
+        resolveMethodTypes();
+        
         // Now also resolve references
         for (JavaEntity entity: typeReferences) {
             entity = entity.resolveAsType();

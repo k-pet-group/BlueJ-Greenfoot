@@ -132,13 +132,11 @@ public class ParseUtils
                                         method.getModifiers(), suggests.isStatic())) {
                             continue;
                         }
-                        Map<String,GenTypeParameter> declMap =
-                            exprType.mapToSuper(method.getDeclaringType().getName()).getMap();
                         MethodCompletion completion = new MethodCompletion(method,
-                                declMap, javadocResolver);
+                                typeArgs, javadocResolver);
                         String sig = completion.getDisplayName();
                         if (contentSigs.add(sig)) {
-                            completions.add(new MethodCompletion(method, typeArgs, javadocResolver));
+                            completions.add(completion);
                         }
                     }
                 }
