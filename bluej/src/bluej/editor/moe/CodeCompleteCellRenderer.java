@@ -69,14 +69,14 @@ public class CodeCompleteCellRenderer extends JPanel implements ListCellRenderer
         typeLabel.setPreferredSize(rtypeSize);
         typeLabel.setForeground(new Color(90, 80, 45));
         add(typeLabel);
-        
+
         add(descriptionLabel);
         add(Box.createHorizontalGlue());
         setBorder(new javax.swing.border.EmptyBorder(2, 2, 2, 2));
 
         this.immediateType = immediateType;
     }
-    
+
     public Component getListCellRendererComponent(JList list, Object value,
             int index, boolean isSelected, boolean cellHasFocus)
     {
@@ -84,7 +84,7 @@ public class CodeCompleteCellRenderer extends JPanel implements ListCellRenderer
             AssistContent content = (AssistContent) value;
             typeLabel.setText(content.getReturnType().toString());
             descriptionLabel.setText(content.getDisplayName());
-            
+
             if (content.getDeclaringClass().equals(immediateType)) {
                 descriptionLabel.setFont(cfontBold);
             }
@@ -92,16 +92,20 @@ public class CodeCompleteCellRenderer extends JPanel implements ListCellRenderer
                 descriptionLabel.setFont(cfont);
             }
         }
-        
+
         if (isSelected) {
             setBackground(list.getSelectionBackground());
             setForeground(list.getSelectionForeground());
-            if (!Config.isRaspberryPi()) setOpaque(true);
+            if (!Config.isRaspberryPi()) {
+                setOpaque(true);
+            }
         }
         else {
             setBackground(list.getBackground());
             setForeground(list.getForeground());
-            if (!Config.isRaspberryPi()) setOpaque(false);
+            if (!Config.isRaspberryPi()) {
+                setOpaque(false);
+            }
         }
 
         return this;
