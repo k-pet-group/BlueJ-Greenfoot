@@ -80,7 +80,7 @@ public class CodeCompleteCellRenderer extends JPanel implements ListCellRenderer
     public Component getListCellRendererComponent(JList list, Object value,
             int index, boolean isSelected, boolean cellHasFocus)
     {
-        if (value != null) {
+        if (value != null && list.isValid() && index <= list.getLastVisibleIndex() && index >= list.getFirstVisibleIndex()) {
             AssistContent content = (AssistContent) value;
             typeLabel.setText(content.getReturnType().toString());
             descriptionLabel.setText(content.getDisplayName());
@@ -103,7 +103,7 @@ public class CodeCompleteCellRenderer extends JPanel implements ListCellRenderer
             setForeground(list.getForeground());
             if (!Config.isRaspberryPi()) setOpaque(false);
         }
-        
+
         return this;
     }
 }
