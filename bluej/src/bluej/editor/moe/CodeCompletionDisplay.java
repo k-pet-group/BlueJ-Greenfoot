@@ -360,7 +360,7 @@ public class CodeCompletionDisplay extends JFrame
         methodList.setListData(listData);
         methodList.setSelectedIndex(0);
 
-        getGlassPane().setVisible(listData.size() == 0);
+        getGlassPane().setVisible(listData.isEmpty());
     }
     
     /**
@@ -423,43 +423,29 @@ public class CodeCompletionDisplay extends JFrame
     /* (non-Javadoc)
      * @see javax.swing.event.ListSelectionListener#valueChanged(javax.swing.event.ListSelectionEvent)
      */
-    public void valueChanged(ListSelectionEvent e) 
+    public void valueChanged(ListSelectionEvent e)
     {
         AssistContent selected = (AssistContent) methodList.getSelectedValue();
-        
+
         if (selected != null) {
             String jdHtml = selected.getJavadoc();
             if (jdHtml != null) {
                 jdHtml = JavaUtils.javadocToHtml(jdHtml);
-            }
-            else {
+            } else {
                 jdHtml = "";
             }
             String sig = escapeAngleBrackets(selected.getReturnType())
-                       + " <b>" + escapeAngleBrackets(selected.getDisplayMethodName()) + "</b>"
-                       + escapeAngleBrackets(selected.getDisplayMethodParams());
-            
-            jdHtml = "<h3>" + selected.getDeclaringClass() + "</h3>" + 
-                "<blockquote><tt>" + sig + "</tt></blockquote><br>" +
-                jdHtml;
-            
-//            
-//            if (Config.isRaspberryPi()) {
-//                jdHtml = "<body bgcolor=\"#FAF6E5\">" + jdHtml;
-//                methodDescription.setBorder(BorderFactory.createLineBorder(new Color(250,246,229), 12));
-//            }
-            
+                    + " <b>" + escapeAngleBrackets(selected.getDisplayMethodName()) + "</b>"
+                    + escapeAngleBrackets(selected.getDisplayMethodParams());
+
+            jdHtml = "<h3>" + selected.getDeclaringClass() + "</h3>"
+                    + "<blockquote><tt>" + sig + "</tt></blockquote><br>"
+                    + jdHtml;
 
             methodDescription.setText(jdHtml);
             methodDescription.setCaretPosition(0); // scroll to top
-        }
-        else {
-//            if (!Config.isRaspberryPi()){
-                methodDescription.setText("");
-//            }else{
-//                methodDescription.setText("<body bgcolor=\"#FAF6E5\">");
-//                methodDescription.setBorder(BorderFactory.createLineBorder(new Color(250,246,229), 12));
-//            }
+        } else {
+            methodDescription.setText("");
         }
     }
 
