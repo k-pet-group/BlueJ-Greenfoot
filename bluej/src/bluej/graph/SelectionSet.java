@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2013,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -56,6 +56,16 @@ public final class SelectionSet
             element.setSelected(true);
             elements.add(element);
         }
+    }
+    
+    /**
+     * Add an already selected element to the set; to be used during initialisation only.
+     * 
+     * @param element   The element, which is marked selected, to be tracked in the selection set
+     */
+    public void addExisting(SelectableGraphElement element)
+    {
+        elements.add(element);
     }
     
     /**

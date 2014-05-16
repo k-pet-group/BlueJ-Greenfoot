@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2013,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -82,7 +82,18 @@ public class SelectionController
         this.graph = graphEditor.getGraph();
         marquee = new Marquee(graph);
         selection = new SelectionSet();
-
+        for (Iterator<? extends Vertex> i = graph.getVertices(); i.hasNext(); ) {
+            Vertex v = i.next();
+            if (v.isSelected()) {
+                selection.addExisting(v);
+            }
+        }
+        for (Iterator<? extends Edge> i = graph.getEdges(); i.hasNext(); ) {
+            Edge e = i.next();
+            if (e.isSelected()) {
+                selection.addExisting(e);
+            }
+        }
     }
 
     // ======= MouseListener interface =======
@@ -638,8 +649,6 @@ public class SelectionController
                 selection.selectOnly(v);
             }
         }
-        
-        
     }
 
     @Override
