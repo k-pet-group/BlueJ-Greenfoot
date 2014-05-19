@@ -29,6 +29,7 @@ import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.PrintGraphics;
+import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
@@ -73,7 +74,7 @@ public class GraphEditor extends JPanel
      * Create a graph editor.
      * @param graph The graph being edited by this editor.
      */
-    public GraphEditor(Graph graph, FocusListener focusListener)
+    public GraphEditor(Graph graph)
     {
         this.graph = graph;
         marqueePainter = new MarqueePainter();
@@ -82,7 +83,30 @@ public class GraphEditor extends JPanel
         graph.addListener(this);
         setToolTipText(""); // Turn on tool-tips for this component
         
-        this.focusListener = focusListener;
+        // The focus listener will get focus events from the editor itself, and components within it.
+        this.focusListener = new FocusListener() {
+            @Override
+            public void focusGained(FocusEvent e)
+            {
+                if (! hasPermFocus) {
+                    setPermFocus(true);
+                }
+            }
+            
+            @Override
+            public void focusLost(FocusEvent e)
+            {
+                if (hasPermFocus && ! e.isTemporary()) {
+                    Component opposite = e.getOppositeComponent();
+                    if (opposite == null || (opposite != GraphEditor.this && opposite.getParent() != GraphEditor.this)) {
+                        setPermFocus(false);
+                    }
+                }
+            }
+        };
+        
+        
+        addFocusListener(this.focusListener);
         
         // Get everything added:
         setLayout(null);
@@ -249,17 +273,6 @@ public class GraphEditor extends JPanel
         // by default, do nothing
     }
 
-    private boolean hasFocus;
-    
-    @Override
-    public boolean hasFocus(){
-        return hasFocus;
-    }
-    
-    public void setHasFocus(boolean hasFocus){
-        this.hasFocus = hasFocus;
-    }
-    
     @Override
     public String getToolTipText(MouseEvent event)
     {
@@ -281,6 +294,7 @@ public class GraphEditor extends JPanel
         removeFromSelection(element);
     }
     
+    @Override
     public void graphChanged()
     {
         HashMap<Component, Boolean> keep = new HashMap<Component, Boolean>();
@@ -303,6 +317,9 @@ public class GraphEditor extends JPanel
                 v.getComponent().addFocusListener(focusListener);
                 v.getComponent().addFocusListener(selectionController);
                 v.getComponent().addKeyListener(selectionController);
+                if (v.isSelected()) {
+                    selectionController.addToSelection(v);
+                }
             }
             // If it's in the vertices, keep it:
             keep.put(v.getComponent(), true);
@@ -313,21 +330,45 @@ public class GraphEditor extends JPanel
             if (e.getValue().booleanValue() == false)
             {
                 remove(e.getKey());
+                e.getKey().removeFocusListener(focusListener);
+                e.getKey().removeFocusListener(selectionController);
+                e.getKey().removeKeyListener(selectionController);
             }
         }
         
         repaint();
     }
     
-    public boolean isGraphComponent(Component c)
+    /**
+     * Notify the graph editor that the graph is closed, and it should free up any resources associated
+     * with editing the graph.
+     */
+    public void graphClosed()
     {
-        Iterator<? extends Vertex> it = graph.getVertices();
-        while (it.hasNext())
+        for (Component c : getComponents())
         {
-            Vertex v = it.next();
-            if (v.getComponent() == c)
-                return true;
+            c.removeFocusListener(focusListener);
+            c.removeFocusListener(selectionController);
+            c.removeKeyListener(selectionController);
         }
-        return false;
+    }
+    
+    private boolean hasPermFocus; /* whether we are focussed within window */
+    
+    /**
+     * Set whether the editor has focus within its parent.
+     * @param focus
+     */
+    public void setPermFocus(boolean focus)
+    {
+        hasPermFocus = focus;
+    }
+    
+    /**
+     * Check whether the editor has focus within its parent.
+     */
+    public boolean hasPermFocus()
+    {
+        return hasPermFocus;
     }
 }

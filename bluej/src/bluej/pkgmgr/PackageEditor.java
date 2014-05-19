@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012,2013,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,7 +22,6 @@
 package bluej.pkgmgr;
 
 import java.awt.Component;
-import java.awt.event.FocusListener;
 
 import javax.swing.Action;
 import javax.swing.JMenuItem;
@@ -44,20 +43,23 @@ import bluej.views.CallableView;
  * Canvas to allow editing of packages
  *
  * @author  Andrew Patterson
- * @version $Id: PackageEditor.java 10654 2013-05-10 09:39:02Z neil $
  */
 public final class PackageEditor extends GraphEditor
 {
     private PackageEditorListener listener;
     
-    public PackageEditor(Package pkg, PackageEditorListener listener, FocusListener focusListener)
+    /**
+     * Construct a package editor for the given package.
+     */
+    public PackageEditor(Package pkg, PackageEditorListener listener)
     {
-        super(pkg, focusListener);
+        super(pkg);
         this.listener = listener;
     }
 
-    // notify all listeners that have registered interest for
-    // notification on this event type.
+    /**
+     * Notify listener of an event.
+     */
     protected void fireTargetEvent(PackageEditorEvent e)
     {
         if (listener != null) {
@@ -157,5 +159,18 @@ public final class PackageEditor extends GraphEditor
         JMenuItem item = menu.add(action);
         item.setFont(PrefMgr.getPopupMenuFont());
         item.setForeground(envOpColour);
+    }
+    
+    @Override
+    public void setPermFocus(boolean focus)
+    {
+        boolean wasFocussed = hasPermFocus();
+        super.setPermFocus(focus);
+        if (focus && ! wasFocussed) {
+            listener.pkgEditorGotFocus();
+        }
+        else if (! focus && wasFocussed) {
+            listener.pkgEditorLostFocus();
+        }
     }
 }
