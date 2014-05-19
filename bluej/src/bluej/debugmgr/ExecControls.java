@@ -473,7 +473,8 @@ public class ExecControls extends JFrame
             selectedThread.setSelectedFrame(index);
                 
             if (! autoSelectionEvent) {
-                project.showSource(selectedThread);
+                project.showSource(selectedThread.getClass(index), selectedThread.getClassSourceName(index),
+                        selectedThread.getLineNumber(index));
             }
             
             currentFrame = index;

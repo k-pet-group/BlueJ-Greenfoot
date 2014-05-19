@@ -1848,14 +1848,14 @@ public class Project implements DebuggerListener, InspectorManager
     }
     
     /**
-     * Show the source code corresponding to the top of the given thread stack.
+     * Show the source code at a particular position
      */
-    public void showSource(DebuggerThread thread)
+    public void showSource(String className, String sourceName, int lineNumber)
     {
-        String packageName = JavaNames.getPrefix(thread.getClass(0));
+        String packageName = JavaNames.getPrefix(className);
         Package pkg = getPackage(packageName);
         if (pkg != null) {
-            pkg.showSourcePosition(thread);
+            pkg.showSourcePosition(sourceName, lineNumber);
         }
     }
 

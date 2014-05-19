@@ -2149,7 +2149,7 @@ public final class Package extends Graph
         lastSourceName = sourcename;
 
         if (!showEditorMessage(new File(getPath(), sourcename).getPath(), lineNo, msg, false, bringToFront,
-                true, null) && !breakpoint) {
+                true, null) && breakpoint) {
             showMessageWithText("break-no-source", sourcename);
         }
 
@@ -2312,24 +2312,25 @@ public final class Package extends Graph
      */
     public void hitHalt(DebuggerThread thread)
     {
-        showSourcePosition(thread);
+        int frame = thread.getSelectedFrame();
+        if (showSource(thread.getClassSourceName(frame), thread.getLineNumber(frame), thread.getName(), false)) {
+            getProject().getExecControls().setVisible(true);
+        }
 
         getProject().getExecControls().showHide(true);
         getProject().getExecControls().makeSureThreadIsSelected(thread);
     }
 
     /**
-     * showSourcePosition - The debugger display needs updating.
+     * Display a source file from this package at the specified position.
      */
-    public void showSourcePosition(DebuggerThread thread)
+    public void showSourcePosition(String sourceName, int lineNumber)
     {
-        int frame = thread.getSelectedFrame();
-        if (showSource(thread.getClassSourceName(frame), thread.getLineNumber(frame), thread.getName(), false)) {
+        if (showSource(sourceName, lineNumber, null, false)) {
             getProject().getExecControls().setVisible(true);
-            //getProject().getExecControls().makeSureThreadIsSelected(thread);
         }
     }
-
+    
     /**
      * Display an exception message. This is almost the same as "errorMessage"
      * except for different help texts.
