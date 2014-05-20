@@ -68,6 +68,7 @@ import bluej.testmgr.record.GetInvokerRecord;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.testmgr.record.ObjectInspectInvokerRecord;
 import bluej.utility.DialogManager;
+import bluej.utility.JavaNames;
 
 /**
  * A window that displays the fields in an object or a method return value.
@@ -404,7 +405,14 @@ public class ObjectInspector extends Inspector
                 setButtonsEnabled(true, true);
             }
             else {
-                setButtonsEnabled(true, false);
+                boolean canGet = false;
+                if (! Modifier.isPrivate(field.getModifiers())) {
+                    // If the field is package-private and we are in the right package,
+                    // we'll allow the get operation:
+                    String fieldPkg = JavaNames.getPrefix(field.getDeclaringClassName());
+                    canGet = fieldPkg.equals(pkg.getQualifiedName());
+                }
+                setButtonsEnabled(true, canGet);
             }
         }
         else {
