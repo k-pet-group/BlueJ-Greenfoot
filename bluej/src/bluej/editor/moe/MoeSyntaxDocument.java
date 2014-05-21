@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2012,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2012,2013,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -66,6 +66,11 @@ public class MoeSyntaxDocument extends PersistentMarkDocument
     private NodeTree<ReparseRecord> reparseRecordTree;
     
     private MoeDocumentListener listener;
+    
+    /** Tasks scheduled for when we are not locked */ 
+    private Runnable[] scheduledUpdates;
+    protected boolean inNotification = false;
+    protected boolean runningScheduledUpdates = false;
     
     private class PendingError
     {
@@ -519,6 +524,32 @@ public class MoeSyntaxDocument extends PersistentMarkDocument
     }
     
     /**
+     * Schedule a document update to be run at a suitable time (after all current
+     * document notifications have been dispatched to listeners). This can be
+     * used to avoid locking issues (AbstractDocument does not allow document
+     * modifications to be made from within listener callbacks).
+     */
+    public void scheduleUpdate(Runnable r)
+    {
+        if (! inNotification) {
+            // If we're not actually in the listener notification, just run the update immediately:
+            r.run();
+            return;
+        }
+        
+        if (scheduledUpdates == null) {
+            scheduledUpdates = new Runnable[1];
+        }
+        else {
+            Runnable[] newScheduledTasks = new Runnable[scheduledUpdates.length + 1];
+            System.arraycopy(scheduledUpdates, 0, newScheduledTasks, 0, scheduledUpdates.length);
+            scheduledUpdates = newScheduledTasks;
+        }
+        
+        scheduledUpdates[scheduledUpdates.length - 1] = r;        
+    }
+    
+    /**
      * Get an integer value from a property whose value is hex-encoded.
      * @param propName  The name of the property
      * @param def       The default value if the property is undefined or
@@ -542,6 +573,7 @@ public class MoeSyntaxDocument extends PersistentMarkDocument
     @Override
     protected void fireInsertUpdate(DocumentEvent e)
     {
+        inNotification = true;
         if (reparseRecordTree != null) {
             NodeAndPosition<ReparseRecord> napRr = reparseRecordTree.findNodeAtOrAfter(e.getOffset());
             if (napRr != null) {
@@ -560,6 +592,20 @@ public class MoeSyntaxDocument extends PersistentMarkDocument
         }
         recordEvent(e);
         super.fireInsertUpdate(mse);
+        inNotification = false;
+        
+        // Sometimes a callback wants to modify the document. AbstractDocument doesn't allow that;
+        // we have 'scheduled updates' to work around the problem.
+        if (scheduledUpdates != null && ! runningScheduledUpdates) {
+            // Mark the queue as running, to avoid running it twice:
+            runningScheduledUpdates = true;
+            for (int i = 0; i < scheduledUpdates.length; i++) {
+                // Note the callback may schedule further updates!
+                scheduledUpdates[i].run();
+            }
+            scheduledUpdates = null;
+            runningScheduledUpdates = false;
+        }
     }
     
     /* 

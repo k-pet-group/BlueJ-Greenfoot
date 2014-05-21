@@ -83,7 +83,6 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
-import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
@@ -786,7 +785,7 @@ public final class MoeEditor extends JFrame
         // This may be a callback in response to a modification event.
         // If we try to remove breakpoints during the modification notification,
         // AbstractDocument throws an exception.
-        EventQueue.invokeLater(new Runnable() {
+        getSourceDocument().scheduleUpdate(new Runnable() {
             @Override
             public void run()
             {
@@ -1285,9 +1284,7 @@ public final class MoeEditor extends JFrame
         
         // This may handle re-indentation; as this mutates the
         // document, it must be done outside the notification.
-        // Really, this should be done via another mechanism - i.e.
-        // by binding '}' key to a specialised action. TODO.
-        SwingUtilities.invokeLater(doTextInsert);
+        ((MoeSyntaxDocument) e.getDocument()).scheduleUpdate(doTextInsert);
         
         recordEdit(false);        
         
