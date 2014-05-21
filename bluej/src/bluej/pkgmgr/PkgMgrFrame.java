@@ -876,6 +876,8 @@ public class PkgMgrFrame extends JFrame
             clearTextEval();
             updateTextEvalBackground(true);
             showJavaMEcontrols(false);
+            
+            editor.graphClosed();
         }
 
         getPackage().closeAllEditors();
@@ -884,7 +886,6 @@ public class PkgMgrFrame extends JFrame
 
         Project proj = getProject();
 
-        editor.graphClosed();
         editor = null;
         pkg = null;
 
