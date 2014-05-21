@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -31,6 +31,7 @@ import bluej.pkgmgr.Import;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
+import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 import bluej.utility.SwingWorker;
@@ -93,6 +94,13 @@ public class CheckoutAction extends TeamAction
                         Config.getString("team.checkout.filechooser.button"), true, true);
                 
                 if (parentDir != null) {
+                    
+                    if (Package.isPackage(parentDir)) {
+                        Debug.message("Attempted to checkout a project into an existing project: " + parentDir);
+                        DialogManager.showError(null, "team-cannot-import-into-existing-project");
+                        return;
+                    }
+                    
                     File projectDir = new File(parentDir, moduleName);
                     if (projectDir.exists()) {
                         DialogManager.showError(null, "directory-exists");

@@ -40,9 +40,6 @@ Name of compiler:
 compiler-error
 Compiler error:
 
-stream-incomplete
-Compiler error. Error stream incomplete.
-
 out-of-bounds
 Element specified is not
 within array bounds.
@@ -382,10 +379,6 @@ Replace
 Cancel
 null
 
-no-search-string
-No search string is defined.
-(Highlight some text or use 'Find' first.)
-
 default-keys
 Do you really want to discard all your
 key bindings and set the default
@@ -527,6 +520,10 @@ team-error-saving-project
 An error occurred when trying to save the project files:
 	$
 Committing or updating may have unexpected results.
+
+team-cannot-import-into-existing-project
+You can't import a project into an existing project. Select
+a normal folder as the destination for the import.
 
 not-all-compiled
 Not all classes in this project are compiled. To deploy the MIDlet
