@@ -231,13 +231,20 @@ class VMReference
         
         // Index for where the transport parameter is to be added
         transportIndex = paramList.size();
+
+        streamEncoding = Config.getPropString("bluej.terminal.encoding", null);
+        isDefaultEncoding = (streamEncoding == null);
+        if (! isDefaultEncoding) {
+            // Set the input/output encoding to the same as the terminal encoding, to avoid confusion
+            // that mismatching these two causes. See bug #509.
+            paramList.add("-Dfile.encoding=" + streamEncoding);
+        }
+        
         paramList.add(SERVER_CLASSNAME);
         
         // set output encoding if specified, default is to use system default
         // this gets passed to ExecServer's main as an arg which can then be 
         // used to specify encoding
-        streamEncoding = Config.getPropString("bluej.terminal.encoding", null);
-        isDefaultEncoding = (streamEncoding == null);
         if(!isDefaultEncoding) {
             paramList.add(streamEncoding);
         }

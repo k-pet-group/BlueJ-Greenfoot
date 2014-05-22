@@ -417,6 +417,8 @@ bluej.terminal.recordcalls=false
 bluej.terminal.buffering=false
 
 # If not specified, the VM default encoding will be used.
+# Note that this also sets the file.encoding property (default encoding)
+# for the user VM.
 bluej.terminal.encoding=UTF-8
 
 
