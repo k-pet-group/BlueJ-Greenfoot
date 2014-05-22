@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2013,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -57,7 +57,8 @@ public class SvnModulesCommand extends SvnCommand
         
         try {
             if (! isCancelled()) {
-                client.list(getRepository().getReposUrl(), Revision.HEAD, Revision.BASE, Depth.immediates, DirEntry.Fields.all, false,
+                client.list(getRepository().getReposUrl(), Revision.HEAD, Revision.HEAD, Depth.immediates,
+                        DirEntry.Fields.nodeKind, false,
                         new ListCallback() {
                       
                             @Override
