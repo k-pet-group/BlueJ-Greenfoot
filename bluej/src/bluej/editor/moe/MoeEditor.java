@@ -604,26 +604,28 @@ public final class MoeEditor extends JFrame
         switchToSourceView();
         
         Element line = getSourceLine((int) diagnostic.getStartLine());
-        int pos = line.getStartOffset();
-        
-        // Limit diagnostic display to a single line.
-        int startPos = getPosFromColumn(line, (int) diagnostic.getStartColumn());
-        int endPos;
-        if (diagnostic.getStartLine() != diagnostic.getEndLine()) {
-            endPos = line.getEndOffset() - 1;
-        }
-        else {
-            endPos = getPosFromColumn(line, (int) diagnostic.getEndColumn());
-        }
-        
-        // highlight the error and the line on which it occurs
+        if (line != null) {
+            int pos = line.getStartOffset();
 
-        errorManager.removeErrorHighlight();
-        errorManager.addErrorHighlight(startPos, endPos);
-        
-        sourcePane.setCaretPosition(pos);
-        sourcePane.moveCaretPosition(line.getEndOffset() - 1); // w/o line break
-        moeCaret.setPersistentHighlight();
+            // Limit diagnostic display to a single line.
+            int startPos = getPosFromColumn(line, (int) diagnostic.getStartColumn());
+            int endPos;
+            if (diagnostic.getStartLine() != diagnostic.getEndLine()) {
+                endPos = line.getEndOffset() - 1;
+            }
+            else {
+                endPos = getPosFromColumn(line, (int) diagnostic.getEndColumn());
+            }
+
+            // highlight the error and the line on which it occurs
+
+            errorManager.removeErrorHighlight();
+            errorManager.addErrorHighlight(startPos, endPos);
+
+            sourcePane.setCaretPosition(pos);
+            sourcePane.moveCaretPosition(line.getEndOffset() - 1); // w/o line break
+            moeCaret.setPersistentHighlight();
+        }
 
         // display the message
 
@@ -2623,7 +2625,13 @@ public final class MoeEditor extends JFrame
      */
     private Element getSourceLine(int lineNo)
     {
-        return sourceDocument.getDefaultRootElement().getElement(lineNo - 1);
+        Element map = sourceDocument.getDefaultRootElement();
+        if (map.getElementCount() >= lineNo) {
+            return sourceDocument.getDefaultRootElement().getElement(lineNo - 1);
+        }
+        else {
+            return null;
+        }
     }
 
     // --------------------------------------------------------------------
