@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2013,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -348,12 +348,8 @@ public final class Terminal extends JFrame
             clear();
         }
         if(recordMethodCalls) {
-            if (isVoid) {
-                text.appendMethodCall(callString + ";\n");
-            }
-            else {
-                text.appendMethodCall(callString + "\n");
-            }
+            // If isVoid, it will have a ';' anyway.
+            text.appendMethodCall(callString + "\n");
         }
         newMethodCall = true;
     }
