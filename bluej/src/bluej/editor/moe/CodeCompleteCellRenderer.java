@@ -45,14 +45,14 @@ import java.awt.Color;
 public class CodeCompleteCellRenderer extends JPanel implements ListCellRenderer
 {
     /** label showing the return type */
-    private JLabel typeLabel = new JLabel();
+    private final JLabel typeLabel = new JLabel();
     /** label showing method name and parameters */
-    private JLabel descriptionLabel = new JLabel();
+    private final JLabel descriptionLabel = new JLabel();
     
-    private Dimension rtypeSize;
-    private String immediateType;
-    private Font cfont;
-    private Font cfontBold;
+    private final Dimension rtypeSize;
+    private final String immediateType;
+    private final Font cfont;
+    private final Font cfontBold;
     
     CodeCompleteCellRenderer(String immediateType)
     {

@@ -21,6 +21,13 @@
  */
 package bluej.editor.moe;
 
+import bluej.Config;
+import bluej.parser.AssistContent;
+import bluej.parser.SourceLocation;
+import bluej.parser.lexer.LocatableToken;
+import bluej.prefmgr.PrefMgr;
+import bluej.utility.JavaUtils;
+import bluej.utility.Utility;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -39,11 +46,13 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 import java.awt.event.WindowListener;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.Arrays;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
+import javax.swing.DefaultListModel;
 import javax.swing.InputMap;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
@@ -59,14 +68,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.text.html.HTMLEditorKit;
 
-import bluej.Config;
-import bluej.parser.AssistContent;
-import bluej.parser.SourceLocation;
-import bluej.parser.lexer.LocatableToken;
-import bluej.prefmgr.PrefMgr;
-import bluej.utility.JavaUtils;
-import bluej.utility.Utility;
-
 
 /**
  * Code completion panel for the Moe editor.
@@ -79,11 +80,11 @@ public class CodeCompletionDisplay extends JFrame
     private static final Color msgTextColor = new Color(200,170,100);
 
     private MoeEditor editor;
-    private WindowListener editorListener;
-    private AssistContent[] values;
+    private final WindowListener editorListener;
+    private ArrayList<AssistContent> values;
     private String prefix;
-    private String suggestionType;
-    private SourceLocation prefixBegin;
+    private final String suggestionType;
+    private final SourceLocation prefixBegin;
     private SourceLocation prefixEnd;
 
     private JList methodList;
@@ -99,7 +100,7 @@ public class CodeCompletionDisplay extends JFrame
     public CodeCompletionDisplay(MoeEditor ed, String suggestionType, 
             AssistContent[] values, LocatableToken location) 
     {
-        this.values=values;
+        this.values= new ArrayList<AssistContent>(Arrays.asList(values));
         this.suggestionType = suggestionType;
         makePanel();
         editor=ed;
@@ -152,7 +153,7 @@ public class CodeCompletionDisplay extends JFrame
     /**
      * Close the code completion display window.
      */
-    private void doClose()
+    public void doClose()
     {
         editor.removeWindowListener(editorListener);
         dispose();
@@ -209,7 +210,7 @@ public class CodeCompletionDisplay extends JFrame
         }
         methodDescription.setFont(methodDescription.getFont().deriveFont((float)PrefMgr.getEditorFontSize()));
         
-        methodList = new JList();
+        methodList = new JList(new DefaultListModel());
         methodList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         methodList.addListSelectionListener(this);
         methodList.addMouseListener(this);
@@ -349,20 +350,40 @@ public class CodeCompletionDisplay extends JFrame
         pack();
     }
 
+    /*
+    * whenever the prefix changes (including the creation of the codeCompletionDisplay), this method is called.
+    * It searches this.values for the elements that should be displayed and creates a new model with 
+    * those elements. If there is no such elements, then displays a message.
+    */
     private void updatePrefix()
     {
-        Vector<AssistContent> listData = new Vector<AssistContent>();
-        for (int i=0; i<values.length; i++ ) {
-            if (values[i].getDisplayName().startsWith(prefix)) {
-                listData.add(values[i]);
+        DefaultListModel tmpListModel = new DefaultListModel();
+        for (AssistContent value : values) {
+            if (value.getDisplayName().startsWith(prefix)) {
+                tmpListModel.addElement(value);
             }
         }
-        methodList.setListData(listData);
+        methodList.setModel(tmpListModel);
         methodList.setSelectedIndex(0);
 
-        getGlassPane().setVisible(listData.isEmpty());
+        getGlassPane().setVisible(tmpListModel.isEmpty());
     }
-    
+
+    /*
+    * This method is called by PopulateCompletionsWorker in MoeEditor.
+    * it adds the AssistContent to the listModel (displayed) and to the 
+    * list of possible completions (values) for the update method.
+    */
+    public void addElement(AssistContent element) {
+        DefaultListModel listModel = (DefaultListModel) methodList.getModel();
+        if (!listModel.contains(element)) {
+            if (element.getDisplayName().startsWith(prefix)){
+                listModel.addElement(element);
+            }
+            this.values.add(element);
+        }
+        getGlassPane().setVisible(listModel.isEmpty());
+    }
     /**
      * Populate the completion list.
      */
@@ -557,7 +578,7 @@ public class CodeCompletionDisplay extends JFrame
         }
         return myGlassPane;
     }
-
+    
     /**
      * A glass pane which displays a "no matching completions" message. 
      */

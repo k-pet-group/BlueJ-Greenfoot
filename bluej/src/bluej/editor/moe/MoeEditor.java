@@ -105,10 +105,13 @@ import bluej.BlueJEventListener;
 import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.compiler.Diagnostic;
+import bluej.debugger.gentype.GenTypeClass;
+import bluej.debugger.gentype.Reflective;
 import bluej.editor.EditorWatcher;
 import bluej.parser.AssistContent;
 import bluej.parser.CodeSuggestions;
-import bluej.parser.ParseUtils;
+import static bluej.parser.ParseUtils.discoverElement;
+import static bluej.parser.ParseUtils.initGetPossibleCompletions;
 import bluej.parser.SourceLocation;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.lexer.LocatableToken;
@@ -123,6 +126,10 @@ import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 import bluej.utility.GradientFillPanel;
 import bluej.utility.Utility;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Set;
+import javax.swing.SwingWorker;
 
 /**
  * Moe is the editor of the BlueJ environment. This class is the main class of
@@ -3648,37 +3655,164 @@ public final class MoeEditor extends JFrame
         removeSelection(sourcePane);
         removeSelection(htmlPane);
     }
+ 
+    /*
+    * PopulateCompletionsWorker creates a thread that searches for code completion suggestions and populate 
+    * the JList interactively.
+    * This change of behaviour was introduced to improve usability on the Raspberry Pi when dealing with methods
+    * with many suggestions.
+    */
+    class PopulateCompletionsWorker extends SwingWorker<AssistContent[], AssistContent> {
 
-    /**
-     * Create and pop up the content assist (code completion) dialog.
-     */
-    protected void createContentAssist()
-    {
-        //need to recreate the dialog each time it is pressed as the values may be different 
-        CodeSuggestions suggests = sourceDocument.getParser().getExpressionType(sourcePane.getCaretPosition(),
-                sourceDocument);
-        if (suggests != null) {
-            LocatableToken suggestToken = suggests.getSuggestionToken();
-            AssistContent[] values = ParseUtils.getPossibleCompletions(suggests, "", javadocResolver);
-            if (values != null && values.length > 0) {
-                CodeCompletionDisplay codeCompletionDlg = new CodeCompletionDisplay(this, 
-                        suggests.getSuggestionType().toString(false), 
-                        values, suggestToken);
-                int cpos = sourcePane.getCaretPosition();
-                try {
-                    Rectangle pos = sourcePane.modelToView(cpos);
-                    Point spLoc = sourcePane.getLocationOnScreen();
-                    int xpos = pos.x + spLoc.x;
-                    int ypos = pos.y + pos.height + spLoc.y;
+        CodeCompletionDisplay codeCompletionDlg;
+        MoeEditor moe;
+        CodeSuggestions suggests;
+        LocatableToken suggestToken;
+        
+        
+        int xpos = 0, ypos = 0;
+
+        public PopulateCompletionsWorker(MoeEditor m, CodeSuggestions sug, LocatableToken sugT, int x, int y) {
+            this.moe = m;
+            this.suggests = sug;
+            this.suggestToken = sugT;
+            this.xpos = x;
+            this.ypos = y;
+            
+        }
+
+        
+        /*
+        * This method is based on the ParseUtils.getPossibleCompletions. 
+        * However it has to be inside the doInBackground() method in order to populate the code completion
+        * JList while still looking for completions. 
+        * This change was introduced in order to improve feedback to the user when using a Raspberry Pi.
+        */
+        @Override
+        protected AssistContent[] doInBackground() throws Exception {
+            GenTypeClass exprType = initGetPossibleCompletions(suggests, javadocResolver);
+            if (exprType != null) {
+                //process queue and publish partial results.
+                List<AssistContent> completions = processQueueInBackground(exprType, suggests, javadocResolver);
+
+                return completions.toArray(new AssistContent[completions.size()]);
+            }
+            return null;
+        }
+        
+        /*
+        * This method is adpted from ParseUtils.processQueue, however the partial results are published.
+        */
+        private List<AssistContent> processQueueInBackground(GenTypeClass exprType, CodeSuggestions suggests,
+                JavadocResolver javadocResolver)
+        {
+            GenTypeClass accessType = suggests.getAccessType();
+            Reflective accessReflective = (accessType != null) ? accessType.getReflective() : null;
+
+            // Use two sets, one to keep track of which types we have already processed,
+            // another for individual methods.
+            Set<String> contentSigs = new HashSet<String>();
+            Set<String> typesDone = new HashSet<String>();
+            List<AssistContent> completions = new ArrayList<AssistContent>();
+
+            LinkedList<GenTypeClass> typeQueue = new LinkedList<GenTypeClass>();
+            typeQueue.add(exprType);
+            GenTypeClass origExprType = exprType;
+
+            while (!typeQueue.isEmpty()) {
+                AssistContent assistContent = discoverElement(exprType, typeQueue, typesDone, accessReflective, origExprType, suggests,
+                        javadocResolver, contentSigs, completions);
+                if (assistContent != null) {
+                    publish(assistContent); //show the partial results.
+                }
+
+            }
+            return completions;
+
+        }
+
+        /*
+        * displays the values published by processQueueInBackground.
+        */
+        @Override
+        protected void process(List<AssistContent> chunks) {
+            if (chunks != null && !chunks.isEmpty()) {
+                //there are elements to show
+                if (codeCompletionDlg == null) {
+                    AssistContent[] initialElements = chunks.toArray(new AssistContent[chunks.size()]);
+                    codeCompletionDlg = new CodeCompletionDisplay(this.moe,
+                            suggests.getSuggestionType().toString(false),
+                            initialElements, suggestToken);
                     codeCompletionDlg.setLocation(xpos, ypos);
                     codeCompletionDlg.setVisible(true);
                     codeCompletionDlg.requestFocus();
-                    return;
+                } else {
+                    //component was already created. update it.
+                    for (AssistContent element : chunks) {
+                        codeCompletionDlg.addElement(element);
+                    }
                 }
-                catch (BadLocationException ble) {}
             }
         }
-        info.warning("No completions available.");
+        
+        
+        /*
+        * This method is called when processing is done.
+        */
+        @Override
+        protected void done() {
+            System.out.println("Done");
+            try {
+                AssistContent[] result = get();
+                if (result != null && result.length == 0) {
+                    //set message on status bar
+                    info.warning("No completions available.");
+                } else {
+                    for (AssistContent element:result){
+                        codeCompletionDlg.addElement(element);
+                    }
+                }
+            } catch (Exception ie) {
+            }
+
+        }
+    };
+    
+    /**
+     * Create and pop up the content assist (code completion) dialog.
+     */
+    protected void createContentAssist() {
+        //need to recreate the dialog each time it is pressed as the values may be different 
+        CodeSuggestions suggests = sourceDocument.getParser().getExpressionType(sourcePane.getCaretPosition(),
+                sourceDocument);
+        LocatableToken suggestToken;
+         int cpos;
+        Rectangle pos;
+        Point spLoc;
+        int xpos = 0, ypos = 0;
+        //get screen positioning too.
+            cpos = sourcePane.getCaretPosition();
+            try {
+                pos = sourcePane.modelToView(cpos);
+                spLoc = sourcePane.getLocationOnScreen();
+                xpos = pos.x + spLoc.x;
+                ypos = pos.y + pos.height + spLoc.y;
+            } catch (BadLocationException ble) {
+            }
+        if (suggests != null) {
+            suggestToken = suggests.getSuggestionToken();
+            PopulateCompletionsWorker worker = new PopulateCompletionsWorker(this, suggests, suggestToken, xpos, ypos);
+            worker.execute();
+//                return;
+            } else {
+            //no completions found. no need to search.
+             info.warning("No completions available.");
+             CodeCompletionDisplay codeCompletionDlg = new CodeCompletionDisplay(this,
+                            null, new AssistContent[0], null);
+            codeCompletionDlg.setLocation(xpos, ypos);
+            codeCompletionDlg.setVisible(true);
+            codeCompletionDlg.requestFocus();
+        }
     }
 
     /**
