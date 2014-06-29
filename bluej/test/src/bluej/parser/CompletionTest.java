@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -784,7 +784,7 @@ public class CompletionTest extends TestCase
         assertNotNull(suggests);
         assertEquals("java.util.List<?>", suggests.getSuggestionType().toString());
         
-        AssistContent [] assists = ParseUtils.getPossibleCompletions(suggests, "", new JavadocResolver() {
+        AssistContent [] assists = ParseUtils.getPossibleCompletions(suggests, new JavadocResolver() {
             public void getJavadoc(MethodReflective method)
             {
                 // We want to check that the return type has an erased type.
@@ -854,7 +854,7 @@ public class CompletionTest extends TestCase
         CodeSuggestions suggests = aNode.getExpressionType(57, doc);
         assertNotNull(suggests);
         
-        AssistContent[] acontent = ParseUtils.getPossibleCompletions(suggests, "", new JavadocResolver() {
+        AssistContent[] acontent = ParseUtils.getPossibleCompletions(suggests, new JavadocResolver() {
             @Override
             public void getJavadoc(MethodReflective method)
             {
