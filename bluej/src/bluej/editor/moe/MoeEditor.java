@@ -3802,7 +3802,6 @@ public final class MoeEditor extends JFrame
             suggestToken = suggests.getSuggestionToken();
             PopulateCompletionsWorker worker = new PopulateCompletionsWorker(this, suggests, suggestToken, xpos, ypos);
             worker.execute();
-//                return;
             } else {
             //no completions found. no need to search.
              info.warning("No completions available.");

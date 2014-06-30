@@ -142,7 +142,10 @@ public class ParseUtils
     }
     
     
-    
+    /*
+    * This method discovers and returns one completion (last one if any) and updates the typeQueue for further 
+    * prcessing by processQueue.
+    */
     public static AssistContent discoverElement(GenTypeClass exprType, LinkedList<GenTypeClass> typeQueue,
             Set<String> typesDone, Reflective accessReflective, GenTypeClass origExprType, CodeSuggestions suggests,
             JavadocResolver javadocResolver, Set<String> contentSigs, List<AssistContent> completions)
