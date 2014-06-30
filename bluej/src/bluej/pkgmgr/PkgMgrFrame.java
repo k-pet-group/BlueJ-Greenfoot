@@ -1301,12 +1301,20 @@ public class PkgMgrFrame extends JFrame
         if (newnameFile == null)
             return false;
 
-        if(newnameFile.exists()) {
-            Debug.message("Attempt to create project with existing directory: " + newnameFile.getAbsolutePath());
-            DialogManager.showErrorWithText(null, "directory-exists", newnameFile.getPath());
-            return false;
+        if (newnameFile.exists()) {
+            if (! newnameFile.isDirectory()) {
+                DialogManager.showError(null, "directory-exists-file");
+                return false;
+            }
+            else if (newnameFile.list().length > 0) {
+                Debug.message("Attempt to create project with existing non-empty directory: " + newnameFile.getAbsolutePath());
+                DialogManager.showError(null, "directory-exists-non-empty");
+                return false;
+            }
+            // directory exists but is empty - fall through:
         }
-        else if( ! newProject( newnameFile.getAbsolutePath(), isJavaMEproject ) ) {
+        
+        if (! newProject(newnameFile.getAbsolutePath(), isJavaMEproject)) {
             DialogManager.showErrorWithText(null, "cannot-create-directory", newnameFile.getPath());
             return false;
         }
