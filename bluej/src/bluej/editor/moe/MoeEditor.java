@@ -3761,7 +3761,6 @@ public final class MoeEditor extends JFrame
         */
         @Override
         protected void done() {
-            System.out.println("Done");
             try {
                 AssistContent[] result = get();
                 if (result != null && result.length == 0) {
