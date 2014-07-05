@@ -16,13 +16,13 @@ cut-end-of-line=\n Vystrihn\u00fa\u0165 zvy\u0161ok riadka a\u00a0vlo\u017ei\u01
 cut-word=\n Vystrihn\u00fa\u0165 slovo a\u00a0vlo\u017ei\u0165 ho do schr\u00e1nky.
 cut-end-of-word=\n Vystrihn\u00fa\u0165 text od kurzora do konca slova a\u00a0vlo\u017ei\u0165 ho do schr\u00e1nky.
 paste-from-clipboard=\n Prilepi\u0165 text zo schr\u00e1nky na aktu\u00e1lny poz\u00edciu kurzora.
-indent=\n Ak je v\u00a0predvo\u013eb\u00e1ch zapnut\u00e1 vo\u013eba \u201eautomatick\u00e9 odsadenie\u201c,\n odsad\u00ed riadok pod\u013ea predch\u00e1dzaj\u00faceho riadka. \n V\u00a0opa\u010dnom pr\u00edpade vlo\u017e\u00ed m\u00e4kk\u00fd TAB (medzerami).
-insert-tab=\n Vlo\u017ei\u0165 znak TAB.
-new-line=\n Vlo\u017ei\u0165 koniec riadka. Ak je v\u00a0predvo\u013eb\u00e1ch zapnut\u00e1 vo\u013eba\n \u201eautomatick\u00e9 odsadenie\u201c, odsad\u00ed riadok pod\u013ea predch\u00e1dzaj\u00faceho riadka.
-insert-break=\n Vlo\u017ei\u0165 koniec riadka bez odsadenia nov\u00e9ho riadka.
+indent=\n Ak je v\u00a0predvo\u013eb\u00e1ch zapnut\u00e1 vo\u013eba \u201eautomatick\u00e9 odsadenie\u201c,\n odsad\u00ed riadok pod\u013ea predch\u00e1dzaj\u00faceho riadka. \n V\u00a0opa\u010dnom pr\u00edpade vlo\u017e\u00ed m\u00e4kk\u00fd tabul\u00e1tor (reprezentovan\u00fd medzerami).
+insert-tab=\n Vlo\u017ei\u0165 znak tabul\u00e1tora.
+new-line=\n Vlo\u017ei\u0165 nov\u00fd riadok. Ak je v\u00a0predvo\u013eb\u00e1ch zapnut\u00e1 vo\u013eba\n \u201eautomatick\u00e9 odsadenie\u201c, odsad\u00ed nov\u00fd riadok pod\u013ea predch\u00e1dzaj\u00faceho riadka.
+insert-break=\n Vlo\u017ei\u0165 nov\u00fd riadok bez odsadenia nov\u00e9ho riadka.
 insert-method=\n Vlo\u017ei\u0165 kostru met\u00f3dy.
-comment-block=\n Ozna\u010di\u0165 vybran\u00e9 riadky ako koment\u00e1r. Zakomentovanie m\u00f4\u017ee by\u0165 zru\u0161en\u00e9\n pr\u00edkazom uncomment-block (odkomentova\u0165 blok).
-uncomment-block=\n Odkomentova\u0165 vybran\u00e9 riadky. Pozri tie\u017e comment-block (zakomentova\u0165 blok).
+comment-block=\n Ozna\u010di\u0165 vybran\u00e9 riadky ako koment\u00e1r. Koment\u00e1r m\u00f4\u017ee by\u0165 zru\u0161en\u00fd\n pr\u00edkazom uncomment-block (zru\u0161i\u0165 koment\u00e1r bloku).
+uncomment-block=\n Zru\u0161i\u0165 koment\u00e1r vo vybran\u00fdch riadkoch. Pozri tie\u017e comment-block (komentova\u0165 blok).
 indent-block=\n Zv\u00e4\u010d\u0161i\u0165 odsadenie vybran\u00fdch riadkov o\u00a0jednu \u00farove\u0148.
 deindent-block=\n Zmen\u0161i\u0165 odsadenie vybran\u00fdch riadkov o\u00a0jednu \u00farove\u0148.
 increase-font=\n Zv\u00e4\u010d\u0161i\u0165 ve\u013ekos\u0165 p\u00edsma o\u00a01
@@ -78,10 +78,12 @@ close=\n Zavrie\u0165 t\u00fato triedu. Zdrojov\u00fd k\u00f3d je automaticky ul
 print=\n Otvori\u0165 tla\u010dov\u00fd dial\u00f3g na zah\u00e1jenie tla\u010de.
 page-setup=\n Otvori\u0165 dial\u00f3g s\u00a0nastaven\u00edm vzh\u013eadu tla\u010dovej str\u00e1nky.
 
+
 ## customisation functions
 
 key-bindings=\n Prezrie\u0165 a\u00a0nastavi\u0165 priradenie kl\u00e1vesov\u00fdch skratiek Moe editora.
 preferences=\n Nastavi\u0165 predvo\u013eby editora.
+
 
 ## help functions
 
@@ -89,6 +91,7 @@ describe-key=\n Po vyvolan\u00ed tejto akcie a\u00a0n\u00e1slednom stla\u010den\
 help-mouse=\n Zobrazi\u0165 priradenie tla\u010didiel my\u0161i.
 show-manual=\n Otvori\u0165 prehliada\u010d a\u00a0zobrazi\u0165 n\u00e1vod k\u00a0editoru Moe.
 about-editor=\n Zobrazi\u0165 kr\u00e1tku pozn\u00e1mku k\u00a0Moe editoru.
+
 
 ## misc functions
 

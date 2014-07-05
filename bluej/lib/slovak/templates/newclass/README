@@ -30,7 +30,7 @@ Ak bude názov začínať akokoľvek inak, bude súbor považovaný za šablónu
 štandardnej triedy.
 
 Všetky pridané šablóny budú uvedené na konci zoznamu v dialógu „Nová trieda…“
-pod menom zhodujúcim sa s názvom súboru šablóny bez prípony (napr. „mainclass“).
+s menom zhodujúcim sa s názvom súboru šablóny bez prípony (napr. „mainclass“).
 
 Meno zobrazené v tomto zozname môže byť upravené prostredníctvom vlastnosti
 „pkgmgr.newClass.<názov-šablóny>“ v konfiguračnom súbore „labels“ (umiestnenom
