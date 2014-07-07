@@ -69,7 +69,7 @@ public class ParseUtils
         int depth = 0;
     }
     
-        /**
+     /**
      * Get the possible code completions, based on the provided suggestions and string prefix.
      * If there are can be no valid completions in the give context, returns null.
      * If there are valid completions but the given prefix doesn't match any of them,
@@ -119,7 +119,7 @@ public class ParseUtils
         return null; // no completions
     }
     
-    private static List<AssistContent> processQueue(GenTypeClass exprType, CodeSuggestions suggests,
+    protected static List<AssistContent> processQueue(GenTypeClass exprType, CodeSuggestions suggests,
             JavadocResolver javadocResolver) {
         GenTypeClass accessType = suggests.getAccessType();
         Reflective accessReflective = (accessType != null) ? accessType.getReflective() : null;
@@ -135,8 +135,41 @@ public class ParseUtils
         GenTypeClass origExprType = exprType;
 
         while (!typeQueue.isEmpty()) {
-            discoverElement(exprType, typeQueue, typesDone, accessReflective, origExprType, suggests,
-                    javadocResolver, contentSigs, completions);
+            exprType = typeQueue.removeFirst();
+
+            if (!typesDone.add(exprType.getReflective().getName())) {
+                // we've already done this type...
+                continue;
+            }
+            Map<String, Set<MethodReflective>> methods = exprType.getReflective().getDeclaredMethods();
+            Map<String, GenTypeParameter> typeArgs = exprType.getMap();
+
+            for (String name : methods.keySet()) {
+                Set<MethodReflective> mset = methods.get(name);
+                for (MethodReflective method : mset) {
+                    if (accessReflective != null
+                            && !JavaUtils.checkMemberAccess(method.getDeclaringType(),
+                                    origExprType,
+                                    suggests.getAccessType().getReflective(),
+                                    method.getModifiers(), suggests.isStatic())) {
+                        continue;
+                    }
+                    discoverElement(javadocResolver, contentSigs, completions, typeArgs, method);
+
+                    for (GenTypeClass stype : exprType.getReflective().getSuperTypes()) {
+                        if (typeArgs != null) {
+                            typeQueue.add(stype.mapTparsToTypes(typeArgs));
+                        } else {
+                            typeQueue.add(stype.getErasedType());
+                        }
+                    }
+
+                    Reflective outer = exprType.getReflective().getOuterClass();
+                    if (outer != null) {
+                        typeQueue.add(new GenTypeClass(outer));
+                    }
+                }
+            }
         }
         return completions;
     }
@@ -146,53 +179,22 @@ public class ParseUtils
     * This method discovers and returns one completion (last one if any) and updates the typeQueue for further 
     * prcessing by processQueue.
     */
-    public static AssistContent discoverElement(GenTypeClass exprType, LinkedList<GenTypeClass> typeQueue,
-            Set<String> typesDone, Reflective accessReflective, GenTypeClass origExprType, CodeSuggestions suggests,
-            JavadocResolver javadocResolver, Set<String> contentSigs, List<AssistContent> completions)
+    public static AssistContent discoverElement(JavadocResolver javadocResolver, Set<String> contentSigs, List<AssistContent> completions, 
+            Map<String, GenTypeParameter> typeArgs, MethodReflective method)
     {
-        exprType = typeQueue.removeFirst();
-        MethodCompletion completion = null;
-        if (!typesDone.add(exprType.getReflective().getName())) {
-            // we've already done this type...
-            return null;
-        }
-        Map<String, Set<MethodReflective>> methods = exprType.getReflective().getDeclaredMethods();
-        Map<String, GenTypeParameter> typeArgs = exprType.getMap();
-
-        for (String name : methods.keySet()) {
-            Set<MethodReflective> mset = methods.get(name);
-            for (MethodReflective method : mset) {
-                if (accessReflective != null
-                        && !JavaUtils.checkMemberAccess(method.getDeclaringType(),
-                                origExprType,
-                                suggests.getAccessType().getReflective(),
-                                method.getModifiers(), suggests.isStatic())) {
-                    continue;
-                }
+                AssistContent result = null;
+                MethodCompletion completion = null;
                 completion = new MethodCompletion(method,
                         typeArgs, javadocResolver);
                 String sig = completion.getDisplayName();
                 if (contentSigs.add(sig)) {
                     completions.add(completion);
+                    result = completion;
                     // Sort the completions by name
-                    Collections.sort(completions, new CompletionComparator());
+//                    Collections.sort(completions, new CompletionComparator());
                 }
-            }
-        }
-
-        for (GenTypeClass stype : exprType.getReflective().getSuperTypes()) {
-            if (typeArgs != null) {
-                typeQueue.add(stype.mapTparsToTypes(typeArgs));
-            } else {
-                typeQueue.add(stype.getErasedType());
-            }
-        }
-
-        Reflective outer = exprType.getReflective().getOuterClass();
-        if (outer != null) {
-            typeQueue.add(new GenTypeClass(outer));
-        }
-        return completion;
+        
+        return result;
     }
     
     /**

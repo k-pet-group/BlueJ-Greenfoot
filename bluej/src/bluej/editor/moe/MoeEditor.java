@@ -106,12 +106,13 @@ import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.compiler.Diagnostic;
 import bluej.debugger.gentype.GenTypeClass;
+import bluej.debugger.gentype.GenTypeParameter;
+import bluej.debugger.gentype.MethodReflective;
 import bluej.debugger.gentype.Reflective;
 import bluej.editor.EditorWatcher;
 import bluej.parser.AssistContent;
 import bluej.parser.CodeSuggestions;
-import static bluej.parser.ParseUtils.discoverElement;
-import static bluej.parser.ParseUtils.initGetPossibleCompletions;
+import bluej.parser.ParseUtils;
 import bluej.parser.SourceLocation;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.lexer.LocatableToken;
@@ -125,9 +126,12 @@ import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 import bluej.utility.GradientFillPanel;
+import bluej.utility.JavaUtils;
 import bluej.utility.Utility;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Set;
 import javax.swing.SwingWorker;
 
@@ -3657,40 +3661,39 @@ public final class MoeEditor extends JFrame
     }
  
     /*
-    * PopulateCompletionsWorker creates a thread that searches for code completion suggestions and populate 
-    * the JList interactively.
-    * This change of behaviour was introduced to improve usability on the Raspberry Pi when dealing with methods
-    * with many suggestions.
-    */
-    class PopulateCompletionsWorker extends SwingWorker<AssistContent[], AssistContent> {
+     * PopulateCompletionsWorker creates a thread that searches for code completion suggestions and populate 
+     * the JList interactively.
+     * This change of behaviour was introduced to improve usability on the Raspberry Pi when dealing with methods
+     * with many suggestions.
+     */
+    class PopulateCompletionsWorker extends SwingWorker<AssistContent[], AssistContent>
+    {
 
         CodeCompletionDisplay codeCompletionDlg;
         MoeEditor moe;
         CodeSuggestions suggests;
         LocatableToken suggestToken;
-        
-        
         int xpos = 0, ypos = 0;
 
-        public PopulateCompletionsWorker(MoeEditor m, CodeSuggestions sug, LocatableToken sugT, int x, int y) {
+        public PopulateCompletionsWorker(MoeEditor m, CodeSuggestions sug, LocatableToken sugT, int x, int y)
+        {
             this.moe = m;
             this.suggests = sug;
             this.suggestToken = sugT;
             this.xpos = x;
             this.ypos = y;
-            
         }
 
-        
         /*
-        * This method is based on the ParseUtils.getPossibleCompletions. 
-        * However it has to be inside the doInBackground() method in order to populate the code completion
-        * JList while still looking for completions. 
-        * This change was introduced in order to improve feedback to the user when using a Raspberry Pi.
-        */
+         * This method is based on the ParseUtils.getPossibleCompletions. 
+         * However it has to be inside the doInBackground() method in order to populate the code completion
+         * JList while still looking for completions. 
+         * This change was introduced in order to improve feedback to the user when using a Raspberry Pi.
+         */
         @Override
-        protected AssistContent[] doInBackground() throws Exception {
-            GenTypeClass exprType = initGetPossibleCompletions(suggests, javadocResolver);
+        protected AssistContent[] doInBackground() throws Exception
+        {
+            GenTypeClass exprType = ParseUtils.initGetPossibleCompletions(suggests, javadocResolver);
             if (exprType != null) {
                 //process queue and publish partial results.
                 List<AssistContent> completions = processQueueInBackground(exprType, suggests, javadocResolver);
@@ -3699,17 +3702,17 @@ public final class MoeEditor extends JFrame
             }
             return null;
         }
-        
+
         /*
-        * This method is adpted from ParseUtils.processQueue, however the partial results are published.
-        */
+         * This method is adpted from ParseUtils.processQueue, however the partial results are published.
+         */
         private List<AssistContent> processQueueInBackground(GenTypeClass exprType, CodeSuggestions suggests,
                 JavadocResolver javadocResolver)
         {
             GenTypeClass accessType = suggests.getAccessType();
             Reflective accessReflective = (accessType != null) ? accessType.getReflective() : null;
 
-            // Use two sets, one to keep track of which types we have already processed,
+        // Use two sets, one to keep track of which types we have already processed,
             // another for individual methods.
             Set<String> contentSigs = new HashSet<String>();
             Set<String> typesDone = new HashSet<String>();
@@ -3720,22 +3723,55 @@ public final class MoeEditor extends JFrame
             GenTypeClass origExprType = exprType;
 
             while (!typeQueue.isEmpty()) {
-                AssistContent assistContent = discoverElement(exprType, typeQueue, typesDone, accessReflective, origExprType, suggests,
-                        javadocResolver, contentSigs, completions);
-                if (assistContent != null) {
-                    publish(assistContent); //show the partial results.
-                }
+                exprType = typeQueue.removeFirst();
 
+                if (!typesDone.add(exprType.getReflective().getName())) {
+                    // we've already done this type...
+                    continue;
+                }
+                Map<String, Set<MethodReflective>> methods = exprType.getReflective().getDeclaredMethods();
+                Map<String, GenTypeParameter> typeArgs = exprType.getMap();
+
+                for (String name : methods.keySet()) {
+                    Set<MethodReflective> mset = methods.get(name);
+                    for (MethodReflective method : mset) {
+                        if (accessReflective != null
+                                && !JavaUtils.checkMemberAccess(method.getDeclaringType(),
+                                        origExprType,
+                                        suggests.getAccessType().getReflective(),
+                                        method.getModifiers(), suggests.isStatic())) {
+                            continue;
+                        }
+                        AssistContent completion = ParseUtils.discoverElement(javadocResolver, contentSigs, completions, typeArgs, method);
+                        if (completion != null) {
+                            publish(completion);
+                        }
+
+                        for (GenTypeClass stype : exprType.getReflective().getSuperTypes()) {
+                            if (typeArgs != null) {
+                                typeQueue.add(stype.mapTparsToTypes(typeArgs));
+                            } else {
+                                typeQueue.add(stype.getErasedType());
+                            }
+                        }
+
+                        Reflective outer = exprType.getReflective().getOuterClass();
+                        if (outer != null) {
+                            typeQueue.add(new GenTypeClass(outer));
+                        }
+                    }
+                }
             }
             return completions;
 
         }
 
         /*
-        * displays the values published by processQueueInBackground.
-        */
+         * displays the values published by processQueueInBackground.
+         */
         @Override
-        protected void process(List<AssistContent> chunks) {
+        protected void process(List<AssistContent> chunks)
+        {
             if (chunks != null && !chunks.isEmpty()) {
                 //there are elements to show
                 if (codeCompletionDlg == null) {
@@ -3748,33 +3784,30 @@ public final class MoeEditor extends JFrame
                     codeCompletionDlg.requestFocus();
                 } else {
                     //component was already created. update it.
-                    for (AssistContent element : chunks) {
-                        codeCompletionDlg.addElement(element);
-                    }
+                    codeCompletionDlg.addElements(chunks);
                 }
             }
         }
-        
-        
+
         /*
-        * This method is called when processing is done.
-        */
+         * This method is called when processing is done.
+         */
         @Override
-        protected void done() {
+        protected void done()
+        {
             try {
                 AssistContent[] result = get();
                 if (result != null && result.length == 0) {
                     //set message on status bar
                     info.warning("No completions available.");
                 } else {
-                    for (AssistContent element:result){
-                        codeCompletionDlg.addElement(element);
-                    }
+                    //update the JList.
+                    codeCompletionDlg.addElements(Arrays.asList(result));
                 }
             } catch (Exception ie) {
             }
-
         }
+        
     };
     
     /**

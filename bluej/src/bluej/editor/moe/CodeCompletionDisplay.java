@@ -48,6 +48,11 @@ import java.awt.event.WindowFocusListener;
 import java.awt.event.WindowListener;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+import java.util.TreeSet;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ActionMap;
@@ -68,7 +73,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.text.html.HTMLEditorKit;
 
-
 /**
  * Code completion panel for the Moe editor.
  * 
@@ -81,7 +85,7 @@ public class CodeCompletionDisplay extends JFrame
 
     private MoeEditor editor;
     private final WindowListener editorListener;
-    private ArrayList<AssistContent> values;
+    private TreeSet<AssistContent> values;
     private String prefix;
     private final String suggestionType;
     private final SourceLocation prefixBegin;
@@ -91,6 +95,7 @@ public class CodeCompletionDisplay extends JFrame
     private JEditorPane methodDescription; 
 
     private JComponent pane;
+    private TreeSet<AssistContent> jListData;
 
     /**
      * Construct a code completion display panel, for the given editor and with the given
@@ -98,9 +103,13 @@ public class CodeCompletionDisplay extends JFrame
      * requesting suggestions (if any - it may be null).
      */
     public CodeCompletionDisplay(MoeEditor ed, String suggestionType, 
-            AssistContent[] values, LocatableToken location) 
+            AssistContent[] assistContents, LocatableToken location) 
     {
-        this.values= new ArrayList<AssistContent>(Arrays.asList(values));
+        this.values= new TreeSet<AssistContent>(new TreeComparator());
+        
+        Arrays.sort(assistContents, new TreeComparator());
+        this.values.addAll(Arrays.asList(assistContents));
+        
         this.suggestionType = suggestionType;
         makePanel();
         editor=ed;
@@ -129,7 +138,7 @@ public class CodeCompletionDisplay extends JFrame
             @Override
             public void windowLostFocus(WindowEvent e)
             {
-                doClose();
+//                doClose();
             }
         });
         
@@ -357,33 +366,39 @@ public class CodeCompletionDisplay extends JFrame
     */
     private void updatePrefix()
     {
-        DefaultListModel tmpListModel = new DefaultListModel();
-        for (AssistContent value : values) {
+        jListData = new TreeSet<AssistContent>(new TreeComparator());
+        Iterator<AssistContent> i = values.iterator();
+        AssistContent value;
+        while(i.hasNext()) {
+            value = i.next();
             if (value.getDisplayName().startsWith(prefix)) {
-                tmpListModel.addElement(value);
+                jListData.add(value);
             }
         }
-        methodList.setModel(tmpListModel);
+        methodList.setListData(jListData.toArray(new AssistContent[jListData.size()]));
         methodList.setSelectedIndex(0);
-
-        getGlassPane().setVisible(tmpListModel.isEmpty());
+        
+        getGlassPane().setVisible(jListData.isEmpty());
     }
-
     /*
     * This method is called by PopulateCompletionsWorker in MoeEditor.
-    * it adds the AssistContent to the listModel (displayed) and to the 
+    * it adds several AssistContent to the listModel (displayed) and to the 
     * list of possible completions (values) for the update method.
     */
-    public void addElement(AssistContent element) {
-        DefaultListModel listModel = (DefaultListModel) methodList.getModel();
-        if (!listModel.contains(element)) {
+    public void addElements(List<AssistContent> elements){
+        this.values.addAll(elements); //no need to sort, since elements are sorted when added.
+        //incremental prefix update.
+        ArrayList<AssistContent> filteredElements = new ArrayList<AssistContent>();
+        for (AssistContent element:elements){
             if (element.getDisplayName().startsWith(prefix)){
-                listModel.addElement(element);
+                filteredElements.add(element);
             }
-            this.values.add(element);
         }
-        getGlassPane().setVisible(listModel.isEmpty());
+        jListData.addAll(filteredElements);
+
+        methodList.setListData(jListData.toArray(new AssistContent[jListData.size()]));
     }
+    
     /**
      * Populate the completion list.
      */
@@ -594,6 +609,16 @@ public class CodeCompletionDisplay extends JFrame
             g.drawString(Config.getString("editor.completion.noMatch"), 30, 60);
             g.setColor(origColor);
             g.setFont(origFont);
+        }
+    }
+    
+    class TreeComparator implements Comparator<AssistContent>
+    {
+
+        @Override
+        public int compare(AssistContent o1, AssistContent o2)
+        {
+            return o1.getDisplayName().compareTo(o2.getDisplayName());
         }
     }
 }
