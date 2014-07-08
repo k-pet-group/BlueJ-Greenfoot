@@ -22,8 +22,6 @@
 package bluej.parser;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -69,11 +67,9 @@ public class ParseUtils
         int depth = 0;
     }
     
-     /**
-     * Get the possible code completions, based on the provided suggestions and string prefix.
-     * If there are can be no valid completions in the give context, returns null.
-     * If there are valid completions but the given prefix doesn't match any of them,
-     * returns an empty array.
+    /**
+     * Get the possible code completions, based on the provided suggestions.
+     * If there are can be no valid completions in the given context, returns null.
      */
     public static AssistContent[] getPossibleCompletions(CodeSuggestions suggests, 
             JavadocResolver javadocResolver)
@@ -88,6 +84,15 @@ public class ParseUtils
         return null;
     }
     
+    /**
+     * Determine the target type for which members can be suggested (for code completion).
+     * This utility method wraps primitives arrays as a suitable class type.
+     * 
+     * @param suggests  The code completion data
+     * @param javadocResolver   A javadoc resolver (not used)
+     * @return  A suitable GenTypeClass representing the target type for completion
+     *           purposes, or null if there is no such suitable type.
+     */
     public static GenTypeClass initGetPossibleCompletions(CodeSuggestions suggests,
             JavadocResolver javadocResolver)
     {
@@ -113,14 +118,14 @@ public class ParseUtils
                 }
             }
             return exprType;
-
         }
 
         return null; // no completions
     }
     
     protected static List<AssistContent> processQueue(GenTypeClass exprType, CodeSuggestions suggests,
-            JavadocResolver javadocResolver) {
+            JavadocResolver javadocResolver)
+    {
         GenTypeClass accessType = suggests.getAccessType();
         Reflective accessReflective = (accessType != null) ? accessType.getReflective() : null;
 
@@ -175,24 +180,24 @@ public class ParseUtils
     }
     
     
-    /*
-    * This method discovers and returns one completion (last one if any) and updates the typeQueue for further 
-    * prcessing by processQueue.
-    */
+    /**
+     * This method discovers and returns one completion (last one if any) and updates the typeQueue for further 
+     * processing by processQueue.
+     */
     public static AssistContent discoverElement(JavadocResolver javadocResolver, Set<String> contentSigs, List<AssistContent> completions, 
             Map<String, GenTypeParameter> typeArgs, MethodReflective method)
     {
-                AssistContent result = null;
-                MethodCompletion completion = null;
-                completion = new MethodCompletion(method,
-                        typeArgs, javadocResolver);
-                String sig = completion.getDisplayName();
-                if (contentSigs.add(sig)) {
-                    completions.add(completion);
-                    result = completion;
-                    // Sort the completions by name
-//                    Collections.sort(completions, new CompletionComparator());
-                }
+        AssistContent result = null;
+        MethodCompletion completion = null;
+        completion = new MethodCompletion(method,
+                typeArgs, javadocResolver);
+        String sig = completion.getDisplayName();
+        if (contentSigs.add(sig)) {
+            completions.add(completion);
+            result = completion;
+            // Sort the completions by name
+            //    Collections.sort(completions, new CompletionComparator());
+        }
         
         return result;
     }
@@ -429,13 +434,4 @@ public class ParseUtils
         }
         return base.setTypeArgs(taList);
     }
-
 }
-
-class CompletionComparator implements Comparator<AssistContent>{
-                @Override
-                public int compare(AssistContent o1, AssistContent o2)
-                {
-                    return o1.getDisplayName().compareTo(o2.getDisplayName());
-                }
-            }
