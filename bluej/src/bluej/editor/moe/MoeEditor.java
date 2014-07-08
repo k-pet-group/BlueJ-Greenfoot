@@ -3693,7 +3693,7 @@ public final class MoeEditor extends JFrame
         @Override
         protected AssistContent[] doInBackground() throws Exception
         {
-            GenTypeClass exprType = ParseUtils.initGetPossibleCompletions(suggests, javadocResolver);
+            GenTypeClass exprType = ParseUtils.initGetPossibleCompletions(suggests);
             if (exprType != null) {
                 //process queue and publish partial results.
                 List<AssistContent> completions = processQueueInBackground(exprType, suggests, javadocResolver);

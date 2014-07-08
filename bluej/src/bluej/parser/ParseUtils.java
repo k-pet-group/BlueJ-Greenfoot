@@ -74,7 +74,7 @@ public class ParseUtils
     public static AssistContent[] getPossibleCompletions(CodeSuggestions suggests, 
             JavadocResolver javadocResolver)
     {
-        GenTypeClass exprType = initGetPossibleCompletions(suggests, javadocResolver);
+        GenTypeClass exprType = initGetPossibleCompletions(suggests);
         if (exprType != null){
             //process
             List<AssistContent> completions = processQueue(exprType, suggests, javadocResolver);
@@ -93,8 +93,7 @@ public class ParseUtils
      * @return  A suitable GenTypeClass representing the target type for completion
      *           purposes, or null if there is no such suitable type.
      */
-    public static GenTypeClass initGetPossibleCompletions(CodeSuggestions suggests,
-            JavadocResolver javadocResolver)
+    public static GenTypeClass initGetPossibleCompletions(CodeSuggestions suggests)
     {
         if (suggests != null) {
             GenTypeClass exprType = suggests.getSuggestionType().asClass();
