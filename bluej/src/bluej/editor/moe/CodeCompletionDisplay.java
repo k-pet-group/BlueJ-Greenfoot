@@ -26,7 +26,7 @@ import bluej.parser.AssistContent;
 import bluej.parser.SourceLocation;
 import bluej.parser.lexer.LocatableToken;
 import bluej.prefmgr.PrefMgr;
-import bluej.utility.JavaUtils;
+import bluej.utility.JavadocSwingWorker;
 import bluej.utility.Utility;
 import java.awt.Color;
 import java.awt.Component;
@@ -52,6 +52,9 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TreeSet;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ActionMap;
@@ -74,11 +77,11 @@ import javax.swing.text.html.HTMLEditorKit;
 
 /**
  * Code completion panel for the Moe editor.
- * 
+ *
  * @author Marion Zalk
  */
-public class CodeCompletionDisplay extends JFrame 
-    implements ListSelectionListener, MouseListener
+public class CodeCompletionDisplay extends JFrame
+        implements ListSelectionListener, MouseListener
 {
     private static final Color msgTextColor = new Color(200,170,100);
 
@@ -91,28 +94,34 @@ public class CodeCompletionDisplay extends JFrame
     private SourceLocation prefixEnd;
 
     private JList methodList;
-    private JEditorPane methodDescription; 
+    private JEditorPane methodDescription;
 
     private JComponent pane;
     private TreeSet<AssistContent> jListData;
+    
+    private ThreadPoolExecutor threadpool;
 
     /**
      * Construct a code completion display panel, for the given editor and with the given
      * suggestions. The location specifies the partial identifier entered by the user before
      * requesting suggestions (if any - it may be null).
      */
-    public CodeCompletionDisplay(MoeEditor ed, String suggestionType, 
-            AssistContent[] assistContents, LocatableToken location) 
+    public CodeCompletionDisplay(MoeEditor ed, String suggestionType,
+            AssistContent[] assistContents, LocatableToken location)
     {
         this.values= new TreeSet<AssistContent>(new TreeComparator());
-        
+
+        //creates the ThreadPoolExecutor for javadocHtml completion.
+        //always discard the oldest task.
+        threadpool = new ThreadPoolExecutor(1, 1, 500L, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>(1), new ThreadPoolExecutor.DiscardOldestPolicy());
+
         Arrays.sort(assistContents, new TreeComparator());
         this.values.addAll(Arrays.asList(assistContents));
-        
+
         this.suggestionType = suggestionType;
         makePanel();
-        editor=ed;
-        
+        editor= ed;
+
         if (location != null) {
             prefixBegin = new SourceLocation(location.getLine(), location.getColumn());
             prefixEnd = new SourceLocation(location.getEndLine(), location.getEndColumn());
@@ -126,7 +135,8 @@ public class CodeCompletionDisplay extends JFrame
 
         populatePanel();
 
-        addWindowFocusListener(new WindowFocusListener() {
+        addWindowFocusListener(new WindowFocusListener()
+        {
             @Override
             public void windowGainedFocus(WindowEvent e)
             {
@@ -140,21 +150,21 @@ public class CodeCompletionDisplay extends JFrame
                 doClose();
             }
         });
-        
+
         editorListener = new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e)
             {
                 doClose();
             }
-            
+
             @Override
             public void windowIconified(WindowEvent e)
             {
                 doClose();
             }
         };
-        
+
         ed.addWindowListener(editorListener);
     }
 
@@ -166,7 +176,7 @@ public class CodeCompletionDisplay extends JFrame
         editor.removeWindowListener(editorListener);
         dispose();
     }
-    
+
     /**
      * Creates a component with a main panel (list of available methods & values)
      * and a text area where the description of the chosen value is displayed
@@ -189,7 +199,7 @@ public class CodeCompletionDisplay extends JFrame
         methodDescription.setBorder(mdBorder);
         methodDescription.setEditable(false);
         if (!Config.isRaspberryPi()) methodDescription.setOpaque(false);
-        
+
         methodDescription.setEditorKit(new HTMLEditorKit());
         methodDescription.setEditable(false);
         InputMap inputMap = new InputMap() {
@@ -217,7 +227,7 @@ public class CodeCompletionDisplay extends JFrame
             methodDescription.setBackground(new Color(0,0,0));//no Alpha channel.
         }
         methodDescription.setFont(methodDescription.getFont().deriveFont((float)PrefMgr.getEditorFontSize()));
-        
+
         methodList = new JList(new DefaultListModel());
         methodList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         methodList.addListSelectionListener(this);
@@ -225,7 +235,7 @@ public class CodeCompletionDisplay extends JFrame
         methodList.requestFocusInWindow();
         methodList.setCellRenderer(new CodeCompleteCellRenderer(suggestionType));
         if (!Config.isRaspberryPi()) methodList.setOpaque(false);
-        
+
         // To allow continued typing of method name prefix, we map keys to equivalent actions
         // within the editor. I.e. typing a key inserts that key character.
         inputMap = new InputMap() {
@@ -287,47 +297,47 @@ public class CodeCompletionDisplay extends JFrame
         };
         actionMap.setParent(methodList.getActionMap());
         methodList.setActionMap(actionMap);
-        
+
         // Set a standard height/width
         Font mlFont = methodList.getFont();
-        mlFont = mlFont.deriveFont((float)PrefMgr.getEditorFontSize());
+        mlFont = mlFont.deriveFont((float) PrefMgr.getEditorFontSize());
         FontMetrics metrics = methodList.getFontMetrics(mlFont);
         Dimension size = new Dimension(metrics.charWidth('m') * 30, metrics.getHeight() * 15);
 
         JScrollPane scrollPane;
-        if (!Config.isRaspberryPi()){
-            scrollPane = new GradientFillScrollPane(methodList, new Color(250,246,229), new Color(233,210,132));
-        }else{
-            scrollPane = new FillScrollPane(methodList, new Color (250,246,229));
+        if (!Config.isRaspberryPi()) {
+            scrollPane = new GradientFillScrollPane(methodList, new Color(250, 246, 229), new Color(233, 210, 132));
+        } else {
+            scrollPane = new FillScrollPane(methodList, new Color(250, 246, 229));
         }
         scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scrollPane.setPreferredSize(size);
         methodPanel.add(scrollPane);
         methodPanel.setFont(mlFont);
-        
-        if (!Config.isRaspberryPi()){
-            scrollPane = new GradientFillScrollPane(methodDescription, new Color(250,246,229), new Color(240,220,140));
-        }else{
-            scrollPane = new FillScrollPane(methodDescription, new Color (250,246,229));
+
+        if (!Config.isRaspberryPi()) {
+            scrollPane = new GradientFillScrollPane(methodDescription, new Color(250, 246, 229), new Color(240, 220, 140));
+        } else {
+            scrollPane = new FillScrollPane(methodDescription, new Color(250, 246, 229));
         }
         scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scrollPane.setPreferredSize(size);
 
         mainPanel.add(methodPanel);
         mainPanel.add(scrollPane);
-        
-        pane.add(mainPanel); 
+
+        pane.add(mainPanel);
 
         inputMap = new InputMap();
         inputMap.setParent(pane.getRootPane().getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT));
 
-        KeyStroke keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE,0);
+        KeyStroke keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
         inputMap.put(keyStroke, "escapeAction");
-        keyStroke=KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
+        keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
         inputMap.put(keyStroke, "completeAction");
-        
+
         pane.getRootPane().setInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, inputMap);
-        
+
         actionMap = new ActionMap() {
             @Override
             public Action get(Object key)
@@ -359,16 +369,16 @@ public class CodeCompletionDisplay extends JFrame
     }
 
     /*
-    * whenever the prefix changes (including the creation of the codeCompletionDisplay), this method is called.
-    * It searches this.values for the elements that should be displayed and creates a new model with 
-    * those elements. If there is no such elements, then displays a message.
-    */
+     * whenever the prefix changes (including the creation of the codeCompletionDisplay), this method is called.
+     * It searches this.values for the elements that should be displayed and creates a new model with 
+     * those elements. If there is no such elements, then displays a message.
+     */
     private void updatePrefix()
     {
         jListData = new TreeSet<AssistContent>(new TreeComparator());
         Iterator<AssistContent> i = values.iterator();
         AssistContent value;
-        while(i.hasNext()) {
+        while (i.hasNext()) {
             value = i.next();
             if (value.getDisplayName().startsWith(prefix)) {
                 jListData.add(value);
@@ -376,33 +386,36 @@ public class CodeCompletionDisplay extends JFrame
         }
         methodList.setListData(jListData.toArray(new AssistContent[jListData.size()]));
         methodList.setSelectedIndex(0);
-        
-        getGlassPane().setVisible(jListData.isEmpty());
+
+        getCodeCompleteGlassPane().setWorking(false);
+        getCodeCompleteGlassPane().setVisible(jListData.isEmpty());
     }
     /*
-    * This method is called by PopulateCompletionsWorker in MoeEditor.
-    * it adds several AssistContent to the listModel (displayed) and to the 
-    * list of possible completions (values) for the update method.
-    */
+     * This method is called by PopulateCompletionsWorker in MoeEditor.
+     * it adds several AssistContent to the listModel (displayed) and to the 
+     * list of possible completions (values) for the update method.
+     */
     public void addElements(List<AssistContent> elements){
+        int currentSelection = methodList.getSelectedIndex();
         this.values.addAll(elements); //no need to sort, since elements are sorted when added.
         //incremental prefix update.
         ArrayList<AssistContent> filteredElements = new ArrayList<AssistContent>();
-        for (AssistContent element:elements){
-            if (element.getDisplayName().startsWith(prefix)){
+        for (AssistContent element : elements) {
+            if (element.getDisplayName().startsWith(prefix)) {
                 filteredElements.add(element);
             }
         }
         jListData.addAll(filteredElements);
 
         methodList.setListData(jListData.toArray(new AssistContent[jListData.size()]));
+        methodList.setSelectedIndex(currentSelection); // restore the selection
     }
-    
+
     /**
      * Populate the completion list.
      */
     private void populatePanel()
-    {  
+    {
         updatePrefix();
     }
 
@@ -428,19 +441,18 @@ public class CodeCompletionDisplay extends JFrame
                 editor.setSelection(selLoc.getLine(), selLoc.getColumn(), completionSel.length());
             }
         }
-        
+
         setVisible(false);
     }
 
     // ---------------- MouseListener -------------------
-    
     /*
      * A double click results in a completion.
      */
     public void mouseClicked(MouseEvent e)
     {
-        int count=e.getClickCount();
-        if (count==2){
+        int count = e.getClickCount();
+        if (count == 2) {
             codeComplete();
         }
     }
@@ -455,51 +467,29 @@ public class CodeCompletionDisplay extends JFrame
 
     // ---------------- ListSelectionListener -------------------
     
+    JavadocSwingWorker javadocHTMLproducer = null;
     /* (non-Javadoc)
      * @see javax.swing.event.ListSelectionListener#valueChanged(javax.swing.event.ListSelectionEvent)
      */
     public void valueChanged(ListSelectionEvent e)
     {
-        AssistContent selected = (AssistContent) methodList.getSelectedValue();
+        this.javadocHTMLproducer = new JavadocSwingWorker(this, (AssistContent) methodList.getSelectedValue());
+        threadpool.submit(javadocHTMLproducer);
 
-        if (selected != null) {
-            String jdHtml = selected.getJavadoc();
-            if (jdHtml != null) {
-                jdHtml = JavaUtils.javadocToHtml(jdHtml);
-            } else {
-                jdHtml = "";
-            }
-            String sig = escapeAngleBrackets(selected.getReturnType())
-                    + " <b>" + escapeAngleBrackets(selected.getDisplayMethodName()) + "</b>"
-                    + escapeAngleBrackets(selected.getDisplayMethodParams());
-
-            jdHtml = "<h3>" + selected.getDeclaringClass() + "</h3>"
-                    + "<blockquote><tt>" + sig + "</tt></blockquote><br>"
-                    + jdHtml;
-
-            methodDescription.setText(jdHtml);
-            methodDescription.setCaretPosition(0); // scroll to top
-        } else {
-            methodDescription.setText("");
-        }
     }
 
-    private static String escapeAngleBrackets(String sig)
-    {
-        return sig.replace("<", "&lt;").replace(">", "&gt;");
-    }
 
-    
+
     /**
      * A JScrollPane variant that paints a single colour fill as the background.
-     * 
+     *
      * Used for the Raspberry Pi.
      */
     private static class FillScrollPane extends JScrollPane
     {
         private Color c;
         private Component v;
-        
+
         private FillScrollPane(Component view, Color color)
         {
             super(view);
@@ -509,9 +499,9 @@ public class CodeCompletionDisplay extends JFrame
             //Changing the viewport colour, changes the background of the JScroolPane
             view.setBackground(this.c);
 
-            if (this.v instanceof JEditorPane){
+            if (this.v instanceof JEditorPane) {
                 JEditorPane jEditorPane = (JEditorPane) this.v;
-                Color bgColor = new Color(250,246,229);
+                Color bgColor = new Color(250, 246, 229);
                 Utility.setJEditorPaneBackground(jEditorPane, bgColor);
             }
         }
@@ -521,32 +511,31 @@ public class CodeCompletionDisplay extends JFrame
         {
             super.paintComponent(g);
             //fillRect doesn't work on JEditorPane. 
-            if ((g instanceof Graphics2D) && !(this.v instanceof JEditorPane)){
-                Graphics2D g2d = (Graphics2D)g;
-                
+            if ((g instanceof Graphics2D) && !(this.v instanceof JEditorPane)) {
+                Graphics2D g2d = (Graphics2D) g;
+
                 int w = getWidth();
                 int h = getHeight();
-                 
+
                 Paint origPaint = g2d.getPaint();
                 g2d.setPaint(this.c);
                 g2d.fillRect(0, 0, w, h);
                 g2d.setPaint(origPaint);
             }
-            
+
         }
     }
-       
-    
+
     /**
      * A JScrollPane variant that paints a gradient fill as the background.
-     * 
+     *
      * Don't forget to setOpaque(false) on whatever is inside this pane.
      */
     private static class GradientFillScrollPane extends JScrollPane
     {
         private Color topColor;
         private Color bottomColor;
-        
+
         private GradientFillScrollPane(Component view, Color topColor, Color bottomColor)
         {
             super(view);
@@ -559,45 +548,82 @@ public class CodeCompletionDisplay extends JFrame
         protected void paintComponent(Graphics g)
         {
             super.paintComponent(g);
-         
+
             if (g instanceof Graphics2D) {
-                Graphics2D g2d = (Graphics2D)g;
-                
+                Graphics2D g2d = (Graphics2D) g;
+
                 int w = getWidth();
                 int h = getHeight();
-                 
+
                 // Paint a gradient from top to bottom:
                 GradientPaint gp = new GradientPaint(
-                    0, 0, topColor,
-                    0, h, bottomColor);
-   
+                        0, 0, topColor,
+                        0, h, bottomColor);
+
                 Paint origPaint = g2d.getPaint();
                 g2d.setPaint(gp);
                 g2d.fillRect(0, 0, w, h);
                 g2d.setPaint(origPaint);
             }
         }
-    }    
-    
+    }
+
     
 
     // ===== the glass pane for messages on this component =====
 
     private CodeCompleteGlassPane myGlassPane;
 
-    private CodeCompleteGlassPane getCodeCompleteGlassPane()
+    public CodeCompleteGlassPane getCodeCompleteGlassPane()
     {
-        if(myGlassPane == null) {
+        if (myGlassPane == null) {
             myGlassPane = new CodeCompleteGlassPane();
         }
         return myGlassPane;
     }
     
+    public void setCodeCompleteGlassPaneToWorkingPane(boolean isWorking)
+    {
+        if (myGlassPane == null){
+            myGlassPane = new CodeCompleteGlassPane();
+        }
+        myGlassPane.setWorking(isWorking);
+    }
+    
+    public void setMethodDescriptionText(String text){
+        
+        this.getCodeCompleteGlassPane().setVisible(false);
+        this.getCodeCompleteGlassPane().setWorking(false); // put the panel back to the default position
+        this.methodDescription.setText(text);
+        this.methodDescription.setCaretPosition(0);
+        getCodeCompleteGlassPane().setVisible(jListData.isEmpty());
+    }
+    
+    public void setWorking(){
+        this.methodDescription.setText(""); //clear the text
+        this.setCodeCompleteGlassPaneToWorkingPane(true); //set panel to 'working mode'
+        this.setGlassPane(this.getCodeCompleteGlassPane());
+        this.getCodeCompleteGlassPane().setVisible(true);
+    }
+
     /**
-     * A glass pane which displays a "no matching completions" message. 
+     * A glass pane which displays a  message.
+     * if not working, then there is no match.
      */
     class CodeCompleteGlassPane extends JComponent
     {
+        String message = Config.getString("editor.completion.noMatch");
+        boolean isWorking = false;
+        
+        public void setWorking(boolean isW){
+            this.isWorking = isW;
+            if (isWorking){
+                this.message = Config.getString("editor.completion.working");
+            } else {
+                this.message = Config.getString("editor.completion.noMatch");
+            }
+        }
+
         @Override
         protected void paintComponent(Graphics g)
         {
@@ -605,12 +631,16 @@ public class CodeCompletionDisplay extends JFrame
             Font origFont = g.getFont();
             g.setColor(msgTextColor);
             g.setFont(origFont.deriveFont(20f));
-            g.drawString(Config.getString("editor.completion.noMatch"), 30, 60);
+            if (isWorking){
+                g.drawString(this.message, 380, 60);
+            }else{
+                g.drawString(this.message, 30, 60);
+            }
             g.setColor(origColor);
             g.setFont(origFont);
         }
     }
-    
+
     class TreeComparator implements Comparator<AssistContent>
     {
 

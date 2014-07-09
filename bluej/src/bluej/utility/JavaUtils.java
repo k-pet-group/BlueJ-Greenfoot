@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2012,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,18 +21,6 @@
  */
 package bluej.utility;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeDeclTpar;
 import bluej.debugger.gentype.GenTypeParameter;
@@ -40,6 +28,16 @@ import bluej.debugger.gentype.GenTypeSolid;
 import bluej.debugger.gentype.JavaPrimitiveType;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.Reflective;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Utilities for dealing with reflection, which must behave differently for
@@ -542,116 +540,6 @@ public abstract class JavaUtils
         return outbuf.toString();
     }
     
-    /**
-     * Convert javadoc comment body (as extracted by javadocToString for instance)
-     * to HTML suitable for display by HTMLEditorKit.
-     */
-    public static String javadocToHtml(String javadocString)
-    {
-        // find the first block tag
-        int i;
-        for (i = 0; i < javadocString.length(); i++) {
-            // Here we are the start of the line
-            while (i < javadocString.length() && Character.isWhitespace(javadocString.charAt(i))) {
-                i++;
-            }
-            if (i >= javadocString.length() || javadocString.charAt(i) == '@') {
-                break;
-            }
-            while (i < javadocString.length()
-                    && javadocString.charAt(i) != '\n'
-                    && javadocString.charAt(i) != '\r') {
-                i++;
-            }
-        }
-        
-        if (i >= javadocString.length()) {
-            return makeCommentColour(javadocString);
-        }
-        
-        // Process the block tags
-        String header = javadocString.substring(0, i);
-        String blocksText = javadocString.substring(i);
-        String[] lines = Utility.splitLines(blocksText);
-
-        List<String> blocks = getBlockTags(lines);
-
-        StringBuilder rest = new StringBuilder();
-        StringBuilder params = new StringBuilder();
-        params.append("<h3>Parameters</h3>").append("<table border=0>");
-        boolean hasParamDoc = false;
-
-        for (String block : blocks) {
-            if (block.startsWith("param ")) {
-                int p = "param".length();
-                // Find the parameter name
-                while (Character.isWhitespace(block.charAt(p))) {
-                    p++;
-                }
-                int k = p;
-                while (k < block.length() && !Character.isWhitespace(block.charAt(k))) {
-                    k++;
-                }
-                String paramName = block.substring(p, k);
-                String paramDesc = block.substring(k);
-
-                params.append("<tr><td valign=\"top\">&nbsp;&nbsp;&nbsp;");
-                params.append(makeCommentColour(paramName));
-                params.append("</td><td>");
-                params.append(makeCommentColour(" - " + paramDesc));
-                params.append("</td></tr>");
-                hasParamDoc = true;
-            } else {
-                rest.append(convertBlockTag(block)).append("<br>");
-            }
-        }           
-
-        params.append("</table><p>");
-
-        String result = makeCommentColour(header) + (hasParamDoc ? params.toString() : "<p>") + rest.toString();
-        return result;
-    }
-    
-    private static String makeCommentColour(String text)
-    {
-        return "<font color='#994400'>" + text + "</font>";
-    }
-
-    /**
-     * For a set of text lines representing block tags in a a javadoc comment, with some block
-     * tags potentially flowing over more than one line, return a list of Strings corresponding
-     * to each block tag with its complete text.
-     */
-    private static List<String> getBlockTags(String[] lines)
-    {
-        LinkedList<String> blocks = new LinkedList<String>();
-        String cur = "";
-        for (String line : lines) {
-            line = line.trim();
-            if (line.startsWith("@")) {
-                if (false == cur.isEmpty()) {
-                    blocks.addLast(cur);
-                }
-                cur = line.substring(1);
-            } else {
-                //If it doesn't start with an at, it's part of the previous tag
-                cur += " " + line;
-            }
-        }
-        blocks.addLast(cur);
-        return blocks;
-    }
-    
-    private static String convertBlockTag(String block)
-    {        
-        int k = 0;
-        while (k < block.length() && !Character.isWhitespace(block.charAt(k)))
-            k++;
-        
-        String r = "<b>" + block.substring(0, k) + "</b> - " + makeCommentColour(block.substring(k));
-        
-        return r;
-    }
     
     /**
      * Strip leading asterisk characters (and any preceding whitespace) from a single
