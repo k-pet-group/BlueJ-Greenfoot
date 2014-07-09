@@ -289,6 +289,9 @@ editor.highlight.notFound=not found.
 # Message shown in code completion pane when nothing is found
 editor.completion.noMatch=No matching completions
 
+#Message shown in code completion while processing
+editor.completion.working=Loading...
+
 # Messages shown when determining what function is bound to a given key
 editor.keypressed.keyIsNotBound=is not bound to a function.
 editor.keypressed.callsTheFunction=calls the function "
