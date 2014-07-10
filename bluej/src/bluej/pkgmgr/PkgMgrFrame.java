@@ -725,10 +725,8 @@ public class PkgMgrFrame extends JFrame
             editor.getAccessibleContext().setAccessibleName(Config.getString("pkgmgr.graphEditor.title"));
             editor.setFocusable(true);
             editor.setTransferHandler(new FileTransferHandler(this));
-            editor.addMouseListener(this); // This mouse listener MUST be before
-            // DAV
-            // editor.addFocusListener(this); //  the editor's listener itself!
-            editor.startMouseListening();
+            editor.addMouseListener(this);  // This mouse listener MUST be before
+            editor.startMouseListening();   //  the editor's listener itself!
             pkg.setEditor(this.editor);
             addCtrlTabShortcut(editor);
             
