@@ -35,9 +35,12 @@ import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Utilities for dealing with reflection, which must behave differently for
@@ -594,4 +597,112 @@ public abstract class JavaUtils
         }
         return new GenTypeClass(new JavaReflective(c));
     }
+    
+    private static final Pattern headerPattern = Pattern.compile("{1,}\\s@\\w");
+    private static final Pattern paramNamePattern = Pattern.compile("param\\s+\\w"); // regular expression for the parameter name
+    private static final Pattern paramDescPattern = Pattern.compile("\\s+\\w");  // regular expression for the parameter description
+    
+    /**
+     * Convert javadoc comment body (as extracted by javadocToString for
+     * instance) to HTML suitable for display by HTMLEditorKit.
+     */
+    public static String javadocToHtml(String javadocString)
+    {
+        // find the first block tag
+        
+        Matcher matcher = headerPattern.matcher(javadocString);
+        int i = -1;
+        if (matcher.find()) {
+            i = matcher.start();
+        }
+        if (i == -1) {//not found
+            return makeCommentColour(javadocString);
+        }
+        // Process the block tags
+        String header = javadocString.substring(0, i);
+        String blocksText = javadocString.substring(i);
+        String[] lines = Utility.splitLines(blocksText);
+
+        List<String> blocks = getBlockTags(lines);
+
+        StringBuilder rest = new StringBuilder();
+        StringBuilder params = new StringBuilder();
+        params.append("<h3>Parameters</h3>").append("<table border=0>");
+        boolean hasParamDoc = false;
+        
+
+        for (String block : blocks) {
+            matcher = paramNamePattern.matcher(block); //search the current block
+            String paramName = "";
+            String paramDesc = "";
+            if (matcher.find()) {
+                int p = matcher.end() - 1; //mark start of the parameter's name
+                matcher = paramDescPattern.matcher(block.substring(p)); //search for the description on the rest of 
+                //the parameter
+                if (matcher.find()) {
+                    int k = p + matcher.end() - 1;
+                    paramName = block.substring(p, k);
+                    paramDesc = block.substring(k);
+                }
+                //build the rest of the html.
+                params.append("<tr><td valign=\"top\">&nbsp;&nbsp;&nbsp;");
+                params.append(makeCommentColour(paramName));
+                params.append("</td><td>");
+                params.append(makeCommentColour(" - " + paramDesc));
+                params.append("</td></tr>");
+                hasParamDoc = true;
+            } else {
+                rest.append(convertBlockTag(block)).append("<br>");
+            }
+        }
+
+        params.append("</table><p>");
+
+        StringBuilder result = new StringBuilder(makeCommentColour(header));
+        result.append((hasParamDoc ? params.toString() : "<p>")).append(rest.toString());
+        return result.toString();
+    }
+
+    private static String makeCommentColour(String text)
+    {
+        return "<font color='#994400'>" + text + "</font>";
+    }
+
+    /**
+     * For a set of text lines representing block tags in a a javadoc comment,
+     * with some block tags potentially flowing over more than one line, return
+     * a list of Strings corresponding to each block tag with its complete text.
+     */
+    private static List<String> getBlockTags(String[] lines)
+    {
+        LinkedList<String> blocks = new LinkedList<String>();
+        StringBuilder cur = new StringBuilder();
+        for (String line : lines) {
+            line = line.trim();
+            if (line.startsWith("@")) {
+                if (cur.length() > 0) {
+                    blocks.addLast(cur.toString());
+                }
+                cur = new StringBuilder(line.substring(1));
+            } else {
+                //If it doesn't start with an at, it's part of the previous tag
+                cur.append(" ").append(line);
+            }
+        }
+        blocks.addLast(cur.toString());
+        return blocks;
+    }
+
+    private static String convertBlockTag(String block)
+    {
+        int k = block.indexOf(' ');
+        String r = "<b>" + block.substring(0, k) + "</b> - " + makeCommentColour(block.substring(k));
+        return r;
+    }
+
+    public static String escapeAngleBrackets(String sig)
+    {
+        return sig.replace("<", "&lt;").replace(">", "&gt;");
+    }
+
 }

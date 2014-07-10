@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 2010,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,6 +21,8 @@
  */
 package bluej.pkgmgr;
 
+import java.util.concurrent.Executor;
+
 import bluej.debugger.gentype.MethodReflective;
 
 /**
@@ -35,4 +37,22 @@ public interface JavadocResolver
      * method parameter names will be added to the supplied MethodReflective.
      */
     public void getJavadoc(MethodReflective method);
+    
+    public static interface AsyncCallback
+    {
+        void gotJavadoc(MethodReflective method);
+    }
+    
+    /**
+     * Retrieve the javadoc for the specified method, if possible, in the background
+     * and notify a callback when the javadoc is available.
+     * 
+     * @param method    The method to find the javadoc for
+     * @param callback  The callback to notify
+     * @param executor  The executor to execute background tasks
+     * 
+     * @return   true if the javadoc is available immediately (callback will not be
+     *            notified) or false if a background task was submitted.
+     */
+    public boolean getJavadocAsync(final MethodReflective method, final AsyncCallback callback, Executor executor);
 }

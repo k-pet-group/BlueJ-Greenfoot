@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executor;
 
 import bluej.debugger.gentype.GenTypeDeclTpar;
 import bluej.debugger.gentype.GenTypeParameter;
@@ -173,6 +174,12 @@ public class MethodCompletion extends AssistContent
     }
 
     @Override
+    public boolean javadocIsSet()
+    {
+        return method.getJavaDoc() != null;
+    }
+    
+    @Override
     public String getJavadoc()
     {
         String jd = method.getJavaDoc();
@@ -181,6 +188,27 @@ public class MethodCompletion extends AssistContent
             jd = method.getJavaDoc();
         }
         return jd;
+    }
+    
+    @Override
+    public boolean getJavadocAsync(final JavadocCallback callback, Executor executor)
+    {
+        String jd = method.getJavaDoc();
+        if (jd == null && javadocResolver != null) {
+            return javadocResolver.getJavadocAsync(method, new JavadocResolver.AsyncCallback() {
+                @Override
+                public void gotJavadoc(MethodReflective method)
+                {
+                    if (method.getJavaDoc() == null) {
+                        method.setJavaDoc(""); // prevent repeated attempts to retrieve unavailable doc
+                    }
+                    callback.gotJavadoc(MethodCompletion.this);
+                }
+            }, executor);
+        }
+        else {
+            return true;
+        }
     }
 
     @Override

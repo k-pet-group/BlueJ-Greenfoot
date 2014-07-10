@@ -21,6 +21,7 @@
  */
 package bluej.pkgmgr;
 
+import java.awt.EventQueue;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -33,6 +34,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.StringTokenizer;
+import java.util.concurrent.Executor;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -120,6 +122,115 @@ public class ProjectJavadocResolver implements JavadocResolver
                 method.setParamNames(paramNamesList);
                 break;
             }
+        }
+    }
+        
+    @Override
+    public boolean getJavadocAsync(final MethodReflective method, final AsyncCallback callback, Executor executor)
+    {
+        Reflective declaring = method.getDeclaringType();
+        final String declName = declaring.getName();
+        final String methodSig = buildSig(method);
+        
+        try {
+            Class<?> cl = project.getClassLoader().loadClass(declName);
+            View clView = View.getView(cl);
+            MethodView [] methods = clView.getAllMethods();
+            
+            for (int i = 0; i < methods.length; i++) {
+                if (methodSig.equals(methods[i].getSignature())) {
+                    Comment comment = methods[i].getComment();
+                    if (comment != null) {
+                        method.setJavaDoc(comment.getText());
+                        List<String> paramNames = new ArrayList<String>(comment.getParamCount());
+                        for (int j = 0; j < comment.getParamCount(); j++) {
+                            paramNames.add(comment.getParamName(j));
+                        }
+                        method.setParamNames(paramNames);
+                        callback.gotJavadoc(method);
+                        return true;
+                    }
+                    break;
+                }
+            }
+        }
+        catch (ClassNotFoundException cnfe) {}
+        catch (LinkageError e) {}
+
+        Properties comments = commentCache.get(declName);
+        if (comments == null) {
+            executor.execute(new Runnable() {
+                @Override
+                public void run()
+                {
+                    final Properties comments = getCommentsFromSource(declName);
+                    if (comments == null) {
+                        EventQueue.invokeLater(new Runnable() {
+                           @Override
+                            public void run()
+                            {
+                               // Javadoc not available; must notify callback.
+                               callback.gotJavadoc(method);
+                            } 
+                        });
+                        return;
+                    }
+                    
+                    EventQueue.invokeLater(new Runnable() {
+                       @Override
+                        public void run()
+                        {
+                           commentCache.put(declName, comments);
+                           findMethodComment(comments, callback, method, methodSig, true);
+                        } 
+                    });
+                }
+            });
+            return false;
+        }
+        else {
+            findMethodComment(comments, callback, method, methodSig, false);
+            return true;
+        }
+    }
+    
+    /**
+     * Search a set of comments for different targets to find the target we want.
+     * Apply the found comment/parameter names to the method reflective, and
+     * optionally notify the callback.
+     * 
+     * @param comments   The set of comments to search
+     * @param callback   The callback to notify (if postOnQueue is true)
+     * @param method     The method reflective to update
+     * @param methodSig  The method signature to search for
+     * @param postOnQueue  Whether to notify the callback
+     */
+    private void findMethodComment(final Properties comments, final AsyncCallback callback,
+            final MethodReflective method, String methodSig, boolean postOnQueue)
+    {
+        // Find the comment for the particular method we want
+        for (int i = 0; ; i++) {
+            String comtarget = comments.getProperty("comment" + i + ".target");
+            if (comtarget == null) {
+                break;
+            }
+            if (comtarget.equals(methodSig)) {
+                String paramNames = comments.getProperty("comment" + i + ".params");
+                String javadoc = comments.getProperty("comment" + i + ".text");
+                StringTokenizer tokenizer = new StringTokenizer(paramNames);
+                List<String> paramNamesList = new ArrayList<String>();
+                while (tokenizer.hasMoreTokens()) {
+                    paramNamesList.add(tokenizer.nextToken());
+                }
+                method.setJavaDoc(javadoc);
+                method.setParamNames(paramNamesList);
+                break;
+            }
+        }
+        
+        // We may or may not find the javadoc, notify the callback that the search has finished.
+        if (postOnQueue) {
+            callback.gotJavadoc(method);
         }
     }
 

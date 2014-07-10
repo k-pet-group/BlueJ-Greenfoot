@@ -21,13 +21,6 @@
  */
 package bluej.editor.moe;
 
-import bluej.Config;
-import bluej.parser.AssistContent;
-import bluej.parser.SourceLocation;
-import bluej.parser.lexer.LocatableToken;
-import bluej.prefmgr.PrefMgr;
-import bluej.utility.JavadocSwingWorker;
-import bluej.utility.Utility;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -74,6 +67,14 @@ import javax.swing.border.Border;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.text.html.HTMLEditorKit;
+
+import bluej.Config;
+import bluej.parser.AssistContent;
+import bluej.parser.SourceLocation;
+import bluej.parser.lexer.LocatableToken;
+import bluej.prefmgr.PrefMgr;
+import bluej.utility.JavaUtils;
+import bluej.utility.Utility;
 
 /**
  * Code completion panel for the Moe editor.
@@ -390,14 +391,15 @@ public class CodeCompletionDisplay extends JFrame
         getCodeCompleteGlassPane().setWorking(false);
         getCodeCompleteGlassPane().setVisible(jListData.isEmpty());
     }
-    /*
-     * This method is called by PopulateCompletionsWorker in MoeEditor.
-     * it adds several AssistContent to the listModel (displayed) and to the 
+    
+    /**
+     * Adds several AssistContent to the listModel (displayed) and to the 
      * list of possible completions (values) for the update method.
      */
-    public void addElements(List<AssistContent> elements){
+    public void addElements(List<AssistContent> elements)
+    {
         int currentSelection = methodList.getSelectedIndex();
-        this.values.addAll(elements); //no need to sort, since elements are sorted when added.
+        values.addAll(elements); //no need to sort, since elements are sorted when added.
         //incremental prefix update.
         ArrayList<AssistContent> filteredElements = new ArrayList<AssistContent>();
         for (AssistContent element : elements) {
@@ -467,18 +469,59 @@ public class CodeCompletionDisplay extends JFrame
 
     // ---------------- ListSelectionListener -------------------
     
-    JavadocSwingWorker javadocHTMLproducer = null;
     /* (non-Javadoc)
      * @see javax.swing.event.ListSelectionListener#valueChanged(javax.swing.event.ListSelectionEvent)
      */
+    @Override
     public void valueChanged(ListSelectionEvent e)
     {
-        this.javadocHTMLproducer = new JavadocSwingWorker(this, (AssistContent) methodList.getSelectedValue());
-        threadpool.submit(javadocHTMLproducer);
-
+        AssistContent selected = (AssistContent) methodList.getSelectedValue();
+        if (selected == null) {
+            return;
+        }
+        
+        if (selected.javadocIsSet()) {
+            String jdHtml = selected.getJavadoc();
+            setHtml(selected, jdHtml);
+            return;
+        }
+        
+        AssistContent.JavadocCallback callback = new AssistContent.JavadocCallback() {
+            @Override
+            public void gotJavadoc(AssistContent content)
+            {
+                AssistContent selected = (AssistContent) methodList.getSelectedValue();
+                if (content == selected) {
+                    setHtml(content, content.getJavadoc());
+                }
+            }
+        };
+        
+        if (selected.getJavadocAsync(callback, threadpool)) {
+            String jdHtml = selected.getJavadoc();
+            setHtml(selected, jdHtml);
+        }
+        else {
+            setWorking(); // display glasspanel with "working" message.
+        }
     }
 
+    private void setHtml(AssistContent selected, String jdHtml)
+    {
+        if (jdHtml != null) {
+            jdHtml = JavaUtils.javadocToHtml(jdHtml);
+        } else {
+            jdHtml = "";
+        }
+        String sig = JavaUtils.escapeAngleBrackets(selected.getReturnType())
+                + " <b>" + JavaUtils.escapeAngleBrackets(selected.getDisplayMethodName()) + "</b>"
+                + JavaUtils.escapeAngleBrackets(selected.getDisplayMethodParams());
 
+        jdHtml = "<h3>" + selected.getDeclaringClass() + "</h3>"
+                + "<blockquote><tt>" + sig + "</tt></blockquote><br>"
+                + jdHtml;
+        CodeCompletionDisplay.this.setMethodDescriptionText(jdHtml);
+    }
 
     /**
      * A JScrollPane variant that paints a single colour fill as the background.

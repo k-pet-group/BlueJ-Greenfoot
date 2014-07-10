@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -20,6 +20,8 @@
  LICENSE.txt file that accompanied this code.
  */
 package bluej.parser;
+
+import java.util.concurrent.Executor;
 
 /**
  * Describes a possible code completion.
@@ -54,10 +56,40 @@ public abstract class AssistContent
     /** Return true if this completion has parameters */
     public abstract boolean hasParameters();
     
+    /** Return true if the Javadoc is available, i.e. the getJavadoc call will return promptly */
+    public abstract boolean javadocIsSet();
+    
     /**
      * Get the javadoc comment for this completion. The comment has been stripped of the
      * delimiters (slash-star at the start and star-slash at the end) and intermediate
      * star characters.
      */
     public abstract String getJavadoc();
+    
+    /**
+     * Callback interface for notification that javadoc is available.
+     */
+    public interface JavadocCallback
+    {
+        /**
+         * The javadoc for the given method is now available
+         * (call getJavadoc() to retrieve it).
+         */
+        void gotJavadoc(AssistContent content);
+    }
+    
+    /**
+     * Get the javadoc for this member, with an asynchronous callback.
+     * (This method must be called from the event thread).
+     * 
+     * @param callback  Callback to be notified when the javadoc is available.
+     *             (Notification will be on event thread). The callback will
+     *             only be notified if the javadoc must be fetched asynchronously
+     *             i.e. if this method returns false.
+     * @param executor   The executor for any background tasks.
+     * 
+     * @return  true if the javadoc is already available, false otherwise
+     *           (notification is pending).
+     */
+    public abstract boolean getJavadocAsync(JavadocCallback callback, Executor executor);
 }

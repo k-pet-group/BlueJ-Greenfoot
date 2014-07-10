@@ -26,6 +26,7 @@ import java.io.StringReader;
 import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executor;
 
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
@@ -790,6 +791,13 @@ public class CompletionTest extends TestCase
                 // We want to check that the return type has an erased type.
                 assertNotNull(method.getReturnType().getErasedType());
             }
+            
+            @Override
+            public boolean getJavadocAsync(MethodReflective method,
+                    AsyncCallback callback, Executor executor)
+            {
+                throw new RuntimeException("Not implemented in test stub.");
+            }
         });
         
         for (AssistContent assist : assists) {
@@ -858,6 +866,13 @@ public class CompletionTest extends TestCase
             @Override
             public void getJavadoc(MethodReflective method)
             {
+            }
+            
+            @Override
+            public boolean getJavadocAsync(MethodReflective method,
+                    AsyncCallback callback, Executor executor)
+            {
+                throw new RuntimeException("Not implemented in test stub.");
             }
         });
         
