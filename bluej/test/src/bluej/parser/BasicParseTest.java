@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2013,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -402,6 +402,17 @@ public class BasicParseTest extends junit.framework.TestCase
         ClassInfo info = InfoParser.parse(new StringReader(aSrc), new ClassLoaderResolver(getClass().getClassLoader()), null);
         Properties comments = info.getComments();
         assertTrue(findTarget(comments, "void method1(java.util.List)") != -1);
+    }
+    
+    public void testCommentExtraction4() throws Exception
+    {
+        String aSrc = "class A<T> {\n"
+                + "  void method1(A<? extends T> a) { }\n"
+                + "}\n";
+            
+        ClassInfo info = InfoParser.parse(new StringReader(aSrc), new ClassLoaderResolver(getClass().getClassLoader()), null);
+        Properties comments = info.getComments();
+        assertTrue(findTarget(comments, "void method1(A)") != -1);
     }
     
     public void testMultipleInterfaceExtends() throws Exception
