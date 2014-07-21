@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2013,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,6 +21,7 @@
  */
 package bluej.editor.moe;
 
+import bluej.Config;
 import bluej.prefmgr.PrefMgr;
 import java.awt.EventQueue;
 
@@ -37,19 +38,27 @@ public class ReparseRunner implements Runnable
 {
     private MoeEditor editor;
     
+    private int procTime; //the time allowed for the incremental parsing before re-queueing
+    
     public ReparseRunner(MoeEditor editor)
     {
         this.editor = editor;
+        if (Config.isRaspberryPi()){
+            this.procTime = 150; //allow more time for processing on the Raspberry pi.
+        } else{
+            this.procTime = 5;
+        }
     }
     
     public void run()
     {
         MoeSyntaxDocument document = editor.getSourceDocument();
         long begin = System.currentTimeMillis();
-        if (document != null && document.pollReparseQueue()) {
+        if (PrefMgr.getScopeHighlightStrength() != 0 && document != null && document.pollReparseQueue()) {
             // Continue processing
-            while (System.currentTimeMillis() - begin < 5 && PrefMgr.getScopeHighlightStrength() != 0) {
+            while (System.currentTimeMillis() - begin < this.procTime) {
                 if (! document.pollReparseQueue()) {
+                    System.out.println("Time: "+(System.currentTimeMillis() - begin ));
                     break;
                 }
             }

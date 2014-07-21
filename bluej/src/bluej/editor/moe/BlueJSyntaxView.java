@@ -21,6 +21,11 @@
  */
 package bluej.editor.moe;
 
+import bluej.editor.moe.MoeSyntaxEvent.NodeChangeRecord;
+import bluej.parser.nodes.NodeTree.NodeAndPosition;
+import bluej.parser.nodes.ParsedCUNode;
+import bluej.parser.nodes.ParsedNode;
+import bluej.prefmgr.PrefMgr;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
@@ -35,7 +40,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Stack;
-
+import java.util.TreeMap;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentEvent.ElementChange;
 import javax.swing.event.DocumentEvent.EventType;
@@ -46,12 +51,6 @@ import javax.swing.text.Segment;
 import javax.swing.text.TabExpander;
 import javax.swing.text.Utilities;
 import javax.swing.text.ViewFactory;
-
-import bluej.editor.moe.MoeSyntaxEvent.NodeChangeRecord;
-import bluej.parser.nodes.NodeTree.NodeAndPosition;
-import bluej.parser.nodes.ParsedCUNode;
-import bluej.parser.nodes.ParsedNode;
-import bluej.prefmgr.PrefMgr;
 
 /**
  * A Swing view implementation that does syntax colouring and adds some utility.
@@ -263,11 +262,6 @@ public abstract class BlueJSyntaxView extends MoePlainView
         
         Element map = document.getDefaultRootElement();
         ParsedNode rootNode = document.getParsedNode();
-        Rectangle clipBounds = g.getClipBounds();
-        if (clipBounds == null) {
-            clipBounds = a.getBounds();
-        }
-        int char_width = metrics.charWidth('m');
 
         int aboveLine = firstLine - 1;
         List<NodeAndPosition<ParsedNode>> prevScopeStack = new LinkedList<NodeAndPosition<ParsedNode>>();
@@ -280,7 +274,6 @@ public abstract class BlueJSyntaxView extends MoePlainView
             lines.belowLineSeg = new Segment();
 
             lines.aboveLineEl = null;
-            lines.thisLineEl = map.getElement(firstLine);
             if (aboveLine >= 0) {
                 lines.aboveLineEl = map.getElement(aboveLine);
                 document.getText(lines.aboveLineEl.getStartOffset(),
@@ -294,7 +287,8 @@ public abstract class BlueJSyntaxView extends MoePlainView
                         lines.belowLineEl.getEndOffset() - lines.belowLineEl.getStartOffset(),
                         lines.belowLineSeg);
             }
-
+            
+            lines.thisLineEl = map.getElement(firstLine);
             document.getText(lines.thisLineEl.getStartOffset(),
                     lines.thisLineEl.getEndOffset() - lines.thisLineEl.getStartOffset(),
                     lines.thisLineSeg);
@@ -303,11 +297,11 @@ public abstract class BlueJSyntaxView extends MoePlainView
 
             while (curLine <= lastLine) {
 
-                if (prevScopeStack.size() == 0) {
+                if (prevScopeStack.isEmpty()) {
                     break;
                 }
 
-                drawScopes(a, g, document, lines, char_width, prevScopeStack, small, onlyMethods, 0);
+                drawScopes(a, g, document, lines, prevScopeStack, small, onlyMethods, 0);
 
                 // Next line
                 curLine++;
@@ -361,15 +355,10 @@ public abstract class BlueJSyntaxView extends MoePlainView
      * @param prevScopeStack the stack of nodes (from outermost to innermost) at the beginning of the current line
      */
     private void drawScopes(Shape a, Graphics g, MoeSyntaxDocument document, ThreeLines lines,
-            int charWidth, List<NodeAndPosition<ParsedNode>> prevScopeStack, boolean small,
+            List<NodeAndPosition<ParsedNode>> prevScopeStack, boolean small,
             boolean onlyMethods, int nodeDepth)
     throws BadLocationException
     {
-        Rectangle clipBounds = g.getClipBounds();
-        if (clipBounds == null) {
-            clipBounds = a.getBounds();
-        }
-
         Rectangle lbounds = modelToView(lines.thisLineEl.getStartOffset(), a,
                 Position.Bias.Forward).getBounds();
         int ypos = lbounds.y;
@@ -398,7 +387,7 @@ public abstract class BlueJSyntaxView extends MoePlainView
             if (napPos >= lines.thisLineEl.getEndOffset()) {
                 // The node isn't even on this line, go to the next line
                 break;
-            }
+    }
 
             if (nodeSkipsEnd(napPos, napEnd, lines.thisLineEl, lines.thisLineSeg)) {
                 break;
@@ -412,19 +401,19 @@ public abstract class BlueJSyntaxView extends MoePlainView
             // Draw the start node
             int xpos = getNodeIndent(a, document, nap, lines.thisLineEl,
                     lines.thisLineSeg);
-            boolean starts = nodeSkipsStart(nap, lines.aboveLineEl, lines.aboveLineSeg);
-            boolean ends = nodeSkipsEnd(napPos, napEnd, lines.belowLineEl, lines.belowLineSeg);
-            int rbound = getNodeRBound(a, nap, fullWidth - rightMargin, nodeDepth,
-                    lines.thisLineEl, lines.thisLineSeg);
-
-            drawInfo.node = nap.getNode();
-            drawInfo.starts = starts;
-            drawInfo.ends = ends;
-            Color [] colors = colorsForNode(drawInfo.node);
-            drawInfo.color1 = colors[0];
-            drawInfo.color2 = colors[1];
-
             if (xpos != - 1 && xpos <= a.getBounds().x + a.getBounds().width) {
+                boolean starts = nodeSkipsStart(nap, lines.aboveLineEl, lines.aboveLineSeg);
+                boolean ends = nodeSkipsEnd(napPos, napEnd, lines.belowLineEl, lines.belowLineSeg);
+                int rbound = getNodeRBound(a, nap, fullWidth - rightMargin, nodeDepth,
+                        lines.thisLineEl, lines.thisLineSeg);
+
+                drawInfo.node = nap.getNode();
+                drawInfo.starts = starts;
+                drawInfo.ends = ends;
+                Color[] colors = colorsForNode(drawInfo.node);
+                drawInfo.color1 = colors[0];
+                drawInfo.color2 = colors[1];
+
                 drawScopeLeft(drawInfo, xpos, rbound);
                 drawScopeRight(drawInfo, rbound);
             }
@@ -432,7 +421,7 @@ public abstract class BlueJSyntaxView extends MoePlainView
 
             //lastNodePos = nap;
         }
-
+        
         // Move along.
         li = prevScopeStack.listIterator(prevScopeStack.size());
         NodeAndPosition<ParsedNode> nap = li.previous(); // last node
@@ -528,11 +517,7 @@ public abstract class BlueJSyntaxView extends MoePlainView
             return false; // just white space on this line
         }
 
-        if (nodeSkipsEnd(napPos, napEnd, info.lines.thisLineEl, info.lines.thisLineSeg)) {
-            return false;
-        }
-
-        return true;
+        return !nodeSkipsEnd(napPos, napEnd, info.lines.thisLineEl, info.lines.thisLineSeg);
     }
 
     /**
@@ -575,7 +560,7 @@ public abstract class BlueJSyntaxView extends MoePlainView
 
         int edgeTop = info.ypos + (info.starts ? hoffs : 0);
         int edgeBtm = info.ypos2 - (info.ends ? hoffs : 0);
-
+        
         g.setColor(info.color2);
         g.fillRect(xpos, edgeTop, hoffs, edgeBtm - edgeTop);
         g.setColor(info.color1);
@@ -601,7 +586,7 @@ public abstract class BlueJSyntaxView extends MoePlainView
             g.drawArc(xpos, edgeBtm - hoffs, hoffs * 2, hoffs * 2, 180, 90);
             //g.drawLine(xpos + hoffs, ypos2 - 1, rbounds, ypos2 - 1);
         }
-
+        
         drawScope(info, xpos + hoffs, rbound);
     }
 
@@ -611,11 +596,11 @@ public abstract class BlueJSyntaxView extends MoePlainView
     private void drawScopeRight(DrawInfo info, int xpos)
     {
         Graphics g = info.g;
-
+        
         int hoffs = info.small ? 0 : 4; // determines size of corner arcs        
         int edgeTop = info.ypos + (info.starts ? hoffs : 0);
         int edgeBtm = info.ypos2 - (info.ends ? hoffs + 1 : 0);
-
+        
         g.setColor(info.color2);
         g.fillRect(xpos, edgeTop, hoffs, edgeBtm - edgeTop);
 
@@ -629,7 +614,7 @@ public abstract class BlueJSyntaxView extends MoePlainView
 
             g.setColor(info.color1);
             g.drawArc(xpos - hoffs, info.ypos, hoffs * 2, hoffs * 2, 0, 90);
-        }
+            }
         if(info.ends) {
             // Bottom right corner
             g.setColor(info.color2);
@@ -711,12 +696,12 @@ public abstract class BlueJSyntaxView extends MoePlainView
      */
     private boolean nodeSkipsStart(NodeAndPosition<ParsedNode> nap, Element lineEl, Segment segment)
     {
-        int napPos = nap.getPosition();
-        int napEnd = nap.getEnd();
-        
         if (lineEl == null) {
             return true;
         }
+        
+        int napPos = nap.getPosition();
+        int napEnd = nap.getEnd();
         if (napPos > lineEl.getStartOffset() && napEnd > lineEl.getEndOffset()) {
             // The node officially starts on this line, but might have no text on this
             // line. In that case, we probably want to move its start down to the next line.
@@ -767,13 +752,18 @@ public abstract class BlueJSyntaxView extends MoePlainView
             Segment segment)
         throws BadLocationException
     {
-        int napPos = nap.getPosition();
-        int napEnd = nap.getEnd();
-
+        Integer ident = nodeIndents.get(nap.getNode());
+        if (ident != null) {
+            return ident;
+        }
+        
         if (lineEl == null) {
             return Integer.MAX_VALUE;
         }
-
+        
+        int napPos = nap.getPosition();
+        int napEnd = nap.getEnd();
+        
         if (napPos >= lineEl.getEndOffset()) {
             return Integer.MAX_VALUE;
         }
@@ -807,7 +797,7 @@ public abstract class BlueJSyntaxView extends MoePlainView
                 xpos = Math.max(xpos, lbounds.x);
             }
         }
-
+        nodeIndents.put(nap.getNode(), xpos);
         return xpos;
     }
 
@@ -816,6 +806,11 @@ public abstract class BlueJSyntaxView extends MoePlainView
      */
     private int getNodeIndent(Shape a, MoeSyntaxDocument doc, NodeAndPosition<ParsedNode> nap)
     {
+        
+        Integer inden = nodeIndents.get(nap.getNode());
+        if (inden != null){
+            return inden;
+        }
         try {
             int indent = Integer.MAX_VALUE;
 
@@ -878,8 +873,10 @@ public abstract class BlueJSyntaxView extends MoePlainView
                     curpos += nws - lineOffset;
                 }
             }
+            int result = indent == Integer.MAX_VALUE ? -1 : indent;
+            nodeIndents.put(nap.getNode(), result);
 
-            return indent == Integer.MAX_VALUE ? -1 : indent;
+            return result;
         }
         catch (BadLocationException ble) {
             return -1;
@@ -1397,9 +1394,7 @@ public abstract class BlueJSyntaxView extends MoePlainView
         }
         else if (changes.getType() == EventType.REMOVE) {
             damageStart = Math.min(damageStart, changes.getOffset());
-            damageEnd = Math.max(damageEnd, changes.getOffset());
             ElementChange ec = changes.getChange(document.getDefaultRootElement());
-            // Element [] childrenRemoved = changes.getChange(document.getDefaultRootElement()).getChildrenRemoved();
             boolean multiLine = ec != null;
             int [] r = reassessIndentsRemove(a, damageStart, multiLine);
             damageStart = r[0];
@@ -1497,7 +1492,7 @@ public abstract class BlueJSyntaxView extends MoePlainView
     
     /**
      * Get a colour which has been faded toward the background according to the
-     * given strength value. The higher the strength value, the less the color
+     * given strength value. The higher the strength value, the less the colour
      * is faded.
      */
     public static Color getReducedColor(int r, int g, int b, int strength)
@@ -1584,7 +1579,7 @@ public abstract class BlueJSyntaxView extends MoePlainView
     }
 
     /**
-     *  Return the pink wash color
+     *  Return the pink wash colour
      *  modified to become less strong (until white) based on the 'strength' value
      */
     private static Color getPinkWash()
