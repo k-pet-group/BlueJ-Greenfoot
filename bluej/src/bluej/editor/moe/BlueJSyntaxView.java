@@ -40,7 +40,6 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Stack;
-import java.util.TreeMap;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentEvent.ElementChange;
 import javax.swing.event.DocumentEvent.EventType;
@@ -287,7 +286,7 @@ public abstract class BlueJSyntaxView extends MoePlainView
                         lines.belowLineEl.getEndOffset() - lines.belowLineEl.getStartOffset(),
                         lines.belowLineSeg);
             }
-            
+
             lines.thisLineEl = map.getElement(firstLine);
             document.getText(lines.thisLineEl.getStartOffset(),
                     lines.thisLineEl.getEndOffset() - lines.thisLineEl.getStartOffset(),
@@ -387,7 +386,7 @@ public abstract class BlueJSyntaxView extends MoePlainView
             if (napPos >= lines.thisLineEl.getEndOffset()) {
                 // The node isn't even on this line, go to the next line
                 break;
-    }
+            }
 
             if (nodeSkipsEnd(napPos, napEnd, lines.thisLineEl, lines.thisLineSeg)) {
                 break;
@@ -421,7 +420,7 @@ public abstract class BlueJSyntaxView extends MoePlainView
 
             //lastNodePos = nap;
         }
-        
+
         // Move along.
         li = prevScopeStack.listIterator(prevScopeStack.size());
         NodeAndPosition<ParsedNode> nap = li.previous(); // last node
@@ -560,7 +559,7 @@ public abstract class BlueJSyntaxView extends MoePlainView
 
         int edgeTop = info.ypos + (info.starts ? hoffs : 0);
         int edgeBtm = info.ypos2 - (info.ends ? hoffs : 0);
-        
+
         g.setColor(info.color2);
         g.fillRect(xpos, edgeTop, hoffs, edgeBtm - edgeTop);
         g.setColor(info.color1);
@@ -586,7 +585,7 @@ public abstract class BlueJSyntaxView extends MoePlainView
             g.drawArc(xpos, edgeBtm - hoffs, hoffs * 2, hoffs * 2, 180, 90);
             //g.drawLine(xpos + hoffs, ypos2 - 1, rbounds, ypos2 - 1);
         }
-        
+
         drawScope(info, xpos + hoffs, rbound);
     }
 
@@ -596,11 +595,11 @@ public abstract class BlueJSyntaxView extends MoePlainView
     private void drawScopeRight(DrawInfo info, int xpos)
     {
         Graphics g = info.g;
-        
+
         int hoffs = info.small ? 0 : 4; // determines size of corner arcs        
         int edgeTop = info.ypos + (info.starts ? hoffs : 0);
         int edgeBtm = info.ypos2 - (info.ends ? hoffs + 1 : 0);
-        
+
         g.setColor(info.color2);
         g.fillRect(xpos, edgeTop, hoffs, edgeBtm - edgeTop);
 
@@ -614,7 +613,7 @@ public abstract class BlueJSyntaxView extends MoePlainView
 
             g.setColor(info.color1);
             g.drawArc(xpos - hoffs, info.ypos, hoffs * 2, hoffs * 2, 0, 90);
-            }
+        }
         if(info.ends) {
             // Bottom right corner
             g.setColor(info.color2);
@@ -752,15 +751,11 @@ public abstract class BlueJSyntaxView extends MoePlainView
             Segment segment)
         throws BadLocationException
     {
-        Integer ident = nodeIndents.get(nap.getNode());
-        if (ident != null) {
-            return ident;
-        }
-        
+
         if (lineEl == null) {
             return Integer.MAX_VALUE;
         }
-        
+
         int napPos = nap.getPosition();
         int napEnd = nap.getEnd();
         
@@ -797,7 +792,7 @@ public abstract class BlueJSyntaxView extends MoePlainView
                 xpos = Math.max(xpos, lbounds.x);
             }
         }
-        nodeIndents.put(nap.getNode(), xpos);
+
         return xpos;
     }
 
@@ -807,10 +802,6 @@ public abstract class BlueJSyntaxView extends MoePlainView
     private int getNodeIndent(Shape a, MoeSyntaxDocument doc, NodeAndPosition<ParsedNode> nap)
     {
         
-        Integer inden = nodeIndents.get(nap.getNode());
-        if (inden != null){
-            return inden;
-        }
         try {
             int indent = Integer.MAX_VALUE;
 
@@ -873,10 +864,8 @@ public abstract class BlueJSyntaxView extends MoePlainView
                     curpos += nws - lineOffset;
                 }
             }
-            int result = indent == Integer.MAX_VALUE ? -1 : indent;
-            nodeIndents.put(nap.getNode(), result);
 
-            return result;
+            return indent == Integer.MAX_VALUE ? -1 : indent;
         }
         catch (BadLocationException ble) {
             return -1;

@@ -58,7 +58,6 @@ public class ReparseRunner implements Runnable
             // Continue processing
             while (System.currentTimeMillis() - begin < this.procTime) {
                 if (! document.pollReparseQueue()) {
-                    System.out.println("Time: "+(System.currentTimeMillis() - begin ));
                     break;
                 }
             }
