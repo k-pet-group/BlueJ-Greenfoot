@@ -1,37 +1,38 @@
 import greenfoot.*;  // (World, Actor, GreenfootImage, and Greenfoot)
 
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.image.BufferedImage;
-
 /**
- * Counter that displays a number.
+ * Counter that displays some taxt and a number.
  * 
  * @author Michael Kolling
- * @version 1.0.1
+ * @version 1.1
  */
 public class Counter extends Actor
 {
     private int value = 0;
     private String text;
-    private int stringLength;
 
+    /**
+     * Create a counter without a text prefix, initialized to zero.
+     */
     public Counter()
     {
-        text = "";
-        stringLength = (text.length() + 2) * 10;
-        updateImage();
+        this("");
     }
 
+    /**
+     * Create a counter with a given text prefix, initialized to zero.
+     */
     public Counter(String prefix)
     {
         text = prefix;
-        stringLength = (text.length() + 2) * 10;
-
-        setImage(new GreenfootImage(stringLength, 16));
+        int imageWidth= (text.length() + 2) * 10;
+        setImage(new GreenfootImage(imageWidth, 16));
         updateImage();
     }
 
+    /**
+     * Increment the counter value by one.
+     */
     public void increment()
     {
         value++;
@@ -39,13 +40,12 @@ public class Counter extends Actor
     }
 
     /**
-     * Make the image
+     * Show the current text and count on this actor's image.
      */
     private void updateImage()
     {
         GreenfootImage image = getImage();
         image.clear();
-        image.setColor(Color.BLACK);
         image.drawString(text + value, 1, 12);
     }
 }

@@ -1,36 +1,46 @@
 import greenfoot.*;  // (World, Actor, GreenfootImage, and Greenfoot)
  
-import java.util.Random;
-  
 /**
  * A hill full of ants.
  * 
  * @author Michael Kolling
- * @version 1.0.1
+ * @version 1.1
  */
 public class AntHill extends Actor
 {
-    
-    /** Number of ants created so far. */
+    /** Number of ants that have come out so far. */
     private int ants = 0;
-    /** Maximum number of ants the hill can produce. */
+    
+    /** Total number of ants in this hill. */
     private int maxAnts = 40;
+
     /** Counter to show how much food have been collected so far. */
     private Counter foodCounter;
     
+    /**
+     * Constructor for ant hill with default number of ants (40).
+     */
     public AntHill()
     {
     }
 
+    /**
+     * Construct an ant hill with a given number of ants.
+     */
     public AntHill(int numberOfAnts)
     {
         maxAnts = numberOfAnts;
     }
 
+    /**
+     * Act: If there are still ants left inside, see whether one should come out.
+     */
     public void act()
     {
-        if(ants < maxAnts) {
-            if(Greenfoot.getRandomNumber(100) < 10) {            
+        if(ants < maxAnts) 
+        {
+            if(Greenfoot.getRandomNumber(100) < 10) 
+            {
                 getWorld().addObject(new Ant(this), getX(), getY());
                 ants++;
             }
@@ -42,13 +52,11 @@ public class AntHill extends Actor
      */
     public void countFood()
     {
-        if(foodCounter == null) {
+        if(foodCounter == null) 
+        {
             foodCounter = new Counter("Food: ");
             int x = getX();
             int y = getY() + getImage().getWidth()/2 + 8;
-            if(y >= getWorld().getHeight()) {
-                y = getWorld().getHeight();    
-            }
 
             getWorld().addObject(foodCounter, x, y);
         }        

@@ -1,21 +1,16 @@
-PROJECT TITLE: 
-Ants
+        Ants
+        ====
+        Version 3
+        
+This scenario is part of the book 
 
-PURPOSE OF PROJECT: 
-Simulate ants collecting food in a cooporative way.
-A few anthills, some food sources, and lots of ants swarming out to find food.
-Ants lay trails of pheromones if they found something, so that other ants can 
-follow the trail. 
+    "Introduction to Programming with Greenfoot"
+    by Michael Kšlling
+    ISBN: 0-13-603753-4
 
-VERSION or DATE: 
-1.0
+This scenario is discussed in detail in that book.
 
-HOW TO START THIS PROJECT: 
-Compile all the classes and press the run button.
+Copyright (c) Michael Kšlling.
 
-AUTHORS: 
-Michael Kolling
-
-USER INSTRUCTIONS: 
-You can add more anthills and food sources by right clicking 
-on the classes and instantiate new objects.
+Permission is granted to use this code in any way you like (modification,
+copying, distribution).

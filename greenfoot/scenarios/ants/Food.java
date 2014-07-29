@@ -1,35 +1,36 @@
 import greenfoot.*;  // (World, Actor, GreenfootImage, and Greenfoot)
 
 import java.awt.Color;
-import java.awt.image.BufferedImage;
 import java.util.Random;
 
 /**
- * A pile of food.
+ * A pile of food. The pile consists initially of 100 crumbs of food.
  * 
- * @author Michael Kolling
- * @version 1.0.1
+ * @author Michael Kšlling
+ * @version 1.1
  */
 public class Food extends Actor
 {
-
     private static final int SIZE = 30;
     private static final int HALFSIZE = SIZE / 2;
     private static final Color color1 = new Color(160, 200, 60);
     private static final Color color2 = new Color(80, 100, 30);
     private static final Color color3 = new Color(10, 50, 0);
 
-    private int crumbs = 100;
-
-    public static Random randomizer = new Random();
+    private static final Random randomizer = new Random();
     
+    private int crumbs = 100;  // number of bits of food in this pile
+
+    /**
+     * Create a pile of food with an image depicting the amount.
+     */
     public Food()
     {
         updateImage();
     }
 
     /**
-     * Removes some food from this pile of food.
+     * Remove some food from this pile of food.
      */
     public void takeSome()
     {
@@ -67,9 +68,10 @@ public class Food extends Actor
     private int randomCoord()
     {
         int val = HALFSIZE + (int) (randomizer.nextGaussian() * (HALFSIZE / 2));
-      
+        
         if (val < 0)
             return 0;
+
         if (val > SIZE - 2)
             return SIZE - 2;
         else

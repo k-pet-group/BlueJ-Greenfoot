@@ -1,18 +1,14 @@
 import greenfoot.*;  // (World, Actor, GreenfootImage, and Greenfoot)
 
-import java.awt.Color;
-import java.util.Random;
-
 /**
  * The world where ants live.
  * 
- * @author Michael Kolling
- * @version 1.0.1
+ * @author Michael Kšlling
+ * @version 1.1
  */
 public class AntWorld extends World
 {
-    public static final int RESOLUTION = 1;
-    public static final int SIZE = 640;
+    public static final int SIZE = 620;
 
     /**
      * Create a new world. It will be initialised with a few ant hills
@@ -20,14 +16,17 @@ public class AntWorld extends World
      */
     public AntWorld()
     {
-        super(SIZE / RESOLUTION, SIZE / RESOLUTION, RESOLUTION);
-        setBackground("sand.jpg");
-        setPaintOrder(Ant.class, Counter.class, Food.class, AntHill.class, Pheromone.class);
-        scenario3();
+        super(SIZE, SIZE, 1);
+        setPaintOrder(Ant.class, Pheromone.class, AntHill.class, Food.class);
+        setup2();
     }
 
-    public void scenario1()
+    /**
+     * Create world contents: one ant hill and food.
+     */
+    public void setup1()
     {
+        removeObjects(getObjects(null));  // remove all existing objects
         addObject(new AntHill(70), SIZE / 2, SIZE / 2);
         addObject(new Food(), SIZE / 2, SIZE / 2 - 260);
         addObject(new Food(), SIZE / 2 + 215, SIZE / 2 - 100);
@@ -37,9 +36,13 @@ public class AntWorld extends World
         addObject(new Food(), SIZE / 2 - 215, SIZE / 2 - 100);
     }
 
-    public void scenario2()
+    /**
+     * Create world contents: two ant hills and food.
+     */
+    public void setup2()
     {
-        addObject(new AntHill(40), 546, 356);
+        removeObjects(getObjects(null));  // remove all existing objects
+        addObject(new AntHill(40), 506, 356);
         addObject(new AntHill(40), 95, 267);
 
         addObject(new Food(), 80, 71);
@@ -53,8 +56,12 @@ public class AntWorld extends World
         addObject(new Food(), 566, 529);
     }
 
-    public void scenario3()
+    /**
+     * Create world contents: two ant hills and food.
+     */
+    public void setup3()
     {
+        removeObjects(getObjects(null));  // remove all existing objects
         addObject(new AntHill(40), 576, 134);
         addObject(new AntHill(40), 59, 512);
 
@@ -66,10 +73,5 @@ public class AntWorld extends World
         addObject(new Food(), 339, 342);
         addObject(new Food(), 593, 340);
         addObject(new Food(), 487, 565);
-    }
-
-    public int getResolution()
-    {
-        return RESOLUTION;
     }
 }
