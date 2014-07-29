@@ -98,13 +98,13 @@
             -->
         </copy>
         <copy todir="install_tmp/doc" preservelastmodified="true">
-            <fileset dir="${bluej_home}/package">
+            <fileset dir="${greenfoot.projectdir}/package">
                 <patternset refid="greenfoot.license.files" />
             </fileset>        	
 		</copy>
         	
         <copy tofile="install_tmp/README.TXT"
-    		file="${bluej_home}/doc/Greenfoot-README.txt" />
+    		file="${greenfoot.projectdir}/doc/Greenfoot-README.txt" />
 		
         <!-- jar the entire distribution into one jar file            -->
         <!-- (use zip instead of jar to avoid generation of manifest) -->
