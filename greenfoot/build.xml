@@ -127,9 +127,8 @@
         <exclude name="scenarios/**/doc/" />
         <exclude name="scenarios/**/__*" />
         <include name="scenarios/lunarlander/" />
-        <include name="scenarios/balloons/" />
-        <include name="scenarios/wombats/" />
-        <include name="scenarios/wombats2/" />
+        <include name="scenarios/ants/" />
+        <include name="scenarios/LTA/" />
     </patternset>
 
     <!-- The classpath to the greenfoot classes (once they are built) -->
