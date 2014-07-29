@@ -6,7 +6,9 @@ import java.awt.Color;
  * A moon.
  * 
  * @author Poul Henriksen
- * @version 1.0.2
+ * @author Michael Kölling
+ * 
+ * @version 1.1
  */
 public class Moon extends World
 {
@@ -19,12 +21,10 @@ public class Moon extends World
     /** Color of the space */
     private Color spaceColor = Color.BLACK;
     
-    public Moon()
+    public Moon() 
     {
         super(600,600,1);
         addObject(new Lander(), 326, 100);
-
-        //Force the explosion to initialise the images
         Explosion.initialiseImages();
     }
     
@@ -32,26 +32,26 @@ public class Moon extends World
      * Gravity on the moon  
      *
      */
-    public double getGravity()
-    {
+    public double getGravity()  {
         return gravity;
     }
+    
     
     /**
      * Color of the landing platform 
      * 
      */
-    public Color getLandingColor()
-    {
+    public Color getLandingColor() {
         return landingColor;
     }    
+    
     
     /**
      * Color of the space 
      * 
      */
-    public Color getSpaceColor()
-    {
+    public Color getSpaceColor() {
         return spaceColor;
     }
+ 
 }

@@ -6,15 +6,17 @@ import java.awt.Color;
  * A lunar lander
  *
  * @author Poul Henriksen
- * @version 1.0.1
+ * @author Michael Kölling
+ * 
+ * @version 1.1
  */
 public class Lander extends Actor
 {
     /** Current speed */
     private double speed = 0;
      
-    /** Current speed */
-    private double MAX_LANDING_SPEED = 10;  
+    /** Allowed speed for landing speed */
+    private double MAX_LANDING_SPEED = 12;
     
     /** Power of the rocket */
     private double thrust = -3;
@@ -34,12 +36,8 @@ public class Lander extends Actor
     /** Moon we are trying to land on */
     private Moon moon;    
     
-    /** Left foot */
-    private int leftX = -13;
-    /** Right foot */
-    private int rightX = 15;
-    /** Bottom of lander */
-    private int bottom = 27;
+    /** Bottom of lander (offset in pixels from centre) */
+    private int bottom = 15;
     
     public Lander()
     {
@@ -61,7 +59,8 @@ public class Lander extends Actor
     /**
      * Lander has been added to the world.
      */
-    public void addedToWorld(World world) {
+    public void addedToWorld(World world) 
+    {
         moon = (Moon) world;        
         altitude = getY();
     }
@@ -69,8 +68,10 @@ public class Lander extends Actor
     /**
      * Handle keyboard input.
      */
-    private void processKeys() {
-        if(Greenfoot.isKeyDown("down")) {
+    private void processKeys() 
+    {
+        if(Greenfoot.isKeyDown("down")) 
+        {
             speed+=thrust;
             setImage(rocketWithThrust);
         } else {
@@ -81,37 +82,40 @@ public class Lander extends Actor
     /**
      * Let the gravity change the speed.
      */
-    private void applyGravity() {
+    private void applyGravity() 
+    {
         speed += moon.getGravity();
     }
     
     /**
      * Whether we have touched the landing platform yet.
      */
-    private boolean isLanding() {
-        Color leftColor = moon.getColorAt(getX() + leftX, getY() + bottom);
-        Color rightColor = moon.getColorAt(getX() + rightX, getY() + bottom);
-        return (speed <= MAX_LANDING_SPEED) && leftColor.equals(moon.getLandingColor()) && rightColor.equals(moon.getLandingColor());
+    private boolean isLanding() 
+    {
+        Color colorBelow = moon.getColorAt(getX(), getY() + bottom);
+        return (speed <= MAX_LANDING_SPEED) && !colorBelow.equals(moon.getSpaceColor());
     }
      
     /** 
      * Is the lander exploding?
      */
-    private boolean isExploding() {
-        Color leftColor = moon.getColorAt(getX() + leftX, getY() + bottom);
-        Color rightColor = moon.getColorAt(getX() + rightX, getY() + bottom);
-        return !(leftColor.equals(moon.getSpaceColor()) && rightColor.equals(moon.getSpaceColor()));
+    private boolean isExploding() 
+    {
+        Color colorBelow = moon.getColorAt(getX(), getY() + bottom);
+        return (speed > MAX_LANDING_SPEED) && !colorBelow.equals(moon.getSpaceColor());
     }
     
     /**
      * Check if we are colliding with anything and take appropiate action.
      */
-    private void checkCollision() {
-        if(isLanding()) {
-            setImage(rocket);           
+    private void checkCollision() 
+    {
+        if (isLanding()) {
+            setImage(rocket);
             moon.addObject(new Flag(), getX(), getY());
-            Greenfoot.stop();            
-        } else if(isExploding()) {
+            Greenfoot.stop();
+        } 
+        else if (isExploding()) {
             moon.addObject(new Explosion(), getX(), getY());
             moon.removeObject(this);
         }

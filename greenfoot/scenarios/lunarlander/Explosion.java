@@ -7,7 +7,9 @@ import java.util.*;
  * The explosion will explode other obejcts that the explosion intersects.
  * 
  * @author Poul Henriksen
- * @version 1.0.1
+ * @author Michael Kölling
+ * 
+ * @version 1.1
  */
 public class Explosion extends Actor
 {
@@ -26,7 +28,7 @@ public class Explosion extends Actor
     /** How much do we increment the index in the explosion animation. */
     private int increment=1;    
     
-    public Explosion()
+    public Explosion() 
     {
         initialiseImages();
         setImage(images[0]);        
@@ -36,7 +38,7 @@ public class Explosion extends Actor
     /** 
      * Create the images for explosion.
      */
-    public synchronized static void initialiseImages()
+    public synchronized static void initialiseImages() 
     {
         if(images == null) {
             GreenfootImage baseImage = new GreenfootImage("explosion.png");
@@ -76,16 +78,12 @@ public class Explosion extends Actor
      */
     private void explodeOthers() 
     {        
-        List explodeEm = getIntersectingObjects(null);        
-        Iterator i = explodeEm.iterator();
-        while(i.hasNext()) {
-            Actor a = (Actor) i.next();
-            if( ! (a instanceof Explosion)) { //Don't explode other explosions
-                int x = a.getX();
-                int y = a.getY();
-                //Replace other object with an explosion
+        List<Actor> actors = (List<Actor>) getIntersectingObjects(null);        
+        
+        for (Actor a : actors) {
+            if( ! (a instanceof Explosion)) {    //Don't explode other explosions
+                getWorld().addObject(new Explosion(), a.getX(), a.getY());
                 getWorld().removeObject(a);
-                getWorld().addObject(new Explosion(), x, y);
             }
         }
     }
