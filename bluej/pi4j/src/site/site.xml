@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project name="The Pi4J Project">
+	<skin>
+		<groupId>org.apache.maven.skins</groupId>
+		<artifactId>maven-fluido-skin</artifactId>
+		<version>1.3.0</version>
+	</skin>
+	<bannerLeft>
+		<name>Pi4J</name>
+		<src>/images/logos/pi4j-header-small3.png</src>
+		<href>http://www.pi4j.com/</href>
+	</bannerLeft>
+	<bannerRight>
+		<name>The Pi4J Project</name>
+		<src>/images/logos/trademarks.png</src>
+		<href>http://www.raspberrypi.org/</href>
+	</bannerRight>
+	<poweredBy>
+		<logo name="RaspberryPi" href="http://www.raspberrypi.org/"
+			img="/images/logos/raspberrypi.png"  target="_blank" />
+	</poweredBy>
+	<body>
+		<head>
+			<META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE"/>
+			<META HTTP-EQUIV="PRAGMA" CONTENT="NO-CACHE"/>
+			<META NAME="COPYRIGHT" CONTENT="Copyright &copy; 2012 Pi4J. All Rights Reserved."/>
+			<META NAME="KEYWORDS" CONTENT="raspberry, pi, raspberrypi, raspi, java, pi4j, java pi, gpio, input, output, io"/>
+			<META NAME="ROBOTS" CONTENT="ALL"/> 
+			<META NAME="DESCRIPTION" CONTENT="The Pi4J Project provides Java programmer's full IO control to a Raspberry Pi"/>
+			<META NAME="AUTHOR" CONTENT="Robert Savage"/>
+			
+			<!-- GOOGLE ANALYTICS SCRIPT -->
+			<script type="text/javascript">
+			
+			  var _gaq = _gaq || [];
+			  _gaq.push(['_setAccount', 'UA-35332834-1']);
+			  _gaq.push(['_setDomainName', 'pi4j.com']);
+			  _gaq.push(['_trackPageview']);
+			
+			  (function() {
+			    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+			    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+			    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+			  })();
+			
+			</script>
+		</head>
+		<links>
+			<item name="Home" href="http://www.pi4j.com/" />
+			<item name="Downloads" href="download.html" />
+			<item name="Github" href="https://github.com/Pi4J/pi4j/" target="pi4j-github" />
+			<item name="Issues" href="https://github.com/Pi4J/pi4j/issues/" target="pi4j-github"/>
+			<item name="Forum" href="https://groups.google.com/forum/#!forum/pi4j" target="pi4j-groups"/>
+			<item name="@Pi4J (Twitter)" href="https://twitter.com/pi4j" target="_blank"/>
+			<item name="Blog" href="http://www.savagehomeautomation.com/projects/category/pi4j" target="_blank"/>
+		</links>
+		<menu name="Pi4J">
+			<item name="Welcome" href="index.html" />
+			<item name="The Team" href="team-list.html" />
+			<item name="Contact" href="contact.html" />
+			<item name="FAQ" href="faq.html" />
+			<item name="License" href="license.html" />
+			<item name="Dependencies" href="dependency.html" />
+			<item name="Release Notes" href="release-notes.html" />
+			<item name="Download" href="download.html" />
+			<item name="Installation" href="install.html" />
+			<item name="Usage" href="usage.html" />
+			<item name="JavaDoc" href="apidocs/index.html" target="pi4j-javadoc"/>
+		</menu>
+		<menu name="Examples">
+			<item name="Control GPIO" href="example/control.html" />
+			<item name="Listen for GPIO Events" href="example/listener.html" />
+			<item name="Shutdown GPIO" href="example/shutdown.html" />
+			<item name="Trigger GPIO on Events" href="example/trigger.html" />
+			<item name="Serial Communication" href="example/serial.html" />
+			<item name="System/Network Information" href="example/system-info.html" />
+		</menu>
+		<menu name="Project Development">
+			<item name="Project Information" href="project-info.html" />
+			<item name="Project Reports" href="project-reports.html" />
+		</menu>		
+<!-- 		<menu ref="reports" /> -->
+	</body>
+</project>

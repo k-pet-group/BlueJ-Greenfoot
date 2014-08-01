@@ -1,0 +1,5 @@
+#!/bin/sh
+mkdir -p /opt/pi4j
+mkdir -p /opt/pi4j/lib
+mkdir -p /opt/pi4j/examples
+chmod -f 777 /opt/pi4j/examples 

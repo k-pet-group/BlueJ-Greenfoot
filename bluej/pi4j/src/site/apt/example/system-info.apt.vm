@@ -1,0 +1,61 @@
+System Information Example using Pi4J.
+
+  The following example demonstrates how to use Pi4J to access system and network information from the Raspberry Pi.
+
+* Source Code 
+   
+  The source code for this example is included in the github repository:\
+  {{https://github.com/Pi4J/pi4j/tree/master/pi4j-example/src/main/java/SystemInfoExample.java}}
+
+%{snippet|id=system-info-snippet|file=pi4j-example/src/main/java/SystemInfoExample.java}
+
+* JavaDoc
+
+  The following JavaDoc links are the primary interfaces used to access system and network information:
+
+  * {{{../apidocs/index.html?com/pi4j/system/NetworkInfo.html}com.pi4j.system.NetworkInfo}}
+
+  * {{{../apidocs/index.html?com/pi4j/system/SystemInfo.html}com.pi4j.system.SystemInfo}}
+
+* Navigate
+
+  If you have not already downloaded and installed the Pi4J library on the RaspberryPi, then view this page for instructions on where to download and how to install Pi4J: \
+  {{{../install.html}Download & Install Pi4J}}
+  
+  
+  First, locate the <SystemInfoExample.java> source file in the samples folder of the Pi4J installation on the RaspberryPi. \
+  You can use the following command on the Pi's console or SSH terminal to navigate to this path: \
+  <<<cd /opt/pi4j/examples>>>
+
+* Compile
+  
+  Next, use the following command to compile this example program:
+  
+  <<<javac -classpath .:classes:/opt/pi4j/lib/'*' -d . SystemInfoExample.java>>>
+  
+* Execute
+  
+  The following command will run this example program:
+  
+  <<<sudo java -classpath .:classes:/opt/pi4j/lib/'*' SystemInfoExample>>>
+  
+* Output
+
+  You should see the program output information similar to this listing below:\
+  <<<
+  Serial Number     :  0000000043xxxxxx\
+  CPU Revision      :  7\
+  CPU Architecture  :  7\
+  CPU Part          :  0xb76\
+  MIPS              :  697.95\
+  Processor         :  ARMv6-compatible processor rev 7 (v6l)\
+  Hardware Revision :  0002\
+  Hostname          :  raspberrypi\
+  IP Addresses      :  10.1.1.194\
+  IP Addresses      :  10.1.1.161\
+  FQDN              :  raspberrypi.mydomain.local\
+  Nameserver        :  10.1.1.1\
+  >>>
+
+[../images/system-info-example.png]
+

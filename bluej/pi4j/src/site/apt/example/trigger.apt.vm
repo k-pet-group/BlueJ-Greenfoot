@@ -1,0 +1,78 @@
+GPIO Triggers Example using Pi4J.
+
+  The following example demonstrates how to setup GPIO triggers.  GPIO Triggers listen for pin state changes and then perform some action on on alternate GPIO pin or perform a callback to a user specified method.  
+  Pi4J includes several built in pre-defined trigger implementation classes or you can create your own trigger by implementing the GpioTrigger interface.  
+  Triggers are based on the GPIO listener implementation and rely on GPIO hardware interrupts not state polling.
+
+* Source Code 
+   
+  The source code for this example is included in the github repository:\
+  {{https://github.com/Pi4J/pi4j/tree/master/pi4j-example/src/main/java/TriggerGpioExample.java}}
+
+%{snippet|id=trigger-gpio-snippet|file=pi4j-example/src/main/java/TriggerGpioExample.java}
+
+* JavaDoc
+
+  The following JavaDoc links are the primary interfaces used to setup triggers for GPIO state changes:
+
+  * {{{../apidocs/index.html?com/pi4j/io/gpio/GpioFactory.html}com.pi4j.io.gpio.GpioFactory}}
+  
+  * {{{../apidocs/index.html?com/pi4j/io/gpio/Gpio.html}com.pi4j.io.gpio.Gpio}}
+  
+  * {{{../apidocs/index.html?com/pi4j/io/gpio/GpioPin.html}com.pi4j.io.gpio.GpioPin}}
+
+  * {{{../apidocs/index.html?com/pi4j/io/gpio/PinEdge.html}com.pi4j.io.gpio.PinEdge}}
+
+  * {{{../apidocs/index.html?com/pi4j/io/gpio/PinState.html}com.pi4j.io.gpio.PinState}}
+
+  * {{{../apidocs/index.html?com/pi4j/io/gpio/PinResistor.html}com.pi4j.io.gpio.PinResistor}}
+
+  * {{{../apidocs/index.html?com/pi4j/io/gpio/trigger/GpioCallbackTrigger.html}com.pi4j.io.gpio.trigger.GpioCallbackTrigger}}
+
+  * {{{../apidocs/index.html?com/pi4j/io/gpio/trigger/GpioPulseStateTrigger.html}com.pi4j.io.gpio.trigger.GpioPulseStateTrigger}}
+
+  * {{{../apidocs/index.html?com/pi4j/io/gpio/trigger/GpioSetStateTrigger.html}com.pi4j.io.gpio.trigger.GpioSetStateTrigger}}
+
+  * {{{../apidocs/index.html?com/pi4j/io/gpio/trigger/GpioSyncStateTrigger.html}com.pi4j.io.gpio.trigger.GpioSyncStateTrigger}}
+  
+* Wiring Diagram
+
+  The following circuit can be used in conjunction with this sample code.
+  
+[../images/gpio-trigger-example.png]
+
+  {{{../images/gpio-trigger-example-large.png}(click here for hi-resolution image)}}
+
+* Navigate
+
+  If you have not already downloaded and installed the Pi4J library on the RaspberryPi, then view this page for instructions on where to download and how to install Pi4J: \
+  {{{../install.html}Download & Install Pi4J}}
+  
+  
+  First, locate the <TriggerGpioExample.java> source file in the samples folder of the Pi4J installation on the RaspberryPi. \
+  You can use the following command on the Pi's console or SSH terminal to navigate to this path: \
+  <<<cd /opt/pi4j/examples>>>
+
+* Compile
+  
+  Next, use the following command to compile this example program:
+  
+  <<<javac -classpath .:classes:/opt/pi4j/lib/'*' -d . TriggerGpioExample.java>>>
+  
+* Execute
+  
+  The following command will run this example program:
+  
+  <<<sudo java -classpath .:classes:/opt/pi4j/lib/'*' TriggerGpioExample>>>
+  
+* Output
+
+  The LED attached to GPIO pin 21 should turn ON when the momentary button is pressed and OFF when the button is released.
+  
+  The LED attached to GPIO pin 22 should turn ON when the momentary button is pressed and OFF when the button is released.
+  
+  The LED attached to GPIO pin 23 should turn ON for 1 second when the momentary button is pressed.   The button release has no effect on this LED.
+
+  The following message should be displayed on the console each time the momentary button is pressed and again when released.
+    
+  <<< --> GPIO TRIGGER CALLBACK RECEIVED >>>

@@ -1,0 +1,70 @@
+GPIO State Listener Example using Pi4J.
+
+  The following example demonstrates how to setup a listener for GPIO pin state changes on the Raspberry Pi.  
+  This listener implementation is far more efficient than constantly polling and querying for the the GPIO pin state.  
+  The listener implementation is based on GPIO hardware interrupts not state polling.
+
+* Source Code 
+   
+  The source code for this example is included in the github repository:\
+  {{https://github.com/Pi4J/pi4j/tree/master/pi4j-example/src/main/java/ListenGpioExample.java}}
+
+%{snippet|id=listen-gpio-snippet|file=pi4j-example/src/main/java/ListenGpioExample.java}
+
+* JavaDoc
+
+  The following JavaDoc links are the primary interfaces used to listen for GPIO state changes:
+
+  * {{{../apidocs/index.html?com/pi4j/io/gpio/GpioFactory.html}com.pi4j.io.gpio.GpioFactory}}
+  
+  * {{{../apidocs/index.html?com/pi4j/io/gpio/Gpio.html}com.pi4j.io.gpio.Gpio}}
+  
+  * {{{../apidocs/index.html?com/pi4j/io/gpio/GpioPin.html}com.pi4j.io.gpio.GpioPin}}
+
+  * {{{../apidocs/index.html?com/pi4j/io/gpio/PinEdge.html}com.pi4j.io.gpio.PinEdge}}
+
+  * {{{../apidocs/index.html?com/pi4j/io/gpio/PinResistor.html}com.pi4j.io.gpio.PinResistor}}
+
+  * {{{../apidocs/index.html?com/pi4j/io/gpio/event/GpioListener.html}com.pi4j.io.gpio.event.GpioListener}}
+
+  * {{{../apidocs/index.html?com/pi4j/io/gpio/event/GpioPinStateChangeEvent.html}com.pi4j.io.gpio.event.GpioPinStateChangeEvent}}
+  
+* Wiring Diagram
+
+  The following circuit can be used in conjunction with this sample code.
+  
+[../images/gpio-listener-example.png]
+
+  {{{../images/gpio-listener-example-large.png}(click here for hi-resolution image)}}
+
+* Navigate
+
+  If you have not already downloaded and installed the Pi4J library on the RaspberryPi, then view this page for instructions on where to download and how to install Pi4J: \
+  {{{../install.html}Download & Install Pi4J}}
+  
+  
+  First, locate the <ListenGpioExample.java> source file in the samples folder of the Pi4J installation on the RaspberryPi. \
+  You can use the following command on the Pi's console or SSH terminal to navigate to this path: \
+  <<<cd /opt/pi4j/examples>>>
+
+* Compile
+  
+  Next, use the following command to compile this example program:
+  
+  <<<javac -classpath .:classes:/opt/pi4j/lib/'*' -d . ListenGpioExample.java>>>
+  
+* Execute
+  
+  The following command will run this example program:
+  
+  <<<sudo java -classpath .:classes:/opt/pi4j/lib/'*' ListenGpioExample>>>
+  
+* Output
+
+  You should see the following message on the console each time the momentary button is pressed:
+  
+  <<< --> GPIO PIN STATE CHANGE: 4 = HIGH >>>
+  
+  and this message on the console each time the momentary button is released:
+  
+  <<< --> GPIO PIN STATE CHANGE: 4 = LOW >>>
