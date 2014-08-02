@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2009,2010,2011,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 2009,2010,2011,2012,2014  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -608,6 +608,7 @@ public final class JavaLexer implements TokenStream
         //-, -=, --
         int rval=readNextChar();
         char thisChar=(char)rval; 
+
         if (thisChar=='='){
             textBuffer.append(thisChar);
             readNextChar();
@@ -617,6 +618,11 @@ public final class JavaLexer implements TokenStream
             textBuffer.append(thisChar); 
             readNextChar();
             return JavaTokenTypes.DEC; 
+        }
+        if (thisChar == '>'){
+            textBuffer.append(thisChar);
+            readNextChar();
+            return JavaTokenTypes.LAMBDA;
         }
 
         return JavaTokenTypes.MINUS;

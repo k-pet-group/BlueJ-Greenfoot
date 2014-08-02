@@ -810,6 +810,7 @@ public class LexerTest extends junit.framework.TestCase
         tokenMap.put(JavaTokenTypes.IDENT, "abcdefg");
         tokenMap.put(JavaTokenTypes.STRING_LITERAL, "\"A string literal\"");
         tokenMap.put(JavaTokenTypes.CHAR_LITERAL, "'n'");
+        tokenMap.put(JavaTokenTypes.LAMBDA, "->");
 
         Map<Integer,Set<Integer>> cantFollow = new HashMap<Integer,Set<Integer>>();
         // "+" can't precede: +, +=, ++, =, ==
@@ -820,14 +821,22 @@ public class LexerTest extends junit.framework.TestCase
         nonSet.add(JavaTokenTypes.ASSIGN);
         nonSet.add(JavaTokenTypes.EQUAL);
         cantFollow.put(JavaTokenTypes.PLUS, nonSet);
-        // "-" can't precede -, -=, --, =, ==
+        // "-" can't precede -, -=, --, =, ==, >, >>, >>>, ->, >>=, >>>=, >=
         nonSet = new HashSet<Integer>();
         nonSet.add(JavaTokenTypes.MINUS);
         nonSet.add(JavaTokenTypes.MINUS_ASSIGN);
         nonSet.add(JavaTokenTypes.DEC);
         nonSet.add(JavaTokenTypes.ASSIGN);
         nonSet.add(JavaTokenTypes.EQUAL);
+        nonSet.add(JavaTokenTypes.GT);
+        nonSet.add(JavaTokenTypes.SR);
+        nonSet.add(JavaTokenTypes.BSR);
+        nonSet.add(JavaTokenTypes.SR_ASSIGN);
+        nonSet.add(JavaTokenTypes.BSR_ASSIGN);
+        nonSet.add(JavaTokenTypes.GE);
+        nonSet.add(JavaTokenTypes.LAMBDA);
         cantFollow.put(JavaTokenTypes.MINUS, nonSet);
+        
         // "=" can't precede =, ==
         nonSet = new HashSet<Integer>();
         nonSet.add(JavaTokenTypes.ASSIGN);
