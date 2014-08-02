@@ -505,7 +505,9 @@ public class GpioControllerImpl implements GpioController {
         // if an existing pin has been previously created, then throw an error
         for(GpioPin p : pins) {
             if (p.getProvider().equals(provider) && p.getPin().equals(pin)) {
-                throw new GpioPinExistsException(pin);
+                //throw new GpioPinExistsException(pin);
+                //the pin is already exported. The new behaviour is: unexport the pin, and then re-provide it.
+                p.unexport();
             }
         }
 
@@ -823,7 +825,7 @@ public class GpioControllerImpl implements GpioController {
                 throw new GpioPinNotProvisionedException(p.getPin());
             }
             // remove all listeners and triggers
-           if (p instanceof GpioPinInput) {
+            if (p.getMode().getDirection() == PinDirection.IN) {
                 ((GpioPinInput)p).removeAllListeners();
                 ((GpioPinInput)p).removeAllTriggers();
             }
