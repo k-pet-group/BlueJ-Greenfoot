@@ -823,7 +823,7 @@ public class GpioControllerImpl implements GpioController {
                 throw new GpioPinNotProvisionedException(p.getPin());
             }
             // remove all listeners and triggers
-            if (p.getMode().getDirection() == PinDirection.IN) {
+           if (p instanceof GpioPinInput) {
                 ((GpioPinInput)p).removeAllListeners();
                 ((GpioPinInput)p).removeAllTriggers();
             }
