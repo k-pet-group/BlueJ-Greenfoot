@@ -307,6 +307,9 @@ public class Simulation extends Thread
                 
                 if (checkStop) {
                     isRunning = false; // if we start again, we'll need to signal it.
+                    synchronized (interruptLock) {
+                        interruptDelay = false;
+                    }
                 }
                 else if (isRunning) {
                     return; // We're running and don't need to stop
@@ -407,6 +410,11 @@ public class Simulation extends Thread
             }
             catch (Throwable t) {
                 isRunning = false;
+                synchronized (interruptLock) {
+                    // Clear interrupted status
+                    Thread.interrupted();
+                    interruptDelay = false;
+                }
                 setPaused(true);
                 t.printStackTrace();
                 return;
@@ -777,10 +785,25 @@ public class Simulation extends Thread
             }
         }
         else {
-            paused = true;
-            // isRunning = false; // cause a started event if necessary, when the simulation is enabled again
-            interruptDelay = true;
+            // Note that a user method might be executing even if paused (i.e. an
+            // interactive method invocation by right-clicking an object in the
+            // world). We need to interrupt any delay that is currently running
+            // and to prevent any future delay, until the simulation is re-enabled.
             interruptDelay();
+            if (! paused) {
+                paused = true;
+            }
+            else {
+                // We are paused, or at least should be.
+                // We don't want interruptDelay set; we're not running, so the
+                // only delay we can get is a call to Greenfoot.delay(...), which
+                // goes through sleep(...). That will exit early if the simulation
+                // is not enabled. If we leave interruptDelay set now, it may affect
+                // a future delay.
+                synchronized (interruptLock) {
+                    interruptDelay = false;
+                }
+            }
             fireSimulationEvent(disabledEvent);
         }
     }
@@ -922,7 +945,7 @@ public class Simulation extends Thread
      * to delay(). It should be called only from the simulation thread, in an
      * unsynchronized context.
      */
-    public void sleep()
+    public void sleep(int numCycles)
     {
         World world = worldHandler.getWorld();
 
@@ -937,9 +960,17 @@ public class Simulation extends Thread
                 // effect at all.
                 return;
             }
-        }
-        
-        try {
+            if (! enabled) {
+                // It's possible an interactive method invocation was fired which
+                // calls Greenfoot.delay(), but the simulation was disabled (reset)
+                // between the invocation and call to Greenfoot.delay(). In this
+                // case, we don't want to delay.
+                return;
+            }
+            
+            // We need to check the interruptDelay while the simulation lock is
+            // still held, in case setEnabled(false) is called just after we release
+            // the simulation lock.
             synchronized (interruptLock) {
                 if (interruptDelay) {
                     // If interrupted, we just want to return now. We do not
@@ -949,15 +980,21 @@ public class Simulation extends Thread
                 }
                 delaying = true;
             }
-            if (world != null) {
-                // The WorldCanvas may be trying to synchronize on the world in
-                // order to do a repaint. So, we use wait() here in order
-                // to release the world lock temporarily.
-                HDTimer.wait(delay, worldHandler.getWorldLock());
-            }
-            else {
-                // shouldn't really happen
-                HDTimer.sleep(delay);
+        }
+        
+        try {
+            worldHandler.repaint();
+            for (int i = 0; i < numCycles; i++) {
+                if (world != null) {
+                    // The WorldCanvas may be trying to synchronize on the world in
+                    // order to do a repaint. So, we use wait() here in order
+                    // to release the world lock temporarily.
+                    HDTimer.wait(delay, worldHandler.getWorldLock());
+                }
+                else {
+                    // shouldn't really happen
+                    HDTimer.sleep(delay);
+                }
             }
         }
         catch (InterruptedException e) {
@@ -967,6 +1004,8 @@ public class Simulation extends Thread
         }
         finally {
             synchronized (interruptLock) {
+                Thread.interrupted(); // clear interrupt, in case we were interrupted just after the delay
+                interruptDelay = false;
                 delaying = false;
             }
         }
@@ -1026,6 +1065,7 @@ public class Simulation extends Thread
         lastDelayTime = currentTime;
         synchronized (interruptLock) {
             Thread.interrupted(); // clear interrupt, in case we were interrupted just after the delay
+            interruptDelay = false;
             delaying = false;
         }
     }

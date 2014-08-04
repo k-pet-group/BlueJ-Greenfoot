@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2011,2012  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2011,2012,2014  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -105,10 +105,7 @@ public class Greenfoot
      */
     public static void delay(int time)
     {
-        for(int i=0; i < time; i++) {
-            WorldHandler.getInstance().repaint();
-            Simulation.getInstance().sleep();
-        }
+        Simulation.getInstance().sleep(time);
     }
     
     /**
