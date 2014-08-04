@@ -1,0 +1,21 @@
+Pi4J on the raspberry pi distribution has one main change:
+The behaviour of mainstream Pi4J when 
+
+Whenever requesting a GpioPin from the GpioController (via provisionPin method), Pi4j checks if the pin is already 
+allocated/provised. If the pin is already allocated/provised, then an exception is raised and the method return no pins.
+
+This behaviour puts the pin management duty on the user, making the code much more complex.
+
+A common problem with this approach on BlueJ is when a user allocate a pin, then changes its code and run the 
+new code on the same pin without unprovise/unallocate the pin: now we are in a situation where we can't 
+unprovise/unallocate the pin since the reference to it was lost when we ran the new code. The only option left is to
+restart the JVM.
+
+The new behaviour implemented in the Pi4J present in the BlueJ repository still checks if the pin is already 
+allocated/provised, however if the pin is already allocated/provised, then the pin is unallocated/unprovised 
+(adittionally any listeners and or triggers registered to that pin are also unregistered), then the pin is 
+provised/allocated normally, as if it wasn't allocated/provised in the first place.
+
+This behaviour makes the user code much more simpler and more suitable for re-running  the same application
+on BlueJ without issues with provised/allocated pins not being freed by the user. No need to restart the JVM 
+anymore.
