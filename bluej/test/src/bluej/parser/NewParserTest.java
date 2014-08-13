@@ -376,7 +376,7 @@ public class NewParserTest extends TestCase
 
     public void testLambdaNoParameters2()
     {
-        StringReader sr = new StringReader("() -> 42");   //No parameters; expression body
+        StringReader sr = new StringReader("() -> 42;");   //No parameters; expression body
 
         JavaParser ip = new JavaParser(sr);
         ip.parseExpression();
@@ -425,7 +425,7 @@ public class NewParserTest extends TestCase
     
     public void testLambdaSingleParameter1()
     {
-        StringReader sr = new StringReader("(int x) -> x+1"); // Single declared-type parameter
+        StringReader sr = new StringReader("(int x) -> x+1;"); // Single declared-type parameter
         
         JavaParser ip = new JavaParser(sr);
         ip.parseExpression();
@@ -433,7 +433,7 @@ public class NewParserTest extends TestCase
     
     public void testLambdaSingleParameter2()
     {
-        StringReader sr = new StringReader("(x) -> x+1"); // Single inferred-type parameter
+        StringReader sr = new StringReader("(x) -> x+1;"); // Single inferred-type parameter
         
         JavaParser ip = new JavaParser(sr);
         ip.parseExpression();
@@ -441,7 +441,7 @@ public class NewParserTest extends TestCase
     
     public void testLambdaSingleParameter3()
     {
-        StringReader sr = new StringReader("x -> x+1"); // Parens optional for single inferred-type case
+        StringReader sr = new StringReader("x -> x+1;"); // Parens optional for single inferred-type case
         
         JavaParser ip = new JavaParser(sr);
         ip.parseExpression();
@@ -457,15 +457,23 @@ public class NewParserTest extends TestCase
     
     public void testLambdaSingleParameter5()
     {
-        StringReader sr = new StringReader("(final int x) -> x+1"); // Modified declared-type parameter
+        StringReader sr = new StringReader("(final int x) -> x+1;"); // Modified declared-type parameter
         
+        JavaParser ip = new JavaParser(sr);
+        ip.parseExpression();
+    }
+    
+    public void testLambdaSingleParameter6()
+    {
+        StringReader sr = new StringReader("(CustomClass x) -> x+1;"); // Modified declared-type parameter
+
         JavaParser ip = new JavaParser(sr);
         ip.parseExpression();
     }
     
     public void testLambdaMultipleParameters1()
     {
-        StringReader sr = new StringReader("(int x, int y) -> x+y"); // Multiple declared-type parameters
+        StringReader sr = new StringReader("(int x, float y) -> x+y;"); // Multiple declared-type parameters
         
         JavaParser ip = new JavaParser(sr);
         ip.parseExpression();
@@ -473,7 +481,7 @@ public class NewParserTest extends TestCase
     
     public void testLambdaMultipleParameters2()
     {
-        StringReader sr = new StringReader("(x,y) -> x+y "); // Multiple inferred-type parameters
+        StringReader sr = new StringReader("(x,y) -> x+y;"); // Multiple inferred-type parameters
         
         JavaParser ip = new JavaParser(sr);
         ip.parseExpression();
@@ -481,12 +489,12 @@ public class NewParserTest extends TestCase
     
     public void testLambdaMustFail1()
     {
-        StringReader sr = new StringReader("(x, final y) -> x+y"); // Illegal: can't modify inferred-type parameters
+        StringReader sr = new StringReader("(x, final y) -> x+y;"); // Illegal: can't modify inferred-type parameters
         
         JavaParser ip = new JavaParser(sr);
         try{
             ip.parseExpression();
-            fail("This parsing must fail!");
+            fail("This parsing must fail, but it didn't!!");
         } catch (ParseFailure pf){
             //expected. test passed
         }
@@ -495,12 +503,12 @@ public class NewParserTest extends TestCase
     public void testLambdaMustFail2()
     {
         
-        StringReader sr = new StringReader("(x, int y) -> x+y"); // Illegal: can't mix inferred and declared types
+        StringReader sr = new StringReader("(x, int y) -> x+y;"); // Illegal: can't mix inferred and declared types
         
         JavaParser ip = new JavaParser(sr);
         try{
             ip.parseExpression();
-            fail("This parsing must fail!");
+            fail("This parsing must fail, but it didn't!");
         } catch (ParseFailure pf){
             //expected. test passed
         }
