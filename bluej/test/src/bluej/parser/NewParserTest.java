@@ -471,6 +471,14 @@ public class NewParserTest extends TestCase
         ip.parseExpression();
     }
     
+    public void testLambdaSingleParameter7()
+    {
+        StringReader sr = new StringReader("(int... x) -> x+1;"); // Modified declared-type parameter
+
+        JavaParser ip = new JavaParser(sr);
+        ip.parseExpression();
+    }
+    
     public void testLambdaMultipleParameters1()
     {
         StringReader sr = new StringReader("(int x, float y) -> x+y;"); // Multiple declared-type parameters
@@ -514,6 +522,19 @@ public class NewParserTest extends TestCase
         }
     }    
     
+    public void testLambdaMustFail3()
+    {
+        StringReader sr = new StringReader("(int x, int) -> x+y;"); // Multiple inferred-type parameters
+
+        JavaParser ip = new JavaParser(sr);
+        try{
+            ip.parseExpression();
+            fail("This parsing must fail, but it didn't!");
+        }catch (ParseFailure pf){
+            //expected. test passed
+        }
+    }
+
     /** Test generic method call */
     public void testGenericMethodCall()
     {
