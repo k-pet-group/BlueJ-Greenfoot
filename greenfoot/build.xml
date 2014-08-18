@@ -286,7 +286,8 @@ LICENSE.txt file that accompanied this code.${line.separator}
                  Windowtitle="Greenfoot API"
                  Doctitle="Greenfoot API"
                  bottom="&lt;a href=http://www.greenfoot.org/&gt;Greenfoot homepage&lt;/a&gt;"
-                 classpathref="greenfoot.class.path">
+                 classpathref="greenfoot.class.path"
+                 encoding="UTF-8">
             <fileset refid="api-source.files"/>
         </javadoc>
     	<mkdir dir="${bluej.projectdir}/lib/english/greenfoot/api"/>
@@ -359,7 +360,10 @@ LICENSE.txt file that accompanied this code.${line.separator}
 	<target name="copy-common-class" depends="compile-scenarios">
 		<javadoc destdir="common" sourcefiles="common/${common.class}.java"
 			Version="yes" notree="yes" noindex="yes" nohelp="yes" nonavbar="yes"
-			classpath="${build}:common/${common.class}/lib/${common.class}.jar" docletpath="${bluej.projectdir}/lib/bjdoclet.jar" doclet="bluej.doclet.doclets.formats.html.HtmlDoclet"/> 
+			classpath="${build}:common/${common.class}/lib/${common.class}.jar"
+			docletpath="${bluej.projectdir}/lib/bjdoclet.jar" doclet="bluej.doclet.doclets.formats.html.HtmlDoclet"
+			encoding="UTF-8"
+		/> 
 		
 		<copy todir="${bluej.lib.greenfoot}" preservelastmodified="true">
 		  <fileset dir=".">
