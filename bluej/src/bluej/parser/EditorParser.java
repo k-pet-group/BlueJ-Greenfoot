@@ -601,7 +601,7 @@ public class EditorParser extends JavaParser
     protected void endForLoopBody(LocatableToken token, boolean included)
     {
         if (scopeStack.peek().getNodeType() != ParsedNode.NODETYPE_ITERATION) {
-            endTopNode(token, false);
+            endTopNode(token, included);
         }
     }
     
@@ -636,7 +636,7 @@ public class EditorParser extends JavaParser
     protected void endWhileLoopBody(LocatableToken token, boolean included)
     {
         if (scopeStack.peek().getNodeType() != ParsedNode.NODETYPE_ITERATION) {
-            endTopNode(token, false);
+            endTopNode(token, included);
         }
     }
     
@@ -671,7 +671,7 @@ public class EditorParser extends JavaParser
     protected void endDoWhileBody(LocatableToken token, boolean included)
     {
         if (scopeStack.peek().getNodeType() != ParsedNode.NODETYPE_ITERATION) {
-            endTopNode(token, false);
+            endTopNode(token, included);
         }
     }
         
@@ -776,7 +776,7 @@ public class EditorParser extends JavaParser
     @Override
     protected void endTryBlock(LocatableToken token, boolean included)
     {
-        endTopNode(token, false);
+        endTopNode(token, included);
     }
     
     @Override
@@ -811,8 +811,11 @@ public class EditorParser extends JavaParser
     @Override
     protected void endStmtblockBody(LocatableToken token, boolean included)
     {
-        endTopNode(token, false); // inner
+        endTopNode(token, false); // Don't include the final curly as part of inner block
         if (scopeStack.peek().getNodeType() == ParsedNode.NODETYPE_NONE) {
+            // This is a statement block that is not part of a loop or definition,
+            // i.e. it is just a pair of curly braces appearing as a regular statement.
+            // We need to close that statement now.
             endTopNode(token, included);
         }
     }
@@ -864,7 +867,7 @@ public class EditorParser extends JavaParser
     @Override
     protected void endTypeBody(LocatableToken token, boolean included)
     {
-        endTopNode(token, false);
+        endTopNode(token, false); // Don't include the final curly as part of inner block
     }
     
     @Override
@@ -1026,7 +1029,7 @@ public class EditorParser extends JavaParser
     protected void endMethodBody(LocatableToken token, boolean included)
     {
         scopeStack.peek().setComplete(included);
-        endTopNode(token, false);
+        endTopNode(token, false); // Don't include the final curly as part of inner block
     }
     
     @Override
