@@ -2076,7 +2076,7 @@ public class JavaParser
             beginIfCondBlock(token);
             token = parseStatement(token, false);
             endIfCondBlock(token);
-            while (tokenStream.LA(1).getType() == JavaTokenTypes.LITERAL_else) {
+            if (tokenStream.LA(1).getType() == JavaTokenTypes.LITERAL_else) {
                 tokenStream.nextToken(); // "else"
                 if (tokenStream.LA(1).getType() == JavaTokenTypes.LITERAL_if) {
                     nextToken(); // "if"

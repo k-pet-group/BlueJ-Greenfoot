@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2010,2011,2012,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 2010,2011,2012,2013,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -705,8 +705,12 @@ public class EditorParser extends JavaParser
     @Override
     protected void endIfCondBlock(LocatableToken token, boolean included)
     {
+        // If the inner block is a statement block delimited by curlies ie '{' and '}', it's already
+        // been closed. In that case the scopestack top is the outer 'if' node, which we don't want
+        // to close.
         if (scopeStack.peek().getNodeType() != ParsedNode.NODETYPE_SELECTION) {
-            endTopNode(token, false);
+            // If the stack top is *not* the outer 'if' node, we can close it.
+            endTopNode(token, included);
         }
     }
     
