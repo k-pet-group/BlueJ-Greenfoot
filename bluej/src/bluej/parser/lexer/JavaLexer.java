@@ -491,7 +491,11 @@ public final class JavaLexer implements TokenStream
             return JavaTokenTypes.SEMI;
         }
         if (':' == ch) {
-            readNextChar();
+            int rval = readNextChar();
+            if (rval == ':') {
+                readNextChar();
+                return JavaTokenTypes.METHOD_REFERENCE;
+            }
             return JavaTokenTypes.COLON;
         }
         if ('^' == ch)

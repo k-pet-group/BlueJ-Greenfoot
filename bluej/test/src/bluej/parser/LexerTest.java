@@ -150,7 +150,7 @@ public class LexerTest extends junit.framework.TestCase
     
     public void testSymbols() throws Exception
     {
-        TokenStream ts = getLexerFor("+ - = += -= / * /= *= : ! ~ @ % %=");
+        TokenStream ts = getLexerFor("+ - = += -= / * /= *= : :: ! ~ @ % %=");
         LocatableToken token = (LocatableToken) ts.nextToken();
         assertTrue(token.getType() == JavaTokenTypes.PLUS);
         token = (LocatableToken) ts.nextToken();
@@ -171,6 +171,8 @@ public class LexerTest extends junit.framework.TestCase
         assertTrue(token.getType() == JavaTokenTypes.STAR_ASSIGN);
         token = (LocatableToken) ts.nextToken();
         assertTrue(token.getType() == JavaTokenTypes.COLON);
+        token = (LocatableToken) ts.nextToken();
+        assertTrue(token.getType() == JavaTokenTypes.METHOD_REFERENCE);
         token = (LocatableToken) ts.nextToken();
         assertTrue(token.getType() == JavaTokenTypes.LNOT);
         token = (LocatableToken) ts.nextToken();
