@@ -267,14 +267,14 @@ public final class JavaLexer implements TokenStream
      */
     private int readDigitToken(char ch, boolean dot)
     {
-        int rval = ch;     
+        int rval = ch;
         textBuffer.append(ch);
         int type = dot ? JavaTokenTypes.NUM_DOUBLE : JavaTokenTypes.NUM_INT;
 
         boolean fpValid = true; // whether a subsequent dot would be valid.
                 // (will be set false for a non-decimal literal).
         
-        if (ch == '0') {
+        if (ch == '0' && ! dot) {
             rval = readNextChar();
             if (rval == 'x' || rval == 'X') {
                 // hexadecimal
@@ -288,6 +288,11 @@ public final class JavaLexer implements TokenStream
                     textBuffer.append((char) rval);
                     rval = readNextChar();
                 } while (isHexDigit((char) rval) || rval == '_');
+                if (rval == 'p' || rval == 'P') {
+                    // super-funky semi-hexadecimal floating point literal
+                    textBuffer.append((char) rval);
+                    return superFunkyHFPL();
+                }
                 fpValid = false;
             }
             else if (rval == 'b' || rval == 'B') {
@@ -385,6 +390,45 @@ public final class JavaLexer implements TokenStream
         return type;
     }
 
+    private int superFunkyHFPL()
+    {
+        // A super-funky semi-hexadecimal floating point literal looks like this:
+        //   0xABCp12f
+        // The 'ABC' is in hex, the 'p' can also be 'P', the '12' is a *decimal*
+        // representation of the *power 2* exponent (may be negative); the 'f' (or 'F')
+        // marks as a float rather than the default double ('d' or 'D').
+        // So the above represents 0xABC * 2^123, or 0xABC << 12, as a float.
+        
+        // Up to this point, we've seen the 'p'.
+        int rval = readNextChar();
+        if (rval == -1) {
+            return JavaTokenTypes.INVALID;
+        }
+        if (! Character.isDigit((char) rval) && rval != '-') {
+            return JavaTokenTypes.INVALID;
+        }
+        
+        textBuffer.append((char) rval);
+        rval = readNextChar();
+        while (Character.isDigit((char) rval)) {
+            textBuffer.append((char) rval);
+            rval = readNextChar();
+        }
+        
+        if (rval == 'f' || rval == 'F') {
+            textBuffer.append((char) rval);
+            readNextChar();
+            return JavaTokenTypes.NUM_FLOAT;
+        }
+        
+        if (rval == 'd' || rval == 'D') {
+            textBuffer.append((char) rval);
+            readNextChar();
+        }
+        
+        return JavaTokenTypes.NUM_DOUBLE;
+    }
+    
     private int getMLCommentType(char ch)
     {
         do{
