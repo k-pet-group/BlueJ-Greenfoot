@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2013,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -323,5 +323,34 @@ public class EditorParserTest extends TestCase
         nap = nap.getNode().findNodeAt(48, nap.getPosition());       // inner if
         assertEquals(48, nap.getPosition());
         assertEquals(108, nap.getEnd());
+    }
+    
+    public void testTicket467()
+    {
+        String sourceCode = ""
+                + "class A\n"    // 0 - 8 
+                + "{\n"             //   8 - 10
+                + "  void method() {\n"  // 10 - 28
+                + "    while (true)\n"      // 28 - 45
+                + "      if (true) {\n"     // 45 - 63
+                + "      }\n"               // 63 - 71
+                + "  }\n"                   // 71 - 75 
+                + "}\n";                    // 75 - 77
+                
+        ParsedCUNode pcuNode = cuForSource(sourceCode, "");
+        resolver.addCompilationUnit("", pcuNode);
+            
+        NodeAndPosition<ParsedNode> nap = pcuNode.findNodeAt(0, 0);  // class
+        nap = nap.getNode().findNodeAt(9, nap.getPosition());        // class inner
+        nap = nap.getNode().findNodeAt(12, nap.getPosition());       // method
+        nap = nap.getNode().findNodeAt(27, nap.getPosition());       // method inner
+
+        nap = nap.getNode().findNodeAt(32, nap.getPosition());       // outer while
+        assertEquals(32, nap.getPosition());
+        assertEquals(70, nap.getEnd());
+        
+        nap = nap.getNode().findNodeAt(51, nap.getPosition());       // inner if
+        assertEquals(51, nap.getPosition());
+        assertEquals(70, nap.getEnd());
     }
 }
