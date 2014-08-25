@@ -2785,6 +2785,26 @@ public class JavaParser
         return expressionTokenIndexes[ttype] != 0;
     }
     
+    private void parseLambdaBody()
+    {
+        if (tokenStream.LA(1).getType() == JavaTokenTypes.LCURLY) {
+            beginStmtblockBody(nextToken()); // consume the curly
+            parseStmtBlock();
+            LocatableToken token = nextToken();
+            if (token.getType() != JavaTokenTypes.RCURLY) {
+                error("Expecting '}' at end of lambda block");
+                tokenStream.pushBack(token);
+                endStmtblockBody(token, false);
+            }
+            else {
+                endStmtblockBody(token, true);
+            }
+        }
+        else {
+            parseExpression();
+        }
+    }
+    
     /**
      * Parse an expression
      */
@@ -2826,6 +2846,10 @@ public class JavaParser
                     // Method call
                     gotMethodCall(token);
                     parseArgumentList(nextToken());
+                }
+                else if (tokenStream.LA(1).getType() == JavaTokenTypes.LAMBDA) {
+                    nextToken(); // consume LAMBDA symbol
+                    parseLambdaBody();
                 }
                 else if (tokenStream.LA(1).getType() == JavaTokenTypes.DOT &&
                         tokenStream.LA(2).getType() == JavaTokenTypes.IDENT &&
@@ -3009,23 +3033,7 @@ public class JavaParser
                             endExpression(token, false);
                             return;
                         }
-                        //it is a lambda expression or statement block
-                        if (tokenStream.LA(1).getType() == JavaTokenTypes.LCURLY) {
-                            beginStmtblockBody(nextToken()); // consume the curly
-                            parseStmtBlock();
-                            token = nextToken();
-                            if (token.getType() != JavaTokenTypes.RCURLY) {
-                                error("Expecting '}' at end of lambda block");
-                                tokenStream.pushBack(token);
-                                endStmtblockBody(token, false);
-                            }
-                            else {
-                                endStmtblockBody(token, true);
-                            }
-                        }
-                        else {
-                            parseExpression();
-                        }
+                        parseLambdaBody();
                         break;
                     } else {
                         //it is an expression.
