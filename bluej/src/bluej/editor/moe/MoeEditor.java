@@ -2887,6 +2887,11 @@ public final class MoeEditor extends JFrame
         }
         catch (BadLocationException ble) {
             Debug.reportError("Bad document location reached while trying to match brackets");
+            Debug.log("Caret position: " + sourcePane.getCaretPosition());
+            Debug.log("Document length: " + sourcePane.getText().length());
+            Debug.log("Source code: ---begin---");
+            Debug.log(sourcePane.getText());
+            Debug.log("---end---");
         }
         return pos;
     }
