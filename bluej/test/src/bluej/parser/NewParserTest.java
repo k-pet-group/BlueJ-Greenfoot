@@ -448,17 +448,17 @@ public class NewParserTest extends TestCase
     
     public void testLambdaSingleParameter1()
     {
-        checkLambdaExpression("(int x) -> x+1;"); // Single declared-type parameter
+        checkLambdaExpression("(int x) -> x+1"); // Single declared-type parameter
     }
     
     public void testLambdaSingleParameter2()
     {
-        checkLambdaExpression("(x) -> x+1;"); // Single inferred-type parameter
+        checkLambdaExpression("(x) -> x+1"); // Single inferred-type parameter
     }
     
     public void testLambdaSingleParameter3()
     {
-        checkLambdaExpression("x -> x+1;"); // Parens optional for single inferred-type case
+        checkLambdaExpression("x -> x+1"); // Parens optional for single inferred-type case
     }
     
     public void testLambdaSingleParameter4()
@@ -468,27 +468,27 @@ public class NewParserTest extends TestCase
     
     public void testLambdaSingleParameter5()
     {
-        checkLambdaExpression("(final int x) -> x+1;"); // Modified declared-type parameter
+        checkLambdaExpression("(final int x) -> x+1"); // Modified declared-type parameter
     }
     
     public void testLambdaSingleParameter6()
     {
-        checkLambdaExpression("(CustomClass x) -> x+1;"); // Modified declared-type parameter
+        checkLambdaExpression("(CustomClass x) -> x+1"); // Modified declared-type parameter
     }
     
     public void testLambdaSingleParameter7()
     {
-        checkLambdaExpression("(int... x) -> x+1;"); // Modified declared-type parameter
+        checkLambdaExpression("(int... x) -> x+1"); // Modified declared-type parameter
     }
     
     public void testLambdaMultipleParameters1()
     {
-        checkLambdaExpression("(int x, float y) -> x+y;"); // Multiple declared-type parameters
+        checkLambdaExpression("(int x, float y) -> x+y"); // Multiple declared-type parameters
     }
     
     public void testLambdaMultipleParameters2()
     {
-        checkLambdaExpression("(x,y) -> x+y;"); // Multiple inferred-type parameters
+        checkLambdaExpression("(x,y) -> x+y"); // Multiple inferred-type parameters
     }    
 
     public void testMethodRef2()

@@ -2987,6 +2987,10 @@ public class JavaParser
                     if (isTypeSpec && tokenStream.LA(1).getType() == JavaTokenTypes.RPAREN && tt2 == JavaTokenTypes.LAMBDA) {
                         isLambda = true;
                     }
+                    if (isTypeSpec && tokenStream.LA(1).getType() == JavaTokenTypes.IDENT) {
+                        // A lambda parameter with name and type
+                        isLambda = true;
+                    }
                     pushBackAll(tlist);
                     int tt1 = tokenStream.LA(1).getType();
                     tt2 = tokenStream.LA(2).getType();
@@ -3341,52 +3345,37 @@ public class JavaParser
     public void parseLambdaParameterList()
     {
         LocatableToken token = nextToken();
-        char declarationType = 'N'; //declarations can only be: (D)eclared, (I)nferred, or (N)one
-        List<LocatableToken> rval;
-        int typeSpec;
+        
         while (token.getType() != JavaTokenTypes.RPAREN
                 && token.getType() != JavaTokenTypes.RCURLY) {
             tokenStream.pushBack(token);
             //parse modifiers if any
-            rval = parseModifiers();
-            typeSpec = parseBaseType(true, rval);
-            if (typeSpec == TYPE_PRIMITIVE || typeSpec == TYPE_OTHER) {
-                //it is a declaration.
-                if (tokenStream.LA(1).getType() == JavaTokenTypes.TRIPLE_DOT) {
-                    //consume the tokens, leave the token after the TRIPLE_DOT
-                    nextToken();
-                    nextToken();
-                }
-                //whenever the type is infered, after it a comma or right parentesis must be found.
-                if (tokenStream.LA(1).getType() == JavaTokenTypes.COMMA || tokenStream.LA(1).getType() == JavaTokenTypes.RPAREN) {
-                    //infered type.
-                    if (declarationType == 'I' || declarationType == 'N') {
-                        declarationType = 'I';
-                    } else {
-                        //there is a modifier but no type. this is a mismatch. error.
-                        error("Cannot mix inferred with declared type parameters");
-                        return;
-                    }
-                } else if (tokenStream.LA(1).getType() == JavaTokenTypes.IDENT) {
-                    if (declarationType == 'D' || declarationType == 'N') {
-                        declarationType = 'D';
-                    } else {
-                        //there is a modifier but no type. this is a mismatch. error.
-                        error("Cannot mix declared with inferred type parameters");
-                        return;
-                    }
-                } else {
-                    error("bad declaration");
-                }
-
+            List<LocatableToken> rval = parseModifiers();
+            
+            int tt1 = tokenStream.LA(1).getType();
+            int tt2 = tokenStream.LA(2).getType();
+            if (tt1 == JavaTokenTypes.IDENT && (tt2 == JavaTokenTypes.COMMA || tt2 == JavaTokenTypes.RPAREN)) {
+                token = nextToken(); // identifier
+                token = nextToken();
             }
-
-            parseArrayDeclarators();
+            else {
+                if (! parseTypeSpec(false, true, rval)) {
+                    modifiersConsumed();
+                    error("Formal lambda parameter specified incorrectly");
+                    return;
+                }
+                token = nextToken();
+                if (token.getType() != JavaTokenTypes.IDENT) {
+                    modifiersConsumed();
+                    error("Formal lambda parameter lacks a name");
+                    return;
+                }
+                parseArrayDeclarators();
+                token = nextToken();
+            }
+            
             modifiersConsumed();
-            if (declarationType == 'D') {
-                nextToken();
-            }
-            token = nextToken();
+ 
             if (token.getType() != JavaTokenTypes.COMMA) {
                 break;
             }
