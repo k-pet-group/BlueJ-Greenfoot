@@ -2772,6 +2772,7 @@ public class JavaParser
         expressionOpIndexes[JavaTokenTypes.GE] = 11;
         expressionOpIndexes[JavaTokenTypes.LAND] = 11;
         expressionOpIndexes[JavaTokenTypes.LOR] = 11;
+        expressionOpIndexes[JavaTokenTypes.METHOD_REFERENCE] = 11;
     }
     
     /**
