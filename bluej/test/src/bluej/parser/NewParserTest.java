@@ -408,12 +408,12 @@ public class NewParserTest extends TestCase
     
     public void testLambdaNoParameters1()
     {
-        checkLambdaExpression("(() -> {})");
+        checkLambdaExpression("() -> {}");
     }
 
     public void testLambdaNoParameters2()
     {
-        checkLambdaExpression("() -> 42;");   // No parameters; expression body
+        checkLambdaExpression("() -> 42");   // No parameters; expression body
     }
 
     public void testLambdaNoParameters3()

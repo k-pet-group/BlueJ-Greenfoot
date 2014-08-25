@@ -1286,7 +1286,8 @@ public class JavaParser
     }
         
     /**
-     * Parse a statement block - such as a method body
+     * Parse a statement block - such as a method body. The opening curly brace should already be consumed.
+     * On return the closing curly (if present) remains in the token stream.
      */
     public void parseStmtBlock()
     {
@@ -2971,9 +2972,6 @@ public class JavaParser
                     isCast &= tt2 != JavaTokenTypes.QUESTION;
                 }
                 
-                //Lambdas can be ambiguous with typecasts. e.g.: (x) -> x+1
-                //We may need to go back, so check ahead using LookAhead.
-                boolean isLambda;
                 if (isCast) {
                     // This surely must be type cast
                     gotTypeCast(tlist);
@@ -2985,57 +2983,19 @@ public class JavaParser
                     // This may be either an expression OR a Lambda function.
                     //check if it is a Lambda function.
 
-                    LocatableToken testToken = token;
-                    int i = 0;
-
-                    do{
-                        if (i==0){
-                            //first time. check if there is anything already done by the previous procedure.
-                            i++;
-                            if (isTypeSpec){
-                                if (tlist.isEmpty()){
-                                    testToken = token;
-                                } else {
-                                    testToken = tlist.get(0);
-                                }
-                            } else {
-                                testToken = tokenStream.LA(i++);
-                            }
-                        } else {
-                            testToken = tokenStream.LA(i++);
-                        }
-                        if (isModifier(testToken)){
-                            testToken = tokenStream.LA(i++);
-                            //TODO: need to test for non-primitive types more deeply
-                            if (isPrimitiveType(testToken)) {
-                                testToken = tokenStream.LA(i++);
-                            } else {
-                                error("can't modify inferred-type parameters");
-                                return;
-                            }
-                        } else {
-                            if (isPrimitiveType(testToken) || testToken.getType() == JavaTokenTypes.IDENT) {
-                                testToken = tokenStream.LA(i++);
-                            }
-                        }
-                        if (testToken.getType() == JavaTokenTypes.TRIPLE_DOT){
-                            testToken = tokenStream.LA(i++);
-                        }
-                        if (testToken.getType() == JavaTokenTypes.IDENT) {
-                            testToken = tokenStream.LA(i++);
-                        }
-                        
-                    } while (testToken.getType() == JavaTokenTypes.COMMA);
-                    
-                    if (testToken.getType() == JavaTokenTypes.RPAREN && tokenStream.LA(i).getType() == JavaTokenTypes.LAMBDA) {
+                    boolean isLambda = false;
+                    if (isTypeSpec && tokenStream.LA(1).getType() == JavaTokenTypes.RPAREN && tt2 == JavaTokenTypes.LAMBDA) {
                         isLambda = true;
-                    } else {
-                        isLambda = false;
                     }
-
+                    pushBackAll(tlist);
+                    int tt1 = tokenStream.LA(1).getType();
+                    tt2 = tokenStream.LA(2).getType();
+                    if (! isLambda && tt1 == JavaTokenTypes.RPAREN && tt2 == JavaTokenTypes.LAMBDA) {
+                        isLambda = true;
+                    }
+                    
                     if (isLambda) {
                         // now we need to consume the tokens.
-                        pushBackAll(tlist);
                         parseLambdaParameterList();
                         token = nextToken();
                         if (token.getType() == JavaTokenTypes.RPAREN) token = nextToken();
@@ -3045,17 +3005,26 @@ public class JavaParser
                             endExpression(token, false);
                             return;
                         }
-                        //process the body.
-
-                        //Parameters done, now we should find ")" and "->" tokens
-                        if (token.getType() == JavaTokenTypes.RPAREN && tokenStream.LA(1).getType() == JavaTokenTypes.LAMBDA) {
-                            //it is a lambda expression
+                        //it is a lambda expression or statement block
+                        if (tokenStream.LA(1).getType() == JavaTokenTypes.LCURLY) {
+                            beginStmtblockBody(nextToken()); // consume the curly
                             parseStmtBlock();
-                            break;
+                            token = nextToken();
+                            if (token.getType() != JavaTokenTypes.RCURLY) {
+                                error("Expecting '}' at end of lambda block");
+                                tokenStream.pushBack(token);
+                                endStmtblockBody(token, false);
+                            }
+                            else {
+                                endStmtblockBody(token, true);
+                            }
                         }
+                        else {
+                            parseExpression();
+                        }
+                        break;
                     } else {
                         //it is an expression.
-                        pushBackAll(tlist);
                         parseExpression();
                         token = nextToken();
                         if (token.getType() != JavaTokenTypes.RPAREN) {
@@ -3233,9 +3202,7 @@ public class JavaParser
                         token = nextToken();
                         break opLoop;
                     }
-                    else if (token.getType() == JavaTokenTypes.LAMBDA){
-                        parseStmtBlock();
-                    }else {
+                    else {
                         tokenStream.pushBack(token);
                         endExpression(token, false);
                         return;
