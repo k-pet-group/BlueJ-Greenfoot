@@ -1011,7 +1011,8 @@ public class JavaParser
                 || tokType == JavaTokenTypes.STRICTFP
                 || tokType == JavaTokenTypes.LITERAL_transient
                 || tokType == JavaTokenTypes.LITERAL_synchronized
-                || tokType == JavaTokenTypes.AT);
+                || tokType == JavaTokenTypes.AT
+                || tokType == JavaTokenTypes.LITERAL_default);
     }
 
     /**
