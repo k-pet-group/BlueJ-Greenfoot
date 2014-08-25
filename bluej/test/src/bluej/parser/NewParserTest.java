@@ -400,7 +400,7 @@ public class NewParserTest extends TestCase
         ip.parseStatement();
         
         // test when used as method parameter:
-        sr = new StringReader("doSomething(" + s + ")");
+        sr = new StringReader("doSomething(" + s + ");");
         ip = new JavaParser(sr);
         ip.parseStatement();
     }
