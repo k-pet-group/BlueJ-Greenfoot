@@ -1,3 +1,24 @@
+/*
+ This file is part of the BlueJ program. 
+ Copyright (C) 2014  Michael Kolling and John Rosenberg 
+ 
+ This program is free software; you can redistribute it and/or 
+ modify it under the terms of the GNU General Public License 
+ as published by the Free Software Foundation; either version 2 
+ of the License, or (at your option) any later version. 
+ 
+ This program is distributed in the hope that it will be useful, 
+ but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+ GNU General Public License for more details. 
+ 
+ You should have received a copy of the GNU General Public License 
+ along with this program; if not, write to the Free Software 
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
+ 
+ This file is subject to the Classpath exception as provided in the  
+ LICENSE.txt file that accompanied this code.
+ */
 package bluej.parser;
 
 import java.io.StringReader;
@@ -675,4 +696,95 @@ public class NewParserTest extends TestCase
         ip.parseStatement();
         
     }
+    
+    public void testLamba1()
+    {
+        StringReader sr = new StringReader(
+                "(() -> System.out.println(s))"
+                );
+        JavaParser ip = new JavaParser(sr);
+        ip.parseExpression();
+    }
+    
+    public void testLamba2()
+    {
+        StringReader sr = new StringReader(
+                "(s -> System.out.println(s))"
+                );
+        JavaParser ip = new JavaParser(sr);
+        ip.parseExpression();
+    }
+
+    public void testLamba3()
+    {
+        StringReader sr = new StringReader(
+                "((s) -> System.out.println(s))"
+                );
+        JavaParser ip = new JavaParser(sr);
+        ip.parseExpression();
+    }
+
+    public void testLamba4()
+    {
+        StringReader sr = new StringReader(
+                "((String s) -> System.out.println(s))"
+                );
+        JavaParser ip = new JavaParser(sr);
+        ip.parseExpression();
+    }
+
+    public void testLamba5()
+    {
+        StringReader sr = new StringReader(
+                "((String s, String y) -> System.out.println(s))"
+                );
+        JavaParser ip = new JavaParser(sr);
+        ip.parseExpression();
+    }
+
+    public void testLamba6()
+    {
+        StringReader sr = new StringReader(
+                "((s, y) -> System.out.println(s))"
+                );
+        JavaParser ip = new JavaParser(sr);
+        ip.parseExpression();
+    }
+
+    public void testLamba7()
+    {
+        StringReader sr = new StringReader(
+                "((String s, String y) -> { System.out.println(s)) }"
+                );
+        JavaParser ip = new JavaParser(sr);
+        ip.parseExpression();
+    }
+    
+    public void testMethodRef1()
+    {
+        StringReader sr = new StringReader(
+                "(this::someMethod)"
+                );
+        JavaParser ip = new JavaParser(sr);
+        ip.parseExpression();
+    }
+    
+    public void testMethodRef2()
+    {
+        StringReader sr = new StringReader(
+                "(SomeClass::someMethod)"
+                );
+        JavaParser ip = new JavaParser(sr);
+        ip.parseExpression();
+    }
+    
+    public void testMethodRef3()
+    {
+        StringReader sr = new StringReader(
+                "(somepkg.someotherpkg.SomeClass::someMethod)"
+                );
+        JavaParser ip = new JavaParser(sr);
+        ip.parseExpression();
+    }
+    
 }
