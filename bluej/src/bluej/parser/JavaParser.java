@@ -3008,18 +3008,32 @@ public class JavaParser
                     //check if it is a Lambda function.
 
                     boolean isLambda = false;
-                    if (isTypeSpec && tokenStream.LA(1).getType() == JavaTokenTypes.RPAREN && tt2 == JavaTokenTypes.LAMBDA) {
-                        isLambda = true;
-                    }
-                    if (isTypeSpec && tokenStream.LA(1).getType() == JavaTokenTypes.IDENT) {
-                        // A lambda parameter with name and type
-                        isLambda = true;
+                    if (isTypeSpec) {
+                        if (tokenStream.LA(1).getType() == JavaTokenTypes.RPAREN && tt2 == JavaTokenTypes.LAMBDA) {
+                            isLambda = true;
+                        }
+                        if (! isLambda && tokenStream.LA(1).getType() == JavaTokenTypes.IDENT) {
+                            // A lambda parameter with name and type
+                            isLambda = true;
+                        }
+                        if (! isLambda && tokenStream.LA(1).getType() == JavaTokenTypes.TRIPLE_DOT) {
+                            // A lambda parameter with name and type
+                            isLambda = true;
+                        }
                     }
                     pushBackAll(tlist);
                     int tt1 = tokenStream.LA(1).getType();
                     tt2 = tokenStream.LA(2).getType();
-                    if (! isLambda && tt1 == JavaTokenTypes.RPAREN && tt2 == JavaTokenTypes.LAMBDA) {
-                        isLambda = true;
+                    if (! isLambda) {
+                        if (tt1 == JavaTokenTypes.RPAREN && tt2 == JavaTokenTypes.LAMBDA) {
+                            isLambda = true;
+                        }
+                        else if (isModifier(tokenStream.LA(1))) {
+                            isLambda = true;
+                        }
+                        else if (tt1 == JavaTokenTypes.IDENT && tt2 == JavaTokenTypes.COMMA) {
+                            isLambda = true;
+                        }
                     }
                     
                     if (isLambda) {
@@ -3373,6 +3387,9 @@ public class JavaParser
                     return;
                 }
                 token = nextToken();
+                if (token.getType() == JavaTokenTypes.TRIPLE_DOT) {
+                    token = nextToken();
+                }
                 if (token.getType() != JavaTokenTypes.IDENT) {
                     modifiersConsumed();
                     error("Formal lambda parameter lacks a name");
