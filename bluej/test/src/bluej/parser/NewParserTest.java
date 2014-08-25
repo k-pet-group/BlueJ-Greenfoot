@@ -639,7 +639,16 @@ public class NewParserTest extends TestCase
         );
         JavaParser ip = new JavaParser(sr);
         ip.parseStatement();
-        
     }
-        
+    
+    public void testDefaultMethodModifier()
+    {
+        StringReader sr = new StringReader(
+                "interface A {\n" +
+                "  default int someMethod() { return 3; }\n" +
+                "}"
+        );
+        JavaParser ip = new JavaParser(sr);
+        ip.parseCU();
+    }
 }
