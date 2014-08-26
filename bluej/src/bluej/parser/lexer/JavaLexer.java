@@ -38,7 +38,7 @@ import bluej.parser.TokenStream;
  */
 public final class JavaLexer implements TokenStream
 {
-    private StringBuffer textBuffer; // text of current token
+    private StringBuffer textBuffer = new StringBuffer(); // text of current token
     private EscapedUnicodeReader reader;
     private int rChar; 
     private int beginColumn, beginLine, beginPosition;
@@ -135,7 +135,7 @@ public final class JavaLexer implements TokenStream
      */
     public LocatableToken nextToken()
     {  
-        textBuffer=new StringBuffer();
+        textBuffer.setLength(0);
         
         if (generateWhitespaceTokens && Character.isWhitespace((char)rChar))
         {
