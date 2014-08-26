@@ -777,18 +777,6 @@ public class BasicParseTest extends junit.framework.TestCase
         assertFalse(info.isApplet());
         assertFalse(info.isEnum());
     }
-    
-    public @interface Unfinished {
-        public enum Priority { LOW, MEDIUM, HIGH }
-        public class Xxxxx {}
-        String value();
-        String[] changedBy() default "";
-        String[] lastChangedBy() default "";
-        Priority priority() default Priority.MEDIUM;
-        String createdBy() default "Aqif Hamid";
-        String lastChanged() default "08/07/2011";
-        final String ff = "hello";
-    }
         
     public void testAnnotation1()
     {
