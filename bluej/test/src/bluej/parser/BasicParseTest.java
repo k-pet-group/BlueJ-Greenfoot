@@ -423,6 +423,21 @@ public class BasicParseTest extends junit.framework.TestCase
         assertNotNull(info);
     }
     
+    public void testClassTpars() throws Exception
+    {
+        String aSrc = "class B {\n"
+                + "  <T> void method1(A<? extends T> a) { }\n"
+                + "}\n";
+            
+        ClassInfo info = InfoParser.parse(new StringReader(aSrc), new ClassLoaderResolver(getClass().getClassLoader()), null);
+        assertTrue(info.getTypeParameterTexts().isEmpty());
+        
+        aSrc = "class B<U extends Runnable> { }";
+        info = InfoParser.parse(new StringReader(aSrc), new ClassLoaderResolver(getClass().getClassLoader()), null);
+        assertTrue(info.getTypeParameterTexts().size() == 1);
+        assertEquals("U", info.getTypeParameterTexts().get(0));
+    }
+    
     private ParsedCUNode cuForSource(String sourceCode, EntityResolver resolver)
     {
         MoeSyntaxDocument document = new MoeSyntaxDocument(resolver);
