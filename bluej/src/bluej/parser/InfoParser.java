@@ -79,6 +79,7 @@ public class InfoParser extends EditorParser
     private int lastTdType; // last typedef type (TYPEDEF_CLASS, _INTERFACE etc)
     private boolean storeCurrentClassInfo;
     private int arrayCount = 0;
+    private boolean methodTypeParams = false;  // Type parameters are for a method
 
     private List<LocatableToken> lastTypespecToks;
     private boolean modPublic = false;
@@ -447,11 +448,27 @@ public class InfoParser extends EditorParser
     }
 
     @Override
+    protected void gotMethodTypeParamsBegin()
+    {
+        super.gotMethodTypeParamsBegin();
+        methodTypeParams = true;
+    }
+    
+    @Override
     protected void gotTypeParam(LocatableToken idToken)
     {
         super.gotTypeParam(idToken);
-        info.addTypeParameterText(idToken.getText());
-        info.setTypeParametersSelection(getSelection(idToken));
+        if (storeCurrentClassInfo && !methodTypeParams && classLevel == 0) {
+            info.addTypeParameterText(idToken.getText());
+            info.setTypeParametersSelection(getSelection(idToken));
+        }
+    }
+    
+    @Override
+    protected void endMethodTypeParams()
+    {
+        super.endMethodTypeParams();
+        methodTypeParams = false;
     }
     
     @Override

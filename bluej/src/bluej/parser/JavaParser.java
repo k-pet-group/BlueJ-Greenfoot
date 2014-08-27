@@ -522,11 +522,18 @@ public class JavaParser
     
     protected void gotAllMethodParameters() { }
     
+    /**
+     * Saw a type parameter for a class or method. If for a method, will be bracketed by
+     * calls to {@code gotMethodTypeParamsBegin} and {@code endMethodTypeParams}
+     * @param idToken  The token with the type parameter identifier
+     */
     protected void gotTypeParam(LocatableToken idToken) { }
     
     protected void gotTypeParamBound(List<LocatableToken> tokens) { }
 
     protected void gotMethodTypeParamsBegin() { }
+    
+    protected void endMethodTypeParams() { }
 
     /**
      * Called by the lexer when it sees a comment.
@@ -1127,6 +1134,7 @@ public class JavaParser
                     // generic method
                     gotMethodTypeParamsBegin();
                     parseTypeParams();
+                    endMethodTypeParams();
                 }
                 else {
                     tokenStream.pushBack(token);
