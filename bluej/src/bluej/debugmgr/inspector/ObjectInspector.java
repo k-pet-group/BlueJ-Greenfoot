@@ -410,7 +410,8 @@ public class ObjectInspector extends Inspector
                     // If the field is package-private and we are in the right package,
                     // we'll allow the get operation:
                     String fieldPkg = JavaNames.getPrefix(field.getDeclaringClassName());
-                    canGet = fieldPkg.equals(pkg.getQualifiedName());
+                    String pkgName = (pkg == null) ? "" : pkg.getQualifiedName();
+                    canGet = fieldPkg.equals(pkgName);
                 }
                 setButtonsEnabled(true, canGet);
             }
