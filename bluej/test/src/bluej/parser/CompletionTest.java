@@ -745,6 +745,31 @@ public class CompletionTest extends TestCase
         LocatableToken stoken = suggests.getSuggestionToken();
         assertNull(stoken);
     }
+
+    public void testCompletionResolution2() throws Exception
+    {
+        String aClassSrc =
+            "import static javax.swing.text.DefaultEditorKit.*;\n" +    // 0 - 51     
+            "class A {\n" +             // 51 - 61 
+            "  BeepAction ba;\n" +      // 61 - 78  
+            "  public void m() {\n" +   // 78 - 98
+            "    ba.\n" +           //  ba.  <--  105 
+            "  }\n" +
+            "}\n";
+    
+        PlainDocument doc = new PlainDocument();
+        doc.insertString(0, aClassSrc, null);
+
+        ParsedCUNode aNode = cuForSource(aClassSrc, "");
+        resolver.addCompilationUnit("", aNode);
+        
+        CodeSuggestions suggests = aNode.getExpressionType(105, doc);
+        assertNotNull(suggests);
+        assertEquals("javax.swing.text.DefaultEditorKit.BeepAction", suggests.getSuggestionType().toString());
+        assertFalse(suggests.isStatic());
+        LocatableToken stoken = suggests.getSuggestionToken();
+        assertNull(stoken);
+    }
     
     public void testCompletionInArrayElement() throws Exception
     {
