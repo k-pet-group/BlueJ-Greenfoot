@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2013,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -905,7 +905,12 @@ public class TextAnalyzer
         // with the target type's arguments.
         Map<String,GenTypeParameter> tparMap;
         if (rawTarget) {
-            tparMap = new HashMap<String,GenTypeParameter>();
+            if (m.isStatic()) {
+                tparMap = new HashMap<String,GenTypeParameter>();
+            }
+            else {
+                tparMap = null;
+            }
         }
         else {
             tparMap = targetType.getMap();

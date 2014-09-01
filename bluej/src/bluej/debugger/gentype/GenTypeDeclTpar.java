@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -34,7 +34,6 @@ import java.util.Set;
 public class GenTypeDeclTpar extends GenTypeTpar
 {
     protected GenTypeSolid [] upperBounds;
-    protected GenTypeSolid lBound = null;
     
     /**
      * Construct a GenTypeDeclTpar without specifying bounds. The bounds should then be
@@ -73,7 +72,6 @@ public class GenTypeDeclTpar extends GenTypeTpar
     {
         super(parname);
         upperBounds = ubounds;
-        lBound = lbound;
     }
     
     /**
@@ -103,29 +101,25 @@ public class GenTypeDeclTpar extends GenTypeTpar
         return r;
     }
     
-    public GenTypeSolid [] lowerBounds()
-    {
-        if (lBound == null) {
-            return new GenTypeSolid[0];
-        }
-        else {
-            return new GenTypeSolid [] {lBound};
-        }
-    }
-        
     /* (non-Javadoc)
      * @see bluej.debugger.gentype.GenTypeTpar#mapTparsToTypes(java.util.Map)
      */
-    public GenTypeSolid mapTparsToTypes(Map<String, ? extends GenTypeParameter> tparams)
+    public GenTypeParameter mapTparsToTypes(Map<String, ? extends GenTypeParameter> tparams)
     {
-        if (tparams == null)
-            return new GenTypeWildcard(upperBounds(), lowerBounds()).getCapture().asSolid();
+        if (tparams == null) {
+            // Map each bound also:
+            GenTypeSolid [] mappedBounds = new GenTypeSolid[upperBounds.length];
+            for (int i = 0; i < upperBounds.length; i++) {
+                mappedBounds[i] = upperBounds[i].mapTparsToTypes(null).getUpperBound().asSolid();
+            }
+            return IntersectionType.getIntersection(mappedBounds);
+        }
         
         GenTypeParameter newType = (GenTypeParameter)tparams.get(getTparName());
         if( newType == null )
-            return new GenTypeWildcard(upperBounds(), lowerBounds()).getCapture().asSolid();
+            return this;
         else
-            return newType.getCapture().asSolid();
+            return newType;
     }
     
     /**
@@ -180,10 +174,6 @@ public class GenTypeDeclTpar extends GenTypeTpar
     {
         if (super.isAssignableFrom(t)) {
             return true;
-        }
-        
-        if (lBound != null) {
-            return lBound.isAssignableFrom(t);
         }
         
         return false;
