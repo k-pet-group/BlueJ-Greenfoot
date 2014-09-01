@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -172,9 +172,4 @@ public abstract class Reflective
      * This does not include fields declared in the superclass(es).
      */
     abstract public Map<String,FieldReflective> getDeclaredFields();
-    
-    /**
-     * Get the inner classes of the type represented by this Reflective.
-     */
-    abstract public List<Reflective> getInners();
 }

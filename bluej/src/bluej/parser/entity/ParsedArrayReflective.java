@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2010,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 2010,2011,2014  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -38,11 +38,21 @@ import bluej.debugger.gentype.MethodReflective;
 import bluej.debugger.gentype.Reflective;
 import bluej.utility.JavaReflective;
 
+/**
+ * A Reflective implementation for arrays (which defers most functionality to the component reflective)
+ * 
+ * @author Davin McCall
+ */
 public class ParsedArrayReflective extends Reflective
 {
     private Reflective component;
     private String className;
     
+    /**
+     * Construct a new ParsedArrayReflective with the given component type.
+     * @param component   The component type
+     * @param componentName  The component binary name; for a class this must be 'L(class name);', eg 'Ljava.lang.Object;'.
+     */
     public ParsedArrayReflective(Reflective component, String componentName)
     {
         this.component = component;
@@ -52,12 +62,13 @@ public class ParsedArrayReflective extends Reflective
     @Override
     public String getName()
     {
-        return "[L" + component.getName() + ";";
+        return className;
     }
     
+    @Override
     public String getSimpleName()
     {
-        return component.getName() + "[]";
+        return component.getSimpleName() + "[]";
     }
     
     @Override
@@ -78,12 +89,6 @@ public class ParsedArrayReflective extends Reflective
     public Map<String, Set<MethodReflective>> getDeclaredMethods()
     {
         return Collections.singletonMap("clone", Collections.singleton(new MethodReflective("clone", new GenTypeClass(new JavaReflective(Object.class)), new ArrayList<GenTypeDeclTpar>(), new ArrayList<JavaType>(), this, false, Modifier.PUBLIC)));
-    }
-    
-    @Override
-    public List<Reflective> getInners()
-    {
-        return Collections.emptyList();
     }
     
     @Override

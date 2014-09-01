@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2013,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -205,6 +205,7 @@ public class ImportsCollection
             }
             GenTypeClass clType = importEntity.getClassType();
             if (clType != null) {
+                /*
                 List<Reflective> inners = clType.getReflective().getInners();
                 for (Reflective inner : inners) {
                     String innerName = inner.getName();
@@ -212,6 +213,13 @@ public class ImportsCollection
                     if (name.equals(innerName)) {
                         return new TypeEntity(new GenTypeClass(inner));
                     }
+                }
+                */
+                
+                String innerName = clType.classloaderName() + "$" + name;
+                Reflective inner = clType.getReflective().getRelativeClass(innerName);
+                if (inner != null) {
+                    return new TypeEntity(new GenTypeClass(inner));
                 }
             }
         }
