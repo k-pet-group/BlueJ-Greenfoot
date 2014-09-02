@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -218,4 +218,13 @@ public abstract class JavaType extends GenTypeParameter
      * Get an array type whose component type is this type.
      */
     abstract public GenTypeSolid getArray();
+    
+    /**
+     * Get the intersecting types that form this type separately. If this type is not
+     * an intersection, the returned array contains only this type.
+     */
+    public JavaType[] getIntersectionTypes()
+    {
+        return new JavaType[] {this};
+    }
 }

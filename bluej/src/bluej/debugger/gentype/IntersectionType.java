@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -55,7 +55,16 @@ public class IntersectionType extends GenTypeSolid
         if (types.length == 1)
             return types[0];
         
-        // First remove cruft. If there are two classes (as opposed to interfaces),
+        // Get the real list of types, in case some of the intersecting types
+        // are already intersections:
+        List<GenTypeSolid> allTypes = new ArrayList<GenTypeSolid>(types.length);
+        for (GenTypeSolid type : types) {
+            for (GenTypeSolid itype : type.getIntersectionTypes()) {
+                allTypes.add(itype);
+            }
+        }
+        
+        // Remove cruft. If there are two classes (as opposed to interfaces),
         // combine them.
         
         ArrayList<GenTypeSolid> nonclasstypes = new ArrayList<GenTypeSolid>();
@@ -173,16 +182,6 @@ public class IntersectionType extends GenTypeSolid
         return false;
     }
 
-    public GenTypeSolid[] getUpperBounds()
-    {
-        ArrayList<GenTypeSolid> ubounds = new ArrayList<GenTypeSolid>();
-        for (int i = 0; i < intersectTypes.length; i++) {
-            GenTypeSolid [] itUbounds = intersectTypes[i].getUpperBounds();
-            Collections.addAll(ubounds, itUbounds);
-        }
-        return ubounds.toArray(new GenTypeSolid[ubounds.size()]);
-    }
-
     public GenTypeSolid[] getLowerBounds()
     {
         return new GenTypeSolid[] {this};
@@ -273,5 +272,11 @@ public class IntersectionType extends GenTypeSolid
     public GenTypeArray getArray()
     {
         return new GenTypeArray(this);
+    }
+    
+    @Override
+    public GenTypeSolid[] getIntersectionTypes()
+    {
+        return intersectTypes;
     }
 }

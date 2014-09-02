@@ -93,7 +93,7 @@ public abstract class GenTypeSolid extends JavaType
     
     public GenTypeSolid [] getUpperBounds()
     {
-        return new GenTypeSolid [] {this};
+        return getIntersectionTypes();
     }
     
     @Override
@@ -323,11 +323,11 @@ public abstract class GenTypeSolid extends JavaType
         }
         
         // The only option left is lcta(? extends U, ? extends V)
-        GenTypeSolid [] uboundsa = a.getUpperBounds();
-        GenTypeSolid [] uboundsb = b.getUpperBounds();
-        GenTypeClass [] args = new GenTypeClass[uboundsa.length + uboundsb.length];
-        System.arraycopy(uboundsa, 0, args, 0, uboundsa.length);
-        System.arraycopy(uboundsb, 0, args, uboundsa.length, uboundsb.length);
+        GenTypeSolid uboundsa = a.getUpperBound().asSolid();
+        GenTypeSolid uboundsb = b.getUpperBound().asSolid();
+        GenTypeSolid [] args = new GenTypeSolid[2];
+        args[0] = uboundsa;
+        args[1] = uboundsb;
         return lub(args);
     }
     
@@ -406,5 +406,11 @@ public abstract class GenTypeSolid extends JavaType
             }
         }
         return rlist.toArray(new GenTypeClass[rlist.size()]);
+    }
+    
+    @Override
+    public GenTypeSolid[] getIntersectionTypes()
+    {
+        return new GenTypeSolid[] {this};
     }
 }

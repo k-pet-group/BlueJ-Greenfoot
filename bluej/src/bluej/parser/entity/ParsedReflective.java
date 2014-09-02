@@ -298,4 +298,25 @@ public class ParsedReflective extends Reflective
         }
         return null;
     }
+    
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (obj == this) {
+            return true;
+        }
+        
+        if (obj instanceof ParsedReflective) {
+            ParsedReflective other = (ParsedReflective) obj;
+            return pnode == other.pnode;
+        }
+        
+        return false;
+    }
+    
+    @Override
+    public int hashCode()
+    {
+        return pnode.hashCode();
+    }
 }

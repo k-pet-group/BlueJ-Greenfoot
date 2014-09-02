@@ -590,7 +590,7 @@ public class TextAnalyzer
             GenTypeSolid newArg;
             if (targ instanceof GenTypeWildcard) {
                 GenTypeWildcard wc = (GenTypeWildcard) targ;
-                GenTypeSolid [] ubounds = wc.getUpperBounds();
+                GenTypeSolid [] ubounds = wc.getUpperBound().getIntersectionTypes();
                 GenTypeSolid lbound = wc.getLowerBound();
                 GenTypeSolid [] tpbounds = tpar.upperBounds();
                 for (int j = 0; j < tpbounds.length; j++) {
@@ -598,14 +598,14 @@ public class TextAnalyzer
                 }
                 if (lbound != null) {
                     // ? super XX
-                    newArg = new GenTypeCapture(new GenTypeWildcard(tpbounds, new GenTypeSolid[] {lbound}));
+                    newArg = new GenTypeCapture(new GenTypeWildcard(IntersectionType.getIntersection(tpbounds), lbound));
                 }
                 else {
                     // ? extends ...
                     GenTypeSolid [] newBounds = new GenTypeSolid[ubounds.length + tpbounds.length];
                     System.arraycopy(ubounds, 0, newBounds, 0, ubounds.length);
                     System.arraycopy(tpbounds, 0, newBounds, ubounds.length, tpbounds.length);
-                    newArg = new GenTypeCapture(new GenTypeWildcard(ubounds, new GenTypeSolid[0]));
+                    newArg = new GenTypeCapture(new GenTypeWildcard(IntersectionType.getIntersection(ubounds), null));
                 }
             }
             else {
@@ -1015,7 +1015,7 @@ public class TextAnalyzer
             }
         }
         
-        JavaType rType = m.getReturnType().mapTparsToTypes(tparMap).getUpperBound();
+        JavaType rType = m.getReturnType().mapTparsToTypes(tparMap).getCapture();
         return new MethodCallDesc(m, mparams, varargs, boxingRequired, rType);
     }
 
@@ -1116,8 +1116,8 @@ public class TextAnalyzer
                 }
             } else {
                 // F-par is of form "? extends ..."
-                GenTypeSolid [] fubounds = fPar.getUpperBounds();
-                GenTypeSolid [] aubounds = aPar.getUpperBounds();
+                GenTypeSolid [] fubounds = fPar.getUpperBound().asSolid().getIntersectionTypes();
+                GenTypeSolid [] aubounds = aPar.getUpperBound().asSolid().getIntersectionTypes();
                 if (fubounds.length > 0 && aubounds.length > 0) {
                     // recurse with aubounds << fubounds[0]
                     processAtoFConstraint(IntersectionType.getIntersection(aubounds), fubounds[0], tlbConstraints, teqConstraints);
@@ -1187,7 +1187,7 @@ public class TextAnalyzer
         }
         else if (aPar instanceof GenTypeWildcard && fPar instanceof GenTypeWildcard) {
             GenTypeSolid flBound = fPar.getLowerBound();
-            GenTypeSolid [] fuBounds = fPar.getUpperBounds();
+            GenTypeSolid fuBound = fPar.getUpperBound().asSolid(); // XXX looks potentially broken
             // F = ? super U,  A = ? super V
             if (flBound != null) {
                 GenTypeSolid alBound = aPar.getLowerBound();
@@ -1195,10 +1195,11 @@ public class TextAnalyzer
                     processAeqFConstraint(alBound, flBound, tlbConstraints, teqConstraints);
             }
             // F = ? extends U, A = ? extends V
-            else if (fuBounds.length != 0) {
-                GenTypeSolid [] auBounds = aPar.getUpperBounds();
-                if (auBounds.length != 0)
-                    processAeqFConstraint(IntersectionType.getIntersection(auBounds), fuBounds[0], tlbConstraints, teqConstraints);
+            else if (fuBound != null) {
+                GenTypeSolid auBound = aPar.getUpperBound().asSolid(); // XXX looks potentially broken
+                if (auBound != null) {
+                    processAeqFConstraint(auBound, fuBound, tlbConstraints, teqConstraints);
+                }
             }
         }
     }
@@ -1273,9 +1274,9 @@ public class TextAnalyzer
                     processAtoFConstraint(alBound, (GenTypeSolid) fPar, tlbConstraints, teqConstraints);
                 }
                 else {
-                    GenTypeSolid [] auBounds = aPar.getUpperBounds();
-                    if (auBounds.length != 0) {
-                        processFtoAConstraint(auBounds[0], (GenTypeSolid) fPar, tlbConstraints, teqConstraints);
+                    GenTypeSolid auBound = aPar.getUpperBound().asSolid();
+                    if (auBound != null) {
+                        processFtoAConstraint(auBound, fPar.asSolid(), tlbConstraints, teqConstraints);
                     }
                 }
             }
@@ -1294,9 +1295,11 @@ public class TextAnalyzer
                 }
                 else {
                     // fPar is ? extends ...
-                    GenTypeSolid [] fuBounds = fPar.getUpperBounds();
-                    GenTypeSolid [] auBounds = aPar.getUpperBounds();
-                    if (auBounds.length != 0 && fuBounds.length != 0) {
+                    GenTypeSolid fuBound = fPar.getUpperBound().asSolid();
+                    GenTypeSolid auBound = aPar.getUpperBound().asSolid();
+                    if (fuBound != null && auBound != null) {
+                        GenTypeSolid [] fuBounds = fuBound.getIntersectionTypes();
+                        GenTypeSolid [] auBounds = auBound.getIntersectionTypes();
                         processFtoAConstraint(auBounds[0], fuBounds[0], tlbConstraints, teqConstraints);
                     }
                 }

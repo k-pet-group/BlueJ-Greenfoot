@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -46,22 +46,6 @@ public class GenTypeWildcard extends GenTypeParameter
     {
         upperBound = upper;
         lowerBound = lower;
-    }
-    
-    /**
-     * Constructor with a given range of upper and lower bounds.
-     * 
-     * @param uppers  The upper bounds
-     * @param lowers  The lower bounds
-     */
-    public GenTypeWildcard(GenTypeSolid [] uppers, GenTypeSolid [] lowers)
-    {
-        if (uppers.length != 0) {
-            upperBound = IntersectionType.getIntersection(uppers);
-        }
-        if (lowers.length != 0) {
-            lowerBound = GenTypeSolid.lub(lowers);
-        }
     }
     
     @Override
@@ -168,35 +152,12 @@ public class GenTypeWildcard extends GenTypeParameter
         return true;
     }
     
-    /**
-     * Get the upper bounds of this wildcard type, as an array. The upper
-     * bounds are those occurring in "extends" clauses.
-     * 
-     * @return A copy of the upper bounds.
-     */
-    @Override
-    public GenTypeSolid[] getUpperBounds()
-    {
-        if (upperBound != null) {
-            return upperBound.getUpperBounds();
-        }
-        else {
-            return new GenTypeSolid[0];
-        }
-    }
-    
     @Override
     public GenTypeSolid getUpperBound()
     {
         return upperBound;
     }
     
-    /**
-     * Get the lower bounds of this wildcard type, as an array. The lower
-     * bounds are those occurring in "super" clauses.
-     * 
-     * @return A copy of the lower bounds.
-     */
     @Override
     public GenTypeSolid getLowerBound()
     {

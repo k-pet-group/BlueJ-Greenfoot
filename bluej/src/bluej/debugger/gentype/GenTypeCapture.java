@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -71,7 +71,29 @@ public class GenTypeCapture extends GenTypeTpar
     @Override
     public JavaType getErasedType()
     {
-        return wildcard.getUpperBound().getErasedType();
+        if (wildcard.getUpperBound() != null) {
+            // Ideally the upper bound should always be specifed (as java.lang.Object if nothing else)
+            return wildcard.getUpperBound().getErasedType();
+        }
+        else {
+            GenTypeClass[] rsts = wildcard.getLowerBound().getReferenceSupertypes();
+            Reflective objRef = rsts[0].getReflective().getRelativeClass("java.lang.Object");
+            return new GenTypeClass(objRef);
+        }
+    }
+    
+    @Override
+    public GenTypeClass[] getReferenceSupertypes()
+    {
+        if (wildcard.getUpperBound() != null) {
+            // Ideally the upper bound should always be specifed (as java.lang.Object if nothing else)
+            return wildcard.getUpperBound().getReferenceSupertypes();
+        }
+        else {
+            GenTypeClass[] rsts = wildcard.getLowerBound().getReferenceSupertypes();
+            Reflective objRef = rsts[0].getReflective().getRelativeClass("java.lang.Object");
+            return new GenTypeClass[] {new GenTypeClass(objRef)};
+        }
     }
 
 }

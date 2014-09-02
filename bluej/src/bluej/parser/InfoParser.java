@@ -34,7 +34,6 @@ import java.util.List;
 
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeParameter;
-import bluej.debugger.gentype.GenTypeSolid;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.Reflective;
 import bluej.parser.entity.ClassLoaderResolver;
@@ -322,12 +321,9 @@ public class InfoParser extends EditorParser
             addTypeReference(ctype.getErasedType().toString());
             List<? extends GenTypeParameter> plist = ctype.getTypeParamList();
             for (GenTypeParameter param : plist) {
-                GenTypeSolid [] ubounds = param.getUpperBounds();
-                for (GenTypeSolid ubound : ubounds) {
-                    GenTypeClass ubctype = ubound.asClass();
-                    if (ubctype != null) {
-                        addTypeReference(ubctype);
-                    }
+                GenTypeClass [] refSupers = param.getCapture().asSolid().getReferenceSupertypes();
+                for (GenTypeClass refSuper : refSupers) {
+                    addTypeReference(refSuper.classloaderName());
                 }
             }
         }

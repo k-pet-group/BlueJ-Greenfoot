@@ -916,7 +916,7 @@ public class JdiReflective extends Reflective
                 String paramName = tpar.getTparName();
                 
                 GenTypeSolid [] ubounds = tpar.upperBounds();
-                GenTypeWildcard type = new GenTypeWildcard(ubounds, new GenTypeSolid[0]);
+                GenTypeWildcard type = new GenTypeWildcard(IntersectionType.getIntersection(ubounds), null);
                 if( ! tparams.containsKey(paramName)) {
                     tparams.put(paramName, type);
                 }

@@ -221,7 +221,7 @@ public class MethodCompletion extends AssistContent
     {
         if (! type.isPrimitive()) {
             if (typeArgs != null) {
-                type = type.mapTparsToTypes(typeArgs).getUpperBound();
+                type = type.mapTparsToTypes(typeArgs).getCapture();
             }
             else {
                 // null indicates a raw type.

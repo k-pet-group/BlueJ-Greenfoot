@@ -89,7 +89,7 @@ public abstract class GenTypeParameter
         
         // Calculate new upper bounds
         GenTypeSolid newUpper = null;
-        GenTypeSolid otherUpper = IntersectionType.getIntersection(other.getUpperBounds());
+        GenTypeSolid otherUpper = other.getUpperBound().asSolid();
         if (otherUpper == null) {
             newUpper = upperBound;
         }
@@ -120,14 +120,7 @@ public abstract class GenTypeParameter
     }
 
     /**
-     * Get the upper bounds of this type. For a solid type the upper bounds are the
-     * type itself, except for an intersection type, where the bounds are the aggregated
-     * bounds of the components of the intersection.
-     */
-    abstract public GenTypeSolid [] getUpperBounds();
-    
-    /**
-     * Get the upper bounds (possibly as an intersection).
+     * Get the upper bound of this type parameter (possibly as an intersection).
      */
     abstract public JavaType getUpperBound();
 

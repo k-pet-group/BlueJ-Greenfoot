@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -79,10 +79,11 @@ public class ValueEntity extends JavaEntity
     @Override
     public JavaEntity getSubentity(String name, Reflective accessor)
     {
-        GenTypeSolid [] ubounds = type.getUpperBounds();
-        if (ubounds == null || ubounds.length == 0) {
+        GenTypeSolid ubound = type.getUpperBound().asSolid();
+        if (ubound == null) {
             return null;
         }
+        GenTypeSolid [] ubounds = ubound.getIntersectionTypes();
         
         GenTypeClass ctype = ubounds[0].asClass();
         
