@@ -145,4 +145,10 @@ public class ParsedArrayReflective extends Reflective
     {
         return component.isStatic();
     }
+    
+    @Override
+    public Reflective getInnerClass(String name)
+    {
+        return null;
+    }
 }

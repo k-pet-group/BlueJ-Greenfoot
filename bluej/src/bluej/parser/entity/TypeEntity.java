@@ -113,19 +113,23 @@ public class TypeEntity extends PackageOrClass
         return getPackageOrClassMember(name);
     }
     
+    @Override
     public TypeEntity getPackageOrClassMember(String name)
     {
         GenTypeClass thisClass = thisType.getCapture().asClass();
         if (thisClass == null || thisClass.getArrayComponent() != null) {
             return null;
         }
+        
+        // We need to check our own class, but also the superclasses, for
+        // the requested member.
 
         LinkedList<Reflective> stypes = new LinkedList<Reflective>();
         stypes.add(thisClass.getReflective());
         
         while (! stypes.isEmpty()) {
             Reflective thisRef = stypes.poll();
-            Reflective member = thisRef.getRelativeClass(thisRef.getName() + '$' + name);
+            Reflective member = thisRef.getInnerClass(name);
             if (member != null) {
                 // TODO check access
                 //boolean accessAllowed = JavaUtils.checkMemberAccess(thisRef,
@@ -135,16 +139,6 @@ public class TypeEntity extends PackageOrClass
                 return new TypeEntity(inner);
             }
             stypes.addAll(thisRef.getSuperTypesR());
-        }
-        
-        Reflective thisRef = thisClass.getReflective();
-        if (thisRef != null) {
-            Reflective member = thisRef.getRelativeClass(thisRef.getName() + '$' + name);
-            if (member != null) {
-                GenTypeClass inner = new GenTypeClass(member,
-                    Collections.<GenTypeParameter>emptyList(), thisClass);
-                return new TypeEntity(inner);
-            }
         }
         
         return null;

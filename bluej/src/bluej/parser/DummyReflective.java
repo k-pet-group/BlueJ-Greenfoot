@@ -126,4 +126,9 @@ public class DummyReflective extends Reflective
         return false;
     }
     
+    @Override
+    public Reflective getInnerClass(String name)
+    {
+        return null;
+    }
 }

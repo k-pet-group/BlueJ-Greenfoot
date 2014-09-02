@@ -136,4 +136,10 @@ public class TestReflective extends Reflective
     {
         return Collections.emptyMap();
     }
+    
+    @Override
+    public Reflective getInnerClass(String name)
+    {
+        return null;
+    }
 }

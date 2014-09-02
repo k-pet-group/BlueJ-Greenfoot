@@ -412,4 +412,24 @@ public class JavaReflective extends Reflective
         }
         return null;
     }
+    
+    @Override
+    public Reflective getInnerClass(String name)
+    {
+        try {
+            Class<?> [] declared = c.getDeclaredClasses();
+            for (Class<?> inner : declared) {
+                String innerName = inner.getName();
+                int lastDollar = innerName.lastIndexOf('$');
+                if (lastDollar != -1) {
+                    String baseName = innerName.substring(lastDollar + 1);
+                    if (baseName.equals(name)) {
+                        return new JavaReflective(inner);
+                    }
+                }
+            }
+        }
+        catch (LinkageError le) {}
+        return null;
+    }
 }

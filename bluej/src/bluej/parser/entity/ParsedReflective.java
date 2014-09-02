@@ -41,6 +41,7 @@ import bluej.debugger.gentype.Reflective;
 import bluej.parser.JavaParser;
 import bluej.parser.nodes.FieldNode;
 import bluej.parser.nodes.MethodNode;
+import bluej.parser.nodes.ParsedNode;
 import bluej.parser.nodes.ParsedTypeNode;
 import bluej.parser.nodes.TypeInnerNode;
 import bluej.utility.JavaUtils;
@@ -295,6 +296,17 @@ public class ParsedReflective extends Reflective
         ParsedTypeNode containing = pnode.getContainingClass();
         if (containing != null) {
             return new ParsedReflective(containing);
+        }
+        return null;
+    }
+    
+    @Override
+    public ParsedReflective getInnerClass(String name)
+    {
+        Map<String,ParsedNode> contained = pnode.getInner().getContainedClasses();
+        ParsedNode innerParsedNode = contained.get(name);
+        if (innerParsedNode instanceof ParsedTypeNode) {
+            return new ParsedReflective((ParsedTypeNode) innerParsedNode);
         }
         return null;
     }

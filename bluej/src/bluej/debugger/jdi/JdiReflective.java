@@ -25,6 +25,7 @@ import java.util.*;
 
 import bluej.debugger.gentype.*;
 import bluej.utility.Debug;
+import bluej.utility.JavaNames;
 
 import com.sun.jdi.*;
 
@@ -1015,6 +1016,28 @@ public class JdiReflective extends Reflective
         }
         
         return methodMap;
+    }
+    
+    @Override
+    public Reflective getInnerClass(String name)
+    {
+        checkLoaded();
+        // Look for already loaded types first:
+        for (ReferenceType nested : rclass.nestedTypes()) {
+            if (JavaNames.getBase(nested.name()).equals(name)) {
+                return new JdiReflective(nested);
+            }
+        }
+        
+        ClassLoaderReference sourceLoader = rclass.classLoader();
+        VirtualMachine sourceVM = rclass.virtualMachine();
+        ReferenceType nested = findClass(getName() + "$" + name, sourceLoader, sourceVM);
+        
+        if (nested != null) {
+            return new JdiReflective(nested);
+        }
+        
+        return null;
     }
     
     static class StringIterator

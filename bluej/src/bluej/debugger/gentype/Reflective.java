@@ -172,4 +172,10 @@ public abstract class Reflective
      * This does not include fields declared in the superclass(es).
      */
     abstract public Map<String,FieldReflective> getDeclaredFields();
+    
+    /**
+     * Get a reference to a named inner class of this class. Returns null If
+     * the named inner class doesn't exist.
+     */
+    abstract public Reflective getInnerClass(String name);
 }

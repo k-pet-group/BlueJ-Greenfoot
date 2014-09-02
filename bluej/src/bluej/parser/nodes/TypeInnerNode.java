@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -146,5 +146,13 @@ public class TypeInnerNode extends IncrementalParsingNode
     public boolean growsForward()
     {
         return true;
+    }
+    
+    /**
+     * Get a reference to the map of inner classes of this node (live; should not be mutated).
+     */
+    public Map<String,ParsedNode> getContainedClasses()
+    {
+        return classNodes;
     }
 }
