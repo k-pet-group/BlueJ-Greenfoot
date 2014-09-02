@@ -1,5 +1,27 @@
+/*
+ This file is part of the BlueJ program. 
+ Copyright (C) 2014  Michael Kolling and John Rosenberg 
+ 
+ This program is free software; you can redistribute it and/or 
+ modify it under the terms of the GNU General Public License 
+ as published by the Free Software Foundation; either version 2 
+ of the License, or (at your option) any later version. 
+ 
+ This program is distributed in the hope that it will be useful, 
+ but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+ GNU General Public License for more details. 
+ 
+ You should have received a copy of the GNU General Public License 
+ along with this program; if not, write to the Free Software 
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
+ 
+ This file is subject to the Classpath exception as provided in the  
+ LICENSE.txt file that accompanied this code.
+ */
 package bluej.parser;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -9,6 +31,8 @@ import javax.swing.text.BadLocationException;
 import junit.framework.TestCase;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeParameter;
+import bluej.debugger.gentype.GenTypeWildcard;
+import bluej.debugger.gentype.JavaPrimitiveType;
 import bluej.debugger.gentype.JavaType;
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.TextAnalyzer.MethodCallDesc;
@@ -49,6 +73,29 @@ public class TextAnalyserTest extends TestCase
         return document.getParser();
     }
 
+    public void test1() throws Exception
+    {
+        List<GenTypeParameter> tpars = new ArrayList<GenTypeParameter>();
+        
+        // create type par: '? super String'
+        tpars.add(new GenTypeWildcard(null, new GenTypeClass(new JavaReflective(String.class))));
+        // 'List<? super String>'
+        GenTypeClass listClass = new GenTypeClass(new JavaReflective(List.class), tpars);
+        
+        JavaType argType = JavaPrimitiveType.getInt();
+        
+        
+        List<MethodCallDesc> choices = TextAnalyzer.getSuitableMethods("get", listClass,
+                new JavaType[] {argType},
+                Collections.<GenTypeParameter>emptyList(), new JavaReflective(Object.class));
+        
+        assertEquals(1, choices.size());
+        MethodCallDesc mcd = choices.get(0);
+        
+        // The return should be a capture of '? super String'
+        assertEquals("java.lang.Object", mcd.retType.getErasedType().toString());
+    }
+    
     public void testEagerReturnTypeResolutionA1() throws Exception
     {
         String aClassSrc = "class Test1<T> {\n" +

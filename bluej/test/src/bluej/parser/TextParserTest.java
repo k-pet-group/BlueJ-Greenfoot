@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2012,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2012,2013,2014 Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,7 +27,6 @@ import javax.swing.text.BadLocationException;
 
 import junit.framework.TestCase;
 import bluej.debugger.gentype.JavaPrimitiveType;
-import bluej.debugmgr.objectbench.ObjectBench;
 import bluej.debugmgr.texteval.DeclaredVar;
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.entity.ClassLoaderResolver;
@@ -49,12 +48,12 @@ public class TextParserTest extends TestCase
     }
 
     private TestEntityResolver resolver;
-    private ObjectBench objectBench;
+    private TestObjectBench objectBench;
     
     @Override
     protected void setUp() throws Exception
     {
-        objectBench = new ObjectBench(null);
+        objectBench = new TestObjectBench();
         resolver = new TestEntityResolver(new ClassLoaderResolver(this.getClass().getClassLoader()));
     }
     
@@ -1092,4 +1091,35 @@ public class TextParserTest extends TestCase
         r = tp.parseCommand("(boolVal) || true");
         assertEquals("boolean", r);
     }
+    
+    public void testEagerReturnTypeResolutionA1() throws Exception
+    {
+        String aClassSrc = "class Test1<T> {\n" +
+          "  <S> S foo(S x, S y) { return x; }\n" +
+          "  <S extends Number & Comparable<? extends Number>> S baz(Test1<S> a) { return null; }\n" +
+          "  void bar(Test1<Long> x, Test1<Integer> y) {\n" +
+          "    baz(foo(x, y));\n" +
+          "  }\n" +
+          "}\n";
+        
+        ParsedCUNode aNode = cuForSource(aClassSrc, "");
+        resolver.addCompilationUnit("", aNode);
+            
+        EntityResolver res = new PackageResolver(this.resolver, "");
+        TextAnalyzer tp = new TextAnalyzer(res, "", objectBench);
+        
+        tp.parseCommand("Test1<String> t = new Test1<String>();");
+        List<DeclaredVar> declVars = tp.getDeclaredVars();
+        assertEquals(1, declVars.size());
+        tp.confirmCommand();
+        
+        objectBench.addDeclaredVars(declVars);
+
+        String rr = tp.parseCommand("t");
+        assertEquals("Test1<java.lang.String>", rr);
+        
+        String r = tp.parseCommand("t.foo(new Test1<Long>(), new Test1<Integer>())");
+        assertEquals("Test1<? extends java.lang.Number>", r);
+    }
+    
 }
