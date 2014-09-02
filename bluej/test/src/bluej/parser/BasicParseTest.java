@@ -408,11 +408,13 @@ public class BasicParseTest extends junit.framework.TestCase
     {
         String aSrc = "class A<T> {\n"
                 + "  void method1(A<? extends T> a) { }\n"
+                + "  void method2(A<? super T> a) { }\n"
                 + "}\n";
             
         ClassInfo info = InfoParser.parse(new StringReader(aSrc), new ClassLoaderResolver(getClass().getClassLoader()), null);
         Properties comments = info.getComments();
         assertTrue(findTarget(comments, "void method1(A)") != -1);
+        assertTrue(findTarget(comments, "void method2(A)") != -1);
     }
     
     public void testMultipleInterfaceExtends() throws Exception
