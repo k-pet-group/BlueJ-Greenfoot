@@ -773,6 +773,30 @@ public class BasicParseTest extends junit.framework.TestCase
         assertTrue(used.contains("I"));
         assertTrue(used.contains("J"));
     }
+
+    public void testDependencyAnalysis13()
+    {
+        InitConfig.init();
+        TestEntityResolver ter = new TestEntityResolver(
+                new ClassLoaderResolver(this.getClass().getClassLoader())
+                );
+        PackageResolver pkgr = new PackageResolver(ter, "testpkg");
+        ter.addCompilationUnit("testpkg", cuForSource("package testpkg; class I { }", pkgr));
+        ter.addCompilationUnit("testpkg", cuForSource("package testpkg; class J { }", pkgr));
+
+        StringReader sr = new StringReader(
+                "package testpkg;" +
+                "class A {\n" +
+                "  Class<? extends I> cc;" +
+                "  Class<? super J> cc2;" +
+                "}\n"
+        );
+        ClassInfo info = InfoParser.parse(sr, pkgr, "testpkg");
+        List<String> used = info.getUsed();
+
+        assertTrue(used.contains("I"));
+        assertTrue(used.contains("J"));
+    }
     
     public void testClassModifiers()
     {
