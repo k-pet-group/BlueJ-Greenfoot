@@ -96,6 +96,76 @@ public class TextAnalyserTest extends TestCase
         assertEquals("java.lang.Object", mcd.retType.getErasedType().toString());
     }
     
+    public void test2() throws Exception
+    {
+        String aClassSrc = "import java.util.List;\n" +
+                "abstract class Test1 {\n" +
+                "  abstract <T> T foo(List<List<? extends T>> f);\n" +
+                "}\n";
+              
+         ParsedCUNode aNode = cuForSource(aClassSrc, "");
+         resolver.addCompilationUnit("", aNode);
+
+         PackageOrClass poc = aNode.resolvePackageOrClass("Test1", null);
+         TypeEntity tent = poc.resolveAsType();
+
+         GenTypeClass test1class = tent.getClassType();
+
+         // Argument: List<List<? extends String>>
+         GenTypeClass stringClass = new GenTypeClass(new JavaReflective(String.class));
+         GenTypeParameter extendsString = new GenTypeWildcard(stringClass, null);
+         List<GenTypeParameter> params = new ArrayList<GenTypeParameter>();
+         params.add(extendsString);
+         GenTypeClass listExtendsString = new GenTypeClass(new JavaReflective(List.class), params);
+         params = new ArrayList<GenTypeParameter>();
+         params.add(listExtendsString);
+         GenTypeClass listListExtendsString = new GenTypeClass(new JavaReflective(List.class), params);
+
+         // Check call to foo returns String:
+         List<MethodCallDesc> choices = TextAnalyzer.getSuitableMethods("foo", test1class,
+                 new JavaType[] {listListExtendsString},
+                 Collections.<GenTypeParameter>emptyList(), test1class.getReflective());
+
+         assertEquals(1, choices.size());
+         MethodCallDesc mcd = choices.get(0);
+         assertEquals("java.lang.String", mcd.retType.toString());
+    }
+    
+    public void test3() throws Exception
+    {
+        String aClassSrc = "import java.util.List;\n" +
+                "abstract class Test1 {\n" +
+                "  abstract <T> T foo(List<List<? super T>> f);\n" +
+                "}\n";
+              
+         ParsedCUNode aNode = cuForSource(aClassSrc, "");
+         resolver.addCompilationUnit("", aNode);
+
+         PackageOrClass poc = aNode.resolvePackageOrClass("Test1", null);
+         TypeEntity tent = poc.resolveAsType();
+
+         GenTypeClass test1class = tent.getClassType();
+
+         // Argument: List<List<? super String>>
+         GenTypeClass stringClass = new GenTypeClass(new JavaReflective(String.class));
+         GenTypeParameter extendsString = new GenTypeWildcard(null, stringClass);
+         List<GenTypeParameter> params = new ArrayList<GenTypeParameter>();
+         params.add(extendsString);
+         GenTypeClass listExtendsString = new GenTypeClass(new JavaReflective(List.class), params);
+         params = new ArrayList<GenTypeParameter>();
+         params.add(listExtendsString);
+         GenTypeClass listListExtendsString = new GenTypeClass(new JavaReflective(List.class), params);
+
+         // Check call to foo returns String:
+         List<MethodCallDesc> choices = TextAnalyzer.getSuitableMethods("foo", test1class,
+                 new JavaType[] {listListExtendsString},
+                 Collections.<GenTypeParameter>emptyList(), test1class.getReflective());
+
+         assertEquals(1, choices.size());
+         MethodCallDesc mcd = choices.get(0);
+         assertEquals("java.lang.String", mcd.retType.toString());
+    }
+    
     public void testEagerReturnTypeResolutionA1() throws Exception
     {
         String aClassSrc = "class Test1<T> {\n" +
