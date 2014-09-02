@@ -34,6 +34,7 @@ import java.util.List;
 
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeParameter;
+import bluej.debugger.gentype.GenTypeSolid;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.Reflective;
 import bluej.parser.entity.ClassLoaderResolver;
@@ -320,10 +321,19 @@ public class InfoParser extends EditorParser
         if (ctype != null) {
             addTypeReference(ctype.getErasedType().toString());
             List<? extends GenTypeParameter> plist = ctype.getTypeParamList();
+            // Process type arguments:
             for (GenTypeParameter param : plist) {
-                GenTypeClass [] refSupers = param.getCapture().asSolid().getReferenceSupertypes();
-                for (GenTypeClass refSuper : refSupers) {
-                    addTypeReference(refSuper.classloaderName());
+                GenTypeSolid sparam = param.asSolid();
+                if (sparam != null) {
+                    addTypeReference(sparam);
+                }
+                else {
+                    // primitive or wildcard type
+                    // (primitives are technically not allowed).
+                    JavaType upperBound = param.getUpperBound();
+                    JavaType lowerBound = param.getLowerBound();
+                    if (upperBound != null) addTypeReference(upperBound);
+                    if (lowerBound != null) addTypeReference(lowerBound);
                 }
             }
         }
