@@ -1121,5 +1121,51 @@ public class TextParserTest extends TestCase
         String r = tp.parseCommand("t.foo(new Test1<Long>(), new Test1<Integer>())");
         assertEquals("Test1<? extends java.lang.Number>", r);
     }
+
+    public void testEagerReturnTypeResolutionA4() throws Exception
+    {
+        String aClassSrc = "abstract class Test4 {\n" +
+                "        abstract class A0<T> {}\n" +
+                "        class A1<T> extends A0<T> {}\n" +
+                "        class A2<T> extends A0<T> {}\n" +
+                "        abstract <S> S foo(S x, S y);\n" +
+                "        abstract <S1> S1 baz(A0<S1> a);\n" +
+                "        void bar(A2<Integer> y, A1<Long> x){\n" +
+                "             baz(foo(x, y));\n" +
+                "        }\n" +
+                "    }\n" +
+                "}\n";
+         
+        ParsedCUNode aNode = cuForSource(aClassSrc, "");
+        resolver.addCompilationUnit("", aNode);
+            
+        EntityResolver res = new PackageResolver(this.resolver, "");
+        TextAnalyzer tp = new TextAnalyzer(res, "", objectBench);
+        
+        tp.parseCommand("Test4 t = new Test4();");
+        List<DeclaredVar> declVars = tp.getDeclaredVars();
+        assertEquals(1, declVars.size());
+        tp.confirmCommand();
+        
+        objectBench.addDeclaredVars(declVars);
+        
+        tp.parseCommand("Test4.A2<Integer> a2 = t.new A2<Integer>();");
+        declVars = tp.getDeclaredVars();
+        assertEquals(1, declVars.size());
+        tp.confirmCommand();
+        objectBench.addDeclaredVars(declVars);
+
+        tp.parseCommand("Test4.A1<Long> a1 = t.new A1<Long>();");
+        declVars = tp.getDeclaredVars();
+        assertEquals(1, declVars.size());
+        tp.confirmCommand();
+        objectBench.addDeclaredVars(declVars);
+        
+        String rr = tp.parseCommand("t");
+        assertEquals("Test4", rr);
+        
+        String r = tp.parseCommand("t.baz(t.foo(new Test1<Long>(), new Test1<Integer>()))");
+        assertEquals("?not sure yet?", r); // fill in when above passes
+    }
     
 }
