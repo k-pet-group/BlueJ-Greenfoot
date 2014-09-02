@@ -1176,6 +1176,15 @@ public class TextAnalyzer
         }
     }
 
+    private static GenTypeSolid getSolidUpperBound(GenTypeParameter tpar)
+    {
+        JavaType ubound = tpar.getUpperBound();
+        if (ubound != null) {
+            return ubound.asSolid();
+        }
+        return null;
+    }
+    
     /**
      * Process type parameters from a type inference constraint A equal-to F.
      */
@@ -1187,7 +1196,7 @@ public class TextAnalyzer
         }
         else if (aPar instanceof GenTypeWildcard && fPar instanceof GenTypeWildcard) {
             GenTypeSolid flBound = fPar.getLowerBound();
-            GenTypeSolid fuBound = fPar.getUpperBound().asSolid(); // XXX looks potentially broken
+            GenTypeSolid fuBound = getSolidUpperBound(fPar); 
             // F = ? super U,  A = ? super V
             if (flBound != null) {
                 GenTypeSolid alBound = aPar.getLowerBound();
@@ -1196,7 +1205,7 @@ public class TextAnalyzer
             }
             // F = ? extends U, A = ? extends V
             else if (fuBound != null) {
-                GenTypeSolid auBound = aPar.getUpperBound().asSolid(); // XXX looks potentially broken
+                GenTypeSolid auBound = getSolidUpperBound(aPar);
                 if (auBound != null) {
                     processAeqFConstraint(auBound, fuBound, tlbConstraints, teqConstraints);
                 }
