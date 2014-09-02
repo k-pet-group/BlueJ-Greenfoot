@@ -834,4 +834,18 @@ public class BasicParseTest extends junit.framework.TestCase
         assertNotNull(info);
         assertFalse(info.hadParseError());
     }
+    
+    /**
+     * Parse some code with an error in it (regression test).
+     */
+    public void testParseBroken()
+    {
+        String aSrc = "class A {\n" +
+                "  <T> fff(List<\n" +
+                "  void xyz(int n) { }\n" +
+                "}\n";
+        ClassInfo info = InfoParser.parse(new StringReader(aSrc), new ClassLoaderResolver(getClass().getClassLoader()), null);
+        assertNotNull(info);
+        assertTrue(info.hadParseError());
+    }
 }
