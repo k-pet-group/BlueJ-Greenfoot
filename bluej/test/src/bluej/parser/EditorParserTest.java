@@ -99,6 +99,26 @@ public class EditorParserTest extends TestCase
         assertEquals(13, classBNP.getPosition());
     }
     
+    public void test1a()
+    {
+        String sourceCode = ""
+                + "class A\n"       // position 0
+                + "{\n"             // position 8 
+                + "   class B\n"    // position 10 
+                + "    {\n"         // position 21 
+                + "    }\n"
+                + "}\n";
+                
+        ParsedCUNode pcuNode = cuForSource(sourceCode, "");
+        
+        resolver.addCompilationUnit("", pcuNode);
+        
+        TypeEntity aEntity = pcuNode.resolvePackageOrClass("A", null).resolveAsType();
+        assertNotNull(aEntity);
+        TypeEntity bEntity = aEntity.getPackageOrClassMember("B");
+        assertNotNull(bEntity);
+    }
+    
     /**
      * Test that a method defined inside a class is recognized properly.
      */
