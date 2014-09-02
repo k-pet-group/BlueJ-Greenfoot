@@ -156,12 +156,10 @@ public abstract class JavaType extends GenTypeParameter
         return null;
     }
     
-    /**
-     * If this type represents a "solid" (reference) type, get it. Otherwise return null.
-     */
-    public GenTypeSolid asSolid()
+    @Override
+    public JavaType asType()
     {
-        return null;
+        return this;
     }
 
     abstract public boolean equals(JavaType other);

@@ -77,7 +77,7 @@ public class TypeEntity extends PackageOrClass
     
     public JavaEntity getSubentity(String name, Reflective accessor)
     {
-        GenTypeClass thisClass = thisType.getCapture().asClass();
+        GenTypeClass thisClass = thisType.asClass();
         if (thisClass == null) {
             return null;
         }
@@ -116,7 +116,7 @@ public class TypeEntity extends PackageOrClass
     @Override
     public TypeEntity getPackageOrClassMember(String name)
     {
-        GenTypeClass thisClass = thisType.getCapture().asClass();
+        GenTypeClass thisClass = thisType.asClass();
         if (thisClass == null || thisClass.getArrayComponent() != null) {
             return null;
         }
@@ -154,7 +154,7 @@ public class TypeEntity extends PackageOrClass
      */
     public TypeEntity setTypeArgs(List<TypeArgumentEntity> tparams)
     {
-        GenTypeClass classType = thisType.getCapture().asClass();
+        GenTypeClass classType = thisType.asClass();
         if (classType == null) {
             return null;
         }

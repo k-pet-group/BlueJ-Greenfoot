@@ -250,7 +250,18 @@ public abstract class GenTypeParameter
         return null;
     }
     
+    /**
+     * If this type parameter represents a "solid" (reference) type, get it. Otherwise return null.
+     */
     public GenTypeSolid asSolid()
+    {
+        return null;
+    }
+    
+    /**
+     * If this type parameter is a type, get it. Otherwise return null.
+     */
+    public JavaType asType()
     {
         return null;
     }

@@ -268,7 +268,7 @@ public class ParsedReflective extends Reflective
                 if (rtypeEnt == null) continue; // constructor
                 rtypeEnt = rtypeEnt.resolveAsType();
                 if (rtypeEnt == null) continue;
-                JavaType rtype = rtypeEnt.getType().getCapture();
+                JavaType rtype = rtypeEnt.getType();
                 List<JavaType> paramTypes = new ArrayList<JavaType>();
                 List<JavaEntity> mparamTypes = method.getParamTypes();
                 for (JavaEntity mparam : mparamTypes) {

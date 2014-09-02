@@ -135,7 +135,7 @@ public class EditorParserTest extends TestCase
         
         EntityResolver resolver = new PackageResolver(this.resolver, "");
         TypeEntity aClassEnt = resolver.resolvePackageOrClass("A", null).resolveAsType();
-        GenTypeClass aClass = aClassEnt.getType().getCapture().asClass();
+        GenTypeClass aClass = aClassEnt.getType().asClass();
         Map<String,Set<MethodReflective>> methods = aClass.getReflective().getDeclaredMethods();
         Set<MethodReflective> mset = methods.get("someMethod");
         assertEquals(1, mset.size());

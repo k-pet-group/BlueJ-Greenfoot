@@ -110,7 +110,7 @@ public class ValueEntity extends JavaEntity
                         field.getModifiers(), false)) {
                     JavaType fieldType = field.getType();
                     Map<String,GenTypeParameter> tparMap = ctype.getMap();
-                    fieldType = fieldType.mapTparsToTypes(tparMap).getCapture();
+                    fieldType = fieldType.mapTparsToTypes(tparMap).asType();
                     return new ValueEntity(this.name + "." + name, fieldType);
                 }
             }

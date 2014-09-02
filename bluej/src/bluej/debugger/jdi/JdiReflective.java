@@ -564,7 +564,7 @@ public class JdiReflective extends Reflective
             // type parameter
             String tname = readClassName(i);
             if (tparams != null && tparams.get(tname) != null) {
-                return tparams.get(tname).getCapture();
+                return tparams.get(tname).asType();
             }
             else {
                 return new GenTypeTpar(tname);

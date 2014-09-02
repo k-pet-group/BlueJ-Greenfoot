@@ -1815,7 +1815,7 @@ public class TextParser extends JavaParser
             state = STATE_NEW_ARGS;
             
             if (entity != null) {
-                valueStack.push(new ValueEntity(entity.getType().getCapture()));
+                valueStack.push(new ValueEntity(entity.getType()));
             }
             else {
                 valueStack.push(new ErrorEntity());
@@ -2050,7 +2050,7 @@ public class TextParser extends JavaParser
                 }
                 
                 while (token.getType() == JavaTokenTypes.LBRACK) {
-                    poc = new TypeEntity(poc.getType().getCapture().getArray());
+                    poc = new TypeEntity(poc.getType().getArray());
                     if (i.hasNext()) {
                         token = i.next(); // RBRACK
                     }

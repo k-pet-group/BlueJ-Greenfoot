@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2011,2012,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -111,12 +111,12 @@ public class CompletionParser extends TextParser
         if (suggestionEntity != null) {
             JavaEntity valEnt = suggestionEntity.resolveAsValue();
             if (valEnt != null) {
-                return valEnt.getType().getCapture().asSolid();
+                return valEnt.getType().asSolid();
             }
             valEnt = suggestionEntity.resolveAsType();
             if (valEnt != null) {
                 setStatic(true);
-                return valEnt.getType().getCapture().asSolid();
+                return valEnt.getType().asSolid();
             }
         }
         return null;
