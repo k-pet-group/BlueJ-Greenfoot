@@ -713,12 +713,12 @@ public class IncrementalParseTest extends TestCase
         
         assertNotNull(nap);
         assertEquals(0, nap.getPosition());
-        assertEquals(52, nap.getSize());
+        assertEquals(53, nap.getSize());
         
         nap = nap.getNode().findNodeAt(9, nap.getPosition()); // class inner
         assertNotNull(nap);
         assertEquals(9, nap.getPosition());
-        assertEquals(42, nap.getSize());
+        assertEquals(43, nap.getSize());
     }
     
     public void testChangeSuper() throws Exception

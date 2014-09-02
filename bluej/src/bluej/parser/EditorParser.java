@@ -988,6 +988,7 @@ public class EditorParser extends JavaParser
     @Override
     protected void gotMethodParameter(LocatableToken token, LocatableToken ellipsisToken)
     {
+        if (lastTypeSpec == null) return;
         JavaEntity paramType = ParseUtils.getTypeEntity(scopeStack.peek(),
                 currentQuerySource(), lastTypeSpec);
         if (paramType == null) {

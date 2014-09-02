@@ -563,7 +563,7 @@ public class InfoParser extends EditorParser
     protected void gotMethodParameter(LocatableToken token, LocatableToken ellipsisToken)
     {
         super.gotMethodParameter(token, ellipsisToken);
-        if (currentMethod != null) {
+        if (currentMethod != null && lastTypespecToks != null) {
             currentMethod.paramNames += token.getText() + " ";
             JavaEntity ptype = ParseUtils.getTypeEntity(scopeStack.peek(),
                     currentQuerySource(), lastTypespecToks);
