@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,8 +21,8 @@
  */
 package bluej.parser.entity;
 
-import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeParameter;
+import bluej.debugger.gentype.GenTypeSolid;
 import bluej.debugger.gentype.GenTypeSuper;
 
 /**
@@ -44,7 +44,7 @@ public class WildcardSuperEntity extends TypeArgumentEntity
     {
         TypeEntity ebType = superBound.resolveAsType();
         if (ebType != null) {
-            GenTypeClass cbType = ebType.getClassType();
+            GenTypeSolid cbType = ebType.getType().asSolid();
             if (cbType != null) {
                 return new GenTypeSuper(cbType);
             }

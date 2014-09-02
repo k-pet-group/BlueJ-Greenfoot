@@ -227,4 +227,10 @@ public abstract class JavaType extends GenTypeParameter
     {
         return new JavaType[] {this};
     }
+    
+    @Override
+    public JavaType getCapture()
+    {
+        return this;
+    }
 }
