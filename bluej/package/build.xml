@@ -36,6 +36,11 @@
         <include name="lib/bluej.defs" />
         <include name="lib/moe.defs" />
         <include name="lib/userlib/README.TXT" />
+        <!-- Pi4J -->
+        <include name="lib/userlib/pi4j-device.jar" />
+        <include name="lib/userlib/pi4j-gpio-extension.jar" />
+        <include name="lib/userlib/pi4j-service.jar" />
+        <include name="lib/userlib/pi4j-core.jar" />
         <include name="lib/windowtofront.js" />
     </patternset>
 
