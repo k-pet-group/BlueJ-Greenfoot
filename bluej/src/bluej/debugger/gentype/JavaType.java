@@ -226,8 +226,16 @@ public abstract class JavaType extends GenTypeParameter
         return new JavaType[] {this};
     }
     
-    @Override
+    /**
+     * Perform capture conversion (JLS 7 chapter 5.1.0) on this type and return the result.
+     */
     public JavaType getCapture()
+    {
+        return this;
+    }
+    
+    @Override
+    public JavaType getTparCapture()
     {
         return this;
     }

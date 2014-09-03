@@ -34,7 +34,6 @@ import java.util.Set;
 import java.util.Stack;
 
 import bluej.debugger.gentype.BadInheritanceChainException;
-import bluej.debugger.gentype.GenTypeCapture;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeDeclTpar;
 import bluej.debugger.gentype.GenTypeParameter;
@@ -552,73 +551,6 @@ public class TextAnalyzer
     }
     
     /**
-     * Capture conversion, as in the JLS 5.1.10
-     */
-    private static JavaType captureConversion(JavaType o)
-    {
-        GenTypeClass c = o.asClass();
-        if (c != null) {
-            return captureConversion(c, new HashMap<String,GenTypeSolid>());
-        }
-        return o;
-    }
-    
-    /**
-     * Capture conversion, storing converted type parameters in the supplied Map so
-     * that they are accessible to inner classes.
-     *  
-     * @param c   The type to perform the conversion on
-     * @param tparMap   The map used for storing type parameter conversions
-     * @return   The converted type.
-     */
-    private static GenTypeClass captureConversion(GenTypeClass c, Map<String,GenTypeSolid> tparMap)
-    {
-        // capture the outer type
-        GenTypeClass newOuter = null;
-        GenTypeClass oldOuter = c.getOuterType();
-        if (oldOuter != null)
-            newOuter = captureConversion(oldOuter, tparMap);
-        
-        // capture the arguments
-        List<? extends GenTypeParameter> oldArgs = c.getTypeParamList();
-        List<GenTypeSolid> newArgs = new ArrayList<GenTypeSolid>(oldArgs.size());
-        Iterator<? extends GenTypeParameter> i = oldArgs.iterator();
-        Iterator<GenTypeDeclTpar> boundsIterator = c.getReflective().getTypeParams().iterator();
-        while (i.hasNext()) {
-            GenTypeParameter targ = i.next();
-            GenTypeDeclTpar tpar = boundsIterator.next();
-            GenTypeSolid newArg;
-            if (targ instanceof GenTypeWildcard) {
-                GenTypeWildcard wc = (GenTypeWildcard) targ;
-                GenTypeSolid [] ubounds = wc.getUpperBound().getIntersectionTypes();
-                GenTypeSolid lbound = wc.getLowerBound();
-                GenTypeSolid [] tpbounds = tpar.upperBounds();
-                for (int j = 0; j < tpbounds.length; j++) {
-                    tpbounds[j] = (GenTypeSolid) tpbounds[j].mapTparsToTypes(tparMap);
-                }
-                if (lbound != null) {
-                    // ? super XX
-                    newArg = new GenTypeCapture(new GenTypeWildcard(IntersectionType.getIntersection(tpbounds), lbound));
-                }
-                else {
-                    // ? extends ...
-                    GenTypeSolid [] newBounds = new GenTypeSolid[ubounds.length + tpbounds.length];
-                    System.arraycopy(ubounds, 0, newBounds, 0, ubounds.length);
-                    System.arraycopy(tpbounds, 0, newBounds, ubounds.length, tpbounds.length);
-                    newArg = new GenTypeCapture(new GenTypeWildcard(IntersectionType.getIntersection(ubounds), null));
-                }
-            }
-            else {
-                // The argument is not a wildcard. Capture doesn't affect it.
-                newArg = (GenTypeSolid) targ;
-            }
-            newArgs.add(newArg);
-            tparMap.put(tpar.getTparName(), newArg);
-        }
-        return new GenTypeClass(c.getReflective(), newArgs, newOuter);
-    }
-    
-    /**
      * binary numeric promotion, as defined by JLS section 5.6.2. Both
      * operands must be (possibly boxed) numeric types.
      */
@@ -935,7 +867,7 @@ public class TextAnalyzer
                 }
                 
                 GenTypeSolid mparam = (GenTypeSolid) mparams.get(i);
-                mparam = mparam.mapTparsToTypes(tparMap).getCapture().asSolid();
+                mparam = mparam.mapTparsToTypes(tparMap).getTparCapture().asSolid();
                 processAtoFConstraint(args[i], mparam, tlbConstraints, teqConstraints);
             }
             
@@ -1015,7 +947,7 @@ public class TextAnalyzer
             }
         }
         
-        JavaType rType = m.getReturnType().mapTparsToTypes(tparMap).getCapture();
+        JavaType rType = m.getReturnType().mapTparsToTypes(tparMap).getTparCapture();
         return new MethodCallDesc(m, mparams, varargs, boxingRequired, rType);
     }
 
@@ -1072,9 +1004,6 @@ public class TextAnalyzer
                 for (int i = 0; i < asts.length; i++) {
                     try {
                         GenTypeClass aMapped = asts[i].mapToSuper(cf.classloaderName());
-                        // Superclass relationship is by capture conversion
-                        if (! asts[i].classloaderName().equals(cf.classloaderName()))
-                            aMapped = (GenTypeClass) captureConversion(aMapped);
                         Map<String,GenTypeParameter> aMap = aMapped.getMap();
                         if (aMap != null) {
                             Iterator<String> j = fMap.keySet().iterator();

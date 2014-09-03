@@ -165,7 +165,7 @@ public class GenTypeWildcard extends GenTypeParameter
     }
         
     @Override
-    public JavaType getCapture()
+    public JavaType getTparCapture()
     {
         return new GenTypeCapture(this);
     }

@@ -233,7 +233,10 @@ public abstract class GenTypeParameter
      */
     abstract public JavaType getErasedType();
     
-    abstract public JavaType getCapture();
+    /**
+     * Capture this type parameter and return the result.
+     */
+    abstract public JavaType getTparCapture();
     
     /**
      * Check whether this represents a primitive type.
