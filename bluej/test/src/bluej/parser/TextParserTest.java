@@ -1165,7 +1165,7 @@ public class TextParserTest extends TestCase
         assertEquals("Test4", rr);
         
         String r = tp.parseCommand("t.baz(t.foo(a1, a2))");
-        assertEquals("?not sure yet?", r); // fill in when above passes
+        assertEquals("? extends java.lang.Number", r);
     }
     
 }

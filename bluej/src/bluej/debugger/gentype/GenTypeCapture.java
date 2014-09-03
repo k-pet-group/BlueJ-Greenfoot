@@ -59,7 +59,9 @@ public class GenTypeCapture extends GenTypeTpar
     @Override
     public GenTypeSolid mapTparsToTypes(Map<String, ? extends GenTypeParameter> tparams)
     {
-        return new GenTypeCapture((GenTypeWildcard) wildcard.mapTparsToTypes(tparams));
+        // This doesn't make sense; a capture is a capture. Mapping to a 'different' capture
+        // breaks things.
+        throw new UnsupportedOperationException("You don't want this.");
     }
 
     @Override

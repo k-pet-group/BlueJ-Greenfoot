@@ -893,7 +893,6 @@ public class TextAnalyzer
                         eqConstraint = fTpar.getBound();
                     }
                 }
-                eqConstraint = (GenTypeSolid) eqConstraint.mapTparsToTypes(tparMap);
                 targs.add(eqConstraint);
                 tparMap.put(tparName, eqConstraint);
             }
