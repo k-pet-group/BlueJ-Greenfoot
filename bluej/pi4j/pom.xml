@@ -90,7 +90,7 @@
 	<properties>
 
 		<!-- DEFAULT RASPBERRY PI PROPERTIES -->
-		<pi.host>bluejpi1.kent.ac.uk</pi.host>
+		<pi.host>xxxx</pi.host>
 		<pi.port>22</pi.port>
 		<pi.user>pi</pi.user>
 		<pi.password>raspberry</pi.password>
@@ -99,7 +99,7 @@
 		<pi.dirBuildTemp>/home/pi/pi4j-temp</pi.dirBuildTemp>
 
 		<!-- DEFAULT RASPBERRY PI (HARD-FLOAT) PROPERTIES -->
-		<pi.host.hard-float>bluejpi1.kent.ac.uk</pi.host.hard-float>
+		<pi.host.hard-float>xxxx</pi.host.hard-float>
 		<pi.port.hard-float>${pi.port}</pi.port.hard-float>
 		<pi.user.hard-float>${pi.user}</pi.user.hard-float>
 		<pi.password.hard-float>${pi.password}</pi.password.hard-float>
