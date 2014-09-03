@@ -1165,7 +1165,61 @@ public class TextParserTest extends TestCase
         assertEquals("Test4", rr);
         
         String r = tp.parseCommand("t.baz(t.foo(a1, a2))");
-        assertEquals("? extends java.lang.Number", r);
+        assertEquals("java.lang.Number", r);
+    }
+    
+    private void addClass(String src)
+    {
+        resolver.addCompilationUnit("", cuForSource(src, ""));
+    }
+    
+    public void testEagerReturnTypeResolutionB() throws Exception
+    {
+        addClass("interface List<S> {}");
+        addClass("interface I<S> {}");
+        addClass("interface J<S> extends I<S> {}");
+        addClass("interface K extends I<String> {}");
+        addClass("interface L<S> extends I {}");
+        
+        String aClassSrc = "abstract class Test1 {\n" +
+                "    <T> T lower(List<? extends T> l) { return null; }\n" +
+                "    <T> T lower2(List<? extends T> l1, List<? extends T> l2) { return null; }\n" +
+                "    <T> T upper(List<? super T> l) { return null; }\n" +
+                "    <T> T upper2(List<? super T> l1, List<? super T> l2) { return null; }\n" +
+                "    <T> T eq(List<T> l) { return null; }\n" +
+                "    <T> T eq2(List<T> l1, List<T> l2) { return null; }\n" +
+                "    <X> X takeI(I<X> i) {}\n" +
+                "    void takeIString(I<String> i) {}\n" +
+                "}\n";
+         
+        ParsedCUNode aNode = cuForSource(aClassSrc, "");
+        resolver.addCompilationUnit("", aNode);
+            
+        EntityResolver res = new PackageResolver(this.resolver, "");
+        TextAnalyzer tp = new TextAnalyzer(res, "", objectBench);
+        
+        tp.parseCommand("List<I<?>> i1 = null;");
+        List<DeclaredVar> declVars = tp.getDeclaredVars();
+        assertEquals(1, declVars.size());
+        tp.confirmCommand();
+        objectBench.addDeclaredVars(declVars);
+        
+        tp.parseCommand("Test1 t = new Test1();");
+        declVars = tp.getDeclaredVars();
+        assertEquals(1, declVars.size());
+        tp.confirmCommand();
+        objectBench.addDeclaredVars(declVars);
+
+        String rr = tp.parseCommand("t.takeI(t.lower(i1))");
+        assertEquals("java.lang.Object", rr);
+        
+        rr = tp.parseCommand("t.takeI(t.eq(i1))");
+        assertEquals("java.lang.Object", rr);
+        
+        rr = tp.parseCommand("t.takeI(t.upper(i1))");
+        assertEquals("java.lang.Object", rr);
+        
+        // more to come
     }
     
 }
