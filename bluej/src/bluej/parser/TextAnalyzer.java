@@ -185,7 +185,13 @@ public class TextAnalyzer
                         if (rval.getType().typeIs(JavaType.JT_VOID)) {
                             return null;
                         }
-                        return rval.getType().toString();
+                        JavaType rtype = rval.getType();
+                        if (rtype.isPrimitive() || rtype.getArrayComponent() != null) {
+                            return rtype.toString();
+                        }
+                        // Use a reference supertype to return something sensible in case
+                        // the result is a capture:
+                        return rtype.asSolid().getReferenceSupertypes()[0].toString();
                     }
                     return "";
                 }
@@ -857,8 +863,10 @@ public class TextAnalyzer
                 tparMap.put(tpar.getTparName(), tpar);
             }
             
+            // lower bound, equality, and upper bound constraints on type parameters:
             Map<String,Set<GenTypeSolid>> tlbConstraints = new HashMap<String,Set<GenTypeSolid>>();
             Map<String,GenTypeSolid> teqConstraints = new HashMap<String,GenTypeSolid>();
+            Map<String,GenTypeSolid> tubConstraints = new HashMap<String,GenTypeSolid>();
             
             // Time for some type inference
             for (int i = 0; i < mparams.size(); i++) {
@@ -867,8 +875,8 @@ public class TextAnalyzer
                 }
                 
                 GenTypeSolid mparam = (GenTypeSolid) mparams.get(i);
-                mparam = mparam.mapTparsToTypes(tparMap).getTparCapture().asSolid();
-                processAtoFConstraint(args[i], mparam, tlbConstraints, teqConstraints);
+                mparam = mparam.mapTparsToTypes(tparMap).asType().asSolid();
+                processAtoFConstraint(args[i], mparam, tlbConstraints, teqConstraints, tubConstraints);
             }
             
             // what we have now is a map with tpar constraints.
@@ -890,7 +898,10 @@ public class TextAnalyzer
                     else {
                         // no equality or lower bound constraints: use the upper
                         // bounds of the tpar
-                        eqConstraint = fTpar.getBound();
+                        eqConstraint = tubConstraints.get(tparName);
+                        if (eqConstraint == null) {
+                            eqConstraint = fTpar.getBound();
+                        }
                     }
                 }
                 targs.add(eqConstraint);
@@ -964,7 +975,8 @@ public class TextAnalyzer
      */
     private static void processAtoFConstraint(JavaType a, GenTypeSolid f,
             Map<String,Set<GenTypeSolid>> tlbConstraints,
-            Map<String,GenTypeSolid> teqConstraints)
+            Map<String,GenTypeSolid> teqConstraints,
+            Map<String,GenTypeSolid> tubConstraints)
     {
         a = boxType(a);
         if (a.asSolid() == null) {
@@ -989,7 +1001,7 @@ public class TextAnalyzer
                 if (f.getArrayComponent() instanceof GenTypeSolid) {
                     a = a.getArrayComponent();
                     f = (GenTypeSolid) f.getArrayComponent();
-                    processAtoFConstraint(a, f, tlbConstraints, teqConstraints);
+                    processAtoFConstraint(a, f, tlbConstraints, teqConstraints, tubConstraints);
                 }
             }
         }
@@ -1010,7 +1022,7 @@ public class TextAnalyzer
                                 String tpName = j.next();
                                 GenTypeParameter fPar = fMap.get(tpName);
                                 GenTypeParameter aPar = aMap.get(tpName);
-                                processAtoFtpar(aPar, fPar, tlbConstraints, teqConstraints);
+                                processAtoFtpar(aPar, fPar, tlbConstraints, teqConstraints, tubConstraints);
                             }
                         }
                     }
@@ -1025,7 +1037,8 @@ public class TextAnalyzer
      * Process type parameters from a type inference constraint A convertible-to F.
      */
     private static void processAtoFtpar(GenTypeParameter aPar, GenTypeParameter fPar,
-            Map<String,Set<GenTypeSolid>> tlbConstraints, Map<String,GenTypeSolid> teqConstraints)
+            Map<String,Set<GenTypeSolid>> tlbConstraints, Map<String,GenTypeSolid> teqConstraints,
+            Map<String,GenTypeSolid> tubConstraints)
     {
         if (fPar instanceof GenTypeSolid) {
             if (aPar instanceof GenTypeSolid) {
@@ -1040,7 +1053,7 @@ public class TextAnalyzer
                 if (albound != null) {
                     // there should only be one element in albounds
                     // recurse with albounds[0] >> flbound[0]
-                    processFtoAConstraint(albound, flbound, tlbConstraints, teqConstraints);
+                    processFtoAConstraint(albound, flbound, tlbConstraints, teqConstraints, tubConstraints);
                 }
             } else {
                 // F-par is of form "? extends ..."
@@ -1048,7 +1061,8 @@ public class TextAnalyzer
                 GenTypeSolid [] aubounds = aPar.getUpperBound().asSolid().getIntersectionTypes();
                 if (fubounds.length > 0 && aubounds.length > 0) {
                     // recurse with aubounds << fubounds[0]
-                    processAtoFConstraint(IntersectionType.getIntersection(aubounds), fubounds[0], tlbConstraints, teqConstraints);
+                    processAtoFConstraint(IntersectionType.getIntersection(aubounds), fubounds[0],
+                            tlbConstraints, teqConstraints, tubConstraints);
                 }
             }
         }
@@ -1145,52 +1159,62 @@ public class TextAnalyzer
      * Process a type inference constraint of the form "F is convertible to A".
      */
     private static void processFtoAConstraint(GenTypeSolid a, GenTypeSolid f,
-            Map<String,Set<GenTypeSolid>> tlbConstraints, Map<String,GenTypeSolid> teqConstraints)
+            Map<String,Set<GenTypeSolid>> tlbConstraints, Map<String,GenTypeSolid> teqConstraints,
+            Map<String,GenTypeSolid> tubConstraints)
     {
-        // This is pretty much nothing like what the JLS says it should be. As far as I can
-        // make out, the JLS is just plain wrong.
+        // If F = T, then T <: A is implied:
+        if (f instanceof GenTypeTpar) {
+            GenTypeTpar ftpar = (GenTypeTpar) f;
+            GenTypeSolid ubcons = tubConstraints.get(ftpar.getTparName());
+            if (ubcons == null) {
+                ubcons = a;
+            }
+            else {
+                ubcons = IntersectionType.getIntersection(new GenTypeSolid[] {ubcons, a});
+            }
+            tubConstraints.put(ftpar.getTparName(), ubcons);
+        }
         
-        // If F = T, then T <: A is implied: but we cannot make use of such a constraint.
         // If F = U[] ...
-        if (f.getArrayComponent() instanceof GenTypeSolid) {
+        else if (f.getArrayComponent() instanceof GenTypeSolid) {
             // "If F = U[] ... if A is an array type V[], or a type variable with an
             // upper bound that is an array type V[]..."
             GenTypeSolid [] asts;
-            if (a instanceof GenTypeDeclTpar)
+            if (a instanceof GenTypeDeclTpar) {
                 asts = ((GenTypeDeclTpar) a).upperBounds();
-            else
+            }
+            else {
                 asts = new GenTypeSolid[] {a};
+            }
             
             for (int i = 0; i < asts.length; i++) {
-                JavaType act = asts[i].getArrayComponent();
-                if (act instanceof GenTypeSolid) {
-                    processFtoAConstraint((GenTypeSolid) act, (GenTypeSolid) f.getArrayComponent(), tlbConstraints, teqConstraints);
+                JavaType act = asts[i].getArrayComponent().asSolid();
+                if (act != null) {
+                    processFtoAConstraint((GenTypeSolid) act, (GenTypeSolid) f.getArrayComponent(),
+                            tlbConstraints, teqConstraints, tubConstraints);
                 }
             }
         }
         
-        else if (f.asClass() != null) {
+        // If F has form G<..,..>
+        else if (f.asClass() != null && a.asClass() != null) {
             GenTypeClass cf = f.asClass();
-            if (! (a instanceof GenTypeTpar)) {
-                GenTypeClass [] asts = a.getReferenceSupertypes();
-                for (int i = 0; i < asts.length; i++) {
-                    try {
-                        GenTypeClass fMapped = cf.mapToSuper(asts[i].classloaderName());
-                        Map<String,GenTypeParameter> aMap = asts[i].getMap();
-                        Map<String,GenTypeParameter> fMap = fMapped.getMap();
-                        if (aMap != null && fMap != null) {
-                            Iterator<String> j = fMap.keySet().iterator();
-                            while (j.hasNext()) {
-                                String tpName = j.next();
-                                GenTypeParameter fPar = fMap.get(tpName);
-                                GenTypeParameter aPar = aMap.get(tpName);
-                                processFtoAtpar(aPar, fPar, tlbConstraints, teqConstraints);
-                            }
-                        }
+            GenTypeClass af = a.asClass();
+            try {
+                GenTypeClass fMapped = cf.mapToSuper(af.classloaderName());
+                Map<String,GenTypeParameter> aMap = af.getMap();
+                Map<String,GenTypeParameter> fMap = fMapped.getMap();
+                if (aMap != null && fMap != null) {
+                    Iterator<String> j = fMap.keySet().iterator();
+                    while (j.hasNext()) {
+                        String tpName = j.next();
+                        GenTypeParameter fPar = fMap.get(tpName);
+                        GenTypeParameter aPar = aMap.get(tpName);
+                        processFtoAtpar(aPar, fPar, tlbConstraints, teqConstraints, tubConstraints);
                     }
-                    catch (BadInheritanceChainException bice) {}
                 }
             }
+            catch (BadInheritanceChainException bice) {}
         }
     }
 
@@ -1198,7 +1222,8 @@ public class TextAnalyzer
      * Process type parameters from a type inference constraint F convertible-to A.
      */
     private static void processFtoAtpar(GenTypeParameter aPar, GenTypeParameter fPar,
-            Map<String,Set<GenTypeSolid>> tlbConstraints, Map<String,GenTypeSolid> teqConstraints)
+            Map<String,Set<GenTypeSolid>> tlbConstraints, Map<String,GenTypeSolid> teqConstraints,
+            Map<String,GenTypeSolid> tubConstraints)
     {
         if (fPar instanceof GenTypeSolid) {
             if (aPar instanceof GenTypeSolid) {
@@ -1208,12 +1233,12 @@ public class TextAnalyzer
                 GenTypeSolid alBound = aPar.getLowerBound();
                 if (alBound != null) {
                     // aPar is of the form "? super ..."
-                    processAtoFConstraint(alBound, (GenTypeSolid) fPar, tlbConstraints, teqConstraints);
+                    processAtoFConstraint(alBound, (GenTypeSolid) fPar, tlbConstraints, teqConstraints, tubConstraints);
                 }
                 else {
                     GenTypeSolid auBound = aPar.getUpperBound().asSolid();
                     if (auBound != null) {
-                        processFtoAConstraint(auBound, fPar.asSolid(), tlbConstraints, teqConstraints);
+                        processFtoAConstraint(auBound, fPar.asSolid(), tlbConstraints, teqConstraints, tubConstraints);
                     }
                 }
             }
@@ -1227,7 +1252,7 @@ public class TextAnalyzer
                     // fPar is ? super ...
                     GenTypeSolid alBound = aPar.getLowerBound();
                     if (alBound != null) {
-                        processAtoFConstraint(alBound, flBound, tlbConstraints, teqConstraints);
+                        processAtoFConstraint(alBound, flBound, tlbConstraints, teqConstraints, tubConstraints);
                     }
                 }
                 else {
@@ -1237,7 +1262,7 @@ public class TextAnalyzer
                     if (fuBound != null && auBound != null) {
                         GenTypeSolid [] fuBounds = fuBound.getIntersectionTypes();
                         GenTypeSolid [] auBounds = auBound.getIntersectionTypes();
-                        processFtoAConstraint(auBounds[0], fuBounds[0], tlbConstraints, teqConstraints);
+                        processFtoAConstraint(auBounds[0], fuBounds[0], tlbConstraints, teqConstraints, tubConstraints);
                     }
                 }
             }

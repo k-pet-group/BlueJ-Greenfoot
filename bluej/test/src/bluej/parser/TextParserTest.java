@@ -1173,7 +1173,7 @@ public class TextParserTest extends TestCase
         resolver.addCompilationUnit("", cuForSource(src, ""));
     }
     
-    public void testEagerReturnTypeResolutionB() throws Exception
+    public void testEagerReturnTypeResolutionBsimple() throws Exception
     {
         addClass("interface List<S> {}");
         addClass("interface I<S> {}");
@@ -1189,7 +1189,7 @@ public class TextParserTest extends TestCase
                 "    <T> T eq(List<T> l) { return null; }\n" +
                 "    <T> T eq2(List<T> l1, List<T> l2) { return null; }\n" +
                 "    <X> X takeI(I<X> i) {}\n" +
-                "    void takeIString(I<String> i) {}\n" +
+                "    K takeIString(I<String> i) {}\n" +
                 "}\n";
          
         ParsedCUNode aNode = cuForSource(aClassSrc, "");
@@ -1218,8 +1218,10 @@ public class TextParserTest extends TestCase
         
         rr = tp.parseCommand("t.takeI(t.upper(i1))");
         assertEquals("java.lang.Object", rr);
-        
-        // more to come
+
+        // Java 8. Not allowed in Java 7:
+        rr = tp.parseCommand("t.takeIString(t.upper(i1))");
+        assertEquals("K", rr);
     }
     
 }
