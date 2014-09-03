@@ -1164,7 +1164,7 @@ public class TextParserTest extends TestCase
         String rr = tp.parseCommand("t");
         assertEquals("Test4", rr);
         
-        String r = tp.parseCommand("t.baz(t.foo(new Test1<Long>(), new Test1<Integer>()))");
+        String r = tp.parseCommand("t.baz(t.foo(a1, a2))");
         assertEquals("?not sure yet?", r); // fill in when above passes
     }
     

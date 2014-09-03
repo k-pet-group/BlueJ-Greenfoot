@@ -85,7 +85,7 @@ public class TextAnalyserTest extends TestCase
         JavaType argType = JavaPrimitiveType.getInt();
         
         
-        List<MethodCallDesc> choices = TextAnalyzer.getSuitableMethods("get", listClass,
+        List<MethodCallDesc> choices = TextAnalyzer.getSuitableMethods("get", listClass.getCapture(),
                 new JavaType[] {argType},
                 Collections.<GenTypeParameter>emptyList(), new JavaReflective(Object.class));
         
@@ -209,7 +209,7 @@ public class TextAnalyserTest extends TestCase
         targMap.put("T", new GenTypeClass(new JavaReflective(String.class)));
         GenTypeClass test1classNotRaw = new GenTypeClass(test1class.getReflective(), targMap);
 
-        choices = TextAnalyzer.getSuitableMethods("foo", test1classNotRaw,
+        choices = TextAnalyzer.getSuitableMethods("foo", test1classNotRaw.getCapture(),
                 new JavaType[] {arg1, arg2},
                 Collections.<GenTypeParameter>emptyList(), test1class.getReflective());
         
@@ -218,8 +218,25 @@ public class TextAnalyserTest extends TestCase
         assertEquals("Test1", mcd.retType.asClass().getErasedType().toString());
         List<? extends GenTypeParameter> tparams =  mcd.retType.asClass().getTypeParamList();
         assertEquals(1, tparams.size());
-        assertTrue(tparams.get(0).contains(new GenTypeClass(new JavaReflective(Long.class))));
-        assertTrue(tparams.get(0).contains(new GenTypeClass(new JavaReflective(Integer.class))));
+        
+        // The result is a capture, check the supertypes are correct:
+        GenTypeClass[] superTypes = tparams.get(0).asSolid().getReferenceSupertypes();
+        assertEquals(2, superTypes.length);
+        List<GenTypeClass> superTypesList = new ArrayList<GenTypeClass>(superTypes.length);
+        Collections.addAll(superTypesList, superTypes);
+        GenTypeClass numberClass = new GenTypeClass(new JavaReflective(Number.class));
+        assertTrue(superTypesList.contains(numberClass));
+        // java.lang.Comparable<? extends Number>
+        List<GenTypeParameter> ctparams = new ArrayList<GenTypeParameter>(1);
+        ctparams.add(new GenTypeWildcard(numberClass, null));
+        GenTypeClass comparable = new GenTypeClass(new JavaReflective(Comparable.class), ctparams);
+        // The actual type is recursive, so we just make sure we have it basically right:
+        boolean foundComparable = false;
+        for (GenTypeClass possible : superTypes) {
+            foundComparable = comparable.isAssignableFrom(possible);
+            if (foundComparable) break;
+        }
+        assertTrue(foundComparable);
     }
 
 }
