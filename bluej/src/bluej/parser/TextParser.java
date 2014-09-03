@@ -569,7 +569,7 @@ public class TextParser extends JavaParser
                 valueStack.push(new ErrorEntity());
                 return;
             }
-            GenTypeSolid stype = target.getType().asSolid();
+            GenTypeSolid stype = target.getType().getCapture().asSolid();
             if (stype == null) {
                 // call on a primitive
                 valueStack.push(new ErrorEntity());

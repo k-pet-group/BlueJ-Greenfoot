@@ -947,7 +947,7 @@ public class TextAnalyzer
             }
         }
         
-        JavaType rType = m.getReturnType().mapTparsToTypes(tparMap).getTparCapture();
+        JavaType rType = m.getReturnType().mapTparsToTypes(tparMap).asType().getCapture();
         return new MethodCallDesc(m, mparams, varargs, boxingRequired, rType);
     }
 
@@ -1251,7 +1251,8 @@ public class TextAnalyzer
      * methods returned in the list might not be <i>appropriate</i> as according to JLS 15.12.3.
      * 
      * @param methodName    The name of the method
-     * @param targetTypes   The types to search for declarations of this method
+     * @param targetType    The type to search for declarations of this method (must have had
+     *                       capture conversion applied, if necessary)
      * @param argumentTypes The types of the arguments supplied in the method invocation
      * @param typeArgs      The type arguments, if any, supplied in the method invocation
      * @return  an ArrayList of MethodCallDesc - the list of candidate methods
