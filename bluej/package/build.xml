@@ -557,7 +557,7 @@
             	<include name="doc/README.TXT" />
                 <include name="doc/BlueJ-architecture-and-design.txt" />
             	<include name="doc/BlueJ-parser.txt" />
-                 <include name="doc/Pi4J-change of behaviour.txt"/>
+                 <include name="doc/Pi4J-readme.txt"/>
             	<include name="doc/threading-issues.txt" />
 	            <include name="examples/**/*" />          
 	            <include name="icons/**/*" />           

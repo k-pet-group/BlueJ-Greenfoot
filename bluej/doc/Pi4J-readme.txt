@@ -3,17 +3,21 @@ CONFIGURATION AND CHANGE OF BEHAVIOUR OF PI4J WITH BLUEJ.
 
 F. Heday, 2014
 
-What is Pi4J
-------------
-The Pi4J library is a JAVA layer for wiringPi. It allows java to use GPIO's in the raspberryPi. We included a modified version of Pi4J with Bluej.
+What is Pi4J?
+------------_
+The Pi4J library is a JAVA layer for wiringPi. It allows java to use GPIO's in the raspberryPi. We included a modified
+version of Pi4J with Bluej; the source for it can be found in the pi4j folder. The original project is found at:
+
+	http://pi4j.com/
 
 
 How to Build
 ------------
-To Build Pi4J, we need to open the maven project at bluej/p4j, the build it. Part of this project needs to be compiled on a raspberry pi. 
+To Build Pi4J, we need to open the maven project at bluej/p4j, then build it. Part of this project needs to be compiled
+on a raspberry pi. 
 
-In order to compile, we need to configure the file pi4j/pom.xml, at the lines 92 to 96, we need to input the raspberry pi machine 
-where the compilation will take place:
+In order to compile, we need to configure the file pi4j/pom.xml, at the lines 92 to 96, we need to input the raspberry
+pi machine where the compilation will take place:
 
 		<!-- DEFAULT RASPBERRY PI PROPERTIES -->
 		<pi.host>xxxx</pi.host>
@@ -30,17 +34,19 @@ pi4j-gpio-extension.jar
 pi4j-service.jar
 pi4j-core.jar
 
-Three ANT tasks were also created:
+Three ANT tasks were also created in the BlueJ build script:
 pi4j-compile: calls maven to compile pi4j.
 clean-pi4j: calls maven to clean pi4j.
 pi4j-move-to-lib: move the pi4j jars to the lib/userlib folder in bluej.
 
 
-What has changed
-----------------
-Pi4J on the raspberry pi distribution has one main change:
-The behaviour of mainstream Pi4J whenever requesting a GpioPin from the GpioController (via provisionPin method), is to check if the pin is already 
-allocated/provised. If the pin is already allocated/provised, then an exception is raised and the method return no pins.
+What has been changed
+---------------------
+Compared to the regular distribution of Pi4J, the version included here has one main change.
+
+The behaviour of mainstream Pi4J whenever requesting a GpioPin from the GpioController (via provisionPin method),
+is to check if the pin is already allocated/provised. If the pin is already allocated/provised, then an exception
+is raised and the method return no pins.
 
 This behaviour puts the pin management duty on the user, making the code much more complex.
 

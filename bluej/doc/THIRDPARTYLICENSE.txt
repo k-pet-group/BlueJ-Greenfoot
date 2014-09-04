@@ -381,6 +381,8 @@ which are shipped with BlueJ:
     httpmime-4.1.1.jar                    Apache HttpComponents - MIME support
     
     diffutils-1.2.1.jar                   Java Diff utils (http://code.google.com/p/java-diff-utils/)
+    
+    pi4j                                  Pi4J library (see Pi4J-readme.txt file).
 
 This license is included with BlueJ so as to satisfy the license requirements.
 
