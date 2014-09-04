@@ -249,7 +249,7 @@
         <property name="executable_files" value="**/PkgInfo,**/JavaApplicationStub" />
 
         <!-- copy the skeleton mac dir -->
-        <copy todir="${zip_dir}/BlueJ-legacy.app">
+        <copy todir="${zip_dir}/BlueJ.app">
             <fileset dir="macfiles/BlueJ-legacy.app"/> 
         </copy>
         
@@ -257,7 +257,7 @@
         <replaceregexp byline="true">
             <regexp pattern="VERSION" />
             <substitution expression="${bluej.version}" />
-            <fileset dir="${zip_dir}/BlueJ-legacy.app/Contents" includes="Info.plist" />
+            <fileset dir="${zip_dir}/BlueJ.app/Contents" includes="Info.plist" />
         </replaceregexp>
         
         <copy todir="${zip_dir}">
@@ -269,10 +269,10 @@
         </copy>
         
         <!-- The lib dir should not be in the root dir, so we move the contents to the proper mac-location -->
-        <move todir="${zip_dir}/BlueJ-legacy.app/Contents/Resources/Java">
+        <move todir="${zip_dir}/BlueJ.app/Contents/Resources/Java">
             <fileset dir="${zip_dir}/lib/" />
         </move>
-        <delete dir="${zip_dir}/BlueJ-legacy.app/Contents/Resources/Java/lib" />
+        <delete dir="${zip_dir}/BlueJ.app/Contents/Resources/Java/lib" />
 
         <!-- ZIP it -->
         <zip destfile="${dist.mac.legacy}" duplicate="fail">
@@ -281,10 +281,16 @@
             <zipfileset dir="mac_tmp" filemode="755" includes="${executable_files}" />
         </zip>
     	
+    	<!-- Bundled JDK build -->
+    	<!-- rename BlueJ.app to BlueJ-legacy.app -->
+    	<move file="${zip_dir}/BlueJ.app" tofile="${zip_dir}/BlueJ-legacy.app" />
+    	
         <!-- copy the skeleton mac dir -->
         <copy todir="${zip_dir}/BlueJ.app">
             <fileset dir="macfiles/BlueJ.app"/> 
         </copy>
+    	
+    	<!-- copy the native launcher into place -->
     	<copy todir="${zip_dir}/BlueJ.app/Contents/MacOS" file="macfiles/nativelauncher/JavaAppLauncher" />
     	
         <!-- update version number -->
@@ -297,27 +303,22 @@
     	<!-- Move contents from legacy app to new app -->
         <move file="${zip_dir}/BlueJ-legacy.app/Contents/Resources/Java"
         	todir="${zip_dir}/BlueJ.app/Contents/Resources" />
-    	
-    	<!-- Copy the JDK to the app -->
-    	<copy  todir="${zip_dir}/BlueJ.app/Contents/Frameworks/jdk.framework/Versions/A">
-    		<fileset dir="${mac_bundled_jdk_path}" />
-    	</copy>
-    	
-	    <!-- symlink the info.properties file -->
-    	<symlink link="${zip_dir}/BlueJ.app/Contents/Frameworks/jdk.framework/Resources/Info.plist"
-    		resource="../Versions/A/Contents/Info.plist" />
-    	
+
     	<!-- Remove the legacy app -->
     	<delete dir="${zip_dir}/BlueJ-legacy.app" />
-
-        <property name="executable_files2" value="**/PkgInfo,**/JavaAppLauncher,**/Contents/Frameworks/jdk.framework/Versions/A/Contents/**/bin/*" />
-
-        <!-- ZIP it -->
-        <zip destfile="${dist.mac}" duplicate="fail">
-            <zipfileset dir="mac_tmp" excludes="${executable_files2}" />
-            <!-- Make the files executable that need to be executable -->
-            <zipfileset dir="mac_tmp" filemode="755" includes="${executable_files2}" />
-        </zip>
+    	
+        <property name="executable_files2" value="**/PkgInfo,**/JavaAppLauncher" />
+        <chmod perm="+x">
+            <fileset dir="${zip_dir}/BlueJ.app/Contents" includes="${executable_files2}" />
+        </chmod>
+    	
+    	<chmod perm="+x" file="bundle-mac.sh" />
+        <exec executable="bundle-mac.sh" resolveexecutable="true">
+            <arg value="${zip_dir}" />
+        	<arg value="BlueJ.app" />
+        	<arg value="${mac_bundled_jdk_path}" />
+        	<arg value="${dist.mac}" />
+        </exec>
     	
         <delete dir="mac_tmp" />
 
