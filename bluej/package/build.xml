@@ -317,7 +317,7 @@
             <arg value="${zip_dir}" />
         	<arg value="BlueJ.app" />
         	<arg value="${mac_bundled_jdk_path}" />
-        	<arg value="${dist.mac}" />
+        	<arg value="${basedir}/${dist.mac}" />
         </exec>
     	
         <delete dir="mac_tmp" />
