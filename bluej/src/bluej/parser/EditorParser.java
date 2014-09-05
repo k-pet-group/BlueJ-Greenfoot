@@ -776,7 +776,9 @@ public class EditorParser extends JavaParser
     @Override
     protected void endTryBlock(LocatableToken token, boolean included)
     {
-        endTopNode(token, included);
+        // Even if the end token is '}' we don't want it as part of the inner block,
+        // so pass included=false.
+        endTopNode(token, false);
     }
     
     @Override
