@@ -407,4 +407,33 @@ public class EditorParserTest extends TestCase
         assertEquals(62, nap.getEnd());
     }
 
+    public void testWhile()
+    {
+        String sourceCode = ""
+                + "class A\n"    // 0 - 8 
+                + "{\n"             //   8 - 10
+                + "  void method() {\n"  // 10 - 28
+                + "    while(true) {\n"  // 28 - 46
+                + "      // nothing\n"   // 46 - 63 
+                + "    }\n"              // 63 - 69 
+                + "  }\n"                //
+                + "}\n";                 //
+                
+        ParsedCUNode pcuNode = cuForSource(sourceCode, "");
+        resolver.addCompilationUnit("", pcuNode);
+            
+        NodeAndPosition<ParsedNode> nap = pcuNode.findNodeAt(0, 0);  // class
+        nap = nap.getNode().findNodeAt(9, nap.getPosition());        // class inner
+        nap = nap.getNode().findNodeAt(12, nap.getPosition());       // method
+        nap = nap.getNode().findNodeAt(27, nap.getPosition());       // method inner
+
+        nap = nap.getNode().findNodeAt(32, nap.getPosition());     // while outer
+        assertEquals(32, nap.getPosition());
+        assertEquals(68, nap.getEnd());
+        
+        nap = nap.getNode().findNodeAt(45, nap.getPosition());     // while inner
+        assertEquals(45, nap.getPosition());
+        assertEquals(67, nap.getEnd());
+    }
+    
 }
