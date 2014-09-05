@@ -373,4 +373,38 @@ public class EditorParserTest extends TestCase
         assertEquals(51, nap.getPosition());
         assertEquals(70, nap.getEnd());
     }
+    
+    public void testTryCatch()
+    {
+        String sourceCode = ""
+                + "class A\n"    // 0 - 8 
+                + "{\n"             //   8 - 10
+                + "  void method() {\n"  // 10 - 28
+                + "    try {\n"          // 28 - 38 
+                + "    }\n"              // 38 - 44 
+                + "    catch(E e) {  }\n"  // 44 - 64 
+                + "  }\n"                  // 64 - 68
+                + "}\n";                   // 68 - 70
+                
+        ParsedCUNode pcuNode = cuForSource(sourceCode, "");
+        resolver.addCompilationUnit("", pcuNode);
+            
+        NodeAndPosition<ParsedNode> nap = pcuNode.findNodeAt(0, 0);  // class
+        nap = nap.getNode().findNodeAt(9, nap.getPosition());        // class inner
+        nap = nap.getNode().findNodeAt(12, nap.getPosition());       // method
+        nap = nap.getNode().findNodeAt(27, nap.getPosition());       // method inner
+
+        NodeAndPosition<ParsedNode> tryCatch = nap.getNode().findNodeAt(32, nap.getPosition());       // try-catch
+        assertEquals(32, tryCatch.getPosition());
+        assertEquals(63, tryCatch.getEnd());
+        
+        nap = tryCatch.getNode().findNodeAt(37, tryCatch.getPosition());       // try inner
+        assertEquals(37, nap.getPosition());
+        assertEquals(42, nap.getEnd());
+        
+        nap = tryCatch.getNode().findNodeAt(60, tryCatch.getPosition());       // catch inner
+        assertEquals(60, nap.getPosition());
+        assertEquals(62, nap.getEnd());
+    }
+
 }
