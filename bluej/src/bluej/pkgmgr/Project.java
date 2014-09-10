@@ -726,14 +726,17 @@ public class Project implements DebuggerListener, InspectorManager
         }
         
         // See if it is on the bench:
-        String benchName = null;
-        for (ObjectWrapper ow : PkgMgrFrame.findFrame(pkg).getObjectBench().getObjects())
-        {
-            if (ow.getObject().equals(obj))
-                benchName = ow.getName();
+        if (! Config.isGreenfoot()) {
+            String benchName = null;
+            for (ObjectWrapper ow : PkgMgrFrame.findFrame(pkg).getObjectBench().getObjects())
+            {
+                if (ow.getObject().equals(obj)){
+                    benchName = ow.getName();
+                }
+            }
+
+            DataCollector.inspectorObjectShow(pkg, inspector, benchName, obj.getClassName(), name);
         }
-        
-        DataCollector.inspectorObjectShow(pkg, inspector, benchName, obj.getClassName(), name);
 
         return inspector;
     }
