@@ -3213,9 +3213,16 @@ public class JavaParser
                     gotBinaryOperator(opToken);
                     break opLoop;
                 case 11: // binary operator
-                    // Binary operators - need another operand
-                    gotBinaryOperator(token);
-                    token = nextToken();
+                    if (token.getType() == JavaTokenTypes.METHOD_REFERENCE &&
+                            tokenStream.LA(1).getType() == JavaTokenTypes.LITERAL_new) {
+                        nextToken(); // consume LITERAL_new
+                        continue;
+                    }
+                    else {
+                        // Binary operators - need another operand
+                        gotBinaryOperator(token);
+                        token = nextToken();
+                    }
                     break opLoop;
                     
                 default:

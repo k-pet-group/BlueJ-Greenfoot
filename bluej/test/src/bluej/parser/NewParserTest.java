@@ -501,6 +501,11 @@ public class NewParserTest extends TestCase
         checkLambdaExpression("somepkg.someotherpkg.SomeClass::someMethod");
     }
     
+    public void testMethodRef4()
+    {
+        checkLambdaExpression("SomeClass::new");
+    }
+    
     /** Test generic method call */
     public void testGenericMethodCall()
     {
