@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2014  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -57,11 +57,11 @@ public class BlueJRMIClient implements BlueJPropStringSource
 
         try {
             URI uri = new URI(rmiServiceName);
-            String path = uri.getPath().substring(1); // strip leading '/'
             String host = uri.getHost();
             int port = uri.getPort();
             Registry reg = LocateRegistry.getRegistry(host, port, new LocalSocketFactory());
-            blueJ = (RBlueJ) reg.lookup(path);
+            
+            blueJ = (RBlueJ) reg.lookup(rmiServiceName);
         }
         catch (URISyntaxException use) {
             use.printStackTrace();

@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2011,2014  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,9 +23,9 @@ package rmiextension;
 
 import java.io.IOException;
 import java.net.ServerSocket;
-import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.security.Permission;
 
 import rmiextension.wrappers.RBlueJ;
@@ -105,10 +105,10 @@ public class BlueJRMIServer
             });
         }
         
-        startRegistry();
+        Registry registry = startRegistry();
         blueJ.addPackageListener(ProjectManager.instance());
         RBlueJ rBlueJ = new RBlueJImpl(blueJ);
-        Naming.rebind(getBlueJService(), rBlueJ);
+        registry.rebind(getBlueJService(), rBlueJ);
     }
 
     /**
@@ -117,7 +117,7 @@ public class BlueJRMIServer
      * @throws IOException If the registry could not be started - even after
      *             several retries.
      */
-    private void startRegistry()
+    private Registry startRegistry()
         throws IOException
     {
         forceHostForServer();
@@ -135,8 +135,7 @@ public class BlueJRMIServer
             }
 
             try {
-                LocateRegistry.createRegistry(port, socketFactory, socketFactory);
-                success = true;
+                return LocateRegistry.createRegistry(port, socketFactory, socketFactory);
             }
             catch (RemoteException re) {
                 // One reason could be that the port that was reported as free
@@ -147,9 +146,8 @@ public class BlueJRMIServer
                 continue;
             }
         }
-        if (!success) {
-            throw new IOException("Could not start the registry.");
-        }
+        
+        throw new IOException("Could not start the registry.");
     }
 
     /**
