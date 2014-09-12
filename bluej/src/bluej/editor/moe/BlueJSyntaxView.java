@@ -367,9 +367,6 @@ public abstract class BlueJSyntaxView extends MoePlainView
         int fullWidth = a.getBounds().width + a.getBounds().x;
 
         ListIterator<NodeAndPosition<ParsedNode>> li = prevScopeStack.listIterator();
-        //Color lastLineColor = C3;
-
-        NodeAndPosition<ParsedNode> parent = null;
 
         DrawInfo drawInfo = new DrawInfo();
         drawInfo.g = g;
@@ -378,6 +375,8 @@ public abstract class BlueJSyntaxView extends MoePlainView
         drawInfo.ypos = ypos;
         drawInfo.ypos2 = ypos2;
 
+        // Process the current scope stack. This contains all nodes that span the beginning of this line,
+        // the foremost child and its foremost child and so on.
         while (li.hasNext()) {
             NodeAndPosition<ParsedNode> nap = li.next();
             int napPos = nap.getPosition();
@@ -385,16 +384,16 @@ public abstract class BlueJSyntaxView extends MoePlainView
 
             if (napPos >= lines.thisLineEl.getEndOffset()) {
                 // The node isn't even on this line, go to the next line
-                break;
+                return;
+            }
+
+            if (! drawNode(drawInfo, nap, onlyMethods)) {
+                continue;
             }
 
             if (nodeSkipsEnd(napPos, napEnd, lines.thisLineEl, lines.thisLineSeg)) {
+                nodeDepth++;
                 break;
-            }
-
-            if (! drawNode(drawInfo, nap, parent, onlyMethods)) {
-                parent = nap;
-                continue;
             }
 
             // Draw the start node
@@ -417,25 +416,29 @@ public abstract class BlueJSyntaxView extends MoePlainView
                 drawScopeRight(drawInfo, rbound);
             }
             nodeDepth++;
-
-            //lastNodePos = nap;
         }
 
         // Move along.
+        nodeDepth--;
         li = prevScopeStack.listIterator(prevScopeStack.size());
         NodeAndPosition<ParsedNode> nap = li.previous(); // last node
         int napPos = nap.getPosition();
         int napEnd = napPos + nap.getSize();
 
-        // For nodes which end on this line:
+        // For nodes which end on this line, there may be subsequent nodes we
+        // need to draw (and anyway we need to build the scope stack).
         while (napEnd <= lines.thisLineEl.getEndOffset()) {
             // Node ends this line
-            li.remove(); nodeDepth--;
+            li.remove();
+            if (drawNode(drawInfo, nap, onlyMethods)) {
+                nodeDepth--;
+            }
 
             if (! li.hasPrevious()) return;
             NodeAndPosition<ParsedNode> napParent = li.previous();
             li.next();
 
+            // There might be a sibling which has to be processed:
             NodeAndPosition<ParsedNode> nextNap = nap.nextSibling();
             napPos = napParent.getPosition();
             napEnd = napPos + napParent.getSize();
@@ -444,12 +447,13 @@ public abstract class BlueJSyntaxView extends MoePlainView
             while (nextNap != null) {
                 li.add(nextNap);
                 li.previous(); li.next();  // so remove works
-                nodeDepth++;
                 napPos = nextNap.getPosition();
                 napEnd = napPos + nextNap.getSize();
-                if (! nodeSkipsStart(nextNap, lines.thisLineEl, lines.thisLineSeg)) {
-                    if (drawNode(drawInfo, nextNap, napParent, onlyMethods)) {
+                
+                if (napPos < lines.thisLineEl.getEndOffset() && ! nodeSkipsStart(nextNap, lines.thisLineEl, lines.thisLineSeg)) {
+                    if (drawNode(drawInfo, nextNap, onlyMethods)) {
                         // Draw it
+                        nodeDepth++;
                         int xpos = getNodeIndent(a, document, nextNap, lines.thisLineEl,
                                 lines.thisLineSeg);
                         int rbound = getNodeRBound(a, nextNap, fullWidth - rightMargin, nodeDepth,
@@ -469,7 +473,7 @@ public abstract class BlueJSyntaxView extends MoePlainView
                         }
                     }
                 }
-
+                
                 nap = nextNap;
                 nextNap = nextNap.getNode().findNodeAtOrAfter(napPos, napPos);
             }
@@ -482,7 +486,7 @@ public abstract class BlueJSyntaxView extends MoePlainView
      * @param node
      * @return
      */
-    private boolean drawNode(DrawInfo info, NodeAndPosition<ParsedNode> nap, NodeAndPosition<ParsedNode> parent, boolean onlyMethods)
+    private boolean drawNode(DrawInfo info, NodeAndPosition<ParsedNode> nap, boolean onlyMethods)
     {
         int napPos = nap.getPosition();
         int napEnd = napPos + nap.getSize();
@@ -503,13 +507,6 @@ public abstract class BlueJSyntaxView extends MoePlainView
             if (! PAINT_METHOD_INNER) {
                 return false;
             }
-            /*
-            if (nap.getNode().isInner() && parent != null && parent.getNode().getNodeType()
-                    == ParsedNode.NODETYPE_METHODDEF) {
-                return true;
-            }
-            return false;
-             */
         }
 
         if (nodeSkipsStart(nap, info.lines.thisLineEl, info.lines.thisLineSeg)) {
@@ -639,7 +636,7 @@ public abstract class BlueJSyntaxView extends MoePlainView
         boolean endsThisLine = info.ends;
         int ypos = info.ypos;
         int ypos2 = info.ypos2;
-
+        
         // draw node start
         g.setColor(color2);
         g.fillRect(xpos, ypos, rbounds - xpos, ypos2 - ypos);
