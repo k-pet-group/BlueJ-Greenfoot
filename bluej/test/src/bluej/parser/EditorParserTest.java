@@ -436,4 +436,31 @@ public class EditorParserTest extends TestCase
         assertEquals(67, nap.getEnd());
     }
     
+    public void testLambda()
+    {
+        String sourceCode = ""
+                + "class A\n" // 0 - 8 
+                + "{\n" //   8 - 10
+                + "  void method() {\n" // 10 - 28
+                + "    Arrays.asList(\"A\", \"B\", \"C\").stream().map(s ->{/n" // 28 - 80
+                + "      return s.toLowerCase();\n" // 80 - 110
+                + "      }).collect(Collectors.joining(\",\"));\n" // 110 - 153
+                + "  }\n" // 153 - 157 
+                + "}\n";  // 157 - 159
+
+        ParsedCUNode pcuNode = cuForSource(sourceCode, "");
+        resolver.addCompilationUnit("", pcuNode);
+
+        NodeAndPosition<ParsedNode> nap = pcuNode.findNodeAt(0, 0);  // class
+        nap = nap.getNode().findNodeAt(9, nap.getPosition());        // class inner
+        nap = nap.getNode().findNodeAt(12, nap.getPosition());       // method
+        nap = nap.getNode().findNodeAt(27, nap.getPosition());       // method inner
+        nap = nap.getNode().findNodeAt(32, nap.getPosition());       // Arrays
+        nap = nap.getNode().findNodeAt(74, nap.getPosition());       // map(
+        nap = nap.getNode().findNodeAt(78, nap.getPosition());       // Lambda
+        nap = nap.getNode().findNodeAt(79, nap.getPosition());       // outer Lambda
+        assertEquals(79, nap.getPosition());                         //Lambda open bracket
+        assertEquals(117, nap.getEnd());                             //Lambda close bracket
+
+    }
 }
