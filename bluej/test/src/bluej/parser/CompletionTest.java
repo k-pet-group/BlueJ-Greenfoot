@@ -823,7 +823,7 @@ public class CompletionTest extends TestCase
             {
                 throw new RuntimeException("Not implemented in test stub.");
             }
-        });
+        }, null);
         
         for (AssistContent assist : assists) {
             assist.getJavadoc();
@@ -899,7 +899,7 @@ public class CompletionTest extends TestCase
             {
                 throw new RuntimeException("Not implemented in test stub.");
             }
-        });
+        }, null);
         
         assertNotNull(acontent);
     }
