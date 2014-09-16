@@ -36,6 +36,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -72,6 +73,7 @@ public class WorldCanvas extends JPanel
     private Dimension size;
     /** Font for text labels on the world */
     private Font textLabelFont;
+    private Image overrideImage;
     
     public WorldCanvas(World world)
     {
@@ -165,11 +167,16 @@ public class WorldCanvas extends JPanel
     @Override
     public void paintComponent(Graphics g)
     {
+        if (overrideImage != null)
+        {
+            g.drawImage(overrideImage, 1, 1, null); // Draw at 1, 1 to account for border
+            return;
+        }
+        
         if (world == null) {
             Color c = g.getColor();
             g.setColor(getParent().getBackground());
             g.fillRect(0, 0, getWidth(), getHeight());
-            g.setColor(c);
             WorldHandler.getInstance().repainted();
             return;
         }
@@ -426,5 +433,11 @@ public class WorldCanvas extends JPanel
     public boolean getScrollableTracksViewportHeight()
     {
         return false;
+    }
+
+    public void setOverrideImage(Image snapshot)
+    {
+        this.overrideImage = snapshot;
+        repaint();
     }
 }

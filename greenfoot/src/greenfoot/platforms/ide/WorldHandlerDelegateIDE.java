@@ -254,6 +254,7 @@ public class WorldHandlerDelegateIDE
     public void discardWorld(World world)
     {        
         ObjectTracker.clearRObjectCache();
+        frame.stopWaitingForAnswer();
     }
     
     @Override
@@ -710,5 +711,11 @@ public class WorldHandlerDelegateIDE
     public void setVmRestarted(boolean vmRestarted)
     {
         this.vmRestarted = vmRestarted;
+    }
+
+    @Override
+    public String ask(String prompt)
+    {
+        return frame.ask(prompt);
     }
 }

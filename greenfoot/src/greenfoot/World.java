@@ -292,6 +292,7 @@ public abstract class World
      * 
      * @param classes  The classes in desired paint order
      */
+    @SuppressWarnings("unchecked")
     public void setPaintOrder(Class ... classes)
     {
         if (classes == null) {
@@ -346,6 +347,7 @@ public abstract class World
      * @param classes
      *            The classes in desired act order
      */
+    @SuppressWarnings("unchecked")
     public void setActOrder(Class ... classes)
     {
         if (classes == null) {
@@ -442,6 +444,7 @@ public abstract class World
      * 
      * @param objects A list of Actors to remove.
      */
+    @SuppressWarnings("unchecked")
     public void removeObjects(Collection objects)
     {
         for (Iterator iter = objects.iterator(); iter.hasNext();) {
@@ -461,6 +464,7 @@ public abstract class World
      * 
      * @return A list of objects.
      */
+    @SuppressWarnings("unchecked")
     public List getObjects(Class cls)
     {
         List<Actor> result = new ArrayList<Actor>();

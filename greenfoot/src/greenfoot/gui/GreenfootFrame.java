@@ -92,6 +92,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.awt.image.BufferedImage;
 import java.rmi.RemoteException;
 import java.util.Iterator;
 import java.util.List;
@@ -114,6 +115,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
+import javax.swing.OverlayLayout;
 
 import rmiextension.wrappers.RBlueJ;
 import rmiextension.wrappers.event.RCompileEvent;
@@ -124,6 +126,7 @@ import bluej.prefmgr.PrefMgr;
 import bluej.utility.DBox;
 import bluej.utility.CenterLayout;
 import bluej.utility.Debug;
+import bluej.utility.Utility;
 
 import com.apple.eawt.AboutHandler;
 import com.apple.eawt.AppEvent.AboutEvent;
@@ -133,6 +136,7 @@ import com.apple.eawt.Application;
 import com.apple.eawt.PreferencesHandler;
 import com.apple.eawt.QuitHandler;
 import com.apple.eawt.QuitResponse;
+
 import java.awt.Font;
 
 /**
@@ -218,6 +222,7 @@ public class GreenfootFrame extends JFrame
     private boolean resizeWhenPossible = false;
     
     private static GreenfootFrame instance;
+    private AskPanel askPanel;
     
     public static GreenfootFrame getGreenfootFrame(final RBlueJ blueJ, ClassStateManager classStateManager)
     {
@@ -532,11 +537,24 @@ public class GreenfootFrame extends JFrame
                 }
             });
         }
+        
+        JPanel worldAndAskPanel = new JPanel();
+        worldAndAskPanel.setLayout(new OverlayLayout(worldAndAskPanel));
+        askPanel = new AskPanel();
+        askPanel.setAlignmentX(0.5f);
+        askPanel.setAlignmentY(0.5f);
+        worldAndAskPanel.add(askPanel);
+        worldScrollPane.setAlignmentX(0.5f);
+        worldScrollPane.setAlignmentY(0.5f);
+        worldScrollPane.setBackground(Color.CYAN);
+        worldCanvas.setBackground(Color.GREEN);
+        worldAndAskPanel.add(worldScrollPane);
+        
 
         card=new CardLayout();
         worldBox = new DBox(DBox.Y_AXIS, 0.5f); // scroll pane
         worldBox.setLayout(card);
-        worldBox.add(worldScrollPane, "worldPanel"); // worldPanel is an ID that refers to the World Panel
+        worldBox.add(worldAndAskPanel, "worldPanel"); // worldPanel is an ID that refers to the World Panel
         worldBox.add(messagePanel, "messagePanel"); // messagePanel is an ID that refers to the Message Panel
 
         canvasPanel.add(worldBox);
@@ -1201,5 +1219,62 @@ public class GreenfootFrame extends JFrame
     {
         return inspectorManager;
     }
+    
+    private String askAnswer;
+    private final Object syncAnswer = new Object();
 
+    public String ask(final String prompt)
+    {
+        final Image snapshot = getWorldGreyedSnapShot();
+        
+        EventQueue.invokeLater(new Runnable() { public void run() {
+            if (snapshot != null)
+                worldCanvas.setOverrideImage(snapshot);
+            askPanel.showPanel(Math.max(400, worldDimensions.width), prompt, new AskPanel.AnswerListener() {
+                
+                @Override
+                public void answered(String answer)
+                {
+                    synchronized (syncAnswer) { 
+                        askAnswer = answer;
+                        syncAnswer.notify();
+                    }
+                }
+            });
+        }});
+        synchronized (syncAnswer)
+        {
+            try {
+                syncAnswer.wait();
+                worldCanvas.setOverrideImage(null);
+                return askAnswer;
+            }
+            catch (InterruptedException e)
+            {
+                worldCanvas.setOverrideImage(null);
+                return "";
+            }
+        }
+    }
+
+    // When we merge with the Greenfoot 3 branch, this will produce a duplicate method
+    // error.  Add a parameter to toggle the striping (GF3 stripes; GF 2.4.1 doesn't, and it should stay that way),
+    // and merge the two methods
+    private Image getWorldGreyedSnapShot()
+    {
+        BufferedImage screenShot = WorldHandler.getInstance().getSnapShot();
+        if (screenShot != null) {
+            Utility.convertToGreyImage(screenShot);
+        }
+        return screenShot;
+    }
+
+    public void stopWaitingForAnswer()
+    {
+        synchronized (syncAnswer) { 
+            askPanel.hidePanel();
+            askAnswer = "";
+            syncAnswer.notify();
+        }
+    }
 }
