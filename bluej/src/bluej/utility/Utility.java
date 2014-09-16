@@ -29,6 +29,9 @@ import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.Shape;
 import java.awt.Window;
+import java.awt.color.ColorSpace;
+import java.awt.image.BufferedImage;
+import java.awt.image.ColorConvertOp;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -1128,5 +1131,11 @@ public class Utility
         jEditorPane.putClientProperty("Nimbus.Overrides", defaults);
         jEditorPane.putClientProperty("Nimbus.Overrides.InheritDefaults", true);
         jEditorPane.setBackground(bgColor);
+    }
+    
+    // When we merge with Greenfoot 3, this will be a duplicate method; delete this one (from Greenfoot 2.4.1):
+    public static BufferedImage convertToGreyImage(BufferedImage image)
+    {
+        return new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_GRAY), null).filter(image, image);
     }
 }
