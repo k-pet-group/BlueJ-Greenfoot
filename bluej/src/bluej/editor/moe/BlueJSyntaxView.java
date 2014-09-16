@@ -819,9 +819,11 @@ public abstract class BlueJSyntaxView extends MoePlainView
                 }
                 
                 // Re-build the scope stack and skip inner nodes.
-                // Note, we find nodes at curpos + 1 to avoid nodes which *end* here.
+                // Note, we find nodes at curpos + 1 to avoid nodes which *end* here, but we filter
+                // out nodes which do not span curpos within the loop:
                 NodeAndPosition<ParsedNode> nextChild = top.getNode().findNodeAt(curpos + 1, top.getPosition());
                 while (nextChild != null) {
+                    if (nextChild.getPosition() > curpos) break;
                     if (nextChild.getNode().isInner()) {
                         curpos = nextChild.getEnd();
                         continue outer;
