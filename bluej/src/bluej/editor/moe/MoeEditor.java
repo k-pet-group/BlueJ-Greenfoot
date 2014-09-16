@@ -63,6 +63,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.ExecutionException;
 
 import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
@@ -83,6 +84,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
+import javax.swing.SwingWorker;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
@@ -105,14 +107,11 @@ import bluej.BlueJEventListener;
 import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.compiler.Diagnostic;
-import bluej.debugger.gentype.GenTypeClass;
-import bluej.debugger.gentype.GenTypeParameter;
-import bluej.debugger.gentype.MethodReflective;
-import bluej.debugger.gentype.Reflective;
 import bluej.editor.EditorWatcher;
 import bluej.parser.AssistContent;
 import bluej.parser.CodeSuggestions;
 import bluej.parser.ParseUtils;
+import bluej.parser.ParseUtils.AssistContentConsumer;
 import bluej.parser.SourceLocation;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.lexer.LocatableToken;
@@ -126,14 +125,7 @@ import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 import bluej.utility.GradientFillPanel;
-import bluej.utility.JavaUtils;
 import bluej.utility.Utility;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Set;
-import javax.swing.SwingWorker;
 
 /**
  * Moe is the editor of the BlueJ environment. This class is the main class of
@@ -3665,11 +3657,9 @@ public final class MoeEditor extends JFrame
         removeSelection(htmlPane);
     }
  
-    /*
+    /**
      * PopulateCompletionsWorker creates a thread that searches for code completion suggestions and populate 
-     * the JList interactively.
-     * This change of behaviour was introduced to improve usability on the Raspberry Pi when dealing with methods
-     * with many suggestions.
+     * the JList incrementally.
      */
     class PopulateCompletionsWorker extends SwingWorker<AssistContent[], AssistContent>
     {
@@ -3690,89 +3680,23 @@ public final class MoeEditor extends JFrame
         }
 
         /*
-         * This method is based on the ParseUtils.getPossibleCompletions. 
-         * However it has to be inside the doInBackground() method in order to populate the code completion
-         * JList while still looking for completions. 
-         * This change was introduced in order to improve feedback to the user when using a Raspberry Pi.
+         * Calculate the available completions. 
          */
         @Override
         protected AssistContent[] doInBackground() throws Exception
         {
-            GenTypeClass exprType = ParseUtils.initGetPossibleCompletions(suggests);
-            if (exprType != null) {
-                //process queue and publish partial results.
-                List<AssistContent> completions = processQueueInBackground(exprType, suggests, javadocResolver);
-
-                return completions.toArray(new AssistContent[completions.size()]);
-            }
-            return null;
-        }
-
-        /*
-         * This method is adpted from ParseUtils.processQueue, however the partial results are published.
-         */
-        private List<AssistContent> processQueueInBackground(GenTypeClass exprType, CodeSuggestions suggests,
-                JavadocResolver javadocResolver)
-        {
-            GenTypeClass accessType = suggests.getAccessType();
-            Reflective accessReflective = (accessType != null) ? accessType.getReflective() : null;
-
-        // Use two sets, one to keep track of which types we have already processed,
-            // another for individual methods.
-            Set<String> contentSigs = new HashSet<String>();
-            Set<String> typesDone = new HashSet<String>();
-            List<AssistContent> completions = new ArrayList<AssistContent>();
-
-            LinkedList<GenTypeClass> typeQueue = new LinkedList<GenTypeClass>();
-            typeQueue.add(exprType);
-            GenTypeClass origExprType = exprType;
-
-            while (!typeQueue.isEmpty()) {
-                exprType = typeQueue.removeFirst();
-
-                if (!typesDone.add(exprType.getReflective().getName())) {
-                    // we've already done this type...
-                    continue;
+            AssistContent[] completions = ParseUtils.getPossibleCompletions(suggests, javadocResolver, new AssistContentConsumer() {
+                @Override
+                public void consume(AssistContent ac) {
+                    publish(ac);
                 }
-                Map<String, Set<MethodReflective>> methods = exprType.getReflective().getDeclaredMethods();
-                Map<String, GenTypeParameter> typeArgs = exprType.getMap();
-
-                for (String name : methods.keySet()) {
-                    Set<MethodReflective> mset = methods.get(name);
-                    for (MethodReflective method : mset) {
-                        if (accessReflective != null
-                                && !JavaUtils.checkMemberAccess(method.getDeclaringType(),
-                                        origExprType,
-                                        suggests.getAccessType().getReflective(),
-                                        method.getModifiers(), suggests.isStatic())) {
-                            continue;
-                        }
-                        AssistContent completion = ParseUtils.discoverElement(javadocResolver, contentSigs, completions, typeArgs, method);
-                        if (completion != null) {
-                            publish(completion);
-                        }
-
-                        for (GenTypeClass stype : exprType.getReflective().getSuperTypes()) {
-                            if (typeArgs != null) {
-                                typeQueue.add(stype.mapTparsToTypes(typeArgs));
-                            } else {
-                                typeQueue.add(stype.getErasedType());
-                            }
-                        }
-
-                        Reflective outer = exprType.getReflective().getOuterClass();
-                        if (outer != null) {
-                            typeQueue.add(new GenTypeClass(outer));
-                        }
-                    }
-                }
-            }
+            });
+            
             return completions;
-
         }
 
         /*
-         * displays the values published by processQueueInBackground.
+         * Add published content (completions) to the dialog.
          */
         @Override
         protected void process(List<AssistContent> chunks)
@@ -3794,9 +3718,6 @@ public final class MoeEditor extends JFrame
             }
         }
 
-        /*
-         * This method is called when processing is done.
-         */
         @Override
         protected void done()
         {
@@ -3806,10 +3727,13 @@ public final class MoeEditor extends JFrame
                     //set message on status bar
                     info.warning("No completions available.");
                 } else {
-                    //update the JList.
-                    codeCompletionDlg.addElements(Arrays.asList(result));
+                    // No need to update the JList, as all results have been
+                    // published already.
                 }
-            } catch (Exception ie) {
+            }
+            catch (InterruptedException ie) {}
+            catch (ExecutionException ee) {
+                Debug.reportError(ee);
             }
         }
         
@@ -3818,29 +3742,31 @@ public final class MoeEditor extends JFrame
     /**
      * Create and pop up the content assist (code completion) dialog.
      */
-    protected void createContentAssist() {
+    protected void createContentAssist()
+    {
         //need to recreate the dialog each time it is pressed as the values may be different 
         CodeSuggestions suggests = sourceDocument.getParser().getExpressionType(sourcePane.getCaretPosition(),
                 sourceDocument);
         LocatableToken suggestToken;
-         int cpos;
+        int cpos;
         Rectangle pos;
         Point spLoc;
         int xpos = 0, ypos = 0;
         //get screen positioning too.
-            cpos = sourcePane.getCaretPosition();
-            try {
-                pos = sourcePane.modelToView(cpos);
-                spLoc = sourcePane.getLocationOnScreen();
-                xpos = pos.x + spLoc.x;
-                ypos = pos.y + pos.height + spLoc.y;
-            } catch (BadLocationException ble) {
-            }
+        cpos = sourcePane.getCaretPosition();
+        try {
+            pos = sourcePane.modelToView(cpos);
+            spLoc = sourcePane.getLocationOnScreen();
+            xpos = pos.x + spLoc.x;
+            ypos = pos.y + pos.height + spLoc.y;
+        } catch (BadLocationException ble) {
+            throw new RuntimeException(ble);
+        }
         if (suggests != null) {
             suggestToken = suggests.getSuggestionToken();
             PopulateCompletionsWorker worker = new PopulateCompletionsWorker(this, suggests, suggestToken, xpos, ypos);
             worker.execute();
-            } else {
+        } else {
             //no completions found. no need to search.
              info.warning("No completions available.");
              CodeCompletionDisplay codeCompletionDlg = new CodeCompletionDisplay(this,

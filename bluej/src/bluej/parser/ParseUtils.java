@@ -66,19 +66,26 @@ public class ParseUtils
     {
         int depth = 0;
     }
+
+    /**
+     * Interface for receiving assist content
+     */
+    public interface AssistContentConsumer
+    {
+        public void consume(AssistContent ac);
+    }
+    
     
     /**
-     * Get the possible code completions, based on the provided suggestions.
+     * Get the possible code completions, based on the provided suggestions context.
      * If there are can be no valid completions in the given context, returns null.
      */
     public static AssistContent[] getPossibleCompletions(CodeSuggestions suggests, 
-            JavadocResolver javadocResolver)
+            JavadocResolver javadocResolver, AssistContentConsumer consumer)
     {
         GenTypeClass exprType = initGetPossibleCompletions(suggests);
         if (exprType != null){
-            //process
-            List<AssistContent> completions = processQueue(exprType, suggests, javadocResolver);
-            
+            List<AssistContent> completions = getCompletionsForTarget(exprType, suggests, javadocResolver, consumer);
             return completions.toArray(new AssistContent[completions.size()]);
         }
         return null;
@@ -122,8 +129,8 @@ public class ParseUtils
         return null; // no completions
     }
     
-    protected static List<AssistContent> processQueue(GenTypeClass exprType, CodeSuggestions suggests,
-            JavadocResolver javadocResolver)
+    private static List<AssistContent> getCompletionsForTarget(GenTypeClass exprType, CodeSuggestions suggests,
+            JavadocResolver javadocResolver, AssistContentConsumer consumer)
     {
         GenTypeClass accessType = suggests.getAccessType();
         Reflective accessReflective = (accessType != null) ? accessType.getReflective() : null;
@@ -158,32 +165,37 @@ public class ParseUtils
                                     method.getModifiers(), suggests.isStatic())) {
                         continue;
                     }
-                    discoverElement(javadocResolver, contentSigs, completions, typeArgs, method);
-
-                    for (GenTypeClass stype : exprType.getReflective().getSuperTypes()) {
-                        if (typeArgs != null) {
-                            typeQueue.add(stype.mapTparsToTypes(typeArgs));
-                        } else {
-                            typeQueue.add(stype.getErasedType());
-                        }
-                    }
-
-                    Reflective outer = exprType.getReflective().getOuterClass();
-                    if (outer != null) {
-                        typeQueue.add(new GenTypeClass(outer));
+                    AssistContent ac = discoverElement(javadocResolver, contentSigs, completions, typeArgs, method);
+                    if (ac != null && consumer != null) {
+                        consumer.consume(ac);
                     }
                 }
             }
+            
+            for (GenTypeClass stype : exprType.getReflective().getSuperTypes()) {
+                if (typeArgs != null) {
+                    typeQueue.add(stype.mapTparsToTypes(typeArgs));
+                } else {
+                    typeQueue.add(stype.getErasedType());
+                }
+            }
+
+            Reflective outer = exprType.getReflective().getOuterClass();
+            if (outer != null) {
+                typeQueue.add(new GenTypeClass(outer));
+            }
+
         }
         return completions;
     }
     
     
     /**
-     * This method discovers and returns one completion (last one if any) and updates the typeQueue for further 
-     * processing by processQueue.
+     * Check whether the given method should be added to the set of possible code completions (i.e. if it has
+     * a unique signature), and do so if necessary. Returns an AssistContent object representing the method if
+     * it was added, or null otherwise. 
      */
-    public static AssistContent discoverElement(JavadocResolver javadocResolver, Set<String> contentSigs, List<AssistContent> completions, 
+    private static AssistContent discoverElement(JavadocResolver javadocResolver, Set<String> contentSigs, List<AssistContent> completions, 
             Map<String, GenTypeParameter> typeArgs, MethodReflective method)
     {
         AssistContent result = null;

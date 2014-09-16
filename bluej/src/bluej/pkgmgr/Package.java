@@ -2757,7 +2757,7 @@ public final class Package extends Graph
             
             LinkedList<String> maybeTheyMeant = new LinkedList<String>();
             CodeSuggestions suggests = e.getParsedNode().getExpressionType(pos, e.getSourceDocument());
-            AssistContent[] values = ParseUtils.getPossibleCompletions(suggests, project.getJavadocResolver());
+            AssistContent[] values = ParseUtils.getPossibleCompletions(suggests, project.getJavadocResolver(), null);
             if (values != null) {
                 for (AssistContent a : values) {
                     String name = chopAtOpeningBracket(a.getDisplayName());
