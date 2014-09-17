@@ -122,7 +122,6 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
     @Override
     public String ask(String prompt)
     {
-        // TODO
-        return "";
+        return viewer.ask(prompt);
     }
 }

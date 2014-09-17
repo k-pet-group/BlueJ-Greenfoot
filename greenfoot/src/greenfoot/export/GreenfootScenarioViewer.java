@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012,2013  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012,2013,2014  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,6 +27,7 @@ import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
 import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
+import greenfoot.gui.AskPanel;
 import greenfoot.gui.ControlPanel;
 import greenfoot.gui.WorldCanvas;
 import greenfoot.gui.input.mouse.LocationTracker;
@@ -41,8 +42,10 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.Image;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -52,10 +55,12 @@ import javax.swing.JPanel;
 import javax.swing.JRootPane;
 import javax.swing.JScrollPane;
 import javax.swing.BorderFactory;
+import javax.swing.OverlayLayout;
 import javax.swing.RootPaneContainer;
 
 import bluej.Config;
 import bluej.utility.CenterLayout;
+import bluej.utility.Utility;
 
 /**
  * This class can view and run a Greenfoot scenario. It is not possible to
@@ -73,6 +78,7 @@ public class GreenfootScenarioViewer extends JApplet
     private ProjectProperties properties;
     private Simulation sim;
     private WorldCanvas canvas;
+    private AskPanel askPanel;
     private ControlPanel controls;
     private RootPaneContainer rootPaneContainer;
 
@@ -119,9 +125,20 @@ public class GreenfootScenarioViewer extends JApplet
             rootPaneContainer = this;
         }
         
-        JPanel centerPanel = new JPanel(new CenterLayout());
+        JPanel centerPanel = new JPanel();
+        centerPanel.setLayout(new OverlayLayout(centerPanel));
+        canvas.setAlignmentX(0.5f);
+        canvas.setAlignmentY(1.0f);
+        
+        
+        askPanel = new AskPanel();
+        askPanel.setAlignmentX(0.5f);
+        askPanel.setAlignmentY(1.0f);
+        centerPanel.add(askPanel);
+        askPanel.hidePanel();
         centerPanel.add( canvas );
         centerPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        
         
         JScrollPane outer = new JScrollPane( centerPanel );
         outer.setBorder(BorderFactory.createEmptyBorder(EMPTY_BORDER_SIZE,EMPTY_BORDER_SIZE,EMPTY_BORDER_SIZE,EMPTY_BORDER_SIZE));
@@ -380,5 +397,65 @@ public class GreenfootScenarioViewer extends JApplet
     public ReentrantReadWriteLock getWorldLock(World world)
     {
         return WorldHandler.getInstance().getWorldLock();
+    }
+
+    private String askAnswer;
+    private final Object syncAnswer = new Object();
+
+    public String ask(final String prompt)
+    {
+        final Image snapshot = getWorldGreyedSnapShot();
+        
+        final Dimension worldDimensions = canvas.getPreferredSize();
+        
+        EventQueue.invokeLater(new Runnable() { public void run() {
+            if (snapshot != null)
+                canvas.setOverrideImage(snapshot);
+            askPanel.showPanel(Math.max(400, worldDimensions.width), prompt, new AskPanel.AnswerListener() {
+                
+                @Override
+                public void answered(String answer)
+                {
+                    synchronized (syncAnswer) { 
+                        askAnswer = answer;
+                        syncAnswer.notify();
+                    }
+                }
+            });
+        }});
+        synchronized (syncAnswer)
+        {
+            try {
+                syncAnswer.wait();
+                canvas.setOverrideImage(null);
+                return askAnswer;
+            }
+            catch (InterruptedException e)
+            {
+                canvas.setOverrideImage(null);
+                return "";
+            }
+        }
+    }
+
+    // When we merge with the Greenfoot 3 branch, this will produce a duplicate method
+    // error.  Add a parameter to toggle the striping (GF3 stripes; GF 2.4.1 doesn't, and it should stay that way),
+    // and merge the two methods
+    private Image getWorldGreyedSnapShot()
+    {
+        BufferedImage screenShot = WorldHandler.getInstance().getSnapShot();
+        if (screenShot != null) {
+            GreenfootUtil.convertToGreyImage(screenShot);
+        }
+        return screenShot;
+    }
+
+    public void stopWaitingForAnswer()
+    {
+        synchronized (syncAnswer) { 
+            askPanel.hidePanel();
+            askAnswer = "";
+            syncAnswer.notify();
+        }
     }
 }
