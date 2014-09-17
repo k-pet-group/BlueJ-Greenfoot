@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012,2014  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -36,10 +36,12 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.RenderingHints;
+import java.awt.color.ColorSpace;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.font.TextAttribute;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorConvertOp;
 import java.awt.image.ImageObserver;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -961,5 +963,11 @@ public class GreenfootUtil
     public static List<UserInfo> getNearbyUserData(int maxAmount)
     {
         return delegate.getNearbyUserInfo(maxAmount);
+    }
+    
+    // When we merge with Greenfoot 3, this will be a duplicate method; delete this one (from Greenfoot 2.4.1):
+    public static BufferedImage convertToGreyImage(BufferedImage image)
+    {
+        return new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_GRAY), null).filter(image, image);
     }
 }

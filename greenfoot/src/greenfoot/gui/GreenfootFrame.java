@@ -1262,7 +1262,7 @@ public class GreenfootFrame extends JFrame
     {
         BufferedImage screenShot = WorldHandler.getInstance().getSnapShot();
         if (screenShot != null) {
-            Utility.convertToGreyImage(screenShot);
+            GreenfootUtil.convertToGreyImage(screenShot);
         }
         return screenShot;
     }
