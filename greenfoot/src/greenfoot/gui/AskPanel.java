@@ -16,6 +16,7 @@ import javax.swing.JTextField;
 
 public class AskPanel extends JPanel implements ActionListener
 {
+    private static final Color BACKGROUND = new Color(255, 210, 210);
     private JLabel promptDisplay;
     private JTextField answer;
     private JButton ok;
@@ -28,18 +29,21 @@ public class AskPanel extends JPanel implements ActionListener
         setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
         
         promptDisplay = new JLabel("");
-                promptDisplay.setOpaque(true);
+        promptDisplay.setOpaque(true);
+        promptDisplay.setBackground(BACKGROUND);
         promptDisplay.setAlignmentX(0.0f);
         promptDisplay.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createMatteBorder(2, 0, 0, 0, Color.DARK_GRAY), BorderFactory.createEmptyBorder(4, 20, 4, 20)));
         JPanel promptPanel = new JPanel();
         promptPanel.setLayout(new BorderLayout());
         promptPanel.setOpaque(false);
+        
         promptPanel.add(promptDisplay, BorderLayout.SOUTH);
         
         add(promptPanel);
         
         JPanel answerPanel = new JPanel();
         answerPanel.setLayout(new BoxLayout(answerPanel, BoxLayout.X_AXIS));
+        answerPanel.setBackground(BACKGROUND);
         
         answer = new JTextField();
         answer.setMaximumSize( 
