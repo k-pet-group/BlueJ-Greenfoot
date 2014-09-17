@@ -16,7 +16,7 @@ import javax.swing.JTextField;
 
 public class AskPanel extends JPanel implements ActionListener
 {
-    private static final Color BACKGROUND = new Color(255, 210, 210);
+    private static final Color BACKGROUND = new Color(222, 166, 41);
     private JLabel promptDisplay;
     private JTextField answer;
     private JButton ok;
@@ -56,6 +56,7 @@ public class AskPanel extends JPanel implements ActionListener
         ok.setMaximumSize(new Dimension(50, answer.getMaximumSize().height));
         answerPanel.add(ok);
         
+        answerPanel.setBorder(BorderFactory.createEmptyBorder(3, 20, 8, 20));
         add(answerPanel);
         
         hidePanel();
