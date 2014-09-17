@@ -542,12 +542,10 @@ public class GreenfootFrame extends JFrame
         worldAndAskPanel.setLayout(new OverlayLayout(worldAndAskPanel));
         askPanel = new AskPanel();
         askPanel.setAlignmentX(0.5f);
-        askPanel.setAlignmentY(0.5f);
+        askPanel.setAlignmentY(1.0f);
         worldAndAskPanel.add(askPanel);
         worldScrollPane.setAlignmentX(0.5f);
-        worldScrollPane.setAlignmentY(0.5f);
-        worldScrollPane.setBackground(Color.CYAN);
-        worldCanvas.setBackground(Color.GREEN);
+        worldScrollPane.setAlignmentY(1.0f);
         worldAndAskPanel.add(worldScrollPane);
         
 

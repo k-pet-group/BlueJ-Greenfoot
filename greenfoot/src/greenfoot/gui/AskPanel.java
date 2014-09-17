@@ -1,10 +1,12 @@
 package greenfoot.gui;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -22,13 +24,19 @@ public class AskPanel extends JPanel implements ActionListener
     public AskPanel()
     {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        setBackground(new Color(0, 0, 0, 0));
-        
-        add(Box.createVerticalGlue());
+        setOpaque(false);
+        setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
         
         promptDisplay = new JLabel("");
-        promptDisplay.setBackground(Color.PINK);
-        add(promptDisplay);
+                promptDisplay.setOpaque(true);
+        promptDisplay.setAlignmentX(0.0f);
+        promptDisplay.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createMatteBorder(2, 0, 0, 0, Color.DARK_GRAY), BorderFactory.createEmptyBorder(4, 20, 4, 20)));
+        JPanel promptPanel = new JPanel();
+        promptPanel.setLayout(new BorderLayout());
+        promptPanel.setOpaque(false);
+        promptPanel.add(promptDisplay, BorderLayout.SOUTH);
+        
+        add(promptPanel);
         
         JPanel answerPanel = new JPanel();
         answerPanel.setLayout(new BoxLayout(answerPanel, BoxLayout.X_AXIS));
