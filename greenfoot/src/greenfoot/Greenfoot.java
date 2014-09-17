@@ -286,4 +286,15 @@ public class Greenfoot
     {
         return MicLevelGrabber.getInstance().getLevel();
     }
+    
+    /**
+     * Get input from the user (and freeze the scenario while we are waiting).
+     * The prompt String parameter will be shown to the user (e.g. "How many players?"), and the answer will be returned as a String.
+     * If you want to ask for a number, you can use methods like Integer.parseInt to turn
+     * the returned String into a number. 
+     */
+    public static String ask(String prompt)
+    {
+        return WorldHandler.getInstance().ask(prompt);
+    }
 }
