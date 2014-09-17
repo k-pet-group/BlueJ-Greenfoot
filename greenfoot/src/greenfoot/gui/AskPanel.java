@@ -12,6 +12,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 public class AskPanel extends JPanel implements ActionListener
@@ -26,7 +27,7 @@ public class AskPanel extends JPanel implements ActionListener
     {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setOpaque(false);
-        setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, Color.BLACK));
         
         promptDisplay = new JLabel("");
         promptDisplay.setOpaque(true);
@@ -75,7 +76,8 @@ public class AskPanel extends JPanel implements ActionListener
         setVisible(true);
         
         answer.setText("");    
-        promptDisplay.setText(prompt);
+        promptDisplay.setText("<html>" + prompt + "</html>");
+        promptDisplay.setMaximumSize(new Dimension(width, Integer.MAX_VALUE));
         answer.requestFocus();
     }
     
