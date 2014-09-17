@@ -1133,9 +1133,4 @@ public class Utility
         jEditorPane.setBackground(bgColor);
     }
     
-    // When we merge with Greenfoot 3, this will be a duplicate method; delete this one (from Greenfoot 2.4.1):
-    public static BufferedImage convertToGreyImage(BufferedImage image)
-    {
-        return new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_GRAY), null).filter(image, image);
-    }
 }
