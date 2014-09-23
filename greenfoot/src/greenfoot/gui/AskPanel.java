@@ -2,6 +2,7 @@ package greenfoot.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -15,19 +16,29 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
-public class AskPanel extends JPanel implements ActionListener
+/**
+ * Encapsulates a panel that pops up, overlaid at the bottom of the world, to ask the user
+ * for an input string, given a prompt string.  Used in the IDE and standalone versions.
+ *
+ */
+public class AskPanel implements ActionListener
 {
     private static final Color BACKGROUND = new Color(222, 166, 41);
     private JLabel promptDisplay;
+    private JPanel panel;
     private JTextField answer;
     private JButton ok;
     private AnswerListener answerListener;
     
+    /**
+     * Constructs the AskPanel but sets it to hidden.  Must be called on EDT.
+     */
     public AskPanel()
     {
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        setOpaque(false);
-        setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, Color.BLACK));
+        panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setOpaque(false);
+        panel.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, Color.BLACK));
         
         promptDisplay = new JLabel("");
         promptDisplay.setOpaque(true);
@@ -40,7 +51,7 @@ public class AskPanel extends JPanel implements ActionListener
         
         promptPanel.add(promptDisplay, BorderLayout.SOUTH);
         
-        add(promptPanel);
+        panel.add(promptPanel);
         
         JPanel answerPanel = new JPanel();
         answerPanel.setLayout(new BoxLayout(answerPanel, BoxLayout.X_AXIS));
@@ -58,22 +69,32 @@ public class AskPanel extends JPanel implements ActionListener
         answerPanel.add(ok);
         
         answerPanel.setBorder(BorderFactory.createEmptyBorder(3, 20, 8, 20));
-        add(answerPanel);
+        panel.add(answerPanel);
         
         hidePanel();
     }
     
+    /**
+     * Simple listener to listen for the answer when it is given.  Will be called
+     * on the EDT.
+     */
     public static interface AnswerListener
     {
         public void answered(String answer);
     }
     
+    /**
+     * Show the panel, with the given width and user prompt.  Returns immediately,
+     * and will later call the AnswerListener with the answer, once it is given.
+     * 
+     * Must be called on EDT.
+     */
     public void showPanel(int width, String prompt, AnswerListener listener)
     {
         answerListener = listener;
-        setMaximumSize(new Dimension(width, Integer.MAX_VALUE));
-        setPreferredSize(new Dimension(width, 0));
-        setVisible(true);
+        panel.setMaximumSize(new Dimension(width, Integer.MAX_VALUE));
+        panel.setPreferredSize(new Dimension(width, 0));
+        panel.setVisible(true);
         
         answer.setText("");    
         promptDisplay.setText("<html>" + prompt + "</html>");
@@ -81,9 +102,12 @@ public class AskPanel extends JPanel implements ActionListener
         answer.requestFocus();
     }
     
+    /**
+     * Hides the answer panel.  Must be called on EDT.
+     */
     public void hidePanel()
     {
-        setVisible(false);
+        panel.setVisible(false);
     }
 
     @Override
@@ -92,5 +116,21 @@ public class AskPanel extends JPanel implements ActionListener
         hidePanel();
         if (answerListener != null)
             answerListener.answered(answer.getText());    
+    }
+
+    /**
+     * Checks if panel is currently showing.
+     */
+    public boolean isPanelShowing()
+    {
+        return panel.isVisible();
+    }
+
+    /**
+     * Get the actual JPanel (since we encapsulate rather inherit)
+     */
+    public JPanel getComponent()
+    {
+        return panel;
     }
 }

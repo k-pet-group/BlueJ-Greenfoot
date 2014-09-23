@@ -96,6 +96,10 @@ import java.awt.image.BufferedImage;
 import java.rmi.RemoteException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -541,9 +545,9 @@ public class GreenfootFrame extends JFrame
         JPanel worldAndAskPanel = new JPanel();
         worldAndAskPanel.setLayout(new OverlayLayout(worldAndAskPanel));
         askPanel = new AskPanel();
-        askPanel.setAlignmentX(0.5f);
-        askPanel.setAlignmentY(1.0f);
-        worldAndAskPanel.add(askPanel);
+        askPanel.getComponent().setAlignmentX(0.5f);
+        askPanel.getComponent().setAlignmentY(1.0f);
+        worldAndAskPanel.add(askPanel.getComponent());
         worldScrollPane.setAlignmentX(0.5f);
         worldScrollPane.setAlignmentY(1.0f);
         worldAndAskPanel.add(worldScrollPane);
@@ -1218,46 +1222,53 @@ public class GreenfootFrame extends JFrame
         return inspectorManager;
     }
     
-    private String askAnswer;
-    private final Object syncAnswer = new Object();
+    final ArrayBlockingQueue<String> answer = new ArrayBlockingQueue<String>(1);
 
-    public String ask(final String prompt)
+    /**
+     * Asks the user to input a String.  Should be called from the EDT.  Returns a Callable
+     * that you should call from a non-EDT thread, which will wait for the answer and then
+     * return it.
+     */
+    public Callable<String> ask(final String prompt)
     {
-        final Image snapshot = getWorldGreyedSnapShot();
+        Image snapshot = getWorldGreyedSnapShot();
         
-        EventQueue.invokeLater(new Runnable() { public void run() {
-            if (snapshot != null)
-                worldCanvas.setOverrideImage(snapshot);
-            askPanel.showPanel(Math.max(400, worldDimensions.width), prompt, new AskPanel.AnswerListener() {
-                
-                @Override
-                public void answered(String answer)
-                {
-                    synchronized (syncAnswer) { 
-                        askAnswer = answer;
-                        syncAnswer.notify();
-                    }
-                }
-            });
-        }});
-        synchronized (syncAnswer)
-        {
-            try {
-                syncAnswer.wait();
-                worldCanvas.setOverrideImage(null);
-                return askAnswer;
-            }
-            catch (InterruptedException e)
+        if (snapshot != null)
+            worldCanvas.setOverrideImage(snapshot);
+        
+        askPanel.showPanel(Math.max(400, worldDimensions.width), prompt, new AskPanel.AnswerListener() {
+            
+            @Override
+            public void answered(String answer)
             {
-                worldCanvas.setOverrideImage(null);
-                return "";
+                worldCanvas.setOverrideImage(null); 
+                try
+                {
+                    GreenfootFrame.this.answer.put(answer);
+                }
+                catch (InterruptedException e)
+                {
+                    Debug.reportError(e);
+                }
             }
-        }
+        });
+        
+        return new Callable<String>() {
+
+            @Override
+            public String call() throws Exception
+            {
+                return answer.take();
+            }
+        };
     }
 
     // When we merge with the Greenfoot 3 branch, this will produce a duplicate method
     // error.  Add a parameter to toggle the striping (GF3 stripes; GF 2.4.1 doesn't, and it should stay that way),
     // and merge the two methods
+    /**
+     * Take a snapshot of the world and turn it grey.  Must be called from EDT.
+     */
     private Image getWorldGreyedSnapShot()
     {
         BufferedImage screenShot = WorldHandler.getInstance().getSnapShot();
@@ -1267,12 +1278,23 @@ public class GreenfootFrame extends JFrame
         return screenShot;
     }
 
+    /**
+     * Stops waiting for an answer, e.g. in the case that we want to stop execution.
+     * Must be called from the EDT.
+     */
     public void stopWaitingForAnswer()
     {
-        synchronized (syncAnswer) { 
+        if (askPanel.isPanelShowing())
+        {
             askPanel.hidePanel();
-            askAnswer = "";
-            syncAnswer.notify();
+            try
+            {
+                answer.put(null);
+            }
+            catch (InterruptedException e)
+            {
+                Debug.reportError(e);
+            }
         }
     }
 }

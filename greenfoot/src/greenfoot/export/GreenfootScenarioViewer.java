@@ -132,10 +132,9 @@ public class GreenfootScenarioViewer extends JApplet
         
         
         askPanel = new AskPanel();
-        askPanel.setAlignmentX(0.5f);
-        askPanel.setAlignmentY(1.0f);
-        centerPanel.add(askPanel);
-        askPanel.hidePanel();
+        askPanel.getComponent().setAlignmentX(0.5f);
+        askPanel.getComponent().setAlignmentY(1.0f);
+        centerPanel.add(askPanel.getComponent());
         centerPanel.add( canvas );
         centerPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         
