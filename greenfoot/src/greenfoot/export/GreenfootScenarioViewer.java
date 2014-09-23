@@ -36,6 +36,7 @@ import greenfoot.platforms.standalone.GreenfootUtilDelegateStandAlone;
 import greenfoot.platforms.standalone.SimulationDelegateStandAlone;
 import greenfoot.platforms.standalone.WorldHandlerDelegateStandAlone;
 import greenfoot.sound.SoundFactory;
+import greenfoot.util.AskHandler;
 import greenfoot.util.GreenfootUtil;
 
 import java.awt.BorderLayout;
@@ -48,6 +49,8 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.swing.JApplet;
@@ -60,6 +63,7 @@ import javax.swing.RootPaneContainer;
 
 import bluej.Config;
 import bluej.utility.CenterLayout;
+import bluej.utility.Debug;
 import bluej.utility.Utility;
 
 /**
@@ -83,6 +87,8 @@ public class GreenfootScenarioViewer extends JApplet
     private RootPaneContainer rootPaneContainer;
 
     private Constructor<?> worldConstructor;
+
+    private AskHandler askHandler;
 
     /**
      * The default constructor, used when the scenario runs as an applet.
@@ -137,6 +143,7 @@ public class GreenfootScenarioViewer extends JApplet
         centerPanel.add(askPanel.getComponent());
         centerPanel.add( canvas );
         centerPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        askHandler = new AskHandler(askPanel, canvas);
         
         
         JScrollPane outer = new JScrollPane( centerPanel );
@@ -397,64 +404,33 @@ public class GreenfootScenarioViewer extends JApplet
     {
         return WorldHandler.getInstance().getWorldLock();
     }
-
-    private String askAnswer;
-    private final Object syncAnswer = new Object();
-
+    
     public String ask(final String prompt)
     {
-        final Image snapshot = getWorldGreyedSnapShot();
-        
-        final Dimension worldDimensions = canvas.getPreferredSize();
-        
-        EventQueue.invokeLater(new Runnable() { public void run() {
-            if (snapshot != null)
-                canvas.setOverrideImage(snapshot);
-            askPanel.showPanel(Math.max(400, worldDimensions.width), prompt, new AskPanel.AnswerListener() {
-                
-                @Override
-                public void answered(String answer)
-                {
-                    synchronized (syncAnswer) { 
-                        askAnswer = answer;
-                        syncAnswer.notify();
-                    }
-                }
-            });
-        }});
-        synchronized (syncAnswer)
+        final AtomicReference<Callable<String>> c = new AtomicReference<Callable<String>>();
+        try
         {
-            try {
-                syncAnswer.wait();
-                canvas.setOverrideImage(null);
-                return askAnswer;
-            }
-            catch (InterruptedException e)
-            {
-                canvas.setOverrideImage(null);
-                return "";
-            }
+            EventQueue.invokeAndWait(new Runnable() {public void run() {
+                c.set(askHandler.ask(prompt, canvas.getPreferredSize().width));
+            }});
         }
-    }
-
-    // When we merge with the Greenfoot 3 branch, this will produce a duplicate method
-    // error.  Add a parameter to toggle the striping (GF3 stripes; GF 2.4.1 doesn't, and it should stay that way),
-    // and merge the two methods
-    private Image getWorldGreyedSnapShot()
-    {
-        BufferedImage screenShot = WorldHandler.getInstance().getSnapShot();
-        if (screenShot != null) {
-            GreenfootUtil.convertToGreyImage(screenShot);
+        catch (InvocationTargetException e)
+        {
+            Debug.reportError(e);
         }
-        return screenShot;
-    }
-
-    public void stopWaitingForAnswer()
-    {
-        synchronized (syncAnswer) { 
-            askPanel.hidePanel();
-            askAnswer = "";
-            syncAnswer.notify();
+        catch (InterruptedException e)
+        {
+            Debug.reportError(e);
+        }
+        
+        try
+        {
+            return c.get().call();
+        }
+        catch (Exception e)
+        {
+            Debug.reportError(e);
+            return null;
         }
     }
 }

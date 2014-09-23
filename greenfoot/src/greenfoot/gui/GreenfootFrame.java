@@ -72,6 +72,7 @@ import greenfoot.gui.input.mouse.LocationTracker;
 import greenfoot.platforms.ide.SimulationDelegateIDE;
 import greenfoot.platforms.ide.WorldHandlerDelegateIDE;
 import greenfoot.sound.SoundFactory;
+import greenfoot.util.AskHandler;
 import greenfoot.util.GreenfootUtil;
 
 import java.awt.BorderLayout;
@@ -92,11 +93,9 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.awt.image.BufferedImage;
 import java.rmi.RemoteException;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
@@ -227,6 +226,7 @@ public class GreenfootFrame extends JFrame
     
     private static GreenfootFrame instance;
     private AskPanel askPanel;
+    private AskHandler askHandler;
     
     public static GreenfootFrame getGreenfootFrame(final RBlueJ blueJ, ClassStateManager classStateManager)
     {
@@ -548,6 +548,7 @@ public class GreenfootFrame extends JFrame
         askPanel.getComponent().setAlignmentX(0.5f);
         askPanel.getComponent().setAlignmentY(1.0f);
         worldAndAskPanel.add(askPanel.getComponent());
+        askHandler = new AskHandler(askPanel, worldCanvas);
         worldScrollPane.setAlignmentX(0.5f);
         worldScrollPane.setAlignmentY(1.0f);
         worldAndAskPanel.add(worldScrollPane);
@@ -1222,79 +1223,18 @@ public class GreenfootFrame extends JFrame
         return inspectorManager;
     }
     
-    final ArrayBlockingQueue<String> answer = new ArrayBlockingQueue<String>(1);
-
     /**
      * Asks the user to input a String.  Should be called from the EDT.  Returns a Callable
      * that you should call from a non-EDT thread, which will wait for the answer and then
      * return it.
      */
-    public Callable<String> ask(final String prompt)
+    public Callable<String> ask(String prompt)
     {
-        Image snapshot = getWorldGreyedSnapShot();
-        
-        if (snapshot != null)
-            worldCanvas.setOverrideImage(snapshot);
-        
-        askPanel.showPanel(Math.max(400, worldDimensions.width), prompt, new AskPanel.AnswerListener() {
-            
-            @Override
-            public void answered(String answer)
-            {
-                worldCanvas.setOverrideImage(null); 
-                try
-                {
-                    GreenfootFrame.this.answer.put(answer);
-                }
-                catch (InterruptedException e)
-                {
-                    Debug.reportError(e);
-                }
-            }
-        });
-        
-        return new Callable<String>() {
-
-            @Override
-            public String call() throws Exception
-            {
-                return answer.take();
-            }
-        };
+        return askHandler.ask(prompt, worldDimensions.width);
     }
-
-    // When we merge with the Greenfoot 3 branch, this will produce a duplicate method
-    // error.  Add a parameter to toggle the striping (GF3 stripes; GF 2.4.1 doesn't, and it should stay that way),
-    // and merge the two methods
-    /**
-     * Take a snapshot of the world and turn it grey.  Must be called from EDT.
-     */
-    private Image getWorldGreyedSnapShot()
-    {
-        BufferedImage screenShot = WorldHandler.getInstance().getSnapShot();
-        if (screenShot != null) {
-            GreenfootUtil.convertToGreyImage(screenShot);
-        }
-        return screenShot;
-    }
-
-    /**
-     * Stops waiting for an answer, e.g. in the case that we want to stop execution.
-     * Must be called from the EDT.
-     */
+    
     public void stopWaitingForAnswer()
     {
-        if (askPanel.isPanelShowing())
-        {
-            askPanel.hidePanel();
-            try
-            {
-                answer.put(null);
-            }
-            catch (InterruptedException e)
-            {
-                Debug.reportError(e);
-            }
-        }
+        askHandler.stopWaitingForAnswer();
     }
 }
