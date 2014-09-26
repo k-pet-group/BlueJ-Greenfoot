@@ -15,7 +15,7 @@ cp -r "$3"/* "$1/$2/Contents/Frameworks/jdk.framework/Versions/A" || exit 1
 cd "$1/$2/Contents/Frameworks/jdk.framework" || exit 1
 mkdir -p Resources || exit 1
 cd Resources || exit 1
-ln -s ../Versions/A/Contents/Info.plist Info.plist || exit 1
+cp ../Versions/A/Contents/Info.plist Info.plist || exit 1
 
 # Zip it:
 
