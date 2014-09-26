@@ -252,7 +252,7 @@
         <ant dir="package" antfile="greenfoot-build.xml" target="dist"/>
     </target>
 
-    <target name="windows-dist">
+    <target name="windows-dist" depends="dist">
         <ant dir="package" target="windows-dist"/>
     </target>
 	
@@ -264,12 +264,12 @@
 	    <ant dir="package" target="windows-msi-bundled-dist"/>
 	</target>
 
-    <target name="mac-dist" description="build Mac distributable bundles">
+    <target name="mac-dist" description="build Mac distributable bundles" depends="dist">
         <ant dir="package" target="mac-dist"/>
     </target>
 	
 	<!-- build *.deb package -->
-	<target name="debian-dist" description="build Debian package">
+	<target name="debian-dist" description="build Debian package" depends="dist">
         <ant dir="package" target="debian-dist"/>
 	</target>
 
