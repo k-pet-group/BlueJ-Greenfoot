@@ -65,6 +65,7 @@ import bluej.graph.Graph;
 import bluej.parser.AssistContent;
 import bluej.parser.CodeSuggestions;
 import bluej.parser.ParseUtils;
+import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
 import bluej.pkgmgr.dependency.Dependency;
@@ -2156,9 +2157,18 @@ public final class Package extends Graph
         return bringToFront;
     }
     
+    /**
+     * An interface for message "calculators" which can produce enhanced diagnostic messages when
+     * given a reference to the editor in which a compilation error occurred.
+     */
     public static interface MessageCalculator
     {
-        // This should produce something half-way helpful if null is passed:
+        /**
+         * Produce a diagnostic message for the given editor.
+         * This should produce something half-way helpful if null is passed.
+         * 
+         * @param e  The editor where the original error occurred (null if it cannot be determined).
+         */
         public String calculateMessage(Editor e);
     }
     
@@ -2171,6 +2181,7 @@ public final class Package extends Graph
             boolean bringToFront, boolean setStepMark, String help)
     {
         return showEditorMessage(filename, lineNo, new MessageCalculator() {
+            @Override
             public String calculateMessage(Editor e) { return message; }
           }, beep, bringToFront, setStepMark, help);
     }
@@ -2748,15 +2759,20 @@ public final class Package extends Graph
             }
             
             String missing = chopAtOpeningBracket(message.substring(message.lastIndexOf(' ') + 1));
-
             String lineText = getLine(e);
+            
+            ParsedCUNode pcuNode = e.getParsedNode();
+            if (pcuNode == null) {
+                return message;
+            }
+            
+            LinkedList<String> maybeTheyMeant = new LinkedList<String>();
             
             // The column from the diagnostic object assumes tabs are 8 spaces; convert to
             // a line position:
             int pos = convertColumn(lineText, column) + getLineStart(e);
-            
-            LinkedList<String> maybeTheyMeant = new LinkedList<String>();
-            CodeSuggestions suggests = e.getParsedNode().getExpressionType(pos, e.getSourceDocument());
+
+            CodeSuggestions suggests = pcuNode.getExpressionType(pos, e.getSourceDocument());
             AssistContent[] values = ParseUtils.getPossibleCompletions(suggests, project.getJavadocResolver(), null);
             if (values != null) {
                 for (AssistContent a : values) {
