@@ -252,7 +252,10 @@ public class Simulation extends Thread
     public synchronized void runLater(Runnable r)
     {
         queuedTasks.add(r);
-        if (paused) {
+        // If the simulation is paused we must notify so that the wait is triggered and the
+        // queued task will run. We check 'paused' as well as 'enabled' since a world may
+        // be instantiated via this mechanism.
+        if (paused || ! enabled) {
             notify();
         }
     }
