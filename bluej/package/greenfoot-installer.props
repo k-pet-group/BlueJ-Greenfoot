@@ -63,9 +63,9 @@ install.tagline=Greenfoot Installer
 install.installDirName=greenfoot
 
 # Error message to show when incorrect JDK version is used.
-install.jdkError1=This version of Greenfoot requires JDK 1.6 or newer.\nYou are running on JDK
+install.jdkError1=This version of Greenfoot requires JDK 1.6 or newer.\nYou are running on JDK 
 # The actual java version will be inserted here.
-install.jdkError2= Please upgrade\nJDK before installing Greenfoot.
+install.jdkError2=. Please upgrade\nJDK before installing Greenfoot.
 install.jdkMsg=JDK 1.6 (or newer) required.
                         
 # Name of the application                       

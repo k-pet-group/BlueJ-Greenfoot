@@ -70,9 +70,9 @@ install.tagline=BlueJ Installer version 2.4
 install.installDirName=bluej
 
 # Error message to show when incorrect JDK version is used.
-install.jdkError1=This version of BlueJ requires JDK 1.6 or newer.\nYou are running on JDK
+install.jdkError1=This version of BlueJ requires JDK 1.6 or newer.\nYou are running on JDK 
 # The actual java version will be inserted here.
-install.jdkError2= Please upgrade\nJDK before installing BlueJ.\n\nOlder versions of BlueJ can run on earlier JDKs\n - download one of those version\n if you cannot upgrade JDK.
+install.jdkError2=. Please upgrade\nJDK before installing BlueJ.
 install.jdkMsg=JDK 1.6 (or newer) required.
                         
 # Name of the application                       
