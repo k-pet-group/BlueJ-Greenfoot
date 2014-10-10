@@ -1,0 +1,19 @@
+#BlueJ class context
+comment0.params=args
+comment0.target=void\ main(java.lang.String[])
+comment1.params=
+comment1.target=LEDTester()
+comment1.text=\n\ create\ a\ new\ LED\ instance\n
+comment2.params=p
+comment2.target=LEDTester(LED)
+comment2.text=\n\ Creates\ a\ LED\ instance\ based\ on\ a\ LED\ object\n
+comment3.params=
+comment3.target=void\ flash10Times()
+comment3.text=\n\ Flashes\ the\ LED\ 10\ times\n
+comment4.params=msg
+comment4.target=void\ flashMorse(java.lang.String)
+comment4.text=\n\ Sends\ the\ morse\ code\ using\ the\ LED.\n
+comment5.params=units
+comment5.target=void\ sleep(int)
+comment5.text=\n\ Wait\ units\ times\ the\ defined\ unit\ of\ time\n
+numComments=6

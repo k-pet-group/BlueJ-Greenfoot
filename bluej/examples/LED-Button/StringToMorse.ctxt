@@ -1,0 +1,5 @@
+#BlueJ class context
+comment0.params=message
+comment0.target=java.lang.String\ translate(java.lang.String)
+comment0.text=\n\ Translate\ a\ string\ into\ its\ Morse\ code\ equivalent\n\ \n\ Spaces\ in\ message\ are\ encoded\ as\ spaces\ in\ the\ returned\ string.\ Codons\ are\ separated\ by\ slashes\n\ \n\ @param\ message\ \ \ The\ string\ to\ be\ translated\n\ @return\ The\ encoded\ string.\n\ @throws\ IllegalArgumentException\ \ if\ there\ is\ a\ character\ in\ message\ which\ is\ not\ codeable\ in\ Morse\n
+numComments=1

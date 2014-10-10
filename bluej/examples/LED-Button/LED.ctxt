@@ -1,0 +1,17 @@
+#BlueJ class context
+comment0.params=
+comment0.target=LED()
+comment0.text=\n\ Constructor\ for\ objects\ of\ class\ LED\n
+comment1.params=ms
+comment1.target=void\ flash(int)
+comment1.text=\n\ Flash\ the\ LED\ for\ a\ given\ amount\ of\ time\n\ @param\ \ ms\ \ \ the\ time\ to\ flash\ the\ LED\ in\ milliseconds\n
+comment2.params=
+comment2.target=void\ on()
+comment2.text=\n\ Turns\ on\ the\ LED\n
+comment3.params=
+comment3.target=void\ off()
+comment3.text=\n\ Turns\ off\ the\ LED\n
+comment4.params=event
+comment4.target=void\ handleGpioPinDigitalStateChangeEvent(com.pi4j.io.gpio.event.GpioPinDigitalStateChangeEvent)
+comment4.text=\n\ toggle\ LED\ state\n
+numComments=5
