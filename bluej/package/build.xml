@@ -84,6 +84,7 @@
         <include name="examples/picture/" />
         <include name="examples/file-reader/" />
         <include name="examples/shapes/" />
+        <include name="examples/LED-Button/" />
     </patternset>
     
     <patternset id="bluej.icons">
