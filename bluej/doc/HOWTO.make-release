@@ -57,6 +57,9 @@ PART II - RELEASING BLUEJ
         - change version, date, and download links 
      - update the versions page (versions.html)
         - add section with version, date, changes and download links
+     - update the Raspberry Pi page (raspberrypi/index.html)
+        - change file name and download links
+
         
 10. Update the file www.bluej.org/version.info
     The real location currently is: bluej:/home/bluej/www/version.info
