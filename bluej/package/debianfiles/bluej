@@ -1,28 +1,18 @@
 #!/bin/sh
 
 unset JAVAPATH
-unset ARCH
 
-if [ -x /usr/bin/apt-config ]; then
-    # Ask apt-config for the architecture
-    eval `/usr/bin/apt-config shell ARCH APT::Architecture`
-elif [ -x /usr/bin/arch ]; then
-    ARCH=`/usr/bin/arch`
-fi
-
+FOUND="false"
 for VMNAME in java-8-oracle jdk-8-oracle java-8-openjdk java-7-oracle jdk-7-oracle java-7-sun java-7-openjdk java-6-oracle java-6-sun java-6-openjdk ; do
-    if [ -e /usr/lib/jvm/$VMNAME/lib/tools.jar ]; then
-	    JAVAPATH="/usr/lib/jvm/$VMNAME"
-	    break
-	elif [ -e "/usr/lib/jvm/$VMNAME-$ARCH/lib/tools.jar" ]; then
-	    JAVAPATH="/usr/lib/jvm/$VMNAME-$ARCH"
-	    break
-    elif [ -e /usr/lib/jvm/$VMNAME-amd64/lib/tools.jar ]; then
-	    JAVAPATH="/usr/lib/jvm/$VMNAME-amd64"
-	    break
-    elif [ -e /usr/lib/jvm/$VMNAME-i386/lib/tools.jar ]; then
-	    JAVAPATH="/usr/lib/jvm/$VMNAME-i386"
-	    break
+    for JDKCANDIDATE in /usr/lib/jvm/"$VMNAME"* ; do
+        if [ -e "$JDKCANDIDATE"/lib/tools.jar ]; then
+	        JAVAPATH="$JDKCANDIDATE"
+                FOUND="true"
+	        break
+        fi
+    done
+    if [ x"$FOUND" = x"true" ]; then
+       break;
     fi
 done
 
