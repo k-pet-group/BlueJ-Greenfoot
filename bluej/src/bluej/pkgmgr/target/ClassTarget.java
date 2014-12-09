@@ -1057,6 +1057,10 @@ public class ClassTarget extends DependentTarget
     public void compile(final Editor editor)
     {
         if (Config.isGreenfoot()) {
+            // In Greenfoot compiling always compiles the whole package, and at least
+            // compiles this target:
+            setState(S_INVALID);
+            
             // Even though we do a package compile, we must let the editor know when
             // the compile finishes, so that it updates its status correctly:
             getPackage().compile(new CompileObserver() {

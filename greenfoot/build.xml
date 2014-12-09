@@ -15,7 +15,7 @@
     <!-- Greenfoot Version Number -->
     <property name="greenfoot.version.major" value="2"/>
     <property name="greenfoot.version.minor" value="4"/>
-    <property name="greenfoot.version.micro" value="0"/>
+    <property name="greenfoot.version.micro" value="1"/>
     
 	<!-- Greenfoot version to API mapping:        -->
 	<!--    Greenfoot 2.3.0 = API version 2.5.0   -->
@@ -253,6 +253,11 @@ LICENSE.txt file that accompanied this code.${line.separator}
                         <path refid="bluej.class.path"/>
                     </classpath>
                 </javac>
+                <replaceregexp byline="true">
+                    <regexp pattern="version=.*"/>
+                    <substitution expression="version=${greenfoot.apiversion}"/>
+                    <fileset dir="scenarios/@{scenario}" includes="project.greenfoot"/>
+                </replaceregexp>
             </sequential>
         </macrodef>
 
@@ -854,11 +859,15 @@ LICENSE.txt file that accompanied this code.${line.separator}
     </target>
 
     <target name="update-version-number" description="updates the version number in all files where it appears" >
+        <!-- This should be done manually instead, only for files actually changed: -->
+        <!--
         <replaceregexp byline="true">
             <regexp pattern="@version .*"/>
             <substitution expression="@version ${greenfoot.apiversion.public}"/>
             <fileset dir="${src}/greenfoot" includes="Greenfoot.java,GreenfootImage.java,GreenfootSound.java,Actor.java,World.java,MouseInfo.java,UserInfo.java"/>
         </replaceregexp>
+        -->
+        
         <replaceregexp byline="true">
             <regexp pattern="GREENFOOT_VERSION = .*"/>
             <substitution expression="GREENFOOT_VERSION = &quot;${greenfoot.version}&quot;;"/>
@@ -873,6 +882,11 @@ LICENSE.txt file that accompanied this code.${line.separator}
             <regexp pattern="version=.*"/>
             <substitution expression="version=${greenfoot.apiversion}"/>
             <fileset dir="projects/startupProject" includes="project.greenfoot"/>
+        </replaceregexp>
+        <replaceregexp byline="true">
+            <regexp pattern="version: .*"/>
+            <substitution expression="version: ${greenfoot.version}"/>
+            <fileset dir="doc" includes="Greenfoot-README.txt"/>
         </replaceregexp>
     </target>
 </project>

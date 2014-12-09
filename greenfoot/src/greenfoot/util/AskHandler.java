@@ -1,9 +1,29 @@
+/*
+ This file is part of the Greenfoot program. 
+ Copyright (C) 2014  Poul Henriksen and Michael Kolling 
+ 
+ This program is free software; you can redistribute it and/or 
+ modify it under the terms of the GNU General Public License 
+ as published by the Free Software Foundation; either version 2 
+ of the License, or (at your option) any later version. 
+ 
+ This program is distributed in the hope that it will be useful, 
+ but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+ GNU General Public License for more details. 
+ 
+ You should have received a copy of the GNU General Public License 
+ along with this program; if not, write to the Free Software 
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
+ 
+ This file is subject to the Classpath exception as provided in the  
+ LICENSE.txt file that accompanied this code.
+ */
 package greenfoot.util;
 
 import greenfoot.core.WorldHandler;
 import greenfoot.gui.AskPanel;
 import greenfoot.gui.WorldCanvas;
-import greenfoot.gui.AskPanel.AnswerListener;
 
 import java.awt.Image;
 import java.awt.image.BufferedImage;
@@ -12,6 +32,12 @@ import java.util.concurrent.Callable;
 
 import bluej.utility.Debug;
 
+/**
+ * This class provides most of the implementation for the Greenfoot.ask() method. It implements
+ * the necessary bridging between the EDT and another thread.
+ * 
+ * @author Neil Brown
+ */
 public class AskHandler
 {
     private final AskPanel askPanel;

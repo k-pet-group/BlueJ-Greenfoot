@@ -1,4 +1,4 @@
-Using the Eclipse IDE to build and run BlueJ v1.5
+Using the Eclipse IDE to build and run BlueJ v1.6
 -------------------------------------------------
 Josh Buhl (buhl@stormarnschule.de)
 Davin McCall (support@greenfoot.org)
@@ -14,7 +14,7 @@ the source bundle or directly from the svn repository:
          the Eclipse Workspace folder or not. See NOTE at the end of
          this file for details.
 
-   * Start Eclipse. Select File->New->Project
+   * Start Eclipse. Select File->New->Project...
 
    * In selection Wizard choose "Java Project"
 
@@ -95,9 +95,10 @@ Alternatively:
 
 3. Project Properties: Set up source and output paths, and char encoding.
 
-   NOTE: These instructions assume that the project is named "bluej".
-         Some paths in the following steps may need to be adjusted if
-         you use a different project name.
+   NOTE: These instructions assume that the project is named "bluej"
+         and that this project has been selected in the explorer pane
+         on the left. Some paths in the following steps may need to 
+         be adjusted if you use a different project name.
 
 
    Project properties -> Resource
@@ -127,9 +128,13 @@ Alternatively:
    
    * "Add JARs" (or "Add Variable..." if using classpath vars): add all the
      necessary jars from the bluej/lib directory.  At the time of this 
-     writing (01/2014 v3.1.0) these are:
+     writing (11/2014 v3.1.1) these are:
 
        - AppleJavaExtensions.jar
+       - diffutils-1.2.1.jar
+       - httpclient-4.1.1.jar
+       - httpcore-4.1.jar
+       - httpmime-4.1.1.jar
        - junit-4.8.2.jar
        - org-netbeans-lib-cvsclient.jar
        - svnkit-javahl.jar

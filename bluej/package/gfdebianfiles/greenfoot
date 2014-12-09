@@ -1,43 +1,33 @@
 #!/bin/sh
 
 unset JAVAPATH
-unset ARCH
 
-if [ -x /usr/bin/apt-config ]; then
-    # Ask apt-config for the architecture
-    eval `/usr/bin/apt-config shell ARCH APT::Architecture`
-elif [ -x /usr/bin/arch ]; then
-    ARCH=`/usr/bin/arch`
-fi
-
-for VMNAME in java-7-oracle java-7-sun java-7-openjdk java-6-oracle java-6-sun java-6-openjdk ; do
-    if [ -e /usr/lib/jvm/$VMNAME/lib/tools.jar ]; then
-	    JAVAPATH="/usr/lib/jvm/$VMNAME"
-	    break
-	elif [ -e "/usr/lib/jvm/$VMNAME-$ARCH/lib/tools.jar" ]; then
-	    JAVAPATH="/usr/lib/jvm/$VMNAME-$ARCH"
-	    break
-    elif [ -e /usr/lib/jvm/$VMNAME-amd64/lib/tools.jar ]; then
-	    JAVAPATH="/usr/lib/jvm/$VMNAME-amd64"
-	    break
-    elif [ -e /usr/lib/jvm/$VMNAME-i386/lib/tools.jar ]; then
-	    JAVAPATH="/usr/lib/jvm/$VMNAME-i386"
-	    break
+FOUND="false"
+for VMNAME in java-8-oracle jdk-8-oracle java-8-openjdk java-7-oracle jdk-7-oracle java-7-sun java-7-openjdk java-6-oracle java-6-sun java-6-openjdk ; do
+    for JDKCANDIDATE in /usr/lib/jvm/"$VMNAME"* ; do
+        if [ -e "$JDKCANDIDATE"/lib/tools.jar ]; then
+            JAVAPATH="$JDKCANDIDATE"
+                FOUND="true"
+            break
+        fi
+    done
+    if [ x"$FOUND" = x"true" ]; then
+       break;
     fi
 done
 
 if [ x"$JAVAPATH" = x"" ]; then
-	echo "A suitable JDK couldn't be located. You may need to edit the"
-	echo "/usr/bin/greenfoot launch script."
-	exit 1
+    echo "A suitable JDK couldn't be located. You may need to edit the"
+    echo "/usr/bin/greenfoot launch script."
+    exit 1
 fi
 
-	
+    
 CP="/usr/share/greenfoot/bluej.jar:$JAVAPATH/lib/tools.jar"
 "$JAVAPATH/bin/java" -Dawt.useSystemAAFontSettings=on -cp "$CP" bluej.Boot \
     -greenfoot=true -bluej.compiler.showunchecked=false \
-	-greenfoot.scenarios=/usr/share/doc/Greenfoot/scenarios \
-	-greenfoot.tutorial=file:///usr/share/doc/Greenfoot/tutorial/tutorial.html \
-	-greenfoot.tutorial.scenario=wombats \
-	-greenfoot.url.javadoc=/usr/share/doc/Greenfoot/API/index.html \
-	 "$@"
+    -greenfoot.scenarios=/usr/share/doc/Greenfoot/scenarios \
+    -greenfoot.tutorial=file:///usr/share/doc/Greenfoot/tutorial/tutorial.html \
+    -greenfoot.tutorial.scenario=wombats \
+    -greenfoot.url.javadoc=/usr/share/doc/Greenfoot/API/index.html \
+     "$@"
