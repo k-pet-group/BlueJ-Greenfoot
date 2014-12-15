@@ -39,8 +39,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import threadchecker.OnThread;
-import threadchecker.Tag;
 import bluej.Boot;
 import bluej.Config;
 import bluej.debugger.Debugger;
@@ -2122,7 +2120,6 @@ class VMReference
             setPriority(Thread.MIN_PRIORITY);
         }
 
-        @OnThread(Tag.Any)
         public void close()
         {
             keepRunning = false;
