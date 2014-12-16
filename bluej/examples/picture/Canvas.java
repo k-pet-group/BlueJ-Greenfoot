@@ -42,8 +42,8 @@ public class Canvas
     private Graphics2D graphic;
     private Color backgroundColour;
     private Image canvasImage;
-    private List objects;
-    private HashMap shapes;
+    private List<Object> objects;
+    private HashMap<Object, ShapeDescription> shapes;
     
     /**
      * Create a Canvas.
@@ -61,8 +61,8 @@ public class Canvas
         canvas.setPreferredSize(new Dimension(width, height));
         backgroundColour = bgColour;
         frame.pack();
-        objects = new ArrayList();
-        shapes = new HashMap();
+        objects = new ArrayList<Object>();
+        shapes = new HashMap<Object, ShapeDescription>();
     }
 
     /**
