@@ -465,6 +465,8 @@ public final class MoeEditor extends JFrame
     {
         sourcePane.setFont(PrefMgr.getStandardEditorFont());
         checkBracketStatus();
+        scheduleReparseRunner(); //whenever we change the scope highlighter, call scheduleReparseRunner to create a reparser to that file: if the scope highlighter is 0, it will do nothing. However, if it is not zero, it will ensure the editor is updated accordingly.
+        
         currentTextPane.repaint();
         
         Info.resetFont();
