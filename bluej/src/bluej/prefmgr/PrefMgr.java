@@ -126,7 +126,7 @@ public class PrefMgr
         targetFont = Config.getFont("bluej.target.font", "SansSerif-bold", targetFontSize);
         
         // preferences other than fonts:
-        highlightStrength = initializeHighlighStrengh();
+        highlightStrength = Config.getPropInteger(SCOPE_HIGHLIGHTING_STRENGTH, 20);
         isNaviviewExpanded=initializeisNavivewExpanded();
         
         projectDirectory = Config.getPropString("bluej.projectPath");
@@ -155,19 +155,6 @@ public class PrefMgr
         
     }
     
-    /**
-     * Check if BlueJ is runnung on a ARM processor (Raspberry Pi). If so, sets highlighStrengh to 0.
-     * @return 0 if ARM processor. 20 otherwise
-     */
-    public static int initializeHighlighStrengh()
-    {
-     if (Config.isRaspberryPi()) {
-         return Config.getPropInteger(SCOPE_HIGHLIGHTING_STRENGTH, 0);
-     }else{
-         return Config.getPropInteger(SCOPE_HIGHLIGHTING_STRENGTH, 20);
-     }
-     
-    }
     
     /**
      * Check if BlueJ is runnung on a ARM processor (Raspberry Pi). If so, sets hides the code preview.
