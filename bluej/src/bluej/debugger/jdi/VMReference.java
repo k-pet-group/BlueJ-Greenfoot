@@ -211,9 +211,10 @@ class VMReference
         
         ArrayList<String> paramList = new ArrayList<String>(11);
         
-        //check if it is a raspberry pi. if so, in order to make Pi4J work out of the box, run JVM with sudo.
-        if (Config.isRaspberryPi()) {
+        //check if it is a raspberry pi AND we are running BlueJ (not Greenfoot). If so, in order to make Pi4J work out of the box, run JVM with sudo.
+        if (Config.isRaspberryPi() && !Config.isGreenfoot()) {
             paramList.add("/usr/bin/sudo");
+            paramList.add("XAUTHORITY="+System.getProperty("user.home")+"/.Xauthority");
         }
         paramList.add(Config.getJDKExecutablePath(null, "java"));
         
