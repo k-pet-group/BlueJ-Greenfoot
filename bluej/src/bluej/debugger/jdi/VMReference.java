@@ -214,7 +214,19 @@ class VMReference
         //check if it is a raspberry pi AND we are running BlueJ (not Greenfoot). If so, in order to make Pi4J work out of the box, run JVM with sudo.
         if (Config.isRaspberryPi() && !Config.isGreenfoot()) {
             paramList.add("/usr/bin/sudo");
-            paramList.add("XAUTHORITY="+System.getProperty("user.home")+"/.Xauthority");
+            if (System.getenv("XAUTHORITY") != null && !System.getenv("XAUTHORITY").isEmpty()){
+                paramList.add("XAUTHORITY="+System.getenv("XAUTHORITY"));
+            } else {
+                //there is no environment variable XAUTHORITY set.
+                //check if ~/.Xauthority file does exists.
+                String xAuthorityPath = System.getProperty("user.home")+"/.Xauthority";
+                File f = new File (xAuthorityPath);
+                if (f.isFile()){
+                    //Xauthority does exist. Use it.
+                    paramList.add("XAUTHORITY="+System.getProperty("user.home")+"/.Xauthority");
+                }
+            }
+            
         }
         paramList.add(Config.getJDKExecutablePath(null, "java"));
         
