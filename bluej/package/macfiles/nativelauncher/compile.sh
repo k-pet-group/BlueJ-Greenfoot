@@ -8,7 +8,7 @@
 
 gcc -I "$JAVA_HOME/include" -I "$JAVA_HOME/include/darwin" -o JavaAppLauncher \
 	-framework Cocoa -arch x86_64 \
-	-isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.7.sdk \
+	-isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk \
 	-mmacosx-version-min=10.7 \
 	-Wall \
 	main.m
