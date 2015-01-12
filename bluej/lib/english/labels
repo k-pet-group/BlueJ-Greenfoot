@@ -159,6 +159,12 @@ extmgr.error.nomain=Manifest does not contain Main-Class attribute
 extmgr.error.notsubclass=Main class is not a subclass of Extension
 extmgr.error.cannotload=Extension could not be loaded
 
+# Rasperry Pi preferences panel
+extmgr.raspberryPi.rpiPanelTitle=Rasbperry Pi
+extmgr.raspberryPi.title=JVM settings
+extmgr.raspberryPi.superUser=Allow access to GPIOs (requires sudo)
+
+
 #---------------
 #Editor labels
 #---------------
