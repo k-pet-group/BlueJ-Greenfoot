@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2013, 2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012,2013, 2014,2015  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -57,6 +57,7 @@ public class PrefMgr
     public static final String SCOPE_HIGHLIGHTING_STRENGTH = "bluej.editor.scopeHilightingStrength";
     public static final String NAVIVIEW_EXPANDED="bluej.naviviewExpanded.default";
     public static final String ACCESSIBILITY_SUPPORT = "bluej.accessibility.support";
+    public static final String START_WITH_SUDO = "bluej.startWithSudo";
     
     public static final String USE_THEMES = "bluej.useTheme";
     // font property names
@@ -145,6 +146,7 @@ public class PrefMgr
         flags.put(SHOW_TEXT_EVAL, Config.getPropString(SHOW_TEXT_EVAL, "false"));
         flags.put(SHOW_UNCHECKED, Config.getPropString(SHOW_UNCHECKED, "true"));
         flags.put(ACCESSIBILITY_SUPPORT, Config.getPropString(ACCESSIBILITY_SUPPORT, "false"));
+        flags.put(START_WITH_SUDO, Config.getPropString(START_WITH_SUDO, "true"));
     }
 
     /**

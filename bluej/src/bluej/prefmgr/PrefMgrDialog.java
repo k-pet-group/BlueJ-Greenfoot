@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2015  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -152,6 +152,11 @@ public class PrefMgrDialog extends JFrame
         if(!Config.isGreenfoot()) {
             ExtensionPrefManager mgr = ExtensionsManager.getInstance().getPrefManager();
             add(mgr.getPanel(), Config.getString("extmgr.extensions"), mgr);
+            if (Config.isRaspberryPi()){
+                //display the Raspberry Pi specific options
+                RaspberryPiPanel rpp = new RaspberryPiPanel();
+                add(rpp, Config.getString("extmgr.raspberryPi.rpiPanelTitle"),rpp);
+            }
         }
 
     }
