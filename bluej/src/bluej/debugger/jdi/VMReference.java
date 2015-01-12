@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -39,6 +39,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
 import bluej.Boot;
 import bluej.Config;
 import bluej.debugger.Debugger;
@@ -2133,6 +2135,7 @@ class VMReference
             setPriority(Thread.MIN_PRIORITY);
         }
 
+        @OnThread(Tag.Any)
         public void close()
         {
             keepRunning = false;
