@@ -39,8 +39,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import threadchecker.OnThread;
-import threadchecker.Tag;
 import bluej.Boot;
 import bluej.Config;
 import bluej.debugger.Debugger;
@@ -50,6 +48,7 @@ import bluej.debugger.DebuggerResult;
 import bluej.debugger.DebuggerTerminal;
 import bluej.debugger.ExceptionDescription;
 import bluej.debugger.SourceLocation;
+import bluej.prefmgr.PrefMgr;
 import bluej.runtime.ExecServer;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
@@ -91,6 +90,7 @@ import com.sun.jdi.request.BreakpointRequest;
 import com.sun.jdi.request.ClassPrepareRequest;
 import com.sun.jdi.request.EventRequest;
 import com.sun.jdi.request.EventRequestManager;
+import javax.swing.JOptionPane;
 
 /**
  * A class implementing the execution and debugging primitives needed by BlueJ.
@@ -213,19 +213,46 @@ class VMReference
         
         ArrayList<String> paramList = new ArrayList<String>(11);
         
-        //check if it is a raspberry pi AND we are running BlueJ (not Greenfoot). If so, in order to make Pi4J work out of the box, run JVM with sudo.
+        //check if it is a raspberry pi AND we are running BlueJ (not Greenfoot). 
+        //If so, in order to make Pi4J work out of the box, run JVM with sudo.
         if (Config.isRaspberryPi() && !Config.isGreenfoot()) {
-            paramList.add("/usr/bin/sudo");
-            if (System.getenv("XAUTHORITY") != null && !System.getenv("XAUTHORITY").isEmpty()){
-                paramList.add("XAUTHORITY="+System.getenv("XAUTHORITY"));
-            } else {
-                //there is no environment variable XAUTHORITY set.
-                //check if ~/.Xauthority file does exists.
-                String xAuthorityPath = System.getProperty("user.home")+"/.Xauthority";
-                File f = new File (xAuthorityPath);
-                if (f.isFile()){
-                    //Xauthority does exist. Use it.
-                    paramList.add("XAUTHORITY="+System.getProperty("user.home")+"/.Xauthority");
+            Process sudoProcess = null;
+            if (PrefMgr.getFlag(PrefMgr.START_WITH_SUDO)) {
+                try {
+                    //start with sudo == true OR there is no sudo option in preferences.
+                    //test if sudo works.
+                    sudoProcess = Runtime.getRuntime().exec("/usr/bin/sudo -n echo \"\" ");
+                    sudoProcess.waitFor();
+                } catch (Exception ex) {}
+                if (sudoProcess != null && sudoProcess.exitValue() == 0){
+                    //succes! We will start with sudo
+                    paramList.add("/usr/bin/sudo");
+                    if (System.getenv("XAUTHORITY") != null && !System.getenv("XAUTHORITY").isEmpty()) {
+                        paramList.add("XAUTHORITY=" + System.getenv("XAUTHORITY"));
+                    } else {
+                        //there is no environment variable XAUTHORITY set.
+                        //check if ~/.Xauthority file does exists.
+                        String xAuthorityPath = System.getProperty("user.home") + "/.Xauthority";
+                        File f = new File(xAuthorityPath);
+                        if (f.isFile()) {
+                            //Xauthority does exist. Use it.
+                            paramList.add("XAUTHORITY=" + System.getProperty("user.home") + "/.Xauthority");
+                        }
+                    }
+                } else {
+                    //fail. Don't start with sudo, warn the user and  
+                    //set start with sudo to false
+                    Thread t = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            JOptionPane.showMessageDialog(null,"Harwdare access not available in this account because " //
+                                                             + "the user is not in the sudoers file.\n To enable hardware" //
+                                                             + "access, please read: http://bluej.org/faq.html","No hardware"//
+                                                             + "access",JOptionPane.WARNING_MESSAGE);
+                        }
+                    });
+                    t.start();
+                    PrefMgr.setFlag(PrefMgr.START_WITH_SUDO, false);
                 }
             }
             
@@ -2135,7 +2162,6 @@ class VMReference
             setPriority(Thread.MIN_PRIORITY);
         }
 
-        @OnThread(Tag.Any)
         public void close()
         {
             keepRunning = false;
