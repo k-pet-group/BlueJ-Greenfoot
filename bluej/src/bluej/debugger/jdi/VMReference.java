@@ -245,7 +245,7 @@ class VMReference
                     Thread t = new Thread(new Runnable() {
                         @Override
                         public void run() {
-                            JOptionPane.showMessageDialog(null,"Harwdare access not available in this account because " //
+                            JOptionPane.showMessageDialog(null,"Hardware access not available in this account because " //
                                                              + "the user is not in the sudoers file.\n To enable hardware" //
                                                              + "access, please read: http://bluej.org/faq.html","No hardware"//
                                                              + "access",JOptionPane.WARNING_MESSAGE);
