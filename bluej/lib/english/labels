@@ -817,6 +817,10 @@ collect.status.optedin=You are currently allowing anonymous research data collec
 collect.status.nextsession=You will allow anonymous data collection research next time BlueJ is started
 collect.status.optedout=You are currently not participating in the anonymous research data collection
 
+#Raspberry Pi
+raspberrypi.error.sudo=Hardware access not available in this account because the user is not in the sudoers file.\n To enable hardware access, please read: http://bluej.org/faq.html
+raspberrypi.error.sudo.title=No hardware access
+
 # About
 
 about.bluej.version=BlueJ version
