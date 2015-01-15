@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012,2015  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -277,7 +277,7 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
             if (bytesRead > 0)
                 totalBytes += bytesRead;
             else
-                throw new IOException("Zero or negative bytes read from socket");
+                throw new IOException("Connection unexpectedly closed by remote end");
         }
         buf.flip();
     }
