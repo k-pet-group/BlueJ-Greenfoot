@@ -90,6 +90,7 @@ import com.sun.jdi.request.BreakpointRequest;
 import com.sun.jdi.request.ClassPrepareRequest;
 import com.sun.jdi.request.EventRequest;
 import com.sun.jdi.request.EventRequestManager;
+import java.awt.EventQueue;
 import javax.swing.JOptionPane;
 
 /**
@@ -242,7 +243,7 @@ class VMReference
                 } else {
                     //fail. Don't start with sudo, warn the user and  
                     //set start with sudo to false
-                    Thread t = new Thread(new Runnable() {
+                    EventQueue.invokeLater(new Runnable() {
                         @Override
                         public void run() {
                             JOptionPane.showMessageDialog(null,Config.getString("raspberrypi.error.sudo")
@@ -250,7 +251,6 @@ class VMReference
                                     ,JOptionPane.WARNING_MESSAGE);
                         }
                     });
-                    t.start();
                     PrefMgr.setFlag(PrefMgr.START_WITH_SUDO, false);
                 }
             }
