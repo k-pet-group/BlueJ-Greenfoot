@@ -162,8 +162,10 @@ extmgr.error.cannotload=Extension could not be loaded
 # Rasperry Pi preferences panel
 extmgr.raspberryPi.rpiPanelTitle=Rasbperry Pi
 extmgr.raspberryPi.title=JVM settings
-extmgr.raspberryPi.superUser=Allow access to GPIOs (requires sudo)
-
+extmgr.raspberryPi.superUser=Run user code as root.
+prefmgr.raspberryPi.NoteLine1=Sudo access is required to access Gpio and hardware in the Raspberry Pi.
+prefmgr.raspberryPi.NoteLine2=To allow BlueJ to run as root, sudo must be allowed without password.
+prefmgr.raspberryPi.NoteLine3=For more information, please see faq at: http://bluej.org/faq.html#rasppi_hardware
 
 #---------------
 #Editor labels
@@ -818,7 +820,7 @@ collect.status.nextsession=You will allow anonymous data collection research nex
 collect.status.optedout=You are currently not participating in the anonymous research data collection
 
 #Raspberry Pi
-raspberrypi.error.sudo=Hardware access not available in this account because the user is not in the sudoers file.\n To enable hardware access, please read: http://bluej.org/faq.html
+raspberrypi.error.sudo=Sudo access without password not available. Continuing without hardware access.\nFor more information, please see: http://bluej.org/faq.html#rasppi_hardware
 raspberrypi.error.sudo.title=No hardware access
 
 # About
