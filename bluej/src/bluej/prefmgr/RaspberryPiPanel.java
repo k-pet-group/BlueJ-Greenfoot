@@ -24,11 +24,13 @@ package bluej.prefmgr;
 import bluej.BlueJTheme;
 import bluej.Config;
 import static java.awt.Component.LEFT_ALIGNMENT;
+import java.awt.Font;
 import java.awt.GridLayout;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 /**
@@ -61,6 +63,25 @@ public class RaspberryPiPanel extends JPanel implements PrefPanelListener {
 
             useSudoBox = new JCheckBox(Config.getString("extmgr.raspberryPi.superUser"));
             jvmPanel.add(useSudoBox);
+            
+            JLabel sudoNoteLine1 = new JLabel(
+                              Config.getString("prefmgr.raspberryPi.NoteLine1"));
+            Font smallFont = sudoNoteLine1.getFont().deriveFont(10);
+            sudoNoteLine1.setFont(smallFont);
+            sudoNoteLine1.setAlignmentX(LEFT_ALIGNMENT);
+            jvmPanel.add(sudoNoteLine1);
+            
+            JLabel sudoNoteLine2 = new JLabel(
+                              Config.getString("prefmgr.raspberryPi.NoteLine2"));
+            sudoNoteLine2.setFont(smallFont);
+            sudoNoteLine2.setAlignmentX(LEFT_ALIGNMENT);
+            jvmPanel.add(sudoNoteLine2);
+            
+            JLabel sudoNoteLine3 = new JLabel(
+                              Config.getString("prefmgr.raspberryPi.NoteLine3"));
+            sudoNoteLine3.setFont(smallFont);
+            sudoNoteLine3.setAlignmentX(LEFT_ALIGNMENT);
+            jvmPanel.add(sudoNoteLine3);
         }
         box.add(jvmPanel);
 
