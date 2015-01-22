@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012,2013,2014  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012,2013,2014,2015  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -89,6 +89,7 @@ public class WorldCanvas extends JPanel
     public void setWorld(World world)
     {
         this.world = world;
+        setOverrideImage(null);
         if (world != null) {
             this.setSize(getPreferredSize());
             revalidate();

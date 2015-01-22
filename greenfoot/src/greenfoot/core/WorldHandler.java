@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012,2013,2014  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012,2013,2014,2015  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -1048,6 +1048,16 @@ public class WorldHandler
 
     public String ask(String prompt)
     {
-        return handlerDelegate.ask(prompt);
+        boolean held = lock.isWriteLockedByCurrentThread();
+        if (held)
+            lock.writeLock().unlock();
+        String answer = handlerDelegate.ask(prompt);
+        // Must refocus canvas after panel disappears:
+        EventQueue.invokeLater(new Runnable() {public void run() {
+            worldCanvas.requestFocusInWindow();
+        }});
+        if (held)
+            lock.writeLock().lock();
+        return answer;
     }
 }
