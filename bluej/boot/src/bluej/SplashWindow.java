@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2013,2014,2015  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,10 +22,12 @@
 package bluej;
 
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Toolkit;
+
+import javax.swing.BoxLayout;
+import javax.swing.JProgressBar;
 
 /**
  * This class implements a splash window that can be displayed while BlueJ is
@@ -35,7 +37,7 @@ import java.awt.Toolkit;
  */
 public class SplashWindow extends Frame
 {
-    private boolean painted = false;
+    private JProgressBar progress;
     
     /**
      * Construct a splash window.
@@ -43,10 +45,15 @@ public class SplashWindow extends Frame
      */
     public SplashWindow(SplashLabel image)
     {
-        setLayout(new FlowLayout(FlowLayout.LEFT,0,0));
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setUndecorated(true);
 
         add(image);
+        progress = new JProgressBar();
+        progress.setIndeterminate(true);
+        progress.setDoubleBuffered(true); //stop the flickering on raspberry pi.
+        progress.setVisible(false); //set progress bar to invisible, initially.
+        add(progress);
         pack();
 
         // centre on screen
@@ -59,7 +66,6 @@ public class SplashWindow extends Frame
     @Override
     public synchronized void paint(Graphics g)
     {
-        painted = true;
         super.paint(g);
         notify();
     }
@@ -72,14 +78,16 @@ public class SplashWindow extends Frame
     {
         long startTime = System.currentTimeMillis();
         long timePast = System.currentTimeMillis() - startTime; 
-        while (!painted && timePast < 3000) {
+        int timeout = 3000;
+        while (!progress.isVisible() && timePast < timeout) {
             try {
-                wait(3000 - timePast);
+                wait(timeout - timePast);
             }
             catch (InterruptedException ie) { }
             timePast = System.currentTimeMillis() - startTime;
         }
-        painted = true;
+        progress.setVisible(true); //timeout expired, show progress bar.
+        pack();
     }
 }
 

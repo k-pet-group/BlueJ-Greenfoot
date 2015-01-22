@@ -180,7 +180,10 @@ public class Main
             }
         }
 
-        Boot.getInstance().disposeSplashWindow();
+        if (!Config.isGreenfoot())
+        {
+            Boot.getInstance().disposeSplashWindow();
+        }
         ExtensionsManager.getInstance().delegateEvent(new ApplicationEvent(ApplicationEvent.APP_READY_EVENT));
     }
 
