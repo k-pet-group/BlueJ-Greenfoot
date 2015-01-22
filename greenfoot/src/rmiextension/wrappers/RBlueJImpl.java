@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2013  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2013,2014,2015  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -37,6 +37,7 @@ import rmiextension.wrappers.event.RCompileListener;
 import rmiextension.wrappers.event.RCompileListenerWrapper;
 import rmiextension.wrappers.event.RInvocationListener;
 import rmiextension.wrappers.event.RInvocationListenerWrapper;
+import bluej.Boot;
 import bluej.Config;
 import bluej.extensions.BProject;
 import bluej.extensions.BlueJ;
@@ -399,5 +400,11 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     public File getUserPrefDir() throws RemoteException
     {
         return Config.getUserConfigDir();
+    }
+    
+    @Override
+    public void hideSplash() throws RemoteException
+    {
+        Boot.getInstance().disposeSplashWindow();
     }
 }

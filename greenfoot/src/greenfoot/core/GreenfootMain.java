@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2013,2014  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2013,2014,2015  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -225,6 +225,14 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                         }
                     }
                     
+                    try
+                    {
+                        rBlueJ.hideSplash();
+                    }
+                    catch (RemoteException e)
+                    {
+                        Debug.reportError(e);
+                    }
                     frame.setVisible(true);
                     Utility.bringToFront(frame);
                 }
