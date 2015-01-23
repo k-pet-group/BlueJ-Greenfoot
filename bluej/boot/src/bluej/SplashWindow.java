@@ -25,9 +25,12 @@ import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.BoxLayout;
 import javax.swing.JProgressBar;
+import javax.swing.Timer;
 
 /**
  * This class implements a splash window that can be displayed while BlueJ is
@@ -37,6 +40,7 @@ import javax.swing.JProgressBar;
  */
 public class SplashWindow extends Frame
 {
+    private boolean painted = false;
     private JProgressBar progress;
     
     /**
@@ -60,13 +64,26 @@ public class SplashWindow extends Frame
         Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize();
         setLocation((screenDim.width - getSize().width) / 2, (screenDim.height - getSize().height) / 2);
         setVisible(true);
-        //try { Thread.sleep(11000);} catch(Exception e) {}  // for testing: show longer
+        
+        Timer progressTimer = new Timer(3000, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                if (isVisible()) {
+                    progress.setVisible(true); //timeout expired, show progress bar.
+                    pack();
+                }
+            }
+        });
+        progressTimer.setRepeats(false);
+        progressTimer.start();
     }
     
     @Override
     public synchronized void paint(Graphics g)
     {
         super.paint(g);
+        painted = true;
         notify();
     }
     
@@ -78,16 +95,14 @@ public class SplashWindow extends Frame
     {
         long startTime = System.currentTimeMillis();
         long timePast = System.currentTimeMillis() - startTime; 
-        int timeout = 3000;
-        while (!progress.isVisible() && timePast < timeout) {
+        while (!painted && timePast < 3000) {
             try {
-                wait(timeout - timePast);
+                wait(3000 - timePast);
             }
             catch (InterruptedException ie) { }
             timePast = System.currentTimeMillis() - startTime;
         }
-        progress.setVisible(true); //timeout expired, show progress bar.
-        pack();
+        painted = true;
     }
 }
 
