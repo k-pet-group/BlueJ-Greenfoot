@@ -42,8 +42,11 @@ The line to be updated is 'menu.help.copyright.line0', which is in the 'lib/engl
  6. See HOWTO.make-mac-release for building the Mac release bundles.
 
  7. Rename (usually by adding a release candidate string like "BlueJ*rc1.???").
+ 
+ 8. The release should be tagged in the version control repository at this point.
+    (If another release candidate is built later, the tag can be reset).
 
- 8. Test. When okay, rename to final distribution name.
+ 9. Test. When okay, rename to final distribution name.
  
 
 PART II - RELEASING BLUEJ
