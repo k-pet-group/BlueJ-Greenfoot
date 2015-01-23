@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2012,2013  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2012,2013,2015  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -465,6 +465,12 @@ public class IBSPColChecker implements CollisionChecker
                 BSPNode rNode = node.getBSPNode();
                 node.remove();
                 checkRemoveNode(rNode);
+                
+                // It's possible, when there is only one actor, that the tree is now empty:
+                if (bspTree == null) {
+                    addObject(object);
+                    return;
+                }
             }
             node.clearMark();
             node = node.getNext();
