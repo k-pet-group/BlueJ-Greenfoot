@@ -532,7 +532,7 @@ public final class Config
                                     "/proc/cpuinfo"));
                             while (scanner.hasNextLine()) {
                                 String lineFromFile = scanner.nextLine();
-                                if (lineFromFile.contains("BCM")) {
+                                if (lineFromFile.startsWith("Hardware") && lineFromFile.contains("BCM")) {
                                     result = true;
                                     break;
                                 }

@@ -163,7 +163,7 @@ extmgr.error.cannotload=Extension could not be loaded
 extmgr.raspberryPi.rpiPanelTitle=Rasbperry Pi
 extmgr.raspberryPi.title=JVM settings
 extmgr.raspberryPi.superUser=Run user code as root.
-prefmgr.raspberryPi.NoteLine1=Sudo access is required to access Gpio and hardware in the Raspberry Pi.
+prefmgr.raspberryPi.NoteLine1=Root access is required to access Gpio and hardware in the Raspberry Pi.
 prefmgr.raspberryPi.NoteLine2=To allow BlueJ to run as root, sudo must be allowed without password.
 prefmgr.raspberryPi.NoteLine3=For more information, please see faq at: http://bluej.org/faq.html#rasppi_hardware
 
