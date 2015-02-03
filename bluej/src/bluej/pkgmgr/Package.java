@@ -2325,7 +2325,7 @@ public final class Package extends Graph
     public void hitHalt(DebuggerThread thread)
     {
         int frame = thread.getSelectedFrame();
-        if (showSource(thread.getClassSourceName(frame), thread.getLineNumber(frame), thread.getName(), false)) {
+        if (showSource(thread.getClassSourceName(frame), thread.getLineNumber(frame), thread.getName(), thread.isAtBreakpoint())) {
             getProject().getExecControls().setVisible(true);
         }
 
