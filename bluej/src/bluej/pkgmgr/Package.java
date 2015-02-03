@@ -2141,11 +2141,12 @@ public final class Package extends Graph
      */
     public boolean showSource(String sourcename, int lineNo, String threadName, boolean breakpoint)
     {
-        String msg = Config.getString("debugger.accessibilty.part1") +
-                     " \"" + threadName + "\" " +
-                     Config.getString("debugger.accessibilty.part2") + " " +
-                     (!breakpoint ? Config.getString("debugger.accessibilty.part3") : "") +
-                     Config.getString("debugger.accessibilty.part4");
+        String msg = " ";
+        
+        if (PrefMgr.getFlag(PrefMgr.ACCESSIBILITY_SUPPORT)) {
+            msg = breakpoint ? Config.getString("debugger.accessibility.breakpoint") : Config.getString("debugger.accessibility.paused");
+            msg = msg.replace("$", threadName);
+        }
         
         boolean bringToFront = !sourcename.equals(lastSourceName);
         lastSourceName = sourcename;
