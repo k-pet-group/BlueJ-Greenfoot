@@ -65,6 +65,12 @@ debugger.jdiDebugger.noLineNumberMsg=This class has been compiled without line n
 debugger.jdiDebugger.noCodeMsg=Cannot set breakpoint: no code in this line
 debugger.jdiDebugger.internalErrorMsg=There was an internal error while attempting to\nset this breakpoint
 
+#Debugger Accessibility messages
+debugger.accessibilty.part1=Thread
+debugger.accessibilty.part2=stopped at a
+debugger.accessibilty.part3=non-
+debugger.accessibilty.part4=breakpoint.
+
 # Class Manager panel user interface elements and error messages
 classmgr.prefpaneltitle=Libraries
 classmgr.userlibraries=User Libraries

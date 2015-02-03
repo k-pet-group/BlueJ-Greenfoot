@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2012,2013,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2011,2012,2013,2014,2015  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -2141,11 +2141,12 @@ public final class Package extends Graph
      */
     public boolean showSource(String sourcename, int lineNo, String threadName, boolean breakpoint)
     {
-        String msg = " ";
-
-        if (breakpoint)
-            msg = "Thread \"" + threadName + "\" stopped at breakpoint.";
-
+        String msg = Config.getString("debugger.accessibilty.part1") +
+                     " \"" + threadName + "\" " +
+                     Config.getString("debugger.accessibilty.part2") + " " +
+                     (!breakpoint ? Config.getString("debugger.accessibilty.part3") : "") +
+                     Config.getString("debugger.accessibilty.part4");
+        
         boolean bringToFront = !sourcename.equals(lastSourceName);
         lastSourceName = sourcename;
 
