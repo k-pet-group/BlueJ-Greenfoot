@@ -400,7 +400,7 @@ public final class Package extends Graph
         PackageTarget pt = null;
 
         for (Iterator<Target> e = targets.iterator(); e.hasNext();) {
-            Target target = (Target) e.next();
+            Target target = e.next();
 
             if (target instanceof ClassTarget)
                 return null;
@@ -497,7 +497,7 @@ public final class Package extends Graph
                 list.add(target);
             }
         }
-        return (Target[]) list.toArray(targetArray);
+        return list.toArray(targetArray);
     }
 
     /**
@@ -744,7 +744,7 @@ public final class Package extends Graph
             Target target = targetIt.next();
             if (target instanceof ClassTarget) {
                 ClassTarget ct = (ClassTarget) target;
-                ct.setState(ClassTarget.S_NORMAL);
+                ct.setState(DependentTarget.S_NORMAL);
             }
         }
 
@@ -774,7 +774,7 @@ public final class Package extends Graph
             if (target instanceof ClassTarget) {
                 ClassTarget ct = (ClassTarget) target;
                 if (ct.isCompiled() && !ct.upToDate()) {
-                    ct.setState(ClassTarget.S_INVALID);
+                    ct.setState(DependentTarget.S_INVALID);
                     invalidated.add(ct);
                 }
             }
@@ -787,7 +787,7 @@ public final class Package extends Graph
                 if (dt instanceof ClassTarget) {
                     ClassTarget dep = (ClassTarget) dt;
                     if (dep.isCompiled()) {
-                        dep.setState(ClassTarget.S_INVALID);
+                        dep.setState(DependentTarget.S_INVALID);
                         invalidated.add(dep);
                     }
                 }
@@ -806,7 +806,7 @@ public final class Package extends Graph
                     ct.determineRole(cl);
                     ct.analyseDependencies(cl);
                     if (cl == null) {
-                        ct.setState(ClassTarget.S_INVALID);
+                        ct.setState(DependentTarget.S_INVALID);
                     }
                 }
                 else {
@@ -948,7 +948,7 @@ public final class Package extends Graph
         }
 
         for (Iterator<Target> it = targets.iterator(); it.hasNext();) {
-            Target target = (Target) it.next();
+            Target target = it.next();
 
             if (target instanceof ClassTarget) {
                 ClassTarget ct = (ClassTarget) target;
@@ -958,7 +958,7 @@ public final class Package extends Graph
         
         //Update class roles, and their state
         for (Iterator<Target> it = targets.iterator(); it.hasNext();) {
-            Target target = (Target) it.next();
+            Target target = it.next();
 
             if (target instanceof ClassTarget) {
                 ClassTarget ct = (ClassTarget) target;
@@ -967,10 +967,10 @@ public final class Package extends Graph
                 if (cl != null) {
                     ct.determineRole(cl);
                     if (ct.upToDate()) {
-                        ct.setState(ClassTarget.S_NORMAL);
+                        ct.setState(DependentTarget.S_NORMAL);
                     }
                     else {
-                        ct.setState(ClassTarget.S_INVALID);
+                        ct.setState(DependentTarget.S_INVALID);
                     }
                 }
             }
@@ -1057,7 +1057,7 @@ public final class Package extends Graph
         t.save(props, "readme");
 
         for (int i = 0; i < usesArrows.size(); i++) { // uses arrows
-            Dependency d = (Dependency) usesArrows.get(i);
+            Dependency d = usesArrows.get(i);
             d.save(props, "dependency" + (i + 1));
         }
 
@@ -1343,7 +1343,7 @@ public final class Package extends Graph
                 // we don't want to try and compile if it is a class target without src
                 if (ct.hasSourceCode()) {
                     ct.ensureSaved();
-                    ct.setState(ClassTarget.S_INVALID);
+                    ct.setState(DependentTarget.S_INVALID);
                     ct.setQueued(true);
                 }
                 else {
@@ -1408,7 +1408,7 @@ public final class Package extends Graph
                 Iterator<? extends Dependency> dependencies = head.dependencies();
 
                 while (dependencies.hasNext()) {
-                    Dependency d = (Dependency) dependencies.next();
+                    Dependency d = dependencies.next();
                     if (!(d.getTo() instanceof ClassTarget)) {
                         continue;
                     }
@@ -1524,7 +1524,7 @@ public final class Package extends Graph
     public void removeStepMarks()
     {
         for (Iterator<Target> it = targets.iterator(); it.hasNext();) {
-            Target target = (Target) it.next();
+            Target target = it.next();
 
             if (target instanceof ClassTarget)
                 ((ClassTarget) target).removeStepMark();
@@ -1777,8 +1777,8 @@ public final class Package extends Graph
                         where = 2;
                     
                     if (where > 0) { // should always be true
-                        s1 = (Selection) vsels.get(where - 1);
-                        s1.combineWith((Selection) vsels.get(where));
+                        s1 = vsels.get(where - 1);
+                        s1.combineWith(vsels.get(where));
                     }
                 }
                 else if (d instanceof ExtendsDependency) {
@@ -1914,7 +1914,7 @@ public final class Package extends Graph
         ArrayList<ClassTarget> risul = new ArrayList<ClassTarget>();
 
         for (Iterator<Target> it = targets.iterator(); it.hasNext();) {
-            Target target = (Target) it.next();
+            Target target = it.next();
 
             if (target instanceof ClassTarget) {
                 risul.add((ClassTarget) target);
@@ -2380,7 +2380,7 @@ public final class Package extends Graph
             }
         }
         if (!done) {
-            SourceLocation loc = (SourceLocation) stack.get(0);
+            SourceLocation loc = stack.get(0);
             showMessageWithText("error-in-file", loc.getClassName() + ":" + loc.getLineNumber() + "\n" + message);
         }
     }
@@ -2516,7 +2516,7 @@ public final class Package extends Graph
 
                     if (t instanceof ClassTarget) {
                         ClassTarget ct = (ClassTarget) t;
-                        ct.setState(ClassTarget.S_COMPILING);
+                        ct.setState(DependentTarget.S_COMPILING);
                     }
                 }
             }
@@ -2642,7 +2642,7 @@ public final class Package extends Graph
                     newCompiledState &= t.upToDate();
                 }
 
-                t.setState(newCompiledState ? ClassTarget.S_NORMAL : ClassTarget.S_INVALID);
+                t.setState(newCompiledState ? DependentTarget.S_NORMAL : DependentTarget.S_INVALID);
                 t.setQueued(false);
                 if (successful && t.editorOpen())
                     t.getEditor().setCompiled(true);

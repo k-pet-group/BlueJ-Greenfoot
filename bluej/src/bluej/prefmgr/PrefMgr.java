@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2013, 2014,2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012,2013,2014,2015  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -164,12 +164,7 @@ public class PrefMgr
      */
     public static boolean initializeisNavivewExpanded()
     {
-     if (Config.isRaspberryPi()) {
-         return Boolean.parseBoolean(Config.getPropString(NAVIVIEW_EXPANDED, "false"));
-     }else{
-         return Boolean.parseBoolean(Config.getPropString(NAVIVIEW_EXPANDED, "true"));
-     }
-     
+        return Boolean.parseBoolean(Config.getPropString(NAVIVIEW_EXPANDED, String.valueOf(!Config.isRaspberryPi())));
     }
     
     // ----- system interface to read or set prefences: -----
@@ -203,7 +198,7 @@ public class PrefMgr
         recentProjects.add(0, projectName);
         
         for(int i = 0; i < recentProjects.size(); i++) {
-            Config.putPropString("bluej.recentProject" + i, (String)recentProjects.get(i));
+            Config.putPropString("bluej.recentProject" + i, recentProjects.get(i));
         }
     }
     
@@ -249,12 +244,11 @@ public class PrefMgr
      */
     public static boolean getFlag(String flag)
     {
-        String value = (String)flags.get(flag);
+        String value = flags.get(flag);
         if(value == null){
             return false;
         }
-        else
-            return value.equals("true");
+        return value.equals("true");
     }
 
     /**
