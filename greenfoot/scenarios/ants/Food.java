@@ -6,7 +6,7 @@ import java.util.Random;
 /**
  * A pile of food. The pile consists initially of 100 crumbs of food.
  * 
- * @author Michael Kšlling
+ * @author Michael KÃ¶lling
  * @version 1.1
  */
 public class Food extends Actor

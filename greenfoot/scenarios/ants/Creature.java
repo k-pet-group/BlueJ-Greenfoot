@@ -7,7 +7,7 @@ import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
  * that the creature will move in the next step. The value for these is capped by the SPEED constant: 
  * the delta values will always be in the range [-SPEED..SPEED].
  * 
- * @author mik
+ * @author Michael Kölling
  * @version 1.0
  */
 public class Creature  extends Actor

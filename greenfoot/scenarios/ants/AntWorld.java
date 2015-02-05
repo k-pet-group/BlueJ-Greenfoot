@@ -3,7 +3,7 @@ import greenfoot.*;  // (World, Actor, GreenfootImage, and Greenfoot)
 /**
  * The world where ants live.
  * 
- * @author Michael Kšlling
+ * @author Michael KÃ¶lling
  * @version 1.1
  */
 public class AntWorld extends World

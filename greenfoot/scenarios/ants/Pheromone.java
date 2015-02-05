@@ -5,7 +5,7 @@ import java.awt.Color;
  * Pheromones are dropped by ants when they want to communicate something to
  * other ants.
  * 
- * @author Michael Kolling
+ * @author Michael Kölling
  * @version 1.1
  */
 public class Pheromone extends Actor

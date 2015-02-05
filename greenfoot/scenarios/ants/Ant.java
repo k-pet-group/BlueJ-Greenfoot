@@ -3,7 +3,7 @@ import greenfoot.*;  // (World, Actor, GreenfootImage, and Greenfoot)
 /**
  * An ant that collects food.
  * 
- * @author Michael Kšlling
+ * @author Michael KÃ¶lling
  * @version 1.1
  */
 public class Ant extends Creature

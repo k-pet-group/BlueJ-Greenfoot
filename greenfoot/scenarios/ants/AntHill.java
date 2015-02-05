@@ -3,7 +3,7 @@ import greenfoot.*;  // (World, Actor, GreenfootImage, and Greenfoot)
 /**
  * A hill full of ants.
  * 
- * @author Michael Kolling
+ * @author Michael Kölling
  * @version 1.1
  */
 public class AntHill extends Actor
