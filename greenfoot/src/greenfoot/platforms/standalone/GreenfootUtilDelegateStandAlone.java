@@ -78,9 +78,11 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
         // it doesn't contain a ! it is probably because it didn't exists, but
         // the webserver produced an error page at the given URL instead of
         // returning a fail. Therefore, we need to explicitly test for the
-        // existence of a ! in the returned URL.
+        // existence of a ! in the returned URL. However, if the protocol is
+        // 'file', we'll accept it regardless; this allows for running standalone
+        // scenarios from an IDE.
         URL res = this.getClass().getClassLoader().getResource(path);
-        if (res != null && res.toString().contains("!")) {  
+        if (res != null && (res.toString().contains("!") || res.getProtocol().equals("file"))) {  
             return res;
         }
         else {

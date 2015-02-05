@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2010,2013  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2010,2013,2015  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -44,7 +44,7 @@ import bluej.Config;
  * 
  * <p>This must be a separate class from GreenfootScenarioViewer, and specifically
  * must not be a Swing/AWT derived class, because we need to set the application
- * name property (for Mac OS) before any Swing/AWT classes are propertly initialized.
+ * name property (for Mac OS) before any Swing/AWT classes are properly initialized.
  * 
  * @author Davin McCall
  */
@@ -57,7 +57,7 @@ public class GreenfootScenarioMain
      * Start the scenario.
      * <p>
      * 
-     * BlueJ and the scenario MUST be on the classpath.
+     * BlueJ/Greenfoot and the scenario folder MUST be on the classpath.
      * 
      * @param args One argument can be passed to this method. The first one
      *            should be the World to be instantiated. If no arguments are
@@ -125,17 +125,22 @@ public class GreenfootScenarioMain
             ClassLoader loader = GreenfootScenarioMain.class.getClassLoader();
             InputStream is = loader.getResourceAsStream("standalone.properties");
             
-            if(is == null && args.length == 3) {
+            if (is == null && args.length == 3) {
                 // This might happen if we are running from ant
                 // In that case we should have some command line arguments
                 p.put("project.name", args[0]);
                 p.put("main.class", args[1]);
                 p.put("scenario.lock", "true");  
                 File f = new File(args[2]);
-                is = new FileInputStream(f);    
+                if (f.canRead()) {
+                    is = new FileInputStream(f);
+                }
             } 
             
-            p.load(is);
+            if (is != null) {
+                p.load(is);
+            }
+            
             scenarioName = p.getProperty("project.name");
 
             // set bluej Config to use the standalone prop values
