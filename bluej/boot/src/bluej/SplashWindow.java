@@ -65,7 +65,7 @@ public class SplashWindow extends Frame
         setLocation((screenDim.width - getSize().width) / 2, (screenDim.height - getSize().height) / 2);
         setVisible(true);
         
-        Timer progressTimer = new Timer(3000, new ActionListener() {
+        Timer progressTimer = new Timer(5000, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e)
             {
