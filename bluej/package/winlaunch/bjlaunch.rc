@@ -49,8 +49,8 @@ END
 FILEVERSION 2,4,0,0
 PRODUCTVERSION 2,4,0,0
 #else
-FILEVERSION 3,1,4,1
-PRODUCTVERSION 3,1,4,1
+FILEVERSION 3,1,5,0
+PRODUCTVERSION 3,1,5,0
 #endif
 FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
 FILEFLAGS 0
@@ -65,11 +65,11 @@ BEGIN
 		BEGIN
 			VALUE "CompanyName", "BlueJ group"
 			VALUE "FileDescription", "BlueJ Launcher"
-			VALUE "FileVersion", "3.1.4a"
+			VALUE "FileVersion", "3.1.5"
 			VALUE "InternalName", "bluej"
 			VALUE "OriginalFilename", "bluej.exe"
 			VALUE "ProductName", "BlueJ"
-			VALUE "ProductVersion", "3.1.4a"
+			VALUE "ProductVersion", "3.1.5"
 		END
 	END
 END
