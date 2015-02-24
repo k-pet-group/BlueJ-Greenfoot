@@ -4,7 +4,7 @@
 #
 
 TARGET=libpi4j.so
-JAVA_HOME = /usr/lib/jvm/jdk-7-oracle-armhf/
+JAVA_HOME = /usr/lib/jvm/jdk-8-oracle-arm-vfp-hflt/
 #DEBUG	= -g -O0
 DEBUG	= -O3
 CC	= gcc
