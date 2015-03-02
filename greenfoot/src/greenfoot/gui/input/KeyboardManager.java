@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2011,2012,2013  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2011,2012,2013,2015  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -226,13 +226,13 @@ public class KeyboardManager implements TriggeredKeyListener, FocusListener
             return isKeyDown(code);
         }
         else {
-            // If the keyId is a single character, treat the unicode
-            // value of that character as a virtual key code. This is
-            // something of a hack, but it works for a range of keys.
+            // If the keyId is a single character, look for the keycode corresponding to that
+            // character.
             if (keyId.codePointCount(0, keyId.length()) == 1) {
                 int keyChar = keyId.codePointAt(0);
                 keyChar = Character.toUpperCase(keyChar);
-                return isKeyDown(keyChar);
+                int keyCode = KeyEvent.getExtendedKeyCodeForChar(keyChar);
+                return isKeyDown(keyCode);
             }
             throw new IllegalArgumentException("\"" + keyId + "\" key doesn't exist. "
                     + "Please change the key name while invoking Greenfoot.isKeyDown() method"); 
@@ -246,7 +246,7 @@ public class KeyboardManager implements TriggeredKeyListener, FocusListener
      */
     public synchronized void keyPressed(KeyEvent event)
     {
-        int keyCode = event.getKeyCode();
+        int keyCode = event.getExtendedKeyCode();
         pressKey(keyCode);
     }
 
@@ -263,7 +263,7 @@ public class KeyboardManager implements TriggeredKeyListener, FocusListener
      */
     public synchronized void keyReleased(KeyEvent event)
     {
-        int keyCode = event.getKeyCode();
+        int keyCode = event.getExtendedKeyCode();
         releaseKey(keyCode);
     }
 
