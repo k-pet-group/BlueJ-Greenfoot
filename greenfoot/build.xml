@@ -205,11 +205,11 @@ LICENSE.txt file that accompanied this code.${line.separator}
         	    <path refid="bluej.class.path"/>
         	    <pathelement location="${build_java_home}/lib/tools.jar"/>
         	</classpath>
-            <compilerarg line="-target 1.6" />
-            <compilerarg line="-source 1.6" /> <!-- Otherwise Java 7 (and above) complains -->
+            <compilerarg line="-target 8" />
+            <compilerarg line="-source 8" />
         </javac>
         <!-- Compile the RMI-classes -->
-        <rmic base="${build}" includes="**/*Impl.class" excludes="bluej/**">
+        <rmic base="${build}" includes="**/*Impl.class" excludes="bluej/**" compiler="forking" executable="${build_java_home}/${java_command_dir_name}/rmic">
             <classpath>
                 <path refid="bluej.class.path"/>
             </classpath>
@@ -218,8 +218,10 @@ LICENSE.txt file that accompanied this code.${line.separator}
 
     <target name="compile-test" depends="compile" description="Compile the test source" >
         <!-- Compile the java code from ${test.src} into ${build} -->
-        <javac srcdir="${test.src}" destdir="${build}" classpathref="bluej.class.path" debug="true">
-            <compilerarg line="-target 1.5" />
+        <javac srcdir="${test.src}" destdir="${build}" classpathref="bluej.class.path" debug="true"
+        	executable="${build_java_home}/${java_command_dir_name}/javac"
+            fork="yes">
+            <compilerarg line="-target 8" />
         </javac>
     </target>
 
@@ -247,7 +249,9 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <macrodef name="compile-scenario">
             <attribute name="scenario" />
             <sequential>
-                <javac srcdir="scenarios/@{scenario}" debug="true" target="1.6" source="1.6" includeantruntime="false">
+                <javac srcdir="scenarios/@{scenario}" debug="true" target="8" source="8" includeantruntime="false"
+                    executable="${build_java_home}/${java_command_dir_name}/javac"
+                    fork="yes">
                     <classpath>
                         <path refid="greenfoot.class.path"/>
                         <path refid="bluej.class.path"/>
@@ -293,7 +297,9 @@ LICENSE.txt file that accompanied this code.${line.separator}
                  Doctitle="Greenfoot API"
                  bottom="&lt;a href=http://www.greenfoot.org/&gt;Greenfoot homepage&lt;/a&gt;"
                  classpathref="greenfoot.class.path"
-                 encoding="UTF-8">
+                 encoding="UTF-8"
+                 executable="${build_java_home}/${java_command_dir_name}/javadoc"
+        	>
             <fileset refid="api-source.files"/>
         </javadoc>
     	<mkdir dir="${bluej.projectdir}/lib/english/greenfoot/api"/>
@@ -353,7 +359,9 @@ LICENSE.txt file that accompanied this code.${line.separator}
 	<target name="build-common-jar" description="Create a jar with a common class dependencies." >
 	    <!-- Should first delete the class files in common (depend on clean-common) -->
 		<javac srcdir="common/${common.class}/src" destdir="common/${common.class}/classes"
-			debug="true" target="1.6" source="1.6" includeantruntime="false">
+			debug="true" target="8" source="8" includeantruntime="false"
+            executable="${build_java_home}/${java_command_dir_name}/javac"
+            fork="yes">
 			<classpath>
 				<fileset dir="common/${common.class}/lib/">
 				    <include name="*.jar"/>
@@ -369,6 +377,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
 			classpath="${build}:common/${common.class}/lib/${common.class}.jar"
 			docletpath="${bluej.projectdir}/lib/bjdoclet.jar" doclet="bluej.doclet.doclets.formats.html.HtmlDoclet"
 			encoding="UTF-8"
+            executable="${build_java_home}/${java_command_dir_name}/javadoc"
 		/> 
 		
 		<copy todir="${bluej.lib.greenfoot}" preservelastmodified="true">
@@ -665,8 +674,8 @@ LICENSE.txt file that accompanied this code.${line.separator}
             classpathref="bluej.class.path" 
             debug="true"
             sourcepath=""
-        	source="1.6"
-            target="1.6"
+        	source="8"
+            target="8"
         	includeantruntime="false"
         >
             <src path="${src}"/>
