@@ -29,7 +29,7 @@
   \begin{center}
     \includegraphics[width=10cm]{../../lib/images/bluej-icon-256.png}\\
     \huge BlueJ Blackbox Data Collection\\~\\Researchers' Handbook
-    (version 1.5, 3 Mar 2014)
+    (version 1.6, 24 March 2015)
   \end{center}
 \end{titlepage}
 
@@ -369,9 +369,8 @@ access this information.
 
 %hidden:client_addresses
 
-The |client_address_id| field links to a hidden |client_address| table.
-However, you can reasonably assume that there is a one-to-one mapping between
-|client_address_id| and IP addresses from which the event is sent.
+The |client_address_id| field links to a hidden |client_address| table.  Details
+on using |client_address_id| to get at user locations are given in \myref{sec:locations}.
 
 
 The subsequent sections in this chapter describe the different possible values for the
@@ -1105,6 +1104,59 @@ how they connect
 \newpage
 
 \includepdf[pages={1},landscape=true]{models.pdf}
+
+\chapter{Locations}
+\label{sec:locations}
+
+For some research questions, you may be interested in the location of a given user.
+If you want to go as far as individual institutions, you will need to get the users
+to tag themselves explicitly -- see \myref{sec:participants}.  If you just want country
+information, then you can access that without any additional effort.
+
+There is a |geocodes| database with a |geocoded| table.  This table has four columns:
+\begin{itemize}
+\item |client_address_id| -- This should be matched with the |client_address_id| column
+in the |master_events| table.
+\item |country_code| -- A two letter code identifying the country.
+\item |country_name| -- The name of the country.
+\item |continent| -- The continent which the country is located in.
+\end{itemize}
+
+You will generally involve this |geocoded| table in an inner join with the |master_events| table when
+you want to retrieve country information, or narrow your search to specific regions.  For example, the
+following query counts the number of compile events in North America:
+
+\begin{lstlisting}
+select count(id)
+  from master_events
+    inner join geocoded.geocodes
+      on master_events.client_address_id = geocodes.client_address_id
+  where
+    name = "compile" and continent = "North America"
+\end{lstlisting}
+
+This query shows the number of sessions by country:
+
+\begin{lstlisting}
+select geocodes.country_name, count(id) as sessions
+  from master_events
+    inner join geocoded.geocodes
+      on master_events.client_address_id=geocodes.client_address_id
+  where name="bluej_start"
+  group by geocodes.country_code
+  order by sessions desc; 
+\end{lstlisting}
+
+The locations are determined by looking up the client's IP address in the Geolite2 database created by Maxmind,
+available at \url{http://dev.maxmind.com/geoip/geoip2/geolite2/}.  So it is vulnerable to any mistakes
+in that database, or use of a proxy in another country.  But generally, it should be trustworthy.
+
+Note also that the |client_address_id| is stored with each master event.  Each event sent to Blackbox is
+a separate HTTP request, so it is possible for the requests in a session to come from different IPs (e.g. if the user's DSL
+connection reconnects during their BlueJ session).  It is hard to conceive of many situations where a user
+would have IPs from multiple countries during a session, so in general it seems sensible to assume the country
+is stable per-session.  However, it is a little more likely that a user may send events from multiple countries
+over the course of several months, so be more wary about assuming a one-to-one mapping between user and country.
 
 \chapter{Data Access}
 \label{sec:data_access}
