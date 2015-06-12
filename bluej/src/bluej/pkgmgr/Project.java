@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2013,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2013,2014,2015  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -1496,6 +1496,11 @@ public class Project implements DebuggerListener, InspectorManager
             return getClassLoader().loadClass(className);
         }
         catch (ClassNotFoundException e) {
+            return null;
+        }
+        catch (SecurityException se) {
+            // We can get a security exception, even without a security manager installed,
+            // if we try to load a class in the protected java.* namespace.            
             return null;
         }
         catch (LinkageError le) {
