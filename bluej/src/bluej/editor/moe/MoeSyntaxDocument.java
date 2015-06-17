@@ -571,6 +571,18 @@ public class MoeSyntaxDocument extends PersistentMarkDocument
     }
     
     /**
+     * Check if scheduled updates are being run presently. This might be used as a cue to
+     * recognize that document updates do not need processing in the normal fashion,
+     * because they have been generated automatically rather than being due to user input. 
+     * 
+     * @return  true if scheduled updates are currently being run
+     */
+    public boolean isRunningScheduledUpdates()
+    {
+        return runningScheduledUpdates;
+    }
+    
+    /**
      * Get an integer value from a property whose value is hex-encoded.
      * @param propName  The name of the property
      * @param def       The default value if the property is undefined or
