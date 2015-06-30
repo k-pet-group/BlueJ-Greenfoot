@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2012,2013,2014 Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2012,2013,2014,2015 Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -1222,6 +1222,16 @@ public class TextParserTest extends TestCase
         // Java 8. Not allowed in Java 7:
         rr = tp.parseCommand("t.takeIString(t.upper(i1))");
         assertEquals("K", rr);
+    }
+    
+    public void test560()
+    {
+        // Requires Java 8.
+        EntityResolver res = new PackageResolver(this.resolver, "");
+        TextAnalyzer tp = new TextAnalyzer(res, "", objectBench);
+
+        String rr = tp.parseCommand("java.util.Optional.ofNullable(null).isPresent()");
+        assertEquals("boolean", rr);
     }
     
 }
