@@ -17,6 +17,6 @@ greenfoot.properties file.
 The Greenfoot Team
 --------------
 Greenfoot is being developed by:
-University of Kent: Michael Kölling, Ian Utting, Davin McCall, Neil Brown, Phil Stevens
+University of Kent: Michael Kölling, Ian Utting, Davin McCall, Neil Brown, Fabio Hedayioglu, Amjad Altadmri
 
 The copyright (c) for Greenfoot is held by P. Henriksen and M. Kölling.
