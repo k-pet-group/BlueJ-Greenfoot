@@ -516,36 +516,34 @@ public final class Config
         return osname.startsWith("Mac");
     }
     
-        /**
-         * Tell us whether we are running on Raspberry Pi. The first call of
-         * this method performs the check and puts its result in the static
-         * variable with the same same. Other calls just return the result
-         * stored in the variable.
-         */
-        public static boolean isRaspberryPi()
-            {
-                if (Config.isRaspberryPi == null) {
-                    boolean result = false;
-                    if (Config.isLinux()) {
-                        try {
-                            Scanner scanner = new Scanner(new File(
-                                    "/proc/cpuinfo"));
-                            while (scanner.hasNextLine()) {
-                                String lineFromFile = scanner.nextLine();
-                                if (lineFromFile.startsWith("Hardware") && lineFromFile.contains("BCM")) {
-                                    result = true;
-                                    break;
-                                }
-                            }
-                            scanner.close();
-                        } catch (FileNotFoundException fne) {
-
+    /**
+     * Tell us whether we are running on Raspberry Pi. The first call of this
+     * method performs the check and puts its result in the static variable with
+     * the same same. Other calls just return the result stored in the variable.
+     */
+    public static boolean isRaspberryPi() {
+        if (Config.isRaspberryPi == null) {
+            boolean result = false;
+            if (Config.isLinux()) {
+                try {
+                    Scanner scanner = new Scanner(new File(
+                            "/proc/cpuinfo"));
+                    while (scanner.hasNextLine()) {
+                        String lineFromFile = scanner.nextLine();
+                        if (lineFromFile.startsWith("Hardware") && lineFromFile.contains("BCM")) {
+                            result = true;
+                            break;
                         }
                     }
-                    Config.isRaspberryPi = result;
+                    scanner.close();
+                } catch (FileNotFoundException fne) {
+
                 }
-                return Config.isRaspberryPi;
             }
+            Config.isRaspberryPi = result;
+        }
+        return Config.isRaspberryPi;
+    }
 
     /**
      * Tell us whether we are running on MacOS 10.5 (Leopard) or later
