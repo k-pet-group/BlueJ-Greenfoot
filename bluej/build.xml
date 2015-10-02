@@ -53,6 +53,9 @@
         <pathelement location="${bluej_home}/lib/org-netbeans-lib-cvsclient.jar"/>
         <pathelement location="${bluej_home}/lib/svnkit-javahl.jar"/>
         <pathelement location="${bluej_home}/lib/trilead.jar"/>
+        <pathelement location="${bluej_home}/lib/antlr-runtime-3.4.jar"/>
+        <pathelement location="${bluej_home}/lib/sequence-library-1.0.3.jar"/>
+        <pathelement location="${bluej_home}/lib/sqljet-1.1.10.jar"/>
         <pathelement location="${bluej_home}/lib/httpclient-4.1.1.jar"/>
         <pathelement location="${bluej_home}/lib/httpcore-4.1.jar"/>
         <pathelement location="${bluej_home}/lib/httpmime-4.1.1.jar"/>
