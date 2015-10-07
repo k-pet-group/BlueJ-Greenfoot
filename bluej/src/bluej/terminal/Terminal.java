@@ -161,10 +161,10 @@ public final class Terminal extends JFrame
      * editor font size if the passed parameter is too low. Place the updated
      * value into the configuration.
      */
-    private static void setTerminalFontSize(int size)
+    public static void setTerminalFontSize(int size)
     {
         if (size <= 6) {
-            terminalFontSize = PrefMgr.getEditorFontSize();
+            return;
         } else {
             terminalFontSize = size;
         }

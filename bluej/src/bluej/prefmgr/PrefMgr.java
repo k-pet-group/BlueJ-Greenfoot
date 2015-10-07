@@ -30,6 +30,7 @@ import bluej.editor.EditorManager;
 import bluej.editor.moe.BlueJSyntaxView;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
+import bluej.terminal.Terminal;
 
 /**
  * A class to manage the user editable preferences
@@ -300,6 +301,18 @@ public class PrefMgr
         if (size > 0) {
             initEditorFontSize(size);
             EditorManager.getEditorManager().refreshAll();
+            PkgMgrFrame [] frames = PkgMgrFrame.getAllFrames();
+            for (int j = 0; j < frames.length; j++) {
+                if(frames[j].getCodePad() != null) {
+                    frames[j].getCodePad().resetFontSize();
+                }
+            }
+        }
+    }
+    
+    public static void setTerminalFontSize(int size)
+    {
+            Terminal.setTerminalFontSize(size);
             Collection<Project> projects = Project.getProjects();
             Iterator<Project> i = projects.iterator();
             while (i.hasNext()) {
@@ -308,13 +321,7 @@ public class PrefMgr
                     project.getTerminal().resetFont();
                 }
             }
-            PkgMgrFrame [] frames = PkgMgrFrame.getAllFrames();
-            for (int j = 0; j < frames.length; j++) {
-                if(frames[j].getCodePad() != null) {
-                    frames[j].getCodePad().resetFontSize();
-                }
-            }
-        }
+        
     }
     
     /**
