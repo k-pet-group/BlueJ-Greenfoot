@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2013,2015  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -72,6 +72,9 @@ public class LayoutComparer implements Comparator<Dependency>
      */
     protected int compare(int ax, int ay, int bx, int by, int cx, int cy)
     {
+        if((ax == bx) && (ay == by))
+            return 0;
+
         boolean a_above = (ay < cy);
         boolean a_left = (ax < cx);
         int a_quad = (a_above ? 0 : 2) + (a_left ? 0 : 1);
@@ -82,21 +85,7 @@ public class LayoutComparer implements Comparator<Dependency>
         if(a_quad != b_quad) // different quadrants
             return (a_quad > b_quad) ? 1 : -1;
         // otherwise, we're in the same quadrant
-        int x_comp = new Integer(ax).compareTo(bx);
-        int y_comp = new Integer(ay).compareTo(by);
-        if (in)
-        {
-            if (x_comp != 0)
-                return x_comp;
-            else
-                return y_comp;
-        }
-        else
-        {
-            if (y_comp != 0)
-                return y_comp;
-            else
-                return x_comp;
-        }
+        int result = in ? ((ax < bx) ? -1 : 1) : ((ay < by) ? -1 : 1);
+        return (a_above == a_left) ? -result : result;
     }
 }
