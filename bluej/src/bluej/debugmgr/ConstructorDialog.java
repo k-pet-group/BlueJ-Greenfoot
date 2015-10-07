@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2010,2013,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 2010,2013,2014,2015  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -228,10 +228,7 @@ public class ConstructorDialog extends CallDialog
         SwingUtilities.invokeLater(new Runnable() {
             public void run()
             {
-                if (!Config.isGreenfoot()) {
-                    instanceNameText.requestFocusInWindow();
-                }
-                else if (typeParameterList != null) {
+                if (typeParameterList != null) {
                     typeParameterList.getParameter(0).getEditor().getEditorComponent().requestFocusInWindow();
                 }
                 else if (parameterList != null) {
