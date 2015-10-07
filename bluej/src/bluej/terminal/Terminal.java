@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2013,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2013,2014,2015  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -147,8 +147,11 @@ public final class Terminal extends JFrame
     /**
      * Get the terminal font
      */
-    private static Font getTerminalFont()
-    {
+    private static Font getTerminalFont() {
+        //reload terminal fontsize from configurations.
+
+        terminalFontSize = Config.getPropInteger(
+                TERMINALFONTSIZEPROPNAME, PrefMgr.getEditorFontSize());
         return Config.getFont(
                 TERMINALFONTPROPNAME, "Monospaced", terminalFontSize);
     }
