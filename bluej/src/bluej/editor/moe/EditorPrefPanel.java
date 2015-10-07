@@ -141,7 +141,6 @@ public class EditorPrefPanel extends JPanel implements PrefPanelListener
         try {
             newFontSize = Integer.parseInt(editorFontField.getText());
             PrefMgr.setEditorFontSize(newFontSize);
-            PrefMgr.setTerminalFontSize(newFontSize);
         }
         catch (NumberFormatException nfe) { }
 

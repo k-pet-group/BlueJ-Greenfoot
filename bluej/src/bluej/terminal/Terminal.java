@@ -93,7 +93,7 @@ public final class Terminal extends JFrame
     //        SHORTCUT_MASK == Event.CTRL_MASK ? Event.CTRL_MASK : Event.META_MASK;
 
     private static final String TERMINALFONTPROPNAME = "bluej.terminal.font";
-    private static final String TERMINALFONTSIZEPROPNAME = "bluej.terminal.fontsize";
+    private static final String TERMINALFONTSIZEPROPNAME = "bluej.editor.fontsize";
     
     private static final String RECORDMETHODCALLSPROPNAME = "bluej.terminal.recordcalls";
     private static final String CLEARONMETHODCALLSPROPNAME = "bluej.terminal.clearscreen";
@@ -465,16 +465,19 @@ public final class Terminal extends JFrame
         case KeyEvent.VK_EQUALS: // increase the font size
         case KeyEvent.VK_PLUS: // increase the font size (non-uk keyboards)
             if (event.getModifiers() == SHORTCUT_MASK) {
-                setTerminalFontSize(terminalFontSize + 1);
-                project.getTerminal().resetFont();
+                PrefMgr.setEditorFontSize(terminalFontSize + 1);
+//                setTerminalFontSize(terminalFontSize + 1);
+//                project.getTerminal().resetFont();
+                
                 event.consume();
                 break;
             }
 
         case KeyEvent.VK_MINUS: // decrease the font size
             if (event.getModifiers() == SHORTCUT_MASK) {
-                setTerminalFontSize(terminalFontSize - 1);
-                project.getTerminal().resetFont();
+                PrefMgr.setEditorFontSize(terminalFontSize - 1);
+//                setTerminalFontSize(terminalFontSize - 1);
+//                project.getTerminal().resetFont();
                 event.consume();
                 break;
             }
