@@ -466,8 +466,6 @@ public final class Terminal extends JFrame
         case KeyEvent.VK_PLUS: // increase the font size (non-uk keyboards)
             if (event.getModifiers() == SHORTCUT_MASK) {
                 PrefMgr.setEditorFontSize(terminalFontSize + 1);
-//                setTerminalFontSize(terminalFontSize + 1);
-//                project.getTerminal().resetFont();
                 
                 event.consume();
                 break;
@@ -476,8 +474,6 @@ public final class Terminal extends JFrame
         case KeyEvent.VK_MINUS: // decrease the font size
             if (event.getModifiers() == SHORTCUT_MASK) {
                 PrefMgr.setEditorFontSize(terminalFontSize - 1);
-//                setTerminalFontSize(terminalFontSize - 1);
-//                project.getTerminal().resetFont();
                 event.consume();
                 break;
             }
