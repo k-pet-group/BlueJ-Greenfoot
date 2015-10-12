@@ -27,7 +27,35 @@ import bluej.pkgmgr.dependency.*;
 import bluej.pkgmgr.target.*;
 
 /**
- * An ordering on targets to make layout nicer (reduce line intersections, etc.)
+ * An ordering on targets to make layout nicer (reduce line intersections, etc.). This
+ * class defines an ordering between any two Dependency objects "A" and "B", relative
+ * to a third "central" Dependency. The ordering determines the relative position of
+ * each dependency line as it enters the side (top, left, bottom, right) of the central
+ * Dependency.
+ *  
+ * <p>The area around the central dependency is divided into 4 quadrants:
+ * 
+ * <pre>
+ *     0  |  1
+ *   ----[+]----
+ *     2  |  3
+ * </pre>
+ * 
+ * If the two dependencies being compared, A and B, are in different quadrants qA and qB,
+ * then A < B iff qA < qB and vice versa. On the other hand if qA == qB then the ordering
+ * depends on whether we are drawing lines in to the central Dependency or out of it 
+ * ("in" lines come into either side of the Target, "out" lines go from the top or bottom;
+ * in either case the line goes into the edge which is closest to the target from which it
+ * is drawn, and the ordering is only important between dependencies into/out of the same
+ * edge).
+ * 
+ * <p>
+ * So, if qA == qB, then:<br>
+ * For "in" dependencies, A < B if Ax < Bx and vice versa;<br>
+ * For "out" dependencies, A < B if Ay < By and vice versa.<br>
+ * However, for quadrant 0 and 3 the ordering is reversed; because arrow lines drawn
+ * to/from quadrants 0 and 3 turn the opposite way to those in adjacent quadrants
+ * (1 and 2), the order must change to avoid those lines from crossing.
  *
  * @author Michael Cahill
  */
@@ -84,8 +112,15 @@ public class LayoutComparer implements Comparator<Dependency>
 
         if(a_quad != b_quad) // different quadrants
             return (a_quad > b_quad) ? 1 : -1;
-        // otherwise, we're in the same quadrant
-        int result = in ? ((ax < bx) ? -1 : 1) : ((ay < by) ? -1 : 1);
+        
+        // otherwise, we're in the same quadrant:
+        int result = in ? Integer.compare(ax,bx) : Integer.compare(ay, by);
+        
+        // if a_above == a_left, qA and qB are either 0 or 3 (top left
+        // or bottom right). Since arrows drawn from/to this quadrant
+        // turn the other way to arrows in the adjacent quadrant, we
+        // reverse the ordering calculated above.
+        
         return (a_above == a_left) ? -result : result;
     }
 }
