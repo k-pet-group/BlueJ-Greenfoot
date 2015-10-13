@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2012,2015  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -58,6 +58,7 @@ import bluej.testmgr.record.ConstructionInvokerRecord;
 import bluej.testmgr.record.ExpressionInvokerRecord;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.testmgr.record.MethodInvokerRecord;
+import bluej.testmgr.record.StatementInvokerRecord;
 import bluej.testmgr.record.VoidMethodInvokerRecord;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
@@ -601,7 +602,12 @@ public class Invoker
      * <p>This method is still executed in the interface thread, while "endCompile"
      * will be executed by the CompilerThread.
      * 
-     * <p>Returns true if successful, or false if there was a problem (the shell
+     * @param resultType   the type of the result expressed in Java (eg "int",
+     *                     "java.util.ArrayList<String>"). An empty string means
+     *                     the type is not known. A null value indicates that there
+     *                     is no result (the invocation is a statement).
+     * 
+     * @return true if successful, or false if there was a problem (the shell
      * file couldn't be written). In case of failure, a dialog is displayed to
      * alert the user.
      */
@@ -618,7 +624,7 @@ public class Invoker
         else {
             objName = null;
             // this is a statement, treat as a void method result
-            ir = new VoidMethodInvokerRecord(commandString, null);
+            ir = new StatementInvokerRecord(commandString);
         }
 
         File shell = writeInvocationFile("", commandString, !hasResult, resultType);
@@ -662,7 +668,9 @@ public class Invoker
      *  
      * @param paramInit  java code which initializes parameter variables
      * @param callString java code which executes requested method/code
-     * @param isVoid   true if no result is returned
+     * @param isVoid   true if no result is returned. The callString parameter
+     *                 should contain a complete statement (including terminating
+     *                 semicolon).
      * @param constype  the exact type of the object being constructed. Only
      *                  needed if 'constructing' is true, but can be supplied in other
      *                  cases to yield a more accurate result type (when generic types

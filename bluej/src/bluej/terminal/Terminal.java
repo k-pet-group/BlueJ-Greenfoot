@@ -344,19 +344,14 @@ public final class Terminal extends JFrame
     /**
      * An interactive method call has been made by a user.
      */
-    private void methodCall(String callString, boolean isVoid)
+    private void methodCall(String callString)
     {
         newMethodCall = false;
         if(clearOnMethodCall) {
             clear();
         }
         if(recordMethodCalls) {
-            if (isVoid) {
-                text.appendMethodCall(callString + ";\n");
-            }
-            else {
-                text.appendMethodCall(callString + "\n");
-            }
+            text.appendMethodCall(callString + "\n");
         }
         newMethodCall = true;
     }
@@ -555,7 +550,13 @@ public final class Terminal extends JFrame
                 constructorCall(ir);
             }
             else {
-                methodCall(ir.toExpression(), ir.hasVoidResult());
+                boolean isVoid = ir.hasVoidResult();
+                if (isVoid) {
+                    methodCall(ir.toStatement());
+                }
+                else {
+                    methodCall(ir.toExpression());
+                }
             }
         }
         else if (eventId == BlueJEvent.EXECUTION_RESULT) {

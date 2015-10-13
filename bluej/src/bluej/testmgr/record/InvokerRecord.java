@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2012,2015  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -124,9 +124,22 @@ public abstract class InvokerRecord
      * to created "chained" invocation records. The returned string should not
      * include any indentation.
      * 
-     * @return a String representing the expression
+     * @return a String representing the expression (or null if this record cannot
+     *         be represented as an expression)
      */
     public abstract String toExpression();
+    
+    /**
+     * Construct a statement. This returns a Java-language string which should be
+     * appropriately terminated by a semicolon.
+     * 
+     * @return  A String representing the statement (or null if this record cannot
+     *          be used as a statement)
+     */
+    public String toStatement()
+    {
+        return toExpression() + ";";
+    }
     
     /**
      * Set the name of this result as saved on the object bench.
