@@ -351,8 +351,12 @@ public final class Terminal extends JFrame
             clear();
         }
         if(recordMethodCalls) {
-            // If isVoid, it will have a ';' anyway.
-            text.appendMethodCall(callString + "\n");
+            if (isVoid) {
+                text.appendMethodCall(callString + ";\n");
+            }
+            else {
+                text.appendMethodCall(callString + "\n");
+            }
         }
         newMethodCall = true;
     }
