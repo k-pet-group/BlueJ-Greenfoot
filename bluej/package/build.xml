@@ -27,7 +27,10 @@
         <include name="lib/svnkit.jar" />
         <include name="lib/svnkit-javahl.jar" />
         <include name="lib/trilead.jar" />
-    	<include name="lib/httpclient-4.1.1.jar" />
+        <include name="lib/antlr-runtime-3.4.jar"/>
+        <include name="lib/sequence-library-1.0.3.jar"/>
+        <include name="lib/sqljet-1.1.10.jar"/>
+        <include name="lib/httpclient-4.1.1.jar" />
     	<include name="lib/httpcore-4.1.jar" />
     	<include name="lib/httpmime-4.1.1.jar" />
     	<include name="lib/commons-logging-api-1.1.2.jar" />
