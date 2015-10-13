@@ -18,7 +18,7 @@
     <Property Id="ALLUSERS" Secure="yes" />
     
     <Property Id="SOFTWARE" Value="BlueJ"/>
-    <Property Id="SOFTWAREVERSION" Value="3.1.5"/>
+    <Property Id="SOFTWAREVERSION" Value="3.1.6"/>
     <Property Id="SOFTWAREPROJECTEXT" Value="bluej"/>
     <Property Id="SOFTWAREARCHIVEEXT" Value="bjar"/>
     <!-- Define all the necessary GUIDs here, to make sure they are different from Greenfoot -->
