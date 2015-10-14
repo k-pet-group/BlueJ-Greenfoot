@@ -114,7 +114,7 @@ public class LayoutComparer implements Comparator<Dependency>
             return (a_quad > b_quad) ? 1 : -1;
         
         // otherwise, we're in the same quadrant:
-        int result = in ? Integer.compare(ax,bx) : Integer.compare(ay, by);
+        int result = in ? compareInt(ax,bx) : compareInt(ay, by);
         
         // if a_above == a_left, qA and qB are either 0 or 3 (top left
         // or bottom right). Since arrows drawn from/to this quadrant
@@ -122,5 +122,18 @@ public class LayoutComparer implements Comparator<Dependency>
         // reverse the ordering calculated above.
         
         return (a_above == a_left) ? -result : result;
+    }
+    
+    /**
+     * Compare two integers and return a result indicating that the first is less than (-1),
+     * equal to (0) or greater than (1) the second.
+     */
+    private int compareInt(int a, int b)
+    {
+        if (a == b) {
+            return 0;
+        }
+        
+        return (a < b) ? -1 : 1;
     }
 }
