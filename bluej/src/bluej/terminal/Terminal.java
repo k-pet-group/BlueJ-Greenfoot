@@ -102,6 +102,8 @@ public final class Terminal extends JFrame
     // initialise to config value or zero.
     private static int terminalFontSize = Config.getPropInteger(
             TERMINALFONTSIZEPROPNAME, PrefMgr.getEditorFontSize());
+    
+    private static boolean isMacOs = Config.isMacOS();
 
     // -- instance --
 
@@ -440,10 +442,45 @@ public final class Terminal extends JFrame
     // ---- KeyListener interface ----
 
     @Override
-    public void keyPressed(KeyEvent event) { }
+    public void keyPressed(KeyEvent event) {}
     
     @Override
-    public void keyReleased(KeyEvent event) { }
+    public void keyReleased(KeyEvent event)
+    {
+        if (isMacOs) {
+            handleFontsizeKeys(event);
+        }
+    }
+    
+    /**
+     * Handle the keys which change the terminal font size.
+     */
+    private boolean handleFontsizeKeys(KeyEvent event)
+    {
+        int ch = event.getKeyCode();
+        boolean handled = false;
+        
+        switch (ch) {
+        case KeyEvent.VK_EQUALS: // increase the font size
+        case KeyEvent.VK_PLUS: // increase the font size (non-uk keyboards)
+            if (event.getModifiers() == SHORTCUT_MASK) {
+                PrefMgr.setEditorFontSize(terminalFontSize + 1);
+                event.consume();
+                handled = true;
+                break;
+            }
+
+        case KeyEvent.VK_MINUS: // decrease the font size
+            if (event.getModifiers() == SHORTCUT_MASK) {
+                PrefMgr.setEditorFontSize(terminalFontSize - 1);
+                event.consume();
+                handled = true;
+                break;
+            }
+        }
+
+        return handled;
+    }
 
     @Override
     public void keyTyped(KeyEvent event)
@@ -451,7 +488,14 @@ public final class Terminal extends JFrame
         // We handle most things we are interested in here. The InputMap filters out
         // most other unwanted actions (but allows copy/paste).
         
+        if ((! isMacOs) && handleFontsizeKeys(event)) {
+            // Note: On Mac OS with Java 7+, we don't see command+= / command+- as a
+            // key-typed event and so we handle it in keyReleased instead.
+            return;
+        }
+        
         char ch = event.getKeyChar();
+        
         switch (ch) {
         case KeyEvent.VK_UP:
         case KeyEvent.VK_DOWN:
@@ -460,21 +504,27 @@ public final class Terminal extends JFrame
             if (PrefMgr.getFlag(PrefMgr.ACCESSIBILITY_SUPPORT))
                 return; // Let the arrow keys take effect
         
-        
         case KeyEvent.VK_EQUALS: // increase the font size
         case KeyEvent.VK_PLUS: // increase the font size (non-uk keyboards)
-            if (event.getModifiers() == SHORTCUT_MASK) {
-                PrefMgr.setEditorFontSize(terminalFontSize + 1);
-                
-                event.consume();
-                break;
+            if (! isMacOs) {
+                // On Mac OS with Java 7+, we don't see this event as a key-typed event
+                // and so we handle it in keyReleased instead. The following code is
+                // conditional on !isMacOs, in case that changes in the future:
+                if (event.getModifiers() == SHORTCUT_MASK) {
+                    PrefMgr.setEditorFontSize(terminalFontSize + 1);
+
+                    event.consume();
+                    break;
+                }
             }
 
         case KeyEvent.VK_MINUS: // decrease the font size
-            if (event.getModifiers() == SHORTCUT_MASK) {
-                PrefMgr.setEditorFontSize(terminalFontSize - 1);
-                event.consume();
-                break;
+            if (! isMacOs) {
+                if (event.getModifiers() == SHORTCUT_MASK) {
+                    PrefMgr.setEditorFontSize(terminalFontSize - 1);
+                    event.consume();
+                    break;
+                }
             }
 
         // VK_(EQUALS|PLUS|MINUS) all fall through to here if no shortcut mask.
