@@ -442,23 +442,30 @@ public final class Terminal extends JFrame
     // ---- KeyListener interface ----
 
     @Override
-    public void keyPressed(KeyEvent event) {}
-    
-    @Override
-    public void keyReleased(KeyEvent event)
+    public void keyPressed(KeyEvent event)
     {
         if (isMacOs) {
-            handleFontsizeKeys(event);
-        }
+            handleFontsizeKeys(event, event.getKeyCode());
+        }        
     }
+    
+    @Override
+    public void keyReleased(KeyEvent event) { }
     
     /**
      * Handle the keys which change the terminal font size.
+     * 
+     * @param event   The key event (key pressed/released/typed)
+     * @param ch      The key code (for pressed/release events) or character (for key typed events)
      */
-    private boolean handleFontsizeKeys(KeyEvent event)
+    private boolean handleFontsizeKeys(KeyEvent event, int ch)
     {
-        int ch = event.getKeyCode();
         boolean handled = false;
+        
+        // Note the following works because VK_EQUALS, VK_PLUS and VK_MINUS
+        // are actually defined as their ASCII (and thus unicode) equivalent.
+        // Since they are final constants this cannot become untrue in the
+        // future.
         
         switch (ch) {
         case KeyEvent.VK_EQUALS: // increase the font size
@@ -487,93 +494,58 @@ public final class Terminal extends JFrame
     {
         // We handle most things we are interested in here. The InputMap filters out
         // most other unwanted actions (but allows copy/paste).
+
+        char ch = event.getKeyChar();
         
-        if ((! isMacOs) && handleFontsizeKeys(event)) {
+        if ((! isMacOs) && handleFontsizeKeys(event, ch)) {
             // Note: On Mac OS with Java 7+, we don't see command+= / command+- as a
             // key-typed event and so we handle it in keyReleased instead.
             return;
         }
         
-        char ch = event.getKeyChar();
-        
-        switch (ch) {
-        case KeyEvent.VK_UP:
-        case KeyEvent.VK_DOWN:
-        case KeyEvent.VK_LEFT:
-        case KeyEvent.VK_RIGHT:
-            if (PrefMgr.getFlag(PrefMgr.ACCESSIBILITY_SUPPORT))
-                return; // Let the arrow keys take effect
-        
-        case KeyEvent.VK_EQUALS: // increase the font size
-        case KeyEvent.VK_PLUS: // increase the font size (non-uk keyboards)
-            if (! isMacOs) {
-                // On Mac OS with Java 7+, we don't see this event as a key-typed event
-                // and so we handle it in keyReleased instead. The following code is
-                // conditional on !isMacOs, in case that changes in the future:
-                if (event.getModifiers() == SHORTCUT_MASK) {
-                    PrefMgr.setEditorFontSize(terminalFontSize + 1);
+        if ((event.getModifiers() & Event.META_MASK) != 0) {
+            return; // return without consuming the event
+        }
+        if (isActive) {
+            switch (ch) {
 
-                    event.consume();
-                    break;
-                }
-            }
+            case 4:   // CTRL-D (unix/Mac EOF)
+            case 26:  // CTRL-Z (DOS/Windows EOF)
+                buffer.signalEOF();
+                writeToTerminal("\n");
+                event.consume();
+                break;
 
-        case KeyEvent.VK_MINUS: // decrease the font size
-            if (! isMacOs) {
-                if (event.getModifiers() == SHORTCUT_MASK) {
-                    PrefMgr.setEditorFontSize(terminalFontSize - 1);
-                    event.consume();
-                    break;
-                }
-            }
-
-        // VK_(EQUALS|PLUS|MINUS) all fall through to here if no shortcut mask.
-        default:
-            if ((event.getModifiers() & Event.META_MASK) != 0) {
-                return; // return without consuming the event
-            }
-            if (isActive) {
-                switch (ch) {
-
-                case 4:   // CTRL-D (unix/Mac EOF)
-                case 26:  // CTRL-Z (DOS/Windows EOF)
-                    buffer.signalEOF();
-                    writeToTerminal("\n");
-                    event.consume();
-                    break;
-
-                case '\b':  // backspace
-                    if (buffer.backSpace()) {
-                        try {
-                            int length = text.getDocument().getLength();
-                            text.replaceRange("", length - 1, length);
-                        } catch (Exception exc) {
-                            Debug.reportError("bad location " + exc);
-                        }
+            case '\b':  // backspace
+                if (buffer.backSpace()) {
+                    try {
+                        int length = text.getDocument().getLength();
+                        text.replaceRange("", length - 1, length);
+                    } catch (Exception exc) {
+                        Debug.reportError("bad location " + exc);
                     }
-                    event.consume();
-                    break;
+                }
+                event.consume();
+                break;
 
-                case '\r':  // carriage return
-                case '\n':  // newline
-                    if (buffer.putChar('\n')) {
+            case '\r':  // carriage return
+            case '\n':  // newline
+                if (buffer.putChar('\n')) {
+                    writeToTerminal(String.valueOf(ch));
+                    buffer.notifyReaders();
+                }
+                event.consume();
+                break;
+
+            default:
+                if (ch >= 32) {
+                    if (buffer.putChar(ch)) {
                         writeToTerminal(String.valueOf(ch));
-                        buffer.notifyReaders();
                     }
                     event.consume();
-                    break;
-
-                default:
-                    if (ch >= 32) {
-                        if (buffer.putChar(ch)) {
-                            writeToTerminal(String.valueOf(ch));
-                        }
-                        event.consume();
-                    }
-                    break;
                 }
+                break;
             }
-            break;
         }
     }
 
