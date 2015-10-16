@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012,2013,2015  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -118,16 +118,37 @@ public abstract class Dependency extends Edge
      */
     public abstract Type getType();
 
-    public void load(Properties props, String prefix)
+    /**
+     * Determine the dependency's "to" and "from" nodes by loading their names from the
+     * given Properties.
+     * 
+     * @return true if successful or false if the named targets could not be found
+     */
+    public boolean load(Properties props, String prefix)
     {
         String fromName = props.getProperty(prefix + ".from");
+        if (fromName == null) {
+            Debug.reportError("No 'from' target specified for dependency " + prefix);
+            return false;
+        }
         this.from = pkg.getTarget(fromName);
-        if (this.from == null)
+        if (! (this.from instanceof DependentTarget)) {
             Debug.reportError("Failed to find 'from' target " + fromName);
+            return false;
+        }
+                
         String toName = props.getProperty(prefix + ".to");
+        if (toName == null) {
+            Debug.reportError("No 'to' target specified for dependency " + prefix);
+            return false;
+        }
         this.to = pkg.getTarget(toName);
-        if (this.to == null)
+        if (! (this.to instanceof DependentTarget)) {
             Debug.reportError("Failed to find 'to' target " + toName);
+            return false;
+        }
+        
+        return true;
     }
 
     public void save(Properties props, String prefix)

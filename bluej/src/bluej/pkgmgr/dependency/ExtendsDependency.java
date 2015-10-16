@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012,2015  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -42,11 +42,6 @@ public class ExtendsDependency extends Dependency
     public ExtendsDependency(Package pkg)
     {
         this(pkg, null, null);
-    }
-
-    public void load(Properties props, String prefix)
-    {
-        super.load(props, prefix);
     }
 
     public void save(Properties props, String prefix)

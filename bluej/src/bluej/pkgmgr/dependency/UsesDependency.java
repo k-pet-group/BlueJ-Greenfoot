@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012,2015  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -32,7 +32,7 @@ import java.awt.*;
  * A dependency between two targets in a package
  *
  * @author  Michael Kolling
- * @version $Id: UsesDependency.java 9624 2012-03-29 17:04:54Z davmac $
+ * @version $Id: UsesDependency.java 14822 2015-10-16 15:47:55Z davmac $
  */
 public class UsesDependency extends Dependency
 {
@@ -133,13 +133,6 @@ public class UsesDependency extends Dependency
         return new Line(new Point(sourceX, sourceY), new Point(destX, destY), 0.0);
     }
     
-
-    public void load(Properties props, String prefix)
-    {
-        super.load(props, prefix);
-
-        // Nothing extra to do.
-    }
 
     public void save(Properties props, String prefix)
     {
