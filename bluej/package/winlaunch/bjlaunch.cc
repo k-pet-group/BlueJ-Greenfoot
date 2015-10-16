@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2013  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2013,2015  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -30,6 +30,7 @@
 #include <string>
 #include <cstring>
 #include <list>
+#include <shlwapi.h>
 
 
 #undef __cplusplus
@@ -570,6 +571,57 @@ static string trimString(const string &src)
 }
 
 
+
+
+//given BluejPath and the jdkPath, tries to figure out the absolute path to the 
+//jdkPath.
+static string getAbsolutePath(string bjp, string jdkPath) {
+    string result;
+    if (PathIsRelative(jdkPath.c_str()) == 0) {
+        //the jdk is actually absolute. Nothing to be done.
+        result = jdkPath;
+        return result;
+    }
+    
+    LPTSTR tmpPath = new TCHAR[MAX_PATH];
+    LPTSTR canonizedPath = new TCHAR[MAX_PATH];
+    LPTSTR resultBuffer = new TCHAR[MAX_PATH];
+    //jdkPath is not absolute. if bluejPath is absolute, concatenate with it.
+    //if not, we need to start concatenating from the currentpath.
+    //the coner case I am convering here is that if bjp starts with, 
+    //say'..\\dir', then PathCombine will drop the '..', changing the path.
+    if (PathIsRelative(bjp.c_str())){
+        LPTSTR currentDirectory = new TCHAR[MAX_PATH];
+        GetCurrentDirectory(MAX_PATH, currentDirectory);
+        //concatenate currentdirectory to bjp.
+        PathCombine(tmpPath, currentDirectory, bjp.c_str());
+        if (PathCanonicalize(canonizedPath, tmpPath)) {
+            delete [] tmpPath;
+            tmpPath = canonizedPath;
+        }
+        //now we combine tmpPath to the jdk path.
+        PathCombine(resultBuffer, tmpPath, jdkPath.c_str());
+        if (PathCanonicalize(canonizedPath, resultBuffer)) {
+            delete [] resultBuffer;
+            resultBuffer = canonizedPath;
+        }
+        result.append(resultBuffer);
+    } else {
+        //bluejPath is absolute. just concatenate with jdkPath
+        PathCombine(tmpPath, bjp.c_str(), jdkPath.c_str());
+        if (PathCanonicalize(canonizedPath, tmpPath)) {
+            result.append(canonizedPath);
+        } else {
+            result.append(tmpPath);
+        }
+    }
+    delete [] tmpPath;
+    delete [] canonizedPath;
+    delete [] resultBuffer;
+
+    return result;
+}
+
 // Program entry point
 int WINAPI WinMain
    (HINSTANCE hInst, HINSTANCE hPrevInst, char * cmdParam, int cmdShow)
@@ -673,7 +725,9 @@ int WINAPI WinMain
     // Check for VM in bluej.defs
     string defsVm = getBlueJProperty(VM_PROP);
     if (defsVm.length() != 0) {
-        string reason;
+        //gets the vm's absolute path
+        defsVm = getAbsolutePath(bluejPath,defsVm);
+        string reason;                
         if (testJdkPath(defsVm, &reason)) {
             if (! forceVMselect) {
                 if (launchVM(defsVm)) {
@@ -681,9 +735,9 @@ int WINAPI WinMain
                 }
             }
             goodVMs.insert(defsVm);
-        }
+        } 
     }
-
+    
     // Check to see if there's a currently selected VM
     checkCurrentVM();
 
