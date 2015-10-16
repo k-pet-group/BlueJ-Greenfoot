@@ -753,12 +753,11 @@ public final class Package extends Graph
             Dependency dep = null;
             String type = lastSavedProps.getProperty("dependency" + (i + 1) + ".type");
 
-            if ("UsesDependency".equals(type))
+            if ("UsesDependency".equals(type)) {
                 dep = new UsesDependency(this);
-
-            if (dep != null) {
-                dep.load(lastSavedProps, "dependency" + (i + 1));
-                addDependency(dep, false);
+                if (dep.load(lastSavedProps, "dependency" + (i + 1))) { 
+                    addDependency(dep, false);
+                }
             }
         }
         recalcArrows();
