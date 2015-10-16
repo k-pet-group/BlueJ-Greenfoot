@@ -571,6 +571,11 @@ static string trimString(const string &src)
 }
 
 
+static void displayMessage(string msg){
+    TCHAR buf [100];
+    wsprintf (buf, TEXT(APPNAME " Debug: \n%s"), msg.c_str());
+    MessageBox (0, buf, TEXT(APPNAME), MB_ICONEXCLAMATION | MB_OK);
+}
 
 
 //given BluejPath and the jdkPath, tries to figure out the absolute path to the 
@@ -598,14 +603,23 @@ static string getAbsolutePath(string bjp, string jdkPath) {
         if (PathCanonicalize(canonizedPath, tmpPath)) {
             delete [] tmpPath;
             tmpPath = canonizedPath;
+            delete [] canonizedPath;
+        } else {
+            delete [] canonizedPath;
         }
         //now we combine tmpPath to the jdk path.
         PathCombine(resultBuffer, tmpPath, jdkPath.c_str());
         if (PathCanonicalize(canonizedPath, resultBuffer)) {
             delete [] resultBuffer;
             resultBuffer = canonizedPath;
+            delete [] canonizedPath;
+        } else {
+            delete canonizedPath;
         }
         result.append(resultBuffer);
+        delete [] tmpPath;
+        delete [] resultBuffer;
+        delete [] currentDirectory;
     } else {
         //bluejPath is absolute. just concatenate with jdkPath
         PathCombine(tmpPath, bjp.c_str(), jdkPath.c_str());
@@ -614,10 +628,9 @@ static string getAbsolutePath(string bjp, string jdkPath) {
         } else {
             result.append(tmpPath);
         }
+        delete [] tmpPath;
+        delete [] canonizedPath;
     }
-    delete [] tmpPath;
-    delete [] canonizedPath;
-    delete [] resultBuffer;
 
     return result;
 }
@@ -725,6 +738,11 @@ int WINAPI WinMain
     // Check for VM in bluej.defs
     string defsVm = getBlueJProperty(VM_PROP);
     if (defsVm.length() != 0) {
+        //checks if vm's size is greater than the maximum allowed size
+        if (defsVm.length() >= MAX_PATH){
+            displayMessage(L"VM path in bluej.defs exceeds maximum allowed size.");
+            return 1;
+        }
         //gets the vm's absolute path
         defsVm = getAbsolutePath(bluejPath,defsVm);
         string reason;                
