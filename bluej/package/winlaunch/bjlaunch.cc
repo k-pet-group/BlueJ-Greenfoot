@@ -570,69 +570,92 @@ static string trimString(const string &src)
     return src.substr(i, j - i + 1);
 }
 
-
-static void displayMessage(string msg){
-    TCHAR buf [100];
-    wsprintf (buf, TEXT(APPNAME " Debug: \n%s"), msg.c_str());
-    MessageBox (0, buf, TEXT(APPNAME), MB_ICONEXCLAMATION | MB_OK);
+// Display a message box with a message and an "OK" button.
+static void displayMessage(LPCTSTR msg)
+{
+    MessageBox(0, msg, TEXT(APPNAME), MB_ICONEXCLAMATION | MB_OK);
 }
 
+// Get the current working directory as a dynamically allocated array.
+// Returns NULL if unsucessful or a pointer to the allocated string,
+// which should be freed with delete[].
+static TCHAR *getCurrentDir()
+{
+	DWORD reqLen = GetCurrentDirectory(0, NULL);
+	if (reqLen == 0) {
+		return NULL;
+	}
+	TCHAR * buf = new TCHAR[reqLen];
+	DWORD gcdResult = GetCurrentDirectory(reqLen, buf);
+	if (gcdResult == 0 || gcdResult > reqLen) {
+		delete [] buf;
+		return NULL;
+	}
+	return buf;
+}
 
-//given BluejPath and the jdkPath, tries to figure out the absolute path to the 
-//jdkPath.
-static string getAbsolutePath(string bjp, string jdkPath) {
-    string result;
+// Given two paths, convert the first to an absolute path and apply
+// the second path as a relative path to it. Store the resulting path.
+// (If the second path is an absolute path, returns it unmodified).
+//
+// Returns true if successful or false if not.
+static bool getAbsolutePath(string &result, const string &bjp, const string &jdkPath)
+{
     if (PathIsRelative(jdkPath.c_str()) == 0) {
         //the jdk is actually absolute. Nothing to be done.
         result = jdkPath;
-        return result;
+        return true;
     }
     
-    LPTSTR tmpPath = new TCHAR[MAX_PATH];
-    LPTSTR canonizedPath = new TCHAR[MAX_PATH];
-    LPTSTR resultBuffer = new TCHAR[MAX_PATH];
-    //jdkPath is not absolute. if bluejPath is absolute, concatenate with it.
-    //if not, we need to start concatenating from the currentpath.
-    //the coner case I am convering here is that if bjp starts with, 
-    //say'..\\dir', then PathCombine will drop the '..', changing the path.
-    if (PathIsRelative(bjp.c_str())){
-        LPTSTR currentDirectory = new TCHAR[MAX_PATH];
-        GetCurrentDirectory(MAX_PATH, currentDirectory);
-        //concatenate currentdirectory to bjp.
-        PathCombine(tmpPath, currentDirectory, bjp.c_str());
-        if (PathCanonicalize(canonizedPath, tmpPath)) {
-            delete [] tmpPath;
-            tmpPath = canonizedPath;
-            delete [] canonizedPath;
-        } else {
-            delete [] canonizedPath;
-        }
-        //now we combine tmpPath to the jdk path.
-        PathCombine(resultBuffer, tmpPath, jdkPath.c_str());
-        if (PathCanonicalize(canonizedPath, resultBuffer)) {
-            delete [] resultBuffer;
-            resultBuffer = canonizedPath;
-            delete [] canonizedPath;
-        } else {
-            delete canonizedPath;
-        }
-        result.append(resultBuffer);
-        delete [] tmpPath;
-        delete [] resultBuffer;
-        delete [] currentDirectory;
-    } else {
-        //bluejPath is absolute. just concatenate with jdkPath
-        PathCombine(tmpPath, bjp.c_str(), jdkPath.c_str());
-        if (PathCanonicalize(canonizedPath, tmpPath)) {
-            result.append(canonizedPath);
-        } else {
-            result.append(tmpPath);
-        }
-        delete [] tmpPath;
-        delete [] canonizedPath;
+    // jdkPath is not absolute.
+    // Determine the absolute path to bjp. (Note that PathCombine does not work properly
+    // if the first path given to it begins with a ".." sequence, which is why we need
+    // an absolute path).
+
+    LPCTSTR bjPath = bjp.c_str();
+    bool bjPathAllocd = false;
+
+    if (PathIsRelative(bjPath)) {
+    	LPTSTR currentDirectory = getCurrentDir();
+    	if (currentDirectory == NULL) {
+    		displayMessage(TEXT("Unable to determine current directory."));
+    		return false;
+    	}
+
+    	LPTSTR tmpPath = new TCHAR[MAX_PATH];
+    	if (PathCombine(tmpPath, currentDirectory, bjPath) == NULL) {
+    		return false;
+    	}
+
+    	bjPath = tmpPath;
+    	bjPathAllocd = true;
     }
 
-    return result;
+    // We now have an absolute path in bjPath. Combine it with jdkPath:
+    LPTSTR resultPath = new TCHAR[MAX_PATH];
+    if (PathCombine(resultPath, bjPath, jdkPath.c_str()) == NULL) {
+    	return false;
+    }
+
+    // Canonicalize, for good measure:
+    LPTSTR canonicalPath = new TCHAR[MAX_PATH];
+    if (PathCanonicalize(canonicalPath, resultPath)) {
+    	delete [] resultPath;
+    	resultPath = canonicalPath;
+    }
+    else {
+    	delete [] canonicalPath;
+    }
+
+    result.clear();
+    result.append(resultPath);
+    delete [] resultPath;
+
+    if (bjPathAllocd) {
+    	delete [] bjPath;
+    }
+
+    return true;
 }
 
 // Program entry point
@@ -691,7 +714,8 @@ int WINAPI WinMain
             if (verBuffer != NULL) {
                 UINT plen = 0;
                 LPTSTR productVersion = 0;
-                BOOL verResult = VerQueryValue(verBuffer,
+                /* BOOL verResult = */
+                VerQueryValue(verBuffer,
                         TEXT("\\StringFileInfo\\04091200\\ProductVersion"),
                         (void **) &productVersion, &plen);
                 appVersion = productVersion;
@@ -738,13 +762,12 @@ int WINAPI WinMain
     // Check for VM in bluej.defs
     string defsVm = getBlueJProperty(VM_PROP);
     if (defsVm.length() != 0) {
-        //checks if vm's size is greater than the maximum allowed size
-        if (defsVm.length() >= MAX_PATH){
-            displayMessage(L"VM path in bluej.defs exceeds maximum allowed size.");
+        // Gets the VM's absolute path
+        if (! getAbsolutePath(defsVm, bluejPath, defsVm)) {
+            displayMessage(TEXT("Could not determine JDK path -\n" "specified path or current directory may be too long"));
             return 1;
         }
-        //gets the vm's absolute path
-        defsVm = getAbsolutePath(bluejPath,defsVm);
+
         string reason;                
         if (testJdkPath(defsVm, &reason)) {
             if (! forceVMselect) {
