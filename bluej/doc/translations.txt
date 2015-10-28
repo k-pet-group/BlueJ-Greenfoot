@@ -5,32 +5,32 @@ BlueJ interface translations and translators
 
 The next update column indicates whether it is likely that the translator will do the next update.
 
-language        last update     next update?   comment         translator
-                (* indicates
-                 update after
-                 release)
+language        last update     next update?    comment                  translator
+                (* = indicates                 including
+                 update after                  english rev
+                 release)                      no. sent
 --------------------------------------------------------------------------------------------------------------
-afrikaans       2.0.0                x                         Petri Jooste        <RKWJPJ@puknet.puk.ac.za>
-chinese         2.0.4                                          sent email to Xiaoke Hu <go2study@gmail.com> asking for a new contact
-catalan         2.0.0                x          only labels    Santiago Manrique   
-czech           3.0.5                x                         Rudolf Pecinovský   Rudolf: <rudolf.pecinovsky@i.cz> (or rudolf@pecinovsky.cz )
-danish          3.0.3                x                         Jacob Nordfalk      <jacob.nordfalk@gmail.com>
-dutch           3.0.7*               x                         Kris Coolsaet       <kris.coolsaet@UGent.be>
-french          2.2.0                x                         
-german          3.0preview1          x                         Thomas Röfer        <roefer@tzi.de>
-greek           2.1.1                x          labels=2.1.3   Ioannis G. Baltopoulos <ioannis.baltopoulos@cl.cam.ac.uk>
-italian         3.1.0                x  labels=3.1.0, dialog=3.0.5  Luzio Menna         <luzio@aruba.it> or <Luzio_Menna@iol.it> (or: Angelo Papadia: <angelo.papadia@libero.it>)
+afrikaans       2.0.0                x                                   Petri Jooste        <RKWJPJ@puknet.puk.ac.za>
+chinese         2.0.4                                                    sent email to Xiaoke Hu <go2study@gmail.com> asking for a new contact
+catalan         2.0.0                x          only labels              Santiago Manrique
+czech           3.0.5                x                                   Rudolf Pecinovský   Rudolf: <rudolf.pecinovsky@i.cz> (or rudolf@pecinovsky.cz )
+danish          3.0.3
+dutch           3.0.7*               x                                   Kris Coolsaet       <kris.coolsaet@UGent.be>
+french          2.2.0                x
+german          3.0preview1          x     labels+dialog, Rev: 14925     Thomas Röfer        <roefer@tzi.de>
+greek           2.1.1                x          labels=2.1.3             Ioannis G. Baltopoulos <ioannis.baltopoulos@cl.cam.ac.uk>
+italian         3.1.0                x     labels+dialog, Rev: 14925     Luzio Menna    <luzio@aruba.it>
 japanese        1.3.5                           partially
-korean          1.2.x                                            
-montenegrin     first time, will need instructions             Omer Djokic         <omer@itdirect.net>
-portuguese      2.0.0                x                         Fred Guedes Pereira <fredguedespereira@yahoo.com.br> 
-persian                              x                         M. Shahdoost        <persianshadow2003@yahoo.com>
-russian         3.0preview1          x          labels+dialog  Sergey Zemlyannikov <serveren@mail.ru>
-serbian                                                        Omer Djokic         <omer@itdirect.net>
-slovak			3.1.1				 x			labels+dialog  Roman Horváth       <rhorvath@truni.sk>
-spanish         1.2.x                                                
-swedish         1.3.5                x          later          
-trad. chinese                        ?                         Ma Wing Ho          <mawingho@netvigator.com>
+korean          1.2.x
+montenegrin     first time, will need instructions                       Omer Djokic         <omer@itdirect.net>
+portuguese      2.0.0                x                                   Fred Guedes Pereira <fredguedespereira@yahoo.com.br>
+persian                              x                                   M. Shahdoost        <persianshadow2003@yahoo.com>
+russian         3.0preview1          x          labels+dialog            Sergey Zemlyannikov <serveren@mail.ru>
+serbian                                                                  Omer Djokic         <omer@itdirect.net>
+slovak			3.1.1				 x	   labels+dialog, Rev: 14925     Roman Horváth       <rhorvath@truni.sk>
+spanish         1.2.x
+swedish         1.3.5                x          later
+trad. chinese                        ?                                   Ma Wing Ho          <mawingho@netvigator.com>
 
 
 In case we need another translator for chinese we should contact: Xiaoke Hu <go2study@gmail.com>
@@ -45,3 +45,9 @@ in Latin-1 must be written as "Unicode-encoded characters" (\uXXXX notation) as 
 "native2ascii" utility that comes with the JDK.
 
 The code templates however should be encoded in UTF-8.
+
+
+language        old translator
+--------------------------------------------------------------------------------------------------------------
+danish          Jacob Nordfalk    <jacob.nordfalk@gmail.com>  - don't contact
+italian         Angelo Papadia    <angelo.papadia@libero.it>  - no response
