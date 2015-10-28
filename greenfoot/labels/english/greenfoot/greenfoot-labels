@@ -42,6 +42,7 @@ project.version.changes.10=2.4.0 A 'UserInfo' class was added (renamed from 'Pla
 project.version.changes.11=2.5.0 The 'isTouching' and 'removeTouching' methods were added to the Actor class.
 project.version.changes.12=2.6.0 The 'showText' method was added to the World class, and a new constructor added to GreenfootImage.
 project.version.changes.13=2.7.0 The 'ask' method was added to the Greenfoot class.
+project.version.changes.14=2.8.0 The 'getWorldOfType' method was added to the Actor class, and generics were added to API.
 
 project.version.newer.part1=The scenario being opened has been written using a newer version of Greenfoot (API version 
 # project version inserted here by Greenfoot
@@ -52,15 +53,19 @@ project.close=Close
 greenfoot.about=About Greenfoot...
 compile.all=Compile
 compile.class=Compile
+duplicate.class=Duplicate...
 edit.class=Open editor
 edit.images=Scenario Images...
-new.class=New Class...
-new.project=New...
-new.subclass=New subclass...
+new.other.class=New Class...
+new.sub.class=New subclass...
+stride.new.project=New Stride Scenario...
+java.new.project=New Java Scenario...
 open.project=Open...
 open.recentProject=Open recent
 remove.class=Remove
 remove.selected=Remove Class
+convert.to.java.class=Convert to Java
+convert.to.java.selected=Convert class to Java
 inspect.class=Inspect
 reset.world=Reset
 run.once=Act
@@ -77,6 +82,12 @@ save.world=Save the World
 remove.confirm.title=Confirm removal of class
 remove.confirm.text1=About to remove class
 remove.confirm.text2=Continue?
+
+# Convert to Java class confirmation
+convert.to.java.confirm.title=Confirm converting a class
+convert.to.java.confirm.text1=About to convert
+convert.to.java.confirm.text2=class from Stride to Java.
+convert.to.java.confirm.text3=This operation is irreversible, continue?
 
 # Save As project dialog
 project.saveAs.title=Save Scenario As
@@ -112,6 +123,10 @@ export.dialog.export=Export
 export.dialog.share=Share
 export.dialog.update=Update
 export.lock.label=Lock scenario
+export.controls.label=Hide controls
+export.fullScreen.label=Full screen
+export.fullScreen.description=Opens scenario in full screen
+export.controls.description=hides Control bar containing: Play/Pause and Reset buttons.
 export.snapshot.label=Keep existing screenshot:
 export.lock.description=Prevents: Speed change, Act-button, and changing of actor locations while paused.
 export.publish.help=Publish the scenario to:
@@ -152,10 +167,8 @@ publish.event.status=Status:
 world.handlerDelegate.inspect=Inspect
 world.handlerDelegate.remove=Remove
 
-record.method.comment1=Prepare the world for the start of the program. That is: create the initial
-record.method.comment2=objects and add them to the world.
-
-record.saved.message=Saved world setup in prepare() method.  
+record.method.comment1=Prepare the world for the start of the program.
+record.method.comment2=That is: create the initial objects and add them to the world.
 
 greenfoot.utilDelegate.newScenario=New Scenario
 
@@ -171,8 +184,12 @@ newclass.dialog.help2=characters and should start with a capital letter.
 newclass.dialog.className=New class name: 
 newclass.dialog.err.classExists=Class with that name already exists.
 newclass.dialog.err.classNameIllegal=Not a valid Java class name.
+newclass.dialog.selectionLabel=Language:
+newclass.dialog.class=Class
+newclass.dialog.interface=Interface
 
 # Image Lib Preview
+paste.image=Paste Image...
 imagelib.title=Select class image:
 imagelib.newClass=New class
 imagelib.projectImages=Scenario images:
@@ -212,6 +229,10 @@ imagelib.new.image.name=Name:
 imagelib.new.image.width=Width:
 imagelib.new.image.height=Height:  
 imagelib.new.image.type=Type:
+imagelib.more=More Actions...
+
+editor.paste.image.title=Paste Image
+editor.paste.image.prompt=File Name:
 
 scenario.viewer.appletInfo=Applet generated with Greenfoot (www.greenfoot.org). Scenario name:
 
@@ -277,6 +298,7 @@ menu.openRecent=Open recent
 menu.scenario=Scenario
 
 menu.edit=Edit
+menu.new=New
 
 menu.controls=Controls
 
@@ -304,7 +326,8 @@ menu.help.copyright.line4=and THIRDPARTYLICENSE.txt.
 
 
 # Popup menu
-classPopup.needsCompile=Needs compile
+classPopup.needsCompile=Needs compiling
+classPopup.containsError=Contains error(s)
 
 # Project does not exist dialog
 noproject.dialog.title=Error opening project
@@ -325,10 +348,11 @@ sound-line-unavailable=Cannot get access to the sound card. If you have a sound 
 # MainFrame central messages
 centrePanel.message.openScenario=\u2196 Create or Open a scenario using the Scenario menu
 centrePanel.message.createWorldClass=Create a new subclass of World
-centrePanel.message.compile=Use the "Compile" button to compile your scenario \u2198
+centrePanel.message.compile=The world class may have an error, check it to initialize the scenario \u2197
 centrePanel.message.initialising=The world is being constructed...
 centrePanel.message.initialisingTooLong1=The constructor for the world is taking a long time.
 centrePanel.message.initialisingTooLong2=You may have an infinite loop.
+centrePanel.message.notFocused=To construct the world, click on this window.
 centrePanel.restartButton.label=Restart
 centrePanel.message.error1=The world constructor threw an exception.
 centrePanel.message.error2=See the Terminal window for more details.
