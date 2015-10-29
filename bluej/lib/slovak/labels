@@ -1,4 +1,4 @@
-# \u0160tvrtok 3. 7. 2014
+# Streda 28. 10. 2015
 # Texty pre ovladacie prvky v\u00a0BlueJ
 
 okay=OK
@@ -67,6 +67,10 @@ debugger.jdiDebugger.noBreakpointMsg=Odstr\u00e1ni\u0165 bod preru\u0161enia: \n
 debugger.jdiDebugger.noLineNumberMsg=Pri preklade tejto triedy neboli generovan\u00e9 \u010d\u00edsla riadkov.\nPreto v\u00a0nej nem\u00f4\u017eete nastavova\u0165 body preru\u0161enia.
 debugger.jdiDebugger.noCodeMsg=Bod preru\u0161enia nie je mo\u017en\u00e9 nastavi\u0165: \nna tomto riadku nie je \u017eiadny k\u00f3d.
 debugger.jdiDebugger.internalErrorMsg=Pri pokuse nastavi\u0165 tento bod preru\u0161enia, nastala nezn\u00e1ma vn\u00fatorn\u00e1 chyba.
+
+# Debugger Accessibility messages
+debugger.accessibility.breakpoint=Vl\u00e1kno \u201e$\u201c dosiahlo bod preru\u0161enia.
+debugger.accessibility.paused=Vl\u00e1kno \u201e$\u201c je pozastaven\u00e9.
 
 # Class Manager panel user interface elements and error messages
 classmgr.prefpaneltitle=Kni\u017enice
@@ -161,6 +165,14 @@ extmgr.error.nomanifest=Neobsahuje s\u00fabor META-INF\\MANIFEST.MF
 extmgr.error.nomain=Manifest neobsahuje atrib\u00fat Main-Class
 extmgr.error.notsubclass=Hlavn\u00e1 trieda nie je potomkom triedy Extension
 extmgr.error.cannotload=Roz\u0161\u00edrenie nemohlo by\u0165 nahran\u00e9
+
+# Rasperry Pi preferences panel
+extmgr.raspberryPi.rpiPanelTitle=Rasbperry Pi
+extmgr.raspberryPi.title=Nastavenia JVM
+extmgr.raspberryPi.superUser=Spusti\u0165 k\u00f3d pou\u017e\u00edvate\u013ea s\u00a0kore\u0148ov\u00fdmi privil\u00e9giami (root access).
+prefmgr.raspberryPi.NoteLine1=Na pr\u00edstup ku Gpio a\u00a0hardv\u00e9ru Raspberry Pi s\u00fa potrebn\u00e9 kore\u0148ov\u00e9 privil\u00e9gia (root access).
+prefmgr.raspberryPi.NoteLine2=Na spustenie BlueJa s\u00a0kore\u0148ov\u00fdmi privil\u00e9giami (root access) mus\u00ed ma\u0165 sudo povolen\u00e9 spustenie bez hesla.
+prefmgr.raspberryPi.NoteLine3=Viac inform\u00e1ci\u00ed a\u00a0naj\u010dastej\u0161ie ot\u00e1zky (v\u00a0anglickom jazyku) n\u00e1jdete na adrese: http://bluej.org/faq.html#rasppi_hardware
 
 #---------------
 # Editor labels
@@ -291,6 +303,9 @@ editor.highlight.notFound=nen\u00e1jden\u00fd.
 
 # Message shown in code completion pane when nothing is found
 editor.completion.noMatch=\u017diadne vyhovuj\u00face doplnenie k\u00f3du
+
+# Message shown in code completion while processing
+editor.completion.working=Nahr\u00e1va sa\u2026
 
 # Messages shown when determining what function is bound to a given key
 editor.keypressed.keyIsNotBound=nie je priraden\u00e1 ku \u017eiadnej funkcii.
@@ -492,7 +507,7 @@ pkgmgr.runApplet.valueLbl=Hodnota \=
 pkgmgr.runApplet.paramName=PARAM NAME
 pkgmgr.runApplet.value=VALUE
 pkgmgr.runApplet.htmlComment=<!-- Tento s\u00fabor je automaticky generovan\u00fd prostred\u00edm BlueJ. -->\n<!-- Po ka\u017edom spusten\u00ed apletu je automaticky obnoven\u00fd.      -->\n<!-- Ak\u00e9ko\u013evek zmeny bud\u00fa pri bud\u00facom spusten\u00ed apletu        -->\n<!-- z\u00a0prostredia BlueJ straten\u00e9. Ak chcete s\u00fabor zachova\u0165,  -->\n<!-- mus\u00edte ho ulo\u017ei\u0165 do in\u00e9ho prie\u010dinka.                    -->
-pkgmgr.runApplet.htmlExportedComment=<!-- Tento s\u00fabor je automaticky generovan\u00fd prostred\u00edm BlueJ.              -->\n<!-- Premenn\u00e1 codebase je pri vytv\u00e1ran\u00ed tejto str\u00e1nky automaticky         -->\n<!-- nastaven\u00e1 na absol\u00fatnu cestu k\u00a0prie\u010dinku s\u00a0bal\u00ed\u010dkom dan\u00e9ho apletu.   -->\n<!-- Ak zmen\u00edte umiestenie tohto bal\u00ed\u010dka, mus\u00edte zmeni\u0165 hodnotu codebase. -->
+pkgmgr.runApplet.htmlExportedComment=<!-- Tento s\u00fabor je automaticky generovan\u00fd prostred\u00edm BlueJ.              -->\n<!-- Premenn\u00e1 codebase je pri vytv\u00e1ran\u00ed tejto str\u00e1nky automaticky         -->\n<!-- nastaven\u00e1 na absol\u00fatnu cestu k\u00a0prie\u010dinku s\u00a0bal\u00ed\u010dkom ur\u010den\u00e9ho apletu.   -->\n<!-- Ak zmen\u00edte umiestenie tohto bal\u00ed\u010dka, mus\u00edte zmeni\u0165 hodnotu codebase. -->
 
 # print project dialog
 pkgmgr.printDialog.title=BlueJ:  Vytla\u010di\u0165 projekt
@@ -624,7 +639,6 @@ menu.tools.cancel=_Zru\u0161i\u0165 z\u00e1znam
 menu.tools.teamwork=T\u00ed_mov\u00e1 pr\u00e1ca
 
 menu.tools.preferences=_Prevo\u013eby\u2026@,
-
 
 menu.view=_Zobrazi\u0165
 menu.view.showUses=Zobrazi\u0165 vz\u0165ahy \u201e_Pou\u017e\u00edva\u201c
@@ -783,14 +797,14 @@ tooltip.deployMIDlet=Zverejni\u0165 MIDlet obsiahnut\u00fd v\u00a0projekte
 
 graph.tooltip.classBroken=T\u00e1to trieda nemohla by\u0165 korektne spracovan\u00e1
 
-
 # Copyright
 
 menu.help.copyright.title=Autorsk\u00e9 pr\u00e1va n\u00e1stroja BlueJ
-menu.help.copyright.line1=Prostredie BlueJ je dostupn\u00e9 zdarma a\u00a0m\u00f4\u017ee by\u0165 \u010falej
-menu.help.copyright.line2=vo\u013ene \u0161\u00edren\u00e9. Bez predch\u00e1dzaj\u00faceho p\u00edsomn\u00e9ho s\u00fahlasu
-menu.help.copyright.line3=nesmie by\u0165 \u0161\u00edren\u00e9 za \u00fa\u010delom zisku ani by\u0165 s\u00fa\u010das\u0165ou
-menu.help.copyright.line4=in\u00fdch produktov \u0161\u00edren\u00fdch za \u00fa\u010delom zisku.
+menu.help.copyright.line0=BlueJ \u00a9 2000 \u2013 2015 Michael K\u00f6lling, John Rosenberg.
+menu.help.copyright.line1=Prostredie BlueJ je \u0161\u00edrite\u013en\u00e9 v\u00a0s\u00falade s\u00a0licenciou GNU
+menu.help.copyright.line2=General Public License verzia 2 s\u00a0v\u00fdnimkou Classpath.
+menu.help.copyright.line3=Viac inform\u00e1ci\u00ed n\u00e1jdete v\u00a0s\u00faboroch LICENSE.txt
+menu.help.copyright.line4=a\u00a0THIRDPARTYLICENSE.txt.
 
 # Collection
 # The content for these is HTML, so don't use <, > or & without escaping:
@@ -811,6 +825,10 @@ collect.dialog.ethics2=Ak zmen\u00edte n\u00e1zor s\u00favisiaci s\u00a0pomocou 
 collect.status.optedin=V\u00a0s\u00fa\u010dasnosti je odosielanie anonymn\u00fdch zozbieran\u00fdch \u00fadajov povolen\u00e9
 collect.status.nextsession=Odosielanie anonymn\u00fdch zozbieran\u00fdch \u00fadajov bude povolen\u00e9 po re\u0161tartovan\u00ed BlueJa
 collect.status.optedout=V\u00a0s\u00fa\u010dasnosti sa nepodie\u013eate na v\u00fdskume odosielan\u00edm anonymn\u00fdch zozbieran\u00fdch \u00fadajov
+
+# Raspberry Pi
+raspberrypi.error.sudo=Nie je dostupn\u00fd pr\u00edstup bez hesla pre sudo. Pokra\u010dujem bez mo\u017enosti pr\u00edstupu k\u00a0hardv\u00e9ru.\nViac inform\u00e1ci\u00ed n\u00e1jdete na adrese: http://bluej.org/faq.html#rasppi_hardware
+raspberrypi.error.sudo.title=Nem\u00e1m pr\u00edstup k\u00a0hardv\u00e9ru
 
 # About
 
