@@ -2535,6 +2535,7 @@ class InfixExpression implements TextFieldDelegate<ExpressionSlotField>
         if (index < 0)
         {
             Debug.printCallStack("Asking to update prompts for non-existing field");
+            return;
         }
         // We look for method calls, which means we need to look for brackets preceded by non-empty fields:
         // We look at the given field onwards, because e.g. getWorl().addObject() should update
@@ -2566,7 +2567,10 @@ class InfixExpression implements TextFieldDelegate<ExpressionSlotField>
         
         if (params.stream().allMatch(p -> p == null))
             return; // Nothing needs prompts
-        
+
+        if (slot == null) // Can happen during testing
+            return;
+
         slot.withParamNamesForPos(absPosOfMethodName, methodName,
             poss -> setPromptsFromParamNames(poss));
     }
