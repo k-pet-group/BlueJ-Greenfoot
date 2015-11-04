@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2014  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,7 +21,7 @@
  */
 package greenfoot.actions;
 
-import greenfoot.util.GreenfootUtil;
+import greenfoot.platforms.ide.GreenfootUtilDelegateIDE;
 
 import java.awt.event.ActionEvent;
 import java.io.IOException;
@@ -60,7 +60,7 @@ public class ShowApiDocAction extends AbstractAction {
     public void actionPerformed(ActionEvent e)
     {
         try {
-            GreenfootUtil.showApiDoc(page);
+            GreenfootUtilDelegateIDE.showApiDoc(page);
             // TODO: show status message: browser opened
         }
         catch (IOException e1) {

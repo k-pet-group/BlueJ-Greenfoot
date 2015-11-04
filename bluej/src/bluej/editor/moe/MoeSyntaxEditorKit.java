@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2015  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -42,6 +42,7 @@ public class MoeSyntaxEditorKit extends DefaultEditorKit
     private boolean isTextEval;
     private EntityResolver projectResolver;
     private MoeDocumentListener documentListener;
+    private MoeErrorManager errorMgr;
 
     /**
      * Create a moe editor kit. There are two modes in which this can operate:
@@ -61,12 +62,13 @@ public class MoeSyntaxEditorKit extends DefaultEditorKit
      * Create a Moe editor kit, for documents which will resolve external references
      * using the given resolver, and send parse events to the specified listener.
      */
-    public MoeSyntaxEditorKit(EntityResolver projectResolver, MoeDocumentListener documentListener)
+    public MoeSyntaxEditorKit(EntityResolver projectResolver, MoeDocumentListener documentListener, MoeErrorManager errorMgr)
     {
         super();
         isTextEval = false;
         this.projectResolver = projectResolver;
         this.documentListener = documentListener;
+        this.errorMgr = errorMgr;
     }
     
     /**
@@ -94,7 +96,7 @@ public class MoeSyntaxEditorKit extends DefaultEditorKit
             return new bluej.debugmgr.texteval.TextEvalSyntaxView(elem);
         }
         else {
-            return new MoeSyntaxView(elem);
+            return new MoeSyntaxView(elem, errorMgr);
         }
     }
 

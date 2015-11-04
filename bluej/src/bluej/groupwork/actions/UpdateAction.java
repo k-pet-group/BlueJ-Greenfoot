@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2012,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,14 +26,26 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
 import javax.swing.AbstractAction;
 import javax.swing.SwingUtilities;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
 import bluej.Config;
 import bluej.collect.DataCollector;
-import bluej.groupwork.*;
+import bluej.groupwork.StatusHandle;
+import bluej.groupwork.TeamUtils;
+import bluej.groupwork.TeamworkCommand;
+import bluej.groupwork.TeamworkCommandResult;
+import bluej.groupwork.UpdateListener;
+import bluej.groupwork.UpdateResults;
 import bluej.groupwork.ui.ConflictsDialog;
 import bluej.groupwork.ui.UpdateFilesFrame;
 import bluej.pkgmgr.BlueJPackageFile;
@@ -472,6 +484,7 @@ public class UpdateAction extends AbstractAction
          * If packages were removed by the update, remove them from the
          * parent package graph.
          */
+        @OnThread(Tag.Swing)
         private void handleRemovedPkgs()
         {
             for (Iterator<String> i = removedPackages.iterator(); i.hasNext(); ) {

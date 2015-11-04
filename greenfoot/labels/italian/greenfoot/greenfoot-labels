@@ -1,81 +1,134 @@
 #i18n for greenfoot
 
-greenfoot.nyi=Spiacente, questa funzionalità non è implementata.
+greenfoot.nyi=Spiacente, questa funzionalit00e0 non \u00e8 implementata.
 greenfoot.preferences=Preferenze...
 greenfoot.copyright=Copyright...
 greenfoot.quit=Esci
 greenfoot.continue=Continua
 greenfoot.cancel=Annulla
 
+greenfoot.launchFailed=Non \u00e8 stato possibile lanciare Greenfoot. Per aiuto vai a http://www.greenfoot.org/support
+
 # About dialog
 about.title=Informazioni su Greenfoot
-about.moreInfo=Altre informazioni possono essere trovate sul sito www.greenfoot.org
+about.moreInfo=Ulteriori informazioni possono essere trovate sul sito www.greenfoot.org
+
 
 # Greenfoot project version info
-project.version.none=Lo scenario che stai cercando di aprire sembra uno scenario di una vecchia versione di greenfoot (precedente alla versione 0.5 di greenfoot). Il caricamento di questo scenario comporterà molto probabilmente alcuni errori che dovranno essere corretti manualmente.
-project.version.notGreenfoot=Il file non è uno scenario di Greenfoot: 
+project.version.none=Lo scenario che stai cercando di aprire \u00e8 stato creato usando vecchia versione di greenfoot (precedente alla versione 0.5 di greenfoot). Il caricamento di questo scenario comporter00e0 molto probabilmente alcuni errori che dovranno essere corretti manualmente.
+project.version.notGreenfoot=Il file non 00e8 uno scenario di Greenfoot: 
 project.version.mismatch=Le versioni non corrispondono
-project.version.older.part1=Lo scenario che stai cercando di aprire sembra uno scenario di una vecchia versione di greenfoot (version API 
+# The next 3 items will be shown if the major digit in the version number has changed. 
+# part3 should be updated to describe the changes that has happened.
+project.version.newer.part1=Lo scenario che stai cercando di aprire sembra uno scenario creato con una versione precedente dell'API di greenfoot (versione API 
 # project version inserted here by Greenfoot
-project.version.older.part2=). Lo scenario sarà aggiornato alla versione attuale (versione API 
+project.version.older.part2=). Lo scenario sar00e0 aggiornato alla versione attuale (versione API 
 # api version inserted here by Greenfoot
-project.version.older.part3=). L'intervallo del cursore della velocità è cambiato in questa versione, ti consigliamo quindi di regolare la velocità di questo scenarioso.
-project.version.newer.part1=Lo scenario che stai cercando di aprire sembra uno scenario creato con una versione più recente dell'API di greenfoot (versione 
+
+#Info about changes in this new version of the API that might break existing scenarios.
+project.version.older.part3=). I cambiamenti elencati qui sotto apportati all'API di Greenfoot potrebbero impedire la corretta esecuzione di questo scenario:
+
+# Note the versions here are API versions, not Greenfoot versions!
+project.version.changes.1=2.1.0 I metodi 'stopSimulation', 'startSimulation' e 'setSimulationSpeed' della classe Greenfoot class sono stati rinominati 'start', 'stop' e 'setSpeed'. 
+project.version.changes.2=2.1.0 I metodi 'getWidth' e 'getHeight' dell'Attore sono stati rimossi. Vanno sostituiti con 'getImage().getWidth()' e 'getImage().getHeight()'.
+project.version.changes.3=2.1.0 Il metodo 'getObjectsInRange' dell'Attore per misurare l'intervallo usa ora come unit00e0 le celle invece dei pixel.
+project.version.changes.4=2.1.0 Greenfoot 00e8 ora sensibile alle maiuscole per quanto riguarda i nomi dei file per suoni e immagini.
+project.version.changes.5=2.1.0 I metodi 'setTiled' e 'getTiled' del Mondo sono stati rimossi.
+project.version.changes.6=2.1.0 Ora 'getBackground' del Mondo restituisce un'immagine grande come l'intero sfondo.
+project.version.changes.7=2.2.0 Sono stati aggiunti i metodi 'move' e 'turn' alla classe Attore.
+project.version.changes.8=2.3.0 Greenfoot.getMouseInfo() restituisce ora null se il mouse non si trova all'interno del mondo.
+project.version.changes.9=2.3.0 E' stato aggiunto il medoto 'turnTowards(int,int)' alla classe Attore.
+project.version.changes.10=2.4.0 E' stata aggiunta una classe 'UserInfo' (chiamata 'PlayerData' in Greenfoot 2.2.0 beta).
+project.version.changes.11=2.5.0 Sono stati aggiunti i metodi 'isTouching' e 'removeTouching' alla classe Attore.
+project.version.changes.12=2.6.0 Il metodo 'showText' 00e8 stato aggiunto alla classe Mondo e un nuovo costruttore 00e8 stato aggiunto a GreenfootImage.
+project.version.changes.13=2.7.0 E' stato aggiunto il metodo 'ask' alla classe Greenfoot.
+project.version.changes.14=2.8.0 E' stato aggiunto il metodo 'getWorldOfType' alla classe Attore, e sono stati aggiunti i tipi generici all'API.
+
+project.version.newer.part1=Lo scenario che stai cercando di aprire sembra uno scenario creato con una versione pi00f9 recente dell'API di greenfoot (versione API 
 # project version inserted here by Greenfoot
-project.version.newer.part2=). Aprire lo scenario in questa versiond i greenfoot comporterà probabilmente alcuni errori che dovranno essere corretti manualmente.\n\nVuoi procedere ugualmente con l'apertura dello scenario?
+project.version.newer.part2=). Aprendo lo scenario con la tua versione attuale di Greenfoot pu00f2 generare errori che dovranno essere corretti manualmente.\n\nVuoi proseguire ad aprire questo scenario?
 project.close=Chiudi
 
 # Actions
 greenfoot.about=Informazioni su Greenfoot...
 compile.all=Compila tutto
 compile.class=Compila
+duplicate.class=Duplica...
 edit.class=Apri editor
-new.class=Nuova Classe...
-new.project=Nuovo...
-new.subclass=Nuova sottoclasse...
+edit.images=Immagini dello Scenario...
+new.other.class=Nuova Classe...
+new.sub.class=New sottoclasse...
+stride.new.project=Nuovo Scenario Stride...
+java.new.project=Nuovo Scenario Java...
 open.project=Apri...
 open.recentProject=Apri recente
 remove.class=Rimuovi
 remove.selected=Elimina Classe
+convert.to.java.class=Converti in Java
+convert.to.java.selected=Converti classe in Java
 inspect.class=Ispeziona
 reset.world=Resetta
 run.once=Azione
 run.simulation=Esegui
 project.save=Salva
-project.savecopy=Salva una Copia come...
+project.saveAs=Save As...
 select.image=Definisci immagine...
 show.readme=Informazioni Scenario
 pause.simulation=Sospendi
+show.apidoc=Apri Documentazione
+save.world=Salva il Mondo
 
 # Remove class confirmation
 remove.confirm.title=Conferma l'eliminazione della classe
 remove.confirm.text1=La classe sta per essere rimossa
 remove.confirm.text2=Continuare?
 
+# Convert to Java class confirmation
+convert.to.java.confirm.title=Conferma la conversione della classe
+convert.to.java.confirm.text1=La conversione sta per essere avviata
+convert.to.java.confirm.text2=classe da Stride a Java.
+convert.to.java.confirm.text3=Questa operazione non pu00f2 essere annullata. Vuoi continuare?
 
-# Save project copy dialog
-project.savecopy.title=Salva Copia Scenario
+# Save As project dialog
+project.saveAs.title=Salva Scenario Come
 
 # Export scenario dialog
-export.project=Esporta...
+export.project=Condividi...
 export.progress.bundling=Aggiunta dello scenario...
 export.progress.publishing=Pubblicazione...
 export.progress.writingHTML=Scrittura della pagina web...
 export.progress.writingJar=Scrittura del file jar...
+export.progress.writingGfar=Scrittura del file gfar...
 export.progress.complete=Esportazione completata.
 export.publish.fail=Pubblicazione fallita:
-export.publish.unknownHost=Pubblicazione fallita: Host sconosciuto
+export.publish.unknownHost=Pubblicazione fallita: host sconosciuto
+export.publish.errorResponse=Risposta del server non riconsciuta.
+export.publish.errorPassword=Username o password non validi
+export.publish.errorTooLarge=Lo scenario 00e8 troppo grande
 export.publish.complete=Pubblicazione completata
-export.app.help=Crea file jar eseguibile che può essere eseguito direttamente (senza bisogno dell'ambiente greefoot).
+export.publish.proxyAuth=Autenticazione Proxy
+export.publish.needProxyAuth=E' richiesta l'autenticazione del proxy.
+export.app.help=Crea file jar eseguibile che pu00f2 essere eseguito direttamente (senza bisogno dell'ambiente greefoot).
 export.app.location=Salva in: 
 export.app.browse=Sfoglia
+export.app.choose=Salva file jar eseguibile
+export.project.help=Crea un file gfar per il progetto standalone.
+export.project.location=Salva in:
+export.project.browse=Sfoglia
+export.project.choose=Salva il file gfar del progetto
 export.compile.help=Non tutte le classi dello scenario sono state compilate. Per continuare con l'esportazione, compila le classi ora.
-export.compile.notCompiled=Lo scenario non è stato compilato.
-export.dialog.title=Greenfoot: Esporta
-export.dialog.continue=Esporta
-export.dialog.continue.update=(aggiorna)
+export.compile.notCompiled=Lo scenario non 00e8 stato compilato.
+export.dialog.title=Condividi
+export.dialog.export=Esporta
+export.dialog.share=Condividi
+export.dialog.update=Aggiorna
 export.lock.label=Blocca scenario
-export.lock.description=Previene: Cambio di velocità, pulsante-Azione e cambiamento della posizione dell'attore durante la sospensione.
+export.controls.label=Nascondi controlli
+export.fullScreen.label=Schermo intero
+export.fullScreen.description=Apri lo scenario a schermo intero
+export.controls.description=nascondi la barra dei Controlli che contiene i pulsanti Play/Pause e Reset.
+export.snapshot.label=Mantieni gli screenshot esistenti:
+export.lock.description=Previene: Cambio di velocit00e0, pulsante-Azione e cambiamento della posizione dell'attore durante la sospensione.
 export.publish.help=Pubblica lo scenario in:
 export.publish.info=Informazioni per visualizzazione su
 export.publish.image1=Icona scenario:
@@ -87,6 +140,7 @@ export.publish.tags.popular=Etichette popolari:
 export.publish.tags.loading=caricamento...
 export.publish.shortDescription=Descrizione breve:
 export.publish.longDescription=Descrizione estesa:
+export.publish.update=Cambiamenti in questo aggiornamento:
 export.publish.url=La tua pagina (URL):
 export.publish.login=Accedi
 export.publish.username=Nome utente:
@@ -100,12 +154,21 @@ export.web.choose=Seleziona il nome della cartella per l'esportazione
 export.icontab.publish=Pubblica
 export.icontab.webpage=Pagina web
 export.icontab.application=Applicazione
+export.icontab.project=Progetto
+export.noworld.dialog.title=Errore: nessuna classe world presente.
+export.noworld.dialog.msg=Lo scenario non contiene nessuna classe world. Per completare l'esportazione 00e8 richiesta una sottoclasse della classe World.
+export.noconstructor.dialog.title=Errore: nessun costruttore presente
+export.noconstructor.dialog.msg=La classe class non ha un costruttore predefinito. Per completare l'esportazione 00e8 necessario un costruttore senza argomenti.
+export.fileExists.message=gi00e0 esiste. Sovrascivere? 
 
 publish.event.error=Errore: 
 publish.event.status=Stato: 
 
 world.handlerDelegate.inspect=Ispeziona
 world.handlerDelegate.remove=Elimina
+
+record.method.comment1=Prepara il mondo per avviare il programma.
+record.method.comment2=Quindi: crea gli oggetti iniziali e aggiungili al mondo.
 
 greenfoot.utilDelegate.newScenario=Nuovo Scenario
 
@@ -116,39 +179,61 @@ chooser.scenario.button=Apri
 
 #New Class dialog
 newclass.dialog.title=Crea nuova classe
-newclass.dialog.help1=Il nome della classe non può contenere spazi o caratteri di 
+newclass.dialog.help1=Il nome della classe non pu00f2 contenere spazi o caratteri di 
 newclass.dialog.help2=punteggiatura e dovrebbe iniziare con una lettera maiuscola.
 newclass.dialog.className=Nuovo nome classe: 
-newclass.dialog.err.classExists=Una classe con questa nome esiste già.
+newclass.dialog.err.classExists=Una classe con questa nome esiste gi00e0.
 newclass.dialog.err.classNameIllegal=Nome di classe Java non valido.
-
-# Initial startup dialog
-startup.header=Benvenuto a Greenfoot!
-startup.welcome=Greenfoot ti permette di lavorare su progetti (chiamati anche 'scenari'). Per usare Greenfoot, devi aprire uno scenario già esistente, o crearne uno nuovo. Alcuni scenari di esempio sono inclusi nell'installazione standard di Greenfoot.
-startup.question=Cosa vuoi fare?
-startup.tutorial.button=Aprire il tutorial e lo scenario del tutorial
-startup.open.button=Selezionare uno scenario
-startup.create.button=Creare un nuovo scenario
-startup.continue.button=Continuare senza scenario
+newclass.dialog.selectionLabel=Lingua:
+newclass.dialog.class=Classe
+newclass.dialog.interface=Interfaccia
 
 # Image Lib Preview
+paste.image=Incolla Imamagine...
 imagelib.title=Seleziona l'immagine della classe:
 imagelib.newClass=Nuova classe
 imagelib.projectImages=Immagini dello scenario:
 imagelib.categories=Categorie delle immagini:
 imagelib.images=Libreria di immagini:
 imagelib.browse.button=Sfoglia per trovare altre immagini ...
+imagelib.create.button=Crea una nuova immagine...
+imagelib.edit=Modifica
+imagelib.edit.tooltip=Modifica l'immagine selezionata aprendola nell'editor di immagini.
+imagelib.duplicate=Duplica
+imagelib.duplicate.tooltip=Duplica l'immagine selezionata.
+imagelib.delete=Cancella
+imagelib.delete.tooltip=Cancella l'immagine selezionata.
+imagelib.import.button=Importa dalla libreria...
+imagelib.create.tooltip=Crea una nuova immagine di dimensione e nome predefiniti e la apre nell'editor di immagini.
 imagelib.className=Nuovo nome classe:
-imagelib.help.autoImage=Clicca su Ok per accettare il nome suggerito automaticamente, o seleziona un'immagine dalla lista sottostante.
-imagelib.help.selectImage=Seleziona un'immagine per la classe dalla lista sottostante.
+imagelib.help.selectImage=Seleziona dalla lista qui sotto un'immagine per la classe.
 imagelib.newClass.image=Nuova immagine della classe:
-imagelib.image.autoGenerated=(suggerito automaticamente)
 imagelib.file.noPreview=Nessuna anteprima
 imagelib.choose.button=Seleziona
 imagelib.write.exists.part1=Il file \"
 # Greenfoot inserts filename here
-imagelib.write.exists.part2=\" già esiste. Vuoi sostituirlo?
+imagelib.write.exists.part2=\" gi00e0 esiste. Vuoi sostituirlo?
 imagelib.write.exists.title=Conferma sostituzione del file
+imagelib.greenfoot.frame.title=Immagini Libreria Greenfoot
+imagelib.scenario.frame.title=Immagini Scenari
+imagelib.delete.confirm.title=Confirma Cancellazione
+imagelib.delete.confirm.text=Sei sicuro di voler cancellare
+imagelib.image.invalid.title=Immagini Non Valida
+imagelib.image.invalid.text=non 00e8 un'immagine valida.
+imagelib.image.unsupportedformat.title=Formato Non Supportato
+imagelib.image.unsupportedformat.text=non 00e8 supportato dal tuo computer.  Scegline un'altro e riprova.
+imagelib.rename.exists.text=Impossibile rinominare il file perch00e9 un file con lo stesso nome gi00e0 esiste.
+imagelib.rename.exists.title=Ridenominazione Fallita
+imagelib.new.image.title=Nuova Immagine
+imagelib.new.image.name=Nomee:
+imagelib.new.image.width=Larghezza:
+imagelib.new.image.height=Altezza:  
+imagelib.new.image.type=Tipo:
+imagelib.more=Altre Azioni...
+
+editor.paste.image.title=Incolla Immagine
+editor.paste.image.prompt=Nome File:
+
 
 scenario.viewer.appletInfo=Applet generata con Greenfoot (www.greenfoot.org). Nome dello scenario:
 
@@ -163,13 +248,49 @@ controls.run.button=Esegui
 controls.pause.button=Sospendi
 controls.reset.shortDescription=Istanzia un nuovo mondo.
 controls.reset.longDescription=Istanzia un nuovo mondo.
-controls.speed.label=Velocità:
-controls.speedSlider.tooltip=Regola la velocità di esecuzione
+controls.speed.label=Velocit00e0:
+controls.speedSlider.tooltip=Regola la velocit00e0 di esecuzione
 
 # Class browser
 browser.border.world=Classi Mondo
 browser.border.actors=Classi Attore
 browser.border.others=Altre classi
+
+# Sound Recorder
+
+soundRecorder.title=Registratore di Suoni
+soundRecorder.record=Registra
+soundRecorder.stopRecord=Arresta registrazione
+soundRecorder.trim=Elimina porzioni non selezionate
+soundRecorder.play=Riproduci
+soundRecorder.playSelection=Riproduci la selezione
+soundRecorder.stopPlay=Arresta la riproduzione
+soundRecorder.filename=Nome file
+soundRecorder.save=Salva
+soundRecorder.done=Chiudi
+soundRecorder.saved=Salvato
+soundRecorder.notSaved=Non Salvata
+soundRecorder.overwrite.part1=Il file \"
+soundRecorder.overwrite.part2=\" esiste gi00e0.  Vuoi sovrascriverlo?
+soundRecorder.overwrite.title=Conferma sovrascrittura file
+soundRecorder.overwrite=Sovrascrivi
+soundRecorder.closeAnyway=Chiudi
+soundRecorder.closeTitle=Chiudi senza salvare
+soundRecorder.closeQuestion=I suoni sono stati cambiati dall'ultimo salvataggio.  Se chiudi il registratore di suoni i cambiamenti fatti andranno persi.
+
+# Import 
+import.import=Importa
+import.dialogTitle=Importa Classe
+import.action=Importa Classe...
+import.restartMessage=Per far funzionare questo progetto correttamente 00e8 necessario riavviare Greenfoot
+
+set.player=Definisci Nome Giocatore
+playername.dialog.title=Definisci Nome Giocatore
+playername.dialog.help=Definisci lo username usato dalla classe UserInfo
+playername.dialog.playerName=Nome Giocatore
+
+prefmgr.misc.playername.title=Nome Giocatore
+prefmgr.misc.playerNameNote=Puoi cambiarlo rapidamente usando questo shortcut:
 
 # Menus
 
@@ -178,8 +299,13 @@ menu.openRecent=Apri recente
 menu.scenario=Scenario
 
 menu.edit=Modifica
+menu.new=Nuovo
 
 menu.controls=Controlli
+
+menu.debugger=Mostra Debugger
+
+menu.soundRecorder=Mostra Registratore di Suoni
 
 menu.help=Aiuto
 menu.help.about=Informazioni su Greenfoot...
@@ -188,8 +314,50 @@ menu.help.javadoc=Documentazione Libreria Java
 menu.help.tutorial=Tutorial Greenfoot 
 menu.help.website=Sito Web Greenfoot
 menu.help.moreScenarios=Altri scenari
+menu.help.discuss=Discussione Greenfoot
+
+#Copyright
+
+menu.help.copyright.title=Copyright, Licenza e Ridistribuzione di Greenfoot
+menu.help.copyright.line0=Greenfoot \u00a9 2005-2015 Michael K\u00F6lling, Poul Henriksen.
+menu.help.copyright.line1=Greenfoot 00e8 disponibile secondo la GNU General Public License  
+menu.help.copyright.line2=versione 2 con eccezione Classpath.
+menu.help.copyright.line3=Per ulteriori informazioni fare riferimento ai file LICENSE.txt 
+menu.help.copyright.line4=e THIRDPARTYLICENSE.txt.
+
+
+# Popup menu
+classPopup.needsCompile=Deve essere compilato
+classPopup.containsError=Contiene errori
 
 # Project does not exist dialog
 noproject.dialog.title=Errore durante l'apertura del progetto
 noproject.dialog.msg=Il progetto non esiste: 
- 
+
+# Header for the properties file
+properties.heading.greenfoot=Propriet00e0 Greenfoot. Le impostazioni di questo file hanno la precedenza su \"bluej.defs\" e \"greenfoot.defs\"
+
+# Message to display if a file cannot be created
+greenfoot.cannotCreateClass=Impossibile creare il file della classe. Verifica che la cartella del progetto non sia protetta da scrittura.
+
+# General error messages
+greenfoot.cannotFindAPIDocumentation=La documentazione dell'API 00e8 mancante o illegibile.
+
+# Message for sound related errors
+sound-line-unavailable=Impossibile accedere alla scheda audio. Se hai una scheda audio \ninstallata verifica verifica le impostazioni di sistema e chiudi \ntutti i programmi che potrebbero usare la scheda audio.
+
+# MainFrame central messages
+centrePanel.message.openScenario=\u2196 Crea o Apri uno scenario usando il menu Scenario
+centrePanel.message.createWorldClass=Crea una nuova sottoclasse della classe World
+centrePanel.message.compile=La classe world potrebbe contenere un'errore, verifica per poter inizializzare lo scenario \u2197
+centrePanel.message.initialising=Il mondo 00e8 in costruzione...
+centrePanel.message.initialisingTooLong1=Il costruttore del mondo 00e8 in esecuzione da molto tempo.
+centrePanel.message.initialisingTooLong2=Potrebbe contenere un ciclo infinito.
+centrePanel.message.notFocused=Per costruire il mondo clicca questa finestra.
+centrePanel.restartButton.label=Riavvia
+centrePanel.message.error1=Il costruttore del mondo ha lanciat un'eccezione.
+centrePanel.message.error2=Per ulteriori dettagli vedi la finestra Terminal.
+centrePanel.message.afterRestarting1=Greenfoot si 00e8 riavviato perch00e9 non 00e8 stato possibile costruire il Mondo.
+centrePanel.message.afterRestarting2=Verifica il costruttore della sottoclasse World.
+centrePanel.message.missingWorldConstructor1=Non 00e8 stato possibile costruire il mondo. La sottoclasse world non pu00f2 contenere
+centrePanel.message.missingWorldConstructor2=un costruttore pubblico senza parametri oppure non pu00f2 essere pubblica.

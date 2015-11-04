@@ -331,11 +331,11 @@ public abstract class ClassRole
      */
     public List<File> getAllFiles(ClassTarget ct)
     {
-        // Source, .class, .ctxt, and doc (.html)
+        // .frame (if available), .java, .class, .ctxt, and doc (.html)
         List<File> rlist = new ArrayList<File>();
         
         rlist.add(ct.getClassFile());
-        rlist.add(ct.getSourceFile());
+        rlist.addAll(ct.getAllSourceFiles());
         rlist.add(ct.getContextFile());
         rlist.add(ct.getDocumentationFile());
         

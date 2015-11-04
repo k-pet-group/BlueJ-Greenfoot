@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2013  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,6 +22,7 @@
 package greenfoot.actions;
 
 import bluej.Config;
+import greenfoot.core.GClass;
 import greenfoot.core.GProject;
 import greenfoot.core.Simulation;
 
@@ -62,7 +63,18 @@ public class CompileAllAction extends AbstractAction
             return;
         }
         Simulation.getInstance().setPaused(true);
-        project.getDefaultPackage().compileAll();
+        //project.getDefaultPackage().compileAll();
+        for (GClass c : project.getDefaultPackage().getClasses(false))
+        {
+            try
+            {
+                c.compile(true, false);
+            }
+            catch (Exception ex)
+            {
+                ex.printStackTrace();
+            }
+        }
         
         // Disable the action until the compilation is finished, when it
         // will be re-enabled.

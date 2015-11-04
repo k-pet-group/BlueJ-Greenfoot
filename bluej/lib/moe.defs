@@ -4,7 +4,7 @@
 ##  Define the toolbar
 ##
 
-toolbar = compile undo cut copy paste find close
+toolbar = next-error undo cut copy paste find close
 
 # actions for toolbar commands (only needed when it differs from command name)
 
@@ -33,7 +33,7 @@ menubar = class edit tools option
 
 class = save reload - page-setup print - close
 edit = undo redo - cut-to-clipboard copy-to-clipboard paste-from-clipboard - indent-block deindent-block comment-block uncomment-block autoindent - insert-method add-javadoc
-tools = find find-next find-next-backward replace go-to-line - compile toggle-breakpoint - toggle-interface-view
+tools = find find-next find-next-backward replace go-to-line - next-error toggle-breakpoint - toggle-interface-view
 option = key-bindings preferences
 
 # Syntax colour definitions

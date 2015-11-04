@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2013,2014,2015  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,17 +21,16 @@
  */
 package bluej.editor;
 
-import java.awt.Rectangle;
 import java.awt.print.PrinterJob;
 import java.io.IOException;
-import java.nio.charset.Charset;
+import java.util.function.Consumer;
 
-import javax.swing.text.BadLocationException;
-import javax.swing.text.Document;
-
+import threadchecker.OnThread;
+import threadchecker.Tag;
 import bluej.compiler.Diagnostic;
-import bluej.parser.SourceLocation;
-import bluej.parser.nodes.ParsedCUNode;
+import bluej.editor.stride.FrameEditor;
+import bluej.stride.framedjava.elements.CallElement;
+import bluej.stride.framedjava.elements.NormalMethodElement;
 
 
 /**
@@ -42,71 +41,12 @@ import bluej.parser.nodes.ParsedCUNode;
  */
 public interface Editor
 {
-    /**
-     * Read a file into the editor buffer and show the editor. If the editor
-     * already contains text, it is cleared first. If the file cannot be read,
-     * the editor should not be displayed.
-     * 
-     * @param filename    the file to be read
-     * @param compiled    true if this is a compiled class
-     * 
-     * @return false is there was a problem, true otherwise
-     */
-    boolean showFile(String filename, Charset charset, boolean compiled, String docFilename, Rectangle bounds);
 
     /**
      * Reload and display the same file that was displayed before.
      * This should generated a modificationEvent followed by a saveEvent.
      */
     void reloadFile();
-
-    /**
-     * Clear the current buffer. The editor is not redisplayed after a call to
-     * this function. It is typically used in a sequence "clear; [insertText];
-     * show".
-     */
-    void clear();
-
-    /**
-     * Insert a string into the buffer. The editor is not immediately
-     * redisplayed. This function is typically used in a sequence "clear;
-     * [insertText]; show".
-     * 
-     * @param text        the text to be inserted
-     * @param caretBack    move the caret to the beginning of the inserted text
-     */
-    void insertText(String text, boolean caretBack);
-
-    /**
-     * Set the selection of the editor to be a len characters on the line
-     * lineNumber, starting with column columnNumber
-     * 
-     * @param lineNumber the line to select characters on
-     * @param column the column to start selection at (1st column is 1 - not 0)
-     * @param len the number of characters to select
-     */
-    void setSelection(int lineNumber, int column, int len);
-
-    /**
-     * Request to the editor to mark the text between begin and end as selected.
-     *
-     * @param  begin                      where to start the selection
-     * @param  end                        where to end the selection
-     * @throws  IllegalArgumentException  if either of the specified TextLocations
-     * represent a position which does not exist in the text.
-     */
-    public void setSelection(SourceLocation begin, SourceLocation end);
-    
-    /**
-     * Set the selection of the editor to be a len characters on the line
-     * lineNumber, starting with column columnNumber
-     * 
-     * @param lineNumber the line to select characters on
-     * @param column the column to start selection at (1st column is 1 - not 0)
-     * @param len the number of characters to select
-     */
-    void setSelection(int firstlineNumber, int firstColumn,
-                      int secondLineNumber, int SecondColumn);
 
     /**
      * Show the editor window. This includes whatever is necessary of the
@@ -117,11 +57,11 @@ public interface Editor
     void setVisible(boolean vis);
 
     /**
-     * True is the editor is on screen.
+     * True if the editor is open in the tabbed window.
      * 
-     * @return true if editor is on screen
+     * @return true if editor is an open tab
      */
-    boolean isShowing();
+    boolean isOpen();
 
     /**
      * Save the buffer to disk under the current file name. This is an error if
@@ -132,6 +72,11 @@ public interface Editor
      * re-writing the file to disk.
      */
     void save() throws IOException;
+
+    default void saveJavaWithoutWarning() throws IOException
+    {
+        save();
+    }
 
     /**
      * Close the editor window.
@@ -164,8 +109,11 @@ public interface Editor
      * Display a diagnostic message from the compiler.
      * 
      * @param diagnostic  The diagnostic to be displayed.
+     * @param errorIndex The index of the error (first is 0, second is 1, etc)
+     * @return Whether the error was shown to the user (true) or not (false).  Some editors
+     *          only show the first error, for example, or the first N.
      */
-    void displayDiagnostic(Diagnostic diagnostic);
+    boolean displayDiagnostic(Diagnostic diagnostic, int errorIndex);
     
     /**
      *  Display a message into the info area.
@@ -188,9 +136,10 @@ public interface Editor
      * 
      * @param title        new window title
      * @param filename     new file name
+     * @param javaFilename If Java source, same as filename.  If Stride source, target Java file.
      * @param docFileName  new documentation file name
      */
-    void changeName(String title, String filename, String docFileName);
+    void changeName(String title, String filename, String javaFilename, String docFileName);
 
     /**
      * Set the "compiled" status
@@ -198,6 +147,13 @@ public interface Editor
      * @param compiled    true if the class has been compiled
      */
     void setCompiled(boolean compiled);
+    
+    /**
+     * Tells the editor that a compilation has begun
+     * 
+     * @return True if there is a known error
+     */
+    boolean compileStarted();
     
     /**
      * Informs the editor that a compilation requested via the EditorWatcher interface has finished.
@@ -229,11 +185,12 @@ public interface Editor
     /**
      * Prints the contents of the editor
      */
-    void print(PrinterJob printerJob);
+    @OnThread(Tag.Any)
+    void printTo(PrinterJob printerJob, boolean printLineNumbers, boolean printBackground);
 
     /**
      * Set the 'read-only' property of this editor.
-     * @param readOnlyStatus  If true, editor is non-editable.
+     * @param readOnly  If true, editor is non-editable.
      */
     void setReadOnly(boolean readOnly);
 
@@ -256,102 +213,14 @@ public interface Editor
      *  @return  True, if interface is currently shown, false otherwise.
      */
     boolean isShowingInterface();
-
-    /**
-     * Gets the bounds for this editor window.
-     * This method is used to store the bounds between sessions.
-     * 
-     * @return The bounds
-     */
-    Rectangle getBounds();
-    
-    /**
-     * Get the source document that this editor is currently editing. Certain
-     * operations (such as reload) might change the document; that is, the
-     * returned document may become invalid at some later point in time.
-     * 
-     * @return  the document being edited.
-     */
-    Document getSourceDocument(); 
-
-    /**
-     * Returns the current caret location within the edited text.
-     *
-     * @return    the LineColumn object.
-     */
-    public SourceLocation getCaretLocation();
-    
-    /**
-     * Sets the current Caret location within the edited text.
-     *
-     * @param  location                   The location in the text to set the Caret to.
-     * @throws  IllegalArgumentException  if the specified TextLocation represents a position which does not exist in the text.
-     */
-    public void setCaretLocation(SourceLocation location);
-
-
-    /**
-     * Returns the location at which current selection begins.
-     *
-     * @return    the current beginning of the selection or null if no text is selected.
-     */
-    public SourceLocation getSelectionBegin();
-    
-    /**
-     * Returns the location where the current selection ends.
-     *
-     * @return    the current end of the selection or null if no text is selected.
-     */
-    public SourceLocation getSelectionEnd();
-
-    /**
-     * Returns the text which lies between the two LineColumn.
-     *
-     * @param  begin                      The beginning of the text to get
-     * @param  end                        The end of the text to get
-     * @return                            The text value
-     * @throws  IllegalArgumentException  if either of the specified SourceLocations represent a position which does not exist in the text.
-     */
-    public String getText( SourceLocation begin, SourceLocation end );    
-
-    /**
-     * Request to the editor to replace the text between beginning and end with the given newText
-     * If begin and end points to the same location, the text is inserted.
-     *
-     * @param  begin                      where to start to replace
-     * @param  end                        where to end to replace
-     * @param  newText                    The new text value
-     * @throws  IllegalArgumentException  if either of the specified LineColumn
-     * represent a position which does not exist in the text.
-     * @throws  BadLocationException  if internally the text points outside a location in the text.
-     */
-    public void setText(SourceLocation begin, SourceLocation end, String newText)
-        throws BadLocationException;
-        
-    /**
-     * Returns the LineColumn object from the given offset in the text.
-     *
-     * @return    the LineColumn object or null if the offset points outside the text.
-     */
-    public SourceLocation getLineColumnFromOffset(int offset);
-    
-    /**
-     * Translates a LineColumn into an offset into the text held by the editor.
-     *
-     * @param  location  position to be translated
-     * @return           the offset into the content of this editor
-     * @throws  IllegalArgumentException  if the specified LineColumn
-     * represent a position which does not exist in the text.
-     */
-    public int getOffsetFromLineColumn(SourceLocation location);
-    
+ 
     /**
      * Returns a property of the current editor.
      *
      * @param  propertyKey  The propertyKey of the property to retrieve.
      * @return              the property value or null if it is not found
      */
-    public Object getProperty(String propertyKey);
+    Object getProperty(String propertyKey);
 
     /**
      * Set a property for the current editor. Any existing property with
@@ -360,38 +229,49 @@ public interface Editor
      * @param  propertyKey  The property key of the new property
      * @param  value        The new property value
      */
-    public void setProperty(String propertyKey, Object value);
+    void setProperty(String propertyKey, Object value);
+
+    /**
+     * A (temporary?) method for assuming that this editor is editing text (rather than frames).
+     * Use this in preference to casting, to make it clear in the code where
+     * this assumption is being made.
+     */
+    @OnThread(Tag.Swing)
+    TextEditor assumeText();
     
     /**
-     * Returns the length of the line indicated in the edited text.
-     *
-     * @param  line  the line in the text for which the length should be calculated, starting from 0
-     * @return       the length of the line, -1 if line is invalid
+     * The counterpoint to assumeText()
      */
-    public int getLineLength(int line);
+    @OnThread(Tag.FX)
+    FrameEditor assumeFrame();
     
     /**
-     * Return the number of lines in the document.
+     * Create a new method, or appending the contents if the method already exists
+     *   
+     * @param e extensions editor
+     * @param method element
+     * @param after will be passed true if the method existed already, false otherwise (will always be run)
      */
-    public int numberOfLines();
-    
+    void insertAppendMethod(bluej.extensions.editor.Editor e, NormalMethodElement method, Consumer<Boolean> after);
+
     /**
-     * Returns the length of the data.  This is the number of
-     * characters of content that represents the users data.
-     *
-     * It is possible to obtain the line and column of the last character of text by using
-     * the getLineColumnFromOffset() method.
-     *
-     * @return the length >= 0
+     * Insert a method call in constructor, if it does not already exists
+     *   
+     * @param e extensions editor
+     * @param className string
+     * @param methodCall element 
+     * @param after will be passed true if the call existed already
      */
-    public int getTextLength ();    
-    
+    void insertMethodCallInConstructor(bluej.extensions.editor.Editor e, String className, CallElement methodCall, Consumer<Boolean> after);
+
     /**
-     * Get a node representing the the parsed structure of the source
-     * document as a tree.
-     * 
-     * @return A ParsedNode instance, or null if not supported.
+     * Shows the next error in the editor, if there are any.  This will differ slightly by editor,
+     * but broadly: if the cursor is outside an error, it should be taken to the next error (and details displayed)
+     * or if it is already in an error, it should be taken to the next error, cycling if necessary. 
      */
-    public ParsedCUNode getParsedNode();
-    
+    void showNextError();
+
+    void cancelFreshState();
+
+    void focusMethod(String methodName);
 }

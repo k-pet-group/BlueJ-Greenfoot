@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,6 +25,9 @@ package bluej;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
   * Class to handle (throw and deliver) BlueJ events. Event are defined
@@ -82,6 +85,7 @@ public class BlueJEvent
      * Raise a BlueJ event with an argument. All registered listeners
      * will be informed of this event.
      */
+    @OnThread(Tag.Swing)
     public static void raiseEvent(int eventId, Object arg)
     {
         Object[] listenersCopy = listeners.toArray();

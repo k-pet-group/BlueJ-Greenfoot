@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2012,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2012,2013,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,7 +22,14 @@
 package bluej.pkgmgr;
 
 import java.awt.EventQueue;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -31,6 +38,7 @@ import java.util.List;
 
 import bluej.BlueJEvent;
 import bluej.Config;
+import bluej.extensions.SourceType;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
@@ -103,9 +111,7 @@ public class DocuGenerator
                                     String header, boolean openBrowser)
     {
         // start the call in a separate thread to allow fast return to GUI.
-        Thread starterThread = new Thread(
-                        new DocuRunStarter(call, result, log, header, 
-                                           openBrowser));
+        Thread starterThread = new DocuRunStarter(call, result, log, header, openBrowser);
         starterThread.setPriority(Thread.MIN_PRIORITY);
         starterThread.start();
         BlueJEvent.raiseEvent(BlueJEvent.GENERATING_DOCU, null);
@@ -120,7 +126,7 @@ public class DocuGenerator
      * HTML file that should be opened by a web browser if the documentation
      * generation was successful.
      */
-    private static class DocuRunStarter implements Runnable
+    private static class DocuRunStarter extends Thread
     {
         private String[] docuCall;
         private File showFile;
@@ -371,11 +377,11 @@ public class DocuGenerator
         // first: get the names of all packages that contain java sources.
         List<String> packageNames = project.getPackageNames();
         for (Iterator<String> names = packageNames.iterator(); names.hasNext(); ) {
-            String packageName = (String)names.next();
+            String packageName = names.next();
             // as javadoc doesn't like packages with no java-files, we have to
             // pass only names of packages that really contain java files.
             Package pack = project.getPackage(packageName);
-            if (FileUtility.containsFile(pack.getPath(),".java")) {
+            if (FileUtility.containsFile(pack.getPath(),"." + SourceType.Java.toString().toLowerCase())) {
                 if(packageName.length() > 0) {
                     call.add(packageName);
                 }
@@ -386,9 +392,9 @@ public class DocuGenerator
         List<String> classNames = project.getPackage("").getAllClassnamesWithSource();
         String dirName = project.getProjectDir().getAbsolutePath();
         for (Iterator<String> names = classNames.iterator();names.hasNext(); ) {
-            call.add(dirName + "/" + names.next() + ".java");
+            call.add(dirName + "/" + names.next() + "." + SourceType.Java.toString().toLowerCase());
         }
-        String[] javadocCall = (String[])call.toArray(new String[0]);
+        String[] javadocCall = call.toArray(new String[0]);
 
         generateDoc(javadocCall, startPage, logFile, projectLogHeader, true);
         return "";
@@ -459,8 +465,8 @@ public class DocuGenerator
     {
         if(filename.startsWith(projectDirPath))
             filename = filename.substring(projectDirPath.length());
-        if (filename.endsWith(".java"))
-            filename = filename.substring(0, filename.indexOf(".java"));
+        if (filename.endsWith("." + SourceType.Java.toString().toLowerCase()))
+            filename = filename.substring(0, filename.indexOf("." + SourceType.Java.toString().toLowerCase()));
         return docDirPath + filename + ".html";
     }
 

@@ -1,0 +1,35 @@
+/* Style for the tooltip-like display of an error message and suggested fixes and follow-ups */
+.error-fix-display, .suggested-followup-pane {
+    -fx-border-color: hsb(0, 40%, 30%);
+    -fx-background-color: hsba(0, 5%, 20%, 0.8);
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+    -fx-padding: 5 5 5 5;
+}
+
+.error-fix-display .label, .suggested-followup-pane .label {
+    -fx-text-fill: white;
+}
+
+.error-fix-display .error-label {
+    -fx-padding: 0 0 3 0;
+    -fx-wrap-text: true;
+}
+
+.error-fix-display .fix-highlight {
+    -fx-background-color: hsb(180, 30%, 40%); 
+}
+
+.suggested-followup-pane {
+    -fx-max-width: 300;
+    -fx-spacing: 0.5em;
+}
+
+.suggested-followup-pane > .label {
+    -fx-max-width: 290;
+    -fx-wrap-text: true;
+}
+
+.suggested-followup-pane > .suggested-followup-hbox {
+    -fx-spacing: 1em;
+}

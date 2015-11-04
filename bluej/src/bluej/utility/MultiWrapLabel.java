@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -34,7 +34,6 @@ import javax.swing.JComponent;
  * can also be specified.
  * 
  * @author Davin McCall
- * @version $Id: MultiWrapLabel.java 6215 2009-03-30 13:28:25Z polle $
  */
 public class MultiWrapLabel extends JComponent
 {
@@ -90,6 +89,7 @@ public class MultiWrapLabel extends JComponent
     /* (non-Javadoc)
      * @see java.awt.Component#getMaximumSize()
      */
+    @Override
     public Dimension getMaximumSize()
     {
         if (isMaximumSizeSet()) {
@@ -103,6 +103,7 @@ public class MultiWrapLabel extends JComponent
     /* (non-Javadoc)
      * @see java.awt.Component#getMinimumSize()
      */
+    @Override
     public Dimension getMinimumSize()
     {
         if (isMinimumSizeSet()) {
@@ -116,6 +117,7 @@ public class MultiWrapLabel extends JComponent
     /* (non-Javadoc)
      * @see java.awt.Component#getPreferredSize()
      */
+    @Override
     public Dimension getPreferredSize()
     {
         if (isPreferredSizeSet()) {
@@ -238,6 +240,7 @@ public class MultiWrapLabel extends JComponent
     /* (non-Javadoc)
      * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
      */
+    @Override
     protected void paintComponent(Graphics g)
     {
         Graphics ng = g.create();

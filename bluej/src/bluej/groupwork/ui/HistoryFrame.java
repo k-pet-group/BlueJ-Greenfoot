@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2012,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,14 +25,34 @@ import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
-import javax.swing.*;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
 import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.collect.DataCollector;
-import bluej.groupwork.*;
+import bluej.groupwork.HistoryInfo;
+import bluej.groupwork.LogHistoryListener;
+import bluej.groupwork.Repository;
+import bluej.groupwork.TeamUtils;
+import bluej.groupwork.TeamworkCommand;
+import bluej.groupwork.TeamworkCommandResult;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
 import bluej.utility.DBox;
@@ -302,12 +322,14 @@ public class HistoryFrame extends EscapeDialog
             this.repository = repository;
         }
         
+        @OnThread(Tag.Unique)
         public Object construct()
         {
             response = command.getResult();
             return response;
         }
         
+        @OnThread(Tag.Any)
         public void logInfoAvailable(HistoryInfo hInfo)
         {
             responseList.add(hInfo);

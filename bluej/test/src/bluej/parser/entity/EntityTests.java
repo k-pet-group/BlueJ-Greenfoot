@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 2010,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -39,7 +39,7 @@ public class EntityTests extends junit.framework.TestCase
         
         // Create a field call "aField" in the superclass
         base.fields = new HashMap<String,FieldReflective>();
-        FieldReflective fref = new FieldReflective("aField", JavaPrimitiveType.getInt(), Modifier.PUBLIC);
+        FieldReflective fref = new FieldReflective("aField", JavaPrimitiveType.getInt(), Modifier.PUBLIC, base);
         base.fields.put("aField", fref);
         
         // Check the fields can be accessed
@@ -59,9 +59,9 @@ public class EntityTests extends junit.framework.TestCase
         
         // Create some fields in the superclass
         base.fields = new HashMap<String,FieldReflective>();
-        FieldReflective fref = new FieldReflective("aField", JavaPrimitiveType.getInt(), Modifier.PUBLIC);
+        FieldReflective fref = new FieldReflective("aField", JavaPrimitiveType.getInt(), Modifier.PUBLIC, base);
         base.fields.put("aField", fref);
-        fref = new FieldReflective("sField", JavaPrimitiveType.getDouble(), Modifier.PUBLIC | Modifier.STATIC);
+        fref = new FieldReflective("sField", JavaPrimitiveType.getDouble(), Modifier.PUBLIC | Modifier.STATIC, base);
         base.fields.put("sField", fref);
         
         // Check non-static field can't be accessed

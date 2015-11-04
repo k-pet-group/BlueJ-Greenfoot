@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 2010,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -34,6 +34,8 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
 import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.utility.DialogManager;
@@ -47,6 +49,8 @@ public class PrintDialog extends EscapeDialog
     private boolean ok; // result: which button?
     private JCheckBox printLineNumbers;
     private JCheckBox printHighlighting;
+    private boolean printLineNumbersSelected;
+    private boolean printHighlightingSelected;
 
     /**
      * Creates a new ProjectPrintDialog object.
@@ -130,6 +134,7 @@ public class PrintDialog extends EscapeDialog
     public void doOK()
     {
         ok = true;
+        storeValues();
         setVisible(false);
     }
 
@@ -148,9 +153,10 @@ public class PrintDialog extends EscapeDialog
      * @return true if radio button is selected meaning line numbers should be
      *         printed
      */
+    @OnThread(Tag.Any)
     public boolean printLineNumbers()
     {
-        return printLineNumbers.isSelected();
+        return printLineNumbersSelected;
     }
 
     /**
@@ -159,8 +165,16 @@ public class PrintDialog extends EscapeDialog
      * @return true if radio button is selected meaning source code should be
      *         printed with syntax highlighting
      */
+    @OnThread(Tag.Any)
     public boolean printHighlighting()
     {
-        return printHighlighting.isSelected();
+        return printHighlightingSelected;
+    }
+    
+    // While on Swing thread, store selections ready for later retrieval from another thread:
+    private void storeValues()
+    {
+        printLineNumbersSelected = printLineNumbers.isSelected();
+        printHighlightingSelected = printHighlighting.isSelected();
     }
 }

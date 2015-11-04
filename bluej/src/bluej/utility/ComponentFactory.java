@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,14 +23,18 @@ package bluej.utility;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 
 /**
  * Interface for a factory to create components for a GrowableBox.
  * 
  * @see bluej.utility.GrowableBox
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ComponentFactory.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: ComponentFactory.java 12516 2014-10-09 11:40:15Z nccb $
  */
+@OnThread(Tag.Swing)
 public interface ComponentFactory
 {
     public JComponent createComponent(JButton addButton, JButton removeButton);

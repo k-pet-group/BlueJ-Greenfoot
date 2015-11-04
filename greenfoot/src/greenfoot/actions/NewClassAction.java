@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012,2013,2014,2015  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -40,6 +40,7 @@ import javax.swing.AbstractAction;
 import javax.swing.JFrame;
 
 import bluej.Config;
+import bluej.extensions.SourceType;
 
 /**
  * An action for creating a new (non-Actor, non-World) class.
@@ -56,7 +57,7 @@ public class NewClassAction extends AbstractAction
      */
     public NewClassAction(GreenfootFrame gfFrame, InteractionListener interactionListener)
     {
-        super(Config.getString("new.class"));
+        super(Config.getString("new.other.class"));
         setEnabled(false);
         this.gfFrame = gfFrame;
         this.interactionListener = interactionListener;
@@ -77,14 +78,16 @@ public class NewClassAction extends AbstractAction
         }
         
         String className = dialog.getClassName();
+        SourceType language = dialog.getSelectedLanguage();
         
         try {
             File dir = pkg.getProject().getDir();
-            File newJavaFile = new File(dir, className + ".java");
-            GreenfootUtilDelegateIDE.getInstance().createSkeleton(className, null, newJavaFile,
-                    NormalClassRole.getInstance().getTemplateFileName(), pkg.getProject().getCharsetName());
+            final String extension = language.toString().toLowerCase();
+            File newFile = new File(dir, className + "." + extension);
+            GreenfootUtilDelegateIDE.getInstance().createSkeleton(className, null, newFile,
+                    NormalClassRole.getInstance().getTemplateFileName(dialog.getInterface(), language), pkg.getProject().getCharsetName());
 
-            GClass newClass = pkg.newClass(className, false);
+            GClass newClass = pkg.newClass(className, extension, false);
 
             ClassView classView = new ClassView(classBrowser, newClass, interactionListener);
             classBrowser.addClass(classView);

@@ -10,6 +10,8 @@ import javax.swing.JPopupMenu;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
+import bluej.Config;
+
 /**
  * Creates a button that can have a PopupMenu which will be
  * displayed when the button is clicked on.
@@ -17,10 +19,32 @@ import javax.swing.event.PopupMenuListener;
  * It's appearance is completely dependent on the icon provided.
  * @author Philip Stevens
  */
-public class PopupMenuButton extends JButton implements PopupMenuListener, MouseListener
+class PopupMenuButton extends JButton implements PopupMenuListener, MouseListener
 {
     /** Holds the PopupMenu to be displayed on pressing this button. */
     private JPopupMenu popupMenu;
+    
+    /**
+     * Initialises the button, setting up a mouse listener for when
+     * pressed on, or released (mouse pressed on something else). Also
+     * added a popup listener for the popup, to set display states.
+     * @param icon      Icon to show as the button.
+     * @param popupMenu PopupMenu to display when this button is clicked on.
+     */
+    public PopupMenuButton(String text, JPopupMenu popupMenu)
+    {
+        super(text);
+        this.popupMenu = popupMenu;
+        
+        // removes the blue hint that could appear around the icon
+        //setBorder(null);
+        //setContentAreaFilled(false);
+        setFocusable(false);
+        
+        // listeners for this, and the PopupMenu
+        popupMenu.addPopupMenuListener(this);
+        addMouseListener(this);
+    }
     
     /**
      * Initialises the button, setting up a mouse listener for when

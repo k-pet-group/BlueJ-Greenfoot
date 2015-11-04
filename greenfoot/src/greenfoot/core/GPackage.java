@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2013,2014,2015  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,6 +26,7 @@ import greenfoot.util.GreenfootUtil;
 
 import java.io.File;
 import java.rmi.RemoteException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -40,6 +41,7 @@ import bluej.extensions.CompilationNotStartedException;
 import bluej.extensions.MissingJavaFileException;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
+import bluej.extensions.SourceType;
 import bluej.utility.Debug;
 
 /**
@@ -178,11 +180,11 @@ public class GPackage
         }
     }
 
-    public GClass newClass(String className, boolean inRemoteCallback)
+    public GClass newClass(String className, String extension, boolean inRemoteCallback)
     {
         GClass newClass = null;
         try {
-            RClass newRClass = pkg.newClass(className);
+            RClass newRClass = pkg.newClass(className, extension);
             newClass = new GClass(newRClass, this, inRemoteCallback);
             synchronized (classPool) {
                 classPool.put(newRClass, newClass);
@@ -288,5 +290,15 @@ public class GPackage
         catch (RemoteException e) {
             e.printStackTrace();
         }
+    }
+
+    public SourceType getDefaultSourceType()
+    {
+        // Our heuristic is: if the scenario contains any Stride files, the default is Stride,
+        // otherwise it's Java
+        if (Arrays.asList(getClasses(false)).stream().anyMatch(c -> c.getSourceType() == SourceType.Stride))
+            return SourceType.Stride;
+        else
+            return SourceType.Java;
     }
 }

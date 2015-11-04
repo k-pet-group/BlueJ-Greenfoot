@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 2013,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,6 +26,8 @@ import java.io.Reader;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.Segment;
+
+import bluej.utility.Debug;
 
 /**
  * An efficient reader which reads directly from the supplied Document.
@@ -72,6 +74,8 @@ public class DocumentReader extends Reader
         this.document = document;
         docPosition = position;
         docLength = endpos;
+        if (docLength > document.getLength())
+            throw new IllegalArgumentException("Trying to construct DocumentReader to look up to " + endpos + " in a document of length: " + document.getLength());
         fillBuffer();
     }
     
@@ -129,6 +133,8 @@ public class DocumentReader extends Reader
             docPosition += (buffer.getEndIndex() - buffer.getBeginIndex());
             bufpos = buffer.getBeginIndex();
         }
-        catch (BadLocationException e) {}
+        catch (BadLocationException e) {
+            Debug.reportError("Len: " + docLength + " pos: " + docPosition + "Doc len: " + document.getLength(), e);
+        }
     }
 }

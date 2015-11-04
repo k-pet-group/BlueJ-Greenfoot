@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -31,6 +31,7 @@ import java.util.List;
 
 import javax.swing.JFrame;
 
+import bluej.extensions.SourceType;
 import bluej.parser.InfoParser;
 import bluej.parser.symtab.ClassInfo;
 import bluej.utility.Debug;
@@ -160,7 +161,7 @@ public class Import
                 }
             }
             else {
-                if (files[i].getName().endsWith(".java"))
+                if (files[i].getName().endsWith("." + SourceType.Java.toString().toLowerCase()))
                     imInteresting = true;
             }
         }
@@ -194,7 +195,7 @@ public class Import
             }
 
             for (int i=0; i<files.length; i++) {
-                if (files[i].isFile() && files[i].getName().endsWith(".java")) {
+                if (files[i].isFile() && files[i].getName().endsWith("." + SourceType.Java.toString().toLowerCase())) {
                     interesting.add(files[i]);
                 }
             }

@@ -1,0 +1,198 @@
+Bugs marked as fixed in u40: (test and update the code accordingly) 
+===============
+
+AA - Sometimes on Mac, BorderPane will not consume the event, thus it will be passed to the button:
+ 	For example, pressing Cmd in Mac with any letter will do the shortcut's action, but the event will not be consumed,
+    thus, the matching frame will be inserted, if applicable. (a temporary work around has been implemented)
+    Ticket: https://javafx-jira.kenai.com/browse/RT-37442 
+  
+ - Collapsing to birdseye view on Java 8u20 does not hide the documentation area, due to JavaFX bug:
+   https://javafx-jira.kenai.com/browse/RT-38515
+   
+AA - CustomizedMenuItem doesn't appear properly in Mac's SystemMenu.  
+   A work round has been implemented, but we have to test this properly before releasing.
+
+- The old editor tabs: if you opened second java file, trying to select the first one makes it vanishes. (sometimes
+     after couple of selecting.
+
+
+Performance:
+===========
+ - When opening/creating a scenario, initialise a hidden basic Stride editor if the scenario has at least one Stride file.
+
+
+Bugs NOT noticed any more, to be removed after a while, please test and add your initials to confirm or delete if certain:
+===============
+
+ - undo/redo on Mac, Linux and Windows: User reported: neither Ctrl-Y nor Ctrl-Shift-Z was working for undo [on Windows 8.1]
+
+ - 'Undo' sometimes undoes many steps at once.
+
+ - If you try to save the world, and the editor for the world has not been opened yet, a NPE is thrown
+     AA: I think it is fixed, please test.
+
+
+ - When I open a scenario, Greenfoot preview 1 froze and an Exception found in the debug-log:
+    Exception in thread "JavaFX Application Thread" java.lang.NullPointerException
+        at bluej.stride.framedjava.elements.SwitchElement.<init>(SwitchElement.java:93)
+        at bluej.stride.framedjava.ast.Loader.loadElement(Loader.java:91)
+    AA: I think this is an old issue, any one confirm?
+
+
+ - Undo to remove a recent added constructor (or redo to re-add it) fires NPE:
+    Exception in thread "JavaFX Application Thread" java.lang.NullPointerException
+    	at bluej.stride.framedjava.frames.ClassFrame.lambda$updateInheritedItems$20(ClassFrame.java:694)
+    	at bluej.stride.framedjava.frames.ClassFrame$$Lambda$529/290866593.accept(Unknown Source)
+    	at bluej.stride.framedjava.frames.ClassFrame.lambda$withInheritedItems$21(ClassFrame.java:742)
+    	at bluej.stride.framedjava.frames.ClassFrame$$Lambda$530/403582396.accept(Unknown Source)
+    AA: I think it is fixed, please test.
+
+
+ - Code completion for imports doesn't include exceptions (e.g. java.io.IOException)
+ 
+ - Please test convert-to-java in different cases.
+
+ - trying to create world subclass throws exception
+
+ - Trying to do something (maybe show a code completion, do u remember?) on a parameter type caused the method header
+   to be scrolled out of the visible area.
+
+ - Swing tab button in the old editor vanished when we open a second one.
+
+ - If there is a method call, adding a new param pair to the method definition will cause:
+  	- the window will scroll in a strange wrong way.  AA: not seen any more
+
+ - If we have certain frames which have an error, at a random times the below exception fires, for example:
+      * adding a comment frame in the fields and then pressing down,
+      * emptying the text field of the only import frame
+     
+     Exception in thread "JavaFX Application Thread" java.lang.IllegalArgumentException: JavaCompileError ends before it begins
+		at bluej.stride.framedjava.errors.JavaCompileError.<init>(JavaCompileError.java:44)
+		at bluej.stride.framedjava.ast.JavaFragment.showCompileError(JavaFragment.java:157)
+		at bluej.stride.framedjava.ast.JavaSource.handleError(JavaSource.java:162)
+		at bluej.editor.stride.FrameEditor.lambda$21(FrameEditor.java:641)
+   So I added some debug statements, if you faced this error, please send me the log.
+   
+   Log:
+   
+   JavaFragment::showCompileError : message = illegal start of expression
+     Line = 30 -> 30, lineNumber = 30
+     @ = 22 -> 22, columnNumber = 18, len = 1
+JavaCompileError::JavaCompileError : illegal start of expression
+JavaCompileError::JavaCompileError : slotElement = bluej.stride.framedjava.ast.FrameFragment@721e707e
+     @ = 4 -> 1
+Exception in thread "JavaFX Application Thread" java.lang.IllegalArgumentException: JavaCompileError ends before it begins
+    at bluej.stride.framedjava.errors.JavaCompileError.<init>(JavaCompileError.java:47)
+    at bluej.stride.framedjava.ast.JavaFragment.showCompileError(JavaFragment.java:160)
+    at bluej.stride.framedjava.ast.JavaSource.handleError(JavaSource.java:162)
+    at bluej.editor.stride.FrameEditor.lambda$21(FrameEditor.java:641)
+    at bluej.editor.stride.FrameEditor$$Lambda$711/842540842.accept(Unknown Source)
+
+    Code: 
+   <?xml version="1.0" encoding="UTF-8"?>
+<class name="Crab" extends="Actor" enable="true">
+    <javadoc xml:space="preserve"/>
+    <imports>
+        <import target="java.lang.*"/>
+        <import target="java.util.*"/>
+        <import target="greenfoot.*"/>
+        <import target="java.awt.Color"/>
+    </imports>
+    <implements/>
+    <fields>
+        <variable access="private" type="int" name="eaten" value="0" value-java="0" enable="true"/>
+    </fields>
+    <constructors/>
+    <methods>
+        <methodproto type="void" name="addedToWorld" enable="false">
+            <javadoc xml:space="preserve"/>
+            <throws/>
+        </methodproto>
+        <method access="public" type="int" name="setLocation" enable="true">
+            <javadoc xml:space="preserve"/>
+            <params>
+                <param type="int" name="y"/>
+                <param type="int" name="x"/>
+            </params>
+            <throws/>
+            <body>
+                <return value="" value-java=" " enable="true"/>
+            </body>
+        </method>
+        <method access="public" type="void" name="act" enable="true">
+            <javadoc xml:space="preserve"/>
+            <params/>
+            <throws/>
+            <body>
+                <call expression="move(5)" expression-java="move(5) " enable="true"/>
+                <if condition="Greenfoot.isKeyDown(&quot;left&quot;)" condition-java="Greenfoot . isKeyDown( &quot;left&quot; ) " enable="true">
+                    <then>
+                        <call expression="turn(-5)" expression-java="turn(-5) " enable="true"/>
+                    </then>
+                </if>
+                <if condition="Greenfoot.isKeyDown(&quot;right&quot;)" condition-java="Greenfoot . isKeyDown( &quot;right&quot; ) " enable="true">
+                    <then>
+                        <call expression="turn(5)" expression-java="turn(5) " enable="true"/>
+                    </then>
+                </if>
+                <if condition="isTouching(Worm.class)" condition-java="isTouching(Worm . class) " enable="true">
+                    <then>
+                        <call expression="removeTouching(Worm.class)" expression-java="removeTouching(Worm . class) " enable="true"/>
+                        <variable type="int" name="x" enable="true"/>
+                        <variable type="int" name="x" enable="true"/>
+                        <variable type="int" name="x" enable="true"/>
+                        <call expression="move(8)" expression-java="move(8) " enable="true"/>
+                        <variable type="int" name="x" enable="true"/>
+                        <assign dest="eaten" dest-java="eaten" src="eaten+1" src-java="eaten + 1" enable="true"/>
+                        <assign dest="eaten" dest-java="eaten" src="eaten+1" src-java="eaten + 1" enable="true"/>
+                        <return enable="true"/>
+                        <call expression="getWorld().showText(&quot;Eaten: &quot;+eaten,550,10)" expression-java="getWorld( ) . showText( &quot;Eaten: &quot; + eaten, 550, 10) " enable="true"/>
+                        <return enable="true"/>
+                        <return enable="true"/>
+                    </then>
+                </if>
+            </body>
+        </method>
+    </methods>
+</class>
+   
+   Actions:
+      I pressed equals at the end of the first "var int x" in the if statement, then hit ctrl+space
+      for code completion.
+   
+
+ - Exception during loading, or if last method is deleted:
+ Exception in thread "AWT-EventQueue-0" java.lang.NullPointerException
+	at bluej.stride.framedjava.elements.ClassElement.findSuperMethod(ClassElement.java:372)
+	at bluej.stride.framedjava.frames.NormalMethodFrame.updateOverrideDisplay(NormalMethodFrame.java:287)
+	at bluej.editor.stride.FrameEditorTab.lambda$59(FrameEditorTab.java:1402)
+	at bluej.editor.stride.FrameEditorTab$$Lambda$372/1043153714.run(Unknown Source)
+
+ - After adding an extends slot, Inherited canvas appears empty until reopening the editor again.
+    It appears empty in many other cases.	
+
+ - NPE at bluej.stride.generic.HeadedFrame.focusPrevTarget(HeadedFrame.java:373), when trying to navigate
+     left from the class name as there is no cursor before it. (on extends slot as well). AA: not seen any more
+
+ - deleting a class from the classBrowser causes a NPE: AA: not seen any more
+  	Exception in thread "JavaFX Application Thread" java.lang.NullPointerException
+ 		at bluej.editor.stride.FrameEditor.lambda$close$145(FrameEditor.java:184)
+ 		at bluej.editor.stride.FrameEditor$$Lambda$143/876917859.run(Unknown Source)
+
+ - If a frame with choiceSlot is added, and then a 'redo' is performed, the choiceSlot will become empty.
+    AA: not seen any more
+
+ - There is a NullPointerException being thrown (during initialisation?):  AA: not seen any more
+   Exception in thread "JavaFX Application Thread" java.lang.NullPointerException
+	at bluej.editor.stride.FrameEditor.lambda$2(FrameEditor.java:156)
+	at bluej.editor.stride.FrameEditor$$Lambda$132/1086142967.run(Unknown Source)
+
+- Cursor is not showing in method documentation area sometimes when in position zero (FX bug?)
+   AA: not seen any more
+
+- Pressing 'delete' before a frame has to do the same as pressing backspace after it.
+     AA: It is working on Mac with fn+backspace, please confirm on Linux and windows.
+
+- Sometimes when writing a literal in an expression, the text field shows all white
+     as effectively we are scrolled all the way to the end of the field
+     (since recent changes to measureString?  Something to do with low minimum width?)

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,41 +21,6 @@
  */
 package bluej.pkgmgr;
 
-import bluej.Config;
-import bluej.BlueJTheme;
-import bluej.utility.Debug;
-import bluej.utility.FileUtility;
-import bluej.utility.EscapeDialog;
-import bluej.utility.DialogManager;
-import bluej.utility.MiksGridLayout;
-import bluej.utility.SortedProperties;
-import java.io.File;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.PrintWriter;
-import java.io.IOException;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JTextField;
-import javax.swing.JPanel;
-import javax.swing.JButton;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.BorderFactory;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.ButtonGroup;
-import javax.swing.ImageIcon;
-import javax.swing.JRadioButton;
-import javax.swing.ListSelectionModel;
-import javax.swing.border.Border;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableColumnModel;
-import javax.swing.filechooser.FileFilter;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -64,13 +29,50 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.net.URL;
 import java.util.List;
+import java.util.jar.Attributes;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
-import java.util.jar.Attributes;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.border.Border;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableColumnModel;
+
+import bluej.BlueJTheme;
+import bluej.Config;
+import bluej.utility.Debug;
+import bluej.utility.DialogManager;
+import bluej.utility.EscapeDialog;
+import bluej.utility.FileUtility;
+import bluej.utility.MiksGridLayout;
+import bluej.utility.SortedProperties;
 /**
  * Dialog for deploying a MIDlet suite. 
  * User specifies attributes needed for the jad and jar files.
@@ -298,7 +300,7 @@ public class MIDletDeploymentDialog extends EscapeDialog implements ListSelectio
         changeButton.addActionListener( new ChangeIconListener( ) );
 
         inOutButton.addActionListener( new ActionListener( ) {            
-		public void actionPerformed( ActionEvent evt ) { 
+        public void actionPerformed( ActionEvent evt ) { 
                      int row = table.getSelectedRow( );
                      exclude[ row ]  = ! exclude[ row ];
                      tableModel.fireTableRowsUpdated( row, row );
@@ -306,28 +308,28 @@ public class MIDletDeploymentDialog extends EscapeDialog implements ListSelectio
                          inOutButton.setText( INCLUDE_LABEL );
                      else
                          inOutButton.setText( EXCLUDE_LABEL );                   
-                }        		
-	} );                
+                }                
+    } );                
         upButton.addActionListener( new ActionListener( ) {            
-		public void actionPerformed( ActionEvent evt ) { 
+        public void actionPerformed( ActionEvent evt ) { 
                      int row = table.getSelectedRow( );
                      if ( row > 0 ) {
                          tableModel.moveRowUp( row );
                          swapExcluded( row, row - 1 );
                          table.setRowSelectionInterval( row - 1, row - 1 );
                      }
-                }        		
-	} );
+                }                
+    } );
         downButton.addActionListener( new ActionListener( ) {            
-		public void actionPerformed( ActionEvent evt ) { 
+        public void actionPerformed( ActionEvent evt ) { 
                      int row = table.getSelectedRow( );
                      if ( row <  ( tableModel.getRowCount( ) - 1 ) ) {
                          tableModel.moveRowDown( row );
                          swapExcluded( row, row + 1 );                         
                          table.setRowSelectionInterval( row + 1, row + 1 );
                      } 
-                }        		
-	} );                
+                }                
+    } );                
         JPanel buttonPanel = new JPanel( new FlowLayout( FlowLayout.RIGHT ) );
         buttonPanel.add( changeButton );        
         buttonPanel.add( inOutButton  );
@@ -354,12 +356,12 @@ public class MIDletDeploymentDialog extends EscapeDialog implements ListSelectio
         JButton okButton     = BlueJTheme.getOkButton( );
         JButton cancelButton = BlueJTheme.getCancelButton( );     
         
-	okButton.addActionListener( new ActionListener( )  {
-		public void actionPerformed( ActionEvent evt ) { doOk(); }        		
-	} );
+    okButton.addActionListener( new ActionListener( )  {
+        public void actionPerformed( ActionEvent evt ) { doOk(); }                
+    } );
         cancelButton.addActionListener( new ActionListener( )  {
-		public void actionPerformed( ActionEvent evt ) { doCancel(); }        		
-	} );
+        public void actionPerformed( ActionEvent evt ) { doCancel(); }                
+    } );
            
         JPanel buttonPanel = new JPanel( new FlowLayout( FlowLayout.RIGHT ) );
         buttonPanel.setBorder( BorderFactory.createEmptyBorder( 10, 0, 0, 0 ) );
@@ -725,14 +727,14 @@ public class MIDletDeploymentDialog extends EscapeDialog implements ListSelectio
      */
     private class IconFileFilter extends FileFilter
     {
-	public boolean accept( File f ) {
-		return ( f.getName( ).toLowerCase( ).endsWith( ".png" ) ||
-			 f.getName( ).toLowerCase( ).endsWith( ".gif" ) ||
+    public boolean accept( File f ) {
+        return ( f.getName( ).toLowerCase( ).endsWith( ".png" ) ||
+             f.getName( ).toLowerCase( ).endsWith( ".gif" ) ||
                          f.getName( ).toLowerCase( ).endsWith( ".jpg" ) ||
-			 f.getName( ).toLowerCase( ).endsWith( ".jpeg") );                
-	}	 
-	public String getDescription( ) {
-		return Config.getString( "midlet.deployment.filechooser.description" );
-	}
+             f.getName( ).toLowerCase( ).endsWith( ".jpeg") );                
+    }     
+    public String getDescription( ) {
+        return Config.getString( "midlet.deployment.filechooser.description" );
+    }
      }
 }

@@ -33,6 +33,8 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Element;
 import javax.swing.text.MutableAttributeSet;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
 import bluej.Config;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.nodes.NodeStructureListener;
@@ -51,6 +53,7 @@ import bluej.utility.PersistentMarkDocument;
  * @author Bruce Quig
  * @author Jo Wood (Modified to allow user-defined colours, March 2001)
  */
+@OnThread(value = Tag.Swing, ignoreParent = true)
 public class MoeSyntaxDocument extends PersistentMarkDocument
 {
     private static Color[] colors = null;

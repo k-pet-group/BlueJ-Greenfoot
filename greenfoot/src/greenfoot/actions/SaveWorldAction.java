@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2010,2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2010,2011,2014,2015  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,11 +28,12 @@ import greenfoot.record.GreenfootRecorder;
 
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
-import java.util.List;
 
 import javax.swing.AbstractAction;
 
 import bluej.Config;
+import bluej.stride.framedjava.elements.CallElement;
+import bluej.stride.framedjava.elements.NormalMethodElement;
 import bluej.utility.Debug;
 
 /**
@@ -61,29 +62,13 @@ public class SaveWorldAction extends AbstractAction implements CompiledStateList
     @Override
     public void actionPerformed(ActionEvent arg0)
     {
-        final String methodName = GreenfootRecorder.METHOD_NAME;
+        NormalMethodElement method = recorder.getPrepareMethod();
+        CallElement methodCall = recorder.getPrepareMethodCall();
         
-        List<String> code = recorder.getCode();
-                
-        final String oneIndent = "    ";
-        final String twoIndent = oneIndent + oneIndent;
-        
-        StringBuffer comment = new StringBuffer();
-        comment.append("\n").append(oneIndent).append("/**\n");
-        comment.append(oneIndent).append("* ").append(Config.getString("record.method.comment1")).append("\n");
-        comment.append(oneIndent).append("* ").append(Config.getString("record.method.comment2")).append("\n");
-        comment.append(oneIndent).append("*/\n");
-        
-        StringBuffer method = new StringBuffer();
-        for (String line : code) {
-            method.append(twoIndent).append(line).append("\n");
-        }
-               
         try {
             GClass lastWorld = getLastWorldGClass();
-            lastWorld.insertMethodCallInConstructor(methodName, false);
-            lastWorld.insertAppendMethod(comment.toString(), "private", methodName, method.toString(), true, false);
-            lastWorld.showMessage(Config.getString("record.saved.message"));
+            lastWorld.insertMethodCallInConstructor(methodCall.toXML().toXML(), false);
+            lastWorld.insertAppendMethod(method.toXML().toXML(), true, false);
             // Now that we've inserted the code, we must reset the recorder,
             // so that if the user saves the world again before re-compiling,
             // it doesn't insert the same code twice.  If the user scrubs our method

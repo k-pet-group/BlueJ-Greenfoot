@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -162,18 +162,7 @@ public class ExtensionPrefManager implements PrefPanelListener
             doWorkLoop(DO_panelUpdate);
         }
         else {
-            EventQueue.invokeLater(new ExtensionPrefManager.DoPanelUpdate());
-        }
-    }
-    
-    /**
-     * Nothing much to do, this is to satisfy the invokeLater
-     */
-    private class DoPanelUpdate implements Runnable
-    {
-        public void run()
-        {
-            doWorkLoop (DO_panelUpdate);
+            EventQueue.invokeLater(() -> doWorkLoop(DO_panelUpdate));
         }
     }
 

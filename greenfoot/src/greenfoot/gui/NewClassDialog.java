@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2013,2014,2015  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,19 +28,21 @@ import greenfoot.util.GreenfootUtil;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 
 import bluej.BlueJTheme;
 import bluej.Config;
+import bluej.extensions.SourceType;
 import bluej.utility.EscapeDialog;
 
 /**
@@ -48,12 +50,13 @@ import bluej.utility.EscapeDialog;
  * classes.
  * 
  * @author Poul Henriksen
- * @version $Id$
  */
 public class NewClassDialog extends EscapeDialog
 {
-    JTextField classNameTextField;
+    private JTextField classNameTextField;
+    private JComboBox<SourceType> languageSelectionBox;
     private boolean okPressed = false;
+    private boolean useInterface;
 
     /**
      * Creates new dialog for creating a new class.
@@ -89,18 +92,39 @@ public class NewClassDialog extends EscapeDialog
                 
         mainPanel.add(Box.createVerticalStrut(4));
 
-        classNameTextField = new JTextField();        
+        classNameTextField = new JTextField();
         classNameTextField.setAlignmentX(0.0f);
         Dimension classNameMax = classNameTextField.getMaximumSize();
         classNameMax.height = classNameTextField.getPreferredSize().height;
         classNameTextField.setMaximumSize(classNameMax);
         mainPanel.add(classNameTextField);
         
+        mainPanel.add(GreenfootUtil.createSpacer(GreenfootUtil.Y_AXIS, BlueJTheme.generalSpacingWidth));
+
         final JLabel errorMsgLabel = new JLabel();
         errorMsgLabel.setAlignmentX(0.0f);
         errorMsgLabel.setVisible(false);
         errorMsgLabel.setForeground(Color.RED);
         mainPanel.add(errorMsgLabel);
+
+        mainPanel.add(GreenfootUtil.createSpacer(GreenfootUtil.Y_AXIS, BlueJTheme.generalSpacingWidth));
+        
+        JPanel slectionPanel = new JPanel();
+        slectionPanel.setLayout(new BoxLayout(slectionPanel, BoxLayout.X_AXIS));
+        slectionPanel.setAlignmentX(0.0f);
+        
+        JLabel selectionLabel = new JLabel(Config.getString("newclass.dialog.selectionLabel"));
+        selectionLabel.setAlignmentX(0.0f);
+        slectionPanel.add(selectionLabel);
+        
+        slectionPanel.add(Box.createHorizontalStrut(3 * BlueJTheme.generalSpacingWidth));
+        
+        SourceType[] items = { SourceType.Stride, SourceType.Java };
+        languageSelectionBox = new JComboBox<>(items);
+        setSelectedLanguage(pkg.getDefaultSourceType());
+        slectionPanel.add(languageSelectionBox);
+
+        mainPanel.add(slectionPanel);
         
         // create the ok/cancel button panel
         JPanel buttonPanel = new JPanel();
@@ -111,22 +135,12 @@ public class NewClassDialog extends EscapeDialog
         buttonPanel.add(Box.createHorizontalGlue());
 
         final JButton okButton = BlueJTheme.getOkButton();
-        okButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt)
-            {
-                ok();
-            }
-        });
+        okButton.addActionListener(evt -> ok());
         okButton.setEnabled(false);
 
         JButton cancelButton = BlueJTheme.getCancelButton();
         cancelButton.setVerifyInputWhenFocusTarget(false);
-        cancelButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt)
-            {
-                cancel();
-            }
-        });
+        cancelButton.addActionListener(evt -> cancel());
         
         if (Config.isMacOS()) {
             buttonPanel.add(cancelButton);
@@ -149,6 +163,7 @@ public class NewClassDialog extends EscapeDialog
         
         ClassNameVerifier classNameVerifier = new ClassNameVerifier(classNameTextField, pkg);
         classNameVerifier.addValidityListener(new ValidityListener(){
+            @Override
             public void changedToInvalid(ValidityEvent e)
             {
                 errorMsgLabel.setText(e.getReason());
@@ -156,6 +171,7 @@ public class NewClassDialog extends EscapeDialog
                 okButton.setEnabled(false);
             }
 
+            @Override
             public void changedToValid(ValidityEvent e)
             {
                 errorMsgLabel.setVisible(false);
@@ -187,9 +203,43 @@ public class NewClassDialog extends EscapeDialog
     {
         return classNameTextField.getText();
     }
+    
+    public void setSuggestedClassName(String suggestedClassName)
+    {
+        classNameTextField.setText(suggestedClassName);
+    }
+    
+    /**
+     * Get the selected language of the class.
+     */
+    public SourceType getSelectedLanguage()
+    {
+        return (SourceType) languageSelectionBox.getSelectedItem();
+    }
+    
+    /**
+     * select the language of the class.
+     */
+    public void setSelectedLanguage(SourceType type)
+    {
+        languageSelectionBox.setSelectedItem(type);
+    }
+    
+    /**
+     * disable the language selection box.
+     */
+    public void disableLanguageSelectionBox()
+    {
+        languageSelectionBox.setEnabled(false);
+    }
 
     public boolean okPressed()
     {
         return okPressed;
+    }
+
+    public boolean getInterface()
+    {
+        return useInterface;
     }
 }

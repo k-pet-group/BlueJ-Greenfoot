@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2013,2014,2015  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -33,12 +33,11 @@ import bluej.parser.SourceLocation;
  * Except as marked, methods of this class must be called from a swing compatible thread.
  *
  * @author Damiano Bolla, University of Kent at Canterbury, 2004
- * @version    $Id: Editor.java 7337 2010-04-14 14:52:24Z nccb $
  */
 
 public class Editor
 {
-    private bluej.editor.Editor bjEditor;
+    private bluej.editor.TextEditor bjEditor;
 
 
     /**
@@ -48,7 +47,7 @@ public class Editor
      *
      * @param  bjEditor  Description of the Parameter
      */
-    Editor(bluej.editor.Editor bjEditor)
+    Editor(bluej.editor.TextEditor bjEditor)
     {
         this.bjEditor = bjEditor;
     }
@@ -78,7 +77,6 @@ public class Editor
         bjEditor.reloadFile();
     }
 
-
     /**
      * Show or hide this Editor.
      *
@@ -97,7 +95,7 @@ public class Editor
      */
     public boolean isVisible()
     {
-        return bjEditor.isShowing();
+        return bjEditor.isOpen();
     }
 
 
@@ -123,7 +121,6 @@ public class Editor
         bjEditor.setCaretLocation(convertLocation(location));
     }
 
-
     /**
      * Request the editor to display the given message in the editor message area.
      * The message will be cleared using BlueJ's usual rules.
@@ -134,7 +131,6 @@ public class Editor
     {
         bjEditor.writeMessage(message);
     }
-
 
     /**
      * Returns the location at which current selection begins.
@@ -352,5 +348,9 @@ public class Editor
         return new TextLocation(location.getLine() - 1, location.getColumn() - 1);
     }
 
+    public void cancelFreshState()
+    {
+        bjEditor.cancelFreshState();
+    }
 }
 

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<class name="TurtleWorld" extends="World" enable="true" strideversion="1">
+    <javadoc xml:space="preserve">Create the turtle world. 
+Our world has a size of 560x560 cells, where every cell is just 1 pixel.</javadoc>
+    <imports>
+        <import target="java.util.*" enable="true"/>
+        <import target="greenfoot.*" enable="true"/>
+        <import target="java.awt.Color" enable="true"/>
+    </imports>
+    <implements/>
+    <fields/>
+    <constructors>
+        <constructor access="public" enable="true">
+            <javadoc xml:space="preserve"/>
+            <params/>
+            <throws/>
+            <delegate target="super" params="560,560,1" params-java="560, 560, 1"/>
+            <body>
+                <call expression="prepare()" expression-java="prepare()" enable="true"/>
+            </body>
+        </constructor>
+    </constructors>
+    <methods>
+        <method access="private" type="void" name="prepare" enable="true">
+            <javadoc xml:space="preserve">Prepare the world for the start of the program.
+That is: create the initial objects and add them to the world.</javadoc>
+            <params/>
+            <throws/>
+            <body>
+                <variable type="Lettuce" name="lettuce" value="new Lettuce()" value-java=" new Lettuce()" enable="true"/>
+                <call expression="addObject(lettuce,115,506)" expression-java="addObject(lettuce, 115, 506)" enable="true"/>
+                <variable type="Lettuce" name="lettuce2" value="new Lettuce()" value-java=" new Lettuce()" enable="true"/>
+                <call expression="addObject(lettuce2,255,495)" expression-java="addObject(lettuce2, 255, 495)" enable="true"/>
+                <variable type="Lettuce" name="lettuce3" value="new Lettuce()" value-java=" new Lettuce()" enable="true"/>
+                <call expression="addObject(lettuce3,491,489)" expression-java="addObject(lettuce3, 491, 489)" enable="true"/>
+                <variable type="Lettuce" name="lettuce4" value="new Lettuce()" value-java=" new Lettuce()" enable="true"/>
+                <call expression="addObject(lettuce4,394,325)" expression-java="addObject(lettuce4, 394, 325)" enable="true"/>
+                <variable type="Lettuce" name="lettuce5" value="new Lettuce()" value-java=" new Lettuce()" enable="true"/>
+                <call expression="addObject(lettuce5,84,341)" expression-java="addObject(lettuce5, 84, 341)" enable="true"/>
+                <variable type="Lettuce" name="lettuce6" value="new Lettuce()" value-java=" new Lettuce()" enable="true"/>
+                <call expression="addObject(lettuce6,243,252)" expression-java="addObject(lettuce6, 243, 252)" enable="true"/>
+                <variable type="Lettuce" name="lettuce7" value="new Lettuce()" value-java=" new Lettuce()" enable="true"/>
+                <call expression="addObject(lettuce7,191,411)" expression-java="addObject(lettuce7, 191, 411)" enable="true"/>
+                <variable type="Lettuce" name="lettuce8" value="new Lettuce()" value-java=" new Lettuce()" enable="true"/>
+                <call expression="addObject(lettuce8,466,148)" expression-java="addObject(lettuce8, 466, 148)" enable="true"/>
+                <variable type="Lettuce" name="lettuce9" value="new Lettuce()" value-java=" new Lettuce()" enable="true"/>
+                <call expression="addObject(lettuce9,352,71)" expression-java="addObject(lettuce9, 352, 71)" enable="true"/>
+                <variable type="Lettuce" name="lettuce10" value="new Lettuce()" value-java=" new Lettuce()" enable="true"/>
+                <call expression="addObject(lettuce10,124,75)" expression-java="addObject(lettuce10, 124, 75)" enable="true"/>
+                <variable type="Lettuce" name="lettuce11" value="new Lettuce()" value-java=" new Lettuce()" enable="true"/>
+                <call expression="addObject(lettuce11,64,197)" expression-java="addObject(lettuce11, 64, 197)" enable="true"/>
+                <variable type="Lettuce" name="lettuce12" value="new Lettuce()" value-java=" new Lettuce()" enable="true"/>
+                <call expression="addObject(lettuce12,225,148)" expression-java="addObject(lettuce12, 225, 148)" enable="true"/>
+                <variable type="Lettuce" name="lettuce13" value="new Lettuce()" value-java=" new Lettuce()" enable="true"/>
+                <call expression="addObject(lettuce13,344,454)" expression-java="addObject(lettuce13, 344, 454)" enable="true"/>
+                <variable type="Lettuce" name="lettuce14" value="new Lettuce()" value-java=" new Lettuce()" enable="true"/>
+                <call expression="addObject(lettuce14,378,198)" expression-java="addObject(lettuce14, 378, 198)" enable="true"/>
+                <variable type="Snake" name="snake" value="new Snake()" value-java=" new Snake()" enable="true"/>
+                <call expression="addObject(snake,435,453)" expression-java="addObject(snake, 435, 453)" enable="true"/>
+                <variable type="Snake" name="snake2" value="new Snake()" value-java=" new Snake()" enable="true"/>
+                <call expression="addObject(snake2,93,259)" expression-java="addObject(snake2, 93, 259)" enable="true"/>
+                <variable type="Snake" name="snake3" value="new Snake()" value-java=" new Snake()" enable="true"/>
+                <call expression="addObject(snake3,467,61)" expression-java="addObject(snake3, 467, 61)" enable="true"/>
+                <variable type="Turtle" name="turtle" value="new Turtle()" value-java=" new Turtle()" enable="true"/>
+                <call expression="addObject(turtle,273,337)" expression-java="addObject(turtle, 273, 337)" enable="true"/>
+            </body>
+        </method>
+    </methods>
+</class>

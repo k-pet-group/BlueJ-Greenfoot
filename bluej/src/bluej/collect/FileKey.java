@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 2012,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,16 +23,17 @@ package bluej.collect;
 
 import java.io.File;
 
-import bluej.pkgmgr.Project;
+import bluej.collect.CollectUtility.ProjectDetails;
 
 //package-visible
 class FileKey
 {
     private File projDir;
     private String file;
-    public FileKey(Project proj, String path)
+    
+    public FileKey(ProjectDetails proj, String path)
     {
-        this.projDir = proj.getProjectDir();
+        this.projDir = proj.projectDir;
         this.file = path;
     }
     

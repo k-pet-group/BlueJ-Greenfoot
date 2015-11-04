@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2014  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -122,7 +122,7 @@ public interface RPackage
      * @throws MissingJavaFileException
      *             if the .java file for the new class does not exist.
      */
-    public abstract RClass newClass(String className)
+    public abstract RClass newClass(String className, String extension)
         throws RemoteException, ProjectNotOpenException, PackageNotFoundException, MissingJavaFileException;
 
     /**

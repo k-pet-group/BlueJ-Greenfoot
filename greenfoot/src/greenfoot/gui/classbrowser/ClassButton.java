@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2011,2014  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,6 +25,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
@@ -43,6 +44,7 @@ public abstract class ClassButton extends JToggleButton implements MouseListener
 {
 
     private final Color classColour = new Color(245, 204, 155);
+    private static final Color errorStripeColor = new Color(180,50,20);
     private static final Color stripeColor = new Color(152,152,152);
     public static final Color[] shadowColours = { new Color(242, 242, 242), 
                                                       new Color(211, 211, 211),
@@ -57,6 +59,8 @@ public abstract class ClassButton extends JToggleButton implements MouseListener
     protected abstract boolean isValidClass();
     // Sees if the class is uncompiled (and thus should be shaded)
     protected abstract boolean isUncompiled();
+    // Determines if there is a known error (affects stripe colour)
+    protected abstract boolean hasKnownError();
     // Called when the class button is double-clicked
     protected abstract void doubleClick();
     // Called when a popup should be shown (i.e. when the button is right-clicked/control-clicked)
@@ -100,10 +104,7 @@ public abstract class ClassButton extends JToggleButton implements MouseListener
         g.fillRect(0, GAP, width, height);
         
         if(isUncompiled()) {
-            g.setColor(stripeColor);
-            Utility.stripeRect(g, 0, GAP, width, height, 8, 3);
-    
-            g.setColor(classColour);
+            Utility.stripeRect(g, 0, GAP, width, height, 8, 3, hasKnownError() ? errorStripeColor : stripeColor);
             g.fillRect(7, GAP+7, width-14, height-14);
         }
     }
@@ -159,7 +160,7 @@ public abstract class ClassButton extends JToggleButton implements MouseListener
      */
     public void mouseClicked(MouseEvent e)
     {
-        if (e.getClickCount() > 1 && ((e.getModifiers() & MouseEvent.BUTTON1_MASK) != 0)) {
+        if (e.getClickCount() > 1 && ((e.getModifiers() & InputEvent.BUTTON1_MASK) != 0)) {
             doubleClick();
         }
     }

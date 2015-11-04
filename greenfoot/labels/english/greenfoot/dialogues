@@ -41,3 +41,6 @@ archive-not-greenfoot-project
 The archive file you selected to open does not look like it
 contains a Greenfoot project (try extracting the archive
 contents using another tool).
+
+no-clipboard-image-data
+There is no image data on the clipboard to paste.

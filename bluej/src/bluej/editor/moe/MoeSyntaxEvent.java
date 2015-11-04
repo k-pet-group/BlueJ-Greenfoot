@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2013,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -30,9 +30,11 @@ import java.util.Map;
 import javax.swing.event.DocumentEvent;
 import javax.swing.text.Element;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
 import bluej.parser.nodes.NodeStructureListener;
-import bluej.parser.nodes.ParsedNode;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
+import bluej.parser.nodes.ParsedNode;
 
 /**
  * A representation of document events in a MoeSyntaxDocuments. As well as textual
@@ -40,6 +42,7 @@ import bluej.parser.nodes.NodeTree.NodeAndPosition;
  * 
  * @author Davin McCall
  */
+@OnThread(Tag.Any)
 public class MoeSyntaxEvent implements DocumentEvent, NodeStructureListener
 {
     private MoeSyntaxDocument document;
@@ -143,6 +146,7 @@ public class MoeSyntaxEvent implements DocumentEvent, NodeStructureListener
     /**
      * Node change record. Purely used for passing data around, hence public fields.
      */
+    @OnThread(Tag.Any)
     public class NodeChangeRecord
     {
         public int originalPos;

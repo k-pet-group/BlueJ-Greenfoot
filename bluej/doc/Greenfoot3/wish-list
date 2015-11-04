@@ -1,0 +1,169 @@
+wish-list Higher priority:
+========================
+
+tackle some more serious additions and refactorings, for example:
+ - the reorganisation of frame GUI structure needed to sort out the placement of the imports canvas.
+ - the type slots change to support generics
+
+  - it would be nice if one could paste Java code into a Stride method and it converts to Stride...
+  
+AA - Need to re-add way to set imports to default. Maybe button just above canvas on far right?  Or right-click on frame cursor (and frame?) action.
+
+  - We should round the corners of the selection rectangle, ideally to the same amount
+    that we round the corners of the frames (via CSS style?)
+     
+  - If a lambda is used, an undeclared variable warning is issued.
+ 
+  - Comment headers (for constructors, classes and methods):
+	  - Right/left navigation arrows skip them.
+	  - up/down arrows inside them should step out of comment at top/bottom
+		    NB: The com.sun.javafx.scene.control.behavior.TextAreaBehaviour class adds a keybinding which calls
+		    a method in com.sun.javafx.scene.control.skin.TextAreaSkin.  So to do this properly, we'd need
+		    to use some com.sun.** bits.  We could hack around this by detecting an up/down keypress and seeing
+		    if the caret position changes and then if it doesn't, moving ourselves, but for such a hack I'm
+		    moving this to wishlist.
+
+ - Sidebar for "if",etc, doesn't put spaces around operators in expressions
+
+ AA - Interface needs to be reformed fully after we finish with classes:
+      - multiple canvases
+      - imports 
+ 
+ - There are some duplicates in some classes in the CSS files, gather values for easier updates.
+  
+ - Javadoc must show when selecting any item from the code completion choices.
+ 
+ - Operator priority isn't look right in expression "move(8) + 6 * 4" -- it treats
+   the method call as missing and the +6 as a unary plus. 
+  
+ - We could autocomplete common key names when in a string literal
+   (to be fancy, we could decide what string completions to be offered based on
+   an annotation on the method being called, so setImage has an @Complete(Filenames)
+   and isKeyDown has @Complete(Keynames).)
+ 
+ - There may be code duplication in the way we look for fields frames vs. method members,
+     ie.e in var, blank and (possiblly) comment frames.
+   
+ - Import autocomplete should not rule out an import that is masked by the import in the slot we are editing
+   (e.g. if you autocomplete on an import frame which says "greenfoot.*", it should not hide "greenfoot.Actor")
+ 
+ - When you create a duplicate of a subWorld class, it will go to the other class section, but the subActor is fine.
+   It may worth looking at the reason.
+ 
+ - Breakpoints aren't initialised until the editor has been opened.  The problem is in ClassTarget,
+   where breakpoints are only reinitialised if the editor exists, but for frames, the editor does
+   not exist unless it is open.
+      
+ - Inherited frames should probably display their methods in a table view so that the
+   types and method names line up with each other vertically.  Or we should set a suitable min width
+   for access permissions.
+
+ - Animate scrolling during jump to error and undo
+
+ - change between CallFrame and VarFrame (See: Design questions).
+
+ - Add an entry for static methods color in the CSS file to enable making them more distinct from normal methods.
+   However, keep them for now the same color.
+
+ - Array declarations is supported, but do we want to force no errors so the brackets are balanced and no slot 
+   in the type and a mandatory one in the initialization?
+   MEETING: When writing int[] for the type, the [] is one atomic operator like in expressions
+   and puts you into the variable name slot, but pressing [ again makes it a multidimensional
+   array.  Nothing special for initialization.
+
+  - I think we probably have to make type slots into a sort of restricted expression slot.  Type slots are roughly,
+    in pseudo-BNF:
+    
+      type = identifier ('.' identifier)* ('<' type (',' type)* '>')? ('[' integer? ']')*
+      
+    We will need to use the BracketedExpression functionality to do the brackets, but only allow angle
+    and square brackets, and the only allowed operators are dot and comma.  If we only allow use of generics
+    for now, we don't need to worry about wildcards, which will be a pain due to the spaces around operators
+    (and we can't use << or similar as that gets in the way of brackets - maybe slashes?).
+
+ - Add support for cut, copy and paste (pastes before selected frame) in bird's eye view
+
+ - We should force imports to be folded out during Java preview (makes more sense once they are in the right spot, before the class).
+
+ - In caseFrame: make a visual difference between the case that the execution will flow or not.
+
+ - Investigate other environments' options for code completion, especially when the default option is taken by the system.
+    e.g. Chinese keyboard switch. Our current suggestion is (CMD+Space & CTRL+Space) for Mac and (ALT+Space & CTRL+Space) for Windows.
+
+ - error "Cannot find symbol - method NNN()" should offer "Declare method NNN in this class" as quick fix
+
+ - When a single equals is used in an expression (e.g. if condition), we could give a more useful error message.
+
+ - Should be more forgiving when opening invalid stride files. (currently hangs on old-style files.)
+
+ - I think we give up too easily showing parameter names/hints when there are multiple overloads, but each of different arity
+
+ - The question mark shortcut to show/hide the cheat sheet has been replaced by F1. As we already had the F1 in the
+     frame cursor and the '?' was not working. It is nice to make it work again, besides F1.
+
+
+
+wish-list Lower priority:
+=======================
+
+ - full screen
+    FH:- Should full screen be available just in app, like removing controls?
+    FH:- When full screen is on, does the app starts in a maximized screen or in a full screen window?
+    MK: I disagree - we should not do this now. Too system specific, not important enough.
+
+ - Investigate if there is a bug in sound recording and playing (reported once).
+
+ - Debugging.  We have a provisional debugger, but we need to properly design it at some point. 
+
+ - Comment has (low) maximum width on its text field.  Have worked around for now, but should grow/shrink to fit content.
+   
+ - Find (and replace).  We need to decide how find (and replace) will work.  If I search
+   for "foo", then presumably I should find uses of the variable "food" or the method "fool".
+   If I search for "if" should I find if frames?  If I search for "if (x" should that match
+   with if frames that have a condition beginning with x?.  In the latter case, replacement
+   is clearly impossible.
+   MK: For find: yes, it should find across text-equivalent-representation (TER). With white
+       space normalised.
+   
+ - Idea: we could draw control flow arrows on top of code (either conceptually pre-execution,
+   and/or during/after execution to show the flow).
+   MK: Nice idea, but later. (Not version 1.0)   
+   
+ - We should have a "Stride view" of classes without source (Actor, String, etc) that looks like
+   a Stride class, but shows methods with their comments.  Could also try a custom Javadoc doclet
+   to achieve similar effect.
+   
+ - We should implement printing for Stride code.
+
+ - For undeclared methods in the same class (no prefix, or this.), we should offer to
+   add that method to the class as a suggested fix.
+   
+ - We should look at speeding up the suggestion list when it has many items (e.g. for imports)
+ 
+ - Javadoc for parameters.  Using @param tags seems a bit old school; can we allow direct annotation
+   of the parameters, or auto-generated tag slots to support commenting the parameters (and return value).
+   MK: auto-generated slots in method comment area
+   
+ - I think there may be code duplication between the way we look for methods overriding their parent,
+   and the way we display inherited methods in the inherited section   
+   
+ - We should probably only have one errorAndFixDisplay per FrameEditorTab, so that only one can be shown
+   per editor tab at any one time.  Currently we can have one
+   per slot in theory, although actually it is only possible to show two (one via caret, and one via mouse hover)
+    
+ - In a text editor, if you make many copies of the same line, e.g.
+       addObject(new Crab(), 0, 0);
+       addObject(new Crab(), 0, 0);
+       addObject(new Crab(), 0, 0);
+    then you can easily edit the X coordinates by changing one, then pressing down to go to the next line,
+    where you will automatically be in about the same place on the line below.  I note that in our editor,
+    pressing down will put you on the frame cursor, then the left-hand edge of the line below.  I don't
+    know if there's a good fix to this (especially focus goes via the frame cursor) but it is a slight
+    regression compared to text.  Maybe we could have control-down (alt-down) from a slot moves to the corresponding
+    slot on the line below, if the line matches the structure (not the content).  Might be a bit obscure
+    to bother with.
+    AA: accept the main idea in the meeting, but pushed for later versions.
+
+ - We should maybe change override labels so that they collapse to ellipsis when there's not enough room, rather
+   than wrapping around.  But this would produce an odd effect: if the main content wraps to the next line, the information
+   will spring out of its ellipsis, but shortening the main content will then make the information disappear.

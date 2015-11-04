@@ -2,27 +2,43 @@ Greenfoot interface translations and translators
 
 The next update column indicates whether it is likely that the translator will do the next update.
 
-language        last update     next update    comment         translator
-                (* = after
-                 release)
+language        last update     next update    comment                  translator
+                (* = after                     including english
+                 release)                      rev no sent.
 --------------------------------------------------------------------------------------------------------------
-brazilian                            x          tutorial       Herodoto Bento-DeMello <herodotomello@yahoo.com.br>
-french          1.5.0                x          labels         Guillaume Baudoin <gbaudoin@gmail.com>
-german          2.0.0preview         x          labels         Matthias Taulien <mail@m-taulien.de> ; Michael Kolling
-greek           1.5.0                x                         Dragon Turtle <super_provato@hotmail.com>
-indian?                              x                         Kiran Kumar D <mail2dkiran@gmail.com>
-italian         1.5.0                x                         Stefano Federici <s_federici@yahoo.com>
-malayalam                            x                         K.R.Arun <code333@gmail.com> 
-spanish         1.5.5                x                         Esteban Iglesias Manriquez <estbaniglesiasmanriquez@gmail.com>                                                  
-spanish                                                        (previously Kenneth Daly <kennethdaly@gmail.com> AND Iris Gutierrez <igutierrez@cubecorp.com.ar> AND Luis Mijangos <mijangos3@msn.com>)
-russian         1.5.5                x                         Sergey Zemlyannikov <serveren@mail.ru>
-chinese			2.0.1				 x			labels		   Wobot Yuan <wobotyuan@qq.com>
-czech			2.0.1				 x			labels 		   Zdeněk Chalupský <chalzd@gmail.com>
-dutch			2.0.1				 x 			labels		   Erik van Veen <erikvanveen_2@hotmail.com>
-korean          2.1.2*               x          labels         John Kim <johnkim@kmu.ac.kr>
+brazilian                                       tutorial
+chinese			2.0.1				 			labels
+czech			2.0.1				 			labels
+dutch			2.0.1				  			labels
+french          1.5.0                           labels
+german          2.0.0preview         x    labels+dialog, Rev: 14946     Michael Kolling
+greek           1.5.0
+italian         3.0.0                x    labels+dialog, Rev: 14924     Stefano Federici <s_federici@yahoo.com>
+korean          2.1.2*                          labels
+portuguese                                labels+dialog, Rev: 14946     Paulo Abadie <paulo.abadie@gmail.com>
+russian         1.5.5
+spanish         1.5.5
+
 
 IMPORTANT: 
 When adding a new translation, it should be added in the build script:
 package/build.xml
 
 It should also be added to greenfoot.defs so users can see the available languages.
+
+
+
+language        old translators
+--------------------------------------------------------------------------------------------------------------
+brazilian       Herodoto Bento-DeMello <herodotomello@yahoo.com.br>
+french          Guillaume Baudoin <gbaudoin@gmail.com>
+german          Matthias Taulien <mail@m-taulien.de>
+greek           Dragon Turtle <super_provato@hotmail.com>
+indian          Kiran Kumar D <mail2dkiran@gmail.com>
+malayalam       K.R.Arun <code333@gmail.com>
+spanish         Esteban Iglesias Manriquez <estbaniglesiasmanriquez@gmail.com> AND Kenneth Daly AND Iris Gutierrez <igutierrez@cubecorp.com.ar> AND Luis Mijangos <mijangos3@msn.com>
+russian         Sergey Zemlyannikov <serveren@mail.ru>
+chinese			Wobot Yuan <wobotyuan@qq.com>
+czech			Zdeněk Chalupský <chalzd@gmail.com>
+dutch			Erik van Veen <erikvanveen_2@hotmail.com>
+korean          John Kim <johnkim@kmu.ac.kr>

@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2013  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2013,2014,2015  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,8 +21,12 @@
  */
 package greenfoot.gui.classbrowser.role;
 
+import greenfoot.actions.ConvertToJavaClassAction;
+import greenfoot.actions.DuplicateClassAction;
 import greenfoot.actions.EditClassAction;
 import greenfoot.actions.InspectClassAction;
+import greenfoot.actions.NewSubActorAction;
+import greenfoot.actions.NewSubWorldAction;
 import greenfoot.actions.NewSubclassAction;
 import greenfoot.actions.RemoveClassAction;
 import greenfoot.core.GClass;
@@ -51,6 +55,7 @@ import bluej.Config;
 import bluej.debugmgr.ConstructAction;
 import bluej.debugmgr.inspector.InspectorManager;
 import bluej.debugmgr.objectbench.ObjectBenchInterface;
+import bluej.extensions.SourceType;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
 import bluej.views.ConstructorView;
@@ -71,6 +76,8 @@ public abstract class ClassRole implements WorldListener
     
     private final Color envOpColour = new Color(152,32,32);
     
+    protected final String templateExtension = ".tmpl";
+    
     /**
      * Set the text and icon of a ClassView as appropriate for the given class
      */
@@ -79,7 +86,7 @@ public abstract class ClassRole implements WorldListener
     /**
      * Get the name for the template file used to create the initial source for a new class.
      */
-    public abstract String getTemplateFileName();
+    public abstract String getTemplateFileName(boolean useInterface, SourceType language);
 
     /**
      * Create a list of actions for invoking the constructors of the given class
@@ -122,7 +129,7 @@ public abstract class ClassRole implements WorldListener
      * Create the popup menu for the given class
      */
     public JPopupMenu createPopupMenu(ClassBrowser classBrowser, ClassView classView,
-            InteractionListener interactionListener, boolean isUncompiled)
+            InteractionListener interactionListener, boolean isUncompiled, boolean hasKnownError)
     {
         GClass gClass = classView.getGClass();
         JPopupMenu popupMenu = new JPopupMenu();
@@ -130,7 +137,7 @@ public abstract class ClassRole implements WorldListener
         project = gClass.getPackage().getProject();
         
         if (isUncompiled) {
-            JMenuItem needsCompileItem = popupMenu.add(Config.getString("classPopup.needsCompile"));
+            JMenuItem needsCompileItem = popupMenu.add(Config.getString(hasKnownError ? "classPopup.containsError" : "classPopup.needsCompile"));
             needsCompileItem.setEnabled(false);
             needsCompileItem.setFont(PrefMgr.getPopupMenuFont());
             popupMenu.addSeparator();
@@ -175,7 +182,8 @@ public abstract class ClassRole implements WorldListener
 
         if (!classView.isCoreClass()) {
             
-            if (gClass.hasSourceCode()) {
+            SourceType srcType = gClass.getSourceType();
+            if (srcType != null && srcType != SourceType.NONE ) {
                 popupMenu.add(createMenuItem(new EditClassAction(classBrowser)));
             }
 
@@ -185,15 +193,31 @@ public abstract class ClassRole implements WorldListener
                 popupMenu.add(createMenuItem(new InspectClassAction(new LocalClass(classView.getRealClass()), null,
                         classBrowser.getFrame().getInspectorManager(), classBrowser.getFrame())));
             }
+            if (srcType != null && srcType == SourceType.Stride ) {
+                popupMenu.add(createMenuItem(new ConvertToJavaClassAction(classView, classBrowser.getFrame())));
+            }
+
+            popupMenu.addSeparator();
 
             popupMenu.add(createMenuItem(new RemoveClassAction(classView, classBrowser.getFrame())));
+            popupMenu.add(createMenuItem(new DuplicateClassAction(classView, classBrowser, interactionListener)));
         }
         else {
             addPopupMenuItems(popupMenu, true);
         }
         
-        popupMenu.addSeparator();
-        popupMenu.add(createMenuItem(new NewSubclassAction(classView, classBrowser, interactionListener)));
+        NewSubclassAction action;
+        if (gClass.isActorClass()) {
+            action = new NewSubActorAction(classBrowser.getFrame(), false, interactionListener);
+        }
+        else if (gClass.isWorldClass()) {
+            // The sourceType is null as it will be decided internally based on the other files in the scenario.
+            action = new NewSubWorldAction(classBrowser.getFrame(), false, null, interactionListener);
+        }
+        else {
+            action = new NewSubclassAction(classView, classBrowser, interactionListener);
+        }
+        popupMenu.add(createMenuItem(action));
 
         return popupMenu;
     }
@@ -216,10 +240,12 @@ public abstract class ClassRole implements WorldListener
         // default implementation does nothing
     }
 
+    @Override
     public void worldCreated(WorldEvent e) {
         // Do nothing - only want to handle this for actors
     }
 
+    @Override
     public void worldRemoved(WorldEvent e) {
         // Do nothing - only want to handle this for actors
     }

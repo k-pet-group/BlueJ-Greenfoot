@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,18 +23,22 @@ package bluej.terminal;
 
 import java.awt.Toolkit;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 /**
  * A type-ahead input buffer for the BlueJ terminal. Implemented with
  * a circular array.
  *
  * @author  Michael Kolling
- * @version $Id: InputBuffer.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: InputBuffer.java 12537 2014-10-10 13:05:36Z nccb $
  */
+@OnThread(Tag.Any)
 public final class InputBuffer 
 {
     private char[] buffer;
-    private int bufferNextFull = 0;	// next free position
-    private int bufferNextFree = 0;	// next full position
+    private int bufferNextFull = 0;    // next free position
+    private int bufferNextFree = 0;    // next full position
     private int bufferSize;
     private boolean eofMark = false;
     
@@ -77,13 +81,13 @@ public final class InputBuffer
 
         while(isEmpty()) {
             try {
-                wait();		// sleep until there is some input
+                wait();        // sleep until there is some input
             } catch(InterruptedException e) {
-				// our main process is telling us
-				// we want to exit the character
-				// reading loop
-				// we'll return a return character
-				return '\n';
+                // our main process is telling us
+                // we want to exit the character
+                // reading loop
+                // we'll return a return character
+                return '\n';
             }
         }
 

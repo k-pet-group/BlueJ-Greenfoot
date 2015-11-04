@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2012,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2012,2013,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,21 +21,32 @@
  */
 package bluej.extmgr;
 
-import bluej.*;
-import bluej.extensions.*;
-import bluej.extensions.event.*;
-import bluej.extensions.painter.ExtensionClassTargetPainter;
-import bluej.pkgmgr.*;
-import bluej.pkgmgr.graphPainter.ClassTargetPainter.Layer;
-import bluej.utility.*;
-
 import java.awt.Graphics2D;
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import java.util.jar.*;
-import javax.swing.*;
-import java.lang.ClassNotFoundException;
+import java.io.File;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.Properties;
+import java.util.jar.Attributes;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
+
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+
+import threadchecker.OnThread;
+import threadchecker.Tag;
+import bluej.Config;
+import bluej.extensions.BClassTarget;
+import bluej.extensions.BlueJ;
+import bluej.extensions.Extension;
+import bluej.extensions.ExtensionBridge;
+import bluej.extensions.PreferenceGenerator;
+import bluej.extensions.event.ExtensionEvent;
+import bluej.extensions.painter.ExtensionClassTargetPainter;
+import bluej.pkgmgr.Project;
+import bluej.pkgmgr.graphPainter.ClassTargetPainter.Layer;
+import bluej.utility.Debug;
 
 /**
  * This is the wrapper for an extension. Its duties are: 
@@ -151,7 +162,8 @@ public class ExtensionWrapper
      * prevent extensions from seeing other libraries which might be bundled with and used by
      * BlueJ, so that they can use their own versions of those libraries if they wish.
      */
-    class FirewallLoader extends ClassLoader
+    @OnThread(Tag.Any)
+    static class FirewallLoader extends ClassLoader
     {
         ClassLoader myParent;
       

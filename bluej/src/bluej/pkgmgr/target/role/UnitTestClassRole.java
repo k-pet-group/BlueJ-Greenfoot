@@ -52,6 +52,7 @@ import bluej.collect.DataCollector;
 import bluej.debugger.DebuggerObject;
 import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.editor.Editor;
+import bluej.editor.TextEditor;
 import bluej.parser.SourceLocation;
 import bluej.parser.SourceSpan;
 import bluej.parser.UnitTestAnalyzer;
@@ -504,7 +505,7 @@ public class UnitTestClassRole extends ClassRole
      */
     public void doEndMakeTestCase(PkgMgrFrame pmf, ClassTarget ct, String name)
     {
-        Editor ed = ct.getEditor();
+        TextEditor ed = ct.getEditor().assumeText();
         String ts = getIndentString();
         try {
             Charset charset = pmf.getProject().getProjectCharset();
@@ -551,7 +552,7 @@ public class UnitTestClassRole extends ClassRole
      */
     public void doFixtureToBench(PkgMgrFrame pmf, ClassTarget ct)
     {
-        Editor ed = ct.getEditor();
+        TextEditor ed = ct.getEditor().assumeText();
 
         // our first step is to save all the existing code that creates the
         // fixture into a special invoker record
@@ -604,7 +605,7 @@ public class UnitTestClassRole extends ClassRole
             return;
         }
                 
-        Editor ed = ct.getEditor();
+        TextEditor ed = ct.getEditor().assumeText();
         try {
             Charset charset = pmf.getProject().getProjectCharset();
             UnitTestAnalyzer uta = analyzeUnitTest(ct, charset);

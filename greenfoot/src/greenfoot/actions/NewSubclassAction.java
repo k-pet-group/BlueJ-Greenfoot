@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2013,2014,2015  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,6 +21,7 @@
  */
 package greenfoot.actions;
 
+import bluej.extensions.SourceType;
 import greenfoot.core.GClass;
 import greenfoot.core.GPackage;
 import greenfoot.gui.NewClassDialog;
@@ -31,6 +32,7 @@ import greenfoot.gui.images.ImageLibFrame;
 import greenfoot.record.InteractionListener;
 
 import java.awt.event.ActionEvent;
+import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.JFrame;
@@ -47,29 +49,35 @@ import bluej.utility.DialogManager;
  */
 public class NewSubclassAction extends AbstractAction
 {
-    private ClassView superclass;
-    private ClassBrowser classBrowser;
-    private InteractionListener interactionListener;
+    protected ClassView superclass;
+    protected ClassBrowser classBrowser;
+    protected InteractionListener interactionListener;
 
     /**
      * Creates a new subclass of the class represented by the view
      * 
      * @param view
      *            The class that is to be the superclass
-     * @param name
-     *            Name of the action that appears in the menu
+     * @param classBrowser
+     *            The tree that is to contain the class
      * @param interactionListener
      *            The listener to be notified of interactions (instance creation, method calls) which
      *            occur on the new class.
      */
     public NewSubclassAction(ClassView view, ClassBrowser classBrowser, InteractionListener interactionListener)
     {
-        super(Config.getString("new.subclass"));
+        this();
         this.superclass = view;
         this.classBrowser = classBrowser;
         this.interactionListener = interactionListener;
     }
     
+    protected NewSubclassAction()
+    {
+        super(Config.getString("new.sub.class"));
+    }
+    
+    @Override
     public void actionPerformed(ActionEvent e)
     {
         GClass superG = superclass.getGClass();
@@ -78,37 +86,30 @@ public class NewSubclassAction extends AbstractAction
         imageClass |= superG.isWorldClass() || superG.isWorldSubclass();
             
         if (imageClass) {
-            createImageClass();
-        } else {
+            createImageClass(Config.getString("imagelib.newClass"), null, null);
+        }
+        else {
             createNonActorClass();
         }
     }
     
-    public void createImageClass()
+    public void createImageClass(String title, String defaultName, List<String> description)
     {
         JFrame f = (JFrame) SwingUtilities.getWindowAncestor(classBrowser);
         
-        ImageLibFrame dialog = new ImageLibFrame(f, superclass.getGClass());
+        ImageLibFrame dialog = new ImageLibFrame(f, superclass.getGClass(), title, defaultName, description);
         DialogManager.centreDialog(dialog);
         dialog.setVisible(true);
         if (! (dialog.getResult() == ImageLibFrame.OK)) {
             return;
         }
-        
-        String className = dialog.getClassName();
-        GClass gClass = superclass.createSubclass(className);
-       
-        if (gClass != null) {
-            ClassView classView = new ClassView(classBrowser, gClass, interactionListener);
 
-            SelectImageAction.setClassImage(classView,
-                    (ImageClassRole) classView.getRole(),
-                    dialog.getSelectedImageFile());
-
-            classBrowser.addClass(classView);
+        ClassView classView = createClassSilently(dialog.getClassName(), dialog.getSelectedLanguage());
+        if (classView != null) {
+            SelectImageAction.setClassImage(classView, (ImageClassRole) classView.getRole(), dialog.getSelectedImageFile());
         }
     }
-    
+
     public void createNonActorClass()
     {
         JFrame f = (JFrame) SwingUtilities.getWindowAncestor(classBrowser);
@@ -119,13 +120,17 @@ public class NewSubclassAction extends AbstractAction
             return;
         }
 
-        String className = dialog.getClassName();
-        GClass gClass = superclass.createSubclass(className);   
-        
+        createClassSilently(dialog.getClassName(), dialog.getSelectedLanguage());
+    }
+
+    public ClassView createClassSilently(String className, SourceType selectedLanguage) {
+        ClassView classView = null;
+        GClass gClass = superclass.createSubclass(className, selectedLanguage);
         if (gClass != null) {
-            ClassView classView = new ClassView(classBrowser, gClass, interactionListener);
+            classView = new ClassView(classBrowser, gClass, interactionListener);
             classBrowser.addClass(classView);
         }
+        return classView;
     }
 
 }

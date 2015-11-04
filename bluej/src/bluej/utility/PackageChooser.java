@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -38,7 +38,10 @@ import javax.swing.JList;
 import javax.swing.plaf.FileChooserUI;
 import javax.swing.plaf.basic.BasicFileChooserUI;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
 import bluej.Config;
+import bluej.extensions.SourceType;
 import bluej.pkgmgr.Package;
 import bluej.utility.filefilter.DirectoryFilter;
 import bluej.utility.filefilter.JavaSourceFilter;
@@ -57,6 +60,7 @@ import bluej.utility.filefilter.JavaSourceFilter;
  * @author  Axel Schmolitzky
  * @author  Markus Ostman
  */
+@OnThread(Tag.Swing)
 class PackageChooser extends JFileChooser
 {
     static private final Icon classIcon = Config.getFixedImageAsIcon("class-icon.png");
@@ -71,7 +75,7 @@ class PackageChooser extends JFileChooser
     /**
      * Create a new PackageChooser.
      * 
-     * @param startDirectory 	the directory to start the package selection in.
+     * @param startDirectory    the directory to start the package selection in.
      * @param preview           whether to show the package structure preview pane
      * @param showArchives      whether to allow choosing jar and zip files
      */
@@ -93,6 +97,7 @@ class PackageChooser extends JFileChooser
             setAccessory(displayPanel);
 
             addPropertyChangeListener(new PropertyChangeListener() {
+                @Override
                 public void propertyChange(PropertyChangeEvent e) {
                     if (!(e.getNewValue() instanceof File)) {
                         return;
@@ -127,6 +132,7 @@ class PackageChooser extends JFileChooser
     /* (non-Javadoc)
      * @see javax.swing.JFileChooser#accept(java.io.File)
      */
+    @Override
     public boolean accept(File f)
     {
         if (f.isDirectory())
@@ -144,6 +150,7 @@ class PackageChooser extends JFileChooser
      *  this a package selection and accept it as the "Open" action, otherwise
      *  just traverse into the directory.
      */
+    @Override
     public void setCurrentDirectory(File dir)   // redefined
     {
         if (Package.isPackage(dir)) {
@@ -215,7 +222,7 @@ class PackageChooser extends JFileChooser
             if(subDirs != null) {
                 for(lastClass=0; lastClass<srcFiles.length && lastClass<maxDisplay; lastClass++) {
                     String javaFileName =
-                       JavaNames.stripSuffix(srcFiles[lastClass].getName(), ".java");
+                       JavaNames.stripSuffix(srcFiles[lastClass].getName(), "." + SourceType.Java.toString().toLowerCase());
 
                     // check if the name would be a valid java name
                     if (!JavaNames.isIdentifier(javaFileName))
@@ -255,19 +262,21 @@ class PackageChooser extends JFileChooser
 
         class MyListRenderer extends DefaultListCellRenderer
         {
+            @Override
             public Component getListCellRendererComponent(JList list, Object value, int index,
                                                     boolean isSelected, boolean cellHasFocus)
             {
                 Component s = super.getListCellRendererComponent(list, value, index,
                                                                     isSelected, cellHasFocus);
 
-                if (index < headerLines)
-                    ;
-                else if ((index-headerLines) < lastClass)
-                    ((JLabel)s).setIcon(classIcon);
-                else
-                    ((JLabel)s).setIcon(packageIcon);
-
+                if (index >= headerLines) {
+                    if ((index-headerLines) < lastClass) {
+                        ((JLabel)s).setIcon(classIcon);
+                    }
+                    else {
+                        ((JLabel)s).setIcon(packageIcon);
+                    }
+                }
                 return s;
             }
         }

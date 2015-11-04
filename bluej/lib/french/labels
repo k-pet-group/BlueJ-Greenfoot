@@ -7,9 +7,6 @@ main.invalidPackage=Paquetage introuvable
 
 compileException=Exception pendant la compilation
 compiler.thread.title=Fil de compilation BlueJ
-compiler.warningDialog.title=Avertissements du compilateur
-compiler.warningDialog.label=Avertissements \u00E9mis lors de la compilation
-compiler.warningDialog.noWarnings=Pas d'avertissements
 
 debugger.assert.assertThat=Assertion \:
 debugger.assert.resultIs=r\u00E9sultat est

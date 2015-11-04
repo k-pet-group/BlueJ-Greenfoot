@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2013,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -77,18 +77,18 @@ public final class ClassInfo
     
     private boolean hadParseError = false;
 
-    private class SavedComment
+    public class SavedComment
     {
-        public String target;   // the method signature of the item we have a
-                                // comment for. Can be class name or interface
-                                // name in the case of a comment for a whole
-                                // class/interface
+        public final String target; // the method signature of the item we have a
+                                    // comment for. Can be class name or interface
+                                    // name in the case of a comment for a whole
+                                    // class/interface
 
-        public String comment;  // the actual text of the comment
+        public final String comment;  // the actual text of the comment
 
-        public String paramnames;   // if this is a method or constructor, then
-                                    // this is a comma seperated list of name
-                                    // associated with the parameters
+        public final String paramnames;  // if this is a method or constructor, then
+                                         // this is a comma seperated list of name
+                                         // associated with the parameters
 
         public SavedComment(String target, String comment, String paramnames)
         {
@@ -504,6 +504,11 @@ public final class ClassInfo
             c.save(props, "comment" + i);
         }
         return props;
+    }
+    
+    public List<SavedComment> getCommentsAsList()
+    {
+        return Collections.unmodifiableList(comments);
     }
 
     public boolean isInterface()

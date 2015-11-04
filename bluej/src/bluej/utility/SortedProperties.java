@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -99,6 +99,7 @@ public class SortedProperties extends Properties
         '0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'
     };
 
+    @Override
     @SuppressWarnings("unchecked")
     public void store(OutputStream out, String header) throws IOException
     {

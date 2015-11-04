@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012,2013  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012,2013,2014,2015  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -46,6 +46,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JRootPane;
 
 import bluej.Config;
+import bluej.extensions.SourceType;
 import bluej.utility.DialogManager;
 
 /**
@@ -54,7 +55,6 @@ import bluej.utility.DialogManager;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  */
 public class ClassView extends ClassButton
-    implements Selectable
 {
     GClass gClass;
     private ClassRole role;
@@ -163,7 +163,7 @@ public class ClassView extends ClassButton
 
     private JPopupMenu getPopupMenu()
     {
-        JPopupMenu popupMenu = role.createPopupMenu(classBrowser, this, interactionListener, isUncompiled());
+        JPopupMenu popupMenu = role.createPopupMenu(classBrowser, this, interactionListener, isUncompiled(), hasKnownError());
         popupMenu.setInvoker(this);
         return popupMenu;
     }
@@ -216,6 +216,7 @@ public class ClassView extends ClassButton
     /*
      * @see greenfoot.gui.classbrowser.Selectable#select()
      */
+    @Override
     public void select()
     {
         this.setSelected(true);
@@ -225,6 +226,7 @@ public class ClassView extends ClassButton
     /*
      * @see greenfoot.gui.classbrowser.Selectable#deselect()
      */
+    @Override
     public boolean deselect()
     {
         if (isSelected()) {
@@ -308,7 +310,7 @@ public class ClassView extends ClassButton
         });
     }
 
-    public GClass createSubclass(String className)
+    public GClass createSubclass(String className, SourceType language)
     {
         try {
             //get the default package which is the one containing the user
@@ -317,12 +319,14 @@ public class ClassView extends ClassButton
             GPackage pkg = proj.getDefaultPackage();
             //write the java file as this is required to exist
             File dir = proj.getDir();
-            File newJavaFile = new File(dir, className + ".java");
-            String superClassName = getClassName();            
-            GreenfootUtilDelegateIDE.getInstance().createSkeleton(className, superClassName, newJavaFile,
-                    role.getTemplateFileName(), proj.getCharsetName());
+            String extension = language.toString().toLowerCase();
+            File newFile = new File(dir, className + "." + extension);
+            String superClassName = getClassName();
+            GreenfootUtilDelegateIDE.getInstance().createSkeleton(className, superClassName, newFile,
+                    role.getTemplateFileName(false, language), proj.getCharsetName());
             
-            GClass newClass = pkg.newClass(className, false);
+            GClass newClass = pkg.newClass(className, extension, false);
+            
             //We know what the superclass should be, so we set it.
             newClass.setSuperclassGuess(this.getQualifiedClassName());
             return newClass;
@@ -419,25 +423,45 @@ public class ClassView extends ClassButton
     }
 
     
+    @Override
     protected boolean isValidClass()
     {
         return gClass != null;
     }
     
+    @Override
     protected boolean isUncompiled()
     {
         return !gClass.isCompiled();
     }
     
+    @Override
+    protected boolean hasKnownError()
+    {
+        return gClass.hasKnownError();
+    }
+    
+    @Override
     protected void doubleClick()
     {
         gClass.edit();
     }
 
+    @Override
     protected void maybeShowPopup(MouseEvent e)
     {
         if (e.isPopupTrigger()) {
             getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
         }
+    }
+
+    /**
+     * Removes Stride File only without removing the Java class.
+     * <br>
+     * Must be called from the event thread.
+     */
+    public void removeStrideFileOnly()
+    {
+        gClass.removeStrideFile();
     }
 }

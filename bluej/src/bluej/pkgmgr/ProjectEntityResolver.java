@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 2010,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,6 +21,8 @@
  */
 package bluej.pkgmgr;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
 import bluej.debugger.gentype.Reflective;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
@@ -35,6 +37,7 @@ import bluej.pkgmgr.target.Target;
  * 
  * @author Davin McCall
  */
+@OnThread(value = Tag.Swing, ignoreParent = true)
 public class ProjectEntityResolver implements EntityResolver
 {
     private Project project;

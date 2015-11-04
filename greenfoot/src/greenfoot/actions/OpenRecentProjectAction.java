@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2014  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,7 +21,6 @@
  */
 package greenfoot.actions;
 
-import bluej.Config;
 import greenfoot.core.GreenfootMain;
 
 import java.awt.event.ActionEvent;
@@ -29,6 +28,9 @@ import java.rmi.RemoteException;
 
 import javax.swing.AbstractAction;
 import javax.swing.JMenuItem;
+
+import bluej.Config;
+import bluej.utility.Debug;
 
 /**
  * @author Bruce Quig
@@ -58,17 +60,14 @@ public class OpenRecentProjectAction extends AbstractAction
         Object obj = e.getSource();
         if(obj instanceof JMenuItem){
             final JMenuItem item = (JMenuItem)obj;
-            Thread t = new Thread(){
-                public void run() {
-                    try {
-                        GreenfootMain.getInstance().openProject(item.getText());
-                    }
-                    catch(RemoteException ex){
-                        ex.printStackTrace();
-                    }
-                }
-            };
-            t.start();
+            try
+            {
+                GreenfootMain.getInstance().openProject(item.getText());
+            }
+            catch (RemoteException ex)
+            {
+                Debug.reportError(ex);
+            }
         }
     }
 }

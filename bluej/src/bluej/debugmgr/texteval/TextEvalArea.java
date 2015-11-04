@@ -115,7 +115,7 @@ public final class TextEvalArea extends JScrollPane
     public void focusGained(FocusEvent e) 
     {
         if (!e.isTemporary()) {
-            setBorder(Config.focusBorder);        
+            setBorder(Config.getFocusBorder());        
             repaint();
         }
     }
@@ -126,7 +126,7 @@ public final class TextEvalArea extends JScrollPane
      */
     public void focusLost(FocusEvent e) 
     {
-        setBorder(Config.normalBorder);
+        setBorder(Config.getNormalBorder());
         repaint();
     }
 

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2012,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,6 +23,7 @@ package bluej.terminal;
 
 import java.io.File;
 
+import bluej.extensions.SourceType;
 import bluej.pkgmgr.Package;
 
 /**
@@ -66,7 +67,7 @@ public class ExceptionSourceLocation
     
     public void showInEditor()
     {
-        String fileName = className.replace('.', '/') + ".java";
+        String fileName = className.replace('.', '/') + "." + SourceType.Java.toString().toLowerCase();
         
         pkg.exceptionMessage(new File(pkg.getPath(), fileName).getAbsolutePath(), lineNumber);
         

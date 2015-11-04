@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,6 +26,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
+
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Reference to the BlueJ package file(s). This includes references to the old
@@ -58,6 +61,7 @@ import java.util.Properties;
  * 
  * @author Poul Henriksen
  */
+@OnThread(Tag.Any)
 public class BlueJPackageFile
     implements PackageFile
 {

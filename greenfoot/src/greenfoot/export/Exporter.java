@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012,2013  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012,2013,2015  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -51,6 +51,7 @@ import javax.swing.SwingUtilities;
 import bluej.Boot;
 import bluej.Config;
 import bluej.pkgmgr.Project;
+import bluej.utility.Utility;
 
 /**
  * Class Exporter manages the various possible export functions, such as writing 
@@ -324,9 +325,10 @@ public class Exporter implements PublishListener
 
         String worldClass = project.getLastWorldClassName();
         
-        boolean  includeControls = pane.lockScenario();
-        
-        JarCreator jarCreator = new JarCreator(project, exportDir, jarName, worldClass, includeControls, false); 
+        boolean  lockScenario = pane.lockScenario();
+        boolean  hideControls = pane.hideControls();
+
+        JarCreator jarCreator = new JarCreator(project, exportDir, jarName, worldClass, lockScenario, hideControls, false, false);
         // do not include source
         jarCreator.includeSource(false);  
         
@@ -351,7 +353,7 @@ public class Exporter implements PublishListener
         
         // Add text file with license information
         try {
-            File license = new File(GreenfootUtil.getGreenfootDir(), "GREENFOOT_LICENSES.txt");
+            File license = new File(Utility.getGreenfootDir(), "GREENFOOT_LICENSES.txt");
             if(license.exists()) {
                 jarCreator.addFile(license);
             }

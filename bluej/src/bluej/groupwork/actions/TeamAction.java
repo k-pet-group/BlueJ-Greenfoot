@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,6 +26,8 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
 import bluej.Config;
 import bluej.groupwork.TeamUtils;
 import bluej.groupwork.TeamworkCommandResult;
@@ -37,7 +39,6 @@ import bluej.pkgmgr.actions.PkgMgrAction;
  * An abstract class for team actions. 
  * 
  * @author fisker
- * @version $Id: TeamAction.java 6215 2009-03-30 13:28:25Z polle $
  */
 public abstract class TeamAction extends AbstractAction
 {
@@ -64,8 +65,8 @@ public abstract class TeamAction extends AbstractAction
     {
         super(showsDialog ? Config.getString(name) + "..." : Config.getString(name));
         if (!Config.isMacOS()){
-        	// Mnemonic keys are against the apple gui guidelines.
-        	putValue(MNEMONIC_KEY, new Integer(Config.getMnemonicKey(name)));
+            // Mnemonic keys are against the apple gui guidelines.
+            putValue(MNEMONIC_KEY, new Integer(Config.getMnemonicKey(name)));
         }
         if (Config.hasAcceleratorKey(name)){
             putValue(ACCELERATOR_KEY, Config.getAcceleratorKey(name));
@@ -86,6 +87,7 @@ public abstract class TeamAction extends AbstractAction
     /* (non-Javadoc)
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
+    @OnThread(Tag.Swing)
     public void actionPerformed(ActionEvent e)
     {
         pkgMgrFrame = PkgMgrAction.frameFromEvent(e);
@@ -97,6 +99,7 @@ public abstract class TeamAction extends AbstractAction
      * 
      * @param pmf The PkgMgrFrame in which the action occurred.
      */
+    @OnThread(Tag.Swing)
     public abstract void actionPerformed(PkgMgrFrame pmf);
     
     /**

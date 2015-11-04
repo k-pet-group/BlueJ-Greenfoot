@@ -1,44 +1,60 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
- 
+ Copyright (C) 1999-2009,2014  Michael Kolling and John Rosenberg 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
 package bluej.classmgr;
 
-import bluej.pkgmgr.Project;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
 import java.net.URL;
 import java.util.Iterator;
-import java.util.MissingResourceException;
-import javax.swing.*;
-import javax.swing.table.*;
-import javax.swing.filechooser.FileFilter;
-import java.awt.*;
-import java.awt.event.*;
-
-import java.io.*;
 import java.util.List;
-import java.util.ArrayList;
+import java.util.MissingResourceException;
 
-import bluej.*;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.ListCellRenderer;
+import javax.swing.ListSelectionModel;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.table.TableColumn;
+
+import threadchecker.OnThread;
+import threadchecker.Tag;
+import bluej.BlueJTheme;
+import bluej.Config;
+import bluej.pkgmgr.Project;
+import bluej.prefmgr.PrefPanelListener;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
-import bluej.prefmgr.*;
 
 /**
  * A PrefPanel subclass to allow the user to interactively add a new library
@@ -46,10 +62,10 @@ import bluej.prefmgr.*;
  * archive) with an associated description.
  *
  * @author  Andrew Patterson
- * @version $Id: ClassMgrPrefPanel.java 7051 2010-01-25 15:31:24Z nccb $
  */
+@OnThread(Tag.Swing)
 public class ClassMgrPrefPanel extends JPanel
-    implements PrefPanelListener
+implements PrefPanelListener
 {
     private static final String userlibPrefix = "bluej.userlibrary";
 
@@ -57,7 +73,7 @@ public class ClassMgrPrefPanel extends JPanel
     private ClassPathTableModel userLibrariesModel = null;
 
     private ClassPath userLibraries;
-    
+
     private boolean classPathModified = false;
 
     /**
@@ -78,7 +94,7 @@ public class ClassMgrPrefPanel extends JPanel
         // Somthing to fix in the future.
         // It may have more meaning to show what is the project classloader, that would include all
         // libraries, and paths, including +libs 
-        ArrayList<URL> userlibList = Project.getUserlibContent();
+        List<URL> userlibList = Project.getUserlibContent();
         ClassPath cp = new ClassPath(userlibList.toArray(new URL[userlibList.size()]));
         List<ClassPathEntry> userlibExtLibrariesList = cp.getEntries();
 
@@ -94,7 +110,7 @@ public class ClassMgrPrefPanel extends JPanel
         {
             JScrollPane scrollPane = new JScrollPane();
             {
-				// table of user library classpath entries
+                // table of user library classpath entries
                 userLibrariesModel = new ClassPathTableModel(userLibraries);
                 userLibrariesTable = new JTable(userLibrariesModel);
                 {
@@ -103,13 +119,13 @@ public class ClassMgrPrefPanel extends JPanel
                 }
 
                 TableColumn notfoundColumn = 
-					userLibrariesTable.getColumn(userLibrariesTable.getColumnName(0));
+                        userLibrariesTable.getColumn(userLibrariesTable.getColumnName(0));
                 {
                     notfoundColumn.setPreferredWidth(20);
                 }
 
                 TableColumn locationColumn = 
-					userLibrariesTable.getColumn(userLibrariesTable.getColumnName(1));
+                        userLibrariesTable.getColumn(userLibrariesTable.getColumnName(1));
                 {
                     locationColumn.setPreferredWidth(280);
                 }
@@ -128,25 +144,25 @@ public class ClassMgrPrefPanel extends JPanel
                 JButton addButton = new JButton(Config.getString("classmgr.add"));
                 {
                     addButton.addActionListener(new ActionListener() {
-                            public void actionPerformed(ActionEvent e) {
-                                addUserLibrary();
-                            }
-                        });
+                        public void actionPerformed(ActionEvent e) {
+                            addUserLibrary();
+                        }
+                    });
                 }
                 JButton deleteButton = new JButton(Config.getString("classmgr.delete"));
                 {
                     deleteButton.addActionListener(new ActionListener() {
-                            public void actionPerformed(ActionEvent e) {
-                                deleteUserLibrary();
-                            }
-                        });
+                        public void actionPerformed(ActionEvent e) {
+                            deleteUserLibrary();
+                        }
+                    });
                 }
 
-		// allow the Add and Delete buttons to be resized to equal width
-		addButton.setMaximumSize(new Dimension(Integer.MAX_VALUE,
-						addButton.getPreferredSize().height));
-		deleteButton.setMaximumSize(new Dimension(Integer.MAX_VALUE,
-						deleteButton.getPreferredSize().height));
+                // allow the Add and Delete buttons to be resized to equal width
+                addButton.setMaximumSize(new Dimension(Integer.MAX_VALUE,
+                        addButton.getPreferredSize().height));
+                deleteButton.setMaximumSize(new Dimension(Integer.MAX_VALUE,
+                        deleteButton.getPreferredSize().height));
 
                 buttonPane.add(addButton);
                 buttonPane.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
@@ -174,9 +190,9 @@ public class ClassMgrPrefPanel extends JPanel
             userlibExtLibrariesScrollPane.setViewportView(list);
             userlibExtLibrariesScrollPane.setAlignmentX(LEFT_ALIGNMENT);
         }
-        
+
         String userlibLocation = Config.getString("classmgr.userliblibraries") 
-            + " (" + Config.getBlueJLibDir() + File.separator + "userlib)";
+                + " (" + Config.getBlueJLibDir() + File.separator + "userlib)";
         JLabel userlibExtLibrariesTag = new JLabel(userlibLocation);
         {
             userlibExtLibrariesTag.setAlignmentX(LEFT_ALIGNMENT);
@@ -198,12 +214,12 @@ public class ClassMgrPrefPanel extends JPanel
      * the Project classloader.
      * @return a non null but possibly empty arrayList of URL.
      */
-    public ArrayList<URL> getUserConfigContent ()
+    public List<URL> getUserConfigContent ()
     {
         return userLibraries.getURLs();
     }
-    
-    
+
+
     /**
      * Retrieve from the system wide Config entries corresponding to classpath
      * entries. The entries to retrieve start with prefix and have 1.location,
@@ -246,7 +262,7 @@ public class ClassMgrPrefPanel extends JPanel
             DialogManager.showMessage(null, "classmgr-changes-no-effect");
             classPathModified = false;
         }
-        
+
         userLibrariesModel.commitEntries();
         saveUserLibraries();
     }
@@ -277,7 +293,7 @@ public class ClassMgrPrefPanel extends JPanel
         while (it.hasNext()) {
             ClassPathEntry nextEntry = it.next();
             Config.putPropString(userlibPrefix + resourceID + ".location",
-                                    nextEntry.getPath());
+                    nextEntry.getPath());
             resourceID++;
         }
     }
@@ -290,16 +306,16 @@ public class ClassMgrPrefPanel extends JPanel
      **/
     private void addUserLibrary()
     {
-    	File file = FileUtility.getFile(getParent(), Config.getString("prefmgr.misc.addLibTitle"),
-    			null, new LibraryFileFilter(), false);
-    	
-    	if (file != null) {
-    		String librarylocation = file.getAbsolutePath();
+        File file = FileUtility.getFile(getParent(), Config.getString("prefmgr.misc.addLibTitle"),
+                null, new LibraryFileFilter(), false);
+
+        if (file != null) {
+            String librarylocation = file.getAbsolutePath();
 
             userLibrariesModel.addEntry(new ClassPathEntry(librarylocation,"", true));
-            
+
             classPathModified = true;
-    	}
+        }
     }
 
     /**
@@ -325,28 +341,28 @@ public class ClassMgrPrefPanel extends JPanel
  */
 class ClassMgrCellRenderer implements ListCellRenderer
 {
-	// This is the only method defined by ListCellRenderer.  We just
-	// reconfigure the Jlabel each time we're called.
+    // This is the only method defined by ListCellRenderer.  We just
+    // reconfigure the Jlabel each time we're called.
 
-	public Component getListCellRendererComponent(
-		JList list,
-		Object value,            // value to display
-		int index,               // cell index
-		boolean isSelected,      // is the cell selected
-		boolean cellHasFocus)    // the list and the cell have the focus
-	{
-		Component sup =
-			new DefaultListCellRenderer().getListCellRendererComponent(list,
-							value,index,isSelected,cellHasFocus);
+    public Component getListCellRendererComponent(
+            JList list,
+            Object value,            // value to display
+            int index,               // cell index
+            boolean isSelected,      // is the cell selected
+            boolean cellHasFocus)    // the list and the cell have the focus
+    {
+        Component sup =
+                new DefaultListCellRenderer().getListCellRendererComponent(list,
+                        value,index,isSelected,cellHasFocus);
 
-		ClassPathEntry cpe = (ClassPathEntry)value;
+        ClassPathEntry cpe = (ClassPathEntry)value;
 
-		String s = cpe.getCanonicalPathNoException() + " (" + cpe.getStatusString() + ")";
+        String s = cpe.getCanonicalPathNoException() + " (" + cpe.getStatusString() + ")";
 
-		((JLabel)sup).setText(s);
+        ((JLabel)sup).setText(s);
 
-   		return sup;
-	}
+        return sup;
+    }
 }
 
 /**
@@ -355,26 +371,26 @@ class ClassMgrCellRenderer implements ListCellRenderer
  */
 class LibraryFileFilter extends FileFilter
 {
-	/**
-	 * Check if it is a valid library archive file.
-	 *
-	 * @param	f the file to be check.
-	 * @return	true if the file was accepted.
-	 */
-	public boolean accept(File f) {
-		return (f.isDirectory() ||
-			f.getName().toLowerCase().endsWith(".jar") ||
-			f.getName().toLowerCase().endsWith(".zip"));
-	}
+    /**
+     * Check if it is a valid library archive file.
+     *
+     * @param    f the file to be check.
+     * @return   true if the file was accepted.
+     */
+    public boolean accept(File f) {
+        return (f.isDirectory() ||
+                f.getName().toLowerCase().endsWith(".jar") ||
+                f.getName().toLowerCase().endsWith(".zip"));
+    }
 
-	/**
-	 * Return a description of the files accepted by this filter.  Used
-	 * in the "file types" drop down list in file chooser dialogs.
-	 *
-	 * @return	a description of the files accepted by this filter.
-	 */
-	public String getDescription() {
-		return Config.getString("prefmgr.misc.libFileFilter");
-	}
+    /**
+     * Return a description of the files accepted by this filter.  Used
+     * in the "file types" drop down list in file chooser dialogs.
+     *
+     * @return    a description of the files accepted by this filter.
+     */
+    public String getDescription() {
+        return Config.getString("prefmgr.misc.libFileFilter");
+    }
 }
 

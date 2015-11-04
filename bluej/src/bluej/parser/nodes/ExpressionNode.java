@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2012,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -86,7 +86,7 @@ public class ExpressionNode extends JavaParentNode
         GenTypeSolid stype = parser.getSuggestionType();
         GenTypeClass atype = (defaultType != null) ? defaultType.getType().asClass() : null;
         if (stype != null) {
-            return new CodeSuggestions(stype, atype, parser.getSuggestionToken(), parser.isSuggestionStatic());
+            return new CodeSuggestions(stype, atype, parser.getSuggestionToken(), parser.isSuggestionStatic(), parser.isPlain());
         }
         else {
             return null;

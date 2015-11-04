@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,12 +21,13 @@
  */
 package bluej.utility;
 
+import java.io.File;
+
+import javax.swing.Icon;
+import javax.swing.filechooser.FileView;
+
 import bluej.Config;
 import bluej.pkgmgr.Package;
-
-import javax.swing.*;
-import javax.swing.filechooser.*;
-import java.io.File;
 
 /**
  * A FileView subclass that enables BlueJ packages to be displayed with a
@@ -34,12 +35,12 @@ import java.io.File;
  *
  * @author Michael Kolling
  * @see FileUtility
- * @version $Id: PackageFileView.java 7860 2010-07-15 02:45:20Z davmac $
+ * @version $Id: PackageFileView.java 12533 2014-10-10 12:08:52Z nccb $
  */
 public class PackageFileView extends FileView
 {
-    static final Icon bluejProjectIcon = Config.getFixedImageAsIcon("bluej-project.png");
-    static final Icon greenfootProjectIcon = Config.getFixedImageAsIcon("greenfoot-project.png");
+    private static Icon bluejProjectIcon;
+    private static Icon greenfootProjectIcon;
 
     /**
      * The name of the file.  Do nothing special here. Let the system file
@@ -85,9 +86,17 @@ public class PackageFileView extends FileView
         
         if(Package.isPackage(f))
             if (Config.isGreenfoot()) {
+                if (greenfootProjectIcon == null)
+                {
+                    greenfootProjectIcon = Config.getFixedImageAsIcon("greenfoot-project.png");
+                }
                 return greenfootProjectIcon;
             }
             else {
+                if (bluejProjectIcon == null)
+                {
+                    bluejProjectIcon = Config.getFixedImageAsIcon("bluej-project.png");
+                }
                 return bluejProjectIcon;
             }
         else {

@@ -1,8 +1,7 @@
 Building Mac OS X release bundles
 ---------------------------------
 
-There are two bundles generated for Mac OS X: The regular bundle which includes
-a JDK, and the "legacy" bundle which uses the system JDK (JDK 6).
+There is one bundle generated for Mac OS X: The regular one which includes a JDK.
 
 1. Follow instructions in HOWTO.make-release, up to the point where you have
    run the "ant dist" target. Your build.properties file must specify a

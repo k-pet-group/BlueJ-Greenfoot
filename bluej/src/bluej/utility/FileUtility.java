@@ -22,14 +22,25 @@
 package bluej.utility;
 
 import java.awt.Component;
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Array;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
 import bluej.Config;
+import bluej.extensions.SourceType;
 import bluej.prefmgr.PrefMgr;
 
 /**
@@ -38,6 +49,7 @@ import bluej.prefmgr.PrefMgr;
  * @author  Markus Ostman
  * @author  Michael Kolling
  */
+@OnThread(Tag.Swing)
 public class FileUtility
 {
     /** 
@@ -45,9 +57,9 @@ public class FileUtility
      * @author polle
      * @see FileUtility#getVistaWriteCapabilities(File)
      */
-    public enum WriteCapabilities {READ_ONLY, NORMAL_WRITE, VIRTUALIZED_WRITE, UNKNOWN};
+    public enum WriteCapabilities {READ_ONLY, NORMAL_WRITE, VIRTUALIZED_WRITE, UNKNOWN}
 
-    private static final String sourceSuffix = ".java";
+    private static final String sourceSuffix = "." + SourceType.Java.toString().toLowerCase();
 
     private static JFileChooser pkgChooser = null;
     private static JFileChooser pkgChooserNonBlueJ = null;
@@ -329,6 +341,7 @@ public class FileUtility
          * Whether a file is a Java source file is determined by the fact that
          * its filename ends with ".java".
          */
+        @Override
         public boolean accept(File pathname)
         {
             if (pathname.isDirectory() ||
@@ -338,6 +351,7 @@ public class FileUtility
                 return false;
         }
 
+        @Override
         public String getDescription()
         {
             return "Java Source";
@@ -349,6 +363,7 @@ public class FileUtility
      * Copy file 'source' to file 'dest'. The source file must exist,
      * the destination file will be created. Returns true if successful.
      */
+    @OnThread(Tag.Any)
     public static void copyFile(String source, String dest)
         throws IOException
     {
@@ -363,6 +378,7 @@ public class FileUtility
      * Copy file 'srcFile' to file 'destFile'. The source file must exist,
      * the destination file will be created. Returns true if successful.
      */
+    @OnThread(Tag.Any)
     public static void copyFile(File srcFile, File destFile)
         throws IOException
     {
@@ -392,6 +408,7 @@ public class FileUtility
     /**
      * Copy stream 'in' to stream 'out'.
      */
+    @OnThread(Tag.Any)
     public static void copyStream(InputStream in, OutputStream out)
         throws IOException
     {
@@ -526,10 +543,10 @@ public class FileUtility
             }
         }
 
-        if (failed.size() > 0)
-            return (File [])failed.toArray(new File[0]);
-        else
-            return null;
+        if (failed.size() > 0) {
+            return failed.toArray(new File[0]);
+        }
+        return null;
     }
 
 
@@ -599,6 +616,7 @@ public class FileUtility
      * @param directory   The directory that will be deleted.
      *
      */
+    @OnThread(Tag.Any)
     public static void deleteDir(File directory)
     {
         File[] fileList = directory.listFiles();
@@ -634,6 +652,7 @@ public class FileUtility
      * @param file    The file to get the relative path to
      * @return   The relative path between parent and file
      */
+    @OnThread(Tag.Any)
     public static String makeRelativePath(File parent, File file)
     {
         String filePath = file.getAbsolutePath();

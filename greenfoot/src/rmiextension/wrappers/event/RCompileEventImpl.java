@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009, 2013  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,7 +28,6 @@ import bluej.extensions.event.CompileEvent;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RCompileEventImpl.java 6216 2009-03-30 13:41:07Z polle $
  */
 public class RCompileEventImpl extends java.rmi.server.UnicastRemoteObject
     implements RCompileEvent
@@ -45,12 +44,28 @@ public class RCompileEventImpl extends java.rmi.server.UnicastRemoteObject
         this.compileEvent = event;
     }
 
-    /**
-     * @return
-     */
-    public int getErrorLineNumber()
+    @Override
+    public int getErrorStartLine()
     {
-        return compileEvent.getErrorLineNumber();
+        return compileEvent.getErrorPosition()[0];
+    }
+    
+    @Override
+    public int getErrorStartColumn()
+    {
+        return compileEvent.getErrorPosition()[1];
+    }
+    
+    @Override
+    public int getErrorEndLine()
+    {
+        return compileEvent.getErrorPosition()[2];
+    }
+    
+    @Override
+    public int getErrorEndColumn()
+    {
+        return compileEvent.getErrorPosition()[3];
     }
 
     /**

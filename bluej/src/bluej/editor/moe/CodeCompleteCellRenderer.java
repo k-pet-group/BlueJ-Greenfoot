@@ -21,9 +21,11 @@
  */
 package bluej.editor.moe;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.util.stream.Collectors;
 
 import javax.swing.Box;
 import javax.swing.JLabel;
@@ -33,9 +35,9 @@ import javax.swing.ListCellRenderer;
 
 import bluej.Config;
 import bluej.parser.AssistContent;
+import bluej.parser.AssistContent.ParamInfo;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.DBoxLayout;
-import java.awt.Color;
 
 /**
  * A cell renderer for the code completion popup list.
@@ -82,10 +84,11 @@ public class CodeCompleteCellRenderer extends JPanel implements ListCellRenderer
     {
         if (value != null && list.isValid() && index <= list.getLastVisibleIndex() && index >= list.getFirstVisibleIndex()) {
             AssistContent content = (AssistContent) value;
-            typeLabel.setText(content.getReturnType().toString());
-            descriptionLabel.setText(content.getDisplayName());
+            typeLabel.setText(content.getType().toString());
+            descriptionLabel.setText(content.getName() + "("
+                    + content.getParams().stream().map(ParamInfo::getUnqualifiedType).collect(Collectors.joining(", ")) + ")");
 
-            if (content.getDeclaringClass().equals(immediateType)) {
+            if (content.getDeclaringClass() != null && content.getDeclaringClass().equals(immediateType)) {
                 descriptionLabel.setFont(cfontBold);
             }
             else {

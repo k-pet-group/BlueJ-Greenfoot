@@ -1,0 +1,41 @@
+# Frame Catalogue:
+frame.catalogue.title=Cheat Sheet
+frame.catalogue.commands=Commands
+frame.catalogue.shortcuts=Shortcuts
+frame.catalogue.selection=Enclose Selection
+frame.catalogue.codecompletion=Code completion
+frame.catalogue.codecompletion.hide=Hide code completion
+frame.catalogue.codecompletion.up=Move up
+frame.catalogue.codecompletion.down=Move down
+frame.catalogue.codecompletion.select=Select
+
+frame.catalogue.birdseye.exit=Exit view
+frame.catalogue.birdseye.up=Move up
+frame.catalogue.birdseye.down=Move down
+frame.catalogue.birdseye.select=Select
+
+frame.catalogue.examples=Examples
+
+
+# Error Bar:
+frame.error.overview.bar.error.single=error
+frame.error.overview.bar.error.plural=errors
+frame.error.overview.bar.error.none=No errors
+frame.error.overview.bar.error.editing=Editing
+
+# Slot menu:
+frame.slot.cut=Cut
+frame.slot.copy=Copy
+frame.slot.paste=Paste
+frame.slot.recent=Recent Values
+
+
+# View menu:
+frame.viewmenu.title=View
+frame.viewmenu.nextError=Next error
+frame.viewmenu.cheatsheet=Cheat sheet
+frame.viewmenu.birdseye=Bird's eye
+frame.viewmenu.java=Java preview
+frame.viewmenu.fontbigger=Increase font size
+frame.viewmenu.fontsmaller=Decrease font size
+frame.viewmenu.fontdefault=Reset font size

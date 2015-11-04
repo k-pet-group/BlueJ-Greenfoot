@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2010,2011,2012,2013 Poul Henriksen and Michael Kolling 
+ Copyright (C) 2010,2011,2012,2013,2015 Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -439,12 +439,6 @@ public class GreenfootDebugHandler implements DebuggerListener
                     }
                 }
             }
-        }
-        
-        @Override
-        public boolean examineDebuggerEvent(DebuggerEvent e)
-        {
-            return false;
         }
 
         @Override

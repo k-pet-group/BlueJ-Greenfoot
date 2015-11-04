@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,8 +24,6 @@ import java.awt.*;
 
 /**
  * MiksGridLayout - a grid layout with non-homogenous column widths.
- * 
- * @version $Id: mergeCopyTarget64862.tmp 5416 2007-12-11 15:40:37Z cecilia $
  */
 public class MiksGridLayout extends GridLayout
 {
@@ -61,6 +59,7 @@ public class MiksGridLayout extends GridLayout
      * Determines the preferred size of the container argument using 
      * this grid layout. 
      */
+    @Override
     public Dimension preferredLayoutSize(Container parent)
     {
         synchronized (parent.getTreeLock()) {
@@ -110,6 +109,7 @@ public class MiksGridLayout extends GridLayout
      * Determines the minimum size of the container argument using this 
      * grid layout. 
      */
+    @Override
     public Dimension minimumLayoutSize(Container parent)
     {
         synchronized (parent.getTreeLock()) {
@@ -158,6 +158,7 @@ public class MiksGridLayout extends GridLayout
     /** 
      * Lays out the specified container using this layout. 
      */
+    @Override
     public void layoutContainer(Container parent)
     {
         synchronized (parent.getTreeLock()) {

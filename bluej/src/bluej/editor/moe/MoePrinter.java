@@ -22,19 +22,33 @@
 package bluej.editor.moe;
 
 import java.awt.Color;
-import java.awt.print.*;
-import java.awt.Graphics;
 import java.awt.Font;
 import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.print.Book;
+import java.awt.print.PageFormat;
+import java.awt.print.Printable;
+import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
-import javax.swing.text.*;
-
-import java.util.*;
 import java.text.DateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.ListIterator;
 
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Element;
+import javax.swing.text.PlainDocument;
+import javax.swing.text.Segment;
+import javax.swing.text.StyleContext;
+import javax.swing.text.TabExpander;
+import javax.swing.text.Utilities;
+
+import threadchecker.OnThread;
+import threadchecker.Tag;
+import bluej.Config;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
-import bluej.Config;
 
 
 /**
@@ -44,6 +58,7 @@ import bluej.Config;
  *
  * @author Bruce Quig
  */
+@OnThread(Tag.Any)
 public class MoePrinter
 {
     static final String CONTINUED_LABEL = Config.getString("editor.printer.continued");
@@ -248,7 +263,8 @@ public class MoePrinter
     /* An inner class that defines one page of text based
      * on data about the PageFormat etc. from the book defined
      * in the parent class
-     */                         
+     */                        
+    @OnThread(Tag.Any)
     class MoePage implements Printable 
     { 
         private List<PrintLine> text;  // the text for the page
@@ -270,6 +286,8 @@ public class MoePrinter
          * Method that implements Printable interface.   
          * 
          */       
+        // This will run off Swing thread, but I think is thread safe:
+        @OnThread(value = Tag.Swing, ignoreParent = true)
         public int print(Graphics g, PageFormat pageFormat, int pageIndex) throws PrinterException 
         { 
             // the printing part
@@ -445,6 +463,7 @@ public class MoePrinter
      * @author Neil Brown
      *
      */
+    @OnThread(value = Tag.Any, ignoreParent = true)
     private class PrintLine implements CharSequence
     {
         private MoeSyntaxDocument document;

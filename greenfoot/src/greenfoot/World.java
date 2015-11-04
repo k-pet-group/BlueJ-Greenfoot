@@ -445,10 +445,10 @@ public abstract class World
      * @param objects A list of Actors to remove.
      */
     @SuppressWarnings("unchecked")
-    public void removeObjects(Collection objects)
+    public void removeObjects(Collection<? extends Actor> objects)
     {
-        for (Iterator iter = objects.iterator(); iter.hasNext();) {
-            Actor actor = (Actor) iter.next();
+        for (Iterator<? extends Actor> iter = objects.iterator(); iter.hasNext();) {
+            Actor actor = iter.next();
             removeObject(actor);
         }
     }
@@ -464,10 +464,10 @@ public abstract class World
      * 
      * @return A list of objects.
      */
-    @SuppressWarnings("unchecked")
-    public List getObjects(Class cls)
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public <A extends Actor> List<A> getObjects(Class<A> cls)
     {
-        List<Actor> result = new ArrayList<Actor>();
+        List result = new ArrayList();
         
         Iterator<Actor> i = objectsDisordered.iterator();
         while (i.hasNext()) {
@@ -553,8 +553,7 @@ public abstract class World
      * @param cls Class of objects to look return ('null' will return all
      *            objects).
      */
-    @SuppressWarnings("unchecked")
-    public List getObjectsAt(int x, int y, Class cls)
+    public <A extends Actor> List<A> getObjectsAt(int x, int y, Class<A> cls)
     {
         return collisionChecker.getObjectsAt(x, y, cls);
     }
@@ -620,8 +619,7 @@ public abstract class World
      * @param cls Class of objects to look for (null or Object.class will find
      *            all classes)
      */
-    @SuppressWarnings("unchecked")
-    List getIntersectingObjects(Actor actor, Class cls)
+    <A extends Actor> List<A> getIntersectingObjects(Actor actor, Class<A> cls)
     {
         return collisionChecker.getIntersectingObjects(actor, cls);
     }
@@ -637,8 +635,7 @@ public abstract class World
      * @param cls Class of objects to look for (null or Object.class will find
      *            all classes)
      */
-    @SuppressWarnings("unchecked")
-    List getObjectsInRange(int x, int y, int r, Class cls)
+    <A extends Actor> List<A> getObjectsInRange(int x, int y, int r, Class<A> cls)
     {
         return collisionChecker.getObjectsInRange(x, y, r, cls);
     }
@@ -655,8 +652,7 @@ public abstract class World
      *            all classes)
      * @return A collection of all neighbours found
      */
-    @SuppressWarnings("unchecked")
-    List getNeighbours(Actor actor, int distance, boolean diag, Class cls)
+    <A extends Actor> List<A> getNeighbours(Actor actor, int distance, boolean diag, Class<A> cls)
     {
         if(distance < 0) {
             throw new IllegalArgumentException("Distance must not be less than 0. It was: " + distance);
@@ -676,8 +672,7 @@ public abstract class World
      * @param cls Class of objects to look for (passing 'null' will find all
      *            objects).
      */
-    @SuppressWarnings("unchecked")
-    List getObjectsInDirection(int x0, int y0, int angle, int length, Class cls)
+    <A extends Actor> List<A> getObjectsInDirection(int x0, int y0, int angle, int length, Class<A> cls)
     {
         return collisionChecker.getObjectsInDirection(x0, y0, angle, length, cls);
     }
@@ -770,14 +765,12 @@ public abstract class World
         collisionChecker.startSequence();
     }
 
-    @SuppressWarnings("unchecked")
-    Actor getOneObjectAt(Actor object, int dx, int dy, Class cls)
+    <A extends Actor> A getOneObjectAt(Actor object, int dx, int dy, Class<A> cls)
     {
         return collisionChecker.getOneObjectAt(object, dx, dy, cls);
     }
 
-    @SuppressWarnings("unchecked")
-    Actor getOneIntersectingObject(Actor object, Class cls)
+    <A extends Actor> A getOneIntersectingObject(Actor object, Class<A> cls)
     {
         return collisionChecker.getOneIntersectingObject(object, cls);
     }
@@ -813,7 +806,7 @@ public abstract class World
         }
     }
     
-    void paintDebug(Graphics g)
+    void paintDebug(@SuppressWarnings("unused") Graphics g)
     {
         /*
          * g.setColor(Color.BLACK); g.drawString("# of Objects: " + objects.size(),

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2013,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2015  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -492,10 +492,10 @@ public abstract class CallDialog extends EscapeDialog
         component.setEditable(true);
         
         Dimension prefSize = component.getPreferredSize();
-        if (prefSize.width < 100) {
+        if (prefSize.width < 200) {
             // On MacOS (Leopard) the ComboBox is tiny. So we
             // explicitly set the width here.
-            prefSize.width = 100;
+            prefSize.width = 200;
             component.setPreferredSize(prefSize);            
         }
         // treat 'return' in text field as OK

@@ -1,0 +1,16 @@
+.tabbed-editor > .tab-header-area > .tab-header-background {
+    -fx-background-color: hsb(0, 0%, 50%);
+}
+
+.tabbed-editor > .tab-header-area .tab {
+    -fx-border-width: 0 0 2 0;
+    -fx-border-color: hsb(0, 0%, 30%);
+}
+.tabbed-editor > .tab-header-area .bj-tab-error .tab-label {
+    -fx-border-width : 0 0 2 0;
+    -fx-border-color: red;
+}
+
+.tabbed-editor > .tab-header-area  {
+    -fx-padding: 2 5 -1 5;
+}

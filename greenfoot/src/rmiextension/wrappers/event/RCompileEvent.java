@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009, 2013  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,18 +27,23 @@ import java.rmi.RemoteException;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RCompileEvent.java 6216 2009-03-30 13:41:07Z polle $
  *  
  */
 public interface RCompileEvent
     extends Remote
 {
-    /**
-     * @return
-     */
-    public int getErrorLineNumber()
+    public int getErrorStartLine()
         throws RemoteException;
 
+    public int getErrorEndLine()
+            throws RemoteException;
+    
+    public int getErrorStartColumn()
+        throws RemoteException;
+    
+    public int getErrorEndColumn()
+        throws RemoteException;
+    
     /**
      * @return
      */

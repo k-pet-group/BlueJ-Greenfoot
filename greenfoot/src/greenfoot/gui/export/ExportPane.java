@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2011,2015  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -37,10 +37,13 @@ import java.awt.Color;
 public abstract class ExportPane extends JPanel
 {
     private static final String lockText = Config.getString("export.lock.label");
+    private static final String hideControlsText = Config.getString("export.controls.label");
+    private static final String hideControlsDescription = Config.getString("export.controls.description");
     private static final String lockDescription = Config.getString("export.lock.description");
     protected static final Color backgroundColor = new Color(220, 220, 220);
 
     protected JCheckBox lockScenario;
+    protected JCheckBox hideControls;
 
     /**
      * Create a an export pane for export to web pages.
@@ -52,6 +55,12 @@ public abstract class ExportPane extends JPanel
         lockScenario.setAlignmentX(LEFT_ALIGNMENT);
         lockScenario.setToolTipText(lockDescription);
         lockScenario.setOpaque(false);
+        
+        hideControls = new JCheckBox(hideControlsText, false);
+        hideControls.setSelected(false);
+        hideControls.setAlignmentX(LEFT_ALIGNMENT);
+        hideControls.setToolTipText(hideControlsDescription);
+        hideControls.setOpaque(false);
     }
 
     /**
@@ -83,5 +92,14 @@ public abstract class ExportPane extends JPanel
     public boolean lockScenario()
     {
         return lockScenario.isSelected();
+    }
+    
+    /**
+     * Return true if the user wants to hide the scenario controls.
+     * @return true if the hide controls checkbox is selected.
+     */
+    public boolean hideControls()
+    {
+        return hideControls.isSelected();
     }
 }

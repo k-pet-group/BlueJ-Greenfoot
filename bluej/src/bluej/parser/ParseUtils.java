@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2013,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2013,2014,2015  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -19,9 +19,10 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package bluej.parser;
+package bluej.parser; 
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -30,6 +31,9 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+import bluej.debugger.gentype.FieldReflective;
 import bluej.debugger.gentype.GenTypeArrayClass;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeParameter;
@@ -72,7 +76,7 @@ public class ParseUtils
      */
     public interface AssistContentConsumer
     {
-        public void consume(AssistContent ac);
+        public void consume(AssistContent ac, boolean overridden);
     }
     
     
@@ -80,6 +84,7 @@ public class ParseUtils
      * Get the possible code completions, based on the provided suggestions context.
      * If there are can be no valid completions in the given context, returns null.
      */
+    @OnThread(Tag.Swing)
     public static AssistContent[] getPossibleCompletions(CodeSuggestions suggests, 
             JavadocResolver javadocResolver, AssistContentConsumer consumer)
     {
@@ -100,6 +105,7 @@ public class ParseUtils
      * @return  A suitable GenTypeClass representing the target type for completion
      *           purposes, or null if there is no such suitable type.
      */
+    @OnThread(Tag.Any)
     public static GenTypeClass initGetPossibleCompletions(CodeSuggestions suggests)
     {
         if (suggests != null) {
@@ -128,7 +134,8 @@ public class ParseUtils
 
         return null; // no completions
     }
-    
+
+    @OnThread(Tag.Swing)
     private static List<AssistContent> getCompletionsForTarget(GenTypeClass exprType, CodeSuggestions suggests,
             JavadocResolver javadocResolver, AssistContentConsumer consumer)
     {
@@ -165,10 +172,31 @@ public class ParseUtils
                                     method.getModifiers(), suggests.isStatic())) {
                         continue;
                     }
-                    AssistContent ac = discoverElement(javadocResolver, contentSigs, completions, typeArgs, method);
-                    if (ac != null && consumer != null) {
-                        consumer.consume(ac);
-                    }
+                    discoverElement(javadocResolver, contentSigs, completions, typeArgs, method, consumer);
+                }
+            }
+            
+            Map<String, FieldReflective> fields = exprType.getReflective().getDeclaredFields();
+
+            for (String name : fields.keySet()) {
+                FieldReflective field = fields.get(name);
+                if (accessReflective != null &&
+                        ! JavaUtils.checkMemberAccess(field.getDeclaringType(),
+                                origExprType,
+                                suggests.getAccessType().getReflective(),
+                                field.getModifiers(), suggests.isStatic())) {
+                    continue;
+                }
+                Map<String,GenTypeParameter> declMap =
+                        exprType.mapToSuper(field.getDeclaringType().getName()).getMap();
+
+                FieldCompletion completion = new FieldCompletion(field.getType().toString(), field.getName(),
+                        field.getModifiers(), field.getDeclaringType().getName() /* ,declMap */);
+
+                completions.add(completion);
+
+                if (consumer != null) {
+                    consumer.consume(completion, false);
                 }
             }
             
@@ -180,6 +208,8 @@ public class ParseUtils
                 }
             }
 
+            // Sort the completions by name
+            Collections.sort(completions, (o1, o2) -> o1.getName().compareTo(o2.getName()) );
             Reflective outer = exprType.getReflective().getOuterClass();
             if (outer != null) {
                 typeQueue.add(new GenTypeClass(outer));
@@ -195,22 +225,32 @@ public class ParseUtils
      * a unique signature), and do so if necessary. Returns an AssistContent object representing the method if
      * it was added, or null otherwise. 
      */
+    @OnThread(Tag.Swing)
     private static AssistContent discoverElement(JavadocResolver javadocResolver, Set<String> contentSigs, List<AssistContent> completions, 
-            Map<String, GenTypeParameter> typeArgs, MethodReflective method)
+            Map<String, GenTypeParameter> typeArgs, MethodReflective method, AssistContentConsumer consumer)
     {
-        AssistContent result = null;
         MethodCompletion completion = null;
         completion = new MethodCompletion(method,
                 typeArgs, javadocResolver);
-        String sig = completion.getDisplayName();
+        String sig = completion.getSignature();
         if (contentSigs.add(sig)) {
             completions.add(completion);
-            result = completion;
+            if (consumer != null)
+            {
+                consumer.consume(completion, false /* not overridden */);
+            }
+            return completion;
             // Sort the completions by name
             //    Collections.sort(completions, new CompletionComparator());
         }
-        
-        return result;
+        else
+        {
+            if (consumer != null)
+            {
+                consumer.consume(completion, true /* overridden */);
+            }
+            return null;
+        }
     }
     
     /**

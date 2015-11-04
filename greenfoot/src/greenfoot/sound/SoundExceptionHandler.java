@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2014  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,6 +29,7 @@ import java.io.IOException;
 
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.sampled.UnsupportedAudioFileException;
+import javax.swing.SwingUtilities;
 
 import bluej.Config;
 
@@ -72,7 +73,7 @@ public class SoundExceptionHandler
         if (!lineUnavailableHandled) {
             lineUnavailableHandled = true;
             String errMsg = Config.getString("sound-line-unavailable");
-            GreenfootUtil.displayMessage(WorldHandler.getInstance().getWorldCanvas(), errMsg);
+            SwingUtilities.invokeLater(() -> GreenfootUtil.displayMessage(WorldHandler.getInstance().getWorldCanvas(), errMsg));
         }
     }
 

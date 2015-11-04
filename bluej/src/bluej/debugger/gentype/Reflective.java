@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012,2014,2015  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -166,7 +166,12 @@ public abstract class Reflective
      *    (represented by MethodReflective objects) 
      */
     abstract public Map<String,Set<MethodReflective>> getDeclaredMethods();
-    
+
+    /**
+     * Gets the constructors declared in the type represented by this Reflective.
+     */
+    abstract public List<ConstructorReflective> getDeclaredConstructors();
+
     /**
      * Get the fields declared in the type represented by this Reflective.
      * This does not include fields declared in the superclass(es).

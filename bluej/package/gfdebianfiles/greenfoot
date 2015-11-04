@@ -3,7 +3,7 @@
 unset JAVAPATH
 
 FOUND="false"
-for VMNAME in java-8-oracle jdk-8-oracle java-8-openjdk java-7-oracle jdk-7-oracle java-7-sun java-7-openjdk java-6-oracle java-6-sun java-6-openjdk ; do
+for VMNAME in java-8-oracle jdk-8-oracle java-8-openjdk ; do
     for JDKCANDIDATE in /usr/lib/jvm/"$VMNAME"* ; do
         if [ -e "$JDKCANDIDATE"/lib/tools.jar ]; then
             JAVAPATH="$JDKCANDIDATE"

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,11 +21,15 @@
  */
 package bluej.editor.moe;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 /**
  * This is a replacement for the Token class from jedit.
  * 
  * @author Davin McCall
  */
+@OnThread(Tag.Any)
 public class Token
 {
     public byte id;     // Token type, one of the constants declared below

@@ -79,7 +79,8 @@ Next, you need to set up a Greenfoot project.
      - commons-httpclient-3.1.jar
      - commons-logging-api-1.1.2.jar (NOTE: add from bluej/lib if not in greenfoot/lib)
      - jl1.0.1.jar
-     - junit-4.8.2.jar (NOTE: add from bluej/lib if not in greenfoot/lib)
+     - junit-4.11.jar (NOTE: add from bluej/lib if not in greenfoot/lib)
+     - hamcrest-core-1.3.jar (NOTE: add from bluej/lib if not in greenfoot/lib)
      - opencsv-2.3.jar
 
    * "Add External JARs" (or Add Variable... if using classpath vars): 
@@ -120,7 +121,7 @@ Next, you need to set up a Greenfoot project.
      in the Ant view
      
    * In the package explorer view, right click on bluej/boot/src/bluej
-     and choose "refresh". greenfootsplash.jpg should now be listed in
+     and choose "refresh". greenfoot-3-splash.png should now be listed in
      bluej/boot/src/bluej as a resource.
 
 
@@ -210,7 +211,7 @@ Common problems and their solution (if all the steps above are
 followed to the letter, then none of the problems should occur):
 
 
-1. Launching Greenfoot fails/complains because greenfootsplash.jpg isn't 
+1. Launching Greenfoot fails/complains because greenfoot-3-splash.png isn't
    found, even though it's in the bluej/boot/src/ dir.  Attempting to 
    add the image to the bluej/boot/src resource in eclipse fails.
 
@@ -223,7 +224,7 @@ Simply refreshing bluej/boot/src/bluej solves this.
 
 In the package explorer view in eclipse, after running the greenfoot
 ant "ready-to-run target" right click on bluej/boot/src/bluej 
-and choose "refresh". greenfootsplash.jpg should now be listed in
+and choose "refresh". greenfoot-3-splash.png should now be listed in
 bluej/boot/src/bluej as a resource.
 
 

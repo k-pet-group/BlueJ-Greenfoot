@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,12 +27,16 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 /**
  * Reference to the Greenfoot project file(s). A Greenfoot project file is
  * basically just a BlueJ package with some extra information added.
  * 
  * @author Poul Henriksen
  */
+@OnThread(Tag.Any)
 public class GreenfootProjectFile
     implements PackageFile
 {

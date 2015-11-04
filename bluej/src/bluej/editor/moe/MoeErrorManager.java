@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2011,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 2011,2013,2014,2015  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,10 +22,17 @@
 package bluej.editor.moe;
 
 import java.awt.Color;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
 
 import javax.swing.JEditorPane;
 import javax.swing.event.DocumentEvent;
 import javax.swing.text.BadLocationException;
+
+import threadchecker.OnThread;
+import threadchecker.Tag;
+import bluej.parser.SourceLocation;
 
 /**
  * Manages the display of parse and compiler errors for a MoeEditor instance.
@@ -42,10 +49,19 @@ public class MoeErrorManager implements MoeDocumentListener
     private static final Color ERROR_HIGHLIGHT_GRADIENT2 = new Color(240,190,190);
     private static final Color ERROR_HIGHLIGHT_SELECTED1 = ERROR_HIGHLIGHT_GRADIENT1;
     private static final Color ERROR_HIGHLIGHT_SELECTED2 = ERROR_HIGHLIGHT_GRADIENT2;
-    
+    private final List<ErrorDetails> errorInfos = new ArrayList<>();
     private MoeEditor editor;
-    
-    private Object errorHighlightTag = null;
+    private Consumer<Boolean> setNextErrorEnabled;
+    /**
+     * Construct a new MoeErrorManager to manage error display for the specified editor instance.
+     * The new manager should be set as the document listener so that it receives notification
+     * of parser errors as they occur.
+     */
+    public MoeErrorManager(MoeEditor editor, Consumer<Boolean> setNextErrorEnabled)
+    {
+        this.editor = editor;
+        this.setNextErrorEnabled = setNextErrorEnabled;
+    }
     
     /** A timer used to delay the appearance of parse errors until the user is idle */
     //private Timer timer;
@@ -56,29 +72,22 @@ public class MoeErrorManager implements MoeDocumentListener
 //    private NodeTree<ParseErrorNode> pendingErrors = new NodeTree<ParseErrorNode>();
     
     /**
-     * Construct a new MoeErrorManager to manage error display for the specified editor instance.
-     * The new manager should be set as the document listener so that it receives notification
-     * of parser errors as they occur.
-     */
-    public MoeErrorManager(MoeEditor editor)
-    {
-        this.editor = editor;
-    }
-    
-    /**
      * Add a compiler error highlight.
      * @param startPos  The document position where the error highlight should begin
      * @param endPos    The document position where the error highlight should end
      */
-    public void addErrorHighlight(int startPos, int endPos)
+    public void addErrorHighlight(int startPos, int endPos, String message)
     {
+        if (endPos < startPos)
+            throw new IllegalArgumentException("Error ends before it begins: " + startPos + " to " + endPos);
+        
         JEditorPane sourcePane = editor.getSourcePane();
         try {
             MoeHighlighter highlighter = (MoeHighlighter) sourcePane.getHighlighter();
-            AdvancedHighlightPainter painter = new MoeBorderHighlighterPainter(Color.RED,
-                    ERROR_HIGHLIGHT_GRADIENT1, ERROR_HIGHLIGHT_GRADIENT2,
-                    ERROR_HIGHLIGHT_SELECTED1, ERROR_HIGHLIGHT_SELECTED2);
-            errorHighlightTag = highlighter.addHighlight(startPos, endPos, painter);
+            AdvancedHighlightPainter painter = new MoeSquigglyUnderlineHighlighterPainter(Color.RED, offs -> editor.getLineColumnFromOffset(offs).getLine());
+            Object errorHighlightTag = highlighter.addHighlight(startPos, endPos, painter);
+            errorInfos.add(new ErrorDetails(errorHighlightTag, startPos, endPos, message));
+            setNextErrorEnabled.accept(true);
         }
         catch (BadLocationException ble) {
             throw new RuntimeException(ble);
@@ -88,13 +97,46 @@ public class MoeErrorManager implements MoeDocumentListener
     /**
      * Remove any existing compiler error highlight.
      */
-    public void removeErrorHighlight()
+    public void removeAllErrorHighlights()
     {
-        if (errorHighlightTag != null) {
-            JEditorPane sourcePane = editor.getSourcePane();
-            sourcePane.getHighlighter().removeHighlight(errorHighlightTag);
-            errorHighlightTag = null;
+        JEditorPane sourcePane = editor.getSourcePane();
+        for (ErrorDetails err : errorInfos)
+        {
+            sourcePane.getHighlighter().removeHighlight(err.highlightTag);
         }
+        errorInfos.clear();
+        setNextErrorEnabled.accept(false);
+    }
+    
+    public int getNextErrorPos(int from)
+    {
+        int lowestDist = Integer.MIN_VALUE; // Negative means before the given position
+        ErrorDetails next = null;
+        
+        for (ErrorDetails err : errorInfos)
+        {
+            // If error is before the given position, it will be a negative distance
+            // If error is ahead, it will be a positive distance
+            // If we are within the error, the position will also show up negative,
+            // which means we will treat it as low priority, and advance to next error instead
+            final int dist = err.startPos - from;
+            
+            if (next == null
+                    // If the current best is before the position, ours is better if either
+                    // it's after the position, or it's even further before
+                    || (lowestDist <= 0 && (dist > 0 || dist <= lowestDist))
+                    // If the current best is after the position, ours is better only if
+                    // we are earlier
+                    || (lowestDist > 0 && dist > 0 && dist <= lowestDist))
+            {
+                next = err;
+                lowestDist = dist;
+            }
+        }
+        if (next == null)
+            return -1;
+        else
+            return next.startPos;
     }
     
     /**
@@ -115,6 +157,8 @@ public class MoeErrorManager implements MoeDocumentListener
 //        if (timer != null) {
 //            timer.restart();
 //        }
+        
+        setNextErrorEnabled.accept(false);
     }
     
     /**
@@ -139,21 +183,23 @@ public class MoeErrorManager implements MoeDocumentListener
 //        if (timer != null) {
 //            timer.restart();
 //        }
+
+        setNextErrorEnabled.accept(false);
     }
     
     /**
      * Get the error code (or message) at a particular document position.
      */
-    public String getErrorAtPosition(int pos)
+    public ErrorDetails getErrorAtPosition(int pos)
     {
-//        NodeAndPosition<ParseErrorNode> nap = parseErrors.findNode(pos);
-//        if (nap != null) {
-//            return nap.getNode().getErrCode();
-//        }
-        return null;
+        return errorInfos.stream()
+                .filter(e -> e.containsPosition(pos))
+                .findFirst()
+                .orElse(null);
     }
     
     @Override
+    @OnThread(Tag.Any)
     public void parseError(int position, int size, String message)
     {
         // Don't add this error if it overlaps an existing error:
@@ -195,6 +241,7 @@ public class MoeErrorManager implements MoeDocumentListener
     }    
     
     @Override
+    @OnThread(Tag.Any)
     public void reparsingRange(int position, int size)
     {
 //        // Remove any parse error highlights in the reparsed range
@@ -202,6 +249,43 @@ public class MoeErrorManager implements MoeDocumentListener
 //        
 //        clearReparsedRange(parseErrors, position, endPos);
 //        clearReparsedRange(pendingErrors, position, endPos);
+    }
+    
+    /**
+     * Returns null if no error on that line
+     */
+    public ErrorDetails getErrorOnLine(int lineIndex)
+    {
+        final int lineStart = editor.getOffsetFromLineColumn(new SourceLocation(lineIndex + 1, 1));
+        if (lineIndex + 1 >= editor.numberOfLines())
+        {
+            return errorInfos.stream().filter(e -> e.endPos >= lineStart).findFirst().orElse(null);
+        }
+        else
+        {
+            int lineEnd = editor.getOffsetFromLineColumn(new SourceLocation(lineIndex + 2, 1));
+            return errorInfos.stream().filter(e -> e.startPos <= lineEnd && e.endPos >= lineStart).findFirst().orElse(null);
+        }
+    }
+    
+    public static class ErrorDetails
+    {
+        public final int startPos;
+        public final int endPos;
+        public final String message;
+        private final Object highlightTag;
+        private ErrorDetails(Object highlightTag, int startPos, int endPos, String message)
+        {
+            this.highlightTag = highlightTag;
+            this.startPos = startPos;
+            this.endPos = endPos;
+            this.message = message;
+        }
+        
+        public boolean containsPosition(int pos)
+        {
+            return startPos <= pos && pos <= endPos;
+        }
     }
     
 //    private void clearReparsedRange(NodeTree<ParseErrorNode> tree, int position, int endPos)
@@ -263,4 +347,6 @@ public class MoeErrorManager implements MoeDocumentListener
 //        pendingErrors.clear();
 //        timer = null;
 //    }
+    
+    
 }

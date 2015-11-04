@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2013,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,7 +26,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 
-import bluej.editor.*;
+import bluej.editor.Editor;
+import bluej.editor.EditorWatcher;
 import bluej.pkgmgr.Package;
 
 /**
@@ -111,20 +112,6 @@ public abstract class EditableTarget extends Target
             // Corrupt properties file?
         }
     }
-
-    public void save(Properties props, String prefix)
-    {
-        super.save(props, prefix);
-        if (editor != null) {
-            editorBounds = editor.getBounds();            
-        } 
-        if(editorBounds!=null) {
-            props.put(prefix + ".editor.x", String.valueOf((int) editorBounds.getX()));
-            props.put(prefix + ".editor.y", String.valueOf((int) editorBounds.getY()));
-            props.put(prefix + ".editor.width", String.valueOf((int) editorBounds.getWidth()));
-            props.put(prefix + ".editor.height", String.valueOf((int) editorBounds.getHeight()));
-        }
-    }
     
     // --- EditorWatcher interface ---
     // (The EditorWatcher methods are typically redefined in subclasses)
@@ -150,6 +137,8 @@ public abstract class EditableTarget extends Target
     public String breakpointToggleEvent(Editor editor, int lineNo, boolean set)
     { return null; }
 
+    public void clearAllBreakpoints() { }
+    
     /*
      * The "compile" function was invoked in the editor
      */

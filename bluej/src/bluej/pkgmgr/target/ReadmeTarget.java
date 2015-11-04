@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2013,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -78,20 +78,6 @@ public class ReadmeTarget extends EditableTarget
         }        
     }
 
-    @Override
-    public void save(Properties props, String prefix)
-    {   
-        if (editor != null) {
-            editorBounds = editor.getBounds();            
-        } 
-        if(editorBounds!=null) {
-            props.put(prefix + ".editor.x", String.valueOf((int) editorBounds.getX()));
-            props.put(prefix + ".editor.y", String.valueOf((int) editorBounds.getY()));
-            props.put(prefix + ".editor.width", String.valueOf((int) editorBounds.getWidth()));
-            props.put(prefix + ".editor.height", String.valueOf((int) editorBounds.getHeight()));
-        }
-    }    
-
     /*
      * @return the name of the (text) file this target corresponds to.
      */
@@ -127,7 +113,7 @@ public class ReadmeTarget extends EditableTarget
             editor = EditorManager.getEditorManager().openText(
                                                  getSourceFile().getPath(),
                                                  getPackage().getProject().getProjectCharset(),
-                                                 Package.readmeName, editorBounds);
+                                                 Package.readmeName, getPackage().getProject().getSwingTabbedEditor());
         }
         return editor;
     }

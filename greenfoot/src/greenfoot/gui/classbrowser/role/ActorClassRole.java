@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2013  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2013,2014  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -35,6 +35,7 @@ import javax.swing.Action;
 import javax.swing.JPopupMenu;
 
 import bluej.Config;
+import bluej.extensions.SourceType;
 
 /**
  * A role for Actor classes 
@@ -45,8 +46,8 @@ public class ActorClassRole extends ImageClassRole
 {
     protected final Color envOpColour = new Color(152,32,32);
 
-    private String template = "actorclass.tmpl";
-
+    private String templatePrefix = "actor";
+    
     private static final String newline = System.getProperty("line.separator");
     public static final String imports = "import greenfoot.*;  // (World, Actor, GreenfootImage, and Greenfoot)" + newline;
     
@@ -89,9 +90,9 @@ public class ActorClassRole extends ImageClassRole
     }
 
     @Override
-    public String getTemplateFileName()
+    public String getTemplateFileName(boolean useInterface, SourceType language)
     {
-        return template;
+        return templatePrefix + language + templateExtension;
     }
 
     @Override

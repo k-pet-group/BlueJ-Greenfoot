@@ -17,24 +17,7 @@ import java.util.ArrayList;
 /**
  * This class can be used to read animated gif image files and extract the individual
  * images of the animation sequence.
- * <p>
- * To use GifImage in an actor, declare it as an instance variable:
  * 
- * <pre>
- * {@code
- *    GifImage gifImage = new GifImage("mygif.gif");
- * }
- * </pre>
- * 
- * Then, in the act() method of your actor, set the actor's image to the current image
- * from your GifImage instance:
- * 
- * <pre>
- * {@code
- *     setImage(gifImage.getCurrentImage());
- * }
- * </pre>
- *  
  * @author Michael Berry
  * @author Neil Brown
  */
@@ -54,9 +37,8 @@ public class GifImage
     private boolean pause;
 
     /**
-     * Construct a new GifImage instance using the specified image file.
-     * The animation will initially be running. Use getImage() at any time
-     * to get the current image in the animation sequence.
+     * Set the image of the actor. If the image is a normal picture, it will be displayed as normal.
+     * If it's an animated GIF file then it will be displayed as an animated actor.
      */
     public GifImage(String file)
     {
@@ -112,11 +94,6 @@ public class GifImage
         return !pause;
     }
 
-    /**
-     * Get the current image in the animation sequence. This will
-     * change over time.
-     * @return  The current image
-     */
     public GreenfootImage getCurrentImage()
     {
         long delta = System.currentTimeMillis() - time;

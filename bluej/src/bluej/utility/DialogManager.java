@@ -33,6 +33,8 @@ import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
 import bluej.Config;
 
 /**
@@ -43,6 +45,7 @@ import bluej.Config;
  *
  * @author Michael Kolling
  */
+@OnThread(Tag.Swing)
 public class DialogManager
 {
     private static final String DLG_FILE_NAME = "dialogues";
@@ -339,6 +342,7 @@ public class DialogManager
      * Support routine for dialogues. Read the message text out of the
      * dialogue text file (language dependent).
      */
+    @OnThread(Tag.Any)
     public static String getMessage(String msgID)
     {
         String message = null;

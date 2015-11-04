@@ -21,6 +21,7 @@
  */
 package greenfoot.gui;
 
+import bluej.utility.Debug;
 import greenfoot.Actor;
 import greenfoot.ActorVisitor;
 import greenfoot.GreenfootImage;
@@ -118,6 +119,10 @@ public class WorldCanvas extends JPanel
      */
     public void paintObjects(Graphics2D g)
     {
+        // This can happen if we try to grab a screenshot while the world is being replaced:
+        if (world == null)
+            return;
+
         Set<Actor> objects = WorldVisitor.getObjectsListInPaintOrder(world);
         int paintSeq = 0;
         for (Iterator<Actor> iter = objects.iterator(); iter.hasNext();) {

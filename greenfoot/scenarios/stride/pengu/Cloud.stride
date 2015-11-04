@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<class name="Cloud" extends="Actor" enable="true" strideversion="1">
+    <javadoc xml:space="preserve">A cloud that moves back and forth between two defined points.</javadoc>
+    <imports>
+        <import target="java.util.*" enable="true"/>
+        <import target="greenfoot.*" enable="true"/>
+        <import target="java.awt.Color" enable="true"/>
+    </imports>
+    <implements/>
+    <fields>
+        <variable access="private" type="int" name="speed" value="4" value-java="4" enable="true"/>
+        <variable access="private" type="int" name="leftTurn" value="270" value-java="270" enable="true"/>
+        <variable access="private" type="int" name="rightTurn" value="480" value-java="480" enable="true"/>
+    </fields>
+    <constructors/>
+    <methods>
+        <method access="public" type="void" name="act" enable="true">
+            <javadoc xml:space="preserve">Move in the direction we are currently moving in. Turn if we reach a turning point.</javadoc>
+            <params/>
+            <throws/>
+            <body>
+                <call expression="setLocation(getX()+speed,getY())" expression-java="setLocation(getX() + speed, getY())" enable="true"/>
+                <blank/>
+                <variable type="Actor" name="actor" value="getOneIntersectingObject(null)" value-java="getOneIntersectingObject(null)" enable="true"/>
+                <if condition="actor!=null" condition-java="actor != null" enable="true">
+                    <ifStatements>
+                        <call expression="actor.setLocation(actor.getX()+speed,actor.getY())" expression-java="actor.setLocation(actor.getX() + speed, actor.getY())" enable="true"/>
+                    </ifStatements>
+                </if>
+                <blank/>
+                <if condition="atTurningPoint()" condition-java="atTurningPoint()" enable="true">
+                    <ifStatements>
+                        <assign dest="speed" dest-java="speed" src="-speed" src-java=" - speed" enable="true"/>
+                    </ifStatements>
+                </if>
+            </body>
+        </method>
+        <method access="public" type="boolean" name="atTurningPoint" enable="true">
+            <javadoc xml:space="preserve">Test if we are at one of the turning points.</javadoc>
+            <params/>
+            <throws/>
+            <body>
+                <return value="getX()&lt;=leftTurn||getX()&gt;=rightTurn" value-java="getX() &lt;= leftTurn || getX() &gt;= rightTurn" enable="true"/>
+            </body>
+        </method>
+    </methods>
+</class>

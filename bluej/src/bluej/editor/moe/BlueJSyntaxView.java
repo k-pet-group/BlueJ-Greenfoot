@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2014,2015  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -117,15 +117,18 @@ public abstract class BlueJSyntaxView extends MoePlainView
 
     private Map<ParsedNode,Integer> nodeIndents = new HashMap<ParsedNode,Integer>();
 
+    private final MoeErrorManager errors;
+
 
     /**
      * Creates a new BlueJSyntaxView.
      * @param elem The element
      */
-    public BlueJSyntaxView(Element elem, int leftMargin)
+    public BlueJSyntaxView(Element elem, int leftMargin, MoeErrorManager errors)
     {
         super(elem, leftMargin);
         line = new Segment();
+        this.errors = errors;
     }
 
     @Override
@@ -167,7 +170,7 @@ public abstract class BlueJSyntaxView extends MoePlainView
             document.getText(start, end - (start + 1), line);
             g.setColor(def);
 
-            paintTaggedLine(line, lineIndex, g, x, y, document, def, lineElement, tx);
+            paintTaggedLine(line, lineIndex, g, x, y, document, errors, def, lineElement, tx);
         }
         catch (BadLocationException bl) {
             // shouldn't happen
@@ -189,7 +192,7 @@ public abstract class BlueJSyntaxView extends MoePlainView
      *           to the left of this point)
      */
     protected void paintTaggedLine(Segment line, int lineIndex, Graphics g, int x, int y, 
-            MoeSyntaxDocument document, Color def, Element lineElement, TabExpander tx)
+            MoeSyntaxDocument document, MoeErrorManager errors, Color def, Element lineElement, TabExpander tx)
     {
         paintSyntaxLine(line, lineIndex, x, y, g, document, def, tx);
     }

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -33,22 +33,24 @@ public class MultiIterator<T> implements Iterator<T>
 {
     List<Iterator<? extends T>> iterations;
     int current;
-	
+
     public MultiIterator(List<Iterator<? extends T>> iterations)
     {
         this.iterations = iterations;
         current = 0;
     }
-	
+
+    @Override
     public boolean hasNext()
     {
         for( ; current < iterations.size(); current++)
             if((iterations.get(current)).hasNext())
                 return true;
-	
+
         return false;
     }
 
+    @Override
     public T next()
     {
         for( ; current < iterations.size(); current++) {
@@ -57,10 +59,11 @@ public class MultiIterator<T> implements Iterator<T>
                 return it.next();
             }
         }
-		
+
         return null;
     }
     
+    @Override
     public void remove()
     {
         throw new UnsupportedOperationException();

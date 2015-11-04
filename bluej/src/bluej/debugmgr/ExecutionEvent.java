@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,6 +21,8 @@
  */
 package bluej.debugmgr;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.ExceptionDescription;
 import bluej.debugger.gentype.JavaType;
@@ -32,6 +34,7 @@ import bluej.pkgmgr.Package;
  *
  * @author  Clive Miller
  */
+@OnThread(Tag.Any)
 public class ExecutionEvent
 {
     /**
@@ -76,7 +79,7 @@ public class ExecutionEvent
      */
     public ExecutionEvent(Package pkg, String className, String objectName)
     {
-    	this.pkg = pkg;
+        this.pkg = pkg;
         this.className = className;
         this.objectName = objectName;
     }

@@ -7,9 +7,6 @@ main.invalidPackage=Package not found
 
 compileException=Exception during compilation
 compiler.thread.title=BlueJ compiler thread
-compiler.warningDialog.title=Compiler Warnings
-compiler.warningDialog.label=Warnings from last compilation 
-compiler.warningDialog.noWarnings=No warnings
 
 debugger.assert.assertThat=Assert that:
 debugger.assert.resultIs=result is
@@ -178,6 +175,7 @@ prefmgr.raspberryPi.NoteLine3=For more information, please see faq at: http://bl
 editor.title=BlueJ: Editor
 
 #button lables for toolbar commands
+editor.next-errorLabel = Next Error
 editor.compileLabel = Compile
 editor.undoLabel = Undo
 editor.cutLabel = Cut
@@ -218,7 +216,6 @@ editor.find-nextLabel = Find Next
 editor.find-next-backwardLabel = Find Next Backward
 editor.go-to-lineLabel = Go to line...
 editor.replaceLabel = Replace...
-editor.compileLabel = Compile
 editor.toggle-breakpointLabel = Set/Clear Breakpoint
 editor.toggle-interface-viewLabel = Toggle Documentation View
 

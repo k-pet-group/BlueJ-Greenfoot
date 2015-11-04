@@ -21,10 +21,20 @@
  */
 package bluej.prefmgr;
 
-import java.awt.*;
+import java.awt.Font;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
-import java.util.*;
 
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.value.ObservableIntegerValue;
+import javafx.beans.value.ObservableValue;
+
+import threadchecker.OnThread;
+import threadchecker.Tag;
 import bluej.Config;
 import bluej.editor.EditorManager;
 import bluej.editor.moe.BlueJSyntaxView;
@@ -59,32 +69,32 @@ public class PrefMgr
     public static final String NAVIVIEW_EXPANDED="bluej.naviviewExpanded.default";
     public static final String ACCESSIBILITY_SUPPORT = "bluej.accessibility.support";
     public static final String START_WITH_SUDO = "bluej.startWithSudo";
+    public static final String STRIDE_SIDEBAR_SHOWING = "bluej.editor.stride.sidebarShowing";
     
     public static final String USE_THEMES = "bluej.useTheme";
+    public static final int MIN_STRIDE_FONT_SIZE = 6;
+    public static final int MAX_STRIDE_FONT_SIZE = 160;
+    public static final int DEFAULT_STRIDE_FONT_SIZE = 11;
     // font property names
     private static final String editorFontPropertyName = "bluej.editor.font";
     private static final String editorMacFontPropertyName = "bluej.editor.MacOS.font";
     private static final String editorFontSizePropertyName = "bluej.editor.fontsize";
-
     // other constants
     private static final int NUM_RECENT_PROJECTS = Config.getPropInteger("bluej.numberOfRecentProjects", 12);
-    
     // preference variables: FONTS
     private static int fontSize;
     private static int targetFontSize;
-
     private static Font normalFont;
     private static Font targetFont;
-
     // initialised by a call to setMenuFontSize()
     private static int menuFontSize;
     private static Font menuFont;
     private static Font popupMenuFont;
     private static Font italicMenuFont;
-
     // initialised by a call to setEditorFontSize()
     private static int editorFontSize;
     private static Font editorStandardFont;
+    private static IntegerProperty strideFontSize = null; // Setup in call to strideFontSizeProperty
 
     // preference variables: (other than fonts)
     
@@ -104,61 +114,13 @@ public class PrefMgr
     private static HashMap<String,String> flags = new HashMap<String,String>();
 
     /**
-     * Initialise the preference manager. Font information is loaded from bluej.defs,
-     * defaults for other prefs are loaded from bluej.defs.
-     */
-    static {
-        //set up fonts
-        initEditorFontSize(Config.getPropInteger(editorFontSizePropertyName, 12));
-
-        //bluej menu font
-        menuFontSize = Config.getPropInteger("bluej.menu.fontsize", 12);
-        menuFont = Config.getFont("bluej.menu.font", "SansSerif", menuFontSize);
-        
-        // popup menus are not permitted to be bold (MIK style guide) at present
-        // make popup menus same font as drop down menus
-        italicMenuFont = menuFont.deriveFont(Font.ITALIC);
-        popupMenuFont = menuFont.deriveFont(Font.PLAIN);
-
-        //standard font for UI components
-        fontSize = Config.getPropInteger("bluej.fontsize", 12);
-        normalFont = Config.getFont("bluej.font", "SansSerif", fontSize);
-
-        targetFontSize = Config.getPropInteger("bluej.target.fontsize", 12);
-        targetFont = Config.getFont("bluej.target.font", "SansSerif-bold", targetFontSize);
-        
-        // preferences other than fonts:
-        highlightStrength = Config.getPropInteger(SCOPE_HIGHLIGHTING_STRENGTH, 20);
-        isNaviviewExpanded=initializeisNavivewExpanded();
-        
-        projectDirectory = Config.getPropString("bluej.projectPath");
-        recentProjects = readRecentProjects();
-        
-        flags.put(HILIGHTING, Config.getPropString(HILIGHTING, "true"));
-        flags.put(AUTO_INDENT, Config.getPropString(AUTO_INDENT, "false"));
-        flags.put(LINENUMBERS, Config.getPropString(LINENUMBERS, "false"));
-        flags.put(MAKE_BACKUP, Config.getPropString(MAKE_BACKUP, "false"));
-        flags.put(MATCH_BRACKETS, Config.getPropString(MATCH_BRACKETS, "true"));
-        flags.put(LINK_LIB, Config.getPropString(LINK_LIB, "true"));
-        flags.put(USE_THEMES, Config.getPropString(USE_THEMES, "false"));
-        flags.put(SHOW_TEST_TOOLS, Config.getPropString(SHOW_TEST_TOOLS, "false"));
-        flags.put(SHOW_TEAM_TOOLS, Config.getPropString(SHOW_TEAM_TOOLS, "false"));
-        flags.put(SHOW_JAVAME_TOOLS, Config.getPropString(SHOW_JAVAME_TOOLS, "false"));        
-        flags.put(SHOW_TEXT_EVAL, Config.getPropString(SHOW_TEXT_EVAL, "false"));
-        flags.put(SHOW_UNCHECKED, Config.getPropString(SHOW_UNCHECKED, "true"));
-        flags.put(ACCESSIBILITY_SUPPORT, Config.getPropString(ACCESSIBILITY_SUPPORT, "false"));
-        flags.put(START_WITH_SUDO, Config.getPropString(START_WITH_SUDO, "true"));
-    }
-
-    /**
      * Private constructor to prevent instantiation
      */
     private PrefMgr()
     {
         
     }
-    
-    
+
     /**
      * Check if BlueJ is runnung on a ARM processor (Raspberry Pi). If so, sets hides the code preview.
      * @return false if ARM processor. true otherwise.
@@ -168,12 +130,12 @@ public class PrefMgr
         return Boolean.parseBoolean(Config.getPropString(NAVIVIEW_EXPANDED, String.valueOf(!Config.isRaspberryPi())));
     }
     
-    // ----- system interface to read or set prefences: -----
-
     public static String getProjectDirectory()
     {
         return projectDirectory;
     }
+    
+    // ----- system interface to read or set prefences: -----
 
     public static void setProjectDirectory(String newDir)
     {
@@ -185,7 +147,7 @@ public class PrefMgr
     {
         return recentProjects;
     }
-    
+
     public static void addRecentProject(String projectName)
     {
         if(projectName == null)
@@ -207,7 +169,7 @@ public class PrefMgr
     {
         return normalFont;
     }
-
+    
     public static Font getStandoutFont()
     {
         return normalFont;
@@ -222,27 +184,28 @@ public class PrefMgr
     {
         return italicMenuFont;
     }
-    
+
     public static Font getPopupMenuFont()
     {
         return popupMenuFont;   
     }
-
+    
     public static Font getTargetFont()
     {
         return targetFont;        
     }
-    
+
     public static Font getStandardEditorFont()
     {
         return editorStandardFont;
     }
-
+    
     /**
      * Get the value for a flag. Flags are boolean preferences.
      * 'flag' must be one of the flag names defined as public
      * constants in this class.
      */
+    @OnThread(Tag.Any)
     public static boolean getFlag(String flag)
     {
         String value = flags.get(flag);
@@ -258,6 +221,7 @@ public class PrefMgr
      * @param flag    The name of the flag to set
      * @param enabled The new value of the flag
      */
+    @OnThread(Tag.Any)
     public static void setFlag(String flag, boolean enabled)
     {
         String value = String.valueOf(enabled);
@@ -272,8 +236,6 @@ public class PrefMgr
         flags.put(flag, value);
     }
 
-    // ----- end of system preference interface -----
-    
     private static List<String> readRecentProjects()
     {
         List<String> projects = new ArrayList<String>(NUM_RECENT_PROJECTS);
@@ -285,11 +247,6 @@ public class PrefMgr
         }
         return projects;
     }
-    
-    /**
-     * The following methods are protected and should only be accessed by the
-     * code which implements the various preferences dialog panels
-     */
 
     /**
      * Set the editor font size preference to a particular point size
@@ -342,6 +299,11 @@ public class PrefMgr
     }
     
     /**
+     * The following methods are protected and should only be accessed by the
+     * code which implements the various preferences dialog panels
+     */
+
+    /**
      * Return the editor font size as an integer size
      * (use getStandardEditorFont() if access to the actual font is required)
      */
@@ -354,7 +316,7 @@ public class PrefMgr
     {
         return highlightStrength;
     }
-
+    
     /**
      * Sets the highlight strength in the configs
      * @param strength representing light<->dark
@@ -364,6 +326,15 @@ public class PrefMgr
         highlightStrength = strength;
         BlueJSyntaxView.setHighlightStrength(strength);
         Config.putPropInteger(SCOPE_HIGHLIGHTING_STRENGTH, strength);
+    }
+
+    /**
+     * Returns the value of whether the naviview is expanded/collapsed
+     * @return true if expanded; false if not
+     */
+    public static boolean getNaviviewExpanded()
+    {   
+        return isNaviviewExpanded;            
     }
     
     /**
@@ -377,13 +348,69 @@ public class PrefMgr
         Config.putPropString(NAVIVIEW_EXPANDED, String.valueOf(expanded));
     }
     
-    /**
-     * Returns the value of whether the naviview is expanded/collapsed
-     * @return true if expanded; false if not
-     */
-    public static boolean getNaviviewExpanded()
-    {   
-        return isNaviviewExpanded;            
+    @OnThread(Tag.FX)
+    public static IntegerProperty strideFontSizeProperty()
+    {
+        if (strideFontSize == null)
+        {
+            String fontSizePropName = "bluej.stride.editor.fontSize";
+            int sizeFromConfig = Config.getPropInteger(fontSizePropName,DEFAULT_STRIDE_FONT_SIZE);
+            int clampedSize = Math.max(MIN_STRIDE_FONT_SIZE, Math.min(MAX_STRIDE_FONT_SIZE, sizeFromConfig));
+            strideFontSize = new SimpleIntegerProperty(clampedSize);
+            
+            strideFontSize.addListener((a, b, newVal) -> {
+                Config.putPropInteger(fontSizePropName, newVal.intValue());
+            });
+        }
+        
+        return strideFontSize;
     }
-    
+
+    /**
+     * Initialise the preference manager. Font information is loaded from bluej.defs,
+     * defaults for other prefs are loaded from bluej.defs.
+     */
+    static {
+        //set up fonts
+        initEditorFontSize(Config.getPropInteger(editorFontSizePropertyName, 12));
+
+        //bluej menu font
+        menuFontSize = Config.getPropInteger("bluej.menu.fontsize", 12);
+        menuFont = Config.getFont("bluej.menu.font", "SansSerif", menuFontSize);
+        
+        // popup menus are not permitted to be bold (MIK style guide) at present
+        // make popup menus same font as drop down menus
+        italicMenuFont = menuFont.deriveFont(Font.ITALIC);
+        popupMenuFont = menuFont.deriveFont(Font.PLAIN);
+
+        //standard font for UI components
+        fontSize = Config.getPropInteger("bluej.fontsize", 12);
+        normalFont = Config.getFont("bluej.font", "SansSerif", fontSize);
+
+        targetFontSize = Config.getPropInteger("bluej.target.fontsize", 12);
+        targetFont = Config.getFont("bluej.target.font", "SansSerif-bold", targetFontSize);
+        
+        // preferences other than fonts:
+        highlightStrength = Config.getPropInteger(SCOPE_HIGHLIGHTING_STRENGTH, 20);
+        isNaviviewExpanded=initializeisNavivewExpanded();
+        
+        projectDirectory = Config.getPropString("bluej.projectPath");
+        recentProjects = readRecentProjects();
+        
+        flags.put(HILIGHTING, Config.getPropString(HILIGHTING, "true"));
+        flags.put(AUTO_INDENT, Config.getPropString(AUTO_INDENT, "false"));
+        flags.put(LINENUMBERS, Config.getPropString(LINENUMBERS, "false"));
+        flags.put(MAKE_BACKUP, Config.getPropString(MAKE_BACKUP, "false"));
+        flags.put(MATCH_BRACKETS, Config.getPropString(MATCH_BRACKETS, "true"));
+        flags.put(LINK_LIB, Config.getPropString(LINK_LIB, "true"));
+        flags.put(USE_THEMES, Config.getPropString(USE_THEMES, "false"));
+        flags.put(SHOW_TEST_TOOLS, Config.getPropString(SHOW_TEST_TOOLS, "false"));
+        flags.put(SHOW_TEAM_TOOLS, Config.getPropString(SHOW_TEAM_TOOLS, "false"));
+        flags.put(SHOW_JAVAME_TOOLS, Config.getPropString(SHOW_JAVAME_TOOLS, "false"));        
+        flags.put(SHOW_TEXT_EVAL, Config.getPropString(SHOW_TEXT_EVAL, "false"));
+        flags.put(SHOW_UNCHECKED, Config.getPropString(SHOW_UNCHECKED, "true"));
+        flags.put(ACCESSIBILITY_SUPPORT, Config.getPropString(ACCESSIBILITY_SUPPORT, "false"));
+        flags.put(START_WITH_SUDO, Config.getPropString(START_WITH_SUDO, "true"));
+        flags.put(STRIDE_SIDEBAR_SHOWING, Config.getPropString(STRIDE_SIDEBAR_SHOWING, "true"));
+    }
 }

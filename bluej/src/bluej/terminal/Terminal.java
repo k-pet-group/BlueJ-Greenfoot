@@ -58,6 +58,8 @@ import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.KeyStroke;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
 import bluej.BlueJEvent;
 import bluej.BlueJEventListener;
 import bluej.BlueJTheme;
@@ -143,6 +145,7 @@ public final class Terminal extends JFrame
     {
         super(WINDOWTITLE + " - " + project.getProjectName());
         this.project = project;
+        initialise();
         BlueJEvent.addListener(this);
     }
 
@@ -196,7 +199,6 @@ public final class Terminal extends JFrame
     {
         DataCollector.showHideTerminal(project, show);
         
-        initialise();
         setVisible(show);
         if(show) {
             text.requestFocus();
@@ -207,8 +209,7 @@ public final class Terminal extends JFrame
      * Return true if the window is currently displayed.
      */
     public boolean isShown()
-    {       
-        initialise();
+    {
         return isShowing();
     }
 
@@ -218,7 +219,6 @@ public final class Terminal extends JFrame
     public void activate(boolean active)
     {
         if(active != isActive) {
-            initialise();
             text.setEditable(active);
             if (!active) {
                 text.getCaret().setVisible(false);
@@ -240,7 +240,6 @@ public final class Terminal extends JFrame
      */
     public void resetFont()
     {
-        initialise();
         Font terminalFont = getTerminalFont();
         text.setFont(terminalFont);
         if (errorText != null) {
@@ -253,7 +252,6 @@ public final class Terminal extends JFrame
      */
     public void clear()
     {
-        initialise();
         text.setText("");
         if(errorText!=null) {
             errorText.setText("");
@@ -267,7 +265,6 @@ public final class Terminal extends JFrame
      */
     public void save()
     {
-        initialise();
         String fileName = FileUtility.getFileName(this,
                 Config.getString("terminal.save.title"),
                 Config.getString("terminal.save.buttonText"),
@@ -416,6 +413,7 @@ public final class Terminal extends JFrame
     /**
      * Return the input stream that can be used to read from this terminal.
      */
+    @OnThread(value = Tag.Any, ignoreParent = true)
     public Reader getReader()
     {
         return in;
@@ -425,6 +423,7 @@ public final class Terminal extends JFrame
     /**
      * Return the output stream that can be used to write to this terminal
      */
+    @OnThread(value = Tag.Any, ignoreParent = true)
     public Writer getWriter()
     {
         return out;
@@ -434,6 +433,7 @@ public final class Terminal extends JFrame
     /**
      * Return the output stream that can be used to write error output to this terminal
      */
+    @OnThread(value = Tag.Any, ignoreParent = true)
     public Writer getErrorWriter()
     {
         return err;
@@ -565,7 +565,6 @@ public final class Terminal extends JFrame
     @Override
     public void blueJEvent(int eventId, Object arg)
     {
-        initialise();
         if(eventId == BlueJEvent.METHOD_CALL) {
             InvokerRecord ir = (InvokerRecord) arg;
             if (ir.getResultName() != null) {
@@ -898,11 +897,11 @@ public final class Terminal extends JFrame
     /**
      * A Reader which reads from the terminal.
      */
+    @OnThread(Tag.Any)
     private class TerminalReader extends Reader
     {
         public int read(char[] cbuf, int off, int len)
         {
-            initialise();
             int charsRead = 0;
 
             while(charsRead < len) {
@@ -928,6 +927,7 @@ public final class Terminal extends JFrame
      * The idea is that error output could be presented differently from standard
      * output.
      */
+    @OnThread(Tag.Any)
     private class TerminalWriter extends Writer
     {
         private boolean isErrorOut;
@@ -948,7 +948,6 @@ public final class Terminal extends JFrame
                 EventQueue.invokeAndWait(new Runnable() {
                     public void run()
                     {
-                        initialise();
                         writeToPane(!isErrorOut, new String(cbuf, off, len));
                     }
                 });

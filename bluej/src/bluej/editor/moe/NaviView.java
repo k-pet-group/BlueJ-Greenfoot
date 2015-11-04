@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2013,2015  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -82,10 +82,10 @@ public class NaviView extends JPanel implements AdjustmentListener
     private BufferedImage imgBuffer;
     private int prefViewHeight;
     
-    public NaviView(Document document, JScrollBar scrollBar)
+    public NaviView(Document document, MoeErrorManager errorMgr, JScrollBar scrollBar)
     {
         this.scrollBar = scrollBar;
-        editorPane = new NVDrawPane(this);
+        editorPane = new NVDrawPane(this, errorMgr);
         
         setDocument(document);
         

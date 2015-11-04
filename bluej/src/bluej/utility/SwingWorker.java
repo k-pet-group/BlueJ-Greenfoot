@@ -1,27 +1,30 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
- 
+ Copyright (C) 1999-2009,2014  Michael Kolling and John Rosenberg 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
 package bluej.utility;
 
 import javax.swing.SwingUtilities;
+
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * This is the 3rd version of SwingWorker (also known as
@@ -55,34 +58,38 @@ public abstract class SwingWorker {
      * Get the value produced by the worker thread, or null if it 
      * hasn't been constructed yet.
      */
-    protected synchronized Object getValue() { 
+    protected synchronized Object getValue() 
+    { 
         return value; 
     }
 
     /** 
      * Set the value produced by worker thread 
      */
-    private synchronized void setValue(Object x) { 
+    private synchronized void setValue(Object x)
+    { 
         value = x; 
     }
 
     /** 
      * Compute the value to be returned by the <code>get</code> method. 
      */
+    @OnThread(Tag.Unique)
     public abstract Object construct();
 
     /**
      * Called on the event dispatching thread (not on the worker thread)
      * after the <code>construct</code> method has returned.
      */
-    public void finished() {
-    }
+    @OnThread(Tag.Swing)
+    public void finished() { }
 
     /**
      * A new method that interrupts the worker thread.  Call this method
      * to force the worker to stop what it's doing.
      */
-    public void interrupt() {
+    public void interrupt()
+    {
         Thread t = threadVar.get();
         if (t != null) {
             t.interrupt();
@@ -97,7 +104,8 @@ public abstract class SwingWorker {
      * 
      * @return the value created by the <code>construct</code> method
      */
-    public Object get() {
+    public Object get()
+    {
         while (true) {  
             Thread t = threadVar.get();
             if (t == null) {
@@ -118,13 +126,13 @@ public abstract class SwingWorker {
      * Start a thread that will call the <code>construct</code> method
      * and then exit.
      */
-    public SwingWorker() {
-        final Runnable doFinished = new Runnable() {
-           public void run() { finished(); }
-        };
-
+    public SwingWorker()
+    {
         Runnable doConstruct = new Runnable() { 
-            public void run() {
+            @Override
+            @OnThread(value = Tag.Unique, ignoreParent = true)
+            public void run()
+            {
                 try {
                     setValue(construct());
                 }
@@ -132,7 +140,7 @@ public abstract class SwingWorker {
                     threadVar.clear();
                 }
 
-                SwingUtilities.invokeLater(doFinished);
+                SwingUtilities.invokeLater(() -> finished());
             }
         };
 
@@ -143,7 +151,8 @@ public abstract class SwingWorker {
     /**
      * Start the worker thread.
      */
-    public void start() {
+    public void start()
+    {
         Thread t = threadVar.get();
         if (t != null) {
             t.start();

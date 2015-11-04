@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2014  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,9 +21,11 @@
  */
 package greenfoot.gui.inspector;
 
+import java.awt.EventQueue;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.util.Timer;
+import java.util.TimerTask;
 
 import bluej.debugmgr.inspector.Inspector;
 
@@ -66,7 +68,9 @@ public class InspectorUpdater
             timer.cancel();
         }
         timer = new Timer();
-        timer.schedule(new UpdateTask(inspector), PERIOD, PERIOD);
+        timer.schedule(new TimerTask() { public void run() {
+            EventQueue.invokeLater(() -> inspector.update());
+        }}, PERIOD, PERIOD);
     }
 
     /**

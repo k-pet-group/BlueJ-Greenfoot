@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,6 +21,8 @@
  */
 package bluej.groupwork.actions;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
 import bluej.Config;
 import bluej.groupwork.ui.StatusFrame;
 import bluej.pkgmgr.PkgMgrFrame;
@@ -50,6 +52,7 @@ public class StatusAction extends TeamAction
         doStatus(pmf);
     }
 
+    @OnThread(Tag.Swing)
     private void doStatus(PkgMgrFrame pmf)
     {
         if (pmf.getProject().getTeamSettingsController().initRepository()) {

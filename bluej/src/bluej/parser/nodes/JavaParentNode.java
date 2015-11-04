@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2012,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -308,7 +308,7 @@ public abstract class JavaParentNode extends ParentParsedNode
         if (prevToken != null && ! Character.isJavaIdentifierPart(prevToken.getText().codePointAt(0))) {
             prevToken = null;
         }
-        return new CodeSuggestions(atype, atype, prevToken, isStaticCtxt);
+        return new CodeSuggestions(atype, atype, prevToken, isStaticCtxt, true);
     }
 
     @Override

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2012,2015  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -152,21 +152,64 @@ public class Debug
         }
     }
     
-    /**
-     * Log a stack trace with the given message.
-     * 
-     * @param msg  The message to precede the stack trace.
-     */
-    public static void printCallStack(String msg)
+    private static void printCallStack(String msg, int extraSkip, int limit)
     {
         synchronized (debugStream) {
             message(msg + "; call stack:");
             StackTraceElement[] stack = Thread.currentThread().getStackTrace();
             // Miss out first line (getStackTrace()) and second line (printCallStack, us)
             // as that will always be the same and irrelevant:
-            for (int i = 2; i < stack.length; i++) {
+            // We also skip more as directed by the parameter
+            for (int i = 2 + extraSkip; i < Integer.min(stack.length, limit + 2 + extraSkip); i++) {
                 message("  " + stack[i].toString());
             }
         }
+    }
+
+    /**
+     * Log a stack trace with the given message.
+     *
+     * @param msg  The message to precede the stack trace.
+     */
+    public static void printCallStack(String msg)
+    {
+        printCallStack(msg, 1, 1000);
+    }
+
+    /**
+     * Log a stack trace with the given message, but only show the top-most N frames
+     *
+     * @param msg  The message to precede the stack trace.
+     * @param limit The number of top-most stack frames to display
+     */
+    public static void printCallStack(String msg, int limit)
+    {
+        printCallStack(msg, 1, limit);
+    }
+    
+    /**
+     * Log a given message, with a time tag on it
+     */
+    public static void time(String msg)
+    {
+        long t = System.currentTimeMillis();
+        int millis = (int)(t % 1000);
+        long whole = t / 1000;
+        message(String.format("T+..%03d.%03d: ", whole % 1000, millis) + msg);
+    }
+
+    /**
+     * Log the given message, and time the execution of the given task
+     * @param msg
+     */
+    public static void time(String msg, Runnable task)
+    {
+        long start = System.currentTimeMillis();
+        task.run();
+        long end = System.currentTimeMillis();
+        long t = end - start;
+        int millis = (int)(t % 1000);
+        long whole = t / 1000;
+        message(msg + " time taken: " + String.format("%03d.%03d", whole, millis));
     }
 }

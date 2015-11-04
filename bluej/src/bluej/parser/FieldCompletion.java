@@ -1,0 +1,95 @@
+/*
+ This file is part of the BlueJ program. 
+ Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ 
+ This program is free software; you can redistribute it and/or 
+ modify it under the terms of the GNU General Public License 
+ as published by the Free Software Foundation; either version 2 
+ of the License, or (at your option) any later version. 
+ 
+ This program is distributed in the hope that it will be useful, 
+ but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+ GNU General Public License for more details. 
+ 
+ You should have received a copy of the GNU General Public License 
+ along with this program; if not, write to the Free Software 
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
+ 
+ This file is subject to the Classpath exception as provided in the  
+ LICENSE.txt file that accompanied this code.
+ */
+package bluej.parser;
+
+import java.util.List;
+import java.util.concurrent.Executor;
+
+import bluej.parser.AssistContent.JavadocCallback;
+import bluej.stride.framedjava.ast.AccessPermission;
+
+
+public class FieldCompletion extends AssistContent
+{
+    private final String fieldType;
+    private final String fieldName;
+    private final int modifiers;
+    private final String declaringClass;
+    
+    public FieldCompletion(String fieldType, String fieldName, int modifiers, String declaringClass)
+    {
+        this.fieldType = fieldType;
+        this.fieldName = fieldName;
+        this.modifiers = modifiers;
+        this.declaringClass = declaringClass;
+    }
+
+    @Override
+    public String getName()
+    {
+        return fieldName;
+    }
+
+    @Override
+    public String getType()
+    {
+        return fieldType;
+    }
+
+    @Override
+    public List<ParamInfo> getParams()
+    {
+        // Can't have parameters, so we return null:
+        return null;
+    }
+
+    @Override
+    public String getDeclaringClass()
+    {
+        return declaringClass;
+    }
+
+    @Override
+    public CompletionKind getKind()
+    {
+        return CompletionKind.FIELD;
+    }
+
+    @Override
+    public String getJavadoc()
+    {
+        // TODO
+        return "";
+    }
+    
+    @Override
+    public boolean getJavadocAsync(JavadocCallback callback, Executor executor)
+    {
+        return true;
+    }
+
+    @Override
+    public Access getAccessPermission()
+    {
+        return fromModifiers(modifiers);
+    }
+}

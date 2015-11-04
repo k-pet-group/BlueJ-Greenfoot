@@ -10,9 +10,6 @@ main.invalidPackage=Bal\u00ed\u010dek nebol nen\u00e1jden\u00fd
 
 compileException=V\u00fdnimka pri preklade
 compiler.thread.title=Vl\u00e1kno preklada\u010da BlueJ
-compiler.warningDialog.title=Varovania preklada\u010da
-compiler.warningDialog.label=Varovania z\u00a0posledn\u00e9ho prekladu 
-compiler.warningDialog.noWarnings=\u017diadne varovania
 
 debugger.assert.assertThat=Predpoklada\u0165, \u017ee:
 debugger.assert.resultIs=v\u00fdsledok

@@ -1,0 +1,36 @@
+.error-overview-bar-pane {
+    -fx-min-width: 15px;
+    -fx-border-width: 0 0 0 1px;
+    -fx-border-color: darkgray;
+    
+}
+
+.error-overview-bar-status {
+    -fx-font-size: 14px;
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-color: darkgray;
+}
+
+.error-overview-bar-status:bj-success {
+    -fx-text-fill: hsb(103, 60%, 40%);
+    -fx-cursor: default;
+}
+
+.error-overview-bar-status:bj-failure {
+    -fx-text-fill: red;
+    -fx-cursor: hand;
+}
+
+.error-overview-bar-status:bj-editing {
+    -fx-text-fill: sienna;
+    -fx-cursor: default;
+}
+
+.error-overview-error {
+    -fx-fill: pink;
+    -fx-stroke: red;
+    -fx-cursor: hand;
+}
+.error-overview-error:bj-showing {
+    -fx-fill: red;
+}

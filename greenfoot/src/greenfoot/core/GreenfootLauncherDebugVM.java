@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2013  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2013,2014,2015  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,6 +21,7 @@
  */
 package greenfoot.core;
 
+import bluej.extensions.SourceType;
 import greenfoot.platforms.ide.GreenfootUtilDelegateIDE;
 import greenfoot.util.GreenfootUtil;
 
@@ -57,7 +58,7 @@ public class GreenfootLauncherDebugVM
      * @param prjDir         The project directory
      * @param rmiServiceName  The name of the RMI service to connect to
      */
-    public GreenfootLauncherDebugVM(String prjDir, String rmiServiceName)
+    public GreenfootLauncherDebugVM(String prjDir, String rmiServiceName, String wizard, String sourceTypeName)
     {
         instance = this;
         if (BlueJRMIClient.instance() != null) {
@@ -103,12 +104,12 @@ public class GreenfootLauncherDebugVM
                     });
                     
                     GreenfootUtil.initialise(GreenfootUtilDelegateIDE.getInstance());
-                    GreenfootMain.initialize(blueJ, client.getPackage());
+                    GreenfootMain.initialize(blueJ, client.getPackage(), wizard.equals("true"), SourceType.getEnum(sourceTypeName));
                 }
                 catch (RemoteException re) {
                     re.printStackTrace();
                 }
-            };
+            }
         }.start();
     }
     

@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
- 
+ Copyright (C) 1999-2009,2010,2014  Michael Kolling and John Rosenberg 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -41,15 +41,15 @@ public class FixedMultiLineLabel extends MultiLineLabel
      **/
     public FixedMultiLineLabel(String text, float alignment, int numRows)
     {
-	super(null, alignment);
-	rows = numRows;
-	labels = new JLabel[rows];
-	for(int i=0; i<rows; i++) {
-	    labels[i] = new JLabel(" ");
+        super(null, alignment);
+        rows = numRows;
+        labels = new JLabel[rows];
+        for(int i=0; i<rows; i++) {
+            labels[i] = new JLabel(" ");
             labels[i].setAlignmentX(alignment);
-	    add(labels[i]);
-	}
-	addText(text);
+            add(labels[i]);
+        }
+        addText(text);
     }
 
     /**
@@ -57,7 +57,7 @@ public class FixedMultiLineLabel extends MultiLineLabel
      **/
     public FixedMultiLineLabel(String text, int numRows)
     {
-	this(text, LEFT_ALIGNMENT, numRows);
+        this(text, LEFT_ALIGNMENT, numRows);
     }
 
     /**
@@ -65,7 +65,7 @@ public class FixedMultiLineLabel extends MultiLineLabel
      **/
     public FixedMultiLineLabel(float alignment, int numRows)
     {
-	this(null, alignment, numRows);
+        this(null, alignment, numRows);
     }
 
     /**
@@ -73,30 +73,32 @@ public class FixedMultiLineLabel extends MultiLineLabel
      **/
     public FixedMultiLineLabel(int numRows)
     {
-	this(null, LEFT_ALIGNMENT, numRows);
+        this(null, LEFT_ALIGNMENT, numRows);
     }
-	
+
+    @Override
     public void setText(String text)
     {
-	addText(text);
+        addText(text);
     }
-	
+
+    @Override
     public void addText(String text)
     {
-	int lines = 0;
+        int lines = 0;
 
-	if(text != null) {
-	    String strs[] = Utility.splitLines(text);
-	    lines = (strs.length < rows ? strs.length : rows);
-	    Font font = new Font("SansSerif", fontAttributes, 12);
+        if(text != null) {
+            String strs[] = Utility.splitLines(text);
+            lines = (strs.length < rows ? strs.length : rows);
+            Font font = new Font("SansSerif", fontAttributes, 12);
 
-	    for (int i = 0; i < lines; i++) {
-		labels[i].setText((strs[i].length() == 0 ? " " : strs[i]));
-		labels[i].setFont(font);
-	    }
-	}
-	
-	for (int i = lines; i < rows; i++)
-	    labels[i].setText(" ");
+            for (int i = 0; i < lines; i++) {
+                labels[i].setText((strs[i].length() == 0 ? " " : strs[i]));
+                labels[i].setFont(font);
+            }
+        }
+
+        for (int i = lines; i < rows; i++)
+            labels[i].setText(" ");
     }
 }

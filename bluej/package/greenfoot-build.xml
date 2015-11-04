@@ -16,13 +16,24 @@
         <include name="lib/bluejcore.jar" />
         <include name="lib/bluejeditor.jar" />
         <include name="lib/bluejext.jar" />
-        <include name="lib/junit-4.8.2.jar" />
+        <include name="lib/junit-4.11.jar" />
+	    <include name="lib/hamcrest-core-1.3.jar" />
         <include name="lib/AppleJavaExtensions.jar" />
         <include name="lib/commons-httpclient-3.1.jar" />
         <include name="lib/commons-codec-1.3.jar" />
         <include name="lib/commons-logging-api-1.1.2.jar" />               
+        <include name="lib/httpclient-4.1.1.jar" />
+        <include name="lib/httpcore-4.1.jar" />
+        <include name="lib/httpmime-4.1.1.jar" />
+        <include name="lib/javassist-3.18.0.jar" />
         <include name="lib/jl1.0.1.jar" />
         <include name="lib/opencsv-2.3.jar" />
+        <include name="lib/commons-vfs2-2.0.jar" />
+        <include name="lib/guava-17.0.jar" />
+        <include name="lib/jna-4.2.0.jar" />
+        <include name="lib/jna-platform-4.2.0.jar" />
+        <include name="lib/javassist-2.18.0.jar" />
+        <include name="lib/xom-1.2.9.jar" />
         <include name="lib/bjdoclet.jar" />
         <include name="lib/bluej.defs" />
         <include name="lib/greenfoot.defs" />
@@ -46,6 +57,7 @@
         <include name="lib/chinese/" />
         <include name="lib/czech/" />
         <include name="lib/english/" />
+        <include name="lib/fonts/" />
         <include name="lib/french/" />
         <include name="lib/german/" />
         <include name="lib/greek/" />
@@ -57,6 +69,7 @@
         <include name="lib/slovak/" />
         <include name="lib/spanish/" />
         <include name="lib/swedish/" />
+        <include name="lib/stylesheets/" />
         <include name="lib/extensions/" />
         <!-- greenfoot stuff -->
         <include name="lib/greenfoot/**" />
@@ -224,6 +237,15 @@
         </move>
         <delete dir="${zip_dir}/Greenfoot.app/Contents/Resources/Java/lib" />
 
+        <!-- Move the documentation into the app: -->
+        <move todir="${zip_dir}/Greenfoot.app/Contents/Resources">
+            <fileset dir="${zip_dir}">
+                <patternset refid="gfapidoc.files" />
+            </fileset>
+        </move>
+        <delete dir="${zip_dir}/doc" />
+
+
         <!-- ZIP it -->
         <zip destfile="${greenfootlegacy.dist.mac}" duplicate="fail">
             <zipfileset dir="mac_tmp" excludes="${executable_files}" />
@@ -236,8 +258,8 @@
     	<move file="${zip_dir}/Greenfoot.app" tofile="${zip_dir}/Greenfoot-legacy.app" />
     		
     	<!-- copy the skeleton mac dir -->
-        <copy todir="${zip_dir}/Greenfoot.app" preservelastmodified="true"> 
-            <fileset dir="macfiles/Greenfoot.app"/> 
+        <copy todir="${zip_dir}/Greenfoot.app" preservelastmodified="true">
+            <fileset dir="macfiles/Greenfoot.app"/>
         </copy>
     	
     	<!-- copy the native launcher into place -->
@@ -253,7 +275,9 @@
     	<!-- Move contents from legacy app to new app -->
         <move file="${zip_dir}/Greenfoot-legacy.app/Contents/Resources/Java"
         	todir="${zip_dir}/Greenfoot.app/Contents/Resources" />
-    	
+        <move file="${zip_dir}/Greenfoot-legacy.app/Contents/Resources/doc"
+              todir="${zip_dir}/Greenfoot.app/Contents/Resources" />
+        
     	<!-- Remove the legacy app -->
     	<delete dir="${zip_dir}/Greenfoot-legacy.app" />
 

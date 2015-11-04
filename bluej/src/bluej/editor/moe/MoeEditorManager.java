@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2013,2014,2015  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,7 +21,6 @@
  */
 package bluej.editor.moe;
 
-import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -32,6 +31,7 @@ import java.util.Properties;
 import bluej.Config;
 import bluej.editor.Editor;
 import bluej.editor.EditorWatcher;
+import bluej.editor.SwingTabbedEditor;
 import bluej.parser.entity.EntityResolver;
 import bluej.pkgmgr.JavadocResolver;
 
@@ -95,14 +95,14 @@ public final class MoeEditorManager extends bluej.editor.EditorManager
                 String docFilename,
                 Charset charset,
                 String windowTitle,
+                SwingTabbedEditor swingTabbedEditor,
                 EditorWatcher watcher, 
                 boolean compiled,
-                Rectangle bounds,
                 EntityResolver projectResolver,
                 JavadocResolver javadocResolver)
     {
-        return openEditor (filename, docFilename, charset, true, windowTitle, watcher, compiled,
-                           bounds, projectResolver, javadocResolver);
+        return openEditor (filename, docFilename, charset, true, windowTitle, swingTabbedEditor, watcher, compiled,
+                           projectResolver, javadocResolver);
     }
 
     // ------------------------------------------------------------------------
@@ -120,9 +120,9 @@ public final class MoeEditorManager extends bluej.editor.EditorManager
      * @returns                 the new editor, or null if there was a problem
      */
     @Override
-    public Editor openText(String filename, Charset charset, String windowTitle, Rectangle bounds)
+    public Editor openText(String filename, Charset charset, String windowTitle, SwingTabbedEditor swingTabbedEditor)
     {
-        return openEditor(filename, null, charset, false, windowTitle, null, false, bounds, null, null);
+        return openEditor(filename, null, charset, false, windowTitle, swingTabbedEditor, null, false, null, null);
     }
 
     @Override
@@ -133,7 +133,7 @@ public final class MoeEditorManager extends bluej.editor.EditorManager
         while(e.hasNext()) {
             Editor ed = e.next();
             
-            if(ed.isShowing()) {
+            if(ed.isOpen()) {
                 ed.refresh();
             }
        }
@@ -194,9 +194,10 @@ public final class MoeEditorManager extends bluej.editor.EditorManager
      */
     private Editor openEditor(String filename, String docFilename,
             Charset charset,
-            boolean isCode, String windowTitle, 
+            boolean isCode, String windowTitle,
+            SwingTabbedEditor swingTabbedEditor,
             EditorWatcher watcher, boolean compiled, 
-            Rectangle bounds, EntityResolver projectResolver,
+            EntityResolver projectResolver,
             JavadocResolver javadocResolver)
     {
         MoeEditor editor;
@@ -206,9 +207,10 @@ public final class MoeEditorManager extends bluej.editor.EditorManager
         mep.setCode(isCode);
         mep.setShowToolbar(showToolBar);
         mep.setShowLineNum(showLineNum);
-        editor = new MoeEditor(mep);
+        editor = new MoeEditor(mep, swingTabbedEditor);
         editors.add(editor);
-        if (editor.showFile(filename, charset, compiled, docFilename, bounds)) {
+        if (editor.showFile(filename, charset, compiled, docFilename))
+        {
             return editor;
         }
         editor.doClose();           // editor will remove itself

@@ -22,6 +22,8 @@
 package greenfoot.core;
 
 import greenfoot.ObjectTracker;
+import greenfoot.actions.NewSubActorAction;
+import greenfoot.actions.NewSubWorldAction;
 import greenfoot.event.ActorInstantiationListener;
 import greenfoot.event.CompileListener;
 import greenfoot.event.CompileListenerForwarder;
@@ -59,6 +61,7 @@ import bluej.Config;
 import bluej.debugmgr.CallHistory;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
+import bluej.extensions.SourceType;
 import bluej.pkgmgr.GreenfootProjectFile;
 import bluej.pkgmgr.Project;
 import bluej.runtime.ExecServer;
@@ -142,12 +145,12 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
      * Initializes the singleton. This can only be done once - subsequent calls
      * will have no effect.
      */
-    public static void initialize(RBlueJ rBlueJ, RPackage pkg)
+    public static void initialize(RBlueJ rBlueJ, RPackage pkg, boolean wizard, SourceType sourceType)
     {
         System.setProperty("apple.laf.useScreenMenuBar", "true");
         if (instance == null) {
             try {
-                instance = new GreenfootMain(rBlueJ, pkg.getProject());
+                instance = new GreenfootMain(rBlueJ, pkg.getProject(), wizard, sourceType);
             }
             catch (ProjectNotOpenException pnoe) {
                 // can't happen
@@ -174,7 +177,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
      * Contructor is private. This class is initialised via the 'initialize'
      * method (above).
      */
-    private GreenfootMain(final RBlueJ rBlueJ, final RProject proj)
+    private GreenfootMain(final RBlueJ rBlueJ, final RProject proj, boolean wizard, SourceType sourceType)
     {
         instance = this;
         this.rBlueJ = rBlueJ;
@@ -219,6 +222,8 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
 
                             
                             rBlueJ.addClassListener(classStateManager);
+
+                            proj.greenfootReady();
                         }
                         catch (Exception exc) {
                             Debug.reportError("Error when opening scenario", exc);
@@ -235,6 +240,21 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                     }
                     frame.setVisible(true);
                     Utility.bringToFront(frame);
+
+                    try
+                    {
+                        rBlueJ.startImportsScan();
+                    }
+                    catch (RemoteException e)
+                    {
+                        Debug.reportError(e);
+                    }
+                    
+                    EventQueue.invokeLater(() -> {
+                        if (wizard) {
+                            new NewSubWorldAction(frame, true, sourceType, frame.getWorldHandlerDelegate()).actionPerformed(null);
+                        }
+                    });
                 }
             });
         }
@@ -360,6 +380,13 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
     private void closeThisInstance(boolean windowClosing)
     {
         try {
+            project.getRProject().setClosing(true);
+        }
+        catch(Exception e) {
+            Debug.reportError("Error while closing", e);
+        }
+        
+        try {
             if (rBlueJ.getOpenProjects().length <= 1) {
                 if (windowClosing) {
                     // This happens to be the only way the startup project can be closed
@@ -465,7 +492,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
     /**
      * Creates a new project
      */
-    public RProject newProject()
+    public RProject newProject(boolean wizard, SourceType sourceType)
     {
         File newFile = FileUtility.getDirName(frame,
                 Config.getString("greenfoot.utilDelegate.newScenario"),
@@ -477,7 +504,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                 return null;
             }
             try {
-                RProject rproj = rBlueJ.newProject(newFile);
+                RProject rproj = rBlueJ.newProject(newFile, wizard, sourceType);
                 if (rproj != null) {
                     // The rest of the project preparation will be done by the
                     // ProjectManager on the BlueJ VM.
@@ -504,7 +531,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
         }
         return null;
     }
-
+    
     /**
      * Get a reference to the CallHistory instance.
      */
@@ -736,7 +763,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
         for (int i = 0; i < classFiles.length; i++) {
             String fileName = classFiles[i];
             int index = fileName.lastIndexOf('.');
-            String javaFileName = fileName.substring(0, index) + ".java";
+            String javaFileName = fileName.substring(0, index) + "." + SourceType.Java.toString().toLowerCase();
             File file = new File(dir, fileName);
             File javaFile = new File(dir, javaFileName);
             if (javaFile.exists()) {
@@ -848,5 +875,10 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
         catch (RemoteException e) {
             Debug.reportError("Problem showing preferences dialog", e);
         }
+    }
+
+    public long getBlueJProcessId() throws RemoteException
+    {
+        return rBlueJ.getBlueJProcessId();
     }
 }

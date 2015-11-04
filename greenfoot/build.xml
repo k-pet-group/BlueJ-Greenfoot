@@ -13,9 +13,10 @@
     <property file="${bluej.projectdir}/build.properties"/>
 
     <!-- Greenfoot Version Number -->
-    <property name="greenfoot.version.major" value="2"/>
-    <property name="greenfoot.version.minor" value="4"/>
-    <property name="greenfoot.version.micro" value="1"/>
+    <property name="greenfoot.version.major" value="3"/>
+    <property name="greenfoot.version.minor" value="0"/>
+    <property name="greenfoot.version.micro" value="0"/>
+    <property name="greenfoot.version.suffix" value="" />
     
 	<!-- Greenfoot version to API mapping:        -->
 	<!--    Greenfoot 2.3.0 = API version 2.5.0   -->
@@ -33,7 +34,7 @@
     Changing this number will stripe the user's classes and require a recompile.
     Do not change this number if the changes cannot break older scenarios. -->
 	<!-- YOU SHOULD UPDATE THE GREENFOOT LABELS if you change this -->
-    <property name="greenfoot.apiversion.nonbreaking" value="7"/>
+    <property name="greenfoot.apiversion.nonbreaking" value="8"/>
     
     <!-- Change when API has only changed internally and not in any way visible to the user. 
     It should not be possible for this change to break existing scenarios. 
@@ -44,8 +45,8 @@
 
     <property name="greenfoot.apiversion.public" value="${greenfoot.apiversion.breaking}.${greenfoot.apiversion.nonbreaking}"/>
 
-    <property name="greenfoot.version" value="${greenfoot.version.major}.${greenfoot.version.minor}.${greenfoot.version.micro}"/>
-    <property name="greenfoot.version.nodots" value="${greenfoot.version.major}${greenfoot.version.minor}${greenfoot.version.micro}"/>
+    <property name="greenfoot.version" value="${greenfoot.version.major}.${greenfoot.version.minor}.${greenfoot.version.micro}${greenfoot.version.suffix}"/>
+    <property name="greenfoot.version.nodots" value="${greenfoot.version.major}${greenfoot.version.minor}${greenfoot.version.micro}${greenfoot.version.suffix}"/>
 	
 	<!-- Suffix added after version number in output files -->
 	<property name="greenfoot.rcsuffix" value=""/>
@@ -64,12 +65,15 @@
         <pathelement location="${bluej.projectdir}/classes"/>
         <pathelement location="${bluej.projectdir}/boot/classes"/>
         <pathelement location="${bluej.projectdir}/lib/antlr.jar"/>
-        <pathelement location="${bluej.projectdir}/lib/junit-4.8.2.jar"/>
+        <pathelement location="${bluej.projectdir}/lib/junit-4.11.jar"/>
+    	<pathelement location="${bluej.projectdir}/lib/hamcrest-core-1.3.jar"/>
         <pathelement location="${bluej.projectdir}/lib/AppleJavaExtensions.jar"/>
         <pathelement location="${bluej.projectdir}/lib/commons-httpclient-3.1.jar"/>
         <pathelement location="${bluej.projectdir}/lib/commons-logging-api-1.1.2.jar"/> 
         <pathelement location="${jlayer.jar.path}"/>
         <pathelement location="${bluej.projectdir}/lib/opencsv-2.3.jar"/>
+        <pathelement location="${bluej.projectdir}/lib/xom-1.2.9.jar"/>
+    	<pathelement location="${build_java_home}/jre/lib/jfxrt.jar"/>
     </path>
     <!-- The sourcepath to the bluej classes-->
     <path id="bluej.src.path">
@@ -80,8 +84,7 @@
     <property name="bluej.installer.jar"  location="${bluej.projectdir}/package/Greenfoot-generic.jar"/>
     <property name="bluej.dist.jar"  location="${bluej.projectdir}/package/greenfoot-dist.jar"/>
     <property name="greenfoot.dist.mac"  location="${bluej.projectdir}/package/Greenfoot-mac.zip"/>
-    <property name="greenfootlegacy.dist.mac"  location="${bluej.projectdir}/package/Greenfoot-mac-legacy.zip"/>
-    
+
     <!-- Location of the zip with the sources for greenfoot -->
     <property name="greenfoot.source.zip" location="package/Greenfoot-source-${greenfoot.version}.zip"/>
     
@@ -122,14 +125,16 @@
 
     <!-- scenarios to be included in standard distribution -->
     <patternset id="distribution.scenarios">
-        <exclude name="scenarios/**/*.pkh" />
-        <exclude name="scenarios/**/.#*" />
-        <exclude name="scenarios/**/.cvsignore" />
-        <exclude name="scenarios/**/doc/" />
-        <exclude name="scenarios/**/__*" />
-        <include name="scenarios/lunarlander/" />
-        <include name="scenarios/ants/" />
-        <include name="scenarios/LTA/" />
+        <exclude name="scenarios/**/**/*.pkh" />
+        <exclude name="scenarios/**/**/.#*" />
+        <exclude name="scenarios/**/**/.cvsignore" />
+        <exclude name="scenarios/**/**/doc/" />
+        <exclude name="scenarios/**/**/__*" />
+        <include name="scenarios/java/lunarlander/" />
+        <include name="scenarios/java/ants/" />
+        <include name="scenarios/java/LTA/" />
+        <include name="scenarios/stride/trick-the-turtle/" />
+        <include name="scenarios/stride/pengu/" />
     </patternset>
 
     <!-- The classpath to the greenfoot classes (once they are built) -->
@@ -203,17 +208,27 @@ LICENSE.txt file that accompanied this code.${line.separator}
         		includeantruntime="false">
         	<classpath>
         	    <path refid="bluej.class.path"/>
+        		<pathelement location="${bluej_home}/threadchecker/classes"/>
         	    <pathelement location="${build_java_home}/lib/tools.jar"/>
+                <pathelement location="${bluej_home}/lib/jna-4.2.0.jar"/>
+                <pathelement location="${bluej_home}/lib/jna-platform-4.2.0.jar"/>
         	</classpath>
-            <compilerarg line="-target 8" />
-            <compilerarg line="-source 8" />
+            <compilerarg line="-target 1.8" />
+            <compilerarg line="-source 1.8" /> <!-- Otherwise Java 8 (and above) complains -->
+        	<compilerarg line="-Xmaxerrs 1000"/>
+        	<!-- <compilerarg value="-Xplugin:threadchecker.TCPlugin rmiextension rmiextension.wrappers rmiextension.wrappers.event"/> -->
         </javac>
         <!-- Compile the RMI-classes -->
-        <rmic base="${build}" includes="**/*Impl.class" excludes="bluej/**" compiler="forking" executable="${build_java_home}/${java_command_dir_name}/rmic">
+        <rmic compiler="forking" executable="${build_java_home}/${java_command_dir_name}/rmic" base="${build}" includes="**/*Impl.class" excludes="bluej/**">
             <classpath>
                 <path refid="bluej.class.path"/>
             </classpath>
         </rmic>
+    	<copy todir="${build}">
+            <fileset dir="${bluej_home}/threadchecker/classes">
+        	    <include name="*.class"/>
+        	</fileset>
+        </copy>
     </target>
 
     <target name="compile-test" depends="compile" description="Compile the test source" >
@@ -249,9 +264,14 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <macrodef name="compile-scenario">
             <attribute name="scenario" />
             <sequential>
-                <javac srcdir="scenarios/@{scenario}" debug="true" target="8" source="8" includeantruntime="false"
+                <javac
                     executable="${build_java_home}/${java_command_dir_name}/javac"
-                    fork="yes">
+                    fork="yes"
+                    srcdir="scenarios/@{scenario}"
+                    debug="true"
+                    source="1.8"
+                    target="1.8"
+                    includeantruntime="false">
                     <classpath>
                         <path refid="greenfoot.class.path"/>
                         <path refid="bluej.class.path"/>
@@ -265,10 +285,11 @@ LICENSE.txt file that accompanied this code.${line.separator}
             </sequential>
         </macrodef>
 
-        <compile-scenario scenario="lunarlander" />
-        <compile-scenario scenario="balloons" />
-        <compile-scenario scenario="wombats" />
-        <compile-scenario scenario="wombats2" />
+        <compile-scenario scenario="java/lunarlander" />
+        <compile-scenario scenario="java/ants" />
+        <compile-scenario scenario="java/LTA" />
+        <compile-scenario scenario="stride/trick-the-turtle" />
+        <compile-scenario scenario="stride/pengu" />
     </target>
 
 	<target name="check-bluej-compiled">
@@ -293,15 +314,25 @@ LICENSE.txt file that accompanied this code.${line.separator}
     <target name="create-api-doc">
         <mkdir dir="${apidoc}"/>
         <javadoc destdir="${apidoc}"
+                 executable="${build_java_home}/${java_command_dir_name}/javadoc"
                  Windowtitle="Greenfoot API"
                  Doctitle="Greenfoot API"
                  bottom="&lt;a href=http://www.greenfoot.org/&gt;Greenfoot homepage&lt;/a&gt;"
                  classpathref="greenfoot.class.path"
                  encoding="UTF-8"
-                 executable="${build_java_home}/${java_command_dir_name}/javadoc"
         	>
             <fileset refid="api-source.files"/>
         </javadoc>
+
+        <!-- Work around this bug https://bugs.openjdk.java.net/browse/JDK-8129828
+             where the css file contains a broken link.  (This in turn causes problems
+             in JavaFX web view when loading the documentation, even though it shouldn't). -->
+        <replaceregexp byline="true">
+            <regexp pattern="@import.*dejavu.*"/>
+            <substitution expression=""/>
+            <fileset dir="${apidoc}" includes="stylesheet.css"/>
+        </replaceregexp>
+
     	<mkdir dir="${bluej.projectdir}/lib/english/greenfoot/api"/>
     	<copy todir="${bluej.projectdir}/lib/english/greenfoot/api">
             <fileset refid="api-source.files"/>
@@ -358,10 +389,11 @@ LICENSE.txt file that accompanied this code.${line.separator}
 
 	<target name="build-common-jar" description="Create a jar with a common class dependencies." >
 	    <!-- Should first delete the class files in common (depend on clean-common) -->
-		<javac srcdir="common/${common.class}/src" destdir="common/${common.class}/classes"
-			debug="true" target="8" source="8" includeantruntime="false"
-            executable="${build_java_home}/${java_command_dir_name}/javac"
-            fork="yes">
+		<javac
+		    executable="${build_java_home}/${java_command_dir_name}/javac"
+            fork="yes"
+            srcdir="common/${common.class}/src" destdir="common/${common.class}/classes"
+			debug="true" target="1.8" source="1.8" includeantruntime="false">
 			<classpath>
 				<fileset dir="common/${common.class}/lib/">
 				    <include name="*.jar"/>
@@ -384,6 +416,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
 		  <fileset dir=".">
 	        <patternset>
 	          <include name="common/${common.class}.java" />
+	       	  <include name="common/${common.class}.frame" />
 	          <!-- <include name="common/${common.class}.class" /> -->
 	          <include name="common/${common.class}.html" />
 	          <include name="common/${common.class}.png" />
@@ -434,17 +467,16 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <!-- Installer image jar: greenfoot-install.png -->
         <copy file="resources/images/greenfoot-install.png" todir="${bluej.projectdir}/package"/>
         <!-- Splash image: greenfoot-splash.jpg -->
-        <copy file="resources/images/greenfootsplash.jpg" todir="${bluej.projectdir}/boot/src/bluej"/>
+        <copy file="resources/images/greenfoot-3-splash.png" todir="${bluej.projectdir}/boot/src/bluej"/>
         <!-- Greenfoot icon for classes: greenfoot-16.png -->
         <copy file="resources/images/greenfoot-icon-16.png" tofile="imagelib/other/greenfoot.png"/>
         <!-- Greenfoot icon for application on the mac: greenfoot.icns -->
         <copy file="resources/images/greenfoot.icns" todir="${bluej.projectdir}/package/macfiles/Greenfoot.app/Contents/Resources"/>
-        <copy file="resources/images/greenfoot.icns" todir="${bluej.projectdir}/package/macfiles/Greenfoot-legacy.app/Contents/Resources"/>
 
         <!-- Greenfoot icon for application: greenfoot-16.png -->
         <copy file="resources/images/greenfoot-icon-16.png" tofile="images/greenfoot.png"/>
         <!-- About image: currently: use same as splash image -->
-        <copy file="resources/images/greenfootsplash.jpg" tofile="images/greenfoot-about.jpg"/>
+        <copy file="resources/images/greenfoot-3-splash.png" tofile="images/greenfoot-about.jpg"/>
         <!-- Readme label icon -->
         <copy file="resources/images/readme.png" todir="images"/>
         <!-- Empty image - just to force same layout of compile and readme button -->
@@ -492,12 +524,10 @@ LICENSE.txt file that accompanied this code.${line.separator}
 		<ant dir="${bluej.projectdir}/package" antfile="greenfoot-build.xml" target="windows-msi-bundled-dist" />
 	</target>
 	
-	<target name="mac-dist">
+	<target name="mac-dist" depends="dist">
 	    <ant dir="${bluej.projectdir}/package" antfile="greenfoot-build.xml" target="mac-dist" />
         <move file="${greenfoot.dist.mac}" tofile="${package}/Greenfoot-mac-${greenfoot.version.nodots}${greenfoot.rcsuffix}.zip"/>
-        <move file="${greenfootlegacy.dist.mac}" tofile="${package}/Greenfoot-mac-legacy-${greenfoot.version.nodots}${greenfoot.rcsuffix}.zip"/>
         <echo message="The greenfoot Mac-installer is in ${package}/Greenfoot-mac-${greenfoot.version.nodots}${greenfoot.rcsuffix}.zip"/>
-        <echo message="The greenfoot Mac-installer (legacy) is in ${package}/Greenfoot-mac-legacy-${greenfoot.version.nodots}${greenfoot.rcsuffix}.zip"/>
 	</target>
 
     <target name="clean" description="clean up" >
@@ -508,7 +538,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <!-- About image: greenfoot-about.png -->
         <delete file="images/greenfoot-about.png"/>
         <!-- Splash image: greenfoot-splash.jpg -->
-        <delete file="${bluej.projectdir}/boot/src/bluej/greenfootsplash.jpg"/>
+        <delete file="${bluej.projectdir}/boot/src/bluej/greenfoot-3-splash.png"/>
         <!-- Greenfoot icon for classes: greenfoot-16.png -->
         <delete file="imagelib/other/greenfoot.png"/>
         <!-- Greenfoot icon for application: greenfoot-16.png -->
@@ -516,7 +546,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <!-- Commons libraries -->
      	<delete >
             <fileset dir="${bluej.projectdir}/lib">
-                <include name="commons*.jar"/>
+                <include name="commons-codec-*.jar"/>
                 <exclude name="commons-logging-api-*.jar"/>
             </fileset>
         </delete>
@@ -558,7 +588,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
     	  <fileset dir="common/Weather/classes" includes="**/*" defaultexcludes="no"/>
 	    </delete>
 	</target>
-	
+
 
 	<!--include name="lib/*/greenfootAPI/**" /-->
 
@@ -570,6 +600,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
                 <pathelement location="${bluej.projectdir}/boot/classes" />
                 <!-- <path refid="bluej.class.path"/> -->
                 <path refid="bluej.src.path"/>
+            	<pathelement location="${bluej.projectdir}/lib" />
                 <pathelement location="${build_java_home}/lib/tools.jar"/>
                 <pathelement location="/System/Library/Java"/>
                 <!-- <pathelement location="${build}"/> -->
@@ -674,11 +705,16 @@ LICENSE.txt file that accompanied this code.${line.separator}
             classpathref="bluej.class.path" 
             debug="true"
             sourcepath=""
-        	source="8"
-            target="8"
+        	source="1.8"
+            target="1.8"
         	includeantruntime="false"
         >
             <src path="${src}"/>
+        	<classpath>
+              <pathelement location="${bluej_home}/threadchecker/classes"/>
+                <pathelement location="${bluej_home}/lib/jna-4.2.0.jar"/>
+                <pathelement location="${bluej_home}/lib/jna-platform-4.2.0.jar"/>
+            </classpath>
 
             <include name="greenfoot/core/WorldHandler.java"/>
             <include name="greenfoot/util/GreenfootUtil.java"/>
@@ -696,6 +732,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
             <include name="greenfoot/core/LocationTracker.java"/>
             <include name="greenfoot/core/ProjectProperties.java"/>
             <include name="greenfoot/core/Simulation.java"/>
+        	<include name="greenfoot/core/SimulationRunnable.java"/>
             <include name="greenfoot/core/ObjectDragProxy.java"/>
             <include name="greenfoot/core/ActInterruptedException.java"/>
         	<include name="greenfoot/core/ImageCache.java"/>
@@ -768,6 +805,9 @@ LICENSE.txt file that accompanied this code.${line.separator}
             	<include name="bluej/PropParser.class"/>
             	<include name="bluej/PropParser$*.class"/>
             </fileset>
+        	<fileset dir="${bluej_home}/threadchecker/classes">
+        	    <include name="*.class"/>
+        	</fileset>
         </copy>
     </target>
 
@@ -793,8 +833,8 @@ LICENSE.txt file that accompanied this code.${line.separator}
             	<include name="doc/Greenfoot-README.txt" />
             	<include name="doc/Greenfoot-architecture-and-design.txt" />
                 <patternset refid="distribution.scenarios"/>
-                <exclude name="scenarios/**/*.class" />    
-                <exclude name="scenarios/**/greenfoot/" />
+                <exclude name="scenarios/**/**/*.class" />
+                <exclude name="scenarios/**/**/greenfoot/" />
                 
             	<include name="common/*.java" />
                 <include name="common/*.png" />
@@ -826,7 +866,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
 	        	<exclude name="src/greenfoot/util/GraphicsUtilities.java"/>
 	        	<exclude name="src/greenfoot/util/ShadowRenderer.java"/>
 	        	<exclude name="src/org/syntax/jedit/**"/>
-	        	<exclude name="scenarios/**"/>
+	        	<exclude name="scenarios/**/**"/>
 	        </fileset>
 	    </replaceregexp>
     </target>   
@@ -834,36 +874,36 @@ LICENSE.txt file that accompanied this code.${line.separator}
     <target name="clean-scenarios" description="clean up scenarios (remove doc and greenfoot dir)" >
         <delete includeemptydirs="true">
             <fileset dir="scenarios">
-                <include name="**/*.class"/>
-                <include name="**/doc/" />
-                <include name="**/greenfoot/" />
-                <include name="**/*.ctxt" />
-                <include name="**/images/greenfoot.png" />
+                <include name="**/**/*.class"/>
+                <include name="**/**/doc/" />
+                <include name="**/**/greenfoot/" />
+                <include name="**/**/*.ctxt" />
+                <include name="**/**/images/greenfoot.png" />
             </fileset>
         </delete>
         <!-- Remove size and location from project.greenfoot -->
         <replaceregexp byline="true">
             <regexp pattern="mainWindow.*"/>
             <substitution expression=""/>
-            <fileset dir="scenarios" includes="**/project.greenfoot"/>
+            <fileset dir="scenarios" includes="**/**/project.greenfoot"/>
         </replaceregexp>
         <!-- Remove size and location from project.greenfoot-->
         <replaceregexp byline="true">
             <regexp pattern="package.editor.*"/>
             <substitution expression=""/>
-            <fileset dir="scenarios" includes="**/project.greenfoot"/>
+            <fileset dir="scenarios" includes="**/**/project.greenfoot"/>
         </replaceregexp>
         <replaceregexp byline="true" >
             <regexp pattern="target.*editor.*"/>
             <substitution expression=""/>
-            <fileset dir="scenarios" includes="**/project.greenfoot"/>
+            <fileset dir="scenarios" includes="**/**/project.greenfoot"/>
         </replaceregexp>
 
         <!-- Remove empty lines from project.greenfoot -->
         <replaceregexp byline="false" flags="g">
             <regexp pattern="(\r?\n)(\r?\n)+"/>
             <substitution expression="\1"/>
-            <fileset dir="scenarios" includes="**/project.greenfoot"/>
+            <fileset dir="scenarios" includes="**/**/project.greenfoot"/>
         </replaceregexp>
     </target>
 

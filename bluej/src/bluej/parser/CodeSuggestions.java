@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 2010,2014  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -35,7 +35,8 @@ public class CodeSuggestions
     private JavaType suggestionType;
     private GenTypeClass accessType;
     private LocatableToken suggestionToken;
-    private boolean staticRestricted=false;   //restrict suggestions to only static methods e.g for a class
+    private boolean staticRestricted;   //restrict suggestions to only static methods e.g for a class
+    private boolean plain;
     
     /**
      * Construct a new set of CodeSuggestions.
@@ -45,14 +46,18 @@ public class CodeSuggestions
      * @param suggestionToken The token representing the suggestion prefix, i.e. the portion of the
      *                        member name already typed by the user
      * @param staticOnly    Indicates if true that non-static members should not be included
-     *                      in the returned results                 
+     *                      in the returned results                
+     * @param plain         If true, means that there is no compound expression on which we are
+     *                      completing.  Essentially, if plain is true then the user could be referring
+     *                      to a local variable. 
      */
-    public CodeSuggestions(JavaType suggestionType, GenTypeClass accessType, LocatableToken suggestionToken, boolean staticOnly)
+    public CodeSuggestions(JavaType suggestionType, GenTypeClass accessType, LocatableToken suggestionToken, boolean staticOnly, boolean plain)
     {
         this.suggestionToken = suggestionToken;
         this.suggestionType = suggestionType;
         this.accessType = accessType;
         this.staticRestricted = staticOnly;
+        this.plain = plain;
     }
     
     public LocatableToken getSuggestionToken()
@@ -74,13 +79,13 @@ public class CodeSuggestions
         return accessType;
     }
 
-    public void setStatic(boolean restricted)
-    {
-        this.staticRestricted = restricted;
-    }
-
     public boolean isStatic()
     {
         return staticRestricted;
+    }
+    
+    public boolean isPlain()
+    {
+        return plain;
     }
 }

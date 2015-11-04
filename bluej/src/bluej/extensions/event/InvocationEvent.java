@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,13 +21,20 @@
  */
 package bluej.extensions.event;
 
-import bluej.debugger.*;
-import bluej.debugger.gentype.*;
-import bluej.debugmgr.*;
-import bluej.debugmgr.objectbench.*;
-import bluej.extensions.*;
-import bluej.pkgmgr.*;
-import com.sun.jdi.*;
+import threadchecker.OnThread;
+import threadchecker.Tag;
+import bluej.debugger.DebuggerObject;
+import bluej.debugger.gentype.JavaPrimitiveType;
+import bluej.debugger.gentype.JavaType;
+import bluej.debugmgr.ExecutionEvent;
+import bluej.debugmgr.objectbench.ObjectWrapper;
+import bluej.extensions.BPackage;
+import bluej.extensions.ExtensionBridge;
+import bluej.pkgmgr.PkgMgrFrame;
+
+import com.sun.jdi.Field;
+import com.sun.jdi.ObjectReference;
+import com.sun.jdi.ReferenceType;
 
 
 /**
@@ -40,6 +47,7 @@ import com.sun.jdi.*;
  * @author Clive Miller, University of Kent at Canterbury, 2002
  * @author Damiano Bolla, University of Kent at Canterbury, 2003,2004
  */
+@OnThread(Tag.Any)
 public class InvocationEvent implements ExtensionEvent
 {
     /**
@@ -178,6 +186,7 @@ public class InvocationEvent implements ExtensionEvent
      *
      * @return    An array of Classes corresponding to the static types of the method's parameters.
      */
+    @OnThread(Tag.Swing)
     public Class<?>[] getSignature()
     {
         if (signature == null) {
@@ -252,7 +261,7 @@ public class InvocationEvent implements ExtensionEvent
      */
 
     // TODO: There ought to be a way of retrieving the declared return type of the invoked method.
-
+    @OnThread(Tag.Swing)
     public Object getResult()
     {
         if (resultObj == null) {
@@ -276,6 +285,7 @@ public class InvocationEvent implements ExtensionEvent
      *
      * @return    The methodResult value
      */
+    @OnThread(Tag.Swing)
     private Object getMethodResult()
     {
         ObjectReference objRef = resultObj.getObjectReference();
@@ -298,6 +308,7 @@ public class InvocationEvent implements ExtensionEvent
      *
      * @return    Description of the Return Value
      */
+    @OnThread(value = Tag.Swing, ignoreParent = true)
     public String toString()
     {
         StringBuffer aRisul = new StringBuffer(500);

@@ -37,6 +37,8 @@ import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 
 import bluej.Config;
+import greenfoot.Greenfoot;
+import greenfoot.core.Simulation;
 
 /**
  * The main class for Greenfoot scenarios when they are exported as standalone
@@ -80,6 +82,7 @@ public class GreenfootScenarioMain
         
         try {
             EventQueue.invokeAndWait(new Runnable() {
+                @Override
                 public void run()
                 {
                     frame[0] = new JFrame(scenarioName);
@@ -96,17 +99,17 @@ public class GreenfootScenarioMain
             // Apparently an applet's init() method is *not* called on the EDT.
             gsv[0].init();
             
-            EventQueue.invokeAndWait(new Runnable() {
-                public void run()
-                {
-                    frame[0].pack();
-                    frame[0].setVisible(true);
+            EventQueue.invokeAndWait(() -> {
+                frame[0].pack();
+                frame[0].setVisible(true);
+                //If the controls are hidden, then
+                //automatically start the simulation.
+                if (Config.getPropBoolean("scenario.hideControls",false)){
+                    Greenfoot.start();
                 }
             });
             
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
+        } catch (InterruptedException | InvocationTargetException e) {
             e.printStackTrace();
         }
     }
@@ -119,13 +122,11 @@ public class GreenfootScenarioMain
         if (scenarioName != null) {
             return; // already done
         }
-        
         Properties p = new Properties();
         try {
             ClassLoader loader = GreenfootScenarioMain.class.getClassLoader();
             InputStream is = loader.getResourceAsStream("standalone.properties");
-            
-            if (is == null && args.length == 3) {
+            if (is == null && (args.length == 3 || args.length == 4)) {
                 // This might happen if we are running from ant
                 // In that case we should have some command line arguments
                 p.put("project.name", args[0]);
@@ -135,7 +136,13 @@ public class GreenfootScenarioMain
                 if (f.canRead()) {
                     is = new FileInputStream(f);
                 }
-            } 
+                if (args.length == 4){
+                    p.put("scenario.hideControls", args[3]);
+                }else{
+                    p.put("scenario.hideControls", false);
+                }
+                
+            }
             
             if (is != null) {
                 p.load(is);

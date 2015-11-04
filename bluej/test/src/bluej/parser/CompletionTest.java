@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2014,2015  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -811,18 +811,21 @@ public class CompletionTest extends TestCase
         assertEquals("java.util.List<?>", suggests.getSuggestionType().toString());
         
         AssistContent [] assists = ParseUtils.getPossibleCompletions(suggests, new JavadocResolver() {
-            public void getJavadoc(MethodReflective method)
+            public String getJavadoc(String name) { throw new IllegalStateException(); }
+            
+            public void getJavadoc(ConstructorOrMethodReflective method)
             {
                 // We want to check that the return type has an erased type.
-                assertNotNull(method.getReturnType().getErasedType());
+                assertNotNull(((MethodReflective)method).getReturnType().getErasedType());
             }
-            
+
             @Override
-            public boolean getJavadocAsync(MethodReflective method,
+            public boolean getJavadocAsync(ConstructorOrMethodReflective method,
                     AsyncCallback callback, Executor executor)
             {
                 throw new RuntimeException("Not implemented in test stub.");
             }
+            
         }, null);
         
         for (AssistContent assist : assists) {
@@ -889,12 +892,20 @@ public class CompletionTest extends TestCase
         
         AssistContent[] acontent = ParseUtils.getPossibleCompletions(suggests, new JavadocResolver() {
             @Override
-            public void getJavadoc(MethodReflective method)
+            public void getJavadoc(ConstructorOrMethodReflective method)
             {
             }
             
+            
+
             @Override
-            public boolean getJavadocAsync(MethodReflective method,
+            public String getJavadoc(String typeName)
+            {
+                throw new RuntimeException("Not implemented in test stub.");
+            }
+
+            @Override
+            public boolean getJavadocAsync(ConstructorOrMethodReflective method,
                     AsyncCallback callback, Executor executor)
             {
                 throw new RuntimeException("Not implemented in test stub.");
@@ -1048,5 +1059,19 @@ public class CompletionTest extends TestCase
         assertEquals("java.lang.Runnable", suggests.getSuggestionType().toString());
     }
 
+    public void testRegression573() throws BadLocationException
+    {
+        // Exception when completing on invalid code:
+        
+        String aClassSrc =
+                "static int count = 0;\n";
 
+        PlainDocument doc = new PlainDocument();
+        doc.insertString(0, aClassSrc, null);
+        ParsedCUNode aNode = cuForSource(aClassSrc, "");
+        resolver.addCompilationUnit("", aNode);
+            
+        // In BlueJ 3.1.6 this throws a NullPointerException:
+        aNode.getExpressionType(13, doc);
+    }
 }

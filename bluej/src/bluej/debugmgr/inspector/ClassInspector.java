@@ -60,7 +60,7 @@ import bluej.utility.JavaNames;
  * 
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: ClassInspector.java 11261 2014-04-10 22:37:02Z fdlh $
+ * @version $Id: ClassInspector.java 11416 2014-05-08 16:26:15Z nccb $
  */
 public class ClassInspector extends Inspector
 {

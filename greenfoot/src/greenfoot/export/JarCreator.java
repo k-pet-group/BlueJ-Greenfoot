@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2013,2014  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2013,2014,2015  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -53,6 +53,7 @@ import java.util.zip.ZipOutputStream;
 
 import bluej.Boot;
 import bluej.Config;
+import bluej.extensions.SourceType;
 import bluej.pkgmgr.Project;
 import bluej.utility.BlueJFileReader;
 import bluej.utility.Debug;
@@ -65,7 +66,7 @@ import bluej.utility.FileUtility;
  */
 public class JarCreator
 {
-    private static final String SOURCE_SUFFIX = ".java";    
+    private static final String SOURCE_SUFFIX = "." + SourceType.Java.toString().toLowerCase();    
 
     /** Should source files be included in the jar? */
     private boolean includeSource;
@@ -125,6 +126,29 @@ public class JarCreator
         this.exportDir = exportDir;
         this.jarName = jarName;
         properties = new Properties();
+    }
+    
+    /**
+     * Export the class files for a project.
+     * 
+     * Convenience constructor that includes settings that are common for all
+     * projects and export types. This will exclude BlueJ metafiles.
+     * 
+     * @param project The project to be exported.
+     * @param exportDir The directory to export to.
+     * @param jarName Name of the jar file that should be created.
+     * @param worldClass Name of the main class.
+     * @param lockScenario Should the exported scenario include 'act'
+     *            and speedslider.
+     * @param hideControls Should the exported scenario include the controls panel
+     * @param applet Whether the export is for an applet on a webpage (true) or for a stand-alone JAR (false) 
+     */
+    public JarCreator(GProject project, File exportDir, String jarName, String worldClass, boolean lockScenario, boolean hideControls, boolean fullScreen, boolean applet) 
+    {   
+        this(project, exportDir, jarName, worldClass, lockScenario, applet);
+        properties.put("scenario.hideControls", "" + hideControls);
+        properties.put("scenario.fullScreen", "" + fullScreen);
+        
     }
 
     /**

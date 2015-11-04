@@ -29,7 +29,7 @@ import bluej.pkgmgr.PkgMgrFrame;
  * relation, modify the source to reflect the change.
  * 
  * @author Davin McCall.
- * @version $Id: RemoveAction.java 10678 2013-05-23 11:03:44Z nccb $
+ * @version $Id: RemoveAction.java 10751 2013-07-05 11:11:42Z nccb $
  */
 final public class RemoveAction extends PkgMgrAction
 {

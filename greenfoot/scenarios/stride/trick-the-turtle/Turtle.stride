@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<class name="Turtle" extends="Actor" enable="true" strideversion="1">
+    <javadoc xml:space="preserve">This class defines a turtle. Turtles like lettuce 
+(very yummy, especially the green ones).
+</javadoc>
+    <imports>
+        <import target="java.util.*" enable="true"/>
+        <import target="greenfoot.*" enable="true"/>
+        <import target="java.awt.Color" enable="true"/>
+        <import target="java.util.List" enable="true"/>
+        <import target="java.util.Set" enable="true"/>
+    </imports>
+    <implements/>
+    <fields>
+        <variable access="private" type="int" name="lettucesEaten" enable="true"/>
+    </fields>
+    <constructors>
+        <constructor access="public" enable="true">
+            <javadoc xml:space="preserve">Initialise the turtle</javadoc>
+            <params/>
+            <throws/>
+            <body>
+                <assign dest="lettucesEaten" dest-java="lettucesEaten" src="0" src-java="0" enable="true"/>
+            </body>
+        </constructor>
+    </constructors>
+    <methods>
+        <method access="public" type="void" name="act" enable="true">
+            <javadoc xml:space="preserve">Act - do whatever the turtle wants to do. This method is called whenever
+the 'Act' or 'Run' button gets pressed in the environment. </javadoc>
+            <params/>
+            <throws/>
+            <body>
+                <call expression="move(5)" expression-java="move(5)" enable="true"/>
+                <call expression="checkKeyPress()" expression-java="checkKeyPress()" enable="true"/>
+                <call expression="lookForLettuce()" expression-java="lookForLettuce()" enable="true"/>
+            </body>
+        </method>
+        <method access="public" type="void" name="checkKeyPress" enable="true">
+            <javadoc xml:space="preserve">Check whether a control key on the keyboard has been pressed.
+If it has, react accordingly.</javadoc>
+            <params/>
+            <throws/>
+            <body>
+                <if condition="Greenfoot.isKeyDown(&quot;right&quot;)" condition-java="Greenfoot.isKeyDown(&quot;right&quot;)" enable="true">
+                    <ifStatements>
+                        <call expression="turn(4)" expression-java="turn(4)" enable="true"/>
+                    </ifStatements>
+                </if>
+                <if condition="Greenfoot.isKeyDown(&quot;left&quot;)" condition-java="Greenfoot.isKeyDown(&quot;left&quot;)" enable="true">
+                    <ifStatements>
+                        <call expression="turn(-4)" expression-java="turn(-4)" enable="true"/>
+                    </ifStatements>
+                </if>
+            </body>
+        </method>
+        <method access="public" type="void" name="lookForLettuce" enable="true">
+            <javadoc xml:space="preserve">Check whether we have stumbled upon a worm.
+If we have, eat it. If not, do nothing. If we have eaten eight worms, we win.</javadoc>
+            <params/>
+            <throws/>
+            <body>
+                <if condition="isTouching(Lettuce.class)" condition-java="isTouching(Lettuce.class)" enable="true">
+                    <ifStatements>
+                        <call expression="removeTouching(Lettuce.class)" expression-java="removeTouching(Lettuce.class)" enable="true"/>
+                        <assign dest="lettucesEaten" dest-java="lettucesEaten" src="lettucesEaten+1" src-java="lettucesEaten + 1" enable="true"/>
+                        <call expression="getWorld().showText(&quot;Lettuces: &quot;+lettucesEaten,100,30)" expression-java="getWorld().showText(&quot;Lettuces: &quot; + lettucesEaten, 100, 30)" enable="true"/>
+                        <call expression="Greenfoot.playSound(&quot;slurp.wav&quot;)" expression-java="Greenfoot.playSound(&quot;slurp.wav&quot;)" enable="true"/>
+                    </ifStatements>
+                </if>
+            </body>
+        </method>
+    </methods>
+</class>

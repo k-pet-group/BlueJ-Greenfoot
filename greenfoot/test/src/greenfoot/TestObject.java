@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2014  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -75,12 +75,12 @@ public class TestObject extends Actor
         return getObjectsAtOffset(dx, dy, cls);
     }
 
-    public Actor getOneIntersectingObjectP(Class<?> cls)
+    public Actor getOneIntersectingObjectP(Class<? extends Actor> cls)
     {
        return getOneIntersectingObject(cls);
     }
 
-    public Actor getOneObjectAtP(int dx, int dy, Class<?> cls)
+    public Actor getOneObjectAtP(int dx, int dy, Class<? extends Actor> cls)
     {
         return getOneObjectAtOffset(dx, dy, cls);
     }

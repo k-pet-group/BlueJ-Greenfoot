@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2014,2015  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -30,6 +30,7 @@ import bluej.extensions.ClassNotFoundException;
 import bluej.extensions.CompilationNotStartedException;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
+import bluej.extensions.SourceType;
 import bluej.extensions.editor.Editor;
 
 /**
@@ -40,46 +41,46 @@ import bluej.extensions.editor.Editor;
 public interface RClass
     extends java.rmi.Remote
 {
-    public abstract void compile(boolean waitCompileEnd, boolean forceQuiet)
+    void compile(boolean waitCompileEnd, boolean forceQuiet)
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException, CompilationNotStartedException;
 
-    public abstract void edit()
+    void edit()
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException;
-    
+
     /**
      * Closes the editor (sets the editor to not visible)
      * @throws ProjectNotOpenException   if the project has been closed
      * @throws PackageNotFoundException  if the package has been removed
      * @throws RemoteException           if a remote exception occurs
      */
-    public abstract void closeEditor()
+    void closeEditor()
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException;
     
-    public abstract void insertAppendMethod(String comment, String access, String methodName, String methodBody, boolean showEditorOnCreate, boolean showEditorOnAppend)
+    void insertAppendMethod(String method, boolean showEditorOnCreate, boolean showEditorOnAppend)
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException;
 
-    public abstract void insertMethodCallInConstructor(String methodName, boolean showEditor)
+    void insertMethodCallInConstructor(String methodCall, boolean showEditor)
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException;
     
-    public abstract RConstructor getConstructor(Class<?>[] signature)
+    RConstructor getConstructor(Class<?>[] signature)
         throws ProjectNotOpenException, ClassNotFoundException, RemoteException;
 
-    public abstract RConstructor[] getConstructors()
+    RConstructor[] getConstructors()
         throws ProjectNotOpenException, ClassNotFoundException, RemoteException;
 
-    public abstract BMethod getDeclaredMethod(String methodName, Class<?>[] params)
+    BMethod getDeclaredMethod(String methodName, Class<?>[] params)
         throws ProjectNotOpenException, ClassNotFoundException, RemoteException;
 
-    public abstract BMethod[] getDeclaredMethods()
+    BMethod[] getDeclaredMethods()
         throws ProjectNotOpenException, ClassNotFoundException, RemoteException;
 
-    public abstract RField getField(String fieldName)
+    RField getField(String fieldName)
         throws ProjectNotOpenException, ClassNotFoundException, RemoteException;
 
-    public abstract BField[] getFields()
+    BField[] getFields()
         throws ProjectNotOpenException, ClassNotFoundException, RemoteException;
 
-    public abstract RPackage getPackage()
+    RPackage getPackage()
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException;
 
     /**
@@ -88,20 +89,20 @@ public interface RClass
      * @param inRemoteCallback  whether this method is being called from a method which was itself invoked
      *                          by a callback from this virtual machine, which blocks the dispatch thread.
      */
-    public abstract RClass getSuperclass(boolean inRemoteCallback)
+    RClass getSuperclass(boolean inRemoteCallback)
         throws ProjectNotOpenException, PackageNotFoundException, ClassNotFoundException, RemoteException;
 
-    public abstract boolean isCompiled(boolean inRemoteCallback)
+    boolean isCompiled(boolean inRemoteCallback)
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException;
 
-    public abstract String getQualifiedName()
+    String getQualifiedName()
         throws RemoteException;
 
   
-    public File getJavaFile()
+    File getJavaFile()
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException;
 
-    public abstract void remove()
+    void remove()
         throws ProjectNotOpenException, PackageNotFoundException, ClassNotFoundException, RemoteException;
 
     /**
@@ -109,24 +110,30 @@ public interface RClass
      * 
      * @see Editor#setReadOnly(boolean)
      */
-    public abstract void setReadOnly(boolean b)
+    void setReadOnly(boolean b)
         throws RemoteException, ProjectNotOpenException, PackageNotFoundException ;
 
     /**
      * Show a message in the editor status area for this class.
      */
-    public abstract void showMessage(String message)
+    void showMessage(String message)
         throws RemoteException, ProjectNotOpenException, PackageNotFoundException;
 
     /**
      * Check whether this class has a source file.
      */
-    public abstract boolean hasSourceCode()
+    SourceType getSourceType()
         throws RemoteException, ProjectNotOpenException, PackageNotFoundException;
-
+    
     /**
      * Auto-indents the code for this class.
      */
-    public abstract void autoIndent()
+    void autoIndent()
         throws RemoteException, ProjectNotOpenException, PackageNotFoundException;
+
+    void removeStrideFile()
+        throws ProjectNotOpenException, PackageNotFoundException, ClassNotFoundException, RemoteException;
+
+    void cancelFreshState()
+        throws ProjectNotOpenException, PackageNotFoundException, RemoteException;
 }

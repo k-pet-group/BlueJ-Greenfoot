@@ -21,6 +21,7 @@
  */
 package bluej.pkgmgr.target;
 
+
 import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Paint;
@@ -33,15 +34,23 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+
+import javafx.application.Platform;
 
 import javax.swing.AbstractAction;
 import javax.swing.JPopupMenu;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
 import bluej.Config;
 import bluej.collect.DataCollector;
 import bluej.compiler.CompileObserver;
@@ -51,10 +60,12 @@ import bluej.debugger.gentype.Reflective;
 import bluej.debugmgr.objectbench.InvokeListener;
 import bluej.editor.Editor;
 import bluej.editor.EditorManager;
+import bluej.editor.stride.FrameEditor;
 import bluej.extensions.BClass;
 import bluej.extensions.BClassTarget;
 import bluej.extensions.BDependency;
 import bluej.extensions.ExtensionBridge;
+import bluej.extensions.SourceType;
 import bluej.extensions.event.ClassEvent;
 import bluej.extensions.event.ClassTargetEvent;
 import bluej.extmgr.ClassExtensionMenu;
@@ -70,6 +81,7 @@ import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.nodes.ParsedTypeNode;
 import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
+import bluej.pkgmgr.JavadocResolver;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
@@ -157,7 +169,7 @@ public class ClassTarget extends DependentTarget
     private int ghostHeight;
     private boolean isDragging = false;
     private boolean isMoveable = true;
-    private boolean hasSource;
+    private SourceType sourceAvailable;
     
     // Whether the source has been modified since it was last compiled. This
     // starts off as "true", which is a lie, but it prevents setting breakpoints
@@ -190,7 +202,7 @@ public class ClassTarget extends DependentTarget
     public ClassTarget(Package pkg, String baseName, String template)
     {
         super(pkg, baseName);
-        hasSource = getSourceFile().canRead();
+        calcSourceAvailable();
 
         // we can take a guess at what the role is going to be for the
         // object based on the start of the template name. If we get this
@@ -219,9 +231,20 @@ public class ClassTarget extends DependentTarget
         setGhostPosition(0, 0);
         setGhostSize(0, 0);
     }
+    
+    private void calcSourceAvailable()
+    {
+        if (getFrameSourceFile().canRead())
+            sourceAvailable = SourceType.Stride;
+        else if (getJavaSourceFile().canRead())
+            sourceAvailable = SourceType.Java;
+        else
+            sourceAvailable = SourceType.NONE;
+    }
 
     private BClass singleBClass;  // Every Target has none or one BClass
     private BClassTarget singleBClassTarget; // Every Target has none or one BClassTarget
+    private boolean knownError;
     
     /**
      * Return the extensions BProject associated with this Project.
@@ -306,9 +329,10 @@ public class ClassTarget extends DependentTarget
         
         // Not compiled; try to get a reflective from the parser
         ParsedCUNode node = null;
-        getEditor();
+        // TODO turn this back on once we fix race hazards:
+        //getEditor();
         if (editor != null) {
-            node = editor.getParsedNode();
+            node = editor.assumeText().getParsedNode();
         }
         
         if (node != null) {
@@ -357,6 +381,23 @@ public class ClassTarget extends DependentTarget
         if (state != newState) {
             getPackage().getProject().removeInspectorInstance(getQualifiedName());
             
+            if (newState == S_COMPILING)
+            {
+                knownError = false;
+                if (getSourceType() == SourceType.Stride)
+                    getEditor(); // Open the editor (doesn't show anything, but allows access to source)
+                if (editor != null)
+                {
+                    if (editor.compileStarted())
+                        markKnownError();
+                }
+            }
+            else
+            {
+                if (editor != null)
+                    editor.compileFinished(newState == S_NORMAL);
+            }
+            
             // Notify extensions if necessary. Note we don't distinguish
             // S_COMPILING and S_INVALID.
             if (newState == S_NORMAL) {
@@ -364,11 +405,11 @@ public class ClassTarget extends DependentTarget
                 if (editor != null) {
                     editor.reInitBreakpoints();
                 }
-                ClassEvent event = new ClassEvent(ClassEvent.STATE_CHANGED, getPackage(), getBClass(), true);
+                ClassEvent event = new ClassEvent(ClassEvent.STATE_CHANGED, getPackage(), getBClass(), true, false);
                 ExtensionsManager.getInstance().delegateEvent(event);
             }
-            else if (state == S_NORMAL) {
-                ClassEvent event = new ClassEvent(ClassEvent.STATE_CHANGED, getPackage(), getBClass(), false);
+            else if (state == S_NORMAL || newState == S_INVALID) {
+                ClassEvent event = new ClassEvent(ClassEvent.STATE_CHANGED, getPackage(), getBClass(), false, hasKnownError());
                 ExtensionsManager.getInstance().delegateEvent(event);
             }
             
@@ -667,8 +708,8 @@ public class ClassTarget extends DependentTarget
      */
     public void reload()
     {
-        hasSource = getSourceFile().canRead();
-        if (hasSource) {
+        calcSourceAvailable();
+        if (sourceAvailable != SourceType.NONE) {
             if (editor != null) {
                 editor.reloadFile();
             }
@@ -692,7 +733,7 @@ public class ClassTarget extends DependentTarget
         File clss = getClassFile();
 
         // if just a .class file with no src, it better be up to date
-        if (!hasSourceCode()) {
+        if (sourceAvailable == SourceType.NONE) {
             return true;
         }
 
@@ -789,15 +830,50 @@ public class ClassTarget extends DependentTarget
      */
     public boolean hasSourceCode()
     {
-        return hasSource;
+        return sourceAvailable != SourceType.NONE;
+    }
+    
+    public SourceType getSourceType()
+    {
+        return sourceAvailable;
     }
 
     /**
-     * @return the name of the (text) file this target corresponds to.
+     * @return the name of the Java file this target corresponds to.
      */
+    public File getJavaSourceFile()
+    {
+        return new File(getPackage().getPath(), getBaseName() + "." + SourceType.Java.toString().toLowerCase());
+    }
+    
+    /**
+     * @return the name of the Java file this target corresponds to.
+     */
+    public File getFrameSourceFile()
+    {
+        return new File(getPackage().getPath(), getBaseName() + "." + SourceType.Stride.toString().toLowerCase());
+    }
+    
+    @SuppressWarnings("incomplete-switch")
+    @Override
     public File getSourceFile()
     {
-        return new File(getPackage().getPath(), getBaseName() + ".java");
+        switch (sourceAvailable)
+        {
+            case Java: return getJavaSourceFile();
+            case Stride: return getFrameSourceFile();
+        }
+        return null;
+    }
+    
+    public Collection<File> getAllSourceFiles()
+    {
+        List<File> list = new ArrayList<File>();
+        list.add(getJavaSourceFile());
+        if (sourceAvailable.equals(SourceType.Stride)) {
+            list.add(getFrameSourceFile());
+        }
+        return list;
     }
 
     /**
@@ -838,6 +914,7 @@ public class ClassTarget extends DependentTarget
     /**
      * Description of the Class
      */
+    @OnThread(value = Tag.Swing, ignoreParent = true)
     class InnerClassFileFilter
         implements FileFilter
     {
@@ -847,6 +924,7 @@ public class ClassTarget extends DependentTarget
          * @param pathname Description of the Parameter
          * @return Description of the Return Value
          */
+        @Override
         public boolean accept(File pathname)
         {
             return pathname.getName().startsWith(getBaseName() + "$");
@@ -858,6 +936,9 @@ public class ClassTarget extends DependentTarget
      * @return the editor object associated with this target. May be null if
      *         there was a problem opening this editor.
      */
+    @Override
+    // TODO should be Swing_WaitsForFX
+    @OnThread(Tag.Swing)
     public Editor getEditor()
     {
         return getEditor(openWithInterface);
@@ -871,24 +952,26 @@ public class ClassTarget extends DependentTarget
      * @return the editor object associated with this target. May be null if
      *         there was a problem opening this editor.
      */
-    private Editor getEditor(boolean showInterface)
+    // TODO should be Swing_WaitsForFX
+    @OnThread(Tag.Swing)
+    private Editor getEditor(boolean showInterface) // TODO remove the ignoreParent = true, and tag calls properly
     {
         // ClassTarget must have source code if it is to provide an editor
         if (editor == null) {
             String filename = getSourceFile().getPath();
             String docFilename = getPackage().getProject().getDocumentationFile(filename);
-            if (! hasSourceCode()) {
+            if (sourceAvailable == SourceType.NONE) {
                 filename = null; // no source - show docs only
                 showInterface = true;
                 if (! new File(docFilename).exists()) {
                     return null;
                 }
             }
-            
+
             Project project = getPackage().getProject();
             EntityResolver resolver = new PackageResolver(project.getEntityResolver(),
                     getPackage().getQualifiedName());
-            
+
             if (editorBounds == null) {
                 PkgMgrFrame frame = PkgMgrFrame.findFrame(getPackage());
                 if (frame != null) {
@@ -897,17 +980,35 @@ public class ClassTarget extends DependentTarget
                     editorBounds.y = frame.getY() + 20;
                 }
             }
-            
-            editor = EditorManager.getEditorManager().openClass(filename, docFilename,
-                    project.getProjectCharset(),
-                    getBaseName() + " - " + project.getProjectName(), this, isCompiled(), editorBounds, resolver,
-                    project.getJavadocResolver());
-            
-            // editor may be null if source has been deleted
+
+            if (sourceAvailable == SourceType.Java)
+                editor = EditorManager.getEditorManager().openClass(filename, docFilename,
+                        project.getProjectCharset(),
+                        getBaseName(), project.getSwingTabbedEditor(), this, isCompiled(), resolver,
+                        project.getJavadocResolver());
+                else if (sourceAvailable == SourceType.Stride)
+                {
+                    final CompletableFuture<Editor> q = new CompletableFuture<>();
+                    // need to pull some parameters out while on the Swing thread:
+                    File frameSourceFile = getFrameSourceFile();
+                    File javaSourceFile = getJavaSourceFile();
+                    JavadocResolver javadocResolver = project.getJavadocResolver();
+                    Package pkg = getPackage();
+                    Platform.runLater(() -> {
+                        q.complete(new FrameEditor(project.getFXTabbedEditor(), frameSourceFile, javaSourceFile, this, resolver, javadocResolver, pkg));
+                    });
+
+                    try {
+                        editor = q.get();
+                    } catch (InterruptedException | ExecutionException e) {
+                        Debug.reportError(e);
+                    }
+                }
+                // editor may be null if source has been deleted
             // for example.
             if (editor != null) {
                 editor.showInterface(showInterface);
-            }           
+            }
         }
         return editor;
     }
@@ -941,6 +1042,7 @@ public class ClassTarget extends DependentTarget
             int state = 0;
             DebuggerClass clss;
             
+            @SuppressWarnings("incomplete-switch")
             @Override
             public void run() {
                 switch (state) {
@@ -970,7 +1072,10 @@ public class ClassTarget extends DependentTarget
         invalidate();
         if (! modifiedSinceCompile) {
             removeBreakpoints();
-            getPackage().getProject().getDebugger().removeBreakpointsForClass(getQualifiedName());
+            if (getPackage().getProject().getDebugger() != null)
+            {
+                getPackage().getProject().getDebugger().removeBreakpointsForClass(getQualifiedName());
+            }
             modifiedSinceCompile = true;
         }
         sourceInfo.setSourceModified();
@@ -991,6 +1096,7 @@ public class ClassTarget extends DependentTarget
     {
         if (isCompiled() || ! modifiedSinceCompile) {
             String possibleError = getPackage().getDebugger().toggleBreakpoint(getQualifiedName(), lineNo, set, null);
+            Debug.message("Setting breakpoint: " + getQualifiedName() + ":" + lineNo);
             
             if (possibleError == null && getPackage() != null)
             {
@@ -1002,6 +1108,12 @@ public class ClassTarget extends DependentTarget
         else {
             return Config.getString("pkgmgr.breakpointMsg");
         }
+    }
+    
+    @Override
+    public void clearAllBreakpoints()
+    {
+        getPackage().getDebugger().removeBreakpointsForClass(getQualifiedName());
     }
 
     // --- end of EditorWatcher interface ---
@@ -1057,16 +1169,36 @@ public class ClassTarget extends DependentTarget
     public void compile(final Editor editor)
     {
         if (Config.isGreenfoot()) {
-            // In Greenfoot compiling always compiles the whole package, and at least
+            //In Greenfoot compiling always compiles the whole package, and at least
             // compiles this target:
             setState(S_INVALID);
-            getPackage().compile();
+
+            // Even though we do a package compile, we must let the editor know when
+            // the compile finishes, so that it updates its status correctly:
+            getPackage().compile(new CompileObserver() {
+                
+                @Override
+                public void startCompile(File[] sources)
+                {
+                }
+                
+                @Override
+                public void endCompile(File[] sources, boolean successful)
+                {
+                    editor.compileFinished(successful);
+                }
+                
+                @Override
+                public boolean compilerMessage(Diagnostic diagnostic) { return false; }
+            });
         }
         else {
             getPackage().compile(this, false, new CompileObserver() {
                 
                 @Override
-                public void startCompile(File[] sources) {}
+                public void startCompile(File[] sources)
+                {
+                }
 
                 @Override
                 public boolean compilerMessage(Diagnostic diagnostic) { return false; }
@@ -1110,7 +1242,7 @@ public class ClassTarget extends DependentTarget
             if (success) {
                 // skeleton successfully generated
                 setState(S_INVALID);
-                hasSource = true;
+                sourceAvailable = SourceType.Java;
                 return true;
             }
             return false;
@@ -1210,7 +1342,7 @@ public class ClassTarget extends DependentTarget
 
         analysing = true;
 
-        ClassInfo info = sourceInfo.getInfo(getSourceFile(), getPackage());
+        ClassInfo info = sourceInfo.getInfo(getJavaSourceFile(), getPackage());
 
         // info will be null if the source was unparseable
         if (info != null) {
@@ -1343,7 +1475,7 @@ public class ClassTarget extends DependentTarget
 
         // check for inconsistent use dependencies
         for (Iterator<UsesDependency> it = usesDependencies(); it.hasNext();) {
-            UsesDependency usesDep = ((UsesDependency) it.next());
+            UsesDependency usesDep = it.next();
             if (!usesDep.isFlagged()) {
                 getPackage().setStatus(usesArrowMsg + usesDep);
             }
@@ -1431,7 +1563,7 @@ public class ClassTarget extends DependentTarget
             return false;
         }
 
-        File newSourceFile = new File(getPackage().getPath(), newName + ".java");
+        File newSourceFile = new File(getPackage().getPath(), newName + "." + getSourceType().toString().toLowerCase());
         File oldSourceFile = getSourceFile();
         
         try {
@@ -1440,10 +1572,21 @@ public class ClassTarget extends DependentTarget
             getPackage().updateTargetIdentifier(this, getIdentifierName(), newName);
             
             String filename = newSourceFile.getAbsolutePath();
-            String docFilename = getPackage().getProject().getDocumentationFile(filename);
-            getEditor().changeName(newName, filename, docFilename);
+            String javaFilename;
+            if (getSourceType().equals(SourceType.Stride)) {
+                final File javaFile = new File(getPackage().getPath(), newName + "." + SourceType.Java.toString().toLowerCase());
+                javaFilename = javaFile.getAbsolutePath();
 
-            oldSourceFile.delete();
+                // Also copy the Java file across:
+                FileUtility.copyFile(getJavaSourceFile(), javaFile);
+            }
+            else {
+                javaFilename = filename;
+            }
+            String docFilename = getPackage().getProject().getDocumentationFile(javaFilename);
+            getEditor().changeName(newName, filename, javaFilename, docFilename);
+
+            deleteSourceFiles();
             getClassFile().delete();
             getContextFile().delete();
             getDocumentationFile().delete();
@@ -1488,6 +1631,14 @@ public class ClassTarget extends DependentTarget
         catch (IOException ioe) {
             return false;
         }
+    }
+
+    private void deleteSourceFiles()
+    {
+        if (getSourceType().equals(SourceType.Stride)) {
+            getJavaSourceFile().delete();
+        }
+        getSourceFile().delete();
     }
 
     /**
@@ -1581,7 +1732,7 @@ public class ClassTarget extends DependentTarget
             if (cl == null) {
                 // trouble loading the class
                 // remove the class file and invalidate the target
-                if (hasSourceCode()) {
+                if (sourceAvailable != SourceType.NONE) {
                     getClassFile().delete();
                     invalidate();
                 }
@@ -1627,9 +1778,8 @@ public class ClassTarget extends DependentTarget
                 menu.addSeparator();
             }
         }
-        boolean sourceOrDocExists = hasSourceCode() || getDocumentationFile().exists();
+        boolean sourceOrDocExists = sourceAvailable != SourceType.NONE || getDocumentationFile().exists();
         role.addMenuItem(menu, new EditAction(), sourceOrDocExists);
-        role.addMenuItem(menu, new CompileAction(), hasSourceCode());
         role.addMenuItem(menu, new InspectAction(), cl != null);
         role.addMenuItem(menu, new RemoveAction(), true);
 
@@ -1698,23 +1848,6 @@ public class ClassTarget extends DependentTarget
         public void actionPerformed(ActionEvent e)
         {
             open();
-        }
-    }
-
-    /**
-     * Action to compile a classtarget
-     */
-    private class CompileAction extends AbstractAction
-    {
-        public CompileAction()
-        {
-            putValue(NAME, compileStr);
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e)
-        {
-            getPackage().compile(ClassTarget.this);
         }
     }
 
@@ -1930,7 +2063,7 @@ public class ClassTarget extends DependentTarget
         removeAllInDependencies();
         removeAllOutDependencies();
 
-        // remove associated files (.class, .java and .ctxt)
+        // remove associated files (.frame, .class, .java and .ctxt)
         prepareFilesForRemoval();
     }
 
@@ -1975,6 +2108,27 @@ public class ClassTarget extends DependentTarget
         // We must remove after the above, because it might involve saving, 
         // and thus recording edits to the file
         DataCollector.removeClass(pkg, srcFile);
+    }
+    
+    public void removeStride()
+    {
+        if(editor != null) {
+            editor.close();
+            try {
+                editor.saveJavaWithoutWarning();
+            } catch (IOException e) {
+                Debug.reportError(e);
+            }
+            editor = null;
+        }
+
+        File srcFile = getSourceFile();
+        if (srcFile.exists()) {
+            srcFile.delete();
+        }
+        sourceAvailable = SourceType.Java;
+
+        DataCollector.ConvertStrideToJava(getPackage(), srcFile);
     }
 
     @Override
@@ -2049,7 +2203,7 @@ public class ClassTarget extends DependentTarget
     @Override
     public String getProperty(String key) 
     {
-        return (String)properties.get(key);
+        return properties.get(key);
     }
 
     /**
@@ -2076,5 +2230,25 @@ public class ClassTarget extends DependentTarget
     {
         DataCollector.edit(getPackage(), getSourceFile(), latest, includeOneLineEdits);
     }
-   
+
+    public File getCompileInputFile()
+    {
+        return getJavaSourceFile();
+    }
+
+    public void markKnownError()
+    {
+        knownError = true;
+    }
+    
+    public boolean hasKnownError()
+    {
+        return knownError;
+    }
+
+//    @Override
+//    public void changedName(String oldName, String newName)
+//    {
+//        doClassNameChange(newName);
+//    }
 }

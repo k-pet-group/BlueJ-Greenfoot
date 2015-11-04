@@ -30,6 +30,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -40,29 +41,39 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import javax.swing.SwingUtilities;
+
+import threadchecker.OnThread;
+import threadchecker.Tag;
 import bluej.Config;
 import bluej.collect.DataCollectionCompileObserverWrapper;
 import bluej.collect.DataCollector;
 import bluej.compiler.CompileObserver;
 import bluej.compiler.Diagnostic;
-import bluej.compiler.EventqueueCompileObserver;
+import bluej.compiler.EDTCompileObserver;
+import bluej.compiler.EventqueueCompileObserverAdapter;
 import bluej.compiler.JobQueue;
 import bluej.debugger.Debugger;
+import bluej.debugger.DebuggerEvent;
+import bluej.debugger.DebuggerListener;
 import bluej.debugger.DebuggerThread;
 import bluej.debugger.ExceptionDescription;
 import bluej.debugger.SourceLocation;
 import bluej.debugmgr.CallHistory;
 import bluej.debugmgr.Invoker;
 import bluej.editor.Editor;
+import bluej.editor.TextEditor;
 import bluej.extensions.BDependency;
 import bluej.extensions.BPackage;
 import bluej.extensions.ExtensionBridge;
+import bluej.extensions.SourceType;
 import bluej.extensions.event.CompileEvent;
 import bluej.extensions.event.DependencyEvent;
 import bluej.extmgr.ExtensionsManager;
 import bluej.graph.Edge;
 import bluej.graph.Graph;
 import bluej.parser.AssistContent;
+import bluej.parser.AssistContent.CompletionKind;
 import bluej.parser.CodeSuggestions;
 import bluej.parser.ParseUtils;
 import bluej.parser.nodes.ParsedCUNode;
@@ -87,6 +98,8 @@ import bluej.utility.FileUtility;
 import bluej.utility.JavaNames;
 import bluej.utility.MultiIterator;
 import bluej.utility.SortedProperties;
+import bluej.utility.Utility;
+import bluej.utility.filefilter.FrameSourceFilter;
 import bluej.utility.filefilter.JavaClassFilter;
 import bluej.utility.filefilter.JavaSourceFilter;
 import bluej.utility.filefilter.SubPackageFilter;
@@ -202,6 +215,9 @@ public final class Package extends Graph
 
     private PackageEditor editor;
     
+    /** True if we currently have a compile queued up waiting for debugger to become idle */
+    private boolean waitingForIdleToCompile = false; 
+    
     /** File pointing at the directory for this package */
     private File dir;
 
@@ -257,6 +273,7 @@ public final class Package extends Graph
         load();
     }
 
+    @OnThread(Tag.Any)
     public boolean isUnnamedPackage()
     {
         return parentPackage == null;
@@ -265,6 +282,7 @@ public final class Package extends Graph
     /**
      * Return the project this package belongs to.
      */
+    @OnThread(Tag.Any)
     public Project getProject()
     {
         return project;
@@ -277,6 +295,7 @@ public final class Package extends Graph
      * There should be only one BPackage object associated with each Package.
      * @return the BPackage associated with this Package.
      */
+    @OnThread(Tag.Any)
     public synchronized final BPackage getBPackage ()
     {
         if ( singleBPackage == null )
@@ -298,6 +317,7 @@ public final class Package extends Graph
     /**
      * Return this package's base name (eg util) ("" for the unnamed package)
      */
+    @OnThread(Tag.Any)
     public String getBaseName()
     {
         return baseName;
@@ -307,6 +327,7 @@ public final class Package extends Graph
      * Return the qualified name of an identifier in this package (eg
      * java.util.Random if given Random)
      */
+    @OnThread(Tag.Any)
     public String getQualifiedName(String identifier)
     {
         if (isUnnamedPackage())
@@ -319,6 +340,7 @@ public final class Package extends Graph
      * Return the qualified name of the package (eg. java.util) ("" for the
      * unnamed package)
      */
+    @OnThread(Tag.Any)
     public String getQualifiedName()
     {
         Package currentPkg = this;
@@ -385,6 +407,7 @@ public final class Package extends Graph
     /**
      * Return our parent package or null if we are the unnamed package.
      */
+    @OnThread(Tag.Any)
     public Package getParent()
     {
         return parentPackage;
@@ -471,6 +494,7 @@ public final class Package extends Graph
         this.editor = editor;
     }
     
+    @OnThread(Tag.Any)
     public PackageEditor getEditor()
     {
         return editor;
@@ -574,19 +598,20 @@ public final class Package extends Graph
      */
     private Set<String> findTargets(File path)
     {
-        File srcFiles[] = path.listFiles(new JavaSourceFilter());
+        File javaSrcFiles[] = path.listFiles(new JavaSourceFilter());
+        File frameSrcFiles[] = path.listFiles(new FrameSourceFilter());
         File classFiles[] = path.listFiles(new JavaClassFilter());
 
         Set<String> interestingSet = new HashSet<String>();
 
         // process all *.java files
-        for (int i = 0; i < srcFiles.length; i++) {
+        for (int i = 0; i < javaSrcFiles.length; i++) {
             // remove all __SHELL*.java files (temp files created by us)
-            if (srcFiles[i].getName().startsWith(Invoker.SHELLNAME)) {
-                srcFiles[i].delete();
+            if (javaSrcFiles[i].getName().startsWith(Invoker.SHELLNAME)) {
+                javaSrcFiles[i].delete();
                 continue;
             }
-            String javaFileName = JavaNames.stripSuffix(srcFiles[i].getName(), ".java");
+            String javaFileName = JavaNames.stripSuffix(javaSrcFiles[i].getName(), "." + SourceType.Java.toString().toLowerCase());
 
             // check if the name would be a valid java name
             if (!JavaNames.isIdentifier(javaFileName))
@@ -597,6 +622,17 @@ public final class Package extends Graph
             if (javaFileName.indexOf('$') == -1)
                 interestingSet.add(javaFileName);
         }
+        
+        for (int i = 0; i < frameSrcFiles.length; i++) {
+            String frameFileName = JavaNames.stripSuffix(frameSrcFiles[i].getName(), "." + SourceType.Stride.toString().toLowerCase());
+
+            // check if the name would be a valid java name
+            if (!JavaNames.isIdentifier(frameFileName))
+                continue;
+            
+            interestingSet.add(frameFileName);
+        }
+
 
         // process all *.class files
         for (int i = 0; i < classFiles.length; i++) {
@@ -1087,7 +1123,7 @@ public final class Package extends Graph
         String fileName = aFile.getName();
 
         String className;
-        if (fileName.endsWith(".java")) // it's a Java source file
+        if (fileName.endsWith("." + SourceType.Java.toString().toLowerCase())) // it's a Java source file
             className = fileName.substring(0, fileName.length() - 5);
         else
             return ILLEGAL_FORMAT;
@@ -1197,10 +1233,11 @@ public final class Package extends Graph
 
         return l;
     }
-
+    
     /**
      * The standard compile user function: Find and compile all uncompiled
      * classes.
+     * @param observer 
      */
     public void compile(CompileObserver compObserver)
     {
@@ -1223,9 +1260,12 @@ public final class Package extends Graph
                 }
             }
 
-            project.removeClassLoader();
-            project.newRemoteClassLoaderLeavingBreakpoints();
-            doCompile(toCompile, new PackageCompileObserver(compObserver));
+            if (!toCompile.isEmpty())
+            {
+                project.removeClassLoader();
+                project.newRemoteClassLoaderLeavingBreakpoints();
+                doCompile(toCompile, new PackageCompileObserver(compObserver));
+            }
         }
         catch (IOException ioe) {
             // Abort compile
@@ -1284,11 +1324,8 @@ public final class Package extends Graph
             project.removeClassLoader();
             project.newRemoteClassLoaderLeavingBreakpoints();
 
-            // Clear-down the compiler Warning dialog box singleton
-            bluej.compiler.CompilerWarningDialog.getDialog().reset();
-
             if (ct != null) {
-                CompileObserver observer;
+                EDTCompileObserver observer;
                 if (forceQuiet) {
                     observer = new QuietPackageCompileObserver(compObserver);
                 } else {
@@ -1349,13 +1386,13 @@ public final class Package extends Graph
                     i.remove();
                 }
             }
-            project.removeClassLoader();
-            project.newRemoteClassLoader();
-            
-            // Clear-down the compiler Warning dialog box singleton
-            bluej.compiler.CompilerWarningDialog.getDialog().reset();
+            if (!compileTargets.isEmpty())
+            {
+                project.removeClassLoader();
+                project.newRemoteClassLoader();
 
-            doCompile(compileTargets, new PackageCompileObserver(null));
+                doCompile(compileTargets, new PackageCompileObserver(null));
+            }
         }
         catch (IOException ioe) {
             showMessageWithText("file-save-error-before-compile", ioe.getLocalizedMessage());
@@ -1386,7 +1423,7 @@ public final class Package extends Graph
     /**
      * Compile a class together with its dependencies, as necessary.
      */
-    private void searchCompile(ClassTarget t, CompileObserver observer)
+    private void searchCompile(ClassTarget t, EDTCompileObserver observer)
     {
         if (! t.isInvalidState() || t.isQueued()) {
             return;
@@ -1436,22 +1473,20 @@ public final class Package extends Graph
      * Compile every Target in 'targetList'. Every compilation goes through this method.
      * All targets in the list should have been saved beforehand.
      */
-    private void doCompile(Collection<ClassTarget> targetList, CompileObserver observer)
+    private void doCompile(Collection<ClassTarget> targetList, EDTCompileObserver edtObserver)
     {
-        observer = new EventqueueCompileObserver(observer);
+        CompileObserver observer = new EventqueueCompileObserverAdapter(new DataCollectionCompileObserverWrapper(project, edtObserver));
         if (targetList.isEmpty()) {
             return;
         }
 
-        File[] srcFiles = new File[targetList.size()];
-        
-        int i = 0;
-        for (ClassTarget ct : targetList) {
-            srcFiles[i++] = ct.getSourceFile();
-        }
-        
-        JobQueue.getJobQueue().addJob(srcFiles, new DataCollectionCompileObserverWrapper(project, observer), project.getClassLoader(), project.getProjectDir(),
+        List<File> srcFiles = Utility.mapList(targetList, ClassTarget::getCompileInputFile);
+               
+        if (srcFiles.size() > 0)
+        {
+            JobQueue.getJobQueue().addJob(srcFiles.toArray(new File[0]), observer, project.getClassLoader(), project.getProjectDir(),
                 ! PrefMgr.getFlag(PrefMgr.SHOW_UNCHECKED), project.getProjectCharset());
+        }
     }
 
     /**
@@ -1475,6 +1510,36 @@ public final class Package extends Graph
         // The debugger is NOT idle, show a message about it.
         showMessage("compile-while-executing");
         return false;
+    }
+    
+    /**
+     * Compile the package, but only when the debugger is in an idle state.
+     */
+    public void compileOnceIdle()
+    {
+        if (isDebuggerIdle())
+        {
+            compile();
+        }
+        else if (!waitingForIdleToCompile)
+        {
+            waitingForIdleToCompile = true;
+            // No lambda as we need to also remove:
+            getDebugger().addDebuggerListener(new DebuggerListener() {
+                @Override
+                public void processDebuggerEvent(DebuggerEvent e, boolean skipUpdate)
+                {
+                    if (e.getNewState() == Debugger.IDLE)
+                    {
+                        getDebugger().removeDebuggerListener(this);
+                        // We call compileOnceIdle, not compile, because we might not still be idle
+                        // by the time we run on the Swing thread, so we may have to do the whole
+                        // thing again:
+                        SwingUtilities.invokeLater(() -> { waitingForIdleToCompile = false; compileOnceIdle(); });
+                    }
+                }
+            });
+        }
     }
 
     /**
@@ -1624,7 +1689,7 @@ public final class Package extends Graph
     {
         ClassTarget from = (ClassTarget) d.getFrom(); // a class
         ClassTarget to = (ClassTarget) d.getTo(); // an interface
-        Editor ed = from.getEditor();
+        TextEditor ed = from.getEditor().assumeText();
         try {
             ed.save();
             
@@ -1668,7 +1733,7 @@ public final class Package extends Graph
     {
         ClassTarget from = (ClassTarget) d.getFrom(); // an interface
         ClassTarget to = (ClassTarget) d.getTo(); // an interface
-        Editor ed = from.getEditor();
+        TextEditor ed = from.getEditor().assumeText();
         try {
             ed.save();
 
@@ -1713,7 +1778,7 @@ public final class Package extends Graph
     {
         ClassTarget from = (ClassTarget) d.getFrom();
         ClassTarget to = (ClassTarget) d.getTo();
-        Editor ed = from.getEditor();
+        TextEditor ed = from.getEditor().assumeText();
         try {
             ed.save();
 
@@ -1753,7 +1818,7 @@ public final class Package extends Graph
 
         ClassTarget from = (ClassTarget) d.getFrom();
         ClassTarget to = (ClassTarget) d.getTo();
-        Editor ed = from.getEditor();
+        TextEditor ed = from.getEditor().assumeText();
         try {
             ed.save();
 
@@ -1806,7 +1871,7 @@ public final class Package extends Graph
      * TODO this is usually used to get the implemented interfaces, but it is a clumsy way
      *      to do that.
      */
-    private List<String> getInterfaceTexts(Editor ed, List<Selection> selections)
+    private List<String> getInterfaceTexts(TextEditor ed, List<Selection> selections)
     {
         List<String> r = new ArrayList<String>(selections.size());
         Iterator<Selection> i = selections.iterator();
@@ -1987,6 +2052,7 @@ public final class Package extends Graph
      *            the file instance that is tested for denoting a BlueJ package.
      * @return true if f denotes a directory and a BlueJ package.
      */
+    @OnThread(Tag.Any)
     public static boolean isPackage(File f)
     {
         if(Config.isGreenfoot())
@@ -1998,6 +2064,7 @@ public final class Package extends Graph
     /**
      * Test whether this name is the name of a package file.
      */
+    @OnThread(Tag.Any)
     public static boolean isPackageFileName(String name)
     {
         if(Config.isGreenfoot())
@@ -2232,7 +2299,7 @@ public final class Package extends Graph
 
         Editor editor = t.getEditor();
         if (editor != null) {
-            if (bringToFront || !editor.isShowing()) {
+            if (bringToFront || !editor.isOpen()) {
                 t.open();
             }
             editor.displayMessage(messageCalc.calculateMessage(editor), lineNo, 0, beep, setStepMark, help);
@@ -2243,23 +2310,30 @@ public final class Package extends Graph
         return true;
     }
     
+    // Reminds me of http://thedailywtf.com/Articles/What_Is_Truth_0x3f_.aspx :-)
+    private static enum ErrorShown
+    {
+        ERROR_SHOWN, ERROR_NOT_SHOWN, EDITOR_NOT_FOUND
+    }
+    
     /**
      * Display a compiler diagnostic (error or warning) in the appropriate editor window.
      * 
      * @param diagnostic   The diagnostic to display
      * @param messageCalc  The message "calculator", which returns a modified version of the message;
      *                     may be null, in which case the original message is shown unmodified.
+     * @param errorIndex The index of the error (first is 0, second is 1, etc)
      */
-    private boolean showEditorDiagnostic(Diagnostic diagnostic, MessageCalculator messageCalc)
+    private ErrorShown showEditorDiagnostic(Diagnostic diagnostic, MessageCalculator messageCalc, int errorIndex)
     {
         String fileName = diagnostic.getFileName();
         if (fileName == null) {
-            return false;
+            return ErrorShown.EDITOR_NOT_FOUND;
         }
         
         String fullName = getProject().convertPathToPackageName(diagnostic.getFileName());
         if (fullName == null) {
-            return false;
+            return ErrorShown.EDITOR_NOT_FOUND;
         }
         
         String packageName = JavaNames.getPrefix(fullName);
@@ -2289,22 +2363,27 @@ public final class Package extends Graph
         }
 
         if (t == null) {
-            return false;
+            return ErrorShown.EDITOR_NOT_FOUND;
         }
 
         Editor editor = t.getEditor();
         if (editor != null) {
-            editor.setVisible(true);
             if (messageCalc != null) {
                 diagnostic.setMessage(messageCalc.calculateMessage(editor));
             }
-            editor.displayDiagnostic(diagnostic);
+            
+            if (project.isClosing()) {
+                return ErrorShown.ERROR_NOT_SHOWN;
+            }
+            t.markKnownError();
+            boolean shown = editor.displayDiagnostic(diagnostic, errorIndex);
+            return shown ? ErrorShown.ERROR_SHOWN : ErrorShown.ERROR_NOT_SHOWN;
         }
         else {
             Debug.message(t.getDisplayName() + ", line" + diagnostic.getStartLine() +
                     ": " + diagnostic.getMessage());
+            return ErrorShown.EDITOR_NOT_FOUND;
         }
-        return true;
     }
 
     /**
@@ -2492,7 +2571,7 @@ public final class Package extends Graph
      * Also relay compilation events to any listening extensions.
      */
     private class QuietPackageCompileObserver
-        implements CompileObserver
+        implements EDTCompileObserver
     {
         protected CompileObserver chainObserver;
         
@@ -2625,7 +2704,7 @@ public final class Package extends Graph
                      * names)
                      */
                     try {
-                        ClassInfo info = t.getSourceInfo().getInfo(t.getSourceFile(), t.getPackage());
+                        ClassInfo info = t.getSourceInfo().getInfo(t.getJavaSourceFile(), t.getPackage());
 
                         if (info != null) {
                             OutputStream out = new FileOutputStream(t.getContextFile());
@@ -2640,6 +2719,7 @@ public final class Package extends Graph
                     // Empty class files should not be marked compiled,
                     // even though compilation is "successful".
                     newCompiledState &= t.upToDate();
+                    newCompiledState &= !t.hasKnownError();
                 }
 
                 t.setState(newCompiledState ? DependentTarget.S_NORMAL : DependentTarget.S_INVALID);
@@ -2686,80 +2766,26 @@ public final class Package extends Graph
                 return name;
         }
 
-        private String getLine(Editor e)
+        private String getLine(TextEditor e)
         {
             return e.getText(new bluej.parser.SourceLocation(lineNumber, 1), new bluej.parser.SourceLocation(lineNumber, e.getLineLength(lineNumber-1)));
         }
         
-        private int getLineStart(Editor e)
+        private int getLineStart(TextEditor e)
         {
             return e.getOffsetFromLineColumn(new bluej.parser.SourceLocation(lineNumber, 1));
         }
         
-        // Levenshtein distance, taken from http://www.merriampark.com/ld.htm
-        private static int editDistance(String s, String t)
-        {
-            int d[][]; // matrix
-            int n; // length of s
-            int m; // length of t
-            int i; // iterates through s
-            int j; // iterates through t
-            char s_i; // ith character of s
-            char t_j; // jth character of t
-            int cost; // cost
-
-            // Step 1
-            n = s.length ();
-            m = t.length ();
-            if (n == 0) {
-                return m;
-            }
-            if (m == 0) {
-                return n;
-            }
-            d = new int[n+1][m+1];
-
-            // Step 2
-            for (i = 0; i <= n; i++) {
-                d[i][0] = i;
-            }
-            for (j = 0; j <= m; j++) {
-                d[0][j] = j;
-            }
-
-            // Step 3
-            for (i = 1; i <= n; i++) {
-                s_i = s.charAt (i - 1);
-
-                // Step 4
-                for (j = 1; j <= m; j++) {
-                    t_j = t.charAt (j - 1);
-
-                    // Step 5
-                    if (s_i == t_j) {
-                        cost = 0;
-                    }
-                    else {
-                        cost = 1;
-                    }
-
-                    // Step 6
-                    d[i][j] = Math.min(Math.min(d[i-1][j]+1, d[i][j-1]+1), d[i-1][j-1] + cost);
-                }
-            }
-
-            // Step 7
-            return d[n][m];
-        }
-        
         @Override
-        public String calculateMessage(Editor e)
+        public String calculateMessage(Editor e0)
         {
-            if (e == null) {
+            if (e0 == null) {
                 return message;
             }
+            TextEditor e = e0.assumeText();
             
             String missing = chopAtOpeningBracket(message.substring(message.lastIndexOf(' ') + 1));
+
             String lineText = getLine(e);
             
             ParsedCUNode pcuNode = e.getParsedNode();
@@ -2767,20 +2793,19 @@ public final class Package extends Graph
                 return message;
             }
             
-            LinkedList<String> maybeTheyMeant = new LinkedList<String>();
-            
             // The column from the diagnostic object assumes tabs are 8 spaces; convert to
             // a line position:
             int pos = convertColumn(lineText, column) + getLineStart(e);
 
+            LinkedList<String> maybeTheyMeant = new LinkedList<String>();
             CodeSuggestions suggests = pcuNode.getExpressionType(pos, e.getSourceDocument());
             AssistContent[] values = ParseUtils.getPossibleCompletions(suggests, project.getJavadocResolver(), null);
             if (values != null) {
                 for (AssistContent a : values) {
-                    String name = chopAtOpeningBracket(a.getDisplayName());
+                    String name = a.getName();
 
-                    if (editDistance(name.toLowerCase(), missing.toLowerCase()) <= MAX_EDIT_DISTANCE) {
-                        maybeTheyMeant.addLast(a.getDisplayName());
+                    if (a.getKind() == CompletionKind.METHOD && Utility.editDistance(name.toLowerCase(), missing.toLowerCase()) <= MAX_EDIT_DISTANCE) {
+                        maybeTheyMeant.addLast(a.getName());
                     }
                 }
             }
@@ -2828,7 +2853,7 @@ public final class Package extends Graph
      */
     private class PackageCompileObserver extends QuietPackageCompileObserver
     {
-        private boolean hadError;
+        private int numErrors = 0;
         
         /**
          * Construct a new PackageCompileObserver. The chained observer (if specified)
@@ -2842,7 +2867,7 @@ public final class Package extends Graph
         @Override
         public void startCompile(File[] sources)
         {
-            hadError = false;
+            numErrors = 0;
             super.startCompile(sources);
         }
         
@@ -2866,9 +2891,8 @@ public final class Package extends Graph
          */
         private boolean errorMessage(Diagnostic diagnostic)
         {
-            if (! hadError) {
-                hadError = true;
-                boolean messageShown;
+                numErrors += 1;
+                ErrorShown messageShown;
 
                 if (diagnostic.getFileName() == null) {
                     showMessageWithText("compiler-error", diagnostic.getMessage());
@@ -2882,20 +2906,22 @@ public final class Package extends Graph
                             new MisspeltMethodChecker(message,
                                     (int) diagnostic.getStartColumn(),
                                     (int) diagnostic.getStartLine(),
-                                    project));
+                                    project), numErrors - 1);
                 } else {
-                    messageShown = showEditorDiagnostic(diagnostic, null);
+                    messageShown = showEditorDiagnostic(diagnostic, null, numErrors - 1);
                 }
                 // Display the error message in the source editor
-                if (!messageShown) {
+                switch (messageShown)
+                {
+                case EDITOR_NOT_FOUND:
                     showMessageWithText("error-in-file", diagnostic.getFileName() + ":" +
                             diagnostic.getStartLine() + "\n" + message);
+                    return true;
+                case ERROR_SHOWN:
+                    return true;
+                default:
+                    return false;
                 }
-                
-                return true;
-            }
-            
-            return false;
         }
 
         /**
@@ -2908,9 +2934,6 @@ public final class Package extends Graph
          */
         private boolean warningMessage(String filename, int lineNo, String message)
         {
-            // Add this message-fragment to, and display, the warning dialog
-            bluej.compiler.CompilerWarningDialog.getDialog().addWarningMessage(message);
-            
             return true;
         }
         

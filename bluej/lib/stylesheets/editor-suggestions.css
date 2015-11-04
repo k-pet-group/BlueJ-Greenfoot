@@ -1,0 +1,108 @@
+/* Styles for suggestions (i.e. code completion) */
+
+.root {
+  suggestion-background: white;
+}
+
+.suggestion-list {
+    -fx-background-color: suggestion-background;
+    -fx-padding: 2 0 2 0;
+    
+    -bj-max-width: 25em;
+    -bj-type-width: 5em;
+}
+
+.suggestion {
+    -fx-padding: 0 2 0 0;
+    -fx-cursor: hand;
+}
+
+.suggestion-prefix, .suggestion-matching, .suggestion-next, .suggestion-suffix {
+    -fx-label-padding: 0 -2 0 0;
+}
+.suggestion-matching, .suggestion-type-match {
+    -fx-underline: true;
+}
+
+.suggestion-next {
+    -fx-font-weight: bold;
+}
+.suggestion-button-hint {
+    -fx-font-size: 75%;
+    -fx-border-color: rgb(150, 150, 150);
+    -fx-border-radius: 2;
+    -fx-label-padding: 1;
+    -fx-background-color: suggestion-background;
+    -fx-background-radius: 2;
+}
+
+.suggestion-nohighlight {
+   -fx-background-color: suggestion-background;
+}
+.suggestion-highlight {
+    -fx-background-color: hsb(180, 30%, 90%); 
+}
+
+.suggestion-similar-heading {
+    -fx-label-padding: 2 0 2 20;
+    -fx-background-color: hsb(0, 0%, 95%);
+    -fx-text-fill: hsb(0, 0%, 40%);
+    /* To get some padding: */
+    -fx-border-color: suggestion-background;
+    -fx-border-width: 5 0 2 0;
+}
+
+/* Make the similar suggestions grey, to de-emphasise */
+.suggestion-similar > .label {
+    -fx-text-fill: hsb(0, 0%, 50%);
+}
+
+.suggestion-none {
+    -fx-label-padding: 10 20 10 20;
+    -fx-text-fill: hsb(0, 0%, 40%);
+}
+
+.suggestion-javadoc, .suggestion-file-preview {
+    -fx-background-color: hsb(180, 8%, 97%);
+    -fx-background-radius: 0 5 5 0;
+    -fx-border-color: hsb(0, 0%, 40%);
+    -fx-border-width: 1;
+    -fx-border-radius: 0 5 5 0;
+}
+.suggestion-file-preview {
+    -fx-padding: 20 20 20 20;    
+}
+.suggestion-javadoc .web-view {
+    -fx-font-smoothing-type: gray;
+    -fx-content-menu-enabled: false;
+}
+
+/* Remove focus highlight on scroll bar */
+.suggestion-list-scroll-pane:focused {
+    -fx-background-color: -fx-box-border, -fx-box-border, -fx-background !important;
+}
+
+.suggestion-more-label {
+    -fx-text-fill: hsb(0, 0%, 30%);
+    -fx-background-color: transparent;
+    -fx-font-style: italic;
+    -fx-padding: 3;
+    -fx-wrap-text: true;
+}
+
+.suggestion-more-label-pane {
+    -fx-background-color: white;
+    -fx-border-width: 1 0 1 0;
+    -fx-border-color: hsb(0, 0%, 70%) transparent hsb(0, 0%, 70%) transparent;
+    -fx-border-style: solid inside;
+}
+.suggestion-more-label-pane:bj-at-top {
+    -fx-border-width: 1 0 1 0;
+    -fx-border-color: hsb(0, 0%, 70%) transparent hsb(0, 0%, 70%) transparent;
+}
+
+.suggestion-dialog-lhs {
+    -fx-border-width: 0 1 0 1;
+    -fx-border-color: hsb(0, 0%, 70%);
+    -fx-border-style: solid inside;
+}

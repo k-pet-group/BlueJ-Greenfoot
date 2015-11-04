@@ -330,7 +330,7 @@ public class WorldHandler
             }
             dragActor = null;
             worldCanvas.setCursor(defaultCursor);
-        };
+        }
     }
 
     /**
@@ -553,11 +553,9 @@ public class WorldHandler
         final World discardedWorld = world;
         world = null;
 
-        EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                worldCanvas.setWorld(null);
-                fireWorldRemovedEvent(discardedWorld);
-            }
+        EventQueue.invokeLater(() -> {
+            worldCanvas.setWorld(null);
+            fireWorldRemovedEvent(discardedWorld);
         });
     }
 
@@ -611,14 +609,11 @@ public class WorldHandler
         });
         this.world = world;
         
-        EventQueue.invokeLater(new Runnable() {
-            public void run()
-            {
-                if(worldCanvas != null) {
-                    worldCanvas.setWorld(world);
-                }
-                fireWorldCreatedEvent(world);
+        EventQueue.invokeLater(() -> {
+            if(worldCanvas != null) {
+                worldCanvas.setWorld(world);
             }
+            fireWorldCreatedEvent(world);
         });
     }
 
@@ -668,13 +663,7 @@ public class WorldHandler
             // create the real object
             final ObjectDragProxy to = (ObjectDragProxy) o;
             to.createRealObject();
-            Simulation.getInstance().runLater(new Runnable() {
-                @Override
-                public void run()
-                {
-                    world.removeObject(to);
-                }
-            });
+            Simulation.getInstance().runLater(() -> world.removeObject(to));
             objectDropped = true;
             return true;
         }
@@ -693,13 +682,7 @@ public class WorldHandler
                 // overrides World.addObject().
                 return false;
             }
-            Simulation.getInstance().runLater(new Runnable() {
-                @Override
-                public void run()
-                {
-                    ActorVisitor.setLocationInPixels(actor, x, y);
-                }
-            });
+            Simulation.getInstance().runLater(() -> ActorVisitor.setLocationInPixels(actor, x, y));
             dragActorMoved = true;
             objectDropped = true;
             return true;
@@ -802,13 +785,7 @@ public class WorldHandler
         final int y = WorldVisitor.toCellFloor(world, yPixel);
         if (x < WorldVisitor.getWidthInCells(world) && y < WorldVisitor.getHeightInCells(world)
                 && x >= 0 && y >= 0) {
-            Simulation.getInstance().runLater(new Runnable() {
-                @Override
-                public void run()
-                {
-                    world.addObject(actor, x, y);
-                }
-            });
+            Simulation.getInstance().runLater(() -> world.addObject(actor, x, y));
             handlerDelegate.addActor(actor, x, y);
             return true;
         }
@@ -821,13 +798,7 @@ public class WorldHandler
     {
         if (o instanceof Actor && world != null) {
             final Actor actor = (Actor) o;
-            Simulation.getInstance().runLater(new Runnable() {
-                @Override
-                public void run()
-                {
-                    world.removeObject(actor);
-                }
-            });
+            Simulation.getInstance().runLater(() -> world.removeObject(actor));
         }
     }
 
@@ -926,13 +897,7 @@ public class WorldHandler
             final Actor actor = (Actor) o;
             objectDropped = true;
             dragActorMoved = false;
-            Simulation.getInstance().runLater(new Runnable() {
-                @Override
-                public void run()
-                {
-                    ActorVisitor.setLocationInPixels(actor, dragBeginX, dragBeginY);
-                }
-            });
+            Simulation.getInstance().runLater(() -> ActorVisitor.setLocationInPixels(actor, dragBeginX, dragBeginY));
         }
     }
 

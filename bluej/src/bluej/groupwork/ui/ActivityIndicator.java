@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,7 +28,10 @@ import javax.swing.JComponent;
 import javax.swing.JProgressBar;
 import javax.swing.OverlayLayout;
 
-public class ActivityIndicator extends JComponent implements Runnable
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
+public class ActivityIndicator extends JComponent
 {
     private JProgressBar progressBar;
     private boolean running;
@@ -49,24 +52,11 @@ public class ActivityIndicator extends JComponent implements Runnable
      * 
      * @param running  The new running state
      */
+    @OnThread(Tag.Any)
     public void setRunning(boolean running)
     {
         this.running = running;
-        if (EventQueue.isDispatchThread()) {
-            progressBar.setVisible(running);
-        }
-        else {
-            EventQueue.invokeLater(this);
-        }
-    }
-    
-    /*
-     * The run() method will only be called on the event dispatch thread, and
-     * is used to update the current running state.
-     */
-    public void run()
-    {
-        progressBar.setVisible(running);
+        EventQueue.invokeLater(() -> progressBar.setVisible(running));
     }
     
     public Dimension getPreferredSize()

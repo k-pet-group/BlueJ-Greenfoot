@@ -23,8 +23,14 @@ package bluej.groupwork.actions;
 
 import java.io.File;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
 import bluej.Config;
-import bluej.groupwork.*;
+import bluej.groupwork.Repository;
+import bluej.groupwork.TeamSettingsController;
+import bluej.groupwork.TeamUtils;
+import bluej.groupwork.TeamworkCommand;
+import bluej.groupwork.TeamworkCommandResult;
 import bluej.groupwork.ui.ModuleSelectDialog;
 import bluej.groupwork.ui.TeamSettingsDialog;
 import bluej.pkgmgr.Import;
@@ -203,6 +209,7 @@ public class CheckoutAction extends TeamAction
         /**
          * Clean up after failed checkout.
          */
+        @OnThread(Tag.Swing)
         public void cleanup()
         {
             projDir.delete();

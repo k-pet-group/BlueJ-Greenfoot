@@ -1,0 +1,14 @@
+These are the differences between Java and our new language:
+
+- In Java, floating point literals can begin with a '.' (e.g. ".05").  In our language,
+  this is not allowed.  You must always supply the leading zero.  Ending
+  with a dot (e.g. "32.") is still allowed. 
+  
+- In Java, writing ++x or --x will result in altering the value of x.  In our language,
+  these constructs are a series of unary operators, so ++x is the same as x, and so is
+  --x as it is double negation (in contrast, ---x is the same as -x).
+  [Or we could make repeated unary operators an error]
+  AA: I think we have to make it an error because when they move to java, introducing a
+  new concept is more logical and easier to understand than altering a concept.
+  MK: Yes, make it an error! It's okay not to support it, but to alter the semantics is
+  dangerous. And allowing it has no benefit. ---x is almost certainly an error.]  

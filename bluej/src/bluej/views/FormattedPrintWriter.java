@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,65 +25,68 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Writer;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 /**
- ** @version $Id: FormattedPrintWriter.java 6215 2009-03-30 13:28:25Z polle $
  ** @author Michael Cahill
  **
  ** FormattedPrintWriter - provides formatting on top of a PrintWriter
  **/
+@OnThread(value = Tag.Swing, ignoreParent = true)
 public abstract class FormattedPrintWriter extends PrintWriter
 {
-	public FormattedPrintWriter(Writer out)
-	{
-		super(out);
-	}
-	
-	public FormattedPrintWriter(Writer out, boolean autoFlush)
-	{
-		super(out, autoFlush);
-	}
-	
-	public FormattedPrintWriter(OutputStream out)
-	{
-		super(out);
-	}
-	
-	public FormattedPrintWriter(OutputStream out, boolean autoFlush)
-	{
-		super(out, autoFlush);
-	}
-	
-	boolean bold = false;
-	public void setBold(boolean bold)
-	{
-		if(this.bold == bold)
-			return;	// nothing to do
+    public FormattedPrintWriter(Writer out)
+    {
+        super(out);
+    }
+    
+    public FormattedPrintWriter(Writer out, boolean autoFlush)
+    {
+        super(out, autoFlush);
+    }
+    
+    public FormattedPrintWriter(OutputStream out)
+    {
+        super(out);
+    }
+    
+    public FormattedPrintWriter(OutputStream out, boolean autoFlush)
+    {
+        super(out, autoFlush);
+    }
+    
+    boolean bold = false;
+    public void setBold(boolean bold)
+    {
+        if(this.bold == bold)
+            return;    // nothing to do
 
-		if(bold)
-			startBold();
-		else
-			endBold();
-			
-		this.bold = bold;
-	}
-	protected abstract void startBold();
-	protected abstract void endBold();
-	
-	boolean italic = false;
-	public void setItalic(boolean italic)
-	{
-		if(this.italic == italic)
-			return;	// nothing to do
+        if(bold)
+            startBold();
+        else
+            endBold();
+            
+        this.bold = bold;
+    }
+    protected abstract void startBold();
+    protected abstract void endBold();
+    
+    boolean italic = false;
+    public void setItalic(boolean italic)
+    {
+        if(this.italic == italic)
+            return;    // nothing to do
 
-		if(italic)
-			startItalic();
-		else
-			endItalic();
-			
-		this.italic = italic;
-	}
-	protected abstract void startItalic();
-	protected abstract void endItalic();
+        if(italic)
+            startItalic();
+        else
+            endItalic();
+            
+        this.italic = italic;
+    }
+    protected abstract void startItalic();
+    protected abstract void endItalic();
 
-	protected abstract void indentLine();
+    protected abstract void indentLine();
 }

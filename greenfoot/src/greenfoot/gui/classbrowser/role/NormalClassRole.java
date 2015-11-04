@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2014  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,20 +21,20 @@
  */
 package greenfoot.gui.classbrowser.role;
 
+import bluej.extensions.SourceType;
 import greenfoot.core.GClass;
 import greenfoot.gui.classbrowser.ClassView;
 
 /**
- * Role for a "normal" (non-Actor, non-World) class.
+ * Abstarct role for a "normal" (non-Actor, non-World) class.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: NormalClassRole.java 6216 2009-03-30 13:41:07Z polle $
  */
 public class NormalClassRole extends ClassRole
 {
     private static NormalClassRole instance;
 
-    private String template = "stdclass.tmpl";
+    private String templatePrefix = "std";
     
     /**
      * Get the (singleton) instance of NormalClassRole.
@@ -53,6 +53,13 @@ public class NormalClassRole extends ClassRole
         // Nothing to do.
     }
     
+    @Override
+    public String getTemplateFileName(boolean useInterface, SourceType language)
+    {
+        return (useInterface ? "if" : templatePrefix) + language + templateExtension;
+    }
+    
+    @Override
     public void buildUI(ClassView classView, GClass gClass)
     {
         classView.setIcon(null);
@@ -60,16 +67,8 @@ public class NormalClassRole extends ClassRole
     }
 
     @Override
-    public String getTemplateFileName()
-    {
-        return template;
-    }
-
-    @Override
     public void remove()
     {
        //do nothing
     }
-
-    
 }

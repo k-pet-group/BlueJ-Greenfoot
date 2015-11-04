@@ -1,0 +1,158 @@
+
+  ** To fix for 3.0.1 **
+  ======================
+
+AA - When you drag multiple simple frames (method calls, assignments, etc), you get an ugly
+  black line between them that would be good to remove.  It might also be nice to remove
+  the visibility of the rounded corners where the two blocks meet.
+
+AA - Hitting a breakpoint does not bring the editor window to the front. (It correctly brings the debugger window
+  to the front, and ‘Step’ brings the editor to the front nicely. But hitting the breakpoint should also bring
+  up editor.)
+
+AA - If the user tries to paste a plain text (or invalid xml framed) at a frame cursor, a ParsingException will be fired.
+   This can be solved by many ways, but the first step is to enable paste only when the clipboard has a valid xml stride frames.
+
+ - When you are in Java editor, if you position the caret inside an error and make an edit,
+   the underline is removed, but the pop-up with error message is not immediately removed.
+   NB: now cannot replicate this.
+
+ - Issue with disabling imports (see Michael's emails about foxes and rabbits)
+
+ - The baseline calculation, especially of the class header, seems to be wrong on first
+   load sometimes, but fixes on the first layout.  We maybe need to fiddle the CSS rules,
+   or trigger a second layout after loading.
+
+ - The quit action in the Stride editor doesn't work, at least on NB's Mac.  It seems to
+   end up in the JavaFX quit handler, which does nothing, even though by that point in
+   the code it should have been replaced by the eawt handler.  I think maybe the menu
+   is hardwired into the FX handler?  It's not an easy fix, because the code ends up in
+   the Boot class which doesn't know how to quit.  We could set a second FX handler
+   after the Boot class?  Getting quite nasty, overall...  As a workaround, it is possible
+   to quit the app by right-clicking on the dock icon and quitting that way.
+
+
+ - For long code lines that wrap, avoid line break between double quote and string content (treat string
+   with quotes like one token)
+   NB: We could do this with an HBox around the quotes and text field, but I think a better
+   solution would be to modify HangingFlowPane to tag the "can-break-line-here" state
+   of nodes.  For example, we could use this to prevent breaking a line before a comma
+   (which looks weird).
+
+ - The debugger window opens with the panes collapsed. Individual panes need to get reasonable size.
+  (Long-standing bug)
+  A: couldn't trigger it. Does it happen if you open the debugger window via menu or by triggering a breakpoint?
+
+ - Exception (but no problem after?) when filling in method parameter hint:
+   Exception in thread "AWT-EventQueue-0" java.lang.IllegalArgumentException: Trying to construct DocumentReader to look up to 220 in a document of length: 214
+ 	at bluej.parser.DocumentReader.<init>(DocumentReader.java:78)
+ 	at bluej.parser.nodes.JavaParentNode.getExpressionType(JavaParentNode.java:267)
+ 	at bluej.parser.nodes.ParsedNode.getExpressionType(ParsedNode.java:428)
+ 	at bluej.stride.framedjava.elements.ClassElement.lambda$getCodeSuggestions$643(ClassElement.java:335)
+ 	at java.util.Optional.map(Optional.java:215)
+ 	at bluej.stride.framedjava.elements.ClassElement.getCodeSuggestions(ClassElement.java:335)
+ 	at bluej.editor.stride.FrameEditor.getCompletions(FrameEditor.java:1030)
+ 	at bluej.editor.stride.FrameEditorTab.lambda$withCompletions$112(FrameEditorTab.java:1446)
+
+
+
+On Linux - Java editor:
+AA	- If the code is very big, navView will fire:
+	Exception in thread "AWT-EventQueue-0" java.lang.NegativeArraySizeException
+		at java.awt.image.DataBufferInt.<init>(DataBufferInt.java:75)
+		at java.awt.image.Raster.createPackedRaster(Raster.java:467)
+		at java.awt.image.DirectColorModel.createCompatibleWritableRaster(DirectColorModel.java:1032)
+		at java.awt.GraphicsConfiguration.createCompatibleImage(GraphicsConfiguration.java:186)
+		at bluej.editor.moe.NaviView.paintImgBuffer(NaviView.java:379)
+		at bluej.editor.moe.NaviView.createImgBuffer(NaviView.java:603)
+		at bluej.editor.moe.NaviView.setBounds(NaviView.java:172)
+	NB: probably pre-existing?
+	
+AA	- "not found" messages appear in the debug-log about threadchecker classes:
+	e.g. unknown enum constant threadchecker.Tag.Swing
+	  reason: class file for threadchecker.Tag not found
+	  NB: do you know if this causes any problems?  It's weird that I haven't seen it
+	  on any other OS before, although I haven't looked much in the debug log for the RCs.
+	  Is there any particular action you can find that causes it?
+		
+	- error lines' view in naviView inaccurate.
+	
+	- a grey box appear near some errors and will not vanish, even if the window moves, it will show on top of other windows.
+
+
+On Linux - Stride editor:
+AA	- The font of a method documentation is not nice (Bold and Italic).
+
+AA - When GF opens without a scenario open, it adds the empty project (Greenfoot.app/Contents/Resources/Java/greenfoot/startupProject)
+  into the 'Recent projects' list. The startupProject should never be entered into the recent.
+
+- - - - - - - - - - - - - -
+
+  ** Bugs will be left until first release (JDK8 issues) **
+
+ - Mouse clicks can't pass through a transparent stage on Mac:
+ 	https://javafx-jira.kenai.com/browse/RT-37635 (Unresolved, Fix version 9).
+   This means that our code completion dialogue swallows some clicks which it shouldn't.
+
+ - Keyboard shortcuts, such as static/final shortcuts and backslash for disable, have to be shown on the context menu.
+   The bug has been reported.
+
+ - On Mac only, navigating right from a choiceSlot will execute the event twice. e.g. pressing right arrow in a choiceSlot:
+     * in a constructor header will focuses the param name not type.
+     * in a method header with empty return type will focus the method name not return type.
+     * in a method header with a return type will focus the method return type placing the cursor in the second position.
+
+- - - - - - - - - -
+
+  ** Bugs which are complex or not possible to fix: **
+
+  - When you delete a super frame, you get some messages like:
+  Jul 08, 2015 12:48:44 PM javafx.scene.CssStyleHelper calculateValue
+  WARNING: Could not resolve 'method-header-pinned' while resolving lookups for '-fx-background-color' from rule '*.method-header:bj-pinned' in stylesheet file:/home/neil/intellij/greenfoot_3_prototype/bluej/lib/stylesheets/frame-style.css
+  Jul 08, 2015 12:48:44 PM javafx.scene.CssStyleHelper calculateValue
+  WARNING: Could not resolve '-fx-text-background-color' while resolving lookups for '-fx-text-fill' from rule '*.label' in stylesheet jar:file:/usr/lib/jvm/java-8-oracle/jre/lib/ext/jfxrt.jar!/com/sun/javafx/scene/control/skin/modena/modena.bss
+  Jul 08, 2015 12:48:44 PM javafx.scene.CssStyleHelper calculateValue
+  WARNING: Could not resolve '-fx-control-inner-background' while resolving lookups for '-fx-highlight-fill' from rule '*.text-input' in stylesheet jar:file:/usr/lib/jvm/java-8-oracle/jre/lib/ext/jfxrt.jar!/com/sun/javafx/scene/control/skin/modena/modena.bss
+
+  The problem is that the setAll call which changes the content of the ConstructorFrame involves removing
+  and re-adding the content, which causes a problem briefly in the listener which pins the method header.
+  To fix this requires avoiding setAll, which would involve a lot of complex logic involving list diffing.
+  Since these errors seem to be benign (no problems appear in the interface), I [NB] don't think this is worth correcting.
+
+ - On first load, if scrolling to act method pins a header, it will look wrong graphically.
+   Maybe don't auto-scroll, or don't pin the header during this scroll.
+
+   Both options here are awkward; if we don't auto-scroll, we don't jump to errors on first open, which I [NB]
+   think is a nice feature.  But it's also very hard to not pin the header during that scroll, but still re-pin
+   it again later.
+
+ - Sometimes when you close the editor (when it has an error?) it immediately re-opens again.
+   - e.g. in code with error, make change, and close window before recompilation occurs.
+     After compilation, it will pop up again
+
+   This is somewhat by design; at the end of compilation, if there is an error, we make sure that
+   the editor gets opened.  The idea being that if you just wrote an error in that class, it's usually
+   a no-op (editor should still be open, except in this case that you just closed it), and if your edit
+   made an error in another class (e.g. changed Crab's constructor signature, which gives error in the world),
+   then you should know about it.  So I [NB] don't think it's necessarily wrong to re-open the editor when
+   compilation finishes and finds an error.
+
+ - On Neil's Ubuntu machine, the error tooltip (and code completion) appear in the wrong place; seems to be
+   an issue with undecorated window placement.  Doesn't occur on Davin or Amjad's Ubuntu machines, so may be
+   specific to Neil's setup.
+
+ - When loading Javadoc, the following exception can occur.  It's been filed as a JDK bug:
+   Exception in thread "JavaFX Application Thread" java.lang.NullPointerException
+ 	at com.sun.javafx.webkit.theme.ScrollBarThemeImpl.getThumb(ScrollBarThemeImpl.java:409)
+ 	at com.sun.javafx.webkit.theme.ScrollBarThemeImpl.thumbPosition(ScrollBarThemeImpl.java:293)
+ 	at com.sun.javafx.webkit.theme.ScrollBarThemeImpl.getThumbPosition(ScrollBarThemeImpl.java:389)
+ 	at com.sun.webkit.network.URLLoader.twkDidFinishLoading(Native Method)
+ 	at com.sun.webkit.network.URLLoader.notifyDidFinishLoading(URLLoader.java:838)
+ 	at com.sun.webkit.network.URLLoader.lambda$didFinishLoading$96(URLLoader.java:829)
+ 	at com.sun.javafx.application.PlatformImpl.lambda$null$174(PlatformImpl.java:295)
+ 	at java.security.AccessController.doPrivileged(Native Method)
+ 	at com.sun.javafx.application.PlatformImpl.lambda$runLater$175(PlatformImpl.java:294)
+ 	at com.sun.glass.ui.InvokeLaterDispatcher$Future.run(InvokeLaterDispatcher.java:95)
+ 	at com.sun.glass.ui.gtk.GtkApplication._runLoop(Native Method)
+ 	at com.sun.glass.ui.gtk.GtkApplication.lambda$null$50(GtkApplication.java:139)
+ 	at java.lang.Thread.run(Thread.java:745)

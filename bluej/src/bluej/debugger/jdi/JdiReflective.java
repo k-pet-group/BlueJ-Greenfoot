@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2012,2014,2015  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,14 +21,58 @@
  */
 package bluej.debugger.jdi;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-import bluej.debugger.gentype.*;
+import bluej.debugger.gentype.ConstructorReflective;
+import bluej.debugger.gentype.FieldReflective;
+import bluej.debugger.gentype.GenTypeClass;
+import bluej.debugger.gentype.GenTypeDeclTpar;
+import bluej.debugger.gentype.GenTypeExtends;
+import bluej.debugger.gentype.GenTypeParameter;
+import bluej.debugger.gentype.GenTypeSolid;
+import bluej.debugger.gentype.GenTypeSuper;
+import bluej.debugger.gentype.GenTypeTpar;
+import bluej.debugger.gentype.GenTypeUnbounded;
+import bluej.debugger.gentype.GenTypeWildcard;
+import bluej.debugger.gentype.IntersectionType;
+import bluej.debugger.gentype.JavaPrimitiveType;
+import bluej.debugger.gentype.JavaType;
+import bluej.debugger.gentype.MethodReflective;
+import bluej.debugger.gentype.Reflective;
+import bluej.debugger.gentype.TextType;
 import bluej.utility.Debug;
 import bluej.utility.JavaNames;
 
-import com.sun.jdi.*;
-
+import com.sun.jdi.ArrayType;
+import com.sun.jdi.BooleanType;
+import com.sun.jdi.ByteType;
+import com.sun.jdi.CharType;
+import com.sun.jdi.ClassLoaderReference;
+import com.sun.jdi.ClassNotLoadedException;
+import com.sun.jdi.ClassType;
+import com.sun.jdi.DoubleType;
+import com.sun.jdi.Field;
+import com.sun.jdi.FloatType;
+import com.sun.jdi.IntegerType;
+import com.sun.jdi.InterfaceType;
+import com.sun.jdi.LocalVariable;
+import com.sun.jdi.Location;
+import com.sun.jdi.LongType;
+import com.sun.jdi.Method;
+import com.sun.jdi.ReferenceType;
+import com.sun.jdi.ShortType;
+import com.sun.jdi.StackFrame;
+import com.sun.jdi.Type;
+import com.sun.jdi.VirtualMachine;
 /**
  * A Reflective for Jdi classes.
  * 
@@ -268,7 +312,7 @@ public class JdiReflective extends Reflective
             List<Reflective> l = new LinkedList<Reflective>();
             Iterator<InterfaceType> i = ((InterfaceType) rclass).superinterfaces().iterator();
             while (i.hasNext())
-                l.add(new JdiReflective((ReferenceType) i.next()));
+                l.add(new JdiReflective(i.next()));
             
             // interfaces with no direct superinterfaces have a supertype of Object
             if (l.isEmpty()) {
@@ -332,7 +376,7 @@ public class JdiReflective extends Reflective
         List<GenTypeDeclTpar> l = getTypeParams(s);
         Map<String,GenTypeDeclTpar> declTpars = new HashMap<String,GenTypeDeclTpar>();
         for (Iterator<GenTypeDeclTpar> i = l.iterator(); i.hasNext(); ) {
-            GenTypeDeclTpar declTpar = (GenTypeDeclTpar) i.next();
+            GenTypeDeclTpar declTpar = i.next();
             declTpars.put(declTpar.getTparName(), declTpar); 
         }
         
@@ -395,7 +439,7 @@ public class JdiReflective extends Reflective
                 l.addAll(((InterfaceType) a).superinterfaces());
                 while (! l.isEmpty()) {
                     // get the first superinterface in the list
-                    InterfaceType it = (InterfaceType) l.get(0);
+                    InterfaceType it = l.get(0);
                     if (a.equals(it))
                         return true;
                     
@@ -445,7 +489,7 @@ public class JdiReflective extends Reflective
             // See if the desired class was initiated by our class loader.
             Iterator<ReferenceType> i = cl.visibleClasses().iterator();
             while (i.hasNext()) {
-                ReferenceType ct = (ReferenceType) i.next();
+                ReferenceType ct = i.next();
                 if (ct.name().equals(name))
                     return ct;
             }
@@ -456,7 +500,7 @@ public class JdiReflective extends Reflective
             // by the bootstrap loader.
             Iterator<ReferenceType> i = vm.classesByName(name).iterator();
             while (i.hasNext()) {
-                ReferenceType ct = (ReferenceType) i.next();
+                ReferenceType ct = i.next();
                 if (ct.classLoader() == null)
                     return ct;
             }
@@ -959,7 +1003,7 @@ public class JdiReflective extends Reflective
             StringIterator i = new StringIterator(genSig);
             JavaType ftype = typeFromSignature(i, null, rclass);
             FieldReflective fref = new FieldReflective(field.name(),
-                    ftype, field.modifiers());
+                    ftype, field.modifiers(), this);
             rfields.put(field.name(), fref);
         }
         
@@ -1017,7 +1061,45 @@ public class JdiReflective extends Reflective
         
         return methodMap;
     }
-    
+
+    @Override
+    public List<ConstructorReflective> getDeclaredConstructors()
+    {
+        checkLoaded();
+
+        return rclass.methods().stream().filter(m -> m.isConstructor() && !m.isSynthetic()).map(con -> {
+
+            // Process the string signature to determine return and param types
+            String genSig = con.genericSignature();
+            if (genSig == null) {
+                genSig = con.signature();
+            }
+
+            StringIterator i = new StringIterator(genSig);
+            List<GenTypeDeclTpar> tparTypes = getTypeParams(i);
+
+            char c = i.next();
+            if (c != '(') {
+                return null;
+            }
+
+            List<JavaType> paramTypes = new ArrayList<JavaType>();
+            while (i.peek() != ')') {
+                paramTypes.add(typeFromSignature(i, null, rclass));
+            }
+
+            i.next(); // skip ')'
+            JavaType returnType = typeFromSignature(i, null, rclass);
+
+            boolean isVarArgs = con.isVarArgs();
+
+            return new ConstructorReflective(tparTypes,
+                    paramTypes, this, isVarArgs, con.modifiers());
+
+        }).filter(c -> c != null).collect(Collectors.toList());
+    }
+
+
     @Override
     public Reflective getInnerClass(String name)
     {
@@ -1076,5 +1158,5 @@ public class JdiReflective extends Reflective
         {
             return s;
         }
-    };
+    }
 }

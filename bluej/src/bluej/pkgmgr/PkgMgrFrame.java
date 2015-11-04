@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2012,2013,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2011,2012,2013,2014,2015  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -81,6 +81,8 @@ import javax.swing.JToggleButton;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
 import bluej.BlueJEvent;
 import bluej.BlueJEventListener;
 import bluej.BlueJTheme;
@@ -149,6 +151,7 @@ import bluej.pkgmgr.actions.TutorialAction;
 import bluej.pkgmgr.actions.UseLibraryAction;
 import bluej.pkgmgr.actions.WebsiteAction;
 import bluej.pkgmgr.dependency.Dependency;
+import bluej.pkgmgr.print.PackagePrintManager;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.PackageTarget;
 import bluej.pkgmgr.target.Target;
@@ -173,11 +176,9 @@ import bluej.views.MethodView;
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
 {
-    private static Font pkgMgrFont = PrefMgr.getStandardFont();
-
     static final int DEFAULT_WIDTH = 560;
     static final int DEFAULT_HEIGHT = 400;
-
+    private static final Font pkgMgrFont = PrefMgr.getStandardFont();
     private static boolean testToolsShown = wantToSeeTestingTools();
     private static boolean teamToolsShown = wantToSeeTeamTools();
     private static boolean javaMEtoolsShown = wantToSeeJavaMEtools();
@@ -186,40 +187,37 @@ public class PkgMgrFrame extends JFrame
     private static PkgMgrFrame recentFrame = null;
 
     // instance fields:
-
+    private static final AtomicInteger nextTestIdentifier = new AtomicInteger(0); 
+    // set PageFormat for default page for default printer
+    // this variable is lazy initialised
+    private static PageFormat pageFormat = null;
+    private static final List<PkgMgrFrame> frames = new ArrayList<>(); // of PkgMgrFrames
+    private static final ExtensionsManager extMgr = ExtensionsManager.getInstance();
     private JPanel buttonPanel;
     private JPanel testPanel;
     private JPanel javaMEPanel;
     private JPanel teamPanel;
-
     private JCheckBoxMenuItem showUsesMenuItem;
     private JCheckBoxMenuItem showExtendsMenuItem;
-
     private AbstractButton imgExtendsButton;
     private AbstractButton imgDependsButton;
     private AbstractButton runButton;
-
     private JLabel statusbar;
     private ActivityIndicator progressbar;
-
     private JLabel testStatusMessage;
     private JLabel recordingLabel;
     private AbstractButton endTestButton;
     private AbstractButton cancelTestButton;
     private JMenuItem endTestMenuItem;
     private JMenuItem cancelTestMenuItem;
-
     private ClassTarget testTarget = null;
     private String testTargetMethod;
-    private static AtomicInteger nextTestIdentifier = new AtomicInteger(0); 
     private int testIdentifier = 0;
-
     private JMenuBar menubar = null;
     private JMenu recentProjectsMenu;
     private JMenu testingMenu;
     private MenuManager toolsMenuManager;
     private MenuManager viewMenuManager;
-    
     private JMenu teamMenu;
     private JMenuItem shareProjectMenuItem;
     private JMenuItem teamSettingsMenuItem;
@@ -233,85 +231,91 @@ public class PkgMgrFrame extends JFrame
     private List<JComponent> teamItems;
     private JMenuItem javaMEnewProjMenuItem;
     private JMenuItem javaMEdeployMenuItem;
-  
     private TeamActionGroup teamActions;
-    
     private JMenuItem showTestResultsItem;
     private List<JComponent> itemsToDisable;
     private List<Action> actionsToDisable;
     private List<JComponent> testItems;
     private MachineIcon machineIcon;
-    
     /* UI actions */
-    private Action closeProjectAction = new CloseProjectAction();
-    private Action saveProjectAction = new SaveProjectAction();
-    private Action saveProjectAsAction = new SaveProjectAsAction();
-    private Action importProjectAction = new ImportProjectAction();
-    private Action exportProjectAction = new ExportProjectAction();
-    private Action pageSetupAction = new PageSetupAction();
-    private Action printAction = new PrintAction();
-    private Action newClassAction = new NewClassAction();
-    private Action newPackageAction = new NewPackageAction();
-    private Action addClassAction = new AddClassAction();
-    private Action removeAction = new RemoveAction();
-    private Action newUsesAction = new NewUsesAction();
-    private Action newInheritsAction = new NewInheritsAction();
-    private Action compileAction = new CompileAction();
-    private Action compileSelectedAction = new CompileSelectedAction();
-    private Action rebuildAction = new RebuildAction();
-    private Action restartVMAction = RestartVMAction.getInstance();
-    private Action useLibraryAction = new UseLibraryAction();
-    private Action generateDocsAction = new GenerateDocsAction();
-    private PkgMgrAction showUsesAction = new ShowUsesAction();
-    private PkgMgrAction showInheritsAction = new ShowInheritsAction();
-    private PkgMgrAction showDebuggerAction = new ShowDebuggerAction();
-    private PkgMgrAction showTerminalAction = new ShowTerminalAction();
-    private PkgMgrAction showTextEvalAction = new ShowTextEvalAction();
-    private Action runTestsAction = new RunTestsAction();
-    private Action deployMIDletAction = new DeployMIDletAction();
-
+    private final Action closeProjectAction = new CloseProjectAction();
+    private final Action saveProjectAction = new SaveProjectAction();
+    private final Action saveProjectAsAction = new SaveProjectAsAction();
+    private final Action importProjectAction = new ImportProjectAction();
+    private final Action exportProjectAction = new ExportProjectAction();
+    private final Action pageSetupAction = new PageSetupAction();
+    private final Action printAction = new PrintAction();
+    private final Action newClassAction = new NewClassAction();
+    private final Action newPackageAction = new NewPackageAction();
+    private final Action addClassAction = new AddClassAction();
+    private final Action removeAction = new RemoveAction();
+    private final Action newUsesAction = new NewUsesAction();
+    private final Action newInheritsAction = new NewInheritsAction();
+    private final Action compileAction = new CompileAction();
+    private final Action compileSelectedAction = new CompileSelectedAction();
+    private final Action rebuildAction = new RebuildAction();
+    private final Action restartVMAction = RestartVMAction.getInstance();
+    private final Action useLibraryAction = new UseLibraryAction();
+    private final Action generateDocsAction = new GenerateDocsAction();
+    private final PkgMgrAction showUsesAction = new ShowUsesAction();
+    private final PkgMgrAction showInheritsAction = new ShowInheritsAction();
+    private final PkgMgrAction showDebuggerAction = new ShowDebuggerAction();
+    private final PkgMgrAction showTerminalAction = new ShowTerminalAction();
+    private final PkgMgrAction showTextEvalAction = new ShowTextEvalAction();
+    private final Action runTestsAction = new RunTestsAction();
+    private final Action deployMIDletAction = new DeployMIDletAction();
     /* The scroller which holds the PackageEditor we use to edit packages */
     private JScrollPane classScroller = null;
-
     /*
      * The package that this frame is working on or null for the case where
      * there is no package currently being edited (check with isEmptyFrame())
      */
     private Package pkg = null;
-    
     /*
      * The graph editor which works on the package or null for the case where
      * there is no package current being edited (isEmptyFrame() == true)
      */
     private PackageEditor editor = null;
-
-    private ObjectBench objbench;
+    private final ObjectBench objbench;
     private TextEvalArea textEvaluator;
     private JSplitPane splitPane;
     private JSplitPane objectBenchSplitPane;
     private boolean showingTextEvaluator = false;
 
+    // static methods to create and remove frames
     // lazy initialised dialogs
     private LibraryCallDialog libraryCallDialog = null;
     private ProjectPrintDialog projectPrintDialog = null;
-
-    // set PageFormat for default page for default printer
-    // this variable is lazy initialised
-    private static PageFormat pageFormat = null;
-
-    // static methods to create and remove frames
-
-    private static List<PkgMgrFrame> frames = new ArrayList<PkgMgrFrame>(); // of PkgMgrFrames
-
-    private static ExtensionsManager extMgr = ExtensionsManager.getInstance();
-
     private ExportManager exporter;
 
-    private NoProjectMessagePanel noProjectMessagePanel = new NoProjectMessagePanel();
+    private final NoProjectMessagePanel noProjectMessagePanel = new NoProjectMessagePanel();
+
+    /**
+     * Create a new PkgMgrFrame which does not show a package.
+     * 
+     * This constructor can only be called via createFrame().
+     */
+    private PkgMgrFrame()
+    {
+        this.pkg = null;
+        this.editor = null;
+        objbench = new ObjectBench(this);
+        addCtrlTabShortcut(objbench);
+        if(!Config.isGreenfoot()) {
+            teamActions = new TeamActionGroup(false);
+            teamActions.setAllDisabled();
+
+            setupActionDisableSet();
+            makeFrame();
+            updateWindow();
+            setStatus(bluej.Boot.BLUEJ_VERSION_TITLE);
+        }
+    }
 
     /**
      * Open a PkgMgrFrame with no package. Packages can be installed into this
      * frame using the methods openPackage/closePackage.
+     * @return The new, empty frame
      */
     public static PkgMgrFrame createFrame()
     {
@@ -345,6 +349,8 @@ public class PkgMgrFrame extends JFrame
      * Open a PkgMgrFrame with a package. This may create a new frame or return
      * an existing frame if this package is already being edited by a frame. If
      * an empty frame exists, that frame will be used to show the package.
+     * @param pkg The package to show in the frame
+     * @return The new frame
      */
     public static PkgMgrFrame createFrame(Package pkg)
     {
@@ -368,6 +374,7 @@ public class PkgMgrFrame extends JFrame
     /**
      * Remove a frame from the set of currently open PkgMgrFrames. The
      * PkgMgrFrame must not be editing a package when this function is called.
+     * @param frame The frame to close
      */
     public static void closeFrame(PkgMgrFrame frame)
     {
@@ -387,12 +394,12 @@ public class PkgMgrFrame extends JFrame
     /**
      * Find a frame which is editing a particular Package and return it or
      * return null if it is not being edited
+     * @param pkg The package to search for
+     * @return The frame editing this package, or null
      */
     public static PkgMgrFrame findFrame(Package pkg)
     {
-        for (Iterator<PkgMgrFrame> i = frames.iterator(); i.hasNext();) {
-            PkgMgrFrame pmf = i.next();
-
+        for (PkgMgrFrame pmf : frames) {
             if (!pmf.isEmptyFrame() && pmf.getPackage() == pkg)
                 return pmf;
         }
@@ -410,6 +417,7 @@ public class PkgMgrFrame extends JFrame
     /**
      * Returns an array of all PkgMgrFrame objects. It can be an empty array if
      * none is found.
+     * @return An array of all existing frames
      */
     public static PkgMgrFrame[] getAllFrames()
     {
@@ -435,7 +443,7 @@ public class PkgMgrFrame extends JFrame
 
     /**
      * Find all PkgMgrFrames which are currently editing a particular project,
-     * and which are below a certain point in the package heirarchy.
+     * and which are below a certain point in the package hierarchy.
      * 
      * @param proj
      *            the project whose packages to look for
@@ -450,12 +458,10 @@ public class PkgMgrFrame extends JFrame
      */
     public static PkgMgrFrame[] getAllProjectFrames(Project proj, String pkgPrefix)
     {
-        List<PkgMgrFrame> list = new ArrayList<PkgMgrFrame>();
+        List<PkgMgrFrame> list = new ArrayList<>();
         String pkgPrefixWithDot = pkgPrefix + ".";
 
-        for (Iterator<PkgMgrFrame> i = frames.iterator(); i.hasNext();) {
-            PkgMgrFrame pmf = i.next();
-
+        for (PkgMgrFrame pmf : frames) {
             if (!pmf.isEmptyFrame() && pmf.getProject() == proj) {
 
                 String fullName = pmf.getPackage().getQualifiedName();
@@ -499,15 +505,15 @@ public class PkgMgrFrame extends JFrame
         // thing to do...
         PkgMgrFrame mostRecent = allFrames[0];
 
-        for (int i = 0; i < allFrames.length; i++) {
-            if (allFrames[i].getFocusOwner() != null) {
-                mostRecent = allFrames[i];
+        for (PkgMgrFrame allFrame : allFrames) {
+            if (allFrame.getFocusOwner() != null) {
+                mostRecent = allFrame;
             }
         }
 
         return mostRecent;
     }
-
+    
     /**
      * Handle a "display about dialog" request generated by the OS
      */
@@ -531,7 +537,7 @@ public class PkgMgrFrame extends JFrame
     {
         QuitAction.getInstance().actionPerformed(getMostRecent());
     }
-    
+
     /**
      * Check whether the status of the 'Show unit test tools' preference has
      * changed, and if it has, show or hide them as requested.
@@ -539,10 +545,7 @@ public class PkgMgrFrame extends JFrame
     public static void updateTestingStatus()
     {
         if (testToolsShown != wantToSeeTestingTools()) {
-            for (Iterator<PkgMgrFrame> i = frames.iterator(); i.hasNext();) {
-              
-                PkgMgrFrame pmf = i.next();
-                
+            frames.stream().forEach((pmf) -> {
                 //Testing tools are always hidden in Java ME packages.  
                 if ( pmf.isJavaMEpackage( ) ) {
                     pmf.showTestingTools( false );
@@ -550,11 +553,11 @@ public class PkgMgrFrame extends JFrame
                 else {
                     pmf.showTestingTools(!testToolsShown);               
                 }
-            }
+            });
             testToolsShown = !testToolsShown;
         }
     }
-
+    
     /**
      * Tell whether unit testing tools should be shown.
      */
@@ -562,7 +565,7 @@ public class PkgMgrFrame extends JFrame
     {
         return PrefMgr.getFlag(PrefMgr.SHOW_TEST_TOOLS);
     }
-    
+
      /**
      * Check whether the status of the 'Show teamwork tools' preference has
      * changed, and if it has, show or hide them as requested.
@@ -576,7 +579,7 @@ public class PkgMgrFrame extends JFrame
             teamToolsShown = !teamToolsShown;
         }
     }
-
+  
     /**
      * Tell whether teamwork tools should be shown.
      */
@@ -584,7 +587,7 @@ public class PkgMgrFrame extends JFrame
     {
         return PrefMgr.getFlag(PrefMgr.SHOW_TEAM_TOOLS);
     }
-  
+
      /**
      * Check whether the status of the 'Show Java ME tools' preference has
      * changed, and if it has, show or hide them as requested.
@@ -598,6 +601,7 @@ public class PkgMgrFrame extends JFrame
             javaMEtoolsShown = !javaMEtoolsShown;
         }
     }
+    
     /**
      * Tell whether Java ME tools should be shown.
      */
@@ -605,22 +609,24 @@ public class PkgMgrFrame extends JFrame
     {
         return PrefMgr.getFlag( PrefMgr.SHOW_JAVAME_TOOLS );
     }
-    
+
     /**
      * Display a short text message to the user. Without specifying a package,
      * this is done by showing the message in the status bars of all open
      * package windows.
+     * @param message The message to show
      */
     public static void displayMessage(String message)
     {
-        for (Iterator<PkgMgrFrame> i = frames.iterator(); i.hasNext();) {
-            PkgMgrFrame frame = i.next();
+        frames.stream().forEach((frame) -> {
             frame.setStatus(message);
-        }
+        });
     }
 
     /**
      * Display a short text message in the frame of the specified package.
+     * @param sourcePkg The package in whose window to display
+     * @param message The message to show
      */
     public static void displayMessage(Package sourcePkg, String message)
     {
@@ -632,15 +638,18 @@ public class PkgMgrFrame extends JFrame
 
     /**
      * Display a short text message in the frames of the specified project.
+     * @param sourceProj The project whose frames to use to display
+     * @param message The messahe to show
      */
     public static void displayMessage(Project sourceProj, String message)
     {
         PkgMgrFrame pmf[] = getAllProjectFrames(sourceProj);
 
         if (pmf != null) {
-            for (int i = 0; i < pmf.length; i++) {
-                if (pmf[i] != null)
-                    pmf[i].setStatus(message);
+            for (PkgMgrFrame pmf1 : pmf) {
+                if (pmf1 != null) {
+                    pmf1.setStatus(message);
+                }
             }
         }
     }
@@ -648,6 +657,8 @@ public class PkgMgrFrame extends JFrame
     /**
      * Display an error message in a dialogue attached to the specified package
      * frame.
+     * @param sourcePkg The package whose frame to use
+     * @param msgId The error message to display
      */
     public static void showError(Package sourcePkg, String msgId)
     {
@@ -659,6 +670,8 @@ public class PkgMgrFrame extends JFrame
 
     /**
      * Display a message in a dialogue attached to the specified package frame.
+     * @param sourcePkg The package whose frame to use
+     * @param msgId The message to display
      */
     public static void showMessage(Package sourcePkg, String msgId)
     {
@@ -671,6 +684,9 @@ public class PkgMgrFrame extends JFrame
     /**
      * Display a parameterised message in a dialogue attached to the specified
      * package frame.
+     * @param sourcePkg The package whose frame to use
+     * @param msgId The message to display
+     * @param text The text parameter to insert into the message
      */
     public static void showMessageWithText(Package sourcePkg, String msgId, String text)
     {
@@ -680,31 +696,122 @@ public class PkgMgrFrame extends JFrame
             DialogManager.showMessageWithText(pmf, msgId, text);
     }
 
-
     /**
-     * Create a new PkgMgrFrame which does not show a package.
+     * Opens either a project from a directory or an archive.
      * 
-     * This constructor can only be called via createFrame().
+     * @param projectPath The project to open.
+     * @param pmf Optional parameter. Used for displaying dialogs and reuse
+     *            if it is the empty frame.
+     * @return True is successful
      */
-    private PkgMgrFrame()
-    {
-        this.pkg = null;
-        this.editor = null;
-        objbench = new ObjectBench(this);
-        addCtrlTabShortcut(objbench);
-        if(!Config.isGreenfoot()) {
-            teamActions = new TeamActionGroup(false);
-            teamActions.setAllDisabled();
-
-            setupActionDisableSet();
-            makeFrame();
-            updateWindow();
-            setStatus(bluej.Boot.BLUEJ_VERSION_TITLE);
+    public static boolean doOpen(File projectPath, PkgMgrFrame pmf)
+    {     
+        boolean createdNewFrame = false;
+        if(pmf == null && PkgMgrFrame.frames.size() > 0) {
+            pmf = PkgMgrFrame.frames.get(0);
         }
+        else if(pmf == null) {
+            pmf = PkgMgrFrame.createFrame();
+            createdNewFrame = true;
+        }
+
+        boolean openedProject = false;
+        if (projectPath != null) {
+            if (projectPath.isDirectory() || Project.isProject(projectPath.toString())) {
+                if(pmf.openProject(projectPath.getAbsolutePath())) {
+                    openedProject = true;
+                }
+            }
+            else {
+                if(pmf.openArchive(projectPath)) {
+                    openedProject = true;
+                }
+            }
+        }
+        if(createdNewFrame && !openedProject) {
+            // Close newly created frame if it was never used.
+            PkgMgrFrame.closeFrame(pmf);
+        }
+        return openedProject;
+    }
+    
+    /**
+     * Close all frames which show packages from the specified project. This
+     * causes the project itself to close.
+     * @param project The project to be closed
+     */
+    public static void closeProject(Project project) 
+    {
+        PkgMgrFrame[] allFrames = getAllProjectFrames(project);
+
+        if (allFrames != null) {
+            for (PkgMgrFrame allFrame : allFrames) {
+                allFrame.doClose(true, true);
+            }
+        }
+    }
+    
+    /**
+     * accessor method for PageFormat object that can be used by various
+     * printing subsystems eg. source code printing from editor
+     * 
+     * @return common PageFormat object representing page preferences
+     */
+    @OnThread(Tag.Any)
+    public static PageFormat getPageFormat()
+    {
+        if (pageFormat == null) {
+            pageFormat = PrinterJob.getPrinterJob().defaultPage();
+
+        }
+        //Important that this is set before the margins:
+        int orientation = Config.getPropInteger("bluej.printer.paper.orientation", pageFormat.getOrientation());
+        pageFormat.setOrientation(orientation);
+        
+        Paper paper = pageFormat.getPaper();
+        int x = Config.getPropInteger("bluej.printer.paper.x", 72);
+        int y = Config.getPropInteger("bluej.printer.paper.y", 72);
+        int width = Config.getPropInteger("bluej.printer.paper.width", (int)paper.getWidth() - 72 - x);
+        int height = Config.getPropInteger("bluej.printer.paper.height", (int)paper.getHeight() - 72 - y);
+        paper.setImageableArea(x, y, width, height);
+        //paper is a copy of pageFormat's paper, so we must use set again to make the changes:
+        pageFormat.setPaper(paper);
+        return pageFormat;
+    }
+    
+    /**
+     * set method for printing PageFormat. Called by other elements that may
+     * manipulate pageformat, at this stage the source editor is the only
+     * component that does. The assumption is that the PageFormat should be
+     * uniform between all components that may want to send output to a printer.
+     * 
+     * @param page
+     *            the new PageFormat
+     */
+    public static void setPageFormat(PageFormat page)
+    {
+        pageFormat = page;
+        // We must get the measurements from the paper (which ignores orientation)
+        // rather than page format (which takes it into account) because ultimately
+        // we will use paper.setImageableArea to load the dimensions again
+        Paper paper = pageFormat.getPaper();
+        double x = paper.getImageableX();
+        double y = paper.getImageableY();
+        double width = paper.getImageableWidth();
+        double height = paper.getImageableHeight();
+        //The sizes are in points, so saving them as an integer should be precise enough:
+        Config.putPropInteger("bluej.printer.paper.x", (int)x);
+        Config.putPropInteger("bluej.printer.paper.y", (int)y);
+        Config.putPropInteger("bluej.printer.paper.width", (int)width);
+        Config.putPropInteger("bluej.printer.paper.height", (int)height);
+        int orientation = pageFormat.getOrientation();
+        Config.putPropInteger("bluej.printer.paper.orientation", orientation);
+
     }
 
     /**
      * Displays the package in the frame for editing
+     * @param pkg The package to edit
      */
     public void openPackage(Package pkg)
     {
@@ -809,7 +916,7 @@ public class PkgMgrFrame extends JFrame
 
         extMgr.packageOpened(pkg);
     }
-    
+
     /**
      * Show or hide the Java ME controls.
      */
@@ -818,7 +925,7 @@ public class PkgMgrFrame extends JFrame
         javaMEdeployMenuItem.setVisible(show);
         javaMEPanel.setVisible(show);              
     }
-    
+
     /**
      * Deploy the MIDlet suite contained in this project.
      */
@@ -827,7 +934,7 @@ public class PkgMgrFrame extends JFrame
         MIDletDeployer deployer = new MIDletDeployer( this );
         deployer.deploy( );
     } 
-    
+
     /**
      * Set the team controls to use the team actions for the project.
      */
@@ -865,7 +972,7 @@ public class PkgMgrFrame extends JFrame
 
         if(! Config.isGreenfoot()) {
             classScroller.setViewportView(null);
-            classScroller.setBorder(Config.normalBorder);
+            classScroller.setBorder(Config.getNormalBorder());
             editor.removeMouseListener(this);
             this.toolsMenuManager.setMenuGenerator(new ToolsExtensionMenu(pkg));
             this.viewMenuManager.setMenuGenerator(new ViewExtensionMenu(pkg));
@@ -896,6 +1003,7 @@ public class PkgMgrFrame extends JFrame
 
     /**
      * Override standard show to add de-iconify and bring-to-front.
+     * @param visible True to make this visible; false to hide.
      */
     @Override
     public void setVisible(boolean visible)
@@ -908,11 +1016,12 @@ public class PkgMgrFrame extends JFrame
             setState(Frame.NORMAL);
         }
     }
-
+    
     /**
      * Return the package shown by this frame.
      * 
      * This call should be bracketed by a call to isEmptyFrame() before use.
+     * @return The package shown by this frame
      */
     public Package getPackage()
     {
@@ -921,15 +1030,16 @@ public class PkgMgrFrame extends JFrame
 
     /**
      * Return the project of the package shown by this frame.
+     * @return The project of the package shown by this frame
      */
     public Project getProject()
     {
         return pkg == null ? null : pkg.getProject();
     }
-
+       
     /**
-     * Return true if this frame is currently editing a package. A call to this
-     * should bracket all uses of getPackage() and editor.
+     * A call to this should bracket all uses of getPackage() and editor.
+     * @return True is this frame is currently empty
      */
     public boolean isEmptyFrame()
     {
@@ -957,7 +1067,7 @@ public class PkgMgrFrame extends JFrame
             setTitle(title);
         }
     }
-    
+
     /**
      * Update the window title and show needed messages
      */
@@ -973,21 +1083,22 @@ public class PkgMgrFrame extends JFrame
 
     /**
      * Display a message in the status bar of the frame
+     * @param status The status to display
      */
+    @OnThread(value = Tag.Any, ignoreParent = true)
     public final void setStatus(final String status)
     {
-         EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                if (statusbar != null)
-                    statusbar.setText(status);
-            }
-        });
+         EventQueue.invokeLater(() -> {
+             if (statusbar != null)
+                 statusbar.setText(status);
+         });
         
     }
-       
+
     /**
      * Start the activity indicator. Call from any thread.
      */
+    @OnThread(Tag.Any)
     public void startProgress()
     {
         progressbar.setRunning(true);
@@ -996,26 +1107,27 @@ public class PkgMgrFrame extends JFrame
     /**
      * Stop the activity indicator. Call from any thread.
      */
+    @OnThread(Tag.Any)
     public void stopProgress()
     {
         progressbar.setRunning(false);
     }
 
     /**
-     * Clear status bar of the frame
+     * Clear status bar of the frame.  Call from any thread.
      */
+    @OnThread(Tag.Any)
     public void clearStatus()
     {
-       EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                if (statusbar != null)
-                    statusbar.setText(" ");
-            }
-        });
+       EventQueue.invokeLater(() -> {
+           if (statusbar != null)
+               statusbar.setText(" ");
+       });
     }
 
     /**
      * Set the frames cursor to a WAIT_CURSOR while system is busy
+     * @param wait If true, show wait cursor; otherwise back to default cursor
      */
     public void setWaitCursor(boolean wait)
     {
@@ -1027,6 +1139,7 @@ public class PkgMgrFrame extends JFrame
 
     /**
      * Return the object bench.
+     * @return The object bench of this frame
      */
     public ObjectBench getObjectBench()
     {
@@ -1035,47 +1148,61 @@ public class PkgMgrFrame extends JFrame
 
     /**
      * Return the Code Pad component.
+     * @return The code pad of this frame
      */
     public TextEvalArea getCodePad()
     {
         return textEvaluator;
     }
 
+    @Override
     public void mousePressed(MouseEvent evt)
     {
         clearStatus();
     }
 
+    @Override
     public void mouseReleased(MouseEvent evt)
     {}
-
+    
+    @Override
     public void mouseClicked(MouseEvent evt)
     {}
 
+    @Override
     public void mouseEntered(MouseEvent evt)
     {}
-
+    
+    @Override
     public void mouseExited(MouseEvent evt)
     {}
-
-
+    
     @Override
     public void pkgEditorGotFocus()
     {
-        classScroller.setBorder(Config.focusBorder);
+        classScroller.setBorder(Config.getFocusBorder());
     }
-    
+
+
+    // --- below are implementations of particular user actions ---
+    // These are broken into "interactive" methods (which can display dialogs
+    // etc) and "non-interactive". In general interactive methods delegate to
+    // the non-interactive variants.
+
+    // --- non-interactive methods ---
     
     @Override
     public void pkgEditorLostFocus()
     {
-        classScroller.setBorder(Config.normalBorder);
+        classScroller.setBorder(Config.getNormalBorder());
     }
-
+    
     /**
      * Deal with an event generated by a target in the package we are currently
      * editing.
+     * @param e The event to process
      */
+    @Override
     public void targetEvent(PackageEditorEvent e)
     {
         int evtId = e.getID();
@@ -1145,27 +1272,23 @@ public class PkgMgrFrame extends JFrame
     /* (non-Javadoc)
      * @see bluej.pkgmgr.PackageEditorListener#recordInteraction(bluej.testmgr.record.InvokerRecord)
      */
+    @Override
     public void recordInteraction(InvokerRecord ir)
     {
         getObjectBench().addInteraction(ir);
     }
+
+    // --- interactive methods ---
     
     /**
      * Gets the current test identifier (used to identify tests during the data recording)
+     * @return The current test id
      */
     public int getTestIdentifier()
     {
         return testIdentifier;
     }
-
-
-    // --- below are implementations of particular user actions ---
-    // These are broken into "interactive" methods (which can display dialogs
-    // etc) and "non-interactive". In general interactive methods delegate to
-    // the non-interactive variants.
-
-    // --- non-interactive methods ---
-    
+   
     /**
      * Create a new project and display it in a frame.
      * @param dirName           The directory to create the project in
@@ -1220,7 +1343,7 @@ public class PkgMgrFrame extends JFrame
         
         return fails;
     }
-    
+
     /**
      * Creates a new class using the given name and template
      * 
@@ -1253,8 +1376,7 @@ public class PkgMgrFrame extends JFrame
             }
         }
 
-        ClassTarget target = null;
-        target = new ClassTarget(pkg, name, template);
+        ClassTarget target = new ClassTarget(pkg, name, template);
 
         if ( template != null ) { 
             boolean success = target.generateSkeleton(template);
@@ -1274,14 +1396,15 @@ public class PkgMgrFrame extends JFrame
         if (target.getRole() instanceof UnitTestClassRole) {
             pkg.compileQuiet(target);
         }
+
+        // Schedule compilation of new class:
+        pkg.getProject().scheduleCompilation(false);
         
         DataCollector.addClass(pkg, target.getSourceFile());
         
         return true;
     }
 
-    // --- interactive methods ---
-    
     /**
      * Allow the user to select a directory into which we create a project.
      * @param isJavaMEproject   Whether this is a Java Micro Edition project or not.
@@ -1319,44 +1442,7 @@ public class PkgMgrFrame extends JFrame
 
         return true;
     }
-   
-    /**
-     * Opens either a project from a directory or an archive.
-     * 
-     * @param pmf Optional parameter. Used for displaying dialogs and reuse
-     *            if it is the empty frame.
-     */
-    public static boolean doOpen(File projectPath, PkgMgrFrame pmf)
-    {     
-        boolean createdNewFrame = false;
-        if(pmf == null && PkgMgrFrame.frames.size() > 0) {
-            pmf = PkgMgrFrame.frames.get(0);
-        }
-        else if(pmf == null) {
-            pmf = PkgMgrFrame.createFrame();
-            createdNewFrame = true;
-        }
 
-        boolean openedProject = false;
-        if (projectPath != null) {
-            if (projectPath.isDirectory() || Project.isProject(projectPath.toString())) {
-                if(pmf.openProject(projectPath.getAbsolutePath())) {
-                    openedProject = true;
-                }
-            }
-            else {
-                if(pmf.openArchive(projectPath)) {
-                    openedProject = true;
-                }
-            }
-        }
-        if(createdNewFrame && !openedProject) {
-            // Close newly created frame if it was never used.
-            PkgMgrFrame.closeFrame(pmf);
-        }
-        return openedProject;
-    }
-    
     /**
      * Open a dialog that lets the user choose a project. The project selected
      * is opened in a frame.
@@ -1399,7 +1485,7 @@ public class PkgMgrFrame extends JFrame
             return true;
         }
     }
-
+    
     /**
      * Open a dialog that lets a user convert existing Java source into a BlueJ
      * project.
@@ -1470,26 +1556,13 @@ public class PkgMgrFrame extends JFrame
     }
 
     /**
-     * Close all frames which show packages from the specified project. This
-     * causes the project itself to close.
-     */
-    public static void closeProject(Project project) 
-    {
-        PkgMgrFrame[] allFrames = getAllProjectFrames(project);
-
-        if (allFrames != null) {
-            for (int i = 0; i < allFrames.length; i++) {
-                allFrames[i].doClose(true, true);
-            }
-        }
-    }
-    
-    /**
      * Perform a user initiated close of this frame/package.
      * 
      * There are two different methods for the user to initiate a close. One is
      * through the "Close" menu item and the other is with the windows close
      * button. We want slightly different behaviour for these two cases.
+     * @param keepLastFrame If true, keep the frame visible.
+     * @param doSave If true, do a save before closing
      */
     public void doClose(boolean keepLastFrame, boolean doSave)
     {
@@ -1521,7 +1594,7 @@ public class PkgMgrFrame extends JFrame
             PkgMgrFrame.closeFrame(this);
         }
     }
-
+    
     /**
      * Save this package. Don't ask questions - just do it.
      */
@@ -1561,7 +1634,7 @@ public class PkgMgrFrame extends JFrame
         }
         pkg.save(p);
     }
-
+        
     /**
      * Import into a new project or import into the current project.
      */
@@ -1599,16 +1672,16 @@ public class PkgMgrFrame extends JFrame
             return;
         importFromFile(classes);
     }
-        
-    
+
     /**
      * Add a given set of Java source files as classes to this package.
+     * @param classes The classes to add
      */
     public void addFiles(List<File> classes)
     {
         importFromFile(classes.toArray(new File[classes.size()]));
     }
-    
+
     /**
      * Add the given set of Java source files as classes to this package.
      */
@@ -1618,29 +1691,27 @@ public class PkgMgrFrame extends JFrame
         // dialogs
         // these could be aggregated however the error messages may be different
         // for each error
-        for (int i = 0; i < classes.length; i++) {
-            int result = pkg.importFile(classes[i]);
-
-            switch(result) {
+        for (File cls : classes) {
+            int result = pkg.importFile(cls);
+            switch (result) {
                 case Package.NO_ERROR :
                     // Have commented out repaint as it does not seem to be
                     // needed
                     //editor.repaint();
                     break;
-                case Package.FILE_NOT_FOUND :
-                    DialogManager.showErrorWithText(this, "file-does-not-exist", classes[i].getName());
+                case Package.FILE_NOT_FOUND:
+                    DialogManager.showErrorWithText(this, "file-does-not-exist", cls.getName());
                     break;
-                case Package.ILLEGAL_FORMAT :
-                    DialogManager.showErrorWithText(this, "cannot-import", classes[i].getName());
+                case Package.ILLEGAL_FORMAT:
+                    DialogManager.showErrorWithText(this, "cannot-import", cls.getName());
                     break;
-                case Package.CLASS_EXISTS :
-                    DialogManager.showErrorWithText(this, "duplicate-name", classes[i].getName());
+                case Package.CLASS_EXISTS:
+                    DialogManager.showErrorWithText(this, "duplicate-name", cls.getName());
                     break;
-                case Package.COPY_ERROR :
-                    DialogManager.showErrorWithText(this, "error-in-import", classes[i].getName());
+                case Package.COPY_ERROR:
+                    DialogManager.showErrorWithText(this, "error-in-import", cls.getName());
                     break;
             }
-
         }
     }
 
@@ -1664,63 +1735,6 @@ public class PkgMgrFrame extends JFrame
         PrinterJob job = PrinterJob.getPrinterJob();
         PageFormat pfmt = job.pageDialog(getPageFormat());
         setPageFormat(pfmt);
-    }
-
-    /**
-     * accessor method for PageFormat object that can be used by various
-     * printing subsystems eg. source code printing from editor
-     * 
-     * @return common PageFormat object representing page preferences
-     */
-    public static PageFormat getPageFormat()
-    {
-        if (pageFormat == null) {
-            pageFormat = PrinterJob.getPrinterJob().defaultPage();
-
-        }
-        //Important that this is set before the margins:
-        int orientation = Config.getPropInteger("bluej.printer.paper.orientation", pageFormat.getOrientation());
-        pageFormat.setOrientation(orientation);
-        
-        Paper paper = pageFormat.getPaper();
-        int x = Config.getPropInteger("bluej.printer.paper.x", 72);
-        int y = Config.getPropInteger("bluej.printer.paper.y", 72);
-        int width = Config.getPropInteger("bluej.printer.paper.width", (int)paper.getWidth() - 72 - x);
-        int height = Config.getPropInteger("bluej.printer.paper.height", (int)paper.getHeight() - 72 - y);
-        paper.setImageableArea(x, y, width, height);
-        //paper is a copy of pageFormat's paper, so we must use set again to make the changes:
-        pageFormat.setPaper(paper);
-        return pageFormat;
-    }
-
-    /**
-     * set method for printing PageFormat. Called by other elements that may
-     * manipulate pageformat, at this stage the source editor is the only
-     * component that does. The assumption is that the PageFormat should be
-     * uniform between all components that may want to send output to a printer.
-     * 
-     * @param page
-     *            the new PageFormat
-     */
-    public static void setPageFormat(PageFormat page)
-    {
-        pageFormat = page;
-        // We must get the measurements from the paper (which ignores orientation)
-        // rather than page format (which takes it into account) because ultimately
-        // we will use paper.setImageableArea to load the dimensions again
-        Paper paper = pageFormat.getPaper();
-        double x = paper.getImageableX();
-        double y = paper.getImageableY();
-        double width = paper.getImageableWidth();
-        double height = paper.getImageableHeight();
-        //The sizes are in points, so saving them as an integer should be precise enough:
-        Config.putPropInteger("bluej.printer.paper.x", (int)x);
-        Config.putPropInteger("bluej.printer.paper.y", (int)y);
-        Config.putPropInteger("bluej.printer.paper.width", (int)width);
-        Config.putPropInteger("bluej.printer.paper.height", (int)height);
-        int orientation = pageFormat.getOrientation();
-        Config.putPropInteger("bluej.printer.paper.orientation", orientation);
-
     }
 
     /**
@@ -1780,18 +1794,21 @@ public class PkgMgrFrame extends JFrame
             // completion of the call and then places the object on the object
             // bench
             watcher = new ResultWatcher() {
+                @Override
                 public void beginCompile()
                 {
                     setWaitCursor(true);
                     setStatus(Config.getString("pkgmgr.creating"));
                 }
                 
+                @Override
                 public void beginExecution(InvokerRecord ir)
                 {
                     BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, ir);
                     setWaitCursor(false);
                 }
                 
+                @Override
                 public void putResult(DebuggerObject result, String name, InvokerRecord ir)
                 {
                     ExecutionEvent executionEvent = new ExecutionEvent(pkg, cv.getClassName(), null);
@@ -1821,12 +1838,14 @@ public class PkgMgrFrame extends JFrame
                     }
                 }
 
+                @Override
                 public void putError(String msg, InvokerRecord ir)
                 {
                     setStatus("");
                     setWaitCursor(false);
                 }
                 
+                @Override
                 public void putException(ExceptionDescription exception, InvokerRecord ir)
                 {
                     ExecutionEvent executionEvent = new ExecutionEvent(pkg, cv.getClassName(), null);
@@ -1840,6 +1859,7 @@ public class PkgMgrFrame extends JFrame
                     getPackage().getProject().updateInspectors();
                 }
                 
+                @Override
                 public void putVMTerminated(InvokerRecord ir)
                 {
                     ExecutionEvent executionEvent = new ExecutionEvent(pkg, cv.getClassName(), null);
@@ -1858,8 +1878,9 @@ public class PkgMgrFrame extends JFrame
             // that waits for completion of the call and then displays the
             // result (or does nothing if void)
             watcher = new ResultWatcher() {
-                private ExpressionInformation expressionInformation = new ExpressionInformation(mv, getName());
+                private final ExpressionInformation expressionInformation = new ExpressionInformation(mv, getName());
 
+                @Override
                 public void beginCompile()
                 {
                     setWaitCursor(true);
@@ -1869,12 +1890,14 @@ public class PkgMgrFrame extends JFrame
                     }
                 }
                 
+                @Override
                 public void beginExecution(InvokerRecord ir)
                 {
                     BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, ir);
                     setWaitCursor(false);
                 }
                 
+                @Override
                 public void putResult(DebuggerObject result, String name, InvokerRecord ir)
                 {
                     ExecutionEvent executionEvent = new ExecutionEvent(pkg, cv.getClassName(), null);
@@ -1901,11 +1924,13 @@ public class PkgMgrFrame extends JFrame
                             expressionInformation, PkgMgrFrame.this);
                 }
 
+                @Override
                 public void putError(String msg, InvokerRecord ir)
                 {
                     setWaitCursor(false);
                 }
                 
+                @Override
                 public void putException(ExceptionDescription exception, InvokerRecord ir)
                 {
                     ExecutionEvent executionEvent = new ExecutionEvent(pkg, cv.getClassName(), null);
@@ -1918,6 +1943,7 @@ public class PkgMgrFrame extends JFrame
                     getPackage().exceptionMessage(exception);
                 }
                 
+                @Override
                 public void putVMTerminated(InvokerRecord ir)
                 {
                     ExecutionEvent executionEvent = new ExecutionEvent(pkg, cv.getClassName(), null);
@@ -2143,8 +2169,8 @@ public class PkgMgrFrame extends JFrame
             return false;
         }
         if (askRemoveClass()) {
-            for (int i = 0; i < targets.length; i++) {
-                targets[i].remove();
+            for (Target target : targets) {
+                target.remove();
             }
         }
         return true;
@@ -2275,6 +2301,7 @@ public class PkgMgrFrame extends JFrame
 
     /**
      * Recording of a test case started - set the interface appropriately.
+     * @param message The user message to display
      */
     public void testRecordingStarted(String message)
     {
@@ -2308,6 +2335,8 @@ public class PkgMgrFrame extends JFrame
 
     /**
      * Store information about the currently recorded test method.
+     * @param testName The name of the test
+     * @param testClass The class the test belongs to
      */
     public void setTestInfo(String testName, ClassTarget testClass)
     {
@@ -2360,10 +2389,9 @@ public class PkgMgrFrame extends JFrame
     {
         Target[] targets = pkg.getSelectedTargets();
         if (targets.length > 0) {
-            for (int i = 0; i < targets.length; i++) {
-                if (targets[i] instanceof ClassTarget) {
-                    ClassTarget t = (ClassTarget) targets[i];
-
+            for (Target target : targets) {
+                if (target instanceof ClassTarget) {
+                    ClassTarget t = (ClassTarget) target;
                     if (t.hasSourceCode())
                         pkg.compile(t);
                 }
@@ -2403,6 +2431,7 @@ public class PkgMgrFrame extends JFrame
      * <P>Returns true if the debugger is currently idle, or false if it is already
      * executing, in which case an error dialog is also displayed and the debugger
      * controls window is made visible.
+     * @return True if the debugger is currently idle
      */
     public boolean checkDebuggerState()
     {
@@ -2469,24 +2498,24 @@ public class PkgMgrFrame extends JFrame
     
     /**
      * Show or hide the testing tools.
+     * @param show True to show; false to hide
      */
     public void showTestingTools(boolean show)
     {
-        for (Iterator<JComponent> it = testItems.iterator(); it.hasNext();) {
-            JComponent component = it.next();
+        testItems.stream().forEach((component) -> {
             component.setVisible(show);
-        }
+        });
     }
     
     /**
      * Show or hide the teamwork tools.
+     * @param show True to show; false to hide
      */
     public void showTeamTools(boolean show)
     {
-        for (Iterator<JComponent> it = teamItems.iterator(); it.hasNext();) {
-            JComponent component = it.next();
+        teamItems.stream().forEach((component) -> {
             component.setVisible(show);
-        }
+        });
     }
     
     /**
@@ -2495,6 +2524,7 @@ public class PkgMgrFrame extends JFrame
      * Java ME tools show or not in all packages--not only in
      * Java ME packages--depending on whether the checkbox in 
      * the Preferences panel is ticked or not.
+     * @param show True to show; false to hide
      */
     public void showJavaMEtools( boolean show )
     {
@@ -2524,6 +2554,7 @@ public class PkgMgrFrame extends JFrame
 
     /**
      * Show or hide the text evaluation component.
+     * @param show True to show; false to hide
      */
     public void showHideTextEval(boolean show)
     {
@@ -2555,6 +2586,7 @@ public class PkgMgrFrame extends JFrame
     /**
      * Updates the background of the text evaluation component (if it exists),
      * when a project is opened/closed
+     * @param emptyFrame True if the frame is currently empty
      */
     public void updateTextEvalBackground(boolean emptyFrame)
     {
@@ -2569,6 +2601,7 @@ public class PkgMgrFrame extends JFrame
      * A BlueJEvent was raised. Check whether it is one that we're interested
      * in.
      */
+    @Override
     public void blueJEvent(int eventId, Object arg)
     {
         switch(eventId) {
@@ -2601,6 +2634,7 @@ public class PkgMgrFrame extends JFrame
      * 
      * NOTE: The current implementation assumes that user VMs DO NOT run
      * concurrently!
+     * @param state The state to set
      */
     public void setDebuggerState(int state)
     {
@@ -2652,6 +2686,7 @@ public class PkgMgrFrame extends JFrame
     /**
      * showWebPage - show a page in a web browser and display a message in the
      * status bar.
+     * @param url Address of the page to show
      */
     public void showWebPage(String url)
     {
@@ -2670,8 +2705,8 @@ public class PkgMgrFrame extends JFrame
         if (icon != null) {
             setIconImage(icon);
         }
-        testItems = new ArrayList<JComponent>();
-        teamItems = new ArrayList<JComponent>();
+        testItems = new ArrayList<>();
+        teamItems = new ArrayList<>();
 
         setupMenus();
         
@@ -2842,7 +2877,7 @@ public class PkgMgrFrame extends JFrame
         mainPanel.add(toolPanel, BorderLayout.WEST);
 
         classScroller = new JScrollPane();
-        classScroller.setBorder(Config.normalBorder);
+        classScroller.setBorder(Config.getNormalBorder());
         classScroller.setPreferredSize(new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
         classScroller.setSize(new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
         classScroller.setFocusable(false);
@@ -3004,7 +3039,7 @@ public class PkgMgrFrame extends JFrame
     private void setupMenus()
     {
         menubar = new JMenuBar();
-        itemsToDisable = new ArrayList<JComponent>();
+        itemsToDisable = new ArrayList<>();
 
         JMenu menu = new JMenu(Config.getString("menu.package"));
         int mnemonic = Config.getMnemonicKey("menu.package");
@@ -3226,7 +3261,7 @@ public class PkgMgrFrame extends JFrame
      */
     private void setupActionDisableSet()
     {
-        actionsToDisable = new ArrayList<Action>();
+        actionsToDisable = new ArrayList<>();
         actionsToDisable.add(closeProjectAction);
         actionsToDisable.add(saveProjectAction);
         actionsToDisable.add(saveProjectAsAction);
@@ -3298,6 +3333,7 @@ public class PkgMgrFrame extends JFrame
     /**
      * Enable/disable functionality. Enable or disable all the interface
      * elements that should change when a project is or is not open.
+     * @param enable True to enable; false to disable
      */
     protected void enableFunctions(boolean enable)
     {
@@ -3305,18 +3341,17 @@ public class PkgMgrFrame extends JFrame
             teamActions.setAllDisabled();
         }
         
-        for (Iterator<JComponent> it = itemsToDisable.iterator(); it.hasNext();) {
-            JComponent component = it.next();
+        itemsToDisable.stream().forEach((component) -> {
             component.setEnabled(enable);
-        }
-        for (Iterator<Action> it = actionsToDisable.iterator(); it.hasNext();) {
-            Action action = it.next();
+        });
+        actionsToDisable.stream().forEach((action) -> {
             action.setEnabled(enable);
-        }
+        });
     }
 
     /**
      * Return true if this frame is editing a Java Micro Edition package.
+     * @return True is this is a Java ME package
      */
     public boolean isJavaMEpackage( )
     {
@@ -3357,7 +3392,7 @@ public class PkgMgrFrame extends JFrame
      */
     private void movePaneFocus(final JComponent fromPane, int direction)
     {
-        List<JComponent> visiblePanes = new ArrayList<JComponent>();
+        List<JComponent> visiblePanes = new ArrayList<>();
         if (editor != null)
         {
             // editor is null if no package is open

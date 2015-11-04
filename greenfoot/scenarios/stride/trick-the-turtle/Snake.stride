@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<class name="Snake" extends="Actor" enable="true" strideversion="1">
+    <javadoc xml:space="preserve">A snake in my game that can eat turtles.
+</javadoc>
+    <imports>
+        <import target="java.util.*" enable="true"/>
+        <import target="greenfoot.*" enable="true"/>
+        <import target="java.awt.Color" enable="true"/>
+    </imports>
+    <implements/>
+    <fields/>
+    <constructors/>
+    <methods>
+        <method access="public" type="void" name="act" enable="true">
+            <javadoc xml:space="preserve">Do whatever snakes do.</javadoc>
+            <params/>
+            <throws/>
+            <body>
+                <call expression="move(5)" expression-java="move(5)" enable="true"/>
+                <call expression="turnAtEdge()" expression-java="turnAtEdge()" enable="true"/>
+                <call expression="randomTurn()" expression-java="randomTurn()" enable="true"/>
+                <call expression="tryToEatTurtle()" expression-java="tryToEatTurtle()" enable="true"/>
+            </body>
+        </method>
+        <method access="public" type="void" name="turnAtEdge" enable="true">
+            <javadoc xml:space="preserve">Check whether we are at the edge of the world. If we are, turn a bit.
+If not, do nothing.</javadoc>
+            <params/>
+            <throws/>
+            <body>
+                <if condition="isAtEdge()" condition-java="isAtEdge()" enable="true">
+                    <ifStatements>
+                        <call expression="turn(17)" expression-java="turn(17)" enable="true"/>
+                    </ifStatements>
+                </if>
+            </body>
+        </method>
+        <method access="public" type="void" name="randomTurn" enable="true">
+            <javadoc xml:space="preserve">Randomly decide to turn from the current direction, or not. If we turn
+turn a bit left or right by a random degree.</javadoc>
+            <params/>
+            <throws/>
+            <body>
+                <if condition="Greenfoot.getRandomNumber(100)&gt;90" condition-java="Greenfoot.getRandomNumber(100) &gt; 90" enable="true">
+                    <ifStatements>
+                        <call expression="turn(Greenfoot.getRandomNumber(90)-45)" expression-java="turn(Greenfoot.getRandomNumber(90) - 45)" enable="true"/>
+                    </ifStatements>
+                </if>
+            </body>
+        </method>
+        <method access="public" type="void" name="tryToEatTurtle" enable="true">
+            <javadoc xml:space="preserve">Try to pinch a turtle. That is: check whether we have stumbled upon a turtle.
+If we have, remove the turtle from the game, and stop the program running.</javadoc>
+            <params/>
+            <throws/>
+            <body>
+                <if condition="isTouching(Turtle.class)" condition-java="isTouching(Turtle.class)" enable="true">
+                    <ifStatements>
+                        <call expression="removeTouching(Turtle.class)" expression-java="removeTouching(Turtle.class)" enable="true"/>
+                        <call expression="Greenfoot.playSound(&quot;au.wav&quot;)" expression-java="Greenfoot.playSound(&quot;au.wav&quot;)" enable="true"/>
+                        <call expression="Greenfoot.stop()" expression-java="Greenfoot.stop()" enable="true"/>
+                    </ifStatements>
+                </if>
+            </body>
+        </method>
+    </methods>
+</class>

@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012,2014,2015  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -32,6 +32,7 @@ import bluej.extensions.ClassNotFoundException;
 import bluej.extensions.CompilationNotStartedException;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
+import bluej.extensions.SourceType;
 import bluej.runtime.ExecServer;
 import bluej.utility.Debug;
 
@@ -57,6 +58,7 @@ public class GClass
     
     private ClassView classView;
     private Class<?> realClass;
+    private boolean hasKnownError;
 
     /**
      * Constructor used by GCoreClass only
@@ -196,6 +198,15 @@ public class GClass
      */
     public void edit()
     {
+        try
+        {
+            GreenfootUtil.allowForeground(GreenfootMain.getInstance().getBlueJProcessId());
+        }
+        catch (RemoteException e)
+        {
+            Debug.reportError(e);
+        }
+
         try {
             rmiClass.edit();
         }
@@ -229,22 +240,22 @@ public class GClass
         }
     }
     
-    public boolean hasSourceCode()
+    public SourceType getSourceType()
     {
         try {
-            return rmiClass.hasSourceCode();
+            return rmiClass.getSourceType();
         }
         catch (ProjectNotOpenException e) {
-            Debug.reportError("Could not close editor", e);
-            return false;
+            Debug.reportError("Could not query source type", e);
+            return null;
         }
         catch (PackageNotFoundException e) {
-            Debug.reportError("Could not close editor", e);
-            return false;
+            Debug.reportError("Could not query source type", e);
+            return null;
         }
         catch (RemoteException e) {
-            Debug.reportError("Could not close editor", e);
-            return false;
+            Debug.reportError("Could not query source type", e);
+            return null;
         }
     }
     
@@ -256,10 +267,10 @@ public class GClass
      * Method body should have no curly braces, it should just be
      * "foo.bar();\n        if(true) return;\n" or similar, and should end in a newline
      */
-    public void insertAppendMethod(String comment, String access, String methodName, String methodBody, boolean showEditorOnCreate, boolean showEditorOnAppend)
+    public void insertAppendMethod(String method, boolean showEditorOnCreate, boolean showEditorOnAppend)
     {
         try {
-            rmiClass.insertAppendMethod(comment, access, methodName, methodBody, showEditorOnCreate, showEditorOnAppend);
+            rmiClass.insertAppendMethod(method, showEditorOnCreate, showEditorOnAppend);
         }
         catch (ProjectNotOpenException e) {
             Debug.reportError("Could not insert code", e);
@@ -272,10 +283,10 @@ public class GClass
         }
     }
     
-    public void insertMethodCallInConstructor(String methodName, boolean showEditor)
+    public void insertMethodCallInConstructor(String methodCall, boolean showEditor)
     {
         try {
-            rmiClass.insertMethodCallInConstructor(methodName, showEditor);
+            rmiClass.insertMethodCallInConstructor(methodCall, showEditor);
         }
         catch (ProjectNotOpenException e) {
             Debug.reportError("Could not insert code", e);
@@ -315,6 +326,25 @@ public class GClass
         props.removeCachedImage(getName());
         try {
             rmiClass.remove();
+        }
+        catch (ProjectNotOpenException e) {
+            Debug.reportError("Could not remove class", e);
+        }
+        catch (PackageNotFoundException e) {
+            Debug.reportError("Could not remove class", e);
+        }
+        catch (ClassNotFoundException e) {
+            Debug.reportError("Could not remove class", e);
+        }
+        catch (RemoteException e) {
+            Debug.reportError("Could not remove class", e);
+        }
+    }
+    
+    public void removeStrideFile()
+    {
+        try {
+            rmiClass.removeStrideFile();
         }
         catch (ProjectNotOpenException e) {
             Debug.reportError("Could not remove class", e);
@@ -543,10 +573,12 @@ public class GClass
     
     /**
      * Set the compiled state of this class.
+     * @param hasKnownError
      */
-    public synchronized void setCompiledState(boolean isCompiled)
+    public synchronized void setCompiledState(boolean isCompiled, boolean hasKnownError)
     {
         compiled = isCompiled;
+        this.hasKnownError = hasKnownError;
         if (classView != null) {
             // It's safe to call repaint off the event thread
             classView.repaint();
@@ -672,4 +704,20 @@ public class GClass
         return isSubclassOf(worldObj);
     }
 
+    public boolean hasKnownError()
+    {
+        return hasKnownError;
+    }
+
+    public void cancelFreshState()
+    {
+        try
+        {
+            rmiClass.cancelFreshState();
+        }
+        catch (ProjectNotOpenException | PackageNotFoundException | RemoteException e)
+        {
+            Debug.reportError("cancelFreshState", e);
+        }
+    }
 }

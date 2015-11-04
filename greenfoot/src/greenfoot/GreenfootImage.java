@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012,2013,2014  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012,2013,2014,2015  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -132,6 +132,8 @@ public class GreenfootImage
 
     /**
      * Create a GreenfootImage from another GreenfootImage.
+     * 
+     * @param image The source image to be copied.
      */
     public GreenfootImage(GreenfootImage image)
         throws IllegalArgumentException
@@ -362,7 +364,7 @@ public class GreenfootImage
     /**
      * Rotates this image around the center.
      * 
-     * @param degrees
+     * @param degrees The number of degrees the object will rotate for.
      */
     public void rotate(int degrees)
     {
@@ -467,8 +469,9 @@ public class GreenfootImage
     }
     
     /**
-     * Set the current font. This font will be used for subsequent text
-     * operations.
+     * Set the current font. This font will be used for subsequent text operations.
+     * 
+     * @param f The new Font to be used.
      */
     public void setFont(Font f)
     {
@@ -477,6 +480,8 @@ public class GreenfootImage
     
     /**
      * Get the current font.
+     * 
+     * @return The current used font, if none, set it as the Graphics font, then return it.
      */
     public Font getFont()
     {        
@@ -512,6 +517,9 @@ public class GreenfootImage
      * 
      * @throws IndexOutOfBoundsException If the pixel location is not within the
      *             image bounds.
+     * @param x The horizontal coordinate of the pixel.
+     * @param y The vertical coordinate of the pixel.
+     * @return The Color at the specific pixel.
      */
     public Color getColorAt(int x, int y)
     {
@@ -520,6 +528,10 @@ public class GreenfootImage
     
     /**
      * Sets the given pixel to the given color.
+     * 
+     * @param x The horizontal coordinate of the pixel.
+     * @param y The vertical coordinate of the pixel.
+     * @param color The Color to be assigned at the specific pixel.
      */
     public void setColorAt(int x, int y, Color color) {
         setRGBAt(x, y, color.getRGB());

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -30,6 +30,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 
@@ -43,6 +45,7 @@ public class TeamUtils
      * 
      * @param basicServerResponse  The response to handle
      */
+    @OnThread(Tag.Swing)
     public static void handleServerResponse(TeamworkCommandResult result, final Window window)
     {
         if (result != null) {

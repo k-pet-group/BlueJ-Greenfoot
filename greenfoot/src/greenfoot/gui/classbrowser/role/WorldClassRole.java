@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2011,2013  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2011,2013,2014  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,6 +28,7 @@ import greenfoot.core.GProject;
 import javax.swing.JPopupMenu;
 
 import bluej.Config;
+import bluej.extensions.SourceType;
 
 /**
  * A role for world classes.
@@ -37,8 +38,8 @@ import bluej.Config;
 public class WorldClassRole extends ImageClassRole
 {
     boolean subWorld;
-    private final static String worldTemplate = "worldclass.tmpl";
-    private final static String subWorldTemplate = "subworldclass.tmpl";
+    private final static String worldTemplatePrefix = "world";
+    private final static String subWorldTemplatePrefix = "subworld";
     
     public WorldClassRole(GProject project, boolean subWorld)
     {
@@ -47,12 +48,12 @@ public class WorldClassRole extends ImageClassRole
     }
     
     @Override
-    public String getTemplateFileName()
+    public String getTemplateFileName(boolean useInterface, SourceType language)
     {
         if (subWorld) {
-            return subWorldTemplate;
+            return subWorldTemplatePrefix + language + templateExtension;
         }
-        return worldTemplate;
+        return worldTemplatePrefix + language + templateExtension;
     }
     
     @Override

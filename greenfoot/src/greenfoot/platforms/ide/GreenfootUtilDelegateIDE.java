@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2013  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2013,2014,2015  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -46,14 +46,20 @@ import java.util.List;
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
 import bluej.Config;
+import bluej.extensions.ProjectNotOpenException;
+import bluej.extensions.SourceType;
 import bluej.runtime.ExecServer;
 import bluej.utility.BlueJFileReader;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
+import bluej.utility.Utility;
+
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+
+import rmiextension.BlueJRMIClient;
 
 /**
  * GreenfootUtilDelegate implementation for the Greenfoot IDE.
@@ -82,9 +88,48 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
     /**
      * Creates the skeleton for a new class
      */
-    public void createSkeleton(String className, String superClassName, File file,
-            String templateFileName, String projCharsetName)
+    public void createSkeleton(String className, String superClassName, File file, String templateFileName, String projCharsetName)
         throws IOException
+    {
+        Dictionary<String, String> translations = new Hashtable<String, String>();
+        translations.put("CLASSNAME", className);
+        if(superClassName != null) {
+            translations.put("EXTENDSANDSUPERCLASSNAME", "extends " + superClassName);
+            translations.put("EXTENDSSUPERCLASSNAME",  "extends=\"" + superClassName + "\"");
+        } 
+        else {
+            translations.put("EXTENDSANDSUPERCLASSNAME", "");
+            translations.put("EXTENDSSUPERCLASSNAME",  "");
+        }
+        String baseName = "greenfoot/templates/" +  templateFileName;
+        File template = Config.getLanguageFile(baseName);
+        
+        if(!template.canRead()) {
+            template = Config.getDefaultLanguageFile(baseName);
+        }
+        BlueJFileReader.translateFile(template, file, translations, Charset.forName("UTF-8"), selectCharset(projCharsetName));
+    }
+    
+    /**
+     * Creates the duplicate for a class
+     */
+    public void duplicate(String originalClassName, String destinationClassName, File originalFile, File destination, SourceType type)
+        throws IOException
+    {
+        Dictionary<String, String> translations = new Hashtable<String, String>();
+        translations.put(originalClassName, destinationClassName);
+        BlueJFileReader.duplicateFile(originalFile, destination, translations);
+
+        //TODO if the previous line doesn't work properly for Java & Frame files, replace it with the next mechanism
+//      if (type.equals(SourceType.Java)) {
+//          file = createJavaCopy(destinationClassName, originalClassName, originalFile);
+//      }
+//      else if (type.equals(SourceType.Frame)) {
+//          file = createFrameCopy(destinationClassName, originalClassName, originalFile);
+//      }
+    }
+
+    private Charset selectCharset(String projCharsetName)
     {
         Charset projCharset;
         try
@@ -97,21 +142,7 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
         catch (IllegalCharsetNameException icne) {
             projCharset = Charset.forName("UTF-8");
         }
-        
-        Dictionary<String, String> translations = new Hashtable<String, String>();
-        translations.put("CLASSNAME", className);
-        if(superClassName != null) {
-            translations.put("EXTENDSANDSUPERCLASSNAME", "extends " + superClassName);
-        } else {
-            translations.put("EXTENDSANDSUPERCLASSNAME", "");
-        }
-        String baseName = "greenfoot/templates/" +  templateFileName;
-        File template = Config.getLanguageFile(baseName);
-        
-        if(!template.canRead()) {
-            template = Config.getDefaultLanguageFile(baseName);
-        }
-        BlueJFileReader.translateFile(template, file, translations, Charset.forName("UTF-8"), projCharset);
+        return projCharset;
     }
     
     @Override
@@ -424,4 +455,25 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
             return all.subList(index - desiredBefore, index + desiredAfter + 1);
         }
     }
+    
+    /**
+     * Opens the given page of the Greenfoot API documentation in a web browser.
+     * @param page name of the page relative to the root of the API doc.
+     * @throws IOException If the greenfoot directory can not be read
+     */
+    public static void showApiDoc(String page)
+        throws IOException
+    {
+        try
+        {
+            String customUrl = Utility.getGreenfootApiDocURL(page);
+            if (customUrl != null)
+                BlueJRMIClient.instance().getPackage().getProject().openBrowser(customUrl);
+        }
+        catch(ProjectNotOpenException e)
+        {
+            Debug.reportError(e);
+        }
+    }
+    
 }

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,6 +21,8 @@
  */
 package bluej.extensions.event;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
 import bluej.extensions.BClass;
 import bluej.extensions.BPackage;
 import bluej.pkgmgr.Package;
@@ -35,9 +37,21 @@ import bluej.pkgmgr.Package;
  * CHANGED_NAME:  The class has changed name.<p>
  * REMOVED:       The class has been removed.
  * 
+ * In the case of STATE_CHANGED there are three cases:<p>
+ * 
+ * isClassCompiled() returns true: The class has been compiled successfully.  Editing
+ * the class will switch to one of the next two states.<p>
+ * isClassCompiled() returns false and hasError() returns true: The class
+ * has been compiled and was found to have an error.  If the user edits the class,
+ * it will either switch directly to the first state (if they fix it and the compile occurs quickly)
+ * or the next state (if we are awaiting the compile). 
+ * isClassCompiled() returns false, and hasError() returns false: The class
+ * has been edited and is awaiting the next compile.  When the next compile occurs,
+ * the state will be changed to one of the above two states.<p> 
  * 
  * @author Davin McCall
  */
+@OnThread(Tag.Any)
 public class ClassEvent implements ExtensionEvent
 {
     public static final int STATE_CHANGED = 0;
@@ -48,19 +62,22 @@ public class ClassEvent implements ExtensionEvent
     private Package bluejPackage;
     private BClass bClass;
     private boolean isCompiled;
+    private boolean hasError;
     private String oldName;
     
     /**
      * Construct a new ClassEvent object for a STATE_CHANGED event.
      * @param eventId    The event identifier (STATE_CHANGED)
      * @param isCompiled  Whether the class is compiled or not
+     * @param hasError True if the last compilation gave an error, and the class not has been edited since. 
      */
-    public ClassEvent(int eventId, Package bluejPackage, BClass bClass, boolean isCompiled)
+    public ClassEvent(int eventId, Package bluejPackage, BClass bClass, boolean isCompiled, boolean hasError)
     {
         this.eventId = eventId;
         this.bluejPackage = bluejPackage;
         this.isCompiled = isCompiled;
         this.bClass = bClass;
+        this.hasError = hasError;
     }
     
     /**
@@ -91,6 +108,15 @@ public class ClassEvent implements ExtensionEvent
     public boolean isClassCompiled()
     {
         return isCompiled;
+    }
+    
+    /**
+     * Check whether the class for which the event occurred is compiled.
+     * Valid for STATE_CHANGED event if isClassCompiled() returns false.
+     */
+    public boolean hasError()
+    {
+        return hasError;
     }
     
     /**

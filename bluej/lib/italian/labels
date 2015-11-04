@@ -12,9 +12,6 @@ main.invalidPackage=Package non trovato
 
 compileException=Eccezione durante la compilazione
 compiler.thread.title=Thread del compilatore di BlueJ
-compiler.warningDialog.title=Warning del compilatore
-compiler.warningDialog.label=Warning dall'ultima compilazione
-compiler.warningDialog.noWarnings=Nessun warning
 
 debugger.assert.assertThat=Asserisce che:
 debugger.assert.resultIs=il risultato \u00e8

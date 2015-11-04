@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2012,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,10 +24,15 @@ package bluej.groupwork.actions;
 import java.awt.EventQueue;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
 import bluej.Config;
 import bluej.collect.DataCollector;
 import bluej.groupwork.Repository;
@@ -37,6 +42,7 @@ import bluej.groupwork.TeamworkCommand;
 import bluej.groupwork.TeamworkCommandResult;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
+import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.Utility;
 
@@ -66,6 +72,7 @@ public class ImportAction extends TeamAction
         doImport(pmf, project);
     }
 
+    @OnThread(Tag.Swing)
     private void doImport(final PkgMgrFrame pmf, final Project project)
     {
         // The team settings controller is not initially associated with the
@@ -104,12 +111,24 @@ public class ImportAction extends TeamAction
                 result = command.getResult();
 
                 if (! result.isError()) {
-                    project.setTeamSettingsController(tsc);
-                    Set<File> files = tsc.getProjectFiles(true);
-                    Set<File> newFiles = new LinkedHashSet<File>(files);
+                    final AtomicReference<Set<File>> files = new AtomicReference<>();
+                    try
+                    {
+                        EventQueue.invokeAndWait(() -> {
+                            project.setTeamSettingsController(tsc);
+                            Set<File> projFiles = tsc.getProjectFiles(true);
+                            // Make copy, to ensure thread safety:
+                            files.set(new HashSet<File>(projFiles));
+                        });
+                    }
+                    catch (InvocationTargetException | InterruptedException e)
+                    {
+                        Debug.reportError(e);
+                    }
+                    Set<File> newFiles = new LinkedHashSet<File>(files.get());
                     Set<File> binFiles = TeamUtils.extractBinaryFilesFromSet(newFiles);
                     command = repository.commitAll(newFiles, binFiles, Collections.<File>emptySet(),
-                            files, Config.getString("team.import.initialMessage"));
+                            files.get(), Config.getString("team.import.initialMessage"));
                     result = command.getResult();
                 }
 

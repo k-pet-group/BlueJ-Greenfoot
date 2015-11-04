@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2013  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2013,2014,2015  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -43,6 +43,7 @@ import bluej.extensions.BField;
 import bluej.extensions.BObject;
 import bluej.extensions.BPackage;
 import bluej.extensions.BProject;
+import bluej.extensions.ExtensionBridge;
 import bluej.extensions.PackageAlreadyExistsException;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
@@ -417,5 +418,29 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
     public void setVmRestarted(boolean vmRestarted)
     {
         this.vmRestarted = vmRestarted;
+    }
+
+    /**
+    * Change the state of the project to indicate if it is currently been closing.
+    * 
+    * @param closing  A boolean flag indicates whether the project is closing. 
+    * @throws RemoteException   if an RMI error occurs
+    */
+    @Override
+    public void setClosing(boolean closing) throws RemoteException, ProjectNotOpenException
+    {
+        ExtensionBridge.getProject(bProject).setClosing(closing);
+    }
+
+    @Override
+    public void openBrowser(String customUrl) throws RemoteException, ProjectNotOpenException
+    {
+        bProject.openWebViewTab(customUrl);
+    }
+
+    @Override
+    public void greenfootReady() throws ProjectNotOpenException, RemoteException
+    {
+        bProject.scheduleCompilation(false);
     }
 }

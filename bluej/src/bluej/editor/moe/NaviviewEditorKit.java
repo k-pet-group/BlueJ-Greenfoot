@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2015  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -36,10 +36,12 @@ import javax.swing.text.ViewFactory;
 public class NaviviewEditorKit extends DefaultEditorKit implements ViewFactory
 {
     private NaviView naviView;
+    private MoeErrorManager errorMgr;
     
-    public NaviviewEditorKit(NaviView naviView)
+    public NaviviewEditorKit(NaviView naviView, MoeErrorManager errorMgr)
     {
         this.naviView = naviView;
+        this.errorMgr = errorMgr;
     }
     
     @Override
@@ -50,7 +52,7 @@ public class NaviviewEditorKit extends DefaultEditorKit implements ViewFactory
 
     public View create(Element elem)
     {
-        return new NaviviewView(elem, naviView);
+        return new NaviviewView(elem, naviView, errorMgr);
     }
     
     @Override

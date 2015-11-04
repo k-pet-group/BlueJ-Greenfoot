@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<class name="Pengu" extends="Mover" enable="true" strideversion="1">
+    <javadoc xml:space="preserve">A little penguin that wants to get to the other side.</javadoc>
+    <imports>
+        <import target="java.util.*" enable="true"/>
+        <import target="greenfoot.*" enable="true"/>
+        <import target="java.awt.Color" enable="true"/>
+    </imports>
+    <implements/>
+    <fields>
+        <variable access="private" static="true" final="true" type="int" name="jumpStrength" value="16" value-java="16" enable="true"/>
+    </fields>
+    <constructors/>
+    <methods>
+        <method access="public" type="void" name="act" enable="true">
+            <javadoc xml:space="preserve">Check keyboard input and react accordingly.</javadoc>
+            <params/>
+            <throws/>
+            <body>
+                <call expression="checkKeys()" expression-java="checkKeys()" enable="true"/>
+                <call expression="checkFall()" expression-java="checkFall()" enable="true"/>
+            </body>
+        </method>
+        <method access="private" type="void" name="checkKeys" enable="true">
+            <javadoc xml:space="preserve"/>
+            <params/>
+            <throws/>
+            <body>
+                <if condition="Greenfoot.isKeyDown(&quot;left&quot;)" condition-java="Greenfoot.isKeyDown(&quot;left&quot;)" enable="true">
+                    <ifStatements>
+                        <call expression="setImage(&quot;pengu-left.png&quot;)" expression-java="setImage(&quot;pengu-left.png&quot;)" enable="true"/>
+                        <call expression="moveLeft()" expression-java="moveLeft()" enable="true"/>
+                    </ifStatements>
+                </if>
+                <if condition="Greenfoot.isKeyDown(&quot;right&quot;)" condition-java="Greenfoot.isKeyDown(&quot;right&quot;)" enable="true">
+                    <ifStatements>
+                        <call expression="setImage(&quot;pengu-right.png&quot;)" expression-java="setImage(&quot;pengu-right.png&quot;)" enable="true"/>
+                        <call expression="moveRight()" expression-java="moveRight()" enable="true"/>
+                    </ifStatements>
+                </if>
+                <if condition="Greenfoot.isKeyDown(&quot;space&quot;)" condition-java="Greenfoot.isKeyDown(&quot;space&quot;)" enable="true">
+                    <ifStatements>
+                        <if condition="onGround()" condition-java="onGround()" enable="true">
+                            <ifStatements>
+                                <call expression="jump()" expression-java="jump()" enable="true"/>
+                            </ifStatements>
+                        </if>
+                    </ifStatements>
+                </if>
+            </body>
+        </method>
+        <method access="private" type="void" name="jump" enable="true">
+            <javadoc xml:space="preserve">Start a jump action.</javadoc>
+            <params/>
+            <throws/>
+            <body>
+                <call expression="setVSpeed(-jumpStrength)" expression-java="setVSpeed( - jumpStrength)" enable="true"/>
+                <call expression="fall()" expression-java="fall()" enable="true"/>
+            </body>
+        </method>
+        <method access="private" type="void" name="checkFall" enable="true">
+            <javadoc xml:space="preserve">Check whether we are falling. If so, fall. If we're on ground, stop the fall.</javadoc>
+            <params/>
+            <throws/>
+            <body>
+                <if condition="onGround()" condition-java="onGround()" enable="true">
+                    <ifStatements>
+                        <call expression="setVSpeed(0)" expression-java="setVSpeed(0)" enable="true"/>
+                    </ifStatements>
+                    <else>
+                        <call expression="fall()" expression-java="fall()" enable="true"/>
+                    </else>
+                </if>
+            </body>
+        </method>
+    </methods>
+</class>

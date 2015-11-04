@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2010,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 2010,2011,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,6 +25,8 @@ import java.util.Iterator;
 
 import javax.swing.text.Document;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.editor.moe.Token;
@@ -283,6 +285,7 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
      * @param length     The length of the insert
      * @param listener   The listener for node structural changes
      */
+    @OnThread(Tag.Swing)
     public abstract int textInserted(MoeSyntaxDocument document, int nodePos, int insPos,
             int length, NodeStructureListener listener);
 
@@ -302,6 +305,7 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
      * @param length     The length of the removal
      * @param listener   The listener for node structural changes
      */
+    @OnThread(Tag.Swing)
     public abstract int textRemoved(MoeSyntaxDocument document, int nodePos, int delPos,
             int length, NodeStructureListener listener);
 
@@ -315,6 +319,7 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
      * 
      * This method should always mark which range it parsed in the document.
      */
+    @OnThread(Tag.Swing)
     protected int reparseNode(Document document, int nodePos, int offset, int maxParse, NodeStructureListener listener)
     {
         return ALL_OK;
@@ -330,6 +335,7 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
      * @param maxParse  The (advisory) maximum amount of document to re-parse in one hit
      * @param listener  The structure listener to be notified of structural changes
      */
+    @OnThread(Tag.Swing)
     public void reparse(MoeSyntaxDocument document, int nodePos, int offset, int maxParse, NodeStructureListener listener)
     {
         int size = getSize();
@@ -393,6 +399,7 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
      * It is the responsibility of this method to notify the listener of the child's change
      * in size, if it occurs.
      */
+    @OnThread(Tag.Swing)
     protected boolean growChild(Document document, NodeAndPosition<ParsedNode> child,
             NodeStructureListener listener)
     {
@@ -441,7 +448,7 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
             return null;
         }
         boolean isStaticCtxt = (defaultType.resolveAsType() != null);
-        return new CodeSuggestions(atype, atype, null, isStaticCtxt);
+        return new CodeSuggestions(atype, atype, null, isStaticCtxt, true);
     }
     
     /**

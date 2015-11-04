@@ -1,0 +1,42 @@
+Features of Greenfoot 3 (to be used in presentations etc).
+
+- Frames
+   - General frames structure
+   - Frame cursor
+   - Dragging frames
+   - Selecting frames, and dragging (including invalid drags), deleting or cut/copy/paste
+   - Inserting frames by keypress
+   - Frame extensions (e.g. else on if)
+   - Frame conversions (e.g. if to while)
+
+- Slots
+   - Slot navigation (left, right, etc)
+   - Choice slots
+   - Expression slots
+   - Toggle static and final.
+
+- Canvases
+  - Dividing the class to Fields, constructors and method areas.
+  - Inherited canvas, and override annotations.
+  - Import canvas.
+  - Inserting methods in constructor canvas
+  
+- Errors
+  - In slots
+  - On frames
+  - Error overview bar
+  - Errors in old editor
+
+- Code completion
+   - Contextual code completion (different for type slots and expression slots, etc)
+   - Code completion for strings
+
+- Tabbed editors (new and old)
+	- Drag frames through tabs (you can do it, but dragging after doing this is buggy for now, show it the last thing.)
+
+- Misc
+  - Method header continue to be visible if the user scrolls down, while part of the method is still visible.
+  - Frames' side annotation (e.g. the header of if block is hidden, while the rest of it is still visible).
+  - Holding control to link to definitions
+  - Variable renaming
+  - Bird's eye view

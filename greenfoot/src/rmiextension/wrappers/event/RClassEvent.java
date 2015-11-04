@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2014  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -30,7 +30,6 @@ import rmiextension.wrappers.RClass;
  * Interface for remote class events.
  * 
  * @author Davin McCall
- * @version $Id: RClassEvent.java 6216 2009-03-30 13:41:07Z polle $
  */
 public interface RClassEvent extends Remote
 {
@@ -54,6 +53,13 @@ public interface RClassEvent extends Remote
      * @throws RemoteException
      */
     public boolean isClassCompiled() throws RemoteException;
+    
+    /**
+     * Check whether the class in the event has an error (only valid if isClassCompiled is false).
+     * 
+     * @throws RemoteException
+     */
+    public boolean hasError() throws RemoteException;
     
     /**
      * Get the new class name (valid for a CHANGING_NAME event).

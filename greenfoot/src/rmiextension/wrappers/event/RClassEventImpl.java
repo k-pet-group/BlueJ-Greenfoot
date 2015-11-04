@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2014  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -31,7 +31,6 @@ import bluej.extensions.event.ClassEvent;
  * Implementation of a remote class event. Wraps a local ClassEvent.
  * 
  * @author Davin McCall
- * @version $Id: RClassEventImpl.java 6216 2009-03-30 13:41:07Z polle $
  */
 public class RClassEventImpl extends java.rmi.server.UnicastRemoteObject
     implements RClassEvent
@@ -73,6 +72,11 @@ public class RClassEventImpl extends java.rmi.server.UnicastRemoteObject
     public boolean isClassCompiled() throws RemoteException
     {
         return event.isClassCompiled();
+    }
+    
+    public boolean hasError() throws RemoteException
+    {
+        return event.hasError();
     }
     
     /* (non-Javadoc)

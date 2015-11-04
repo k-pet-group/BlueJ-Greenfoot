@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2011,2013  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2011,2013,2014,2015  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -71,6 +71,7 @@ import bluej.Config;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.extensions.ProjectNotOpenException;
+import bluej.extensions.SourceType;
 
 /**
  * The window showing a library of supplied classes
@@ -301,6 +302,12 @@ public class ImportClassWindow extends JFrame
         {
             return false;
         }
+        
+        @Override
+        protected boolean hasKnownError()
+        {
+            return false;
+        }
 
         @Override
         protected void doubleClick() {}
@@ -400,7 +407,9 @@ public class ImportClassWindow extends JFrame
         @Override
         public boolean accept(File pathname)
         {
-            return pathname.getAbsolutePath().endsWith(".class") || pathname.getAbsolutePath().endsWith(".java");
+            return pathname.getAbsolutePath().endsWith(".class") 
+                    || pathname.getAbsolutePath().endsWith("." + SourceType.Java.toString().toLowerCase())
+                    || pathname.getAbsolutePath().endsWith("." + SourceType.Stride.toString().toLowerCase());
         }
     }
     

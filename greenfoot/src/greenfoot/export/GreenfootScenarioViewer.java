@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012,2013,2014  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012,2013,2014,2015  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,7 +26,6 @@ import greenfoot.core.ProjectProperties;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
 import greenfoot.event.SimulationEvent;
-import greenfoot.event.SimulationListener;
 import greenfoot.gui.AskPanel;
 import greenfoot.gui.ControlPanel;
 import greenfoot.gui.WorldCanvas;
@@ -43,10 +42,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
-import java.awt.Image;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.Callable;
@@ -62,9 +59,7 @@ import javax.swing.OverlayLayout;
 import javax.swing.RootPaneContainer;
 
 import bluej.Config;
-import bluej.utility.CenterLayout;
 import bluej.utility.Debug;
-import bluej.utility.Utility;
 
 /**
  * This class can view and run a Greenfoot scenario. It is not possible to
@@ -79,6 +74,7 @@ public class GreenfootScenarioViewer extends JApplet
     private static String scenarioName;
 
     private boolean isApplet;
+    private boolean showControls;
     private ProjectProperties properties;
     private Simulation sim;
     private WorldCanvas canvas;
@@ -100,6 +96,7 @@ public class GreenfootScenarioViewer extends JApplet
 
     /**
      * Constructor for when the scenario runs as an application.
+     * @param rootPane
      */
     public GreenfootScenarioViewer(RootPaneContainer rootPane)
     {
@@ -151,7 +148,10 @@ public class GreenfootScenarioViewer extends JApplet
         controls.setBorder(BorderFactory.createCompoundBorder( BorderFactory.createEmptyBorder(0,EMPTY_BORDER_SIZE,EMPTY_BORDER_SIZE,EMPTY_BORDER_SIZE), BorderFactory.createEtchedBorder()));
         
         rootPaneContainer.getContentPane().add(outer, BorderLayout.CENTER);
-        rootPaneContainer.getContentPane().add(controls, BorderLayout.SOUTH);
+        if (!Config.getPropBoolean("scenario.hideControls",false)){
+            //show controls.
+            rootPaneContainer.getContentPane().add(controls, BorderLayout.SOUTH);
+        } 
     }
     
     @Override
@@ -168,6 +168,7 @@ public class GreenfootScenarioViewer extends JApplet
      * been loaded into the system. It is always called before the first time
      * that the start method is called.
      */
+    @Override
     public void init()
     {
         GreenfootScenarioMain.initProperties();
@@ -201,12 +202,8 @@ public class GreenfootScenarioViewer extends JApplet
             // Greenfoot.setSpeed() requires a call to the simulation instance.
             Simulation.initialize(new SimulationDelegateStandAlone());
             
-            EventQueue.invokeAndWait(new Runnable() {
-                @Override
-                public void run()
-                {
-                    guiSetup(lockScenario, worldClassName);
-                }
+            EventQueue.invokeAndWait(() -> {
+                guiSetup(lockScenario, worldClassName);
             });
 
             WorldHandler worldHandler = WorldHandler.getInstance();
@@ -217,30 +214,11 @@ public class GreenfootScenarioViewer extends JApplet
                 worldHandler.setWorld(world);
             }
             
-            EventQueue.invokeAndWait(new Runnable() {
-                @Override
-                public void run()
-                {
-                    buildGUI();
-                }
+            EventQueue.invokeAndWait(() -> {
+                buildGUI();
             });
         }        
-        catch (SecurityException e) {
-            e.printStackTrace();
-        }
-        catch (IllegalArgumentException e) {
-            e.printStackTrace();
-        }
-        catch (InvocationTargetException ite) {
-            ite.printStackTrace();
-        }
-        catch (InterruptedException ie) {
-            ie.printStackTrace();
-        }
-        catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        catch (NoSuchMethodException e) {
+        catch (SecurityException | IllegalArgumentException | InvocationTargetException | InterruptedException | ClassNotFoundException | NoSuchMethodException e) {
             e.printStackTrace();
         }
     }
@@ -254,6 +232,7 @@ public class GreenfootScenarioViewer extends JApplet
     {
         canvas = new WorldCanvas(null);
         canvas.addMouseListener(new MouseAdapter() {
+            @Override
             public void mouseClicked(MouseEvent e)
             {
                 canvas.requestFocusInWindow();
@@ -274,19 +253,16 @@ public class GreenfootScenarioViewer extends JApplet
         // Make sure the SoundCollection is initialized and listens for events
         sim.addSimulationListener(SoundFactory.getInstance().getSoundCollection());
 
-        sim.addSimulationListener(new SimulationListener() {
-            public void simulationChanged(SimulationEvent e)
-            {
-                // If the simulation starts, try to transfer keyboard
-                // focus to the world canvas to allow control of Actors
-                // via the keyboard
-                if (e.getType() == SimulationEvent.STARTED) {
-                    canvas.requestFocusInWindow();
-                    // Have to use requestFocus, since it is the only way to
-                    // make it work in some browsers: (Ubuntu's Firefox 1.5
-                    // and 2.0)
-                    canvas.requestFocus();
-                }
+        sim.addSimulationListener((SimulationEvent e) -> {
+            // If the simulation starts, try to transfer keyboard
+            // focus to the world canvas to allow control of Actors
+            // via the keyboard
+            if (e.getType() == SimulationEvent.STARTED) {
+                canvas.requestFocusInWindow();
+                // Have to use requestFocus, since it is the only way to
+                // make it work in some browsers: (Ubuntu's Firefox 1.5
+                // and 2.0)
+                canvas.requestFocus();
             }
         });
 
@@ -303,6 +279,7 @@ public class GreenfootScenarioViewer extends JApplet
      * should start its execution. It is called after the init method and each
      * time the JApplet is revisited in a Web page.
      */
+    @Override
     public void start()
     {
     }
@@ -313,6 +290,7 @@ public class GreenfootScenarioViewer extends JApplet
      * this JApplet has been replaced by another page, and also just before the
      * JApplet is to be destroyed.
      */
+    @Override
     public void stop()
     {
         sim.setPaused(true);
@@ -323,6 +301,7 @@ public class GreenfootScenarioViewer extends JApplet
      * being reclaimed and that it should destroy any resources that it has
      * allocated. The stop method will always be called before destroy.
      */
+    @Override
     public void destroy()
     {
         sim.abort();
@@ -335,6 +314,7 @@ public class GreenfootScenarioViewer extends JApplet
      * 
      * @return a String representation of information about this JApplet
      */
+    @Override
     public String getAppletInfo()
     {
         // provide information about the applet
@@ -351,6 +331,7 @@ public class GreenfootScenarioViewer extends JApplet
      * @return a String[] representation of parameter information about this
      *         JApplet
      */
+    @Override
     public String[][] getParameterInfo()
     {
         // provide parameter information about the applet
@@ -373,13 +354,7 @@ public class GreenfootScenarioViewer extends JApplet
             World world = (World) worldConstructor.newInstance(new Object[]{});
             return world;
         }
-        catch (IllegalArgumentException e) {
-            e.printStackTrace();
-        }
-        catch (InstantiationException e) {
-            e.printStackTrace();
-        }
-        catch (IllegalAccessException e) {
+        catch (IllegalArgumentException | InstantiationException | IllegalAccessException e) {
             e.printStackTrace();
         }
         catch (InvocationTargetException e) {
@@ -414,11 +389,7 @@ public class GreenfootScenarioViewer extends JApplet
                 c.set(askHandler.ask(prompt, canvas.getPreferredSize().width));
             }});
         }
-        catch (InvocationTargetException e)
-        {
-            Debug.reportError(e);
-        }
-        catch (InterruptedException e)
+        catch (InvocationTargetException | InterruptedException e)
         {
             Debug.reportError(e);
         }

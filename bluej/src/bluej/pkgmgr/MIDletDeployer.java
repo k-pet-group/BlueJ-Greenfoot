@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,20 +21,23 @@
  */
 package bluej.pkgmgr;
 
-import java.io.File;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.IOException;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
+
+import threadchecker.OnThread;
+import threadchecker.Tag;
 import bluej.Config;
-import bluej.utility.Debug;
-import bluej.utility.DialogManager;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.role.MIDletClassRole;
+import bluej.utility.Debug;
+import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 
 /**
@@ -241,11 +244,12 @@ final class MIDletDeployer
 
     /***************************************************************************
      * A filter to accept only .class files. 
-     */    
+     */
+    @OnThread(Tag.Any)
     private class ClassFilesFilter implements FilenameFilter
     {
-	public boolean accept( File f, String name ) {
-		return ( name.toLowerCase( ).endsWith( ".class" ) );                
-	}	         
+    public boolean accept( File f, String name ) {
+        return ( name.toLowerCase( ).endsWith( ".class" ) );                
+    }             
     }
 }

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<class name="Mover" extends="Actor" enable="true" strideversion="1">
+    <javadoc xml:space="preserve">The class Mover provides some basic movement methods. Use this as a superclass for other actors that should be able to move left and right, jump up and fall down.</javadoc>
+    <imports>
+        <import target="java.util.*" enable="true"/>
+        <import target="greenfoot.*" enable="true"/>
+        <import target="java.awt.Color" enable="true"/>
+    </imports>
+    <implements/>
+    <fields>
+        <comment xml:space="preserve">Gravity (acceleration downwards)</comment>
+        <variable access="private" static="true" final="true" type="int" name="acceleration" value="2" value-java="2" enable="true"/>
+        <comment xml:space="preserve">Running speed (sidewards)</comment>
+        <variable access="private" static="true" final="true" type="int" name="speed" value="7" value-java="7" enable="true"/>
+        <blank/>
+        <comment xml:space="preserve">Current vertical speed</comment>
+        <variable access="private" type="int" name="vSpeed" value="0" value-java="0" enable="true"/>
+    </fields>
+    <constructors/>
+    <methods>
+        <method access="public" type="void" name="moveRight" enable="true">
+            <javadoc xml:space="preserve"/>
+            <params/>
+            <throws/>
+            <body>
+                <call expression="setLocation(getX()+speed,getY())" expression-java="setLocation(getX() + speed, getY())" enable="true"/>
+            </body>
+        </method>
+        <method access="public" type="void" name="moveLeft" enable="true">
+            <javadoc xml:space="preserve"/>
+            <params/>
+            <throws/>
+            <body>
+                <call expression="setLocation(getX()-speed,getY())" expression-java="setLocation(getX() - speed, getY())" enable="true"/>
+            </body>
+        </method>
+        <method access="public" type="boolean" name="onGround" enable="true">
+            <javadoc xml:space="preserve"/>
+            <params/>
+            <throws/>
+            <body>
+                <variable type="Object" name="under" value="getOneObjectAtOffset(0,getImage().getHeight()/2-8,null)" value-java="getOneObjectAtOffset(0, getImage().getHeight() / 2 - 8, null)" enable="true"/>
+                <return value="under!=null" value-java="under != null" enable="true"/>
+            </body>
+        </method>
+        <method access="public" type="void" name="setVSpeed" enable="true">
+            <javadoc xml:space="preserve"/>
+            <params>
+                <param type="int" name="speed"/>
+            </params>
+            <throws/>
+            <body>
+                <assign dest="vSpeed" dest-java="vSpeed" src="speed" src-java="speed" enable="true"/>
+            </body>
+        </method>
+        <method access="public" type="void" name="fall" enable="true">
+            <javadoc xml:space="preserve"/>
+            <params/>
+            <throws/>
+            <body>
+                <call expression="setLocation(getX(),getY()+vSpeed)" expression-java="setLocation(getX(), getY() + vSpeed)" enable="true"/>
+                <assign dest="vSpeed" dest-java="vSpeed" src="vSpeed+acceleration" src-java="vSpeed + acceleration" enable="true"/>
+                <if condition="atBottom()" condition-java="atBottom()" enable="true">
+                    <ifStatements>
+                        <call expression="gameEnd()" expression-java="gameEnd()" enable="true"/>
+                    </ifStatements>
+                </if>
+            </body>
+        </method>
+        <method access="public" type="boolean" name="atBottom" enable="true">
+            <javadoc xml:space="preserve"/>
+            <params/>
+            <throws/>
+            <body>
+                <return value="getY()&gt;=getWorld().getHeight()-2" value-java="getY() &gt;= getWorld().getHeight() - 2" enable="true"/>
+            </body>
+        </method>
+        <method access="public" type="void" name="gameEnd" enable="true">
+            <javadoc xml:space="preserve"/>
+            <params/>
+            <throws/>
+            <body>
+                <call expression="Greenfoot.stop()" expression-java="Greenfoot.stop()" enable="true"/>
+            </body>
+        </method>
+    </methods>
+</class>

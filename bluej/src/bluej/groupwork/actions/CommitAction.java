@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2012,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,6 +29,8 @@ import java.util.Set;
 
 import javax.swing.AbstractAction;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
 import bluej.Config;
 import bluej.collect.DataCollector;
 import bluej.groupwork.StatusHandle;
@@ -106,6 +108,7 @@ public class CommitAction extends AbstractAction
     /**
      * Set the status handle to use in order to perform the commit operation.
      */
+    @OnThread(Tag.Any)
     public void setStatusHandle(StatusHandle statusHandle)
     {
         this.statusHandle = statusHandle;
@@ -152,6 +155,7 @@ public class CommitAction extends AbstractAction
         private TeamworkCommandResult result;
         private boolean aborted;
         
+        @OnThread(Tag.Swing)
         public CommitWorker(Project project)
         {
             String comment = commitCommentsFrame.getComment();

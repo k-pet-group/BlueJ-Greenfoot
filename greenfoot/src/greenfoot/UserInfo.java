@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2011, 2012  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2011,2012,2015  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -99,6 +99,8 @@ public class UserInfo
     
     /**
      * Get the username of the user that this storage belongs to.
+     * 
+     * @return The username as a String.
      */
     public String getUserName()
     {
@@ -109,6 +111,9 @@ public class UserInfo
      * Get the value of the int at the given index (0 to NUM_INTS-1, inclusive).
      * <p>
      * The default value is zero.
+     * 
+     * @param index  The index of the array where the needed int is positioned.
+     * @return The value of the number in the given index of the array.
      */
     public int getInt(int index)
     {

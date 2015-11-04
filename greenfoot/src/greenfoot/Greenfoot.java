@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2011,2012,2014  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2011,2012,2014,2015  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -101,6 +101,7 @@ public class Greenfoot
      * Delay the current execution by a number of time steps. 
      * The size of one time step is defined by the Greenfoot environment (the speed slider).
      * 
+     * @param time  The number of steps the delay will last.
      * @see #setSpeed(int)
      */
     public static void delay(int time)
@@ -136,6 +137,9 @@ public class Greenfoot
     
     /**
      * Return a random number between 0 (inclusive) and limit (exclusive).
+     * 
+     * @param limit  An upper limit which the returned random number will be smaller than.
+     * @return A random number within 0 to (limit-1) range.
      */
     public static int getRandomNumber(int limit)
     {

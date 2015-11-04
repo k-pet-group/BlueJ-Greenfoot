@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2013  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2013,2014  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,6 +22,10 @@
 package greenfoot.gui.classbrowser;
 
 import bluej.Config;
+import bluej.extensions.CompilationNotStartedException;
+import bluej.extensions.PackageNotFoundException;
+import bluej.extensions.ProjectNotOpenException;
+import bluej.utility.Debug;
 import greenfoot.core.GProject;
 import greenfoot.gui.GreenfootFrame;
 import greenfoot.gui.classbrowser.ClassForest.TreeEntry;
@@ -31,15 +35,19 @@ import greenfoot.gui.classbrowser.role.WorldClassRole;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
+import java.rmi.RemoteException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JComponent;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JRootPane;
 import javax.swing.border.TitledBorder;
 
@@ -109,6 +117,12 @@ public class ClassBrowser extends JPanel
     public void addClass(ClassView classView)
     {
         quickAddClass(classView);
+        try {
+            classView.getGClass().compile(false, true);
+        }
+        catch (ProjectNotOpenException | PackageNotFoundException | RemoteException | CompilationNotStartedException e) {
+           Debug.reportError(e);
+        }
         classView.select();
         updateLayout();
     }
@@ -363,5 +377,29 @@ public class ClassBrowser extends JPanel
     public GreenfootFrame getFrame()
     {
         return frame;
+    }
+
+    public ClassView getActorClassView()
+    {
+        return ((TreeEntry) greenfootClasses.getRoots().toArray()[0]).getData();
+    }
+
+    public ClassView getWorldClassView()
+    {
+        return ((TreeEntry) worldClasses.getRoots().toArray()[0]).getData();
+    }
+
+    /**
+     * Create a pop-up allowing the user to do actions passed
+     * 
+     *  @param actions a vararg accepts any number of actions to be included in the pop-up menu 
+     */
+    public void setActions(AbstractAction ... actions)
+    {
+        JPopupMenu menu = new JPopupMenu();
+        for (int i = 0; i < actions.length; i++) {
+            menu.add(new JMenuItem(actions[i]));
+        }
+        this.setComponentPopupMenu(menu);
     }
 }

@@ -1,0 +1,99 @@
+Tasks for next Version (stability + performance)
+===================
+
+AA - Overall refactoring to Operations and extensions.
+
+AA - Some undo cases make the editor lose focus, please list below any case you encounter:
+        *
+AA - Fix a problem with undo states.  When you enter a slot (e.g. field in an expression slot), we record
+   the position as a begin-recording event.  When you finish a change (e.g. by leaving slot), we record end position.
+   If you then undo, you will go back to where you entered slot, but this may not be the most sensible position
+   at which to be (should be when you started making a change).  We should have intermediate cursor-move events,
+   that overwrite the recorded begin position if no change has been made.
+   To give an example, given expression slot with "abcde", and "|" is the cursor:
+      |abcde    -- User enters slot, begin recording is called, 0 is cursor position.
+      ab|cde    -- User moves cursor.  Currently nothing happens.  But it should in future overwrite the position in the preceding begin position call.
+      ab1|cde   -- User starts entry.  Nothing should happen, now or post-fix
+      ab123|cde -- User finishes entry.
+      ab123cge  -- User leaves slot, end recording should be called.  Post-fix, cursor position before edit should be 2, not 0 as now.
+
+- The bird’s eye view should have a variant where the methods are shown with their comments. (This view would replace the ‘Documentation’ view in the old Java editor.) 
+
+  Maybe Cmd-D cycles through: 
+	Cmd-D: bird’s eye
+	Cmd-D again: bird’s eye with comments
+	again: back to full text
+
+  (while Esc and Return take you out immediately.) 
+
+ - Greenfoot opens only one scenario that was previously open, not all of them.
+
+ - Highlighted curly brackets look fuzzy
+    NB: Look reasonable enough on Macbook Air.  Could this be a Retina issue?
+
+ - Add "overrides method in X" annotation, e.g. Car extends SmoothMover; show "overrides method in Actor" for act() method in SmoothMover inherited canvas.
+
+ - On Windows, if you have the code "new int[6]" then when you put the cursor to the right of the "t", the square bracket
+  moves one pixel right, but if you move the cursor to the left of the "t", that pixel gap goes.  Not sure why just moving
+  the cursor changes the spacing?
+
+ - The 'break' at the end of 'default' doesn't have a horizontal bar like in 'case'. This is to do with
+    the canvases in switch frame; the bar is drawn, but only to the left edge of the default canvas.
+
+NB - Java preview: left alignment of curly brackets on methods in Java preview looks wrong, at least on Linux
+
+ - bird’s eye view: body of method shrinks slower than the space available for the body shrinks (when comment frame present?)
+
+ - small pauses in key responsiveness (while compiling); would be good to iron them out.
+
+- when a user is editing a class causing an error, the background should be shadowed until the main window is focused again.
+   - NB: If a class has an error (and the world depends on that class), the world does get greyed out
+     until the error is fixed.  Is it a different case where we want to grey out the world (any class, not just those that are in use?)
+
+ - If you use ctrl-V to paste an empty var declaration frame, you can't press it again to paste unless you refocus the cursor (e.g. move down then up again)
+
+ - The paste item is always shown enabled for frames, even when there isn't a valid frame on the clipboard
+
+- Single white pixel line under pinned method header on Retina display, sometimes (low priority?)
+  AA: not only on Retina, even on my mac on the same class that Mik's used, but any small change will remove it and it is very rare.
+
+Code completion:
+ - code completion popup is ugly – re-skin
+
+ - Code completion can be quite slow both to appear, and to fold items when typing, might be worth a quick look.
+    - To speed up code completion, we should retain reference to code completion window, and re-use it each time
+        (just changing content of items, and adding/removing to fit)
+
+ - Mik: code completion should (maybe?) not include (all?) near misses in 'common options’
+
+ - During code completion in strings, images show at the wrong Y location,
+  when the code completion must show above the target line.
+
+
+Candidates for the wish-list:
+===================
+
+AA - When adding static or final to vars (or similar operations), we could show a preview on hover, with the keyword made bold.
+
+ - Alt inside a slot should work as modifier allowing frame operations to be executed. e.g. Alt+\ disables enclosing frame.
+
+ - If you name your (Stride, possibly also Java) class "Actor", you get an exception, and a messed up class tree.
+   We can prevent the exception, but there is a question over what the right way to prevent/correct this is (see design-issues).
+
+
+NB - There is a complex issue related to dot after brackets.  Previously, we wanted to allow easy support
+  for chained method calls, so we made "foo()." insert more brackets, in expectation of a method call:
+  "foo().___()".  However, this causes two issues:
+    a) When loading saved code, if you don't want the brackets (e.g. "foo().field") then they are added anyway
+       and so you get bugs in loading.  This could be avoided through correct use of the boolean user flag
+       (which I don't think is set right at the moment, and additionally should probably differentiate between
+        typing dot, and pasting dot).  This could be fixed with some effort.
+    b) If you want to make a range, and type "foo()..10" then it's a pain that the brackets appear, only for you
+       to have to delete them.  We may just live with this (trying to spot the second dot and reverse the brackets
+       is going to get very fragile).
+  I'm moving it to after preview2 for now.
+
+ - Hard to tell difference between empty fields canvas, and fields canvas with single blank frame
+   AA: why is it an issue?
+
+ - recent values menu shows states under construction (see attached); maybe it should only show syntactically valid states.

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -37,7 +37,6 @@ import java.io.File;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Markus Ostman
- * @version $Id: PackageChooserStrict.java 6347 2009-05-20 15:22:43Z polle $
  */
 public class PackageChooserStrict extends PackageChooser
 {
@@ -55,6 +54,7 @@ public class PackageChooserStrict extends PackageChooser
      *  Selection approved by button-click. Check whether the selected
      *  directory is a BlueJ package. If so, let it be opened.
      */
+    @Override
     public void approveSelection()   // redefined
     {
         File selectedFile = getSelectedFile();
@@ -63,7 +63,7 @@ public class PackageChooserStrict extends PackageChooser
             approved();
         }
         else if (Package.isPackage(getSelectedFile())) {
-    	    approved();
+            approved();
         }
         else {
             super.setCurrentDirectory(getSelectedFile());

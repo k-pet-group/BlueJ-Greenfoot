@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,6 +21,8 @@
  */
 package bluej.testmgr.record;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugmgr.objectbench.ObjectBench;
@@ -165,6 +167,7 @@ public class MethodInvokerRecord extends VoidMethodInvokerRecord
      * up local variables if the result of the method is used more than once or
      * placed on the bench by using "Get".
      */
+    @OnThread(Tag.Swing)
     private String toTestMethodInit(PkgMgrFrame pkgMgrFrame, String secondIndent)
     {
         // If we have already prepared the method call, we return the name that

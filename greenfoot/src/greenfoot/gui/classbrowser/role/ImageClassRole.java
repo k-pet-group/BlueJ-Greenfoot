@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012,2013  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012,2013,2014  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -36,7 +36,6 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
 
-
 /**
  * Base class for class roles with associated images.
  * 
@@ -61,13 +60,6 @@ public abstract class ImageClassRole extends ClassRole
         this.classView = classView;
         classView.setText(gClass.getName());
         changeImage();
-    }
-
-    @Override
-    public String getTemplateFileName()
-    {
-        // TODO Auto-generated method stub
-        return null;
     }
     
     /**
@@ -133,7 +125,9 @@ public abstract class ImageClassRole extends ClassRole
     {
         GreenfootImage greenfootImage = getGreenfootImage(gClass);
         Action dropAction = new AbstractAction() {
-            public void actionPerformed(java.awt.event.ActionEvent arg0) {
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent arg0)
+            {
                 classView.createInstance();
             }
         };

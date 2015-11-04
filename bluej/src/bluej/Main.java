@@ -26,14 +26,13 @@ import java.io.File;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
 import java.io.IOException;
 
-import com.apple.eawt.Application;
-import com.apple.eawt.AppEvent;
-import com.apple.eawt.QuitResponse;
-
+import threadchecker.OnThread;
+import threadchecker.Tag;
 import bluej.collect.DataCollector;
 import bluej.extensions.event.ApplicationEvent;
 import bluej.extmgr.ExtensionsManager;
@@ -45,8 +44,10 @@ import bluej.pkgmgr.actions.PreferencesAction;
 import bluej.pkgmgr.actions.QuitAction;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
-import java.util.List;
 
+import com.apple.eawt.AppEvent;
+import com.apple.eawt.Application;
+import com.apple.eawt.QuitResponse;
 /**
  * BlueJ starts here. The Boot class, which is responsible for dealing with
  * specialised class loaders, constructs an object of this class to initiate the
@@ -69,6 +70,19 @@ public class Main
     private static List<File> initialProjects;
 
     private static QuitResponse macEventResponse = null;  // used to respond to external quit events on MacOS
+
+    /**
+     * Only used on Mac.  For some reason, executing the AppleJavaExtensions open
+     * file handler (that is set from Boot.main) on initial load (e.g. because
+     * the user double-clicked a project.greenfoot file) means that later on,
+     * the context class loader is null on the JavaFX thread.
+     * Honestly, I [NB] have no idea what the hell is going on there.
+     * But the work-around is apparent: store the context class loader early on,
+     * then if it is null later, restore it.  (There's no problem if the file
+     * handler is not executed; the context class loader is the same early on as
+     * later on the FX thread).
+     */
+    private static ClassLoader storedContextClassLoader;
 
     /**
      * Entry point to starting up the system. Initialise the system and start
@@ -98,13 +112,12 @@ public class Main
             System.setProperty("java.rmi.server.useCodebaseOnly", "false");
         }
         
-        DataCollector.bluejOpened(getOperatingSystem(), getJavaVersion(), getBlueJVersion(), getInterfaceLanguage(), ExtensionsManager.getInstance().getLoadedExtensions(null));
-
         // process command line arguments, start BlueJ!
         EventQueue.invokeLater(new Runnable() {
             @Override
             public void run()
             {
+                DataCollector.bluejOpened(getOperatingSystem(), getJavaVersion(), getBlueJVersion(), getInterfaceLanguage(), ExtensionsManager.getInstance().getLoadedExtensions(null));
                 processArgs(args);
             }
         });
@@ -124,6 +137,7 @@ public class Main
      * command line when starting BlueJ. Any parameters starting with '-' are
      * ignored for now.
      */
+    @OnThread(Tag.Swing)
     private static void processArgs(String[] args)
     {
         launched = true;
@@ -193,6 +207,8 @@ public class Main
      */ 
     private static void prepareMacOSApp()
     {
+        storedContextClassLoader = Thread.currentThread().getContextClassLoader();
+        initialProjects = Boot.getMacInitialProjects();
         Application macApp = Application.getApplication();
 
         if (macApp != null) {
@@ -258,6 +274,7 @@ public class Main
     /**
      * Quit menu item was chosen.
      */
+    @OnThread(Tag.Swing)
     public static void wantToQuit()
     {
         int answer = 0;
@@ -280,6 +297,7 @@ public class Main
      * the events is relevant - Extensions should be unloaded after package
      * close
      */
+    @OnThread(Tag.Swing)
     public static void doQuit()
     {
         PkgMgrFrame[] pkgFrames = PkgMgrFrame.getAllFrames();
@@ -307,6 +325,7 @@ public class Main
      *
      * @param openFrames
      */
+    @OnThread(Tag.Swing)
     private static void handleOrphanPackages(PkgMgrFrame[] openFrames)
     {
         // if there was a previous list, delete it
@@ -357,6 +376,7 @@ public class Main
     /**
      * Open a single empty bluej window.
      */
+    @OnThread(Tag.Swing)
     private static void openEmptyFrame()
     {
         PkgMgrFrame frame = PkgMgrFrame.createFrame();
@@ -448,6 +468,7 @@ public class Main
      * The open frame count should be zero by this point as PkgMgrFrame is
      * responsible for cleaning itself up before getting here.
      */
+    @OnThread(Tag.Swing)
     private static void exit()
     {
         if (PkgMgrFrame.frameCount() > 0) {
@@ -460,5 +481,11 @@ public class Main
         Config.handleExit();
         // exit with success status
         System.exit(0);
+    }
+
+    // See comment on the field.
+    public static ClassLoader getStoredContextClassLoader()
+    {
+        return storedContextClassLoader;
     }
 }

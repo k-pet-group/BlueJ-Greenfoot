@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,6 +24,8 @@ package bluej.debugger.jdi;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
 import bluej.debugger.DebuggerEvent;
 
 import com.sun.jdi.ReferenceType;
@@ -223,6 +225,7 @@ class VMEventHandler extends Thread
      * @param thr   The thread for which the event occurred
      * @param halted  True if the thread was halted, false if resumed
      */
+    @OnThread(Tag.Any)
     public synchronized void emitThreadEvent(JdiThread thr, boolean halted)
     {
         haltedThreads.add(new ThreadEvent(thr, halted));
@@ -237,6 +240,7 @@ class VMEventHandler extends Thread
     /**
      * Wait until the event queue is empty (all pending events have been dispatched).
      */
+    @OnThread(Tag.Any)
     public void waitQueueEmpty()
     {
         synchronized (this) {

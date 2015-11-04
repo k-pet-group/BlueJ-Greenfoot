@@ -11,9 +11,6 @@ compileException=Exception tijdens compileren
 compiler.thread.title=BlueJ compiler thread
 compiler.invalidcompiler=bluej.compiler.type verwijst niet naar de juiste compiler
 compiler.nocompiler=Compiler kan niet draaien
-compiler.warningDialog.title=Compiler waarschuwingen
-compiler.warningDialog.label=Waarschuwingen van laatste compilatie
-compiler.warningDialog.noWarnings=Geen waarschuwingen
 
 debugger.null=null
 

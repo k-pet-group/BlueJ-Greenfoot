@@ -1,0 +1,59 @@
+.root {
+    editor-menu-background: hsb(0, 0%, 90%); 
+    editor-menu-highlighted: derive(editor-menu-background, -5%);
+}
+
+.editor-menubar {
+    -fx-background-color: editor-menu-background;
+    -fx-padding: 2 0 0 0;
+}
+
+/* To avoid resizing on hover, we always have a border but make it transparent by default: */
+.editor-menubar .menu {
+    -fx-border-width: 1;
+    -fx-border-radius: 5 5 0 0;
+    -fx-background-radius: 5 5 0 0;
+    -fx-border-color: transparent;
+    
+    -fx-padding: 3 5 3 5;
+}
+
+.editor-menubar .menu .label {
+    -fx-text-fill: black;
+}
+
+.editor-menubar .menu:showing, .editor-menubar .menu:hover {
+    -fx-border-color: derive(editor-menu-highlighted, -20%);
+    
+}
+
+/* On hover, light at top and dark at bottom (as if protruding) */
+.editor-menubar .menu:hover {
+    -fx-background-color: linear-gradient(to bottom, derive(editor-menu-highlighted, 50%) 0%, editor-menu-highlighted 20%, editor-menu-highlighted 80%, derive(editor-menu-highlighted, -20%) 100%);
+}
+
+/* On showing, even if hovering, dark at top and light at bottom (as if depressed) */
+.editor-menubar .menu:showing, .editor-menubar .menu:showing:hover {
+     -fx-background-color: linear-gradient(to top, derive(editor-menu-highlighted, 50%) 0%, editor-menu-highlighted 20%, editor-menu-highlighted 80%, derive(editor-menu-highlighted, -20%) 100%);
+}
+
+.editor-menubar .menu .context-menu {
+    -fx-background-color: editor-menu-background;
+    -fx-background-radius: 0 0 5 5;
+    -fx-border-radius: 0 0 5 5;
+    -fx-border-color: derive(editor-menu-highlighted, -20%);
+}
+
+/* Again, always have border, but transparent by default */
+.editor-menubar .menu .menu-item {
+    -fx-background-radius: 3;
+    -fx-border-radius: 3;
+    -fx-border-width: 1;
+    -fx-border-color: transparent;
+}
+
+.editor-menubar .menu .menu-item:focused {
+    -fx-background-color: derive(editor-menu-background, 50%);
+    -fx-border-color: derive(editor-menu-highlighted, 20%);
+}
+

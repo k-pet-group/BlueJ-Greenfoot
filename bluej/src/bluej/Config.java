@@ -30,6 +30,8 @@ import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -37,7 +39,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -45,11 +51,13 @@ import java.util.MissingResourceException;
 import java.util.Properties;
 import java.util.Scanner;
 
+import javafx.scene.Scene;
+
 import javax.swing.ImageIcon;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.UIManager.LookAndFeelInfo;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
@@ -57,6 +65,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
 
@@ -85,95 +95,65 @@ import bluej.utility.Utility;
 public final class Config
 {
     public static final String nl = System.getProperty("line.separator");
-
-    public static Properties moeSystemProps;  // moe (editor) properties
-    public static Properties moeUserProps;    // moe (editor) properties
-
-    public static String compilertype = "javac";  // current compiler (javac, jikes)
-    public static String language;      // message language (english, ...)
-
-    public static Rectangle screenBounds; // maximum dimensions of screen
-
     public static final String osname = System.getProperty("os.name", "");
     public static final String DEFAULT_LANGUAGE = "english";
     public static final String BLUEJ_OPENPACKAGE = "bluej.openPackage";
     public static final String bluejDebugLogName = "bluej-debuglog.txt";
     public static final String greenfootDebugLogName = "greenfoot-debuglog.txt";
-    public static String debugLogName = bluejDebugLogName;
-    
-    private static Boolean isRaspberryPi = null;
-
     public static final Color ENV_COLOUR = new Color(152,32,32);
-
-
-    // a border for components with keyboard focus
-    public static final Border focusBorder = new CompoundBorder(new LineBorder(Color.BLACK),
-            new BevelBorder(BevelBorder.LOWERED,
-                    new Color(195, 195, 195),
-                    new Color(240, 240, 240),
-                    new Color(195, 195, 195),
-                    new Color(124, 124, 124)));
-
-    // a border for components without keyboard focus
-    public static final Border normalBorder = new CompoundBorder(new EmptyBorder(1,1,1,1),
-            new BevelBorder(BevelBorder.LOWERED,
-                    new Color(195, 195, 195),
-                    new Color(240, 240, 240),
-                    new Color(124, 124, 124),
-                    new Color(195, 195, 195)));
+    protected static final int SHORTCUT_MASK =
+        Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+    // Bit ugly having it here, but it's needed by MiscPrefPanel (which may just be in BlueJ)
+    // and by Greenfoot
+    public static final KeyStroke GREENFOOT_SET_PLAYER_NAME_SHORTCUT =
+        KeyStroke.getKeyStroke(KeyEvent.VK_P, SHORTCUT_MASK | InputEvent.SHIFT_DOWN_MASK);
+    /** name of the icons file for the VM on Mac */
+    private static final String BLUEJ_DEBUG_DOCK_ICON = "vm.icns";
+    private static final String GREENFOOT_DEBUG_DOCK_ICON = "greenfootvm.icns";
+    /** name of the VM in the dock on Mac */
+    private static final String BLUEJ_DEBUG_DOCK_NAME = "BlueJ Virtual Machine";
+    private static final String GREENFOOT_DEBUG_DOCK_NAME = "Greenfoot";
+    public static Properties moeSystemProps;  // moe (editor) properties
+    public static Properties moeUserProps;    // moe (editor) properties
+    public static String compilertype = "javac";  // current compiler (javac, jikes)
 
 
     // bluej configuration properties hierarchy
     // (command overrides user which overrides system)
-    
+    public static String language;      // message language (english, ...)
+    public static Rectangle screenBounds; // maximum dimensions of screen
+    public static String debugLogName = bluejDebugLogName;
+    public static List<String> fontOptions = new ArrayList<>();
+    private static Boolean isRaspberryPi = null;
+    // a border for components with keyboard focus
+    private static Border focusBorder;
+    // a border for components without keyboard focus
+    private static Border normalBorder;
     private static Properties systemProps;      // bluej.defs
     private static Properties userProps;        // <user home>/bluej.properties
     private static Properties greenfootProps;   // greenfoot.defs
     private static Properties commandProps;     // specified on the command line
-
     private static Properties initialCommandLineProps; // The properties
                                                        // specified on the
                                                        // command line
     private static Properties langProps;        // international labels
     private static Properties langVarProps;     // language label variables (APPNAME)
-
     private static BlueJPropStringSource propSource; // source for properties
-
     private static File bluejLibDir;
     private static File userPrefDir;
     /** The greenfoot subdirectory of the "lib"-directory*/ 
     private static File greenfootLibDir;
-    
     private static boolean usingMacOSScreenMenubar;
-
     private static boolean initialised = false;
     private static boolean isGreenfoot = false;
-    
-    /** name of the icons file for the VM on Mac */
-    private static final String BLUEJ_DEBUG_DOCK_ICON = "vm.icns";
-    private static final String GREENFOOT_DEBUG_DOCK_ICON = "greenfootvm.icns";
-    
-    /** name of the VM in the dock on Mac */
-    private static final String BLUEJ_DEBUG_DOCK_NAME = "BlueJ Virtual Machine";
-    private static final String GREENFOOT_DEBUG_DOCK_NAME = "Greenfoot";
-    
-    protected static final int SHORTCUT_MASK =
-        Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
-    
-    // Bit ugly having it here, but it's needed by MiscPrefPanel (which may just be in BlueJ)
-    // and by Greenfoot
-    public static final KeyStroke GREENFOOT_SET_PLAYER_NAME_SHORTCUT =
-        KeyStroke.getKeyStroke(KeyEvent.VK_P, SHORTCUT_MASK | InputEvent.SHIFT_DOWN_MASK);
-    
     private static Color selectionColour;
     private static Color selectionColour2;
     private static Color highlightColour;
     private static Color highlightColour2;
     private static List<String> debugVMArgs = new ArrayList<String>();
-    
     /** whether this is the debug vm or not. */
     private static boolean isDebugVm = true; // Default to true, will be corrected on main VM
-
+    
     /**
      * Initialisation of BlueJ configuration. Must be called at startup.
      * This method finds and opens the configuration files.<p>
@@ -282,7 +262,7 @@ public final class Config
         // put it in command_props so it won't be saved to a file
         commandProps.setProperty("bluej.version", Boot.BLUEJ_VERSION);
     }
-    
+
     /**
      * Determine the configured language, or detect the language from the locale.
      * Fall back to the DEFAULT_LANGUAGE if language cannot be determined.
@@ -333,7 +313,7 @@ public final class Config
         
         langProps = loadLanguageLabels(language);
     }
-
+    
     /**
      * Initialise the user home (try and create directories if necessary).
      * <p>
@@ -382,7 +362,7 @@ public final class Config
             userPrefDir = new File(userHome, prefDirName);
         }
     }
-    
+
     /**
      * Alternative to "initialise", to be used in the debugee-VM by
      * applications which require it (ie. greenfoot).
@@ -413,7 +393,7 @@ public final class Config
         };
         userProps = new Properties(systemProps) {
             @Override
-            public Object setProperty(String key, String val)
+            public synchronized Object setProperty(String key, String val)
             {
                 String rval = getProperty(key);
                 Config.propSource.setUserProperty(key, val);
@@ -434,7 +414,7 @@ public final class Config
         };
         initialise(bluejLibDir, tempCommandLineProps, bootingGreenfoot, false);
     }
-
+    
     /**
      * Get the properties that were given on the command line and used 
      * to initialise bluej.Config.
@@ -681,7 +661,7 @@ public final class Config
     {
         return usingMacOSScreenMenubar;
     }
-    
+
     /**
      * Get the screen size information
      */
@@ -690,7 +670,7 @@ public final class Config
         Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
         return new Rectangle(d);
     }
-
+    
     /**
      * Check whether we want to see debug information. If not, redirect it to
      * a file.
@@ -738,7 +718,7 @@ public final class Config
         // - creating the debug log failed
         Debug.setDebugStream(new OutputStreamWriter(System.out));
     }
-    
+
     /**
      * Called on system exit. Do whatever there is to do before exiting.
      */
@@ -748,7 +728,7 @@ public final class Config
         saveProperties(name, "properties.heading." + name, userProps);     
         saveProperties("moe", "properties.heading.moe", moeUserProps);    
     }
-
+    
     /**
      * Load a BlueJ definition file. This creates a new properties object.
      * The new properties object can be returned directly, or an empty
@@ -771,7 +751,7 @@ public final class Config
 
         return defs;
     }
-    
+
     /**
      * Load the label property file for the currently defined language.
      * Install the default language (English) as the default properties
@@ -793,6 +773,16 @@ public final class Config
             catch(Exception e){
                 Debug.reportError("Unable to load greenfoot labels file: " + greenfootLabelFile);
             }
+
+            // Load frame labels
+            String frameLabels = DEFAULT_LANGUAGE + File.separator + "frame-labels";
+            File frameLabelFile = new File(bluejLibDir, frameLabels);
+            try{
+                labels.load(new FileInputStream(frameLabelFile));
+            }
+            catch(Exception e){
+                Debug.reportError("Unable to load greenfoot labels file: " + frameLabelFile);
+            }
         }
         // add localised labels if necessary...
         if(!DEFAULT_LANGUAGE.equals(language)) {
@@ -811,6 +801,16 @@ public final class Config
                 }
                 catch(Exception e){
                     Debug.reportError("Unable to load greenfoot labels file: " + greenfootLabels);
+                }
+
+                // Load frame labels
+                String frameLabels = language + File.separator + "frame-labels";
+                File frameLabelFile = new File(bluejLibDir, frameLabels);
+                try{
+                    labels.load(new FileInputStream(frameLabelFile));
+                }
+                catch(Exception e){
+                    Debug.reportError("Unable to load frame labels file: " + frameLabelFile);
                 }
             }
         }
@@ -847,7 +847,7 @@ public final class Config
             Debug.reportError("could not save properties file " + propsFile);
         }
     }
-
+    
     /**
      * Find and return the moe help definitions
      */
@@ -855,7 +855,7 @@ public final class Config
     {
         return loadDefs(language + File.separator + "moe.help", System.getProperties());
     }
-    
+
     /**
      * Get a string from the language dependent definitions file
      * (eg. "english/labels").
@@ -864,7 +864,7 @@ public final class Config
     {
         return getString(strname, strname);
     }
-
+    
     /**
      * Get a string from the language dependent definitions file
      * (eg. "english/labels"). If not found, return default.
@@ -892,7 +892,6 @@ public final class Config
         return str;
     }
     
-    
     /**
      * Get the mnemonic key for a particular label by looking for an underscore
      * and using the character right after the underscore as the mnemonic key.
@@ -913,7 +912,6 @@ public final class Config
         }
         return mnemonic;
     }
-    
     
     /**
      * Check whether a particular label has an accelerator key defined.
@@ -950,7 +948,7 @@ public final class Config
         KeyStroke k1= KeyStroke.getKeyStroke(keyString);
         return KeyStroke.getKeyStroke(k1.getKeyCode(), modifiers);
     }
-    
+
     /**
      * Get a system-dependent string from the BlueJ properties
      * System-dependent strings are properties that can
@@ -1011,7 +1009,7 @@ public final class Config
         }
         return rval;
     }
-
+    
     /**
      * Get a non-language-dependent string from the BlueJ properties
      * ("bluej.defs" or "bluej.properties") with a default value. Variable
@@ -1044,7 +1042,7 @@ public final class Config
         }
         return null;
     }
-    
+
     /**
      * Get a non-language-dependent string from the BlueJ properties
      * "bluej.defs" with a default value. No variable substitution is
@@ -1070,7 +1068,7 @@ public final class Config
         }
         return value;
     }
-
+    
     /**
      * Get a boolean value from the BlueJ properties. The default value is false.
      */
@@ -1104,7 +1102,7 @@ public final class Config
     private static boolean parseBoolean(String s) {
         return ((s != null) && s.equalsIgnoreCase("true"));
     }
-    
+
     /**
      * remove a property value from the BlueJ properties.
      */
@@ -1126,11 +1124,12 @@ public final class Config
 
         return null;
     }
-
+    
     /**
      * Find and return the icon for an image, using the definitions in the 
      * properties files to find the actual image.
      */
+    @OnThread(Tag.Swing)
     public static ImageIcon getImageAsIcon(String propname)
     {
         try {
@@ -1142,38 +1141,51 @@ public final class Config
         return null;
     }
     
-    /**
-     * Return an icon for an image file name, without going through bluej.defs.
-     * The parameter specifies the final image name, not a property.
-     */
-    public static ImageIcon getFixedImageAsIcon(String filename)
+    @OnThread(Tag.FX)
+    public static javafx.scene.image.Image getImageAsFXImage(String propname)
     {
-        File image = new File(bluejLibDir, "images" + File.separator + filename);
-        try {
-            return new ImageIcon(image.toURI().toURL());
-        }
-        catch (java.net.MalformedURLException mue) { }
-        catch (NullPointerException npe) { }
-        return null;
-    }
-
-    /**
-     * Find and return the icon for an image, without using the properties
-     * (the name provided is the actual file name in ../lib/images).
-     */
-    public static ImageIcon getHardImageAsIcon(String filename)
-    {
-        try {
-            File imgFile = new File(bluejLibDir, "images" + File.separator + filename);
-            java.net.URL u = imgFile.toURI().toURL();
-
-            return new ImageIcon(u);
+        try
+        {
+            java.net.URL u = getImageFile(propname).toURI().toURL();
+            return new javafx.scene.image.Image(u.toString());
         }
         catch (java.net.MalformedURLException mue) { }
         catch (NullPointerException npe) { }
         return null;
     }
     
+    /**
+     * Return an icon for an image file name, without going through bluej.defs.
+     * The parameter specifies the final image name, not a property.
+     */
+    @OnThread(Tag.Swing)
+    public static ImageIcon getFixedImageAsIcon(String filename)
+    {
+        if (filename == null)
+            throw new IllegalArgumentException("Cannot load null image");
+        
+        File image = new File(bluejLibDir, "images" + File.separator + filename);
+        try {
+            return new ImageIcon(image.toURI().toURL());
+        }
+        catch (java.net.MalformedURLException mue) { }
+        return null;
+    }
+    
+    @OnThread(Tag.FX)
+    public static javafx.scene.image.Image getFixedImageAsFXImage(String filename)
+    {
+        if (filename == null)
+            throw new IllegalArgumentException("Cannot load null image");
+        
+        File image = new File(bluejLibDir, "images" + File.separator + filename);
+        try {
+            return new javafx.scene.image.Image(image.toURI().toURL().toString());
+        }
+        catch (java.net.MalformedURLException mue) { }
+        return null;
+    }
+
     /**
      * Find and return an image. The image will have to be tracked. 
      */
@@ -1295,7 +1307,7 @@ public final class Config
     {
         return new File(getClassTemplateDir(), base + ".tmpl");
     }
-
+    
     /**
      * Return the file with language specific text. 
      * For example,
@@ -1306,7 +1318,7 @@ public final class Config
     {
         return new File(bluejLibDir, language + File.separator + base);
     }
-    
+
     /**
      * return the default language version of a language resource file
      */
@@ -1332,7 +1344,7 @@ public final class Config
     {
         return userPrefDir;
     }
-
+    
     /**
      * Return a color value from the bluej properties.
      */
@@ -1390,7 +1402,7 @@ public final class Config
 
         return null;
     }
-    
+
     /**
      * Return a color value for selections.
      */
@@ -1434,7 +1446,7 @@ public final class Config
         }
         return highlightColour2;
     }
-
+    
     /**
      * Get a font from a specified property, using the given default font name and
      * the given size. Font name can end with "-bold" to indicate bold style.
@@ -1454,7 +1466,7 @@ public final class Config
         
         return new Font(fontName, style, size);
     }
-    
+
     /**
      * Store a point in the config files. The config properties
      * are formed by adding ".x" and ".y" to the itemPrefix.
@@ -1506,7 +1518,7 @@ public final class Config
         }
         userProps.setProperty(intname, Integer.toString(value));
     }
-
+    
     /**
      * Set a non-language dependant string for the BlueJ properties.
      * If the supplied value is null, the property is removed.
@@ -1543,7 +1555,7 @@ public final class Config
     {
         return bluejLibDir;
     }
-    
+
     /**
      * Returns the greenfoot directory in blueJLibDir
      */
@@ -1551,7 +1563,7 @@ public final class Config
     {
         return greenfootLibDir;
     }
-
+    
     /**
      * Returns the blueJLibDir
      */
@@ -1693,5 +1705,134 @@ public final class Config
     public static final boolean isGreenfoot()
     {
         return isGreenfoot;
+    }
+
+    /**
+     * Determine whether a file is a ZIP File.
+     */
+    public static boolean isZipFile(File file)
+    {
+        try {
+            if(file.isDirectory()) {
+                return false;
+            }
+            if(!file.canRead()) {
+                throw new IOException();
+            }
+            if(file.length() < 4) {
+                return false;
+            }
+            DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(file)));
+            int magicNumber = in.readInt();
+            in.close();
+            return magicNumber == 0x504b0304;
+        }
+        catch (IOException exc) {
+            Debug.reportError("Could not read file: " + file.getAbsolutePath(), exc);
+        }
+        return false;
+    }
+
+    @OnThread(Tag.FX)
+    public static void addEditorStylesheets(Scene scene)
+    {
+        String[] stylesheetStems = new String[] {
+                "frame-style",
+                "editor-catalogue",
+                "editor-error-bar",
+                "editor-error-fix",
+                "editor-expression",
+                "editor-help",
+                "editor-menu",
+                "editor-selection",
+                "editor-slot-choice",
+                "editor-suggestions",
+                "editor-tabs"};
+        
+        for (String stem : stylesheetStems)
+        {
+            try
+            {
+                scene.getStylesheets().add(new File(bluejLibDir + "/stylesheets", stem + ".css").toURI().toURL().toString());
+            }
+            catch (MalformedURLException e)
+            {
+                Debug.reportError(e);
+            }
+            //scene.getStylesheets().add("file:///Users/mik/Development/frames/bluej/lib/stylesheets/" + stem + ".css");
+        }
+    }
+
+    @OnThread(Tag.Swing)
+    public static Border getFocusBorder()
+    {
+        if (focusBorder == null)
+        {
+            focusBorder = new CompoundBorder(new LineBorder(Color.BLACK),
+                    new BevelBorder(BevelBorder.LOWERED,
+                            new Color(195, 195, 195),
+                            new Color(240, 240, 240),
+                            new Color(195, 195, 195),
+                            new Color(124, 124, 124)));
+        }
+        return focusBorder;
+    }
+
+    @OnThread(Tag.Swing)
+    public static Border getNormalBorder()
+    {
+        if (normalBorder == null)
+        {
+            normalBorder = new CompoundBorder(new EmptyBorder(1,1,1,1),
+                    new BevelBorder(BevelBorder.LOWERED,
+                            new Color(195, 195, 195),
+                            new Color(240, 240, 240),
+                            new Color(124, 124, 124),
+                            new Color(195, 195, 195)));
+        }
+        return normalBorder;
+    }
+
+    public static boolean isRetinaDisplay()
+    {
+        // From http://stackoverflow.com/questions/20767708/how-do-you-detect-a-retina-display-in-java
+        Object obj = Toolkit.getDefaultToolkit().getDesktopProperty("apple.awt.contentScaleFactor");
+        if (obj instanceof Float) {
+            Float f = (Float) obj;
+            int scale = f.intValue();
+            return (scale == 2); // 1 indicates a regular mac display.
+        }
+        return false;
+    }
+
+    public static void loadFXFonts()
+    {
+        if (!fontOptions.isEmpty())
+            return;
+        
+        //fontOptions = Arrays.asList("Droid Sans", "Montserrat", "Noto Sans", "Roboto", "Open Sans", "Source Sans", "Ubuntu");
+        //List<String> fontStems = Arrays.asList("NotoSans-Regular", "NotoSans-Bold", "NotoSans-Italic", "NotoSans-BoldItalic");
+        for (File file : new File(bluejLibDir + "/fonts").listFiles())
+        {
+            //final File file = new File(bluejLibDir + "/fonts", fontStem + ".ttf");
+            try
+            {
+                //Debug.message("Loading font: " + file);
+                FileInputStream fis = new FileInputStream(file);
+                final javafx.scene.text.Font font = javafx.scene.text.Font.loadFont(fis, 10);
+                fis.close();
+                if (font == null)
+                    Debug.reportError("Unknown problem loading TTF JavaFX font: " + file.getAbsolutePath());
+                if (font != null && !fontOptions.contains(font.getFamily()))
+                {
+                    fontOptions.add(font.getFamily());
+                    Collections.sort(fontOptions);
+                }
+            }
+            catch (IOException e)
+            {
+                Debug.reportError("Error loading font: " + file.getAbsolutePath(), e);
+            }
+        }
     }
 }

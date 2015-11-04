@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,13 +21,30 @@
  */
 package bluej.editor.moe;
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.awt.Frame;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
-import javax.swing.*;
-import javax.swing.text.*;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.PlainDocument;
 
-import bluej.*;
+import threadchecker.OnThread;
+import threadchecker.Tag;
+import bluej.BlueJTheme;
+import bluej.Config;
 import bluej.utility.EscapeDialog;
 
 
@@ -190,7 +207,7 @@ public class GoToLineDialog extends EscapeDialog implements ActionListener
         try {
             validatedNumber = Integer.parseInt(lineNumberField.getText());
         } catch (NumberFormatException nfe) {
-         	//shouldn't happen, verified at data model level
+             //shouldn't happen, verified at data model level
         }
         return validatedNumber;
     }
@@ -199,6 +216,7 @@ public class GoToLineDialog extends EscapeDialog implements ActionListener
     * Inner class that provides the formatted (Integer only) data model
     * for the line number text field
     */
+    @OnThread(value = Tag.Swing, ignoreParent = true)
     class IntegerDocument extends PlainDocument 
     {
         /**

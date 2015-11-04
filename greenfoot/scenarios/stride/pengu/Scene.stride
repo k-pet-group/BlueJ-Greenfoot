@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<class name="Scene" extends="World" enable="true" strideversion="1">
+    <javadoc xml:space="preserve">This is the whole scene. It creates and contains the objects that are in it.</javadoc>
+    <imports>
+        <import target="java.util.*" enable="true"/>
+        <import target="greenfoot.*" enable="true"/>
+        <import target="java.awt.Color" enable="true"/>
+    </imports>
+    <implements/>
+    <fields/>
+    <constructors>
+        <constructor access="public" enable="true">
+            <javadoc xml:space="preserve"/>
+            <params/>
+            <throws/>
+            <delegate target="super" params="750,500,1" params-java="750, 500, 1"/>
+            <body>
+                <call expression="addObject(new Cliff(false),85,441)" expression-java="addObject( new Cliff(false), 85, 441)" enable="true"/>
+                <call expression="addObject(new Cliff(true),665,441)" expression-java="addObject( new Cliff(true), 665, 441)" enable="true"/>
+                <blank/>
+                <call expression="addObject(new Cloud(),369,315)" expression-java="addObject( new Cloud(), 369, 315)" enable="true"/>
+                <call expression="addObject(new Pengu(),66,244)" expression-java="addObject( new Pengu(), 66, 244)" enable="true"/>
+            </body>
+        </constructor>
+    </constructors>
+    <methods/>
+</class>

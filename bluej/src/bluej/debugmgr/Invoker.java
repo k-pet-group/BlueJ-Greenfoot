@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2012,2014,2015  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -35,11 +35,14 @@ import java.util.Map;
 
 import javax.swing.JFrame;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
 import bluej.Config;
 import bluej.collect.DataCollector;
 import bluej.compiler.CompileObserver;
 import bluej.compiler.Diagnostic;
-import bluej.compiler.EventqueueCompileObserver;
+import bluej.compiler.EDTCompileObserver;
+import bluej.compiler.EventqueueCompileObserverAdapter;
 import bluej.compiler.JobQueue;
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerObject;
@@ -76,7 +79,7 @@ import bluej.views.MethodView;
  * @author Michael Kolling
  */
 public class Invoker
-    implements CompileObserver, CallDialogWatcher
+    implements EDTCompileObserver, CallDialogWatcher
 {
     public static final int OBJ_NAME_LENGTH = 8;
     public static final String SHELLNAME = "__SHELL";
@@ -1030,7 +1033,7 @@ public class Invoker
     private void compileInvocationFile(File shellFile)
     {
         File[] files = {shellFile};
-        compiler.compile(files, new EventqueueCompileObserver(this));
+        compiler.compile(files, new EventqueueCompileObserverAdapter(this));
     }
 
     // -- CompileObserver interface --
@@ -1192,6 +1195,7 @@ public class Invoker
      * 
      * <p>This method is called on the Swing event thread.
      */
+    @OnThread(Tag.Swing)
     public void handleResult(DebuggerResult result, boolean unwrap)
     {
         try {
@@ -1277,6 +1281,7 @@ public class Invoker
             mypackage = p;
         }
 
+        @OnThread(value = Tag.Swing, ignoreParent = true)
         public String transform(String n)
         {
             return cleverQualifyTypeName(mypackage, n);

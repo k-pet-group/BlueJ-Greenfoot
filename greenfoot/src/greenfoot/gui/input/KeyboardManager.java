@@ -341,6 +341,7 @@ public class KeyboardManager implements TriggeredKeyListener, FocusListener
                 keycode = KeyEvent.VK_DOWN;
             }
             else if (keycode == KeyEvent.VK_KP_LEFT) {
+                System.out.println("VK_KP_LEFT!");
                 keycode = KeyEvent.VK_LEFT;
             }
             else if (keycode == KeyEvent.VK_KP_RIGHT) {

@@ -1,6 +1,10 @@
 /*
  This file is part of the BlueJ program. 
+<<<<<<< .working
+ Copyright (C) 1999-2009,2014,2015  Michael Kolling and John Rosenberg 
+=======
  Copyright (C) 1999-2009,2014  Michael Kolling and John Rosenberg 
+>>>>>>> .merge-right.r13300
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,24 +25,29 @@
  */
 package bluej.parser;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.concurrent.Executor;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
 import bluej.debugger.gentype.GenTypeDeclTpar;
 import bluej.debugger.gentype.GenTypeParameter;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.MethodReflective;
 import bluej.pkgmgr.JavadocResolver;
+import bluej.stride.framedjava.ast.AccessPermission;
+import bluej.utility.JavaUtils;
 
 /**
  * Possible code completion for a method.
  * 
  * @author Davin McCall
  */
+@OnThread(Tag.Swing)
 public class MethodCompletion extends AssistContent
 {
     private MethodReflective method;
@@ -52,6 +61,7 @@ public class MethodCompletion extends AssistContent
      *                   call on a raw expression, will be null.
      * @param javadocResolver  The javadoc resolver to use
      */
+    @OnThread(Tag.Any)
     public MethodCompletion(MethodReflective method,
             Map<String,GenTypeParameter> typeArgs,
             JavadocResolver javadocResolver)
@@ -82,101 +92,16 @@ public class MethodCompletion extends AssistContent
     }
     
     @Override
-    public String getDisplayMethodName()
+    @OnThread(Tag.Any)
+    public String getName()
     {
         return method.getName();
     }
-
-    @Override
-    public String getDisplayMethodParams()
-    {
-        return getDisplayMethodParams(true);
-    }
-    
-    public String getDisplayMethodParams(boolean includeNames)
-    {
-        List<String> paramNames = includeNames ? method.getParamNames() : null;
-        Iterator<String> nameIterator = paramNames != null ? paramNames.iterator() : null;
         
-        String displayName = "(";
-        List<JavaType> paramTypes = method.getParamTypes();
-        for (Iterator<JavaType> i = paramTypes.iterator(); i.hasNext(); ) {
-            JavaType paramType = convertToSolid(i.next());
-            displayName += paramType.toString(true);
-            if (nameIterator != null) {
-                displayName += " " + nameIterator.next();
-            }
-            if (i.hasNext()) {
-                displayName += ", ";
-            }
-        }
-        displayName += ")";
-        
-        return displayName;
-    }
-
     @Override
-    public String getDisplayName()
-    {
-        return getDisplayMethodName() + getDisplayMethodParams(false);
-    }
-    
-    @Override
-    public String getCompletionText()
-    {
-        return method.getName() + "(";
-    }
-    
-    @Override
-    public String getCompletionTextSel()
-    {
-        List<JavaType> paramTypes = method.getParamTypes();
-        if (! paramTypes.isEmpty()) {
-            List<String> paramNames = method.getParamNames();
-            if (paramNames == null || paramNames.isEmpty()) {
-                return buildParam(1, paramTypes.get(0), null);
-            }
-            else {
-                return buildParam(1, paramTypes.get(0), paramNames.get(0));
-            }
-        }
-        return "";
-    }
-    
-    @Override
-    public String getCompletionTextPost()
-    {
-        String r = ")";
-        List<JavaType> paramTypes = method.getParamTypes();
-        if (paramTypes.size() > 1) {
-            String paramStr = "";
-            List<String> paramNames = method.getParamNames();
-            paramNames = (paramNames == null) ? Collections.<String>emptyList() : paramNames;
-            Iterator<JavaType> ti = paramTypes.iterator();
-            Iterator<String> ni = paramNames.iterator();
-            ti.next();
-            if (ni.hasNext()) ni.next();
-            int i = 2;
-            while (ti.hasNext()) {
-                String name = ni.hasNext() ? ni.next() : null;
-                paramStr += ", " + buildParam(i++, ti.next(), name);
-            }
-            r = paramStr + r;
-        }
-        
-        return r;
-    }
-    
-    @Override
-    public String getReturnType()
+    public String getType()
     {
         return convertToSolid(method.getReturnType()).toString(true);
-    }
-
-    @Override
-    public boolean javadocIsSet()
-    {
-        return method.getJavaDoc() != null;
     }
     
     @Override
@@ -189,7 +114,7 @@ public class MethodCompletion extends AssistContent
         }
         return jd;
     }
-    
+
     @Override
     public boolean getJavadocAsync(final JavadocCallback callback, Executor executor)
     {
@@ -197,7 +122,7 @@ public class MethodCompletion extends AssistContent
         if (jd == null && javadocResolver != null) {
             return javadocResolver.getJavadocAsync(method, new JavadocResolver.AsyncCallback() {
                 @Override
-                public void gotJavadoc(MethodReflective method)
+                public void gotJavadoc(ConstructorOrMethodReflective method)
                 {
                     if (method.getJavaDoc() == null) {
                         method.setJavaDoc(""); // prevent repeated attempts to retrieve unavailable doc
@@ -209,12 +134,6 @@ public class MethodCompletion extends AssistContent
         else {
             return true;
         }
-    }
-
-    @Override
-    public boolean hasParameters()
-    {
-        return !method.getParamTypes().isEmpty();
     }
     
     private JavaType convertToSolid(JavaType type)
@@ -230,8 +149,9 @@ public class MethodCompletion extends AssistContent
         }
         return type;
     }
-    
-    private static String buildParam(int pnum, JavaType paramType, String paramName)
+
+    //package-visible
+    static String buildDummyName(JavaType paramType, String paramName)
     {
         if (paramName != null) {
             return "_" + paramName + "_";
@@ -239,5 +159,63 @@ public class MethodCompletion extends AssistContent
         else {
             return "_" + paramType.toString(true) + "_";
         }
+    }
+    
+    public CompletionKind getKind()
+    {
+        return CompletionKind.METHOD;
+    }
+    
+    /**
+     * Gets a String that is the method's unique signature
+     */
+    public String getSignature()
+    {
+        StringBuilder sig = new StringBuilder();
+        sig.append(getType()).append(" ").append(getName()).append("(")
+           .append(getParams().stream().map(ParamInfo::getQualifiedType).collect(Collectors.joining(",")))
+           .append(")");
+        return sig.toString();
+    }
+
+    @Override
+    public List<ParamInfo> getParams()
+    {
+        // We must get Javadoc before asking for parameter names, as it is this method call that sets the parameter names:
+        getJavadoc();
+        ArrayList<ParamInfo> r = new ArrayList<>();
+        List<JavaType> paramTypes = method.getParamTypes();
+        List<String> paramNames = method.getParamNames();
+        for (int i = 0; i < paramTypes.size(); i++)
+        {
+            JavaType t = convertToSolid(paramTypes.get(i));
+            String paramName = paramNames == null ? null : paramNames.get(i);
+            r.add(new ParamInfo(t.toString(), paramName, buildDummyName(t, paramName), javadocForParam(paramName)));
+        }
+        return r;
+    }
+
+    private String javadocForParam(String paramName)
+    {
+        JavaUtils.Javadoc javadoc = JavaUtils.parseJavadoc(getJavadoc());
+        
+        if (javadoc == null)
+            return null;
+        
+        String target = "param " + paramName;
+        for (String block : javadoc.getBlocks())
+        {
+            if (block.startsWith(target) && Character.isWhitespace(block.charAt(target.length())))
+            {
+                return block.substring(target.length() + 1).trim();
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Access getAccessPermission()
+    {
+        return fromModifiers(method.getModifiers());
     }
 }

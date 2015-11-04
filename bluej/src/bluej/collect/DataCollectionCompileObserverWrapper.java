@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 2012,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,6 +29,7 @@ import java.util.Set;
 
 import bluej.compiler.CompileObserver;
 import bluej.compiler.Diagnostic;
+import bluej.compiler.EDTCompileObserver;
 import bluej.pkgmgr.Project;
 
 /**
@@ -38,13 +39,13 @@ import bluej.pkgmgr.Project;
  * @author Neil Brown
  *
  */
-public class DataCollectionCompileObserverWrapper implements CompileObserver
+public class DataCollectionCompileObserverWrapper implements EDTCompileObserver
 {
-    private CompileObserver wrapped;
+    private EDTCompileObserver wrapped;
     private List<DiagnosticWithShown> diagnostics = new ArrayList<DiagnosticWithShown>();
     private Project project;
     
-    public DataCollectionCompileObserverWrapper(Project project, CompileObserver wrapped)
+    public DataCollectionCompileObserverWrapper(Project project, EDTCompileObserver wrapped)
     {
         this.project = project;
         this.wrapped = wrapped;

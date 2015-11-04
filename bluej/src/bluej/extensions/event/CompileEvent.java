@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,6 +23,9 @@ package bluej.extensions.event;
 
 import java.io.File;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 /**
  * This class encapsulates compiler events.
  * It allows an extension writer to know when a compilation starts and
@@ -31,6 +34,7 @@ import java.io.File;
  * 
  * @author Damiano Bolla, University of Kent at Canterbury, 2003
  */
+@OnThread(Tag.Any)
 public class CompileEvent implements ExtensionEvent 
 {
     /**

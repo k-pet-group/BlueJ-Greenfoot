@@ -1,0 +1,45 @@
+editor-crashed
+Greenfoot si \u00e8 bloccato mentre stava salvando sul disco
+l'ultima volta che \u00e8 stato eseguito. Il codice
+potrebbe essere quindi in parte mancante o incompleto. 
+Cerca un backup di questa classe nella cartella
+del progetto. Se la classe sembra danneggiata
+   1 - chiudi Greenfoot
+   2 - copia la cartella del progetto (per sicurezza)
+   3 - cerca nella cartella del progetto un backup del
+       file java. Rinominalo come il file originale
+       (con il suffisso '.java')
+
+error-create-vm
+Greenfoot non \u00e8 riuscito a creare una macchina virtuale (VM) per eseguire gli scenari.
+Questo problema \u00e8 spesso causato da impostazioni del firewall eccessivamente restrittive.
+Per maggiori informazioni vai a [ http://www.greenfoot.org/doc/firewall ] .
+
+project-is-readonly
+Lo scenario che stai aprendo \u00e8 di sola lettura:
+:
+    $
+:
+Per usare questo scenario devi prima scegliere una cartella diversa in cui salvarlo.
+
+cannot-save-project
+Impossibile salvare lo scenario nella cartella selezionata. 
+Assicurati di avere i permessi di scrittura oppure
+seleziona una diversa cartella.
+
+cannot-create-project
+Impossibile creare lo scenario. Assicurati che la cartella
+che hai scelto abbia i permessi di scrittura.
+
+project-already-exists
+La cartella selezionata per questo scenario esiste gi\u00e0. Per creare un
+nuovo scenario seleziona la cartella e assicurati di usare un nome che non hai ancora usato
+(devi indicare il nome nella finestra di dialogo per salvare il file).
+
+archive-not-greenfoot-project
+Il file compresso che hai selezionato non sembra un 
+progetto Greenfoot (prova ad estrarne il contenuto 
+usando un diverso programma di estrazione).
+
+no-clipboard-image-data
+Negli appunti non sono presenti i dati di un'immagine da incollare.

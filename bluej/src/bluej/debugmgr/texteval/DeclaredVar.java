@@ -21,6 +21,8 @@
  */
 package bluej.debugmgr.texteval;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugmgr.NamedValue;
 
@@ -28,6 +30,7 @@ import bluej.debugmgr.NamedValue;
  * A class to represent a variable declared by a statement. This contains
  * the variable name and type, and whether or not it was initialized.
  */
+@OnThread(value = Tag.Any, ignoreParent = true)
 public class DeclaredVar implements NamedValue
 {
     private boolean isVarInit = false;

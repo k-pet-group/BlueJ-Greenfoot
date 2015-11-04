@@ -56,6 +56,11 @@ public class JavaParser
         return new JavaLexer(r);
     }
     
+    private static TokenStream getLexer(Reader r, boolean handleComments)
+    {
+        return new JavaLexer(r, handleComments);
+    }
+    
     private static TokenStream getLexer(Reader r, int line, int col, int pos)
     {
         return new JavaLexer(r, line, col, pos);
@@ -64,6 +69,12 @@ public class JavaParser
     public JavaParser(Reader r)
     {
         TokenStream lexer = getLexer(r);
+        tokenStream = new JavaTokenFilter(lexer, this);
+    }
+    
+    public JavaParser(Reader r, boolean handleComments)
+    {
+        TokenStream lexer = getLexer(r, handleComments);
         tokenStream = new JavaTokenFilter(lexer, this);
     }
     
@@ -2925,7 +2936,7 @@ public class JavaParser
                     }
                 }
                 else if (tokenStream.LA(1).getType() == JavaTokenTypes.DOT) {
-                    gotIdentifier(token);
+                    gotParentIdentifier(token);
                     if (tokenStream.LA(2).getType() == JavaTokenTypes.LITERAL_class) {
                         token = nextToken(); // dot
                         token = nextToken(); // class
@@ -2934,7 +2945,7 @@ public class JavaParser
                 }
                 else if (tokenStream.LA(1).getType() == JavaTokenTypes.LBRACK
                         && tokenStream.LA(2).getType() == JavaTokenTypes.RBRACK) {
-                    gotIdentifier(token);
+                    gotArrayTypeIdentifier(token);
                     parseArrayDeclarators();
                     if (tokenStream.LA(1).getType() == JavaTokenTypes.DOT &&
                             tokenStream.LA(2).getType() == JavaTokenTypes.LITERAL_class) {
@@ -3254,6 +3265,16 @@ public class JavaParser
         }
     }
     
+    protected void gotArrayTypeIdentifier(LocatableToken token)
+    {
+        gotIdentifier(token);        
+    }
+
+    protected void gotParentIdentifier(LocatableToken token)
+    {
+        gotIdentifier(token);        
+    }
+
     public LocatableToken parseArrayInitializerList(LocatableToken token)
     {
         // an initialiser list for an array

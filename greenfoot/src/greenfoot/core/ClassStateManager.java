@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2011,2014,2015  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -86,7 +86,23 @@ public class ClassStateManager extends RClassListenerImpl
             
             if (eventId == ClassEvent.STATE_CHANGED) {
                 boolean compiled = event.isClassCompiled();
-                gClass.setCompiledState(compiled);
+                boolean hasError = event.hasError();
+                // We have a potential deadlock here;
+                // we are called from BlueJ VM via a call stack
+                // which contains the Swing thread (i.e. the Swing thread
+                // is blocked over on the BlueJ VM when we get here)
+                // We need to call synchronized methods on the GClass.
+                // BUT: there is another thread of control where GClass
+                // has reload called and needs to talk to the BlueJ VM
+                // and use the Swing thread.  So we could end up in a
+                // classic deadlock, between the GClass monitor and the BlueJ
+                // Swing thread.  To break the deadlock, we set the notification
+                // below off in a new thread, which allows our caller to return,
+                // and the BlueJ Swing thread to be unblocked, thus heading
+                // off this particular deadlock. 
+                new Thread(() -> {
+                    gClass.setCompiledState(compiled, hasError);
+                }).start();
                 for (CompiledStateListener listener : listeners) {
                     listener.compiledStateChanged(gClass, compiled);
                 }

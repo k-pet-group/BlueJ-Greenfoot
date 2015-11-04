@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012,2014  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012,2014,2015  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,6 +21,11 @@
  */
 package greenfoot.util;
 
+import com.sun.jna.Native;
+import com.sun.jna.platform.win32.Kernel32;
+import com.sun.jna.platform.win32.User32;
+import com.sun.jna.platform.win32.WinDef.DWORD;
+import com.sun.jna.win32.W32APIOptions;
 import greenfoot.GreenfootImage;
 import greenfoot.UserInfo;
 import greenfoot.core.ImageCache;
@@ -647,6 +652,7 @@ public class GreenfootUtil
         Font underLineFont = deriveUnderlinedFont(f);
         label.setFont(underLineFont);
         label.addMouseListener(new MouseAdapter() {
+            @Override
             public void mouseClicked(MouseEvent e)
             {
                 Utility.openWebBrowser(url);
@@ -665,51 +671,6 @@ public class GreenfootUtil
         String newTitle = title.replaceAll("BlueJ", "Greenfoot");
         frame.setTitle(newTitle);
     }    
-    
-    /**
-     * Tries to locate the top level greenfoot dir. This method takes the
-     * different platforms into account. Specifically the Mac has a different
-     * structure.
-     * 
-     * @throws IOException If it can't read the greenfoot dir.
-     * 
-     */
-    public static File getGreenfootDir()
-        throws IOException
-    {
-        File libDir = Config.getBlueJLibDir();
-        // The parent dir of the lib dir is the top level dir of greenfoot
-        File greenfootDir = libDir.getParentFile();
-        // But on the mac it is further back in the hierarchy.
-        if (Config.isMacOS() && greenfootDir != null && greenfootDir.toString().endsWith(".app/Contents/Resources")) {
-            greenfootDir = greenfootDir.getParentFile().getParentFile().getParentFile();
-        }
-        if (greenfootDir == null || !(greenfootDir.isDirectory() && greenfootDir.canRead())) {
-            throw new IOException("Could not read from greenfoot directory: " + greenfootDir);
-        }
-        return greenfootDir;
-    }
-
-    /**
-     * Opens the given page of the Greenfoot API documentation in a web browser.
-     * @param page name of the page relative to the root of the API doc.
-     * @throws IOException If the greenfoot directory can not be read
-     */
-    public static void showApiDoc(String page)
-        throws IOException
-    {
-        String customUrl = Config.getPropString("greenfoot.url.javadoc", null);
-        if(customUrl != null) {
-            Utility.openWebBrowser(customUrl);
-        }
-        else {
-            File greenfootDir = GreenfootUtil.getGreenfootDir();
-            File location = new File(greenfootDir, "/doc/API/" + page);
-            if (location.canRead()) {
-                Utility.openWebBrowser(location);
-            }
-        }
-    }
     
     /**
      * Returns a set of the third party libraries used by Greenfoot.
@@ -970,4 +931,24 @@ public class GreenfootUtil
     {
         return new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_GRAY), null).filter(image, image);
     }
+
+    public interface User32Ext extends User32
+    {
+        User32Ext INSTANCE = (User32Ext) Native.loadLibrary("user32.dll",
+            User32Ext.class, W32APIOptions.DEFAULT_OPTIONS);
+
+        public BOOL AllowSetForegroundWindow(DWORD dwProcessId);
+    }
+
+    // Called from Greenfoot to allow BlueJ windows (the editor window) to take focus.
+    public static void allowForeground(long processId)
+    {
+        if (Config.isWinOS())
+        {
+            Kernel32 kernel32 = Kernel32.INSTANCE;
+            User32Ext user32 = User32Ext.INSTANCE;
+            user32.AllowSetForegroundWindow(new DWORD(processId));
+        }
+    }
+
 }

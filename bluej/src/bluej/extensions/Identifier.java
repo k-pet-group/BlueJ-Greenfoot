@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2012,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,6 +25,8 @@ package bluej.extensions;
 import java.awt.EventQueue;
 import java.io.File;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
 import bluej.extensions.BDependency.Type;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
@@ -65,6 +67,7 @@ class Identifier
     /**
      * Constructor for the Identifier object
      */
+    @OnThread(Tag.Any)
     Identifier(Project bluejProject)
     {
         this(bluejProject, null, null);
@@ -74,6 +77,7 @@ class Identifier
     /**
      * Constructor for the Identifier object
      */
+    @OnThread(Tag.Any)
     Identifier(Project bluejProject, Package bluejPackage)
     {
         this(bluejProject, bluejPackage, null);
@@ -83,6 +87,7 @@ class Identifier
     /**
      * Constructor for the Identifier object
      */
+    @OnThread(Tag.Any)
     Identifier(Project bluejProject, Package bluejPackage, String aQualifiedClassName)
     {
         projectId = bluejProject.getProjectDir();

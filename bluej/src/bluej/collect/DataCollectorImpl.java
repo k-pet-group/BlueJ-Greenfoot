@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2012,2013,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 2012,2013,2014,2015  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -34,7 +34,10 @@ import java.util.Map;
 
 import org.apache.http.entity.mime.MultipartEntity;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
 import bluej.Config;
+import bluej.collect.CollectUtility.ProjectDetails;
 import bluej.collect.DataCollector.NamedTyped;
 import bluej.compiler.Diagnostic;
 import bluej.debugger.DebuggerTestResult;
@@ -63,6 +66,7 @@ import difflib.Patch;
  * class, to avoid creating a run-time dependency on the commonds HTTP libraries when running without
  * data collection enabled (eg in Greenfoot).
  */
+@OnThread(Tag.Swing)
 public class DataCollectorImpl
 {
     /**
@@ -99,7 +103,7 @@ public class DataCollectorImpl
             mpe = new MultipartEntity();
         }
         
-        mpe.addPart("event[source_file_name]", CollectUtility.toBodyLocal(project, sourceFile));
+        mpe.addPart("event[source_file_name]", CollectUtility.toBodyLocal(new ProjectDetails(project), sourceFile));
         mpe.addPart("event[line_number]", CollectUtility.toBody(lineNumber));
         
         submitEvent(project, pkg, eventName, new PlainEvent(mpe));
@@ -128,7 +132,6 @@ public class DataCollectorImpl
         
         submitEvent(project, null, eventName, new PlainEvent(mpe));
     }
-
 
     private static synchronized void submitEvent(final Project project, final Package pkg, final EventName eventName, final Event evt)
     {
@@ -191,9 +194,10 @@ public class DataCollectorImpl
         
         mpe.addPart("event[compile_success]", CollectUtility.toBody(success));
         
+        ProjectDetails projDetails = new ProjectDetails(proj);
         for (File src : sources)
         {
-            mpe.addPart("event[compile_input][][source_file_name]", CollectUtility.toBody(CollectUtility.toPath(proj, src)));
+            mpe.addPart("event[compile_input][][source_file_name]", CollectUtility.toBody(CollectUtility.toPath(projDetails, src)));
         }        
         
         for (DiagnosticWithShown dws : diagnostics)
@@ -210,7 +214,7 @@ public class DataCollectorImpl
                 mpe.addPart("event[compile_output][][start_column]", CollectUtility.toBody(d.getStartColumn()));
                 mpe.addPart("event[compile_output][][end_column]", CollectUtility.toBody(d.getEndColumn()));
                 // Must make file name relative for anonymisation:
-                String relative = CollectUtility.toPath(proj, new File(d.getFileName()));
+                String relative = CollectUtility.toPath(projDetails, new File(d.getFileName()));
                 mpe.addPart("event[compile_output][][source_file_name]", CollectUtility.toBody(relative));
             }
         }
@@ -261,7 +265,7 @@ public class DataCollectorImpl
     
     public static void packageOpened(Package pkg)
     {
-        final Project proj = pkg.getProject();
+        final ProjectDetails proj = new ProjectDetails(pkg.getProject());
         
         final MultipartEntity mpe = new MultipartEntity();
         
@@ -285,7 +289,7 @@ public class DataCollectorImpl
             }
         }
         
-        submitEvent(proj, pkg, EventName.PACKAGE_OPENING, new Event() {
+        submitEvent(pkg.getProject(), pkg, EventName.PACKAGE_OPENING, new Event() {
             
             @Override
             public void success(Map<FileKey, List<String>> fileVersions)
@@ -323,7 +327,8 @@ public class DataCollectorImpl
     public static void edit(final Package pkg, final File path, final String source, final boolean includeOneLineEdits)
     {
         final Project proj = pkg.getProject();
-        final FileKey key = new FileKey(proj, CollectUtility.toPath(proj, path));
+        final ProjectDetails projDetails = new ProjectDetails(proj);
+        final FileKey key = new FileKey(projDetails, CollectUtility.toPath(projDetails, path));
         final String anonSource = CodeAnonymiser.anonymise(source);
         final List<String> anonDoc = Arrays.asList(Utility.splitLines(anonSource));
                 
@@ -361,7 +366,7 @@ public class DataCollectorImpl
                 
                 mpe.addPart("source_histories[][content]", CollectUtility.toBody(diff));
                 mpe.addPart("source_histories[][source_history_type]", CollectUtility.toBody("diff"));
-                mpe.addPart("source_histories[][name]", CollectUtility.toBody(CollectUtility.toPath(proj, path))); 
+                mpe.addPart("source_histories[][name]", CollectUtility.toBody(CollectUtility.toPath(projDetails, path))); 
                 
                 return mpe;
             }
@@ -378,6 +383,7 @@ public class DataCollectorImpl
     }
     
     @SuppressWarnings("unchecked")
+    @OnThread(Tag.Any)
     // protected for testing purposes
     protected static String makeDiff(Patch patch)
     {
@@ -496,11 +502,11 @@ public class DataCollectorImpl
 
     public static void renamedClass(Package pkg, final File oldSourceFile, final File newSourceFile)
     {
+        final ProjectDetails projDetails = new ProjectDetails(pkg.getProject());
         MultipartEntity mpe = new MultipartEntity();
         mpe.addPart("source_histories[][source_history_type]", CollectUtility.toBody("rename"));
-        mpe.addPart("source_histories[][content]", CollectUtility.toBodyLocal(pkg.getProject(), oldSourceFile));
-        mpe.addPart("source_histories[][name]", CollectUtility.toBodyLocal(pkg.getProject(), newSourceFile));
-        final Project project = pkg.getProject();
+        mpe.addPart("source_histories[][content]", CollectUtility.toBodyLocal(projDetails, oldSourceFile));
+        mpe.addPart("source_histories[][name]", CollectUtility.toBodyLocal(projDetails, newSourceFile));
         submitEvent(pkg.getProject(), pkg, EventName.RENAME, new PlainEvent(mpe) {
 
             @Override
@@ -509,8 +515,8 @@ public class DataCollectorImpl
             {
                 // We need to change the fileVersions hash to move the content across from the old file
                 // to the new file:
-                FileKey oldKey = new FileKey(project, CollectUtility.toPath(project, oldSourceFile));
-                FileKey newKey = new FileKey(project, CollectUtility.toPath(project, newSourceFile));
+                FileKey oldKey = new FileKey(projDetails, CollectUtility.toPath(projDetails, oldSourceFile));
+                FileKey newKey = new FileKey(projDetails, CollectUtility.toPath(projDetails, newSourceFile));
                 fileVersions.put(newKey, fileVersions.get(oldKey));
                 fileVersions.remove(oldKey);
                 return super.makeData(sequenceNum, fileVersions);
@@ -521,18 +527,35 @@ public class DataCollectorImpl
     
     public static void removeClass(Package pkg, final File sourceFile)
     {
+        final ProjectDetails projDetails = new ProjectDetails(pkg.getProject());
         MultipartEntity mpe = new MultipartEntity();
         mpe.addPart("source_histories[][source_history_type]", CollectUtility.toBody("file_delete"));
-        mpe.addPart("source_histories[][name]", CollectUtility.toBodyLocal(pkg.getProject(), sourceFile));
-        final Project project = pkg.getProject();
+        mpe.addPart("source_histories[][name]", CollectUtility.toBodyLocal(projDetails, sourceFile));
         submitEvent(pkg.getProject(), pkg, EventName.DELETE, new PlainEvent(mpe) {
 
             @Override
-            public MultipartEntity makeData(int sequenceNum,
-                    Map<FileKey, List<String>> fileVersions)
+            public MultipartEntity makeData(int sequenceNum, Map<FileKey, List<String>> fileVersions)
             {
                 // We should remove the old source from the fileVersions hash:
-                fileVersions.remove(new FileKey(project, CollectUtility.toPath(project, sourceFile)));
+                fileVersions.remove(new FileKey(projDetails, CollectUtility.toPath(projDetails, sourceFile)));
+                return super.makeData(sequenceNum, fileVersions);
+            }
+            
+        });
+    }
+    
+
+    public static void ConvertStrideToJava(Package pkg, File sourceFile)
+    {
+        final ProjectDetails projDetails = new ProjectDetails(pkg.getProject());
+        MultipartEntity mpe = new MultipartEntity();
+        mpe.addPart("source_histories[][source_history_type]", CollectUtility.toBody("stride_converted_to_java"));
+        mpe.addPart("source_histories[][name]", CollectUtility.toBodyLocal(projDetails, sourceFile));
+        submitEvent(pkg.getProject(), pkg, EventName.CONVERT_TO_JAVA, new PlainEvent(mpe) {
+
+            @Override
+            public MultipartEntity makeData(int sequenceNum, Map<FileKey, List<String>> fileVersions)
+            {
                 return super.makeData(sequenceNum, fileVersions);
             }
             
@@ -542,17 +565,17 @@ public class DataCollectorImpl
     public static void addClass(Package pkg, File sourceFile)
     {
         final MultipartEntity mpe = new MultipartEntity();
-        final Project project = pkg.getProject();
+        final ProjectDetails projDetails = new ProjectDetails(pkg.getProject());
         
-        final String contents = CollectUtility.readFileAndAnonymise(project, sourceFile);
+        final String contents = CollectUtility.readFileAndAnonymise(projDetails, sourceFile);
         
-        mpe.addPart("project[source_files][][name]", CollectUtility.toBodyLocal(project, sourceFile));
+        mpe.addPart("project[source_files][][name]", CollectUtility.toBodyLocal(projDetails, sourceFile));
         mpe.addPart("source_histories[][source_history_type]", CollectUtility.toBody("complete"));
-        mpe.addPart("source_histories[][name]", CollectUtility.toBodyLocal(project, sourceFile));
+        mpe.addPart("source_histories[][name]", CollectUtility.toBodyLocal(projDetails, sourceFile));
         mpe.addPart("source_histories[][content]", CollectUtility.toBody(contents));
-        final FileKey key = new FileKey(project, CollectUtility.toPath(project, sourceFile));
+        final FileKey key = new FileKey(projDetails, CollectUtility.toPath(projDetails, sourceFile));
         
-        submitEvent(project, pkg, EventName.ADD, new Event() {
+        submitEvent(pkg.getProject(), pkg, EventName.ADD, new Event() {
             
             @Override
             public void success(Map<FileKey, List<String>> fileVersions)
@@ -575,30 +598,33 @@ public class DataCollectorImpl
     
     public static void teamCommitProject(Project project, Repository repo, Collection<File> committedFiles)
     {
+        final ProjectDetails projDetails = new ProjectDetails(project);
         MultipartEntity mpe = DataCollectorImpl.getRepoMPE(repo);
         for (File f : committedFiles)
         {
-            mpe.addPart("vcs_files[][file]", CollectUtility.toBodyLocal(project, f));
+            mpe.addPart("vcs_files[][file]", CollectUtility.toBodyLocal(projDetails, f));
         }
         submitEvent(project, null, EventName.VCS_COMMIT, new PlainEvent(mpe));
     }
     
     public static void teamUpdateProject(Project project, Repository repo, Collection<File> updatedFiles)
     {
+        final ProjectDetails projDetails = new ProjectDetails(project);
         MultipartEntity mpe = DataCollectorImpl.getRepoMPE(repo);
         for (File f : updatedFiles)
         {
-            mpe.addPart("vcs_files[][file]", CollectUtility.toBodyLocal(project, f));
+            mpe.addPart("vcs_files[][file]", CollectUtility.toBodyLocal(projDetails, f));
         }
         submitEvent(project, null, EventName.VCS_UPDATE, new PlainEvent(mpe));
     }
     
     public static void teamStatusProject(Project project, Repository repo, Map<File, String> status)
     {
+        final ProjectDetails projDetails = new ProjectDetails(project);
         MultipartEntity mpe = DataCollectorImpl.getRepoMPE(repo);
         for (Map.Entry<File, String> s : status.entrySet())
         {
-            mpe.addPart("vcs_files[][file]", CollectUtility.toBodyLocal(project, s.getKey()));
+            mpe.addPart("vcs_files[][file]", CollectUtility.toBodyLocal(projDetails, s.getKey()));
             mpe.addPart("vcs_files[][status]", CollectUtility.toBody(s.getValue()));
         }
         submitEvent(project, null, EventName.VCS_STATUS, new PlainEvent(mpe));
@@ -737,7 +763,7 @@ public class DataCollectorImpl
         MultipartEntity mpe = new MultipartEntity();
         
         mpe.addPart("event[test][test_identifier]", CollectUtility.toBody(testIdentifier));
-        mpe.addPart("event[test][source_file]", CollectUtility.toBodyLocal(pkg.getProject(), sourceFile));
+        mpe.addPart("event[test][source_file]", CollectUtility.toBodyLocal(new ProjectDetails(pkg.getProject()), sourceFile));
         mpe.addPart("event[test][method_name]", CollectUtility.toBody(testName));
         
         submitEvent(pkg.getProject(), pkg, EventName.START_TEST, new PlainEvent(mpe));
@@ -782,7 +808,7 @@ public class DataCollectorImpl
     {
         MultipartEntity mpe = new MultipartEntity();
         
-        mpe.addPart("event[source_file_name]", CollectUtility.toBodyLocal(pkg.getProject(), sourceFile));
+        mpe.addPart("event[source_file_name]", CollectUtility.toBodyLocal(new ProjectDetails(pkg.getProject()), sourceFile));
         for (String name : benchNames)
         {
             mpe.addPart("event[bench_objects][][name]", CollectUtility.toBody(name));
@@ -796,7 +822,7 @@ public class DataCollectorImpl
     {
         MultipartEntity mpe = new MultipartEntity();
         
-        mpe.addPart("event[source_file_name]", CollectUtility.toBodyLocal(pkg.getProject(), sourceFile));
+        mpe.addPart("event[source_file_name]", CollectUtility.toBodyLocal(new ProjectDetails(pkg.getProject()), sourceFile));
         for (NamedTyped obj : objects)
         {
             mpe.addPart("event[bench_objects][][name]", CollectUtility.toBody(obj.getName()));

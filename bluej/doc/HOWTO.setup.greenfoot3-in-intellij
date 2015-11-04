@@ -1,0 +1,59 @@
+Setting up Greenfoot 3 in IntelliJ 14:
+
+First, go to general Preferences/Settings.  Search using top-left search bar for subversion.  On the subversion settings,
+untick the "Use command line client" option.  Seems to cause problems, especially on Windows and Mac.
+
+Click Check out from Version Control, select Subversion
+Enter URL: svn+ssh://bluej.org/home/bluej/svnroot
+Navigate to branches/greenfoot3prototype (you can check out bluej and greenfoot in one go)
+Select a new dir as destination (e.g. /Users/neil/intellij/greenfoot3)
+When it asks at the end if you want to create a project, say yes
+Select "create project from existing sources"
+Use the directory you checked out the sources into (e.g. /Users/neil/intellij/greenfoot3)
+When it asks about source directories, click Unmark All, then Finish
+It will then show a fairly empty screen
+
+Go to File menu, then "New Module..."
+Select Java from left-hand list
+Select latest JDK 1.8 as Project SDK (if not showing, click New... to add it)
+Name the module bluej (all lower case), and it should want to put the module into /Users/neil/intellij/greenfoot3/bluej
+When you click finish, it should pick up the files.  It will ask if you want to put the project file into subversion; I've said No.
+It should automatically mark "src" as a source directory, but we still have to configure it a bit more.
+Go to File menu, then Project Structure
+From Project section, select right JDK, and language level 8.  Ignore output directory.
+Go to Modules section, select bluej (only module so far), then click boot/src and click "Sources" in the "Mark As" section above the file list.  Do same for threadchecker/src.
+Click the Paths tab, select "Use module compile output path" and change output path to /Users/neil/intellij/greenfoot3/bluej/classes (your equivalent)
+Go to Dependencies tab.  Rather than add tools.jar independently, I clicked "Edit" at the top and added tools.jar to the list of SDK jars (use plus in bottom left).
+Return to Dependencies tab (Modules section, bluej, Dependencies tab).  Click plus in bottom left and add all the JARs from the bluej/lib directory
+Try compiling: Build menu, Make Project.  It may take a minute or so, but it should build.
+
+Similar process again; File menu, New Module..., Java project
+This time named greenfoot; content and module location should be /Users/neil/intellij/greenfoot3/greenfoot (equivalent)
+File > Project Structure > Modules section > greenfoot
+It should have already marked "src" as a source folder
+On Paths tab, select "Use module compile output path" and change output to /Users/neil/intellij/greenfoot3/greenfoot/classes (equivalent)
+On Dependencies tab, click plus and add "Module Dependency", select bluej from list.
+Click plus again, select JARs and add all JARs in greenfoot/lib, and then do it again for all JARs in bluej/lib (We probably don't need all of them, but no harm)
+Select OK, don't add project file, and then do Build > Make Project again
+
+In Project tab on left-hand side (show by hovering over very bottom-left icon in window, then clicking Project), right-click on each build.xml and click "Add as Ant build file" (near bottom).  Click on very bottom-left icon again and click Ant Build, you get a list of targets, and you can run them by selecting them and pressing play.
+Set up your two build.properties as normal (e.g. bluej_home will be equivalent of /Users/neil/intellij/greenfoot3/bluej)
+Build the bluej/ready-to-run-greenfoot and greenfoot/ready-to-run targets
+
+Go to Run menu > Edit Configurations...
+Click plus in top-left to add new config, select Application from drop-down
+Name it Greenfoot 3.  Main class is "bluej.Boot".  Program arguments are "-useclassesdir=true -greenfoot=true -bluej.debug=true -greenfootclassesdir=/Users/neil/intellij/greenfoot3/greenfoot/classes" (replace last bit with your path).  Select use classpath of module "bluej".
+In bottom list make sure there is only "Make" (if there is "Show this window" or similar, remove it).  Select OK.
+
+Go to Run menu and "Run Greenfoot 3".  It should run fine!
+
+
+Some initial IntelliJ tips:
+
+To navigate: Cmd-N and type class name, Cmd-Shift-N and type file name (e.g. tasks), Cmd-Shift-Alt-N and type a method name.
+
+Errors: they show as red underlines and similar, or you can do a build via Cmd-F9 to see errors.  There are quick fixes, like in Eclipse (e.g. declare as field), but they aren't obvious at first.  Put cursor into red section of text, and usually a lightbulb appears to the left.  Hover over the lightbulb, and quick fixes are available from the drop down.
+
+To run: Shift-F10 runs (and will show any errors if it can't run)
+
+To commit: go to VCS menu > Show Changes View.  For any changes you don't care about (e.g. build.properties, API docs), select them, right click, and say "Move to Another Changelist", and make a list called Ignore or whatever.  Then they are neatly hidden in future!  For ones you do want to commit, select them and right-click and go for Commit.  Note that you can commit bluej/greenfoot changes at the same time in one commit!  When you do commit, it often talks about errors and warnings.  These seem to usually be false errors, so I just ignore them (just make sure the project builds successfully before committing).  Updates are available on the "Incoming" tab of Changes View.  The diff view isn't as useful as Eclipse (can't edit it directly, but must click in and press F4), but is available by selecting "Preview Diff" in icons on left (just above the question mark).  It's also opposite sides to Eclipse (your changes on right).

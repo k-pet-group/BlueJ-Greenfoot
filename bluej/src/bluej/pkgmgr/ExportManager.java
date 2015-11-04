@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014,2015  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,15 +21,29 @@
  */
 package bluej.pkgmgr;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import java.util.jar.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.jar.Attributes;
+import java.util.jar.JarOutputStream;
+import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 
 import bluej.Config;
-import bluej.utility.*;
+import bluej.extensions.SourceType;
+import bluej.utility.Debug;
+import bluej.utility.DialogManager;
+import bluej.utility.FileUtility;
 
 /**
  * Component to manage storing projects to jar file format.
@@ -41,7 +55,7 @@ final class ExportManager
     private static final String specifyJar = Config.getString("pkgmgr.export.specifyJar");
     private static final String createJarText = Config.getString("pkgmgr.export.createJarText");
     
-    private static final String sourceSuffix = ".java";
+    private static final String sourceSuffix = "." + SourceType.Java.toString().toLowerCase();
     private static final String contextSuffix = ".ctxt";
     private static final String packageFilePrefix = "bluej.pk";
     private static final String packageFileBackup = "bluej.pkh";
@@ -167,7 +181,7 @@ final class ExportManager
         }
         catch(IOException exc) {
             DialogManager.showError(frame, "error-writing-jar");
-            Debug.reportError("problen writing jar file: " + exc);
+            Debug.reportError("problem writing jar file: " + exc);
         } finally {
             try {
                 if(jStream != null)

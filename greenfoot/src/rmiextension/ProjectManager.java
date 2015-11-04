@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2010,2011,2012  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2010,2011,2012,2014,2015  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -47,6 +47,7 @@ import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.extensions.event.PackageEvent;
 import bluej.extensions.event.PackageListener;
+import bluej.extensions.SourceType;
 import bluej.pkgmgr.DocPathEntry;
 import bluej.pkgmgr.Project;
 import bluej.testmgr.record.InvokerRecord;
@@ -68,7 +69,7 @@ public class ProjectManager
     /** List to keep track of which projects has been opened */
     private List<BPackage> openedPackages = new ArrayList<BPackage>();
 
-    /** List to keep track of which projects are int the process of being created */
+    /** List to keep track of which projects are in the process of being created */
     private List<File> projectsInCreation = new ArrayList<File>();
     
     /** Map of open projects (by directory) to the corresponding RProjectImpl instance */
@@ -81,6 +82,9 @@ public class ProjectManager
     private static BlueJ bluej;
     
     private static volatile boolean launchFailed = false;
+    
+    boolean wizard;
+    SourceType sourceType;
 
     private ProjectManager()
     {}
@@ -150,7 +154,8 @@ public class ProjectManager
                 File apiDir = new File(new File(langlib, "greenfoot"), "api");
                 sourcePath.add(new DocPathEntry(apiDir, ""));
                 
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 Debug.reportError("Could not create greenfoot launcher.", e);
                 // This is bad, lets exit.
                 greenfootLaunchFailed(project);
@@ -240,8 +245,11 @@ public class ProjectManager
             };
             ObjectBench.createObject(pkg, launchClass, launcherName,
                     new String[] {project.getDir().getPath(),
-                    BlueJRMIServer.getBlueJService()}, watcher);
-        } catch (ProjectNotOpenException e) {
+                    BlueJRMIServer.getBlueJService(), String.valueOf(wizard), String.valueOf(sourceType)}, watcher);
+            // Reset wizard to false so it doesn't affect future loads:
+            wizard = false;
+        }
+        catch (ProjectNotOpenException e) {
             // Not important; project has been closed, so no need to launch
         }
     }
@@ -373,5 +381,15 @@ public class ProjectManager
             // Currently this shouldn't happen; the package is reported closed while
             // the project is still considered open.
         }
+    }
+
+    public void setWizard(boolean wizard)
+    {
+        this.wizard = wizard;
+    }
+
+    public void setSourceType(SourceType sourceType)
+    {
+        this.sourceType = sourceType;
     }
 }

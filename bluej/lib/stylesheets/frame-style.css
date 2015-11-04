@@ -1,0 +1,874 @@
+/* Define named colours: */
+.root {
+    -fx-font-family: "Source Sans Pro";
+
+    class-frame: hsb(103, 8%, 78%);
+    class-frame-java: hsb(103, 4%, 85%);
+    class-comment-focus: hsb(103, 8%, 85%);
+    class-comment-text: hsb(103, 50%, 50%);
+
+    interface-frame: hsb(198, 14%, 96%);
+    interface-comment-text: hsb(198, 80%, 43%);
+
+    triangle-label: hsb(103, 70%, 30%);
+
+    instance-var-frame: derive(class-frame, +25%);
+    
+    if-frame: hsb(240, 2%, 90%);
+    if-frame-java: hsb(240, 1%, 95%);
+    if-border: derive(if-frame, -25%);
+    if-border-java: derive(if-frame-java, -10%);
+    if-sidelabel: hsb(240, 20%, 80%);
+    
+    while-frame: hsb(357, 7%, 90%);
+    while-frame-java: hsb(357, 3%, 95%);
+    while-border: derive(while-frame, -25%);
+    while-border-java: derive(while-frame-java, -10%);
+    while-sidelabel: hsb(357, 15%, 76%);
+    
+    foreach-frame: hsb(21, 10%, 90%);
+    foreach-frame-java: hsb(21, 5%, 95%);
+    foreach-border: derive(foreach-frame, -25%);
+    foreach-border-java: derive(foreach-frame-java, -10%);
+    foreach-sidelabel: hsb(21, 15%, 70%);
+    
+    try-frame: hsb(189, 10%, 87%);
+    try-frame-java: hsb(189, 5%, 95%);
+    try-border: derive(try-frame, -25%);
+    try-border-java: derive(try-frame-java, -10%);
+    try-sidelabel: hsb(189, 20%, 75%);
+    
+    switch-frame: hsb(56, 15%, 90%);
+    switch-frame-java: hsb(56, 5%, 95%);
+    switch-border: derive(switch-frame, -25%);
+    switch-border-java: derive(switch-frame-java, -10%);
+    switch-sidelabel: hsb(56, 15%, 70%);
+    
+    breakpoint-frame: hsb(0, 60%, 30%);
+    breakpoint-text: white;
+    debug-info: hsb(0, 30%, 50%);
+    debug-info-highlight: hsb(0, 50%, 20%);
+    debug-info-text: white;
+        
+    method-frame: hsb(60, 15%, 93%);
+    method-frame-java: hsb(60, 8%, 95%);
+    method-border: derive(method-frame, -25%);
+    method-border-java: derive(method-frame-java, -10%);
+    method-comment-focus: hsb(60, 4%, 98%);
+    method-comment-text: hsb(60, 80%, 59%);
+    method-comment-prompt: hsb(60, 25%, 85%);
+    method-header: derive(method-frame, 0%); /* old bump: linear-gradient(to bottom, derive(method-frame, +25%) 5%, method-frame 33%, method-frame 66%, derive(method-frame, -15%) 100%); */
+    method-header-pinned: derive(method-frame, 0%);
+
+    frame-canvas-empty: hsb(0, 0%, 100%);
+    frame-canvas-non-empty: hsb(42, 5%, 97%);
+    frame:  hsb(42, 5%, 97%);              /* default frame colour */
+    frame-border: hsb(42, 5%, 97%);        /* default frame border (none, same as bg) */
+    frame-canvas-border: rgb(180,180,180); /* border for frame slots in frames */
+    frame-canvas-border-java: rgb(210,210,210);
+    frame-stack-border: hsb(10, 80%, 40%);
+    frame-drag-border: hsb(0, 0%, 40%);
+    
+    focused-slot: white;
+    text-slot-prompt-text: hsb(0, 0%, 60%);
+}
+
+/* default for all frames */
+.frame {
+    -fx-background-color: frame;
+    -fx-border-color: frame-border;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-border-width: 1;
+    -fx-border-style: solid inside;
+    -fx-padding: 0 0 0 0;
+}
+.frame:bj-java-preview {
+    -fx-background-color: white;
+    -fx-border-color: white;
+}
+
+.if-frame, .while-frame, .foreach-frame, .try-frame, .switch-frame {
+    -fx-padding: 3 0 2 0;
+}
+
+/* Because frame canvas must interpolate the padding and background/border-insets
+   during animations, we do not set the -fx properties directly, and instead use a
+   -bj proxy instead. */
+.frame-canvas {
+    -bj-border-radius: 5;
+    -bj-background-radius: 5;
+    -bj-border-color: frame-canvas-border;
+    -bj-border-width: 1;
+    -bj-curly-bracket-height: 1em;
+    -fx-spacing: 0;
+}
+
+.frame-canvas:bj-empty {
+    -bj-background-color: frame-canvas-empty;
+}
+
+.frame-canvas:bj-non-empty {
+    -bj-background-color: frame-canvas-non-empty;
+}
+.frame-canvas:bj-empty:bj-java-preview, .frame-canvas:bj-non-empty:bj-java-preview {
+    -bj-background-color: white;
+    -bj-border-color: frame-canvas-border-java;
+}
+
+.method-frame:bj-java-preview .constructor-call-header-row {
+    /* Just show top part of background, without bottom (which will be the join) */
+    -fx-background-radius: 5 5 0 0;
+    -fx-border-radius: 5 5 0 0;
+    -fx-border-width: 0;
+    -fx-border-style: solid outside;
+    -fx-background-color: white;
+    -fx-background-insets: -2 1 0 2.2em;
+    -fx-border-insets: 0 0 0 2.2em;
+}
+.method-frame:bj-super-this .method-frame-canvas:bj-java-preview {
+    /* Just show bottom part of border, without top (which will be join) */
+    -bj-background-radius: 0 0 5 5;
+    -bj-top-margin: 0;
+}
+
+.frame:bj-stack-highlight {
+    -fx-border-color: frame-stack-border;
+}
+
+.frame-drag {
+    -fx-border-color: frame-drag-border;
+}
+
+.sidelabel {
+     -fx-font-weight: bold;
+     /* -fx-font-style: italic; */
+     /* -fx-font-family: Times; */
+     /* select either: Times, Courier*/
+     /* Helvetica(Not nice), Zapf-Chancery(Not working), Western(Not working) */
+     -bj-left-margin: 0.6em; /* 2.2 margin - 1em for text, divided by 2 */
+     -bj-top-margin: 2.5em;
+}
+
+
+
+/* class */
+.frame-editor-scroll-pane {
+    -fx-padding: 0;
+    /* Turn off blue outline when scroll bars have focus: */
+    -fx-focus-color: transparent;
+}
+
+/* Restyle scroll bar, see http://stackoverflow.com/questions/13200439/javafx2-2-making-a-scrollbar-with-transparent-background for more: */
+.frame-editor-scroll-pane .scroll-bar:vertical {
+  -fx-background-color: class-frame;
+}
+/* And avoid the rule impacting scroll on code completion: */
+.frame-editor-scroll-pane .code-overlay-pane .scroll-bar:vertical {
+  -fx-background-color: transparent;
+}
+
+.class-frame, .interface-frame {
+    -fx-border-style: none !important;
+    -fx-padding: 0 0 0 0 !important;
+    -fx-background-radius: 0 !important;
+    -fx-border-radius: 0 !important;
+    -fx-border-width: 0 !important;
+}
+
+.class-frame-canvas:bj-non-empty, .class-fields-frame-canvas:bj-non-empty,
+.interface-frame-canvas:bj-non-empty {
+    -bj-border-color: transparent !important;
+}
+
+.class-name-text-slot, .interface-name-text-slot {
+     -fx-font-weight: bold;
+}
+.class-extends-row, .interface-extends-row {
+     -fx-padding: 0 0 0 20; 
+}
+
+.class-header-box {
+  -fx-padding: 12 6 0 6;
+}
+
+.divider-else, .divider-catch, .divider-finally {
+    -fx-label-padding: 2 6 2 0;
+}
+
+.divider-default-case {
+    -fx-label-padding: 0 6 0 24;
+}
+
+.inherited-method-frame, .inherited-field-frame {
+    -fx-padding: 2 0 2 0;
+}
+
+.class-frame .inherited-method-frame, .class-frame .import-frame, .class-frame .import-field {
+    -fx-border-width: 1;
+    -fx-border-color: instance-var-frame;
+    -fx-background-color: instance-var-frame;
+}
+.class-frame .inherited-method-frame:bj-java-preview, .class-frame .import-frame:bj-java-preview, .class-frame .import-field:bj-java-preview {
+     -fx-border-color: white;
+    -fx-background-color: white;
+}
+
+.inherited-method-caption, .inherited-method-slot {
+    -fx-text-fill: hsb(103, 8%, 50%);
+}
+.inherited-method-name {
+    -fx-font-weight: bold;
+}
+
+.class-fields-frame-canvas:bj-empty, .class-frame-canvas:bj-empty,
+.class-inherited-frame-canvas:bj-empty, .class-import-frame-canvas:bj-empty {
+    -bj-min-height: 1em;
+}
+
+/* method definitions */
+.method-frame {
+  -fx-padding: 10 0 0 0;
+}
+.method-frame:bj-birdseye {
+  -fx-padding: 0;
+}
+
+.class-frame-canvas {
+  -bj-frame-margin-top: 5;
+  -bj-frame-margin-bottom: 5;
+}
+
+.method-header {
+    -fx-padding: 4 2 4 2;
+}
+.method-name-text-slot, .constructor-name-caption {
+    -fx-font-weight: bold;
+}
+.method-header .constructor-name-caption {
+    -fx-label-padding: 0 0.4em 0 0;
+}
+
+.method-parameter-frame-canvas {
+    -bj-border-width: 0;
+    -bj-background-color: transparent;
+}
+
+.method-parameter-frame {
+    -fx-padding: 2 2 2 12;
+    -fx-border-width: 0;
+}
+
+.method-parameter-text:focused
+{
+    -fx-text-fill:black;
+}
+
+.header-row {
+    -bj-hanging-indent: 3em;
+    -fx-row-valignment: baseline;
+}
+
+.constructor-call-header-row {
+    -fx-padding: -0.25em 0 4 2.2em;
+}
+.method-frame:bj-java-preview .constructor-call-header-row {
+    -fx-padding: -0.25em 0 4 5;
+}
+
+
+/* comment */
+.comment-documentation-text {
+    -fx-font-style: italic;
+}
+
+.documentation-text, .documentation-text .scroll-pane, .documentation-text .scroll-pane .viewport, .documentation-text .scroll-pane .content {
+    -fx-background-color: transparent;
+}
+
+/* This one has the longer rule: */
+.instance-comment-frame.comment-frame .comment-documentation-text, .instance-comment-frame.comment-frame .preview-slashstar {
+    -fx-text-fill: class-comment-text;
+    -fx-prompt-text-fill: transparent;
+}
+
+.comment-frame .comment-documentation-text, .comment-frame .preview-slashstar {
+    -fx-text-fill: method-comment-text;
+    -fx-prompt-text-fill: transparent;
+}
+
+
+.comment-frame {
+    -bj-frame-inset-top: 1;
+    -bj-frame-inset-bottom: 1;
+}
+.comment-caption {
+    /* Get the label to line up with first line: */
+    -fx-label-padding: 4 0 0 0;
+}
+.comment-frame:bj-before-local-var {
+    -fx-padding: 0 0 0 2em;
+}
+.comment-frame:bj-before-local-var:bj-java-preview {
+    -fx-padding: 0;
+}
+
+.comment-documentation-text:focused, .import-field:focused {
+    -fx-background-color: white;
+}
+
+.caption {
+    -fx-label-padding: 1 0 0 0;
+}
+
+
+/* cursor */
+.cursor-frame{
+    -fx-background-color: rgb(51, 102, 255);
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-border-color: rgb(0, 0, 153);
+}
+.cursor-frame:bj-java-preview {
+    -fx-background-color: hsb(0, 0%, 45%);
+}
+
+.frame-cursor-drag {
+    -fx-background-color: hsb(280, 80%, 100%) !important;
+}
+.frame-cursor-drag-source {
+    -fx-background-color: hsb(280, 80%, 100%) !important;
+    /* -fx-background-color: hsb(280, 10%, 100%) !important; */
+}
+.frame-cursor-drag-impossible {
+    -fx-background-color: hsb(0, 0%, 60%) !important;
+}
+
+/* slots */
+.text-slot, .choice-slot, .expression-slot-field {
+    -fx-border-color: rgb(230, 230, 230);
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-background-color: focused-slot;
+    -fx-cursor: text;
+}
+
+.text-slot {
+    -fx-padding: -2 -3 -1 -1;
+}
+.choice-slot {
+    -fx-padding: -1 -1 -1 -1;
+}
+.expression-slot-field {
+    -fx-padding: -2 0 -1 0;
+}
+
+.choice-slot .text-field {
+    -fx-padding: 0 0 0 0;
+}
+
+.text-slot {
+    -fx-prompt-text-fill: text-slot-prompt-text;
+}
+
+.text-slot, .text-slot:disabled {
+    -fx-text-fill: black;
+    -fx-opacity: 1.0;
+}
+
+.text-slot:bj-hyperlink, .inherited-method-slot:bj-hyperlink {
+    -fx-cursor: hand;
+}
+
+.label {
+    -fx-padding: -2 1 -1 1;
+}
+.bracket-label {
+    -fx-padding: -2 -1 -1 -3;
+}
+.bracket-label:bj-birdseye {
+    -fx-padding: -2 2 -1 -1;
+}
+.comma-label {
+    -fx-padding: -2 6 -1 -2;
+}
+
+.text-slot:bj-transparent, .choice-slot:bj-transparent, .expression-slot-field:bj-transparent {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.choice-slot:focused {
+    -fx-border-color: rgb(230, 230, 230);
+}
+
+
+/* Frame margins */
+
+.class-frame-canvas, .interface-frame-canvas {
+    -bj-left-margin: 1.38em;
+    -bj-bottom-margin: 0em;
+    -bj-right-margin: 0.5em;
+    -bj-top-margin: 0;
+}
+.class-fields-frame-canvas {
+    -bj-left-margin: 1.38em;
+    -bj-bottom-margin: 5;
+    -bj-right-margin: 0.5em;
+    -bj-top-margin: 5;
+}
+ .class-import-frame-canvas {
+    -bj-left-margin: 3em;
+    -bj-bottom-margin: 0.5em;
+    -bj-right-margin: 0.5em;
+    -bj-top-margin: 0;
+}
+
+
+.method-frame-canvas, .if-frame-canvas:bj-last-canvas, .while-frame-canvas,
+  .foreach-frame-canvas, .try-frame-canvas 
+  {
+    -bj-left-margin: 2.2em;
+    -bj-bottom-margin: 0.5em;
+    -bj-top-margin: 0.25em;
+    -bj-right-margin: 0.5em;
+}
+.class-inherited-frame-canvas {
+    -bj-left-margin: 3em;
+    -bj-bottom-margin: 0.5em;
+    -bj-top-margin: 0.25em;
+    -bj-right-margin: 0.5em;
+}
+
+.if-frame-canvas { /* when not last, i.e. the then canvas */
+    -bj-left-margin: 2.2em;
+    -bj-bottom-margin: 0.2em;
+    -bj-top-margin: 0.25em;
+    -bj-right-margin: 0.5em;
+}
+
+
+.switch-frame-canvas {
+    -bj-left-margin: 1.2em;
+    -bj-bottom-margin: 0.5em;
+    -bj-top-margin: 0.5em;
+    -bj-right-margin: 0.5em;
+}
+
+.case-frame-canvas {
+    -bj-left-margin: 1.0em;
+    -bj-bottom-margin: 0.5em;
+    -bj-top-margin: 0.5em;
+    -bj-right-margin: 0.5em;
+}
+
+.default-case-frame-canvas, .catch-frame-canvas {
+    -bj-left-margin: 2.0em;
+    -bj-bottom-margin: 0.5em;
+    -bj-top-margin: 0.5em;
+    -bj-right-margin: 0.5em;
+}
+
+.method-frame-canvas:bj-birdseye {
+    -bj-bottom-margin: 0em;
+}
+
+.case-frame-canvas, .default-case-frame-canvas, .catch-frame-canvas,
+  .foreach-frame-canvas, .inherited-frame-canvas, .class-import-frame-canvas,
+  .if-frame-canvas, .method-frame-canvas, .switch-frame-canvas,
+  .while-frame-canvas, .foreach-frame-canvas, .try-frame-canvas {
+    -bj-min-height: 1.25em;
+}
+.case-frame-canvas:bj-birdseye, .default-case-frame-canvas:bj-birdseye, .catch-frame-canvas:bj-birdseye,
+  .foreach-frame-canvas:bj-birdseye,
+  .if-frame-canvas:bj-birdseye, .method-frame-canvas:bj-birdseye, .switch-frame-canvas:bj-birdseye,
+  .while-frame-canvas:bj-birdseye, .foreach-frame-canvas:bj-birdseye, .try-frame-canvas:bj-birdseye {
+    -bj-min-height: 0em;
+}
+
+
+
+
+/* Misc */
+.bold {
+    -fx-font-weight: bold;
+}
+
+.finder-tile {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-padding: 5;
+}
+
+.documentation-text {
+    -fx-border-style: none;
+    -fx-background-radius: 0 !important;
+    -fx-border-radius: 0 !important;
+}
+.documentation-text:disabled, .documentation-text:disabled .scroll-pane {
+    -fx-opacity: 1.0;
+}
+
+.method-documentation-text, .class-documentation-text {
+    -fx-font-family: Times;
+    -fx-font-style: italic;
+}
+
+.button {
+    -fx-border-radius: 5;
+    -fx-padding: 3;
+}
+
+.override-button {
+    -fx-background-color: hsb(60, 35%, 95%);
+    -fx-border-color: rgb(230, 230, 230);
+}
+
+.debug-border {
+    -fx-border-color: rgb(0, 255, 255);
+    
+}
+
+
+/* Link blocks to defined colours: */
+.if-frame { -fx-background-color: if-frame; -fx-border-color: if-border; }
+.if-frame:bj-java-preview { -fx-background-color: if-frame-java; -fx-border-color: if-border-java; }
+.if-sidelabel { -fx-text-fill: if-sidelabel; }
+.if-sidelabel:bj-java-preview {-fx-text-fill: if-frame-java; }
+
+.try-frame, .catch-frame { -fx-background-color: try-frame; -fx-border-color: try-border; }
+.try-frame:bj-java-preview, .catch-frame:bj-java-preview { -fx-background-color: try-frame-java; -fx-border-color: try-border-java; }
+.catch-frame {-fx-border-color: transparent; -fx-border-width: 0;}
+.try-sidelabel, .catch-sidelabel { -fx-text-fill: try-sidelabel; }
+.try-sidelabel:bj-java-preview, .catch-sidelabel:bj-java-preview { -fx-text-fill: try-frame-java; }
+
+.while-frame{ -fx-background-color: while-frame; -fx-border-color: while-border; }
+.while-frame:bj-java-preview { -fx-background-color: while-frame-java; -fx-border-color: while-border-java; }
+.while-sidelabel { -fx-text-fill: while-sidelabel; }
+.while-sidelabel:bj-java-preview {-fx-text-fill: while-frame-java; }
+
+.switch-frame{ -fx-background-color: switch-frame; -fx-border-color: switch-border; }
+.switch-frame:bj-java-preview { -fx-background-color: switch-frame-java; -fx-border-color: switch-border-java; }
+.switch-frame-canvas:bj-non-empty, .try-catch-frame-canvas:bj-non-empty,
+  .switch-frame-canvas:bj-non-empty:bj-java-preview, .try-catch-frame-canvas:bj-non-empty:bj-java-preview {
+   -bj-background-color: transparent; -bj-border-width: 0; -bj-border-color: transparent;
+}
+.switch-sidelabel { -fx-text-fill: switch-sidelabel; }
+.switch-sidelabel:bj-java-preview { -fx-text-fill: switch-frame-java; }
+.case-frame, .default-case-frame, .case-frame:bj-java-preview, .default-case-frame:bj-java-preview {
+   -fx-background-color: transparent; -fx-border-color: transparent; -fx-border-width: 0;
+ }
+.case-sidelabel, .default-case-sidelabel { -fx-text-fill: transparent; }
+
+.foreach-frame{ -fx-background-color: foreach-frame; -fx-border-color: foreach-border; }
+.foreach-frame:bj-java-preview { -fx-background-color: foreach-frame-java; -fx-border-color: foreach-border-java; }
+.foreach-sidelabel { -fx-text-fill: foreach-sidelabel; }
+.foreach-sidelabel:bj-java-preview { -fx-text-fill: foreach-frame-java; }
+
+.breakpoint-frame { -fx-background-color: breakpoint-frame; }
+.breakpoint-caption { -fx-text-fill: breakpoint-text; }
+
+.break-frame:bj-break-while { -fx-background-color: while-frame; -fx-border-color: while-border; }
+.break-frame:bj-break-foreach { -fx-background-color: foreach-frame; -fx-border-color: foreach-border; }
+.break-frame:bj-break-switch { -fx-background-color: switch-frame; -fx-border-color: switch-border; }
+
+.break-frame:bj-break-while:bj-java-preview, .break-frame:bj-break-foreach:bj-java-preview, .break-frame:bj-break-switch:bj-java-preview {
+    -fx-background-color: white;
+    -fx-border-color: white;
+}
+
+.break-frame-overlay { -fx-border-color: frame-canvas-border; -fx-border-width: 1px 0 1px 0; }
+.break-frame-overlay-rect:bj-break-while { -fx-fill: while-frame; } 
+.break-frame-overlay-rect:bj-break-foreach { -fx-fill: foreach-frame; } 
+.break-frame-overlay-rect:bj-break-switch { -fx-fill: switch-frame; }
+
+.break-frame-overlay:bj-java-preview {
+    -fx-border-color: transparent;
+}
+
+.break-frame-overlay-rect:bj-break-while:bj-java-preview, .break-frame-overlay-rect:bj-break-foreach:bj-java-preview, .break-frame-overlay-rect:bj-break-switch:bj-java-preview {
+    -fx-fill: transparent;
+}
+
+
+.interface-documentation-text .scroll-pane .content {
+    -fx-background-color: interface-frame;
+}
+
+.class-documentation-text, .class-frame:bj-java-preview .class-documentation-text-wrapper .preview-slashstar {
+    -fx-text-fill: class-comment-text;
+    -fx-prompt-text-fill: class-comment-text;
+}
+.class-frame:bj-java-preview .class-documentation-text {
+    -fx-prompt-text-fill: transparent;
+}
+
+.interface-documentation-text {
+    -fx-text-fill: interface-comment-text;
+    -fx-prompt-text-fill: interface-comment-text;
+}
+
+.class-documentation-text:focused  .scroll-pane .content,
+.class-documentation-text:bj-blank:hover .scroll-pane .content {
+    -fx-background-color: class-comment-focus;
+}
+
+.class-frame,
+.class-frame-editor-tab:selected, .class-frame-editor-tab-content {
+    -fx-background-color: class-frame !important;
+}
+.class-frame-canvas:bj-non-empty {
+    -bj-background-color: class-frame !important;
+}
+
+.frame-editor-tab-content {
+    -bj-highlight-color: hsba(210, 70%, 100%, 0.5);
+}
+.frame-editor-tab-content .text-input {
+    -fx-highlight-fill: hsba(210, 70%, 100%, 0.5);
+}
+
+.class-frame:bj-java-preview {
+    -fx-background-color: class-frame-java !important;
+}
+.class-frame-canvas:bj-java-preview:bj-non-empty {
+    -bj-background-color: class-frame-java !important;
+}
+
+.class-fields-frame-canvas, .class-frame-canvas:bj-empty,
+.class-inherited-frame-canvas, .class-import-frame-canvas {
+    -bj-background-color: instance-var-frame !important;
+}
+
+.class-fields-frame-canvas:bj-java-preview, .class-frame-canvas:bj-empty:bj-java-preview,
+.class-inherited-frame-canvas:bj-java-preview, .class-import-frame-canvas:bj-java-preview {
+    -bj-background-color: white !important;
+}
+
+.extends-inherits-label {
+    -fx-text-fill: extends-inherits-label;
+}
+
+.interface-frame, .interface-frame-editor-tab:selected, .interface-frame-editor-tab-content {
+    -fx-background-color: interface-frame !important;
+}
+
+.interface-frame-canvas:bj-non-empty {
+    -bj-background-color: interface-frame !important;
+}
+
+.frame-editor-tab:selected {
+    -fx-border-color: transparent !important;
+}
+
+.var-frame:hover, .blank-frame:hover, .comment-frame:hover, .return-frame:hover, .throw-frame:hover,
+  .do-frame:hover, .set-frame:hover, .break-frame:hover {
+    -fx-border-width: 1;
+    -fx-border-color: derive(frame, -10%);
+}
+
+.instance-var-frame, .instance-blank-frame, .instance-comment-frame {
+    -fx-border-width: 0;
+    -fx-border-color: transparent;
+    -fx-background-color: instance-var-frame !important;
+}
+
+.instance-var-frame:hover, .instance-blank-frame:hover, .instance-comment-frame:hover {
+    -fx-border-width: 1;
+    -fx-border-color: derive(instance-var-frame, -10%);
+}
+
+.instance-var-frame:bj-java-preview, .instance-blank-frame:bj-java-preview, .instance-comment-frame:bj-java-preview {
+    -fx-background-color: white !important;
+}
+
+.var-caption {
+    -fx-text-fill: rgba(0,0,0,1);
+}
+
+.var-caption:bj-transparent {
+    -fx-text-fill: rgba(0,0,0,0);
+}
+
+.method-header {
+    -fx-background-color: transparent;
+}
+.method-header:bj-pinned {
+    -fx-background-color: method-header-pinned;
+}
+
+.method-frame {
+    -fx-background-color: method-frame;
+    -fx-border-color: method-border;
+}
+.method-frame:bj-java-preview {
+    -fx-background-color: method-frame-java;
+    -fx-border-color: method-border-java;
+}
+
+.method-documentation-text  {
+    -fx-text-fill: method-comment-text;
+    -fx-prompt-text-fill: method-comment-text;
+}
+.method-frame:bj-java-preview .method-documentation-text, .method-frame:bj-java-preview .method-documentation-text-wrapper .preview-slashstar {
+    -fx-text-fill: method-comment-text;
+    -fx-prompt-text-fill: transparent;
+}
+
+.method-override-label {
+    -fx-text-fill: method-comment-text;
+}
+.method-override-label:bj-first, .inherited-method-override-label:bj-first {
+    -fx-label-padding: 0 0 0 1em;
+}
+
+.inherited-method-override-label {
+    -fx-text-fill: class-comment-text;
+}
+
+.method-documentation-text:focused  .scroll-pane .content, .method-documentation-text:bj-blank:hover  .scroll-pane .content {
+    -fx-background-color: method-comment-focus;
+}
+
+.method-parameter-frame {
+    -fx-background-color: method-frame;
+    -fx-background-radius: 0;
+}
+
+.method-parameter-text {
+    -fx-prompt-text-fill: method-comment-prompt;
+}
+
+.method-parameter-label, .method-parameter-comment {
+    -fx-text-fill: method-comment-text;
+    -fx-prompt-text-fill: method-comment-prompt;
+}
+
+.parameter-delete-button {
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+    -fx-text-fill: hsb(360, 15%, 85%);
+    -fx-font-weight: bold;
+}
+
+.parameter-delete-button:focused {
+    -fx-text-fill: hsb(360, 54%, 85%);
+}
+
+.debug-info {
+    -fx-background-color: debug-info; 
+    -fx-padding: 3 0 3 10;
+    -fx-border-width: 0;
+}
+.debug-info-highlight {
+    -fx-background-color: debug-info; 
+    -fx-padding: 3 0 3 10;
+    -fx-border-width: 2;
+    -fx-border-color: hsb(0, 100%, 100%);
+}
+.debug-info-text {
+    -fx-text-fill: debug-info-text;
+}
+
+/* This is a dodge to make expression slots look the same as other text fields;
+   draw highlighted text in black in both */
+.text-field, .text-area {
+   -fx-highlight-text-fill: black;
+}
+
+.icon-label {
+ -fx-text-fill: purple;
+ -fx-font-height: 16px;
+ -fx-font-family: 'serif';
+ -fx-font-weight:bold;
+}
+
+.hide-all-uses-button {
+  -fx-content-display: graphic-only;
+  -fx-label-padding: 0;
+  -fx-padding: 1;
+  
+}
+
+.frame:bj-frame-error {
+  -fx-border-color: red;
+  -fx-border-width: 2;
+  -fx-border-style: segments(8, 3);
+}
+
+.triangle-label {
+   -bj-fill-color: triangle-label;
+   -fx-padding: 0 0 0 3;
+}
+.class-section-label {
+   -fx-text-fill: triangle-label;
+   -fx-padding: 0 0 0 2;
+}
+.class-inherited-label {
+   -fx-text-fill: triangle-label;
+   -fx-padding: 5 0 1 0;
+}
+
+.content {
+   -fx-background-radius: 0 !important;
+}
+
+.scroll-pane {
+   -fx-padding: 0 !important;
+   -fx-background-radius: 0 !important;
+}
+
+.documentation-text {
+   -fx-padding: -2;
+   -fx-background-radius: 0 !important;
+   -fx-background-insets: 0 !important;
+}
+.class-documentation-text {
+   -fx-padding: 5 -2 2 -2;
+}
+
+.formal-comma {
+   -fx-padding: 0 0 0 -2;
+}
+
+/*.slot-label, .expression-slot-field, .text-slot {
+   -fx-border-stroke: solid !important;
+   -fx-border-color: cyan !important;
+   -fx-border-width: 1 !important;
+}*/
+
+
+.wrappable-slot-label {
+   -fx-padding: 0 0.3em 0 0;
+}
+
+.preview-curly, .preview-slashstar {
+   /*-fx-font-family: monospace;*/
+}
+.if-bracket-opening {
+   -fx-text-alignment: right;
+}
+
+/* Defaults: */
+.delegable-scalable-text-field {
+   -bj-min-width: 6;
+   /*-fx-padding: 0 -2 0 0;*/
+}
+
+.frame:bj-hide-caret .text-field {
+   -fx-display-caret: false;
+}
+
+.param-spacer {
+   -fx-cursor: text;
+}
+.param-spacer:bj-java-preview {
+   -fx-cursor: pointer;
+}
+
+.preview-semi {
+   -fx-label-padding: 0 0 0 -5;
+}
+.var-frame .preview-semi {
+   -fx-label-padding: 0 0 0 -1;
+}

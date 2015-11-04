@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2010, 2011, 2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 2010,2011,2014,2015  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -41,12 +41,16 @@ import java.util.zip.ZipFile;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.MethodReflective;
 import bluej.debugger.gentype.Reflective;
+import bluej.extensions.SourceType;
+import bluej.parser.ConstructorOrMethodReflective;
+import bluej.parser.InfoParser;
 import bluej.parser.JavadocParser;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.PackageResolver;
 import bluej.parser.symtab.ClassInfo;
 import bluej.utility.Debug;
 import bluej.utility.JavaNames;
+import bluej.views.CallableView;
 import bluej.views.Comment;
 import bluej.views.MethodView;
 import bluej.views.View;
@@ -66,7 +70,8 @@ public class ProjectJavadocResolver implements JavadocResolver
         this.project = project;
     }
     
-    public void getJavadoc(MethodReflective method)
+    @Override
+    public void getJavadoc(ConstructorOrMethodReflective method)
     {
         Reflective declaring = method.getDeclaringType();
         String declName = declaring.getName();
@@ -75,7 +80,7 @@ public class ProjectJavadocResolver implements JavadocResolver
         try {
             Class<?> cl = project.getClassLoader().loadClass(declName);
             View clView = View.getView(cl);
-            MethodView [] methods = clView.getAllMethods();
+            CallableView[] methods = method instanceof MethodReflective ? clView.getAllMethods() : clView.getConstructors();
             
             for (int i = 0; i < methods.length; i++) {
                 if (methodSig.equals(methods[i].getSignature())) {
@@ -98,7 +103,9 @@ public class ProjectJavadocResolver implements JavadocResolver
         
         Properties comments = commentCache.get(declName);
         if (comments == null) {
-            comments = getCommentsFromSource(declName);
+            ClassInfo classInfo = getClassInfoFromSource(declName);
+            if (classInfo != null)
+                comments = classInfo.getComments(); 
             if (comments == null) {
                 return;
             }
@@ -126,7 +133,7 @@ public class ProjectJavadocResolver implements JavadocResolver
     }
         
     @Override
-    public boolean getJavadocAsync(final MethodReflective method, final AsyncCallback callback, Executor executor)
+    public boolean getJavadocAsync(final ConstructorOrMethodReflective method, final AsyncCallback callback, Executor executor)
     {
         Reflective declaring = method.getDeclaringType();
         final String declName = declaring.getName();
@@ -135,7 +142,7 @@ public class ProjectJavadocResolver implements JavadocResolver
         try {
             Class<?> cl = project.getClassLoader().loadClass(declName);
             View clView = View.getView(cl);
-            MethodView [] methods = clView.getAllMethods();
+            CallableView[] methods = method instanceof MethodReflective ? clView.getAllMethods() : clView.getConstructors();
             
             for (int i = 0; i < methods.length; i++) {
                 if (methodSig.equals(methods[i].getSignature())) {
@@ -206,7 +213,7 @@ public class ProjectJavadocResolver implements JavadocResolver
      * @param postOnQueue  Whether to notify the callback
      */
     private void findMethodComment(final Properties comments, final AsyncCallback callback,
-            final MethodReflective method, String methodSig, boolean postOnQueue)
+            final ConstructorOrMethodReflective method, String methodSig, boolean postOnQueue)
     {
         // Find the comment for the particular method we want
         for (int i = 0; ; i++) {
@@ -234,6 +241,140 @@ public class ProjectJavadocResolver implements JavadocResolver
         }
     }
 
+    /**
+     * Find the javadoc for a given class (target) by searching the project source path.
+     * In particular, this normally includes the JDK source. When source for the required
+     * class is found, it is parsed to extract comments.
+     */
+    private ClassInfo getClassInfoFromSource(String target)
+    {
+        List<DocPathEntry> sourcePath = project.getSourcePath();
+        String pkg = JavaNames.getPrefix(target);
+        String entName = target.replace('.', '/') + "." + SourceType.Java.toString().toLowerCase();
+        String entNameFs = target.replace('.', File.separatorChar) + "." + SourceType.Java.toString().toLowerCase();
+        EntityResolver resolver = new PackageResolver(project.getEntityResolver(), pkg);
+        
+        for (DocPathEntry pathEntry : sourcePath) {
+            File jarFile = pathEntry.getFile();
+            if (jarFile.isFile()) {
+                String fullEntryName = pathEntry.getPathPrefix();
+                if (fullEntryName.length() != 0 && !fullEntryName.endsWith("/")) {
+                    fullEntryName += "/";
+                }
+                fullEntryName += entName;
+                Reader r = null;
+                try {
+                    ZipFile zipFile = new ZipFile(jarFile);
+                    ZipEntry zipEnt = zipFile.getEntry(fullEntryName);
+                    if (zipEnt != null) {
+                        InputStream zeis = zipFile.getInputStream(zipEnt);
+                        r = new InputStreamReader(zeis, project.getProjectCharset());
+                        ClassInfo info = JavadocParser.parse(r, resolver, null);
+                        if (info == null) {
+                            return null;
+                        }
+                        return info;
+                    }
+                }
+                catch (IOException ioe) {}
+                finally {
+                    if (r != null) {
+                        try {
+                            r.close();
+                        }
+                        catch (IOException e) {}
+                    }
+                }
+            }
+            else if (jarFile.isDirectory()) {
+                File base = jarFile;
+                String prefix = pathEntry.getPathPrefix();
+                if (prefix != null && !prefix.isEmpty()) {
+                    base = new File(base, prefix);
+                }
+                
+                File srcFile = new File(base, entNameFs);
+                FileInputStream fis = null;
+                try {
+                    if (srcFile.canRead()) {
+                        fis = new FileInputStream(srcFile);
+                        Reader r = new InputStreamReader(fis, project.getProjectCharset());
+                        ClassInfo info = JavadocParser.parse(r, resolver, null);
+                        r.close();
+                        if (info == null) {
+                            return null;
+                        }
+                        return info;
+                    }
+                }
+                catch (IOException ioe) {
+                    if (fis != null) {
+                        try {
+                            fis.close();
+                        }
+                        catch (IOException e) {}
+                    }
+                }
+            }
+        }
+        
+        // Try and load the source from the class path. This allows source to be bundled in
+        // with the classes.
+        String targetName = target.replace('.', '/') + "." + SourceType.Java.toString().toLowerCase();
+        URL srcUrl = project.getClassLoader().findResource(targetName);
+        if (srcUrl != null) {
+            try {
+                Reader r = new InputStreamReader(srcUrl.openStream(), project.getProjectCharset());
+                ClassInfo info = JavadocParser.parse(r, resolver, null);
+                if (info != null) {
+                    return info;
+                }
+            }
+            catch (IOException ioe) {
+                Debug.message("I/O exception while trying to retrieve javadoc for " + target);
+            }
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Build a method signature from a MethodReflective.
+     */
+    private static String buildSig(ConstructorOrMethodReflective method)
+    {
+        String sig = "";
+        if (method instanceof MethodReflective)
+        {
+            sig = ((MethodReflective)method).getReturnType().getErasedType().toString();
+            sig = sig.replace('$', '.');
+            sig += ' ' + ((MethodReflective)method).getName();
+        }
+        else
+        {
+            // Constructor name is just the name of the class:
+            sig = method.getDeclaringType().getSimpleName();
+            sig = sig.replace('$', '.');
+            // Now need to remove qualifiers:
+            int lastDot = sig.lastIndexOf('.');
+            if (lastDot != -1)
+                sig = sig.substring(lastDot + 1);
+        }
+        
+        sig +=  '(';
+        Iterator<JavaType> i = method.getParamTypes().iterator();
+        while (i.hasNext()) {
+            JavaType ptype = i.next();
+            sig += ptype.getErasedType().toString().replace('$', '.');
+            if (i.hasNext()) {
+                sig += ", ";
+            }
+        }
+        sig += ')';
+        
+        return sig;
+    }
+    
     /**
      * Find the javadoc for a given class (target) by searching the project source path.
      * In particular, this normally includes the JDK source. When source for the required
@@ -331,26 +472,18 @@ public class ProjectJavadocResolver implements JavadocResolver
         return null;
     }
     
-    /**
-     * Build a method signature from a MethodReflective.
-     */
-    private static String buildSig(MethodReflective method)
+    @Override
+    public String getJavadoc(String className)
     {
-        String sig = method.getReturnType().getErasedType().toString();
-        sig = sig.replace('$', '.');
-        sig += ' ';
+        ClassInfo ci = getClassInfoFromSource(className);
         
-        sig += method.getName() + '(';
-        Iterator<JavaType> i = method.getParamTypes().iterator();
-        while (i.hasNext()) {
-            JavaType ptype = i.next();
-            sig += ptype.getErasedType().toString().replace('$', '.');
-            if (i.hasNext()) {
-                sig += ", ";
-            }
-        }
-        sig += ')';
+        if (ci == null)
+            return null;
         
-        return sig;
-    }
+        return ci.getCommentsAsList().stream()
+                    .filter(sc -> ci.getName().equals(sc.target))
+                    .map(sc -> sc.comment)
+                    .filter(c -> c != null)
+                    .findFirst().orElse(null);
+   }
 }

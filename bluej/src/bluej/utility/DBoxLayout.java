@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -355,34 +355,41 @@ public class DBoxLayout implements LayoutManager2
 
     // ----- LayoutManager2 interface -----
     
+    @Override
     public void addLayoutComponent(Component comp, Object constraints)
     {
     }
 
+    @Override
     public float getLayoutAlignmentX(Container target)
     {
         return 0.5f;
     }
 
+    @Override
     public float getLayoutAlignmentY(Container target)
     {
         return 0.5f;
     }
 
+    @Override
     public void invalidateLayout(Container target)
     {
         sizeReqsX = null;
         sizeReqsY = null;
     }
 
+    @Override
     public void addLayoutComponent(String name, Component comp)
     {
     }
 
+    @Override
     public void removeLayoutComponent(Component comp)
     {
     }
     
+    @Override
     public Dimension minimumLayoutSize(Container parent)
     {
         calcSizeReqs(parent);
@@ -391,6 +398,7 @@ public class DBoxLayout implements LayoutManager2
         return adjustSizeForInsets(d, insets); 
     }
     
+    @Override
     public Dimension preferredLayoutSize(Container parent)
     {
         calcSizeReqs(parent);
@@ -399,6 +407,7 @@ public class DBoxLayout implements LayoutManager2
         return adjustSizeForInsets(d, insets); 
     }
 
+    @Override
     public Dimension maximumLayoutSize(Container parent)
     {
         calcSizeReqs(parent);
@@ -407,6 +416,7 @@ public class DBoxLayout implements LayoutManager2
         return adjustSizeForInsets(d, insets); 
     }
 
+    @Override
     public void layoutContainer(Container parent)
     {
         Component [] components = parent.getComponents();

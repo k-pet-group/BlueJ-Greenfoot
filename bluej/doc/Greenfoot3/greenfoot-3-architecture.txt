@@ -1,0 +1,114 @@
+Greenfoot 3 editor architecture
+===
+
+The representation of a Greenfoot 3 frame class can be held in several representations:
+
+Diagram:
+
+    Actual GUI elements <- CodeFrame visual frames <-> CodeElement Source Code Tree <-> XML file
+                                                                 |
+                                                                 |
+                                                                 v
+                                                             Java code (via JavaSource)
+
+
+The decoupling between the various stages was needed, because:
+
+- Without decoupling the actual GUI elements from the CodeFrame classes, sometimes the necessary GUI parent/child relations were not the same as the code element relations.  For example, an if statement has several children: the header row, the body, the else, the second body, and these may all be siblings in the GUI elements, but not in the logical visual structure for the code.
+
+- Without decoupling the visual frames from the source tree, you could not manipulate the source tree without loading the editor.  So if you wanted to compile, you had to construct the full editor visual representation just to spit out code.  This was clearly unwise.  Also, there were again issues where traversing the code did not completely match the visual frames side.
+
+- The source code tree is effectively equivalent to the XML file, but the former uses our classes which have utility methods on them, and the latter is a pure serialised XML representation.
+
+When you load a file, the source code goes right to left in the above diagram; the XML file is loaded into a CodeElement source code tree, which then generates the CodeFrame visual frames, which in turn are in charge of creating all the actual GUI JavaFX elements.
+
+Thereafter, during editing, the correct status of the code is indicated by the CodeFrame visual frames.  At points where the source code is needed in a different form (e.g. Java code for compilation, or XML for saving), the source code tree is regenerated and then used.
+
+
+File Storage
+---
+
+Greenfoot 3 frame source files are stored as XML syntax trees.  Here's a rough example of one (exact details may have changed since time of writing):
+
+<?xml version="1.0" encoding="UTF-8"?>
+<class name="CrabWorld" extends="World" enable="true">
+	<javadoc xml:space="preserve">CrabWorld class doc12</javadoc>
+  	<import target="java.util.*"/>
+  	<import target="greenfoot.*"/>
+  	<variable access="protected" type="int" name="i" enable="true"/>
+  	<constructor access="public" enable="true">
+  	<javadoc xml:space="preserve">CrabWorld constructor doc</javadoc>
+    	<params>
+      		<param type="int" name="edge"/>
+    	</params>
+    	<body>
+      		<call method="super" enable="true"><parameter value="edge"/><parameter value="1"/></call>
+    	</body>
+  	</constructor>
+    <method access="public" type="void" name="test" enable="true">
+    <javadoc xml:space="preserve">test method doc</javadoc>
+        <params/>
+    	<body>
+      		<variable type="int" name="p2" enable="false"/>
+    	</body>
+	</method>
+</class>
+
+
+Saving and Loading
+---
+
+The source for a Greenfoot 3 frame class is loaded into a tree structure in memory. Each element in the structure descends from bluej.stride.framedjava.elements.CodeElement.
+The top-level element has type bluej.stride.framedjava.elements.ClassElement (or bluej.stride.framedjava.elements.InterfaceElement).
+Elements which have children (e.g. classes, methods, code blocks) inherit from ContainerClassElement. All of the elements are in the bluej.stride.framedjava.elements package.
+
+Loading is done by constructing a ClassElement (or InterfaceElement) and passing the XML element loaded from the source file.  The full tree is then loaded by using the
+bluej.stride.framedjava.ast.Loader class to identify the element from its XML name, and then calling the appropriate AST class's constructor (passing the XML element in).
+
+Saving is done by taking the top-level ClassElement (or InterfaceElement), and calling toXML(), which recursively produces an XML copy of the source.
+
+Calling: new ClassElement(classEl.toXML()) should produce a clone of classEl.
+
+
+Frames
+---
+
+There are parent frame classes with a lot of common behaviour in the bluej.stride.generic package.  These classes have no knowledge of Java or Greenfoot 3, but purely have common display functionality.
+ (My guiding principle is that if you ever wanted to build a frame-based HTML editor, you could use these classes with no problem.)  
+
+All the specific non-abstract frame classes live in the bluej.stride.framedjava.frames package.  They contain the functionality that is specific to their block (e.g. classes behave differently than methods).
+
+
+Visual Display via JavaFX
+---
+
+The frame classes are not GUI elements themselves.  (They were early on, but that proved to be a headache during refactoring and for various other reasons, so I decoupled them.)  However, they manage the GUI classes internally.
+The Frame class has a private BorderPane named blockContents which represents the actual GUI frame.
+
+The methods setFrameHead and setFrameBody are used by child classes to set the contents of the frame.  The setFrameHead method is used by HeadedFrame to have a horizontal array of components across the top (as all frames so far do).
+The setFrameBody method is used by SingleCanvasFrame and similar for adding child canvases.
+
+
+Canvases
+---
+
+The majority of the content in the visual display is either a frame, or a canvas that holds several frames.  So a class frame has a body canvas, which holds several method frames, which in turn have body canvases that hold statement frames
+(one of which might be a while frame, with a body canvas holding more statements).
+
+Canvases are the only parent container for frames (with the exception of the very top-level frame, which lives inside a BorderPane with the editor controls).  They are also the only place that contains frame cursors.
+
+
+Frame Cursor(s)
+---
+
+Frame cursors are thin horizontal bars that appear vertically between two frames in a canvas, or at the very beginning or end of a canvas.  Although it appears graphically that a single frame cursor is present which moves around the source tree,
+internally there is a FrameCursor at every single possible frame cursor position.  Only one frame cursor is displayed at any one time; the others are hidden.  Frame cursors represent the possible frame insertion positions in the source tree.
+
+
+CSS Styles
+---
+
+JavaFX uses CSS to style its graphical elements.  Each graphical element has multiple style classes.  Frames always have the "frame" classes, and canvases always have the "frame-canvas" class.  In addition, every item also has that class with a so-called style prefix.
+For example, the while-loop frame has the "while-" style prefix, and thus the while frame has classes "while-frame" and "frame"; its inner canvas has classes "while-frame-canvas" and "frame-canvas".
+
+Currently, the frames' stylesheet is called frame-style.css, and the others called editor-*.css. All live in the lib/stylesheets directory in the BlueJ project.

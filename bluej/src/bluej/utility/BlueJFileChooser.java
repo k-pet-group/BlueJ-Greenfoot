@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -30,7 +30,6 @@ import java.io.File;
  * field after traversing into a directory.
  *
  * @author Michael Kolling
- * @version $Id: BlueJFileChooser.java 6215 2009-03-30 13:28:25Z polle $
  */
 class BlueJFileChooser extends JFileChooser
 {
@@ -49,6 +48,7 @@ class BlueJFileChooser extends JFileChooser
      * A directory was double-clicked. If it is a BlueJ package maybe
      * we want to treat it differently
      */
+    @Override
     public void setCurrentDirectory(File dir)    // redefined
     {
         //Here we could treat bluej package differently

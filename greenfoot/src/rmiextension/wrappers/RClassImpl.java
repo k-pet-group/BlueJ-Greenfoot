@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2014,2015  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,9 +25,6 @@ import java.awt.EventQueue;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.rmi.RemoteException;
-import java.util.Iterator;
-
-import javax.swing.text.BadLocationException;
 
 import bluej.editor.moe.MoeEditor;
 import bluej.editor.moe.MoeIndent;
@@ -39,13 +36,15 @@ import bluej.extensions.BMethod;
 import bluej.extensions.BPackage;
 import bluej.extensions.ClassNotFoundException;
 import bluej.extensions.CompilationNotStartedException;
-import bluej.extensions.ExtensionBridge;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
+import bluej.extensions.SourceType;
 import bluej.extensions.editor.Editor;
-import bluej.parser.nodes.ParsedNode;
-import bluej.parser.nodes.NodeTree.NodeAndPosition;
-import bluej.utility.Debug;
+import bluej.extensions.editor.EditorBridge;
+import bluej.stride.framedjava.ast.Loader;
+import bluej.stride.framedjava.elements.CallElement;
+import bluej.stride.framedjava.elements.CodeElement;
+import bluej.stride.framedjava.elements.NormalMethodElement;
 
 /**
  * Implementation of the remote class interface.
@@ -80,9 +79,9 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
     }
     
     @Override
-    public boolean hasSourceCode() throws ProjectNotOpenException, PackageNotFoundException
+    public SourceType getSourceType() throws ProjectNotOpenException, PackageNotFoundException
     {
-        return ExtensionBridge.hasSourceCode(bClass);
+        return bClass.getSourceType();
     }
 
     @Override
@@ -93,21 +92,18 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
             pnoe = null;
             pnfe = null;
             
-            EventQueue.invokeLater(new Runnable() {
-                public void run()
-                {
-                    try {
-                        Editor editor = bClass.getEditor();
-                        if (editor != null) {
-                            editor.setVisible(true);
-                        }
+            EventQueue.invokeLater(() -> {
+                try {
+                    Editor editor = bClass.getEditor();
+                    if (editor != null) {
+                        editor.setVisible(true);
                     }
-                    catch (ProjectNotOpenException e) {
-                        pnoe = e;
-                    }
-                    catch (PackageNotFoundException e) {
-                        pnfe = e;
-                    }
+                }
+                catch (ProjectNotOpenException e) {
+                    pnoe = e;
+                }
+                catch (PackageNotFoundException e) {
+                    pnfe = e;
                 }
             });
             
@@ -123,21 +119,18 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
             pnoe = null;
             pnfe = null;
 
-            EventQueue.invokeLater(new Runnable() {
-                public void run()
-                {
-                    try {
-                        Editor editor = bClass.getEditor();
-                        if (editor != null) {
-                            editor.setVisible(false);
-                        }
+            EventQueue.invokeLater(() -> {
+                try {
+                    Editor editor = bClass.getEditor();
+                    if (editor != null) {
+                        editor.setVisible(false);
                     }
-                    catch (ProjectNotOpenException e) {
-                        pnoe = e;
-                    }
-                    catch (PackageNotFoundException e) {
-                        pnfe = e;
-                    }
+                }
+                catch (ProjectNotOpenException e) {
+                    pnoe = e;
+                }
+                catch (PackageNotFoundException e) {
+                    pnfe = e;
                 }
             });
 
@@ -151,156 +144,50 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
             ProjectNotOpenException, PackageNotFoundException
     {
         final Editor e = bClass.getEditor();
-        EventQueue.invokeLater(new Runnable() {
-            public void run()
-            {
-                e.showMessage(message);
-            }
-        });
+        EventQueue.invokeLater(() -> EditorBridge.getEditor(e).writeMessage(message));
     }
 
     @Override
-    public void insertAppendMethod(final String comment, final String access, final String methodName, final String methodBody, final boolean showEditorOnCreate, final boolean showEditorOnAppend) throws ProjectNotOpenException, PackageNotFoundException, RemoteException
+    public void insertAppendMethod(final String method, final boolean showEditorOnCreate, final boolean showEditorOnAppend)
+            throws ProjectNotOpenException, PackageNotFoundException, RemoteException
     {
         final Editor e = bClass.getEditor();
-        EventQueue.invokeLater(new Runnable() {
-            public void run()
-            {
-                MoeEditor bje = (MoeEditor)bluej.extensions.editor.EditorBridge.getEditor(e);
-                MoeSyntaxDocument doc = bje.getSourceDocument();
-                
-                
-                NodeAndPosition<ParsedNode> classNode = findClassNode(doc);
-                if (classNode == null)
-                    return;
-                NodeAndPosition<ParsedNode> existingMethodNode = findMethodNode(methodName, classNode);
-        
-                if (existingMethodNode != null) {
-                    //Append to existing method:
-                    appendTextToNode(e, bje, existingMethodNode, methodBody);
-                    if (showEditorOnAppend)
-                        e.setVisible(true);
-                } else {
-                    //Make a new method:
-                    String fullMethod = comment + "    " + access + " void " + methodName + "()\n    {\n" + methodBody + "    }\n";
-                    appendTextToNode(e, bje, classNode, fullMethod);
-                    if (showEditorOnCreate)
-                        e.setVisible(true);
-                }
-            }
-        });
+        EventQueue.invokeLater(() ->
+                EditorBridge.getEditor(e).insertAppendMethod(e, (NormalMethodElement) loadElement(method), inserted -> {
+                    //Appended to existing method:
+                    if (inserted && showEditorOnAppend) {
+                        EventQueue.invokeLater(() -> e.setVisible(true));
+                    }
+                    //Made a new method:
+                    else if (!inserted && showEditorOnCreate) {
+                        EventQueue.invokeLater(() -> e.setVisible(true));
+                    }
+                })
+        );
     }
     
-    private NodeAndPosition<ParsedNode> findClassNode(MoeSyntaxDocument doc)
-    {
-        NodeAndPosition<ParsedNode> root = new NodeAndPosition<ParsedNode>(doc.getParser(), 0, doc.getParser().getSize());
-        for (NodeAndPosition<ParsedNode> nap : iterable(root)) {
-            if (nap.getNode().getNodeType() == ParsedNode.NODETYPE_TYPEDEF)
-                return nap;
-        }
-        return null;
-    }
-
     @Override
-    public void insertMethodCallInConstructor(final String methodName, final boolean showEditor)
+    public void insertMethodCallInConstructor(final String methodCall, final boolean showEditor)
             throws ProjectNotOpenException, PackageNotFoundException,
             RemoteException
     {
         final Editor e = bClass.getEditor();
-        EventQueue.invokeLater(new Runnable() {
-            public void run()
-            {
-                MoeEditor bje = (MoeEditor)bluej.extensions.editor.EditorBridge.getEditor(e);
-                MoeSyntaxDocument doc = bje.getSourceDocument();
-                
-                NodeAndPosition<ParsedNode> classNode = findClassNode(doc);
-                if (classNode == null)
-                    return;
-                NodeAndPosition<ParsedNode> constructor = findMethodNode(bClass.getName(), classNode);
-                if (constructor != null && false == hasMethodCall(doc, methodName, constructor, true)) {
-                    //Add at the end of the constructor:
-                    appendTextToNode(e, bje, constructor, "\n        " + methodName + "();\n    ");
-                }
-                
-                if (showEditor)
-                    e.setVisible(true);
-            }
-        });
-    }
-    
-    /**
-     * Appends text to a node that ends in a curly bracket
-     */
-    private void appendTextToNode(Editor e, MoeEditor bjEditor, NodeAndPosition<ParsedNode> node, String text)
-    {
-        //The node may have whitespace at the end, so we look for the last closing brace and
-        //insert before that:
-        for (int pos = node.getEnd() - 1; pos >= 0; pos--) {
-            if ("}".equals(e.getText(e.getTextLocationFromOffset(pos), e.getTextLocationFromOffset(pos+1)))) {
-                bjEditor.undoManager.beginCompoundEdit();
-                int originalLength = node.getSize();
-                // First insert the text:
-                e.setText(e.getTextLocationFromOffset(pos), e.getTextLocationFromOffset(pos), text);
-                // Then auto-indent the method to make sure our indents were correct:
-                int oldPos = bjEditor.getSourcePane().getCaretPosition();
-                MoeIndent.calculateIndentsAndApply(bjEditor.getSourceDocument(), node.getPosition(), node.getPosition() + originalLength + text.length(), oldPos);
-                bjEditor.undoManager.endCompoundEdit();
-                e.setCaretLocation(e.getTextLocationFromOffset(pos));
-                return;
-            }
-        }
-        Debug.message("Could not find end of node to append to: \"" + e.getText(e.getTextLocationFromOffset(node.getPosition()), e.getTextLocationFromOffset(node.getEnd())) + "\"");
-    }
-    
-    // This really returns an iterator, but wrapping it into an iterable means that
-    // we can use Java's nice for-each loops:
-    private Iterable<NodeAndPosition<ParsedNode>> iterable(final NodeAndPosition<ParsedNode> parent)
-    {
-        return new Iterable<NodeAndPosition<ParsedNode>>()
-        {
-            public Iterator<NodeAndPosition<ParsedNode>> iterator()
-            {
-                return parent.getNode().getChildren(parent.getPosition());
-            };
-        };
-    }
-    
-    private boolean hasMethodCall(MoeSyntaxDocument doc, String methodName, NodeAndPosition<ParsedNode> methodNode, boolean root)
-    {
-        for (NodeAndPosition<ParsedNode> nap : iterable(methodNode)) {
-            // Method nodes have comments as children, and the body:
-            if (nap.getNode().getNodeType() == ParsedNode.NODETYPE_NONE && root) {
-                return hasMethodCall(doc, methodName, nap, false);
-            }
-            
-            try {
-                if (nap.getNode().getNodeType() == ParsedNode.NODETYPE_EXPRESSION && doc.getText(nap.getPosition(), nap.getSize()).startsWith(methodName)) {
-                    return true;
-                }
-            }
-            catch (BadLocationException e) {
-            }            
-        }
-        
-        return false;
-    }
-    
-    private NodeAndPosition<ParsedNode> findMethodNode(String methodName, NodeAndPosition<ParsedNode> start)
-    {
-        for (NodeAndPosition<ParsedNode> nap : iterable(start)) {
-            if (nap.getNode().getNodeType() == ParsedNode.NODETYPE_NONE) {
-                NodeAndPosition<ParsedNode> r = findMethodNode(methodName, nap);
-                if (r != null)
-                    return r;
-            }
-            if (nap.getNode().getNodeType() == ParsedNode.NODETYPE_METHODDEF && nap.getNode().getName().equals(methodName)) {
-                return nap;
-            }
-        }
-        
-        return null;
+        final String className = bClass.getName();
+        EventQueue.invokeLater(() ->
+                EditorBridge.getEditor(e).insertMethodCallInConstructor(e, className, 
+                        (CallElement) loadElement(methodCall), inserted -> {
+                    if (showEditor && inserted) {
+                        EventQueue.invokeLater(() -> e.setVisible(true));
+                    }
+                })
+        );
     }
 
+    private CodeElement loadElement(String elementString)
+    {
+        return Loader.loadElement(elementString);
+    }
+    
     @Override
     public RConstructor getConstructor(Class<?>[] signature)
         throws ProjectNotOpenException, ClassNotFoundException, RemoteException
@@ -380,22 +267,18 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
                 pnfe = null;
 
                 try {
-                    EventQueue.invokeAndWait(new Runnable() {
-                        @Override
-                        public void run()
-                        {
-                            try {
-                                wrapped[0] = bClass.getSuperclass();
-                            }
-                            catch (ProjectNotOpenException e) {
-                                pnoe = e;
-                            }
-                            catch (PackageNotFoundException e) {
-                                pnfe = e;
-                            }
-                            catch (ClassNotFoundException e) {
-                                cnfe[0] = e;
-                            }
+                    EventQueue.invokeAndWait(() -> {
+                        try {
+                            wrapped[0] = bClass.getSuperclass();
+                        }
+                        catch (ProjectNotOpenException e) {
+                            pnoe = e;
+                        }
+                        catch (PackageNotFoundException e) {
+                            pnfe = e;
+                        }
+                        catch (ClassNotFoundException e) {
+                            cnfe[0] = e;
                         }
                     });
                 }
@@ -434,18 +317,16 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
             pnfe = null;
             final boolean[] result = new boolean[1];
             try {
-                Runnable r = new Runnable() {
-                    public void run()
-                    {
-                        try {
-                            result[0] = bClass.isCompiled();
-                        } catch (ProjectNotOpenException e) {
-                            pnoe = e;
-                        } catch (PackageNotFoundException e) {
-                            pnfe = e;
-                        }
-                    }                                    
+                Runnable r = () -> {
+                    try {
+                        result[0] = bClass.isCompiled();
+                    } catch (ProjectNotOpenException e) {
+                        pnoe = e;
+                    } catch (PackageNotFoundException e) {
+                        pnfe = e;
+                    }
                 };
+
                 if (inRemoteCallback) {
                     r.run();
                 }
@@ -489,6 +370,10 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
         bClass.remove();
     }
 
+    public void removeStrideFile() throws ProjectNotOpenException, PackageNotFoundException, ClassNotFoundException, RemoteException
+    {
+        bClass.removeStrideFile();
+    }
 
     public void setReadOnly(boolean b) throws RemoteException, ProjectNotOpenException, PackageNotFoundException 
     {
@@ -501,14 +386,17 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
     public void autoIndent() throws ProjectNotOpenException, PackageNotFoundException
     {
         final Editor e = bClass.getEditor();
-        EventQueue.invokeLater(new Runnable() {
-            public void run()
-            {
-                MoeEditor bje = (MoeEditor)bluej.extensions.editor.EditorBridge.getEditor(e);
-                MoeSyntaxDocument doc = bje.getSourceDocument();
-                
-                MoeIndent.calculateIndentsAndApply(doc,0);
-            }
-        });        
+        EventQueue.invokeLater(() -> {
+            MoeEditor bje = (MoeEditor) EditorBridge.getEditor(e);
+            MoeSyntaxDocument doc = bje.getSourceDocument();
+
+            MoeIndent.calculateIndentsAndApply(doc,0);
+        });
+    }
+
+    @Override
+    public void cancelFreshState() throws ProjectNotOpenException, PackageNotFoundException, RemoteException
+    {
+        bClass.getEditor().cancelFreshState();
     }
 }

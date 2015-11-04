@@ -25,6 +25,7 @@ import java.io.File;
 import java.rmi.RemoteException;
 import java.util.Properties;
 
+import bluej.extensions.SourceType;
 import rmiextension.wrappers.event.RClassListener;
 import rmiextension.wrappers.event.RCompileListener;
 import rmiextension.wrappers.event.RInvocationListener;
@@ -99,7 +100,7 @@ public interface RBlueJ
      * @return   A reference to the newly created project, or null
      *           if the project could not be created.
      */
-    public RProject newProject(File directory)
+    public RProject newProject(File directory, boolean wizard, SourceType sourceType)
         throws RemoteException;
 
     /**
@@ -169,5 +170,14 @@ public interface RBlueJ
      * Hide the splash screen, if still currently showing.
      */
     public void hideSplash()
+        throws RemoteException;
+
+    /**
+     * Start scanning imports in the background, ready for editor opening.
+     */
+    public void startImportsScan()
+        throws RemoteException;
+
+    public long getBlueJProcessId()
         throws RemoteException;
 }

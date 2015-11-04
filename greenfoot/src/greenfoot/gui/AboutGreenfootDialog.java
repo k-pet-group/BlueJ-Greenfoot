@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2014  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2014,2015  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -92,8 +92,6 @@ public class AboutGreenfootDialog extends JDialog
                 + System.getProperty("java.vm.version") + " (" + System.getProperty("java.vm.vendor") + ")");
         bottomtext.addText(Config.getString("about.runningOn") + " " + System.getProperty("os.name") + " "
                 + System.getProperty("os.version") + " (" + System.getProperty("os.arch") + ")");
-        bottomtext.addText(Config.getString("about.javahome") + " " + System.getProperty("java.home"));
-        bottomtext.addText(" ");
         bottomtext.addText(Config.getString("about.moreInfo"));
         bottomtext.addText(" ");
         bottomtext.addText(Config.getString("about.logfile") + " " + Config.getUserConfigFile(Config.greenfootDebugLogName));

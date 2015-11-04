@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012,2013,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -69,7 +69,6 @@ import javax.swing.*;
  * after its <code>terminate()</code> method has been called will result
  * in an (unchecked) <code>ExtensionUnloadedException</code> being thrown.
  *
- * @version    $Id: BlueJ.java 10528 2013-03-22 14:09:18Z davmac $
  */
 
 /*
@@ -761,7 +760,7 @@ public final class BlueJ
         PackageListener [] listeners;
         
         synchronized (packageListeners) {
-            listeners = (PackageListener []) packageListeners.toArray(new PackageListener[packageListeners.size()]);
+            listeners = packageListeners.toArray(new PackageListener[packageListeners.size()]);
         }
         
         int thisEvent = event.getEvent();

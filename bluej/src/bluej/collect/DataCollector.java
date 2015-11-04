@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 2014,2015  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,6 +27,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
 import bluej.Config;
 import bluej.debugger.DebuggerTestResult;
 import bluej.debugger.ExceptionDescription;
@@ -50,6 +52,7 @@ import bluej.pkgmgr.Project;
  * This class mainly acts as a proxy for the DataCollectorImpl class, which implements the actual
  * collection logic.
  */
+@OnThread(Tag.Swing)
 public class DataCollector
 {
     private static final String PROPERTY_UUID = "blackbox.uuid";
@@ -180,6 +183,7 @@ public class DataCollector
     /**
      * Get the session identifier.
      */
+    @OnThread(Tag.Any)
     public static String getSessionUuid()
     {
         return sessionUuid;
@@ -386,6 +390,12 @@ public class DataCollector
     {
         if (dontSend()) return;
         DataCollectorImpl.removeClass(pkg, sourceFile);
+    }
+    
+    public static void ConvertStrideToJava(Package pkg, File sourceFile)
+    {
+        if (dontSend()) return;
+        DataCollectorImpl.ConvertStrideToJava(pkg, sourceFile);
     }
 
     public static void edit(Package pkg, File path, String source, boolean includeOneLineEdits)

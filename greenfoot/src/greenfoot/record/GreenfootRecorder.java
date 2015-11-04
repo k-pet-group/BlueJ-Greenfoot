@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2010,2011,2014 Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2010,2011,2014,2015 Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -32,7 +32,12 @@ import java.util.LinkedList;
 import java.util.List;
 
 import rmiextension.wrappers.RObject;
+import bluej.Config;
 import bluej.debugger.gentype.JavaType;
+import bluej.stride.framedjava.elements.CallElement;
+import bluej.stride.framedjava.elements.CodeElement;
+import bluej.stride.framedjava.elements.NormalMethodElement;
+import bluej.stride.framedjava.elements.VarElement;
 import bluej.utility.Debug;
 
 /**
@@ -43,9 +48,11 @@ public class GreenfootRecorder
 {
     /** A map of known objects to their name as it appears in the code */
     private IdentityHashMap<Object, String> objectNames;
-    private LinkedList<String> code;
+    private LinkedList<CodeElement> code;
     private World world;
     
+    public static final String METHOD_ACCESS = "private";
+    public static final String METHOD_RETURN = "void";
     public static final String METHOD_NAME = "prepare";
     
     /**
@@ -54,7 +61,7 @@ public class GreenfootRecorder
     public GreenfootRecorder()
     {
         objectNames = new IdentityHashMap<Object, String>();
-        code = new LinkedList<String>();
+        code = new LinkedList<CodeElement>();
     }
 
     /**
@@ -68,7 +75,9 @@ public class GreenfootRecorder
         Class<?> theClass = actor.getClass();
         String name = nameActor(actor);
         if (name != null) {
-            code.add(theClass.getCanonicalName() + " " + name + " = new " + theClass.getCanonicalName() + "(" + withCommas(args, paramTypes, false) + ");");
+            code.add(new VarElement(null, theClass.getCanonicalName(), name,  "new " + theClass.getCanonicalName()
+                    + "(" + withCommas(args, paramTypes, false) + ")"));
+            assert( ((VarElement)code.getLast()).isEnable());
         }
     }
     
@@ -145,7 +154,7 @@ public class GreenfootRecorder
             //An actor that we don't know about is being added to the world: ignore
             return;
         }
-        code.add("addObject(" + actorObjectName + ", " + x + ", " + y + ");");
+        code.add(callElement("addObject(" + actorObjectName + "," + String.valueOf(x) + "," + String.valueOf(y) + ")"));
     }
 
     /**
@@ -165,15 +174,15 @@ public class GreenfootRecorder
             //Method is being called on an actor we don't know about: ignore
             return;
         }
-        
-        String methodCallingString = method.getName() + "(" + withCommas(args, paramTypes, method.isVarArgs()) + ");";
+        String name;
         if (world != null && world == obj) {
             // Called on the world, so don't use the world's object name before the call:
-            code.add(methodCallingString);
+            name = method.getName();
         }
         else {
-            code.add(actorName + "." + methodCallingString);
+            name = actorName + "." + method.getName();
         }
+        code.add(callElement(name + "(" + withCommas(args, paramTypes, method.isVarArgs()) + ")"));
     }
 
     /**
@@ -236,7 +245,7 @@ public class GreenfootRecorder
             // We'll just have to ignore it
             return;
         }
-        code.add(actorObjectName + ".setLocation(" + xCell + ", " + yCell + ");");
+        code.add(callElement(actorObjectName + ".setLocation(" + String.valueOf(xCell) + "," + String.valueOf(yCell) + ")"));
     }
 
     /**
@@ -251,15 +260,35 @@ public class GreenfootRecorder
             // We'll just have to ignore it
             return;
         }
-        code.add("removeObject(" + actorObjectName + ");");
+        code.add(callElement("removeObject(" + actorObjectName + ")"));
         objectNames.remove(obj);
     }
 
     /**
-     * Retrieve the Java code representing the interactions recorded up to this point.
+     * Retrieve the code elements representing the interactions recorded up to this point.
      */
-    public synchronized List<String> getCode()
+    public synchronized List<CodeElement> getCode()
     {
-        return new LinkedList<String>(code);
+        return new LinkedList<CodeElement>(code);
+    }
+
+    public NormalMethodElement getPrepareMethod()
+    {
+        StringBuffer documentation = new StringBuffer();
+        documentation.append(Config.getString("record.method.comment1")).append("\n");
+        documentation.append(Config.getString("record.method.comment2"));
+        
+        return new NormalMethodElement(METHOD_ACCESS, METHOD_RETURN, METHOD_NAME,
+                null, code, documentation.toString());
+    }
+
+    public CallElement getPrepareMethodCall()
+    {
+        return callElement(METHOD_NAME + "()");
+    }
+    
+    private CallElement callElement(String content)
+    {
+        return new CallElement(content, content);
     }
 }

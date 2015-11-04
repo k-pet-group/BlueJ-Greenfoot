@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009, 2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009, 2014,2015  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -39,6 +39,8 @@ import javax.swing.text.TabExpander;
 import javax.swing.text.ViewFactory;
 
 import bluej.Config;
+import bluej.editor.moe.MoeErrorManager.ErrorDetails;
+import bluej.utility.Debug;
 
 /**
  * A view for the NaviView component.
@@ -59,15 +61,15 @@ public class NaviviewView extends BlueJSyntaxView
     
     private NaviView naviView;
     
-    public NaviviewView(Element elem, NaviView naviView)
+    public NaviviewView(Element elem, NaviView naviView, MoeErrorManager errors)
     {
-        super(elem, 0);
+        super(elem, 0, errors);
         this.naviView = naviView;
     }
     
     @Override
     protected void paintTaggedLine(Segment line, int lineIndex, Graphics g,
-            int x, int y, MoeSyntaxDocument document, Color def,
+            int x, int y, MoeSyntaxDocument document, MoeErrorManager errorMgr, Color def,
             Element lineElement, TabExpander tx)
     {
         // Painting at such a small font size means the font appears very light.
@@ -103,7 +105,7 @@ public class NaviviewView extends BlueJSyntaxView
             if (SYNTAX_COLOURING) {
                 if (document.getParsedNode() != null) {
                     super.paintTaggedLine(line, lineIndex, imgG, x - clipBounds.x,
-                            metrics.getAscent(), document, def, lineElement, tx);
+                            metrics.getAscent(), document, errorMgr, def, lineElement, tx);
                 } else {
                     paintPlainLine(lineIndex, imgG, x - clipBounds.x, metrics.getAscent());
                 }
@@ -124,8 +126,23 @@ public class NaviviewView extends BlueJSyntaxView
                     img.setRGB(ix, iy, (alpha << 24) | (argb & 0xffffff));//apply the new aplha channel to the image
                 }
             }
-
+            
             g.drawImage(img, clipBounds.x, y - metrics.getAscent(), null);
+            
+            if (errorMgr != null)
+            {
+                ErrorDetails err = errorMgr.getErrorOnLine(lineIndex);
+                if (err != null)
+                {
+                    Color c = g.getColor();
+                    g.setColor(Color.RED);
+                    int errStartX = modelToView(err.startPos, dummyShape, Position.Bias.Forward).getBounds().x;
+                    //Debug.message("Found error!  Filling " + (errEndX - errStartX) + " x " + lineHeight);
+                    // Fill all the way to the right, to be more visible:
+                    g.fillRect(clipBounds.x + errStartX, clipBounds.y, clipBounds.width, lineHeight);
+                    g.setColor(c);
+                }
+            }
         }
         catch (BadLocationException ble) {}
     }

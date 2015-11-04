@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2012,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -31,6 +31,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
 import bluej.Config;
 import bluej.classmgr.BPClassLoader;
 import bluej.debugger.Debugger;
@@ -1118,6 +1120,7 @@ public class JdiDebugger extends Debugger
             }
         }
 
+        @OnThread(Tag.Any)
         private VMReference getVM()
         {
             synchronized (JdiDebugger.this) {
@@ -1139,6 +1142,7 @@ public class JdiDebugger extends Debugger
          * Get the VM reference, without waiting for it to start. If no VM has started,
          * this returns null.
          */
+        @OnThread(Tag.Any)
         private VMReference getVMNoWait()
         {
             synchronized (JdiDebugger.this) {

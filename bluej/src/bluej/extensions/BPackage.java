@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2012,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,17 +21,25 @@
  */
 package bluej.extensions;
 
-import bluej.compiler.*;
-import bluej.debugmgr.objectbench.*;
-import bluej.extensions.BDependency.Type;
-import bluej.pkgmgr.*;
-import bluej.pkgmgr.Package;
-import bluej.pkgmgr.dependency.Dependency;
-import bluej.pkgmgr.target.*;
-import java.awt.*;
-import java.io.*;
-import java.util.*;
+import java.awt.Frame;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+
+import threadchecker.OnThread;
+import bluej.compiler.JobQueue;
+import bluej.debugmgr.objectbench.ObjectBench;
+import bluej.debugmgr.objectbench.ObjectWrapper;
+import bluej.extensions.BDependency.Type;
+import bluej.pkgmgr.Package;
+import bluej.pkgmgr.PkgMgrFrame;
+import bluej.pkgmgr.Project;
+import bluej.pkgmgr.dependency.Dependency;
+import bluej.pkgmgr.target.ClassTarget;
+import bluej.pkgmgr.target.PackageTarget;
+import bluej.pkgmgr.target.Target;
+import threadchecker.Tag;
 
 
 /**
@@ -48,6 +56,7 @@ public class BPackage
     /**
      * Constructor for a BPackage.
      */
+    @OnThread(Tag.Any)
     BPackage (Identifier aPackageId)
     {
         packageId=aPackageId;
@@ -116,13 +125,13 @@ public class BPackage
      * @throws PackageNotFoundException if the package has been deleted by the user.
      * @throws MissingJavaFileException if the .java file for the new class does not exist.
      */
-    public BClass newClass ( String className )
+    public BClass newClass (String className, String extension)
     throws ProjectNotOpenException, PackageNotFoundException, MissingJavaFileException
     {
         Package bluejPkg = packageId.getBluejPackage();
         PkgMgrFrame bluejFrame = packageId.getPackageFrame();
 
-        File classJavaFile = new File (bluejPkg.getPath(),className+".java");
+        File classJavaFile = new File (bluejPkg.getPath(), className + "." + extension);
         if ( ! classJavaFile.canWrite() ) 
             throw new MissingJavaFileException (classJavaFile.toString());
 
@@ -386,6 +395,7 @@ public class BPackage
     /**
      * Returns a string representation of the package object
      */
+    @Override
     public String toString () 
     {
         try 

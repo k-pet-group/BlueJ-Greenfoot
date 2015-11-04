@@ -42,6 +42,8 @@ import java.awt.event.WindowEvent;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -204,6 +206,16 @@ public class ExecControls extends JFrame
     public void setRestrictedClasses(Map<String, Set<String>> restrictedClasses)
     {
         this.restrictedClasses = restrictedClasses;
+    }
+    
+    public Map<String, Set<String>> getRestrictedClasses()
+    {
+        HashMap<String, Set<String>> copy = new HashMap<String, Set<String>>();
+        for (Map.Entry<String, Set<String>> e : restrictedClasses.entrySet())
+        {
+            copy.put(e.getKey(), new HashSet<String>(e.getValue()));
+        }
+        return copy;
     }
 
 

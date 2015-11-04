@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2013,2014  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2013,2014,2015  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -245,7 +245,7 @@ public abstract class Actor
      * The actor is at the edge of the world if their position is
      * at, or beyond, the cells at the very edge of the world.  For example,
      * if your world is 640 by 480 pixels, an actor is at the edge if its
-     * X position is <= 0 or >= 639, or its Y position is <= 0 or >= 479.
+     * X position is &lt;= 0 or &gt;= 639, or its Y position is &lt;= 0 or &gt;= 479.
      * 
      * @return True if the actor is at or beyond the edge cell of the world, and false otherwise.
      */
@@ -372,11 +372,25 @@ public abstract class Actor
     /**
      * Return the world that this actor lives in.
      * 
-     * @return The world.
+     * @return The world, or null if this actor is not in a world.
      */
     public World getWorld()
     {
         return world;
+    }
+    
+    /**
+     * Return the world that this actor lives in, provided that it is
+     * an instance of the given "worldClass" class (i.e. that it is an instance
+     * of worldClass or one of its subclasses).
+     * 
+     * @return The world this actor is in, or null if either this actor is not in a world
+     * @throws java.lang.ClassCastException If the actor is in a world, but not one that is an instance of worldClass or one of its subclasses
+     */
+    public <W extends World> W getWorldOfType(Class<W> worldClass)
+    {
+        // If null, returns null.  If not of right type, already throws ClassCastException for us:
+        return worldClass.cast(world);
     }
 
     /**
@@ -388,7 +402,7 @@ public abstract class Actor
      * 
      * @param world The world the object was added to.
      */
-    protected void addedToWorld(World world)
+    protected void addedToWorld(@SuppressWarnings("unused") World world)
     {}
 
     /**
@@ -599,7 +613,7 @@ public abstract class Actor
     
     /**
      * Get the collision-checker-private data for this actor.
-     * @return
+     * @return An Object contains the info about the collision.
      */
     Object getData()
     {
@@ -771,6 +785,7 @@ public abstract class Actor
     /**
      * Check whether this object intersects with another given object.
      * 
+     * @param other  The second object to detect the existing of intersection with it.
      * @return True if the object's intersect, false otherwise.
      */
     protected boolean intersects(Actor other)
@@ -841,8 +856,7 @@ public abstract class Actor
      *            objects).
      * @return A list of all neighbours found.
      */
-    @SuppressWarnings("rawtypes")
-    protected List getNeighbours(int distance, boolean diagonal, Class cls)
+    protected <A extends Actor> List<A> getNeighbours(int distance, boolean diagonal, Class<A> cls)
     {
         failIfNotInWorld();
         // Don't use getWorld() here, as it is overridable
@@ -860,8 +874,7 @@ public abstract class Actor
      * @param cls Class of objects to look for (passing 'null' will find all
      *            objects).
      */
-    @SuppressWarnings("rawtypes")
-    protected List getObjectsAtOffset(int dx, int dy, Class cls)
+    protected <A extends Actor> List<A> getObjectsAtOffset(int dx, int dy, Class<A> cls)
     {
         failIfNotInWorld();
         return world.getObjectsAt(x + dx, y + dy, cls);
@@ -879,8 +892,7 @@ public abstract class Actor
      * @param cls Class of objects to look for (passing 'null' will find all objects).
      * @return An object at the given location, or null if none found.
      */
-    @SuppressWarnings("rawtypes")
-    protected Actor getOneObjectAtOffset(int dx, int dy, Class cls)
+    protected <A extends Actor> A getOneObjectAtOffset(int dx, int dy, Class<A> cls)
     {
         failIfNotInWorld();
         return world.getOneObjectAt(this, x + dx, y + dy, cls);        
@@ -893,12 +905,12 @@ public abstract class Actor
      * 
      * @param radius Radius of the circle (in cells)
      * @param cls Class of objects to look for (passing 'null' will find all objects).
+     * @return List of objects of the given class type within the given radius.
      */
-    @SuppressWarnings("rawtypes")
-    protected List getObjectsInRange(int radius, Class cls)
+    protected <A extends Actor> List<A> getObjectsInRange(int radius, Class<A> cls)
     {
         failIfNotInWorld();
-        List inRange = world.getObjectsInRange(x, y, radius, cls);
+        List<A> inRange = world.getObjectsInRange(x, y, radius, cls);
         inRange.remove(this);
         return inRange;
     }
@@ -908,12 +920,12 @@ public abstract class Actor
      * graphical extent of objects into consideration. <br>
      * 
      * @param cls Class of objects to look for (passing 'null' will find all objects).
+     * @return List of objects of the given class type that intersect with the current object.
      */
-    @SuppressWarnings("rawtypes")
-    protected List getIntersectingObjects(Class cls)
+    protected <A extends Actor> List<A> getIntersectingObjects(Class<A> cls)
     {
         failIfNotInWorld();
-        List l = world.getIntersectingObjects(this, cls);
+        List<A> l = world.getIntersectingObjects(this, cls);
         l.remove(this);
         return l;
     }
@@ -923,9 +935,9 @@ public abstract class Actor
      * graphical extent of objects into consideration. <br>
      * 
      * @param cls Class of objects to look for (passing 'null' will find all objects).
+     * @return An object of the given class type that intersects with the current object.
      */
-    @SuppressWarnings("rawtypes")
-    protected Actor getOneIntersectingObject(Class cls)
+    protected <A extends Actor> A getOneIntersectingObject(Class<A> cls)
     {
         failIfNotInWorld();
         return world.getOneIntersectingObject(this, cls);
@@ -936,9 +948,10 @@ public abstract class Actor
      * of the given class.
      * 
      * @param cls Class of objects to look for (passing 'null' will check for all actors).
+     * @return True if there is an object of the given class type that intersects with the 
+     *            current object, false otherwise.
      */
-    @SuppressWarnings("rawtypes")
-    protected boolean isTouching(Class cls)
+    protected boolean isTouching(Class<? extends Actor> cls)
     {
         failIfNotInWorld();
         return getOneIntersectingObject(cls) != null;
@@ -950,8 +963,7 @@ public abstract class Actor
      * 
      * @param cls Class of objects to remove (passing 'null' will remove any actor).
      */
-    @SuppressWarnings("rawtypes")
-    protected void removeTouching(Class cls)
+    protected void removeTouching(Class<? extends Actor> cls)
     {
         failIfNotInWorld();
         Actor a = getOneIntersectingObject(cls);

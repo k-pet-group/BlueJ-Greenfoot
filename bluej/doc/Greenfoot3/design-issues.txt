@@ -1,0 +1,146 @@
+Design questions for Version 3.0.1:
+===================== 
+
+ - Cmd-A in a bracket only selects the bracket.  Either it should pick whole thing
+    straight away, or it should expand if you press again.
+
+ - What is the slot type in catch exceptions?
+
+ - Should we have fold-out section in cheat sheet for navigation keys,
+   disable-frame shortcut?
+
+ - Generics:
+    - Should we allow variables with generic types?
+      - If so, do we allow bounds?
+        - Is it ok to use operators for extends, super
+    - Should we allow classes to be declared as generic?
+    - Ditto for methods?
+    
+ - Depending on generics, should type slots re-use expression slot mechanism,
+   e.g. dots between identifiers like operators, square (and angle?) brackets in same way,
+   potentially operator for bounds, maybe postfix operator for varargs (three dots, or star).
+
+ - Most of the common classes have been transfered to Stride language. However, when building the project,
+   No Java version of it is available, thus Javadoc error is fired. What is the solution?
+ 
+SandwichCanvasesFrames:
+ - As the 'else if'/'else'/'catch'/'finally' are on the same level as 'if'/'try', the sidebar became annoying somehow.
+
+ - 'e' to add 'else' branch after or inside 'if' body. what about 'case'?
+     'case' currently is added only inside a 'switch' block. Unify with 'else'?
+ - Do we want 'switch' to be added to the Sandwich canvases or not?
+
+ - I wonder if we should add the declaring class of a completion to the code completion display, or whether
+   that will overload the user with too much information, esp for a beginner's IDE.
+ 
+ - How should we handle generics?  During type completion we could add slots for each type parameter,
+   and could do the same in a type (and method!) declaration.
+ 
+ - Should we support varargs in method declarations?
+   AA: if we want that, maybe we can represent them in a different way rather than the Java dots "...".
+   MK: I think we have to unless we change out API. We are using them.
+
+ - I think we should implement this ticket http://bugs.bluej.org/greenfoot/ticket/354 for Greenfoot 3,
+   using option 1; the slider sets the desired FPS, from 1 to 100.  Although others may disagree.
+   MK: if we do, I prefer option 2.
+
+ - UndoRedoManager builds a limited size stack of undos, to prevent a memory leak during prolonged editing.
+      It is set up as 30 currently, is it ok? and add it to the defs file?
+
+ - add 'pure Java/Stride' scenario options.
+    
+ - Helper classes are represented in frames language now except:
+   GifImage
+   Map: as it contains enum. 
+   		(Do we need enum in gf3?)
+
+ - idea (not sure whether we want this): with statements selected in method, allow 'm'
+    (insert method) as an 'extract method' refactoring: inseet method call, and move selected
+    statements into new method. main problem: where/how to specify method name?
+
+ - Debugger should allow you to click backwards to see state of world at that point in execution.
+   Will need to decouple rendering from act sequence (even if you don't allow going backwards,
+   just updating at each breakpoint).
+   AA: version 3.2?
+
+ - Do we need separate Enable/Disable operations or Toggle in between. The only time they may appear together if
+   multiple frames are selected, where some enabled and others disabled. However, this is maybe an issue as
+   Blank/Comment frames are always enabled.
+
+ - Backspace at the first cursor inside cases (except the first case), and inside default (except there were no cases)
+     merges the contents with the one above. What about the first case? and similarly, default without cases.
+
+ - code completion:
+     1- invoke code completion: p -> (ctrl + space)
+     2- and then typed couple of characters before the completion dialog appears, p -> (ctrl + space) -> rin
+     3- select an option from the window
+         -> the rest of characters will be added to the end: print()rin
+     Is this the desired behaviour?
+
+Agreed Guiding Principle & Design Issues:
+=====================
+ - Design a nicer and clean language, even if somehow different from Java.
+
+ - Should be impossible to have partial syntax structure.
+
+ - Greenfoot 3 will be released as a bundled version only (at least for Windows & Mac OS).
+
+ - Stop using .java and/or .frame as a hard code and uses the enum in sourceType instead.
+
+ - Use em in the CSS files (not px), so that the editor scales perfectly with the font size.
+
+ - If the user makes a new class and enters valid code in each slot as they go through filling
+   them in and making new frames, they should never see an error message.
+
+ - Information should be in same colour as background it is on (differ only in contrast).
+
+ - NCCB: The fresh logic isn't quite right; all descendants of a fresh frame should be fresh, but this is not currently the case.
+   AA: I think there are some cases which is fine. e.g. If there is a 'fresh' method, and the user has finished an assignment
+       frame inside this method and moved to a new frame, the method has to still fresh, but the assignment not.
+
+ - navigate from right into an access field, will focus on the beginning of it. It is ok.
+
+ - MethodProto's style is the same as the NormalMethod's.
+
+ - leave the var keyword for now.
+
+ - Should we allow continue?  Can we leave it out?  Also: labelled breaks/continues.
+   MK: leave it out
+
+ - When you change the name of a declaration (i.e. a field, class, method, parameter or local var),
+   and leave the slot, it should freeze the code (add dimming effect to code overlay pane?) and show a modal list on
+   centre of window overlay (to stop it being scrolled away) to ask if you want to change
+   all uses of this name (in frame classes only), leave uses as-is, or undo the name change.
+   You can move up and down or click to select like with a fix display.  May be technically difficult
+   to find uses in other classes of fields and methods, though.
+   MK: alternative (which I might like better): by default always change all uses (live, realtime, with every key
+   stroke); add popup menu function to change without changing uses.
+
+ - Mac menubar: JavaFX.
+
+ - Name the catalogue in presentations etc, as cheat sheet.
+
+ - Interfaces: we do not need to create/support interfaces. However, they will not be removed from the repository,
+        as Stride maybe utilized in future for BlueJ.
+
+ - Shortcuts should be case insensitive.
+
+ - As we added a 'Convert to Java' action (context menu), don't we need to make the class view of Stride,
+     in the class browser, a little bit different from a Java one?
+   mik: not for now
+
+  - I think we should add a "protected void sayFor(String text, double seconds)" method to Actor,
+    to mirror the one in Scratch.  Whether it blocks or not is another matter and related to next point:
+    MK: I am not convinced. This goes strongly against our execution model.
+
+- I think we should add a "protected void delay(double seconds)" method to Actor which makes the actor
+   wait for that long, either:
+     - by blocking but spawning a new Simulation thread to continue the act() cycle, waiting until the
+       right point in a future act() cycle to take over again.  This has the advantage that execution
+       will pause at the exact point, and supports animation scenarios easily, but it is technically a bit messy.
+
+     - by just initiating the pause after act() has finished.  However, this means you still need a
+       state machine to do animation scenarios properly.
+   MK: Again, I am sceptical. Not a frequent enough problem to warrant the complications.
+
+- The executable files should be called “Greenfoot”, not “Greenfoot 3”.

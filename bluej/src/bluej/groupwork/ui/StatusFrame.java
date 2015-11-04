@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -41,6 +41,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
 import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.collect.DataCollector;
@@ -227,17 +229,20 @@ public class StatusFrame extends EscapeDialog
             aborted = true;
         }
 
+        @OnThread(Tag.Unique)
         public Object construct() 
         {
             result = command.getResult();
             return resources;
         }
 
+        @OnThread(Tag.Any)
         public void gotStatus(TeamStatusInfo info)
         {
             resources.add(info);
         }
 
+        @OnThread(Tag.Any)
         public void statusComplete(StatusHandle commitHandle)
         {
             // Nothing to be done here.

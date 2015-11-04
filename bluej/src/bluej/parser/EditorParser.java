@@ -33,6 +33,8 @@ import java.util.Stack;
 import javax.swing.text.Document;
 import javax.swing.text.Element;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
 import bluej.debugger.gentype.Reflective;
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.entity.EntityResolver;
@@ -152,6 +154,9 @@ public class EditorParser extends JavaParser
     }
     
     @Override
+    // This tag is not correct, but if document is an instanceof MoeSyntaxDocument, the parsing
+    // should be happening on the Swing thread:
+    @OnThread(value = Tag.Swing, ignoreParent = true)
     protected void error(String msg, int beginLine, int beginColumn, int endLine, int endColumn)
     {
         // TODO make a proper listener interface

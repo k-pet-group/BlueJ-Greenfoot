@@ -185,9 +185,8 @@ public class ClassTargetPainter
         // If the state isn't normal, draw stripes in the rectangle
         String stereotype = classTarget.getRole().getStereotypeLabel();
         if (classTarget.getState() != ClassTarget.S_NORMAL) {
-            g.setColor(stripeColor);
             int divider = (stereotype == null) ? 19 : 33;
-            Utility.stripeRect(g, 0, divider, width, height - divider, 8, 3);
+            Utility.stripeRect(g, 0, divider, width, height - divider, 8, 3, stripeColor);
         }
 
         // if sourcecode is missing. Write "(no source)" in the diagram

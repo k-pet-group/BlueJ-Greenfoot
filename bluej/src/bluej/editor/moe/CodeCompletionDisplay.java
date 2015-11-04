@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2012,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2012,2014,2015  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -39,6 +39,8 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 import java.awt.event.WindowListener;
+import java.util.List;
+import java.util.Vector;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -48,6 +50,8 @@ import java.util.TreeSet;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ActionMap;
@@ -70,6 +74,7 @@ import javax.swing.text.html.HTMLEditorKit;
 
 import bluej.Config;
 import bluej.parser.AssistContent;
+import bluej.parser.AssistContent.ParamInfo;
 import bluej.parser.SourceLocation;
 import bluej.parser.lexer.LocatableToken;
 import bluej.prefmgr.PrefMgr;
@@ -166,7 +171,7 @@ public class CodeCompletionDisplay extends JFrame
             }
         };
 
-        ed.addWindowListener(editorListener);
+        //TODO adapt the window listener to the new tabbed arrangement
     }
 
     /**
@@ -174,7 +179,6 @@ public class CodeCompletionDisplay extends JFrame
      */
     public void doClose()
     {
-        editor.removeWindowListener(editorListener);
         dispose();
     }
 
@@ -381,7 +385,7 @@ public class CodeCompletionDisplay extends JFrame
         AssistContent value;
         while (i.hasNext()) {
             value = i.next();
-            if (value.getDisplayName().startsWith(prefix)) {
+            if (value.getName().startsWith(prefix)) {
                 jListData.add(value);
             }
         }
@@ -403,7 +407,7 @@ public class CodeCompletionDisplay extends JFrame
         //incremental prefix update.
         ArrayList<AssistContent> filteredElements = new ArrayList<AssistContent>();
         for (AssistContent element : elements) {
-            if (element.getDisplayName().startsWith(prefix)) {
+            if (element.getName().startsWith(prefix)) {
                 filteredElements.add(element);
             }
         }
@@ -427,20 +431,30 @@ public class CodeCompletionDisplay extends JFrame
     private void codeComplete()
     {
         AssistContent selected = (AssistContent) methodList.getSelectedValue();
-        if (selected != null) {
-            String completion = selected.getCompletionText();
-            String completionSel = selected.getCompletionTextSel();
-            String completionPost = selected.getCompletionTextPost();
-            boolean hasParameters = selected.hasParameters();
-
+        if (selected != null)
+        {
+            String start = selected.getName();
+            List<ParamInfo> params = selected.getParams();
+            if (params != null)
+                start += "(";
+            // Replace prefix with the full name:
             editor.setSelection(prefixBegin, prefixEnd);
-
-            editor.insertText(completion, false);
-            SourceLocation selLoc = editor.getCaretLocation();
-            editor.insertText(completionSel, false);
-            editor.insertText(completionPost, hasParameters);
-            if (hasParameters) {
-                editor.setSelection(selLoc.getLine(), selLoc.getColumn(), completionSel.length());
+            editor.insertText(start, false);
+            
+            if (params != null)
+            {
+                // Record position before we add first parameter,
+                // so that we can come back and select it:
+                SourceLocation selLoc = editor.getCaretLocation();
+                // Put all available params in, separated by ", "
+                if (!params.isEmpty())
+                    editor.insertText(params.stream().map(ParamInfo::getDummyName).collect(Collectors.joining(", ")), false);
+                        
+                editor.insertText(")", false);
+                        
+                // If there were any dummy parameters, go back and select first one:
+                if (params.size() > 0)
+                    editor.setSelection(selLoc.getLine(), selLoc.getColumn(), params.get(0).getDummyName().length());
             }
         }
 
@@ -477,12 +491,7 @@ public class CodeCompletionDisplay extends JFrame
     {
         AssistContent selected = (AssistContent) methodList.getSelectedValue();
         if (selected == null) {
-            return;
-        }
-        
-        if (selected.javadocIsSet()) {
-            String jdHtml = selected.getJavadoc();
-            setHtml(selected, jdHtml);
+            methodDescription.setText("");
             return;
         }
         
@@ -513,14 +522,25 @@ public class CodeCompletionDisplay extends JFrame
         } else {
             jdHtml = "";
         }
-        String sig = JavaUtils.escapeAngleBrackets(selected.getReturnType())
-                + " <b>" + JavaUtils.escapeAngleBrackets(selected.getDisplayMethodName()) + "</b>"
-                + JavaUtils.escapeAngleBrackets(selected.getDisplayMethodParams());
+        String sig = Utility.escapeAngleBrackets(selected.getType())
+                   + " <b>" + Utility.escapeAngleBrackets(selected.getName()) + "</b>";
+        
+        if (selected.getParams() != null)
+            sig += Utility.escapeAngleBrackets("(" + selected.getParams().stream().map(ParamInfo::getUnqualifiedType).collect(Collectors.joining(", ")) + ")");
+        
+        jdHtml = "<h3>" + selected.getDeclaringClass() + "</h3>" + 
+            "<blockquote><tt>" + sig + "</tt></blockquote><br>" +
+            jdHtml;
+        
+//            
+//            if (Config.isRaspberryPi()) {
+//                jdHtml = "<body bgcolor=\"#FAF6E5\">" + jdHtml;
+//                methodDescription.setBorder(BorderFactory.createLineBorder(new Color(250,246,229), 12));
+//            }
+        
 
-        jdHtml = "<h3>" + selected.getDeclaringClass() + "</h3>"
-                + "<blockquote><tt>" + sig + "</tt></blockquote><br>"
-                + jdHtml;
-        CodeCompletionDisplay.this.setMethodDescriptionText(jdHtml);
+        methodDescription.setText(jdHtml);
+        methodDescription.setCaretPosition(0); // scroll to top
     }
 
     /**
@@ -690,7 +710,7 @@ public class CodeCompletionDisplay extends JFrame
         @Override
         public int compare(AssistContent o1, AssistContent o2)
         {
-            return o1.getDisplayName().compareTo(o2.getDisplayName());
+            return o1.getName().compareTo(o2.getName());
         }
     }
 }

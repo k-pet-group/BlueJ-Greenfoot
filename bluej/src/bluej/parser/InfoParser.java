@@ -32,6 +32,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeParameter;
 import bluej.debugger.gentype.GenTypeSolid;
@@ -76,6 +78,7 @@ public class InfoParser extends EditorParser
     private int classLevel = 0; // number of nested classes
     private boolean isPublic;
     private boolean isAbstract;
+    private String comment;
     private int lastTdType; // last typedef type (TYPEDEF_CLASS, _INTERFACE etc)
     private boolean storeCurrentClassInfo;
     private int arrayCount = 0;
@@ -162,7 +165,8 @@ public class InfoParser extends EditorParser
      * Attempt to parse the specified source file, and resolve references via the specified
      * package (and its project). Returns null if the file could not be parsed.
      */
-    public static ClassInfo parse(File f, Package pkg) throws FileNotFoundException
+    @OnThread(Tag.Swing)
+    public static ClassInfo parseWithPkg(File f, Package pkg) throws FileNotFoundException
     {
         FileInputStream fis = new FileInputStream(f);
         EntityResolver resolver = new PackageResolver(pkg.getProject().getEntityResolver(),
@@ -610,6 +614,7 @@ public class InfoParser extends EditorParser
     {
         isPublic = modPublic;
         isAbstract = modAbstract;
+        comment = firstToken.getHiddenBefore() == null ? "" : firstToken.getHiddenBefore().getText();
         super.gotTypeDef(firstToken, tdType);
         lastTdType = tdType;
     }
@@ -627,6 +632,7 @@ public class InfoParser extends EditorParser
                 info.setEnum(lastTdType == TYPEDEF_ENUM);
                 info.setInterface(lastTdType == TYPEDEF_INTERFACE);
                 info.setAbstract(isAbstract);
+                info.addComment(info.getName(), comment, null);
                 Selection insertSelection = new Selection(nameToken.getLine(), nameToken.getEndColumn());
                 info.setExtendsInsertSelection(insertSelection);
                 info.setImplementsInsertSelection(insertSelection);

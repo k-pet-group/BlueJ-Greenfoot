@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
+import bluej.debugger.gentype.FieldReflective;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeSolid;
 import bluej.debugger.gentype.MethodReflective;
@@ -42,9 +43,11 @@ import bluej.parser.lexer.LocatableToken;
 public class CompletionParser extends TextParser
 {
     private Map<String,Set<MethodReflective>> methodSuggestions = Collections.emptyMap();
+    private Map<String,FieldReflective> fieldSuggestions = Collections.emptyMap();
     private JavaEntity suggestionEntity;
     private LocatableToken suggestionToken;
     private boolean staticRestricted=false;
+    private boolean plain = true; // Assume plain until disproven
 
     /**
      * Construct an expression parser, used for suggesting completions.
@@ -102,6 +105,14 @@ public class CompletionParser extends TextParser
         return methodSuggestions;
     }
     
+    public Map<String, FieldReflective> getFieldSuggestions()
+    {
+        if (fieldSuggestions == null) {
+            suggestFor(getSuggestionType());
+        }
+        return fieldSuggestions;
+    }
+    
     /**
      * Get the type for which to make suggestions. The suggestions presented to the user
      * should be members of the returned type.
@@ -135,6 +146,7 @@ public class CompletionParser extends TextParser
     protected void gotDotEOF(LocatableToken token)
     {
         suggestionEntity = popValueStack();
+        plain = false;
     }
     
     @Override
@@ -148,6 +160,7 @@ public class CompletionParser extends TextParser
     {
         suggestionToken = token;
         suggestionEntity = popValueStack();
+        plain = false;
     }
     
     @Override
@@ -155,6 +168,7 @@ public class CompletionParser extends TextParser
     {
         suggestionToken = token;
         suggestionEntity = popValueStack();
+        plain = false;
     }
     
     private void suggestFor(GenTypeSolid type)
@@ -165,6 +179,7 @@ public class CompletionParser extends TextParser
             if (ctype != null) {
                 Reflective r = ctype.getReflective();
                 methodSuggestions = r.getDeclaredMethods();
+                fieldSuggestions = r.getDeclaredFields();
             }
         }
     }
@@ -178,4 +193,10 @@ public class CompletionParser extends TextParser
     {
         this.staticRestricted = restricted;
     }
+    
+    public boolean isPlain()
+    {
+        return plain;
+    }
+    
 }

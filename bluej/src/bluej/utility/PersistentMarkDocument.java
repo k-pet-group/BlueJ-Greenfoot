@@ -37,6 +37,9 @@ import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 /**
  * Document implementation for the terminal editor pane and codepad.
  * 
@@ -48,12 +51,14 @@ import javax.swing.undo.CannotUndoException;
  * 
  * @author Davin McCall
  */
+@OnThread(Tag.Any)
 public class PersistentMarkDocument extends AbstractDocument
 {
     protected Element root;
 
     public static final String tabSizeAttribute = PlainDocument.tabSizeAttribute;
     
+    @OnThread(Tag.Swing)
     public PersistentMarkDocument()
     {
         super(new GapContent());

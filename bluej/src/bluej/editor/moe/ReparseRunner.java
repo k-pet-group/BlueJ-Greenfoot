@@ -25,6 +25,10 @@ import bluej.Config;
 import bluej.prefmgr.PrefMgr;
 import java.awt.EventQueue;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+import bluej.prefmgr.PrefMgr;
+
 /**
  * Process the document re-parse queue.
  * 
@@ -34,6 +38,7 @@ import java.awt.EventQueue;
  * 
  * @author Davin McCall
  */
+@OnThread(value = Tag.Swing, ignoreParent = true)
 public class ReparseRunner implements Runnable
 {
     private MoeEditor editor;

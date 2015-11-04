@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2015  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -37,21 +37,22 @@ public class GreenfootLabel extends SplashLabel
 {
     public GreenfootLabel()
     {
-        super("greenfootsplash.jpg");
+        super("greenfoot-3-splash.png");
     }
 
+    @Override
     public void paintComponent(Graphics g)
     {
         BufferedImage image = getImage();
         g.drawImage(image, 0, 0, null);
-        g.setColor(new Color(164, 198, 102));
-        g.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        g.setColor(new Color(68, 100, 129));
+        g.setFont(new Font("SansSerif", Font.PLAIN, 13));
         if (g instanceof Graphics2D) {
             Graphics2D g2d = (Graphics2D)g;
             RenderingHints hints = new RenderingHints(RenderingHints.KEY_TEXT_ANTIALIASING,
                     RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
             g2d.addRenderingHints(hints);
         }
-        g.drawString("Version " + Boot.GREENFOOT_VERSION, 50, 192);
+        g.drawString("Version " + Boot.GREENFOOT_VERSION, 187, 219);
     }
 }

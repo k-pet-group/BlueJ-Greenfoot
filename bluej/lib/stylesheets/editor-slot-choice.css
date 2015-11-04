@@ -1,0 +1,22 @@
+/* Styles for ChoiceSlot */
+
+.choice-current {
+    -fx-color: black;
+}
+/* The potential display if we complete; grey */
+.choice-future {
+    -fx-text-fill: hsb(180, 30%, 70%);
+    -fx-label-padding: 0 2 0 0;
+}
+/* Dummy text field; hidden */
+.choice-dummy {
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+}
+.choice {
+    -fx-background-radius: 4;
+    -fx-border-radius: 4;
+}
+.choice-empty {
+    -fx-background-color: white;
+}

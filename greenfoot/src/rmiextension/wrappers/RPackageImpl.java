@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2012  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2012,2014  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -83,6 +83,7 @@ public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
     /*
      * @see rmiextension.wrappers.RPackage#compile(boolean)
      */
+    @Override
     public void compile(boolean waitCompileEnd)
         throws ProjectNotOpenException, PackageNotFoundException, CompilationNotStartedException
     {
@@ -92,6 +93,7 @@ public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
     /*
      * @see rmiextension.wrappers.RPackage#compileAll()
      */
+    @Override
     public void compileAll()
         throws ProjectNotOpenException, PackageNotFoundException, CompilationNotStartedException
     {
@@ -101,22 +103,19 @@ public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
                 pnfe = null;
                 pnoe = null;
                 
-                SwingUtilities.invokeAndWait(new Runnable() {
-                    public void run()
-                    {
-                        try {
-                            bPackage.compileAll(false);
-                        }
-                        catch (CompilationNotStartedException ce) {
-                            cnse = ce;
-                        }
-                        catch (PackageNotFoundException pe) {
-                            pnfe = pe;
-                        }
-                        catch (ProjectNotOpenException pe) {
-                            pnoe = pe;
-                        }
-                    } 
+                SwingUtilities.invokeAndWait(() -> {
+                    try {
+                        bPackage.compileAll(false);
+                    }
+                    catch (CompilationNotStartedException ce) {
+                        cnse = ce;
+                    }
+                    catch (PackageNotFoundException pe) {
+                        pnfe = pe;
+                    }
+                    catch (ProjectNotOpenException pe) {
+                        pnoe = pe;
+                    }
                 });
             }
             catch (InvocationTargetException ite) {
@@ -150,6 +149,7 @@ public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
     /*
      * @see rmiextension.wrappers.RPackage#getRClass(java.lang.String)
      */
+    @Override
     public RClass getRClass(final String name)
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException
     {
@@ -158,19 +158,16 @@ public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
             pnfe = null;
             
             try {
-                EventQueue.invokeAndWait(new Runnable() {
-                   public void run()
-                    {
-                       try {
-                           rclassResult = WrapperPool.instance().getWrapper(bPackage.getBClass(name));
-                       } catch (RemoteException e) {
-                           e.printStackTrace();
-                       } catch (ProjectNotOpenException e) {
-                           pnoe = e;
-                       } catch (PackageNotFoundException e) {
-                           pnfe = e;
-                       }
-                    } 
+                EventQueue.invokeAndWait(() -> {
+                   try {
+                       rclassResult = WrapperPool.instance().getWrapper(bPackage.getBClass(name));
+                   } catch (RemoteException e) {
+                       e.printStackTrace();
+                   } catch (ProjectNotOpenException e) {
+                       pnoe = e;
+                   } catch (PackageNotFoundException e) {
+                       pnfe = e;
+                   }
                 });
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -188,6 +185,7 @@ public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
     /*
      * @see rmiextension.wrappers.RPackage#getRClasses()
      */
+    @Override
     public RClass[] getRClasses()
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException
     {
@@ -196,27 +194,24 @@ public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
             pnfe = null;
 
             try {
-                EventQueue.invokeAndWait(new Runnable() {
-                    public void run()
-                    {
-                        try {
-                            BClass[] bClasses = bPackage.getClasses();
-                            int length = bClasses.length;
-                            RClass[] rClasses = new RClass[length];
-                            for (int i = 0; i < length; i++) {
-                                rClasses[i] = WrapperPool.instance().getWrapper(bClasses[i]);
-                            }
+                EventQueue.invokeAndWait(() -> {
+                    try {
+                        BClass[] bClasses = bPackage.getClasses();
+                        int length = bClasses.length;
+                        RClass[] rClasses = new RClass[length];
+                        for (int i = 0; i < length; i++) {
+                            rClasses[i] = WrapperPool.instance().getWrapper(bClasses[i]);
+                        }
 
-                            rclassArrayResult = rClasses;
-                        }
-                        catch (ProjectNotOpenException e) {
-                            pnoe = e;
-                        }
-                        catch (PackageNotFoundException e) {
-                            pnfe = e;
-                        }
-                        catch (RemoteException re) {}
+                        rclassArrayResult = rClasses;
                     }
+                    catch (ProjectNotOpenException e) {
+                        pnoe = e;
+                    }
+                    catch (PackageNotFoundException e) {
+                        pnfe = e;
+                    }
+                    catch (RemoteException re) {}
                 });
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -234,6 +229,7 @@ public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
     /* (non-Javadoc)
      * @see rmiextension.wrappers.RPackage#getName()
      */
+    @Override
     public String getName()
         throws ProjectNotOpenException, PackageNotFoundException
     {
@@ -243,6 +239,7 @@ public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
     /* (non-Javadoc)
      * @see rmiextension.wrappers.RPackage#getObject(java.lang.String)
      */
+    @Override
     public RObject getObject(String instanceName)
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException
     {
@@ -254,6 +251,7 @@ public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
     /* (non-Javadoc)
      * @see rmiextension.wrappers.RPackage#getObjects()
      */
+    @Override
     public BObject[] getObjects()
         throws ProjectNotOpenException, PackageNotFoundException
     {
@@ -263,6 +261,7 @@ public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
     /* (non-Javadoc)
      * @see rmiextension.wrappers.RPackage#getProject()
      */
+    @Override
     public RProject getProject()
         throws RemoteException, ProjectNotOpenException
     {
@@ -272,6 +271,7 @@ public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
     /* (non-Javadoc)
      * @see rmiextension.wrappers.RPackage#reload()
      */
+    @Override
     public void reload()
         throws ProjectNotOpenException, PackageNotFoundException
     {
@@ -310,6 +310,7 @@ public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
     /*
      * @see greenfoot.remote.RPackage#getDir()
      */
+    @Override
     public File getDir()
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException
     {
@@ -319,7 +320,8 @@ public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
     /*
      * @see greenfoot.remote.RPackage#newClass(java.lang.String)
      */
-    public RClass newClass(final String className)
+    @Override
+    public RClass newClass(final String className, String extension)
         throws RemoteException, ProjectNotOpenException, PackageNotFoundException, MissingJavaFileException
     {
         final RClass[] wrapper = new RClass[1];
@@ -331,7 +333,7 @@ public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
                 public void run()
                 {
                     try {
-                        BClass wrapped = bPackage.newClass(className);
+                        BClass wrapped = bPackage.newClass(className, extension);
                         wrapper[0] = WrapperPool.instance().getWrapper(wrapped);
                         bPackage.reload();
                     }
@@ -376,6 +378,7 @@ public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
     /* (non-Javadoc)
      * @see rmiextension.wrappers.RPackage#invokeMethod(java.lang.String, java.lang.String, java.lang.String[], java.lang.String[])
      */
+    @Override
     public String invokeMethod(String className, String methodName, String [] argTypes, String [] args)
     {
         Package pkg = getPackage();
@@ -429,6 +432,7 @@ public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
      * @param args        The argument strings to use
      * @return   The name of the constructed object (see notes).
      */
+    @Override
     public String invokeConstructor(String className, String [] argTypes, String [] args)
     {
         // TODO support generics
@@ -537,6 +541,7 @@ public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
     /* (non-Javadoc)
      * @see rmiextension.wrappers.RPackage#close()
      */
+    @Override
     public void close()
         throws RemoteException
     {

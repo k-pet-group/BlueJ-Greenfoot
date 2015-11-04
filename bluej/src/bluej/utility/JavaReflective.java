@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2013,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2013,2014,2015  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,6 +26,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -33,7 +34,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import bluej.debugger.gentype.ConstructorReflective;
 import bluej.debugger.gentype.FieldReflective;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeDeclTpar;
@@ -51,11 +54,13 @@ public class JavaReflective extends Reflective
 {
     private Class<?> c;
     
+    @Override
     public int hashCode()
     {
         return c.hashCode();
     }
     
+    @Override
     public boolean equals(Object other)
     {
         if (other instanceof JavaReflective) {
@@ -70,11 +75,13 @@ public class JavaReflective extends Reflective
         this.c = c;
     }
     
+    @Override
     public String getName()
     {
         return c.getName();
     }
     
+    @Override
     public String getSimpleName()
     {
         if (c.isArray()) {
@@ -103,11 +110,13 @@ public class JavaReflective extends Reflective
         return Modifier.isPublic(c.getModifiers());
     }
     
+    @Override
     public List<GenTypeDeclTpar> getTypeParams()
     {
         return JavaUtils.getJavaUtils().getTypeParams(c);
     }
     
+    @Override
     public Reflective getArrayOf()
     {
         String rname;
@@ -126,6 +135,7 @@ public class JavaReflective extends Reflective
         return null;
     }
     
+    @Override
     public Reflective getRelativeClass(String name)
     {
         try {
@@ -143,6 +153,7 @@ public class JavaReflective extends Reflective
         }
     }
 
+    @Override
     public List<Reflective> getSuperTypesR()
     {
         List<Reflective> l = new ArrayList<Reflective>();
@@ -175,6 +186,7 @@ public class JavaReflective extends Reflective
         return l;
     }
 
+    @Override
     public List<GenTypeClass> getSuperTypes()
     {
         List<GenTypeClass> l = new ArrayList<GenTypeClass>();
@@ -228,6 +240,7 @@ public class JavaReflective extends Reflective
         return c;
     }
 
+    @Override
     public boolean isAssignableFrom(Reflective r)
     {
         if (r instanceof JavaReflective) {
@@ -248,7 +261,7 @@ public class JavaReflective extends Reflective
                 try {
                     JavaType fieldType = JavaUtils.getJavaUtils().getFieldType(fields[i]);
                     FieldReflective fref = new FieldReflective(fields[i].getName(), fieldType,
-                            fields[i].getModifiers());
+                            fields[i].getModifiers(), this);
                     rmap.put(fields[i].getName(), fref);
                 }
                 catch (ClassNotFoundException cnfe) {
@@ -258,7 +271,7 @@ public class JavaReflective extends Reflective
 
             // See JLS section 10.7: arrays have a "public final int length" field
             if (c.isArray()) {
-                rmap.put("length", new FieldReflective("length", JavaPrimitiveType.getInt(), Modifier.PUBLIC | Modifier.FINAL));
+                rmap.put("length", new FieldReflective("length", JavaPrimitiveType.getInt(), Modifier.PUBLIC | Modifier.FINAL, this));
             }
 
             return rmap;
@@ -336,7 +349,36 @@ public class JavaReflective extends Reflective
             return Collections.emptyMap();
         }
     }
-    
+
+    @Override
+    public List<ConstructorReflective> getDeclaredConstructors()
+    {
+        return Utility.mapList(Arrays.<Constructor<?>>asList(c.getDeclaredConstructors()), con -> {
+
+            List<GenTypeDeclTpar> tpars = JavaUtils.getJavaUtils().getTypeParams(con);
+
+            // We need to create a map from each type parameter name to its type
+            // as a GenTypeDeclTpar
+            Map<String, GenTypeDeclTpar> tparMap = new HashMap<String, GenTypeDeclTpar>();
+            storeTparMappings(tpars, tparMap);
+
+            try {
+                JavaType [] paramTypes = JavaUtils.getJavaUtils().getParamGenTypes(con);
+                List<JavaType> paramTypesList = new ArrayList<JavaType>(paramTypes.length);
+                for (JavaType paramType : paramTypes) {
+                    paramTypesList.add(paramType.mapTparsToTypes(tparMap).getUpperBound());
+                }
+
+                return new ConstructorReflective(tpars, paramTypesList,
+                        this,
+                        JavaUtils.getJavaUtils().isVarArgs(con), con.getModifiers());
+            }
+            catch (ClassNotFoundException cnfe) {
+                return null;
+            }
+        }).stream().filter(c -> c != null).collect(Collectors.toList());
+    }
+
     /**
      * Store, into the specified map, a mapping from the enclosing method/class/constructor
      * type parameter names to the corresponding type parameters. Existing entries in the

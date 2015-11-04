@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,12 +24,13 @@ package bluej.utility.filefilter;
 import java.io.FileFilter;
 import java.io.File;
 
+import bluej.extensions.SourceType;
+
  /**
   * A FileFilter that only accepts Java source files.
   * An instance of this class can be used as a parameter for
   * the listFiles method of class File.
   *
-  * @version $ $
   * @author Axel Schmolitzky
   * @see java.io.FileFilter
   * @see java.io.File
@@ -41,8 +42,9 @@ public class JavaSourceFilter implements FileFilter
      * Whether a file is a Java source file is determined by the fact that
      * its filename ends with ".java".
      */
+    @Override
     public boolean accept(File pathname)
     {
-        return pathname.getName().endsWith(".java");
+        return pathname.getName().endsWith("." + SourceType.Java.toString().toLowerCase());
     }
 }

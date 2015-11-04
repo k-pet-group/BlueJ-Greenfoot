@@ -1,0 +1,65 @@
+.expression-operator, .expression-bracket, .expression-slot-field {
+    -fx-cursor: text;
+}
+
+.expression-operator:bj-java-preview, .expression-bracket:bj-java-preview {
+    -fx-cursor: default;
+}
+
+.expression-slot-field:bj-hyperlink {
+    -fx-cursor: hand;
+}
+
+.expression-operator {
+    -fx-label-padding: 0 0 0 0;
+}
+
+.expression-bracket {
+    -fx-label-padding: 0 -2 0 -2;
+}
+.expression-bracket-opening {
+    -fx-text-alignment: right; /* Needed during animation to Java preview */
+}
+
+.expression-operator:bj-op-dot {
+    -fx-label-padding: 0 -0.2em 0 -0.2em;
+}
+
+.expression-operator:bj-op-high {
+    -fx-label-padding: 0 0 0 0;
+}
+
+.expression-operator:bj-op-medium {
+    -fx-label-padding: 0 0.25em 0 0.25em;
+}
+
+.expression-operator:bj-op-low {
+    -fx-label-padding: 0 0.5em 0 0.5em;
+}
+
+.expression-operator:bj-op-comma {
+    -fx-label-padding: 0 0 0 -0.2em;
+}
+
+.expression-operator:bj-op-high:bj-java-preview, .expression-operator:bj-op-medium:bj-java-preview, .expression-operator:bj-op-low:bj-java-preview {
+    -fx-label-padding: 0 5 0 5;
+}
+
+.expression-slot-field {
+   -fx-prompt-text-fill: hsb(0, 0%, 70%);
+}
+
+.expression-bracket:bj-bracket-highlight {
+   -fx-font-weight: bold;
+   -fx-text-fill: darkolivegreen;
+}
+
+.expression-slot-field, .expression-slot-field:disabled {
+   -fx-text-fill: black;
+   -fx-opacity: 1.0;
+}
+
+.expression-string-literal, .expression-string-literal-quote {
+   /*-fx-text-fill: hsb(315, 100%, 55%);*/
+   -fx-text-fill: hsb(175, 80%, 50%);
+}

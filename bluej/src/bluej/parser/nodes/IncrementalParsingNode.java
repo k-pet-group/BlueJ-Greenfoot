@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2012,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2012,2013,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,6 +29,8 @@ import java.util.Stack;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.DocumentReader;
 import bluej.parser.EditorParser;
@@ -121,6 +123,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
      * succeeds but requires that the node ends immediately, PP_EPIC_FAIL if the parse
      * fails and indicates that the node is not what it purports to be.
      */
+    @OnThread(Tag.Swing)
     protected abstract int doPartialParse(ParseParams params, int state);
     
     protected boolean isNodeEndMarker(int tokenType)
@@ -129,6 +132,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
     }
     
     @Override
+    @OnThread(Tag.Swing)
     protected int reparseNode(Document document, int nodePos, int offset, int maxParse, NodeStructureListener listener)
     {
         int parseEnd = Math.min(offset + maxParse, nodePos + getSize());
@@ -610,6 +614,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
     }
     
     @Override
+    @OnThread(Tag.Swing)
     public int textRemoved(MoeSyntaxDocument document, int nodePos, int delPos,
             int length, NodeStructureListener listener)
     {
@@ -649,6 +654,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
      * terminated - that is, it ends before the end of the line. This can happen if such a
      * comment is inserted into an existing node which ends on the same line.
      */
+    @OnThread(Tag.Swing)
     private int checkEnd(Document document, int nodePos, NodeStructureListener listener)
     {
         int end = nodePos + getSize();
@@ -744,6 +750,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
     }
     
     @Override
+    @OnThread(Tag.Swing)
     protected boolean growChild(Document document, NodeAndPosition<ParsedNode> child,
             NodeStructureListener listener)
     {

@@ -380,7 +380,13 @@ which are shipped with BlueJ:
     httpcore-4.1.jar                      Apache HttpComponents - core
     httpmime-4.1.1.jar                    Apache HttpComponents - MIME support
     
+    commons-vfs2-2.0.jar                  Apache Commons VFS 2 - Virtual File System 2
+    
     diffutils-1.2.1.jar                   Java Diff utils (http://code.google.com/p/java-diff-utils/)
+    
+    guava-17.0.jar                        Google Guava - Java utility library
+    
+    javassist-3.18.0.jar                  Javassist - Java bytecode library
     
     pi4j                                  Pi4J library (see Pi4J-readme.txt file).
 
@@ -611,3 +617,36 @@ The Apache Software Foundation (http://www.apache.org/).
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
+
+***********************************************************************************
+
+The Damerau-Levenshtein algorithm in bluej.utility.DamerauLevenshteinAlgorithm has
+the following licence:
+
+Copyright (c) 2012 Kevin L. Stern
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+***********************************************************************************
+
+The Reflections code in org.reflections was taken from the Reflections library by ronamo,
+master version from https://github.com/ronmamo/reflections on 2014-05-30, after commit
+662061c7544a6fb4155dbfa8b95d4d5c7a372806.  The code was originally licensed under the WTFPL,
+which allows us to relicence it as GPLv2 with Classpath exception.
+

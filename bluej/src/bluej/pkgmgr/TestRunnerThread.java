@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2012,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
 import bluej.Config;
 import bluej.collect.DataCollector;
 import bluej.debugger.DebuggerTestResult;
@@ -45,6 +47,7 @@ import bluej.testmgr.TestDisplayFrame;
  * 
  * @author Davin McCall
  */
+@OnThread(Tag.Any)
 public class TestRunnerThread extends Thread
 {
     private Iterator<ClassTarget> testIterator;
@@ -91,6 +94,8 @@ public class TestRunnerThread extends Thread
         allMethods = methods;
     }
     
+    // This is not 100% true, but it's the best way to tag this class:
+    @OnThread(value = Tag.Swing, ignoreParent = true)
     public void run()
     {
         // This implements a state machine. State 0 is the first state, and consists of

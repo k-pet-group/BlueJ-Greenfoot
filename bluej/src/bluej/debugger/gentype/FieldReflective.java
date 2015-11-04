@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 2010,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -32,12 +32,14 @@ public class FieldReflective
     private String name;
     private JavaType type;
     private int modifiers;
+    private Reflective declaringType;
     
-    public FieldReflective(String name, JavaType type, int modifiers)
+    public FieldReflective(String name, JavaType type, int modifiers, Reflective declaringType)
     {
         this.name = name;
         this.type = type;
         this.modifiers = modifiers;
+        this.declaringType = declaringType;
     }
     
     public String getName()
@@ -54,4 +56,11 @@ public class FieldReflective
     {
         return modifiers;
     }
+
+    public Reflective getDeclaringType()
+    {
+        return declaringType;
+    }
+    
+    
 }

@@ -33,6 +33,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
 import bluej.debugger.gentype.BadInheritanceChainException;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeDeclTpar;
@@ -113,6 +115,7 @@ public class TextAnalyzer
      * <p>If the parsed string is then executed, the confirmCommand() method should
      * subsequently be called.
      */
+    @OnThread(Tag.Swing)
     public String parseCommand(String command)
     {
         importCandidate = "";
@@ -208,6 +211,7 @@ public class TextAnalyzer
         return null;
     }
     
+    @OnThread(Tag.Swing)
     private EntityResolver getResolver()
     {
         EntityResolver resolver = new EntityResolver()
@@ -256,6 +260,7 @@ public class TextAnalyzer
             }
             
             @Override
+            @OnThread(value = Tag.Swing, ignoreParent = true)
             public JavaEntity getValueEntity(String name, Reflective querySource)
             {
                 NamedValue obVal = objectBench.getNamedValue(name);
@@ -291,6 +296,7 @@ public class TextAnalyzer
      * executed. This allows TextParser to update internal state to reflect
      * changes caused by the execution of the command.
      */
+    @OnThread(Tag.Swing)
     public void confirmCommand()
     {
         if (importCandidate.length() != 0) {

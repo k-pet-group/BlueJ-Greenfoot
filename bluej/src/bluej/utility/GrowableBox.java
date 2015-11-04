@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -44,15 +44,14 @@ import javax.swing.border.Border;
  * components in either a horizonatal or vertical direction.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GrowableBox.java 6215 2009-03-30 13:28:25Z polle $
  */
 public class GrowableBox extends Box
 {
     private ComponentFactory componentFactory;
     private JComponent emptyGrowable;
     private Border emptyBorder;
-    private static Insets buttonInsets = new Insets(0, 2, 0, 2);	
-    private static Font buttonFont = new Font("Monospaced", Font.BOLD, 12);	
+    private static Insets buttonInsets = new Insets(0, 2, 0, 2);
+    private static Font buttonFont = new Font("Monospaced", Font.BOLD, 12);
     private static String addText = "+";
     private static ImageIcon addIcon;
     private static String removeText = "-";
@@ -83,7 +82,9 @@ public class GrowableBox extends Box
         emptyGrowable.add(addButton);
         emptyGrowable.add(removeButton);
         addButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
                 createNewComponent(0);
             }
         });
@@ -109,13 +110,17 @@ public class GrowableBox extends Box
         initButtons(addButton, removeButton);
         final JComponent component = componentFactory.createComponent(addButton, removeButton);
         addButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
                 int index = getIndex(component);
                 createNewComponent(index + 1);
             }
         });
         removeButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
                 removeGrowableComponent(component);
             }
         });
@@ -151,7 +156,7 @@ public class GrowableBox extends Box
         addButton.setText(addText);
         addButton.setIcon(addIcon);
         Utility.changeToMacButton(removeButton);
-    	removeButton.setFont(buttonFont);
+        removeButton.setFont(buttonFont);
         removeButton.setText(removeText);
         removeButton.setIcon(removeIcon);
         if(!Config.isMacOSLeopard()) {
@@ -169,7 +174,8 @@ public class GrowableBox extends Box
         if(index != getComponentCount()-1) {
             //this is not the last component
             growableComponent.setBorder(emptyBorder);
-        } else {
+        }
+        else {
             //This is last component so no border is needed.
             //But we need to set border on the nextlast
             int nextLastIndex = index - 1;
@@ -214,7 +220,8 @@ public class GrowableBox extends Box
         Toolkit.getDefaultToolkit().getSystemEventQueue().postEvent(e);
     }
 
-    private int getIndex(Component c) {
+    private int getIndex(Component c)
+    {
         Component[] components = getComponents();
         for (int i = 0; i < components.length; i++) {
             Component component = components[i];

@@ -336,9 +336,9 @@ public class ObjectBench extends JPanel implements Accessible, ValueCollection,
     public void showFocusHiLight(boolean hiLight)
     {
         if(hiLight)
-            scroll.setBorder(Config.focusBorder);
+            scroll.setBorder(Config.getFocusBorder());
         else
-            scroll.setBorder(Config.normalBorder);
+            scroll.setBorder(Config.getNormalBorder());
         repaint();
     }
 
@@ -589,7 +589,7 @@ public class ObjectBench extends JPanel implements Accessible, ValueCollection,
         if (!Config.isRaspberryPi()) setOpaque(false);
         
         scroll = new JScrollPane(obp);
-        scroll.setBorder(Config.normalBorder);
+        scroll.setBorder(Config.getNormalBorder());
         if (!Config.isRaspberryPi()) scroll.setOpaque(false);
         Dimension sz = obp.getMinimumSize();
         Insets in = scroll.getInsets();

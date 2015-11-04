@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2013  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -31,7 +31,7 @@ import bluej.pkgmgr.target.*;
  *
  * This class should be excluded when the Javadoc API documentation is generated.
  *
- * @version $Id: EditorBridge.java 7337 2010-04-14 14:52:24Z nccb $
+ * @version $Id: EditorBridge.java 10754 2013-07-05 18:13:03Z nccb $
  * @author Damiano Bolla, University of Kent at Canterbury, 2004
  */ 
 public class EditorBridge
@@ -47,7 +47,7 @@ public class EditorBridge
         bluej.editor.Editor bjEditor = aTarget.getEditor();
         if (bjEditor == null) 
             return null;
-        return new Editor(bjEditor);
+        return new Editor(bjEditor.assumeText());
     }
     
     public static bluej.editor.Editor getEditor(Editor editor)

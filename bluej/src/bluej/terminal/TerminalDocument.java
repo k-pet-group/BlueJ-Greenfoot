@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program.
- Copyright (C) 2011,2013  Michael Kolling and John Rosenberg
+ Copyright (C) 2011,2013,2014  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -29,6 +29,8 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Element;
 import javax.swing.text.MutableAttributeSet;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.Project;
 import bluej.utility.JavaNames;
@@ -45,6 +47,7 @@ import bluej.utility.PersistentMarkDocument;
  * 
  * @author Davin McCall
  */
+@OnThread(value = Tag.Swing, ignoreParent = true)
 public class TerminalDocument extends PersistentMarkDocument
 {
     private boolean highlightSourceLinks;

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,6 +21,9 @@
  */
 package bluej.groupwork.actions;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 
 /**
  * A class to group team actions for a project, and manage enable/disable
@@ -28,6 +31,7 @@ package bluej.groupwork.actions;
  * 
  * @author Davin McCall
  */
+@OnThread(Tag.Swing)
 public class TeamActionGroup
 {
     private StatusAction statusAction = new StatusAction();

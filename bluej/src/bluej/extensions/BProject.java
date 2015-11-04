@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2013,2014,2015  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,10 +26,12 @@ import java.net.URLClassLoader;
 import java.util.List;
 import java.util.ListIterator;
 
+import javafx.application.Platform;
+import bluej.collect.DataCollector;
+import bluej.editor.stride.FXTabbedEditor;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
-import bluej.collect.DataCollector;
 
 /**
  * A wrapper for a BlueJ project.
@@ -225,5 +227,22 @@ public class BProject
     {
         Project thisProject = projectId.getBluejProject();
         thisProject.clearObjectBenches();
+    }
+    
+    //Package-visible:
+    Project getProject() throws ProjectNotOpenException
+    {
+        return projectId.getBluejProject();
+    }
+
+    public void openWebViewTab(String customUrl) throws ProjectNotOpenException
+    {
+        FXTabbedEditor fXTabbedEditor = projectId.getBluejProject().getFXTabbedEditor();
+        Platform.runLater(() -> fXTabbedEditor.openWebViewTab(customUrl));        
+    }
+
+    public void scheduleCompilation(boolean immediate) throws ProjectNotOpenException
+    {
+        projectId.getBluejProject().scheduleCompilation(immediate);
     }
 }

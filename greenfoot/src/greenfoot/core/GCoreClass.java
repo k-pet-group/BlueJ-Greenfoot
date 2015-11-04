@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2014  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,7 +23,7 @@ package greenfoot.core;
 
 import greenfoot.Actor;
 import greenfoot.World;
-import greenfoot.util.GreenfootUtil;
+import greenfoot.platforms.ide.GreenfootUtilDelegateIDE;
 
 import java.io.IOException;
 import java.rmi.RemoteException;
@@ -67,7 +67,7 @@ public class GCoreClass extends GClass
     {
         String page = isWorldClass() ? "greenfoot/World.html" : "greenfoot/Actor.html";
         try {
-            GreenfootUtil.showApiDoc(page);
+            GreenfootUtilDelegateIDE.showApiDoc(page);
         }
         catch (IOException e) {
             String errMsg = Config.getString("greenfoot.cannotFindAPIDocumentation");

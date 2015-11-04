@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2010,2011,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 2010,2011,2014,2015  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,6 +29,7 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
+import bluej.debugger.gentype.ConstructorReflective;
 import bluej.debugger.gentype.FieldReflective;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeDeclTpar;
@@ -81,7 +82,7 @@ public class ParsedArrayReflective extends Reflective
     @Override
     public Map<String,FieldReflective> getDeclaredFields()
     {
-        return Collections.singletonMap("length", new FieldReflective("length", JavaPrimitiveType.getInt(), Modifier.PUBLIC | Modifier.FINAL)); 
+        return Collections.singletonMap("length", new FieldReflective("length", JavaPrimitiveType.getInt(), Modifier.PUBLIC | Modifier.FINAL, this)); 
     }
     
     // See JLS section 10.7: arrays have a "public Object clone()" method
@@ -89,6 +90,12 @@ public class ParsedArrayReflective extends Reflective
     public Map<String, Set<MethodReflective>> getDeclaredMethods()
     {
         return Collections.singletonMap("clone", Collections.singleton(new MethodReflective("clone", new GenTypeClass(new JavaReflective(Object.class)), new ArrayList<GenTypeDeclTpar>(), new ArrayList<JavaType>(), this, false, Modifier.PUBLIC)));
+    }
+
+    @Override
+    public List<ConstructorReflective> getDeclaredConstructors()
+    {
+        return Collections.emptyList();
     }
     
     @Override

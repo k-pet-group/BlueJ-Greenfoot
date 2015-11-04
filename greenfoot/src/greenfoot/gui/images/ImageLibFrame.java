@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program.
- Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling
+ Copyright (C) 2005-2009,2010,2014,2015  Poul Henriksen and Michael Kolling
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -31,7 +31,6 @@ import greenfoot.gui.ClassNameVerifier;
 import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.gui.images.ImageLibList.ImageListEntry;
 import greenfoot.util.ExternalAppLauncher;
-import greenfoot.util.GraphicsUtilities;
 import greenfoot.util.GreenfootUtil;
 
 import java.awt.BorderLayout;
@@ -39,15 +38,13 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import javax.swing.Timer;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
@@ -55,8 +52,8 @@ import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
+//import javax.swing.Icon;
+//import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -65,17 +62,23 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
+import javax.swing.Timer;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import bluej.BlueJTheme;
 import bluej.Config;
+import bluej.extensions.SourceType;
 import bluej.prefmgr.PrefMgr;
+import bluej.utility.Debug;
 import bluej.utility.EscapeDialog;
 import bluej.utility.FileUtility;
+import javax.swing.ImageIcon;
+import javax.swing.JComboBox;
 
 /**
  * A (modal) dialog for selecting a class image. The image can be selected from either the
@@ -85,13 +88,10 @@ import bluej.utility.FileUtility;
  */
 public class ImageLibFrame extends EscapeDialog implements ListSelectionListener, WindowListener
 {
-    /** Label displaying the currently selected image. */
-    private JLabel imageLabel;
-    private JLabel imageTextLabel;
     private GClass gclass;
     private GProject proj;
-    /** The default image icon - the greenfoot logo */
-    private Icon defaultIcon;
+    /** The default image icon - none, or parent's image */
+    private BufferedImage defaultIcon;
     private JScrollPane imageScrollPane;
     
     private ImageLibList projImageList;
@@ -106,6 +106,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
     private int result = CANCEL;
 
     private JTextField classNameField;
+    private SourceType language;
     
     /** Menu items that are in the drop down button,
      *  which we want to alter the enabled state of. */
@@ -137,9 +138,11 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
         this.selectionWatcher = watcher;
         this.gclass = classView.getGClass();
         this.proj = gclass.getPackage().getProject();
-        defaultIcon = getPreviewIcon(new File(GreenfootUtil.getGreenfootLogoPath()));
+        GClass superClass = gclass.getSuperclass();
+        defaultIcon = getClassImage(superClass);
 
-        buildUI(proj, false);       
+        buildUI(owner, proj, false, null);
+        projImageList.select(getSpecifiedImage(gclass));
     }
 
     /**
@@ -147,18 +150,27 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
      *
      * @param owner        The parent frame
      * @param superClass   The superclass of the new class
+     * @param title        The title of the dialog
+     * @param defaultName  The default name of the new class (or blank if null)
+     * @param description  A helper prompt to display at the top of dialog (or none if null)
      */
-    public ImageLibFrame(JFrame owner, GClass superClass)
+    public ImageLibFrame(JFrame owner, GClass superClass, String title, String defaultName, List<String> description)
     {
-        super(owner, Config.getString("imagelib.newClass"), true);
+        super(owner, title, true);
         this.gclass = superClass;
         this.proj = gclass.getPackage().getProject();
-        defaultIcon = getClassIcon(superClass, getPreviewIcon(new File(GreenfootUtil.getGreenfootLogoPath())));
+        defaultIcon = getClassImage(superClass);
         
-        buildUI(proj, true);        
+        buildUI(owner, proj, true, description);
+        projImageList.select(null);
+        if (defaultName != null)
+        {
+            classNameField.setText(defaultName);
+        }
+        classNameField.requestFocus();
     }
 
-    private void buildUI(GProject project, final boolean includeClassNameField)
+    private void buildUI(JFrame owner, GProject project, final boolean includeClassNameField, List<String> description)
     {
         this.addWindowListener(this);
         JPanel contentPane = new JPanel();
@@ -170,6 +182,20 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
         int spacingLarge = BlueJTheme.componentSpacingLarge;
 
         okAction = getOkAction();
+        
+        if (description != null)
+        {
+            description.forEach(t -> {
+                JLabel l = new JLabel(t);
+                l.setFocusable(false);
+                l.setAlignmentX(0.0f);
+                l.setFont(l.getFont().deriveFont(Font.BOLD));
+                l.setBackground(new Color(0, 0, 0, 0));
+                l.setBorder(null);
+                contentPane.add(l);
+            });
+            contentPane.add(fixHeight(Box.createVerticalStrut(spacingLarge)));
+        }
 
         // Class details - name, current icon
         contentPane.add(buildClassDetailsPanel(includeClassNameField, project.getDefaultPackage()));
@@ -190,10 +216,10 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
 
                 File projDir = project.getDir();
                 projImagesDir = new File(projDir, "images");
-                projImageList = new ImageLibList(projImagesDir, false, this);
+                projImageList = new ImageLibList(projImagesDir, false, this, defaultIcon);
                 imageScrollPane.getViewport().setView(projImageList);
 
-                imageScrollPane.setBorder(Config.normalBorder);
+                imageScrollPane.setBorder(Config.getNormalBorder());
                 imageScrollPane.setViewportBorder(BorderFactory.createLineBorder(projImageList.getBackground(), 4));
                 imageScrollPane.setAlignmentX(0.0f);
 
@@ -237,13 +263,10 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
             editItem.setToolTipText(Config.getString("imagelib.edit.tooltip")); 
             editItem.setEnabled(false);
             editItem.setFont(PrefMgr.getPopupMenuFont());
-            editItem.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e)
-                {
-                    ImageListEntry entry = projImageList.getSelectedValue();
-                    if (entry != null && entry.imageFile != null) {
-                        ExternalAppLauncher.editImage(entry.imageFile);
-                    }
+            editItem.addActionListener(e -> {
+                ImageListEntry entry = projImageList.getSelectedValue();
+                if (entry != null && entry.imageFile != null) {
+                    ExternalAppLauncher.editImage(entry.imageFile);
                 }
             });
             
@@ -251,13 +274,10 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
             duplicateItem.setToolTipText(Config.getString("imagelib.duplicate.tooltip")); 
             duplicateItem.setEnabled(false);
             duplicateItem.setFont(PrefMgr.getPopupMenuFont());
-            duplicateItem.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e)
-                {
-                    ImageListEntry entry = projImageList.getSelectedValue();
-                    if (entry != null && entry.imageFile != null) {
-                        duplicateSelected(entry);
-                    }
+            duplicateItem.addActionListener(e -> {
+                ImageListEntry entry = projImageList.getSelectedValue();
+                if (entry != null && entry.imageFile != null) {
+                    duplicateSelected(entry);
                 }
             });
             
@@ -265,49 +285,62 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
             deleteItem.setToolTipText(Config.getString("imagelib.delete.tooltip"));
             deleteItem.setEnabled(false);
             deleteItem.setFont(PrefMgr.getPopupMenuFont());
-            deleteItem.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e)
-                {
-                    ImageListEntry entry = projImageList.getSelectedValue();
-                    if (entry != null && entry.imageFile != null) {
-                        confirmDelete(entry);
-                    }
+            deleteItem.addActionListener(e -> {
+                ImageListEntry entry = projImageList.getSelectedValue();
+                if (entry != null && entry.imageFile != null) {
+                    confirmDelete(entry);
                 }
             });
+            
+//            JMenuItem pasteImageItem = new JMenuItem(Config.getString("paste.image"));
+//            pasteImageItem.setToolTipText(Config.getString("imagelib.paste.tooltip"));
+//            pasteImageItem.setEnabled(true);
+//            pasteImageItem.setFont(PrefMgr.getPopupMenuFont());
+//            pasteImageItem.addActionListener(e -> {
+//                if (PasteImageAction.pasteImage(owner, project))
+//                    projImageList.refresh();
+//            });
 
+            
+            
             JMenuItem newImageItem = new JMenuItem(Config.getString("imagelib.create.button"));
             newImageItem.setToolTipText(Config.getString("imagelib.create.tooltip")); 
             newImageItem.setFont(PrefMgr.getPopupMenuFont());
-            newImageItem.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e)
-                {
-                    String name = includeClassNameField ? getClassName() : gclass.getName();
-                    NewImageDialog newImage = new NewImageDialog(ImageLibFrame.this, projImagesDir, name);
-                    final File file = newImage.displayModal();
-                    if (file != null) {
-                        projImageList.refresh();
-                        projImageList.select(file);
-                        selectImage(file);
-                    }                                           
-                }                
+            newImageItem.addActionListener(e -> {
+                String name = includeClassNameField ? getClassName() : gclass.getName();
+                NewImageDialog newImage = new NewImageDialog(ImageLibFrame.this, projImagesDir, name);
+                final File file = newImage.displayModal();
+                if (file != null) {
+                    projImageList.refresh();
+                    projImageList.select(file);
+                    selectImage(file);
+                }                                           
             });
+            
+            JMenuItem importImageItem = new JMenuItem(Config.getString("imagelib.browse.button"));
+            importImageItem.setFont(PrefMgr.getPopupMenuFont());
+            importImageItem.setAction(new BrowseImagesAction(Config.getString("imagelib.browse.button"), this,
+                    projImagesDir, projImageList));
             
             popupMenu.add(fixHeight(editItem));
             popupMenu.add(fixHeight(duplicateItem));
             popupMenu.add(fixHeight(deleteItem));
             popupMenu.add(fixHeight(newImageItem));
+            popupMenu.add(fixHeight(importImageItem));
+//            popupMenu.add(fixHeight(pasteImageItem));
             
             JButton dropDownButton = new PopupMenuButton(
                     new ImageIcon(ImageLibFrame.class.getClassLoader().getResource(DROPDOWN_ICON_FILE)), 
                     popupMenu);
-            JButton browseButton = new JButton(
-                    new BrowseImagesAction(Config.getString("imagelib.browse.button"), this,
-                    projImagesDir, projImageList));
+            
+//            JButton dropDownButton = new PopupMenuButton(
+//                    Config.getString("imagelib.more"), 
+//                    popupMenu);
+            
         
            
             borderPanel.setAlignmentX(0.0f);
             borderPanel.add(fixHeight(dropDownButton), BorderLayout.LINE_START);
-            borderPanel.add(fixHeight(browseButton), BorderLayout.LINE_END);
 
             contentPane.add(fixHeight(Box.createVerticalStrut(spacingLarge)));
             contentPane.add(fixHeight(borderPanel));
@@ -325,12 +358,10 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
 
             JButton cancelButton = BlueJTheme.getCancelButton();
             cancelButton.setVerifyInputWhenFocusTarget(false);
-            cancelButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    result = CANCEL;
-                    setVisible(false);
-                    dispose();
-                }
+            cancelButton.addActionListener(e -> {
+                result = CANCEL;
+                setVisible(false);
+                dispose();
             });
 
             okCancelPanel.add(Box.createHorizontalGlue());
@@ -354,14 +385,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
             getRootPane().setDefaultButton(okButton);
         }
         
-        ActionListener refreshTask = new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            {
-                projImageList.refreshPreviews();
-            };
-        };
-            
-        refreshTimer = new Timer(2000, refreshTask);
+        refreshTimer = new Timer(2000, e -> projImageList.refreshPreviews());
         refreshTimer.start();
 
         pack();
@@ -382,11 +406,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
         int spacingLarge = BlueJTheme.componentSpacingLarge;
         int spacingSmall = BlueJTheme.componentSpacingSmall;
 
-        // Show current image
         {
-            JPanel currentImagePanel = new JPanel();
-            currentImagePanel.setLayout(new BoxLayout(currentImagePanel, BoxLayout.X_AXIS));
-
             if (includeClassNameField) {
                 Box b = new Box(BoxLayout.X_AXIS);
                 JLabel classNameLabel = new JLabel(Config.getString("imagelib.className"));
@@ -402,6 +422,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
 
                 final ClassNameVerifier classNameVerifier = new ClassNameVerifier(classNameField, pkg);
                 classNameVerifier.addValidityListener(new ValidityListener() {
+                    @Override
                     public void changedToInvalid(ValidityEvent e)
                     {
                         errorMsgLabel.setText(e.getReason());
@@ -409,6 +430,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                         okAction.setEnabled(false);
                     }
 
+                    @Override
                     public void changedToValid(ValidityEvent e)
                     {
                         errorMsgLabel.setVisible(false);
@@ -419,6 +441,16 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                 b.add(Box.createHorizontalStrut(spacingLarge));
 
                 b.add(fixHeight(classNameField));
+                
+                b.add(Box.createHorizontalStrut(spacingLarge));
+                
+                SourceType[] items = { SourceType.Stride, SourceType.Java };
+                
+                JComboBox<SourceType> languageSelectionBox = new JComboBox<SourceType>(items);
+                languageSelectionBox.addActionListener(e -> {language = (SourceType) languageSelectionBox.getSelectedItem();});
+                languageSelectionBox.setSelectedItem(pkg.getDefaultSourceType());
+                b.add(languageSelectionBox);
+                
                 b.setAlignmentX(0.0f);
                 classDetailsPanel.add(b);
 
@@ -439,36 +471,6 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
             classDetailsPanel.add(fixHeight(new JSeparator()));
             classDetailsPanel.add(Box.createVerticalStrut(spacingSmall));
 
-            // new class image display
-            JLabel classImageLabel = new JLabel(Config.getString("imagelib.newClass.image"));
-            currentImagePanel.add(classImageLabel);
-
-            Icon icon = getClassIcon(gclass, defaultIcon);
-            
-            currentImagePanel.add(Box.createHorizontalStrut(spacingSmall));
-            imageLabel = new JLabel(icon) {
-                // We don't want changing the image to re-layout the
-                // whole frame
-                public boolean isValidateRoot()
-                {
-                    return true;
-                }
-            };
-            currentImagePanel.add(imageLabel);
-            currentImagePanel.add(Box.createHorizontalStrut(spacingSmall));
-
-            imageTextLabel = new JLabel() {
-                // We don't want changing the text to re-layout the
-                // whole frame
-                public boolean isValidateRoot()
-                {
-                    return true;
-                }
-            };
-            currentImagePanel.add(imageTextLabel);
-            currentImagePanel.setAlignmentX(0.0f);
-
-            classDetailsPanel.add(fixHeight(currentImagePanel));
         }
 
         classDetailsPanel.setAlignmentX(0.0f);
@@ -478,11 +480,11 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
     /**
      * A new image was selected in one of the ImageLibLists
      */
+    @Override
     public void valueChanged(ListSelectionEvent lse)
     {
         Object source = lse.getSource();
         if (! lse.getValueIsAdjusting() && source instanceof ImageLibList) {
-            imageTextLabel.setText("");
             ImageLibList sourceList = (ImageLibList) source;
             ImageLibList.ImageListEntry ile = sourceList.getSelectedValue();
 
@@ -490,7 +492,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
             if (ile != null && ile.imageFile != null) {
                 File imageFile = ile.imageFile;
                 selectImage(imageFile);
-                setItemButtons(true);
+                setItemButtons(sourceList == projImageList);
             } else {
                 selectImage(null);
                 setItemButtons(false);
@@ -529,16 +531,33 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
     private void selectImage(File imageFile)
     {
         if (imageFile == null || GreenfootUtil.isImage(imageFile)) {
-            imageLabel.setIcon(getPreviewIcon(imageFile));
             selectedImageFile = imageFile;
             if (selectionWatcher != null) {
                 selectionWatcher.imageSelected(selectedImageFile);
             }
         }
-        else if (imageFile != null) {
+        else {
             JOptionPane.showMessageDialog(this, imageFile.getName() +
                     " " + Config.getString("imagelib.image.invalid.text"), Config.getString("imagelib.image.invalid.title"), JOptionPane.ERROR_MESSAGE);
         }
+    }
+    
+    /**
+     * Gets specified image file (which will be project images/ directory) for this specific
+     * class, without searching super classes (see getClassImage for that).  Returns null if none
+     * specified.
+     */
+    private static File getSpecifiedImage(GClass gclass)
+    {
+        String imageName = gclass.getClassProperty("image");
+        
+        // If an image is specified for this class, and we can read it, return
+        if (imageName != null && !imageName.equals(""))
+        {
+            return new File(new File("images"), imageName).getAbsoluteFile();
+        }
+        
+        return null;
     }
 
     /**
@@ -549,60 +568,36 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
      * @param gclass   The class whose icon to get
      * @param defaultIcon  The icon to return if none can be found
      */
-    private static Icon getClassIcon(GClass gclass, Icon defaultIcon)
+    private static BufferedImage getClassImage(GClass gclass)
     {
-        String imageName = null;
-
-        if (gclass == null) {
-            return defaultIcon;
-        }
-
-        while (gclass != null) {
-            imageName = gclass.getClassProperty("image");
-
-            // If an image is specified for this class, and we can read it, return
-            if (imageName != null) {
-                File imageFile = new File(new File("images"), imageName);
-                if (imageFile.canRead()) {
-                    return getPreviewIcon(imageFile);
+        try
+        {
+            while (gclass != null) {
+                File imageFile = getSpecifiedImage(gclass);
+                if (imageFile != null && imageFile.canRead())
+                {
+                    try
+                    {
+                        return ImageIO.read(imageFile);
+                    }
+                    catch (IOException e)
+                    {
+                        Debug.reportError("Can't read image file: " + imageFile.getAbsolutePath(), e);
+                    }
                 }
+                // Otherwise, search up class hierarchy to see if we find an image:
+                gclass = gclass.getSuperclass();
             }
-
-            gclass = gclass.getSuperclass();
+    
+            return ImageIO.read(new File(GreenfootUtil.getGreenfootLogoPath()));
         }
-
-        return defaultIcon;
-    }
-
-    /**
-     * Load an image from a file and scale it to preview size.
-     * @param fname  The file to load the image from
-     */
-    private static Icon getPreviewIcon(File fname)
-    {
-        int dpi = Toolkit.getDefaultToolkit().getScreenResolution();
-
-        if (fname == null) {
-            BufferedImage bi = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
-            return new ImageIcon(bi);
-        }
-
-        try {
-            BufferedImage bi = ImageIO.read(fname);
-            return new ImageIcon(GreenfootUtil.getScaledImage(bi, dpi/2, dpi/2));
-        }
-        catch (IOException ioe) {
-            BufferedImage bi = GraphicsUtilities.createCompatibleTranslucentImage(dpi/2, dpi/2);
-            return new ImageIcon(bi);
+        catch (IOException e)
+        {
+            Debug.reportError("Can't read Greenfoot logo image", e);
+            return null;
         }
     }
     
-    private static Icon getHalfinchScaledImage(BufferedImage bi)
-    {
-        int dpi = Toolkit.getDefaultToolkit().getScreenResolution();
-        return new ImageIcon(GreenfootUtil.getScaledImage(bi, dpi/2, dpi/2));
-    }
-
     /**
      * Fix the maximum height of the component equal to its preferred size, and
      * return the component.
@@ -630,16 +625,6 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
     {
         return result;
     }
-
-    /**
-     * Notification that a file changed on disk.
-     */
-    public void imageFileRefreshed(File f, BufferedImage image)
-    {
-        if (f.equals(selectedImageFile)) {
-            imageLabel.setIcon(getHalfinchScaledImage(image));
-        }
-    }
     
     /**
      * Get the name of the class as entered in the dialog.
@@ -648,6 +633,14 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
     {
         return classNameField.getText();
     }
+    
+    /**
+     * Get the selected language of the class.
+     */
+    public SourceType getSelectedLanguage()
+    {
+        return language;
+    }
 
     /**
      * Get the action for the "ok" button.
@@ -655,6 +648,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
     private AbstractAction getOkAction()
     {
         return new AbstractAction(Config.getString("okay")) {
+            @Override
             public void actionPerformed(ActionEvent e)
             {
                 result = OK;
@@ -667,32 +661,39 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
     /**
      * If we have been editing an image externally, we select that image.
      */
+    @Override
     public void windowActivated(WindowEvent e)
     {
     }
 
+    @Override
     public void windowClosed(WindowEvent e)
     {
         refreshTimer.stop();
     }
 
+    @Override
     public void windowClosing(WindowEvent e)
     {
         refreshTimer.stop();
     }
 
+    @Override
     public void windowDeactivated(WindowEvent e) 
     {
     }
 
+    @Override
     public void windowDeiconified(WindowEvent e) 
     {
     }
 
+    @Override
     public void windowIconified(WindowEvent e) 
     {
     }
 
+    @Override
     public void windowOpened(WindowEvent e) 
     {
     }

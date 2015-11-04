@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<class name="Cliff" extends="Actor" enable="true" strideversion="1">
+    <javadoc xml:space="preserve">It's just a cliff.</javadoc>
+    <imports>
+        <import target="java.util.*" enable="true"/>
+        <import target="greenfoot.*" enable="true"/>
+        <import target="java.awt.Color" enable="true"/>
+    </imports>
+    <implements/>
+    <fields/>
+    <constructors>
+        <constructor access="public" enable="true">
+            <javadoc xml:space="preserve">Default consrtuctor - nothign to do</javadoc>
+            <params/>
+            <throws/>
+            <body/>
+        </constructor>
+        <constructor access="public" enable="true">
+            <javadoc xml:space="preserve">Create a horizontally mirrored cliff face.</javadoc>
+            <params>
+                <param type="boolean" name="flip"/>
+            </params>
+            <throws/>
+            <body>
+                <if condition="flip" condition-java="flip" enable="true">
+                    <ifStatements>
+                        <call expression="getImage().mirrorHorizontally()" expression-java="getImage().mirrorHorizontally()" enable="true"/>
+                    </ifStatements>
+                </if>
+            </body>
+        </constructor>
+    </constructors>
+    <methods>
+        <method access="public" type="void" name="act" enable="true">
+            <javadoc xml:space="preserve">Act: nothing to do here (the cliff does not do anything)</javadoc>
+            <params/>
+            <throws/>
+            <body>
+                <comment xml:space="preserve">nothing to do</comment>
+            </body>
+        </method>
+    </methods>
+</class>

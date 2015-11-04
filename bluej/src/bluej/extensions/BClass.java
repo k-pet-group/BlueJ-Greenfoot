@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2012,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2012,2013,2014,2015  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -121,6 +121,16 @@ public class BClass
         }
         bluejClass.remove();
     }
+    
+    public void removeStrideFile()
+            throws ProjectNotOpenException, PackageNotFoundException, ClassNotFoundException
+    {
+        ClassTarget bluejClass = classId.getClassTarget();
+        if (bluejClass == null) {
+            throw new ClassNotFoundException("Can't find class: " + classId.getClassName());
+        }
+        bluejClass.removeStride();
+    }
 
 
     /**
@@ -184,10 +194,13 @@ public class BClass
     /**
      * Finds out whether this class has source code available.
      */
-    boolean hasSourceCode() throws ProjectNotOpenException, PackageNotFoundException
+    public SourceType getSourceType() throws ProjectNotOpenException, PackageNotFoundException
     {
         ClassTarget aTarget = classId.getClassTarget();
-        return aTarget == null || aTarget.hasSourceCode();
+        if (aTarget != null)
+            return aTarget.getSourceType();
+        else
+            return null;
     }
 
 
@@ -638,7 +651,7 @@ public class BClass
             }
         }
 
-        return aTarget.getSourceFile();
+        return aTarget.getJavaSourceFile();
     }
 
 

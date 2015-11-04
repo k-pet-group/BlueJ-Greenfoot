@@ -1,0 +1,32 @@
+.frame-editor-key-help-pane {
+   -fx-background-color: hsb(0, 0%, 20%);
+   -fx-background-radius: 10;
+   -fx-padding: 10 10 10 0;
+   -fx-vgap: 4;
+   -fx-hgap: 10;
+}
+
+.frame-editor-key-help-pane .label {
+   -fx-text-fill: white;
+}
+
+.frame-editor-key-help-pane .keyboard-key {
+   -fx-border-color: white;
+   -fx-border-radius: 4;
+   -fx-background-color: transparent;
+   -fx-min-width: 1.5em;
+   -fx-min-height: 1.5em;
+   -fx-text-alignment: center;
+   -fx-alignment: center;
+}
+
+.frame-tooltip {
+   -fx-text-fill: white;
+   -fx-background-color: hsba(0, 0%, 20%, 0.9);
+   -fx-background-radius: 10;
+   -fx-padding: 10 10 10 10;
+}
+.frame-tooltip:bj-tight-border {
+    -fx-background-radius: 5;
+   -fx-padding: 5;
+}

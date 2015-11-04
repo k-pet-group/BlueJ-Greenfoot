@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 2012,2014  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -32,6 +32,8 @@ import java.security.NoSuchAlgorithmException;
 
 import org.apache.http.entity.mime.content.StringBody;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
 import bluej.pkgmgr.Project;
 import bluej.utility.Debug;
 
@@ -48,14 +50,36 @@ class CollectUtility
     private static final Charset utf8 = Charset.forName("UTF-8");
     
     /**
+     * A class that stores details of the Project that are useful for constructing messages to
+     * the Blackbox server.  This is needed so that we can safely pull the details from the Project
+     * on the Swing thread, then use them later from the submitter thread
+     *
+     */
+    // package-visible
+    static class ProjectDetails
+    {
+        final Charset charset;
+        final File projectDir;
+        // package-visible
+        @OnThread(Tag.Swing)
+        ProjectDetails(Project project)
+        {
+            this.projectDir = project.getProjectDir();
+            this.charset = project.getProjectCharset();
+        }
+        
+        
+    }
+    
+    /**
      * Reads a source code file from the project, and anonymises it
      */
-    static String readFileAndAnonymise(Project proj, File f)
+    static String readFileAndAnonymise(ProjectDetails proj, File f)
     {
         try {
             StringBuilder sb = new StringBuilder();
             FileInputStream inputStream = new FileInputStream(f);
-            InputStreamReader reader = new InputStreamReader(inputStream, proj.getProjectCharset());
+            InputStreamReader reader = new InputStreamReader(inputStream, proj.charset);
             char[] buf = new char[4096];
             
             int read = reader.read(buf);
@@ -75,15 +99,15 @@ class CollectUtility
     /**
      * Gets the path of the given file, relative to the given project's base directory
      */
-    static String toPath(Project proj, File f)
+    static String toPath(ProjectDetails proj, File f)
     {
-        return proj.getProjectDir().toURI().relativize(f.toURI()).getPath();
+        return proj.projectDir.toURI().relativize(f.toURI()).getPath();
     }
 
     /**
      * Chains together toBody with toPath
      */
-    static StringBody toBodyLocal(Project project, File sourceFile)
+    static StringBody toBodyLocal(ProjectDetails project, File sourceFile)
     {
         return toBody(toPath(project, sourceFile));
     }
