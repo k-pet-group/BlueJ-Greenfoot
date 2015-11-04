@@ -53,6 +53,8 @@ public class TCPlugin implements Plugin
             if (evt.getKind() == TaskEvent.Kind.ANALYZE)
             {
                 scanner.scan(evt.getCompilationUnit(), null);
+                // Uncomment to get tags dump:
+                /*
                 try
                 {
                     LocatedTag.dumpTagList(tagsDump);
@@ -61,6 +63,7 @@ public class TCPlugin implements Plugin
                 {
                     e.printStackTrace();
                 }
+                */
             }
         }
 
