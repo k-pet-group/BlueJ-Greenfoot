@@ -306,13 +306,13 @@
         <ant antfile="editor.xml" dir="src/bluej/editor" target="dist"/>
     </target>
 
-    <target name="dist" depends="ready-to-run">
+    <target name="dist" depends="ready-to-run,check-licences">
         <echo message="Do you have the latest copy of the submitter extension in your lib/extensions directory??"/>
         <ant dir="package" target="dist"/>
         <!-- ant dir="package" target="windows-dist"/-->
     </target>
 
-    <target name="dist-greenfoot" depends="ready-to-run">
+    <target name="dist-greenfoot" depends="ready-to-run,check-licences">
         <ant dir="package" antfile="greenfoot-build.xml" target="dist"/>
     </target>
 
@@ -503,5 +503,31 @@
         <move file="${bluej_home}/pi4j/pi4j-distribution/target/distro-contents/lib/pi4j-gpio-extension.jar" todir="${bluej_home}/lib/userlib" />
         <move file="${bluej_home}/pi4j/pi4j-distribution/target/distro-contents/lib/pi4j-service.jar" todir="${bluej_home}/lib/userlib" />
         <move file="${bluej_home}/pi4j/pi4j-distribution/target/distro-contents/lib/pi4j-core.jar" todir="${bluej_home}/lib/userlib" />
+    </target>
+    
+    <target name="check-licences">
+        <pathconvert property="missing.licenses" pathsep="${line.separator}">
+            <fileset dir="lib">
+                <!-- Look for JARs in lib, except the ones we generate: -->
+                <!-- (Ideally we'd separate BlueJ and Greenfoot JARs, but never mind: -->
+                <include name="*.jar"/>
+                <exclude name="bluej*.jar"/>
+                <exclude name="bjdoclet.jar"/>
+                <!-- Check if we have a corresponding license.  Only include
+                     in this set if the license is missing: -->
+                <present present="srconly" targetdir="doc/thirdpartylicenses">
+                    <mapper type="glob" from="*.jar" to="*.txt"/>
+                </present>
+            </fileset>
+        </pathconvert>
+        
+        <!-- Then check no licenses are missing: -->
+        <fail message="Missing third party licenses: ${missing.licenses}">
+            <condition>
+                <not>
+                    <equals arg1="${missing.licenses}" arg2=""/>
+                </not>
+            </condition>
+        </fail>
     </target>
 </project>
