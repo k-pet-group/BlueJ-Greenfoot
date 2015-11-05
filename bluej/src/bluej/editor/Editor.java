@@ -232,15 +232,15 @@ public interface Editor
     void setProperty(String propertyKey, Object value);
 
     /**
-     * A (temporary?) method for assuming that this editor is editing text (rather than frames).
-     * Use this in preference to casting, to make it clear in the code where
-     * this assumption is being made.
+     * Obtain the TextEditor implementation of this editor, if it has one. May return null if no
+     * TextEditor implementation is available.
      */
     @OnThread(Tag.Swing)
     TextEditor assumeText();
     
     /**
-     * The counterpoint to assumeText()
+     * Obtain the FrameEditor implementation of this editor, if it has one. May return null if no
+     * FrameEditor implementation is available.
      */
     @OnThread(Tag.FX)
     FrameEditor assumeFrame();
