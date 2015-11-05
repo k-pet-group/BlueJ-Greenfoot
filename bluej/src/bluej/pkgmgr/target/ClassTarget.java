@@ -44,13 +44,9 @@ import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-import javafx.application.Platform;
-
 import javax.swing.AbstractAction;
 import javax.swing.JPopupMenu;
 
-import threadchecker.OnThread;
-import threadchecker.Tag;
 import bluej.Config;
 import bluej.collect.DataCollector;
 import bluej.compiler.CompileObserver;
@@ -60,6 +56,7 @@ import bluej.debugger.gentype.Reflective;
 import bluej.debugmgr.objectbench.InvokeListener;
 import bluej.editor.Editor;
 import bluej.editor.EditorManager;
+import bluej.editor.TextEditor;
 import bluej.editor.stride.FrameEditor;
 import bluej.extensions.BClass;
 import bluej.extensions.BClassTarget;
@@ -107,6 +104,9 @@ import bluej.utility.JavaReflective;
 import bluej.utility.JavaUtils;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
+import javafx.application.Platform;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A class target in a package, i.e. a target that is a class file built from
@@ -329,10 +329,11 @@ public class ClassTarget extends DependentTarget
         
         // Not compiled; try to get a reflective from the parser
         ParsedCUNode node = null;
-        // TODO turn this back on once we fix race hazards:
-        //getEditor();
-        if (editor != null) {
-            node = editor.assumeText().getParsedNode();
+        if (getEditor() != null) {
+            TextEditor textEditor = editor.assumeText();
+            if (textEditor != null) {
+                node = textEditor.getParsedNode();
+            }
         }
         
         if (node != null) {
