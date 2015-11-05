@@ -261,8 +261,8 @@ public class ClassTarget extends DependentTarget
     }
 
     /**
-     * Returns the {@link BClassTarget} associated with this {@link ClassTarget}
-     * . There should be only one {@link BClassTarget} object associated with
+     * Returns the {@link BClassTarget} associated with this {@link ClassTarget}.
+     * There should be only one {@link BClassTarget} object associated with
      * each {@link ClassTarget}.
      * 
      * @return The {@link BClassTarget} associated with this {@link ClassTarget}.
@@ -839,7 +839,8 @@ public class ClassTarget extends DependentTarget
     }
 
     /**
-     * @return the name of the Java file this target corresponds to.
+     * @return the name of the Java file this target corresponds to. In the case of a Stride target this is
+     *          the file generated during compilation.
      */
     public File getJavaSourceFile()
     {
@@ -847,7 +848,7 @@ public class ClassTarget extends DependentTarget
     }
     
     /**
-     * @return the name of the Java file this target corresponds to.
+     * @return the name of the Stride file this target corresponds to. This is only valid for Stride targets.
      */
     public File getFrameSourceFile()
     {
@@ -1034,6 +1035,7 @@ public class ClassTarget extends DependentTarget
     // --- user interface function implementation ---
 
     /**
+     * Open an inspector window for the class represented by this target.
      */
     private void inspect()
     {
@@ -1238,7 +1240,7 @@ public class ClassTarget extends DependentTarget
             return false;
         }
         else {
-            boolean success = role.generateSkeleton(template, getPackage(), getBaseName(), getSourceFile().getPath());
+            boolean success = role.generateSkeleton(template, getPackage(), getBaseName(), getJavaSourceFile().getPath());
             if (success) {
                 // skeleton successfully generated
                 setState(S_INVALID);
@@ -1633,6 +1635,9 @@ public class ClassTarget extends DependentTarget
         }
     }
 
+    /**
+     * Delete all the source files (edited and generated) for this target.
+     */
     private void deleteSourceFiles()
     {
         if (getSourceType().equals(SourceType.Stride)) {
@@ -1655,7 +1660,6 @@ public class ClassTarget extends DependentTarget
 
     /**
      * Change the package of a class target to something else.
-     * 
      * 
      * @param newName the new fully qualified package name
      */
@@ -2245,10 +2249,5 @@ public class ClassTarget extends DependentTarget
     {
         return knownError;
     }
-
-//    @Override
-//    public void changedName(String oldName, String newName)
-//    {
-//        doClassNameChange(newName);
-//    }
+    
 }
