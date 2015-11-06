@@ -17,7 +17,7 @@ czech           3.0.5
 danish          3.0.3
 dutch           3.0.7*
 french          2.2.0
-german          3.0preview1          x     labels+dialog, Rev: 14925     Michael Kolling
+german          3.1.6                x     labels+dialog, Rev: 14925     Thomas Röfer   <roefer@tzi.de>; Michael Kolling
 greek           2.1.1
 italian         3.1.0                x     labels+dialog, Rev: 14925     Luzio Menna    <luzio@aruba.it>
 japanese        1.3.5 partially
@@ -51,7 +51,6 @@ catalan         Santiago Manrique
 czech           Rudolf Pecinovský   <rudolf.pecinovsky@i.cz> (or rudolf@pecinovsky.cz)
 danish          Jacob Nordfalk      <jacob.nordfalk@gmail.com>  - don't contact
 dutch           Kris Coolsaet       <kris.coolsaet@UGent.be>
-german          Thomas Röfer        <roefer@tzi.de>
 greek           Ioannis G. Baltopoulos <ioannis.baltopoulos@cl.cam.ac.uk>
 italian         Angelo Papadia    <angelo.papadia@libero.it>
 montenegrin     Omer Djokic         <omer@itdirect.net>
