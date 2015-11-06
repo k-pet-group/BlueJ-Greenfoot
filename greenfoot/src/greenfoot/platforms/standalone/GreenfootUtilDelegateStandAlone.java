@@ -37,6 +37,7 @@ import java.net.URL;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+import java.security.AccessControlException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -259,6 +260,15 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
         {
             socket = null;
             throw new GreenfootStorageException("Error connecting to storage server: " + e.getMessage());
+        }
+        catch (AccessControlException ace) {
+            if (socket != null) {
+                try {
+                    socket.close();
+                }
+                catch (IOException ioe) {}
+                socket = null;
+            }
         }
     }
     
