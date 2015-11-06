@@ -245,9 +245,6 @@
 .method-name-text-slot, .constructor-name-caption {
     -fx-font-weight: bold;
 }
-.method-header .constructor-name-caption {
-    -fx-label-padding: 0 0.4em 0 0;
-}
 
 .method-parameter-frame-canvas {
     -bj-border-width: 0;
@@ -384,7 +381,7 @@
     -fx-padding: -2 1 -1 1;
 }
 .bracket-label {
-    -fx-padding: -2 -1 -1 -3;
+    -fx-padding: -2 -1 -1 -1;
 }
 .bracket-label:bj-birdseye {
     -fx-padding: -2 2 -1 -1;
