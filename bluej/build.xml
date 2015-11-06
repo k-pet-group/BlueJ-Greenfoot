@@ -505,7 +505,9 @@
         <move file="${bluej_home}/pi4j/pi4j-distribution/target/distro-contents/lib/pi4j-core.jar" todir="${bluej_home}/lib/userlib" />
     </target>
     
-    <target name="check-licences">
+    <target name="check-licences" description="Check that no un-vetted additional libraries have been added to the source tree">
+    	<!-- The purpose of this target is to help ensure that libraries do not get added to the source
+    	     tree without properly checking and complying with their license(s). -->
         <pathconvert property="missing.licenses" pathsep="${line.separator}">
             <fileset dir="lib">
                 <!-- Look for JARs in lib, except the ones we generate: -->
@@ -513,11 +515,37 @@
                 <include name="*.jar"/>
                 <exclude name="bluej*.jar"/>
                 <exclude name="bjdoclet.jar"/>
-                <!-- Check if we have a corresponding license.  Only include
-                     in this set if the license is missing: -->
-                <present present="srconly" targetdir="doc/thirdpartylicenses">
-                    <mapper type="glob" from="*.jar" to="*.txt"/>
-                </present>
+            	
+            	<!-- Now we exclude all files for which the license is correctly noted in the
+            	     THIRDPARTYLICENSE.txt file and for which a copy of the license is in the
+            	     doc/thirdpartylicenses directory, and for which it has been verified that
+            	     the licensing requirements are otherwise met. -->
+            	
+            	<!-- DO NOT add to this list without first ensuring that the above requirements
+            	     are met! -->
+            	     
+            	<exclude name="antlr-runtime-3.4.jar"/>
+            	<exclude name="AppleJavaExtensions.jar"/>
+            	<exclude name="commons-httpclient-3.1.jar"/>
+            	<exclude name="commons-logging-api-1.1.2.jar"/>
+            	<exclude name="commons-vfs2-2.0.jar"/>
+            	<exclude name="diffutils-1.2.1.jar"/>
+            	<exclude name="guava-17.0.jar"/>
+            	<exclude name="hamcrest-core-1.3.jar"/>
+            	<exclude name="httpclient-4.1.1.jar"/>
+            	<exclude name="httpcore-4.1.jar"/>
+            	<exclude name="httpmime-4.1.1.jar"/>
+            	<exclude name="javassist-3.18.0.jar"/>
+            	<exclude name="jna-4.2.0.jar"/>
+            	<exclude name="jna-platform-4.2.0.jar"/>
+            	<exclude name="junit-4.11.jar"/>
+            	<exclude name="org-netbeans-lib-cvsclient.jar"/>
+            	<exclude name="sequence-library-1.0.3.jar"/>
+            	<exclude name="svnkit.jar"/>
+            	<exclude name="svnkit-javahl.jar"/>
+            	<exclude name="trilead.jar"/>
+            	<exclude name="svnkit-javahl.jar"/>
+            	<exclude name="xom-1.2.9.jar"/>
             </fileset>
         </pathconvert>
         
