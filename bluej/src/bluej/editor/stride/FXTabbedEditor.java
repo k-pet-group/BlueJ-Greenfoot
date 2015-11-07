@@ -108,16 +108,20 @@ import bluej.utility.javafx.JavaFXUtil;
  */
 public @OnThread(Tag.FX) class FXTabbedEditor
 {
+    /** Are we currently showing the frame catalogue/cheat sheet? */
     private final SimpleBooleanProperty showingCatalogue = new SimpleBooleanProperty(true);
+    /** The associated project (one window always maps to single project */
     private final Project project;
+    /** The menu calculations for each tab (used when different tab selected to swap out menus) */
     private final IdentityHashMap<Tab, Callable<List<Menu>>> tabMenus = new IdentityHashMap<>();
-    // Dragging:
+    /** The frames which are currently being dragged, if any */
     private final ArrayList<Frame> dragSourceFrames = new ArrayList<Frame>();
-    // Relative to window overlay, not to scene
+    /** Relative to window overlay, not to scene */
     private final SimpleDoubleProperty mouseDragXProperty = new SimpleDoubleProperty();
     private final SimpleDoubleProperty mouseDragYProperty = new SimpleDoubleProperty();
     /** The actual window */
     private Stage stage;
+    /** The scene within the stage */
     private Scene scene;
     /** The tabs container */
     private TabPane tabPane;
@@ -126,16 +130,19 @@ public @OnThread(Tag.FX) class FXTabbedEditor
     /** The Pane in front of dragPane used for showing cursor drop destinations
      *  (so they appear in front of the dragged frames): */
     private Pane dragCursorPane;
+    /** The window overlay pane, covers whole window */
     private WindowOverlayPane overlayPane;
     /** The right-hand side FrameCatalogue */
     private FrameCatalogue cataloguePane;
+    /** The menu bar at the top of the window (or system menu bar on Mac) */
     private MenuBar menuBar;
-    // A convenient reference to tabPane.getTabs
-    private ObservableList<Tab> tabs;
-    // Hovering to switch tab (while dragging):
+    /** The tab that is being hovered over to switch tabs (while dragging frames): */
     private Tab hoverTab;
+    /** The scheduled task to switch to another tab after enough time has passed while hovering */
     private ScheduledFuture<?> hoverTabTask;
+    /** The picture being shown of the currently dragged frames */
     private ImageView dragIcon = null;
+    /** A map from (web view) tab to the URL currently being shown in that tab */
     private IdentityHashMap<Tab, ReadOnlyStringProperty> tabAddresses = new IdentityHashMap<>();
 
     // Neither the constructor nor any initialisers should do any JavaFX work until
@@ -335,20 +342,33 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         Config.loadFXFonts();
     }
 
+    /**
+     * Show the frame catalogue/cheat sheet
+     */
     public void showCatalogue()
     {
         showingCatalogue.set(true);
     }
 
+    /**
+     * Property for whether the catalogue/cheat sheet is currently showing
+     */
     public BooleanProperty catalogueShowingProperty()
     {
         return showingCatalogue;
     }
 
+    /**
+     * Adds the given FrameEditorTab to this FXTabbedEditor window
+     * @param panel The FrameEditorTab to add
+     * @param visible Whether to make the FXTabbedEditor window visible 
+     * @param toFront Whether to bring the tab to the front (i.e. select the tab)
+     */
     @OnThread(Tag.FX)
-    public void addFrameEditor(final FrameEditorTab panel, Callable<List<Menu>> getMenus, boolean visible, boolean toFront)
+    public void addFrameEditor(final FrameEditorTab panel, boolean visible, boolean toFront)
     {
-        tabMenus.put(panel, getMenus);
+        tabMenus.put(panel, panel::getMenus);
+        // This is ok to call multiple times:
         panel.initialiseFX(scene);
         if (!tabPane.getTabs().contains(panel)) {
             tabPane.getTabs().add(panel);
@@ -362,22 +382,49 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         }
     }
 
+    /** 
+     * Opens a Javadoc tab for a core Java class (i.e. comes with the JRE)
+     * with given qualified name.
+     * 
+     * If there already exists a tab viewing that page, that page is selected rather than
+     * a new tab being opened.
+     */
     public void openJavaCoreDocTab(String qualifiedClassName)
     {
         openJavaCoreDocTab(qualifiedClassName, "");
     }
-    
+
+    /** Opens a Javadoc tab for a core Java class (i.e. comes with the JRE) with given qualified name,
+     *  and the given URL suffix (typically, "#method_anchor")
+     *  
+     *  If there already exists a tab viewing that page, that page is selected rather than
+     * a new tab being opened.
+     */
     public void openJavaCoreDocTab(String qualifiedClassName, String suffix)
     {
         String target = Utility.getDocURL(qualifiedClassName, suffix);
         openWebViewTab(target);
     }
-        
+
+    /**
+     * Opens a Javadoc tab for a Greenfoot class (e.g. greenfoot.Actor)
+     * with given qualified name.
+     *
+     * If there already exists a tab viewing that page, that page is selected rather than
+     * a new tab being opened.
+     */
     public void openGreenfootDocTab(String qualifiedClassName)
     {
         openGreenfootDocTab(qualifiedClassName, "");
     }
-    
+
+    /**
+     * Opens a Javadoc tab for a Greenfoot class (e.g. greenfoot.Actor)
+     * with given qualified name and URL suffix (typically, "#method_anchor")
+     *
+     * If there already exists a tab viewing that page, that page is selected rather than
+     * a new tab being opened.
+     */
     public void openGreenfootDocTab(String qualifiedClassName, String suffix)
     {
         try
@@ -391,8 +438,13 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         }
 
     }
-    
-    // Must be run on the FX thread!
+
+    /**
+     * Sets the window visible, and adds/removes the given tab
+     * @param visible Whether to add the tab and make window visible (true), or remove the tab (false).
+     *                Window is only hidden if no tabs remain (handled elsewhere in code)
+     * @param tab     The tab in question
+     */
     public void setWindowVisible(boolean visible, Tab tab)
     {
         if (visible)
@@ -411,16 +463,15 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         }
     }
     
+    /** Returns whether the window is currently shown */
     public boolean isWindowVisible()
     {
         return stage.isShowing();
     }
 
-    public Rectangle windowBoundsProperty()
-    {
-        return new Rectangle((int)stage.getX(), (int)stage.getY(), (int)stage.getWidth(), (int)stage.getHeight());
-    }
-
+    /**
+     * Brings the tab to the front: unminimises window, brings window to the front, and selects the tab
+     */
     public void bringToFront(Tab tab)
     {
         stage.setIconified(false);
@@ -428,18 +479,27 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         tabPane.getSelectionModel().select(tab);
     }
 
+    /**
+     * Gets the project this window is associated with
+     */
     @OnThread(Tag.Any)
     public Project getProject()
     {
         return project;
     }
 
+    /**
+     * Schedules a future compilation (@see Project.scheduleCompilation) */
+     */
     @OnThread(Tag.Any)
     public void scheduleCompilation()
     {
         project.scheduleCompilation(false);
     }
 
+    /**
+     * Removes the given tab from this tabbed editor window
+     */
     public void close(Tab tab)
     {
         tabPane.getTabs().remove(tab);
@@ -447,20 +507,22 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         tabAddresses.remove(tab);
     }
 
-    public Node getJavaIcon()
-    {
-        Label j = new Label("J");
-        JavaFXUtil.addStyleClass(j, "icon-label");
-        return j;
-    }
-
+    /**
+     * Gets an icon to display next to web view tabs
+     */
     private Node getWebIcon()
     {
         Label j = new Label("W");
         JavaFXUtil.addStyleClass(j, "icon-label");
         return j;
     }
-    
+
+    /**
+     * Opens a web view tab to display the given URL.
+     * 
+     * If a web view tab already exists which is displaying that URL (sans anchors),
+     * that tab is displayed and a new tab is not opened.
+     */
     public void openWebViewTab(String url)
     {
         // First, check if any tab is already showing that URL:
@@ -503,21 +565,34 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         bringToFront(tab);
     }
 
+    /**
+     * The list of currently open tabs
+     */
     public ObservableList<Tab> tabsProperty()
     {
-        return tabs;
+        return tabPane.getTabs();
     }
 
+    /**
+     * The pane on which the dragged frames are shown
+     */
     public Pane getDragPane()
     {
         return dragPane;
     }
-    
+
+    /**
+     * The pane on which dragged frame cursor destinations are shown
+     * (so that they appear in front of the dragged frames
+     */
     public Pane getDragCursorPane()
     {
         return dragCursorPane;
     }
-    
+
+    /**
+     * Begin dragging the given list of frames, starting at the given scene position
+     */
     public void frameDragBegin(List<Frame> srcFrames, double mouseSceneX, double mouseSceneY)
     {
         if (dragIcon != null || !dragSourceFrames.isEmpty())
@@ -551,7 +626,13 @@ public @OnThread(Tag.FX) class FXTabbedEditor
             dragSourceFrames.clear();
         }
     }
-    
+
+    /**
+     * Notify us that the current frame has reached the given position
+     * @param sceneX Scene X position of mouse
+     * @param sceneY Scene Y position of mouse
+     * @param copying Whether the copy-drag key is being held (true) or not (false)
+     */
     public void draggedTo(double sceneX, double sceneY, boolean copying)
     {
         if (!dragSourceFrames.isEmpty()) {
@@ -567,12 +648,22 @@ public @OnThread(Tag.FX) class FXTabbedEditor
             }
         }
     }
-    
+
+    /**
+     * Returns whether a frame drag is currently taking place
+     */
     public boolean isDragging()
     {
         return !dragSourceFrames.isEmpty();
     }
 
+    /**
+     * During a drag, checks if the mouse is hovering over a tab header.
+     * (If so, after a little delay, that tab is switched to)
+     * @param sceneX The mouse scene X position
+     * @param sceneY The mouse scene Y position
+     * @param copying Whether the copy-drag key is being held down
+     */
     private void checkHoverDuringDrag(double sceneX, double sceneY, boolean copying)
     {
         // Check if a tab is underneath:
@@ -598,6 +689,10 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         }
     }
 
+    /**
+     * Notify us that a frame drag has ended
+     * @param copying Whether the copy-drag key was held down as the drag finished
+     */
     public void frameDragEnd(boolean copying)
     {
         if (hoverTabTask != null)
@@ -619,13 +714,26 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         }
     }
 
-    // Pass null for FrameEditorTab if a different kind of tab (e.g. web tab) is showing.
-    // Pass null for FrameCursor if there is no currently focused cursor
+    /**
+     * Schedule a future update to the frame catalogue.
+     * 
+     * @param editor The editor associated with the currently shown tab.
+     *               Pass null if a different kind of tab (e.g. web tab) is showing.
+     * @param c The frame cursor currently focused.
+     *          Pass null if there is no currently focused cursor or a different kind of tab is showing
+     * @param codeCompletion Whether code completion is currently possible
+     * @param selection Whether there is currently a frame selection
+     * @param viewMode The current view mode (if a frame editor tab is showing)
+     * @param hints The list of hints that should be displayed
+     */
     public void scheduleUpdateCatalogue(FrameEditorTab editor, FrameCursor c, CodeCompletionState codeCompletion, boolean selection, Frame.View viewMode, List<FrameCatalogue.Hint> hints)
     {
         cataloguePane.scheduleUpdateCatalogue(editor, viewMode == Frame.View.NORMAL ? c : null, codeCompletion, selection, viewMode, hints);
     }
 
+    /**
+     * Gets the window overlay pane
+     */
     public WindowOverlayPane getOverlayPane()
     {
         return overlayPane;
