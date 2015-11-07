@@ -1,5 +1,7 @@
 package bluej.stride.slots;
 
+import java.util.List;
+import java.util.stream.Stream;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
@@ -8,6 +10,8 @@ import javafx.scene.control.OverrunStyle;
 import javafx.scene.layout.Region;
 
 import bluej.stride.generic.Frame;
+import bluej.stride.generic.InteractionManager;
+import bluej.utility.Utility;
 import bluej.utility.javafx.HangingFlowPane;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
@@ -15,7 +19,7 @@ import bluej.utility.javafx.SharedTransition;
 /**
  * Like SlotLabel, but makes each word a separate Label, to support wrapping in the flow pane
  */
-public class WrappableSlotLabel implements HeaderItem
+public class WrappableSlotLabel implements HeaderItem, CopyableHeaderItem
 {
     private final ObservableList<String> styleClasses = FXCollections.observableArrayList("wrappable-slot-label");
     private final ObservableList<Label> words = FXCollections.observableArrayList();
@@ -135,5 +139,13 @@ public class WrappableSlotLabel implements HeaderItem
     {
         this.alignment = alignment;
         words.forEach(l -> HangingFlowPane.setAlignment(l, alignment));
+    }
+
+    @Override
+    public Stream<Node> makeDisplayClone(InteractionManager editor)
+    {
+        List<Node> copies = Utility.mapList(words, l -> JavaFXUtil.cloneLabel(l, editor.getFontSizeCSS()));
+        copies.forEach(n -> HangingFlowPane.setAlignment(n, alignment));
+        return copies.stream();
     }
 }

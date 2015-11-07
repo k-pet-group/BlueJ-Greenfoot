@@ -49,6 +49,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -195,7 +196,8 @@ public abstract class MethodFrameWithBody<T extends CodeElement>
                     super.bind(getHeaderRow().getNode().heightProperty());
                     super.bind(getRegion().localToSceneTransformProperty());
                     super.bind(editor.getObservableViewportHeight());
-                    super.bind(getHeaderRow().getNode().localToSceneTransformProperty());
+                    //super.bind(getHeaderRow().getNode().localToSceneTransformProperty());
+                                    super.bind(getHeaderRow().getNode().layoutBoundsProperty());
                 }};
                 
                 dropShadowDummy.effectProperty().bind(new ObjectBinding<Effect>()
@@ -224,8 +226,7 @@ public abstract class MethodFrameWithBody<T extends CodeElement>
             
             offset.addListener(new ChangeListener<Number>()
             {
-
-                private ImageView imageView;
+                private Pane imageView;
                 private boolean addingImageView = false;
                 private SimpleDoubleProperty imageViewY = new SimpleDoubleProperty(0.0);
 
@@ -269,25 +270,15 @@ public abstract class MethodFrameWithBody<T extends CodeElement>
                         {
                             addingImageView = true;
 
-                            // For some reason, the very end of the display can be chopped off or blended, so we extend
-                            // by a pixel, and fill in the last two pixels ourselves:
-
-                            //Need to take screenshot of header and add to overlay:
-                            Bounds b = headerRow.localToScene(headerRow.getBoundsInLocal());
-                            WritableImage image = new WritableImage((int) Math.ceil(b.getWidth() - 1), (int) Math.ceil(b.getHeight()));
-                            SnapshotParameters params = new SnapshotParameters();
-                            JavaFXUtil.setPseudoclass("bj-pinned", true, headerRow);
-                            headerRow.snapshot(params, image);
-                            JavaFXUtil.setPseudoclass("bj-pinned", false, headerRow);
-
-                            // Fill in last two columns from third:
-                            image.getPixelWriter().setPixels((int) image.getWidth() - 2, 0, 1, (int) image.getHeight(), image.getPixelReader(), (int) image.getWidth() - 3, 0);
-                            image.getPixelWriter().setPixels((int) image.getWidth() - 1, 0, 1, (int) image.getHeight(), image.getPixelReader(), (int) image.getWidth() - 3, 0);
-
-                            imageView = new ImageView(image);
-                            editor.getWindowOverlayPane().addOverlay(imageView, new SimpleDoubleProperty(b.getMinX()), imageViewY);
-                            small.xProperty().set(canvas.getNode().localToScene(canvas.getNode().getBoundsInLocal()).getMinX() - b.getMinX() + canvas.leftMargin().get());
-                            editor.getWindowOverlayPane().addOverlay(dropShadowDummy, new SimpleDoubleProperty(b.getMinX()), imageViewY);
+                            
+                            imageView = getHeaderRow().makeDisplayClone(editor);
+                            imageView.getStyleClass().addAll("method-header", "method-header-row-pinned-clone");
+                            double sceneX = getHeaderRow().getSceneBounds().getMinX();
+                            double windowOverlayX = editor.getWindowOverlayPane().sceneXToWindowOverlayX(sceneX);
+                            editor.getWindowOverlayPane().addOverlay(imageView, new SimpleDoubleProperty(windowOverlayX), imageViewY);
+                            imageView.applyCss();
+                            small.xProperty().set(canvas.getNode().localToScene(canvas.getNode().getBoundsInLocal()).getMinX() - sceneX + canvas.leftMargin().get());
+                            editor.getWindowOverlayPane().addOverlay(dropShadowDummy, new SimpleDoubleProperty(windowOverlayX), imageViewY);
 
                             imageView.addEventFilter(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>()
                             {

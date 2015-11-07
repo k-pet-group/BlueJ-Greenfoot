@@ -32,6 +32,9 @@ import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableBooleanValue;
+import javafx.collections.ObservableList;
+import javafx.collections.ObservableSet;
+import javafx.css.PseudoClass;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
@@ -383,5 +386,20 @@ public class AnnotatableTextField
     public boolean hasSelection()
     {
         return field.getAnchor() != field.getCaretPosition();
+    }
+
+    public ObservableList<String> getStyleClass()
+    {
+        return field.getStyleClass();
+    }
+
+    public ObservableSet<PseudoClass> getPseudoClassStates()
+    {
+        return field.getPseudoClassStates();
+    }
+    
+    public StringProperty styleProperty()
+    {
+        return field.styleProperty();
     }
 }

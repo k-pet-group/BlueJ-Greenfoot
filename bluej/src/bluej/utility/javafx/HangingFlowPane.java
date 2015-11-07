@@ -208,6 +208,11 @@ public class HangingFlowPane extends Pane {
 
     private SimpleStyleableDoubleProperty hangingIndentProperty = new SimpleStyleableDoubleProperty(StyleableProperties.HANGING_INDENT, 0.0);
 
+    public SimpleStyleableDoubleProperty hangingIndentProperty()
+    {
+        return hangingIndentProperty;
+    }
+    
     public void setHangingIndent(double pixels)
     {
         hangingIndentProperty.set(pixels);

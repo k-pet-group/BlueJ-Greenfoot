@@ -2,8 +2,10 @@ package bluej.stride.generic;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javafx.beans.binding.DoubleExpression;
+import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;
@@ -15,6 +17,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 
+import bluej.stride.slots.CopyableHeaderItem;
 import bluej.stride.slots.EditableSlot;
 import bluej.stride.slots.Focus;
 import bluej.stride.slots.HeaderItem;
@@ -296,4 +299,20 @@ public class FrameContentRow implements FrameContentItem, SlotParent<HeaderItem>
     {
         headerRow.applyCss();
     }
+    
+    public StackPane makeDisplayClone(InteractionManager editor)
+    {
+        HangingFlowPane hfpCopy = new HangingFlowPane();
+        hfpCopy.getChildren().setAll(headerRowComponents.stream().flatMap(c ->
+                ((CopyableHeaderItem)c).makeDisplayClone(editor)
+        ).collect(Collectors.toList()));
+        hfpCopy.prefWidthProperty().bind(headerRow.widthProperty());
+        hfpCopy.alignmentProperty().bind(headerRow.alignmentProperty());
+        hfpCopy.hangingIndentProperty().bind(headerRow.hangingIndentProperty());
+        JavaFXUtil.bindList(hfpCopy.getStyleClass(), headerRow.getStyleClass().filtered(c -> !c.equals("header-row")));
+        StackPane.setMargin(hfpCopy, new Insets(0, 6, 0, 6));
+        StackPane paneCopy = new StackPane(hfpCopy);
+        return paneCopy;
+    }
+    
 }

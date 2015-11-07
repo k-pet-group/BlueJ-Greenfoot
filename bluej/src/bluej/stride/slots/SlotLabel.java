@@ -22,7 +22,9 @@
 package bluej.stride.slots;
 
 import java.util.List;
+import java.util.stream.Stream;
 
+import bluej.stride.generic.InteractionManager;
 import bluej.utility.javafx.ScalableHeightLabel;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
@@ -40,17 +42,15 @@ import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.OverrunStyle;
-import javafx.scene.effect.PerspectiveTransform;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.text.Font;
 
 import bluej.stride.generic.Frame;
-import bluej.utility.Debug;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
 
-public class SlotLabel implements HeaderItem, Styleable
+public class SlotLabel implements HeaderItem, Styleable, CopyableHeaderItem
 {
     private final ScalableHeightLabel l;
     // It's important that the same list is returned every time from getComponents:
@@ -281,4 +281,12 @@ public class SlotLabel implements HeaderItem, Styleable
     {
         this.animateCaption = animateCaption;
     }
+
+    @Override
+    public Stream<Label> makeDisplayClone(InteractionManager editor)
+    {
+        Label copy = JavaFXUtil.cloneLabel(l, editor.getFontSizeCSS());
+        return Stream.of(copy);
+    }
+
 }

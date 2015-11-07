@@ -28,12 +28,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
@@ -63,6 +60,8 @@ import javafx.beans.value.WritableBooleanValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableSet;
+import javafx.collections.SetChangeListener;
 import javafx.css.CssMetaData;
 import javafx.css.PseudoClass;
 import javafx.css.SimpleStyleableDoubleProperty;
@@ -74,7 +73,6 @@ import javafx.css.StyleableProperty;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.event.EventType;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
@@ -379,6 +377,20 @@ public class JavaFXUtil
         });
     }
 
+    /**
+     * Makes a clone of the given label by copying its style and content.
+     * The copying is a binding, so it will keep up to date with the original.
+     */
+    public static Label cloneLabel(Label l, ObservableValue<String> fontSize)
+    {
+        Label copy = new Label();
+        copy.textProperty().bind(l.textProperty());
+        bindList(copy.getStyleClass(), l.getStyleClass());
+        copy.styleProperty().bind(l.styleProperty().concat("-fx-font-size:").concat(fontSize).concat(";"));
+        bindPseudoclasses(copy, l.getPseudoClassStates());
+        return copy;
+    }
+
     public static class ListBuilder<T>
     {
         private ArrayList<T> list;
@@ -410,7 +422,7 @@ public class JavaFXUtil
     }
 
     // Note: also rounds to next highest integer (rounds up)
-    private static FXRunnable bindSet(Node n, DoubleExpression value, BiConsumer<Node, Double> set)
+    private static FXRunnable bindSetter(Node n, DoubleExpression value, BiConsumer<Node, Double> set)
     {
         set.accept(n, Math.ceil(value.get()));
         ChangeListener<? super Number> listener = (a, b, newVal) -> set.accept(n, Math.ceil(newVal.doubleValue()));
@@ -420,22 +432,22 @@ public class JavaFXUtil
     
     public static FXRunnable bindLeftAnchor(Node n, DoubleExpression value)
     {
-        return bindSet(n, value, AnchorPane::setLeftAnchor);
+        return bindSetter(n, value, AnchorPane::setLeftAnchor);
     }
 
     public static FXRunnable bindRightAnchor(Node n, DoubleExpression value)
     {
-        return bindSet(n, value, AnchorPane::setRightAnchor);
+        return bindSetter(n, value, AnchorPane::setRightAnchor);
     }
 
     public static FXRunnable bindTopAnchor(Node n, DoubleExpression value)
     {
-        return bindSet(n, value, AnchorPane::setTopAnchor);
+        return bindSetter(n, value, AnchorPane::setTopAnchor);
     }
     
     public static FXRunnable bindBottomAnchor(Node n, DoubleExpression value)
     {
-        return bindSet(n, value, AnchorPane::setBottomAnchor);
+        return bindSetter(n, value, AnchorPane::setBottomAnchor);
     }
 
     /**
@@ -969,6 +981,24 @@ public class JavaFXUtil
         dest.setAll(src);
         return () -> src.removeListener(obs);
     }
+
+    /**
+     * Makes one list (dest) always contain the contents of the other (src) until the returned
+     * action is executed to cancel the binding.
+     */
+    public static <T> FXRunnable bindSet(ObservableSet<T> dest, ObservableSet<T> src)
+    {
+        SetChangeListener<T> obs = c -> {
+            if (c.wasAdded())
+                dest.add(c.getElementAdded());
+            if (c.wasRemoved())
+                dest.remove(c.getElementRemoved());
+        };
+        dest.clear();
+        dest.addAll(src);
+        src.addListener(obs);
+        return () -> src.removeListener(obs);
+    }
     
     public static <T> FXRunnable addChangeListener(ObservableValue<T> property, FXConsumer<T> listener)
     {
@@ -1047,5 +1077,16 @@ public class JavaFXUtil
     public static boolean isDragCopyKeyPressed(MouseEvent event)
     {
         return Config.isMacOS() ? event.isAltDown() : event.isShortcutDown();
+    }
+    
+    public static void bindPseudoclasses(Node to, ObservableSet<PseudoClass> from)
+    {
+        from.addListener((SetChangeListener<PseudoClass>)c -> {
+            if (c.wasAdded())
+                to.pseudoClassStateChanged(c.getElementAdded(), true);
+            if (c.wasRemoved())
+                to.pseudoClassStateChanged(c.getElementRemoved(), false);
+        });
+        from.forEach(c -> to.pseudoClassStateChanged(c, true));
     }
 }

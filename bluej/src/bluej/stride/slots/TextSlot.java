@@ -55,6 +55,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.TextField;
 import javafx.scene.effect.BlendMode;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.KeyCode;
@@ -95,7 +96,7 @@ import bluej.utility.javafx.SharedTransition;
  * A custom text box with handling for arrow keys etc. for moving between blocks/cursor (pseudo-)"modes"
  * @author Fraser McKay
  */
-public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implements EditableSlot, ErrorFixListener
+public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implements EditableSlot, ErrorFixListener, CopyableHeaderItem
 {
     private final List<SlotValueListener> listeners = new ArrayList<SlotValueListener>();
     protected final InteractionManager editor;
@@ -1092,7 +1093,8 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
             if (recentValues.isEmpty())
             {
                 recent.setDisable(true);
-            } else
+            }
+            else
             {
                 recent.setDisable(false);
                 recentValues.forEach(v -> {
@@ -1124,5 +1126,18 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
     public void setEditable(boolean editable)
     {
         field.disableProperty().set(!editable);
+    }
+
+    @Override
+    public Stream<Node> makeDisplayClone(InteractionManager editor)
+    {
+        TextField f = new TextField();
+        f.textProperty().bind(field.textProperty());
+        f.prefWidthProperty().bind(field.prefWidthProperty());
+        JavaFXUtil.bindList(f.getStyleClass(), field.getStyleClass());
+        JavaFXUtil.bindPseudoclasses(f, field.getPseudoClassStates());
+        JavaFXUtil.setPseudoclass("bj-pinned", true, f);
+        f.styleProperty().bind(field.styleProperty().concat("-fx-font-size:").concat(editor.getFontSizeCSS()).concat(";"));
+        return Stream.of(f);
     }
 }

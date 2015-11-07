@@ -88,4 +88,9 @@ public class WindowOverlayPane
     {
         return pane;
     }
+
+    public boolean contains(Node node)
+    {
+        return pane.getChildren().contains(node);
+    }
 }

@@ -390,7 +390,7 @@
     -fx-padding: -2 6 -1 -2;
 }
 
-.text-slot:bj-transparent, .choice-slot:bj-transparent, .expression-slot-field:bj-transparent {
+.text-slot:bj-transparent, .text-slot:bj-pinned, .choice-slot:bj-transparent, .expression-slot-field:bj-transparent {
     -fx-background-color: transparent;
     -fx-border-color: transparent;
 }
@@ -692,6 +692,14 @@
 }
 .method-header:bj-pinned {
     -fx-background-color: method-header-pinned;
+}
+
+.method-header-row-pinned-clone {
+    -fx-background-color: method-header-pinned;
+}
+.method-header-row-pinned-clone .header-row {
+    /* I haven't figured out exactly why, but this seems to fix layout issues: */
+    -fx-row-valignment: center !important;
 }
 
 .method-frame {

@@ -73,7 +73,7 @@ import bluej.utility.javafx.SharedTransition;
  * to leave the end of the line; editing the start of a choice slot makes very little sense, especially
  * since it effectively blanks when you enter it.
  */
-public class ChoiceSlot<T extends Enum<T>> implements EditableSlot
+public class ChoiceSlot<T extends Enum<T>> implements EditableSlot, CopyableHeaderItem
 {
     private final InteractionManager editor;
     private final Frame parentFrame;
@@ -601,5 +601,23 @@ public class ChoiceSlot<T extends Enum<T>> implements EditableSlot
     {
         dummyField.setDisable(!editable);
         pane.setDisable(!editable);
+    }
+
+    @Override
+    public Stream<? extends Node> makeDisplayClone(InteractionManager editor)
+    {
+        Stream<Label> labelClone = curDisplay.makeDisplayClone(editor);
+        // Should only be one node anyway
+        StackPane clone = new StackPane();
+        clone.getChildren().addAll(labelClone.peek(l -> {
+            l.setAlignment(Pos.CENTER_LEFT);
+            l.prefWidthProperty().bind(curDisplay.prefWidthProperty());
+        }).collect(Collectors.toList()));
+        JavaFXUtil.bindList(clone.getStyleClass(), pane.getStyleClass());
+        JavaFXUtil.bindPseudoclasses(clone, pane.getPseudoClassStates());
+        clone.minHeightProperty().bind(pane.heightProperty());
+        clone.minWidthProperty().bind(pane.widthProperty());
+        clone.prefHeightProperty().bind(pane.heightProperty());
+        return Stream.of(clone);
     }
 }
