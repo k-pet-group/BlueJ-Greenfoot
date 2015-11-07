@@ -320,25 +320,25 @@
 
 
 /* cursor */
-.cursor-frame{
+.frame-cursor{
     -fx-background-color: rgb(51, 102, 255);
     -fx-border-radius: 5;
     -fx-background-radius: 5;
     -fx-border-color: rgb(0, 0, 153);
 }
-.cursor-frame:bj-java-preview {
+.frame-cursor:bj-java-preview {
     -fx-background-color: hsb(0, 0%, 45%);
 }
 
-.frame-cursor-drag {
-    -fx-background-color: hsb(280, 80%, 100%) !important;
+.frame-cursor:bj-drag-possible {
+    -fx-background-color: hsb(280, 80%, 100%);
 }
-.frame-cursor-drag-source {
-    -fx-background-color: hsb(280, 80%, 100%) !important;
+.frame-cursor:bj-drag-source {
+    -fx-background-color: hsb(280, 80%, 100%);
     /* -fx-background-color: hsb(280, 10%, 100%) !important; */
 }
-.frame-cursor-drag-impossible {
-    -fx-background-color: hsb(0, 0%, 60%) !important;
+.frame-cursor:bj-drag-impossible {
+    -fx-background-color: hsb(0, 0%, 60%);
 }
 
 /* slots */

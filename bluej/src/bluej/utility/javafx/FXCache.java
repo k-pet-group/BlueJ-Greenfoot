@@ -23,18 +23,48 @@ package bluej.utility.javafx;
 
 import java.util.HashMap;
 
+/**
+ * A cache from keys to values of a calculation which must be performed on the
+ * FX thread.
+ * 
+ * A cache has a maximum size.  It is a naive most-recently-used implementation;
+ * if the cache gets full, it discards the values and starts refilling on demand.
+ * This could be improved upon.
+ * 
+ * @param <K> The keys (compared using same method as HashMap)
+ * @param <V> The values, arbitrary.
+ */
 public class FXCache<K, V>
 {
+    /**
+     * The actual cache
+     */
     private final HashMap<K, V> cache = new HashMap<>();
+    /**
+     * The calculation to produce the new value, given a key
+     */
     private final FXFunction<K, V> calculate;
+    /**
+     * The size limit on the cache
+     */
     private final int limit;
-    
+
+    /**
+     * Creates a new FXCache
+     * 
+     * @param calculate The FX-thread function to calculate an output/value given
+     *                  an input/key
+     * @param limit The maximum size of the cache
+     */
     public FXCache(FXFunction<K, V> calculate, int limit)
     {
         this.calculate = calculate;
         this.limit = limit;
     }
-    
+
+    /**
+     * Gets a value for a key, either cached or calculating it if necessary.
+     */
     public V get(K key)
     {
         // We have a size limit, and easiest way to make sure old values are purged is to clear

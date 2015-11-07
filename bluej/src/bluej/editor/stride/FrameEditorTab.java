@@ -535,7 +535,12 @@ public @OnThread(Tag.FX) class FrameEditorTab extends Tab implements Interaction
 
         errorOverviewBar = new ErrorOverviewBar(this, scrollContent, this::nextError);
         JavaFXUtil.addChangeListener(errorOverviewBar.showingCount(), count -> {
-            JavaFXUtil.setStyleClass(this, count.intValue() > 0, "bj-tab-error");
+            // We can't use pseudoclasses because Tab doesn't allow them to be changed,
+            // so we must use full classes:
+            if (count.intValue() > 0)
+                JavaFXUtil.addStyleClass(this, "bj-tab-error");
+            else
+                getStyleClass().removeAll("bj-tab-error");
         });
         contentRoot.setRight(errorOverviewBar);
 

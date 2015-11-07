@@ -47,14 +47,12 @@ import javafx.application.Platform;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.binding.DoubleExpression;
 import javafx.beans.binding.StringExpression;
-import javafx.beans.binding.When;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.ReadOnlyDoubleWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableValue;
 import javafx.beans.value.WritableBooleanValue;
 import javafx.collections.FXCollections;
@@ -111,60 +109,45 @@ import bluej.utility.Utility;
 
 import javax.imageio.ImageIO;
 
+/**
+ * JavaFXUtil is a collection of static utility methods for JavaFX-related code
+ * (effectively, the JavaFX sibling of Utility).
+ */
 public class JavaFXUtil
 {
-    public static void setPseudoclass(String name, boolean on, Node... nodes)
+    /**
+     * Sets the given CSS pseudo-class (bit after the colon in CSS selector) to given
+     * state for given nodes
+     * @param pseudoClassName The name of the CSS pseudo-class, e.g. "bj-pinned".  Must begin with "bj-" to avoid confusion with built in FX classes
+     * @param enabled Should the class state be set to on (true) or off (false)
+     * @param nodes A list of nodes so add/remove the pseudoclass from (based on the "enabled" parameter)
+     */
+    public static void setPseudoclass(String pseudoClassName, boolean enabled, Node... nodes)
     {
-        if (!name.startsWith("bj-"))
+        if (!pseudoClassName.startsWith("bj-"))
             throw new IllegalArgumentException("Our pseudoclasses should begin with bj- to avoid confusion with JavaFX's pseudo classes");
         
         for (Node node : nodes)
-            node.pseudoClassStateChanged(PseudoClass.getPseudoClass(name), on);        
-    }
-
-
-    public static boolean hasPseudoclass(Node node, String s)
-    {
-        return node.getPseudoClassStates().stream().filter(p -> p.getPseudoClassName().equals(s)).count() > 0;
-    }
-    
-    /**
-     * If on is true, adds all the style classes to the node.  If on is false, removes them all from the node.
-     */
-    public static void setStyleClass(Styleable n, boolean on, String... styleClasses)
-    {
-        if (on)
-            addStyleClass(n, styleClasses);
-        else
-            removeStyleClass(n, styleClasses);
+            node.pseudoClassStateChanged(PseudoClass.getPseudoClass(pseudoClassName), enabled);        
     }
 
     /**
-     * Applies the chosen style class to a node, in place of the
-     * list of possibilities (which should include chosen) given as varargs
-     * 
-     * If chosen is null, it is not added (so all are removed)
+     * Checks if the given pseudo-class is currently enabled on the given node
+     * @param node The JavaFX node
+     * @param pseudoClassName The name of the pseudo-class.
+     * @return Whether the class is currently enabled on that node or not.
      */
-    public static void selectStyleClass(String chosen, Styleable n, String... all)
+    public static boolean hasPseudoclass(Styleable node, String pseudoClassName)
     {
-        n.getStyleClass().removeAll(all);
-        if (chosen != null)
-            n.getStyleClass().add(chosen);
-    }
-    
-    /**
-     * Applies the given indexed style class to a node, in place of the
-     * rest of the list of possibilities, which are all removed.
-     * 
-     * If index is -1, all are removed
-     */
-    public static void selectStyleClass(int index, Styleable n, String... all)
-    {
-        selectStyleClass(index == -1 ? null : all[index], n, all);
+        return node.getPseudoClassStates().stream().filter(p -> p.getPseudoClassName().equals(pseudoClassName)).count() > 0;
     }
     
     /**
      * Turns on the pseudoclass with the given index, and turns off all others in the list.
+     * 
+     * @param node Node to apply to
+     * @param index Which index (zero-based) of pseudoClasses to turn on (-1 if none)
+     * @param pseudoClasses The list of pseudo-classes to turn off (except for index, which is turned on)
      */
     public static void selectPseudoClass(Node node, int index, String... pseudoClasses)
     {
@@ -174,100 +157,123 @@ public class JavaFXUtil
         }
     }
     /**
-     * Adds the given style-class to the node.
+     * Adds the given CSS style-class[es] to the node.
      * 
-     * JavaFX doesn't care if you add the same class many times to a node.  In contrast, this method
+     * JavaFX doesn't usually care if you add the same class many times to a node.  In contrast, this method
      * makes sure that a class is only applied once (effectively models the classes on a node as a 
-     * set, not a list) 
+     * set, not a list).  Generally, you should try to avoid dynamically turning classes on
+     * or off, anyway, and use pseudo-classes instead.
+     * 
+     * @param node The node to apply to
+     * @param styleClasses The list of CSS style-classes to add.
      */
-    public static void addStyleClass(Styleable n, String... styleClasses)
+    public static void addStyleClass(Styleable node, String... styleClasses)
     {
         for (String styleClass : styleClasses)
         {
-            if (!n.getStyleClass().contains(styleClass))
-                n.getStyleClass().add(styleClass);
+            if (!node.getStyleClass().contains(styleClass))
+                node.getStyleClass().add(styleClass);
         }
     }
 
     /**
-     * Removes the given style-class to the node.
+     * Removes the given CSS style-class to the node.
      * 
      * JavaFX doesn't care if you add the same class many times to a node, and if you're not
      * careful when removing a style-class, you may only remove one instance and not all.  This method
      * makes sure that all copies of a class are removed (effectively models the classes on a node as a 
-     * set, not a list) 
+     * set, not a list). 
+     * 
+     * Generally, you should try to avoid dynamically turning classes on
+     * or off, anyway, and use pseudo-classes instead.  Therefore, eventually we
+     * should remove this method, hence the deprecation.
+     * 
+     * @param node The node to apply to.
+     * @param styleClasses The style-classes to remove.
      */
-    public static void removeStyleClass(Styleable n, String... styleClasses)
+    @Deprecated
+    public static void removeStyleClass(Styleable node, String... styleClasses)
     {
         //removeAll gets rid of all instances of all of styleClasses:
-        n.getStyleClass().removeAll(styleClasses);
+        node.getStyleClass().removeAll(styleClasses);
     }
-
-    public static <T> ObservableValue<T> conditional(final ObservableBooleanValue prop, final T ifTrue, final T ifFalse)
-    {
-        return new When(prop).then(ifTrue).otherwise(ifFalse);
-    }
-    
-    private static final FXCache<Font, FXCache<String, Double>> measured =
-        new FXCache<Font, FXCache<String, Double>>(f -> new FXCache<String, Double>(s -> measureString(f, s), 1000), 3);
 
     /**
-     * Measure a string using the node's font
+     * Since JavaFX has no font metrics, we make our own.  The only way to
+     * measure a JavaFX string is to render an off-screen text.  To avoid the repeated
+     * expense, we keep a cache of font-size & text-content to width.
+     * We do this for up to 3 font sizes, and up to 10k strings per font size
+     * (This may seem a lot, but we usually measure substrings too, so we end up with
+     * (num strings * avg string length) strings in cache.  See FXCache for more
+     * details on cache behaviour.
+     */
+    private static final FXCache<Font, FXCache<String, Double>> measured =
+        new FXCache<Font, FXCache<String, Double>>(f -> new FXCache<String, Double>(s -> {
+            if (s == null || s.length() == 0)
+                return 0.0;
+
+            //Not a very elegant way to get the size of the text, but only way to really do it
+            //See e.g. http://stackoverflow.com/questions/13015698/
+            Text text = new Text(s);
+            text.setFont(f);
+            return text.getLayoutBounds().getWidth();
+        }, 10000), 3);
+
+    /**
+     * Measure the given string content using the given node's font.
+     * 
+     * @return Width of the string, when rendered in that font, in [logical] pixels.
+     *         Does not have to be integer.
      */
     public static double measureString(TextInputControl node, String str)
     {
         return measureString(node, str, true, true);
     }
+    /**
+     * Measure the given string content using the given node's font.
+     *
+     * @param includeLeftInset Whether to include node.getInsets().getLeft() in the width
+     * @param includeRightInset Whether to include node.getInsets().getRight() in the width
+     * @return Width of the string, when rendered in that font, in [logical] pixels.
+     *         Does not have to be integer.
+     */
     public static double measureString(TextInputControl node, String str, boolean includeLeftInset, boolean includeRightInset)
     {
         return measureString(node, str, node.getFont(), includeLeftInset, includeRightInset);
     }
 
+    /**
+     * Measure the given string content using the given font.
+     *
+     * @param node The node from which to take the insets, but NOT the font
+     * @param str The string to measure the size of
+     * @param overrideFont The font to use for measuring
+     * @param includeLeftInset Whether to include node.getInsets().getLeft() in the width
+     * @param includeRightInset Whether to include node.getInsets().getRight() in the width
+     * @return Width of the string, when rendered in that font, in [logical] pixels.
+     *         Does not have to be integer.
+     */
     public static double measureString(TextInputControl node, String str, Font overrideFont, boolean includeLeftInset, boolean includeRightInset)
     {
         return measured.get(overrideFont).get(str) + (includeLeftInset ? node.getInsets().getLeft() : 0.0) + (includeRightInset ? node.getInsets().getRight() : 0.0);
     }
-    
-    private static double measureString(Font f, String str)
-    {
-        if (str == null || str.length() == 0)
-            return 0;
-        
-        //Not a very elegant way to get the size of the text, but only way to really do it
-        //See e.g. http://stackoverflow.com/questions/13015698/
-        Text text = new Text(str);
-        text.setFont(f);
-        return text.getLayoutBounds().getWidth();
-    }
 
+    /**
+     * Measure the given string content using the font of the given node.
+     * @return Width of the string, when rendered in that font, in [logical] pixels.
+     *         Does not have to be integer.
+     */
     public static double measureString(Labeled node, String str)
     {
-        return measureString(node, str, node.getFont());
-    }
-
-    public static double measureString(Labeled node, String str, Font overrideFont)
-    {
-        return measured.get(overrideFont).get(str) + node.getLabelPadding().getLeft() + node.getLabelPadding().getRight() + node.getPadding().getLeft() + node.getPadding().getRight();
-    }
-
-    public static double measureStringHeight(Labeled node, String str)
-    {
-        Text text = new Text(str);
-        text.setFont(node.getFont());
-        return text.getLayoutBounds().getHeight();
-    }
-
-    public static void toggleStyleClass(Boolean on, Styleable n, String styleClass)
-    {
-        if (on)
-            addStyleClass(n, styleClass);
-        else
-            removeStyleClass(n, styleClass);
+        return measured.get(node.getFont()).get(str) + node.getLabelPadding().getLeft() + node.getLabelPadding().getRight() + node.getPadding().getLeft() + node.getPadding().getRight();
     }
 
     /** Gets a new CssMetaData instance for the given property of the class.
      *  Assumes the property is always settable.  Thus do not pass a property that might be
      *  set or bound by other code.
+     *  
+     *  @param propertyName The name, in CSS, of the property (e.g. "-bj-indent-width")
+     *  @param propGetter An accessor on type T for the correspoding JavaFX property
      */
     public static <T extends Styleable> CssMetaData<T, Number> cssSize(String propertyName, Function<T, SimpleStyleableDoubleProperty> propGetter)
     {
@@ -288,6 +294,9 @@ public class JavaFXUtil
     /** Gets a new CssMetaData instance for the given property of the class.
      *  Assumes the property is always settable.  Thus do not pass a property that might be
      *  set or bound by other code.
+     *
+     *  @param propertyName The name, in CSS, of the property (e.g. "-bj-highlight-color")
+     *  @param propGetter An accessor on type T for the correspoding JavaFX property
      */
     public static <T extends Styleable> CssMetaData<T, Color> cssColor(String propertyName, Function<T, SimpleStyleableObjectProperty<Color>> propGetter)
     {
@@ -329,6 +338,9 @@ public class JavaFXUtil
         };
     }
 
+    /**
+     * Writes the given image to the given filename as a PNG
+     */
     public static void writeImageTo(WritableImage image, String filename)
     {
         File file = new File(filename);
@@ -345,6 +357,12 @@ public class JavaFXUtil
         }
     }
 
+    /**
+     * Works around a problem where key-presses of function keys in text fields
+     * do not call accelerators.  See comments in method.
+     * 
+     * @param field The field on which to work around the issue.
+     */
     public static void workAroundFunctionKeyBug(TextField field)
     {
         // Work around taken from http://stackoverflow.com/questions/28239019/javafx-accelerator-not-working-when-textfield-has-focus
@@ -366,7 +384,8 @@ public class JavaFXUtil
                 case F12:
                     //handle function key shortcut  if defined
                     Runnable r = field.getScene().getAccelerators().get(new KeyCodeCombination(e.getCode()));
-                    if(r!=null) {
+                    if (r != null)
+                    {
                         r.run();
                         e.consume();
                     }
@@ -379,7 +398,10 @@ public class JavaFXUtil
 
     /**
      * Makes a clone of the given label by copying its style and content.
-     * The copying is a binding, so it will keep up to date with the original.
+     * The copying uses binding, so it will keep up to date with the original afterwards.
+     * 
+     * @param l The label to copy
+     * @param fontSize The font size property (e.g. "12pt") to use for font size 
      */
     public static Label cloneLabel(Label l, ObservableValue<String> fontSize)
     {
@@ -391,6 +413,9 @@ public class JavaFXUtil
         return copy;
     }
 
+    /**
+     * A builder pattern for lists.
+     */
     public static class ListBuilder<T>
     {
         private ArrayList<T> list;
@@ -399,13 +424,19 @@ public class JavaFXUtil
         {
             this.list = new ArrayList<>(list);
         }
-        
+
+        /**
+         * Add another item to the list, return this builder again.
+         */
         public ListBuilder<T> add(T t)
         {
             list.add(t);
             return this;
         }
-        
+
+        /**
+         * Turn the builder into an actual (unmodifiable) list
+         */
         public List<T> build()
         {
             return Collections.unmodifiableList(list);
@@ -419,35 +450,6 @@ public class JavaFXUtil
             List<CssMetaData<? extends Styleable, ?>> superClassCssMetaData)
     {
         return new ListBuilder<CssMetaData<? extends Styleable, ?>>(superClassCssMetaData);
-    }
-
-    // Note: also rounds to next highest integer (rounds up)
-    private static FXRunnable bindSetter(Node n, DoubleExpression value, BiConsumer<Node, Double> set)
-    {
-        set.accept(n, Math.ceil(value.get()));
-        ChangeListener<? super Number> listener = (a, b, newVal) -> set.accept(n, Math.ceil(newVal.doubleValue()));
-        value.addListener(listener);
-        return () -> value.removeListener(listener);
-    }
-    
-    public static FXRunnable bindLeftAnchor(Node n, DoubleExpression value)
-    {
-        return bindSetter(n, value, AnchorPane::setLeftAnchor);
-    }
-
-    public static FXRunnable bindRightAnchor(Node n, DoubleExpression value)
-    {
-        return bindSetter(n, value, AnchorPane::setRightAnchor);
-    }
-
-    public static FXRunnable bindTopAnchor(Node n, DoubleExpression value)
-    {
-        return bindSetter(n, value, AnchorPane::setTopAnchor);
-    }
-    
-    public static FXRunnable bindBottomAnchor(Node n, DoubleExpression value)
-    {
-        return bindSetter(n, value, AnchorPane::setBottomAnchor);
     }
 
     /**
@@ -483,34 +485,14 @@ public class JavaFXUtil
             }
         });
     }
-    
-    public static interface OkCancel
-    {
-        public Node getNode();
-        public void requestOkFocus();
-        public void requestCancelFocus();
-        public WritableBooleanValue okEnabledProperty();
-    }
 
-    public static OkCancel makeOkCancel(EventHandler<ActionEvent> onOk, EventHandler<ActionEvent> onCancel)
-    {
-        Button ok = new Button("Ok");
-        ok.setOnAction(onOk);
-        Button cancel = new Button("Cancel");
-        cancel.setOnAction(onCancel);
-        
-        HBox hbox = new HBox(cancel, new Rectangle(50, 1, Color.TRANSPARENT), ok);
-        
-        return new OkCancel() {
-            private final BooleanProperty okEnabled = new SimpleBooleanProperty(true);
-            { ok.disableProperty().bind(okEnabled.not()); }
-            public Node getNode() { return hbox; }
-            public void requestOkFocus() { ok.requestFocus(); }
-            public void requestCancelFocus() { cancel.requestFocus(); }
-            public WritableBooleanValue okEnabledProperty() { return okEnabled; }
-        };
-    }
-
+    /**
+     * Makes a ManuItem with the given parameters.
+     * 
+     * @param text The content (label) of the menu item
+     * @param run The action to run for the menu item.  May be null for none.
+     * @param shortcut The shortcut to use.  May be null for none.
+     */
     public static MenuItem makeMenuItem(String text, FXRunnable run, KeyCombination shortcut)
     {
         MenuItem item = new MenuItem(text);
@@ -521,6 +503,11 @@ public class JavaFXUtil
         return item;
     }
 
+    /**
+     * Makes a MenuItem which is disabled
+     * @param text The content (label) of the menu item
+     * @param shortcut The shortcut to display.  May be null for none.
+     */
     public static MenuItem makeDisabledMenuItem(String text, KeyCombination shortcut)
     {
         MenuItem item = new MenuItem(text);
@@ -529,18 +516,15 @@ public class JavaFXUtil
             item.setAccelerator(shortcut);
         return item;
     }
+
+    /**
+     * Makes a CheckMenuItem that binds bidirectionally to the given state.
+     * 
+     * @param text The content (label) for the CheckMenuItem
+     * @param state The boolean state to bind the check state to (bidirectionally)
+     * @param shortcut The shortcut to use.  May be null for none.
+     */
     
-    // Makes a CheckMenuItem that operates its own state, but calls the given callback when it changes
-    public static CheckMenuItem makeCheckMenuItem(String text, Consumer<Boolean> handler, KeyCombination shortcut)
-    {
-        CheckMenuItem item = new CheckMenuItem(text);
-        item.selectedProperty().addListener((a, b, newVal) -> handler.accept(newVal.booleanValue()));
-        if (shortcut != null)
-            item.setAccelerator(shortcut);
-        return item;
-    }
-    
-    // Makes a CheckMenuItem that binds bidirectionally to the given state
     public static CheckMenuItem makeCheckMenuItem(String text, Property<Boolean> state, KeyCombination shortcut)
     {
         CheckMenuItem item = new CheckMenuItem(text);
@@ -550,16 +534,11 @@ public class JavaFXUtil
         return item;
     }
 
-    // Makes a CheckMenuItem that binds bidirectionally to the given state
-    public static CheckMenuItem makeCheckMenuItem(String text, Property<Boolean> state, ObservableValue<? extends KeyCombination> shortcut)
-    {
-        CheckMenuItem item = new CheckMenuItem(text);
-        item.selectedProperty().bindBidirectional(state);
-        if (shortcut != null)
-            item.acceleratorProperty().bind(shortcut);
-        return item;
-    }
-
+    /**
+     * Helper method to construct a menu
+     * @param text The content (label/header) for the menu
+     * @param items The items to put in the menu (in order).
+     */
     public static Menu makeMenu(String text, MenuItem... items)
     {
         Menu menu = new Menu(text);
@@ -567,62 +546,14 @@ public class JavaFXUtil
         return menu;
     }
 
-    
-    
-    public static void initializeCustomTooltip(InteractionManager editor, Node parent, String tooltipText, long delayMillis)
-    {
-        initializeCustomTooltip(editor, parent, new ReadOnlyStringWrapper(tooltipText), delayMillis);
-    }
-    
-    public static void initializeCustomTooltip(InteractionManager editor, Node parent, StringExpression tooltipText, long delayMillis)
-    {
-        parent.focusedProperty().addListener(new ChangeListener<Boolean>() {
-            final Label l;
-            {
-                l = new Label();
-                l.textProperty().bind(tooltipText);
-                l.visibleProperty().bind(l.textProperty().isNotEmpty());
-                l.setMouseTransparent(true);
-                l.setWrapText(true);
-                JavaFXUtil.addStyleClass(l, "frame-tooltip");
-            }
-            // All assignments to focusRunnable happen on the event thread
-            private Runnable focusRunnable;
-            
-            @Override
-            public void changed(ObservableValue<? extends Boolean> arg0,
-                    Boolean arg1, Boolean newVal)
-            {
-                final Object syncOn = this;
-                if (newVal.booleanValue())
-                {
-                    // Gained focus:
-                    final Runnable r = new Runnable() { @OnThread(value = Tag.FX, ignoreParent = true) public void run() {
-                        // We only focus if we are the last assignment to focusRunnable field
-                        if (focusRunnable == this)
-                        {
-                            editor.getCodeOverlayPane().addOverlay(l, parent, null, l.heightProperty().negate(), WidthLimit.LIMIT_WIDTH_AND_SLIDE_LEFT);
-                            FadeTransition ft = new FadeTransition(Duration.millis(100), l);
-                            ft.setFromValue(0.0);
-                            ft.setToValue(1.0);                        
-                            ft.play();
-                        }
-                    }};
-                    focusRunnable = r;
-                    Utility.getBackground().schedule(() -> Platform.runLater(r), delayMillis, TimeUnit.MILLISECONDS);
-                }
-                else
-                {
-                    // Lost focus;
-                    focusRunnable = null; // Effectively cancel previous tooltip displays
-                    editor.getCodeOverlayPane().removeOverlay(l);
-                }
-                
-            }
-            
-        });
-    }
-
+    /**
+     * Sets up code to show a tooltip on the frame catalogue when the given node is mouse-overed.
+     * 
+     * @param window The editor window
+     * @param target The target node near which to display the tooltip
+     * @param tooltipText The text of the tooltip to show
+     * @param delay The delay after the mouse enters the node, before showing the toolrip.
+     */
     public static void initializeCustomTooltipCatalogue(FXTabbedEditor window, Node target, String tooltipText, Duration delay)
     {
         final Label l = new Label(tooltipText);
@@ -633,11 +564,14 @@ public class JavaFXUtil
         JavaFXUtil.setPseudoclass("bj-tight-border", true, l);
         l.setMaxWidth(300);
 
+        // We use the window overlay pane to show the tooltip.  The code overlay pane
+        // doesn't include the catalogue, so we can't use that.
         FXRunnable show = () -> {
             final WindowOverlayPane overlayPane = window.getOverlayPane();
             double x = overlayPane.sceneXToWindowOverlayX(target.localToScene(target.getBoundsInLocal()).getMinX());
             double y = overlayPane.sceneYToWindowOverlayY(target.localToScene(target.getBoundsInLocal()).getMaxY() + 10);
             overlayPane.addOverlay(l, new ReadOnlyDoubleWrapper(x), new ReadOnlyDoubleWrapper(y), true);
+            // Use short fade-in:
             FadeTransition ft = new FadeTransition(Duration.millis(100), l);
             ft.setFromValue(0.0);
             ft.setToValue(1.0);
@@ -645,41 +579,65 @@ public class JavaFXUtil
         };
 
         target.addEventFilter(MouseEvent.ANY, new EventHandler<MouseEvent>()
-                {
-                    FXRunnable cancel;
+            {
+                // The action to cancel showing the toolip:
+                FXRunnable cancel;
 
-                    @Override
-                    public void handle(MouseEvent event)
+                @Override
+                public void handle(MouseEvent event)
+                {
+                    if (event.getEventType() == MouseEvent.MOUSE_ENTERED)
                     {
-                        if (event.getEventType() == MouseEvent.MOUSE_ENTERED)
+                        cancel = JavaFXUtil.runAfter(delay, show);
+                    }
+                    else if (event.getEventType() == MouseEvent.MOUSE_EXITED)
+                    {
+                        // Cancel any pending show,
+                        if (cancel != null)
                         {
-                            cancel = JavaFXUtil.runAfter(delay, show);
+                            cancel.run();
+                            cancel = null;
                         }
-                        else if (event.getEventType() == MouseEvent.MOUSE_EXITED)
-                        {
-                            if (cancel != null)
-                            {
-                                cancel.run();
-                                cancel = null;
-                            }
-                            window.getOverlayPane().removeOverlay(l);
-                        }
+                        // and remove tooltip from window (no-op if not present):
+                        window.getOverlayPane().removeOverlay(l);
                     }
                 }
+            }
         );
     }
 
+    /**
+     * A helper class for showing a tooltip/help on mouse-over or pressing F1.
+     */
     @OnThread(Tag.FX)
     private static class TooltipListener implements EventHandler<InputEvent>, ChangeListener<Boolean>
     {
+        /** The label displaying the tooltip */
         private final Label l;
         private final InteractionManager editor;
+        /** The "parent" (not actual scene graph parent, but the node we are showing a tooltip for) */
         private final Node parent;
+        /**
+         * This is a tricky inversion of control.  Caller passes us a requestTooltip callback.
+         * We call it back with another callback for the tooltip.  Caller then spends
+         * time (potentially thread-hopping), and when it has the tooltip ready, calls
+         * our callback.  We can't easily simplify this because of the gap and thread-hopping
+         * inbetween.
+         */
         private final FXConsumer<FXConsumer<String>> requestTooltip;
+        /** An action to cancel a pending show-on-hover */
         private FXRunnable cancelHoverShow = null;
+        /** Whether the tooltip is currently showing */
         private boolean showing = false;
+        /** Whether the tooltip is showing because of mouse hover (only valid when showing == true) */
         private boolean mouseShown = false;
 
+        /**
+         * @param l The label to use as a tooltip 
+         * @param editor Reference to the editor
+         * @param parent The node for which to show the tooltip
+         * @param requestTooltip The callback (see comments above).
+         */
         private TooltipListener(Label l, InteractionManager editor, Node parent, FXConsumer<FXConsumer<String>> requestTooltip)
         {
             this.l = l;
@@ -758,6 +716,7 @@ public class JavaFXUtil
             showing = true;
         }
 
+        /** Called when focused value of parent changes */
         @Override
         public void changed(ObservableValue<? extends Boolean> observable,
                 Boolean oldValue, Boolean newVal)
@@ -779,9 +738,17 @@ public class JavaFXUtil
         }
 
     }
-    
-    
-    // Shows only on F1 if onHoverToo is false
+
+
+    /**
+     * Initialises a custom help popup for the given node.  It will show when the user presses
+     * F1, and optionally when they mouse hover.
+     * 
+     * @param editor Reference to the editor, so we can get access to code overlay
+     * @param parent The node for which to show the tooltip
+     * @param requestTooltip Calculation of tooltip, which we will pass a result-consuming tooltip
+     * @param onHoverToo Whether to show on mouse hover (true) and F1, or just on F1 (false)
+     */
     public static void initializeCustomHelp(InteractionManager editor, Node parent, FXConsumer<FXConsumer<String>> requestTooltip, boolean onHoverToo)
     {
         final Label l = new Label();
@@ -800,14 +767,20 @@ public class JavaFXUtil
         }
     }
     
-    /** Waits for the observable value to become non-null, then calls the given function on it. */
-    public static <T6> void onceNotNull(ObservableValue<T6> value, FXConsumer<T6> f)
+    /** 
+     * Waits for the observable value to become non-null, then calls the given function on the value once.
+     *
+     * @param observable The value to wait to become non-null.
+     * @param callback The callback to call with the non-null value.  If
+     *                 observable's value is already non-null, called immediately before returning
+     */
+    public static <T6> void onceNotNull(ObservableValue<T6> observable, FXConsumer<T6> callback)
     {
-        T6 t = value.getValue();
+        T6 t = observable.getValue();
         
         if (t != null)
         {
-            f.accept(t);
+            callback.accept(t);
             return;
         }
         
@@ -820,12 +793,12 @@ public class JavaFXUtil
             {
                 if (newVal != null)
                 {
-                    f.accept(newVal);
-                    value.removeListener(this);
+                    callback.accept(newVal);
+                    observable.removeListener(this);
                 }
             }
         };
-        value.addListener(listener);
+        observable.addListener(listener);
         
     }
 
@@ -833,58 +806,52 @@ public class JavaFXUtil
      * "Binds" the destination list to the observable source list with a transformation function applied.
      * Whenever the source list changes, the destination list is altered to match by applying
      * the given function to each element in the source list.
+     * 
+     * @param dest The destination list to copy to
+     * @param src The source list to copy from
+     * @param func The function to apply to each item from src, when copying into dest.
      */
     public static <SRC2, DEST2> void bindMap(List<DEST2> dest, ObservableList<SRC2> src, Function<SRC2, DEST2> func)
     {
         dest.clear();
         dest.addAll(Utility.mapList(src, func));
         
-        src.addListener(new ListChangeListener<SRC2>() {
-    
+        src.addListener(new ListChangeListener<SRC2>()
+        {
+
             @Override
-            public void onChanged(ListChangeListener.Change<? extends SRC2> changes) {
-            while (changes.next())
+            public void onChanged(ListChangeListener.Change<? extends SRC2> changes)
             {
-                if (changes.wasPermutated() || changes.wasUpdated())
+                while (changes.next())
                 {
-                    // Same code for updated, replaced and permutation, just recalc the range:
-                    for (int i = changes.getFrom(); i < changes.getTo(); i++)
-                        dest.set(i, func.apply(src.get(i)));
+                    if (changes.wasPermutated() || changes.wasUpdated())
+                    {
+                        // Same code for updated, replaced and permutation, just recalc the range:
+                        for (int i = changes.getFrom(); i < changes.getTo(); i++)
+                            dest.set(i, func.apply(src.get(i)));
+                    }
+                    else
+                    {
+                        for (int i = 0; i < changes.getRemovedSize(); i++)
+                            dest.remove(changes.getFrom());
+                        for (int i = 0; i < changes.getAddedSubList().size(); i++)
+                            dest.add(i + changes.getFrom(), func.apply(changes.getAddedSubList().get(i)));
+                    }
                 }
-                else
-                {
-                    for (int i = 0; i < changes.getRemovedSize(); i++)
-                        dest.remove(changes.getFrom());
-                    for (int i = 0; i < changes.getAddedSubList().size();i++)
-                        dest.add(i + changes.getFrom(), func.apply(changes.getAddedSubList().get(i)));
-                }
-            }
             }
         });
     }
 
-    public static <SRC, DEST> ObservableList<DEST> mapObservableList(ObservableList<SRC> src, Function<SRC, DEST> func)
-    {
-        ObservableList<DEST> r = FXCollections.observableArrayList();
-        bindMap(r, src, func);
-        return r;
-    }
-    
     /**
-     * Runs the given function on the FX thread, and puts the result
-     * in the returned future once completed.  It's the callback's job to
-     * catch any exceptions and return a suitable value.
+     * When the given future completes, calls the given callback on the FX thread
+     * with the value.
      * 
-     * If you try to get() the result in an FX thread, you may well deadlock!
+     * This function is asynchronous; it does not block, but rather uses a background thread.
+     * 
+     * @param future The future to wait for completion on
+     * @param andThen The callback to pass the completed value to, on the FX thread.
+     * @param <T> The type inside the future.
      */
-    @OnThread(Tag.Any)
-    public static <T> CompletableFuture<T> future(FXSupplier<T> r)
-    {
-        CompletableFuture<T> f = new CompletableFuture<>();
-        Platform.runLater(() -> f.complete(r.get()));
-        return f;
-    }
-    
     public static <T> void bindFuture(Future<T> future, FXConsumer<T> andThen)
     {
         new Thread(() -> {
@@ -899,38 +866,16 @@ public class JavaFXUtil
             }
             
         }).start();
-    }
-    /*
-    public static <T, U> FXSupplier<U> bindFutureFunc(Future<T> future, FXFunction<T, U> andThen)
-    {
-        SynchronousQueue q = new SynchronousQueue<>();
-        new Thread(() -> {
-            try
-            {
-                T x = future.get();
-                Platform.runLater(() -> andThen.accept(x));
-            }
-            catch (ExecutionException | InterruptedException e)
-            {
-                Debug.reportError(e);
-            }
-            
-        }).start();
-    }
-    */
-    
-    public static <T> void bindAtomic(ObservableValue<T> from, AtomicReference<T> to)
-    {
-        from.addListener((a, b, newVal) -> to.set(newVal));
-    }
+    }    
     
     /**
-     * Takes a BooleanProperty and an item.  Gives back an observable list that contains
+     * Takes a BooleanProperty and a list of item.  Gives back an observable list that contains
      * the list of items when (and only when) the BooleanProperty is true, but is empty in the case
-     * that the BooleanProperty is false.  Uses JavaFX bean bindings to update the list's contents.
-     * @param putInList
-     * @param item
-     * @return
+     * that the BooleanProperty is false.  Uses JavaFX bindings to update the list's contents.
+     * 
+     * @param putInList Whether the list should contain the items (true expression) or be empty (false expression)
+     * @param items The items to put in the list when putInList is true
+     * @return The ObservableList which will (or will not) contain the items.
      */
     public static <T> ObservableList<T> listBool(BooleanExpression putInList, T... items)
     {
@@ -953,6 +898,11 @@ public class JavaFXUtil
      * Creates a ChangeListener that will execute the given action (with the new value)
      * once, on the first change, and then remove itself as a listener.  Also returns
      * an action that can remove the listener earlier.
+     * 
+     * @param prop The observable value
+     * @param callback A listener, to be called at most once, on the first change of "prop"
+     * @return An action which, if run, removes this listener.  If the listener has already
+     *         been run once, has no effect.
      */
     public static <T> FXRunnable addSelfRemovingListener(ObservableValue<T> prop, FXConsumer<T> callback)
     {
@@ -973,6 +923,13 @@ public class JavaFXUtil
     /**
      * Makes one list (dest) always contain the contents of the other (src) until the returned
      * action is executed to cancel the binding.
+     * 
+     * This is effectively identical to binding on non-lists, but FX doesn't contain built-in
+     * support for binding lists, so we do it ourselves.
+     * 
+     * @param dest The list to copy to
+     * @param src The list to copy from
+     * @return An action which, if run, cancels this binding effect.
      */
     public static <T> FXRunnable bindList(ObservableList<T> dest, ObservableList<T> src)
     {
@@ -983,30 +940,30 @@ public class JavaFXUtil
     }
 
     /**
-     * Makes one list (dest) always contain the contents of the other (src) until the returned
-     * action is executed to cancel the binding.
+     * Helper method for ObservableValue.addChangeListener.  It's very rare
+     * that you care about all three parameters to addChangeListener (the change,
+     * the old value and the new value).  Usually, you just want the new value.
+     * This method lets you specify a lambda which only takes the new value,
+     * and thus saves you having two unused parameters every time.
+     * 
+     * @param property The observable item to add the change listener to.
+     *                 Must only ever be altered on the FX thread.
+     * @param listener The listener to add; whenever there is a change in the property,
+     *                 the listener will be called back with the new value.
+     * @param <T>      The type in the observable.
+     * @return An action which, if run, removes the change listener from the property.
      */
-    public static <T> FXRunnable bindSet(ObservableSet<T> dest, ObservableSet<T> src)
-    {
-        SetChangeListener<T> obs = c -> {
-            if (c.wasAdded())
-                dest.add(c.getElementAdded());
-            if (c.wasRemoved())
-                dest.remove(c.getElementRemoved());
-        };
-        dest.clear();
-        dest.addAll(src);
-        src.addListener(obs);
-        return () -> src.removeListener(obs);
-    }
-    
     public static <T> FXRunnable addChangeListener(ObservableValue<T> property, FXConsumer<T> listener)
     {
         ChangeListener<T> wrapped = (a, b, newVal) -> listener.accept(newVal);
         property.addListener(wrapped);
         return () -> property.removeListener(wrapped);
     }
-    
+
+    /**
+     * Creates a single FXRunnable which runs the given list of actions in order,
+     * one after the other, on the FX thread.
+     */
     public static FXRunnable sequence(FXRunnable... actions)
     {
         return () -> Arrays.stream(actions).forEach(FXRunnable::run);
@@ -1014,7 +971,14 @@ public class JavaFXUtil
 
     /**
      * Runs the given task on the FX Platform thread after the given delay.
-     * Returns a task which, if executed, cancels the task.
+     * Returns a task which, if executed, cancels the task.  This can be done synchronously,
+     * since the task runs on the FX thread and so does this call; you cannot make this call
+     * during an execution of the task.
+     * 
+     * @param delay The delay before running the task (if zero or less, task is run before returning)
+     * @param task The task to run (on the FX thread)
+     * @return An action which, if run, cancels the execution of the task.  If the task
+     *         has already run, running this returned item has no effect.
      */
     public static FXRunnable runAfter(Duration delay, FXRunnable task)
     {
@@ -1044,7 +1008,14 @@ public class JavaFXUtil
      * Runs the given task on the FX Platform thread after the given interval,
      * and then forever-after, with the given interval between each execution.
      * 
-     * Returns an action hich, if executed, cancels the task.
+     * Returns an action which, if executed, cancels the task.  This can be done synchronously,
+     * since the task runs on the FX thread and so does this call; you cannot make this call
+     * during an execution of the task.
+     * 
+     * @param interval The interval between tasks, and from now until the first run.
+     *                 Must be greater than zero
+     * @param task     The task to run (on the FX thread)
+     * @return An action which, if executed, will cancel all future executions of the task.
      */
     public static FXRunnable runRegular(Duration interval, FXRunnable task)
     {
@@ -1068,17 +1039,29 @@ public class JavaFXUtil
             timeline.stop();
         };
     }
-    
-    public static boolean isDragCopyKeyPressed(KeyEvent event)
-    {
-        return Config.isMacOS() ? event.isAltDown() : event.isShortcutDown();
-    }
-    
+
+    /**
+     * Checks if the drag-copy shortcut was held down during a particular mouse event.
+     * 
+     * On Mac this is the option key.  On Windows and Linux, this is the Ctrl key.
+     */
     public static boolean isDragCopyKeyPressed(MouseEvent event)
     {
         return Config.isMacOS() ? event.isAltDown() : event.isShortcutDown();
     }
-    
+
+    /**
+     * Binds the pseudo-classes on the given node to the given set.
+     * 
+     * This translates into adding/removing classes as they are added/removed
+     * from the given set, as well as adding all classes from the set initially.
+     * 
+     * If there is an orthogonal class, i.e. one never used at all in the from set,
+     * it is valid to set that class on/off on the "to" node before or after this binding call.
+     * 
+     * @param to The node on which to set the pseudo-classes
+     * @param from The set of pseudo-classes to copy from
+     */
     public static void bindPseudoclasses(Node to, ObservableSet<PseudoClass> from)
     {
         from.addListener((SetChangeListener<PseudoClass>)c -> {

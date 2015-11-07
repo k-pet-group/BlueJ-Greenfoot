@@ -175,8 +175,8 @@ public class BreakFrame extends SingleLineFrame
             this.outer = outer;
             rectangle = new Rectangle();
             overlay = new VBox(rectangle);
-            JavaFXUtil.setStyleClass(overlay, true, "break-frame-overlay");
-            JavaFXUtil.setStyleClass(rectangle, true, "break-frame-overlay-rect");
+            JavaFXUtil.addStyleClass(overlay, "break-frame-overlay");
+            JavaFXUtil.addStyleClass(rectangle, "break-frame-overlay-rect");
             JavaFXUtil.setPseudoclass(pseudo, true, overlay, rectangle);
 
             xOffset = new SimpleDoubleProperty(0.0);

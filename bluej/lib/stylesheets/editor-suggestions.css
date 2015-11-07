@@ -15,12 +15,13 @@
 .suggestion {
     -fx-padding: 0 2 0 0;
     -fx-cursor: hand;
+    -fx-background-color: suggestion-background;
 }
 
 .suggestion-prefix, .suggestion-matching, .suggestion-next, .suggestion-suffix {
     -fx-label-padding: 0 -2 0 0;
 }
-.suggestion-matching, .suggestion-type-match {
+.suggestion-matching, .suggestion-type:bj-match {
     -fx-underline: true;
 }
 
@@ -36,10 +37,7 @@
     -fx-background-radius: 2;
 }
 
-.suggestion-nohighlight {
-   -fx-background-color: suggestion-background;
-}
-.suggestion-highlight {
+.suggestion:bj-suggestion-highlight {
     -fx-background-color: hsb(180, 30%, 90%); 
 }
 

@@ -65,7 +65,7 @@ class Suggestion
         this.type = new ScalableHeightLabel(type, false);
         this.type.minWidthProperty().bind(typeWidth);
         this.type.maxWidthProperty().bind(typeWidth);
-        JavaFXUtil.selectStyleClass(typeMatch ? 1 : 0, this.type, "suggestion-type-normal", "suggestion-type-match");
+        JavaFXUtil.setPseudoclass("bj-match", typeMatch, this.type);
         this.prefix = new ScalableHeightLabel("", false);
         this.matching = new ScalableHeightLabel("", false);
         this.next = new ScalableHeightLabel(text.substring(0, 1), false);
@@ -100,12 +100,12 @@ class Suggestion
         pane.setCenter(hbox);
         pane.setRight(buttonHint);
         
-        JavaFXUtil.addStyleClass(pane, "suggestion", "suggestion-nohighlight", direct ? "suggestion-direct" : "suggestion-similar");
+        JavaFXUtil.addStyleClass(pane, "suggestion", direct ? "suggestion-direct" : "suggestion-similar");
     }
     
     public void setHighlight(boolean on)
     {
-        JavaFXUtil.selectStyleClass(on ? 1 : 0, pane, "suggestion-nohighlight", "suggestion-highlight");
+        JavaFXUtil.setPseudoclass("bj-suggestion-highlight", on, pane);
         setHintShowing(on, true);
     }
 
