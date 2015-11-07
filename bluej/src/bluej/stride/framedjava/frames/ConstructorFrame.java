@@ -219,10 +219,11 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
     }
 
     @Override
-    public List<FrameOperation> getContextOperations(InteractionManager editor) {
-        List<FrameOperation> r = new ArrayList<>(super.getContextOperations(editor));
+    public List<FrameOperation> getContextOperations()
+    {
+        List<FrameOperation> r = new ArrayList<>(super.getContextOperations());
 
-        r.add(new CustomFrameOperation(editor, "constructor->method",
+        r.add(new CustomFrameOperation(getEditor(), "constructor->method",
                 Arrays.asList("Change", "to normal method"), MenuItemOrder.TRANSFORM, this, () -> {
 
                     // TODO AA enhance the code

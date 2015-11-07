@@ -1433,7 +1433,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends Tab implements Interaction
     {
         // Add ourselves, in case we were closed previously (no harm in calling twice)
         if (vis)
-            parent.addFrameEditor(this, menuManager::getMenus, vis, bringToFront);
+            parent.addFrameEditor(this, vis, bringToFront);
         parent.setWindowVisible(vis, this);
         if (bringToFront)
             parent.bringToFront(this);

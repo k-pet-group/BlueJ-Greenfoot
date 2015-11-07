@@ -206,7 +206,6 @@ public @OnThread(Tag.FX) class FXTabbedEditor
 
         tabPane = new TabPane();
         tabPane.setTabClosingPolicy(TabClosingPolicy.ALL_TABS);
-        tabs = tabPane.getTabs();
         menuBar = new MenuBar();
         JavaFXUtil.addStyleClass(menuBar, "editor-menubar");
         menuBar.setUseSystemMenuBar(true);
@@ -489,7 +488,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
     }
 
     /**
-     * Schedules a future compilation (@see Project.scheduleCompilation) */
+     * Schedules a future compilation (@see Project.scheduleCompilation)
      */
     @OnThread(Tag.Any)
     public void scheduleCompilation()

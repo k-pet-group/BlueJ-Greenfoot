@@ -30,7 +30,6 @@ import bluej.stride.slots.SlotLabel;
 import bluej.utility.Utility;
 import bluej.utility.javafx.SharedTransition;
 import javafx.application.Platform;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;
@@ -91,9 +90,9 @@ public abstract class SingleLineFrame extends Frame
     }
 
     @Override
-    public List<FrameOperation> getContextOperations(InteractionManager editor)
+    public List<FrameOperation> getContextOperations()
     {
-        List<FrameOperation> ops = new ArrayList<>(super.getContextOperations(editor));
+        List<FrameOperation> ops = new ArrayList<>(super.getContextOperations());
 
         int i = 0;
         for (FrameState state : recentValues)
@@ -103,12 +102,12 @@ public abstract class SingleLineFrame extends Frame
             // once there's a change, it will become index 1, and thus shown)
             if (i > 0)
             {
-                ops.add(new FrameOperation(editor, "revert" + i, Combine.ONE)
+                ops.add(new FrameOperation(getEditor(), "revert" + i, Combine.ONE)
                 {
                     @Override
                     protected void execute(List<Frame> frames)
                     {
-                        replaceWith(Loader.loadElement(state.value).createFrame(editor));
+                        getParentCanvas().replaceBlock(SingleLineFrame.this, Loader.loadElement(state.value).createFrame(editor));
                     }
 
                     @Override

@@ -274,9 +274,11 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
     }
     
     @Override
-    public List<FrameOperation> getContextOperations(InteractionManager editor)
+    public List<FrameOperation> getContextOperations()
     {
-        List<FrameOperation> r = new ArrayList<>(super.getContextOperations(editor));
+        List<FrameOperation> r = new ArrayList<>(super.getContextOperations());
+        
+        InteractionManager editor = getEditor();
         
         r.add(new CustomFrameOperation(editor, "method->constructor",
                 Arrays.asList("Change", "to constructor"), MenuItemOrder.TRANSFORM, this, () -> {

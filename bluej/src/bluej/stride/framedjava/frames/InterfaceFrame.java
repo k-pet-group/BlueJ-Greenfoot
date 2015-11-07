@@ -271,7 +271,7 @@ public class InterfaceFrame extends DocumentedSingleCanvasFrame
     public Stream<RecallableFocus> getFocusables()
     {
         // All slots, and all cursors:
-        return getFocusablesInclContained(this);
+        return getFocusablesInclContained();
     }
 
     @Override

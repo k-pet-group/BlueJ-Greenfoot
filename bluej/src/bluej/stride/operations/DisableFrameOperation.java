@@ -42,13 +42,13 @@ public class DisableFrameOperation extends FrameOperation
     @Override
     public void enablePreview()
     {
-        editor.getSelection().getSelected().forEach(frame -> frame.setFrameEnablePreview(Optional.of(false)));
+        editor.getSelection().getSelected().forEach(frame -> frame.setFrameEnablePreview(Frame.FramePreviewEnabled.PREVIEW_DISABLED));
     }
 
     @Override
     public void disablePreview()
     {
-        editor.getSelection().getSelected().forEach(frame -> frame.setFrameEnablePreview(Optional.empty()));
+        editor.getSelection().getSelected().forEach(frame -> frame.setFrameEnablePreview(Frame.FramePreviewEnabled.PREVIEW_NONE));
     }
 
     @Override

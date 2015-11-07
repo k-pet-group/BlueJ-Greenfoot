@@ -131,13 +131,13 @@ public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeF
     }    
 
     @Override
-    public List<FrameOperation> getContextOperations(InteractionManager editor)
+    public List<FrameOperation> getContextOperations()
     {
-        List<FrameOperation> r = new ArrayList<>(super.getContextOperations(editor));
+        List<FrameOperation> r = new ArrayList<>(super.getContextOperations());
         
         if (parentIsClass.get()) 
         {
-            r.add(new CustomFrameOperation(editor, "abstract->concrete",
+            r.add(new CustomFrameOperation(getEditor(), "abstract->concrete",
                     Arrays.asList("Change", "to Concrete"), MenuItemOrder.TRANSFORM, this, () -> {
                         FrameCursor c = getCursorBefore();
 

@@ -116,10 +116,10 @@ public class ForeachFrame extends SingleCanvasFrame
     }
 
     @Override
-    public List<FrameOperation> getContextOperations(InteractionManager editor)
+    public List<FrameOperation> getContextOperations()
     {
-        List<FrameOperation> r = super.getContextOperations(editor);
-        r.add(new PullUpContentsOperation(editor));
+        List<FrameOperation> r = super.getContextOperations();
+        r.add(new PullUpContentsOperation(getEditor()));
         return r;
     }
 

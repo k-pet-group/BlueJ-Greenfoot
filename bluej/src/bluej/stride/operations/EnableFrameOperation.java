@@ -23,10 +23,9 @@ package bluej.stride.operations;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import bluej.stride.slots.EditableSlot.MenuItemOrder;
-import javafx.beans.value.ObservableValue;
+
 import javafx.scene.control.CustomMenuItem;
 
 import bluej.stride.generic.Frame;
@@ -42,13 +41,13 @@ public class EnableFrameOperation extends FrameOperation
     @Override
     public void enablePreview()
     {
-        editor.getSelection().getSelected().forEach(frame -> frame.setFrameEnablePreview(Optional.of(true)));
+        editor.getSelection().getSelected().forEach(frame -> frame.setFrameEnablePreview(Frame.FramePreviewEnabled.PREVIEW_ENABLED));
     }
 
     @Override
     public void disablePreview()
     {
-        editor.getSelection().getSelected().forEach(frame -> frame.setFrameEnablePreview(Optional.empty()));
+        editor.getSelection().getSelected().forEach(frame -> frame.setFrameEnablePreview(Frame.FramePreviewEnabled.PREVIEW_NONE));
     }
 
     @Override

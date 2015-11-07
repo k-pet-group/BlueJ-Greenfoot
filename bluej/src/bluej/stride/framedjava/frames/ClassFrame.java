@@ -497,9 +497,9 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
     }
 
     @Override
-    public List<FrameOperation> getContextOperations(InteractionManager editor)
+    public List<FrameOperation> getContextOperations()
     {
-        return Arrays.asList(new CustomFrameOperation(editor, "addRemoveAbstract", Arrays.asList("Toggle abstract"), MenuItemOrder.TOGGLE_ABSTRACT, this, () ->  abstractModifier.set(!abstractModifier.get())));
+        return Arrays.asList(new CustomFrameOperation(getEditor(), "addRemoveAbstract", Arrays.asList("Toggle abstract"), MenuItemOrder.TOGGLE_ABSTRACT, this, () ->  abstractModifier.set(!abstractModifier.get())));
     }
     
     @Override
@@ -983,7 +983,7 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
     public Stream<RecallableFocus> getFocusables()
     {
         // All slots, and all cursors:
-        return getFocusablesInclContained(this);
+        return getFocusablesInclContained();
     }
     
     @Override

@@ -192,7 +192,7 @@ public class FrameEditor implements Editor
         //Debug.message("&&&&&& Creating panel: " + System.currentTimeMillis());
         this.panel = new FrameEditorTab(fXTabbedEditor, resolver, this, lastSource);
         //Debug.message("&&&&&& Adding panel to editor: " + System.currentTimeMillis());
-        fXTabbedEditor.addFrameEditor(this.panel, this.panel::getMenus, visible, toFront);
+        fXTabbedEditor.addFrameEditor(this.panel, visible, toFront);
         //Debug.message("&&&&&& Done! " + System.currentTimeMillis());
         // Saving Java will trigger any pending actions like jumping to a stack trace location:
         panel.initialisedProperty().addListener((a, b, newVal) -> {

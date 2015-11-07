@@ -304,14 +304,14 @@ public class VarFrame extends SingleLineFrame
     }
 
     @Override
-    public List<FrameOperation> getContextOperations(InteractionManager editor)
+    public List<FrameOperation> getContextOperations()
     {
-        List<FrameOperation> r = new ArrayList<>(super.getContextOperations(editor));
+        List<FrameOperation> r = new ArrayList<>(super.getContextOperations());
         // is in class?
         if (isField(getParentCanvas())) {
-            r.add(new ToggleStaticVar(editor));
+            r.add(new ToggleStaticVar(getEditor()));
         }
-        r.add(new ToggleFinalVar(editor));
+        r.add(new ToggleFinalVar(getEditor()));
         return r;
     }
 

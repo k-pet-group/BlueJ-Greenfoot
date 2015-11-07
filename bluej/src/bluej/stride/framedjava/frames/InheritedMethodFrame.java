@@ -121,11 +121,11 @@ public class InheritedMethodFrame extends SingleLineFrame
     }
     
     @Override
-    public List<FrameOperation> getContextOperations(InteractionManager editor)
+    public List<FrameOperation> getContextOperations()
     {
         List<FrameOperation> operations = new ArrayList<>();
         
-        operations.add(new FrameOperation(editor, "GO TO " + originatingClass + "." + methodName, Combine.ONE) {
+        operations.add(new FrameOperation(getEditor(), "GO TO " + originatingClass + "." + methodName, Combine.ONE) {
 
             // Spaces make sure menu is wide enough:
             private StringProperty text = new SimpleStringProperty("Scanning...                   ");

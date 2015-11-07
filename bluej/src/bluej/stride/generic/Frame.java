@@ -30,7 +30,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -38,10 +37,8 @@ import bluej.stride.framedjava.elements.CodeElement;
 import javafx.application.Platform;
 import javafx.beans.binding.When;
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.collections.FXCollections;
@@ -82,42 +79,139 @@ import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
 
 /**
- * The base frame control from which specific frames are built.
+ * The base frame from which specific frames are derived.
  * 
- * The Frame class should be completely language-agnostic, and should focus on layout and GUI properties.
- * For example, if we swapped the editor to work on XML, Frame should be unchanged.
+ * Frame relates primarily to the GUI representation of a frame.  For the semantic side, see
+ * the CodeElement class instead.
+ * 
+ * Frames often implement the CodeFrame interface, from which you can generate a CodeElement
+ * (e.g. for saving and compiling).  Most CodeElements are also frame factories (e.g. for loading).
  * 
  * @author Fraser McKay
  */
 public abstract class Frame implements CursorFinder, FocusParent<FrameContentItem>, ErrorShower
 {
-    // 0 means no preview, 1 means preview as enabled, 2 means preview as disabled:
-    private static int FRAME_ENABLE_PREVIEW_NO_PREVIEW = 0;
-    private static int FRAME_ENABLE_PREVIEW_ENABLED = 1;
-    private static int FRAME_ENABLE_PREVIEW_DISABLED = 2;
+    /**
+     * The list of contents of a frame.  The primary dimension of a frame is vertical:
+     * the FrameContentItem objects in this list are laid out vertically within the frame,
+     * with the first in the list shown at the top.  FrameContentItem is typically either
+     * a FrameContentRow (a flow pane, e.g. for frame headers or single frame contents), or
+     * a FrameCanvas (e.g. body of a while frame), or documentation (e.g. top of method frame)
+     * 
+     * FrameContentItem is a logical container, not a GUI item directly.
+     */
     protected final ObservableList<FrameContentItem> contents = FXCollections.observableArrayList();
+    
+    /**
+     * All frames have a header row, so we include it in the base class.  The header will
+     * also always (I *think*) be in the contents list above, but a reference is kept separately for convenience).
+     * header is never null.
+     */
     protected final FrameContentRow header;
+
+    /**
+     * The headerCaptionLabel is often, but not always, present in the header.  In an IfFrame
+     * this is the label showing "if".  Method frames don't have one.  Again, it's kept as a
+     * separate reference for convenience.  It may be null.
+     */
     protected final SlotLabel headerCaptionLabel;
+
+    /**
+     * Property tracking where this frame is enabled or disabled (akin to commented out)
+     */
     protected final BooleanProperty frameEnabledProperty = new SimpleBooleanProperty(true);
     /**
-     * Area that contains the frame content
+     * The actual GUI control that contains the frame content (based on this.contents).  Never null.
      */
     private final BetterVBox frameContents;
-    // When the frame is disabled, we keep track of whether this is the root (the highest level disabled frame),
-    // because only the root should display the blur effect.  Without this, all child frames get
-    // double-, triple-, etc- blurred.
-    private final BooleanProperty disabledRoot = new SimpleBooleanProperty(true);
-    private final IntegerProperty framePreviewEnableProperty = new SimpleIntegerProperty(0);
-    private final BooleanProperty frameDragSourceProperty = new SimpleBooleanProperty(false);
-    private final InteractionManager editor;
-    private final BooleanProperty fresh = new SimpleBooleanProperty(false);
-    private final ObservableList<CodeError> allFrameErrors = FXCollections.observableArrayList();
-    private final ObjectProperty<CodeError> shownError = new SimpleObjectProperty<>(null);
-    private FrameCanvas parentCanvas;
-    private boolean alwaysBeenBlank = true;
     /**
-     * Creates a new block with a default caption for the statement (e.g. "break", "continue", "for").
-     * @param caption The default caption string.
+     * When the frame is disabled, we keep track of whether this is the root (the highest level disabled frame),
+     * because only the root should display the blur effect.  Without this tracking, all child frames get
+     * double-, triple-, etc- blurred.
+     */
+    private final BooleanProperty disabledRoot = new SimpleBooleanProperty(true);
+    
+    /** enum for keeping track of frame preview state */
+    public static enum FramePreviewEnabled
+    {
+        PREVIEW_NONE, PREVIEW_ENABLED, PREVIEW_DISABLED;
+    }
+
+    /**
+     * A frame can be enabled or disabled, which is tracked via frameEnabledProperty.
+     * But when the user hovers over enable or disable in the context menu, we also
+     * show a preview of the opposite state.  This property keeps track of whether
+     * we are showing no preview (most common option), and thus display according to
+     * frameEnabledProperty, or whether we are showing a preview of the enabled or disabled
+     * state.
+     */
+    private final ObjectProperty<FramePreviewEnabled> framePreviewEnableProperty = new SimpleObjectProperty(FramePreviewEnabled.PREVIEW_NONE);
+
+    /**
+     * Tracks whether this frame is the source of a current drag operation.  If so,
+     * it is displayed with a blur effect.
+     */
+    private final BooleanProperty frameDragSourceProperty = new SimpleBooleanProperty(false);
+
+    /**
+     * A reference to the editor in which this frame lives.  A frame object may never move editor;
+     * any operation that appears to do this actually creates a new copy of the frame.
+     */
+    private final InteractionManager editor;
+
+    /**
+     * Keeps track of whether the frame is fresh.  A fresh frame is one which has been inserted
+     * but the user has not yet left the frame since creation.  Fresh frames are not checked
+     * for errors until they lose focus, to avoid red error underlines popping up as you
+     * enter new (and thus partially complete) code.
+     */
+    private final BooleanProperty fresh = new SimpleBooleanProperty(false);
+
+    /**
+     * A list of all the *frame errors* which exist right now for this frame.  A frame error
+     * is one that belongs to the frame, typically because there is no suitable slot to display
+     * it in instead.  An example is if you put two return frames without a value.  The second
+     * return frame should show an unreachable code error, but there's no sensible slot to show it
+     * on, so we attach it to the return frame.  That goes in allFrameErrors.  In contrast,
+     * a syntax error in an if condition is not a frame error; that gets attached to the 
+     * expression slot for the condition.
+     * 
+     * Only one frame error is shown at any given time; this is tracked in shownError.
+     */
+    private final ObservableList<CodeError> allFrameErrors = FXCollections.observableArrayList();
+
+    /**
+     * shownError is usually null, but if there are any *frame errors* (see allFrameErrors)
+     * then one of them is picked and shown as a red border around the frame.  This property
+     * keeps track of which error was picked.  shownError should be null if and only if allFrameErrors is empty.
+     */
+    private final ObjectProperty<CodeError> shownError = new SimpleObjectProperty<>(null);
+
+    /**
+     * The parent canvas of this frame.  It can be null, if the frame is not in a parent canvas.
+     * This canvas will change at most twice during the frame's lifetime:
+     *   - Once, from null to a parent canvas when the frame gets inserted somewhere
+     *   - Optionally, once more back to null when the frame is discarded.
+     * It should thus never move canvas in its lifetime (this is usually done by making a new
+     * copy), only be added and removed from one.
+     */
+    private FrameCanvas parentCanvas = null;
+
+    /**
+     * Keep track of whether a frame has always been blank (or near-blank).  Frames which have
+     * had no content inserted yet can be removed by pressing the escape key.
+     */
+    private boolean alwaysBeenBlank = true;
+    
+    /**
+     * Creates a new frame.
+     * 
+     * @param editor The editor that this frame belongs to
+     * @param caption The caption to use in the header label.  If null, no header label is
+     *                added to the frame
+     * @param stylePrefix The prefix to be added on to the CSS style class.  If you pass, e.g.
+     *                    "if-", the frame will get the style classes "frame" and "if-frame".
+     *                    May not be null.
      */
     public Frame(final InteractionManager editor, String caption, String stylePrefix)
     {
@@ -141,8 +235,11 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
             }
         };
         //Debug.time("&&&&&& Constructing frame");
+        if (stylePrefix == null)
+            throw new NullPointerException();
         frameContents.getStyleClass().addAll("frame", stylePrefix + "frame");
         
+        // When we are enabled/disabled, update our child slot states and trigger a compilation.
         frameEnabledProperty.addListener((a, b, enabled) -> {
             getEditableSlotsDirect().forEach(e -> e.setEditable(enabled));
             editor.modifiedFrame(this);
@@ -152,30 +249,34 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
 
         //  Here's the state diagram for when we are enabled/disabled, and the preview state, as to what
         //  effect we should show:
-        //  -------------------------------------------------
-        //  | Actual   | _NO_PREVIEW | _DISABLED | _ENABLED |
-        //  -------------------------------------------------
-        //  | Enabled  | Enabled     | Disabled  | Enabled  |
-        //  | Disabled | Disabled    | Disabled  | Enabled  |
-        //  -------------------------------------------------
-        // This our test for showing disabled effect is either FRAME_ENABLE_PREVIEW_DISABLED, or
+        //  ---------------------------------------------------
+        //  | Actual   | _PREVIEW_NONE | _DISABLED | _ENABLED |
+        //  ---------------------------------------------------
+        //  | Enabled  | Enabled       | Disabled  | Enabled  |
+        //  | Disabled | Disabled      | Disabled  | Enabled  |
+        //  ---------------------------------------------------
+        // Thus, our test for showing disabled effect is either PREVIEW_DISABLED, or
         // not enabled && FRAME_ENABLE_PREVIEW_NO_PREVIEW
 
         // I suspect this could be done better:
         frameContents.effectProperty().bind(
-            new When(disabledRoot.and(frameEnabledProperty.not().and(framePreviewEnableProperty.isEqualTo(FRAME_ENABLE_PREVIEW_NO_PREVIEW)).or(framePreviewEnableProperty.isEqualTo(FRAME_ENABLE_PREVIEW_DISABLED))))
+            new When(disabledRoot.and(frameEnabledProperty.not().and(framePreviewEnableProperty.isEqualTo(FramePreviewEnabled.PREVIEW_NONE)).or(framePreviewEnableProperty.isEqualTo(FramePreviewEnabled.PREVIEW_DISABLED))))
                .then(new When(frameDragSourceProperty )
                          .then(FrameEffects.getDragSourceAndDisabledEffect())
                          .otherwise(FrameEffects.getDisabledEffect()))
                .otherwise(new When(frameDragSourceProperty)
                              .then(FrameEffects.getDragSourceEffect())
                              .otherwise((Effect)null)));
-        // Drag and drop
+        
+        // We put some setup into the editor class because the setup requires a lot of access
+        // to editor internals.  Easier to pass the editor the frame than it is to expose all
+        // the editor internals to the frame.
+        this.editor = editor;
         if (editor != null) {
             editor.setupFrame(this);
         }
         
-        this.editor = editor;
+        
         //Debug.time("&&&&&&   Making frame internals");
 
         if (caption == null)
@@ -189,20 +290,27 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
 
 
         header = makeHeader(stylePrefix);
+        
+        // Whenever the logical containers in contents change, we update the
+        // GUI elements in frameContents:
+        
         // Add listener before setAll call:
         contents.addListener((ListChangeListener<? super FrameContentItem>) c -> frameContents.getChildren().setAll(calculateContents(Utility.mapList(contents, FrameContentItem::getNode))));
         contents.setAll(header);
         
-        // By default, add caption (done automatically by method):
+        // By default, the header row contains only the caption, if present:
         setHeaderRow();
 
-
+        // In the case that someone tries to focus the frame directly, we pass the focus
+        // on to the cursor after us.  (Not sure if we need this any more?)
         getNode().focusedProperty().addListener( (observable, oldValue, newValue) -> {
             if (newValue) {
                 getCursorAfter().requestFocus();
             }
         });
         
+        // Whenever a *frame error* (not slot error) is added, we recalculate whether,
+        // and which error to show.
         allFrameErrors.addListener((ListChangeListener<CodeError>)c -> {
             shownError.set(allFrameErrors.stream().min(CodeError::compareErrors).orElse(null));
             FXRunnable update = () -> JavaFXUtil.setPseudoclass("bj-frame-error", shownError.get() != null, frameContents);
@@ -216,12 +324,11 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
         
         //Debug.time("&&&&&& Constructed frame");
     }
-    
-    private static void blitImage(WritableImage dest, int xOffset, int yOffset, Image src)
-    {
-        dest.getPixelWriter().setPixels(xOffset, yOffset, (int)(Math.ceil(src.getWidth())), (int)(Math.ceil(src.getHeight())), src.getPixelReader(), 0, 0);
-    }
 
+    /**
+     * Helper method to take an image (screenshot) of the given list of frames,
+     * optionally with the given colour of border around the image.
+     */
     public static Image takeShot(List<Frame> frames, Color border /* none if null */)
     {
         int totalHeight = 0;
@@ -268,17 +375,22 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
             f.getNode().snapshot(p, image);
             f.disabledRoot.set(dr);
             JavaFXUtil.setPseudoclass("bj-hide-caret", false, f.getNode());
-            Frame.blitImage(collated, xOffset, yOffset + y, image);
+            JavaFXUtil.blitImage(collated, xOffset, yOffset + y, image);
             y += (int)Math.ceil(b.getHeight()) + FrameCursor.HIDE_HEIGHT;
         }
         
         return collated;
     }
 
-    protected static Stream<RecallableFocus> getFocusablesInclContained(Frame f)
+    /**
+     * Gets all RecallableFocus items within the frame, to unlimited depth.
+     * Used for undo; see RecallableFocus.
+     * @return A stream of all contained RecallableFocus items
+     */
+    protected Stream<RecallableFocus> getFocusablesInclContained()
     {
-        return Utility.concat(f.getEditableSlotsDirect(), f.getPersistentCanvases().flatMap(c -> c.getFocusableCursors().stream()),
-                 f.getPersistentCanvases().flatMap(c -> c.getBlockContents().stream()).flatMap(Frame::getFocusablesInclContained));
+        return Utility.concat(getEditableSlotsDirect(), getPersistentCanvases().flatMap(c -> c.getFocusableCursors().stream()),
+            getPersistentCanvases().flatMap(c -> c.getBlockContents().stream()).flatMap(Frame::getFocusablesInclContained));
     }
 
     // TODO should probably be in CSS
@@ -293,46 +405,44 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
         return n == header.getNode() ? 1.0 : 0.0;
     }
 
+    // TODO should probably be in CSS
     protected double getBottomMarginFor(Node n)
     {
         return 0.0;
     }
 
+    /**
+     * Makes the header row, using the given style prefix.
+     * Drawn out into its own method so that it can be overridden and customised in subclasses.
+     */
     protected FrameContentRow makeHeader(String stylePrefix)
     {
         return new FrameContentRow(this, stylePrefix);
     }
-    
-    // Can be overridden in subclasses to add more content:
+
+    /**
+     * Given the normal content for this frame, gives back a list of altered content.
+     * This is overridden by subclasses, for example, to add sidebar displays. 
+     * 
+     * Can be overridden in subclasses to add more content.  By default just returns its
+     * list of nodes.
+     */
     protected List<? extends Node> calculateContents(List<Node> normalContent)
     {
         return normalContent;
     }
 
-    public List<FrameOperation> getContextOperations(InteractionManager editor)
-    {
-        return getStandardOperations(editor);
-    }
-    
     /**
-     * Insert the given block in place of this one (and remove this block when finished).
-     * @param replacement Block to be put on the parent in this block's place
+     * Gets a list of available context operations for this frame.
+     * Overridden by subclasses.
      */
-    public void replaceWith(Frame replacement)
+    public List<FrameOperation> getContextOperations()
     {
-        getParentCanvas().replaceBlock(this, replacement);
-    }
-    
-    protected void addUnmanagedToBlockContainer(Node n)
-    {
-        if (n.isManaged()) {
-            throw new IllegalArgumentException("Attempting to add managed node as unmanaged");
-        }
-        frameContents.getChildren().add(n);
+        return getStandardOperations();
     }
 
     /**
-     * Gets the first cursor inside this block (or null if none)
+     * Gets the first cursor inside this frame (or null if none)
      */
     public final FrameCursor getFirstInternalCursor()
     {
@@ -340,18 +450,26 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
     }
     
     /**
-     * Gets the last cursor inside this block (or null if none)
+     * Gets the last cursor inside this frame (or null if none)
      */
     public final FrameCursor getLastInternalCursor()
     {
         return Utility.findLast(getCanvases().map(FrameCanvas::getLastCursor)).orElse(null);
     }
 
+    /**
+     * Gets the parent canvas of this frame (may be null)
+     */
     public FrameCanvas getParentCanvas()
     {
         return parentCanvas;
     }
 
+    /**
+     * Sets the parent canvas of this frame.  Should only ever change
+     * the parent once from null to non-null, and optionally once
+     * back to null.
+     */
     public void setParentCanvas(FrameCanvas parentCanvas)
     {
         FrameCanvas oldCanvas = this.parentCanvas;
@@ -367,15 +485,27 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
         }
     }
 
+    /**
+     * Gets the cursor after this frame in the parent canvas.  Returns null if not in a parent canvas.
+     */
     public final FrameCursor getCursorAfter() { return parentCanvas == null ? null : parentCanvas.getCursorAfter(this);}
 
+    /**
+     * Gets the cursor before this frame in the parent canvas.  Returns null if not in a parent canvas.
+     */
     public final FrameCursor getCursorBefore() { return parentCanvas == null ? null : parentCanvas.getCursorBefore(this);}
-    
+
+    /**
+     * Adds the given CSS style class to this frame
+     */
     protected final void addStyleClass(String styleClass)
     {
         JavaFXUtil.addStyleClass(frameContents, styleClass);
     }
-    
+
+    /**
+     * Remove the given CSS style class to this frame. (Eventually we should remove this in favour of using pseudo-classes).  
+     */
     protected final void removeStyleClass(String styleClass)
     {
         JavaFXUtil.removeStyleClass(frameContents, styleClass);
@@ -408,12 +538,18 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
         disabledRoot.set(canHaveEnabledState(true));
     }
 
+    /**
+     * Sets the drag source effect (i.e. notifies us if we are the source of a drag)
+     */
     public void setDragSourceEffect(boolean on)
     {
         frameDragSourceProperty.set(on);
     }
-    
-    private List<FrameOperation> getStandardOperations(InteractionManager editor)
+
+    /**
+     * Default set of operations available: cut, copy, paste, enable, disable, delete.
+     */
+    private List<FrameOperation> getStandardOperations()
     {
         List<FrameOperation> ops = new ArrayList<FrameOperation>();
         ops.addAll(getCutCopyPasteOperations(editor));
@@ -422,13 +558,22 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
         return ops;
     }
     
+    // TODO almost all implementations of this operation are identical.
+    // We should provide that as default here, and only override when we want to change it
     protected abstract List<FrameOperation> getCutCopyPasteOperations(InteractionManager editor);
-    
+
+    /**
+     * Returns whether the frame is currently enabled.
+     */
     public boolean isFrameEnabled()
     {
         return frameEnabledProperty.get();
     }
-    
+
+    /**
+     * Sets the frame enabled state, if possible.  For example, you cannot enable
+     * the child of a disabled frame.
+     */
     public void setFrameEnabled(boolean enabled)
     {
         if (!canHaveEnabledState(enabled))
@@ -450,12 +595,16 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
         }
         
         // When our status changes, copy that status to all children:
-        setChildrenEnabled(enabled);
+        getCanvases().forEach(canvas -> canvas.getBlocksSubtype(Frame.class).forEach(b -> b.setFrameEnabled(enabled)));
 
         // Updated the disabledRoot variable:
         updateAppearance(getParentCanvas());
     }
 
+    /**
+     * Checks if a frame can have the given enabled state.  This boils down to checking,
+     * when given true, that all parents of this frame are enabled.
+     */
     public boolean canHaveEnabledState(boolean enabled)
     {
         // The default behaviour is that a frame can only be enabled if all of its parents
@@ -477,33 +626,42 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
         }
         return true;
     }
-    
-    public void setFrameEnablePreview(Optional<Boolean> previewingEnable)
+
+    /**
+     * Sets the frame enable state.
+     */
+    public void setFrameEnablePreview(FramePreviewEnabled state)
     {
-        framePreviewEnableProperty.set(previewingEnable.isPresent() ? (previewingEnable.get() ? FRAME_ENABLE_PREVIEW_ENABLED : FRAME_ENABLE_PREVIEW_DISABLED) : FRAME_ENABLE_PREVIEW_NO_PREVIEW);
+        framePreviewEnableProperty.set(state);
     }
-    
-    protected final void setChildrenEnabled(boolean enabled)
-    {
-        getCanvases().forEach(canvas -> canvas.getBlocksSubtype(Frame.class).forEach(b -> b.setFrameEnabled(enabled)));
-    }
-    
+
+    /**
+     * Flags all errors as old: frame errors and slot errors, to unlimited depth
+     */
     public final void flagErrorsAsOld()
     {
         allFrameErrors.forEach(CodeError::flagAsOld);
+        //TODO I think this only needs to do direct slots:
         getEditableSlots().forEach(EditableSlot::flagErrorsAsOld);
         getCanvases().forEach(FrameHelper::flagErrorsAsOld);
     }
 
+    /**
+     * Removes all errors flagged as old: frame errors and slot errors, to unlimited depth
+     */
     public final void removeOldErrors()
     {
         allFrameErrors.removeIf(CodeError::isFlaggedAsOld);
+        //TODO I think this only needs to do direct slots:
         getEditableSlots().forEach(EditableSlot::removeOldErrors);
         getCanvases().forEach(FrameHelper::removeOldErrors);
     }
     
     /**
-     * Method called while frame is being removed.  Should remove any overlays, listeners, etc
+     * Public method called while frame is being removed.  Should remove any overlays, listeners, etc.
+     * 
+     * This version is final, to make sure all sub-items are cleaned up.  To provide cleanup specific
+     * to this kind of frame, override the cleanupFrame method.
      */
     public final void cleanup()
     {
@@ -512,32 +670,47 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
         cleanupFrame();
     }
 
+    /**
+     * Override this method to provide cleanup specific to that type of frame
+     */
     protected void cleanupFrame()
     {
         // Nothing to do by default
     }
 
+    /**
+     * Gets a stream of all directly contained canvases.
+     */
     public final Stream<FrameCanvas> getCanvases()
     {
         return contents.stream().map(FrameContentItem::getCanvas).flatMap(Utility::streamOptional);
     }
 
+    /**
+     * Get only those canvases which are persistent (i.e. exclude generated items like inherited method canvas)
+     */
     public Stream<FrameCanvas> getPersistentCanvases()
     {
         // By default, assume all canvases are persistent:
         return getCanvases();
     }
 
+    // Currently unused frame folding:
     public boolean isCollapsible()
     {
         return false;
     }
 
+    // Currently unused frame folding:
     public void setCollapsed(boolean collapse)
     {
         // Nothing to do unless we're collapsible
     }
 
+    /**
+     * When a frame loses focus, sometimes it checks for certain empty slots and removes them,
+     * e.g. the throws declaration at the end of a method header.
+     */
     public void checkForEmptySlot()
     {
         // Do nothing
@@ -546,6 +719,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
     /**
      * Allows blocks to respond to a keypress when the cursor
      * is just after the block, e.g. pressing a key to extend an if with an else.
+     * By default, no extensions: override to specify.
      */
     public List<ExtensionDescription> getAvailableExtensions()
     {
@@ -564,7 +738,8 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
     protected List<ExtensionDescription> getAvailablePrefixes()
     {
         return Arrays.asList(new ExtensionDescription('\\', "Disable/Enable frames", () -> {
-            if (canHaveEnabledState(isFrameEnabled())) {
+            if (canHaveEnabledState(isFrameEnabled()))
+            {
                 setFrameEnabled(!isFrameEnabled());
             }
         }, false, false));
@@ -597,7 +772,10 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
         return false;
     }
 
-    // true by default:
+    /**
+     * Checks whether this frame can be dragged.  True by default.  Some frames cannot
+     * be dragged, e.g. inherited frames or class frames.
+     */
     public boolean canDrag()
     {
         return true; 
@@ -629,19 +807,24 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
         return false;
     }
 
+    // Part of unused code folding
     protected void addTopRight(Node n)
     {
         //TODO
         //headerRowComponents.add(FXCollections.observableArrayList(n));
     }
-    
+
+    /**
+     * Gets the header row (for use in subclasses)
+     * @return
+     */
     protected final FrameContentRow getHeaderRow()
     {
         return header;
     }
 
-    /** Automatically prepends the caption, if there is one */
-    protected void setHeaderRow(HeaderItem... headerItems)
+    /** Automatically prepends the caption to the given items, if there is one */
+    protected final void setHeaderRow(HeaderItem... headerItems)
     {
         if (headerCaptionLabel == null)
             header.setHeaderItems(Arrays.asList(headerItems));
@@ -682,6 +865,9 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
         return false;
     }
 
+    /**
+     * Accessor for the editor that this frame lives in (never changes for a given frame)
+     */
     public InteractionManager getEditor()
     {
         return editor;
@@ -691,6 +877,8 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
      * Called when you have clicked on the frame in a stack trace or want to jump to definition.
      * 
      * Need Platform.runLater because we will be notified about exception by Swing at the moment.
+     * 
+     * TODO actually this method is now always called on FX thread.  Remove the runLater?
      */
     public void show(ShowReason reason)
     {
@@ -712,13 +900,19 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
             break;
         }
     }
-    
+
+    /**
+     * Focuses the name of the frame, or something close to that concept.
+     */
     public void focusName()
     {
         // By default:
         focusWhenJustAdded();
     }
 
+    /**
+     * Removes the highlight which was added when showing this frame as a stack trace item
+     */
     public void removeStackHighlight()
     {
         Platform.runLater(() -> JavaFXUtil.setPseudoclass("bj-stack-highlight", false, getNode()));
@@ -822,6 +1016,12 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
         }
     }
 
+    /**
+     * Called when the user has pressed backspace at the start of a header item inside a frame content item.
+     * @param srcRow The row in the frame where backspace was pressed
+     * @param src The item in which backspace was pressed
+     * @return True if we deleted ourselves in response, otherwise false
+     */
     public boolean backspaceAtStart(FrameContentItem srcRow, HeaderItem src)
     {
         if (contents.size() > 0 && (src == contents.get(0) || srcRow == contents.get(0)))
@@ -839,13 +1039,23 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
         return false;
     }
 
+    /**
+     * Called when the user has pressed delete at the end of a header item inside a frame content item.
+     * @param srcRow The row in the frame where delete was pressed
+     * @param src The item in which delete was pressed
+     * @return True if we deleted ourselves in response, otherwise false
+     */
     public boolean deleteAtEnd(FrameContentItem srcRow, HeaderItem src)
     {
         return false;
     }
 
     /**
-     * By default, we pull up each frame canvas's contents, with a blank frame between each
+     * Pulls up a frames contents.  For example, where you delete an if but want to leave the content,
+     * we call this method to pull up the content of each subcanvas to replace the if.
+     * By default, we pull up each frame canvas's contents, with a blank frame between each.
+     * 
+     * This method does not delete ourselves, just does the pull-up.
      */
     public void pullUpContents()
     {
@@ -866,21 +1076,28 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
         return Stream.concat(Stream.of(this), getCanvases().flatMap(c -> c.getBlocksSubtype(Frame.class).stream()).flatMap(Frame::getAllFrames));
     }
 
+    /** Sets this frame to be fresh */
     public void markFresh()
     {
         fresh.set(true);
     }
-    
+
+    /** Sets this frame to be non-fresh */
     public void markNonFresh()
     {
         fresh.set(false);
     }
-    
+
+    /** Checks wheter this frame is fresh */
     public boolean isFresh()
     {
         return fresh.get();
     }
-    
+
+    /**
+     * Only valid when called on a fresh frame.  In the future, if/when this frame becomes
+     * non-fresh, the given action will be executed.
+     */
     public void onNonFresh(FXRunnable action)
     {
         if (!isFresh()) {
@@ -888,7 +1105,10 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
         }
         JavaFXUtil.addSelfRemovingListener(fresh, b -> action.run());
     }
-    
+
+    /**
+     * Read-only interface to the fresh property.
+     */
     public ObservableBooleanValue freshProperty()
     {
         return fresh;
@@ -1000,11 +1220,18 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
         contents.forEach(i -> i.setView(oldView, newView, animation));
     }
 
+    /**
+     * Gets the frame error, if any, which is currently being shown.
+     */
     public Stream<CodeError> getCurrentErrors()
     {
         return shownError.get() == null ? Stream.empty() : Stream.of(shownError.get());
     }
 
+    /**
+     * Adds the given frame error to this frame.  Does not necessarily show it (depends
+     * on which other errors are present on this frame)
+     */
     public void addError(CodeError err)
     {
         allFrameErrors.add(err);
@@ -1028,6 +1255,10 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
             return getCursorBefore().getNode();
     }
 
+    /**
+     * Callback to be called once the frame is compiled.  Put here so subclasses can
+     * override it.
+     */
     public void compiled()
     {
         
@@ -1054,6 +1285,11 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
         alwaysBeenBlank &= isAlmostBlank();
     }
 
+    /**
+     * Called when escape has been pressed within the frame.
+     * @param srcRow The row in which escape was pressed
+     * @param src The item in that row in which escape was pressed
+     */
     public void escape(FrameContentItem srcRow, HeaderItem src)
     {
         if (alwaysBeenBlank && isFresh())
@@ -1163,7 +1399,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
     }
 
     /**
-     * Returns true for all frames with effictive code. I.e only flase in frames such as BlankFrame and CommentFrame.
+     * Returns true for all frames with effective code. I.e only false in frames such as BlankFrame and CommentFrame.
      *
     * @return True except for non-effective frames (codewise)
     */

@@ -83,6 +83,7 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputControl;
+import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.InputEvent;
 import javafx.scene.input.KeyCode;
@@ -411,6 +412,14 @@ public class JavaFXUtil
         copy.styleProperty().bind(l.styleProperty().concat("-fx-font-size:").concat(fontSize).concat(";"));
         bindPseudoclasses(copy, l.getPseudoClassStates());
         return copy;
+    }
+
+    /**
+     * Helper method to copy the source image to the destination X, Y position in the dest image
+     */
+    public static void blitImage(WritableImage dest, int xOffset, int yOffset, Image src)
+    {
+        dest.getPixelWriter().setPixels(xOffset, yOffset, (int)(Math.ceil(src.getWidth())), (int)(Math.ceil(src.getHeight())), src.getPixelReader(), 0, 0);
     }
 
     /**

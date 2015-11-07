@@ -244,12 +244,12 @@ public class FrameSelection
         }
         else if (selection.size() == 1) {
             // Everything appears as-is in a selection of size 1:
-            return asMenuItems(selection.get(0).getContextOperations(editor), 0, contextMenu);
+            return asMenuItems(selection.get(0).getContextOperations(), 0, contextMenu);
         }
 
         HashMap<String, List<FrameOperation>> ops = new HashMap<>();
         for (Frame f : selection) {
-            for (FrameOperation op : f.getContextOperations(editor)) {
+            for (FrameOperation op : f.getContextOperations()) {
                 if (!ops.containsKey(op.getIdentifier())) {
                     ops.put(op.getIdentifier(), new ArrayList<>());
                 }
