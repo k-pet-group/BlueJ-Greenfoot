@@ -541,6 +541,7 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
     private void removeExtends()
     {
         showingExtends.set(false);
+        paramClassName.requestFocus(Focus.RIGHT);
         extendsSlot.setText("");
         editor.modifiedFrame(this);
     }
