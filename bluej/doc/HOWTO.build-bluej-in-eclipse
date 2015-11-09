@@ -137,12 +137,11 @@ Alternatively:
        - httpclient-4.1.1.jar
        - httpcore-4.1.jar
        - httpmime-4.1.1.jar
-
        - org-netbeans-lib-cvsclient.jar
        - svnkit-javahl.jar
        - trilead.jar
        - antlr-runtime-3.4.jar
-       - trunk/bluej/lib/sequence-library-1.0.3.jar
+       - sequence-library-1.0.3.jar
        - sqljet-1.1.10.jar
 
    * "Add External JARs" (or "Add Variable..." if using classpath vars): 
