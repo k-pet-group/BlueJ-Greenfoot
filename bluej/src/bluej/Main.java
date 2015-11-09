@@ -21,6 +21,7 @@
  */
 package bluej;
 
+import javax.swing.SwingUtilities;
 import java.awt.EventQueue;
 import java.io.File;
 import java.net.HttpURLConnection;
@@ -256,6 +257,8 @@ public class Main
                 }
             });
         }
+        
+        Boot.getInstance().setQuitHandler(() -> SwingUtilities.invokeLater(() -> QuitAction.getInstance().actionPerformed(PkgMgrFrame.getMostRecent())));
         
         if (Config.isGreenfoot())
         {

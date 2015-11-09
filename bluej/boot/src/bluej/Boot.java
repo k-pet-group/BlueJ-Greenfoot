@@ -630,6 +630,13 @@ public class Boot
                         }
                         super.handleOpenFilesAction(app, time, files);
                     }
+
+                    @Override
+                    public void handleQuitAction(com.sun.glass.ui.Application app, long time)
+                    {
+                        getInstance().quitAction.run();
+                        super.handleQuitAction(app, time);
+                    }
                 });
             }
         }
@@ -644,4 +651,23 @@ public class Boot
         }
         
     }
+
+    /**
+     * We don't want this Boot class to depend on further BlueJ classes, so although
+     * Boot needs to know how to quit, we don't want to introduce a compile-time
+     * dependency on the classes needed to quit.  So this lamba/Runnable is a late
+     * binding for the same purpose
+     */
+    private Runnable quitAction;
+
+    /**
+     * Sets the code to be run (on an arbitrary thread; caller's responsibility to
+     * switch threads/avoid deadlocks if needed) once the user triggers the Quit
+     * menu command in the editors.
+     */
+    public void setQuitHandler(Runnable quitAction)
+    {
+        this.quitAction = quitAction;
+    }
+
 }
