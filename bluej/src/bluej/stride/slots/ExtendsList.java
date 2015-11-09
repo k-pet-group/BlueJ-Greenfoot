@@ -26,14 +26,15 @@ import java.util.function.Supplier;
 
 import bluej.stride.framedjava.ast.TypeSlotFragment;
 import bluej.stride.generic.Frame;
+import bluej.stride.generic.InteractionManager;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXRunnable;
 
 public class ExtendsList extends TypeList
 {
-    public ExtendsList(Frame parentFrame, Supplier<TypeTextSlot> slotGenerator, FXRunnable focusOnNext)
+    public ExtendsList(Frame parentFrame, Supplier<TypeTextSlot> slotGenerator, FXRunnable focusOnNext, InteractionManager editor)
     {
-        super(" extends ", parentFrame, slotGenerator, focusOnNext);
+        super(" extends ", parentFrame, slotGenerator, focusOnNext, editor);
     }
 
     public List<TypeSlotFragment> getTypes()

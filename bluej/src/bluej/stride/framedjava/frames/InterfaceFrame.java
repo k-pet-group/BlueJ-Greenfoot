@@ -87,7 +87,7 @@ public class InterfaceFrame extends DocumentedSingleCanvasFrame
             TypeTextSlot s = new TypeTextSlot(editor, this, getHeaderRow(), new TypeCompletionCalculator(editor, Kind.INTERFACE), "interface-extends-");
             s.setPromptText("interface type");
             return s;
-        }, () -> getCanvas().getFirstCursor().requestFocus());
+        }, () -> getCanvas().getFirstCursor().requestFocus(), editor);
         extendsTypes.forEach(t -> this.extendsList.addTypeSlotAtEnd(t.getContent()));
 
         getHeaderRow().bindContentsConcat(FXCollections.<ObservableList<HeaderItem>>observableArrayList(

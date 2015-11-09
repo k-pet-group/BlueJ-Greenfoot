@@ -26,14 +26,15 @@ import java.util.function.Supplier;
 
 import bluej.stride.framedjava.ast.ThrowsTypeFragment;
 import bluej.stride.generic.Frame;
+import bluej.stride.generic.InteractionManager;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXRunnable;
 
 public class Throws extends TypeList implements SlotValueListener
 {
-    public Throws(Frame parentFrame, Supplier<TypeTextSlot> slotGenerator, FXRunnable focusOnNext)
+    public Throws(Frame parentFrame, Supplier<TypeTextSlot> slotGenerator, FXRunnable focusOnNext, InteractionManager editor)
     {
-        super(" throws ", parentFrame, slotGenerator, focusOnNext);
+        super(" throws ", parentFrame, slotGenerator, focusOnNext, editor);
     }
 
     public List<ThrowsTypeFragment> getTypes()

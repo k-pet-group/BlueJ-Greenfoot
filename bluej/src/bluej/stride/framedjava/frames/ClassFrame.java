@@ -367,7 +367,7 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
             TypeTextSlot s = new TypeTextSlot(editor, this, getHeaderRow(), new TypeCompletionCalculator(editor, Kind.INTERFACE), "class-");
             s.setPromptText("interface type");
             return s;
-        }, () -> fieldsCanvas.getFirstCursor().requestFocus());
+        }, () -> fieldsCanvas.getFirstCursor().requestFocus(), editor);
         implementsList.forEach(t -> implementsSlot.addTypeSlotAtEnd(t.getContent()));
 
         inheritedLabel = new TriangleLabel(editor, t -> extendsInheritedCanvases.forEach(c -> c.grow(t)),

@@ -27,6 +27,7 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import bluej.stride.generic.FrameCanvas;
+import bluej.stride.generic.InteractionManager;
 import bluej.utility.javafx.FXRunnable;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -43,13 +44,15 @@ public class TypeList implements SlotValueListener
     private final Supplier<TypeTextSlot> slotGenerator;
     private final Frame parentFrame;
     private final FXRunnable focusOnNext;
+    private InteractionManager editor;
 
-    protected TypeList(String label, Frame parentFrame, Supplier<TypeTextSlot> slotGenerator, FXRunnable focusOnNext)
+    protected TypeList(String label, Frame parentFrame, Supplier<TypeTextSlot> slotGenerator, FXRunnable focusOnNext, InteractionManager editor)
     {
         this.parentFrame = parentFrame;
         this.slotGenerator = slotGenerator;
         this.prefixLabel = new SlotLabel(label);
         this.focusOnNext = focusOnNext;
+        this.editor = editor;
         
         new DeepListBinding<HeaderItem>(headerItems) {
             
@@ -151,6 +154,7 @@ public class TypeList implements SlotValueListener
         // Remove the formal:
         slot.cleanup();
         typeSlots.remove(slot);
+        editor.modifiedFrame(parentFrame);
         return slot.getText();
     }
 

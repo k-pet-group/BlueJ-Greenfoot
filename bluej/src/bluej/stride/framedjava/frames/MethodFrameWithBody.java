@@ -102,7 +102,7 @@ public abstract class MethodFrameWithBody<T extends CodeElement>
             TypeTextSlot s = new TypeTextSlot(editor, this, getHeaderRow(), new TypeCompletionCalculator(editor, Throwable.class), "method-");
             s.setPromptText("thrown type");
             return s;
-        }, () -> getCanvas().getFirstCursor().requestFocus());
+        }, () -> getCanvas().getFirstCursor().requestFocus(), editor);
         
         dropShadowDummy = new Rectangle(0, 0, 0, 0);
         //dropShadowDummy.setManaged(false);

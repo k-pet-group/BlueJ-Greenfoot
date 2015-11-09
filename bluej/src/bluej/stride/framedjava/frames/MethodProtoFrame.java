@@ -85,7 +85,7 @@ public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeF
             TypeTextSlot s = new TypeTextSlot(editor, this, getHeaderRow(), new TypeCompletionCalculator(editor, Throwable.class), "method-");
             s.setPromptText("thrown type");
             return s;
-        }, () -> getCursorAfter().requestFocus());
+        }, () -> getCursorAfter().requestFocus(), editor);
         
         bindHeader();
     }
