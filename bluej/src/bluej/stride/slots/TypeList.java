@@ -36,23 +36,64 @@ import bluej.stride.generic.Frame;
 import bluej.utility.Utility;
 import bluej.utility.javafx.binding.DeepListBinding;
 
+/**
+ * A class which manages a list of comma-separated type slots, e.g. an implements
+ * list or a throws declaration.
+ * 
+ * This class holds a list of TypeTextSlot, and handles the use of backspace, delete,
+ * and typing commas to shrink/extend the list.
+ */
 public class TypeList implements SlotValueListener
 {
+    /**
+     * The list of header items to show; this will be a list of type slots with
+     * comma slot labels inbetween, and prefixLabel on the front.
+     */
     private final ObservableList<HeaderItem> headerItems = FXCollections.observableArrayList();
+    /**
+     * The list of type slots currently in this type list
+     */
     protected final ObservableList<TypeTextSlot> typeSlots = FXCollections.observableArrayList();
-    private final SlotLabel prefixLabel;
+    /**
+     * A piece of code to generate a new type slot when we need one.  Supplied
+     * by our creator (easier to pass lambda than have to subclass TypeList every time).
+     */
     private final Supplier<TypeTextSlot> slotGenerator;
+    /**
+     * The frame which we are contained in.
+     */
     private final Frame parentFrame;
+    /**
+     * A piece of code to focus on the item after this type list.  Called
+     * when the user deletes all items in the type list, and we need somewhere
+     * else to focus.
+     */
     private final FXRunnable focusOnNext;
+    /**
+     * A reference to the editor, used to trigger recompile when the list changes.
+     */
     private InteractionManager editor;
 
+    /**
+     * Constructor.  Protected access because we expect to be subclassed for use anyway.
+     * 
+     * @param label The label to display before the list, e.g. "implements".  Must not be null.
+     * @param parentFrame The frame this type list is contained in
+     * @param slotGenerator A piece of code to generate a new TypeTextSlot for this list when needed
+     * @param focusOnNext An action to focus on the item after this list, for when the user
+     *                    blanks the type list.  (Note that at the moment, this means when the user
+     *                    blanks the list using backspace, we focus the item after rather than the
+     *                    item before, which is slightly odd.  But type lists are rarely used.)
+     * @param editor A reference to the editor, used to notify about recompiles.
+     */
     protected TypeList(String label, Frame parentFrame, Supplier<TypeTextSlot> slotGenerator, FXRunnable focusOnNext, InteractionManager editor)
     {
         this.parentFrame = parentFrame;
         this.slotGenerator = slotGenerator;
-        this.prefixLabel = new SlotLabel(label);
         this.focusOnNext = focusOnNext;
         this.editor = editor;
+
+        final SlotLabel prefixLabel = new SlotLabel(label);
         
         new DeepListBinding<HeaderItem>(headerItems) {
             
@@ -65,14 +106,16 @@ public class TypeList implements SlotValueListener
             @Override
             protected Stream<HeaderItem> calculateValues()
             {
+                // If we have a blank list, we don't even display the prefix label:
                 if (typeSlots.isEmpty())
                     return Stream.empty();
                 
+                // We should probably cache the commas, but never mind:
                 ArrayList<HeaderItem> commas = new ArrayList<>();
                 for (int i = 0; i < typeSlots.size() - 1; i++)
                     commas.add(new SlotLabel(", "));
                 
-                // Important that we filter the null operators out after interleaving, to preserve ordering:
+                // Prefix, followed by type slots interspersed with commas:
                 return Utility.concat(Stream.of(prefixLabel), Utility.interleave(typeSlots.stream().map(h -> (HeaderItem)h), commas.stream()));
             }
         }.startListening();
@@ -83,7 +126,11 @@ public class TypeList implements SlotValueListener
         return headerItems;
     }
 
-    public TypeTextSlot addTypeSlot(int index)
+    /**
+     * Add a new type slot before the given index (0 <= index <= typeSlots.size())
+     * @return The new type slot, which will just have been added to the typeSlots list.
+     */
+    private TypeTextSlot addTypeSlot(int index)
     {
         final TypeTextSlot slot = slotGenerator.get();
         
@@ -99,6 +146,8 @@ public class TypeList implements SlotValueListener
     public boolean valueChanged(HeaderItem slot, String oldValue, String newValue,
             FocusParent<HeaderItem> parent)
     {
+        // If the user has entered a comma, split the type slot at that point
+        // and add a new slot with the second half of the content:
         if (newValue.contains(",")) {
             TypeTextSlot newSlot = addTypeSlot(typeSlots.indexOf(slot) + 1);
             String right = newValue.substring(newValue.indexOf(",") + 1);
