@@ -265,6 +265,7 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
         this.editor = editor;
         this.projectResolver = projectResolver;
         this.abstractModifier.set(abstractModifierParam);
+        JavaFXUtil.addChangeListener(this.abstractModifier, abs -> editor.modifiedFrame(this));
 
         // Spacer to make the class have a bit of space after last canvas;
         endSpacer = new FrameContentItem()
