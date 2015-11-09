@@ -45,6 +45,11 @@ public class ThrowsTypeFragment
         typeEl.addAttribute(new Attribute("type", throwType.getContent()));
         return typeEl;
     }
+    
+    public TypeSlotFragment getJavaSource()
+    {
+        return throwType;
+    }
 
     public String getType()
     {

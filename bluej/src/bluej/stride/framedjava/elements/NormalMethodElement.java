@@ -106,6 +106,8 @@ public class NormalMethodElement extends MethodWithBodyElement
         ParamFragment.addParamsToHeader(frame, params, header);
         header.add(f(frame, ")"));
         
+        header.addAll(throwsToJava());
+        
         return JavaSource.createMethod(frame, this, documentation, header, CodeElement.toJavaCodes(contents));
     }
 
@@ -184,7 +186,7 @@ public class NormalMethodElement extends MethodWithBodyElement
     protected Stream<SlotFragment> getDirectSlotFragments()
     {
         Stream<SlotFragment> s = params.stream().flatMap(p -> Stream.of(p.getParamType(), p.getParamName()));
-        return Stream.concat(Stream.of(returnType, name), s);
+        return Stream.<SlotFragment>concat(Stream.<SlotFragment>concat(Stream.of(returnType, name), s), throwsTypes.stream().map(ThrowsTypeFragment::getJavaSource));
     }
 
     public NormalMethodFrame getFrame()

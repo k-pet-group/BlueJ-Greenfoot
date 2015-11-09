@@ -93,6 +93,8 @@ public class ConstructorElement extends MethodWithBodyElement
                 
         ParamFragment.addParamsToHeader(frame, params, header);
         header.add(f(frame, ")"));
+
+        header.addAll(throwsToJava());
         
         List<JavaSource> effectiveContents = new ArrayList<JavaSource>();
         
@@ -157,7 +159,7 @@ public class ConstructorElement extends MethodWithBodyElement
         Stream<SlotFragment> s = params.stream().flatMap(p -> Stream.of(p.getParamType(), p.getParamName()));
         if (delegate != null)
             s = Stream.concat(s, Stream.of(delegateParams));
-        return s;
+        return Stream.concat(s, throwsTypes.stream().map(ThrowsTypeFragment::getJavaSource));
     }
 
     public boolean hasDelegate()

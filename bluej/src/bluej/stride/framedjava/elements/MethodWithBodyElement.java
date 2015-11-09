@@ -23,11 +23,13 @@ package bluej.stride.framedjava.elements;
 
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import bluej.stride.framedjava.ast.JavaFragment;
 import bluej.stride.generic.InteractionManager;
 import bluej.utility.Utility;
 import nu.xom.Attribute;
@@ -163,6 +165,18 @@ public abstract class MethodWithBodyElement extends DocumentContainerCodeElement
             bodyEl.appendChild(c.toXML());
         }
         methodEl.appendChild(bodyEl);
+    }
+    
+    protected List<JavaFragment> throwsToJava()
+    {
+        if (throwsTypes.isEmpty())
+            return Collections.emptyList();
+        
+        ArrayList<JavaFragment> typesAndCommas = throwsTypes.stream().map(ThrowsTypeFragment::getJavaSource).collect(Utility.intersperse(() -> (JavaFragment)f(frame, ", ")));
+        
+        typesAndCommas.add(0, f(frame, " throws "));
+        
+        return typesAndCommas;
     }
     
     @OnThread(Tag.FX)
