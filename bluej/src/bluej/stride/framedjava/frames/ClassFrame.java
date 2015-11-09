@@ -379,8 +379,8 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
         JavaFXUtil.addChangeListener(inheritedLabel.expandedProperty(), b -> editor.updateErrorOverviewBar());
 
         getHeaderRow().bindContentsConcat(FXCollections.<ObservableList<HeaderItem>>observableArrayList(
-                FXCollections.observableArrayList(headerCaptionLabel),
                 JavaFXUtil.listBool(abstractModifier, abstractLabel),
+                FXCollections.observableArrayList(headerCaptionLabel),
                 FXCollections.observableArrayList(paramClassName),
                 JavaFXUtil.listBool(showingExtends, extendsLabel, extendsSlot, inheritedLabel),
                 implementsSlot.getHeaderItems()
