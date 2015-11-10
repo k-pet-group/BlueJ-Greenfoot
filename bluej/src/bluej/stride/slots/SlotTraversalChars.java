@@ -49,11 +49,16 @@ public class SlotTraversalChars implements SlotValueListener
             if (newValue.contains("" + ending)) {
                 //Reject - replace with old one
                 //If ends in a space, treat as space key and move focus to next (if available)
-                if ((newValue.charAt(newValue.length() - 1) == ending)) {
-                    if (callback != null)
-                        callback.run();
-                    else
-                        Platform.runLater(() -> parent.focusRight(slot));
+                if ((newValue.charAt(newValue.length() - 1) == ending))
+                {
+                    // Space is only a valid traversal char if we're not otherwise blank:
+                    if (ending != ' ' || newValue.length() > 1)
+                    {
+                        if (callback != null)
+                            callback.run();
+                        else
+                            Platform.runLater(() -> parent.focusRight(slot));
+                    }
                 }
                 return false;
             }
