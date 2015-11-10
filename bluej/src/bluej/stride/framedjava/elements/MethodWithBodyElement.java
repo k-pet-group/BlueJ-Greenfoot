@@ -172,9 +172,11 @@ public abstract class MethodWithBodyElement extends DocumentContainerCodeElement
         if (throwsTypes.isEmpty())
             return Collections.emptyList();
         
-        ArrayList<JavaFragment> typesAndCommas = throwsTypes.stream().map(ThrowsTypeFragment::getJavaSource).collect(Utility.intersperse(() -> (JavaFragment)f(frame, ", ")));
+        ArrayList<JavaFragment> typesAndCommas = throwsTypes.stream().map(ThrowsTypeFragment::getJavaSource).collect(Utility.intersperse(() -> (JavaFragment)f(null, ", ")));
         
-        typesAndCommas.add(0, f(frame, " throws "));
+        typesAndCommas.add(0, space());
+        typesAndCommas.add(0, f(frame, "throws"));
+        typesAndCommas.add(0, space());
         
         return typesAndCommas;
     }

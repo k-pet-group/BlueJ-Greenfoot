@@ -76,7 +76,7 @@ import bluej.utility.javafx.SharedTransition;
  * Container-block representing a method.
  * @author Fraser McKay
  */
-public abstract class MethodFrameWithBody<T extends CodeElement>
+public abstract class MethodFrameWithBody<T extends MethodWithBodyElement>
   extends DocumentedSingleCanvasFrame
   implements DebuggableFrame, CodeFrame<T>
 {

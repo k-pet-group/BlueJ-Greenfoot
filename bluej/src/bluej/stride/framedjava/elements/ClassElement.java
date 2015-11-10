@@ -171,12 +171,12 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
         Collections.addAll(header, classKeyword, className);
         
         if (extendsName != null) {
-            Collections.addAll(header, f(frame, " extends "), extendsName);
+            Collections.addAll(header, space(), f(frame, "extends"), space(), extendsName);
         }
         if (!implementsList.isEmpty())
         {
-            header.add(f(frame, " implements "));
-            header.addAll(implementsList.stream().collect(Utility.intersperse(() -> f(frame, ", "))));
+            header.addAll(Arrays.asList(space(), f(frame, "implements"), space()));
+            header.addAll(implementsList.stream().collect(Utility.intersperse(() -> f(null, ", "))));
         }
 
         JavaSource java = new JavaSource(null, header);
