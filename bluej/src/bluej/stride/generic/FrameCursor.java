@@ -116,7 +116,7 @@ public class FrameCursor implements RecallableFocus
 
             final boolean selection = !editor.getSelection().getSelected().isEmpty();
             // Is it a request to expand/collapse?
-            if (key == '+' || key == '-') {
+            if (false && (key == '+' || key == '-')) {
                 List<Frame> targets = selection ? editor.getSelection().getSelected() : Collections.singletonList(getFrameAfter());
                 targets.stream().filter(Frame::isCollapsible)
                     .forEach(t -> t.setCollapsed(key == '-')); // otherwise it's plus
@@ -477,6 +477,7 @@ public class FrameCursor implements RecallableFocus
                 }
                 editor.getSelection().clear();
                 focusAfter.requestFocus();
+                editor.updateCatalog(focusAfter);
                 event.consume();
                 return;
             }
