@@ -75,29 +75,58 @@ import bluej.stride.generic.Frame.ShowReason;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
 
+/**
+ * A code element corresponding to a top-level class.
+ */
 public class ClassElement extends DocumentContainerCodeElement implements TopLevelCodeElement
 {
     public static final String ELEMENT = "class";
-    private final NameDefSlotFragment className;   
+    /** The name of this class */
+    private final NameDefSlotFragment className;
+    /** The type we extend (null if none) */
     private final TypeSlotFragment extendsName;
+    /** The list of types we implement (empty if none) */
     private final List<TypeSlotFragment> implementsList;
+    /** The list of imports in this class */
     private final List<ImportElement> imports;
+    /** The list of fields in this class */
     private final List<CodeElement> fields;
+    /** The list of constructors for this class */
     private final List<CodeElement> constructors;
+    /** The list of methods in this class */
     private final List<CodeElement> methods;
+    /** The resolver used by the project this class lives in (cached for convenience) */
     private final EntityResolver projectResolver;
+    /** Is this class abstract (true) or not (false)? */
     private boolean abstractModifier = false;
+    /** The documentation for this class */
     private JavadocUnit documentation;
+    /** The frame corresponding to this code element (may be null) */
     private ClassFrame frame;
+    /** The curly brackets and class keyword in the generated code (saved for mapping positions) */
     private final FrameFragment openingCurly = new FrameFragment(frame, "{");
     private final FrameFragment closingCurly = new FrameFragment(frame, "}");
     private JavaFragment classKeyword;
+    /**
+     * The generated Java code for this class, used for doing code completion without
+     * needing to always be flushing to disk.
+     */
     private DocAndPositions sourceDocument;
     // Keep track of which slot was completing when we generated sourceDocument,
     // as this affects the content of the document, and we may have to regenerate.
     private ExpressionSlot<?> sourceDocumentCompleting;
+    /**
+     * A map of documents for given contents.  This guards against race hazards, so
+     * that we use the correct document for the given content, even when we are hopping
+     * across threads and potentially generating several documents in a short space
+     * of time, concurrent with looking up information in them.
+     */
     private HashMap<String, DocAndPositions> documentCache = new HashMap<>();
 
+    /**
+     * Creates a class element from the given frame (when generating code elements for
+     * analysis/compilation from the open editor)
+     */
     public ClassElement(ClassFrame frame, EntityResolver projectResolver, boolean abstractModifier, NameDefSlotFragment className, 
             TypeSlotFragment extendsName, List<TypeSlotFragment> implementsList, List<CodeElement> fields, List<CodeElement> constructors, List<CodeElement> methods,
             JavadocUnit documentation, List<ImportElement> imports, boolean enabled)
@@ -121,13 +150,17 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
         this.methods.forEach(method -> method.setParent(this));
 
         this.enable = enabled;
-        if (documentation == null) {
-            documentation = new JavadocUnit("");
+        this.documentation = documentation;
+        if (this.documentation == null) {
+            this.documentation = new JavadocUnit("");
         }
         this.projectResolver = projectResolver;
     }
 
-
+    /**
+     * Creates a class element from the given XML element, used when loading code
+     * from disk or from the clipboard.
+     */
     public ClassElement(Element el, EntityResolver projectResolver)
     {
         Attribute abstractAttribute = el.getAttribute("abstract");
