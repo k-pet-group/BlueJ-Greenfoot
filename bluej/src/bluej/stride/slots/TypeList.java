@@ -222,4 +222,9 @@ public class TypeList implements SlotValueListener
         }
         types.forEach(this::addTypeSlotAtEnd);
     }
+    
+    public Stream<TypeTextSlot> getTypeSlots()
+    {
+        return typeSlots.stream();
+    }
 }

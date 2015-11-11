@@ -32,8 +32,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import bluej.stride.framedjava.elements.MethodWithBodyElement;
+import bluej.stride.generic.FrameContentRow;
 import bluej.stride.generic.FrameCursor;
 import bluej.stride.slots.AccessPermissionSlot;
+import bluej.stride.slots.EditableSlot;
+import bluej.stride.slots.Focus;
+import bluej.stride.slots.HeaderItem;
 import bluej.utility.javafx.FXRunnable;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.binding.ObjectBinding;
@@ -472,5 +476,70 @@ public abstract class MethodFrameWithBody<T extends MethodWithBodyElement>
     protected double tweakCurlyX()
     {
         return 2;
+    }
+    
+    protected abstract class MethodHeaderRow extends FrameContentRow
+    {
+        public MethodHeaderRow(Frame parentFrame, String stylePrefix)
+        {
+            super(parentFrame, stylePrefix);
+        }
+        
+        protected abstract EditableSlot getSlotBeforeParams();
+        
+        // Returns null if and only if the params are the last focusable slot
+        protected abstract EditableSlot getSlotAfterParams();
+
+        @Override
+        public void focusRight(HeaderItem src)
+        {
+            if (src == getSlotBeforeParams())
+            {
+                paramsPane.ensureAtLeastOneParameter();
+            }
+            super.focusRight(src);
+        }
+
+        @Override
+        public void focusLeft(HeaderItem src)
+        {
+            if (src == getSlotAfterParams())
+            {
+                if (paramsPane.ensureAtLeastOneParameter())
+                {
+                    // If we did add a new parameter, focus the left part:
+                    paramsPane.focusBeginning();
+                    return;
+                }
+            }
+            super.focusLeft(src);
+        }
+
+        @Override
+        public boolean focusRightEndFromNext()
+        {
+            // Only make a parameter ready, if params are actually the last item:
+            if (getSlotAfterParams() == null)
+            {
+                if (paramsPane.ensureAtLeastOneParameter())
+                {
+                    // If we did add a new parameter, focus the left part:
+                    paramsPane.focusBeginning();
+                    return true;
+                }
+            }
+            return super.focusRightEndFromNext();
+        }
+
+        @Override
+        public void escape(HeaderItem src)
+        {
+            if (paramsPane.findFormal(src) != null){
+                paramsPane.escape(src);
+            }
+            else {
+                super.escape(src);
+            }
+        }
     }
 }

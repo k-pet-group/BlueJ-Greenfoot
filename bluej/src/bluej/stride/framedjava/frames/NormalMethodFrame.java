@@ -373,34 +373,18 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
     @Override
     protected FrameContentRow makeHeader(String stylePrefix)
     {
-        return new FrameContentRow(this, stylePrefix)
+        return new MethodHeaderRow(this, stylePrefix)
         {
             @Override
-            public void focusRight(HeaderItem src)
+            protected EditableSlot getSlotAfterParams()
             {
-                if (src == methodName)
-                {
-                    paramsPane.ensureAtLeastOneParameter();
-                }
-                super.focusRight(src);
+                return throwsPane.getTypeSlots().findFirst().orElse(null);
             }
 
             @Override
-            public boolean focusRightEndFromNext()
+            protected EditableSlot getSlotBeforeParams()
             {
-                paramsPane.ensureAtLeastOneParameter();
-                return super.focusRightEndFromNext();
-            }
-
-            @Override
-            public void escape(HeaderItem src)
-            {
-                if (paramsPane.findFormal(src) != null){
-                    paramsPane.escape(src);
-                }
-                else {
-                    super.escape(src);
-                }
+                return methodName;
             }
         };
     }

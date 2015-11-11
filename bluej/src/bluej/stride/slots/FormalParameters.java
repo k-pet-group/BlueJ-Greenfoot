@@ -230,11 +230,22 @@ public class FormalParameters
         editor.modifiedFrame(parentFrame);
         return slot;
     }
-    
-    public void ensureAtLeastOneParameter()
+
+    /**
+     * Ensures that there is at least one parameter in the parameters list.
+     * @return true if we had to add a new parameter, false if there already was at least one
+     */
+    public boolean ensureAtLeastOneParameter()
     {
         if (params.isEmpty())
+        {
             addNewAfter(null);
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
     
     /*
@@ -495,6 +506,12 @@ public class FormalParameters
         if (params.size() == 1 && params.get(0).isEmpty()) {
             row.focusDown(src);
         }
+    }
+
+    public void focusBeginning()
+    {
+        if (!params.isEmpty())
+            params.get(0).requestFocus(Focus.LEFT);
     }
 
     private class FormalParameter
