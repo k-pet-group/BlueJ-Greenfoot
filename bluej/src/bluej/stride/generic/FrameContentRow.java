@@ -1,3 +1,24 @@
+/*
+ This file is part of the BlueJ program. 
+ Copyright (C) 2015 Michael Kölling and John Rosenberg 
+ 
+ This program is free software; you can redistribute it and/or 
+ modify it under the terms of the GNU General Public License 
+ as published by the Free Software Foundation; either version 2 
+ of the License, or (at your option) any later version. 
+ 
+ This program is distributed in the hope that it will be useful, 
+ but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+ GNU General Public License for more details. 
+ 
+ You should have received a copy of the GNU General Public License 
+ along with this program; if not, write to the Free Software 
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
+ 
+ This file is subject to the Classpath exception as provided in the  
+ LICENSE.txt file that accompanied this code.
+ */
 package bluej.stride.generic;
 
 import java.util.List;
@@ -31,22 +52,62 @@ import bluej.utility.javafx.binding.ConcatListBinding;
 import bluej.utility.javafx.binding.ConcatMapListBinding;
 
 /**
- * A frame content item with a stack pane containing an overlay, and a border pane containing a flow pane as its center.
+ * A frame content item with a stack pane containing an overlay and a flow pane.
+ * 
+ * A frame content row is used for the content of most frames (e.g. frame headers).
+ * Essentially, anything except documentation pane and frame canvases sits within
+ * a frame content row.  All HeaderItem and EditableSlot things sit inside the
+ * HangingFlowPane in a FrameContentRow.
  */
 public class FrameContentRow implements FrameContentItem, SlotParent<HeaderItem>
 {
+    /**
+     * The frame that this FrameContentRow lives in
+     */
     private final Frame parentFrame;
+
+    /**
+     * The flow pane containing all the non-overlay content.  Its content
+     * is taken from headerRowComponents
+     */
     private final HangingFlowPane headerRow = new HangingFlowPane();
+
+    /**
+     * An overlay which spans the whole FrameContentRow, for showing red
+     * error underlines.
+     */
     private final ErrorUnderlineCanvas headerOverlay;
+
+    /**
+     * A list bound to the header items which will then be used as the contents
+     * of the headerRow.  The headerRow contains lots of Nodes.  Each HeaderItem
+     * may produce many Nodes (e.g. an expression slot is one HeaderItem but usually
+     * has many Nodes, e.g. a text field, an operator label, another text field.)
+     */
     private final ObservableList<HeaderItem> headerRowComponents = FXCollections.observableArrayList();
+    
+    /**
+     * The stack pane which contains the headerRow (underneath) and headerOverlay (on top).
+     */
     private final StackPane stackPane;
 
+    /**
+     * Quick constructor to create a FrameContentRow with the given content.
+     * Has "anon-" style prefix.
+     */
     public FrameContentRow(Frame parentFrame, HeaderItem... items)
     {
         this(parentFrame, "anon-");
         headerRowComponents.setAll(items);
     }
 
+    /**
+     * Standard constructor for FrameContentRow.  Creates an empty one, with the
+     * given CSS style class prefix.
+     * 
+     * @param parentFrame The parent of this FrameContentRow
+     * @param stylePrefix The style-class prefix.
+     */
     public FrameContentRow(Frame parentFrame, String stylePrefix)
     {
         this.parentFrame = parentFrame;
@@ -63,7 +124,10 @@ public class FrameContentRow implements FrameContentItem, SlotParent<HeaderItem>
 
         StackPane.setMargin(headerRow, new Insets(0, 6, 0, 6));
     }
-    
+
+    /**
+     * Sets the margin for the headerRow flow pane within the stack pane.
+     */
     public void setMargin(Insets insets)
     {
         StackPane.setMargin(headerRow, insets);
@@ -81,23 +145,37 @@ public class FrameContentRow implements FrameContentItem, SlotParent<HeaderItem>
         return headerRowComponents.stream();
     }
 
+    /**
+     * Gets all the HeaderItems contained within this FrameContentRow which are
+     * instances of EditableSlot (as determined by HeaderItem::asEditable).
+     */
     public Stream<EditableSlot> getSlotsDirect()
     {
         return getHeaderItemsDirect().map(HeaderItem::asEditable).filter(x -> x != null);
     }
 
+    /**
+     * Gets the overlay which spans this FrameContentRow (and thus also spans all contained
+     * HeaderItems).
+     */
     public ErrorUnderlineCanvas getOverlay()
     {
         return headerOverlay;
     }
 
-
-
+    /**
+     * Sets the HeaderItems which are to be contained within this FrameContentRow, replacing
+     * all previous content.
+     */
     public void setHeaderItems(List<HeaderItem> headerItems)
     {
         headerRowComponents.setAll(headerItems);
     }
 
+    /**
+     * Binds the contents of this FrameContentRow to the concatenation of the given
+     * list of lists of HeaderItems.
+     */
     public void bindContentsConcat(ObservableList<ObservableList<HeaderItem>> src)
     {
         ConcatListBinding.bind(headerRowComponents, src);
@@ -143,7 +221,9 @@ public class FrameContentRow implements FrameContentItem, SlotParent<HeaderItem>
         }
     }
 
-
+    /**
+     * Gets the next editable slot after the given position (exclusive), or null if there is none.
+     */
     private EditableSlot nextFocusableAfter(int curSlot)
     {
         for (int i = curSlot + 1; i < headerRowComponents.size(); i++) {
@@ -155,6 +235,9 @@ public class FrameContentRow implements FrameContentItem, SlotParent<HeaderItem>
         return null;
     }
 
+    /**
+     * Gets the previous editable slot before the given position (exclusive), or null if there is none.
+     */
     private EditableSlot prevFocusableBefore(int curSlot)
     {
         for (int i = curSlot - 1; i >= 0; i--) {
@@ -213,7 +296,8 @@ public class FrameContentRow implements FrameContentItem, SlotParent<HeaderItem>
     @Override
     public boolean focusBottomEndFromNext()
     {
-        // Still focus start of row:
+        // This is called when they e.g. press up at the beginning of the canvas
+        // after us.  In this case we still want to focus the start of the row, not the end:
         return focusLeftEndFromPrev();
     }
 
@@ -273,12 +357,17 @@ public class FrameContentRow implements FrameContentItem, SlotParent<HeaderItem>
         headerRow.setSnapToPixel(b);
     }
 
+    /**
+     * Adds the given overlay to the stack pane, in front of the error underline canvas.
+     */
     public void addOverlay(Node item)
     {
         stackPane.getChildren().add(item);
     }
 
-
+    /**
+     * Gets the X coordinate (in scene coordinates) of the first Node in the flow pane.
+     */
     public double getLeftFirstItem()
     {
         Node n = headerRow.getChildren().stream().findFirst().get();
@@ -290,16 +379,16 @@ public class FrameContentRow implements FrameContentItem, SlotParent<HeaderItem>
         return headerRow.heightProperty();
     }
 
-    public Border getBorder()
-    {
-        return headerRow.getBorder();
-    }
-
     public void applyCss()
     {
         headerRow.applyCss();
     }
-    
+
+    /**
+     * Makes a display clone of this FrameContentRow.  This is used for making a copy of
+     * method headers for displaying the pinned method header.
+     * @return A StackPane containing a display-identical (but immutable) copy of this FrameContentRow.
+     */
     public StackPane makeDisplayClone(InteractionManager editor)
     {
         HangingFlowPane hfpCopy = new HangingFlowPane();
