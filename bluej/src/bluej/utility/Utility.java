@@ -1320,7 +1320,13 @@ public class Utility
             MalformedURLException
     {
         String customUrl = Config.getPropString("greenfoot.url.javadoc", null);
-        if(customUrl == null)
+        if(customUrl != null)
+        {
+            if (!customUrl.endsWith("/"))
+                customUrl += "/";
+            customUrl += page;
+        }
+        else
         {
             File greenfootDir = getGreenfootDir();
             File location = new File(greenfootDir, "/doc/API/" + page);
