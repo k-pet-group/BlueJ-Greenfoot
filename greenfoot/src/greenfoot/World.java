@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2013,2014  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2013,2014,2015  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -465,7 +465,7 @@ public abstract class World
      * @return A list of objects.
      */
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public <A extends Actor> List<A> getObjects(Class<A> cls)
+    public <A> List<A> getObjects(Class<A> cls)
     {
         List result = new ArrayList();
         
@@ -553,9 +553,9 @@ public abstract class World
      * @param cls Class of objects to look return ('null' will return all
      *            objects).
      */
-    public <A extends Actor> List<A> getObjectsAt(int x, int y, Class<A> cls)
+    public <A> List<A> getObjectsAt(int x, int y, Class<A> cls)
     {
-        return collisionChecker.getObjectsAt(x, y, cls);
+        return collisionChecker.getObjectsAt(x, y, (Class)cls);
     }
 
     /**
@@ -619,9 +619,9 @@ public abstract class World
      * @param cls Class of objects to look for (null or Object.class will find
      *            all classes)
      */
-    <A extends Actor> List<A> getIntersectingObjects(Actor actor, Class<A> cls)
+    <A> List<A> getIntersectingObjects(Actor actor, Class<A> cls)
     {
-        return collisionChecker.getIntersectingObjects(actor, cls);
+        return collisionChecker.getIntersectingObjects(actor, (Class)cls);
     }
 
     /**
@@ -635,9 +635,9 @@ public abstract class World
      * @param cls Class of objects to look for (null or Object.class will find
      *            all classes)
      */
-    <A extends Actor> List<A> getObjectsInRange(int x, int y, int r, Class<A> cls)
+    <A> List<A> getObjectsInRange(int x, int y, int r, Class<A> cls)
     {
-        return collisionChecker.getObjectsInRange(x, y, r, cls);
+        return collisionChecker.getObjectsInRange(x, y, r, (Class)cls);
     }
 
     /**
@@ -652,12 +652,12 @@ public abstract class World
      *            all classes)
      * @return A collection of all neighbours found
      */
-    <A extends Actor> List<A> getNeighbours(Actor actor, int distance, boolean diag, Class<A> cls)
+    <A> List<A> getNeighbours(Actor actor, int distance, boolean diag, Class<A> cls)
     {
         if(distance < 0) {
             throw new IllegalArgumentException("Distance must not be less than 0. It was: " + distance);
         }
-        return collisionChecker.getNeighbours(actor, distance, diag, cls);
+        return collisionChecker.getNeighbours(actor, distance, diag, (Class)cls);
     }
 
     /**
@@ -672,9 +672,9 @@ public abstract class World
      * @param cls Class of objects to look for (passing 'null' will find all
      *            objects).
      */
-    <A extends Actor> List<A> getObjectsInDirection(int x0, int y0, int angle, int length, Class<A> cls)
+    <A> List<A> getObjectsInDirection(int x0, int y0, int angle, int length, Class<A> cls)
     {
-        return collisionChecker.getObjectsInDirection(x0, y0, angle, length, cls);
+        return collisionChecker.getObjectsInDirection(x0, y0, angle, length, (Class)cls);
     }
 
     /**
@@ -765,14 +765,18 @@ public abstract class World
         collisionChecker.startSequence();
     }
 
-    <A extends Actor> A getOneObjectAt(Actor object, int dx, int dy, Class<A> cls)
+    <A> A getOneObjectAt(Actor object, int dx, int dy, Class<A> cls)
     {
-        return collisionChecker.getOneObjectAt(object, dx, dy, cls);
+        final Actor o = collisionChecker.getOneObjectAt(object, dx, dy, (Class) cls);
+        A a = cls.cast(o);
+        return a;
     }
 
-    <A extends Actor> A getOneIntersectingObject(Actor object, Class<A> cls)
+    <A> A getOneIntersectingObject(Actor object, Class<A> cls)
     {
-        return collisionChecker.getOneIntersectingObject(object, cls);
+        final Actor o = collisionChecker.getOneIntersectingObject(object, (Class) cls);
+        A a = cls.cast(o);
+        return a;
     }
     
     /**

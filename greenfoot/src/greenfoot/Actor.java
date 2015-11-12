@@ -387,7 +387,7 @@ public abstract class Actor
      * @return The world this actor is in, or null if either this actor is not in a world
      * @throws java.lang.ClassCastException If the actor is in a world, but not one that is an instance of worldClass or one of its subclasses
      */
-    public <W extends World> W getWorldOfType(Class<W> worldClass)
+    public <W> W getWorldOfType(Class<W> worldClass)
     {
         // If null, returns null.  If not of right type, already throws ClassCastException for us:
         return worldClass.cast(world);
@@ -856,7 +856,7 @@ public abstract class Actor
      *            objects).
      * @return A list of all neighbours found.
      */
-    protected <A extends Actor> List<A> getNeighbours(int distance, boolean diagonal, Class<A> cls)
+    protected <A> List<A> getNeighbours(int distance, boolean diagonal, Class<A> cls)
     {
         failIfNotInWorld();
         // Don't use getWorld() here, as it is overridable
@@ -874,7 +874,7 @@ public abstract class Actor
      * @param cls Class of objects to look for (passing 'null' will find all
      *            objects).
      */
-    protected <A extends Actor> List<A> getObjectsAtOffset(int dx, int dy, Class<A> cls)
+    protected <A> List<A> getObjectsAtOffset(int dx, int dy, Class<A> cls)
     {
         failIfNotInWorld();
         return world.getObjectsAt(x + dx, y + dy, cls);
@@ -892,7 +892,7 @@ public abstract class Actor
      * @param cls Class of objects to look for (passing 'null' will find all objects).
      * @return An object at the given location, or null if none found.
      */
-    protected <A extends Actor> A getOneObjectAtOffset(int dx, int dy, Class<A> cls)
+    protected <A> A getOneObjectAtOffset(int dx, int dy, Class<A> cls)
     {
         failIfNotInWorld();
         return world.getOneObjectAt(this, x + dx, y + dy, cls);        
@@ -907,7 +907,7 @@ public abstract class Actor
      * @param cls Class of objects to look for (passing 'null' will find all objects).
      * @return List of objects of the given class type within the given radius.
      */
-    protected <A extends Actor> List<A> getObjectsInRange(int radius, Class<A> cls)
+    protected <A> List<A> getObjectsInRange(int radius, Class<A> cls)
     {
         failIfNotInWorld();
         List<A> inRange = world.getObjectsInRange(x, y, radius, cls);
@@ -922,7 +922,7 @@ public abstract class Actor
      * @param cls Class of objects to look for (passing 'null' will find all objects).
      * @return List of objects of the given class type that intersect with the current object.
      */
-    protected <A extends Actor> List<A> getIntersectingObjects(Class<A> cls)
+    protected <A> List<A> getIntersectingObjects(Class<A> cls)
     {
         failIfNotInWorld();
         List<A> l = world.getIntersectingObjects(this, cls);
@@ -937,7 +937,7 @@ public abstract class Actor
      * @param cls Class of objects to look for (passing 'null' will find all objects).
      * @return An object of the given class type that intersects with the current object.
      */
-    protected <A extends Actor> A getOneIntersectingObject(Class<A> cls)
+    protected <A> A getOneIntersectingObject(Class<A> cls)
     {
         failIfNotInWorld();
         return world.getOneIntersectingObject(this, cls);
@@ -951,7 +951,7 @@ public abstract class Actor
      * @return True if there is an object of the given class type that intersects with the 
      *            current object, false otherwise.
      */
-    protected boolean isTouching(Class<? extends Actor> cls)
+    protected boolean isTouching(Class<?> cls)
     {
         failIfNotInWorld();
         return getOneIntersectingObject(cls) != null;
@@ -963,10 +963,12 @@ public abstract class Actor
      * 
      * @param cls Class of objects to remove (passing 'null' will remove any actor).
      */
-    protected void removeTouching(Class<? extends Actor> cls)
+    protected void removeTouching(Class<?> cls)
     {
         failIfNotInWorld();
-        Actor a = getOneIntersectingObject(cls);
+        // This cast should never fail, because getOneIntersectingObject will only
+        // be non-null if cls extends Actor.
+        Actor a = (Actor)getOneIntersectingObject(cls);
         if (a != null)
         {
             world.removeObject(a);
