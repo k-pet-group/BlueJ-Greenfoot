@@ -63,7 +63,6 @@ import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -155,7 +154,7 @@ import bluej.stride.generic.SuggestedFollowUpDisplay;
 import bluej.stride.operations.UndoRedoManager;
 import bluej.stride.slots.EditableSlot;
 import bluej.utility.Debug;
-import bluej.utility.ImportHelper;
+import bluej.utility.ImportScanner;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXConsumer;
 import bluej.utility.javafx.FXRunnable;
@@ -298,7 +297,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends Tab implements Interaction
         Utility.runBackground(() -> {
             try
             {
-                f.complete(ImportHelper.getImportedTypes(x, javadocResolver));
+                f.complete(parent.getProject().getImportScanner().getImportedTypes(x, javadocResolver));
             }
             catch (Throwable t)
             {

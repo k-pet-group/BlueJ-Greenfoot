@@ -243,9 +243,9 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
 
                     try
                     {
-                        rBlueJ.startImportsScan();
+                        proj.startImportsScan();
                     }
-                    catch (RemoteException e)
+                    catch (RemoteException | ProjectNotOpenException e)
                     {
                         Debug.reportError(e);
                     }

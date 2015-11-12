@@ -33,7 +33,7 @@ import bluej.extensions.event.CompileListener;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.prefmgr.PrefMgrDialog;
 import bluej.utility.Debug;
-import bluej.utility.ImportHelper;
+import bluej.utility.ImportScanner;
 import bluej.utility.Utility;
 import rmiextension.ProjectManager;
 import rmiextension.wrappers.event.RClassListener;
@@ -404,13 +404,7 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     {
         Boot.getInstance().disposeSplashWindow();
     }
-    
-    @Override
-    public void startImportsScan() throws RemoteException
-    {
-        ImportHelper.startScanning();
-    }    
-    
+
     private class BProjectRef
     {
         public BProject bProject;

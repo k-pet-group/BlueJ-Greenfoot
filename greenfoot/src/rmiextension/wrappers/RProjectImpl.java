@@ -21,6 +21,7 @@
  */
 package rmiextension.wrappers;
 
+import bluej.utility.ImportScanner;
 import greenfoot.util.DebugUtil;
 
 import java.awt.EventQueue;
@@ -442,5 +443,12 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
     public void greenfootReady() throws ProjectNotOpenException, RemoteException
     {
         bProject.scheduleCompilation(false);
+    }
+
+
+    @Override
+    public void startImportsScan() throws RemoteException, ProjectNotOpenException
+    {
+        ExtensionBridge.getProject(bProject).getImportScanner().startScanning();
     }
 }

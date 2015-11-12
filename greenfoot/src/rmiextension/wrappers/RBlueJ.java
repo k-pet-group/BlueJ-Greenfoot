@@ -172,12 +172,6 @@ public interface RBlueJ
     public void hideSplash()
         throws RemoteException;
 
-    /**
-     * Start scanning imports in the background, ready for editor opening.
-     */
-    public void startImportsScan()
-        throws RemoteException;
-
     public long getBlueJProcessId()
         throws RemoteException;
 }

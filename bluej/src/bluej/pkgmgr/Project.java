@@ -57,6 +57,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.Timer;
 
+import bluej.utility.ImportScanner;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.BlueJEvent;
@@ -195,6 +196,8 @@ public class Project implements DebuggerListener, InspectorManager
     /* ------------------- end of field declarations ------------------- */
     private BProject singleBProject;  // Every Project has none or one BProject
     private boolean closing = false;
+    /** The scanner for available imports.  May be null if not requested yet. */
+    private ImportScanner importScanner;
 
     /**
      * Construct a project in the directory projectDir.
@@ -2147,5 +2150,13 @@ public class Project implements DebuggerListener, InspectorManager
                 compilerTimer.start();
             }
         }
+    }
+
+    public ImportScanner getImportScanner()
+    {
+        // We don't construct one until asked:
+        if (importScanner == null)
+            importScanner = new ImportScanner(this);
+        return importScanner;
     }
 }

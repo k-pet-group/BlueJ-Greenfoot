@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -18,6 +19,7 @@ import java.util.stream.Stream;
 
 import javax.swing.SwingUtilities;
 
+import bluej.pkgmgr.Project;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
 import org.reflections.util.ClasspathHelper;
@@ -31,13 +33,19 @@ import bluej.parser.ImportedTypeCompletion;
 import bluej.pkgmgr.JavadocResolver;
 import bluej.stride.generic.AssistContentThreadSafe;
 
-public class ImportHelper
+public class ImportScanner
 {
-    private static final Object monitor = new Object();
-    private static PackageInfo root; // Root package with "" as ident
-    private static Reflections reflections;
-    
-    private static class PackageInfo
+    private final Object monitor = new Object();
+    private PackageInfo root; // Root package with "" as ident
+    private Reflections reflections;
+    private Project project;
+
+    public ImportScanner(Project project)
+    {
+        this.project = project;
+    }
+
+    private class PackageInfo
     {
         // Value can be null if details not loaded yet
         public final HashMap<String, AssistContentThreadSafe> types = new HashMap<>();
@@ -132,7 +140,7 @@ public class ImportHelper
         
     }
     
-    private static PackageInfo getRoot()
+    private PackageInfo getRoot()
     {
         synchronized (monitor)
         {
@@ -150,18 +158,19 @@ public class ImportHelper
     }
     
     @OnThread(Tag.Any)
-    public static List<AssistContentThreadSafe> getImportedTypes(String importSrc, JavadocResolver javadocResolver)
+    public List<AssistContentThreadSafe> getImportedTypes(String importSrc, JavadocResolver javadocResolver)
     {
         return getRoot().getImportedTypes("", Arrays.asList(importSrc.split("\\.", -1)).iterator(), javadocResolver);
     }
     
-    private static ConfigurationBuilder getClassloaderConfig()
+    private ConfigurationBuilder getClassloaderConfig()
     {
         List<ClassLoader> classLoadersList = new ArrayList<ClassLoader>();
         classLoadersList.add(ClasspathHelper.contextClassLoader());
         classLoadersList.add(ClasspathHelper.staticClassLoader());
+        classLoadersList.add(project.getClassLoader());
         
-        Collection<URL> urls = new ArrayList<>();
+        Set<URL> urls = new HashSet<>();
         urls.addAll(ClasspathHelper.forClassLoader(classLoadersList.toArray(new ClassLoader[0])));
         urls.addAll(Arrays.asList(Boot.getInstance().getRuntimeUserClassPath()));
         // By default, rt.jar doesn't appear on the classpath, but it contains all the core classes:
@@ -174,7 +183,10 @@ public class ImportHelper
         
         // Stop jnilib files being processed on Mac:
         urls.removeIf(u -> u.toExternalForm().endsWith("jnilib") || u.toExternalForm().endsWith("zip"));
-        
+
+        Debug.message("Class loader URLs:");
+        urls.stream().sorted(Comparator.comparing(URL::toString)).forEach(u -> Debug.message("  " + u));
+
         ClassLoader cl = new URLClassLoader(urls.toArray(new URL[0]));
         
         return new ConfigurationBuilder()
@@ -183,7 +195,7 @@ public class ImportHelper
             .addClassLoader(cl);
     }
                 
-    private static Reflections getReflections(List<String> importSrcs)
+    private Reflections getReflections(List<String> importSrcs)
     {
         FilterBuilder filter = new FilterBuilder();
         
@@ -218,25 +230,8 @@ public class ImportHelper
             return null;
         }
     }
-    
-    public static Set<String> getAvailableImports(JavadocResolver javadocResolver)
-    {
-        return getRoot().getAvailableImports().collect(Collectors.toSet());
-    }
-    
-    private static String getSafeCanonicalName(Class<?> c)
-    {
-        try
-        {
-            return c.getCanonicalName();
-        }
-        catch (Throwable t)
-        {
-            return null;
-        }
-    }
 
-    private static PackageInfo findAllTypes()
+    private PackageInfo findAllTypes()
     {
         reflections = getReflections(Collections.emptyList());
         
@@ -262,8 +257,8 @@ public class ImportHelper
         return r;
     }
 
-    public static void startScanning()
+    public void startScanning()
     {
-        Utility.getBackground().submit(ImportHelper::getRoot);
+        Utility.getBackground().submit(this::getRoot);
     }
 }

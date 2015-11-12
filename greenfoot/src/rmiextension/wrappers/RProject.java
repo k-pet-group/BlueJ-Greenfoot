@@ -184,4 +184,10 @@ public interface RProject
 
     public void greenfootReady()
         throws RemoteException, ProjectNotOpenException;
+
+    /**
+     * Start scanning imports in the background, ready for editor opening.
+     */
+    public void startImportsScan()
+            throws RemoteException, ProjectNotOpenException;
 }
