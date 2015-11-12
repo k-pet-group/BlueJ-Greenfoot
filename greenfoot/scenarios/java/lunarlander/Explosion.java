@@ -78,7 +78,7 @@ public class Explosion extends Actor
      */
     private void explodeOthers() 
     {        
-        List<Actor> actors = (List<Actor>) getIntersectingObjects(null);        
+        List<Actor> actors = getIntersectingObjects(Actor.class);
         
         for (Actor a : actors) {
             if( ! (a instanceof Explosion)) {    //Don't explode other explosions
