@@ -15,9 +15,9 @@ german          2.0.0preview         x    labels+dialog, Rev: 14946     Michael 
 greek           1.5.0
 italian         3.0.0                x    labels+dialog, Rev: 14924     Stefano Federici <s_federici@yahoo.com>
 korean          2.1.2*                          labels
-portuguese                                labels+dialog, Rev: 14946     Paulo Abadie <paulo.abadie@gmail.com>
+portuguese                           x    labels+dialog, Rev: 14946     Paulo Abadie <paulo.abadie@gmail.com>
 russian         1.5.5
-spanish         1.5.5
+spanish         1.5.5                x    labels+dialog, Rev: 14946     Ignacio Antonio Rafael Cabral Perdomo <icabral@itesm.mx>
 
 
 IMPORTANT: 
