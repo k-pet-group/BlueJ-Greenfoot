@@ -184,8 +184,8 @@ public class ImportScanner
         // Stop jnilib files being processed on Mac:
         urls.removeIf(u -> u.toExternalForm().endsWith("jnilib") || u.toExternalForm().endsWith("zip"));
 
-        Debug.message("Class loader URLs:");
-        urls.stream().sorted(Comparator.comparing(URL::toString)).forEach(u -> Debug.message("  " + u));
+        //Debug.message("Class loader URLs:");
+        //urls.stream().sorted(Comparator.comparing(URL::toString)).forEach(u -> Debug.message("  " + u));
 
         ClassLoader cl = new URLClassLoader(urls.toArray(new URL[0]));
         
