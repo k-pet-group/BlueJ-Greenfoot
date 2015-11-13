@@ -11,13 +11,16 @@ language        last update     next update?    comment                  transla
                  release)                      no. sent
 --------------------------------------------------------------------------------------------------------------
 afrikaans       2.0.0
-chinese         2.0.4
+arabic								 x	   labels+dialog, Rev: 15010     Abdelkader Zitouni <a_zitouni@hotmail.com>
+chinese         2.0.4				 x	   labels+dialog, Rev: 15010     Biao Ma <mabiao@dhu.edu.cn>
 catalan         2.0.0
 czech           3.0.5
 danish          3.0.3
 dutch           3.0.7*
-french          2.2.0
+french          2.2.0				 x	   labels+dialog, Rev: 15010     Laurent Pierron <laurent.pierron@inria.fr>
 german          3.1.6                x     labels+dialog, Rev: 14925     Thomas Röfer   <roefer@tzi.de>; Michael Kolling
+ 																		 stefan mueller <stefan.mueller@hof-university.de> offered help translation to German,
+                                                                          but given the GF side labels. However, name should be mentioned if he does them.
 greek           2.1.1
 italian         3.1.0                x     labels+dialog, Rev: 14925     Luzio Menna    <luzio@aruba.it>
 japanese        1.3.5 partially
@@ -25,7 +28,8 @@ korean          1.2.x
 portuguese      2.0.0                x     labels+dialog, Rev: 14950     Fabio
 russian         3.0preview1
 slovak			3.1.6				 x	   labels+dialog, Rev: 14925     Roman Horváth  <rhorvath@truni.sk>
-spanish         1.2.x
+spanish         1.2.x				 x	   labels+dialog, Rev: 15010     José Ramón Puente Lerma <puenram@gmail.com>; Viviana Marcela Alvarez Tomé <valvarez148@gmail.com>
+spanish-AR          				 x	   labels+dialog, Rev: 15010     aldo mettini <amettini@hotmail.com>     
 swedish         1.3.5
 
 
