@@ -21,16 +21,10 @@
  */
 package bluej.groupwork;
 
-import bluej.Config;
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
-import java.util.Collection;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
