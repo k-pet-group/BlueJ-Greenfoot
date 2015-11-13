@@ -21,12 +21,13 @@
  */
 package bluej.groupwork;
 
+import bluej.groupwork.git.GitRepository;
+import bluej.utility.Debug;
 import java.io.File;
 import java.io.IOException;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.LsRemoteCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
-import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
 /**
@@ -59,60 +60,61 @@ public class GitProvider implements TeamworkProvider {
     @Override
     public TeamworkCommandResult checkConnection(TeamSettings settings) {
 
-        org.eclipse.jgit.lib.Repository repo;
         try {
-            File tmpFile = File.createTempFile("git_test", "");
-            tmpFile.deleteOnExit(); //remove file, if exits
 
-            //create repository
-            FileRepositoryBuilder builder = new FileRepositoryBuilder();
-            repo = builder.setGitDir(tmpFile).readEnvironment().findGitDir().build();
-            Git git = Git.wrap(repo);
+            //perform a lsRemote on the remote git repo.
+            LsRemoteCommand lsRemoteCommand = Git.lsRemoteRepository();
+            UsernamePasswordCredentialsProvider cp = new UsernamePasswordCredentialsProvider(settings.getUserName(), settings.getPassword()); // set a configuration with username and password.
+            lsRemoteCommand.setRemote(makeGitUrl(settings)); //configure remote repository address.
+            lsRemoteCommand.setCredentialsProvider(cp); //associate the repository to the username and password.
+            lsRemoteCommand.setTags(false); //disable refs/tags in reference results
+            lsRemoteCommand.setHeads(false); //disable refs/heads in reference results
+            lsRemoteCommand.call(); //executes the lsRemote commnand.
 
-            CredentialsProvider cp = new UsernamePasswordCredentialsProvider(settings.getUserName(), settings.getPassword());
-            git.lsRemote()
-                    .setCredentialsProvider(cp)
-                    .setRemote(makeGitUrl(settings))
-                    .setTags(true)
-                    .setHeads(false)
-                    .call(); //if lsRemote don't raise any exception, it means that
-                             //connection to the remote repository was successful.
-            repo.close();
-            git.close();
-            tmpFile.delete();
-        } catch (IOException | GitAPIException ex) {
+        } catch (GitAPIException ex) {
             return new TeamworkCommandError(ex.getMessage(), ex.getLocalizedMessage());
         } catch (UnsupportedSettingException ex) {
             return new TeamworkCommandUnsupportedSetting(ex.getMessage());
         }
+        //if we got here, it means the command was successful.
         return new TeamworkCommandResult();
     }
 
     @Override
     public Repository getRepository(File projectDir, TeamSettings settings) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            Git client = Git.open(projectDir);
+            return new GitRepository(projectDir, settings.getProtocol(), makeGitUrl(settings), client, settings.getUserName(), settings.getPassword());
+        } catch (UnsupportedSettingException e) {
+            Debug.reportError("GitProvider.getRepository", e);
+            return null;
+        } catch (IOException ex) {
+            Debug.reportError("GitRepository.getRepository", ex);
+            return null;
+        }
     }
 
     /**
      * Construct a git URL based on the given team settings
-     * @param settings the teamwork settings to build the connection string from.
+     *
+     * @param settings the teamwork settings to build the connection string
+     * from.
      * @return the git-compatible connection string
      * @throws bluej.groupwork.UnsupportedSettingException
      */
     protected String makeGitUrl(TeamSettings settings)
-      throws UnsupportedSettingException
-    {
+            throws UnsupportedSettingException {
         String protocol = settings.getProtocol();
         String server = settings.getServer();
         String prefix = settings.getPrefix();
-        
+
         String gitUrl = protocol + "://" + server;
-        if (prefix.length() != 0 && ! prefix.startsWith("/")) {
+        if (prefix.length() != 0 && !prefix.startsWith("/")) {
             gitUrl += "/";
         }
         gitUrl += prefix;
 
         return gitUrl;
     }
-    
+
 }
