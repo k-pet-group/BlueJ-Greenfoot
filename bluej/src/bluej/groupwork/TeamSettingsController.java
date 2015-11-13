@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014,2015  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -55,7 +55,7 @@ public class TeamSettingsController
 {
     private static ArrayList<TeamworkProvider> teamProviders;
     static {
-        teamProviders = new ArrayList<TeamworkProvider>(2);
+        teamProviders = new ArrayList<TeamworkProvider>(3);
         try {
             teamProviders.add(new CvsProvider());
         }
@@ -69,6 +69,12 @@ public class TeamSettingsController
         catch (Throwable e) {
             Debug.message("Failed to initialize Subversion: " + e.getClass().getName()
                     + ": "+ e.getLocalizedMessage());
+        }
+        try {
+            teamProviders.add(new GitProvider());
+        } catch (Throwable e) {
+            Debug.message("Failed to initialize Git: " + e.getClass().getName()
+                    + ": " + e.getLocalizedMessage());
         }
     }
     
