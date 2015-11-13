@@ -65,35 +65,31 @@ public class GitProvider implements TeamworkProvider {
     @Override
     public TeamworkCommandResult checkConnection(TeamSettings settings) {
 
-        TeamworkCommandResult result;
         org.eclipse.jgit.lib.Repository repo;
         try {
             File tmpFile = File.createTempFile("git_test", "");
-            tmpFile.deleteOnExit();
-            //create repository
+            tmpFile.deleteOnExit(); //remove file, if exits
 
-//            Git git = Git.init().setDirectory(tmpFile).call();
+            //create repository
             FileRepositoryBuilder builder = new FileRepositoryBuilder();
             repo = builder.setGitDir(tmpFile).readEnvironment().findGitDir().build();
             Git git = Git.wrap(repo);
-            CredentialsProvider cp = new UsernamePasswordCredentialsProvider(settings.getUserName(), settings.getPassword());
-            
 
-            Collection<Ref> remoteRefs = git.lsRemote()
+            CredentialsProvider cp = new UsernamePasswordCredentialsProvider(settings.getUserName(), settings.getPassword());
+            git.lsRemote()
                     .setCredentialsProvider(cp)
                     .setRemote(makeGitUrl(settings))
                     .setTags(true)
                     .setHeads(false)
-                    .call();
+                    .call(); //if lsRemote don't raise any exception, it means that
+                             //connection to the remote repository was successful.
             repo.close();
             git.close();
             tmpFile.delete();
-        } catch (IOException ex) {
-            return new TeamworkCommandError(ex.getMessage(), ex.getLocalizedMessage());
-        } catch (GitAPIException ex) {
+        } catch (IOException | GitAPIException ex) {
             return new TeamworkCommandError(ex.getMessage(), ex.getLocalizedMessage());
         } catch (UnsupportedSettingException ex) {
-            Logger.getLogger(GitProvider.class.getName()).log(Level.SEVERE, null, ex);
+            return new TeamworkCommandUnsupportedSetting(ex.getMessage());
         }
         return new TeamworkCommandResult();
     }
