@@ -16,7 +16,7 @@ chinese         2.0.4				 x	   labels+dialog, Rev: 15010     Biao Ma <mabiao@dhu
 catalan         2.0.0
 czech           3.0.5
 danish          3.0.3
-dutch           3.0.7*
+dutch           3.0.7*               x     labels+dialog, Rev: 15010     Kris Coolsaet   <kris.coolsaet@UGent.be>
 french          2.2.0				 x	   labels+dialog, Rev: 15010     Laurent Pierron <laurent.pierron@inria.fr>
 german          3.1.6                x     labels+dialog, Rev: 14925     Thomas Röfer   <roefer@tzi.de>; Michael Kolling
  																		 stefan mueller <stefan.mueller@hof-university.de> offered help translation to German,
@@ -48,14 +48,12 @@ The code templates however should be encoded in UTF-8.
 language        old translators
 --------------------------------------------------------------------------------------------------------------
 afrikaans       Petri Jooste        <RKWJPJ@puknet.puk.ac.za>
-afrikaans       Petri Jooste        <RKWJPJ@puknet.puk.ac.za>
 chinese         Xiaoke Hu           <go2study@gmail.com>
 chinese (trad.) Ma Wing Ho          <mawingho@netvigator.com>
 catalan         Santiago Manrique
-czech           Rudolf Pecinovský   <rudolf.pecinovsky@i.cz> (or rudolf@pecinovsky.cz)
+czech           Rudolf Pecinovský   <rudolf@pecinovsky.cz>
 danish          Jacob Nordfalk      <jacob.nordfalk@gmail.com>  - don't contact
-dutch           Kris Coolsaet       <kris.coolsaet@UGent.be>
-greek           Ioannis G. Baltopoulos <ioannis.baltopoulos@cl.cam.ac.uk>
+greek           Ioannis G. Baltopoulos
 italian         Angelo Papadia    <angelo.papadia@libero.it>
 montenegrin     Omer Djokic         <omer@itdirect.net>
 portuguese      Fred Guedes Pereira <fredguedespereira@yahoo.com.br>
