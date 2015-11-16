@@ -1,26 +1,55 @@
-#i18n for greenfoot
+#i18n voor greenfoot
 
-greenfoot.nyi=Nog Niet Ge\u00efmplementeerd - sorry.
+greenfoot.nyi=Nog Niet Geimplementeerd - sorry.
 greenfoot.preferences=Eigenschappen...
 greenfoot.copyright=Auteursrecht...
 greenfoot.quit=Afsluiten
 greenfoot.continue=Verder
 greenfoot.cancel=Annuleren
 
-# About dialog
-about.title=Over Greenfoot
-about.moreInfo=Meer informatie kan gevonden worden op www.greenfoot.org
+greenfoot.launchFailed=Greenfoot kon niet openen. Voor hulp, ga
+naar http://www.greenfoot.org/support
 
-# Greenfoot project version info
-project.version.none=Het project wat je probeert te openen lijkt op een oud greenfoot project (voor greenfoot versie 0.5). Dit zal waarschijnlijk resulteren in fouten die je handmatig moet oplossen.
-project.version.notGreenfoot=Dit is geen Greenfoot project: 
-project.version.mismatch=Versies komen niet overeen.
-project.version.older.part1=Het project wat je probeert te openen is een oud greenfoot project (API versie 
+# About dialog about.title=Over Greenfoot about.moreInfo=Meer
+informatie kan gevonden worden op www.greenfoot.org
+
+
+# Greenfoot project version info project.version.none=Het project
+wat je probeert te openen lijkt op een oud greenfoot project (voor
+greenfoot versie 0.5). Dit zal waarschijnlijk resulteren in fouten
+die je handmatig moet oplossen. project.version.notGreenfoot=Dit is
+geen Greenfoot project: project.version.mismatch=Versies komen niet
+overeen.
+
+# The next 3 items will be shown if the major digit in the version
+number has changed. # part3 should be updated to describe the
+changes that has happened. project.version.older.part1=Het project
+wat je probeert te openen is een oud greenfoot project (API versie
 # project version inserted here by Greenfoot
-project.version.older.part2=). Het project wordt geupdate naar de huidige versie (API versie 
-# api version inserted here by Greenfoot
-project.version.older.part3=). Het bereik van de snelheidsbalk is veranderd, dus je zal misschien de snelheids-instellingen voor dit project weer moeten aanpassen.
-project.version.newer.part1=Het project wat je probeert te openen schrijnt gemaakt te zijn met een nieuwe versie van de Greenfoot API (versie 
+project.version.older.part2=). Het project wordt geupdate naar de
+huidige versie (API versie
+
+#Info about changes in this new version of the API that might break
+existing scenarios. project.version.older.part3=). De
+volgende wijzigingen in de Greenfoot API leiden er mogelijk toe dat dit project niet correct werkt:
+
+# Note the versions here are API versions, not Greenfoot versions!
+project.version.changes.1=2.1.0 De methodes 'stopSimulation', 'startSimulation' en 'setSimulationSpeed' in de Greenfoot klasse zijn hernoemd tot 'start', 'stop' en 'setSpeed'.
+project.version.changes.2=2.1.0 De actor methodes 'getWidth' en 'getHeight' zijn verwijderd. Als alternatief, maak gebruik van 'getImage().getWidth()' en 'getImage().getHeight()'.
+project.version.changes.3=2.1.0 De actor methode 'getObjectsInRange' maakt nu gebruik van cellen in plaats van pixels als eenheid voor de bereik.
+project.version.changes.4=2.1.0 De naamgeving van geluidsbestanden en afbeeldingen is in Greenfoot nu hoofdlettergevoelig gemaakt.
+project.version.changes.5=2.1.0 De World methodes 'setTiled' en 'getTiled' zijn nu verwijderd.
+project.version.changes.6=2.1.0 De World methode 'getBackground' levert nu een afbeelding op dat even groot is als de gehele achtergrond.
+project.version.changes.7=2.2.0 Een 'move' methode en een 'turn' methode zijn toegevoegd aan de Actor klasse.
+project.version.changes.8=2.3.0 Greenfoot.getMouseInfo() levert nu alleen een null op als de muis zich niet in de wereld bevindt.
+project.version.changes.9=2.3.0 Een 'turnTowards(int,int)' methode is toegevoegd aan de Actor klasse.
+project.version.changes.10=2.4.0 Een 'UserInfo' klasse is toegevoegd (hernoemd van 'PlayerData' in de Greenfoot 2.2.0 beta versie).
+project.version.changes.11=2.5.0 De methodes 'isTouching' en 'removeTouching' zijn teogevoegd aan de Actor klasse.
+project.version.changes.12=2.6.0 De methode 'showText' is toegevoegd aan de World klasse, en een nieuwe constructor is toegevoegd aan GreenfootImage.
+project.version.changes.13=2.7.0 De methode 'ask' is toegevoegd aan de Greenfoot klasse.
+project.version.changes.14=2.8.0 De methode 'getWorldOfType' is toegevoegd aan de Actor klasse, en generics zijn toegevoegd aan de API.
+
+project.version.newer.part1=Het project wat je probeert te openen schrijnt gemaakt te zijn met een nieuwe versie van de Greenfoot API (versie
 # project version inserted here by Greenfoot
 project.version.newer.part2=). Het openen van een project met deze versie zou kunnen resulteren in fouten die je handmatig moet oplossen.\n\nWilt u verder gaan met het openen van dit project?
 project.close=Afsluiten
@@ -29,53 +58,82 @@ project.close=Afsluiten
 greenfoot.about=Over Greenfoot...
 compile.all=Alles Compileren
 compile.class=Compileren
+duplicate.class=Kopie maken...
 edit.class=Bewerken
-new.class=Nieuwe Klasse...
-new.project=Nieuw...
-new.subclass=Nieuwe subklasse...
+edit.images=Project Afbeeldingen...
+new.other.class=Nieuwe Klasse...
+new.sub.class=Nieuwe subklasse...
+stride.new.project=New Stride Project...
+java.new.project=New Java Project...
 open.project=Openen...
 open.recentProject=Onlangs geopenend
 remove.class=Verwijderen
 remove.selected=Verwijder Klasse
-inspect.class=Inspecteren
+convert.to.java.class=Converteer naa Java
+convert.to.java.selected=Converteer klasse naar Java
+inspect.class=Inspectecteren
 reset.world=Overnieuw
 run.once=Handeling
 run.simulation=Start
 project.save=Opslaan
-project.savecopy=Opslaan als...
+project.saveAs=Opslaan Als...
 select.image=Kies Afbeelding...
 show.readme=Project Informatie
 pause.simulation=Pauze
+show.apidoc=Open Documentatie
+save.world=Sla de wereld op
 
 # Remove class confirmation
 remove.confirm.title=Bevestig verwijdering van klasse
 remove.confirm.text1=Op het punt de klasse te verwijderen
 remove.confirm.text2=Voortzetten?
 
+# Convert to Java class confirmation
+convert.to.java.confirm.title=Bevestig convertie van een klasse
+convert.to.java.confirm.text1=Op het punt te converteren
+convert.to.java.confirm.text2=klasse van Stride naar Java.
+convert.to.java.confirm.text3=Dit operatie is niet herstelbaar, voortzetten?
 
-# Save project copy dialog
-project.savecopy.title=Project-kopie opslaan
+# Save As project dialog
+project.saveAs.title=Sla Project Op Als
 
 # Export scenario dialog
-export.project=Exporten...
+export.project=Exporteren...
 export.progress.bundling=Bundel Project...
 export.progress.publishing=Publiceer...
 export.progress.writingHTML=Schrijf web pagina...
 export.progress.writingJar=Schrijf jar bestand...
+export.progress.writingGfar=Schrijf gfar bestand...
 export.progress.complete=Export is voltooid.
-export.publish.fail=Publiceren is mislukt:
+export.publish.fail=Publiceren is misluk:
 export.publish.unknownHost=Publiceren is mislukt: Onbekende host
+export.publish.errorResponse=Onbekende respons van de server.
+export.publish.errorPassword=Incorrecte gebruikersnaam of wachtwoord
+export.publish.errorTooLarge=Het project is te groot
 export.publish.complete=Publiceren voltooid
-export.app.help=Maak een uitvoerbaar .jar bestand die op zichzelf kan afspelen..
-export.app.location=Opslaan als: 
+export.publish.proxyAuth=Proxy Authenticatie
+export.publish.needProxyAuth=Proxy authenticatie vereist.
+export.app.help=Maak een uitvoerbaar .jar bestand die op zichzelf kan afspelen.
+export.app.location=Opslaan als:
 export.app.browse=Bladeren
+export.app.choose=Sla uitvoerbaar jar bestand op
+export.project.help=Maak een op zichtzelfstaande project gfar bestand.
+export.project.location=Opslaan als:
+export.project.browse=Bladeren
+export.project.choose=Sla project gfar bestand op
 export.compile.help=Niet alle klasses en projecten zijn gecompileerd. Om door te gaan dient u nu de klasses te compileren.
 export.compile.notCompiled=Project niet gecompileerd.
 export.dialog.title=Greenfoot: Exporteren
-export.dialog.continue=Exporteren
-export.dialog.continue.update=(update)
+export.dialog.export=Exporteren
+export.dialog.share=Delen
+export.dialog.update=Update
 export.lock.label=Vergrendel project
-export.lock.description=Prevents: Speed change, Act-button, and changing of actor locations while paused.
+export.controls.label=Verberg knoppen
+export.fullScreen.label=Volledig scherm
+export.fullScreen.description=Opened project in volledig scherm
+export.controls.description=Verbergd besturingsknoppen met daarin: Afspelen/Pauze en Overnieuw knoppen.
+export.snapshot.label=Behoud bestaande screenshot:
+export.lock.description=Voorkomt: aanpassen van snelheid, Handeling-knop, en het wijzigen van actor plaats als op pauze is gedrukt.
 export.publish.help=Publiceer het project naar:
 export.publish.info=Informatie over de weergave op
 export.publish.image1=Project icoon:
@@ -87,6 +145,7 @@ export.publish.tags.popular=Populaire tags:
 export.publish.tags.loading=laden...
 export.publish.shortDescription=Een-regel beschrijving:
 export.publish.longDescription=Langere beschrijving:
+export.publish.update=Wijzigingen in de bijwerking:
 export.publish.url=Je eigen pagina (URL):
 export.publish.login=Inloggen
 export.publish.username=Gebruikersnaam:
@@ -94,63 +153,91 @@ export.publish.password=Wachtwoord:
 export.publish.createAccount=Maak account
 export.publish.includeSource=Publiceer broncode
 export.web.help=Maak een webpagina met een applet.
-export.web.exportLocation=Export locatie: 
+export.web.exportLocation=Export locatie:
 export.web.browse=Zoeken
 export.web.choose=Kies Export Directory Naam
 export.icontab.publish=Publiceren
 export.icontab.webpage=Webpagina
 export.icontab.application=Applicatie
+export.icontab.project=Project
 export.noworld.dialog.title=Fout: Geen wereld klasse gevonden.
 export.noworld.dialog.msg=Geen wereld klasse gevonden in dit project. Om te exporteren dient u een subklasse van World te maken.
+export.noconstructor.dialog.title=Fout: Geen geschikte constructor
+export.noconstructor.dialog.msg=De wereld klasse heeft geen standaard constructor. Om te exporteren is een zero-argument benodigd.
+export.fileExists.message=bestaat al. Overschrijven?
 
-publish.event.error=Fout: 
-publish.event.status=Status: 
+publish.event.error=Fout:
+publish.event.status=Status:
 
 world.handlerDelegate.inspect=Inspecteer
 world.handlerDelegate.remove=Verwijder
+
+record.method.comment1=Bereid de wereld voor de start van het programma.
+record.method.comment2=Dat wil zeggen: maak de intieele objecten aan en voeg ze toe aan de wereld.
 
 greenfoot.utilDelegate.newScenario=Nieuw Project
 
 #File choosers
 chooser.newFile.button=Opslaan
 chooser.scenario.title=Open Project
-chooser.scenario.button=Openen
+chooser.scenario.button=Open
 
 #New Class dialog
 newclass.dialog.title=Maak nieuwe klasse
 newclass.dialog.help1=Een klasse-naam mag geen spaties en punten bevatten.
 newclass.dialog.help2=Een klasse-naam begint altijd met een hoofdletter.
-newclass.dialog.className=Nieuwe naam voor de klasse: 
+newclass.dialog.className=Nieuwe naam voor de klasse:
 newclass.dialog.err.classExists=Een klasse met die naam bestaan al.
 newclass.dialog.err.classNameIllegal=Geen geldige Java klasse-naam.
-
-# Initial startup dialog
-startup.header=Welkom bij Greenfoot!
-startup.welcome=Greenfoot laat je werken aan projecten. Om Greenfoot te gebruiken, opent u eerst een bestaand project, of maakt een nieuw project aan. Verschillende voorbeeld-projecten zijn bijgevoegd in de standaard Greenfoot installatie.
-startup.question=Wat wil je doen?
-startup.tutorial.button=Open handleiding en handleiding-scenario
-startup.open.button=Kies een project
-startup.create.button=Maak een nieuw project
-startup.continue.button=Zet voort zonder project
+newclass.dialog.selectionLabel=Taal:
+newclass.dialog.class=Klasse
+newclass.dialog.interface=Interface
 
 # Image Lib Preview
+paste.image=Plak Afbeelding...
 imagelib.title=Selecteer klasse afbeelding:
 imagelib.newClass=Nieuwe klasse
 imagelib.projectImages=Project afbeeldingen:
 imagelib.categories=Categorieen:
 imagelib.images=Bibliotheek:
-imagelib.browse.button=Bladeren naar een eigen afbeelding...
-imagelib.className=Nieuwe klasse naam:
-imagelib.help.autoImage=Klik OK om de automatisch gegenereerd afbeelding te accepteren, of selecteer een afbeelding van de onderstaand lijst.
+imagelib.browse.button=Importeer van bestand...
+imagelib.create.button=Maak nieuwe afbeelding...
+imagelib.edit=Aanpassen
+imagelib.edit.tooltip=Pas de geselecteerde afbeelding aan door deze te openen in de image editor.
+imagelib.duplicate=Kopieer
+imagelib.duplicate.tooltip=Kopieer de geselecteerde afbeelding.
+imagelib.delete=Verwijder
+imagelib.delete.tooltip=Verwijder de geselecteerde afbeelding.
+imagelib.import.button=Importeer uit bibliotheek...
+imagelib.create.tooltip=Maak een nieuwe afbeelding met een willekeurige grootte en naam, en open deze in de image editor.
+imagelib.className=Nieuwe klassen aam:
 imagelib.help.selectImage=Selecteer een afbeelding voor de klasse uit de onderstaande lijst.
 imagelib.newClass.image=Nieuwe klasse afbeelding:
-imagelib.image.autoGenerated=(automatisch gegenereerd)
 imagelib.file.noPreview=Geen voorbeeld
 imagelib.choose.button=Selecteer
 imagelib.write.exists.part1=Het bestand \"
 # Greenfoot inserts filename here
 imagelib.write.exists.part2=\" bestaat al. Wilt u het overschrijven?
 imagelib.write.exists.title=Bevestig bestand vervanging
+imagelib.greenfoot.frame.title=Greenfoot Bibliotheek Afbeeldingen
+imagelib.scenario.frame.title=Project Afbeeldingen
+imagelib.delete.confirm.title=Bevestig Verwijdering
+imagelib.delete.confirm.text=Bent u er zeker van dat u wilt verwijderen
+imagelib.image.invalid.title=Ongeldige Afbeelding
+imagelib.image.invalid.text=is geen geldig afbeelding.
+imagelib.image.unsupportedformat.title=Formaat Wordt Niet Ondersteund
+imagelib.image.unsupportedformat.text=wordt niet ondersteund op uw machine. Kies een andere en probeer opnieuw.
+imagelib.rename.exists.text=Kan bestandsnaam niet hernoemen omdat er al een bestand bestaat met die naam.
+imagelib.rename.exists.title=Hernoemen Mislukt
+imagelib.new.image.title=Nieuw Afbeelding
+imagelib.new.image.name=Naam:
+imagelib.new.image.width=Breedte:
+imagelib.new.image.height=Hoogte:
+imagelib.new.image.type=Type:
+imagelib.more=Meer Acties...
+
+editor.paste.image.title=Plak Afbeelding
+editor.paste.image.prompt=Bestaandsnaam:
 
 scenario.viewer.appletInfo=Applet gemaakt met Greenfoot (www.greenfoot.org). Projectnaam:
 
@@ -166,12 +253,49 @@ controls.pause.button=Pauze
 controls.reset.shortDescription=Breng een nieuwe wereld tot stand.
 controls.reset.longDescription=Breng een nieuwe wereld tot stand.
 controls.speed.label=Snelheid:
-controls.speedSlider.tooltip=Pas de snelheid aan
+controls.speedSlider.tooltip=Past de snelheid aan
+
 
 # Class browser
 browser.border.world=Wereld klasses
 browser.border.actors=Actor klasses
 browser.border.others=Overige klasses
+
+# Sound Recorder
+
+soundRecorder.title=Geluids Opnemer
+soundRecorder.record=Opnemen
+soundRecorder.stopRecord=Stop opname
+soundRecorder.trim=Trim aan selectie
+soundRecorder.play=Afspelen
+soundRecorder.playSelection=Selectie afspelen
+soundRecorder.stopPlay=Stop afspelen
+soundRecorder.filename=Bestandsnaam
+soundRecorder.save=Opslaan
+soundRecorder.done=Sluiten
+soundRecorder.saved=Opgeslagen
+soundRecorder.notSaved=Niet opgeslagen
+soundRecorder.overwrite.part1=Het bestand \"
+soundRecorder.overwrite.part2=\" bestaat al. Wilt u het overschrijven?
+soundRecorder.overwrite.title=Bevestig bestand vervanging
+soundRecorder.overwrite=Overschrijven
+soundRecorder.closeAnyway=Toch afsluiten
+soundRecorder.closeTitle=Afsluiten zonder opslaan
+soundRecorder.closeQuestion=Het geluid is aangepast nadat u heeft opgeslagen. Als u nu de geluidsopname afsluit zullen de wijzigingen verloren gaan.
+
+# Import
+import.import=Importeer
+import.dialogTitle=Importeer Klasse
+import.action=Importeer Klasse...
+import.restartMessage=Voor de juiste werking van dit project dient Greenfoot opnieuw opgestart te worden
+
+set.player=Bepaal Spelernaam
+playername.dialog.title=Bepaal Spelernaam
+playername.dialog.help=Bepaal de gebruikersnaam gebruikt door de UserInfo klasse
+playername.dialog.playerName=Spelernaam
+
+prefmgr.misc.playername.title=Spelernaam
+prefmgr.misc.playerNameNote=Je kunt dit eenvoudig aanpassen door de volgende shortcut te gebruiken:
 
 # Menus
 
@@ -180,8 +304,13 @@ menu.openRecent=Onlangs geopend
 menu.scenario=Project
 
 menu.edit=Bewerken
+menu.new=Nieuw
 
 menu.controls=Besturing
+
+menu.debugger=Toon Debugger
+
+menu.soundRecorder=Toon Geluids Opnemer
 
 menu.help=Help
 menu.help.about=Over Greenfoot...
@@ -190,8 +319,50 @@ menu.help.javadoc=Java Bibliotheek Documentatie
 menu.help.tutorial=Greenfoot Handleiding
 menu.help.website=Greenfoot Website
 menu.help.moreScenarios=Greenfoot Projecten
+menu.help.discuss=Greenfoot Discussie
+
+#Copyright
+
+menu.help.copyright.title=Greenfoot Auteursrecht, licenties en Herverdeling
+menu.help.copyright.line0=Greenfoot \u00a9 2005-2015 Michael K\u00F6lling, Poul Henriksen.
+menu.help.copyright.line1=Greenfoot is beschikbaar gesteld onder de GNU General Public License
+menu.help.copyright.line2=version 2 met Classpath exceptie.
+menu.help.copyright.line3=Voor meer informatie bekijk de bestanden LICENSE.txt
+menu.help.copyright.line4=en THIRDPARTYLICENSE.txt.
+
+
+# Popup menu
+classPopup.needsCompile=Compileren nodig
+classPopup.containsError=Bevat fout(en)
 
 # Project does not exist dialog
-noproject.dialog.title=Fout bij het openen van het project
-noproject.dialog.msg=Dit project bestaat niet: 
- 
+noproject.dialog.title=Fout bij openen van project
+noproject.dialog.msg=Project bestaat niet:
+
+# Header for the properties file
+properties.heading.greenfoot=Greenfoot eigenschappen. Eigenschappen in dit bestand overschrijven \"bluej.defs\" en \"greenfoot.defs\"
+
+# Message to display if a file cannot be created
+greenfoot.cannotCreateClass=De klassebestand kon niet aangemaakt worden. Controleer of de schrijfrechten voor de map van het project.
+
+# General error messages
+greenfoot.cannotFindAPIDocumentation=De API documentatie lijkt te ontbreken, of is onleesbaar.
+
+# Message for sound related errors
+sound-line-unavailable=Kan geen toegang verkrijgen tot de geluidskaart. Als er een geluidskaart geinstalleerd is, controleer uw systeemeigenschappen, en sluit alle andere programma's die mogelijk gebruik maken van de geluidskaart.
+
+# MainFrame central messages
+centrePanel.message.openScenario=\u2196 Maak of Open een project met behulp van het Project menu
+centrePanel.message.createWorldClass=Maak een nieuwe subklasse van World
+centrePanel.message.compile=De World klasse bevat mogelijk een fout, controleer het om het project te initialiseren \u2197
+centrePanel.message.initialising=De wereld wordt gebouwd...
+centrePanel.message.initialisingTooLong1=De constructor voor de wereld neemt veel tijd in beslag.
+centrePanel.message.initialisingTooLong2=Mogelijk gebruikt uw een oneindige herhaling.
+centrePanel.message.notFocused=Om de wereld te bouwen, klik in dit venster.
+centrePanel.restartButton.label=Begin opnieuw
+centrePanel.message.error1=De constructor van de wereld gooide een exceptie.
+centrePanel.message.error2=Bekijk de Uitvoer venster voor meer details.
+centrePanel.message.afterRestarting1=Greenfoot is opnieuw opgestart omdat de World niet gebouwd kon worden.
+centrePanel.message.afterRestarting2=Controleer de constructor van de World subklasse.
+centrePanel.message.missingWorldConstructor1=De wereld kon niet gebouwd worden. De wereld subklasse heeft mogelijk geen
+centrePanel.message.missingWorldConstructor2=publieke constructor zonder parameters, of is mogelijk niet publiek.

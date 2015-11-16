@@ -8,9 +8,10 @@ language        last update     next update    comment                  translat
 --------------------------------------------------------------------------------------------------------------
 brazilian                                       tutorial
 chinese			2.0.1				 			labels
-czech			3.0.0			 x     labels updated, Rev: 14946           Zdeněk Chalupský <chalzd@gmail.com>
-                                         dialog sent, Rev: 14946
-dutch			2.0.1            x    labels+dialog, Rev: 14946             Renske Smetsers-Weeda <renske.weeda@gmail.com>
+czech			3.0.0			 x    labels updated, Rev: 14946            Zdeněk Chalupský <chalzd@gmail.com>
+                                        dialog sent, Rev: 14946
+dutch			3.0.0            x    labels+dialog, Rev: 14946             Renske Smetsers-Weeda <renske.weeda@gmail.com>
+                                        frames sent, Rev: 14946
 french          1.5.0            x    labels+dialog, Rev: 14946             Pierre Lefebvre and Denis Bureau <D.Bureau@esiee.fr>
 german          2.0.0preview     x    labels+dialog, Rev: 14946             stefan mueller <stefan.mueller@hof-university.de>; Michael Kolling
 greek           1.5.0
