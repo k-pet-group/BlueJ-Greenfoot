@@ -8,20 +8,21 @@ language        last update     next update    comment                  translat
 --------------------------------------------------------------------------------------------------------------
 brazilian                                       tutorial
 chinese			2.0.1				 			labels
-czech			3.0.0				 x     labels updated, Rev: 14946   Zdeněk Chalupský <chalzd@gmail.com>
-                                           dialog sent, Rev: 14946
-dutch			2.0.1                x    labels+dialog, Rev: 14946     Renske Smetsers-Weeda <renske.weeda@gmail.com>
-french          1.5.0                x    labels+dialog, Rev: 14946     Pierre Lefebvre and Denis Bureau <D.Bureau@esiee.fr>
-german          2.0.0preview         x    labels+dialog, Rev: 14946     stefan mueller <stefan.mueller@hof-university.de>; Michael Kolling
+czech			3.0.0			 x     labels updated, Rev: 14946           Zdeněk Chalupský <chalzd@gmail.com>
+                                         dialog sent, Rev: 14946
+dutch			2.0.1            x    labels+dialog, Rev: 14946             Renske Smetsers-Weeda <renske.weeda@gmail.com>
+french          1.5.0            x    labels+dialog, Rev: 14946             Pierre Lefebvre and Denis Bureau <D.Bureau@esiee.fr>
+german          2.0.0preview     x    labels+dialog, Rev: 14946             stefan mueller <stefan.mueller@hof-university.de>; Michael Kolling
 greek           1.5.0
-italian         3.0.0                x    labels+dialog, Rev: 14924     Stefano Federici <s_federici@yahoo.com>
+italian         3.0.0            x    labels+dialog, Rev: 14924             Stefano Federici <s_federici@yahoo.com>
 korean          2.1.2*                          labels
-polish                               x    labels+dialog, Rev: 14946     Przemysław Adam Śmiejek <informatyk@zso5.zabrze.pl>
-portuguese                           x    labels+dialog, Rev: 14946     Paulo Abadie <paulo.abadie@gmail.com>
+polish                           x    labels+dialog, Rev: 14946             Przemysław Adam Śmiejek <informatyk@zso5.zabrze.pl>
+portuguese                       x    labels+dialog+frames, Rev: 14946      Paulo Abadie <paulo.abadie@gmail.com>
 russian         1.5.5
-spanish         1.5.5                x    labels+dialog, Rev: 14946     Cabral Ignacio (<icabral@itesm.mx> or <nacho.cabral@gmail.com>)
-                                                                          José Ramón Puente Lerma <puenram@gmail.com> offered help translation to Spanish,
-                                                                          but given the BJ side labels. However, name should be mentioned if he does them.  
+spanish         1.5.5            x    labels+dialog, Rev: 14946             Cabral Ignacio (<icabral@itesm.mx> or <nacho.cabral@gmail.com>)
+                                                                              José Ramón Puente Lerma <puenram@gmail.com> offered help translation
+                                                                               to Spanish, but given the BJ side labels. However, name should be
+                                                                               mentioned if he does them.
 
 IMPORTANT: 
 When adding a new translation, it should be added in the build script:
@@ -39,7 +40,7 @@ german          Matthias Taulien <mail@m-taulien.de>
 greek           Dragon Turtle <super_provato@hotmail.com>
 indian          Kiran Kumar D <mail2dkiran@gmail.com>
 malayalam       K.R.Arun <code333@gmail.com>
-spanish         Esteban Iglesias Manriquez <estbaniglesiasmanriquez@gmail.com> AND Kenneth Daly AND Iris Gutierrez <igutierrez@cubecorp.com.ar> AND Luis Mijangos <mijangos3@msn.com>
+spanish         Esteban Iglesias Manriquez <estbaniglesiasmanriquez@gmail.com> AND Kenneth Daly AND Iris Gutierrez <igutierrez@cubecorp.com.ar> AND Luis Mijangos
 russian         Sergey Zemlyannikov <serveren@mail.ru>
 chinese			Wobot Yuan <wobotyuan@qq.com>
 dutch			Erik van Veen <erikvanveen_2@hotmail.com>
