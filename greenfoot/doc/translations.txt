@@ -8,7 +8,8 @@ language        last update     next update    comment                  translat
 --------------------------------------------------------------------------------------------------------------
 brazilian                                       tutorial
 chinese			2.0.1				 			labels
-czech			2.0.1				 			labels
+czech			3.0.0				 x     labels updated, Rev: 14946   Zdeněk Chalupský <chalzd@gmail.com>
+                                           dialog sent, Rev: 14946
 dutch			2.0.1                x    labels+dialog, Rev: 14946     Renske Smetsers-Weeda <renske.weeda@gmail.com>
 french          1.5.0                x    labels+dialog, Rev: 14946     Pierre Lefebvre and Denis Bureau <D.Bureau@esiee.fr>
 german          2.0.0preview         x    labels+dialog, Rev: 14946     stefan mueller <stefan.mueller@hof-university.de>; Michael Kolling
@@ -41,6 +42,5 @@ malayalam       K.R.Arun <code333@gmail.com>
 spanish         Esteban Iglesias Manriquez <estbaniglesiasmanriquez@gmail.com> AND Kenneth Daly AND Iris Gutierrez <igutierrez@cubecorp.com.ar> AND Luis Mijangos <mijangos3@msn.com>
 russian         Sergey Zemlyannikov <serveren@mail.ru>
 chinese			Wobot Yuan <wobotyuan@qq.com>
-czech			Zdeněk Chalupský <chalzd@gmail.com>
 dutch			Erik van Veen <erikvanveen_2@hotmail.com>
 korean          John Kim <johnkim@kmu.ac.kr>
