@@ -238,12 +238,15 @@ httpmime-4.1.1.jar                       Apache License v2.0
 javassist-3.18.0.jar                     Apache License v2.0
 jna-4.2.0.jar                            Apache License v2.0
 jna-platform-4.2.0.jar                   Apache License v2.0
+jsch-0.1.53.jar                          BSD License
 junit-4.11.jar                           Common Public License v1.0
 org-netbeans-lib-cvsclient.jar           Common Development and Distribution License v1.0
+org.eclipse.jgit-4.1.0.jar               Eclipse Distribution License (EDL) v1.0
 sequence-library-1.0.3.jar               BSD License
+slf4j-api-1.7.2.jar                      MIT
+slf4j-jdk14-1.7.2.jar                    MIT
 sqljet-1.1.10.jar                        TMate Open Source License
 svnkit-javahl.jar                        Subversion License
 svnkit.jar                               TMate Open Source License
 trilead.jar                              BSD-like license
 xom-1.2.9.jar                            Lesser GPL v2.1
-
