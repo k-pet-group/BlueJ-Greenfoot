@@ -114,14 +114,23 @@ must-be-identifier
 Nome n\u00e3o v\u00e1lido. Tem 
 que ser um identificador Java.
 
-directory-exists
-Um arquivo ou diret\u00f3rio com 
+directory-exists-file
+Um arquivo ou diret\u00f3rio com
 este nome j\u00e1 existe.
 
-cannot-copy-package
-Ocorreu um erro durante a c\u00f3pia dos
-arquivos do pacote. O pacote n\u00e3o foi
-gravado ou pode estar incompleto.
+directory-exists-non-empty
+Este diret\u00F3rio n\u00E3o est\u00E1 vazio. Por isso
+n\u00E3o pode ser usado como destino para um projeto.
+
+cannot-create-directory
+N\u00E3o \u00E9 poss\u00EDvel criar o diret\u00F3rio. Verifique se
+ele tem um nome v\u00E1lido e que o diret\u00F3rio
+acima exite e os diret\u00F3rios e s\u00E3o grav\u00E1veis.
+
+cannot-save-project
+O projeto n\u00E3o p\u00F4de ser salvo nalocaliza\u00E7\u00E3o
+especificada. Verifique se voc\u00EA tem acesso de
+grava\u00E7\u00E3o, ou escolha outro local.
 
 file-does-not-exist
 O arquivo especificado
@@ -162,7 +171,7 @@ da documenta\u00e7\u00e3o do JDK, especificada em prefer\u00eancias, possa
 estar incorreta. Certifique-se de que todos os seus arquivos
 Java est\u00e3o compilados e a URL da documenta\u00e7\u00e3o esteja acess\u00edvel
 ou desabilitada. Tente novamente. Se esta mensagem aparecer
-novamente voc\u00ea deve checar o arquivo de log com a 
+novamente voc\u00ea deve checar o arquivo de log com a
 mensagem de erro do Javadoc:
 
 severe-doc-trouble
@@ -178,6 +187,27 @@ Uma classe com este nome j\u00e1 existe neste
 pacote. Voc\u00ea n\u00e3o pode ter duas classes
 com o mesmo nome no mesmo pacote.
 
+class-library-conflict
+Uma classe com este nome j\u00E1 existe na biblioteca
+"$\".
+Se voc\u00EA criar esta classe, voc\u00EA ser\u00E1 capaz de
+editar e compil\u00E1-lo, mas n\u00E3o chamar seus m\u00E9todos.
+Cancelar
+Continue Mesmo assim
+null
+
+compile-class-library-conflict
+Uma classe com esse nome j\u00E1 existe na biblioteca
+"$".
+Voc\u00EA ser\u00E1 capaz de editar e compilar sua classe, mas
+a chamada de m\u00E9todos ir\u00E1 executar c\u00F3digo da
+classe da biblioteca.
+
+windows-reserved-class-name
+O nome de classe escolhida n\u00E3o pode ser utilizado,
+porqu\u00EA est\u00E1 em conflito com um nome de arquivo
+reservado em algum sistema operacional
+
 error-in-import
 Erro durante tentativa de importa\u00e7\u00e3o
 do arquivo. Cheque os direitos de acesso
@@ -185,7 +215,7 @@ e o espa\u00e7o em disco.
 
 no-class-selected-compile
 Nenhuma classe selecionada para compila\u00e7\u00e3o.
-Selecione uma classe, clicando 
+Selecione uma classe, clicando
 nela, antes de tentar compil\u00e1-la.
 
 no-class-selected
@@ -226,7 +256,7 @@ O arquivo/diret\u00f3rio n\u00e3o \u00e9
 um pacote BlueJ:
 
 applet-height-width
-A altura (height) e a largura (width) do 
+A altura (height) e a largura (width) do
 applet devem ser especificados.
 
 not-yet-implemented
@@ -241,6 +271,14 @@ null
 really-reload
 A recarga descartar\u00e1 todas as mudan\u00e7as desde a \u00faltima edi\u00e7\u00e3o.
 Voc\u00ea tem certeza?
+Recarregar
+Cancelar
+null
+
+changed-on-disk
+O arquivo de origem foi alterado no disco. Voc\u00EA quer
+recarreg\u00E1-lo a partir do disco? Isto ir\u00E1 descartar
+as altera\u00E7\u00F5es feitas aqui no editor.
 Recarregar
 Cancelar
 null
@@ -263,7 +301,7 @@ foi encontrado neste diret\u00f3rio.
 
 open-non-bluej-invalid
 Voc\u00ea indicou que deseja abrir este diret\u00f3rio
-como um projeto BlueJ; entretanto, foi encontrado 
+como um projeto BlueJ; entretanto, foi encontrado
 um arquivo com um comando package que \u00e9
 imcompat\u00edvel com a estrutura do diret\u00f3rio
 corrente. (Por exemplo, se a classe Java Shape
@@ -291,18 +329,18 @@ de destino. O comando package foi revertido
 para sua forma anterior.
 
 package-name-clash
-Voc\u00ea alterou o comando package para um 
+Voc\u00ea alterou o comando package para um
 nome que j\u00e1 \u00e9 utilizado por outra classe
 ou pacote. Se esta classe for transferida
-para este novo pacote, a classe ou pacote 
+para este novo pacote, a classe ou pacote
 original poder\u00e1 ser destru\u00eddo. Assim, o
-comando package foi revertido para sua 
+comando package foi revertido para sua
 forma anterior.
 
 package-name-changed
 Voc\u00ea mudou o comando package que define o
 pacote desta classe. Voc\u00ea
-gostaria de mover esta classe para o pacote 
+gostaria de mover esta classe para o pacote
 indicado ou gostaria de deixar a classe onde
 est\u00e1 (o comando package ser\u00e1 revertido para
 sua forma original)?
@@ -330,8 +368,12 @@ A grava\u00e7\u00e3o ir\u00e1 come\u00e7ar.
 Novo M\u00e9todo de Teste
 null
 
+unittest-io-error
+Ocorreu um erro de I/O enquanto tentava ler o arquivo fonte de
+teste unit\u00E1rio.
+
 getobject-new-name
-Digite o nome para o novo objeto 
+Digite o nome para o novo objeto
 do banco de objetos
 Novo Nome do Objeto
 null
@@ -352,10 +394,6 @@ Deseja continuar?
 Substituir
 Cancelar
 null
-
-no-search-string
-Nenhuma palavra de pesquisa foi definida.
-(Marque algum texto ou use 'Procurar' primeiro)
 
 default-keys
 Voc\u00ea deseja realmente descartar todas
@@ -379,6 +417,23 @@ Outras causas poss\u00edveis s\u00e3o configura\u00e7\u00f5es de rede incorretas
 se o TCP/IP est\u00e1 configurado corretamente e olhe outros par\u00e2metros da rede.
 Se o problema persistir, pe\u00e7a ajuda (veja http://www.bluej.org/help/ask-help.html).
 
+
+project-is-readonly
+O projeto est\u00E1 sendo aberto em modo de apenas leitura:
+:
+    $
+:
+Para usar este projeto, voc\u00EA precisar\u00E1 primeiro salver ele em uma nova localiza\u00E7\u00E3o.
+
+project-is-virtualized
+O projeto que voc\u00EA est\u00E1 abrindo est\u00E1 sendo virtualizado pelo Windows.
+Isto geralmente acontece quando o projeto \u00E9 armazenado em algum lugar no
+Diret\u00F3rio \"Arquivos de Programas\". Quando um projeto est\u00E1 sendo
+virtualizado pelo Windows, voc\u00EA ir\u00E1 obter erros ao tentar criar objetos
+e chamar m\u00E9todos. Para usar este projeto, voc\u00EA deve mover o projeto para
+uma localiza\u00E7\u00E3o diferente. Isso pode ser feito escolhendo \"salvar como\"
+No menu Projeto depois de fechar esta caixa de di\u00E1logo.
+
 could-not-write-shell-file
 A execu\u00e7\u00e3o falhou porque o diret\u00f3rio do projeto n\u00e3o permite grava\u00e7\u00e3o.
 Para criar objetos ou executar m\u00e9todos, n\u00f3s devemos ter permiss\u00e3o para escrita
@@ -386,4 +441,146 @@ no diret\u00f3rio do projeto. Certifique-se que o seu projeto esteja num
 sistema de arquivos que permita escrita (n\u00e3o um CD!) e que voc\u00ea tenha
 permiss\u00e3o de escrita no diret\u00f3rio do projeto e todos os seus arquivos.
 
+jar-output-dir-exists
+O diret\u00F3rio de sa\u00EDda para o arquivo
+compactado j\u00E1 existe. Voc\u00EA deve remover o diret\u00F3rio
+existente antes que voc\u00EA possa extrair o arquivo.
 
+jar-output-no-write
+O diret\u00F3rio de sa\u00EDda n\u00E3o pode ser criado.
+Certifique-se de copiar o arquivo para uma pasta grav\u00E1vel
+primeiro.
+
+jar-extraction-error
+Ocorreu um erro ao extrair o conte\u00FAdo do arquivo.
+O  log do debug pode conter mais informa\u00E7\u00F5es.
+
+file-save-error-before-compile
+Um ou mais arquivos n\u00E3o puderam ser salvos.
+A compila\u00E7\u00E3o foi cancelada.
+
+generic-file-save-error
+Foi encontrado um erro ao tentar salvar um arquivo.
+
+empty-assertion-text
+Voc\u00EA n\u00E3o inseriu um resultado esperado para
+esta chamada de m\u00E9todo. Sem esse resultado, o
+teste \u00E9 incompleto, e sua classe de teste n\u00E3o
+ir\u00E1 compilar. Tem certeza de que deseja continuar sem
+entrar um valor de resultado?
+Voltar
+Continuar
+null
+
+team-update-first
+Houvem mudan\u00E7as feitas nos arquivos no reposit\u00F3rio,
+mas os arquivos foram apagados da sua c\u00F3pia de trabalho.
+Isso \u00E9 um conflito. Antes que voc\u00EA pode fazer um commit,
+voc\u00EA precisa executar uma atualiza\u00E7\u00E3o, que ir\u00E1
+restaurar a vers\u00F5es reposit\u00F3rio.
+Os arquivos a seguir s\u00E3o afetados:
+
+team-resolve-conflicts-delete
+H\u00E1 conflitos com alguns arquivos, que foram modificados no
+reposit\u00F3rio, bem como em sua c\u00F3pia de trabalho. Voc\u00EA
+precisa excluir suas vers\u00F5es dos seguintes arquivos e, em
+seguida, executar uma atualiza\u00E7\u00E3o,
+a fim de resolver os conflitos:
+
+team-resolve-merge-conflicts
+Durante uma atualiza\u00E7\u00E3o anterior, houve conflitos de
+merge em alguns arquivos. Voc\u00EA precisa editar os seguintes
+arquivos e resolver os conflitos antes de executar um commit:
+
+team-unresolved-conflicts
+H\u00E1 conflitos n\u00E3o resolvidos com os seguintes arquivos.
+Voc\u00EA ter\u00E1 que apagar os arquivos localmente para
+resolver o conflito:
+
+team-uptodate-failed
+A c\u00F3pia local est\u00E1 desatualizada.
+Atualize sua c\u00F3pia antes de salvar as suas altera\u00E7\u00F5es.
+
+team-cant-connect
+N\u00E3o \u00E9 poss\u00EDvel se conectar ao servidor.
+Verifique se o endere\u00E7o do servidor  est\u00E1 correto
+nas configura\u00E7\u00F5es de trabalho em equipe.
+
+team-project-exists
+O projeto j\u00E1 existe no servidor. Talvez voc\u00EA queira
+usar o Checkout, para baixar o projeto existente ou renomear seu
+projeto e fazer o commit novamente.
+
+team-cant-find-path
+O caminho n\u00E3o pode ser encontrado no servidor. Isso pode ser
+porque o grupo ou projeto especificado n\u00E3o existe no servidor.
+Verifique se estes est\u00E3o corretos nas configura\u00E7\u00F5es de
+trabalho em equipe, e que elas existem no servidor.
+
+team-cant-find-module
+Projeto n\u00E3o est\u00E1 no reposit\u00F3rio. Um projeto deve
+ser compartilhado (colocado no reposit\u00F3rio) antes que voc\u00EA
+possa fazer o checkout.
+
+team-cant-find-repository
+O reposit\u00F3rio n\u00E3o p\u00F4de ser encontrado.
+Verifique o caminho para o reposit\u00F3rio nas
+configura\u00E7\u00F5es de trabalho em equipe.
+
+team-empty-message
+Ocorreu um erro desconhecido. Verifique as defini\u00E7\u00F5es
+de trabalho em equipe para garantir que as suas
+configura\u00E7\u00F5es do reposit\u00F3rio est\u00E3o corretas.
+
+team-invalid-cvsroot
+Raiz do CVS inv\u00E1lido - verifique as
+configura\u00E7\u00F5es de trabalho em equipe.
+
+team-authentication-problem
+O servidor n\u00E3o conseguiu fazer seu login - verifique
+seu nome de usu\u00E1rio / senha e reposit\u00F3rio nas
+configura\u00E7\u00F5es de trabalho em equipe.
+
+team-binary-conflict
+Foi detectado um conflito ao tentar atualizar o arquivo a seguir:
+    $
+O arquivo foi alterado localmente, mas tamb\u00E9m h\u00E1
+mudan\u00E7as no reposit\u00F3rio.
+Mantenha minha vers\u00E3o
+Use vers\u00E3o do reposit\u00F3rio
+null
+
+team-error-saving-project
+Ocorreu um erro ao tentar salvar os arquivos de projeto:
+	$
+Fazer commit ou atualiza\u00E7\u00E3o pode ter resultados inesperados.
+
+team-cannot-import-into-existing-project
+Voc\u00EA n\u00E3o pode importar um projeto em um projeto existente.
+Selecione uma pasta normal como o destino para a importa\u00E7\u00E3o.
+
+not-all-compiled
+Nem todas as classes neste projeto est\u00E3o compiladas.
+Para implantar o MIDlet su\u00EDte neste projeto voc\u00EA deve
+compilar todas as classes no projeto.
+
+error-midleticon-exists
+O arquivo que voc\u00EA selecionou j\u00E1 est\u00E1 no
+diret\u00F3rio res /icons deste projecto.
+Voc\u00EA quer substitu\u00ED-lo?
+Sobrescrever
+Cancelar
+null
+
+stuck-at-breakpoint
+Seu programa j\u00E1 est\u00E1 em execu\u00E7\u00E3o, e parou em
+um ponto de interrup\u00E7\u00E3o. Voc\u00EA n\u00E3o pode iniciar
+outra execu\u00E7\u00E3o, enquanto a atual ainda est\u00E1 ativa.
+Use os controles do depurador para prosseguir ou terminar a
+execu\u00E7\u00E3o atual.
+
+already-executing
+Seu programa j\u00E1 est\u00E1 em execu\u00E7\u00E3o. Voc\u00EA n\u00E3o
+pode iniciar outro execu\u00E7\u00E3o (ou inspecionar uma classe)
+at\u00E9 terminar a execu\u00E7\u00E3o. Caso\r\no programa est\u00E1
+preso em um loop, voc\u00EA pode usar o depurador termin\u00E1-lo.
