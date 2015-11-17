@@ -14,7 +14,7 @@ dutch			3.0.0            x    labels+dialog, Rev: 14946             Renske Smets
                                         frames sent, Rev: 14946
 french          1.5.0            x    labels+dialog, Rev: 14946             Pierre Lefebvre and Denis Bureau <D.Bureau@esiee.fr>
 german          2.0.0preview     x    labels+dialog, Rev: 14946             stefan mueller <stefan.mueller@hof-university.de>; Michael Kolling
-greek           1.5.0
+greek           1.5.0            x    labels+dialog+frames, Rev: 14946      Elevtherios Chrysochoidis <it1370@uom.edu.gr>
 italian         3.0.0            x    labels+dialog, Rev: 14924             Stefano Federici <s_federici@yahoo.com>
 korean          2.1.2*                          labels
 polish                           x    labels+dialog, Rev: 14946             Przemysław Adam Śmiejek <informatyk@zso5.zabrze.pl>
