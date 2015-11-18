@@ -1,0 +1,41 @@
+# Frame Catalogue:
+frame.catalogue.title=Tah\u00e1k
+frame.catalogue.commands=P\u0159\u00edkazy
+frame.catalogue.shortcuts=Kl\u00e1vesov\u00e9 zkratky
+frame.catalogue.selection=P\u0159ilo\u017eit v\u00fdb\u011br
+frame.catalogue.codecompletion=Dokon\u010dov\u00e1n\u00ed k\u00f3du
+frame.catalogue.codecompletion.hide=Vypnout dokon\u010dov\u00e1n\u00ed k\u00f3du
+frame.catalogue.codecompletion.up=P\u0159esunout nahoru
+frame.catalogue.codecompletion.down=Posunout dol\u016f
+frame.catalogue.codecompletion.select=Vybrat
+
+frame.catalogue.birdseye.exit=Ukon\u010dit n\u00e1hled
+frame.catalogue.birdseye.up=P\u0159esunout nahoru
+frame.catalogue.birdseye.down=Posunout dol\u016f
+frame.catalogue.birdseye.select=Vybrat
+
+frame.catalogue.examples=P\u0159\u00edklady
+
+
+# Error Bar:
+frame.error.overview.bar.error.single=chyba
+frame.error.overview.bar.error.plural=chyby
+frame.error.overview.bar.error.none=\u017d\u00e1dn\u00e9 chyby
+frame.error.overview.bar.error.editing=Editace
+
+# Slot menu:
+frame.slot.cut=Vyjmout
+frame.slot.copy=Kop\u00edrovat
+frame.slot.paste=Vlo\u017eit
+frame.slot.recent=P\u0159edchoz\u00ed hodnoty
+
+
+# View menu:
+frame.viewmenu.title=N\u00e1hled
+frame.viewmenu.nextError=Dal\u0161\u00ed chyba
+frame.viewmenu.cheatsheet=Tah\u00e1k
+frame.viewmenu.birdseye=Pta\u010d\u00ed oko
+frame.viewmenu.java=Java n\u00e1hled
+frame.viewmenu.fontbigger=Zv\u011bt\u0161it velikost p\u00edsma
+frame.viewmenu.fontsmaller=Zmen\u0161it velikost p\u00edsma
+frame.viewmenu.fontdefault=Obnovit velikost p\u00edsma
