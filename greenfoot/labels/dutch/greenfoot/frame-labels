@@ -1,0 +1,41 @@
+# Frame Catalogue:
+frame.catalogue.title=Spiekbriefje
+frame.catalogue.commands=Commando's
+frame.catalogue.shortcuts=Snelkoppelingen
+frame.catalogue.selection=Omsluiten Selectie
+frame.catalogue.codecompletion=Code aanvullen
+frame.catalogue.codecompletion.hide=Code aanvulling verbergen
+frame.catalogue.codecompletion.up=Naar boven
+frame.catalogue.codecompletion.down=Naar beneden
+frame.catalogue.codecompletion.select=Selecteren
+
+frame.catalogue.birdseye.exit=Aanzicht aflsuiten
+frame.catalogue.birdseye.up=Naar boven
+frame.catalogue.birdseye.down=Naar beneden
+frame.catalogue.birdseye.select=Selecteren
+
+frame.catalogue.examples=Voorbeelden
+
+
+# Error Bar:
+frame.error.overview.bar.error.single=fout
+frame.error.overview.bar.error.plural=fouten
+frame.error.overview.bar.error.none=Geen fouten
+frame.error.overview.bar.error.editing=Bewerken
+
+# Slot menu:
+frame.slot.cut=Knippen
+frame.slot.copy=Kopieren
+frame.slot.paste=Plakken
+frame.slot.recent=Recenet Waaardes
+
+
+# View menu:
+frame.viewmenu.title=Aanzicht
+frame.viewmenu.nextError=Volgende fout
+frame.viewmenu.cheatsheet=Spiekbriefje
+frame.viewmenu.birdseye=Vogelperspectief
+frame.viewmenu.java=Java bezichtigen
+frame.viewmenu.fontbigger=Lettergrootte vergroten
+frame.viewmenu.fontsmaller=Lettergrootte verkleinen
+frame.viewmenu.fontdefault=Lettergrootte herstellen
