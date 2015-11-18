@@ -1,0 +1,41 @@
+# Frame Catalogue:
+frame.catalogue.title=Promemoria
+frame.catalogue.commands=Comandi
+frame.catalogue.shortcuts=Scorciatoie
+frame.catalogue.selection=Racchiudi Selezione
+frame.catalogue.codecompletion=Autocompletamento
+frame.catalogue.codecompletion.hide=Nascondi autocompletamento
+frame.catalogue.codecompletion.up=Su
+frame.catalogue.codecompletion.down=Gi\u00f9
+frame.catalogue.codecompletion.select=Seleziona
+
+frame.catalogue.birdseye.exit=Chiudi visualizzazione
+frame.catalogue.birdseye.up=Su
+frame.catalogue.birdseye.down=Gi\u00f9
+frame.catalogue.birdseye.select=Seleziona
+
+frame.catalogue.examples=Esempi
+
+
+# Error Bar:
+frame.error.overview.bar.error.single=errore
+frame.error.overview.bar.error.plural=errori
+frame.error.overview.bar.error.none=Nessun errore
+frame.error.overview.bar.error.editing=Modifica
+
+# Slot menu:
+frame.slot.cut=Taglia
+frame.slot.copy=Copia
+frame.slot.paste=Incolla
+frame.slot.recent=Valori Recenti
+
+
+# View menu:
+frame.viewmenu.title=Visualizza
+frame.viewmenu.nextError=Errore successivo
+frame.viewmenu.cheatsheet=Promemoria
+frame.viewmenu.birdseye=Vista generale
+frame.viewmenu.java=Anteprima Java
+frame.viewmenu.fontbigger=Aumenta dimensione caratteri
+frame.viewmenu.fontsmaller=Diminuisci dimensione caratteri
+frame.viewmenu.fontdefault=Dimensione caratteri standard
