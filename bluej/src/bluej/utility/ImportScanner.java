@@ -1,14 +1,14 @@
 package bluej.utility;
 
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -17,23 +17,22 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.swing.SwingUtilities;
 
-import bluej.pkgmgr.Project;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 import org.reflections.util.FilterBuilder;
 
-import threadchecker.OnThread;
-import threadchecker.Tag;
 import bluej.Boot;
 import bluej.parser.ImportedTypeCompletion;
 import bluej.pkgmgr.JavadocResolver;
+import bluej.pkgmgr.Project;
 import bluej.stride.generic.AssistContentThreadSafe;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 public class ImportScanner
 {
@@ -98,7 +97,6 @@ public class ImportScanner
 
         public List<AssistContentThreadSafe> getImportedTypes(String prefix, Iterator<String> idents, JavadocResolver javadocResolver)
         {
-            PackageInfo p = this;
             if (!idents.hasNext())
                 return Collections.emptyList();
             
@@ -126,20 +124,6 @@ public class ImportScanner
                     return Collections.emptyList();
             }
         }
-
-        public Stream<String> getAvailableImports()
-        {
-            return Stream.concat(
-                    types.keySet().stream(),
-                    subPackages.entrySet().stream().flatMap(
-                            e -> Stream.concat(
-                                    Stream.of(e.getKey() + ".*"),
-                                    e.getValue().getAvailableImports().map(s -> e.getKey() + "." + s)
-                                    )
-                    ));
-        }
-        
-        
     }
     
     @OnThread(Tag.Any)
@@ -208,6 +192,18 @@ public class ImportScanner
         
         // Stop jnilib files being processed on Mac:
         urls.removeIf(u -> u.toExternalForm().endsWith("jnilib") || u.toExternalForm().endsWith("zip"));
+        
+        urls.removeIf(u -> {
+            if ("file".equals(u.getProtocol())) {
+                try {
+                    File f = new File(u.toURI());
+                    if (f.getName().startsWith(".")) return true;
+                    if (f.getName().endsWith(".so")) return true;
+                }
+                catch (URISyntaxException usexc) {}
+            }
+            return false; 
+        });
 
         //Debug.message("Class loader URLs:");
         //urls.stream().sorted(Comparator.comparing(URL::toString)).forEach(u -> Debug.message("  " + u));

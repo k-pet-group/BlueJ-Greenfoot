@@ -40,9 +40,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -1814,24 +1812,26 @@ public final class Config
         //List<String> fontStems = Arrays.asList("NotoSans-Regular", "NotoSans-Bold", "NotoSans-Italic", "NotoSans-BoldItalic");
         for (File file : new File(bluejLibDir + "/fonts").listFiles())
         {
-            //final File file = new File(bluejLibDir + "/fonts", fontStem + ".ttf");
-            try
-            {
-                //Debug.message("Loading font: " + file);
-                FileInputStream fis = new FileInputStream(file);
-                final javafx.scene.text.Font font = javafx.scene.text.Font.loadFont(fis, 10);
-                fis.close();
-                if (font == null)
-                    Debug.reportError("Unknown problem loading TTF JavaFX font: " + file.getAbsolutePath());
-                if (font != null && !fontOptions.contains(font.getFamily()))
+            if (file.getName().toLowerCase().endsWith(".ttf")) {
+                try
                 {
-                    fontOptions.add(font.getFamily());
-                    Collections.sort(fontOptions);
+                    //Debug.message("Loading font: " + file);
+                    FileInputStream fis = new FileInputStream(file);
+                    final javafx.scene.text.Font font = javafx.scene.text.Font.loadFont(fis, 10);
+                    fis.close();
+                    if (font == null) {
+                        Debug.reportError("Unknown problem loading TTF JavaFX font: " + file.getAbsolutePath());
+                    }
+                    if (font != null && !fontOptions.contains(font.getFamily()))
+                    {
+                        fontOptions.add(font.getFamily());
+                        Collections.sort(fontOptions);
+                    }
                 }
-            }
-            catch (IOException e)
-            {
-                Debug.reportError("Error loading font: " + file.getAbsolutePath(), e);
+                catch (IOException e)
+                {
+                    Debug.reportError("Error loading font: " + file.getAbsolutePath(), e);
+                }
             }
         }
     }
