@@ -2152,7 +2152,8 @@ public class Project implements DebuggerListener, InspectorManager
         }
     }
 
-    public ImportScanner getImportScanner()
+    @OnThread(Tag.Any)
+    public synchronized ImportScanner getImportScanner()
     {
         // We don't construct one until asked:
         if (importScanner == null)

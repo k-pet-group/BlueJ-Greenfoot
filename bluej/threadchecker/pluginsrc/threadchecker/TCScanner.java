@@ -231,6 +231,9 @@ class TCScanner extends TreePathScanner<Void, Void>
         methodAnns.add(new MethodRef("java.lang.Thread", "isAlive", new LocatedTag(Tag.Any, false, true, "<Thread>")));
         methodAnns.add(new MethodRef("java.lang.Thread", "<init>", new LocatedTag(Tag.Any, false, true, "<Thread>")));
         
+        
+        methodAnns.add(new MethodRef("java.util.concurrent.ScheduledExecutorService", "submit", new LocatedTag(Tag.Unique, true, true, "<ScheduledExecutor>")));
+        
         // This makes Runnables ignore package tags:
         //classAnns.put("java.lang.Runnable", new LocatedTag(Tag.Any, true, false, "<Runnable>"));
         

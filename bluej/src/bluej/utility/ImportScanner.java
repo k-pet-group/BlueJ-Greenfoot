@@ -1,5 +1,6 @@
 package bluej.utility;
 
+import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -14,6 +15,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -36,7 +38,7 @@ import bluej.stride.generic.AssistContentThreadSafe;
 public class ImportScanner
 {
     private final Object monitor = new Object();
-    private PackageInfo root; // Root package with "" as ident
+    private CompletableFuture<PackageInfo> root; // Root package with "" as ident
     private Reflections reflections;
     private Project project;
 
@@ -140,7 +142,8 @@ public class ImportScanner
         
     }
     
-    private PackageInfo getRoot()
+    @OnThread(Tag.Any)
+    private CompletableFuture<PackageInfo> getRoot()
     {
         synchronized (monitor)
         {
@@ -151,7 +154,11 @@ public class ImportScanner
             }
             else
             {
-                root = findAllTypes();
+                root = new CompletableFuture<>();
+                // Not a lambda, for thread-checker purposes:
+                Utility.getBackground().submit(new Runnable() { @OnThread(Tag.Unique) public void run() {
+                    root.complete(findAllTypes());
+                }});
                 return root;
             }
         }
@@ -160,15 +167,33 @@ public class ImportScanner
     @OnThread(Tag.Any)
     public List<AssistContentThreadSafe> getImportedTypes(String importSrc, JavadocResolver javadocResolver)
     {
-        return getRoot().getImportedTypes("", Arrays.asList(importSrc.split("\\.", -1)).iterator(), javadocResolver);
+        try
+        {
+            return getRoot().get().getImportedTypes("", Arrays.asList(importSrc.split("\\.", -1)).iterator(), javadocResolver);
+        }
+        catch (InterruptedException | ExecutionException e)
+        {
+            Debug.reportError(e);
+            return Collections.emptyList();
+        }
     }
     
+    @OnThread(Tag.Unique)
     private ConfigurationBuilder getClassloaderConfig()
     {
         List<ClassLoader> classLoadersList = new ArrayList<ClassLoader>();
         classLoadersList.add(ClasspathHelper.contextClassLoader());
         classLoadersList.add(ClasspathHelper.staticClassLoader());
-        classLoadersList.add(project.getClassLoader());
+        try
+        {
+            SwingUtilities.invokeAndWait(() -> {
+                classLoadersList.add(project.getClassLoader());
+            });
+        }
+        catch (InterruptedException | InvocationTargetException e)
+        {
+            Debug.reportError(e);
+        }
         
         Set<URL> urls = new HashSet<>();
         urls.addAll(ClasspathHelper.forClassLoader(classLoadersList.toArray(new ClassLoader[0])));
@@ -194,7 +219,8 @@ public class ImportScanner
             .setUrls(urls)
             .addClassLoader(cl);
     }
-                
+    
+    @OnThread(Tag.Unique)
     private Reflections getReflections(List<String> importSrcs)
     {
         FilterBuilder filter = new FilterBuilder();
@@ -231,6 +257,7 @@ public class ImportScanner
         }
     }
 
+    @OnThread(Tag.Unique)
     private PackageInfo findAllTypes()
     {
         reflections = getReflections(Collections.emptyList());
@@ -259,6 +286,7 @@ public class ImportScanner
 
     public void startScanning()
     {
-        Utility.getBackground().submit(this::getRoot);
+        // This will make sure the future has started:
+        getRoot();
     }
 }
