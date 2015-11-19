@@ -1,10 +1,10 @@
 Package: greenfoot
 Priority: extra
 Section: Programming
-Installed-Size: 10000
+Installed-Size: 25700
 Maintainer: Davin McCall <davmac@bluej.org>
 Architecture: all
 Version: VERSION
-Depends: openjdk-8-jdk | oracle-java8-jdk
+Depends: openjdk-8-jdk | oracle-java8-jdk, libopenjfx-java | oracle-java8-jdk
 Description: A simple but powerful Java IDE.
   Go to <greenfoot.org> for more details.
