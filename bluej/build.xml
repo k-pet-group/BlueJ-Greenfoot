@@ -70,6 +70,8 @@
     	<pathelement location="${bluej_home}/lib/guava-17.0.jar"/>
     	<pathelement location="${bluej_home}/lib/javassist-3.18.0.jar"/>
     	<pathelement location="${bluej_home}/lib/commons-vfs2-2.0.jar"/>
+        <pathelement location="${bluej_home}/lib/jsch-0.1.53.jar"/>
+        <pathelement location="${bluej_home}/lib/org.eclipse.jgit-4.1.0.jar"/>
     	<pathelement location="${build_java_home}/jre/lib/jfxrt.jar"/>
     </path>
 
