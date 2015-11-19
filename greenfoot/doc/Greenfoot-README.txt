@@ -1,4 +1,4 @@
-Greenfoot version: 3.0.0
+Greenfoot version: 3.0.1
 
 Information about Greenfoot
 -----------------------
