@@ -57,25 +57,32 @@ public class TeamSettingsController
     static {
         teamProviders = new ArrayList<TeamworkProvider>(3);
         try {
-            teamProviders.add(new CvsProvider());
+            teamProviders.add(loadProvider("bluej.groupwork.cvsnb.CvsProvider"));
         }
         catch (Throwable e) {
             Debug.message("Failed to initialize Cvs: " + e.getClass().getName()
                     + ": "+ e.getLocalizedMessage());
         }
         try {
-            teamProviders.add(new SubversionProvider());
+            teamProviders.add(loadProvider("bluej.groupwork.svn.SubversionProvider"));
         }
         catch (Throwable e) {
             Debug.message("Failed to initialize Subversion: " + e.getClass().getName()
                     + ": "+ e.getLocalizedMessage());
         }
         try {
-            teamProviders.add(new GitProvider());
+            teamProviders.add(loadProvider("bluej.groupwork.git.GitProvider"));
         } catch (Throwable e) {
             Debug.message("Failed to initialize Git: " + e.getClass().getName()
                     + ": " + e.getLocalizedMessage());
         }
+    }
+    
+    private static TeamworkProvider loadProvider(String name) throws Throwable
+    {
+        Class<?> c = Class.forName(name);
+        Object instance = c.newInstance();
+        return (TeamworkProvider) instance;            
     }
     
     private Project project;

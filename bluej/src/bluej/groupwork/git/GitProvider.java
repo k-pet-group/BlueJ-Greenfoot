@@ -19,9 +19,15 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package bluej.groupwork;
+package bluej.groupwork.git;
 
-import bluej.groupwork.git.GitRepository;
+import bluej.groupwork.Repository;
+import bluej.groupwork.TeamSettings;
+import bluej.groupwork.TeamworkCommandError;
+import bluej.groupwork.TeamworkCommandResult;
+import bluej.groupwork.TeamworkCommandUnsupportedSetting;
+import bluej.groupwork.TeamworkProvider;
+import bluej.groupwork.UnsupportedSettingException;
 import bluej.utility.Debug;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;

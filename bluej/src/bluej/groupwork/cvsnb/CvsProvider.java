@@ -19,15 +19,19 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package bluej.groupwork;
+package bluej.groupwork.cvsnb;
 
 import java.io.File;
 
 import org.netbeans.lib.cvsclient.CVSRoot;
 
 import bluej.Config;
-import bluej.groupwork.cvsnb.BlueJAdminHandler;
-import bluej.groupwork.cvsnb.CvsRepository;
+import bluej.groupwork.Repository;
+import bluej.groupwork.TeamSettings;
+import bluej.groupwork.TeamworkCommandResult;
+import bluej.groupwork.TeamworkCommandUnsupportedSetting;
+import bluej.groupwork.TeamworkProvider;
+import bluej.groupwork.UnsupportedSettingException;
 import bluej.utility.Debug;
 
 /**

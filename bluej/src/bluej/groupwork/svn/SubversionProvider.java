@@ -19,7 +19,7 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package bluej.groupwork;
+package bluej.groupwork.svn;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
@@ -28,7 +28,13 @@ import java.lang.reflect.Method;
 import org.tigris.subversion.javahl.*;
 
 import bluej.Config;
-import bluej.groupwork.svn.SvnRepository;
+import bluej.groupwork.Repository;
+import bluej.groupwork.TeamSettings;
+import bluej.groupwork.TeamworkCommandError;
+import bluej.groupwork.TeamworkCommandResult;
+import bluej.groupwork.TeamworkCommandUnsupportedSetting;
+import bluej.groupwork.TeamworkProvider;
+import bluej.groupwork.UnsupportedSettingException;
 import bluej.utility.Debug;
 
 import org.tigris.subversion.javahl.Revision;
