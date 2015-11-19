@@ -118,6 +118,9 @@ public class Boot
     private static int numBuildJars = bluejBuildJars;
     private static int numUserBuildJars = bluejUserBuildJars;
     
+    /** path of the JavaFX runtime Jar, if needed */
+    private static String jfxrtJar;
+    
     private static boolean isGreenfoot = false;
     private static File bluejLibDir;
     private static final ArrayList<File> macInitialProjects = new ArrayList<>();
@@ -164,16 +167,6 @@ public class Boot
      */
     public static void main(String[] args)
     {
-        Application.launch(App.class, args);
-    }
-  
-    public static List<File> getMacInitialProjects()
-    {
-        return macInitialProjects;
-    }
-
-    public static void subMain(String[] args)
-    {
         if((args.length >= 1) && "-version".equals(args[0])) {
             System.out.println("BlueJ version " + BLUEJ_VERSION
                                + " (Java version "
@@ -198,7 +191,17 @@ public class Boot
                                + ")");
             System.exit(-1);
         }
+        
+        Application.launch(App.class, args);
+    }
+  
+    public static List<File> getMacInitialProjects()
+    {
+        return macInitialProjects;
+    }
 
+    public static void subMain(String[] args)
+    {
         Properties commandLineProps = processCommandLineProperties(args);
         isGreenfoot = commandLineProps.getProperty("greenfoot", "false").equals("true");
         
@@ -208,11 +211,13 @@ public class Boot
             runtimeJars = greenfootUserJars;
             userJars = greenfootUserJars;
             numBuildJars = greenfootUserBuildJars;
-            numUserBuildJars = greenfootUserBuildJars;
+            numUserBuildJars = greenfootUserBuildJars;            
         } else {
             image = new BlueJLabel();
         }
 
+        jfxrtJar = commandLineProps.getProperty("jfxrt.jarpath");
+        
         try {
             instance = new Boot(args, commandLineProps, image);
             instance.bootBluej();
@@ -545,11 +550,8 @@ public class Boot
         }
         if (isGreenfoot)
         {
-            // Add JavaFX, for new editor.  Only needed in Java 7; on classpath by default in Java 8:
-            if (System.getProperty("java.specification.version").compareTo("1.7") >= 0
-             && System.getProperty("java.specification.version").compareTo("1.8") < 0)
-            {
-                urlList.add(getJREJar("jfxrt.jar"));
+            if (jfxrtJar != null && jfxrtJar.length() != 0) {
+                urlList.add(new File(jfxrtJar).toURI().toURL());
             }
         }
         return (URL[]) urlList.toArray(new URL[0]);
@@ -570,8 +572,6 @@ public class Boot
     private URL getToolsURL() 
         throws MalformedURLException
     {
-        String osname = System.getProperty("os.name", "");
-
         File toolsFile = new File(javaHomeDir, "lib/tools.jar");
         if (toolsFile.canRead())
             return toolsFile.toURI().toURL();
