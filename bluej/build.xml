@@ -147,6 +147,7 @@
     <target name="compile-core" depends="compile-threadchecker">
         <mkdir dir="${core.build}"/>
     	<!-- Compile the java code from ${core.src} into ${core.build} -->
+    	<echo message="Excluding: ${srcexcludes}" />
         <javac
                 executable="${build_java_home}/${java_command_dir_name}/javac"
                 fork="yes"
@@ -158,6 +159,9 @@
                 deprecation="yes"
                 includeantruntime="false"
                 encoding="utf-8"
+            	excludes="bluej/editor/moe/Moe.java,
+        				bluej/editor/moe/**,
+        				${srcexcludes}"
                 >
 
             <classpath>
@@ -261,7 +265,7 @@
 	
 	<target name="ready-to-run-greenfoot" description="prepare to run Greenfoot">
 		<!-- We can exclude version control from the build -->
-		<property name="srcexcludes" value="${src}/bluej/groupwork/cvsnb/**,${src}/bluej/groupwork/svn/**" />
+		<property name="srcexcludes" value="bluej/groupwork/cvsnb/**,bluej/groupwork/svn/**,bluej/groupwork/git/**" />
 		<antcall target="ready-to-run" />
 	</target>
 
