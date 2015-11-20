@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2015  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -36,6 +36,7 @@ import bluej.groupwork.TeamSettings;
 import bluej.groupwork.TeamSettingsController;
 import bluej.groupwork.TeamworkProvider;
 import bluej.groupwork.actions.ValidateConnectionAction;
+import bluej.groupwork.git.GitProvider;
 import bluej.utility.MiksGridLayout;
 
 /**
@@ -49,6 +50,8 @@ public class TeamSettingsPanel extends JPanel
     private TeamSettingsController teamSettingsController;
     private TeamSettingsDialog teamSettingsDialog;
     
+    private JTextField yourNameField;
+    private JTextField yourEmailField;
     private JTextField userField;
     private JPasswordField passwordField;
     private JTextField groupField;
@@ -105,6 +108,8 @@ public class TeamSettingsPanel extends JPanel
             }
         };
         
+        yourNameField.getDocument().addDocumentListener(changeListener);
+        yourEmailField.getDocument().addDocumentListener(changeListener);
         userField.getDocument().addDocumentListener(changeListener);
         serverField.getDocument().addDocumentListener(changeListener);
         
@@ -160,12 +165,17 @@ public class TeamSettingsPanel extends JPanel
     {
         JPanel authentificationPanel = new JPanel();
         {
-            authentificationPanel.setLayout(new MiksGridLayout(3,2,10,5));
+            authentificationPanel.setLayout(new MiksGridLayout(5,2,10,5));
             String docTitle = Config.getString("team.settings.personal");
             authentificationPanel.setBorder(BorderFactory.createCompoundBorder(
                     BorderFactory.createTitledBorder(docTitle),
                     BlueJTheme.generalBorder));
             authentificationPanel.setAlignmentX(LEFT_ALIGNMENT);
+            
+            JLabel yourNameLabel = new JLabel(Config.getString("team.settings.yourName"));
+            yourNameField = new JTextField(fieldsize);
+            JLabel yourEmailLabel = new JLabel(Config.getString("team.settings.yourEmail"));
+            yourEmailField = new JTextField(fieldsize);
             
             JLabel userLabel = new JLabel(Config.getString("team.settings.user"));
             userField = new JTextField(fieldsize);
@@ -174,6 +184,10 @@ public class TeamSettingsPanel extends JPanel
             groupLabel = new JLabel(Config.getString("team.settings.group"));
             groupField = new JTextField(fieldsize);
             
+            yourNameLabel.setMaximumSize(yourNameLabel.getMinimumSize());
+            yourNameField.setMaximumSize(yourNameField.getMinimumSize());
+            yourEmailLabel.setMaximumSize(yourEmailLabel.getMinimumSize());
+            yourEmailField.setMaximumSize(yourEmailField.getMinimumSize());
             userLabel.setMaximumSize(userLabel.getMinimumSize());
             userField.setMaximumSize(userField.getMinimumSize());
             passwordLabel.setMaximumSize(passwordLabel.getMinimumSize());
@@ -181,6 +195,10 @@ public class TeamSettingsPanel extends JPanel
             groupLabel.setMaximumSize(groupLabel.getMinimumSize());
             groupField.setMaximumSize(groupField.getMinimumSize());
                         
+            authentificationPanel.add(yourNameLabel);
+            authentificationPanel.add(yourNameField);
+            authentificationPanel.add(yourEmailLabel);
+            authentificationPanel.add(yourEmailField);
             authentificationPanel.add(userLabel);
             authentificationPanel.add(userField);
             authentificationPanel.add(passwordLabel);
@@ -213,6 +231,18 @@ public class TeamSettingsPanel extends JPanel
                 public void actionPerformed(ActionEvent e)
                 {
                     setProviderSettings();
+                    //if Git provider selected, enable your name and your email
+                    //fields.
+                    if (((String) serverTypeComboBox.getSelectedItem()).equals((new GitProvider()).getProviderName())){
+                        //Git was selected. Enable fields.
+                        yourNameField.setEnabled(true);
+                        yourEmailField.setEnabled(true);
+                    } else {
+                        //Git is not selected. Disable fields.
+                        yourNameField.setEnabled(false);
+                        yourEmailField.setEnabled(false);
+                    }
+                    checkOkEnabled();
                 }
             });
             
@@ -331,8 +361,12 @@ public class TeamSettingsPanel extends JPanel
      */
     private void checkOkEnabled()
     {
-        boolean newOkEnabled = userField.getText().length() != 0;
+        boolean newOkEnabled = (userField.getText().length() != 0);
         newOkEnabled &= serverField.getText().length() != 0;
+        if (yourEmailField.isEnabled() && yourNameField.isEnabled()){
+            newOkEnabled &= (yourEmailField.getText().length() != 0) && (yourEmailField.getText().contains("@"));
+            newOkEnabled &= yourNameField.getText().length() != 0;
+        }
         if (newOkEnabled != okEnabled) {
             okEnabled = newOkEnabled;
             teamSettingsDialog.setOkButtonEnabled(okEnabled);
