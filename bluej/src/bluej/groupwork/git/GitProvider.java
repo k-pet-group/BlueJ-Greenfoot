@@ -51,30 +51,36 @@ import org.eclipse.jgit.util.FS;
  *
  * @author Fabio Hedayioglu
  */
-public class GitProvider implements TeamworkProvider {
+public class GitProvider implements TeamworkProvider 
+{
 
     @Override
-    public String getProviderName() {
+    public String getProviderName() 
+    {
         return "Git";
     }
 
     @Override
-    public String[] getProtocols() {
+    public String[] getProtocols() 
+    {
         return new String[]{"https", "http", "ssh", "git"};
     }
 
     @Override
-    public String getProtocolKey(int protocol) {
+    public String getProtocolKey(int protocol) 
+    {
         return getProtocols()[protocol];
     }
 
     @Override
-    public String getProtocolLabel(String protocolKey) {
+    public String getProtocolLabel(String protocolKey) 
+    {
         return protocolKey;
     }
 
     @Override
-    public TeamworkCommandResult checkConnection(TeamSettings settings) {
+    public TeamworkCommandResult checkConnection(TeamSettings settings) 
+    {
 
         try {
             String gitUrl = makeGitUrl(settings);
@@ -125,7 +131,8 @@ public class GitProvider implements TeamworkProvider {
     }
 
     @Override
-    public Repository getRepository(File projectDir, TeamSettings settings) {
+    public Repository getRepository(File projectDir, TeamSettings settings) 
+    {
         try {
             Git client = Git.open(projectDir);
             return new GitRepository(projectDir, settings.getProtocol(), makeGitUrl(settings), client, settings.getUserName(), settings.getPassword());
@@ -147,7 +154,8 @@ public class GitProvider implements TeamworkProvider {
      * @throws bluej.groupwork.UnsupportedSettingException
      */
     protected String makeGitUrl(TeamSettings settings)
-            throws UnsupportedSettingException {
+            throws UnsupportedSettingException 
+    {
         String protocol = settings.getProtocol();
         String server = settings.getServer();
         String prefix = settings.getPrefix();
@@ -159,6 +167,18 @@ public class GitProvider implements TeamworkProvider {
         gitUrl += prefix;
 
         return gitUrl;
+    }
+
+    @Override
+    public boolean needsEmail()
+    {
+        return true;
+    }
+
+    @Override
+    public boolean needsName()
+    {
+        return true;
     }
 
 }

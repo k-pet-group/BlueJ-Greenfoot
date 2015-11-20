@@ -36,7 +36,6 @@ import bluej.groupwork.TeamSettings;
 import bluej.groupwork.TeamSettingsController;
 import bluej.groupwork.TeamworkProvider;
 import bluej.groupwork.actions.ValidateConnectionAction;
-import bluej.groupwork.git.GitProvider;
 import bluej.utility.MiksGridLayout;
 
 /**
@@ -233,7 +232,7 @@ public class TeamSettingsPanel extends JPanel
                     setProviderSettings();
                     //if Git provider selected, enable your name and your email
                     //fields.
-                    if (((String) serverTypeComboBox.getSelectedItem()).equals((new GitProvider()).getProviderName())){
+                    if (getSelectedProvider().needsEmail() &&  getSelectedProvider().needsName()){
                         //Git was selected. Enable fields.
                         yourNameField.setEnabled(true);
                         yourEmailField.setEnabled(true);
