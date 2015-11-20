@@ -117,6 +117,11 @@ The copyright holder allows distribution of Javassist under a choice of several 
 In BlueJ it is distributed under the terms of the Apache License version 2.0, as found
 in the "Apache-License-2.0.txt" file.
 
+JGit library (Eclipse Distribution License version 1.0)
+-------------------------------------------------------
+"org.eclipse.jgit-4.1.0.jar" is part of the JGit library (https://eclipse.org/jgit/) used by BlueJ for
+Git support. It is distributed under the terms of the Eclipse Distribution License,
+as found in the "EDL-v1.0.txt" file.
 
 JNA (Apache License version 2.0)
 --------------------------------
@@ -127,6 +132,11 @@ The copyright holder allows distribution of JNA under a choice of two licenses.
 In BlueJ it is distributed under the terms of the Apache License version 2.0, as found
 in the "Apache-License-2.0.txt" file.
 
+JSch Java Secure Channel (BSD-style license)
+--------------------------------------------------
+"jsch-0.1.53.jar" provides a pure java implementation of SSH2 for JGit library, 
+which is used by Bluej. It is distributed under the terms of a BSD-style license, 
+as found in the "jsch-BSD.txt" file.
 
 JUnit (Common Public License v1.0)
 ----------------------------------
@@ -151,6 +161,11 @@ from the subversion repository at http://svn.svnkit.com/repos/3rdparty (under th
 de.regnis.q.sequence). This version is distributed under the terms of the BSD license
 as found in the "sequence-library-BSD.txt" file.
 
+SLF4J Simple Logging Facade for Java (MIT license)
+--------------------------------------------------
+"slf4j-api-1.7.2.jar" and "slf4j-jdk14-1.7.2.jar" provides logging capabilities
+for JGit library, is used by Bluej. It is distributed under the terms of a MIT
+license, as found in the "slf4j-MIT.txt" file.
 
 SVNKit (TMate Open Source License)
 ----------------------------------
