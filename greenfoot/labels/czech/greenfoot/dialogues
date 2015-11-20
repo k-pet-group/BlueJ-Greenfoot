@@ -1,3 +1,44 @@
-cannot-create-project
+editor-crashed
+Zd\u00e1 se, \u017ee Greenfoot havaroval p\u0159i psan\u00ed t\u00e9to t\u0159\u00eddy
+p\u0159edchoz\u00edm z\u00e1pisu na disk. Zdrojov\u00fd k\u00f3d m\u016f\u017ee chyb\u011bt nebo
+ne\u00fapln\u00fd. Z\u00e1loha t\u00e9to t\u0159\u00eddy by m\u011bla b\u00fdt ve slo\u017ece projektu.
+Pokud se tato t\u0159\u00edda zd\u00e1 b\u00fdt po\u0161kozena,
+   1 - ukon\u010dit Greenfoot
+   2 - slo\u017eka Z\u00e1loha pro v\u00e1\u0161 projekt (jen pro jistotu)
+   3 - pod\u00edvejte se do slo\u017eky projektu pro z\u00e1lohov\u00e1n\u00ed
+       tohoto java souboru. P\u0159ejmenujte ho,
+       N\u00e1zev souboru (s p\u0159\u00edponou ".java")
+
+error-create-vm
+Greenfoot nemohl vytvo\u0159it virtu\u00e1ln\u00ed stroj (VM) pro realizaci sc\u00e9n\u00e1\u0159e.
+\u010casto je to zp\u016fsobeno, p\u0159\u00edli\u0161 omezuj\u00edc\u00edm nastaven\u00edm firewallu.
+Pros\u00edm pod\u00edvej se na[ http://www.greenfoot.org/doc/firewall ] v\u00edce
+informac\u00ed.
+
+project-is-readonly
+Sc\u00e9n\u00e1\u0159 je otev\u0159en jen pro \u010dten\u00ed:
+:
+    $
+:
+Chcete-li pou\u017e\u00edt tento sc\u00e9n\u00e1\u0159, bude muset nejprve vybrat nov\u00e9
+um\u00edst\u011bn\u00ed pro jeho ulo\u017een\u00ed.
+
+cannot-save-project
 Tento projekt nemohl b\u00FDt vytvo\u0159en. Zkontrolujte,
 zda slo\u017Eky maj\u00ED povolen\u00ED k z\u00E1pisu.
+
+cannot-create-projectpen
+Sc\u00e9n\u00e1\u0159 nemohl b\u00fdt vytvo\u0159en. Zkontrolujte, zda je
+slo\u017eka zapisovateln\u00e1.
+
+project-already-exists
+Uveden\u00fd sc\u00e9n\u00e1\u0159 ve slo\u017ece ji\u017e existuje. Chcete-li vytvo\u0159it
+nov\u00fd sc\u00e9n\u00e1\u0159, zvolte um\u00edst\u011bn\u00ed a zadejte jedine\u010dn\u00fd n\u00e1zev
+(mus\u00edte zadat n\u00e1zev souboru v dialogov\u00e9m okn\u011b).
+
+archive-not-greenfoot-project
+Zvolen\u00fd soubor archivu nevypad\u00e1 jako archiv, kter\u00fd
+obsahuje projekt Greenfoot (zkuste pro extrahov\u00e1n\u00ed archivu pou\u017e\u00edt jin\u00fd n\u00e1stroj).
+
+no-clipboard-image-data
+Neexistuj\u00ed \u017e\u00e1dn\u00e1 obrazov\u00e1 data vlo\u017een\u00e1 do schr\u00e1nky.
