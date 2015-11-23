@@ -30,99 +30,131 @@ import java.io.File;
 import java.io.FileFilter;
 import java.util.List;
 import java.util.Set;
-import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
+import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
 /**
  *
  * @author Fabio Hedayioglu
  */
-public class GitRepository implements Repository {
+public class GitRepository implements Repository
+{
 
     private final File projectPath;
     private final String protocol; // Only for data collection
-    private final String reposUrl;
+    private String reposUrl;
 
-    private final Git client;
+    private final FileRepositoryBuilder fileRepoBuilder;
     private final String userName;
     private String password;
 
-    public GitRepository(File projectPath, String protocol, String reposUrl, Git client, String userName, String password) {
+    public GitRepository(File projectPath, String protocol, String reposUrl, FileRepositoryBuilder fileRepoBuilder, String userName, String password)
+    {
         this.projectPath = projectPath;
         this.protocol = protocol;
         this.reposUrl = reposUrl;
-        this.client = client;
+        this.fileRepoBuilder = fileRepoBuilder;
         this.userName = userName;
         this.password = password;
     }
+    
+    public void setReposUrl(String url)
+    {
+        this.reposUrl = url;
+    }
+
+    public String getReposUrl()
+    {
+        return this.reposUrl;
+    }
 
     @Override
-    public void setPassword(TeamSettings newSettings) {
+    public void setPassword(TeamSettings newSettings)
+    {
         this.password = newSettings.getPassword();
     }
 
     @Override
-    public boolean versionsDirectories() {
-        throw new UnsupportedOperationException("Not implemented yet."); 
+    public boolean versionsDirectories()
+    {
+        throw new UnsupportedOperationException("Not implemented yet.");
     }
 
     @Override
-    public TeamworkCommand checkout(File projectPath) {
-        throw new UnsupportedOperationException("Not implemented yet."); 
+    public TeamworkCommand checkout(File projectPath)
+    {
+        return new GitCloneCommand(this, projectPath);
     }
 
     @Override
-    public TeamworkCommand commitAll(Set<File> newFiles, Set<File> binaryNewFiles, Set<File> deletedFiles, Set<File> files, String commitComment) {
-        throw new UnsupportedOperationException("Not implemented yet."); 
+    public TeamworkCommand commitAll(Set<File> newFiles, Set<File> binaryNewFiles, Set<File> deletedFiles, Set<File> files, String commitComment)
+    {
+        throw new UnsupportedOperationException("Not implemented yet.");
     }
 
     @Override
-    public TeamworkCommand shareProject() {
-        throw new UnsupportedOperationException("Not implemented yet."); 
+    public TeamworkCommand shareProject()
+    {
+        throw new UnsupportedOperationException("Not implemented yet.");
     }
 
     @Override
-    public TeamworkCommand getStatus(StatusListener listener, FileFilter filter, boolean includeRemote) {
-        throw new UnsupportedOperationException("Not implemented yet."); 
+    public TeamworkCommand getStatus(StatusListener listener, FileFilter filter, boolean includeRemote)
+    {
+        throw new UnsupportedOperationException("Not implemented yet.");
     }
 
     @Override
-    public TeamworkCommand getModules(List<String> modules) {
-        throw new UnsupportedOperationException("Not implemented yet."); 
+    public TeamworkCommand getModules(List<String> modules)
+    {
+        throw new UnsupportedOperationException("Not implemented yet.");
     }
 
     @Override
-    public TeamworkCommand getLogHistory(LogHistoryListener listener) {
-        throw new UnsupportedOperationException("Not implemented yet."); 
+    public TeamworkCommand getLogHistory(LogHistoryListener listener)
+    {
+        throw new UnsupportedOperationException("Not implemented yet.");
     }
 
     @Override
-    public boolean prepareDeleteDir(File dir) {
-        throw new UnsupportedOperationException("Not implemented yet."); 
+    public boolean prepareDeleteDir(File dir)
+    {
+        throw new UnsupportedOperationException("Not implemented yet.");
     }
 
     @Override
-    public void prepareCreateDir(File dir) {
-        throw new UnsupportedOperationException("Not implemented yet."); 
+    public void prepareCreateDir(File dir)
+    {
+        throw new UnsupportedOperationException("Not implemented yet.");
     }
 
     @Override
-    public FileFilter getMetadataFilter() {
-        throw new UnsupportedOperationException("Not implemented yet."); 
+    public FileFilter getMetadataFilter()
+    {
+        throw new UnsupportedOperationException("Not implemented yet.");
     }
 
     @Override
-    public void getAllLocallyDeletedFiles(Set<File> files) {
-        throw new UnsupportedOperationException("Not implemented yet."); 
+    public void getAllLocallyDeletedFiles(Set<File> files)
+    {
+        throw new UnsupportedOperationException("Not implemented yet.");
     }
 
     @Override
-    public String getVCSType() {
+    public String getVCSType()
+    {
         return "Git";
     }
 
     @Override
-    public String getVCSProtocol() {
+    public String getVCSProtocol()
+    {
         return protocol;
     }
-
+    
+    public UsernamePasswordCredentialsProvider getCredentialsProvider()
+    {
+        UsernamePasswordCredentialsProvider cp = new UsernamePasswordCredentialsProvider(userName, password); // set a configuration with username and password.
+        return cp;
+    }
 }
