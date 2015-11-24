@@ -403,5 +403,10 @@ public class FrameContentRow implements FrameContentItem, SlotParent<HeaderItem>
         StackPane paneCopy = new StackPane(hfpCopy);
         return paneCopy;
     }
-    
+
+    public void setVisible(boolean visible)
+    {
+        stackPane.setVisible(visible);
+        stackPane.setManaged(visible);
+    }
 }

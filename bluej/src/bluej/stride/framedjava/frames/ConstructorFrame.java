@@ -341,13 +341,25 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
                 setPad.run();
                 animate.addOnStopped(setPad);
             }
-            else
+            else if (oldView == View.JAVA_PREVIEW)
             {
                 getCanvas().setTopOutsideBorderBackgroundPadding(Optional.empty());
                 double orig = callRow.getNode().getTranslateY();
                 JavaFXUtil.addChangeListener(animate.getOppositeProgress(), t -> {
                     callRow.getNode().setTranslateY(t.doubleValue() * orig);
                 }); 
+            }
+
+
+            if (newView == View.BIRDSEYE || oldView == View.BIRDSEYE)
+            {
+                animate.getProgress().addListener((prop, oldVal, newVal) -> {
+                    // When you cross the half way point:
+                    if (oldVal.doubleValue() < 0.5 && newVal.doubleValue() >= 0.5)
+                    {
+                        callRow.setVisible(newView != View.BIRDSEYE);
+                    }
+                });
             }
         }
     }
