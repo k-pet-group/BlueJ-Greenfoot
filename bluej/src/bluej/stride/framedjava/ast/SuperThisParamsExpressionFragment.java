@@ -21,6 +21,7 @@
  */
 package bluej.stride.framedjava.ast;
 
+import bluej.parser.lexer.LocatableToken;
 import bluej.stride.framedjava.slots.ExpressionSlot;
 
 public class SuperThisParamsExpressionFragment extends
@@ -45,6 +46,17 @@ public class SuperThisParamsExpressionFragment extends
         return "super(" + orig + ")";
     }
 
-    
-    
+    @Override
+    protected LocatableToken unwrapForParse(LocatableToken token)
+    {
+        token.adjustStart(0 - "super(".length());
+        return token;
+    }
+
+    @Override
+    protected boolean includeDirectDecl()
+    {
+        return true;
+    }
+
 }

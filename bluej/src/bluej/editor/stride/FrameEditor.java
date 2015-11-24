@@ -1056,7 +1056,7 @@ public class FrameEditor implements Editor
             AssistContent[] greenfootStatic = ParseUtils.getPossibleCompletions(greenfootClass, javadocResolver, null);
             Arrays.stream(greenfootStatic).filter(ac -> ac.getKind() == CompletionKind.METHOD).forEach(ac -> joined.add(new PrefixCompletionWrapper(ac, "Greenfoot.")));
        
-            for (LocalParamInfo v : ASTUtility.findLocalsAndParamsInScopeAt(codeEl, false))
+            for (LocalParamInfo v : ASTUtility.findLocalsAndParamsInScopeAt(codeEl, false, false))
             {
                 AssistContent c = LocalCompletion.getCompletion(v.getType(), v.getName(), v.isParam());
                 if (c != null)

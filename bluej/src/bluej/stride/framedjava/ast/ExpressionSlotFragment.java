@@ -46,6 +46,7 @@ import bluej.stride.framedjava.errors.UnneededSemiColonError;
 import bluej.stride.framedjava.frames.AssignFrame;
 import bluej.stride.framedjava.slots.ExpressionSlot;
 import bluej.stride.generic.InteractionManager;
+import bluej.utility.Utility;
 
 public abstract class ExpressionSlotFragment extends StringSlotFragment
 {
@@ -76,13 +77,13 @@ public abstract class ExpressionSlotFragment extends StringSlotFragment
             @Override
             protected void gotIdentifier(LocatableToken token)
             {
-                plains.add(token);
+                plains.add(unwrapForParse(token));
             }
 
             @Override
             protected void gotIdentifierEOF(LocatableToken token)
             {
-                plains.add(token);
+                plains.add(unwrapForParse(token));
             }
 
             @Override
@@ -131,7 +132,7 @@ public abstract class ExpressionSlotFragment extends StringSlotFragment
                 if (curCompound == null || curCompound.isEmpty())
                     throw new IllegalStateException();
                 curCompound.add(token);
-                List<LocatableToken> r = curCompound;
+                List<LocatableToken> r = Utility.mapList(curCompound, ExpressionSlotFragment.this::unwrapForParse);
                 curCompound = null;
                 return r;
             }
@@ -145,7 +146,7 @@ public abstract class ExpressionSlotFragment extends StringSlotFragment
             @Override
             protected void gotTypeSpec(List<LocatableToken> tokens)
             {
-                types.add(tokens);
+                types.add(Utility.mapList(tokens, ExpressionSlotFragment.this::unwrapForParse));
             }
 
 
@@ -204,6 +205,11 @@ public abstract class ExpressionSlotFragment extends StringSlotFragment
     {
         return orig;
     }
+    // By default, no unwrapping:
+    protected LocatableToken unwrapForParse(LocatableToken token)
+    {
+        return token;
+    }
 
     @Override
     public Stream<SyntaxCodeError> findEarlyErrors()
@@ -224,9 +230,10 @@ public abstract class ExpressionSlotFragment extends StringSlotFragment
     public Future<List<CodeError>> findLateErrors(InteractionManager editor, CodeElement parent)
     {
         CompletableFuture<List<CodeError>> f = new CompletableFuture<>();
-        Platform.runLater(() -> ASTUtility.withLocalsParamsAndFields(parent, editor, getPosInSourceDoc(), vars -> {
+        Platform.runLater(() -> ASTUtility.withLocalsParamsAndFields(parent, editor, getPosInSourceDoc(), includeDirectDecl(), vars -> {
             this.vars = vars;
-            
+
+            //Debug.message("This: " + getClass() + " " + this + "+" + getPosInSourceDoc().offset);
             //Debug.message("Vars: " + this.vars.keySet().stream().collect(Collectors.joining(", ")));
             //Debug.message("Plains: " + plains.stream().map(t -> t.getText()).collect(Collectors.joining(", ")));
             
@@ -246,7 +253,20 @@ public abstract class ExpressionSlotFragment extends StringSlotFragment
         }));
         return f;
     }
-    
+
+    /**
+     * Whether to include our parent's declarations when looking for variables.  You usually
+     * don't want to do this.  For example, a declared variable in a var frame is not in scope
+     * in the initialisation expression.  However, this is needed for a special case with constructors,
+     * where a constructor's params are in scope for the super/this line, which is a direct child.
+     * (For other method-related items, the method is a grandparent, e.g. parent of assignment which
+     * is parent of expression, so we still don't need to include the *parent*)
+     */
+    protected boolean includeDirectDecl()
+    {
+        return false;
+    }
+
     public void markAssignmentLHS(AssignFrame parent)
     {
         assignmentLHSParent = parent;
