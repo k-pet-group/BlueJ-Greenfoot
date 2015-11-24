@@ -107,7 +107,7 @@ public class GitRepository implements Repository
     @Override
     public TeamworkCommand getModules(List<String> modules)
     {
-        throw new UnsupportedOperationException("Not implemented yet.");
+        return new GitModulesCommand(this, modules);
     }
 
     @Override
