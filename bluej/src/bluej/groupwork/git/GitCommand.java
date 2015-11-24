@@ -22,10 +22,22 @@
 package bluej.groupwork.git;
 
 import bluej.groupwork.TeamworkCommand;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.Session;
+import org.eclipse.jgit.api.TransportCommand;
+import org.eclipse.jgit.transport.JschConfigSessionFactory;
+import org.eclipse.jgit.transport.OpenSshConfig;
+import org.eclipse.jgit.transport.SshSessionFactory;
+import org.eclipse.jgit.transport.SshTransport;
+import org.eclipse.jgit.transport.Transport;
+import org.eclipse.jgit.util.FS;
 
 /**
- *
- * @author heday
+ * Base class for Git commands.
+ * It also disables SSH fingerprint's check whenever applicable.
+ * 
+ * @author Fabio Hedayioglu
  */
 public abstract class GitCommand implements TeamworkCommand
 {
@@ -36,6 +48,47 @@ public abstract class GitCommand implements TeamworkCommand
     public GitCommand(GitRepository repository)
     {
         this.repository = repository;
+    }
+    
+    
+    
+    
+    /**
+     * Prepare a TransportCommand to be executed later.
+     * This method checks if the command is using ssh. if it is,
+     * then it will disable SSH's fingerprint detection and use
+     * username and password authentication.
+     * @param command The command to be configured.
+     */
+    public void disableFingerprintCheck(TransportCommand command)
+    {
+        //check if the command is not null and conects via ssh.
+        if (command != null && repository.getReposUrl().startsWith("ssh")) {
+            //disable ssh host fingerprint check.
+            SshSessionFactory sshSessionFactory = new JschConfigSessionFactory()
+            {
+                @Override
+                protected void configure(OpenSshConfig.Host host, Session sn)
+                {
+                    java.util.Properties config = new java.util.Properties();
+                    config.put("StrictHostKeyChecking", "no");
+                    sn.setConfig(config);
+                }
+
+                @Override
+                protected JSch createDefaultJSch(FS fs) throws JSchException
+                {
+                    return super.createDefaultJSch(fs);
+                }
+            };
+
+            command.setTransportConfigCallback((Transport t) -> {
+                SshTransport sshTransport = (SshTransport) t;
+                sshTransport.setSshSessionFactory(sshSessionFactory);
+            });
+            command.setCredentialsProvider(getRepository().getCredentialsProvider());
+        }
+        //return command;
     }
 
     @Override

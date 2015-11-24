@@ -25,42 +25,25 @@ package bluej.groupwork.git;
 import bluej.groupwork.TeamworkCommandAborted;
 import bluej.groupwork.TeamworkCommandError;
 import bluej.groupwork.TeamworkCommandResult;
-import com.jcraft.jsch.JSch;
-import com.jcraft.jsch.JSchException;
-import com.jcraft.jsch.Session;
 import java.io.File;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.transport.JschConfigSessionFactory;
-import org.eclipse.jgit.transport.OpenSshConfig;
-import org.eclipse.jgit.transport.SshSessionFactory;
-import org.eclipse.jgit.transport.SshTransport;
-import org.eclipse.jgit.transport.Transport;
-import org.eclipse.jgit.util.FS;
 
 /**
- *
- * @author heday
+ * Clone a remote repository into a local directory.
+ * @author Fabio Hedayioglu
  */
 public class GitCloneCommand extends GitCommand 
 {
 
     private final File clonePath;
-    private final String moduleName;
-    private final CloneCommand cloneCommand;
 
     public GitCloneCommand(GitRepository repository, File projectPath) 
     {
         super(repository);
         this.clonePath = projectPath.getParentFile().getAbsoluteFile(); //git 
         //automatically create the project's directory
-        moduleName = projectPath.getName();
-        cloneCommand = Git.cloneRepository();
-        //disable ssh host fingerprint check.
-        if (repository.getReposUrl().startsWith("ssh")){
-            disableFingerprintCheck();
-        }
     }
 
     @Override
@@ -69,7 +52,8 @@ public class GitCloneCommand extends GitCommand
 
         try {
             String reposUrl = getRepository().getReposUrl();
-            
+            CloneCommand cloneCommand = Git.cloneRepository();
+            disableFingerprintCheck(cloneCommand);
             cloneCommand.setDirectory(clonePath);
             cloneCommand.setURI(reposUrl);
             cloneCommand.call();
@@ -82,31 +66,4 @@ public class GitCloneCommand extends GitCommand
             return new TeamworkCommandError(ex.getMessage(), ex.getLocalizedMessage());
         }
     }
-
-    /**
-     * Disable ssh's fingerprint check
-     */
-    private void disableFingerprintCheck()
-    {
-        SshSessionFactory sshSessionFactory = new JschConfigSessionFactory() {
-                    @Override
-                    protected void configure(OpenSshConfig.Host host, Session sn) {
-                        java.util.Properties config = new java.util.Properties();
-                        config.put("StrictHostKeyChecking", "no");
-                        sn.setConfig(config);
-                    }
-
-                    @Override
-                    protected JSch createDefaultJSch(FS fs) throws JSchException {
-                        return super.createDefaultJSch(fs);
-                    }
-                };
-                
-                cloneCommand.setTransportConfigCallback((Transport t) -> {
-                    SshTransport sshTransport = (SshTransport) t;
-                    sshTransport.setSshSessionFactory(sshSessionFactory);
-        });
-                cloneCommand.setCredentialsProvider(getRepository().getCredentialsProvider());
-    }
-
 }
