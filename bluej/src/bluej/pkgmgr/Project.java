@@ -2175,18 +2175,20 @@ public class Project implements DebuggerListener, InspectorManager
     {
         FXTabbedEditor ed = new FXTabbedEditor(Project.this);
         ed.initialise();
-        fXTabbedEditors.add(ed);
         Platform.runLater(() -> {
+            fXTabbedEditors.add(ed);
             fXTabbedEditors.forEach(FXTabbedEditor::updateMoveMenus);
         });
         return ed;
     }
 
+    @OnThread(Tag.FX)
     public List<FXTabbedEditor> getAllFXTabbedEditorWindows()
     {
         return Collections.unmodifiableList(fXTabbedEditors);
     }
 
+    @OnThread(Tag.FX)
     public void removeFXTabbedEditor(FXTabbedEditor fxTabbedEditor)
     {
         // Only remove if we have other windows left, otherwise retain the last window standing:
