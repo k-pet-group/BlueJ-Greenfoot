@@ -87,7 +87,21 @@
         <include name="GREENFOOT_LICENSES.txt" />
     	<include name="LICENSE.txt" />
     	<include name="THIRDPARTYLICENSE.txt" />
+    	<include name="thirdpartylicenses/**" />
     </patternset>
+	
+	<patternset id = "greenfoot.bluej.license.files">
+		<include name="*" />
+		<!-- exclude licenses only applicable to files not distributed with Greenfoot --> 
+		<exclude name="antlr-BSD.txt" />
+		<exclude name="CDDL-v1.0.txt" />
+		<exclude name="EDL-v1.0.txt" />
+		<exclude name="jsch-BSD.txt" />
+		<exclude name="slf4j-MIT.txt" />
+		<exclude name="sqljet.txt" />
+		<exclude name="svnkit*.txt" />
+		<exclude name="trilead.txt" />
+	</patternset>
 
 	<target name="pre-dist">
         <delete dir="install_tmp" />
@@ -111,9 +125,14 @@
             -->
         </copy>
         <copy todir="install_tmp/doc" preservelastmodified="true">
-            <fileset dir="${greenfoot.projectdir}/package">
+            <fileset dir="${greenfoot.projectdir}/doc">
                 <patternset refid="greenfoot.license.files" />
-            </fileset>        	
+            </fileset>
+		</copy>
+        <copy todir="install_tmp/doc/thirdpartylicenses" preservelastmodified="true">
+        	<fileset dir="${bluej_home}/doc/thirdpartylicenses">
+        		<patternset refid="greenfoot.bluej.license.files" />
+        	</fileset>
 		</copy>
         	
         <copy tofile="install_tmp/README.TXT"
