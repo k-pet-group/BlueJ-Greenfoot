@@ -188,8 +188,8 @@ public class Project implements DebuggerListener, InspectorManager
     /** Project character set for source files etc */
     private Charset characterSet;
     
-    private SwingTabbedEditor swingTabbedEditor;
-    private FXTabbedEditor fXTabbedEditor;
+    private final List<SwingTabbedEditor> swingTabbedEditors = new ArrayList<>();
+    private final List<FXTabbedEditor> fXTabbedEditors = new ArrayList<>();
     
     private Timer compilerTimer;
 
@@ -246,14 +246,14 @@ public class Project implements DebuggerListener, InspectorManager
         packages = new TreeMap<String, Package>();
         docuGenerator = new DocuGenerator(this);
 
-        fXTabbedEditor = new FXTabbedEditor(Project.this);
+        fXTabbedEditors.add(new FXTabbedEditor(Project.this));
         // This line initialises JavaFX:
         new JFXPanel();
         // Prevent JavaFX exiting when all JavaFX windows are closed (would prevent re-opening editor):
         Platform.setImplicitExit(false);
-        fXTabbedEditor.initialise();
+        fXTabbedEditors.get(0).initialise();
         
-        swingTabbedEditor = new SwingTabbedEditor(Project.this);
+        swingTabbedEditors.add(new SwingTabbedEditor(Project.this));
         
         try {
             Package unnamed = new Package(this);
@@ -2094,15 +2094,21 @@ public class Project implements DebuggerListener, InspectorManager
         }
     }
 
+    /**
+     * Gets the FXTabbedEditor which should be used for adding new tabs
+     */
     @OnThread(Tag.Any)
-    public FXTabbedEditor getFXTabbedEditor()
+    public FXTabbedEditor getDefaultFXTabbedEditor()
     {
-        return fXTabbedEditor;
+        return fXTabbedEditors.get(0);
     }
-    
-    public SwingTabbedEditor getSwingTabbedEditor()
+
+    /**
+     * Gets the SwingTabbedEditor which should be used for adding new tabs
+     */
+    public SwingTabbedEditor getDefaultSwingTabbedEditor()
     {
-        return swingTabbedEditor;
+        return swingTabbedEditors.get(0);
     }
 
     public boolean isClosing()
@@ -2159,5 +2165,17 @@ public class Project implements DebuggerListener, InspectorManager
         if (importScanner == null)
             importScanner = new ImportScanner(this);
         return importScanner;
+    }
+
+    /**
+     * Warning: this method executes on Swing thread, and expects to be able
+     * to wait for the FX thread.
+     */
+    public FXTabbedEditor createNewFXTabbedEditor()
+    {
+        FXTabbedEditor ed = new FXTabbedEditor(Project.this);
+        ed.initialise();
+        fXTabbedEditors.add(ed);
+        return ed;
     }
 }

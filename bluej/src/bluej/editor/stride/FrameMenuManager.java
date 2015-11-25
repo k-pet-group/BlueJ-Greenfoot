@@ -72,11 +72,11 @@ class FrameMenuManager
         javaPreviewShowing.set(v == View.JAVA_PREVIEW);
     }
 
-    List<Menu> getMenus()
+    List<Menu> getMenus(FXTabbedEditor editorWindow)
     {
         if (menus  == null)
         {
-            Menu editMenu = JavaFXUtil.makeMenu("Edit");
+            Menu editMenu = JavaFXUtil.makeMenu(Config.getString("frame.editmenu.title"));
             JavaFXUtil.bindList(editMenu.getItems(), SortedMenuItem.sortAndAddDividers(contextualEditItems, defaultEditItems));
             editMenu.setOnShowing(e -> Utility.ifNotNull(editMenuListener, EditableSlot.MenuItems::onShowing));
             editMenu.setOnHidden(e -> Utility.ifNotNull(editMenuListener, EditableSlot.MenuItems::onHidden));
@@ -102,14 +102,23 @@ class FrameMenuManager
             viewMenu.setOnHidden(e -> Utility.ifNotNull(viewMenuListener, EditableSlot.MenuItems::onHidden));
 
             menus = Arrays.asList(
-                    JavaFXUtil.makeMenu("Class"
-                            , JavaFXUtil.makeMenuItem("Close", () -> editor.close(), new KeyCodeCombination(KeyCode.W, KeyCombination.SHORTCUT_DOWN))
+                    JavaFXUtil.makeMenu(Config.getString("frame.classmenu.title")
+                            , JavaFXUtil.makeMenu(Config.getString("frame.classmenu.move")
+                                    , makeMoveNewWindowItem(editorWindow))
+                            , JavaFXUtil.makeMenuItem(Config.getString("frame.classmenu.close"), () -> editor.close(), new KeyCodeCombination(KeyCode.W, KeyCombination.SHORTCUT_DOWN))
                     ),
                     editMenu,
                     viewMenu
             );
         }
         return menus;
+    }
+
+    private MenuItem makeMoveNewWindowItem(FXTabbedEditor editorWindow)
+    {
+        MenuItem moveNew = JavaFXUtil.makeMenuItem(Config.getString("frame.classmenu.move.new"), () -> editorWindow.moveToNewLater(editor), null);
+        moveNew.disableProperty().bind(editorWindow.hasOneTab());
+        return moveNew;
     }
 
     void setMenuItems(Map<EditableSlot.TopLevelMenu, EditableSlot.MenuItems> items)

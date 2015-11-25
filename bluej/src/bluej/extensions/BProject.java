@@ -237,7 +237,7 @@ public class BProject
 
     public void openWebViewTab(String customUrl) throws ProjectNotOpenException
     {
-        FXTabbedEditor fXTabbedEditor = projectId.getBluejProject().getFXTabbedEditor();
+        FXTabbedEditor fXTabbedEditor = projectId.getBluejProject().getDefaultFXTabbedEditor();
         Platform.runLater(() -> fXTabbedEditor.openWebViewTab(customUrl));        
     }
 

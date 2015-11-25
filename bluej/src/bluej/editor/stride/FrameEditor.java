@@ -124,7 +124,6 @@ public class FrameEditor implements Editor
      */
     private File frameFilename;
     private File javaFilename;
-    private final FXTabbedEditor fXTabbedEditor;
     private final EntityResolver resolver;
     private final EditorWatcher watcher;
     private final JavadocResolver javadocResolver;
@@ -136,11 +135,6 @@ public class FrameEditor implements Editor
     private final SimpleObjectProperty<JavaSource> javaSource;
     private bluej.pkgmgr.Package pkg;
     private FrameEditorTab panel;
-    /**
-     * Whether the editor (this.panel) is open.  Set from FX thread but read from
-     * Swing thread; not ideal.
-     */
-    private final AtomicBoolean panelOpen;
     private final DebugInfo debugInfo = new DebugInfo();
     private HighlightedBreakpoint curBreakpoint;
     private TopLevelCodeElement lastSource;
@@ -170,29 +164,25 @@ public class FrameEditor implements Editor
     }
 
     @OnThread(Tag.FX)
-    public FrameEditor(FXTabbedEditor fXTabbedEditor, File frameFilename, File javaFilename, EditorWatcher watcher, EntityResolver resolver, JavadocResolver javadocResolver, bluej.pkgmgr.Package pkg)
+    public FrameEditor(File frameFilename, File javaFilename, EditorWatcher watcher, EntityResolver resolver, JavadocResolver javadocResolver, bluej.pkgmgr.Package pkg)
     {
         this.frameFilename = frameFilename;
         this.javaFilename = javaFilename;
         this.watcher = watcher;
-        this.fXTabbedEditor = fXTabbedEditor;
         this.resolver = resolver;
         this.javadocResolver = javadocResolver;
         this.pkg = pkg;
         this.javaSource = new SimpleObjectProperty<>();
         lastSource = Loader.loadTopLevelElement(frameFilename, resolver);
-        panelOpen = new AtomicBoolean();
-        ObservableList<Tab> tabs = fXTabbedEditor.tabsProperty();
-        tabs.addListener((ListChangeListener<Tab>)c -> panelOpen.set(Boolean.valueOf(tabs.contains(panel))));
     }
     
     @OnThread(Tag.FX)
     private void createPanel(boolean visible, boolean toFront)
     {
         //Debug.message("&&&&&& Creating panel: " + System.currentTimeMillis());
-        this.panel = new FrameEditorTab(fXTabbedEditor, resolver, this, lastSource);
+        this.panel = new FrameEditorTab(pkg.getProject(), resolver, this, lastSource);
         //Debug.message("&&&&&& Adding panel to editor: " + System.currentTimeMillis());
-        fXTabbedEditor.addFrameEditor(this.panel, visible, toFront);
+        pkg.getProject().getDefaultFXTabbedEditor().addFrameEditor(this.panel, visible, toFront);
         //Debug.message("&&&&&& Done! " + System.currentTimeMillis());
         // Saving Java will trigger any pending actions like jumping to a stack trace location:
         panel.initialisedProperty().addListener((a, b, newVal) -> {
@@ -940,7 +930,7 @@ public class FrameEditor implements Editor
     @Override
     public boolean isOpen()
     {
-        return panelOpen.get();
+        return false;
     }
 
     public void step()
@@ -968,44 +958,45 @@ public class FrameEditor implements Editor
     @Override
     public void compileFinished(boolean successful)
     {
-        if (panelOpen.get())
-        {
-            findLateErrors();
-            Platform.runLater(() -> panel.compiled());
-            reInitBreakpoints();
-        }
+        Platform.runLater(() -> {
+            if (panel != null && panel.isWindowVisible())
+            {
+                findLateErrors();
+                panel.compiled();
+            }
+        });
+
+        reInitBreakpoints();
     }
 
-    @OnThread(Tag.Any)
+    @OnThread(Tag.FX)
     private void findLateErrors()
     {
-        Platform.runLater(() -> {
-            panel.removeOldErrors();
-            TopLevelCodeElement el = panel.getSource();
-            Stream<CodeElement> allElements = Stream.concat(Stream.of((CodeElement)el), el.streamContained());
-            // We must start these futures going on the FX thread
-            List<Future<List<CodeError>>> futures = allElements.flatMap(e -> e.findDirectLateErrors(panel)).collect(Collectors.toList());
-            // Then wait for them on another thread, and hop back to FX to finish:
-            new Thread(() -> {
-                try
-                {
-                    // Wait for all futures:
-                    for (Future<List<CodeError>> f : futures)
-                        f.get();
-                }
-                catch (ExecutionException | InterruptedException e)
-                {
-                    Debug.reportError(e);
-                }
-                Platform.runLater(() -> panel.updateErrorOverviewBar(false));
-            }).start();
-        });
+        panel.removeOldErrors();
+        TopLevelCodeElement el = panel.getSource();
+        Stream<CodeElement> allElements = Stream.concat(Stream.of((CodeElement)el), el.streamContained());
+        // We must start these futures going on the FX thread
+        List<Future<List<CodeError>>> futures = allElements.flatMap(e -> e.findDirectLateErrors(panel)).collect(Collectors.toList());
+        // Then wait for them on another thread, and hop back to FX to finish:
+        new Thread(() -> {
+            try
+            {
+                // Wait for all futures:
+                for (Future<List<CodeError>> f : futures)
+                    f.get();
+            }
+            catch (ExecutionException | InterruptedException e)
+            {
+                Debug.reportError(e);
+            }
+            Platform.runLater(() -> panel.updateErrorOverviewBar(false));
+        }).start();
     }
         
     @Override
     public boolean compileStarted()
     {
-        if (panelOpen.get())
+        if (panel != null)
         {
             Platform.runLater(() -> panel.flagErrorsAsOld());
             TopLevelCodeElement el = panel.getSource();
@@ -1161,10 +1152,10 @@ public class FrameEditor implements Editor
     @OnThread(Tag.Swing)
     public void cancelFreshState()
     {
-        if (panelOpen.get())
-        {
-            Platform.runLater(() -> panel.cancelFreshState());
-        }
+        Platform.runLater(() -> {
+            if (panel != null)
+                panel.cancelFreshState();
+        });
     }
 
     @Override

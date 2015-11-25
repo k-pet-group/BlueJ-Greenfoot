@@ -21,6 +21,8 @@
  */
 package bluej.editor.stride;
 
+import javax.swing.*;
+
 import bluej.BlueJTheme;
 import java.awt.Rectangle;
 import java.io.IOException;
@@ -42,11 +44,13 @@ import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;
@@ -367,6 +371,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
     public void addFrameEditor(final FrameEditorTab panel, boolean visible, boolean toFront)
     {
         tabMenus.put(panel, panel::getMenus);
+        panel.setParent(this);
         // This is ok to call multiple times:
         panel.initialiseFX(scene);
         if (!tabPane.getTabs().contains(panel)) {
@@ -738,6 +743,19 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         return overlayPane;
     }
 
+    /**
+     * An observable property which is true when, and only when, this editor window has a single tab in it
+     */
+    public ObservableValue<Boolean> hasOneTab()
+    {
+        return Bindings.size(tabPane.getTabs()).isEqualTo(1);
+    }
+
+    public boolean containsTab(Tab tab)
+    {
+        return tabPane.getTabs().contains(tab);
+    }
+
     public static enum CodeCompletionState
     {
         NOT_POSSIBLE, SHOWING, POSSIBLE;
@@ -815,5 +833,18 @@ public @OnThread(Tag.FX) class FXTabbedEditor
                 JavaFXUtil.setPseudoclass("bj-hover-long", false, this);
             });
         }
+    }
+
+    @OnThread(Tag.FX)
+    public void moveToNewLater(FrameEditorTab tab)
+    {
+        // Because createNewFXTabbedEditor waits for the FX thread, we must use run laters:
+        SwingUtilities.invokeLater(() -> {
+            FXTabbedEditor newWindow = project.createNewFXTabbedEditor();
+            Platform.runLater(() -> {
+                close(tab);
+                newWindow.addFrameEditor(tab, true, true);
+            });
+        });
     }
 }

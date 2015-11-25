@@ -204,6 +204,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends Tab implements Interaction
     private StackPane scrollAndOverlays;
     private StackPane scrollContent;
     private FXTabbedEditor parent;
+    private Project project;
     private ScrollPane scroll;
     private boolean selectingByDrag;
     private BirdseyeManager birdseyeManager;
@@ -226,9 +227,9 @@ public @OnThread(Tag.FX) class FrameEditorTab extends Tab implements Interaction
     private ErrorAndFixDisplay cursorErrorDisplay;
     private boolean inScrollTo = false;
     
-    public FrameEditorTab(FXTabbedEditor parent, EntityResolver resolver, FrameEditor editor, TopLevelCodeElement initialSource)
+    public FrameEditorTab(Project project, EntityResolver resolver, FrameEditor editor, TopLevelCodeElement initialSource)
     {
-        this.parent = parent;
+        this.project = project;
         this.projectResolver = resolver;
         this.importedTypes = new ArrayList<>();
         this.editor = editor;
@@ -292,12 +293,12 @@ public @OnThread(Tag.FX) class FrameEditorTab extends Tab implements Interaction
     @OnThread(Tag.FX)
     private Future<List<AssistContentThreadSafe>> importsUpdated(final String x)
     {
-        JavadocResolver javadocResolver = parent.getProject().getJavadocResolver();
+        JavadocResolver javadocResolver = project.getJavadocResolver();
         CompletableFuture<List<AssistContentThreadSafe>> f = new CompletableFuture<>();
         Utility.runBackground(() -> {
             try
             {
-                f.complete(parent.getProject().getImportScanner().getImportedTypes(x, javadocResolver));
+                f.complete(project.getImportScanner().getImportedTypes(x, javadocResolver));
             }
             catch (Throwable t)
             {
@@ -712,7 +713,6 @@ public @OnThread(Tag.FX) class FrameEditorTab extends Tab implements Interaction
         {
             String name = ((PossibleTypeLink)link).getTypeName();
             SwingUtilities.invokeLater(() -> {
-                Project project = parent.getProject();
                 bluej.pkgmgr.Package pkg = project.getPackage("");
                 if (pkg.getAllClassnamesWithSource().contains(name))
                 {
@@ -807,7 +807,6 @@ public @OnThread(Tag.FX) class FrameEditorTab extends Tab implements Interaction
     @OnThread(Tag.Swing)
     private void searchMethodLink(PossibleLink link, String qualClassName, String methodName, String methodDisplayName, String urlSuffix, Consumer<Optional<LinkedIdentifier>> callback)
     {
-        Project project = parent.getProject();
         bluej.pkgmgr.Package pkg = project.getPackage("");
         if (pkg.getAllClassnamesWithSource().contains(qualClassName)) {
             Target t = pkg.getTarget(qualClassName);
@@ -1440,7 +1439,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends Tab implements Interaction
 
     public boolean isWindowVisible()
     {
-        return parent.isWindowVisible();
+        return parent.containsTab(this) && parent.isWindowVisible();
     }
 
     @Override
@@ -1831,7 +1830,6 @@ public @OnThread(Tag.FX) class FrameEditorTab extends Tab implements Interaction
     public List<FileCompletion> getAvailableFilenames()
     {
         List<FileCompletion> r = new ArrayList<>();
-        Project project = parent.getProject();
         File imageDir = new File(project.getProjectDir(), "images");
         if (imageDir.exists())
         {
@@ -2163,7 +2161,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends Tab implements Interaction
     //package-visible
     List<Menu> getMenus()
     {
-        return menuManager.getMenus();
+        return menuManager.getMenus(parent);
     }
 
     @Override
@@ -2249,6 +2247,11 @@ public @OnThread(Tag.FX) class FrameEditorTab extends Tab implements Interaction
         else {
             Debug.message("focusMethod @ FrameEditorTab: " + "class frame is null!" );
         }
+    }
+
+    public void setParent(FXTabbedEditor parent)
+    {
+        this.parent = parent;
     }
 
     private class ContentBorderPane extends BorderPane

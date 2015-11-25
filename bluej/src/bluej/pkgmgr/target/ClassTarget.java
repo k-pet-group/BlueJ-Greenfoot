@@ -986,7 +986,7 @@ public class ClassTarget extends DependentTarget
             if (sourceAvailable == SourceType.Java)
                 editor = EditorManager.getEditorManager().openClass(filename, docFilename,
                         project.getProjectCharset(),
-                        getBaseName(), project.getSwingTabbedEditor(), this, isCompiled(), resolver,
+                        getBaseName(), project.getDefaultSwingTabbedEditor(), this, isCompiled(), resolver,
                         project.getJavadocResolver());
                 else if (sourceAvailable == SourceType.Stride)
                 {
@@ -997,7 +997,7 @@ public class ClassTarget extends DependentTarget
                     JavadocResolver javadocResolver = project.getJavadocResolver();
                     Package pkg = getPackage();
                     Platform.runLater(() -> {
-                        q.complete(new FrameEditor(project.getFXTabbedEditor(), frameSourceFile, javaSourceFile, this, resolver, javadocResolver, pkg));
+                        q.complete(new FrameEditor(frameSourceFile, javaSourceFile, this, resolver, javadocResolver, pkg));
                     });
 
                     try {

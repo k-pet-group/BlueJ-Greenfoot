@@ -23,6 +23,15 @@ frame.error.overview.bar.error.plural=errors
 frame.error.overview.bar.error.none=No errors
 frame.error.overview.bar.error.editing=Editing
 
+# Class menu:
+frame.classmenu.title=Class
+frame.classmenu.close=Close
+frame.classmenu.move=Move tab...
+frame.classmenu.move.new=To new window
+
+# Edit menu:
+frame.editmenu.title=Edit
+
 # Slot menu:
 frame.slot.cut=Cut
 frame.slot.copy=Copy
