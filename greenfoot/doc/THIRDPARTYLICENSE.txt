@@ -395,7 +395,6 @@ Greenfoot:
     commons-codec-1.3.jar                 Apache Commons - Codec
     commons-logging-api-1.1.2.jar         Apache Commons - Logging
     commons-httpclient-3.1.jar            Apache Commons - Http Client
-    gson-2.2.4.jar						  Gson - java objects to JSON
 
 This license is included with Greenfoot so as to satisfy its own requirements.
 
