@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2013,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2013,2014,2015  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -113,7 +113,7 @@ public class ReadmeTarget extends EditableTarget
             editor = EditorManager.getEditorManager().openText(
                                                  getSourceFile().getPath(),
                                                  getPackage().getProject().getProjectCharset(),
-                                                 Package.readmeName, getPackage().getProject().getSwingTabbedEditor());
+                                                 Package.readmeName, getPackage().getProject().getDefaultSwingTabbedEditor());
         }
         return editor;
     }
