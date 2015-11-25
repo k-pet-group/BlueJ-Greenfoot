@@ -2262,6 +2262,12 @@ public @OnThread(Tag.FX) class FrameEditorTab extends Tab implements Interaction
         return parent;
     }
 
+    //package-visible
+    Project getProject()
+    {
+        return project;
+    }
+
     private class ContentBorderPane extends BorderPane
     {
         private final CssMetaData<ContentBorderPane, Color> COLOR_META_DATA =

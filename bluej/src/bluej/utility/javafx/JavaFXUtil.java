@@ -538,7 +538,7 @@ public class JavaFXUtil
     }
 
     /**
-     * Makes a ManuItem with the given parameters.
+     * Makes a MenuItem with the given parameters.
      * 
      * @param text The content (label) of the menu item
      * @param run The action to run for the menu item.  May be null for none.
@@ -547,6 +547,24 @@ public class JavaFXUtil
     public static MenuItem makeMenuItem(String text, FXRunnable run, KeyCombination shortcut)
     {
         MenuItem item = new MenuItem(text);
+        if (run != null)
+            item.setOnAction(e -> run.run());
+        if (shortcut != null)
+            item.setAccelerator(shortcut);
+        return item;
+    }
+
+    /**
+     * Makes a MenuItem with the given parameters.
+     *
+     * @param text The content (label) of the menu item, which will be bound to
+     * @param run The action to run for the menu item.  May be null for none.
+     * @param shortcut The shortcut to use.  May be null for none.
+     */
+    public static MenuItem makeMenuItem(StringExpression text, FXRunnable run, KeyCombination shortcut)
+    {
+        MenuItem item = new MenuItem();
+        item.textProperty().bind(text);
         if (run != null)
             item.setOnAction(e -> run.run());
         if (shortcut != null)
