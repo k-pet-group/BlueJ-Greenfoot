@@ -180,7 +180,7 @@ public class FrameCatalogue extends VBox
                 item.setMinWidth(CATALOGUE_FRAME_WIDTH);
                 item.setMaxWidth(CATALOGUE_FRAME_WIDTH);
                 item.setMinHeight(30.0);
-                JavaFXUtil.initializeCustomTooltipCatalogue(editor.getFXTabbedEditor(), item, "Click, or press \'" + keyTooltipName(e.getShortcuts()) + "\' to insert " + e.getName().toLowerCase() + " frame", Duration.millis(1500));
+                JavaFXUtil.initializeCustomTooltipCatalogue(editor.getParent(), item, "Click, or press \'" + keyTooltipName(e.getShortcuts()) + "\' to insert " + e.getName().toLowerCase() + " frame", Duration.millis(1500));
                 ImageView imageView = new ImageView(image);
                 //imageView.setFitWidth(Math.min(CATALOGUE_FRAME_WIDTH, image.getWidth()));
                 //imageView.setFitHeight(Math.min(30.0, image.getHeight()));

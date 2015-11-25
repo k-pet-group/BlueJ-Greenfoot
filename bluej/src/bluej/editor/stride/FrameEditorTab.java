@@ -69,6 +69,7 @@ import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableStringValue;
+import javafx.beans.value.ObservableValue;
 import javafx.css.CssMetaData;
 import javafx.css.SimpleStyleableObjectProperty;
 import javafx.css.Styleable;
@@ -184,7 +185,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends Tab implements Interaction
     private final UndoRedoManager undoRedoManager;
     private final ObjectProperty<View> viewProperty = new SimpleObjectProperty<>(View.NORMAL);
     private final EntityResolver projectResolver;
-    private final FrameMenuManager menuManager = new FrameMenuManager(this);
+    private final FrameMenuManager menuManager;
     // The overlays (see individual class documentation)
     private WindowOverlayPane windowOverlayPane;
     private CodeOverlayPane codeOverlayPane;
@@ -203,7 +204,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends Tab implements Interaction
     private ContentBorderPane contentRoot;
     private StackPane scrollAndOverlays;
     private StackPane scrollContent;
-    private FXTabbedEditor parent;
+    private final ObjectProperty<FXTabbedEditor> parent = new SimpleObjectProperty<>();
     private Project project;
     private ScrollPane scroll;
     private boolean selectingByDrag;
@@ -235,6 +236,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends Tab implements Interaction
         this.editor = editor;
         this.initialSource = initialSource;
         this.undoRedoManager = new UndoRedoManager(new FrameState(initialSource));
+        this.menuManager = new FrameMenuManager(this);
 
         if (javaLangImports == null)
             javaLangImports = importsUpdated("java.lang.*");
@@ -734,11 +736,11 @@ public @OnThread(Tag.FX) class FrameEditorTab extends Tab implements Interaction
                         // Slightly hacky way of deciding if it's in the standard API:
                         if (resolved.getName().startsWith("java.") || resolved.getName().startsWith("javax."))
                         {
-                            callback.accept(Optional.of(new LinkedIdentifier(name, link.getStartPosition(), link.getEndPosition(), link.getSlot(), () -> parent.openJavaCoreDocTab(resolved.getName()))));
+                            callback.accept(Optional.of(new LinkedIdentifier(name, link.getStartPosition(), link.getEndPosition(), link.getSlot(), () -> getParent().openJavaCoreDocTab(resolved.getName()))));
                             return;
                         } else if (resolved.getName().startsWith("greenfoot."))
                         {
-                            callback.accept(Optional.of(new LinkedIdentifier(name, link.getStartPosition(), link.getEndPosition(), link.getSlot(), () -> parent.openGreenfootDocTab(resolved.getName()))));
+                            callback.accept(Optional.of(new LinkedIdentifier(name, link.getStartPosition(), link.getEndPosition(), link.getSlot(), () -> getParent().openGreenfootDocTab(resolved.getName()))));
                             return;
                         }
                     }
@@ -796,7 +798,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends Tab implements Interaction
             }
             else {
                 callback.accept(Optional.of(new LinkedIdentifier(name, link.getStartPosition(), link.getEndPosition(), link.getSlot(),  () -> {
-                    parent.setWindowVisible(true, ed);
+                    getParent().setWindowVisible(true, ed);
                     // TODO gets tricky here; what if editor hasn't been loaded yet?
                     el.show(ShowReason.LINK_TARGET);
                 })));
@@ -828,12 +830,12 @@ public @OnThread(Tag.FX) class FrameEditorTab extends Tab implements Interaction
                 PackageOrClass resolved = code.getResolver().resolvePackageOrClass(qualClassName, null);
                 // Slightly hacky way of deciding if it's in the standard API:
                 if (resolved.getName().startsWith("java.") || resolved.getName().startsWith("javax.")) {
-                    callback.accept(Optional.of(new LinkedIdentifier(methodDisplayName, link.getStartPosition(), link.getEndPosition(), link.getSlot(), () -> parent.openJavaCoreDocTab(resolved.getName(), urlSuffix))));
+                    callback.accept(Optional.of(new LinkedIdentifier(methodDisplayName, link.getStartPosition(), link.getEndPosition(), link.getSlot(), () -> getParent().openJavaCoreDocTab(resolved.getName(), urlSuffix))));
                     return;
                 }
                 else if (resolved.getName().startsWith("greenfoot."))
                 {
-                    callback.accept(Optional.of(new LinkedIdentifier(methodDisplayName, link.getStartPosition(), link.getEndPosition(), link.getSlot(), () -> parent.openGreenfootDocTab(resolved.getName(), urlSuffix))));
+                    callback.accept(Optional.of(new LinkedIdentifier(methodDisplayName, link.getStartPosition(), link.getEndPosition(), link.getSlot(), () -> getParent().openGreenfootDocTab(resolved.getName(), urlSuffix))));
                     return;
                 }
             }
@@ -950,17 +952,17 @@ public @OnThread(Tag.FX) class FrameEditorTab extends Tab implements Interaction
             animateProgress.addOnStopped(() -> FXRunnable.runLater(remove));
         }
 
-        parent.scheduleUpdateCatalogue(this, newView == View.NORMAL ? getFocusedCursor() : null, CodeCompletionState.NOT_POSSIBLE, false, newView, Collections.emptyList());
+        getParent().scheduleUpdateCatalogue(this, newView == View.NORMAL ? getFocusedCursor() : null, CodeCompletionState.NOT_POSSIBLE, false, newView, Collections.emptyList());
     }
 
     public void showCatalogue()
     {
-        parent.showCatalogue();
+        getParent().showCatalogue();
     }
 
     public BooleanProperty cheatSheetShowingProperty()
     {
-        return parent.catalogueShowingProperty();
+        return getParent().catalogueShowingProperty();
     }
     
     public void focusWhenShown()
@@ -989,23 +991,23 @@ public @OnThread(Tag.FX) class FrameEditorTab extends Tab implements Interaction
         if (selection.contains(b))
         {
             // Drag the whole selection:
-            parent.frameDragBegin(selection.getSelected(), mouseSceneX, mouseSceneY);
+            getParent().frameDragBegin(selection.getSelected(), mouseSceneX, mouseSceneY);
         }
         else
         {
-            parent.frameDragBegin(Arrays.asList(b), mouseSceneX, mouseSceneY);
+            getParent().frameDragBegin(Arrays.asList(b), mouseSceneX, mouseSceneY);
         }
     }
 
     public boolean isDragging()
     {
-        return parent.isDragging();
+        return getParent().isDragging();
     }
 
     // Called by mouse events
     public void blockDragEnd(boolean copying)
     {
-        parent.frameDragEnd(copying);
+        getParent().frameDragEnd(copying);
         
     }
 
@@ -1064,7 +1066,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends Tab implements Interaction
     // Called by mouse events
     protected void draggedTo(double sceneX, double sceneY, boolean copying)
     {
-        parent.draggedTo(sceneX, sceneY, copying);
+        getParent().draggedTo(sceneX, sceneY, copying);
     }
 
     // Called by TabbedEditor when this tab is the selected one during a drag
@@ -1184,7 +1186,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends Tab implements Interaction
 
             public void accept(Boolean focused)
             {
-                parent.scheduleUpdateCatalogue(FrameEditorTab.this, focused ? f : null, CodeCompletionState.NOT_POSSIBLE, !selection.getSelected().isEmpty(), getView(), Collections.emptyList());
+                getParent().scheduleUpdateCatalogue(FrameEditorTab.this, focused ? f : null, CodeCompletionState.NOT_POSSIBLE, !selection.getSelected().isEmpty(), getView(), Collections.emptyList());
 
                 if (cancelTimer != null)
                 {
@@ -1423,7 +1425,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends Tab implements Interaction
         editor.codeModified();
         registerStackHighlight(null);
         updateErrorOverviewBar(true);
-        parent.scheduleCompilation();
+        getParent().scheduleCompilation();
         SuggestedFollowUpDisplay.modificationIn(this);
     }
 
@@ -1431,15 +1433,15 @@ public @OnThread(Tag.FX) class FrameEditorTab extends Tab implements Interaction
     {
         // Add ourselves, in case we were closed previously (no harm in calling twice)
         if (vis)
-            parent.addFrameEditor(this, vis, bringToFront);
-        parent.setWindowVisible(vis, this);
+            getParent().addFrameEditor(this, vis, bringToFront);
+        getParent().setWindowVisible(vis, this);
         if (bringToFront)
-            parent.bringToFront(this);
+            getParent().bringToFront(this);
     }
 
     public boolean isWindowVisible()
     {
-        return parent.containsTab(this) && parent.isWindowVisible();
+        return getParent() != null && getParent().containsTab(this) && getParent().isWindowVisible();
     }
 
     @Override
@@ -1902,7 +1904,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends Tab implements Interaction
             {
                 selection.clear();
             }
-            this.parent.scheduleUpdateCatalogue(FrameEditorTab.this, null, focused && canCodeComplete ? CodeCompletionState.POSSIBLE : CodeCompletionState.NOT_POSSIBLE, false, getView(), hints);
+            getParent().scheduleUpdateCatalogue(FrameEditorTab.this, null, focused && canCodeComplete ? CodeCompletionState.POSSIBLE : CodeCompletionState.NOT_POSSIBLE, false, getView(), hints);
         });
 
         node.addEventHandler(MouseEvent.MOUSE_MOVED, e -> {
@@ -2116,14 +2118,14 @@ public @OnThread(Tag.FX) class FrameEditorTab extends Tab implements Interaction
     @Override
     public void setupSuggestionWindow(Stage window) {
         JavaFXUtil.addChangeListener(window.focusedProperty(), focused ->
-                        parent.scheduleUpdateCatalogue(FrameEditorTab.this, null, focused ? CodeCompletionState.SHOWING : CodeCompletionState.NOT_POSSIBLE, false, View.NORMAL, Collections.emptyList())
+                        getParent().scheduleUpdateCatalogue(FrameEditorTab.this, null, focused ? CodeCompletionState.SHOWING : CodeCompletionState.NOT_POSSIBLE, false, View.NORMAL, Collections.emptyList())
         );
     }
 
     @Override
     public Pane getDragTargetCursorPane()
     {
-        return parent.getDragCursorPane();
+        return getParent().getDragCursorPane();
     }
 
     public void compiled()
@@ -2149,19 +2151,19 @@ public @OnThread(Tag.FX) class FrameEditorTab extends Tab implements Interaction
     
     public void updateCatalog(FrameCursor f)
     {
-        parent.scheduleUpdateCatalogue(FrameEditorTab.this, f, CodeCompletionState.NOT_POSSIBLE, !selection.getSelected().isEmpty(), getView(), Collections.emptyList());
+        getParent().scheduleUpdateCatalogue(FrameEditorTab.this, f, CodeCompletionState.NOT_POSSIBLE, !selection.getSelected().isEmpty(), getView(), Collections.emptyList());
     }
     
     //package-visible
     void close()
     {
-        parent.close(this);
+        getParent().close(this);
     }
 
     //package-visible
     List<Menu> getMenus()
     {
-        return menuManager.getMenus(parent);
+        return menuManager.getMenus();
     }
 
     @Override
@@ -2229,11 +2231,6 @@ public @OnThread(Tag.FX) class FrameEditorTab extends Tab implements Interaction
         return contentRoot.cssHighlightColorProperty().get();
     }
 
-    public FXTabbedEditor getFXTabbedEditor()
-    {
-        return parent;
-    }
-
     public void focusMethod(String methodName)
     {
         if (topLevelFrame != null) {
@@ -2251,7 +2248,18 @@ public @OnThread(Tag.FX) class FrameEditorTab extends Tab implements Interaction
 
     public void setParent(FXTabbedEditor parent)
     {
-        this.parent = parent;
+        this.parent.set(parent);
+    }
+
+    //package-visible
+    FXTabbedEditor getParent()
+    {
+        return parent.get();
+    }
+
+    public ObservableValue<FXTabbedEditor> windowProperty()
+    {
+        return parent;
     }
 
     private class ContentBorderPane extends BorderPane

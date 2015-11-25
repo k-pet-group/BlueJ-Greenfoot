@@ -46,12 +46,15 @@ import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.binding.DoubleExpression;
+import javafx.beans.binding.ObjectBinding;
 import javafx.beans.binding.StringExpression;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.ReadOnlyDoubleWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.beans.value.WritableBooleanValue;
@@ -420,6 +423,45 @@ public class JavaFXUtil
     public static void blitImage(WritableImage dest, int xOffset, int yOffset, Image src)
     {
         dest.getPixelWriter().setPixels(xOffset, yOffset, (int)(Math.ceil(src.getWidth())), (int)(Math.ceil(src.getHeight())), src.getPixelReader(), 0, 0);
+    }
+
+    /**
+     * Given an ObservableValue with a source object, and a function to get an ObservableValue property of the source object,
+     * forms a binding that watches for updates of either the source object or the property of the current
+     * source object, to form a virtual observable value for object.property
+     *
+     * If at any time object becomes null, the returned observable will use the default value.  Null will never be passed
+     * to property.
+     *
+     * @param object The source object on which to apply the property
+     * @param property The property to apply to the current source object
+     * @param def The default value to use when source is null
+     * @param <S> The type of the source object
+     * @param <T> The type inside the property
+     * @return An observable corresponding to object.property
+     */
+    public static <S, T> ObservableValue<T> apply(ObservableValue<S> object, FXFunction<S, ObservableValue<T>> property, T def)
+    {
+        // Easier to create new property and use change listeners to update the binding than try
+        // to make an all-in-one binding:
+        ObjectProperty<T> r = new SimpleObjectProperty<>(object.getValue() == null ? def : property.apply(object.getValue()).getValue());
+
+        addChangeListener(object, value -> {
+            r.unbind();
+
+            if (value == null)
+            {
+                r.setValue(def);
+                // r is left unbound;
+            }
+            else
+            {
+                // Bind r to the inner property, until object changes:
+                r.bind(property.apply(value));
+            }
+        });
+
+        return r;
     }
 
     /**

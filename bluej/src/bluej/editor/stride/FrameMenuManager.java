@@ -1,5 +1,6 @@
 package bluej.editor.stride;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -10,12 +11,11 @@ import bluej.stride.slots.EditableSlot.MenuItemOrder;
 import bluej.stride.slots.EditableSlot.SortedMenuItem;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
@@ -28,7 +28,6 @@ import bluej.stride.slots.EditableSlot;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
-import bluej.utility.javafx.binding.ConcatListBinding;
 
 /**
  * Created by neil on 25/03/15.
@@ -64,6 +63,22 @@ class FrameMenuManager
             MenuItemOrder.COPY.item(JavaFXUtil.makeDisabledMenuItem(Config.getString("editor.copyLabel"), new KeyCodeCombination(KeyCode.C, KeyCodeCombination.SHORTCUT_DOWN))),
             MenuItemOrder.PASTE.item(JavaFXUtil.makeDisabledMenuItem(Config.getString("editor.pasteLabel"), new KeyCodeCombination(KeyCode.V, KeyCodeCombination.SHORTCUT_DOWN)))
         );
+
+        editor.setContextMenu(new ContextMenu(
+                makeMoveMenu()
+                , JavaFXUtil.makeMenuItem(Config.getString("frame.classmenu.close"), () -> editor.close(), null)
+        ));
+    }
+
+    private Menu makeMoveMenu()
+    {
+        MenuItem moveNew = JavaFXUtil.makeMenuItem(Config.getString("frame.classmenu.move.new"), () -> editor.windowProperty().getValue().moveToNewLater(editor), null);
+        moveNew.disableProperty().bind(JavaFXUtil.apply(editor.windowProperty(), FXTabbedEditor::hasOneTab, true));
+
+        ArrayList<MenuItem> moveItems = new ArrayList<>();
+        moveItems.add(moveNew);
+
+        return JavaFXUtil.makeMenu(Config.getString("frame.classmenu.move"), moveItems.toArray(new MenuItem[0]));
     }
 
     void notifyView(View v)
@@ -72,7 +87,7 @@ class FrameMenuManager
         javaPreviewShowing.set(v == View.JAVA_PREVIEW);
     }
 
-    List<Menu> getMenus(FXTabbedEditor editorWindow)
+    List<Menu> getMenus()
     {
         if (menus  == null)
         {
@@ -103,8 +118,7 @@ class FrameMenuManager
 
             menus = Arrays.asList(
                     JavaFXUtil.makeMenu(Config.getString("frame.classmenu.title")
-                            , JavaFXUtil.makeMenu(Config.getString("frame.classmenu.move")
-                                    , makeMoveNewWindowItem(editorWindow))
+                            , makeMoveMenu()
                             , JavaFXUtil.makeMenuItem(Config.getString("frame.classmenu.close"), () -> editor.close(), new KeyCodeCombination(KeyCode.W, KeyCombination.SHORTCUT_DOWN))
                     ),
                     editMenu,
@@ -112,13 +126,6 @@ class FrameMenuManager
             );
         }
         return menus;
-    }
-
-    private MenuItem makeMoveNewWindowItem(FXTabbedEditor editorWindow)
-    {
-        MenuItem moveNew = JavaFXUtil.makeMenuItem(Config.getString("frame.classmenu.move.new"), () -> editorWindow.moveToNewLater(editor), null);
-        moveNew.disableProperty().bind(editorWindow.hasOneTab());
-        return moveNew;
     }
 
     void setMenuItems(Map<EditableSlot.TopLevelMenu, EditableSlot.MenuItems> items)
