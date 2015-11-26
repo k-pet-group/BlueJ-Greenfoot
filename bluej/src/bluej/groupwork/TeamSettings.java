@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2015  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -35,6 +35,8 @@ public class TeamSettings
     private String group;
     private String username;
     private String password;
+    private String yourName;
+    private String yourEmail;
     
     public TeamSettings(TeamworkProvider provider, String protocol, String server,
             String prefix, String group, String username, String password)
@@ -81,5 +83,37 @@ public class TeamSettings
     public String getPassword()
     {
         return password;
+    }
+
+    /**
+     * @return the yourName
+     */
+    public String getYourName()
+    {
+        return yourName;
+    }
+
+    /**
+     * @param yourName the yourName to set
+     */
+    public void setYourName(String yourName)
+    {
+        this.yourName = yourName;
+    }
+
+    /**
+     * @return the yourEmail
+     */
+    public String getYourEmail()
+    {
+        return yourEmail;
+    }
+
+    /**
+     * @param yourEmail the yourEmail to set
+     */
+    public void setYourEmail(String yourEmail)
+    {
+        this.yourEmail = yourEmail;
     }
 }
