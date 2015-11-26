@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014,2015  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -228,11 +228,11 @@ class ExportDialog extends EscapeDialog
                     inputPanel.add(Box.createVerticalStrut(5));
                 }
 
-                sourceBox = new JCheckBox(sourceLabel, false);
+                sourceBox = new JCheckBox(sourceLabel, true);
                 sourceBox.setAlignmentX(LEFT_ALIGNMENT);
                 inputPanel.add(sourceBox);
                 inputPanel.add(Box.createVerticalStrut(5));
-                pkgFilesBox = new JCheckBox(pkgFilesLabel);
+                pkgFilesBox = new JCheckBox(pkgFilesLabel, true);
                 inputPanel.add(pkgFilesBox);
             }
 
