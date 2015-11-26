@@ -130,7 +130,7 @@ public class GitProvider implements TeamworkProvider
     {
         try {
             FileRepositoryBuilder builder = new FileRepositoryBuilder();
-            return new GitRepository(projectDir, settings.getProtocol(), makeGitUrl(settings), builder, settings.getUserName(), settings.getPassword());
+            return new GitRepository(projectDir, settings.getProtocol(), makeGitUrl(settings), builder, settings.getUserName(), settings.getPassword(), settings.getYourName(), settings.getYourEmail());
         } catch (UnsupportedSettingException e) {
             Debug.reportError("GitProvider.getRepository", e);
             return null;

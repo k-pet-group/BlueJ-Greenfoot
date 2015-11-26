@@ -47,8 +47,10 @@ public class GitRepository implements Repository
     private final FileRepositoryBuilder fileRepoBuilder;
     private final String userName;
     private String password;
+    private final String yourName;
+    private final String yourEmail;
 
-    public GitRepository(File projectPath, String protocol, String reposUrl, FileRepositoryBuilder fileRepoBuilder, String userName, String password)
+    public GitRepository(File projectPath, String protocol, String reposUrl, FileRepositoryBuilder fileRepoBuilder, String userName, String password, String yourName, String yourEmail)
     {
         this.projectPath = projectPath;
         this.protocol = protocol;
@@ -56,6 +58,8 @@ public class GitRepository implements Repository
         this.fileRepoBuilder = fileRepoBuilder;
         this.userName = userName;
         this.password = password;
+        this.yourName = yourName;
+        this.yourEmail = yourEmail;
     }
     
     public void setReposUrl(String url)
@@ -73,7 +77,7 @@ public class GitRepository implements Repository
     {
         this.password = newSettings.getPassword();
     }
-
+    
     @Override
     public boolean versionsDirectories()
     {
@@ -156,5 +160,21 @@ public class GitRepository implements Repository
     {
         UsernamePasswordCredentialsProvider cp = new UsernamePasswordCredentialsProvider(userName, password); // set a configuration with username and password.
         return cp;
+    }
+
+    /**
+     * @return the yourName
+     */
+    public String getYourName()
+    {
+        return yourName;
+    }
+
+    /**
+     * @return the yourEmail
+     */
+    public String getYourEmail()
+    {
+        return yourEmail;
     }
 }

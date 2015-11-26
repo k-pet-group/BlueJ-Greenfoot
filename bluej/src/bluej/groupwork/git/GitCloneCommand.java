@@ -26,9 +26,11 @@ import bluej.groupwork.TeamworkCommandAborted;
 import bluej.groupwork.TeamworkCommandError;
 import bluej.groupwork.TeamworkCommandResult;
 import java.io.File;
+import java.io.IOException;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.StoredConfig;
 
 /**
  * Clone a remote repository into a local directory.
@@ -56,13 +58,17 @@ public class GitCloneCommand extends GitCommand
             disableFingerprintCheck(cloneCommand);
             cloneCommand.setDirectory(clonePath);
             cloneCommand.setURI(reposUrl);
-            cloneCommand.call();
+            StoredConfig repoConfig = cloneCommand.call().getRepository().getConfig(); //save the repo
+            repoConfig.setString("user", null, "name", getRepository().getYourName()); //register the user name
+            repoConfig.setString("user", null, "email", getRepository().getYourEmail()); //register the user email
+            repoConfig.save();
+            
             if (!isCancelled()) {
                 return new TeamworkCommandResult();
             }
             
             return new TeamworkCommandAborted();
-        } catch (GitAPIException ex) {
+        } catch (GitAPIException | IOException ex) {
             return new TeamworkCommandError(ex.getMessage(), ex.getLocalizedMessage());
         }
     }

@@ -453,9 +453,28 @@ public class TeamSettingsPanel extends JPanel
         return useAsDefault.isSelected();
     }
     
+    private String getYourName(){
+        if (yourNameField.isEnabled()){
+            return yourNameField.getText();
+        }
+        return null;
+    }
+    
+    private String getYourEmail(){
+        if (yourEmailField.isEnabled()){
+            return yourEmailField.getText();
+        }
+        return null;
+    }
+    
     public TeamSettings getSettings()
     {
-        return new TeamSettings(getSelectedProvider(), getProtocolKey(),
+        TeamSettings result = new TeamSettings(getSelectedProvider(), getProtocolKey(),
                 getServer(), getPrefix(), getGroup(), getUser(), getPassword());
+        if (yourEmailField.isEnabled() && yourNameField.isEnabled()){
+            result.setYourEmail(getYourEmail());
+            result.setYourName(getYourName());
+        }
+        return result;
     }
 }
