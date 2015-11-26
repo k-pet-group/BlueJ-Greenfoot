@@ -203,7 +203,8 @@ final class ExportManager
         File[] dir = sourceDir.listFiles();
         for(int i = 0; i < dir.length; i++) {
             if(dir[i].isDirectory()) {
-                if(!skipDir(dir[i], includePkg)) {
+                String dirName = dir[i].getName();
+                if(!skipDir(dir[i], includePkg) && (!dirName.startsWith(".git"))) {
                     writeDirToJar(dir[i], pathPrefix + dir[i].getName() + "/",
                                   jStream, includeSource, includePkg, outputFile);
                 }
