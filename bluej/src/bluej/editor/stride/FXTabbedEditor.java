@@ -261,7 +261,8 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         tabPane.getStyleClass().add("tabbed-editor");
 
         tabPane.getSelectionModel().selectedItemProperty().addListener((a, b, selTab) -> {
-            updateMenusForTab((FXTab)selTab);
+            if (selTab != null)
+                updateMenusForTab((FXTab)selTab);
             if (isWindowVisible())
             {
                 if (!(selTab instanceof FrameEditorTab))
@@ -710,11 +711,11 @@ public @OnThread(Tag.FX) class FXTabbedEditor
     }
 
     /**
-     * An observable property which is true when, and only when, this editor window has a single tab in it
+     * Returns true when, and only when, this editor window has a single tab in it
      */
-    public ObservableValue<Boolean> hasOneTab()
+    public boolean hasOneTab()
     {
-        return Bindings.size(tabPane.getTabs()).isEqualTo(1);
+        return tabPane.getTabs().size() == 1;
     }
 
     public boolean containsTab(Tab tab)

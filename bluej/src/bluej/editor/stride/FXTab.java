@@ -48,6 +48,11 @@ abstract class FXTab extends Tab
     abstract void setParent(FXTabbedEditor parent);
 
     /**
+     * Called to get the parent window of this tab (as set by previous setParent call)
+     */
+    abstract FXTabbedEditor getParent();
+
+    /**
      * Gets the web address showing in this tab.
      * @return The URL of the web address showing, or null if this is not a web tab.
      */

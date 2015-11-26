@@ -2151,12 +2151,6 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     {
         getParent().scheduleUpdateCatalogue(FrameEditorTab.this, f, CodeCompletionState.NOT_POSSIBLE, !selection.getSelected().isEmpty(), getView(), Collections.emptyList());
     }
-    
-    //package-visible
-    void close()
-    {
-        getParent().close(this);
-    }
 
     //package-visible
     List<Menu> getMenus()

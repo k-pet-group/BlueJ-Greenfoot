@@ -34,7 +34,7 @@ import bluej.utility.javafx.JavaFXUtil;
 /**
  * Created by neil on 25/03/15.
  */
-class FrameMenuManager
+class FrameMenuManager extends TabMenuManager
 {
     private final FrameEditorTab editor;
 
@@ -48,65 +48,31 @@ class FrameMenuManager
     private List<Menu> menus = null;
     private final BooleanProperty birdsEyeViewShowing;
     private final BooleanProperty javaPreviewShowing;
-    private Menu classMoveMenu;
-    private MenuItem classMoveNew;
-    private final MenuItem contextMoveNew;
-    private final Menu contextMoveMenu;
 
     FrameMenuManager(FrameEditorTab editor)
     {
+        super(editor);
         this.editor = editor;
         this.birdsEyeViewShowing = new SimpleBooleanProperty(editor.getView() == View.BIRDSEYE);
         this.javaPreviewShowing = new SimpleBooleanProperty(editor.getView() == View.JAVA_PREVIEW);
         // I don't think this should go in a loop with notifyView because it converges (second listener sets property to current value):
-        JavaFXUtil.addChangeListener(birdsEyeViewShowing, b -> { if (b) editor.enableBirdseyeView(); else editor.disableBirdseyeView(); });
-        JavaFXUtil.addChangeListener(javaPreviewShowing, b -> { if (b) editor.enableJavaPreview(); else editor.disableJavaPreview(); });
+        JavaFXUtil.addChangeListener(birdsEyeViewShowing, b -> {
+            if (b) editor.enableBirdseyeView();
+            else editor.disableBirdseyeView();
+        });
+        JavaFXUtil.addChangeListener(javaPreviewShowing, b -> {
+            if (b) editor.enableJavaPreview();
+            else editor.disableJavaPreview();
+        });
 
         defaultEditItems = Arrays.asList(
-            MenuItemOrder.UNDO.item(JavaFXUtil.makeMenuItem(Config.getString("editor.undoLabel"), editor::undo, new KeyCodeCombination(KeyCode.Z, KeyCodeCombination.SHORTCUT_DOWN))),
-            MenuItemOrder.REDO.item(JavaFXUtil.makeMenuItem(Config.getString("editor.redoLabel"), editor::redo, Config.isMacOS() ? new KeyCodeCombination(KeyCode.Z, KeyCodeCombination.SHORTCUT_DOWN, KeyCodeCombination.SHIFT_DOWN) : new KeyCodeCombination(KeyCode.Y, KeyCodeCombination.SHORTCUT_DOWN))),
-            MenuItemOrder.CUT.item(JavaFXUtil.makeDisabledMenuItem(Config.getString("editor.cutLabel"), new KeyCodeCombination(KeyCode.X, KeyCodeCombination.SHORTCUT_DOWN))),
-            MenuItemOrder.COPY.item(JavaFXUtil.makeDisabledMenuItem(Config.getString("editor.copyLabel"), new KeyCodeCombination(KeyCode.C, KeyCodeCombination.SHORTCUT_DOWN))),
-            MenuItemOrder.PASTE.item(JavaFXUtil.makeDisabledMenuItem(Config.getString("editor.pasteLabel"), new KeyCodeCombination(KeyCode.V, KeyCodeCombination.SHORTCUT_DOWN)))
+                MenuItemOrder.UNDO.item(JavaFXUtil.makeMenuItem(Config.getString("editor.undoLabel"), editor::undo, new KeyCodeCombination(KeyCode.Z, KeyCodeCombination.SHORTCUT_DOWN))),
+                MenuItemOrder.REDO.item(JavaFXUtil.makeMenuItem(Config.getString("editor.redoLabel"), editor::redo, Config.isMacOS() ? new KeyCodeCombination(KeyCode.Z, KeyCodeCombination.SHORTCUT_DOWN, KeyCodeCombination.SHIFT_DOWN) : new KeyCodeCombination(KeyCode.Y, KeyCodeCombination.SHORTCUT_DOWN))),
+                MenuItemOrder.CUT.item(JavaFXUtil.makeDisabledMenuItem(Config.getString("editor.cutLabel"), new KeyCodeCombination(KeyCode.X, KeyCodeCombination.SHORTCUT_DOWN))),
+                MenuItemOrder.COPY.item(JavaFXUtil.makeDisabledMenuItem(Config.getString("editor.copyLabel"), new KeyCodeCombination(KeyCode.C, KeyCodeCombination.SHORTCUT_DOWN))),
+                MenuItemOrder.PASTE.item(JavaFXUtil.makeDisabledMenuItem(Config.getString("editor.pasteLabel"), new KeyCodeCombination(KeyCode.V, KeyCodeCombination.SHORTCUT_DOWN)))
         );
 
-        contextMoveNew = JavaFXUtil.makeMenuItem(Config.getString("frame.classmenu.move.new"), () -> editor.windowProperty().getValue().moveToNewLater(editor), null);
-        contextMoveNew.disableProperty().bind(JavaFXUtil.apply(editor.windowProperty(), FXTabbedEditor::hasOneTab, true));
-        contextMoveMenu = JavaFXUtil.makeMenu(Config.getString("frame.classmenu.move"));
-        updateMoveMenus();
-
-        editor.setContextMenu(new ContextMenu(
-                contextMoveMenu
-                , JavaFXUtil.makeMenuItem(Config.getString("frame.classmenu.close"), () -> editor.close(), null)
-        ));
-    }
-    private void updateMoveMenus()
-    {
-        // Have to do everything double because the menus don't share:
-        ArrayList<MenuItem> classMoveItems = new ArrayList<>();
-        ArrayList<MenuItem> contextMoveItems = new ArrayList<>();
-        classMoveItems.add(classMoveNew);
-        contextMoveItems.add(contextMoveNew);
-        List<FXTabbedEditor> allWindows = editor.getProject().getAllFXTabbedEditorWindows();
-        if (allWindows.size() > 1)
-        {
-            classMoveItems.add(new SeparatorMenuItem());
-            contextMoveItems.add(new SeparatorMenuItem());
-            allWindows.stream().filter(w -> w != editor.windowProperty().getValue()).forEach(w -> {
-                StringExpression itemText = new ReadOnlyStringWrapper("Window: ").concat(w.titleProperty());
-                contextMoveItems.add(JavaFXUtil.makeMenuItem(itemText, () -> editor.windowProperty().getValue().moveTabTo(editor, w), null));
-                classMoveItems.add(JavaFXUtil.makeMenuItem(itemText, () -> editor.windowProperty().getValue().moveTabTo(editor, w), null));
-            });
-        }
-
-        if (classMoveMenu != null)
-        {
-            classMoveMenu.getItems().setAll(classMoveItems);
-        }
-        if (contextMoveMenu != null)
-        {
-            contextMoveMenu.getItems().setAll(contextMoveItems);
-        }
     }
 
     void notifyView(View v)
@@ -144,15 +110,12 @@ class FrameMenuManager
             viewMenu.setOnShowing(e -> Utility.ifNotNull(viewMenuListener, EditableSlot.MenuItems::onShowing));
             viewMenu.setOnHidden(e -> Utility.ifNotNull(viewMenuListener, EditableSlot.MenuItems::onHidden));
 
-            classMoveNew = JavaFXUtil.makeMenuItem(Config.getString("frame.classmenu.move.new"), () -> editor.windowProperty().getValue().moveToNewLater(editor), null);
-            classMoveNew.disableProperty().bind(JavaFXUtil.apply(editor.windowProperty(), FXTabbedEditor::hasOneTab, true));
-            classMoveMenu = JavaFXUtil.makeMenu(Config.getString("frame.classmenu.move"));
             updateMoveMenus();
 
             menus = Arrays.asList(
                     JavaFXUtil.makeMenu(Config.getString("frame.classmenu.title")
-                            , classMoveMenu
-                            , JavaFXUtil.makeMenuItem(Config.getString("frame.classmenu.close"), () -> editor.close(), new KeyCodeCombination(KeyCode.W, KeyCombination.SHORTCUT_DOWN))
+                            , mainMoveMenu
+                            , JavaFXUtil.makeMenuItem(Config.getString("frame.classmenu.close"), () -> editor.getParent().close(editor), new KeyCodeCombination(KeyCode.W, KeyCombination.SHORTCUT_DOWN))
                     ),
                     editMenu,
                     viewMenu

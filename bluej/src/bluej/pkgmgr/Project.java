@@ -2196,5 +2196,7 @@ public class Project implements DebuggerListener, InspectorManager
         {
             fXTabbedEditors.remove(fxTabbedEditor);
         }
+        // Update the move menus to remove the closed window as a move target:
+        fXTabbedEditors.forEach(FXTabbedEditor::updateMoveMenus);
     }
 }
