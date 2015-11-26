@@ -38,6 +38,6 @@ fi
     -greenfoot.scenarios=/usr/share/doc/Greenfoot/scenarios \
     -greenfoot.tutorial=file:///usr/share/doc/Greenfoot/tutorial/tutorial.html \
     -greenfoot.tutorial.scenario=wombats \
-    -greenfoot.url.javadoc=/usr/share/doc/Greenfoot/API/ \
+    -greenfoot.url.javadoc=file:///usr/share/doc/Greenfoot/API/ \
     ${JFXRTOPT:+"$JFXRTOPT"} \
     "$@"
