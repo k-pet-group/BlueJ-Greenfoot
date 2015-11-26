@@ -85,7 +85,6 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Tab;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
@@ -155,7 +154,6 @@ import bluej.stride.generic.SuggestedFollowUpDisplay;
 import bluej.stride.operations.UndoRedoManager;
 import bluej.stride.slots.EditableSlot;
 import bluej.utility.Debug;
-import bluej.utility.ImportScanner;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXConsumer;
 import bluej.utility.javafx.FXRunnable;
@@ -168,7 +166,7 @@ import bluej.utility.javafx.JavaFXUtil;
  * (frames, slots, etc) via the InteractionManager interface, so that class is a good place
  * to understand the public interface of this class.
  */
-public @OnThread(Tag.FX) class FrameEditorTab extends Tab implements InteractionManager
+public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements InteractionManager
 {
     private final static List<Future<List<AssistContentThreadSafe>>> popularImports = new ArrayList<>();
     private static Future<List<AssistContentThreadSafe>> javaLangImports;
@@ -313,7 +311,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends Tab implements Interaction
     // Must be run on FX thread
     // @Override
     @OnThread(Tag.FX)
-    public void initialiseFX(final Scene scene)
+    public void initialiseFX()
     {
         if (initialised.get())
             return;
@@ -1433,7 +1431,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends Tab implements Interaction
     {
         // Add ourselves, in case we were closed previously (no harm in calling twice)
         if (vis)
-            getParent().addFrameEditor(this, vis, bringToFront);
+            getParent().addTab(this, vis, bringToFront);
         getParent().setWindowVisible(vis, this);
         if (bringToFront)
             getParent().bringToFront(this);
@@ -2282,5 +2280,17 @@ public @OnThread(Tag.FX) class FrameEditorTab extends Tab implements Interaction
 
         @Override public List<CssMetaData<? extends Styleable, ?>> getCssMetaData() { return cssMetaDataList; }
 
+    }
+
+    @Override
+    public ObservableStringValue windowTitleProperty()
+    {
+        return nameProperty();
+    }
+
+    @Override
+    String getWebAddress()
+    {
+        return null;
     }
 }
