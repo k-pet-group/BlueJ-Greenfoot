@@ -39,13 +39,12 @@ import org.eclipse.jgit.lib.StoredConfig;
 public class GitCloneCommand extends GitCommand 
 {
 
-    private final File clonePath;
+    private File clonePath;
 
     public GitCloneCommand(GitRepository repository, File projectPath) 
     {
         super(repository);
-        this.clonePath = projectPath.getParentFile().getAbsoluteFile(); //git 
-        //automatically create the project's directory
+        this.clonePath = projectPath;
     }
 
     @Override

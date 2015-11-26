@@ -111,7 +111,7 @@ public class GitRepository implements Repository
     @Override
     public TeamworkCommand getModules(List<String> modules)
     {
-        return new GitModulesCommand(this, modules);
+        return null; // not necessary on Git repositories.
     }
 
     @Override
