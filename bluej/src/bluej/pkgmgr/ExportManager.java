@@ -203,8 +203,7 @@ final class ExportManager
         File[] dir = sourceDir.listFiles();
         for(int i = 0; i < dir.length; i++) {
             if(dir[i].isDirectory()) {
-                String dirName = dir[i].getName();
-                if(!skipDir(dir[i], includePkg) && (!dirName.startsWith(".git"))) {
+                if(!skipDir(dir[i], includePkg) ) {
                     writeDirToJar(dir[i], pathPrefix + dir[i].getName() + "/",
                                   jStream, includeSource, includePkg, outputFile);
                 }
@@ -234,7 +233,7 @@ final class ExportManager
     }
 
     /** array of directory names not to be included in jar file **/
-    private static final String[] skipDirs = { "CVS" };
+    private static final String[] skipDirs = { "CVS", ".git" };
 
     /**
      * Test whether a given directory should be skipped (not included) in
