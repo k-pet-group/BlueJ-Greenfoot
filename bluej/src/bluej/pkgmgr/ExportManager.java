@@ -233,7 +233,7 @@ final class ExportManager
     }
 
     /** array of directory names not to be included in jar file **/
-    private static final String[] skipDirs = { "CVS", ".git" };
+    private static final String[] skipDirs = { "CVS", ".svn", ".git" };
 
     /**
      * Test whether a given directory should be skipped (not included) in
