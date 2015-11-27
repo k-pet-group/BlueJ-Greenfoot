@@ -65,6 +65,7 @@ import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Supplier;
 
 import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
@@ -206,6 +207,9 @@ public final class MoeEditor extends JPanel
     // Strings
     private final String implementationString = Config.getString("editor.implementationLabel");
     private final String interfaceString = Config.getString("editor.interfaceLabel");
+    // The code to ask for the default editor to be added to, for the case
+    // where we have been hidden but want to reshow ourselves again:
+    private final Supplier<SwingTabbedEditor> defaultSwingTabbedEditor;
     private SwingTabbedEditor swingTabbedEditor;
     //private StringProperty titleProperty;
     private final AtomicBoolean panelOpen = new AtomicBoolean();
@@ -274,10 +278,11 @@ public final class MoeEditor extends JPanel
     /**
      * Constructor. Title may be null.
      */
-    public MoeEditor(MoeEditorParameters parameters, SwingTabbedEditor swingTabbedEditor)
+    public MoeEditor(MoeEditorParameters parameters, Supplier<SwingTabbedEditor> getDefaultEditor)
     {
         super(new BorderLayout(6,6));
-        this.swingTabbedEditor = swingTabbedEditor;
+        this.defaultSwingTabbedEditor = getDefaultEditor;
+        this.swingTabbedEditor = getDefaultEditor.get();
         watcher = parameters.getWatcher();
         resources = parameters.getResources();
         javadocResolver = parameters.getJavadocResolver();
@@ -709,6 +714,9 @@ public final class MoeEditor extends JPanel
     @Override
     public void setVisible(boolean vis)
     {
+        if (swingTabbedEditor == null)
+            swingTabbedEditor = defaultSwingTabbedEditor.get();
+
         if (vis) {
             sourcePane.setFont(PrefMgr.getStandardEditorFont());
             checkBracketStatus();

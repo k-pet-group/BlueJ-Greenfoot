@@ -22,6 +22,7 @@
 package bluej.editor;
 
 import java.nio.charset.Charset;
+import java.util.function.Supplier;
 
 import bluej.editor.moe.MoeEditorManager;
 import bluej.parser.entity.EntityResolver;
@@ -71,7 +72,7 @@ public abstract class EditorManager
         String docFilename,
         Charset charset,
         String windowTitle,
-        SwingTabbedEditor swingTabbedEditor,
+        Supplier<SwingTabbedEditor> swingTabbedEditor,
         EditorWatcher watcher, 
         boolean compiled,
         EntityResolver projectResolver,
@@ -92,7 +93,7 @@ public abstract class EditorManager
      * @returns                 the new editor, or null if there was a problem
      */
     public abstract Editor openText(String filename, Charset charset, String windowTitle,
-                                    SwingTabbedEditor swingTabbedEditor);
+                                    Supplier<SwingTabbedEditor> swingTabbedEditor);
 
     /**
      * Indicate to the manager that all resources used by this editor

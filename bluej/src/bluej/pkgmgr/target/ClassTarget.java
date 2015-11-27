@@ -986,7 +986,7 @@ public class ClassTarget extends DependentTarget
             if (sourceAvailable == SourceType.Java)
                 editor = EditorManager.getEditorManager().openClass(filename, docFilename,
                         project.getProjectCharset(),
-                        getBaseName(), project.getDefaultSwingTabbedEditor(), this, isCompiled(), resolver,
+                        getBaseName(), project::getDefaultSwingTabbedEditor, this, isCompiled(), resolver,
                         project.getJavadocResolver());
                 else if (sourceAvailable == SourceType.Stride)
                 {

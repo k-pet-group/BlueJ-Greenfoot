@@ -191,6 +191,7 @@ public class SwingTabbedEditor
             panelToEditor.remove(tab);
             editorToPanel.remove(editor);
             editorToHeader.remove(editor);
+            editor.setParent(null);
             if (tabPane.getTabCount() == 0)
             {
                 window.dispose();

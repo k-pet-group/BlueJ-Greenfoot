@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+import java.util.function.Supplier;
 
 import bluej.Config;
 import bluej.editor.Editor;
@@ -95,7 +96,7 @@ public final class MoeEditorManager extends bluej.editor.EditorManager
                 String docFilename,
                 Charset charset,
                 String windowTitle,
-                SwingTabbedEditor swingTabbedEditor,
+                Supplier<SwingTabbedEditor> swingTabbedEditor,
                 EditorWatcher watcher, 
                 boolean compiled,
                 EntityResolver projectResolver,
@@ -120,7 +121,7 @@ public final class MoeEditorManager extends bluej.editor.EditorManager
      * @returns                 the new editor, or null if there was a problem
      */
     @Override
-    public Editor openText(String filename, Charset charset, String windowTitle, SwingTabbedEditor swingTabbedEditor)
+    public Editor openText(String filename, Charset charset, String windowTitle, Supplier<SwingTabbedEditor> swingTabbedEditor)
     {
         return openEditor(filename, null, charset, false, windowTitle, swingTabbedEditor, null, false, null, null);
     }
@@ -195,7 +196,7 @@ public final class MoeEditorManager extends bluej.editor.EditorManager
     private Editor openEditor(String filename, String docFilename,
             Charset charset,
             boolean isCode, String windowTitle,
-            SwingTabbedEditor swingTabbedEditor,
+            Supplier<SwingTabbedEditor> swingTabbedEditor,
             EditorWatcher watcher, boolean compiled, 
             EntityResolver projectResolver,
             JavadocResolver javadocResolver)
