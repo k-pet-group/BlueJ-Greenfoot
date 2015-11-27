@@ -224,6 +224,7 @@ public class SwingTabbedEditor
             editorToHeader.put(editor, header);
             tabPane.addTab(editor.getTitle(), tmp);
             tabPane.setTabComponentAt(tabPane.indexOfComponent(tmp), header);
+            editor.setParent(this);
             editorToHeader.values().forEach(HeaderPanel::updateMoveNew);
         }
         return editorToPanel.get(editor);

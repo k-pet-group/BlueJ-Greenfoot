@@ -206,7 +206,7 @@ public final class MoeEditor extends JPanel
     // Strings
     private final String implementationString = Config.getString("editor.implementationLabel");
     private final String interfaceString = Config.getString("editor.interfaceLabel");
-    private final SwingTabbedEditor swingTabbedEditor;
+    private SwingTabbedEditor swingTabbedEditor;
     //private StringProperty titleProperty;
     private final AtomicBoolean panelOpen = new AtomicBoolean();
     public MoeUndoManager undoManager;
@@ -713,8 +713,6 @@ public final class MoeEditor extends JPanel
             sourcePane.setFont(PrefMgr.getStandardEditorFont());
             checkBracketStatus();
         }
-
-        
         swingTabbedEditor.setEditorVisible(vis, this);
         if (vis)
         {
@@ -4092,6 +4090,14 @@ public final class MoeEditor extends JPanel
             showErrorOverlay(null, 0);
         }
         
+    }
+
+    /**
+     * Sets the parent SwingTabbedEditor reference.
+     */
+    public void setParent(SwingTabbedEditor swingTabbedEditor)
+    {
+        this.swingTabbedEditor = swingTabbedEditor;
     }
 
     private static class ErrorDisplay extends JFrame
