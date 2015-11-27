@@ -26,9 +26,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
+import java.util.ArrayList;
 import java.util.IdentityHashMap;
+import java.util.List;
 
 import javax.swing.*;
 
@@ -117,6 +120,19 @@ public class SwingTabbedEditor
         };
         
         window.addWindowFocusListener(windowFocusListener);
+
+        window.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        // If the window is closed, close all remaining tabs:
+        window.addWindowListener(new WindowAdapter()
+        {
+            @Override
+            public void windowClosed(WindowEvent ev)
+            {
+                super.windowClosed(ev);
+                List<MoeEditor> editors = new ArrayList<>(editorToPanel.keySet());
+                editors.forEach(e -> setEditorVisible(false, e));
+            }
+        });
         
         this.project = project;
     }
@@ -201,16 +217,6 @@ public class SwingTabbedEditor
             panelToEditor.put(tmp, editor);
             editorToPanel.put(editor, tmp);
             HeaderPanel header = new HeaderPanel(editor);
-
-            JPopupMenu contextMenu = new JPopupMenu();
-            JMenuItem close = new JMenuItem(Config.getString("editor.closeLabel"));
-            close.addActionListener(e -> {
-                setEditorVisible(false, editor);
-            });
-            contextMenu.add(close);
-            header.setComponentPopupMenu(contextMenu);
-
-
             editorToHeader.put(editor, header);
             tabPane.addTab(editor.getTitle(), tmp);
             tabPane.setTabComponentAt(tabPane.indexOfComponent(tmp), header);
@@ -313,6 +319,26 @@ public class SwingTabbedEditor
                     setEditorVisible(false, editor);
                 }
             });
+
+            JPopupMenu contextMenu = new JPopupMenu();
+            JMenuItem closeItem = new JMenuItem(Config.getString("editor.closeLabel"));
+            closeItem.addActionListener(e -> {
+                setEditorVisible(false, editor);
+            });
+            contextMenu.add(closeItem);
+
+            JMenu contextMoveMenu = new JMenu(Config.getString("frame.classmenu.move"));
+            JMenuItem contextMoveNew = new JMenuItem(Config.getString("frame.classmenu.move.new"));
+            // TODO disable the item when there's only one tab
+            contextMoveNew.addActionListener(e -> {
+                setEditorVisible(false, editor);
+                final SwingTabbedEditor newWindow = project.createNewSwingTabbedEditor();
+                newWindow.setEditorVisible(true, editor);
+                newWindow.bringToFront();
+            });
+            contextMoveMenu.add(contextMoveNew);
+            contextMenu.add(contextMoveMenu);
+            this.setComponentPopupMenu(contextMenu);
         }
         
         public void setTitle(String title)

@@ -53,9 +53,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.Timer;
+import javax.swing.*;
 
 import bluej.utility.ImportScanner;
 import threadchecker.OnThread;
@@ -2165,6 +2163,14 @@ public class Project implements DebuggerListener, InspectorManager
         if (importScanner == null)
             importScanner = new ImportScanner(this);
         return importScanner;
+    }
+
+    public SwingTabbedEditor createNewSwingTabbedEditor()
+    {
+        SwingTabbedEditor ed = new SwingTabbedEditor(this);
+        swingTabbedEditors.add(ed);
+        // TODO update menus
+        return ed;
     }
 
     /**
