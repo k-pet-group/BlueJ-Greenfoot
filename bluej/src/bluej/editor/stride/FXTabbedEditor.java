@@ -279,6 +279,13 @@ public @OnThread(Tag.FX) class FXTabbedEditor
                 project.removeFXTabbedEditor(this);
             }
         });
+
+        stage.setOnHidden(e -> {
+            // Close all tabs, which also trigger above code to call removeFXTabbedEditor on us
+            // Must take a copy to avoid concurrent modification:
+            List<Tab> tabs = new ArrayList<>(tabPane.getTabs());
+            tabs.forEach(t -> close((FXTab)t));
+        });
         
         // Add shortcuts for Ctrl-1, Ctrl-2 etc and Ctrl-Tab and Ctrl-Shift-Tab to move between tabs
         // On Mac, it should still be Ctrl-Tab (not Cmd-Tab), but should it be Cmd-1?

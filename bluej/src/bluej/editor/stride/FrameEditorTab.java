@@ -1184,7 +1184,8 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
 
             public void accept(Boolean focused)
             {
-                getParent().scheduleUpdateCatalogue(FrameEditorTab.this, focused ? f : null, CodeCompletionState.NOT_POSSIBLE, !selection.getSelected().isEmpty(), getView(), Collections.emptyList());
+                if (getParent() != null)
+                    getParent().scheduleUpdateCatalogue(FrameEditorTab.this, focused ? f : null, CodeCompletionState.NOT_POSSIBLE, !selection.getSelected().isEmpty(), getView(), Collections.emptyList());
 
                 if (cancelTimer != null)
                 {
@@ -1429,6 +1430,10 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
 
     public void setWindowVisible(boolean vis, boolean bringToFront)
     {
+        if (getParent() == null)
+            // We were previously in a closed window, need to add ourselves again:
+            parent.setValue(project.getDefaultFXTabbedEditor());
+
         // Add ourselves, in case we were closed previously (no harm in calling twice)
         if (vis)
             getParent().addTab(this, vis, bringToFront);
