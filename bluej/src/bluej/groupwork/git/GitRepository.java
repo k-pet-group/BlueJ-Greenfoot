@@ -28,8 +28,13 @@ import bluej.groupwork.TeamSettings;
 import bluej.groupwork.TeamworkCommand;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.IOException;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
@@ -47,9 +52,21 @@ public class GitRepository implements Repository
     private final FileRepositoryBuilder fileRepoBuilder;
     private final String userName;
     private String password;
-    private final String yourName;
-    private final String yourEmail;
+    private String yourName;
+    private String yourEmail;
 
+    /**
+     * Create a Git repository when all fields are known. Usually when cloning a
+     * repository.
+     * @param projectPath path to save the project to.
+     * @param protocol protocol used when communicating to the server
+     * @param reposUrl repository's path on the remote server
+     * @param fileRepoBuilder git object to create repositories
+     * @param userName user name to be used to authenticate on the server
+     * @param password user password
+     * @param yourName user name to be registered on the local git repository
+     * @param yourEmail user e-mail to be registered on the local git repository
+     */
     public GitRepository(File projectPath, String protocol, String reposUrl, FileRepositoryBuilder fileRepoBuilder, String userName, String password, String yourName, String yourEmail)
     {
         this.projectPath = projectPath;
@@ -60,6 +77,37 @@ public class GitRepository implements Repository
         this.password = password;
         this.yourName = yourName;
         this.yourEmail = yourEmail;
+    }
+    
+    
+    /**
+     * Creates a git repository just to connect to the local copy. 
+     * This constructor is called in order to get the repository's 
+     * registered user name and user e-mail
+     * @param projectPath
+     */
+    public GitRepository(File projectPath)
+    {
+        this.projectPath = projectPath.getParentFile();
+        this.protocol = null;
+        this.fileRepoBuilder = null;
+        this.userName = null;
+        // get name and email
+        getYourNameAndYourEmailFromRepo();
+    }
+    
+    private void getYourNameAndYourEmailFromRepo(){
+        try {
+            try (Git repo = Git.open(projectPath)) {
+                StoredConfig repoConfig = repo.getRepository().getConfig(); //save the repo
+                this.yourName = repoConfig.getString("user", null, "name"); //register the user name
+                this.yourEmail = repoConfig.getString("user", null, "email"); //register the user email
+            } //save the repo
+        } catch (IOException ex) {
+            this.yourName = null;
+            this.yourEmail = null;
+            Logger.getLogger(GitRepository.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
     public void setReposUrl(String url)

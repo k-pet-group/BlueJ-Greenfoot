@@ -36,7 +36,10 @@ import bluej.groupwork.TeamSettings;
 import bluej.groupwork.TeamSettingsController;
 import bluej.groupwork.TeamworkProvider;
 import bluej.groupwork.actions.ValidateConnectionAction;
+import bluej.groupwork.git.GitRepository;
 import bluej.utility.MiksGridLayout;
+import java.io.File;
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 
 /**
  * A panel for team settings.
@@ -319,6 +322,12 @@ public class TeamSettingsPanel extends JPanel
                 TeamworkProvider provider = teamProviders.get(index);
                 if (provider.getProviderName().equalsIgnoreCase(providerName)) {
                     serverTypeComboBox.setSelectedIndex(index);
+                    //checks if this provider needs your name and your e-mail.
+                    if (provider.needsEmail()){
+                        GitRepository tmpRepo = new GitRepository(teamSettingsController.getProject().getProjectDir());
+                        yourEmailField.setText(tmpRepo.getYourEmail());
+                        yourNameField.setText(tmpRepo.getYourName());
+                    }
                     break;
                 }
             }
