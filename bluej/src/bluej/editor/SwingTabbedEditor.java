@@ -344,10 +344,8 @@ public class SwingTabbedEditor
             contextMoveMenu = new JMenu(Config.getString("frame.classmenu.move"));
             contextMoveNew = new JMenuItem(Config.getString("frame.classmenu.move.new"));
             contextMoveNew.addActionListener(e -> {
-                setEditorVisible(false, editor);
                 final SwingTabbedEditor newWindow = project.createNewSwingTabbedEditor();
-                newWindow.setEditorVisible(true, editor);
-                newWindow.bringToFront();
+                moveTabTo(editor, newWindow);
             });
             updateMoveNew();
             updateMoveMenuDestinations();
@@ -395,8 +393,11 @@ public class SwingTabbedEditor
 
     public void moveTabTo(MoeEditor editor, SwingTabbedEditor window)
     {
+        // Copy across the menu bar first, before we remove it:
+        window.setJMenuBar(editor, getJMenuBar(editor));
         setEditorVisible(false, editor);
         window.setEditorVisible(true, editor);
+        window.bringToFront();
     }
 
     /**
