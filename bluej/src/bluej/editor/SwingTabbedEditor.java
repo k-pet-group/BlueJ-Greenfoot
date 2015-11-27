@@ -23,6 +23,7 @@ package bluej.editor;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -62,7 +63,7 @@ public class SwingTabbedEditor
     /** Maps editor to tab header panel */
     private final IdentityHashMap<MoeEditor, HeaderPanel> editorToHeader = new IdentityHashMap<>();
     /** Maps editor to menu bar */
-    private final IdentityHashMap<MoeEditor, JMenuBar> menuBars = new IdentityHashMap<>();
+    private final IdentityHashMap<MoeEditor, MenuInfo> menuBars = new IdentityHashMap<>();
 
     /**
      * Constructs a SwingTabbedEditor for the given project
@@ -93,7 +94,10 @@ public class SwingTabbedEditor
         // as to whether they are visible or not:
         tabPane.addChangeListener(evt -> {
             MoeEditor editor = panelToEditor.get(tabPane.getSelectedComponent());
-            window.setJMenuBar(menuBars.get(editor));
+            if (menuBars.containsKey(editor))
+                window.setJMenuBar(menuBars.get(editor).menuBar);
+            else
+                window.setJMenuBar(null);
             updateTitle();
             for (MoeEditor ed : editorToPanel.keySet())
             {
@@ -221,11 +225,11 @@ public class SwingTabbedEditor
             tmp.add(editor,BorderLayout.CENTER);
             panelToEditor.put(tmp, editor);
             editorToPanel.put(editor, tmp);
+            editor.setParent(this);
             HeaderPanel header = new HeaderPanel(editor);
             editorToHeader.put(editor, header);
             tabPane.addTab(editor.getTitle(), tmp);
             tabPane.setTabComponentAt(tabPane.indexOfComponent(tmp), header);
-            editor.setParent(this);
             editorToHeader.values().forEach(HeaderPanel::updateMoveNew);
         }
         return editorToPanel.get(editor);
@@ -256,15 +260,15 @@ public class SwingTabbedEditor
      */
     public JMenuBar getJMenuBar(MoeEditor e)
     {
-        return menuBars.get(e);
+        return menuBars.get(e).menuBar;
     }
 
     /**
      * Sets the menu bar for the given editor.
      */
-    public void setJMenuBar(MoeEditor e, JMenuBar menuBar)
+    public void setJMenuBar(MoeEditor e, JMenuBar menuBar, JMenu moveMenu)
     {
-        menuBars.put(e, menuBar);
+        menuBars.put(e, new MenuInfo(menuBar, moveMenu));
     }
 
     /**
@@ -289,6 +293,7 @@ public class SwingTabbedEditor
         private final JLabel label;
         private final JMenu contextMoveMenu;
         private final JMenuItem contextMoveNew;
+        private final JMenuItem mainMoveNew;
         private final MoeEditor editor;
 
         public HeaderPanel(MoeEditor editor)
@@ -344,11 +349,15 @@ public class SwingTabbedEditor
             contextMenu.add(closeItem);
 
             contextMoveMenu = new JMenu(Config.getString("frame.classmenu.move"));
+            menuBars.get(editor).moveMenu.setText(Config.getString("frame.classmenu.move"));
             contextMoveNew = new JMenuItem(Config.getString("frame.classmenu.move.new"));
-            contextMoveNew.addActionListener(e -> {
+            mainMoveNew = new JMenuItem(Config.getString("frame.classmenu.move.new"));
+            final ActionListener moveToNew = e -> {
                 final SwingTabbedEditor newWindow = project.createNewSwingTabbedEditor();
                 moveTabTo(editor, newWindow);
-            });
+            };
+            contextMoveNew.addActionListener(moveToNew);
+            mainMoveNew.addActionListener(moveToNew);
             updateMoveNew();
             updateMoveMenuDestinations();
             contextMenu.add(contextMoveMenu);
@@ -363,12 +372,16 @@ public class SwingTabbedEditor
         public void updateMoveNew()
         {
             contextMoveNew.setEnabled(tabPane.getTabCount() > 1);
+            mainMoveNew.setEnabled(tabPane.getTabCount() > 1);
         }
 
         public void updateMoveMenuDestinations()
         {
             contextMoveMenu.removeAll();
             contextMoveMenu.add(contextMoveNew);
+            JMenu mainMoveMenu = menuBars.get(editor).moveMenu;
+            mainMoveMenu.removeAll();
+            mainMoveMenu.add(mainMoveNew);
             updateMoveNew();
             List<SwingTabbedEditor> editorWindows = project.getAllSwingTabbedEditors();
 
@@ -378,12 +391,20 @@ public class SwingTabbedEditor
                     // Add a divider:
                     contextMoveMenu.addSeparator();
                 }
+                if (mainMoveMenu.getItemCount() == 1)
+                {
+                    mainMoveMenu.addSeparator();
+                }
 
-                JMenuItem moveItem = new JMenuItem(Config.getString("frame.classmenu.move.existing") + ": " + ste.getTitle());
-                moveItem.addActionListener(e -> {
+                JMenuItem contextMoveItem = new JMenuItem(Config.getString("frame.classmenu.move.existing") + ": " + ste.getTitle());
+                JMenuItem mainMoveItem = new JMenuItem(Config.getString("frame.classmenu.move.existing") + ": " + ste.getTitle());
+                final ActionListener moveNew = e -> {
                     moveTabTo(editor, ste);
-                });
-                contextMoveMenu.add(moveItem);
+                };
+                contextMoveItem.addActionListener(moveNew);
+                mainMoveItem.addActionListener(moveNew);
+                contextMoveMenu.add(contextMoveItem);
+                mainMoveMenu.add(mainMoveItem);
             });
         }
     }
@@ -396,7 +417,8 @@ public class SwingTabbedEditor
     public void moveTabTo(MoeEditor editor, SwingTabbedEditor window)
     {
         // Copy across the menu bar first, before we remove it:
-        window.setJMenuBar(editor, getJMenuBar(editor));
+        final MenuInfo menuInfo = menuBars.get(editor);
+        window.setJMenuBar(editor, menuInfo.menuBar, menuInfo.moveMenu);
         setEditorVisible(false, editor);
         window.setEditorVisible(true, editor);
         window.bringToFront();
@@ -443,6 +465,18 @@ public class SwingTabbedEditor
         public int getIconHeight()
         {
             return height;
+        }
+    }
+
+    private static class MenuInfo
+    {
+        public final JMenuBar menuBar;
+        public final JMenu moveMenu;
+
+        public MenuInfo(JMenuBar menuBar, JMenu moveMenu)
+        {
+            this.menuBar = menuBar;
+            this.moveMenu = moveMenu;
         }
     }
 }

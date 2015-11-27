@@ -67,29 +67,7 @@ import java.util.function.Consumer;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Supplier;
 
-import javax.swing.AbstractAction;
-import javax.swing.AbstractButton;
-import javax.swing.Action;
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.InputMap;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JEditorPane;
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.KeyStroke;
-import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
-import javax.swing.Timer;
+import javax.swing.*;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
@@ -274,6 +252,7 @@ public final class MoeEditor extends JPanel
     });
     private Timer mouseHover;
     private int mouseCaretPos = -1;
+    private JMenuBar menubar;
 
     /**
      * Constructor. Title may be null.
@@ -3292,9 +3271,14 @@ public final class MoeEditor extends JPanel
 
         // create menubar and menus
 
-        JMenuBar menubar = createMenuBar();
+        menubar = createMenuBar();
         menubar.setName("menubar");
-        swingTabbedEditor.setJMenuBar(this, menubar);
+        // Bit awkward, but we hack the move menu into the top, along with a separator:
+        JMenu moveMenu = new JMenu();
+        // Add in reverse order:
+        menubar.getMenu(0).add(new JSeparator(), 0);
+        menubar.getMenu(0).add(moveMenu, 0);
+        swingTabbedEditor.setJMenuBar(this, menubar, moveMenu);
 
         // create toolbar
 
@@ -4106,6 +4090,8 @@ public final class MoeEditor extends JPanel
     public void setParent(SwingTabbedEditor swingTabbedEditor)
     {
         this.swingTabbedEditor = swingTabbedEditor;
+        if (this.swingTabbedEditor != null)
+            this.swingTabbedEditor.setJMenuBar(this, menubar, (JMenu)menubar.getMenu(0).getItem(0));
     }
 
     private static class ErrorDisplay extends JFrame
