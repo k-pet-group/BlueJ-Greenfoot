@@ -2167,10 +2167,31 @@ public class Project implements DebuggerListener, InspectorManager
 
     public SwingTabbedEditor createNewSwingTabbedEditor()
     {
-        SwingTabbedEditor ed = new SwingTabbedEditor(this);
-        swingTabbedEditors.add(ed);
-        // TODO update menus
-        return ed;
+        SwingTabbedEditor newEditor = new SwingTabbedEditor(this);
+        swingTabbedEditors.add(newEditor);
+        updateSwingTabbedEditorDestinations();
+        return newEditor;
+    }
+
+    public List<SwingTabbedEditor> getAllSwingTabbedEditors()
+    {
+        return Collections.unmodifiableList(swingTabbedEditors);
+    }
+
+    public void removeSwingTabbedEditor(SwingTabbedEditor swingTabbedEditor)
+    {
+        // Only remove if we have other windows left, otherwise retain the last window standing:
+        if (swingTabbedEditors.size() > 1)
+        {
+            swingTabbedEditors.remove(swingTabbedEditor);
+        }
+        updateSwingTabbedEditorDestinations();
+    }
+
+
+    public void updateSwingTabbedEditorDestinations()
+    {
+        swingTabbedEditors.forEach(SwingTabbedEditor::updateMoveDestinations);
     }
 
     /**
@@ -2205,4 +2226,5 @@ public class Project implements DebuggerListener, InspectorManager
         // Update the move menus to remove the closed window as a move target:
         fXTabbedEditors.forEach(FXTabbedEditor::updateMoveMenus);
     }
+
 }

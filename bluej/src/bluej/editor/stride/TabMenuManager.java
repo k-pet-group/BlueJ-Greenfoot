@@ -79,7 +79,7 @@ public abstract class TabMenuManager
             classMoveItems.add(new SeparatorMenuItem());
             contextMoveItems.add(new SeparatorMenuItem());
             allWindows.stream().filter(w -> w != tab.getParent()).forEach(w -> {
-                StringExpression itemText = new ReadOnlyStringWrapper("Window: ").concat(w.titleProperty());
+                StringExpression itemText = new ReadOnlyStringWrapper(Config.getString("frame.classmenu.move.existing") + ": ").concat(w.titleProperty());
                 contextMoveItems.add(JavaFXUtil.makeMenuItem(itemText, () -> tab.getParent().moveTabTo(tab, w), null));
                 classMoveItems.add(JavaFXUtil.makeMenuItem(itemText, () -> tab.getParent().moveTabTo(tab, w), null));
             });

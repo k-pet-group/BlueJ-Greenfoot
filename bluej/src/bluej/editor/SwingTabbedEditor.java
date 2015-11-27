@@ -131,6 +131,7 @@ public class SwingTabbedEditor
                 super.windowClosed(ev);
                 List<MoeEditor> editors = new ArrayList<>(editorToPanel.keySet());
                 editors.forEach(e -> setEditorVisible(false, e));
+                project.removeSwingTabbedEditor(SwingTabbedEditor.this);
             }
         });
         
@@ -144,6 +145,7 @@ public class SwingTabbedEditor
             window.setTitle(editor.getTitle() + " - " + project.getProjectName());
         else
             window.setTitle(project.getProjectName());
+        project.updateSwingTabbedEditorDestinations();
     }
 
     /**
@@ -179,7 +181,7 @@ public class SwingTabbedEditor
                         window.setSize(window.getWidth() - 1, window.getHeight());
                 });
             }
-            
+            bringToFront();
             tabPane.setSelectedComponent(editorTab);
         }
         else
@@ -191,8 +193,10 @@ public class SwingTabbedEditor
             editorToHeader.remove(editor);
             if (tabPane.getTabCount() == 0)
             {
-                window.setVisible(false);
+                window.dispose();
+                project.removeSwingTabbedEditor(this);
             }
+            editorToHeader.values().forEach(HeaderPanel::updateMoveNew);
         }
     }
 
@@ -220,6 +224,7 @@ public class SwingTabbedEditor
             editorToHeader.put(editor, header);
             tabPane.addTab(editor.getTitle(), tmp);
             tabPane.setTabComponentAt(tabPane.indexOfComponent(tmp), header);
+            editorToHeader.values().forEach(HeaderPanel::updateMoveNew);
         }
         return editorToPanel.get(editor);
     }
@@ -269,15 +274,24 @@ public class SwingTabbedEditor
         updateTitle();
     }
 
+    public void updateMoveDestinations()
+    {
+        editorToHeader.values().forEach(HeaderPanel::updateMoveMenuDestinations);
+    }
+
     /**
      * A component for the tab header; contains a title bale, and a close button
      */
     private class HeaderPanel extends JPanel
     {
         private final JLabel label;
+        private final JMenu contextMoveMenu;
+        private final JMenuItem contextMoveNew;
+        private final MoeEditor editor;
 
         public HeaderPanel(MoeEditor editor)
         {
+            this.editor = editor;
             setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
             setOpaque(false);
             label = new JLabel(editor.getTitle());
@@ -327,16 +341,16 @@ public class SwingTabbedEditor
             });
             contextMenu.add(closeItem);
 
-            JMenu contextMoveMenu = new JMenu(Config.getString("frame.classmenu.move"));
-            JMenuItem contextMoveNew = new JMenuItem(Config.getString("frame.classmenu.move.new"));
-            // TODO disable the item when there's only one tab
+            contextMoveMenu = new JMenu(Config.getString("frame.classmenu.move"));
+            contextMoveNew = new JMenuItem(Config.getString("frame.classmenu.move.new"));
             contextMoveNew.addActionListener(e -> {
                 setEditorVisible(false, editor);
                 final SwingTabbedEditor newWindow = project.createNewSwingTabbedEditor();
                 newWindow.setEditorVisible(true, editor);
                 newWindow.bringToFront();
             });
-            contextMoveMenu.add(contextMoveNew);
+            updateMoveNew();
+            updateMoveMenuDestinations();
             contextMenu.add(contextMoveMenu);
             this.setComponentPopupMenu(contextMenu);
         }
@@ -345,6 +359,44 @@ public class SwingTabbedEditor
         {
             label.setText(title);
         }
+
+        public void updateMoveNew()
+        {
+            contextMoveNew.setEnabled(tabPane.getTabCount() > 1);
+        }
+
+        public void updateMoveMenuDestinations()
+        {
+            contextMoveMenu.removeAll();
+            contextMoveMenu.add(contextMoveNew);
+            updateMoveNew();
+            List<SwingTabbedEditor> editorWindows = project.getAllSwingTabbedEditors();
+
+            editorWindows.stream().filter(ste -> ste != SwingTabbedEditor.this).forEach(ste -> {
+                if (contextMoveMenu.getItemCount() == 1)
+                {
+                    // Add a divider:
+                    contextMoveMenu.addSeparator();
+                }
+
+                JMenuItem moveItem = new JMenuItem(Config.getString("frame.classmenu.move.existing") + ": " + ste.getTitle());
+                moveItem.addActionListener(e -> {
+                    moveTabTo(editor, ste);
+                });
+                contextMoveMenu.add(moveItem);
+            });
+        }
+    }
+
+    private String getTitle()
+    {
+        return window.getTitle();
+    }
+
+    public void moveTabTo(MoeEditor editor, SwingTabbedEditor window)
+    {
+        setEditorVisible(false, editor);
+        window.setEditorVisible(true, editor);
     }
 
     /**
