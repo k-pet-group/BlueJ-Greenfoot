@@ -1,3 +1,24 @@
+/*
+ This file is part of the BlueJ program.
+ Copyright (C) 2015  Michael Kolling and John Rosenberg
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+ This file is subject to the Classpath exception as provided in the
+ LICENSE.txt file that accompanied this code.
+ */
 package bluej.editor;
 
 import java.awt.*;
@@ -31,21 +52,36 @@ import bluej.pkgmgr.Project;
 
 import javax.swing.Icon;
 
+/**
+ * A window which contains all the (Swing) editor tabs for Java
+ */
 @OnThread(Tag.Swing)
 public class SwingTabbedEditor
 {
+    /** The actual GUI window */
     private final JFrame window;
+    /** The tabbed pane inside the window, containing all the tabs */
     private final JTabbedPane tabPane;
+    /** The project which this window is associated with */
     private final Project project;
+    // We need to maintain a bidirectional mapping from tab/tab components/menubar to editor.
+    /** Maps tab content to editor */
     private final IdentityHashMap<Component, MoeEditor> panelToEditor = new IdentityHashMap<>();
+    /** Maps editor to tab content */
     private final IdentityHashMap<MoeEditor, Component> editorToPanel = new IdentityHashMap<>();
+    /** Maps editor to tab header panel */
     private final IdentityHashMap<MoeEditor, HeaderPanel> editorToHeader = new IdentityHashMap<>();
+    /** Maps editor to menu bar */
     private final IdentityHashMap<MoeEditor, JMenuBar> menuBars = new IdentityHashMap<>();
-    
+
+    /**
+     * Constructs a SwingTabbedEditor for the given project
+     */
     public SwingTabbedEditor(Project project)
     {
         window = new JFrame(project.getProjectName() + " - Java");
         tabPane = new JTabbedPane();
+        // Create some actions for selecting tabs, which will later be bound to Ctrl+1, etc
         for (int i = 1; i <= 9; i++)
         {
             tabPane.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(Character.forDigit(i, 10), Config.isMacOS() ? InputEvent.META_DOWN_MASK : InputEvent.CTRL_DOWN_MASK), "selectTab" + i);
@@ -62,7 +98,9 @@ public class SwingTabbedEditor
         }
         
         window.add(tabPane);
-        
+
+        // When the selected tab changes, we must set the menubar, and notify the editors
+        // as to whether they are visible or not:
         tabPane.addChangeListener(evt -> {
             MoeEditor editor = panelToEditor.get(tabPane.getSelectedComponent());
             window.setJMenuBar(menuBars.get(editor));
@@ -95,6 +133,12 @@ public class SwingTabbedEditor
         this.project = project;
     }
 
+    /**
+     * Sets the given editor visible or not.
+     * @param visible If true, makes tab for MoeEditor if needed, and shows the tab and the window.
+     *                If false, closes the tab.
+     * @param editor The editor in question
+     */
     public void setEditorVisible(boolean visible, MoeEditor editor)
     {
         if (editor == null)
@@ -138,7 +182,11 @@ public class SwingTabbedEditor
             }
         }
     }
-    
+
+    /**
+     * Fetches the editor tab component corresponding to the given editor.  If it doesn't
+     * currently exist, creates it and adds it to the tab pane.
+     */
     private Component getMoeEditorTab(final MoeEditor editor)
     {
         // If you try to put MoeEditor directly into the JTabbedPane as a tab, it will not work.
@@ -163,6 +211,9 @@ public class SwingTabbedEditor
         return editorToPanel.get(editor);
     }
 
+    /**
+     * Brings the window to the front.
+     */
     public void bringToFront()
     {
         window.toFront();
@@ -172,26 +223,41 @@ public class SwingTabbedEditor
         editor.getSourcePane().setVisible(true);
     }
 
+    /**
+     * Delete for Project.scheduleCompilation
+     */
     public void scheduleCompilation(boolean immediate)
     {
         project.scheduleCompilation(immediate);
     }
-    
+
+    /**
+     * Gets the menu bar for the given editor.
+     */
     public JMenuBar getJMenuBar(MoeEditor e)
     {
         return menuBars.get(e);
     }
-    
+
+    /**
+     * Sets the menu bar for the given editor.
+     */
     public void setJMenuBar(MoeEditor e, JMenuBar menuBar)
     {
         menuBars.put(e, menuBar);
     }
-    
+
+    /**
+     * Sets the tab title for the given editor.
+     */
     public void setTitle(MoeEditor moeEditor, String title)
     {
         editorToHeader.get(moeEditor).setTitle(title);
     }
-    
+
+    /**
+     * A component for the tab header; contains a title bale, and a close button
+     */
     private class HeaderPanel extends JPanel
     {
         private final JLabel label;
@@ -245,6 +311,9 @@ public class SwingTabbedEditor
         }
     }
 
+    /**
+     * A hand-drawn 16x16 black cross icon for the close button.
+     */
     private class CloseIcon implements Icon
     {
         private int width = 16;
