@@ -91,6 +91,7 @@ public class SwingTabbedEditor
         tabPane.addChangeListener(evt -> {
             MoeEditor editor = panelToEditor.get(tabPane.getSelectedComponent());
             window.setJMenuBar(menuBars.get(editor));
+            updateTitle();
             for (MoeEditor ed : editorToPanel.keySet())
             {
                 ed.notifyVisibleTab(ed == editor && window.isFocused());
@@ -118,6 +119,15 @@ public class SwingTabbedEditor
         window.addWindowFocusListener(windowFocusListener);
         
         this.project = project;
+    }
+
+    private void updateTitle()
+    {
+        final MoeEditor editor = panelToEditor.get(tabPane.getSelectedComponent());
+        if (editor != null)
+            window.setTitle(editor.getTitle() + " - " + project.getProjectName());
+        else
+            window.setTitle(project.getProjectName());
     }
 
     /**
@@ -250,6 +260,7 @@ public class SwingTabbedEditor
     public void setTitle(MoeEditor moeEditor, String title)
     {
         editorToHeader.get(moeEditor).setTitle(title);
+        updateTitle();
     }
 
     /**
