@@ -30,18 +30,7 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 import java.util.IdentityHashMap;
 
-import javax.swing.AbstractAction;
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JMenuBar;
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
-import javax.swing.KeyStroke;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 
 import bluej.Config;
 import bluej.utility.Utility;
@@ -49,8 +38,6 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.editor.moe.MoeEditor;
 import bluej.pkgmgr.Project;
-
-import javax.swing.Icon;
 
 /**
  * A window which contains all the (Swing) editor tabs for Java
@@ -204,6 +191,16 @@ public class SwingTabbedEditor
             panelToEditor.put(tmp, editor);
             editorToPanel.put(editor, tmp);
             HeaderPanel header = new HeaderPanel(editor);
+
+            JPopupMenu contextMenu = new JPopupMenu();
+            JMenuItem close = new JMenuItem(Config.getString("editor.closeLabel"));
+            close.addActionListener(e -> {
+                setEditorVisible(false, editor);
+            });
+            contextMenu.add(close);
+            header.setComponentPopupMenu(contextMenu);
+
+
             editorToHeader.put(editor, header);
             tabPane.addTab(editor.getTitle(), tmp);
             tabPane.setTabComponentAt(tabPane.indexOfComponent(tmp), header);
@@ -269,6 +266,7 @@ public class SwingTabbedEditor
             label = new JLabel(editor.getTitle());
             label.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 5));
             label.setOpaque(false);
+            label.setInheritsPopupMenu(true);
             add(label);
             
             CloseIcon closeIcon = new CloseIcon();
@@ -279,6 +277,7 @@ public class SwingTabbedEditor
             close.setOpaque(false);
             close.setContentAreaFilled(false);
             close.addActionListener(e -> setEditorVisible(false, editor));
+            close.setInheritsPopupMenu(true);
             add(close);
             
             addMouseListener(new MouseAdapter() {
