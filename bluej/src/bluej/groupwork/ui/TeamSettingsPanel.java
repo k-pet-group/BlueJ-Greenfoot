@@ -324,9 +324,9 @@ public class TeamSettingsPanel extends JPanel
                     serverTypeComboBox.setSelectedIndex(index);
                     //checks if this provider needs your name and your e-mail.
                     if (provider.needsEmail()){
-                        GitRepository tmpRepo = new GitRepository(teamSettingsController.getProject().getProjectDir());
-                        yourEmailField.setText(tmpRepo.getYourEmail());
-                        yourNameField.setText(tmpRepo.getYourName());
+                        File respositoryRoot = teamSettingsController.getProject().getProjectDir();
+                        yourEmailField.setText(GitRepository.getYourEmailFromRepo(respositoryRoot));
+                        yourNameField.setText(GitRepository.getYourNameFromRepo(respositoryRoot));
                     }
                     break;
                 }

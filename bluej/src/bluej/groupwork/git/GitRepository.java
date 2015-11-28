@@ -80,35 +80,30 @@ public class GitRepository implements Repository
     }
     
     
-    /**
-     * Creates a git repository just to connect to the local copy. 
-     * This constructor is called in order to get the repository's 
-     * registered user name and user e-mail
-     * @param projectPath
-     */
-    public GitRepository(File projectPath)
-    {
-        this.projectPath = projectPath.getParentFile();
-        this.protocol = null;
-        this.fileRepoBuilder = null;
-        this.userName = null;
-        // get name and email
-        getYourNameAndYourEmailFromRepo();
+    static public String getYourNameFromRepo(File projectPath){
+        String result = null;
+        try {
+            try (Git repo = Git.open(projectPath.getParentFile())) {
+                StoredConfig repoConfig = repo.getRepository().getConfig(); //get repo config
+                result = repoConfig.getString("user", null, "name"); //recover the user name
+                repo.close();
+            } //close the repo
+        } catch (IOException ex) { }
+        return result;
     }
     
-    private void getYourNameAndYourEmailFromRepo(){
+    static public String getYourEmailFromRepo(File projectPath){
+        String result = null;
         try {
-            try (Git repo = Git.open(projectPath)) {
-                StoredConfig repoConfig = repo.getRepository().getConfig(); //save the repo
-                this.yourName = repoConfig.getString("user", null, "name"); //register the user name
-                this.yourEmail = repoConfig.getString("user", null, "email"); //register the user email
-            } //save the repo
-        } catch (IOException ex) {
-            this.yourName = null;
-            this.yourEmail = null;
-            Logger.getLogger(GitRepository.class.getName()).log(Level.SEVERE, null, ex);
-        }
+            try (Git repo = Git.open(projectPath.getParentFile())) {
+                StoredConfig repoConfig = repo.getRepository().getConfig(); //get repo config
+                result = repoConfig.getString("user", null, "email"); //recover the user email
+                repo.close();
+            } //close the repo
+        } catch (IOException ex) { }
+        return result;
     }
+
     
     public void setReposUrl(String url)
     {
