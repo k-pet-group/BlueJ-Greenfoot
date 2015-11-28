@@ -79,7 +79,11 @@ public class GitRepository implements Repository
         this.yourEmail = yourEmail;
     }
     
-    
+    /**
+     * opens the Git repository and returns the stored Name
+     * @param projectPath path to the BlueJ project
+     * @return String with the stored name in the Git repo.
+     */
     static public String getYourNameFromRepo(File projectPath){
         String result = null;
         try {
@@ -92,6 +96,12 @@ public class GitRepository implements Repository
         return result;
     }
     
+    
+    /**
+     * opens the Git repository and returns the stored email
+     * @param projectPath path to the BlueJ project
+     * @return String with the stored email in the Git repo.
+     */    
     static public String getYourEmailFromRepo(File projectPath){
         String result = null;
         try {
