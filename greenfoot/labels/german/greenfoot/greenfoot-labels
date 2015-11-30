@@ -1,14 +1,15 @@
 # German Greenfoot interface labels. Not yet complete. (Translation: mik, Oct 2007)
 # Translation completet and corrected, matt, Oct 2010
+# Translation updated and corrected, smueller, Nov 2015
 
-greenfoot.nyi=Noch nicht implementiert.
+greenfoot.nyi=Noch nicht implementiert - Schade.
 greenfoot.preferences=Einstellungen...
 greenfoot.copyright=Copyright...
 greenfoot.quit=Beenden
 greenfoot.continue=Weiter
 greenfoot.cancel=Abbrechen
 
-greenfoot.launchFailed=Greenfoot konnte nicht installiert werden. Hilfe unter http://greenfoot.org/programming/support/index.html
+greenfoot.launchFailed=Greenfoot konnte nicht gestartet werden. Hilfe unter http://greenfoot.org/support
 
 # About dialog
 about.title=\u00DCber Greenfoot
@@ -16,122 +17,158 @@ about.moreInfo=Mehr Informationen unter www.greenfoot.org
 
 # Greenfoot project version info
 project.version.none=Das ge\u00F6ffnete Szenario ist mit einer \u00E4lteren Greenfoot-Version erstellt worden. Es ist m\u00F6glich, dass Fehler auftreten, die von Hand korrigiert werden m\u00FCssen.
-project.version.notGreenfoot=Dies ist kein Greenfoot Szenario: 
+project.version.notGreenfoot=Dies ist kein Greenfoot Szenario:
 project.version.mismatch=Die Versionen stimmen nicht \u00FCberein
-project.version.older.part1=Das ge\u00F6ffnete Szenario ist mit einer \u00E4lteren Greenfoot-Version erstellt worden (API-Version 
+project.version.older.part1=Das ge\u00F6ffnete Szenario ist mit einer \u00E4lteren Greenfoot-Version erstellt worden (API-Version
 # project version inserted here by Greenfoot
 project.version.older.part2=). Das Szenario wird an die aktuelle Version angepa\u00DFt werden (API-Version
 # api version inserted here by Greenfoot
-project.version.older.part3=). Potenzielle Fehler aufgrund von API-\u00C4nderungen m\u00FCssen eventuell von Hand behoben werden.
+project.version.older.part3=). Die folgenden \u00c4nderungen am Greenfoot API k\u00f6nnen das Scenario abbrechen:
 
-project.version.changes.1=1.5.6 Die Methoden 'stopSimulation', 'startSimulation' and 'setSimulationSpeed' in der Greenfoot Klasse wurde umbenannt in 'start', 'stop' und 'setSpeed'. 
-project.version.changes.2=1.5.6 Die Actor-Methoden 'getWidth' und 'getHeight' wurden entfernt. Benutzen Sie 'getImage().getWidth()' und 'getImage().getHeight()' statt dessen.
-project.version.changes.3=1.5.6 Die Actor-Methode 'getObjectsInRange' benutzt nun Zellen statt Pixel als Gr\u00F6\u00DFeneinheit. 
-project.version.changes.4=1.5.6 Greenfoot has been made case sensitive when dealing with sound and image files.
-project.version.changes.5=1.5.6 Die World-Methoden 'setTiled' und 'getTiled' wurden entfernt.
-project.version.changes.6=1.5.6 Die World-Methode 'getBackground' liefert nun ein Image zur\u00FCck mit der Gr\u00F6\u00DFe des gesamten Hintergundes.
+project.version.changes.1=2.1.0 Die Methoden 'stopSimulation', 'startSimulation' und 'setSimulationSpeed' aus der Greenfoot Klasse wurden  in 'start', 'stop' und 'setSpeed' umbenannt.
+project.version.changes.2=2.1.0 Die Actor-Methoden 'getWidth' und 'getHeight' wurden entfernt. Benutzen Sie statt dessen 'getImage().getWidth()' und 'getImage().getHeight()'.
+project.version.changes.3=2.1.0 Die Actor-Methode 'getObjectsInRange' benutzt nun Zellen anstelle von Pixeln als Gr\u00F6\u00DFeneinheit.
+project.version.changes.4=2.1.0 BeimUmgang mit Klang- und Bilddteien unterscheidet Grennfoot jetzt zwischen Gro\u00df- und Kleinschreibung.
+project.version.changes.5=2.1.0 Die World-Methoden 'setTiled' und 'getTiled' wurden entfernt.
+project.version.changes.6=2.1.0 Die World-Methode 'getBackground' liefert nun ein Image zur\u00FCck mit der Gr\u00F6\u00DFe des gesamten Hintergunds.
+project.version.changes.7=2.2.0 Eine 'move' Methode und eine 'turn' Methode wurde der Actor Klasse hinzugef\u00fcgt.
+project.version.changes.8=2.3.0 Greenfoot.getMouseInfo() gibt nun nur null zur\u00fcck, wenn sich die Maus nicht in der Welt befindet.
+project.version.changes.9=2.3.0 Eine 'turnTowards(int,int)' Methode wurde der Actor Klasse hinzugef\u00fcgt.
+project.version.changes.10=2.4.0 Eine 'UserInfo' Klasse wurde erg\u00e4nzt (umbenannt von 'PlayerData' aus der Greenfoot 2.2.0 beta-Version).
+project.version.changes.11=2.5.0 Die 'isTouching' und 'removeTouching' Methoden wurden der Actor Klasse hinzugef\u00fcgt.
+project.version.changes.12=2.6.0 Die 'showText' Methode wurde in der World erg\u00e4nzt und ein neuer Konstruktor wurde zu GreenfootImage hinzugef\u00fcgt.
+project.version.changes.13=2.7.0 Die 'ask' Methode wurde zur Greenfoot Klasse hinzugef\u00fcgt.
+project.version.changes.14=2.8.0 Die 'getWorldOfType' Methode wurde in der Actor Klasse erg\u00e4nzt und 'generics' wurden zum API hinzugef\u00fcgt.
 
-project.version.newer.part1=Das ge\u00F6ffnete Szenario ist mit einer neueren Greenfoot-Version erstellt worden (API-Version 
+project.version.newer.part1=Das ge\u00F6ffnete Szenario wurde unter Verwendung einer neueren Greenfoot-Version erstellt (API-Version
 # project version inserted here by Greenfoot
-project.version.newer.part2=). F\u00FCr diese Greenfoot-Version muss das Szenario Fehler eventuell von Hand angepasst werden.\n\nM\u00F6chten Sie das Szenario trotzdem \u00F6ffnen?
+project.version.newer.part2=). Das \u00d6ffnen des Scenarios in Ihrer aktuellen Greenfoot-Version kann zu einigen Fehlern f\u00fchren, die von Ihnen von Hand angepasst werden m\u00fcssen.\n\nM\u00F6chten Sie das Szenario trotzdem \u00F6ffnen?
 
 project.close=Schlie\u00DFen
 
 # Actions
 greenfoot.about=\u00FCber Greenfoot...
-compile.all=Alle \u00FCbersetzen
+compile.all=\u00FCbersetzen
 compile.class=\u00DC_bersetzen
+duplicate.class=Duplizieren...
 edit.class=Editor \u00F6ffnen
 edit.images=Szenariobilder...
-new.class=Neue Klasse...
+new.other.class=Neue Klasse...
 new.project=Neues Szenario...
-new.subclass=Neue Unterklasse...
+new.sub.class=Neue Unterklasse...
+stride.new.project=Neues Stride Szenario...
+java.new.project=Neues Java Szenario...
 open.project=\u00D6ffnen...
 open.recentProject=Letzte Szenarien
 remove.class=Entfernen
 remove.selected=Klasse entfernen
+convert.to.java.class=Konvertieren nach Java
+convert.to.java.selected=Konvertiere Klasse nach Java
 inspect.class=Inspizieren
 reset.world=Reset
 run.once=Act
 run.simulation=Run
 project.save=Speichern
-project.savecopy=Kopie speichern als...
+project.saveAs=Speichern als...
 select.image=Bild ausw\u00E4hlen...
-show.readme=Szenarioinformation
+show.readme=Szenarioinformationen
 pause.simulation=Pause
 show.apidoc=Dokumentation \u00F6ffnen
 save.world=Die Welt speichern
 
 # Remove class confirmation
-remove.confirm.title=Best\u00E4tigung zum Entfernen einer Klasse
-remove.confirm.text1=Entfernen der Klasse
+remove.confirm.title=Best\u00E4tigung zum Entfernen der Klasse
+remove.confirm.text1=\u00dcber das Entfernen der Klasse
 remove.confirm.text2=Weiter?
 
-# Save project copy dialog
-project.savecopy.title=Szenariokopie speichern
+# Convert to Java class confirmation
+convert.to.java.confirm.title=Best\u00e4tigung der Konvertierung einer Klasse
+convert.to.java.confirm.text1=\u00dcber das Konvertieren
+convert.to.java.confirm.text2=Klasse von Stride nach Java.
+convert.to.java.confirm.text3=Diese Operation kann nicht r\u00fcckg\u00e4ngig gemacht werden, trotzdem fortfahren?
+
+# Save As project dialog
+project.saveAs.title=Speichere das Scenario als
 
 # Export scenario dialog
-export.project=Exportieren...
+export.project=Teilen...
 export.progress.bundling=Szenario wird gepackt...
 export.progress.publishing=Ver\u00F6ffentlichen...
 export.progress.writingHTML=Web-Seite wird geschrieben...
 export.progress.writingJar=Jar-Datei wird geschrieben...
+export.progress.writingGfar=gfar-Datei wird geschrieben...
 export.progress.complete=Exportieren beendet.
 export.publish.fail=Fehler beim Publizieren:
-export.publish.unknownHost=Fehler beim Publizieren: Unbekannter "Host"-Rechner
+export.publish.unknownHost=Fehler beim Publizieren: Unbekannter 'Host'-Rechner
+export.publish.errorResponse=Server antwortet nicht.
+export.publish.errorPassword=Falscher Benutzername oder falsches Kennwort
+export.publish.errorTooLarge=Das Scenario ist zu gro\u00df
 export.publish.complete=Publizieren beendet.
-export.app.help=Ausf\u00FChrbare Jar-Datei erzeugen.
-export.app.location=Speichern in: 
-export.app.browse=Ausw\u00E4hlen
-export.app.choose=Speichere als ausf\u00FChrbare jar-Datei
-export.compile.help=Einige Klassen in diesem Szenario sind noch nicht \u00FCbersetzt worden. Um zu exportieren, \u00FCbersetzen Sie jetzt.
+export.publish.proxyAuth=Proxy-Server Authentifizierung
+export.publish.needProxyAuth=Proxy-Server Authentifizierung erforderlich.
+export.app.help=Erzeugen Sie eine ausf\u00FChrbare Jar-Datei, die eigenst\u00e4ndig ausgef\u00fchrt werden kann.
+export.app.location=Speichern in:
+export.app.browse=Durchsuchen
+export.app.choose=Speichere ausf\u00FChrbare jar-Datei
+export.compile.help=Einige Klassen in diesem Szenario sind noch nicht \u00FCbersetzt worden. Um das Exportieren fortzusetzen, \u00FCbersetzen Sie erst die Klassen.
 export.compile.notCompiled=Szenario nicht \u00FCberzetzt.
-export.dialog.title=Greenfoot: Exportieren
-export.dialog.continue=Exportieren
-export.dialog.continue.update=(aktualisieren)
+export.dialog.title=Teilen
+export.dialog.export=Export
+export.dialog.share=Teilen
+export.dialog.update=Aktualisieren
 export.lock.label=Szenario einfrieren
-export.snapshot.label=Bildschirmfote beibehalten:
-export.lock.description=Verhindert \u00E4nderung der Geschwindigkeit und einzelne 'Act'-Aufrufe
-export.publish.help=Szenario auf 'MyGame' publizieren (mygame.java.sun.com).
-export.publish.info=Informationen f\u00FCr MyGame (optional)
+export.controls.label=Steuerelemente ausblenden
+export.fullScreen.label=Vollbild
+export.fullScreen.description=Scenario im Vollbildmodus \u00f6ffnen
+export.controls.description=Ausblenden der Anzeigeleiste, die die Play/Pause und Reset Steuerkn\u00f6pfe enth\u00e4lt.
+export.snapshot.label=Bildschirmfoto beibehalten:
+export.lock.description=Verhindert die \u00E4nderung der Geschwindigkeit, Bet\u00e4tigung des 'ACT'-Steuerknopfes und eine Verlagerung des Actors im Pausenzustand.
+export.publish.help=Ver\u00f6ffentliche das Szenario auf:
+export.publish.info=Informationen zum Anzeigen auf:
 export.publish.image1=Szenario-Icon:
 export.publish.image2=(Skalieren und verschieben)
 export.publish.title=Titel:
+
 export.publish.tags.additional1=Weitere Markierungen:
 export.publish.tags.additional2=(Eine Markierung pro Zeile)
-export.publish.tags.popular=G\u00E4ngige Markierungen:
+export.publish.tags.popular=Favoriten:
 export.publish.tags.loading=Laden...
+
 export.publish.shortDescription=Kurze Szenariobeschreibung:
-export.publish.longDescription=Etwas l\u00E4ngere Szenariobeschreibung:
+export.publish.longDescription=L\u00E4ngere Szenariobeschreibung:
 export.publish.update=\u00E4nderungen in der Aktualisierung:
 export.publish.url=Eigene Webadresse (URL):
 export.publish.login=Login-Information
 export.publish.username=Benutzername:
 export.publish.password=Passwort:
-export.publish.createAccount=Benutzer k\u00F6nnen auf,
-export.publish.goToMyGame=MyGame angemeldet werden.
-export.publish.goTo=\u00D6ffne
+export.publish.createAccount=Benutzerkonto anlegen
 export.publish.includeSource=Quellcode ver\u00F6ffentlichen
-export.web.help=Web-Seite und Applet erzeugen.
-export.web.exportLocation=Exportieren nach: 
+export.web.help=Web-Seite und ein Applet erzeugen.
+export.web.exportLocation=Exportieren nach:
 export.web.browse=Ausw\u00E4hlen
-export.web.choose=Export-Ordener ausw\u00E4hlen
-export.icontab.publish=Publizieren
+export.web.choose=Export-Verzeichnis ausw\u00E4hlen
+export.icontab.publish=Ver\u00f6ffentlichen
 export.icontab.webpage=Web-Seite
 export.icontab.application=Programm
-export.noworld.dialog.title=Fehler: Keine World-Klasse gefunden.
-export.noworld.dialog.msg=Es konnte in dem Szenario keine World-Klasse gefunden werden. F\u00FCr den Export ist eine Unterklasse der Klasse World erforderlich.
+export.icontab.project=Projekt
+export.noworld.dialog.title=Fehler: Keine Klasse 'World' gefunden.
+export.noworld.dialog.msg=Es konnte in dem Szenario keine Klasse 'World' gefunden werden. F\u00FCr den Export ist eine Unterklasse der Klasse 'World' erforderlich.
+export.noconstructor.dialog.title=Fehler: Kein passender Konstruktor
+export.noconstructor.dialog.msg=Die Klasse 'World' hat keinen Default-Konstruktor. F\u00FCr den Export ist ein Konstruktor ohne Argumente erforderlich.
+export.fileExists.message=besteht bereits. \u00dcberschreiben?
 
-publish.event.error=Fehler: 
-publish.event.status=Status: 
+publish.event.error=Fehler:
+publish.event.status=Status:
 
 world.handlerDelegate.inspect=Inspizieren
 world.handlerDelegate.remove=Entfernen
 
-record.method.comment1=Bereite die Welt f\u00FCr den Programmstart vor. Das hei\u00DFt: Erzeuge die Anfangs-
-record.method.comment2=Objekte und f\u00FCge sie der Welt hinzu.
+record.method.comment1=Bereite die Welt f\u00FCr den Programmstart vor.
+record.method.comment2=Das hei\u00DFt: Erzeuge die Anfangs-Objekte und f\u00FCge sie der Welt hinzu.
 
-record.saved.message=Gespeicherte Welt-Einstellungen in der prepare()-Methode.  
+greenfoot.utilDelegate.newScenario=Neues Szenario
+
+record.saved.message=Gespeicherte Welt-Einstellungen in der prepare()-Methode.
 
 greenfoot.utilDelegate.newScenario=Neues Szenario
 
@@ -142,26 +179,23 @@ chooser.scenario.button=\u00D6ffnen
 
 #New Class dialog
 newclass.dialog.title=Neue Klasse erzeugen
-newclass.dialog.help1=Ein Klassenname darf keine Leerzeichen oder Sonderzeichen  
+newclass.dialog.help1=Ein Klassenname darf keine Leerzeichen oder Sonderzeichen
 newclass.dialog.help2=enthalten und sollte mit einem Gro\u00DFbuchstaben beginnen.
-newclass.dialog.className=Neuer Klassenname: 
-
-#  Initial startup dialog
-startup.header=Willkommen zu Greenfoot!
-startup.welcome=In Greenfoot k\u00F6nnen Sie mit 'Szenarien' arbeiten. Um Greenfoot zu benutzen, m\u00FCssen Sie zuerst ein Szenario \u00F6ffnen oder eine neues erzeugen. Einige Beispielszenarien wurden zusammen mit Greenfoot installiert.
-startup.question=Was m\u00F6chten Sie tun?
-startup.tutorial.button=Tutorium und Tutoriumsszenario \u00F6ffnen
-startup.open.button=Szenario ausw\u00E4hlen
-startup.create.button=Neues Szenario erzeugen
-startup.continue.button=Weiter ohne Szenario
+newclass.dialog.className=Neuer Klassenname:
+newclass.dialog.err.classExists=Eine Klasse mit diesem Namen gibt es bereits.
+newclass.dialog.err.classNameIllegal=Kein g\u00fcltiger Java Klassenname.
+newclass.dialog.selectionLabel=Sprache:
+newclass.dialog.class=Klasse
+newclass.dialog.interface=Schnittstelle
 
 # Image Lib Preview
-imagelib.title=Bild ausw\u00E4hlen f\u00FCr: 
+paste.image=Bild einf\u00fcgen...
+imagelib.title=Ein Bild f\u00fcr die Klasse ausw\u00E4hlen:
 imagelib.newClass=Neue Klasse
-imagelib.projectImages=Szenariobilder:   
+imagelib.projectImages=Szenariobilder:
 imagelib.categories=Bild-Kategorien:
 imagelib.images=Bibliotheksbilder:
-imagelib.browse.button=Andere Bilder suchen ...
+imagelib.browse.button=Import aus einer Datei...
 imagelib.create.button=Neues Bild erzeugen...
 imagelib.edit=Editieren
 imagelib.edit.tooltip=Editieren des ausgew\u00E4hlten Bildes durch \u00F6ffnen des Bild-Editors.
@@ -172,33 +206,40 @@ imagelib.delete.tooltip=Entfernen des ausgew\u00E4hlten Bildes.
 imagelib.import.button=Import aus der Bibliothek...
 imagelib.create.tooltip=Erzeugen eines neuen Bildes mit Standardgr\u00F6\u00DFe und -namen und \u00F6ffen im Bild-Editor.
 imagelib.className=Neuer Klassenname:
+imagelib.help.selectImage=W\u00e4hlen Sie ein Bild f\u00fcr ihre Klasse aus der folgenden Liste aus.
+
 imagelib.help.autoImage=Klicken Sie 'Ok' um das automatisch erzeugte Bild zu benutzen, oder w\u00E4hlen Sie ein anderes aus.
-imagelib.help.selectImage=W\u00E4hlen Sie ein Bild f\u00FCr die Klasse aus der Liste unten.
+imagelib.help.selectImage=W\u00E4hlen Sie ein Bild f\u00FCr die Klasse aus der Liste aus.
 imagelib.newClass.image=Neues Klassenbild:
-imagelib.image.autoGenerated=(automatisch erzeugt)
 imagelib.file.noPreview=Keine Vorschau
 imagelib.choose.button=Ausw\u00E4hlen
 imagelib.write.exists.part1=Die Datei \"
+
 # Greenfoot inserts filename here
-imagelib.write.exists.part2=\" existiert bereits. \u00DCberschreiben?
+imagelib.write.exists.part2=\" existiert bereits. Wollen Sie sie \u00DCberschreiben?
 imagelib.write.exists.title=\u00DCberschreiben best\u00E4tigen
 imagelib.greenfoot.frame.title=Greenfoot Bilder-Bibliothek
 imagelib.scenario.frame.title=Szenario-Bilder
 imagelib.delete.confirm.title=L\u00F6schen best\u00E4tigen
-imagelib.delete.confirm.text=Sind Sie sicher, dass Sie l\u00F6schen m\u00F6chten 
+imagelib.delete.confirm.text=Sind Sie sicher, dass Sie l\u00F6schen m\u00F6chten
 imagelib.image.invalid.title=Ung\u00FCltiges Bild
 imagelib.image.invalid.text=ist kein g\u00FCltiges Bild.
 imagelib.image.unsupportedformat.title=Nicht unterst\u00FCtztes Format
 imagelib.image.unsupportedformat.text=wird auf Ihrem Computer nicht unterst\u00FCtzt. Bitte w\u00E4hlen Sie ein anderes und versuchen Sie es erneut.
-imagelib.rename.exists.text=Kann die Datei nicht umbenennen, da eine Datei mit gleichem Namen bereits existiert.
+imagelib.rename.exists.text=Die Datei kann nicht umbenannt werden, da bereits eine Datei mit diesem Namen existiert.
 imagelib.rename.exists.title=Umbenennen gescheitert
 imagelib.new.image.title=Neues Bild
 imagelib.new.image.name=Name:
 imagelib.new.image.width=Breite:
-imagelib.new.image.height=H\u00F6he:  
+imagelib.new.image.height=H\u00F6he:
 imagelib.new.image.type=Typ:
 
-scenario.viewer.appletInfo=Applet erstellt mit Greenfoot (www.greenfoot.org). Szenarioname:
+imagelib.more=Mehr Aktionen...
+
+editor.paste.image.title=Bild einf\u00fcgen
+editor.paste.image.prompt=Dateiname:
+
+scenario.viewer.appletInfo=Applet wurde mit Greenfoot (www.greenfoot.org) erstellt. Szenarioname:
 
 # Simulation Control Panel
 controls.runonce.shortDescription='act'-Methode einmal ausf\u00FChren.
@@ -209,8 +250,8 @@ controls.pause.shortDescription=Simulation anhalten.
 controls.pause.longDescription=Simulation anhalten.
 controls.run.button=Run
 controls.pause.button=Pause
-controls.reset.shortDescription=Die Welt neu instanziieren.
-controls.reset.longDescription=Die Welt neu instanziieren.
+controls.reset.shortDescription=Eine neue Welt instanziieren.
+controls.reset.longDescription=Eine neue Welt instanziieren.
 controls.speed.label=Geschwindigkeit:
 controls.speedSlider.tooltip=Ausf\u00FChrungsgeschwindigkeit einstellen
 
@@ -240,6 +281,19 @@ soundRecorder.closeAnyway=Trotzdem schlie\u00DFen
 soundRecorder.closeTitle=Schlie\u00DFen ohne zu speichern
 soundRecorder.closeQuestion=Der Klang wurde seit dem letzten Speichern ver\u00E4ndert. Wenn Sie den Klang-Rekorder schlie\u00DFen, gehen Ihre \u00E4nderungen verloren.
 
+# Import
+import.import=Importieren
+import.dialogTitle=Importiere Klasse
+import.action=Importortiere Klasse...
+import.restartMessage=Damit dieses Projekt richtig arbeiten kann, muss Greenfoot neu gestartet werden.
+set.player=Name des Spielers setzen
+playername.dialog.title=Name des Spielers setzen
+playername.dialog.help=Setzen des Benutzernamens, der von der Klasse 'UserInfo' verwendet wird
+playername.dialog.playerName=Spieler Name
+
+prefmgr.misc.playername.title=Spieler Name
+prefmgr.misc.playerNameNote=Ein schnelles \u00c4ndern erfolgt durch die Verwendung der Tastenkombination:
+
 # Menus
 
 menu.openRecent=Letzte Szenarien
@@ -247,6 +301,7 @@ menu.openRecent=Letzte Szenarien
 menu.scenario=Szenario
 
 menu.edit=Bearbeiten
+menu.new=Neu
 
 menu.controls=Ausf\u00FChren
 
@@ -261,23 +316,49 @@ menu.help.javadoc=Java Klassenbibliotheken
 menu.help.tutorial=Greenfoot Tutorium
 menu.help.website=Greenfoot Website
 menu.help.moreScenarios=Weitere Szenarien...
+menu.help.discuss=Greenfoot Diskussion
+
+#Copyright
+
+menu.help.copyright.title=Greenfoot Copyright, Lizenzierung und Weitergabe
+menu.help.copyright.line0=Greenfoot \u00a9 2005-2015 Michael K\u00F6lling, Poul Henriksen.
+menu.help.copyright.line1=Greenfoot ist verf\u00fcgbar unter der 'GNU General Public License'
+menu.help.copyright.line2=Version 2 mit Ausnahme des Klassenpfades.
+menu.help.copyright.line3=F\u00fcr Mehr Informationen lesen Sie bitte in den Dateien LICENSE.txt
+menu.help.copyright.line4=und THIRDPARTYLICENSE.txt nach.
+
+# Popup menu
+classPopup.needsCompile=Kompilierung erforderlich
+classPopup.containsError=Enth\u00e4lt Fehler
 
 # Project does not exist dialog
 noproject.dialog.title=Fehler beim \u00F6ffnen des Projekts
-noproject.dialog.msg=Projekt existiert nicht: 
- 
+noproject.dialog.msg=Projekt existiert nicht:
+
 # Header for the properties file
 properties.heading.greenfoot=Greenfoot-Eigenschaften. Einstellungen in dieser Datei \u00FCberschreibt \"bluej.defs\" und \"greenfoot.defs\"
 
-# Message to display if there is no default world constructor
-world.missing.constructor.title=Fehler beim Instanziieren der Klasse World.
-world.missing.constructor.msg=Es konnte keine neue Instanz der Klasse World erstellt werden. Der Grund daf\u00FCr ist, dass die World-Klasse meist keinen \u00F6ffentlichen Standard-Konstruktor hat (ein Konstruktor ohne Parameter).
-
 # Message to display if a file cannot be created
-greenfoot.cannotCreateClass=Die class-Datei konnte nicht erstellt werden. \u00FCberpr\u00FCfen Sie, ob der Projektordner beschreibbar ist.
+greenfoot.cannotCreateClass=Die Datei der Klasse konnte nicht erstellt werden. \u00FCberpr\u00FCfen Sie, ob der Projektordner beschreibbar ist.
 
 # General error messages
-greenfoot.cannotFindAPIDocumentation=Die API-Dokumentation fehlt m\u00F6glicherweise, oder ist nicht lesbar.
+greenfoot.cannotFindAPIDocumentation=Die API-Dokumentation scheint zu fehlen, oder ist nicht lesbar.
 
 # Message for sound related errors
-sound-line-unavailable=Zugriff auf die Sound-Karte ist nicht m\u00F6glich. Falls Sie eine Sound-\nKarte installiert haben, pr\u00FCfen Sie Ihre Systemeinstellungen, und schlie\u00DFen Sie  \nalle anderen Programme, die die Sound-Karte benutzen k\u00F6nnten.
+sound-line-unavailable= Der Zugriff auf die Sound-Karte ist nicht m\u00F6glich. Falls Sie eine Sound-\nKarte installiert haben, pr\u00FCfen Sie Ihre Systemeinstellungen, und schlie\u00DFen Sie  \nalle anderen Programme, die die Sound-Karte benutzen k\u00F6nnten.
+
+# MainFrame central messages
+centrePanel.message.openScenario=\u2196 Erzeugen oder \u00d6ffnen Sie ein Szenario im Szenario Men\u00fc
+centrePanel.message.createWorldClass=Erzeugen Sie eine neue Unterklasse der Klasse 'World'
+centrePanel.message.compile=Die Klasse 'World' scheint einen Fehler aufzuweisen, \u00dcberpr\u00fcfen Sie dies um das Szenario zu initialisieren \u2197
+centrePanel.message.initialising=Die Welt wurde erstellt...
+centrePanel.message.initialisingTooLong1=Der Konstruktor der Welt braucht sehr lange.
+centrePanel.message.initialisingTooLong2=Es k\u00f6nnte eine Endlosschleife bestehen.
+centrePanel.message.notFocused=Um eine Welt zu erstellen, klicken Sie auf das Fenster.
+centrePanel.restartButton.label=Neustart
+centrePanel.message.error1=Der Konstruktor der Klasse 'World'hat eine Exception ausgel\u00f6st.
+centrePanel.message.error2=Im Konsolenfenster sehen Sie mehr Details.
+centrePanel.message.afterRestarting1=Greenfoot wurde neugestartet, weil die Welt nicht erzeugt werden konnte.
+centrePanel.message.afterRestarting2=Pr\u00fcfen Sie den Konstruktor der Unterklasse von 'World'.
+centrePanel.message.missingWorldConstructor1=Die Welt konnte nicht erstellt werden. Die Unterklasse von 'World' scheint keinen
+centrePanel.message.missingWorldConstructor2=\u00f6ffentlichen Konstruktor ohne Parameter zu haben, oder Sie ist nicht \u00f6ffentlich.

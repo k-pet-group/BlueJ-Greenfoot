@@ -1,3 +1,48 @@
+editor-crashed 
+Es scheint so, als habe Greenfood beim letzen Abspeichern der Klasse den 
+Schreibvorgang abgebrochen. Der Quellcode k\u00f6nnte fehlen oder ist 
+unvollst\u00e4ndig. Es sollte ein Backup dieser Klasse im Projektordner 
+sein. Wenn diese Klasse besch\u00e4digt ist, 
+      1 Beenden Sie Greenfoot 
+      2 Sichern Sie Ihren Projektordner (F\u00fcr alle F\u00e4lle) 
+      3 Suchen Sie im Projektordner nach einem Backup der Java-Datei.
+        Benennen Sie es in den urspr\u00fcnglichen Dateinamen um. 
+        (mit '.java' als Suffix) 
+
+error-create-vm 
+Greenfoot konnte keine virtuelle Maschine (VM) erzeugen, um die Scenarien 
+auszuf\u00fchren. Sehr oft wird dies durch \u00fcberm\u00e4\u00dfig restriktive 
+Einstellungen der Firewall verursacht. Mehr Informationen dazu unter 
+[ http://www.greenfoot.org/doc/firewall ] 
+
+project-is-readonly 
+Das Scenario wurde im read-only-Modus ge\u00f6ffnet: 
+: 
+      $ 
+: 
+Um das Scenario zu verwenden, sollten Sie es zuerst an einer anderen Stelle 
+abspeichern. 
+
+cannot-save-project 
+Das Scenario kann an der angegebenen Stelle nicht gespeichert werden. 
+Pr\u00fcfen Sie, ob Sie Schreibzugriff haben, oder w\u00e4hlen Sie 
+einen anderen Speicherort. 
+
 cannot-create-project
-Das Projekt konnte nicht erstellt werden. \u00FCberpr\u00FCfen Sie, ob der
-Ordner, der das Projekt enth\u00E4lt, beschreibbar ist.
+Das Projekt konnte nicht erstellt werden.
+\u00FCberpr\u00FCfen Sie, ob der Ordner, der das Projekt enth\u00E4lt, 
+beschreibbar ist. 
+
+project-already-exists 
+Das angegebene Verzeichnis f\u00fcr das Scenario gibt es bereits. 
+Um ein neues Scenario anzulegen, w\u00e4hlen Sie einen Speicherort 
+aus und vergeben Sie einen eindeutigen Namen (Geben Sie den Namen 
+im Dateidialog an). 
+
+archive-not-greenfoot-project 
+Die Archiv-Datei, die Sie ausgew\u00e4hlt haben, scheint kein Greenfoot 
+Projekt zu enthalten (versuchen Sie die Inhalter des Archivs unter 
+Verwendung eines anderen Tools zu extrahieren). 
+
+no-clipboard-image-data 
+Es sind keine Bild Informationen im Clipboard, die eingef\u00fcgt werden k\u00f6nnen.

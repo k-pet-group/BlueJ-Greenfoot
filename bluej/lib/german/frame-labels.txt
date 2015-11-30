@@ -1,0 +1,41 @@
+# Frame Catalogue:
+frame.catalogue.title=Spickzettel
+frame.catalogue.commands=Kommandos
+frame.catalogue.shortcuts=Tastenk\u00fcrzel
+frame.catalogue.selection=Auswahl einschliessen
+frame.catalogue.codecompletion=Code Vervollst\u00e4ndigung
+frame.catalogue.codecompletion.hide=Code Vervollst\u00e4ndigung verbergen
+frame.catalogue.codecompletion.up=Nach oben
+frame.catalogue.codecompletion.down=Nach unten
+frame.catalogue.codecompletion.select=Auswahl
+
+frame.catalogue.birdseye.exit=Ansicht verlassen
+frame.catalogue.birdseye.up=Nach oben
+frame.catalogue.birdseye.down=Nach unten
+frame.catalogue.birdseye.select=Auswahl
+
+frame.catalogue.examples=Beispiele
+
+
+# Error Bar:
+frame.error.overview.bar.error.single=Fehler
+frame.error.overview.bar.error.plural=Fehler
+frame.error.overview.bar.error.none=keine Fehler
+frame.error.overview.bar.error.editing=Editieren
+
+# Slot menu:
+frame.slot.cut=Ausschneiden
+frame.slot.copy=Kopieren
+frame.slot.paste=Einf\u00fcgen
+frame.slot.recent=Letzte Werte
+
+
+# View menu:
+frame.viewmenu.title=Anzeige
+frame.viewmenu.nextError=N\u00e4chster Fehler
+frame.viewmenu.cheatsheet=Spickzettel
+frame.viewmenu.birdseye=Vogelperspektive
+frame.viewmenu.java=Java Vorschau
+frame.viewmenu.fontbigger=erh\u00f6he Schriftgr\u00f6\u00dfe
+frame.viewmenu.fontsmaller=verkleinere Schriftgr\u00f6\u00dfe
+frame.viewmenu.fontdefault=Setze Schriftgr\u00f6\u00dfe zur\u00fcck
