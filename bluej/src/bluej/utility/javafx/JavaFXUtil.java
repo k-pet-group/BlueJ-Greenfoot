@@ -56,6 +56,7 @@ import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableValue;
 import javafx.beans.value.WritableBooleanValue;
 import javafx.collections.FXCollections;
@@ -462,6 +463,41 @@ public class JavaFXUtil
         });
 
         return r;
+    }
+
+    /**
+     * Creates a Boolean property which tracks the value of the given source property, but adds
+     * delays to copying the true and/or false values.
+     *
+     * It is possible, if the value keeps flipping backwards and forwards during the delay windows,
+     * that you may not see the change copied for a long time.
+     *
+     * @param source The boolean value to copy into the returned property
+     * @param delayToTrue The delay to wait before copying a true value.  Pass Duration.ZERO for no delay.
+     * @param delayToFalse The delay to wait before copying a false value.  Pass Duration.ZERO for no delay.
+     * @return A property as described.
+     */
+    public static ObservableBooleanValue delay(ObservableBooleanValue source, Duration delayToTrue, Duration delayToFalse)
+    {
+        SimpleBooleanProperty delayed = new SimpleBooleanProperty(source.get());
+
+        source.addListener(new ChangeListener<Boolean>()
+        {
+            // The task to cancel the previous copy:
+            private FXRunnable cancel = null;
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue)
+            {
+                if (cancel != null)
+                    cancel.run();
+                if (newValue.booleanValue())
+                    cancel = runAfter(delayToTrue, () -> delayed.set(true));
+                else
+                    cancel = runAfter(delayToFalse, () -> delayed.set(false));
+            }
+        });
+
+        return delayed;
     }
 
     /**

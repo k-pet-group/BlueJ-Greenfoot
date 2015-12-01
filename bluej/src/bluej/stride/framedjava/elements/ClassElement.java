@@ -203,7 +203,7 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
         classKeyword = new FrameFragment(frame, "class ");
         Collections.addAll(header, classKeyword, className);
         
-        if (extendsName != null) {
+        if (extendsName != null && !extendsName.isEmpty()) {
             Collections.addAll(header, space(), f(frame, "extends"), space(), extendsName);
         }
         if (!implementsList.isEmpty())

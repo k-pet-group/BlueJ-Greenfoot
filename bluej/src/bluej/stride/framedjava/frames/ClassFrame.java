@@ -36,6 +36,8 @@ import java.util.stream.Stream;
 
 import bluej.stride.slots.EditableSlot.MenuItemOrder;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyDoubleWrapper;
@@ -52,6 +54,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.util.Duration;
 import javax.swing.SwingUtilities;
 
 import bluej.editor.stride.BirdseyeManager;
@@ -111,6 +114,8 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
     
     private TextSlot<NameDefSlotFragment> paramClassName;
     private final InteractionManager editor;
+
+    private final SimpleBooleanProperty headerHasKeyboardFocus = new SimpleBooleanProperty(false);
     
     private final SimpleBooleanProperty showingExtends;
     private final TextSlot<TypeSlotFragment> extendsSlot;
@@ -231,6 +236,7 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
         paramClassName.setPromptText("class name");
         paramClassName.setText(className);
 
+
         documentationPromptTextProperty().bind(new SimpleStringProperty("Write a description of your ").concat(paramClassName.textProperty()).concat(" class here..."));
 
         this.fieldsCanvas = new FrameCanvas(editor, this, "class-fields-");
@@ -244,7 +250,7 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
             @Override
             public void backSpacePressedAtStart(HeaderItem slot)
             {
-                removeExtends();
+                extendsSlot.setText("");
             }
         });
         extendsSlot.addValueListener(SlotTraversalChars.IDENTIFIER);
@@ -252,7 +258,10 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
         if (extendsName != null) {
             extendsSlot.setText(extendsName);
         }
-        
+        showingExtends.bind(extendsSlot.textProperty().isNotEmpty().or(JavaFXUtil.delay(headerHasKeyboardFocus, Duration.millis(50), Duration.millis(50))).or(JavaFXUtil.delay(getHeaderRow().mouseHoveringProperty(), Duration.millis(500), Duration.millis(50))));
+
+        headerHasKeyboardFocus.bind(BooleanBinding.booleanExpression(paramClassName.focusedProperty()).or(BooleanBinding.booleanExpression(extendsSlot.focusedProperty())));
+
         implementsSlot = new Implements(this, () -> {
             TypeTextSlot s = new TypeTextSlot(editor, this, getHeaderRow(), new TypeCompletionCalculator(editor, Kind.INTERFACE), "class-");
             s.setPromptText("interface type");
@@ -273,7 +282,8 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
                 JavaFXUtil.listBool(abstractModifier, abstractLabel),
                 FXCollections.observableArrayList(headerCaptionLabel),
                 FXCollections.observableArrayList(paramClassName),
-                JavaFXUtil.listBool(showingExtends, extendsLabel, extendsSlot, inheritedLabel),
+                JavaFXUtil.listBool(showingExtends, extendsLabel, extendsSlot),
+                JavaFXUtil.listBool(showingExtends.and(Bindings.isNotEmpty(extendsInheritedCanvases)), inheritedLabel),
                 implementsSlot.getHeaderItems()
             ));
 
@@ -366,7 +376,7 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
         List<CodeElement> methods = getMembers(methodsCanvas);
         List<ImportElement> imports = Utility.mapList(getMembers(importCanvas), e -> (ImportElement)e);
         element = new ClassElement(this, projectResolver, abstractModifier.get(), paramClassName.getSlotElement(),
-                    showingExtends.get() ? extendsSlot.getSlotElement() : null, implementsSlot.getTypes(), fields, constructors, methods,
+                    showingExtends.get() && !extendsSlot.getText().equals("") ? extendsSlot.getSlotElement() : null, implementsSlot.getTypes(), fields, constructors, methods,
                     new JavadocUnit(getDocumentation()), imports, frameEnabledProperty.get());
     }
 
@@ -411,7 +421,6 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
         ExtensionDescription extendsExtension = null;
         if (!showingExtends.get()) {
             extendsExtension = new ExtensionDescription(GreenfootFrameDictionary.EXTENDS_EXTENSION_CHAR, "Add extends declaration", () -> {
-                    addExtends();
                     extendsSlot.requestFocus();
             });
         }
@@ -421,13 +430,7 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
         
         return Utility.nonNulls(Arrays.asList(abstractExtension, extendsExtension, implementsExtension));
     }
-
-    private void addExtends()
-    {
-        showingExtends.set(true);
-        editor.modifiedFrame(this);
-    }
-    
+/*
     private void removeExtends()
     {
         showingExtends.set(false);
@@ -435,7 +438,7 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
         extendsSlot.setText("");
         editor.modifiedFrame(this);
     }
-
+*/
     @Override
     public void saved()
     {
@@ -1039,15 +1042,12 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
     {
         String targetExtends = target.getExtends();
         if (targetExtends != null) {
-            if (!showingExtends.get()) {
-                addExtends();
-            }
             if (!extendsSlot.getText().equals(targetExtends)) {
                 extendsSlot.setText(targetExtends);
             }
         }
         else if (showingExtends.get()) {
-            removeExtends();
+            extendsSlot.setText("");
         }
     }
 }

@@ -78,8 +78,8 @@ public class TypeSlotFragment extends TextSlotFragment
             return Stream.of(new SyntaxCodeError(this, "Invalid type"));
 
         return Stream.empty();
-    } 
-    
+    }
+
     @Override
     public Future<List<CodeError>> findLateErrors(InteractionManager editor, CodeElement parent)
     {

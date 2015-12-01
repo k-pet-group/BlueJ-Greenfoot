@@ -48,6 +48,7 @@ import javafx.beans.property.ReadOnlyBooleanWrapper;
 import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -138,6 +139,11 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
         this.row = row;
         field = new SlotTextField(stylePrefix, row.getOverlay());
         editor.setupFocusableSlotComponent(this, field.getFocusableNode(), completionCalculator != null, hints);
+    }
+
+    public ObservableValue<Boolean> focusedProperty()
+    {
+        return field.focusedProperty();
     }
 
     public class SlotTextField extends AnnotatableTextField
