@@ -326,7 +326,10 @@ public class TeamSettingsPanel extends JPanel
                     if (provider.needsEmail()){
                         File respositoryRoot = teamSettingsController.getProject().getProjectDir();
                         yourEmailField.setText(GitRepository.getYourEmailFromRepo(respositoryRoot));
+                        yourEmailField.setEnabled(false);
                         yourNameField.setText(GitRepository.getYourNameFromRepo(respositoryRoot));
+                        yourNameField.setEnabled(false);
+                        
                     }
                     break;
                 }
