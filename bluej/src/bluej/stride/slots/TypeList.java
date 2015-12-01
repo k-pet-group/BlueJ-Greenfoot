@@ -30,7 +30,12 @@ import bluej.stride.generic.FrameCanvas;
 import bluej.stride.generic.InteractionManager;
 import bluej.utility.javafx.FXRunnable;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ReadOnlyBooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import bluej.stride.generic.Frame;
 import bluej.utility.Utility;
@@ -54,6 +59,7 @@ public class TypeList implements SlotValueListener
      * The list of type slots currently in this type list
      */
     protected final ObservableList<TypeTextSlot> typeSlots = FXCollections.observableArrayList();
+
     /**
      * A piece of code to generate a new type slot when we need one.  Supplied
      * by our creator (easier to pass lambda than have to subclass TypeList every time).
@@ -73,6 +79,10 @@ public class TypeList implements SlotValueListener
      * A reference to the editor, used to trigger recompile when the list changes.
      */
     private InteractionManager editor;
+    /**
+     * A property keeping track of whether any of the slots in this type list are currently focused.
+     */
+    private final BooleanProperty focusedProperty = new SimpleBooleanProperty(false);
 
     /**
      * Constructor.  Protected access because we expect to be subclassed for use anyway.
@@ -119,6 +129,29 @@ public class TypeList implements SlotValueListener
                 return Utility.concat(Stream.of(prefixLabel), Utility.interleave(typeSlots.stream().map(h -> (HeaderItem)h), commas.stream()));
             }
         }.startListening();
+
+        final ChangeListener<Boolean> focusListener = (a, b, newVal) -> updateFocusedProperty();
+
+        typeSlots.addListener((ListChangeListener<? super TypeTextSlot>) change -> {
+            while (change.next())
+            {
+                if (change.wasAdded())
+                {
+                    change.getAddedSubList().forEach(slot -> slot.focusedProperty().addListener(focusListener));
+                }
+
+                if (change.wasRemoved())
+                {
+                    change.getRemoved().forEach(slot -> slot.focusedProperty().removeListener(focusListener));
+                }
+            }
+
+        });
+    }
+
+    private void updateFocusedProperty()
+    {
+        focusedProperty.set(typeSlots.stream().anyMatch(slot -> slot.isFocused()));
     }
 
     public ObservableList<HeaderItem> getHeaderItems()
@@ -207,11 +240,12 @@ public class TypeList implements SlotValueListener
         return slot.getText();
     }
 
-    public void addTypeSlotAtEnd(String content)
+    public void addTypeSlotAtEnd(String content, boolean requestFocus)
     {
         TypeTextSlot slot = addTypeSlot(typeSlots.size());
         slot.setText(content);
-        slot.requestFocus(Focus.LEFT);
+        if (requestFocus)
+            slot.requestFocus(Focus.LEFT);
     }
 
     public void setTypes(List<String> types)
@@ -220,11 +254,28 @@ public class TypeList implements SlotValueListener
         {
             delete(typeSlots.get(typeSlots.size() - 1));
         }
-        types.forEach(this::addTypeSlotAtEnd);
+        types.forEach(t -> addTypeSlotAtEnd(t, false));
     }
     
     public Stream<TypeTextSlot> getTypeSlots()
     {
         return typeSlots.stream();
+    }
+
+    public void ensureAtLeastOneSlot()
+    {
+        if (typeSlots.isEmpty())
+            addTypeSlotAtEnd("", false);
+    }
+
+    public void clearIfSingleEmpty()
+    {
+        if (typeSlots.size() == 1 && typeSlots.get(0).isEmpty())
+            delete(typeSlots.get(0));
+    }
+
+    public ReadOnlyBooleanProperty focusedProperty()
+    {
+        return focusedProperty;
     }
 }

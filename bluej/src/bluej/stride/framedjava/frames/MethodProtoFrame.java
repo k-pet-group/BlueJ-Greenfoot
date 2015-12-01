@@ -97,7 +97,7 @@ public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeF
         this.returnType.setText(returnType);
         this.methodName.setText(methodName);
         params.forEach(item -> paramsPane.addFormal(item.getParamType(), item.getParamName()));
-        throwsTypes.forEach(t -> throwsPane.addTypeSlotAtEnd(t.getType()));
+        throwsTypes.forEach(t -> throwsPane.addTypeSlotAtEnd(t.getType(), false));
         setDocumentation(documentation);
         frameEnabledProperty.set(enabled);
     }
@@ -181,7 +181,7 @@ public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeF
     @Override
     public List<ExtensionDescription> getAvailableExtensions()
     {
-        return Arrays.asList(new ExtensionDescription('t', "Add throws declaration", () -> throwsPane.addTypeSlotAtEnd("")));
+        return Arrays.asList(new ExtensionDescription('t', "Add throws declaration", () -> throwsPane.addTypeSlotAtEnd("", true)));
     }
 
     @Override

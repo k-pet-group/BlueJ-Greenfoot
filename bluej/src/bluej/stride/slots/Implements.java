@@ -21,6 +21,7 @@
  */
 package bluej.stride.slots;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -39,7 +40,11 @@ public class Implements extends TypeList
 
     public List<TypeSlotFragment> getTypes()
     {
-        return Utility.mapList(typeSlots, TypeTextSlot::getSlotElement);
+        // Treat single empty slot as missing:
+        if (typeSlots.size() == 1 && typeSlots.get(0).isEmpty())
+            return Collections.emptyList();
+        else
+            return Utility.mapList(typeSlots, TypeTextSlot::getSlotElement);
     }
 
 }

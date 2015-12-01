@@ -44,6 +44,7 @@ import javafx.beans.property.ReadOnlyDoubleWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableStringValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -258,16 +259,24 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
         if (extendsName != null) {
             extendsSlot.setText(extendsName);
         }
-        showingExtends.bind(extendsSlot.textProperty().isNotEmpty().or(JavaFXUtil.delay(headerHasKeyboardFocus, Duration.millis(50), Duration.millis(50))).or(JavaFXUtil.delay(getHeaderRow().mouseHoveringProperty(), Duration.millis(500), Duration.millis(50))));
-
-        headerHasKeyboardFocus.bind(BooleanBinding.booleanExpression(paramClassName.focusedProperty()).or(BooleanBinding.booleanExpression(extendsSlot.focusedProperty())));
+        ObservableBooleanValue keyMouseHeader = JavaFXUtil.delay(headerHasKeyboardFocus, Duration.millis(50), Duration.millis(50)).or(JavaFXUtil.delay(getHeaderRow().mouseHoveringProperty(), Duration.millis(500), Duration.millis(50)));
+        showingExtends.bind(extendsSlot.textProperty().isNotEmpty().or(keyMouseHeader));
 
         implementsSlot = new Implements(this, () -> {
             TypeTextSlot s = new TypeTextSlot(editor, this, getHeaderRow(), new TypeCompletionCalculator(editor, Kind.INTERFACE), "class-");
             s.setPromptText("interface type");
             return s;
         }, () -> fieldsCanvas.getFirstCursor().requestFocus(), editor);
-        implementsList.forEach(t -> implementsSlot.addTypeSlotAtEnd(t.getContent()));
+        implementsList.forEach(t -> implementsSlot.addTypeSlotAtEnd(t.getContent(), false));
+
+        JavaFXUtil.addChangeListener(keyMouseHeader, keyMouse -> {
+            if (keyMouse)
+                implementsSlot.ensureAtLeastOneSlot();
+            else
+                implementsSlot.clearIfSingleEmpty();
+        });
+
+        headerHasKeyboardFocus.bind(BooleanBinding.booleanExpression(paramClassName.focusedProperty()).or(BooleanBinding.booleanExpression(extendsSlot.focusedProperty())).or(implementsSlot.focusedProperty()));
 
         inheritedLabel = new TriangleLabel(editor, t -> extendsInheritedCanvases.forEach(c -> c.grow(t)),
             t -> extendsInheritedCanvases.forEach(c -> c.shrink(t)), new SimpleBooleanProperty(false));
@@ -376,7 +385,8 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
         List<CodeElement> methods = getMembers(methodsCanvas);
         List<ImportElement> imports = Utility.mapList(getMembers(importCanvas), e -> (ImportElement)e);
         element = new ClassElement(this, projectResolver, abstractModifier.get(), paramClassName.getSlotElement(),
-                    showingExtends.get() && !extendsSlot.getText().equals("") ? extendsSlot.getSlotElement() : null, implementsSlot.getTypes(), fields, constructors, methods,
+                    showingExtends.get() && !extendsSlot.getText().equals("") ? extendsSlot.getSlotElement() : null,
+                    implementsSlot.getTypes(), fields, constructors, methods,
                     new JavadocUnit(getDocumentation()), imports, frameEnabledProperty.get());
     }
 
@@ -425,7 +435,7 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
             });
         }
         ExtensionDescription implementsExtension = new ExtensionDescription(GreenfootFrameDictionary.IMPLEMENTS_EXTENSION_CHAR, "Add implements declaration", () -> {
-            implementsSlot.addTypeSlotAtEnd("");
+            implementsSlot.addTypeSlotAtEnd("", true);
         });
         
         return Utility.nonNulls(Arrays.asList(abstractExtension, extendsExtension, implementsExtension));

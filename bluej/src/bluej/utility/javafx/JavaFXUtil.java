@@ -51,6 +51,7 @@ import javafx.beans.binding.StringExpression;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
+import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.ReadOnlyDoubleWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -477,7 +478,7 @@ public class JavaFXUtil
      * @param delayToFalse The delay to wait before copying a false value.  Pass Duration.ZERO for no delay.
      * @return A property as described.
      */
-    public static ObservableBooleanValue delay(ObservableBooleanValue source, Duration delayToTrue, Duration delayToFalse)
+    public static ReadOnlyBooleanProperty delay(ObservableBooleanValue source, Duration delayToTrue, Duration delayToFalse)
     {
         SimpleBooleanProperty delayed = new SimpleBooleanProperty(source.get());
 
