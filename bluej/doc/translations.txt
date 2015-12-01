@@ -55,7 +55,7 @@ catalan         Santiago Manrique
 czech           Rudolf Pecinovský   <rudolf@pecinovsky.cz>
 danish          Jacob Nordfalk      <jacob.nordfalk@gmail.com>  - don't contact
 greek           Ioannis G. Baltopoulos
-italian         Angelo Papadia    <angelo.papadia@libero.it>
+italian         Angelo Papadia    <angelo.papadia@libero.it> - don't contact
 montenegrin     Omer Djokic         <omer@itdirect.net>
 portuguese      Fred Guedes Pereira <fredguedespereira@yahoo.com.br>
 persian         M. Shahdoost        <persianshadow2003@yahoo.com>
