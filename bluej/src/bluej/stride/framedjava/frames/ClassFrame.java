@@ -114,116 +114,6 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
     
     private final SimpleBooleanProperty showingExtends;
     private final TextSlot<TypeSlotFragment> extendsSlot;
-    private class InheritedCanvas
-    {
-        public final String superClassName;
-        public final FrameCanvas canvas;
-        public final FrameContentRow precedingDivider;
-        public final SlotLabel precedingDividerLabel;
-        public final TriangleLabel optionalCollapse;
-
-        // Note that java.lang.Object is treated as a special case: it gets a triangle label
-        public InheritedCanvas(String superClassName, boolean single)
-        {
-            this.canvas = new FrameCanvas(editor, new CanvasParent() {
-
-                @Override
-                public FrameCursor findCursor(double sceneX, double sceneY, FrameCursor prevCursor, FrameCursor nextCursor, List<Frame> exclude, boolean isDrag, boolean canDescend)
-                {
-                    return null;
-                }
-
-                @Override
-                public boolean acceptsType(FrameCanvas canvasBase, Class<? extends Frame> frameClass)
-                {
-                    return Arrays.asList(InheritedMethodFrame.class, InheritedFieldFrame.class).contains(frameClass);
-                }
-
-                @Override
-                public List<ExtensionDescription> getAvailableInnerExtensions(FrameCanvas canvas, FrameCursor cursor)
-                {
-                    return Collections.emptyList();
-                }
-
-                @Override
-                public Frame getFrame()
-                {
-                    return ClassFrame.this;
-                }
-
-                @Override
-                public InteractionManager getEditor()
-                {
-                    return editor;
-                }
-
-                @Override
-                public void modifiedCanvasContent()
-                {
-                    // No need to do anything on modification, as it was programmatic
-                }
-            }, "class-inherited-"){
-
-                @Override
-                public FrameCursor findClosestCursor(double sceneX, double sceneY, List<Frame> exclude, boolean isDrag, boolean canDescend)
-                {
-                    return null;
-                }
-
-                @Override
-                public FrameCursor getFirstCursor()
-                {
-                    return null;
-                }
-
-                @Override
-                public FrameCursor getLastCursor()
-                {
-                    return null;
-                }
-            };
-            this.superClassName = superClassName;
-            if (single)
-            {
-                this.precedingDividerLabel = null;
-                this.precedingDivider = null;
-                this.optionalCollapse = null;
-            }
-            else
-            {
-                if (superClassName.equals("java.lang.Object"))
-                {
-                    this.precedingDividerLabel = new SlotLabel("Inherited from Object", "class-inherited-label");
-                    this.optionalCollapse = new TriangleLabel(editor, t -> canvas.growUsing(t.getProgress()), t -> canvas.shrinkUsing(t.getOppositeProgress()), new SimpleBooleanProperty(false));
-                    this.precedingDivider = new FrameContentRow(ClassFrame.this, precedingDividerLabel, optionalCollapse);
-                }
-                else
-                {
-                    this.precedingDividerLabel = new SlotLabel("Inherited from " + superClassName, "class-inherited-label");
-                    this.precedingDivider = new FrameContentRow(ClassFrame.this, precedingDividerLabel);
-                    this.optionalCollapse = null;
-                }
-            }
-        }
-
-        public void grow(SharedTransition t)
-        {
-            if (optionalCollapse == null || optionalCollapse.expandedProperty().get())
-                canvas.growUsing(t.getProgress());
-            precedingDividerLabel.growVertically(t);
-            this.precedingDividerLabel.setLeftPadding(this.canvas.leftMargin().get());
-            if (optionalCollapse != null)
-                optionalCollapse.setVisible(true);
-        }
-
-        public void shrink(SharedTransition t)
-        {
-            canvas.shrinkUsing(t.getOppositeProgress());
-            precedingDividerLabel.shrinkVertically(t);
-            if (optionalCollapse != null)
-                optionalCollapse.setVisible(false);
-        }
-    }
 
     private final ObservableList<InheritedCanvas> extendsInheritedCanvases = FXCollections.observableArrayList(); // May be empty
     private final FrameCanvas importCanvas;
@@ -687,7 +577,7 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
             Collections.reverse(classNames);
 
             classNames.forEach(cls -> {
-                InheritedCanvas section = new InheritedCanvas(cls, classNames.size() == 1);
+                InheritedCanvas section = new InheritedCanvas(this, editor, cls, classNames.size() == 1);
                 // If triangle already folded in, make sure everything is collapsed:
                 if (inheritedLabel.expandedProperty().get() == false)
                 {
