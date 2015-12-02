@@ -435,6 +435,11 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
             ops.add(op);
         }
 
+        ops.add(new CustomFrameOperation(getEditor(), "addImplements", Arrays.asList("Add 'implements'"), MenuItemOrder.TOGGLE_IMPLEMENTS, this, () -> {
+            implementsSlot.addTypeSlotAtEnd("", true);
+        }));
+
+
         return ops;
     }
 
