@@ -604,7 +604,7 @@ class TCScanner extends TreePathScanner<Void, Void>
             }
             else
             {
-                trees.printMessage(Kind.ERROR, "Could not determine type of invocation target", errorLocation, cu);
+                //trees.printMessage(Kind.ERROR, "Could not determine type of invocation target", errorLocation, cu);
             }
             return defaultReturn;
         }
