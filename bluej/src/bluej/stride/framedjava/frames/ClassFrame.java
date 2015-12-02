@@ -111,6 +111,7 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
 {
     private final SlotLabel abstractLabel = new SlotLabel("abstract");
     private final FrameContentRow importRow;
+    private final BooleanBinding showInheritedToggle;
     private BooleanProperty abstractModifier = new SimpleBooleanProperty(false);
     
     private TextSlot<NameDefSlotFragment> paramClassName;
@@ -289,12 +290,15 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
         });
         JavaFXUtil.addChangeListener(inheritedLabel.expandedProperty(), b -> editor.updateErrorOverviewBar());
 
+        // We must keep hold of an explicit reference to this binding, rather than inlining it.
+        // If you do not keep this stored in a field, it will get GC-ed.
+        showInheritedToggle = showingExtends.and(Bindings.isNotEmpty(extendsInheritedCanvases));
         getHeaderRow().bindContentsConcat(FXCollections.<ObservableList<HeaderItem>>observableArrayList(
                 JavaFXUtil.listBool(abstractModifier, abstractLabel),
                 FXCollections.observableArrayList(headerCaptionLabel),
                 FXCollections.observableArrayList(paramClassName),
                 JavaFXUtil.listBool(showingExtends, extendsLabel, extendsSlot),
-                JavaFXUtil.listBool(showingExtends.and(Bindings.isNotEmpty(extendsInheritedCanvases)), inheritedLabel),
+                JavaFXUtil.listBool(showInheritedToggle, inheritedLabel),
                 implementsSlot.getHeaderItems()
             ));
 
