@@ -740,7 +740,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
      * Allows blocks to respond to a keypress when the cursor
      * is just before the block, e.g. pressing a '\\' key to disable a frame.
      */
-    protected List<ExtensionDescription> getAvailablePrefixes()
+    public List<ExtensionDescription> getAvailablePrefixes()
     {
         return Arrays.asList(new ExtensionDescription('\\', "Disable/Enable frames", () -> {
             if (canHaveEnabledState(isFrameEnabled()))

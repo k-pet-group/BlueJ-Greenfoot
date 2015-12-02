@@ -394,7 +394,7 @@ public class VarFrame extends SingleLineFrame
         return true;
     }
 
-    protected List<ExtensionDescription> getAvailablePrefixes()
+    public List<ExtensionDescription> getAvailablePrefixes()
     {
         List<ExtensionDescription> prefixes = new ArrayList<>(super.getAvailablePrefixes());
         addStaticFinalToList(prefixes);

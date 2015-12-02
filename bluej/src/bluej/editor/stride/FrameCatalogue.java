@@ -411,7 +411,8 @@ public class FrameCatalogue extends VBox
 
         if (c != null)
         {
-            Frame frameBefore = c.getFrameBefore();
+            final Frame frameBefore = c.getFrameBefore();
+            final Frame frameAfter = c.getFrameAfter();
 
             Set<Character> keysAlreadyUsed = new HashSet<>();
 
@@ -421,6 +422,22 @@ public class FrameCatalogue extends VBox
                 for (ExtensionDescription ext : parent.getAvailableInnerExtensions(c.getParentCanvas(), c))
                 {
                     if (!keysAlreadyUsed.contains(ext.getShortcutKey()) && (frameBefore == null || ext.worksThroughout()) && ext.showInCatalogue())
+                    {
+                        Node item = makeTextItem(getDisplayShortcut("" + ext.getShortcutKey()), ext.getDescription(), true);
+                        setupClick(item, c, ext::activate);
+                        extensionItems.add(item);
+                        keysAlreadyUsed.add(ext.getShortcutKey());
+                    }
+                }
+            }
+
+
+
+            if (frameAfter != null && frameAfter.isFrameEnabled())
+            {
+                for (ExtensionDescription ext : frameAfter.getAvailablePrefixes())
+                {
+                    if (!keysAlreadyUsed.contains(ext.getShortcutKey()) && ext.showInCatalogue())
                     {
                         Node item = makeTextItem(getDisplayShortcut("" + ext.getShortcutKey()), ext.getDescription(), true);
                         setupClick(item, c, ext::activate);

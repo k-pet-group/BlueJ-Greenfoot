@@ -312,7 +312,7 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
         return r;
     }
 
-    protected List<ExtensionDescription> getAvailablePrefixes()
+    public List<ExtensionDescription> getAvailablePrefixes()
     {
         return Utility.concat(super.getAvailablePrefixes(), Arrays.asList(
                 new ExtensionDescription('n', "Add/Remove final", () ->
