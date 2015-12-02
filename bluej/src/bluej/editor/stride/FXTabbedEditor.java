@@ -345,14 +345,6 @@ public @OnThread(Tag.FX) class FXTabbedEditor
     }
 
     /**
-     * Show the frame catalogue/cheat sheet
-     */
-    public void showCatalogue()
-    {
-        showingCatalogue.set(true);
-    }
-
-    /**
      * Property for whether the catalogue/cheat sheet is currently showing
      */
     public BooleanProperty catalogueShowingProperty()

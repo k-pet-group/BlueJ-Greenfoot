@@ -953,11 +953,6 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         getParent().scheduleUpdateCatalogue(this, newView == View.NORMAL ? getFocusedCursor() : null, CodeCompletionState.NOT_POSSIBLE, false, newView, Collections.emptyList());
     }
 
-    public void showCatalogue()
-    {
-        getParent().showCatalogue();
-    }
-
     public BooleanProperty cheatSheetShowingProperty()
     {
         return getParent().catalogueShowingProperty();

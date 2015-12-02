@@ -105,6 +105,12 @@ public class FrameCursor implements RecallableFocus
         if (!editor.isEditable() || !canInsert())
             return false;
 
+        if (key == '?')
+        {
+            editor.cheatSheetShowingProperty().set(!editor.cheatSheetShowingProperty().get());
+            return true;
+        }
+
         if (Character.isLetter(key) || Arrays.asList('/', '\\', '*', '=', '+', '-', '\n', ' ').contains(key))
         {
             if (parentCanvas.getParent().tryRedirectCursor(parentCanvas, key))
@@ -251,7 +257,7 @@ public class FrameCursor implements RecallableFocus
                 //There's no block matching this
                 consecutiveErrors++;
                 if (consecutiveErrors >= ERROR_COUNT_TRIGGER) {
-                    editor.showCatalogue();
+                    editor.cheatSheetShowingProperty().set(true);
                 }
                 //Ignore one-off mis-typing, just to stop every slip-up triggering a dialog
                 return true;
