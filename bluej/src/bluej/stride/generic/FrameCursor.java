@@ -105,6 +105,9 @@ public class FrameCursor implements RecallableFocus
         if (!editor.isEditable() || !canInsert())
             return false;
 
+        // Ignore accidental caps lock:
+        key = Character.toLowerCase(key);
+
         if (key == '?')
         {
             editor.cheatSheetShowingProperty().set(!editor.cheatSheetShowingProperty().get());
@@ -123,9 +126,9 @@ public class FrameCursor implements RecallableFocus
             final boolean selection = !editor.getSelection().getSelected().isEmpty();
             // Is it a request to expand/collapse?
             if (false && (key == '+' || key == '-')) {
-                List<Frame> targets = selection ? editor.getSelection().getSelected() : Collections.singletonList(getFrameAfter());
-                targets.stream().filter(Frame::isCollapsible)
-                    .forEach(t -> t.setCollapsed(key == '-')); // otherwise it's plus
+                //List<Frame> targets = selection ? editor.getSelection().getSelected() : Collections.singletonList(getFrameAfter());
+                //targets.stream().filter(Frame::isCollapsible)
+                //    .forEach(t -> t.setCollapsed(key == '-')); // otherwise it's plus
                 return true;
             }
             if (selection) {
