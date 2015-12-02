@@ -439,6 +439,17 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
             implementsSlot.addTypeSlotAtEnd("", true);
         }));
 
+        final List<TypeSlotFragment> types = implementsSlot.getTypes();
+        for (int i = 0; i < types.size(); i++)
+        {
+            final int index = i;
+            TypeSlotFragment type = types.get(i);
+            CustomFrameOperation removeOp = new CustomFrameOperation(getEditor(), "removeImplements", Arrays.asList("Remove 'implements " + type.getContent() + "'"), MenuItemOrder.TOGGLE_IMPLEMENTS, this, () -> {
+                implementsSlot.removeIndex(index);
+            });
+            removeOp.setWideCustomItem(true);
+            ops.add(removeOp);
+        }
 
         return ops;
     }

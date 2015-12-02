@@ -277,4 +277,10 @@ public class TypeList implements SlotValueListener
     {
         return focusedProperty;
     }
+
+    public void removeIndex(int index)
+    {
+        if (index >= 0 && index < typeSlots.size())
+            delete(typeSlots.get(index));
+    }
 }
