@@ -428,9 +428,11 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
         }
         else
         {
-            ops.add(new CustomFrameOperation(getEditor(), "removeExtends", Arrays.asList("Remove 'extends" + extendsSlot.getText() + "'"), MenuItemOrder.TOGGLE_EXTENDS, this, () -> {
+            CustomFrameOperation op = new CustomFrameOperation(getEditor(), "removeExtends", Arrays.asList("Remove 'extends " + extendsSlot.getText() + "'"), MenuItemOrder.TOGGLE_EXTENDS, this, () -> {
                 extendsSlot.setText("");
-            }));
+            });
+            op.setWideCustomItem(true);
+            ops.add(op);
         }
 
         return ops;

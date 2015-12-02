@@ -52,6 +52,7 @@ public abstract class AbstractOperation
 
     protected final String identifier;
     protected final Combine combine;
+    private boolean wideCustomItem = false;
     protected InteractionManager editor;
     
     public AbstractOperation(InteractionManager editor, String identifier, Combine combine)
@@ -141,11 +142,19 @@ public abstract class AbstractOperation
     {
         Label d = new Label();
         d.textProperty().bind(getLabels().get(getLabels().size() - 1).label);
-        d.setPrefWidth(150);
+        if (!wideCustomItem)
+            d.setPrefWidth(150);
+        else
+            d.setPrefWidth(300);
         CustomMenuItem item = new CustomMenuItem(d);
         // TODO next line is added due to a bug in Mac SystemMenuBar where MenuItem text showed as blank. 
         item.textProperty().bind(d.textProperty());
         return item;
+    }
+
+    public void setWideCustomItem(boolean wide)
+    {
+        wideCustomItem = wide;
     }
 
     protected MenuItem initializeNormalItem()
