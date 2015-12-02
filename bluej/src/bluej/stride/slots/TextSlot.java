@@ -44,9 +44,11 @@ import javafx.beans.binding.BooleanExpression;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.binding.StringExpression;
 import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyBooleanWrapper;
 import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -110,7 +112,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
     private final FrameContentRow row;
  
     private final SlotTextField field;
-    private SuggestionList suggestionDisplay;
+    private final ObjectProperty<SuggestionList> suggestionDisplayProperty = new SimpleObjectProperty<>();
     private final CompletionCalculator completionCalculator;
     private final SimpleDoubleProperty suggestionXOffset = new SimpleDoubleProperty();
     private SLOT_FRAGMENT slotElement;
@@ -118,7 +120,6 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
     
     private final List<CodeError> allErrors = new ArrayList<>();
     private final List<CodeError> shownErrors = new ArrayList<>();
-    private Pane javadocDisplay;
     private StringExpression targetType;
     private final List<Underline> underlines = new ArrayList<>();
     private final ObservableList<String> recentValues = FXCollections.observableArrayList();
@@ -137,9 +138,17 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
         editor.setupFocusableSlotComponent(this, field.getFocusableNode(), completionCalculator != null, hints);
     }
 
-    public ObservableValue<Boolean> focusedProperty()
+    /**
+     * A property reflecting whether the field is "effectively focused"
+     *
+     * "Effectively focused" means that either the field has actual JavaFX GUI
+     * focus, or code completion is showing for this slot, meaning it doesn't
+     * have GUI focus, but for our purposes it is logically the focus owner
+     * within the editor.
+     */
+    public ObservableValue<Boolean> effectivelyFocusedProperty()
     {
-        return field.focusedProperty();
+        return field.focusedProperty().or(suggestionDisplayProperty.isNotNull());
     }
 
     public class SlotTextField extends AnnotatableTextField
@@ -193,9 +202,9 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
                     {
                         return executeSuggestion(highlighted);
                     }
-                    else if (suggestionDisplay.eligibleCount() == 1  && getText().length() > 0)
+                    else if (suggestionDisplayProperty.get().eligibleCount() == 1  && getText().length() > 0)
                     {
-                        return executeSuggestion(suggestionDisplay.getFirstEligible());
+                        return executeSuggestion(suggestionDisplayProperty.get().getFirstEligible());
                     }
                     return false;
                 }
@@ -220,7 +229,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
                                 return Response.DISMISS;
                             }
                         case RIGHT:
-                            Optional<String> common = suggestionDisplay.getLongestCommonPrefix();
+                            Optional<String> common = suggestionDisplayProperty.get().getLongestCommonPrefix();
                             if (common.isPresent())
                             {
                                 field.replaceText(getStartOfCurWord(), field.getCaretPosition(), common.get());
@@ -258,7 +267,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
                 @Override
                 public void hidden()
                 {
-                    suggestionDisplay = null;
+                    suggestionDisplayProperty.set(null);
                     setFakeCaretShowing(false);
                 }
             };
@@ -367,7 +376,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
                         showErrorAtCaret(getCaretPosition());                        
                     }
                     else {
-                        setTransparent(!getText().isEmpty() && suggestionDisplay == null);
+                        setTransparent(!getText().isEmpty() && suggestionDisplayProperty.get() == null);
                         editor.endRecordingState(TextSlot.this);
                         if (errorAndFixDisplay != null)
                         {
@@ -416,7 +425,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
                 {
                     // After update has taken effect, update suggestions:
                     Platform.runLater(() -> {
-                        if (suggestionDisplay != null)
+                        if (suggestionDisplayProperty.get() != null)
                         {
                             String beforeNewPrefix = getText().substring(0, getStartOfCurWord());
                             if (!beforeNewPrefix.equals(lastBeforePrefix))
@@ -514,8 +523,8 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
         private void updateSuggestions(boolean initialState)
         {
             String prefix = getCurWord();
-            suggestionDisplay.calculateEligible(prefix, true, initialState);
-            suggestionDisplay.updateVisual(prefix, false);
+            suggestionDisplayProperty.get().calculateEligible(prefix, true, initialState);
+            suggestionDisplayProperty.get().updateVisual(prefix, false);
             lastBeforePrefix = getText().substring(0, getStartOfCurWord());
         }
         
@@ -524,10 +533,10 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
             suggestionXOffset.set(calculateCaretPosition(getStartOfCurWord()));
             FXConsumer<SuggestionList> handler = s ->
             {
-                suggestionDisplay = s;
+                suggestionDisplayProperty.set(s);
                 updateSuggestions(true);
-                suggestionDisplay.highlightFirstEligible();
-                suggestionDisplay.show(field.getNode(), suggestionXOffset, field.heightProperty());
+                suggestionDisplayProperty.get().highlightFirstEligible();
+                suggestionDisplayProperty.get().show(field.getNode(), suggestionXOffset, field.heightProperty());
                 field.setFakeCaretShowing(true);
             };
             // TODO we shouldn't need to regen whole code repeatedly if they only modify this slot:

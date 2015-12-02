@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import bluej.stride.generic.FrameCanvas;
 import bluej.stride.generic.InteractionManager;
 import bluej.utility.javafx.FXRunnable;
 import javafx.application.Platform;
@@ -137,12 +136,12 @@ public class TypeList implements SlotValueListener
             {
                 if (change.wasAdded())
                 {
-                    change.getAddedSubList().forEach(slot -> slot.focusedProperty().addListener(focusListener));
+                    change.getAddedSubList().forEach(slot -> slot.effectivelyFocusedProperty().addListener(focusListener));
                 }
 
                 if (change.wasRemoved())
                 {
-                    change.getRemoved().forEach(slot -> slot.focusedProperty().removeListener(focusListener));
+                    change.getRemoved().forEach(slot -> slot.effectivelyFocusedProperty().removeListener(focusListener));
                 }
             }
 
