@@ -978,6 +978,11 @@ public class JavaFXUtil
      * Takes a BooleanProperty and a list of item.  Gives back an observable list that contains
      * the list of items when (and only when) the BooleanProperty is true, but is empty in the case
      * that the BooleanProperty is false.  Uses JavaFX bindings to update the list's contents.
+     *
+     * Note that if no reference is maintained to the BooleanExpression, it can get GC-ed,
+     * in which case this methods will no longer update the list.  This may be what you want (once
+     * the property is no longer in use, this listener will get GC-ed too), but if you don't then
+     * make sure you store a reference to the putInList expression.
      * 
      * @param putInList Whether the list should contain the items (true expression) or be empty (false expression)
      * @param items The items to put in the list when putInList is true

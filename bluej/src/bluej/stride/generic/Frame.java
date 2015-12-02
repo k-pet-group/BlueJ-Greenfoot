@@ -434,6 +434,11 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
 
     /**
      * Gets a list of available context operations for this frame.
+     *
+     * This is called when the context menu is about to be shown, so you can dynamically decide
+     * which operations to include based on the current state at the time of this call, rather
+     * than trying to do complex bindings to update the operations in future.
+     *
      * Overridden by subclasses.
      */
     public List<FrameOperation> getContextOperations()
