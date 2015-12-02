@@ -397,13 +397,26 @@ public class VarFrame extends SingleLineFrame
     protected List<ExtensionDescription> getAvailablePrefixes()
     {
         List<ExtensionDescription> prefixes = new ArrayList<>(super.getAvailablePrefixes());
-        prefixes.add(new ExtensionDescription('n', "Add/Remove final", () ->
-                        new ToggleFinalVar(getEditor()).activate(this), false, false));
-        if (isField(getParentCanvas())) {
-            prefixes.add(new ExtensionDescription('s', "Add/Remove static", () ->
-                    new ToggleStaticVar(getEditor()).activate(this), false, false));
-        }
+        addStaticFinalToList(prefixes);
         return prefixes;
+    }
+
+    @Override
+    public List<ExtensionDescription> getAvailableExtensions()
+    {
+        final List<ExtensionDescription> extensions = new ArrayList<>(super.getAvailableExtensions());
+        addStaticFinalToList(extensions);
+        return extensions;
+    }
+
+    private void addStaticFinalToList(List<ExtensionDescription> actions)
+    {
+        actions.add(new ExtensionDescription('n', "Add/Remove final", () ->
+                        new ToggleFinalVar(getEditor()).activate(this), false, true));
+        if (isField(getParentCanvas())) {
+            actions.add(new ExtensionDescription('s', "Add/Remove static", () ->
+                    new ToggleStaticVar(getEditor()).activate(this), false, true));
+        }
     }
 
     public static class ToggleFinalVar extends FrameOperation
