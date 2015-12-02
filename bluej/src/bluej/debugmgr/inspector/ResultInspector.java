@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2015  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -161,9 +161,7 @@ public class ResultInspector extends Inspector
             // if there are any (ie. if the method is a generic method).
             // Tpars from the method override those from the instance.
             List<GenTypeDeclTpar> tpars = JavaUtils.getJavaUtils().getTypeParams(m);
-            if (tparmap != null) {
-                tparmap.putAll(JavaUtils.TParamsToMap(tpars));
-            }
+            tparmap.putAll(JavaUtils.TParamsToMap(tpars));
             
             methodReturnType = methodReturnType.mapTparsToTypes(tparmap).getUpperBound();
         }

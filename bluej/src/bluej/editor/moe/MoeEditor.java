@@ -3412,9 +3412,7 @@ public final class MoeEditor extends JPanel
                 else {
                     item = menu.add(action);
                     label = Config.getString("editor." + itemKeys[i] + LabelSuffix);
-                    if (label != null) {
-                        item.setText(label);
-                    }
+                    item.setText(label);
                     KeyStroke[] keys = actions.getKeyStrokesForAction(action);
                     if (keys != null) {
                         item.setAccelerator(chooseKey(keys));

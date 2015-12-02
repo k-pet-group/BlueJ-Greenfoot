@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program.
- Copyright (C) 2010,2011  Michael Kolling and John Rosenberg
+ Copyright (C) 2010-2015  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -99,19 +99,19 @@ public class TerminalPrinter
                 position = textYPosition + (this.font.getSize() + 2) * (li.nextIndex() + 1);
                 String line = li.next();
                 
-                int x = textXPosition;
+                //int x = textXPosition;
                 
                 // workaround for strange problem on Mac:
                 // trying to print empty lines throws exception
                 if (line.length() == 0) {
                     char[] nonBlank = new char[] {' '};
                     Segment lineSeg = new Segment(nonBlank,0,1);
-                    x = Utilities.drawTabbedText(lineSeg, x, position, g, null, 0);
+                    //x = Utilities.drawTabbedText(lineSeg, x, position, g, null, 0);
                 }
                 else {
                     Segment lineSeg = new Segment(line.toCharArray(), 0, line.length());
                     TabExpander tab = Utility.makeTabExpander(line, tabSize, fontMetrics);
-                    x = Utilities.drawTabbedText(lineSeg,x,position,g,tab,0);                    
+                    //x = Utilities.drawTabbedText(lineSeg,x,position,g,tab,0);                    
                 } 
             }
    

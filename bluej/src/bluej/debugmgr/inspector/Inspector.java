@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2012,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2015  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -638,11 +638,11 @@ public abstract class Inspector extends JFrame
                translucencyClass = Class.forName("com.sun.awt.AWTUtilities$Translucency");
                if (translucencyClass.isEnum()) {
                    Object[] kinds = translucencyClass.getEnumConstants();
-                   if (kinds != null) {
+                   //if (kinds != null) {
                        //PERPIXEL_TRANSPARENT = kinds[0];
                        //TRANSLUCENT = kinds[1];
                        //PERPIXEL_TRANSLUCENT = kinds[2];
-                   }
+                   //}
                }
                // mIsTranslucencySupported = awtUtilitiesClass.getMethod("isTranslucencySupported", translucencyClass);
                mIsTranslucencyCapable = awtUtilitiesClass.getMethod("isTranslucencyCapable", GraphicsConfiguration.class);

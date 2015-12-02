@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2012,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2015  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -650,17 +650,17 @@ public class ObjectWrapper extends JComponent implements Accessible, FocusListen
         int start = totalGap / 2;
         
         // draw top string (normally instance name)
-        int aWidth = fm.stringWidth(objName);
-        if(aWidth > maxWidth) {
-            aWidth = maxWidth;
-        }
+        //int aWidth = fm.stringWidth(objName);
+        //if(aWidth > maxWidth) {
+        //    aWidth = maxWidth;
+        //}
 
         Utility.drawCentredText(g, objName, x+2, y+start, maxWidth, fontHeight);
 
         // draw bottom string (normally class name)
-        int bWidth = fm.stringWidth(className);
-        if(bWidth > maxWidth)
-            bWidth = maxWidth;
+        //int bWidth = fm.stringWidth(className);
+        //if(bWidth > maxWidth)
+        //    bWidth = maxWidth;
 
         Utility.drawCentredText(g, className, x+2, y+start+fontHeight, maxWidth, fontHeight);
     }

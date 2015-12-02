@@ -462,10 +462,10 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         }
 
         if (counter > 0) {
-            if (editor.getCurrentTextPane().getSelectedText() != null) {
+            //if (editor.getCurrentTextPane().getSelectedText() != null) {
                 //move the caret to the beginning of the selected item
                 //editor.moveCaretPosition(editor.getCaretPosition()-getSearchString().length());
-            }
+            //}
             editor.writeMessage(Config.getString("editor.highlight.found").trim() + " "
                     + counter + " " + Config.getString("editor.replaceAll.intancesOf").trim() + " "
                     + getSearchString());

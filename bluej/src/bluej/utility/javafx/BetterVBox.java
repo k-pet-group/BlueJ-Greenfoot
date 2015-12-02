@@ -72,10 +72,10 @@ public class BetterVBox extends Pane
             n.resizeRelocate((int) padding.getLeft() + (int)getLeftMarginFor(n), y, w, h);
             y += h + spacingProperty.get() + getBottomMarginFor(n);
         }
-        if (getHeight() != 0 && y > getHeight() - (int)padding.getBottom())
-        {
+        //if (getHeight() != 0 && y > getHeight() - (int)padding.getBottom())
+        //{
             //Debug.message("Warning in BetterVBox size calculation; overpainted: " + y + " on " + getHeight());
-        }
+        //}
     }
 
     @Override

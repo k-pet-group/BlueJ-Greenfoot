@@ -2226,9 +2226,7 @@ public final class MoeActions
         {
             //getEditor(e).find();
             MoeEditor editor=getEditor();
-            if (editor!=null) {
-                editor.initFindPanel();
-            }
+            editor.initFindPanel();
         }
     }
 
@@ -2271,12 +2269,10 @@ public final class MoeActions
         public void actionPerformed(ActionEvent e)
         {
             MoeEditor editor=getEditor();
-            if (editor != null) {
-                editor.setFindPanelVisible();
-                editor.setReplacePanelVisible(true);
-                if (editor.getSourcePane().getSelectedText()!=null){
-                    editor.setFindTextfield(editor.getSourcePane().getSelectedText());
-                }
+            editor.setFindPanelVisible();
+            editor.setReplacePanelVisible(true);
+            if (editor.getSourcePane().getSelectedText()!=null){
+                editor.setFindTextfield(editor.getSourcePane().getSelectedText());
             }
         }
     }
