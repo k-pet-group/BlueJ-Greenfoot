@@ -259,7 +259,9 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
         if (extendsName != null) {
             extendsSlot.setText(extendsName);
         }
-        ObservableBooleanValue keyMouseHeader = JavaFXUtil.delay(headerHasKeyboardFocus, Duration.millis(50), Duration.millis(50)).or(JavaFXUtil.delay(getHeaderRow().mouseHoveringProperty(), Duration.millis(500), Duration.millis(50)));
+        // We must make the showing immediate when you get keyboard focus, as otherwise there
+        // are problems with focusing the extends slot and then it disappears.
+        ObservableBooleanValue keyMouseHeader = JavaFXUtil.delay(headerHasKeyboardFocus, Duration.ZERO, Duration.millis(50)).or(JavaFXUtil.delay(getHeaderRow().mouseHoveringProperty(), Duration.millis(500), Duration.millis(50)));
         showingExtends.bind(extendsSlot.textProperty().isNotEmpty().or(keyMouseHeader));
 
         implementsSlot = new Implements(this, () -> {
@@ -410,9 +412,40 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
     @Override
     public List<FrameOperation> getContextOperations()
     {
-        return Arrays.asList(new CustomFrameOperation(getEditor(), "addRemoveAbstract", Arrays.asList("Toggle abstract"), MenuItemOrder.TOGGLE_ABSTRACT, this, () ->  abstractModifier.set(!abstractModifier.get())));
+        ArrayList<FrameOperation> ops = new ArrayList<>();
+        ops.add(new CustomFrameOperation(getEditor(), "addRemoveAbstract", Arrays.asList("Toggle abstract"), MenuItemOrder.TOGGLE_ABSTRACT, this, () ->  abstractModifier.set(!abstractModifier.get())));
+
+        if (extendsSlot.isEmpty())
+        {
+            ops.add(new CustomFrameOperation(getEditor(), "addExtends", Arrays.asList("Add 'extends'"), MenuItemOrder.TOGGLE_EXTENDS, this, () -> {
+
+                showAndFocusExtends();
+            }));
+        }
+        else
+        {
+            ops.add(new CustomFrameOperation(getEditor(), "removeExtends", Arrays.asList("Remove 'extends" + extendsSlot.getText() + "'"), MenuItemOrder.TOGGLE_EXTENDS, this, () -> {
+                extendsSlot.setText("");
+            }));
+        }
+
+        return ops;
     }
-    
+
+    /**
+     * Show the extends slot, and focus it.
+     */
+    private void showAndFocusExtends()
+    {
+        // This is a bit of a hack.  We can't request focus on extendsSlot until it's part of the
+        // scene, but it only gets added to the scene when it's non-empty, or when the header has
+        // keyboard focus.  We could set content, focus it, then empty it, or we can take this
+        // route of first focusing the class name, thus showing the extends slot, then moving
+        // the focus to the extends slot:
+        paramClassName.requestFocus();
+        extendsSlot.requestFocus();
+    }
+
     @Override
     public List<FrameOperation> getCutCopyPasteOperations(InteractionManager editor)
     {
@@ -431,7 +464,7 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
         ExtensionDescription extendsExtension = null;
         if (!showingExtends.get()) {
             extendsExtension = new ExtensionDescription(GreenfootFrameDictionary.EXTENDS_EXTENSION_CHAR, "Add extends declaration", () -> {
-                    extendsSlot.requestFocus();
+                showAndFocusExtends();
             });
         }
         ExtensionDescription implementsExtension = new ExtensionDescription(GreenfootFrameDictionary.IMPLEMENTS_EXTENSION_CHAR, "Add implements declaration", () -> {
