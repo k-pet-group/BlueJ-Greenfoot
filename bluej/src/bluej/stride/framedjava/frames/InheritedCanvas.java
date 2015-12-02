@@ -117,8 +117,11 @@ class InheritedCanvas
     {
         if (optionalCollapse == null || optionalCollapse.expandedProperty().get())
             canvas.growUsing(t.getProgress());
-        precedingDividerLabel.growVertically(t);
-        this.precedingDividerLabel.setLeftPadding(this.canvas.leftMargin().get());
+        if (precedingDividerLabel != null)
+        {
+            precedingDividerLabel.growVertically(t);
+            precedingDividerLabel.setLeftPadding(this.canvas.leftMargin().get());
+        }
         if (optionalCollapse != null)
             optionalCollapse.setVisible(true);
     }
@@ -126,7 +129,8 @@ class InheritedCanvas
     public void shrink(SharedTransition t)
     {
         canvas.shrinkUsing(t.getOppositeProgress());
-        precedingDividerLabel.shrinkVertically(t);
+        if (precedingDividerLabel != null)
+            precedingDividerLabel.shrinkVertically(t);
         if (optionalCollapse != null)
             optionalCollapse.setVisible(false);
     }
