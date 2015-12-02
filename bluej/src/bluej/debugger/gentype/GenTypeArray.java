@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2015  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -179,9 +179,9 @@ public class GenTypeArray extends GenTypeSolid
                 // An array of wildcard should be represented instead as a wildcard
                 // with array bounds.
                 GenTypeSolid ubound = mappedBase.getUpperBound().asSolid();
-                ubound = (ubound == null) ? ubound : ubound.getArray();
+                ubound = (ubound == null) ? null : ubound.getArray();
                 GenTypeSolid lbound = mappedBase.getLowerBound();
-                lbound = (lbound == null) ? lbound : lbound.getArray();
+                lbound = (lbound == null) ? null : lbound.getArray();
                 new GenTypeWildcard(ubound, lbound);
             }
             return mappedBase.getUpperBound().getArray();

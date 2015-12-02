@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2013,2014,2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2015  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -44,19 +44,13 @@ import bluej.pkgmgr.JavadocResolver;
 
 public final class MoeEditorManager extends bluej.editor.EditorManager
 {
-    // public static variables
-
-    protected static MoeEditorManager editorManager;   // the manager object itself
-
-    // private variables
-
-    private Properties resources;
-    private List<MoeEditor> editors; // open editors
+    private final Properties resources;
+    private final List<MoeEditor> editors; // open editors
 
     // user preferences
 
-    private boolean showLineNum;
-    private boolean showToolBar;
+    private final boolean showLineNum;
+    private final boolean showToolBar;
 
     // =========================== PUBLIC METHODS ===========================
 
@@ -68,8 +62,6 @@ public final class MoeEditorManager extends bluej.editor.EditorManager
         showLineNum = false;
 
         resources = Config.moeUserProps;
-
-        editorManager = this;   // make this object publicly available
     }
 
 

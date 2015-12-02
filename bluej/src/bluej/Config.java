@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2015  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -99,7 +99,7 @@ public final class Config
     public static final String bluejDebugLogName = "bluej-debuglog.txt";
     public static final String greenfootDebugLogName = "greenfoot-debuglog.txt";
     public static final Color ENV_COLOUR = new Color(152,32,32);
-    protected static final int SHORTCUT_MASK =
+    private static final int SHORTCUT_MASK =
         Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
     // Bit ugly having it here, but it's needed by MiscPrefPanel (which may just be in BlueJ)
     // and by Greenfoot
@@ -113,7 +113,6 @@ public final class Config
     private static final String GREENFOOT_DEBUG_DOCK_NAME = "Greenfoot";
     public static Properties moeSystemProps;  // moe (editor) properties
     public static Properties moeUserProps;    // moe (editor) properties
-    public static String compilertype = "javac";  // current compiler (javac, jikes)
 
 
     // bluej configuration properties hierarchy
@@ -743,7 +742,7 @@ public final class Config
         try {
             defs.load(new FileInputStream(propsFile));
         }
-        catch(Exception e) {
+        catch(IOException e) {
             Debug.reportError("Unable to load definitions file: " + propsFile);
         }
 
@@ -768,7 +767,7 @@ public final class Config
             try{
                 labels.load(new FileInputStream(greenfootLabelFile));
             }
-            catch(Exception e){
+            catch(IOException e){
                 Debug.reportError("Unable to load greenfoot labels file: " + greenfootLabelFile);
             }
 
@@ -1362,7 +1361,7 @@ public final class Config
                 return new Color(r, g, b);
             }
         }
-        catch(Exception e) {
+        catch(NumberFormatException e) {
             Debug.reportError("Could not get colour for " + itemname);
         }
 
@@ -1394,7 +1393,7 @@ public final class Config
                 return new Color(r, g, b);
             }
         }
-        catch(Exception e) {
+        catch(NumberFormatException e) {
             Debug.reportError("Could not get colour for " + itemname);
         }
 
@@ -1481,23 +1480,16 @@ public final class Config
      */
     public static Point getLocation(String itemPrefix)
     {
-        try {
-            int x = getPropInteger(itemPrefix + ".x", 16);
-            int y = getPropInteger(itemPrefix + ".y", 16);
+        int x = getPropInteger(itemPrefix + ".x", 16);
+        int y = getPropInteger(itemPrefix + ".y", 16);
 
-            if (x > (screenBounds.width - 16))
-                x = screenBounds.width - 16;
+        if (x > (screenBounds.width - 16))
+            x = screenBounds.width - 16;
 
-            if (y > (screenBounds.height - 16))
-                y = screenBounds.height - 16;
+        if (y > (screenBounds.height - 16))
+            y = screenBounds.height - 16;
 
-            return new Point(x,y);
-        }
-        catch(Exception e) {
-            Debug.reportError("Could not get screen location for " + itemPrefix);
-        }
-
-        return new Point(16,16);
+        return new Point(x,y);
     }
 
     /**

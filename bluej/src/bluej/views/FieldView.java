@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2015  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,24 +24,24 @@ package bluej.views;
 import java.lang.reflect.*;
 
 /**
- ** @version $Id: FieldView.java 6215 2009-03-30 13:28:25Z polle $
+ ** @version $Id: FieldView.java 15114 2015-12-02 22:08:41Z mik $
  ** @author Michael Cahill
  **
  ** A representation of a Java field in BlueJ
  **/
 public final class FieldView extends MemberView
 {
-    protected Field field;
-    protected View type;
-	
+    private Field field;
+    private View type;
+
     /**
      ** Constructor.
      **/
     public FieldView(View view, Field field)
     {
-	super(view);
-		
-	this.field = field;
+        super(view);
+
+        this.field = field;
     }
 
     /**
@@ -50,28 +50,28 @@ public final class FieldView extends MemberView
      * @return the Field that this view represent.
      */
     public Field getField ()
-      {
-      return field;
-      }
+    {
+        return field;
+    }
       
     /**
      ** Returns the name of this method as a String
      **/
     public String getName()
     {
-	return field.getName();
+        return field.getName();
     }
-	
+
     /**
      ** Returns a Class object that represents the type of the field represented
      **  by this object.
      **/
     public View getType()
     {
-	if(type == null)
-	    type = View.getView(field.getType());
-		
-	return type;
+        if(type == null)
+            type = View.getView(field.getType());
+
+        return type;
     }
 
     /**
@@ -79,21 +79,21 @@ public final class FieldView extends MemberView
      **/
     public String toString()
     {
-	return field.toString();
+        return field.toString();
     }
-	
+
     public int getModifiers()
     {
-	return field.getModifiers();
+        return field.getModifiers();
     }
-	
+
     public String getShortDesc()
     {
-	StringBuffer sb = new StringBuffer();
-	sb.append(View.getTypeName(field.getType()));
-	sb.append(" ");
-	sb.append(field.getName());
-	return sb.toString();
+        StringBuffer sb = new StringBuffer();
+        sb.append(View.getTypeName(field.getType()));
+        sb.append(" ");
+        sb.append(field.getName());
+        return sb.toString();
     }
 
     public String getLongDesc()
@@ -106,10 +106,10 @@ public final class FieldView extends MemberView
      **/
     public String getSignature()
     {
-	StringBuffer sb = new StringBuffer();
-	//		sb.append(View.getTypeName(field.getType()));
-	//		sb.append(" ");
-	sb.append(field.getName());
-	return sb.toString();
+        StringBuffer sb = new StringBuffer();
+        //sb.append(View.getTypeName(field.getType()));
+        //sb.append(" ");
+        sb.append(field.getName());
+        return sb.toString();
     }
 }

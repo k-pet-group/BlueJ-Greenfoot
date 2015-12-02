@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2012,2013,2014,2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2015  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -164,7 +164,7 @@ public final class MoeEditor extends JPanel
     // Fonts
     public static int printFontSize = Config.getPropInteger("bluej.fontsize.printText", 10);
     public static Font printFont = new Font("Monospaced", Font.PLAIN, printFontSize);
-    protected static AdvancedHighlightPainter searchHighlightPainter =
+    private static AdvancedHighlightPainter searchHighlightPainter =
         new MoeBorderHighlighterPainter(highlightBorderColor, Config.getHighlightColour(),
                 Config.getHighlightColour2(), Config.getSelectionColour2(),
                 Config.getSelectionColour());
