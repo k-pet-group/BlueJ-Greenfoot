@@ -1287,7 +1287,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
 
     public void trackBlank()
     {
-        alwaysBeenBlank &= isAlmostBlank();
+        alwaysBeenBlank = alwaysBeenBlank && isAlmostBlank();
     }
 
     /**

@@ -477,7 +477,6 @@ public class SuggestionList
             {
                 final int index = i + j*choices.size();
                 SuggestionDetails choice = choices.get(i);
-                String display = choice.choice + (choice.suffix == null ? "" : choice.suffix);
                 Suggestion sugg = new Suggestion(choice.choice, choice.suffix == null ? "" : choice.suffix, choice.type == null ? "" : choice.type, targetType != null && choice.type != null ? targetType.equals(choice.type) : false, typeWidth, j == 0);
                 listBox.getChildren().add(sugg.getNode());
                 sugg.getNode().setOnMouseClicked(e -> {

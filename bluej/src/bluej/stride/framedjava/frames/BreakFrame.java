@@ -192,7 +192,7 @@ public class BreakFrame extends SingleLineFrame
             getEditor().getCodeOverlayPane().removeOverlay(overlay);
             overlay = null;
             rectangle = null;
-            outer = null;
+            this.outer = null;
         }
     }
 

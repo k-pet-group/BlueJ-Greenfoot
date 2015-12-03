@@ -104,8 +104,8 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
     /** The frame corresponding to this code element (may be null) */
     private ClassFrame frame;
     /** The curly brackets and class keyword in the generated code (saved for mapping positions) */
-    private final FrameFragment openingCurly = new FrameFragment(frame, "{");
-    private final FrameFragment closingCurly = new FrameFragment(frame, "}");
+    private final FrameFragment openingCurly;
+    private final FrameFragment closingCurly;
     private JavaFragment classKeyword;
     /**
      * The generated Java code for this class, used for doing code completion without
@@ -132,6 +132,8 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
             JavadocUnit documentation, List<ImportElement> imports, boolean enabled)
     {
         this.frame = frame;
+        this.openingCurly = new FrameFragment(this.frame, "{");
+        this.closingCurly = new FrameFragment(this.frame, "}");
         this.abstractModifier = abstractModifier;
         this.className = className;
         this.extendsName = extendsName;
@@ -185,6 +187,8 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
        
         enable = new Boolean(el.getAttributeValue("enable"));
         this.projectResolver = projectResolver;
+        this.openingCurly = new FrameFragment(null, "{");
+        this.closingCurly = new FrameFragment(null, "}");
     }
     
     @Override

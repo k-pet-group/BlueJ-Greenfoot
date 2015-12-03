@@ -67,7 +67,7 @@ public class MoeSquigglyUnderlineHighlighterPainter implements AdvancedHighlight
                     width = 15;
                 }
 
-                n += Math.round(width / 2) + 1;
+                n += Math.round((double)width / 2.0) + 1;
                 int[] xPoints = new int[n + 1];
                 int[] yPoints = new int[n + 1];
 

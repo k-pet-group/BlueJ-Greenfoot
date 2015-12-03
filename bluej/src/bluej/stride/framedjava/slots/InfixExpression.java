@@ -1759,7 +1759,7 @@ class InfixExpression implements TextFieldDelegate<ExpressionSlotField>
                 {
                     // end of operand, File it away:
 
-                    if (cur == operators.size() && beginningSlot == 0 && surroundingBracket.equals("("))
+                    if (cur == operators.size() && beginningSlot == 0 && surroundingBracket.isPresent() && surroundingBracket.get() == '(')
                     {
                         // Item took up whole length of bracket; may well be a type:
                         r.add(new PossibleTypeLink(curOperand,

@@ -90,8 +90,6 @@ class FrameMenuManager extends TabMenuManager
             editMenu.setOnShowing(e -> Utility.ifNotNull(editMenuListener, EditableSlot.MenuItems::onShowing));
             editMenu.setOnHidden(e -> Utility.ifNotNull(editMenuListener, EditableSlot.MenuItems::onHidden));
 
-            ObservableBooleanValue cursorFocused = Bindings.createBooleanBinding(() -> editor.getFocusedCursor() != null, editor.focusedItemObservable());
-
             ObservableList<MenuItem> standardViewMenuItems = FXCollections.observableArrayList(
                     JavaFXUtil.makeMenuItem(Config.getString("frame.viewmenu.nextError"), editor::nextError, new KeyCharacterCombination("k", KeyCombination.SHORTCUT_DOWN))
                     ,new SeparatorMenuItem()

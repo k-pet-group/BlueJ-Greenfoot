@@ -793,7 +793,7 @@ public class FrameEditor implements Editor
     public void reInitBreakpoints()
     {
         watcher.clearAllBreakpoints();
-        if (javaSource == null) {
+        if (javaSource.get() == null) {
             try {
                 save();
             }

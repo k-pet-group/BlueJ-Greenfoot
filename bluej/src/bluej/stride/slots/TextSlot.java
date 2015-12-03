@@ -710,7 +710,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
             // If we are turning off the hover error, but the caret is in the error,
             // we do not stop showing it.
             if (error == null && field.isFocused() && errorAtCaret.isPresent() && errorAtCaret.get().equals(errorAndFixDisplay.getError())){
-                hoverErrorCurrentlyShown = error; //update current error
+                hoverErrorCurrentlyShown = null; //update current error
                 return;
             }
             errorAndFixDisplay.hide();

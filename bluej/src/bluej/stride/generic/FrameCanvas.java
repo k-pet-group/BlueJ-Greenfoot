@@ -185,7 +185,6 @@ public class FrameCanvas implements FrameContentItem
         if (cursor == null)
         {
             index = 0;
-            cursor = cursors.get(index);
         }
         else
         {
@@ -207,7 +206,6 @@ public class FrameCanvas implements FrameContentItem
         if (cursor == null)
         {
             index = cursors.size() - 1;
-            cursor = cursors.get(index);
         }
         else
         {
