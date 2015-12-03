@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2015  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -30,7 +30,7 @@ import java.util.List;
 import bluej.utility.Utility;
 
 /**
- * A Bluej Project ClassLoader that can be used to load or obtain information about classes loadable in a bluej project.
+ * A BlueJ Project ClassLoader that can be used to load or obtain information about classes loadable in a bluej project.
  * Different projects have different class loaders since they shoule each have a well defined and unique namespace.
  * Every time a project is compiled, even when the compilation is started from the GUI, a new ProjectLoader is created and
  * if the Extension currently have a copy of the old one it should discard it.
@@ -85,24 +85,25 @@ public final class BPClassLoader extends URLClassLoader
      * @param compare URLs to compare with the original.
      * @return true if the two arrays are the same.
      */
-    public final boolean sameUrls(URL[] compare) {
-        URL[] original = getURLs();
-
-        if (original == null) {
-            return false;
-        }
-
-        if (original.length != compare.length) {
-            return false;
-        }
-
-        for (int index = 0; index < original.length; index++)
-            if (!original[index].equals(compare[index])) {
-                return false;
-            }
-
-        return true;
-    }
+//    public final boolean sameUrls(URL[] compare) {
+//        URL[] original = getURLs();
+//
+//        if (original == null) {
+//            return false;
+//        }
+//
+//        if (original.length != compare.length) {
+//            return false;
+//        }
+//
+//        for (int index = 0; index < original.length; index++)
+//            if (!original[index].equals(compare[index])) {  // warning: very inefficient! equals on URLs performs domain
+//                                                            // name resolution and is slow! Rewrite.
+//                return false;
+//            }
+//
+//        return true;
+//    }
 
     /**
      * Create a string with this class path as a separated list of strings.
