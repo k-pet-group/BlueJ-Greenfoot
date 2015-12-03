@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2015  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -107,7 +107,7 @@ public class MoeBorderHighlighterPainter implements AdvancedHighlightPainter
                 paintGradient(g, r, innerColor1, innerColor2);
             }else{
                 //fill with average colour colour
-                g.setColor(new Color(Math.round((innerColor1.getRed()+innerColor2.getRGB())/2)));
+                g.setColor(new Color((innerColor1.getRed()+innerColor2.getRGB())/2));
                 g.fillRoundRect(r.x - 2, r.y, r.width + 2, r.height, 6, 6);
             }
 

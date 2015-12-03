@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2015  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -534,10 +534,8 @@ public class ExecControls extends JFrame
             instanceList.setListData(new String[0]);
         }
         
-        if(selectedThread != null) {
-            localList.setFixedCellWidth(-1);
-            localList.setListData(selectedThread.getLocalVariables(frameNo).toArray());
-        }
+        localList.setFixedCellWidth(-1);
+        localList.setListData(selectedThread.getLocalVariables(frameNo).toArray());
     }
 
     /**
