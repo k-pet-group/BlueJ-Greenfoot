@@ -68,7 +68,7 @@ public class ThrowElement extends CodeElement implements JavaSingleLineDebugHand
     public ThrowElement(Element el)
     {
         val = new FilledExpressionSlotFragment(el.getAttributeValue("value"), el.getAttributeValue("value-java"));
-        enable = new Boolean(el.getAttributeValue("enable"));
+        enable = Boolean.valueOf(el.getAttributeValue("enable"));
     }
 
     @Override

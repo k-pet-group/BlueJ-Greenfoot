@@ -61,7 +61,7 @@ public class BreakpointElement extends CodeElement implements JavaSingleLineDebu
     
     public BreakpointElement(Element el)
     {
-        enable = new Boolean(el.getAttributeValue("enable"));
+        enable = Boolean.valueOf(el.getAttributeValue("enable"));
     }
 
     @Override

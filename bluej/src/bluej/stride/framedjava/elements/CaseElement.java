@@ -91,7 +91,7 @@ public class CaseElement extends ContainerCodeElement implements JavaSingleLineD
             contents.add(member);
             member.setParent(this);
         }
-        enable = new Boolean(el.getAttributeValue("enable"));
+        enable = Boolean.valueOf(el.getAttributeValue("enable"));
     }
 
     @Override

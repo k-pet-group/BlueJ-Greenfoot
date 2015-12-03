@@ -87,7 +87,7 @@ public class DefaultCaseElement extends ContainerCodeElement implements JavaSing
             contents.add(member);
             member.setParent(this);
         }
-        enable = new Boolean(el.getAttributeValue("enable"));
+        enable = Boolean.valueOf(el.getAttributeValue("enable"));
     }
 
     @Override

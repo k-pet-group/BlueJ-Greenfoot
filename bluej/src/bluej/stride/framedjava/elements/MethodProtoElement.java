@@ -93,7 +93,7 @@ public class MethodProtoElement extends DocumentContainerCodeElement
         if (documentation == null) {
             documentation = new JavadocUnit("");
         }
-        enable = new Boolean(el.getAttributeValue("enable"));
+        enable = Boolean.valueOf(el.getAttributeValue("enable"));
     }
     
     @Override

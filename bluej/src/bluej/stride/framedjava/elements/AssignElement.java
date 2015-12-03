@@ -74,7 +74,7 @@ public class AssignElement extends CodeElement implements JavaSingleLineDebugHan
     {
         lhs = new FilledExpressionSlotFragment(el.getAttributeValue("dest"), el.getAttributeValue("dest-java"));
         rhs = new FilledExpressionSlotFragment(el.getAttributeValue("src"), el.getAttributeValue("src-java"));
-        enable = new Boolean(el.getAttributeValue("enable"));
+        enable = Boolean.valueOf(el.getAttributeValue("enable"));
     }
 
     @Override

@@ -78,10 +78,10 @@ public class VarElement extends CodeElement implements JavaSingleLineDebugHandle
             new AccessPermissionFragment(AccessPermission.fromString(accessAttribute.getValue()));
         
         Attribute staticAttribute = el.getAttribute("static");
-        staticModifier = (staticAttribute == null) ? false : new Boolean(staticAttribute.getValue());
+        staticModifier = (staticAttribute == null) ? false : Boolean.valueOf(staticAttribute.getValue());
         
         Attribute finalAttribute = el.getAttribute("final");
-        finalModifier = (finalAttribute == null) ? false : new Boolean(finalAttribute.getValue());
+        finalModifier = (finalAttribute == null) ? false : Boolean.valueOf(finalAttribute.getValue());
         
         varType = new TypeSlotFragment(el.getAttributeValue("type"));
         varName = new NameDefSlotFragment(el.getAttributeValue("name"));

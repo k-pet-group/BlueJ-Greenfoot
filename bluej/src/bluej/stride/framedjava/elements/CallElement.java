@@ -53,7 +53,7 @@ public class CallElement extends CodeElement implements JavaSingleLineDebugHandl
     public CallElement(Element el)
     {
         call = new FilledExpressionSlotFragment(el.getAttributeValue("expression"), el.getAttributeValue("expression-java"));
-        enable = new Boolean(el.getAttributeValue("enable"));
+        enable = Boolean.valueOf(el.getAttributeValue("enable"));
     }
     
     public CallElement(String call, String javaCode)

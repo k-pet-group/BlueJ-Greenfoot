@@ -697,7 +697,7 @@ public class ClassTarget extends DependentTarget
                 props.put(prefix + ".naviview.expanded", String.valueOf(isNaviviewExpanded()));
         }
         
-        props.put(prefix + ".showInterface", new Boolean(openWithInterface).toString());
+        props.put(prefix + ".showInterface", Boolean.valueOf(openWithInterface).toString());
         props.put(prefix + ".typeParameters", getTypeParameters());
 
         getRole().save(props, 0, prefix);

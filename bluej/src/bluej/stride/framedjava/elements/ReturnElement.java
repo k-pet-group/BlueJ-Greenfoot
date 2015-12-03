@@ -82,7 +82,7 @@ public class ReturnElement extends CodeElement implements JavaSingleLineDebugHan
     {
         Attribute valueAttribute = el.getAttribute("value");
         val = (valueAttribute == null) ? null : new OptionalExpressionSlotFragment(valueAttribute.getValue(), el.getAttributeValue("value-java"));
-        enable = new Boolean(el.getAttributeValue("enable"));
+        enable = Boolean.valueOf(el.getAttributeValue("enable"));
     }
 
     @Override

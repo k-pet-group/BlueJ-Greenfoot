@@ -164,7 +164,7 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
     public ClassElement(Element el, EntityResolver projectResolver)
     {
         Attribute abstractAttribute = el.getAttribute("abstract");
-        abstractModifier = (abstractAttribute == null) ? false : new Boolean(abstractAttribute.getValue());
+        abstractModifier = (abstractAttribute == null) ? false : Boolean.valueOf(abstractAttribute.getValue());
         
         className = new NameDefSlotFragment(el.getAttributeValue("name"));
         final String extendsAttribute = el.getAttributeValue("extends");

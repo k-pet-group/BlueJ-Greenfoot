@@ -143,7 +143,7 @@ public abstract class SandwichCanvasesElement extends ContainerCodeElement imple
             throw new IllegalArgumentException();
         }
 
-        enable = new Boolean(el.getAttributeValue("enable"));
+        enable = Boolean.valueOf(el.getAttributeValue("enable"));
     }
 
     protected abstract void loadMainAttributes(final Element element);

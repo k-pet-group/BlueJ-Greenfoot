@@ -48,7 +48,7 @@ public class ImportElement extends CodeElement
     public ImportElement(Element el)
     {
         importValue = new ImportFragment(el.getAttributeValue("target"), null);
-        enable = new Boolean(el.getAttributeValue("enable"));
+        enable = Boolean.valueOf(el.getAttributeValue("enable"));
     }
     
     public ImportElement(String src, TextSlot<ImportFragment> slot, boolean enabled)

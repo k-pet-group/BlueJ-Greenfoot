@@ -61,7 +61,7 @@ public class BreakElement extends CodeElement implements JavaSingleLineDebugHand
     
     public BreakElement(Element el)
     {
-        enable = new Boolean(el.getAttributeValue("enable"));
+        enable = Boolean.valueOf(el.getAttributeValue("enable"));
     }
 
     @Override

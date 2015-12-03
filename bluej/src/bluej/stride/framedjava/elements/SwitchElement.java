@@ -146,7 +146,7 @@ public class SwitchElement extends ContainerCodeElement implements JavaSingleLin
             throw new IllegalArgumentException();
         }
 
-        enable = new Boolean(el.getAttributeValue("enable"));
+        enable = Boolean.valueOf(el.getAttributeValue("enable"));
     }
 
     @Override

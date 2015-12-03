@@ -110,7 +110,7 @@ public class InterfaceElement extends DocumentContainerCodeElement implements To
         }
         extendsTypes = Utility.mapList(TopLevelCodeElement.xmlToStringList(el, "extends", "extendstype", "type"), (Function<String, TypeSlotFragment>)TypeSlotFragment::new); 
                 
-        enable = new Boolean(el.getAttributeValue("enable"));
+        enable = Boolean.valueOf(el.getAttributeValue("enable"));
         if (documentation == null) {
             documentation = new JavadocUnit("");
         }
