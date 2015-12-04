@@ -6,7 +6,7 @@
         Change Version in SOFTWAREVERSION property, below -->
 
 <Product Name='Greenfoot' Id='8c838b70-3a71-41e8-91a6-4adcf2e483d0' UpgradeCode='3ec7b829-9e53-4132-b2bf-fb7d4c08aebc'
-    Language='1033' Codepage='1252' Version='3.0.0' Manufacturer='Greenfoot Team'>
+    Language='1033' Codepage='1252' Version='3.0.2' Manufacturer='Greenfoot Team'>
     
     <Package Id='*' Keywords='Installer' Description="Greenfoot Installer"
       Manufacturer='Greenfoot'
@@ -18,7 +18,7 @@
     <Property Id="ALLUSERS" Secure="yes" />
     
     <Property Id="SOFTWARE" Value="Greenfoot"/>
-    <Property Id="SOFTWAREVERSION" Value="3.0.0"/>
+    <Property Id="SOFTWAREVERSION" Value="3.0.2"/>
     <Property Id="SOFTWAREPROJECTEXT" Value="greenfoot"/>
     <Property Id="SOFTWAREARCHIVEEXT" Value="gfar"/>
     <!-- Define all the necessary GUIDs here, to make sure they are different from BlueJ -->
