@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2015  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -64,7 +64,8 @@ public class RInvocationListenerWrapper
         }
         catch (RemoteException re) {
             // Connection interrupted or other problem; remote VM no longer accessible
-            blueJ.removeInvocationListener(remoteListener);
+            // following line removed: it's a bug; blueJ is never assigned. seems to never happen, but... [mik]
+            //blueJ.removeInvocationListener(remoteListener);
         }
     }
 

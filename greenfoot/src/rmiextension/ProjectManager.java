@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2010,2011,2012,2014,2015  Poul Henriksen and Michael Kolling
+ Copyright (C) 2005-2015  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -155,7 +155,7 @@ public class ProjectManager
                 sourcePath.add(new DocPathEntry(apiDir, ""));
                 
             }
-            catch (Exception e) {
+            catch (ProjectNotOpenException | PackageNotFoundException e) {
                 Debug.reportError("Could not create greenfoot launcher.", e);
                 // This is bad, lets exit.
                 greenfootLaunchFailed(project);

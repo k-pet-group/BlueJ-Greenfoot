@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2010,2011,2014,2015  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2010-2015  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -32,9 +32,13 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 
 import bluej.Config;
+import bluej.extensions.CompilationNotStartedException;
+import bluej.extensions.PackageNotFoundException;
+import bluej.extensions.ProjectNotOpenException;
 import bluej.stride.framedjava.elements.CallElement;
 import bluej.stride.framedjava.elements.NormalMethodElement;
 import bluej.utility.Debug;
+import java.rmi.RemoteException;
 
 /**
  * Action to "save the world" - i.e. write out code which restores the world and the
@@ -79,7 +83,7 @@ public class SaveWorldAction extends AbstractAction implements CompiledStateList
             
             lastWorld.compile(false, true);
         }
-        catch (Exception e) {
+        catch (ProjectNotOpenException|PackageNotFoundException|RemoteException|CompilationNotStartedException e) {
             Debug.reportError("Error trying to get editor for world class and insert method (with call)", e);
         }
     }
