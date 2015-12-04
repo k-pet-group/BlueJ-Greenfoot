@@ -76,7 +76,7 @@ public abstract class EditorManager
         EditorWatcher watcher, 
         boolean compiled,
         EntityResolver projectResolver,
-        JavadocResolver javadocResolver);
+        JavadocResolver javadocResolver, Runnable callbackOnOpen);
 
 
     /**

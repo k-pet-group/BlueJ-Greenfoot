@@ -145,6 +145,11 @@ public class FrameEditor implements Editor
     private final List<QueuedError> queuedErrors = new ArrayList<>();
 
     /**
+     * A callback to call (on the Swing thread) when this editor is opened.
+     */
+    private final Runnable callbackOnOpen;
+    
+    /**
      * A javac compile error.
      */
     @OnThread(Tag.Any)
@@ -164,7 +169,7 @@ public class FrameEditor implements Editor
     }
 
     @OnThread(Tag.FX)
-    public FrameEditor(File frameFilename, File javaFilename, EditorWatcher watcher, EntityResolver resolver, JavadocResolver javadocResolver, bluej.pkgmgr.Package pkg)
+    public FrameEditor(File frameFilename, File javaFilename, EditorWatcher watcher, EntityResolver resolver, JavadocResolver javadocResolver, bluej.pkgmgr.Package pkg, Runnable callbackOnOpen)
     {
         this.frameFilename = frameFilename;
         this.javaFilename = javaFilename;
@@ -173,6 +178,7 @@ public class FrameEditor implements Editor
         this.javadocResolver = javadocResolver;
         this.pkg = pkg;
         this.javaSource = new SimpleObjectProperty<>();
+        this.callbackOnOpen = callbackOnOpen;
         lastSource = Loader.loadTopLevelElement(frameFilename, resolver);
     }
     
@@ -196,6 +202,9 @@ public class FrameEditor implements Editor
 
             }
         });
+        
+        if (callbackOnOpen != null)
+            SwingUtilities.invokeLater(callbackOnOpen);  
     }
 
     // Editor methods:

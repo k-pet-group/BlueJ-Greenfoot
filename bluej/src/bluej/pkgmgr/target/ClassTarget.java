@@ -170,6 +170,8 @@ public class ClassTarget extends DependentTarget
     private boolean isDragging = false;
     private boolean isMoveable = true;
     private SourceType sourceAvailable;
+    // Part of keeping track of number of editors opened, for Greenfoot phone home:
+    private boolean hasBeenOpened = false;
     
     // Whether the source has been modified since it was last compiled. This
     // starts off as "true", which is a lie, but it prevents setting breakpoints
@@ -987,7 +989,7 @@ public class ClassTarget extends DependentTarget
                 editor = EditorManager.getEditorManager().openClass(filename, docFilename,
                         project.getProjectCharset(),
                         getBaseName(), project::getDefaultSwingTabbedEditor, this, isCompiled(), resolver,
-                        project.getJavadocResolver());
+                        project.getJavadocResolver(), this::recordEditorOpen);
                 else if (sourceAvailable == SourceType.Stride)
                 {
                     final CompletableFuture<Editor> q = new CompletableFuture<>();
@@ -997,7 +999,7 @@ public class ClassTarget extends DependentTarget
                     JavadocResolver javadocResolver = project.getJavadocResolver();
                     Package pkg = getPackage();
                     Platform.runLater(() -> {
-                        q.complete(new FrameEditor(frameSourceFile, javaSourceFile, this, resolver, javadocResolver, pkg));
+                        q.complete(new FrameEditor(frameSourceFile, javaSourceFile, this, resolver, javadocResolver, pkg, this::recordEditorOpen));
                     });
 
                     try {
@@ -1013,6 +1015,30 @@ public class ClassTarget extends DependentTarget
             }
         }
         return editor;
+    }
+
+    /**
+     * Records that the editor for this class target has been opened
+     * (i.e. actually made visible on screen).  Further calls after
+     * the first call will be ignored.
+     */
+    private void recordEditorOpen()
+    {
+        if (!hasBeenOpened)
+        {
+            hasBeenOpened = true;
+            switch (sourceAvailable)
+            {
+                case Java:
+                    Config.recordEditorOpen(Config.SourceType.Java);
+                    break;
+                case Stride:
+                    Config.recordEditorOpen(Config.SourceType.Stride);
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 
     /**

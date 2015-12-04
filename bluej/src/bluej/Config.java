@@ -150,7 +150,9 @@ public final class Config
     private static List<String> debugVMArgs = new ArrayList<String>();
     /** whether this is the debug vm or not. */
     private static boolean isDebugVm = true; // Default to true, will be corrected on main VM
-    
+    public static final String EDITOR_COUNT_JAVA = "session.numeditors.java";
+    public static final String EDITOR_COUNT_STRIDE = "session.numeditors.stride";
+
     /**
      * Initialisation of BlueJ configuration. Must be called at startup.
      * This method finds and opens the configuration files.<p>
@@ -721,11 +723,77 @@ public final class Config
      */
     public static void handleExit()
     {
-        final String name = getApplicationName().toLowerCase();
-        saveProperties(name, "properties.heading." + name, userProps);     
+        saveAppProperties();
         saveProperties("moe", "properties.heading.moe", moeUserProps);    
     }
-    
+
+    private static void saveAppProperties()
+    {
+        final String name = getApplicationName().toLowerCase();
+        saveProperties(name, "properties.heading." + name, userProps);
+    }
+
+    /**
+     * Increases the count of editors opened by one for the given source type,
+     * and saves the user properties file.
+     */
+    public static void recordEditorOpen(SourceType sourceType)
+    {
+        // Only record this for Greenfoot, at the moment:
+        if (!Config.isGreenfoot())
+            return;
+        
+        switch (sourceType)
+        {
+            case Java:
+            {
+                int javaEditors = getPropInteger(EDITOR_COUNT_JAVA, 0, userProps);
+                javaEditors += 1;
+                userProps.setProperty(EDITOR_COUNT_JAVA, Integer.toString(javaEditors));
+                saveAppProperties();
+            }
+            break;
+            case Stride:
+            {
+                int strideEditors = getPropInteger(EDITOR_COUNT_STRIDE, 0, userProps);
+                strideEditors += 1;
+                userProps.setProperty(EDITOR_COUNT_STRIDE, Integer.toString(strideEditors));
+                saveAppProperties();
+            }
+            break;
+            default: break;
+        }
+    }
+
+    /**
+     * Gets the editors count as stored in the properties file.  You should usually
+     * use this to get the count from the previous session, then call resetEditorsCount.
+     * 
+     * @return The number of editors that have been opened for that source type
+     *         since the last call to resetEditorsCount.  Returns -1 if the property
+     *         is not found
+     */
+    public static int getEditorCount(SourceType sourceType)
+    {
+        switch (sourceType)
+        {
+            case Java: return getPropInteger(EDITOR_COUNT_JAVA, -1, userProps);
+            case Stride: return getPropInteger(EDITOR_COUNT_STRIDE, -1, userProps);
+            default: return -1;
+        }
+    }
+
+    /**
+     * Resets the editor count (as processed by getEditorCount/recordEditorOpen)
+     * in the properties file.  Also saves the properties file.
+     */
+    public static void resetEditorsCount()
+    {
+        userProps.setProperty(EDITOR_COUNT_JAVA, "0");
+        userProps.setProperty(EDITOR_COUNT_STRIDE, "0");
+        saveAppProperties();
+    }
+
     /**
      * Load a BlueJ definition file. This creates a new properties object.
      * The new properties object can be returned directly, or an empty
@@ -1059,6 +1127,18 @@ public final class Config
         int value;
         try {
             value = Integer.parseInt(getPropString(intname, String.valueOf(def)));
+        }
+        catch(NumberFormatException nfe) {
+            return def;
+        }
+        return value;
+    }
+
+    private static int getPropInteger(String intname, int def, Properties props)
+    {
+        int value;
+        try {
+            value = Integer.parseInt(getPropString(intname, String.valueOf(def), props));
         }
         catch(NumberFormatException nfe) {
             return def;
@@ -1826,5 +1906,14 @@ public final class Config
                 }
             }
         }
+    }
+
+    /**
+     * This is almost equivalent to the SourceType in bluej.extensions, but we 
+     * don't want Config to depend on that class so we re-create the same idea here.
+     */
+    public static enum SourceType
+    {
+        Java, Stride;
     }
 }

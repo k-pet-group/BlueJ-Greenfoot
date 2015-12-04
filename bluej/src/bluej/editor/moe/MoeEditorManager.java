@@ -92,10 +92,11 @@ public final class MoeEditorManager extends bluej.editor.EditorManager
                 EditorWatcher watcher, 
                 boolean compiled,
                 EntityResolver projectResolver,
-                JavadocResolver javadocResolver)
+                JavadocResolver javadocResolver,
+                Runnable callbackOnOpen)
     {
         return openEditor (filename, docFilename, charset, true, windowTitle, swingTabbedEditor, watcher, compiled,
-                           projectResolver, javadocResolver);
+                           projectResolver, javadocResolver, callbackOnOpen);
     }
 
     // ------------------------------------------------------------------------
@@ -115,7 +116,7 @@ public final class MoeEditorManager extends bluej.editor.EditorManager
     @Override
     public Editor openText(String filename, Charset charset, String windowTitle, Supplier<SwingTabbedEditor> swingTabbedEditor)
     {
-        return openEditor(filename, null, charset, false, windowTitle, swingTabbedEditor, null, false, null, null);
+        return openEditor(filename, null, charset, false, windowTitle, swingTabbedEditor, null, false, null, null, null);
     }
 
     @Override
@@ -191,7 +192,8 @@ public final class MoeEditorManager extends bluej.editor.EditorManager
             Supplier<SwingTabbedEditor> swingTabbedEditor,
             EditorWatcher watcher, boolean compiled, 
             EntityResolver projectResolver,
-            JavadocResolver javadocResolver)
+            JavadocResolver javadocResolver,
+            Runnable callbackOnOpen)
     {
         MoeEditor editor;
 
@@ -200,6 +202,7 @@ public final class MoeEditorManager extends bluej.editor.EditorManager
         mep.setCode(isCode);
         mep.setShowToolbar(showToolBar);
         mep.setShowLineNum(showLineNum);
+        mep.setCallbackOnOpen(callbackOnOpen);
         editor = new MoeEditor(mep, swingTabbedEditor);
         editors.add(editor);
         if (editor.showFile(filename, charset, compiled, docFilename))

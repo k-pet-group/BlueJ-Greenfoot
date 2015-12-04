@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2015  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -42,6 +42,7 @@ public class MoeEditorParameters
     private Properties resources;
     private EntityResolver projectResolver;
     private JavadocResolver javadocResolver;
+    private Runnable callbackOnOpen;
 
     public MoeEditorParameters(String title, EditorWatcher watcher,
             Properties resources, EntityResolver projectResolver,
@@ -132,5 +133,15 @@ public class MoeEditorParameters
     public void setJavadocResolver(JavadocResolver javadocResolver)
     {
         this.javadocResolver = javadocResolver;
+    }
+
+    public Runnable getCallbackOnOpen()
+    {
+        return callbackOnOpen;
+    }
+
+    public void setCallbackOnOpen(Runnable callbackOnOpen)
+    {
+        this.callbackOnOpen = callbackOnOpen;
     }
 }

@@ -24,6 +24,7 @@ package bluej;
 import javax.swing.SwingUtilities;
 import java.awt.EventQueue;
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -32,6 +33,7 @@ import java.util.Properties;
 import java.util.UUID;
 import java.io.IOException;
 
+import bluej.extensions.SourceType;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.collect.DataCollector;
@@ -411,6 +413,27 @@ public class Main
         String language = getInterfaceLanguage();
         String javaVersion = getJavaVersion();
         String systemID = getOperatingSystem();
+
+        String editorStats = "";
+        if (Config.isGreenfoot())
+        {
+            int javaEditors = Config.getEditorCount(Config.SourceType.Java);
+            int strideEditors = Config.getEditorCount(Config.SourceType.Stride);
+            try
+            {
+                if (javaEditors != -1 && strideEditors != -1)
+                {
+                    editorStats = "&javaeditors=" + URLEncoder.encode(Integer.toString(javaEditors), "UTF-8")
+                        + "&strideeditors=" + URLEncoder.encode(Integer.toString(strideEditors), "UTF-8");
+                }
+            }
+            catch (UnsupportedEncodingException ex)
+            {
+                Debug.reportError(ex);
+            }
+            
+            Config.resetEditorsCount();
+        }
         
         // User uid. Use the one already stored in the Property if it exists,
         // otherwise generate one and store it for next time.
@@ -429,7 +452,8 @@ public class Main
                 "&osname=" + URLEncoder.encode(systemID, "UTF-8") +
                 "&appversion=" + URLEncoder.encode(appVersion, "UTF-8") +
                 "&javaversion=" + URLEncoder.encode(javaVersion, "UTF-8") +
-                "&language=" + URLEncoder.encode(language, "UTF-8")
+                "&language=" + URLEncoder.encode(language, "UTF-8") +
+                editorStats // May be blank string, e.g. in BlueJ
             );
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.connect();

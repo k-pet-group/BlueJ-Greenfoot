@@ -254,6 +254,12 @@ public final class MoeEditor extends JPanel
     private int mouseCaretPos = -1;
     private JMenuBar menubar;
 
+
+    /**
+     * A callback to call (on the Swing thread) when this editor is opened.
+     */
+    private final Runnable callbackOnOpen;
+
     /**
      * Constructor. Title may be null.
      */
@@ -277,6 +283,7 @@ public final class MoeEditor extends JPanel
 
         initWindow(parameters.getProjectResolver());
         swingTabbedEditor.scheduleCompilation(false);
+        callbackOnOpen = parameters.getCallbackOnOpen();
     }
 
     // --------------------------------------------------------------------
@@ -704,6 +711,8 @@ public final class MoeEditor extends JPanel
         if (vis)
         {
             swingTabbedEditor.bringToFront();
+            if (callbackOnOpen != null)
+                callbackOnOpen.run();
         }
     }
 
