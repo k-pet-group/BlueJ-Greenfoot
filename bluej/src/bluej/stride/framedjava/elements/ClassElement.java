@@ -582,7 +582,7 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
             .filter(c -> c instanceof ConstructorElement)
             .map(c -> (ConstructorElement)c)
             .map(c -> {
-                List<ParamInfo> paramInfo = Utility.mapList(c.getParams(), p -> new ParamInfo(p.getParamType().getContent(), p.getParamName().getContent(), "", ""));
+                List<ParamInfo> paramInfo = Utility.mapList(c.getParams(), p -> new ParamInfo(p.getParamType().getContent(), p.getParamName().getContent(), "", () -> ""));
                 return new AssistContentThreadSafe(c.getAccessPermission().asAccess(), getName(), c.getDocumentation(), CompletionKind.CONSTRUCTOR, getName(), null, paramInfo, null, null, null);
             })
             .collect(Collectors.toList());

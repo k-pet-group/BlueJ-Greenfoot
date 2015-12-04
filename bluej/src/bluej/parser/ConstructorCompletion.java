@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
+import java.util.function.Supplier;
 
 import bluej.debugger.gentype.ConstructorReflective;
 import bluej.debugger.gentype.GenTypeParameter;
@@ -149,21 +150,24 @@ public class ConstructorCompletion extends AssistContent
     }
 
     @OnThread(Tag.Swing)
-    private String javadocForParam(String paramName)
+    private Supplier<String> javadocForParam(String paramName)
     {
-        JavaUtils.Javadoc javadoc = JavaUtils.parseJavadoc(getJavadoc());
+        String javadocSrc = getJavadoc();
+        return () -> {
+            JavaUtils.Javadoc javadoc = JavaUtils.parseJavadoc(javadocSrc);
 
-        if (javadoc == null)
-            return null;
+            if (javadoc == null)
+                return null;
 
-        String target = "param " + paramName;
-        for (String block : javadoc.getBlocks())
-        {
-            if (block.startsWith(target) && Character.isWhitespace(block.charAt(target.length())))
+            String target = "param " + paramName;
+            for (String block : javadoc.getBlocks())
             {
-                return block.substring(target.length() + 1).trim();
+                if (block.startsWith(target) && Character.isWhitespace(block.charAt(target.length())))
+                {
+                    return block.substring(target.length() + 1).trim();
+                }
             }
-        }
-        return null;
+            return null;
+        };
     }
 }

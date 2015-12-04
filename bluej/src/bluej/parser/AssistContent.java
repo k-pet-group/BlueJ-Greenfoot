@@ -32,6 +32,7 @@ import threadchecker.Tag;
 import bluej.stride.generic.InteractionManager.Kind;
 
 import java.util.concurrent.Executor;
+import java.util.function.Supplier;
 
 /**
  * Describes a possible code completion.
@@ -60,9 +61,9 @@ public abstract class AssistContent
         private final String fullType;
         private final String formalName;
         private final String dummyName;
-        private final String javadocDescription;
+        private final Supplier<String> javadocDescription;
         
-        public ParamInfo(String fullType, String formalName, String dummyName, String javadocDescription)
+        public ParamInfo(String fullType, String formalName, String dummyName, Supplier<String> javadocDescription)
         {
             this.fullType = fullType;
             this.formalName = formalName;
@@ -131,7 +132,7 @@ public abstract class AssistContent
         
         public String getJavadocDescription()
         {
-            return javadocDescription;
+            return javadocDescription.get();
         }
 
         @Override
