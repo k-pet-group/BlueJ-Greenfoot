@@ -214,7 +214,7 @@
             </fileset>
             <fileset dir="${boot.src}">
                 <include name="bluej/splash.jpg"/>
-                <include name="bluej/greenfoot-3-splash.png"/>
+                <include name="bluej/greenfoot-splash.png"/>
             </fileset>
             <manifest>
                 <attribute name="Main-Class" value="bluej.Boot"/>
@@ -452,7 +452,7 @@
         <delete file="package/greenfoot-install.bmp" />
         <!-- Installer image jar: greenfoot-install.png -->
         <delete file="package/greenfoot-install.png" />
-        <delete file="boot/src/bluej/greenfoot-3-splash.png" />
+        <delete file="boot/src/bluej/greenfoot-splash.png" />
         <delete dir="lib/greenfoot" />
         <!-- Commons libraries -->
         <delete >

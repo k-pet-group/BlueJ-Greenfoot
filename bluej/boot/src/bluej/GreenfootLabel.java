@@ -37,7 +37,7 @@ public class GreenfootLabel extends SplashLabel
 {
     public GreenfootLabel()
     {
-        super("greenfoot-3-splash.png");
+        super("greenfoot-splash.png");
     }
 
     @Override
