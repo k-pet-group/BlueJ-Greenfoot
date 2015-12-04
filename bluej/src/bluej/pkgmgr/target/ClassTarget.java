@@ -998,8 +998,9 @@ public class ClassTarget extends DependentTarget
                     File javaSourceFile = getJavaSourceFile();
                     JavadocResolver javadocResolver = project.getJavadocResolver();
                     Package pkg = getPackage();
+                    final Runnable openCallback = this::recordEditorOpen;
                     Platform.runLater(() -> {
-                        q.complete(new FrameEditor(frameSourceFile, javaSourceFile, this, resolver, javadocResolver, pkg, this::recordEditorOpen));
+                        q.complete(new FrameEditor(frameSourceFile, javaSourceFile, this, resolver, javadocResolver, pkg, openCallback));
                     });
 
                     try {
