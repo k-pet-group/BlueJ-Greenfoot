@@ -464,10 +464,8 @@ LICENSE.txt file that accompanied this code.${line.separator}
     </target>
 
     <target name="update-images" description="Copies the images from the resource directory out into the various places where the images are required.">
-        <!-- Installer image windows: greenfoot-install.bmp -->
-        <copy file="resources/images/greenfoot-install.bmp" todir="${bluej.projectdir}/package"/>
-        <!-- Installer image jar: greenfoot-install.png -->
-        <copy file="resources/images/greenfoot-install.png" todir="${bluej.projectdir}/package"/>
+        <!-- Jar installer image: greenfoot-splash.png -->
+        <copy file="resources/images/greenfoot-splash.png" todir="${bluej.projectdir}/package"/>
         <!-- Splash image: greenfoot-splash.jpg -->
         <copy file="resources/images/greenfoot-splash.png" todir="${bluej.projectdir}/boot/src/bluej"/>
         <!-- Greenfoot icon for classes: greenfoot-16.png -->
@@ -532,10 +530,8 @@ LICENSE.txt file that accompanied this code.${line.separator}
     </target>
 
     <target name="clean" description="clean up" >
-        <!-- Installer image windows: greenfoot-install.bmp -->
-        <delete file="${bluej.projectdir}/package/greenfoot-install.bmp"/>
-        <!-- Installer image jar: greenfoot-install.png -->
-        <delete file="${bluej.projectdir}/package/greenfoot-install.png"/>
+        <!-- Jar installer image: greenfoot-splash.png -->
+        <delete file="${bluej.projectdir}/package/greenfoot-splash.png"/>
         <!-- About image: greenfoot-about.png -->
         <delete file="images/greenfoot-about.png"/>
         <!-- Splash image: greenfoot-splash.jpg -->
