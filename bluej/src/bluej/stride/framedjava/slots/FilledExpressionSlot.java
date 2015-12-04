@@ -34,12 +34,6 @@ import java.util.List;
 
 public class FilledExpressionSlot extends ExpressionSlot<FilledExpressionSlotFragment>
 {
-    public static final List<Hint> CALL_HINTS = Arrays.asList(
-        new Hint("move(3)", "Move forward 3 pixels"),
-        new Hint("turn(5)", "Turn right 5 degrees"),
-        new Hint("removeTouching(Crab.class)", "Remove touching Crab actors")
-    );
-
     public static final List<Hint> CONDITION_HINTS = Arrays.asList(
         new Hint("isAtEdge()", "Is at the edge of the world"),
         new Hint("isTouching(Crab.class)", "Is touching a Crab actor"),

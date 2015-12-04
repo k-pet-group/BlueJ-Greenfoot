@@ -24,6 +24,7 @@ package bluej.stride.framedjava.elements;
 
 import java.util.stream.Stream;
 
+import bluej.stride.framedjava.ast.CallExpressionSlotFragment;
 import bluej.stride.generic.InteractionManager;
 import nu.xom.Attribute;
 import nu.xom.Element;
@@ -40,10 +41,10 @@ import bluej.stride.generic.Frame.ShowReason;
 public class CallElement extends CodeElement implements JavaSingleLineDebugHandler
 {
     public static final String ELEMENT = "call";
-    private final FilledExpressionSlotFragment call;
+    private final CallExpressionSlotFragment call;
     private CallFrame frame;
     
-    public CallElement(CallFrame frame, FilledExpressionSlotFragment call, boolean enabled)
+    public CallElement(CallFrame frame, CallExpressionSlotFragment call, boolean enabled)
     {
         this.frame = frame;
         this.call = call;
@@ -52,13 +53,13 @@ public class CallElement extends CodeElement implements JavaSingleLineDebugHandl
     
     public CallElement(Element el)
     {
-        call = new FilledExpressionSlotFragment(el.getAttributeValue("expression"), el.getAttributeValue("expression-java"));
+        call = new CallExpressionSlotFragment(el.getAttributeValue("expression"), el.getAttributeValue("expression-java"));
         enable = Boolean.valueOf(el.getAttributeValue("enable"));
     }
     
     public CallElement(String call, String javaCode)
     {
-        this.call = new FilledExpressionSlotFragment(call, javaCode);
+        this.call = new CallExpressionSlotFragment(call, javaCode);
     }
 
     @Override
@@ -89,16 +90,6 @@ public class CallElement extends CodeElement implements JavaSingleLineDebugHandl
     {
         return frame.showDebugBefore(debug);
     }
-    
-    
-    /*
-    @Override
-    public Future<Stream<CodeError>> findEarlyErrors()
-    {
-        // TODO Check the call is actually a method call, and not an assignment or other expression
-        return super.findEarlyErrors();
-    }
-    */
 
     @Override
     public void show(ShowReason reason)

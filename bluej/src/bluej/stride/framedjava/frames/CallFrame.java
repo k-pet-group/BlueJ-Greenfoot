@@ -28,11 +28,13 @@ package bluej.stride.framedjava.frames;
 
 import java.util.List;
 
+import bluej.stride.framedjava.ast.CallExpressionSlotFragment;
 import bluej.stride.framedjava.ast.ExpressionSlotFragment;
 import bluej.stride.framedjava.ast.FilledExpressionSlotFragment;
 import bluej.stride.framedjava.ast.HighlightedBreakpoint;
 import bluej.stride.framedjava.canvases.JavaCanvas;
 import bluej.stride.framedjava.elements.CallElement;
+import bluej.stride.framedjava.slots.CallExpressionSlot;
 import bluej.stride.framedjava.slots.ExpressionSlot;
 import bluej.stride.framedjava.slots.ExpressionSlot.SplitInfo;
 import bluej.stride.framedjava.slots.FilledExpressionSlot;
@@ -48,7 +50,7 @@ import bluej.stride.operations.FrameOperation;
 public class CallFrame extends SingleLineFrame
   implements CodeFrame<CallElement>, DebuggableFrame
 {
-    private final ExpressionSlot<FilledExpressionSlotFragment> content;
+    private final ExpressionSlot<CallExpressionSlotFragment> content;
     
     private CallElement element;
     
@@ -59,7 +61,7 @@ public class CallFrame extends SingleLineFrame
     private CallFrame(InteractionManager editor)
     {
         super(editor, null, "do-");
-        content = new FilledExpressionSlot(editor, this, this, getHeaderRow(), "do-method-name-", FilledExpressionSlot.CALL_HINTS);
+        content = new CallExpressionSlot(editor, this, this, getHeaderRow(), "do-method-name-", CallExpressionSlot.CALL_HINTS);
         content.setText("()");
         content.setMethodCallPromptText("method-name");
         
