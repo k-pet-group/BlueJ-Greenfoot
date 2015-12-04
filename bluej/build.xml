@@ -448,10 +448,8 @@
     </target>
 
     <target name="clean-greenfoot" description="clean up greenfoot related stuff" >
-        <!-- Installer image windows: greenfoot-install.bmp -->
-        <delete file="package/greenfoot-install.bmp" />
-        <!-- Installer image jar: greenfoot-install.png -->
-        <delete file="package/greenfoot-install.png" />
+        <!-- Used by jar installer: greenfoot-splash.png -->
+        <delete file="package/greenfoot-splash.png" />
         <delete file="boot/src/bluej/greenfoot-splash.png" />
         <delete dir="lib/greenfoot" />
         <!-- Commons libraries -->

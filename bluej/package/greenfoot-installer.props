@@ -9,7 +9,7 @@
 #        (eg. i386, sparc, ...)
 
 # Logo to put at top
-install.gif.logo=greenfoot-install.png
+install.gif.logo=greenfoot-splash.png
 
 # Title to center under that
 install.title=Greenfoot Installation
