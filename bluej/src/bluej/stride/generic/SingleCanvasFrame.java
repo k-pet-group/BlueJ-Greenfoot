@@ -71,7 +71,7 @@ public abstract class SingleCanvasFrame extends Frame implements CanvasParent
         
         canvas = createCanvas(editor, stylePrefix);
 
-        sidebar = SidebarHelper.addSidebar(editor, getSidebarContainer(), getNode().layoutBoundsProperty(), stylePrefix);
+        sidebar = Sidebar.addSidebar(editor, getSidebarContainer(), getNode().layoutBoundsProperty(), stylePrefix);
 
         contents.setAll(getHeaderRow(), canvas);
 

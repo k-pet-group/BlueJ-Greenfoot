@@ -51,7 +51,7 @@ public abstract class MultiCanvasFrame extends Frame implements CanvasParent
     {
         super(editor, caption, stylePrefix);
 
-        sidebar = SidebarHelper.addSidebar(editor, getSidebarContainer(), getNode().layoutBoundsProperty(), stylePrefix);
+        sidebar = Sidebar.addSidebar(editor, getSidebarContainer(), getNode().layoutBoundsProperty(), stylePrefix);
 
         //setBlockContainerSpacing(3);
         //vBox.setMargin(canvas, new Insets(0,0,0,35));
