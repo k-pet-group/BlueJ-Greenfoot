@@ -121,7 +121,7 @@ Next, you need to set up a Greenfoot project.
      in the Ant view
      
    * In the package explorer view, right click on bluej/boot/src/bluej
-     and choose "refresh". greenfoot-3-splash.png should now be listed in
+     and choose "refresh". greenfoot-splash.png should now be listed in
      bluej/boot/src/bluej as a resource.
 
 
@@ -211,7 +211,7 @@ Common problems and their solution (if all the steps above are
 followed to the letter, then none of the problems should occur):
 
 
-1. Launching Greenfoot fails/complains because greenfoot-3-splash.png isn't
+1. Launching Greenfoot fails/complains because greenfoot-splash.png isn't
    found, even though it's in the bluej/boot/src/ dir.  Attempting to 
    add the image to the bluej/boot/src resource in eclipse fails.
 
@@ -224,7 +224,7 @@ Simply refreshing bluej/boot/src/bluej solves this.
 
 In the package explorer view in eclipse, after running the greenfoot
 ant "ready-to-run target" right click on bluej/boot/src/bluej 
-and choose "refresh". greenfoot-3-splash.png should now be listed in
+and choose "refresh". greenfoot-splash.png should now be listed in
 bluej/boot/src/bluej as a resource.
 
 
