@@ -630,7 +630,7 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
         // Add available frames:
         withInheritedItems(new HashSet<CompletionKind>(Arrays.asList(CompletionKind.FIELD, CompletionKind.METHOD)), membersByClass ->
         {
-            if (membersByClass.equals(curMembersByClass))
+            if (inheritedEquals(membersByClass, curMembersByClass))
             {
                 // Same as before, so nothing to do:
                 return;
@@ -681,6 +681,75 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
             extendsInheritedCanvases.forEach(s -> s.canvas.getCursors().forEach(c -> c.getNode().setFocusTraversable(false)));
             curMembersByClass = membersByClass;
         });
+    }
+
+    /**
+     * Checks if two sets of inherited items are the same, in terms of the information they would
+     * produce in the inherited canvas.
+     * @param a One of the sets, mapping super-class name to items
+     * @param b The other set
+     * @return True if they are equal in that they would produce the same display in the inherited canvas.
+     */
+    private static boolean inheritedEquals(Map<String, List<AssistContentThreadSafe>> a, Map<String, List<AssistContentThreadSafe>> b)
+    {
+        // Must be same size:
+        if (a.size() != b.size())
+            return false;
+
+        Set<String> ak = a.keySet();
+        Set<String> bk = b.keySet();
+
+        // Must have same set of super-classes:
+        if (!ak.equals(bk))
+            return false;
+
+        for (String k : ak)
+        {
+            List<AssistContentThreadSafe> av = a.get(k);
+            List<AssistContentThreadSafe> bv = b.get(k);
+
+            // Each super-class must have same number of items:
+            if (av.size() != bv.size())
+                return false;
+
+            for (int i = 0; i < av.size(); i++)
+            {
+                AssistContentThreadSafe ax = av.get(i);
+                AssistContentThreadSafe bx = bv.get(i);
+
+                // The inherited canvas signature/info differs by field and method, and contains:
+                //   Field: access permission, type, name
+                //   Method: access permission, return type, name, params
+
+                // Check the items present in both fields and methods:
+                if (ax.getKind() != bx.getKind()
+                    || ax.getAccessPermission() != bx.getAccessPermission()
+                    || !ax.getName().equals(bx.getName())
+                    || !ax.getType().equals(bx.getType()))
+                    return false;
+
+                // For methods, check the params:
+                if (ax.getKind() == CompletionKind.METHOD)
+                {
+                    List<ParamInfo> ap = ax.getParams();
+                    List<ParamInfo> bp = bx.getParams();
+
+                    // Must have same number of params:
+                    if (ap.size() != bp.size())
+                        return false;
+
+                    // For params, need to check that name and type matches
+                    for (int j = 0; j < ap.size(); j++)
+                    {
+                        if (!ap.get(j).getFormalName().equals(bp.get(j).getFormalName()) ||
+                            !ap.get(j).getQualifiedType().equals(bp.get(j).getQualifiedType()))
+                            return false;
+                    }
+                }
+            }
+        }
+
+        return true;
     }
 
     public void withInheritedItems(Set<CompletionKind> kinds, FXConsumer<Map<String, List<AssistContentThreadSafe>>> handler)
