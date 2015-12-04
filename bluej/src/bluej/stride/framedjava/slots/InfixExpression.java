@@ -284,6 +284,10 @@ class InfixExpression implements TextFieldDelegate<ExpressionSlotField>
      */
     private CaretPos anchorPos;
     private EditableSlot bindedSlot;
+    /**
+     * Keeps track of whether we have queued a task to update the prompts:
+     */
+    private boolean queuedUpdatePrompts;
 
     /**
      * Create top-level InfixExpression, just inside the ExpressionSlot
@@ -2528,22 +2532,32 @@ class InfixExpression implements TextFieldDelegate<ExpressionSlotField>
         return editor;
     }
 
-    //package-visible
-    void updatePromptsInMethodCalls(ExpressionSlotField from)
+    /**
+     * Queues a call to update prompts in method calls.  Will not
+     * queue more than one such call at any time.
+     */
+    void queueUpdatePromptsInMethodCalls()
     {
-        int index = findField(from);
-        if (index < 0)
+        if (!queuedUpdatePrompts)
         {
-            Debug.printCallStack("Asking to update prompts for non-existing field");
-            return;
+            queuedUpdatePrompts = true;
+            Platform.runLater(this::updatePromptsInMethodCalls);
         }
+    }
+
+
+    //package-visible
+    private void updatePromptsInMethodCalls()
+    {
+        queuedUpdatePrompts = false;
+
         // We look for method calls, which means we need to look for brackets preceded by non-empty fields:
-        // We look at the given field onwards, because e.g. getWorl().addObject() should update
+        // We look from the first field onwards, because e.g. getWorl().addObject() should update
         // the addObject call if "getWorl" gets editing to "getWorld".
         // However, we only check at the current level; a method can't affect the prompts
         // for further calls inside its parameters.
         // TODO: updating later calls doesn't seem to work right, for some reason?
-        for (int i = index; i < fields.size(); i++)
+        for (int i = 0; i < fields.size(); i++)
         {
             if (i < fields.size() - 1 && 
                     fields.get(i) instanceof ExpressionSlotField &&
@@ -2572,7 +2586,7 @@ class InfixExpression implements TextFieldDelegate<ExpressionSlotField>
             return;
 
         slot.withParamNamesForPos(absPosOfMethodName, methodName,
-            poss -> setPromptsFromParamNames(poss));
+            poss -> setPromptsFromParamNames(poss, methodName));
     }
 
     // package-visible
@@ -2585,7 +2599,7 @@ class InfixExpression implements TextFieldDelegate<ExpressionSlotField>
             return; // Nothing needs prompts
         
         slot.withParamNamesForConstructor(
-            poss -> setPromptsFromParamNames(poss));
+            poss -> setPromptsFromParamNames(poss, "<con>"));
     }
 
     /**
@@ -2599,10 +2613,16 @@ class InfixExpression implements TextFieldDelegate<ExpressionSlotField>
      *                       If possibilities is empty, there are no methods found.
      *                       If possibilities is not size 1, there are multiple overloads for that name.
      */
-    private void setPromptsFromParamNames(List<List<String>> possibilities)
+    private void setPromptsFromParamNames(List<List<String>> possibilities, String debugName)
     {
         List<ExpressionSlotField> curParams = getSimpleParameters();
-        int curArity = curParams.size();
+        int curArity;
+        // There is a special case if we have a single empty parameter; this looks
+        // like arity 1, but actually because it's empty, it's arity 0:
+        if (curParams.size() == 1 && curParams.get(0).isEmpty())
+            curArity = 0;
+        else
+            curArity = curParams.size();
         // Arity is fixed if any params are non-empty (i.e. null or !isEmpty())
         boolean arityFlexible = curParams.stream().allMatch(f -> f != null && f.isEmpty());
         

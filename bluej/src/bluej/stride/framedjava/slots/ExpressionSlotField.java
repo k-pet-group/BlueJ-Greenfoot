@@ -97,8 +97,7 @@ class ExpressionSlotField implements ExpressionSlotComponent
             shrinkGrow.run();
             if (!stringLiteral)
                 updateBreaks();
-            Platform.runLater(() ->
-                parent.updatePromptsInMethodCalls(this));
+            parent.queueUpdatePromptsInMethodCalls();
         });
         field.promptTextProperty().addListener((a, b, c) -> {shrinkGrow.run(); if (!stringLiteral) updateBreaks(); });
         
