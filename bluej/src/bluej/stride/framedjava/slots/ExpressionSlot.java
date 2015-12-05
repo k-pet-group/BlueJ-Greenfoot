@@ -467,7 +467,10 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
     public void setText(String text)
     {
         topLevel.blank();
-        topLevel.insert(topLevel.getFirstField(), 0, text);        
+        if (! "".equals(text))
+        {
+            topLevel.insert(topLevel.getFirstField(), 0, text);
+        }
     }
 
     @Override

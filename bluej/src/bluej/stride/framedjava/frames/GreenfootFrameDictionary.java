@@ -24,10 +24,12 @@ package bluej.stride.framedjava.frames;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import bluej.stride.generic.Frame;
 import bluej.stride.generic.FrameDictionary;
+import bluej.stride.generic.FrameTypeCheck;
 
 public class GreenfootFrameDictionary extends FrameDictionary<GreenfootFrameCategory>
 {
@@ -48,11 +50,6 @@ public class GreenfootFrameDictionary extends FrameDictionary<GreenfootFrameCate
     public static final char SUPER_EXTENSION_CHAR = 'u';
     public static final char THROWS_EXTENSION_CHAR = 'o';
 
-    public static final char VAR_CHAR = 'v';
-    public static final char CONSTRUCTOR_CHAR = 'c';
-    public static final char METHOD_CHAR = 'm';
-    public static final char ABSTRACT_METHOD_CHAR = 'a';
-    
     private GreenfootFrameDictionary()
     {
         super(Arrays.asList(
@@ -61,20 +58,22 @@ public class GreenfootFrameDictionary extends FrameDictionary<GreenfootFrameCate
             new Entry<>('/', CommentFrame.getFactory(), false, GreenfootFrameCategory.COMMENT, "Comment", "A code comment"),
             new Entry<>('=', AssignFrame.getFactory(), false, GreenfootFrameCategory.ASSIGNMENT, "Assignment", "Assignment"),
             //case '*': return new MultiCommentBlock(editor);
-            new Entry<>(ABSTRACT_METHOD_CHAR, MethodProtoFrame.getFactory(), false, GreenfootFrameCategory.ABSTRACT, "Abstract method", "An abstract method of a class"),
+            new Entry<>('a', MethodProtoFrame.getFactory(), false, GreenfootFrameCategory.ABSTRACT, "Abstract method", "An abstract method of a class"),
             new Entry<>('b', BreakFrame.getFactory(), false, GreenfootFrameCategory.BREAK, "Break", "Breaks out of loop"),
-            new Entry<>(CONSTRUCTOR_CHAR, ConstructorFrame.getFactory(), false, GreenfootFrameCategory.CONSTRUCTOR, "Constructor", "A constructor of a class"),
+            new Entry<>('c', ConstructorFrame.getFactory(), false, GreenfootFrameCategory.CONSTRUCTOR, "Constructor", "A constructor of a class"),
             new Entry<>('c', CaseFrame.getFactory(), false, GreenfootFrameCategory.CASE, "Case (Switch)", "Handles specific value"),
+            new Entry<>('c', VarFrame.getLocalConstantFactory(), false, GreenfootFrameCategory.VAR_LOCAL, "Constant declaration", "Declares constant"),
+            new Entry<>('c', VarFrame.getClassConstantFactory(), false, GreenfootFrameCategory.VAR_FIELD, "Constant declaration", "Declares constant"),
             //case 'f': return new ForBlock(editor);
             new Entry<>('f', ForeachFrame.getFactory(), true, GreenfootFrameCategory.LOOP, "For-each loop", "Loop over a collection"),
             new Entry<>('i', IfFrame.getFactory(), true, GreenfootFrameCategory.CONDITIONAL, "If", "Conditional execution"),
 //            new Entry<>('e', IfFrame.getFactory(), false, GreenfootFrameCategory.CONDITIONAL, "Else", "Else execution"),
             new Entry<>('i', ImportFrame.getFactory(), false, GreenfootFrameCategory.IMPORT, "Import", "Import a class or package"),
-            new Entry<>(METHOD_CHAR, NormalMethodFrame.getFactory(), false, GreenfootFrameCategory.METHOD, "Method", "A method of a class"),
+            new Entry<>('m', NormalMethodFrame.getFactory(), false, GreenfootFrameCategory.METHOD, "Method", "A method of a class"),
             //case 'o': return new ObjectBlock(editor);
             new Entry<>('r', ReturnFrame.getFactory(), false, GreenfootFrameCategory.RETURN, "Return", "Returns from method"),
             new Entry<>('s', SwitchFrame.getFactory(), false, GreenfootFrameCategory.SWITCH, "Switch", "Chooses from several cases"),
-            new Entry<>(VAR_CHAR, VarFrame.getFactory(), false, GreenfootFrameCategory.VAR, "Variable declaration", "Declares variable"),
+            new Entry<>('v', VarFrame.getFactory(), false, GreenfootFrameCategory.VAR, "Variable declaration", "Declares variable"),
             new Entry<>('w', WhileFrame.getFactory(), true, GreenfootFrameCategory.LOOP, "While loop", "Pre-condition loop"),
             new Entry<>('x', ThrowFrame.getFactory(), false, GreenfootFrameCategory.THROW, "Throw", "Throws an exception"),
             new Entry<>('y', TryFrame.getFactory(), true, GreenfootFrameCategory.TRY, "Try/catch", "Try block")
@@ -107,62 +106,80 @@ public class GreenfootFrameDictionary extends FrameDictionary<GreenfootFrameCate
         return names;
     }
     
-    @Override
-    public boolean isValidStatment(Class<? extends Frame> blockClass)
+    private static FrameTypeCheck checkCategories(GreenfootFrameCategory... categories)
     {
-        return getAllBlocks().stream().filter(t ->
-                t.getCategory().equals(GreenfootFrameCategory.CONDITIONAL) ||
-                t.getCategory().equals(GreenfootFrameCategory.VAR) ||
-                t.getCategory().equals(GreenfootFrameCategory.BLANK) ||
-                t.getCategory().equals(GreenfootFrameCategory.COMMENT) ||
-                t.getCategory().equals(GreenfootFrameCategory.LOOP) ||
-                t.getCategory().equals(GreenfootFrameCategory.ASSIGNMENT) ||
-                t.getCategory().equals(GreenfootFrameCategory.CALL) ||
-                t.getCategory().equals(GreenfootFrameCategory.BREAK) ||
-                t.getCategory().equals(GreenfootFrameCategory.SWITCH) ||
-                t.getCategory().equals(GreenfootFrameCategory.THROW) ||
-                t.getCategory().equals(GreenfootFrameCategory.TRY) ||
-                t.getCategory().equals(GreenfootFrameCategory.RETURN) )
-                .anyMatch(p -> p.getBlockClass().equals(blockClass));
+        List<GreenfootFrameCategory> categoryList = Arrays.asList(categories);
+        return new FrameTypeCheck()
+        {
+            @Override
+            public boolean canInsert(GreenfootFrameCategory category)
+            {
+                return categoryList.contains(category);
+            }
+
+            @Override
+            public boolean canPlace(Class<? extends Frame> type)
+            {
+                return getDictionary().getAllBlocks().stream().filter(e -> categoryList.contains(e.getCategory())).anyMatch(p -> p.getBlockClass().equals(type));
+            }
+        };
     }
     
-    @Override
-    public boolean isValidField(Class<? extends Frame> blockClass)
+    public static FrameTypeCheck checkStatement()
     {
-        return getAllBlocks().stream().filter(t -> 
-                t.getCategory().equals(GreenfootFrameCategory.VAR) ||
-                t.getCategory().equals(GreenfootFrameCategory.BLANK) ||
-                t.getCategory().equals(GreenfootFrameCategory.COMMENT) )
-                .anyMatch(p -> p.getBlockClass().equals(blockClass));
+        return checkCategories(GreenfootFrameCategory.CONDITIONAL,
+                GreenfootFrameCategory.VAR,
+                GreenfootFrameCategory.VAR_LOCAL,
+                GreenfootFrameCategory.BLANK,
+                GreenfootFrameCategory.COMMENT,
+                GreenfootFrameCategory.LOOP,
+                GreenfootFrameCategory.ASSIGNMENT,
+                GreenfootFrameCategory.CALL,
+                GreenfootFrameCategory.BREAK,
+                GreenfootFrameCategory.SWITCH,
+                GreenfootFrameCategory.THROW,
+                GreenfootFrameCategory.TRY,
+                GreenfootFrameCategory.RETURN);
     }
     
-    @Override
-    public boolean isValidConstructor(Class<? extends Frame> blockClass)
+    public static FrameTypeCheck checkField()
     {
-        return getAllBlocks().stream().filter(t -> 
-                t.getCategory().equals(GreenfootFrameCategory.CONSTRUCTOR) || 
-                t.getCategory().equals(GreenfootFrameCategory.COMMENT) )
-                .anyMatch(p -> p.getBlockClass().equals(blockClass));
+        return checkCategories( 
+                GreenfootFrameCategory.VAR,
+                GreenfootFrameCategory.VAR_FIELD,
+                GreenfootFrameCategory.BLANK,
+                GreenfootFrameCategory.COMMENT);
     }
     
-    @Override
-    public boolean isValidClassMethod(Class<? extends Frame> blockClass)
+    public static FrameTypeCheck checkConstructor()
     {
-        return getAllBlocks().stream().filter(t -> 
-                t.getCategory().equals(GreenfootFrameCategory.ABSTRACT) ||
-                t.getCategory().equals(GreenfootFrameCategory.METHOD) || 
-                t.getCategory().equals(GreenfootFrameCategory.COMMENT) )
-                .anyMatch(p -> p.getBlockClass().equals(blockClass));
+        return checkCategories( 
+                GreenfootFrameCategory.CONSTRUCTOR, 
+                GreenfootFrameCategory.COMMENT);
     }
     
+    public static FrameTypeCheck checkClassMethod()
+    {
+        return checkCategories(
+                GreenfootFrameCategory.ABSTRACT,
+                GreenfootFrameCategory.METHOD, 
+                GreenfootFrameCategory.COMMENT);
+    }
+    /*
     @Override
     public boolean isValidInterfaceMethod(Class<? extends Frame> blockClass)
     {
         return getAllBlocks().stream().filter(t -> 
-                t.getCategory().equals(GreenfootFrameCategory.VAR) ||
-                t.getCategory().equals(GreenfootFrameCategory.ABSTRACT) ||
-                t.getCategory().equals(GreenfootFrameCategory.COMMENT) )
+                GreenfootFrameCategory.VAR,
+                GreenfootFrameCategory.ABSTRACT,
+                GreenfootFrameCategory.COMMENT) )
                 .anyMatch(p -> p.getBlockClass().equals(blockClass));
+    }
+    */
+    
+    public static FrameTypeCheck checkImport()
+    {
+        return checkCategories(GreenfootFrameCategory.IMPORT);
     }
 
     public char getExtensionChar(String tailCanvasCaption) {

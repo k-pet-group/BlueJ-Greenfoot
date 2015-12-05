@@ -34,6 +34,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import bluej.stride.generic.FrameTypeCheck;
 import bluej.stride.slots.EditableSlot.MenuItemOrder;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -523,9 +524,9 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
             }
 
             @Override
-            public boolean acceptsType(FrameCanvas canvasBase, Class<? extends Frame> frameClass)
+            public FrameTypeCheck check(FrameCanvas canvasBase)
             {
-                return Arrays.asList(ImportFrame.class).contains(frameClass);
+                return GreenfootFrameDictionary.checkImport();
             }
             
             @Override
@@ -1107,15 +1108,16 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
     }
 
     @Override
-    public boolean acceptsType(FrameCanvas canvas, Class<? extends Frame> frameClass)
+    public FrameTypeCheck check(FrameCanvas canvas)
     {
         if (canvas == fieldsCanvas)
-            return editor.getDictionary().isValidField(frameClass);
+            return GreenfootFrameDictionary.checkField();
         else if (canvas == methodsCanvas)
-            return editor.getDictionary().isValidClassMethod(frameClass);
+            return GreenfootFrameDictionary.checkClassMethod();
         else if (canvas == constructorsCanvas)
-            return editor.getDictionary().isValidConstructor(frameClass);
-        return false;
+            return GreenfootFrameDictionary.checkConstructor();
+        else
+            throw new IllegalStateException("Asking about canvas unknown to ClassFrame");
     }
     
     @Override

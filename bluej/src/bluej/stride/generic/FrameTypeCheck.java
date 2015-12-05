@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2015 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -19,33 +19,27 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package bluej.stride.framedjava.frames;
+package bluej.stride.generic;
 
-// Provisional list of block categories:
-public enum GreenfootFrameCategory
+import bluej.stride.framedjava.frames.GreenfootFrameCategory;
+
+/**
+ * A utility predicate-like class for checking which frames are accepted in a given canvas.
+ * 
+ * We need two methods because there isn't a one-to-one correspondence between category
+ * and frame.  Specifically, var frames can be inserted in three categories (var, local constant, class constant)
+ * and only accepted by certain canvases, but after insertion, they can be moved around
+ * freely between canvases.
+ */
+public interface FrameTypeCheck
 {
-    // Order here matters for the sidebar:
-    CALL,
-    ASSIGNMENT,
-    VAR,
-    VAR_LOCAL,
-    VAR_FIELD,
-    CONDITIONAL,
-    LOOP,
-    RETURN,
-    COMMENT,
-    BLANK,
-    SWITCH,
-    TRY,
-    BREAK,
-    THROW,
-    
-    CASE,
-    
-    ABSTRACT,
-    CONSTRUCTOR,
-    IMPORT,
-    
-    METHOD,
-    
+    /**
+     * Checks if the given category can be inserted as new.
+     */
+    public boolean canInsert(GreenfootFrameCategory category);
+
+    /**
+     * Checks if the given frame class can be moved here.
+     */
+    public boolean canPlace(Class<? extends Frame> type);
 }

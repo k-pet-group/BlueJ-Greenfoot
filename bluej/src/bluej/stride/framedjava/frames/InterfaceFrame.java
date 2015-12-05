@@ -233,11 +233,13 @@ public class InterfaceFrame extends DocumentedSingleCanvasFrame
         canvas.getLastCursor().insertBlockAfter(frame); 
     }
 
+    /*
     @Override
     public boolean acceptsType(FrameCanvas canvas, Class<? extends Frame> blockClass)
     {
         return getEditor().getDictionary().isValidInterfaceMethod(blockClass);
     }
+    */
 
 //  @Override
 //  public List<ExtensionDescription> getAvailableInnerExtensions()

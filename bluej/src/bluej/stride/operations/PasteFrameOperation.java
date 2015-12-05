@@ -58,7 +58,7 @@ public class PasteFrameOperation extends FrameOperation
         if (elements != null && elements.size() > 0) {
             elements.forEach(codeElement -> {
                 final Frame frame = codeElement.createFrame(editor);
-                if (editor.getFocusedCursor().acceptsFrame(frame.getClass()))
+                if (editor.getFocusedCursor().check().canPlace(frame.getClass()))
                 {
                     editor.getFocusedCursor().insertBlockAfter(frame);
                     if (shouldDisable)

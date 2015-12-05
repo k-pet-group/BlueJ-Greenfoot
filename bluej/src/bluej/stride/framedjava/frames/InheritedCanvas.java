@@ -11,6 +11,7 @@ import bluej.stride.generic.Frame;
 import bluej.stride.generic.FrameCanvas;
 import bluej.stride.generic.FrameContentRow;
 import bluej.stride.generic.FrameCursor;
+import bluej.stride.generic.FrameTypeCheck;
 import bluej.stride.generic.InteractionManager;
 import bluej.stride.slots.SlotLabel;
 import bluej.stride.slots.TriangleLabel;
@@ -42,9 +43,22 @@ class InheritedCanvas
             }
 
             @Override
-            public boolean acceptsType(FrameCanvas canvasBase, Class<? extends Frame> frameClass)
+            public FrameTypeCheck check(FrameCanvas canvasBase)
             {
-                return Arrays.asList(InheritedMethodFrame.class, InheritedFieldFrame.class).contains(frameClass);
+                return new FrameTypeCheck() {
+                    @Override
+                    public boolean canInsert(GreenfootFrameCategory category)
+                    {
+                        // Can never insert manually into inherited canvas:
+                        return false;
+                    }
+
+                    @Override
+                    public boolean canPlace(Class<? extends Frame> type)
+                    {
+                        return Arrays.asList(InheritedMethodFrame.class, InheritedFieldFrame.class).contains(type);
+                    }
+                };  
             }
 
             @Override

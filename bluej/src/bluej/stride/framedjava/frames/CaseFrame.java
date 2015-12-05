@@ -27,7 +27,6 @@ package bluej.stride.framedjava.frames;
 
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Arrays;
 import java.util.List;
 
@@ -170,13 +169,7 @@ public class CaseFrame extends SingleCanvasFrame
             }
         };
     }
-    
-    @Override
-    public boolean acceptsType(FrameCanvas canvas, Class<? extends Frame> blockClass)
-    {
-        return getEditor().getDictionary().isValidStatment(blockClass);
-    }
-    
+        
     @Override
     public List<FrameOperation> getCutCopyPasteOperations(InteractionManager editor)
     {

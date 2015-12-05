@@ -236,6 +236,8 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         this.undoRedoManager = new UndoRedoManager(new FrameState(initialSource));
         this.menuManager = new FrameMenuManager(this);
 
+        
+        
         if (javaLangImports == null)
             javaLangImports = importsUpdated("java.lang.*");
 

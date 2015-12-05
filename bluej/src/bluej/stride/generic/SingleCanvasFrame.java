@@ -38,6 +38,8 @@ import javafx.scene.control.Label;
 import javafx.scene.effect.BlendMode;
 import javafx.scene.paint.Color;
 
+import bluej.stride.framedjava.frames.GreenfootFrameCategory;
+import bluej.stride.framedjava.frames.GreenfootFrameDictionary;
 import bluej.utility.javafx.FXConsumer;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
@@ -332,9 +334,6 @@ public abstract class SingleCanvasFrame extends Frame implements CanvasParent
         }
     }
     */
-    
-    @Override
-    public abstract boolean acceptsType(FrameCanvas canvas, Class<? extends Frame> blockClass);
 
     protected FrameCanvas createCanvas(InteractionManager editor, String stylePrefix)
     {
@@ -382,4 +381,18 @@ public abstract class SingleCanvasFrame extends Frame implements CanvasParent
             content.add(0, sidebar.getNode());
         return content;
     }
+    
+    @Override
+    public FrameTypeCheck check(FrameCanvas child)
+    {
+        if (child == this.canvas)
+        {
+            return GreenfootFrameDictionary.checkStatement();
+        }
+        else
+        {
+            throw new IllegalStateException("Asking about unknown child of SingleCanvasFrame");
+        }
+    }
+    
 }

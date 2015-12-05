@@ -416,7 +416,7 @@ public class FrameCanvas implements FrameContentItem
     public boolean acceptsType(Frame blockOfType)
     {
         if (blockOfType != null) {
-            return parentBlock.acceptsType(this, blockOfType.getClass());
+            return parentBlock.check(this).canPlace(blockOfType.getClass());
         }
         return false;
     }

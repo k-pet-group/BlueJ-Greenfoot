@@ -28,6 +28,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import bluej.stride.framedjava.frames.GreenfootFrameCategory;
+
 /**
  * Holds a list of all the blocks, and information about them (e.g. shortcut key, description)
  */
@@ -121,15 +123,5 @@ public abstract class FrameDictionary<CATEGORY>
     {
         return entries.stream().filter(e -> e.hasShortcut(k)).collect(Collectors.toList());
     }
-    
-    public abstract boolean isValidStatment(Class<? extends Frame> blockClass);
-    
-    public abstract boolean isValidClassMethod(Class<? extends Frame> blockClass);
-    
-    public abstract boolean isValidConstructor(Class<? extends Frame> blockClass);
-    
-    public abstract boolean isValidInterfaceMethod(Class<? extends Frame> blockClass);
-
-    public abstract boolean isValidField(Class<? extends Frame> blockClass);
     
 }

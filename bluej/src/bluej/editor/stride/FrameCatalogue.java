@@ -213,7 +213,7 @@ public class FrameCatalogue extends VBox
                 standardItems.add(item);
 
                 catalogueUpdate.add((c, code, hasSelection, birdseye) -> {
-                    boolean show = c != null && c.canInsert() && c.acceptsFrame(e.getBlockClass()) && (!hasSelection || e.validOnSelection());
+                    boolean show = c != null && c.canInsert() && c.check().canInsert(e.getCategory()) && (!hasSelection || e.validOnSelection());
                     item.setVisible(show);
                     item.setManaged(show);
 

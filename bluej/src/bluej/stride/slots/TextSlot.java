@@ -87,6 +87,7 @@ import bluej.stride.generic.InteractionManager;
 import bluej.stride.generic.InteractionManager.FileCompletion;
 import bluej.stride.slots.SuggestionList.SuggestionDetails;
 import bluej.stride.slots.SuggestionList.SuggestionListListener;
+import bluej.utility.Debug;
 import bluej.utility.JavaUtils;
 import bluej.utility.Utility;
 import bluej.utility.javafx.AnnotatableTextField;

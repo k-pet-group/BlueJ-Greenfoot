@@ -110,12 +110,6 @@ public class ForeachFrame extends SingleCanvasFrame
     }
 
     @Override
-    public boolean acceptsType(FrameCanvas canvas, Class<? extends Frame> blockClass)
-    {
-        return getEditor().getDictionary().isValidStatment(blockClass);
-    }
-
-    @Override
     public List<FrameOperation> getContextOperations()
     {
         List<FrameOperation> r = super.getContextOperations();

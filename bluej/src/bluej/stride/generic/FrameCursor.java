@@ -117,7 +117,7 @@ public class FrameCursor implements RecallableFocus
         if (Character.isLetter(key) || Arrays.asList('/', '\\', '*', '=', '+', '-', '\n', ' ').contains(key))
         {
             List<Entry<?>> available = editor.getDictionary().getFramesForShortcutKey(key).stream()
-                    .filter(t -> parentCanvas.getParent().acceptsType(parentCanvas, t.getBlockClass()))
+                    .filter(t -> parentCanvas.getParent().check(parentCanvas).canInsert(t.getCategory()))
                     .collect(Collectors.toList());
 
             final boolean selection = !editor.getSelection().getSelected().isEmpty();
@@ -681,11 +681,11 @@ public class FrameCursor implements RecallableFocus
         getParentCanvas().insertBlockBefore(b, this);
     }
     
-    public boolean acceptsFrame(Class<? extends Frame> frameClass)
+    public FrameTypeCheck check()
     {
-        return getParentCanvas().getParent().acceptsType(getParentCanvas(), frameClass);
+        return getParentCanvas().getParent().check(getParentCanvas());
     }
-    
+
     public void insertFramesAfter(List<Frame> frames)
     {
         List<Frame> rev = new ArrayList<>(frames);
@@ -826,7 +826,7 @@ public class FrameCursor implements RecallableFocus
         List<MenuItem> items = new ArrayList<MenuItem>();
         List<Entry<GreenfootFrameCategory>> entries = GreenfootFrameDictionary.getDictionary().getAllBlocks();
         for (Entry<GreenfootFrameCategory> entry : entries) {
-            if ( acceptsFrame(entry.getBlockClass()) ) {
+            if ( check().canInsert(entry.getCategory()) ) {
                  items.add(createMenuItem(entry, this));
             }
         }

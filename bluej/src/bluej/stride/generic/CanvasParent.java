@@ -24,9 +24,12 @@ package bluej.stride.generic;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import bluej.stride.framedjava.frames.GreenfootFrameCategory;
+import bluej.stride.framedjava.frames.GreenfootFrameDictionary;
+
 public interface CanvasParent extends CursorFinder
 {
-    boolean acceptsType(FrameCanvas canvasBase, Class<? extends Frame> class1);
+    FrameTypeCheck check(FrameCanvas childCanvas);
 
     default FrameCursor getCursorBefore(FrameCanvas c)
     {

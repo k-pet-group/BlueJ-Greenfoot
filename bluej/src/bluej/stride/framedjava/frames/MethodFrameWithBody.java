@@ -34,9 +34,9 @@ import java.util.stream.Collectors;
 import bluej.stride.framedjava.elements.MethodWithBodyElement;
 import bluej.stride.generic.FrameContentRow;
 import bluej.stride.generic.FrameCursor;
+import bluej.stride.generic.FrameTypeCheck;
 import bluej.stride.slots.AccessPermissionSlot;
 import bluej.stride.slots.EditableSlot;
-import bluej.stride.slots.Focus;
 import bluej.stride.slots.HeaderItem;
 import bluej.utility.javafx.FXRunnable;
 import javafx.beans.binding.DoubleBinding;
@@ -45,12 +45,8 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
-import javafx.geometry.Bounds;
-import javafx.scene.SnapshotParameters;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.Effect;
-import javafx.scene.image.ImageView;
-import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
@@ -343,17 +339,6 @@ public abstract class MethodFrameWithBody<T extends MethodWithBodyElement>
     protected List<ParamFragment> generateParams()
     {
         return paramsPane.getSlotElement();
-    }
-    
-    @Override
-    public boolean acceptsType(FrameCanvas canvas, Class<? extends Frame> blockClass)
-    {
-        if (canvas == this.canvas) {
-            return getEditor().getDictionary().isValidStatment(blockClass);
-        }
-        else {
-            throw new IllegalArgumentException("Asking about non-contained canvas");
-        }
     }
 
     @Override

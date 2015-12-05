@@ -44,6 +44,7 @@ import bluej.stride.generic.FrameCanvas;
 import bluej.stride.generic.FrameContentRow;
 import bluej.stride.generic.FrameCursor;
 import bluej.stride.generic.FrameFactory;
+import bluej.stride.generic.FrameTypeCheck;
 import bluej.stride.generic.InteractionManager;
 import bluej.stride.generic.MultiCanvasFrame;
 import bluej.stride.operations.FrameOperation;
@@ -362,17 +363,32 @@ public class SwitchFrame extends MultiCanvasFrame
     */
 
     @Override
-    public boolean acceptsType(FrameCanvas canvas, Class<? extends Frame> blockClass)
+    public FrameTypeCheck check(FrameCanvas canvas)
     {
         if (canvas == casesCanvas)
         {
-            return blockClass.equals(CaseFrame.class);
+            return new FrameTypeCheck() {
+                @Override
+                public boolean canInsert(GreenfootFrameCategory category)
+                {
+                    return category == GreenfootFrameCategory.CASE;
+                }
+
+                @Override
+                public boolean canPlace(Class<? extends Frame> type)
+                {
+                    return type.equals(CaseFrame.class);
+                }
+            };
         }
         else if (canvas == defaultCanvas)
         {
-            return getEditor().getDictionary().isValidStatment(blockClass);
+            return GreenfootFrameDictionary.checkStatement();
         }
-        return false;
+        else
+        {
+            throw new IllegalStateException("Asking about unknown child of SwitchFrame");
+        }
     }
 
     @Override

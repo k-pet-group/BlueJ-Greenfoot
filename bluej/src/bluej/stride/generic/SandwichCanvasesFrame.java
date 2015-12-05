@@ -322,9 +322,9 @@ public abstract class SandwichCanvasesFrame extends MultiCanvasFrame
     }
 
     @Override
-    public boolean acceptsType(FrameCanvas canvas, Class<? extends Frame> blockClass)
+    public FrameTypeCheck check(FrameCanvas canvas)
     {
-        return getEditor().getDictionary().isValidStatment(blockClass);
+        return GreenfootFrameDictionary.checkStatement();
     }
 
     @Override

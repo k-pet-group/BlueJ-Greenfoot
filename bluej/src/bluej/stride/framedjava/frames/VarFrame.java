@@ -32,6 +32,8 @@ import java.util.Collections;
 import java.util.List;
 
 import bluej.stride.slots.EditableSlot.MenuItemOrder;
+
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -74,6 +76,7 @@ import bluej.stride.slots.SlotValueListener;
 import bluej.stride.slots.TypeCompletionCalculator;
 import bluej.stride.slots.TypeTextSlot;
 import bluej.stride.slots.VariableNameDefTextSlot;
+import bluej.utility.Debug;
 import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
@@ -102,11 +105,16 @@ public class VarFrame extends SingleLineFrame
      * Default constructor.
      * @param editor 
      */
-    VarFrame(final InteractionManager editor)
+    VarFrame(final InteractionManager editor, boolean isFinal, boolean isStatic)
     {
         super(editor, "var ", "var-");
         //Parameters
 
+        staticModifier.set(isStatic);
+        finalModifier.set(isFinal);
+        // If it's final, show initialisation value from outset:
+        showingValue.set(isFinal);
+        
         headerCaptionLabel.setAnimateCaption(false);
 
         // Renaming fields is more difficult (could be accesses in other classes)
@@ -154,13 +162,14 @@ public class VarFrame extends SingleLineFrame
 
         slotValue = new FilledExpressionSlot(editor, this, this, getHeaderRow(), "var-value-");
         slotValue.bindTargetType(slotType.textProperty());
+        slotValue.setSimplePromptText("value");
         slotValue.onLostFocus(this::checkForEmptySlot);
+        Platform.runLater(() -> {if (isFresh()) onNonFresh(this::checkForEmptySlot);});
 
         JavaFXUtil.addChangeListener(showingValue, showing -> {
             if (!showing) {
                 slotValue.setText("");
                 slotValue.clearErrorMarkers();
-                slotName.requestFocus(Focus.RIGHT);
             }
             editor.modifiedFrame(this);
         });
@@ -172,6 +181,7 @@ public class VarFrame extends SingleLineFrame
         };
         slotName.addValueListener(new SlotTraversalChars(runAddValSlot, SlotTraversalChars.ASSIGN_LHS.getChars()));
 
+        
 
         getHeaderRow().bindContentsConcat(FXCollections.<ObservableList<HeaderItem>>observableArrayList(
                 FXCollections.observableArrayList(headerCaptionLabel),
@@ -192,13 +202,11 @@ public class VarFrame extends SingleLineFrame
     public VarFrame(InteractionManager editor, AccessPermissionFragment accessValue, boolean staticModifier, boolean finalModifier,
             TypeSlotFragment varType, NameDefSlotFragment varName, FilledExpressionSlotFragment varValue, boolean enabled)
     {
-        this(editor);
+        this(editor, finalModifier, staticModifier);
         accessModifier.set(accessValue != null);
         if (accessValue != null) {
             access.setValue(accessValue.getValue());
         }
-        this.staticModifier.set(staticModifier);
-        this.finalModifier.set(finalModifier);
         slotType.setText(varType);
         slotName.setText(varName);
         showingValue.set(varValue != null);
@@ -228,9 +236,43 @@ public class VarFrame extends SingleLineFrame
             @Override
             public VarFrame createBlock(InteractionManager editor)
             {
-                return new VarFrame(editor);
+                return new VarFrame(editor, false, false);
             }
                         
+            @Override
+            public Class<VarFrame> getBlockClass()
+            {
+                return VarFrame.class;
+            }
+        };
+    }
+
+    public static FrameFactory<VarFrame> getLocalConstantFactory()
+    {
+        return new FrameFactory<VarFrame>() {
+            @Override
+            public VarFrame createBlock(InteractionManager editor)
+            {
+                return new VarFrame(editor, true, false);
+            }
+
+            @Override
+            public Class<VarFrame> getBlockClass()
+            {
+                return VarFrame.class;
+            }
+        };
+    }
+
+    public static FrameFactory<VarFrame> getClassConstantFactory()
+    {
+        return new FrameFactory<VarFrame>() {
+            @Override
+            public VarFrame createBlock(InteractionManager editor)
+            {
+                return new VarFrame(editor, true, true);
+            }
+
             @Override
             public Class<VarFrame> getBlockClass()
             {
@@ -300,7 +342,7 @@ public class VarFrame extends SingleLineFrame
     @Override
     public void checkForEmptySlot()
     {
-        showingValue.set(!slotValue.isEmpty() || slotValue.isShowingSuggestions());
+        showingValue.set((isFresh() && finalModifier.get()) || !slotValue.isEmpty() || slotValue.isShowingSuggestions());
     }
 
     @Override
@@ -330,6 +372,7 @@ public class VarFrame extends SingleLineFrame
     {
         if (src == slotValue) {
             showingValue.set(false);
+            slotName.requestFocus(Focus.RIGHT);
             return true;
         }
         else

@@ -80,12 +80,6 @@ public class DefaultCaseFrame extends SingleCanvasFrame implements CodeFrame<Def
     }
     
     @Override
-    public boolean acceptsType(FrameCanvas canvas, Class<? extends Frame> blockClass)
-    {
-        return getEditor().getDictionary().isValidStatment(blockClass);
-    }
-    
-    @Override
     public List<FrameOperation> getCutCopyPasteOperations(InteractionManager editor)
     {
         return GreenfootFrameUtil.cutCopyPasteOperations(editor);

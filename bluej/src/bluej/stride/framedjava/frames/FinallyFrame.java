@@ -33,7 +33,6 @@ import bluej.stride.framedjava.ast.HighlightedBreakpoint;
 import bluej.stride.framedjava.canvases.JavaCanvas;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.FinallyElement;
-import bluej.stride.generic.Frame;
 import bluej.stride.generic.FrameCanvas;
 import bluej.stride.generic.FrameFactory;
 import bluej.stride.generic.InteractionManager;
@@ -77,12 +76,6 @@ public class FinallyFrame extends SingleCanvasFrame implements CodeFrame<Finally
                 return FinallyFrame.class; 
             }
         };
-    }
-    
-    @Override
-    public boolean acceptsType(FrameCanvas canvas, Class<? extends Frame> blockClass)
-    {
-        return getEditor().getDictionary().isValidStatment(blockClass);
     }
     
     @Override
