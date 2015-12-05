@@ -116,9 +116,6 @@ public class FrameCursor implements RecallableFocus
 
         if (Character.isLetter(key) || Arrays.asList('/', '\\', '*', '=', '+', '-', '\n', ' ').contains(key))
         {
-            if (parentCanvas.getParent().tryRedirectCursor(parentCanvas, key))
-                return true;
-
             List<Entry<?>> available = editor.getDictionary().getFramesForShortcutKey(key).stream()
                     .filter(t -> parentCanvas.getParent().acceptsType(parentCanvas, t.getBlockClass()))
                     .collect(Collectors.toList());

@@ -99,11 +99,6 @@ public interface CanvasParent extends CursorFinder
     }
 
     Frame getFrame();
-    
-    /**
-     * If true, this key press has been redirected to another cursor, and should be ignored.
-     */
-    default boolean tryRedirectCursor(FrameCanvas canvas, char c) { return false; }
 
     enum CanvasKind
     {

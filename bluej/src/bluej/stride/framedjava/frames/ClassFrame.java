@@ -1117,25 +1117,7 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
             return editor.getDictionary().isValidConstructor(frameClass);
         return false;
     }
-
-    @Override
-    public boolean tryRedirectCursor(FrameCanvas canvas, char c)
-    {
-        if ((canvas == constructorsCanvas || canvas == methodsCanvas) && c == GreenfootFrameDictionary.VAR_CHAR)
-        {
-            return fieldsCanvas.getLastCursor().keyTyped((FrameEditorTab)editor, fieldsCanvas, c, true);
-        }
-        else if ((canvas == fieldsCanvas || canvas == methodsCanvas) && c == GreenfootFrameDictionary.CONSTRUCTOR_CHAR)
-        {
-            return constructorsCanvas.getLastCursor().keyTyped((FrameEditorTab)editor, constructorsCanvas, c, true);
-        }
-        else if ((canvas == constructorsCanvas || canvas == fieldsCanvas) && (c == GreenfootFrameDictionary.METHOD_CHAR || c == GreenfootFrameDictionary.ABSTRACT_METHOD_CHAR))
-        {
-            return methodsCanvas.getLastCursor().keyTyped((FrameEditorTab)editor, methodsCanvas, c, true);
-        }
-        return false;
-    }
-
+    
     @Override
     public CanvasKind getChildKind(FrameCanvas c)
     {
