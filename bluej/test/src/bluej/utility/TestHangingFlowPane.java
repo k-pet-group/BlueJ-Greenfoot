@@ -1,5 +1,6 @@
 package bluej.utility;
 
+import bluej.utility.javafx.BetterVBox;
 import bluej.utility.javafx.HangingFlowPane;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
@@ -349,4 +350,63 @@ public class TestHangingFlowPane
         ));
     }
     
+    @Test
+    public void testHeight()
+    {
+        checkHeight(0);
+        checkHeight(50, n(10, 0), n(20, 10));
+        checkHeight(50, n(300, 0));
+        checkHeight(50, n(300, 0), n(100, 300));
+        checkHeight(50, n(300, 0), n(199, 300));
+        checkHeight(50, n(300, 0), n(200, 300));
+        checkHeight(100, n(300, 0), n(201, 0));
+        checkHeight(100, n(300, 0), n(300, 0));
+
+        checkHeight(50, n(300, 0), n(198, 300), n(1, 498));
+        checkHeight(50, n(300, 0), n(199, 300), n(1, 499));
+        checkHeight(100, n(300, 0), n(200, 300), n(1, 0));
+        
+    }
+    
+    // Makes the computePrefHeight method public
+    private static class TestBetterVBox extends BetterVBox
+    {
+        public TestBetterVBox(double minWidth)
+        {
+            super(minWidth);
+        }
+
+        public double computePrefHeight(double width)
+        {
+            return super.computePrefHeight(width);
+        }
+    }
+
+    private void checkHeight(double expectedHeight, TestNodeInfo... content)
+    {
+        TestBetterVBox surround = new TestBetterVBox(0) {
+            @Override
+            public double getLeftMarginFor(Node n)
+            {
+                return 3;
+            }
+
+            @Override
+            public double getRightMarginFor(Node n)
+            {
+                return 2;
+            }
+        };
+        HangingFlowPane hfp = new HangingFlowPane();
+        surround.getChildren().add(hfp);
+        surround.resize(505, 1000);
+        hfp.setRowValignment(VPos.BASELINE);
+        hfp.getChildren().setAll(Arrays.stream(content).map(TestNodeInfo::getNode).collect(Collectors.toList()));
+        surround.requestLayout();
+        surround.layout();
+
+
+        assertEquals("Checking height", expectedHeight, hfp.getHeight(), 0.001);
+        assertEquals("Checking height", expectedHeight, surround.computePrefHeight(505), 0.001);
+    }
 }
