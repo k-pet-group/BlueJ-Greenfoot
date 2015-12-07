@@ -444,6 +444,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         {
             if (!stage.isShowing()) {
                 stage.show();
+                //ScenicView.show(stage.getScene());
             }
             if (!tabPane.getTabs().contains(tab))
             {
