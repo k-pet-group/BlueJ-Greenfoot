@@ -40,6 +40,7 @@ import java.util.stream.Stream;
 import bluej.editor.stride.FrameCatalogue;
 import bluej.stride.framedjava.ast.links.PossibleLink;
 import javafx.application.Platform;
+import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.binding.StringExpression;
@@ -125,6 +126,8 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
     private final List<Underline> underlines = new ArrayList<>();
     private final ObservableList<String> recentValues = FXCollections.observableArrayList();
     private CodeError hoverErrorCurrentlyShown;
+    // We must keep a reference to this to avoid problems with GC and weak listeners:
+    private BooleanBinding effectivelyFocusedProperty;
 
     protected TextSlot(InteractionManager editor, Frame frameParent, CodeFrame<? extends CodeElement> codeFrameParent, FrameContentRow row, CompletionCalculator completionCalculator, String stylePrefix, List<FrameCatalogue.Hint> hints)
     {
@@ -145,6 +148,8 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
             else
                 return true;
         });
+
+        effectivelyFocusedProperty = field.focusedProperty().or(suggestionDisplayProperty.isNotNull());
     }
 
     /**
@@ -157,7 +162,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
      */
     public ObservableValue<Boolean> effectivelyFocusedProperty()
     {
-        return field.focusedProperty().or(suggestionDisplayProperty.isNotNull());
+        return effectivelyFocusedProperty;
     }
 
     public class SlotTextField extends AnnotatableTextField

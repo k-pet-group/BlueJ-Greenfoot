@@ -144,13 +144,13 @@ public class TypeList implements SlotValueListener
                     change.getRemoved().forEach(slot -> slot.effectivelyFocusedProperty().removeListener(focusListener));
                 }
             }
-
+            updateFocusedProperty();
         });
     }
 
     private void updateFocusedProperty()
     {
-        focusedProperty.set(typeSlots.stream().anyMatch(slot -> slot.isFocused()));
+        focusedProperty.set(typeSlots.stream().anyMatch(slot -> slot.effectivelyFocusedProperty().getValue()));
     }
 
     public ObservableList<HeaderItem> getHeaderItems()
