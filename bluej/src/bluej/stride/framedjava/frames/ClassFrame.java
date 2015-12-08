@@ -1169,4 +1169,18 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
             extendsSlot.setText("");
         }
     }
+
+    @Override
+    protected FrameContentRow makeHeader(String stylePrefix)
+    {
+        return new FrameContentRow(this, stylePrefix) {
+            @Override
+            public boolean focusRightEndFromNext()
+            {
+                implementsSlot.ensureAtLeastOneSlot();
+                Utility.findLast(implementsSlot.getTypeSlots()).get().requestFocus(Focus.RIGHT);
+                return true;
+            }
+        };
+    }
 }
