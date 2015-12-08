@@ -774,4 +774,12 @@ public class TestSlots
         testInsertExisting("a$,", ",", "{a},{$}");
         testInsertExisting("a$,b", ",", "{a},{$},{b}");
     }
+    
+    @Test
+    public void testSemicolon()
+    {
+        testInsert(";", "{$}");
+        testInsert("foo();", "{foo}_({})_{$}");
+        testInsert("\";", "{}_\";$\"_{}");
+    }
 }

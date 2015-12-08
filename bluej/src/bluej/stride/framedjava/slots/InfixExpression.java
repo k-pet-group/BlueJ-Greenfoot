@@ -1540,6 +1540,10 @@ class InfixExpression implements TextFieldDelegate<ExpressionSlotField>
             final Operator next = pos.index >= operators.size() ? null : operators.get(pos.index);
             int posInField = pos.subPos.index;
             
+            if (c == ';')
+                // No semi-colons allowed, except in string literals:
+                return pos;
+            
             if (Character.isWhitespace(c) && !f.getText().substring(0, posInField).equals("new"))
             {
                 // No whitespace allowed in slots (except string literals, handled later, and after "new")

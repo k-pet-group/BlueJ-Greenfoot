@@ -137,6 +137,14 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
         this.row = row;
         field = new SlotTextField(stylePrefix, row.getOverlay());
         editor.setupFocusableSlotComponent(this, field.getFocusableNode(), completionCalculator != null, hints);
+        
+        // Always disallow semi-colons:
+        listeners.add((slot, oldValue, newValue, parent) -> {
+            if (newValue.contains(";"))
+                return false;
+            else
+                return true;
+        });
     }
 
     /**
