@@ -263,7 +263,8 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
         }
         // We must make the showing immediate when you get keyboard focus, as otherwise there
         // are problems with focusing the extends slot and then it disappears.
-        ObservableBooleanValue keyMouseHeader = JavaFXUtil.delay(headerHasKeyboardFocus, Duration.ZERO, Duration.millis(50)).or(JavaFXUtil.delay(getHeaderRow().mouseHoveringProperty(), Duration.millis(500), Duration.millis(50)));
+        // We no longer show on mouse hover:
+        ObservableBooleanValue keyMouseHeader = JavaFXUtil.delay(headerHasKeyboardFocus, Duration.ZERO, Duration.millis(100));
         showingExtends.bind(extendsSlot.textProperty().isNotEmpty().or(keyMouseHeader));
 
         implementsSlot = new Implements(this, () -> {
