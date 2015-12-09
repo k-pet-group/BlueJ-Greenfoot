@@ -718,8 +718,8 @@ public class JavaFXUtil
     @OnThread(Tag.FX)
     private static class TooltipListener implements EventHandler<InputEvent>, ChangeListener<Boolean>
     {
-        /** The label displaying the tooltip */
-        private final Label l;
+        /** The label displaying the tooltip. Null when not showing. */
+        private Label l;
         private final InteractionManager editor;
         /** The "parent" (not actual scene graph parent, but the node we are showing a tooltip for) */
         private final Node parent;
@@ -744,9 +744,8 @@ public class JavaFXUtil
          * @param parent The node for which to show the tooltip
          * @param requestTooltip The callback (see comments above).
          */
-        private TooltipListener(Label l, InteractionManager editor, Node parent, FXConsumer<FXConsumer<String>> requestTooltip)
+        private TooltipListener(InteractionManager editor, Node parent, FXConsumer<FXConsumer<String>> requestTooltip)
         {
-            this.l = l;
             this.editor = editor;
             this.parent = parent;
             this.requestTooltip = requestTooltip;
@@ -812,6 +811,15 @@ public class JavaFXUtil
 
         private void show()
         {
+            if (showing)
+                hide();
+
+            l = new Label();
+            l.visibleProperty().bind(l.textProperty().isNotEmpty());
+            l.setMouseTransparent(true);
+            l.setWrapText(true);
+            JavaFXUtil.addStyleClass(l, "frame-tooltip");
+
             requestTooltip.accept(l::setText);
             editor.getCodeOverlayPane().addOverlay(l, parent, null, l.heightProperty().negate().subtract(5.0), WidthLimit.LIMIT_WIDTH_AND_SLIDE_LEFT);
             //FadeTransition ft = new FadeTransition(Duration.millis(100), l);
@@ -839,6 +847,7 @@ public class JavaFXUtil
             if (showing)
             {
                 editor.getCodeOverlayPane().removeOverlay(l);
+                l = null;
                 showing = false;
             }
         }
@@ -857,13 +866,7 @@ public class JavaFXUtil
      */
     public static void initializeCustomHelp(InteractionManager editor, Node parent, FXConsumer<FXConsumer<String>> requestTooltip, boolean onHoverToo)
     {
-        final Label l = new Label();
-        l.visibleProperty().bind(l.textProperty().isNotEmpty());
-        l.setMouseTransparent(true);
-        l.setWrapText(true);
-        JavaFXUtil.addStyleClass(l, "frame-tooltip");
-        
-        TooltipListener listener = new TooltipListener(l, editor, parent, requestTooltip);
+        TooltipListener listener = new TooltipListener(editor, parent, requestTooltip);
         parent.addEventHandler(KeyEvent.KEY_PRESSED, listener);
         parent.focusedProperty().addListener(listener);
         if (onHoverToo)
