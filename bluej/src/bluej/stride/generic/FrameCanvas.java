@@ -903,13 +903,8 @@ public class FrameCanvas implements FrameContentItem
     }
     
     // Not static!  One pair per canvas
-    private final ScalableHeightLabel previewOpeningCurly = new ScalableHeightLabel("{", true);
-    private final ScalableHeightLabel previewClosingCurly = new ScalableHeightLabel("}", true);
-    // Initialiser:
-    {
-        JavaFXUtil.addStyleClass(previewOpeningCurly, "preview-curly");
-        JavaFXUtil.addStyleClass(previewClosingCurly, "preview-curly");
-    }
+    private ScalableHeightLabel previewOpeningCurly;
+    private ScalableHeightLabel previewClosingCurly;
     
     public void setAnimateLeftMarginScale(boolean animateLeftMarginScale)
     {
@@ -934,11 +929,15 @@ public class FrameCanvas implements FrameContentItem
 
             if (affectOpen)
             {
+                previewOpeningCurly = new ScalableHeightLabel("{", true);
+                JavaFXUtil.addStyleClass(previewOpeningCurly, "preview-curly");
                 editorFrm.getCodeOverlayPane().addOverlay(previewOpeningCurly, canvas, xOffset, openingYAdjust);
                 previewOpeningCurly.growToFullHeightWith(animate, true);
             }
             if (affectClose)
             {
+                previewClosingCurly = new ScalableHeightLabel("}", true);
+                JavaFXUtil.addStyleClass(previewClosingCurly, "preview-curly");
                 editorFrm.getCodeOverlayPane().addOverlay(previewClosingCurly, canvas, xOffset, canvas.heightProperty().subtract(18.0));
                 previewClosingCurly.growToFullHeightWith(animate, true);
             }
@@ -958,9 +957,15 @@ public class FrameCanvas implements FrameContentItem
 
             animate.addOnStopped(() -> {
                 if (affectOpen)
+                {
                     editorFrm.getCodeOverlayPane().removeOverlay(previewOpeningCurly);
+                    previewOpeningCurly = null;
+                }
                 if (affectClose)
+                {
                     editorFrm.getCodeOverlayPane().removeOverlay(previewClosingCurly);
+                    previewClosingCurly = null;
+                }
             });
         }
     }
