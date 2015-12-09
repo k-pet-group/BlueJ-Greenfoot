@@ -31,6 +31,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.WeakHashMap;
 import java.util.stream.Collectors;
 
 import bluej.stride.slots.EditableSlot.MenuItemOrder;
@@ -367,8 +368,12 @@ public class FrameCursor implements RecallableFocus
             growing.node.maxHeightProperty().bind(Bindings.max(HIDE_HEIGHT, new ReadOnlyIntegerWrapper(target).subtract(this)));
         }
     }
-    
-    private static final Map<InteractionManager, TotalHeightBinding> shrinkingHeightBindings = new IdentityHashMap<>();
+
+    /**
+     * Important that we use weakhashmap here, to avoid keeping a reference to the InteractionManager in
+     * a static field.
+     */
+    private static final Map<InteractionManager, TotalHeightBinding> shrinkingHeightBindings = new WeakHashMap<>();
     private final InteractionManager editor;
     private Timeline animation;
     private Canvas redCross;
