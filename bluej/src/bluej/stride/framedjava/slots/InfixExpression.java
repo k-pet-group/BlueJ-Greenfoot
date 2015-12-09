@@ -262,9 +262,6 @@ class InfixExpression implements TextFieldDelegate<ExpressionSlotField>
     // Operator 0 is between field 0 and field 1.  Operator N trails field N.
     // Can be null when the operator is effectively a bracket.
     private final ObservableList<Operator> operators = FXCollections.observableArrayList();
-
-    private final ObservableList<Node> extraPrefix;
-    private final ObservableList<Node> extraSuffix;
     
     //private final FlowPane components = new FlowPane();    
     //private final HBox components = new HBox();
@@ -277,8 +274,8 @@ class InfixExpression implements TextFieldDelegate<ExpressionSlotField>
     
     private final StringProperty textProperty = new SimpleStringProperty();
     private final BooleanProperty previewingJavaRange = new SimpleBooleanProperty(false);
-    private final Label startRangeLabel;
-    private final Label endRangeLabel;
+    private final StringProperty startRangeText = new SimpleStringProperty(lang.stride.Utility.class.getName() + "(");
+    private final StringProperty endRangeText = new SimpleStringProperty(")");
     /**
      * The caret position for the start of the selection (null if and only if no selection)
      */
@@ -318,11 +315,26 @@ class InfixExpression implements TextFieldDelegate<ExpressionSlotField>
         // When starting, add just one empty field:
         fields.add(makeNewField(initialContent, false));
 
-        startRangeLabel = new Label(lang.stride.Utility.class.getName() + "(");
-        endRangeLabel = new Label(")");
-        extraPrefix = JavaFXUtil.listBool(previewingJavaRange, startRangeLabel);
-        extraSuffix = JavaFXUtil.listBool(previewingJavaRange, endRangeLabel);
-        
+        final ObservableList<Node> extraPrefix = FXCollections.observableArrayList();
+        final ObservableList<Node> extraSuffix = FXCollections.observableArrayList();
+
+        JavaFXUtil.addChangeListener(previewingJavaRange, previewing -> {
+            if (previewing)
+            {
+                Label start = new Label();
+                start.textProperty().bind(startRangeText);
+                extraPrefix.setAll(start);
+                Label end = new Label();
+                end.textProperty().bind(endRangeText);
+                extraSuffix.setAll(end);
+            }
+            else
+            {
+                extraPrefix.clear();
+                extraSuffix.clear();
+            }
+        });
+
         new DeepListBinding<Node>(components) {
 
             @Override
@@ -2862,16 +2874,16 @@ class InfixExpression implements TextFieldDelegate<ExpressionSlotField>
                     {
                         Operator rangeOp = operators.stream().filter(op -> op != null && op.get().equals("..")).findFirst().get();
                         previewingJavaRange.set(true);
-                        startRangeLabel.setText("");
-                        endRangeLabel.setText("; " + forLoopVarName.get() + "++");
+                        startRangeText.set("");
+                        endRangeText.set("; " + forLoopVarName.get() + "++");
                         rangeOp.setJavaPreviewRangeOverride("; " + forLoopVarName.get() + " <=");
                         break;
                     }
                     //Otherwise fall-through to case for general ranges:
                 case RANGE_NON_CONSTANT:
                     previewingJavaRange.set(true);
-                    startRangeLabel.setText(lang.stride.Utility.class.getName() + "(");
-                    endRangeLabel.setText(")");
+                    startRangeText.set(lang.stride.Utility.class.getName() + "(");
+                    endRangeText.set(")");
                     break;
                 default:
                     previewingJavaRange.set(false);
