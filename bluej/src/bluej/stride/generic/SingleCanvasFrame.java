@@ -52,10 +52,6 @@ public abstract class SingleCanvasFrame extends Frame implements CanvasParent
 {
     protected FrameCanvas canvas;
     
-    //Context menu
-    protected CustomMenuItem dissolveMenu;
-    protected CustomMenuItem expandMenu;
-    
     private Sidebar sidebar;
     
     private boolean collapsible = false; 
@@ -82,62 +78,7 @@ public abstract class SingleCanvasFrame extends Frame implements CanvasParent
 
         //canvas.getChildren().add(0, new CursorBlock());
         //header.getChildren().add(new ParameterSlot(prevRedirect, canvas.getChildren().get(0), b));
-        
-        //Context menu
-        final SingleCanvasFrame thisContainer = this;
-        dissolveMenu = new CustomMenuItem(new Label("Delete outer '" + caption + "'"));
-        expandMenu = new CustomMenuItem(new Label("Expand out / flatten"));
-        //menu.getItems().add(1, dissolveMenu);
-        //menu.getItems().add(2, expandMenu);
-        
-        //Bring in front of everything
-        //previewMask.toFront();
-        
-        //Dissolve (with hover preview)
-        /*
-        dissolveMenu.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent e) {
-                thisContainer.dissolve();
-            }
-        });
-        dissolveMenu.getContent().setOnMouseEntered(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent e) {
-                //Preview on
-                thisContainer.setPreviewMode(PreviewMode.DISSOLVE);
-            }
-        });
-            dissolveMenu.getContent().setOnMouseExited(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent e) {
-                //Preview off
-                thisContainer.setPreviewMode(PreviewMode.NONE);
-            }
-        });
-            */
-        
-        //Disable that preview for demo, needs polishing
-//        expandMenu.getContent().setOnMouseEntered(new EventHandler<MouseEvent>() {
-//            @Override
-//            public void handle(MouseEvent e) {
-//                //Preview on
-//                thisContainer.setPreviewMode(PreviewMode.EXPAND_OUT);
-//            }
-//        });
-//            expandMenu.getContent().setOnMouseExited(new EventHandler<MouseEvent>() {
-//            @Override
-//            public void handle(MouseEvent e) {
-//                //Preview off
-//                thisContainer.setPreviewMode(PreviewMode.NONE);
-//            }
-//        });
-        expandMenu.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent e) {
-                thisContainer.expandContents();
-            }
-        });
+
     }
 
     private static class PlusMinus extends Canvas
