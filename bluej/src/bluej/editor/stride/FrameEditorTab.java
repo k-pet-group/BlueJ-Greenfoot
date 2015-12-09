@@ -698,6 +698,11 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         initialised.set(true);
     }
 
+    public void cleanup()
+    {
+        FrameCursor.editorClosing(this);
+    }
+
     /**
      * Note: very important that this is a static inner class, so that a reference
      * is not retained to the outer FrameEditorTab class.

@@ -217,6 +217,8 @@ public class FrameEditor implements Editor
             {
                 lastSource = panel.getSource();
                 panel.setWindowVisible(false, false);
+                panel.cleanup();
+                panel = null;
             }
         });
     }

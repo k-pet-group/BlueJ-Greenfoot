@@ -270,6 +270,11 @@ public class FrameCursor implements RecallableFocus
         return false;
     }
 
+    public static void editorClosing(InteractionManager editor)
+    {
+        shrinkingHeightBindings.remove(editor);
+    }
+
     /**
      * As the cursor moves up/down, we want to make it look like the blocks are sliding out of the
      * way for the cursor.  To achieve this, we actually shrink old cursor positions while
@@ -369,11 +374,7 @@ public class FrameCursor implements RecallableFocus
         }
     }
 
-    /**
-     * Important that we use weakhashmap here, to avoid keeping a reference to the InteractionManager in
-     * a static field.
-     */
-    private static final Map<InteractionManager, TotalHeightBinding> shrinkingHeightBindings = new WeakHashMap<>();
+    private static final Map<InteractionManager, TotalHeightBinding> shrinkingHeightBindings = new IdentityHashMap<>();
     private final InteractionManager editor;
     private Timeline animation;
     private Canvas redCross;
