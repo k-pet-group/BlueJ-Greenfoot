@@ -1373,12 +1373,6 @@ public class Utility
     }
 
     @OnThread(Tag.Any)
-    public static <T> Future<T> runBackground(Callable<T> r)
-    {
-        return background.submit(r);
-    }
-    
-    @OnThread(Tag.Any)
     public static ScheduledExecutorService getBackground()
     {
         return background;
