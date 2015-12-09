@@ -24,6 +24,7 @@ package bluej.editor.stride;
 import java.awt.EventQueue;
 import java.io.File;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -677,7 +678,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
             }
         });
 
-        JavaFXUtil.addChangeListener(PrefMgr.strideFontSizeProperty(), s -> updateFontSize());
+        addWeakFontSizeUpdater(this);
         updateFontSize();
 
         // This will call updateDisplays:
@@ -696,7 +697,45 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         
         initialised.set(true);
     }
-    
+
+    /**
+     * Note: very important that this is a static inner class, so that a reference
+     * is not retained to the outer FrameEditorTab class.
+     */
+    private static class WeakFontSizeUpdater implements ChangeListener<Number>
+    {
+        private final WeakReference<FrameEditorTab> editorRef;
+        public WeakFontSizeUpdater(FrameEditorTab ed)
+        {
+            this.editorRef = new WeakReference<FrameEditorTab>(ed);
+        }
+
+        @Override
+        public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue)
+        {
+            FrameEditorTab ed = editorRef.get();
+            if (ed == null)
+            {
+                // Editor has been GC-ed; remove us as listener
+                observable.removeListener(this);
+            }
+            else
+            {
+                ed.updateFontSize();
+            }
+        }
+    }
+
+    private static void addWeakFontSizeUpdater(FrameEditorTab ed)
+    {
+        // Original code was:
+        //JavaFXUtil.addChangeListener(PrefMgr.strideFontSizeProperty(), s -> ed.updateFontSize());
+        // However, this creates a strong reference to the FrameEditorTab, which
+        // prevents it ever being GC-ed.  So this method was added to prevent a strong
+        // reference being held to the FrameEditorTab:
+        PrefMgr.strideFontSizeProperty().addListener(new WeakFontSizeUpdater(ed));
+    }
+
     // package visible.
     // Sets font size back to default
     void resetFontSize()

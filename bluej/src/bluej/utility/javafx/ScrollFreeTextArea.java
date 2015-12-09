@@ -3,6 +3,7 @@ package bluej.utility.javafx;
 import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javafx.application.Platform;
@@ -207,7 +208,8 @@ public class ScrollFreeTextArea
         if (!calculationAid.getStyleClass().equals(calculationAidStyleClass))
         {
             calculationAid.getStyleClass().setAll(textArea.getStyleClass());
-            calculationAidStyleClass = textArea.getStyleClass();
+            // Must take our own copy to avoid keeping reference to old node:
+            calculationAidStyleClass = new ArrayList<>(textArea.getStyleClass());
             calculationAid.applyCss();
         }
         calculationAid.setText(text);
