@@ -504,6 +504,7 @@ public class Project implements DebuggerListener, InspectorManager
         }
 
         if (project.terminal != null) {
+            project.terminal.cleanup();
             project.terminal.dispose();
         }
         

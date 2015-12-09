@@ -785,7 +785,16 @@ public final class Terminal extends JFrame
         menubar.add(menu);
         return menubar;
     }
-    
+
+    /**
+     * Cleanup any resources or listeners the terminal has created/registered.
+     * Called when the project is closing.
+     */
+    public void cleanup()
+    {
+        BlueJEvent.removeListener(this);
+    }
+
 
     private class ClearAction extends AbstractAction
     {
