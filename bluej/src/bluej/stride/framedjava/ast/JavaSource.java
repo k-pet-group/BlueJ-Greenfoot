@@ -155,7 +155,8 @@ public class JavaSource
         int lineNumber = 1;
         for (SourceLine line : lines) {
             int sourceLength = sourceString.length();
-            StringBuilder oneLineString = new StringBuilder(line.indent);
+            StringBuilder oneLineString = new StringBuilder(100);
+            oneLineString.append(line.indent);
             for (JavaFragment fragment : line.content) {
                 int lineLength = oneLineString.length();
                 String codeLine = fragment.getJavaCode(dest, completing);
