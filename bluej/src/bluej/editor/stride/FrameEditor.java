@@ -43,6 +43,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import bluej.utility.Utility;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ListChangeListener;
@@ -989,7 +990,7 @@ public class FrameEditor implements Editor
         // We must start these futures going on the FX thread
         List<Future<List<CodeError>>> futures = allElements.flatMap(e -> e.findDirectLateErrors(panel)).collect(Collectors.toList());
         // Then wait for them on another thread, and hop back to FX to finish:
-        new Thread(() -> {
+        Utility.runBackground(() -> {
             try
             {
                 // Wait for all futures:
@@ -1001,7 +1002,7 @@ public class FrameEditor implements Editor
                 Debug.reportError(e);
             }
             Platform.runLater(() -> panel.updateErrorOverviewBar(false));
-        }).start();
+        });
     }
         
     @Override

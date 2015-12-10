@@ -963,7 +963,7 @@ public class JavaFXUtil
      */
     public static <T> void bindFuture(Future<T> future, FXConsumer<T> andThen)
     {
-        new Thread(() -> {
+        Utility.runBackground(() -> {
             try
             {
                 T x = future.get();
@@ -974,7 +974,7 @@ public class JavaFXUtil
                 Debug.reportError(e);
             }
             
-        }).start();
+        });
     }    
     
     /**
