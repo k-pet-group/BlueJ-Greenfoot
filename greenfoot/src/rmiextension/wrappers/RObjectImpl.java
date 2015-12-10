@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2015  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,6 +21,7 @@
  */
 package rmiextension.wrappers;
 
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.rmi.RemoteException;
@@ -39,30 +40,21 @@ import bluej.views.View;
 
 /**
  * @author Poul Henriksen
- * @version $Id: RObjectImpl.java 7934 2010-07-27 05:55:36Z davmac $
+ * @version $Id: RObjectImpl.java 15170 2015-12-10 14:14:43Z nccb $
  */
 public class RObjectImpl extends UnicastRemoteObject
     implements RObject
 {
-    /**
-     * @throws RemoteException
-     */
-    protected RObjectImpl()
-        throws RemoteException
-    {
-        super();
-    }
-
     public RObjectImpl(BObject bObject)
         throws RemoteException
     {
-        this.bObject = bObject;
+        this.bObject = new WeakReference<>(bObject);
         if (bObject == null) {
             throw new NullPointerException("Argument can't be null");
         }
     }
 
-    BObject bObject;
+    private final WeakReference<BObject> bObject;
 
     /**
      * @param instanceName
@@ -72,7 +64,7 @@ public class RObjectImpl extends UnicastRemoteObject
     public void addToBench(String instanceName)
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException
     {
-        bObject.addToBench(instanceName);
+        getBObject().addToBench(instanceName);
     }
 
     /**
@@ -84,7 +76,7 @@ public class RObjectImpl extends UnicastRemoteObject
     public RClass getRClass()
         throws ProjectNotOpenException, ClassNotFoundException, RemoteException, PackageNotFoundException
     {
-        BClass wrapped = bObject.getBClass();
+        BClass wrapped = getBObject().getBClass();
         RClass wrapper = WrapperPool.instance().getWrapper(wrapped);
         return wrapper;
 
@@ -96,7 +88,7 @@ public class RObjectImpl extends UnicastRemoteObject
     public String getInstanceName()
         throws RemoteException
     {
-        return bObject.getInstanceName();
+        return getBObject().getInstanceName();
     }
 
     /**
@@ -107,7 +99,7 @@ public class RObjectImpl extends UnicastRemoteObject
     public RPackage getPackage()
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException
     {
-        BPackage wrapped = bObject.getPackage();
+        BPackage wrapped = getBObject().getPackage();
         RPackage wrapper = WrapperPool.instance().getWrapper(wrapped);
         return wrapper;
 
@@ -120,7 +112,7 @@ public class RObjectImpl extends UnicastRemoteObject
     public void removeFromBench()
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException
     {
-        bObject.removeFromBench();
+        getBObject().removeFromBench();
     }
 
     /**
@@ -151,7 +143,7 @@ public class RObjectImpl extends UnicastRemoteObject
             Class<?> BObjectClass = BObject.class;
             Field oWrapperField = BObjectClass.getDeclaredField("objectWrapper");
             oWrapperField.setAccessible(true);
-            ObjectWrapper ow = (ObjectWrapper) oWrapperField.get(bObject);
+            ObjectWrapper ow = (ObjectWrapper) oWrapperField.get(getBObject());
 
             // Debug.message("Calling method: " + method + " on object: " + ow.getName());
             String className = ow.getObject().getClassName();
@@ -202,4 +194,8 @@ public class RObjectImpl extends UnicastRemoteObject
         throw new IllegalArgumentException("method not found.");
     }
 
+    private BObject getBObject()
+    {
+        return bObject.get();
+    }
 }

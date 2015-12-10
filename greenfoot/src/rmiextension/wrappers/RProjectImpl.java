@@ -21,11 +21,11 @@
  */
 package rmiextension.wrappers;
 
-import bluej.utility.ImportScanner;
 import greenfoot.util.DebugUtil;
 
 import java.awt.EventQueue;
 import java.io.File;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.rmi.ConnectException;
 import java.rmi.ConnectIOException;
@@ -61,16 +61,16 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
     implements RProject
 {
     /** The BlueJ-package (from extensions) that is wrapped */
-    private BProject bProject;
+    private final WeakReference<BProject> bProject;
     
     /** The Greenfoot simulation thread */
-    private DebuggerThread simulationThread;
+    private WeakReference<DebuggerThread> simulationThread;
     
     /**
      * A launcher object with a field called "transportField", used to
      * allow obtaining a remote reference to a debug VM object.
      */
-    private BObject transportObject;
+    private WeakReference<BObject> transportObject = null;
     
     private List<RProjectListener> listeners = new ArrayList<RProjectListener>();
 
@@ -87,7 +87,7 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
         throws java.rmi.RemoteException
     {
         super();
-        this.bProject = bProject;
+        this.bProject = new WeakReference<>(bProject);
         
         try {
             Project thisProject = Project.getProject(bProject.getDir());
@@ -103,7 +103,7 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
      */
     public synchronized void setTransportObject(BObject transportObject)
     {
-        this.transportObject = transportObject;
+        this.transportObject = new WeakReference<>(transportObject);
         notifyAll();
     }
     
@@ -115,7 +115,7 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
         notifyClosing();
         
         try {
-            bProject.close();
+            getBProject().close();
         }
         catch (ProjectNotOpenException pnoe) {
             // this isn't a big deal; after all, we were trying to close
@@ -169,7 +169,7 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
     public File getDir()
         throws ProjectNotOpenException
     {
-        return bProject.getDir();
+        return getBProject().getDir();
     }
 
     /*
@@ -178,7 +178,7 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
     public String getName()
         throws ProjectNotOpenException
     {
-        return bProject.getName();
+        return getBProject().getName();
     }
 
     /*
@@ -187,7 +187,7 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
     public RPackage getPackage(String name)
         throws ProjectNotOpenException, RemoteException
     {
-        BPackage bPackage = bProject.getPackage(name);
+        BPackage bPackage = getBProject().getPackage(name);
         RPackage wrapper = null;
         if (bPackage != null) {
             wrapper = WrapperPool.instance().getWrapper(bPackage);
@@ -202,7 +202,7 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
     public RPackage newPackage(String fullyQualifiedName)
         throws ProjectNotOpenException, PackageAlreadyExistsException, RemoteException
     {
-        BPackage bPackage = bProject.newPackage(fullyQualifiedName);
+        BPackage bPackage = getBProject().newPackage(fullyQualifiedName);
         RPackage wrapper = null;
         wrapper = WrapperPool.instance().getWrapper(bPackage);
 
@@ -215,7 +215,7 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
     public RPackage[] getPackages()
         throws ProjectNotOpenException, RemoteException
     {
-        BPackage[] packages = bProject.getPackages();
+        BPackage[] packages = getBProject().getPackages();
         int length = packages.length;
         RPackage[] wrapper = new RPackage[length];
 
@@ -232,7 +232,7 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
     public void save()
         throws ProjectNotOpenException
     {
-        bProject.save();
+        getBProject().save();
     }
     
     /*
@@ -241,7 +241,7 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
     public void openReadmeEditor()
         throws ProjectNotOpenException
     {
-        Project thisProject = Project.getProject(bProject.getDir());
+        Project thisProject = Project.getProject(getBProject().getDir());
         bluej.pkgmgr.Package defaultPackage = thisProject.getPackage("");
         ReadmeTarget readmeTarget = defaultPackage.getReadmeTarget();
         readmeTarget.open();
@@ -278,9 +278,9 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
             while (transportObject == null) {
                 wait();
             }
-            BClass bClass = transportObject.getBClass();
+            BClass bClass = transportObject.get().getBClass();
             BField field = bClass.getField("transportField");
-            final BObject value = (BObject) field.getValue(transportObject);
+            final BObject value = (BObject) field.getValue(transportObject.get());
             
             if (value != null) {
                 EventQueue.invokeAndWait(new Runnable() {
@@ -326,7 +326,7 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
             public void run()
             {
                 try {
-                    Project thisProject = Project.getProject(bProject.getDir());
+                    Project thisProject = Project.getProject(getBProject().getDir());
                     ExecControls execControls = thisProject.getExecControls();
                     execControls.setRestrictedClasses(DebugUtil.restrictedClassesAsNames());
                     visible = execControls.isVisible();
@@ -360,9 +360,9 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
             public void run()
             {
                 try {
-                    Project thisProject = Project.getProject(bProject.getDir());
+                    Project thisProject = Project.getProject(getBProject().getDir());
                     ExecControls execControls = thisProject.getExecControls();
-                    execControls.makeSureThreadIsSelected(simulationThread);
+                    execControls.makeSureThreadIsSelected(simulationThread.get());
                     execControls.showHide(!execControls.isVisible());
                     execControls.setRestrictedClasses(DebugUtil.restrictedClassesAsNames());
                 }
@@ -378,16 +378,16 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
      */
     public void setSimulationThread(DebuggerThread simulationThread)
     {
-        this.simulationThread = simulationThread;
+        this.simulationThread = new WeakReference<DebuggerThread>(simulationThread);
         try {
-            final Project thisProject = Project.getProject(bProject.getDir());
+            final Project thisProject = Project.getProject(getBProject().getDir());
             EventQueue.invokeLater(new Runnable() {
                 @Override
                 public void run()
                 {
                     if (thisProject.hasExecControls()) {
                         ExecControls execControls = thisProject.getExecControls();
-                        execControls.makeSureThreadIsSelected(RProjectImpl.this.simulationThread);
+                        execControls.makeSureThreadIsSelected(RProjectImpl.this.simulationThread.get());
                     }
                 }
             });
@@ -403,7 +403,7 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
             // if this is called whilst the remote VM
             // is already restarting 
             vmRestarted = true;
-            bProject.restartVM();
+            getBProject().restartVM();
         }
         catch (IllegalStateException ise) {
         }
@@ -430,25 +430,30 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
     @Override
     public void setClosing(boolean closing) throws RemoteException, ProjectNotOpenException
     {
-        ExtensionBridge.getProject(bProject).setClosing(closing);
+        ExtensionBridge.getProject(getBProject()).setClosing(closing);
     }
 
     @Override
     public void openBrowser(String customUrl) throws RemoteException, ProjectNotOpenException
     {
-        bProject.openWebViewTab(customUrl);
+        getBProject().openWebViewTab(customUrl);
     }
 
     @Override
     public void greenfootReady() throws ProjectNotOpenException, RemoteException
     {
-        bProject.scheduleCompilation(false);
+        getBProject().scheduleCompilation(false);
     }
 
 
     @Override
     public void startImportsScan() throws RemoteException, ProjectNotOpenException
     {
-        ExtensionBridge.getProject(bProject).getImportScanner().startScanning();
+        ExtensionBridge.getProject(getBProject()).getImportScanner().startScanning();
+    }
+
+    private BProject getBProject()
+    {
+        return bProject.get();
     }
 }
