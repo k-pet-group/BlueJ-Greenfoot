@@ -1,0 +1,363 @@
+#i18n for greenfoot
+
+greenfoot.nyi=Ainda n\u00e3o implementado - desculpe.
+greenfoot.preferences=Prefer\u00eancias...
+greenfoot.copyright=Direitos autorais...
+greenfoot.quit=Sair
+greenfoot.continue=Continuar
+greenfoot.cancel=Cancelar
+
+greenfoot.launchFailed=Greenfoot falhou ao iniciar. Para obter ajuda, v\u00e1 para http\://www.greenfoot.org/support
+
+# About dialog
+about.title=Sobre o Greenfoot
+about.moreInfo=Mais informa\u00e7\u00f5es podem ser encontradas em www.greenfoot.org
+
+
+# Greenfoot project version info
+project.version.none=O cen\u00e1rio que est\u00e1 sendo aberto foi escrito usando uma vers\u00e3o antiga do Greenfoot (antes da vers\u00e3o 0.5 do greenfoot). Isto provavelmente resultar\u00e1 em alguns erros, que ter\u00e3o de ser corrigidos manualmente.
+project.version.notGreenfoot=Este n\u00e3o \u00e9 um cen\u00e1rio do Greenfoot\: 
+project.version.mismatch=As vers\u00f5es n\u00e3o coincidem
+# The next 3 items will be shown if the major digit in the version number has changed. 
+# part3 should be updated to describe the changes that has happened.
+project.version.older.part1=O cen\u00e1rio que est\u00e1 sendo aberto foi escrito usando uma vers\u00e3o mais antiga do Greenfoot (vers\u00e3o da API 
+# project version inserted here by Greenfoot
+project.version.older.part2=). O cen\u00e1rio ser\u00e1 atualizado para a vers\u00e3o atual (vers\u00e3o da API 
+# api version inserted here by Greenfoot
+
+#Info about changes in this new version of the API that might break existing scenarios.
+project.version.older.part3=). As seguintes altera\u00e7\u00f5es na API do Greenfoot podem quebrar este cen\u00e1rio\:
+
+# Note the versions here are API versions, not Greenfoot versions!
+project.version.changes.1=2.1.0 Os m\u00e9todos 'stopSimulation', 'startSimulation' e 'setSimulationSpeed' na classe Greenfoot foram renomeados para 'start', 'stop' e 'setSpeed'. 
+project.version.changes.2=2.1.0 Os m\u00e9todos da classe Actor 'getWidth' e 'getHeight' foram removidos. Em vez disso, use 'getImage().getWidth()' e 'getImage().getHeight()'.
+project.version.changes.3=2.1.0 m\u00e9todo de Actor 'getObjectsInRange' agora utiliza c\u00e9lulas em vez de pixels como unidade para o intervalo. 
+project.version.changes.4=2.1.0 Greenfoot agora diferencia mai\u00fasculas de min\u00fasculas, quando lidando com arquivos de som e imagem.
+project.version.changes.5=2.1.0 Os m\u00e9todos 'setTiled' e 'getTiled' foram removidos da classe World.
+project.version.changes.6=2.1.0 O m\u00e9todo 'getBackground' de World agora retorna uma imagem que \u00e9 do tamanho de todo o plano de fundo.
+project.version.changes.7=2.2.0 Um m\u00e9todo 'move' e um m\u00e9todo 'turn' foram adicionados \u00e0 classe Actor.
+project.version.changes.8=2.3.0 Greenfoot.getMouseInfo() agora s\u00f3 retorna null se o mouse n\u00e3o est\u00e1 no mundo.
+project.version.changes.9=2.3.0 Um m\u00e9todo 'turnTowards(int,int)' foi adicionado \u00e0 classe Actor.
+project.version.changes.10=2.4.0 Uma classe 'UserInfo' foi adicionada (renomeada a partir de 'PlayerData', no Greenfoot 2.2.0 beta).
+project.version.changes.11=2.5.0 Os m\u00e9todos 'isTouching' e 'removeTouching' foram adicionados \u00e0 classe Actor.
+project.version.changes.12=2.6.0 O m\u00e9todo 'showText' foi adicionado \u00e0 classe World e um novo construtor foi adicionado ao GreenfootImage.
+project.version.changes.13=2.7.0 O m\u00e9todo 'ask' foi adicionado \u00e0 classe Greenfoot.
+project.version.changes.14=2.8.0 O m\u00e9todo 'getWorldOfType' foi adicionado \u00e0 classe Actor, e os tipos gen\u00e9ricos foram adicionados \u00e0 API.
+
+project.version.newer.part1=O cen\u00e1rio que est\u00e1 sendo aberto foi escrito usando uma vers\u00e3o mais nova do Greenfoot (vers\u00e3o da API 
+# project version inserted here by Greenfoot
+project.version.newer.part2=). Abrir o cen\u00e1rio com a sua vers\u00e3o atual do Greenfoot pode resultar em alguns erros que ter\u00e3o de ser corrigidos manualmente.\n\nVoc\u00ea quer continuar a abrir o cen\u00e1rio?
+project.close=Fechar
+
+# Actions
+greenfoot.about=Sobre o Greenfoot...
+compile.all=Compilar
+compile.class=Compilar
+duplicate.class=Duplicar...
+edit.class=Abrir editor
+edit.images=Imagens do Cen\u00e1rio...
+new.other.class=Nova Classe...
+new.sub.class=Nova subclasse...
+stride.new.project=Novo Cen\u00e1rio Stride...
+java.new.project=Novo cen\u00e1rio Java...
+open.project=Abrir...
+open.recentProject=Abrir recente
+remove.class=Remover
+remove.selected=Remover Classe
+convert.to.java.class=Converter para Java
+convert.to.java.selected=Converter classe para Java
+inspect.class=Inspecionar
+reset.world=Reiniciar
+run.once=Executar uma vez
+run.simulation=Executar
+project.save=Salvar
+project.saveAs=Salvar Como...
+select.image=Definir imagem...
+show.readme=Informa\u00e7\u00f5es do Cen\u00e1rio
+pause.simulation=Pausar
+show.apidoc=Abrir Documenta\u00e7\u00e3o
+save.world=Salvar o Mundo
+
+# Remove class confirmation
+remove.confirm.title=Confirmar a remo\u00e7\u00e3o da classe
+remove.confirm.text1=Prestes a remover a classe
+remove.confirm.text2=Continuar?
+
+# Convert to Java class confirmation
+convert.to.java.confirm.title=Confirmar a convers\u00e3o de uma classe
+convert.to.java.confirm.text1=Prestes a converter classe
+convert.to.java.confirm.text2=de Stride para Java.
+convert.to.java.confirm.text3=Esta opera\u00e7\u00e3o \u00e9 irrevers\u00edvel.Devo continuar?
+
+# Save As project dialog
+project.saveAs.title=Salvar o Cen\u00e1rio Como
+
+# Export scenario dialog
+export.project=Compartilhar...
+export.progress.bundling=Montando cen\u00e1rio...
+export.progress.publishing=Publicando...
+export.progress.writingHTML=Gravando p\u00e1gina web...
+export.progress.writingJar=Escrevendo o arquivo jar...
+export.progress.writingGfar=Escrevendo arquivo gfar...
+export.progress.complete=Exporta\u00e7\u00e3o conclu\u00edda.
+export.publish.fail=Publica\u00e7\u00e3o falhou\:
+export.publish.unknownHost=Publica\u00e7\u00e3o falhou\: Servidor desconhecido
+export.publish.errorResponse=Resposta do servidor n\u00e3o reconhecida.
+export.publish.errorPassword=Nome de usu\u00e1rio ou senha inv\u00e1lidos
+export.publish.errorTooLarge=O cen\u00e1rio \u00e9 grande demais
+export.publish.complete=Publica\u00e7\u00e3o completa
+export.publish.proxyAuth=Autentica\u00e7\u00e3o via Proxy
+export.publish.needProxyAuth=Autentica\u00e7\u00e3o de proxy \u00e9 necess\u00e1ria.
+export.app.help=Criar um arquivo jar execut\u00e1vel que pode ser executado isoladamente.
+export.app.location=Salve em\: 
+export.app.browse=Localizar
+export.app.choose=Salvar o arquivo jar execut\u00e1vel
+export.project.help=Criar um arquivo de projeto gfar aut\u00f4nomo.
+export.project.location=Salvar em\:
+export.project.browse=Localizar
+export.project.choose=Salvar o arquivo de projeto gfar
+export.compile.help=Nem todas as classes no cen\u00e1rio est\u00e3o compiladas. Para continuar com a exporta\u00e7\u00e3o, compile as classes agora.
+export.compile.notCompiled=Cen\u00e1rio n\u00e3o compilado.
+export.dialog.title=Compartilhar
+export.dialog.export=Exportar
+export.dialog.share=Compartilhar
+export.dialog.update=Atualizar
+export.lock.label=Bloquear cen\u00e1rio
+export.controls.label=Ocultar controles
+export.fullScreen.label=Tela cheia
+export.fullScreen.description=Abrir o cen\u00e1rio em tela cheia
+export.controls.description=oculta a barra de controle contendo\: bot\u00f5es Play/Pause e Reset.
+export.snapshot.label=Manter a imagem de tela existente\:
+export.lock.description=Previne\: Mudan\u00e7a de velocidade, bot\u00e3o Act e mudar locais de ator enquanto pausado.
+export.publish.help=Publicar o cen\u00e1rio para\:
+export.publish.info=Informa\u00e7\u00e3o para exibi\u00e7\u00e3o no(a)
+export.publish.image1=\u00cdcone do cen\u00e1rio\:
+export.publish.image2=(redimensionar e mov\u00ea-lo)
+export.publish.title=T\u00edtulo\:
+export.publish.tags.additional1=identifica\u00E7\u00F5es adicionais\:
+export.publish.tags.additional2=(uma identifica\u00e7\u00e3o por linha)
+export.publish.tags.popular=identifica\u00E7\u00F5es populares\:
+export.publish.tags.loading=carregando...
+export.publish.shortDescription=Descri\u00e7\u00e3o de uma linha\:
+export.publish.longDescription=Descri\u00e7\u00e3o mais detalhada\:
+export.publish.update=Altera\u00e7\u00f5es na atualiza\u00e7\u00e3o\:
+export.publish.url=Sua pr\u00f3pria p\u00e1gina (URL)\:
+export.publish.login=Iniciar sess\u00e3o
+export.publish.username=Nome de usu\u00e1rio\:
+export.publish.password=Senha\:
+export.publish.createAccount=Criar conta
+export.publish.includeSource=Publicar o c\u00f3digo fonte
+export.web.help=Crie uma p\u00e1gina da web com um applet.
+export.web.exportLocation=Exportar localiza\u00e7\u00e3o\: 
+export.web.browse=Localizar
+export.web.choose=Escolher o Nome do Diret\u00f3rio de Exporta\u00e7\u00e3o
+export.icontab.publish=Publicar
+export.icontab.webpage=P\u00e1gina da Web
+export.icontab.application=Aplica\u00e7\u00e3o
+export.icontab.project=Projeto
+export.noworld.dialog.title=Erro\: Nenhuma classe World encontrada.
+export.noworld.dialog.msg=Nenhuma classe World p\u00f4de ser encontrada no cen\u00e1rio. Para exportar, uma subclasse de World \u00e9 necess\u00e1ria.
+export.noconstructor.dialog.title=Erro\: Nenhum construtor adequado
+export.noconstructor.dialog.msg=A classe World n\u00e3o tem nenhum construtor padr\u00e3o. Para exportar, um construtor sem argumentos \u00e9 necess\u00e1rio.
+export.fileExists.message=j\u00e1 existe. Sobrescrever? 
+
+publish.event.error=Erro\: 
+publish.event.status=Situa\u00e7\u00e3o\: 
+
+world.handlerDelegate.inspect=Inspecionar
+world.handlerDelegate.remove=Remover
+
+record.method.comment1=Prepara o mundo para o in\u00edcio do programa.
+record.method.comment2=Ou seja\: criar os objetos iniciais e adicion\u00e1-los ao mundo.
+
+greenfoot.utilDelegate.newScenario=Novo Cen\u00e1rio
+
+#File choosers
+chooser.newFile.button=Escolher
+chooser.scenario.title=Abrir Cen\u00e1rio
+chooser.scenario.button=Abrir
+
+#New Class dialog
+newclass.dialog.title=Criar nova classe
+newclass.dialog.help1=Um nome de classe n\u00e3o pode conter espa\u00e7os ou caracteres de   
+newclass.dialog.help2=pontua\u00E7\u00E3o e deve come\u00e7ar com uma letra mai\u00fascula.
+newclass.dialog.className=Novo nome de classe\: 
+newclass.dialog.err.classExists=Classe com esse nome j\u00e1 existe.
+newclass.dialog.err.classNameIllegal=N\u00e3o \u00e9 um nome v\u00e1lido para classe Java.
+newclass.dialog.selectionLabel=Idioma\:
+newclass.dialog.class=Classe
+newclass.dialog.interface=Interface
+
+# Image Lib Preview
+paste.image=Colar a Imagem...
+imagelib.title=Selecione a imagem de classe\:
+imagelib.newClass=Nova classe
+imagelib.projectImages=Imagens do cen\u00e1rio\:
+imagelib.categories=Categorias de Imagem\:
+imagelib.images=Imagens da biblioteca\:
+imagelib.browse.button=Importar do arquivo...
+imagelib.create.button=Criar uma nova imagem...
+imagelib.edit=Editar
+imagelib.edit.tooltip=Editar a imagem selecionada, abrindo-a no editor de imagem.
+imagelib.duplicate=Duplicar
+imagelib.duplicate.tooltip=Duplicar a imagem selecionada.
+imagelib.delete=Excluir
+imagelib.delete.tooltip=Excluir a imagem selecionada.
+imagelib.import.button=Importar da biblioteca...
+imagelib.create.tooltip=Criar uma nova imagem com um tamanho e nome padr\u00f5es, e abri-la no editor de imagem.
+imagelib.className=Novo nome de classe\:
+imagelib.help.selectImage=Selecione uma imagem para a classe na lista abaixo.
+imagelib.newClass.image=Nova imagem de classe\:
+imagelib.file.noPreview=N\u00e3o h\u00e1 visualiza\u00e7\u00e3o
+imagelib.choose.button=Sele\u00e7\u00e3o
+imagelib.write.exists.part1=O arquivo \"
+# Greenfoot inserts filename here
+imagelib.write.exists.part2=" j\u00e1 existe. Voc\u00ea quer substituir?
+imagelib.write.exists.title=Confirmar a substitui\u00e7\u00e3o de arquivo
+imagelib.greenfoot.frame.title=Imagens da Biblioteca do Greenfoot
+imagelib.scenario.frame.title=Imagens do Cen\u00e1rio
+imagelib.delete.confirm.title=Confirmar a Exclus\u00e3o
+imagelib.delete.confirm.text=Tem certeza que deseja excluir 
+imagelib.image.invalid.title=Imagem Inv\u00e1lida
+imagelib.image.invalid.text=n\u00e3o \u00e9 uma imagem v\u00e1lida.
+imagelib.image.unsupportedformat.title=Formato n\u00e3o Suportado
+imagelib.image.unsupportedformat.text=n\u00e3o \u00e9 suportado em sua m\u00e1quina.  Por favor, escolha outro e tente novamente.
+imagelib.rename.exists.text=N\u00e3o pode renomear o arquivo porque um arquivo com esse nome j\u00e1 existe.
+imagelib.rename.exists.title=Renomear Falhou
+imagelib.new.image.title=Nova Imagem
+imagelib.new.image.name=Nome\:
+imagelib.new.image.width=Largura\:
+imagelib.new.image.height=Altura\:  
+imagelib.new.image.type=Tipo\:
+imagelib.more=Mais A\u00e7\u00f5es...
+
+editor.paste.image.title=Colar Imagem
+editor.paste.image.prompt=Nome do Arquivo\:
+
+scenario.viewer.appletInfo=Miniaplicativo gerado com Greenfoot (www.greenfoot.org). Nome do cen\u00e1rio\:
+
+# Simulation Control Panel
+controls.runonce.shortDescription=Chama 'act' uma vez para cada ator.
+controls.runonce.longDescription=Chama 'act' uma vez para cada ator.
+controls.run.shortDescription=Executa a simula\u00e7\u00e3o.
+controls.run.longDescription=Executa a simula\u00e7\u00e3o, at\u00e9 ela parar.
+controls.pause.shortDescription=Pausa a simula\u00e7\u00e3o.
+controls.pause.longDescription=Pausa a simula\u00e7\u00e3o, deixando-a no estado atual.
+controls.run.button=Executar
+controls.pause.button=Pausar
+controls.reset.shortDescription=Instanciar um novo mundo.
+controls.reset.longDescription=Instanciar um novo mundo.
+controls.speed.label=Velocidade\:
+controls.speedSlider.tooltip=Ajusta a velocidade de execu\u00e7\u00e3o
+
+# Class browser
+browser.border.world=Classes World
+browser.border.actors=Classes Actor
+browser.border.others=Outras classes
+
+# Sound Recorder
+
+soundRecorder.title=Gravador de Som
+soundRecorder.record=Gravar
+soundRecorder.stopRecord=Parar a grava\u00e7\u00e3o
+soundRecorder.trim=Cortar at\u00e9 a sele\u00e7\u00e3o
+soundRecorder.play=Reproduzir
+soundRecorder.playSelection=Reproduzir sele\u00e7\u00e3o
+soundRecorder.stopPlay=Parar reprodu\u00e7\u00e3o
+soundRecorder.filename=Nome do arquivo
+soundRecorder.save=Salvar
+soundRecorder.done=Fechar
+soundRecorder.saved=Salvo
+soundRecorder.notSaved=N\u00e3o Salvo
+soundRecorder.overwrite.part1=O arquivo \"
+soundRecorder.overwrite.part2=" j\u00e1 existe.  Voc\u00ea quer substituir?
+soundRecorder.overwrite.title=Confirmar substitui\u00e7\u00e3o de arquivo
+soundRecorder.overwrite=Sobrescrever
+soundRecorder.closeAnyway=Fechar de qualquer forma
+soundRecorder.closeTitle=Fechar sem salvar
+soundRecorder.closeQuestion=Som foi alterado desde que salvou da \u00faltima vez.  Se voc\u00ea fechar o gravador de som, essas altera\u00e7\u00f5es ser\u00e3o perdidas.
+
+# Import 
+import.import=Importar
+import.dialogTitle=Importar Classe
+import.action=Importar Classe...
+import.restartMessage=Greenfoot tem de ser reiniciado para que este projeto funcione corretamente
+
+set.player=Definir Nome do Jogador
+playername.dialog.title=Definir Nome do Jogador
+playername.dialog.help=Definir o nome de usu\u00e1rio usado pela classe UserInfo
+playername.dialog.playerName=Nome do Jogador
+
+prefmgr.misc.playername.title=Nome do Jogador
+prefmgr.misc.playerNameNote=Voc\u00ea pode mudar isto rapidamente, usando o atalho\:
+
+# Menus
+
+menu.openRecent=Abrir recente
+
+menu.scenario=Cen\u00e1rio
+
+menu.edit=Editar
+menu.new=Novo
+
+menu.controls=Controles
+
+menu.debugger=Mostrar o Depurador
+
+menu.soundRecorder=Mostrar Gravador de Som
+
+menu.help=Ajuda
+menu.help.about=Sobre o Greenfoot...
+menu.help.classDoc=Documenta\u00e7\u00e3o de Classe Greenfoot
+menu.help.javadoc=Documenta\u00e7\u00e3o da Biblioteca Java
+menu.help.tutorial=Tutorial do Greenfoot
+menu.help.website=P\u00e1gina Web do Greenfoot
+menu.help.moreScenarios=Obter mais cen\u00e1rios
+menu.help.discuss=Discuss\u00e3o do Greenfoot
+
+#Copyright
+
+menu.help.copyright.title=Direitos Autorais, Licen\u00e7a e Redistribui\u00e7\u00e3o do Greenfoot
+menu.help.copyright.line0=Greenfoot \u00a9 2005-2015 Michael K\u00f6lling, Poul Henriksen.
+menu.help.copyright.line1=Greenfoot est\u00e1 dispon\u00edvel sob a Licen\u00e7a P\u00fablica Geral GNU  
+menu.help.copyright.line2=vers\u00e3o 2, com a exce\u00e7\u00e3o de Classpath.
+menu.help.copyright.line3=Para obter mais informa\u00e7\u00f5es, por favor consulte os arquivos LICENSE.txt 
+menu.help.copyright.line4=e THIRDPARTYLICENSE.txt.
+
+
+# Popup menu
+classPopup.needsCompile=Precisa de compila\u00e7\u00e3o
+classPopup.containsError=Cont\u00e9m erro(s)
+
+# Project does not exist dialog
+noproject.dialog.title=Erro ao abrir projeto
+noproject.dialog.msg=Projeto n\u00e3o existe\: 
+
+# Header for the properties file
+properties.heading.greenfoot=Propriedades do Greenfoot. As configura\u00e7\u00f5es nesse arquivo substituem aquelas em "bluej.defs" e "greenfoot.defs"
+
+# Message to display if a file cannot be created
+greenfoot.cannotCreateClass=O arquivo de classe n\u00e3o p\u00f4de ser criado. Verifique se a pasta do projeto \u00e9 grav\u00e1vel.
+
+# General error messages
+greenfoot.cannotFindAPIDocumentation=A documenta\u00e7\u00e3o da API parece estar ausente, ou \u00e9 ileg\u00edvel.
+
+# Message for sound related errors
+sound-line-unavailable=N\u00e3o \u00e9 poss\u00edvel obter acesso \u00e0 placa de som. Se voc\u00ea tiver uma placa de som instalada, verifique as configura\u00e7\u00f5es do sistema e feche todos os outros programas que possam estar usando a placa de som.
+
+# MainFrame central messages
+centrePanel.message.openScenario=\u2196 Criar ou Abrir um cen\u00e1rio usando o menu de Cen\u00e1rio
+centrePanel.message.createWorldClass=Criar uma nova subclasse de World
+centrePanel.message.compile=A classe World pode ter um erro, verifique-a para inicializar o cen\u00e1rio \u2197
+centrePanel.message.initialising=O mundo est\u00e1 sendo constru\u00eddo...
+centrePanel.message.initialisingTooLong1=O construtor para o mundo est\u00e1 demorando muito tempo.
+centrePanel.message.initialisingTooLong2=Voc\u00ea pode ter um loop infinito.
+centrePanel.message.notFocused=Para construir o mundo, clique nesta janela.
+centrePanel.restartButton.label=Reiniciar
+centrePanel.message.error1=O construtor do mundo lan\u00e7ou uma exce\u00e7\u00e3o.
+centrePanel.message.error2=Veja a janela do Terminal para obter mais detalhes.
+centrePanel.message.afterRestarting1=Greenfoot foi reiniciado porque o mundo n\u00e3o p\u00f4de ser constru\u00eddo.
+centrePanel.message.afterRestarting2=Verifique o construtor da subclasse de World.
+centrePanel.message.missingWorldConstructor1=O mundo n\u00e3o p\u00f4de ser constru\u00eddo. A subclasse do mundo pode n\u00e3o
+centrePanel.message.missingWorldConstructor2=ter um construtor p\u00fablico sem par\u00e2metros, ou n\u00e3o ser p\u00fablico.
+
