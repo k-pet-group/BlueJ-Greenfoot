@@ -1,0 +1,41 @@
+# Frame Catalogue:
+frame.catalogue.title=Folha de dicas
+frame.catalogue.commands=Comandos
+frame.catalogue.shortcuts=Atalhos
+frame.catalogue.selection=Englobar Sele\u00e7\u00e3o
+frame.catalogue.codecompletion=Complementa\u00e7\u00e3o de c\u00f3digo
+frame.catalogue.codecompletion.hide=Esconder complementa\u00e7\u00e3o de c\u00f3digo
+frame.catalogue.codecompletion.up=Mover para cima
+frame.catalogue.codecompletion.down=Mover para baixo
+frame.catalogue.codecompletion.select=Selecionar
+
+frame.catalogue.birdseye.exit=Sair da vis\u00e3o geral
+frame.catalogue.birdseye.up=Mover para cima
+frame.catalogue.birdseye.down=Mover para baixo
+frame.catalogue.birdseye.select=Selecionar
+
+frame.catalogue.examples=Exemplos
+
+
+# Error Bar:
+frame.error.overview.bar.error.single=erro
+frame.error.overview.bar.error.plural=erros
+frame.error.overview.bar.error.none=Sem erros
+frame.error.overview.bar.error.editing=Editando
+
+# Slot menu:
+frame.slot.cut=Recortar
+frame.slot.copy=Copiar
+frame.slot.paste=Colar
+frame.slot.recent=Valores recentes
+
+
+# View menu:
+frame.viewmenu.title=Ver
+frame.viewmenu.nextError=Pr\u00f3ximo erro
+frame.viewmenu.cheatsheet=Folha de dicas
+frame.viewmenu.birdseye=Vis\u00e3o geral
+frame.viewmenu.java=Visualiza\u00e7\u00e3o em Java
+frame.viewmenu.fontbigger=Aumentar tamanho da fonte
+frame.viewmenu.fontsmaller=Diminuir tamanho da fonte
+frame.viewmenu.fontdefault=Redefinir o tamanho da fonte para o padr\u00e3o
