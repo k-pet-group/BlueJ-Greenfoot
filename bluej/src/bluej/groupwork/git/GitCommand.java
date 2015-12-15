@@ -88,13 +88,14 @@ public abstract class GitCommand implements TeamworkCommand
             });
             command.setCredentialsProvider(getRepository().getCredentialsProvider());
         }
-        //return command;
     }
 
     @Override
     public void cancel()
     {
-        throw new UnsupportedOperationException("Not implemented yet.");
+        if (! cancelled) {
+            cancelled = true;
+        }
     }
 
     /**
@@ -114,5 +115,5 @@ public abstract class GitCommand implements TeamworkCommand
     {
         return repository;
     }
-
+    
 }
