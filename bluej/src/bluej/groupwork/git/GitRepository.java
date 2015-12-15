@@ -31,8 +31,6 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
@@ -158,7 +156,7 @@ public class GitRepository implements Repository
     @Override
     public TeamworkCommand getStatus(StatusListener listener, FileFilter filter, boolean includeRemote)
     {
-        throw new UnsupportedOperationException("Not implemented yet.");
+        return new GitStatusCommand(this, listener, filter, includeRemote);
     }
 
     @Override
@@ -188,7 +186,13 @@ public class GitRepository implements Repository
     @Override
     public FileFilter getMetadataFilter()
     {
-        throw new UnsupportedOperationException("Not implemented yet.");
+        return new FileFilter()
+        {
+            public boolean accept(File pathname)
+            {
+                return !pathname.getName().equals(".git");
+            }
+        };
     }
 
     @Override
@@ -229,5 +233,10 @@ public class GitRepository implements Repository
     public String getYourEmail()
     {
         return yourEmail;
+    }
+    
+    protected File getProjectPath()
+    {
+        return this.projectPath;
     }
 }
