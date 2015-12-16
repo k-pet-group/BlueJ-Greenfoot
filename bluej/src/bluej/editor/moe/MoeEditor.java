@@ -293,7 +293,6 @@ public final class MoeEditor extends JPanel
         redoMenuItem = findMenuItem("redo");
         undoButton = findToolbarButton("undo");
         redoButton = findToolbarButton("redo");
-
     }
 
     // --------------------------------------------------------------------
@@ -1485,19 +1484,37 @@ public final class MoeEditor extends JPanel
     }
 
     /**
-     * Update the enabled state of controls bound to "undo" and "redo".
+     * Update the enabled state of controls bound to "undo" and "redo" to reflect
+     * current editor state.
      */
     public void updateUndoRedoControls()
     {
-        boolean canUndo = undoManager.canUndo();
-        undoMenuItem.setEnabled(canUndo);
-        undoButton.setEnabled(canUndo);
-
-        boolean canRedo = undoManager.canRedo();
-        redoMenuItem.setEnabled(canRedo);
-        redoButton.setEnabled(canRedo);
+        updateUndoRedoControls(undoManager.canUndo(), undoManager.canRedo());
     }
 
+    /**
+     * Update the enabled state of controls bound to "undo" and "redo".
+     */
+    private void updateUndoRedoControls(boolean canUndo, boolean canRedo)
+    {
+        setEnabled(undoMenuItem, canUndo);
+        setEnabled(redoMenuItem, canRedo);
+        setEnabled(undoButton, canUndo);
+        setEnabled(redoButton, canRedo);
+    }
+
+    /**
+     * Enable or disable a menu item or toolbar button; with null-check.
+     * @param item The item to modify
+     * @param enable The new enabled status
+     */
+    private void setEnabled(AbstractButton item, boolean enable)
+    {
+        if (item != null) {
+            item.setEnabled(enable);
+        }
+    }
+    
     /**
      * Check whether the source file has changed on disk. If it has, reload.
      */
@@ -2206,7 +2223,7 @@ public final class MoeEditor extends JPanel
      * (This is reliant on the use of j2sdk1.4 and Java Unified Print Service
      * implementation JSR 6)
      * 
-     * @param flag  true to enable printing from menu.
+     * @param flag  true to setEnabled printing from menu.
      */
     public void enablePrinting(boolean flag)
     {
@@ -2376,16 +2393,11 @@ public final class MoeEditor extends JPanel
         //if the view is source view need to decide whether to display 
         //the undo and redo according to the undoManager; if it
         //is the documentation view then they are always disabled
-        if (sourceView){
-            if (undoManager.canUndo())
-                canUndo=true;   
-            if (undoManager.canRedo())
-                canRedo=true;
+        if (sourceView) {
+            canUndo = undoManager.canUndo();
+            canRedo = undoManager.canRedo();
         }
-        undoMenuItem.setEnabled(canUndo);
-        redoMenuItem.setEnabled(canRedo);
-        undoButton.setEnabled(canUndo);
-        redoButton.setEnabled(canRedo);
+        updateUndoRedoControls(canUndo, canRedo);
     }
 
     // --------------------------------------------------------------------
@@ -2900,8 +2912,8 @@ public final class MoeEditor extends JPanel
     }
 
     /**
-     * Toggle the editor's 'compiled' status. If compiled, enable the breakpoint
-     * function.
+     * Toggle the editor's 'compiled' status. If compiled, setEnabled the breakpoint
+ function.
      */
     private void setCompileStatus(boolean compiled)
     {
@@ -3744,7 +3756,7 @@ public final class MoeEditor extends JPanel
 
     /**
      * Enables/disables the once and all buttons on the replace panel
-     * @param enable  True to enable; false to disable
+     * @param enable  True to setEnabled; false to disable
      */
     protected void enableReplaceButtons(boolean enable)
     {
