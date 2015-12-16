@@ -459,6 +459,7 @@ public final class MoeEditor extends JPanel
             editActions.add("comment-block");
             editActions.add("uncomment-block");
             editActions.add("insert-method");
+            editActions.add("add-javadoc");
             editActions.add("replace");
             editActions.add("go-to-line");
             editActions.add("paste-from-clipboard");

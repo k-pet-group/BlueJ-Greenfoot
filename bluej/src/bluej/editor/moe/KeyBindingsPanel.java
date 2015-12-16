@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2015  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -229,11 +229,11 @@ public class KeyBindingsPanel extends JPanel implements ActionListener, ListSele
      * @param categories
      * @param categoryIndex
      */
-    public void setActionValues(Action[] actiontable, 
-            String[] categories, int[] categoryIndex){
-        this.categories=categories;
+    public void setActionValues(Action[] actiontable, String[] categories, int[] categoryIndex)
+    {
+        this.categories = categories;
         functions = actiontable;
-        this.categoryIndex=categoryIndex;
+        this.categoryIndex = categoryIndex;
     }
 
     /**
@@ -254,8 +254,7 @@ public class KeyBindingsPanel extends JPanel implements ActionListener, ListSele
 
     class KeyCatcher extends FocusManager {
 
-        public void processKeyEvent(Component focusedComponent,
-                KeyEvent e) 
+        public void processKeyEvent(Component focusedComponent, KeyEvent e) 
         { 
             if(e.getID() != KeyEvent.KEY_PRESSED)
                 return;

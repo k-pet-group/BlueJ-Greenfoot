@@ -1669,7 +1669,7 @@ public final class MoeActions
         {
             MoeEditor editor = getEditor();
             //this method should not be actioned if the editor is not displaying source code
-            if (!editor.containsSourceCode()){
+            if (!editor.containsSourceCode()) {
                 return;
             }
             int caretPos = editor.getCurrentTextPane().getCaretPosition();
