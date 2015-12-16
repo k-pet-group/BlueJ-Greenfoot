@@ -126,20 +126,22 @@ public class Boot
     private static final ArrayList<File> macInitialProjects = new ArrayList<>();
 
     private SplashWindow splashWindow;
+    
+    public static String[] cmdLineArgs;      // Command line arguments
+
     // ---- instance part ----
     private final Properties commandLineProps; //Properties specified a the command line (-....)
-    private final String[] args;      // Command line arguments
     private File javaHomeDir;   // The value returned by System.getProperty
     private ClassLoader bootLoader; // The loader this class is loaded with
     private URL[] runtimeUserClassPath; // The initial class path used to run code within BlueJ
     private URL[] runtimeClassPath;     // The class path containing all the BlueJ classes
+
     /**
      * Constructor for the singleton Boot object.
      * 
-     * @param args the arguments with which main() was invoked
      * @param props the properties (created from the args)
      */
-    private Boot(String[] args, Properties props, final SplashLabel image)
+    private Boot(Properties props, final SplashLabel image)
     {
         // Display the splash window, and wait until it's been painted before
         // proceeding. Otherwise, the event thread may be occupied by BlueJ
@@ -156,7 +158,6 @@ public class Boot
             ite.printStackTrace();
         }
 
-        this.args = args;
         this.commandLineProps = props;
     }
 
@@ -167,6 +168,7 @@ public class Boot
      */
     public static void main(String[] args)
     {
+        cmdLineArgs = args;
         Application.launch(App.class, args);
     }
   
@@ -175,9 +177,9 @@ public class Boot
         return macInitialProjects;
     }
 
-    public static void subMain(String[] args)
+    public static void subMain()
     {
-        Properties commandLineProps = processCommandLineProperties(args);
+        Properties commandLineProps = processCommandLineProperties(cmdLineArgs);
         isGreenfoot = commandLineProps.getProperty("greenfoot", "false").equals("true");
         
         SplashLabel image;
@@ -194,7 +196,7 @@ public class Boot
         jfxrtJar = commandLineProps.getProperty("jfxrt.jarpath");
         
         try {
-            instance = new Boot(args, commandLineProps, image);
+            instance = new Boot(commandLineProps, image);
             instance.bootBluej();
         }
         catch (Throwable t) {
@@ -358,16 +360,6 @@ public class Boot
             splashWindow.dispose();
             splashWindow = null;
         }
-    }
-
-    /**
-     * Retuns the args list passed to the starting program.
-     *
-     * @return    The args value
-     */
-    public String[] getArgs()
-    {
-        return args;
     }
 
     /**
@@ -621,7 +613,7 @@ public class Boot
         public void start(Stage s) throws Exception {
             Platform.setImplicitExit(false);
             s.setTitle("BlueJ");
-            new Thread(() -> subMain(getParameters().getRaw().toArray(new String[0]))).start();
+            new Thread(() -> subMain()).start();
         }
         
     }
@@ -629,7 +621,7 @@ public class Boot
     /**
      * We don't want this Boot class to depend on further BlueJ classes, so although
      * Boot needs to know how to quit, we don't want to introduce a compile-time
-     * dependency on the classes needed to quit.  So this lamba/Runnable is a late
+     * dependency on the classes needed to quit.  So this lambda/Runnable is a late
      * binding for the same purpose
      */
     private Runnable quitAction;

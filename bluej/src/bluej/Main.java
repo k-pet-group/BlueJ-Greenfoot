@@ -94,7 +94,7 @@ public class Main
     public Main()
     {
         Boot boot = Boot.getInstance();
-        final String[] args = boot.getArgs();
+        final String[] args = Boot.cmdLineArgs;
         Properties commandLineProps = boot.getCommandLineProperties();
         File bluejLibDir = Boot.getBluejLibDir();
 
@@ -149,9 +149,9 @@ public class Main
 
         // Open any projects specified on the command line
         if (args.length > 0) {
-            for (int i = 0; i < args.length; i++) {
-                if (!args[i].startsWith("-")) {
-                    if(PkgMgrFrame.doOpen(new File(args[i]), null)) {
+            for (String arg : args) {
+                if (!arg.startsWith("-")) {
+                    if (PkgMgrFrame.doOpen(new File(arg), null)) {
                         oneOpened = true;                        
                     }
                 }
