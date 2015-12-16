@@ -172,6 +172,7 @@ public class SwingTabbedEditor
             if (!window.isShowing())
             {
                 window.pack();
+                window.setSize(700, 700);
                 window.setVisible(true);
                 // On Windows7, there was a problem with the window rendering white on re-show,
                 // until it was resized.  As a work-around, we do the resize ourselves:
