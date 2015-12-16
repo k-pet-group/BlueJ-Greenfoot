@@ -3284,6 +3284,7 @@ public final class MoeEditor extends JPanel
         menubar.setName("menubar");
         // Bit awkward, but we hack the move menu into the top, along with a separator:
         JMenu moveMenu = new JMenu();
+        moveMenu.setName("move.tab");
         // Add in reverse order:
         menubar.getMenu(0).add(new JSeparator(), 0);
         menubar.getMenu(0).add(moveMenu, 0);
