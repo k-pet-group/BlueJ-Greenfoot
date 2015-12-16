@@ -48,9 +48,10 @@ public class MoeUndoManager implements UndoableEditListener
         this.editor = editor;
         undoManager = new UndoManager();
         currentEdit = undoManager;
-        editStack = new LinkedList<CompoundEdit>();
+        editStack = new LinkedList<>();
     }
     
+    @Override
     public void undoableEditHappened(UndoableEditEvent e)
     {
         addEdit(e.getEdit());
