@@ -2434,25 +2434,10 @@ public final class MoeEditor extends JPanel
      */
     private void displayToolbar(boolean sourceView)
     {
-        JPanel toolbar=null;
-        Component contentPaneItem;
-        JButton actionButton;
-        Component[] c = this.getComponents();
-        for (int i=0;i<c.length; i++ ){
-            contentPaneItem=c[i];
-            if(contentPaneItem.getName()!=null && contentPaneItem.getName().equals("toolbar")) {
-                toolbar=(JPanel)contentPaneItem;
-            }
-        }
-
-        if (toolbar==null) {
-            return;
-        }
-        
-        Component[] toolbarComponent = toolbar.getComponents();
-        for (int i=0;i<toolbarComponent.length; i++ ) {
-            if (toolbarComponent[i] instanceof JButton) {                   
-                actionButton=(JButton)toolbarComponent[i];
+        Component[] buttons = toolbar.getComponents();
+        for (Component button : buttons) {
+            if (button instanceof JButton) {
+                JButton actionButton = (JButton) button;
                 if (isEditAction(actionButton.getName())) {
                     actionButton.setEnabled(sourceView);
                 }
