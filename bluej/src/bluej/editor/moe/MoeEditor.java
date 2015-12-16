@@ -2989,7 +2989,8 @@ public final class MoeEditor extends JPanel
     {
         if (madeChangeOnCurrentLine)
         {
-            swingTabbedEditor.scheduleCompilation(true);
+            if (swingTabbedEditor != null)
+                swingTabbedEditor.scheduleCompilation(true);
             madeChangeOnCurrentLine = false;
         }
     }
@@ -4069,6 +4070,9 @@ public final class MoeEditor extends JPanel
      */
     public void setParent(SwingTabbedEditor swingTabbedEditor)
     {
+        // If we are closing, force a compilation in case there are pending changes:
+        if (swingTabbedEditor == null)
+            this.swingTabbedEditor.scheduleCompilation(false);
         this.swingTabbedEditor = swingTabbedEditor;
         if (this.swingTabbedEditor != null)
             this.swingTabbedEditor.setJMenuBar(this, menubar, (JMenu)menubar.getMenu(0).getItem(0));
