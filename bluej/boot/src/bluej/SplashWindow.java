@@ -51,13 +51,7 @@ public class SplashWindow extends Frame
     {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setUndecorated(true);
-
         add(image);
-        progress = new JProgressBar();
-        progress.setIndeterminate(true);
-        progress.setDoubleBuffered(true); //stop the flickering on raspberry pi.
-        progress.setVisible(false); //set progress bar to invisible, initially.
-        add(progress);
         pack();
 
         // centre on screen
@@ -67,7 +61,10 @@ public class SplashWindow extends Frame
         
         Timer progressTimer = new Timer(5000, (ActionEvent e) -> {
             if (isVisible()) {
-                progress.setVisible(true); //timeout expired, show progress bar.
+                progress = new JProgressBar();
+                progress.setIndeterminate(true);
+                progress.setDoubleBuffered(true); //stop the flickering on raspberry pi.
+                add(progress);
                 pack();
             }
         });
@@ -83,22 +80,22 @@ public class SplashWindow extends Frame
         notify();
     }
     
-    /**
-     * Wait until the splash screen has actually been painted, with a timeout of
-     * 3 seconds.
-     */
-    public synchronized void waitUntilPainted()
-    {
-        long startTime = System.currentTimeMillis();
-        long timePast = System.currentTimeMillis() - startTime; 
-        while (!painted && timePast < 3000) {
-            try {
-                wait(3000 - timePast);
-            }
-            catch (InterruptedException ie) { }
-            timePast = System.currentTimeMillis() - startTime;
-        }
-        painted = true;
-    }
+//    /**
+//     * Wait until the splash screen has actually been painted, with a timeout of
+//     * 3 seconds.
+//     */
+//    public synchronized void waitUntilPainted()
+//    {
+//        long startTime = System.currentTimeMillis();
+//        long timePast = System.currentTimeMillis() - startTime; 
+//        while (!painted && timePast < 3000) {
+//            try {
+//                wait(3000 - timePast);
+//            }
+//            catch (InterruptedException ie) { }
+//            timePast = System.currentTimeMillis() - startTime;
+//        }
+//        painted = true;
+//    }
 }
 

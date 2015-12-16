@@ -146,11 +146,11 @@ public class Boot
         // starting up and the window might *never* be painted.
         
         try {
-            EventQueue.invokeAndWait(() -> {
-                splashWindow = new SplashWindow(image);
-                splashWindow.repaint(); // avoid delay before painting
-            });
-            splashWindow.waitUntilPainted();
+            EventQueue.invokeAndWait(() -> splashWindow = new SplashWindow(image));
+
+            // I removed this for now [mik]. We are using invokeAndWait, so we already wait anyway.
+            // The following call adds 3 secs to startup time (for no reason, I think). Avoid.
+            //splashWindow.waitUntilPainted();
         }
         catch (InvocationTargetException | InterruptedException ite) {
             ite.printStackTrace();
@@ -167,31 +167,6 @@ public class Boot
      */
     public static void main(String[] args)
     {
-        if((args.length >= 1) && "-version".equals(args[0])) {
-            System.out.println("BlueJ version " + BLUEJ_VERSION
-                               + " (Java version "
-                               + System.getProperty("java.version")
-                               + ")");
-            System.out.println("--");
-
-            System.out.println("virtual machine: "
-                               + System.getProperty("java.vm.name")
-                               + " "
-                               + System.getProperty("java.vm.version")
-                               + " ("
-                               + System.getProperty("java.vm.vendor")
-                               + ")");
-
-            System.out.println("running on: "
-                               + System.getProperty("os.name")
-                               + " "
-                               + System.getProperty("os.version")
-                               + " ("
-                               + System.getProperty("os.arch")
-                               + ")");
-            System.exit(-1);
-        }
-        
         Application.launch(App.class, args);
     }
   
@@ -646,9 +621,7 @@ public class Boot
         public void start(Stage s) throws Exception {
             Platform.setImplicitExit(false);
             s.setTitle("BlueJ");
-            new Thread(() ->
-            subMain(getParameters().getRaw().toArray(new String[0]))
-            ).start();
+            new Thread(() -> subMain(getParameters().getRaw().toArray(new String[0]))).start();
         }
         
     }
