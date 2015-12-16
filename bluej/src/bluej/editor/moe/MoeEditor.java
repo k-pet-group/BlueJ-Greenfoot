@@ -162,8 +162,8 @@ public final class MoeEditor extends JPanel
     private final static int NAVIVIEW_WIDTH = 90;       // width of the "naviview" (min-source) box
     private static final Color highlightBorderColor = new Color(212, 172,45);
     // Fonts
-    public static int printFontSize = Config.getPropInteger("bluej.fontsize.printText", 10);
-    public static Font printFont = new Font("Monospaced", Font.PLAIN, printFontSize);
+    private static final int printFontSize = Config.getPropInteger("bluej.fontsize.printText", 10);
+    private static final Font printFont = new Font("Monospaced", Font.PLAIN, printFontSize);
     private static final AdvancedHighlightPainter searchHighlightPainter =
         new MoeBorderHighlighterPainter(highlightBorderColor, Config.getHighlightColour(),
                 Config.getHighlightColour2(), Config.getSelectionColour2(),
@@ -239,20 +239,20 @@ public final class MoeEditor extends JPanel
     private final JavadocResolver javadocResolver;
     private ReparseRunner reparseRunner;
     /** Search highlight tags for both text panes */
-    private List<Object> sourceSearchHighlightTags = new ArrayList<Object>();
-    private List<Object> htmlSearchHighlightTags = new ArrayList<Object>();
+    private final List<Object> sourceSearchHighlightTags = new ArrayList<>();
+    private final List<Object> htmlSearchHighlightTags = new ArrayList<>();
     /**
      * Property map, allows BlueJ extensions to associate property values with
      * this editor instance; otherwise unused.
      */
-    private HashMap<String,Object> propertyMap = new HashMap<String,Object>();
+    private final HashMap<String,Object> propertyMap = new HashMap<>();
     // Blackbox data recording:
     private int oldCaretLineNumber = -1;
     private ErrorDisplay errorDisplay;
     private boolean madeChangeOnCurrentLine = false;
     private AbstractButton nextErrorButton;
     /** Manages display of compiler and parse errors */
-    private MoeErrorManager errorManager = new MoeErrorManager(this, enable -> {
+    private final MoeErrorManager errorManager = new MoeErrorManager(this, enable -> {
         setNextErrorEnabled(enable || madeChangeOnCurrentLine, madeChangeOnCurrentLine);
     });
     private Timer mouseHover;
@@ -1077,13 +1077,7 @@ public final class MoeEditor extends JPanel
         // This may be a callback in response to a modification event.
         // If we try to remove breakpoints during the modification notification,
         // AbstractDocument throws an exception.
-        getSourceDocument().scheduleUpdate(new Runnable() {
-            @Override
-            public void run()
-            {
-                clearAllBreakpoints();
-            }
-        });
+        getSourceDocument().scheduleUpdate(() -> clearAllBreakpoints());
     }
 
     /**
@@ -3318,11 +3312,10 @@ public final class MoeEditor extends JPanel
     private JMenuBar createMenuBar()
     {
         JMenuBar menubar = new JMenuBar();
-        JMenu menu = null;
 
         String[] menuKeys = getResource("menubar").split(" ");
-        for (int i = 0; i < menuKeys.length; i++) {
-            menu = createMenu(menuKeys[i]);
+        for (String menuKey : menuKeys) {
+            JMenu menu = createMenu(menuKey);
             if (menu != null) {
                 menubar.add(menu);
             }
@@ -3345,14 +3338,13 @@ public final class MoeEditor extends JPanel
         String actionName;
         popup = new JPopupMenu();
         String [] popupKeys=getResource("popupmenu").split(" ");
-        for (int i=0; i< popupKeys.length; i++){
-            label = Config.getString("editor." + popupKeys[i] + LabelSuffix);
-            actionName = getResource(popupKeys[i] + ActionSuffix);
+        for (String popupKey : popupKeys) {
+            label = Config.getString("editor." + popupKey + LabelSuffix);
+            actionName = getResource(popupKey + ActionSuffix);
             action = actions.getActionByName(actionName);
-            if (action == null) {               
-                Debug.message("Moe: cannot find action " + popupKeys[i]);
-            }
-            else {
+            if (action == null) {
+                Debug.message("Moe: cannot find action " + popupKey);
+            } else {
                 menuItem=new JMenuItem(action);
                 menuItem.setText(label);
                 popup.add(menuItem);
@@ -3392,25 +3384,23 @@ public final class MoeEditor extends JPanel
         String[] itemKeys = itemString.split(" ");
 
         // create menu item for each item
-        for (int i = 0; i < itemKeys.length; i++) {
-            if (itemKeys[i].equals("-")) {
+        for (String itemKey : itemKeys) {
+            if (itemKey.equals("-")) {
                 menu.addSeparator();
-            }
-            else {
-                Action action = actions.getActionByName(itemKeys[i]);
+            } else {
+                Action action = actions.getActionByName(itemKey);
                 if (action == null) {
-                    Debug.message("Moe: cannot find action " + itemKeys[i]);
-                }
-                else {
+                    Debug.message("Moe: cannot find action " + itemKey);
+                } else {
                     item = menu.add(action);
-                    label = Config.getString("editor." + itemKeys[i] + LabelSuffix);
+                    label = Config.getString("editor." + itemKey + LabelSuffix);
                     item.setText(label);
                     KeyStroke[] keys = actions.getKeyStrokesForAction(action);
                     if (keys != null) {
                         item.setAccelerator(chooseKey(keys));
                     }
-                    item.setName(itemKeys[i]); 
-                    if (isNonReadmeAction(itemKeys[i])){
+                    item.setName(itemKey);
+                    if (isNonReadmeAction(itemKey)) {
                         item.setEnabled(sourceIsCode);
                     }
                 }               
@@ -3453,8 +3443,8 @@ public final class MoeEditor extends JPanel
     private void addToolbarGroup(JComponent toolbar, String group)
     {
         String[] toolKeys = group.split(":");
-        for (int i = 0; i < toolKeys.length; i++) {
-            toolbar.add(createToolbarButton(toolKeys[i]));
+        for (String toolKey : toolKeys) {
+            toolbar.add(createToolbarButton(toolKey));
             if(!Config.isMacOSLeopard()) toolbar.add(Box.createHorizontalStrut(3));
         }
     }
@@ -3950,7 +3940,7 @@ public final class MoeEditor extends JPanel
     
     private NodeAndPosition<ParsedNode> findClassNode()
     {
-        NodeAndPosition<ParsedNode> root = new NodeAndPosition<ParsedNode>(sourceDocument.getParser(), 0, 
+        NodeAndPosition<ParsedNode> root = new NodeAndPosition<>(sourceDocument.getParser(), 0, 
                 sourceDocument.getParser().getSize());
         for (NodeAndPosition<ParsedNode> nap : iterable(root)) {
             if (nap.getNode().getNodeType() == ParsedNode.NODETYPE_TYPEDEF)
@@ -4252,7 +4242,7 @@ public final class MoeEditor extends JPanel
      */
     class ToolbarAction extends AbstractAction implements PropertyChangeListener
     {
-        private Action subAction;
+        private final Action subAction;
 
         public ToolbarAction(Action subAction, String label)
         {
@@ -4276,7 +4266,7 @@ public final class MoeEditor extends JPanel
             if (evt.getPropertyName().equals("enabled")) {
                 Object newVal = evt.getNewValue();
                 if (newVal instanceof Boolean) {
-                    boolean state = ((Boolean) newVal).booleanValue();
+                    boolean state = ((Boolean) newVal);
                     setEnabled(state);
                 }
             }
