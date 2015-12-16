@@ -21,6 +21,7 @@ insert-tab=\n Insert a TAB character.
 new-line=\n Insert a line break. If 'indent' is selected in the editor\n preferences, also indent as the line above.
 insert-break=\n Insert a line break without any attempt at indentation.
 insert-method=\n Insert a skeleton for a Java method into the text.
+add-javadoc=\n Add a javadoc comment to the current method if no comment exists.
 comment-block=\n Comment out currently selected lines. The comment can easily be\n removed later (see uncomment-block).
 uncomment-block=\n Remove comment symbols from the start of currently selected lines.\n See also comment-block.
 indent-block=\n Add one level of indentation to each line in the current selection\n (or the current line if there is no selection).

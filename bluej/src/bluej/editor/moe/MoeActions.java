@@ -1200,6 +1200,7 @@ public final class MoeActions
                 actions.get("new-line"),
                 actions.get(DefaultEditorKit.insertBreakAction), 
                 actions.get("insert-method"),
+                actions.get("add-javadoc"),
                 actions.get("comment-block"), 
                 actions.get("uncomment-block"),
                 actions.get("autoindent"), 

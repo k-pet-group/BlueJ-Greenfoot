@@ -433,6 +433,7 @@ public final class MoeEditor extends JPanel
             readMeActions.add("next-error");
             readMeActions.add("autoindent");
             readMeActions.add("insert-method");
+            readMeActions.add("add-javadoc");
             readMeActions.add("toggle-interface-view");
         }
         return readMeActions;
