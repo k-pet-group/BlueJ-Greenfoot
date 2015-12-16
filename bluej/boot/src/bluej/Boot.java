@@ -188,7 +188,7 @@ public class Boot
             runtimeJars = greenfootUserJars;
             userJars = greenfootUserJars;
             numBuildJars = greenfootUserBuildJars;
-            numUserBuildJars = greenfootUserBuildJars;            
+            numUserBuildJars = greenfootUserBuildJars;
         } else {
             image = new BlueJLabel();
         }
