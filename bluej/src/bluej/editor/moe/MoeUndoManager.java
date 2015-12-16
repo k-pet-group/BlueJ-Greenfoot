@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2015  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -60,8 +60,7 @@ public class MoeUndoManager implements UndoableEditListener
     {
         currentEdit.addEdit(edit);
         if (currentEdit == undoManager) {
-            editor.updateUndoControls();
-            editor.updateRedoControls();
+            editor.updateUndoRedoControls();
         }
     }
     
@@ -79,8 +78,7 @@ public class MoeUndoManager implements UndoableEditListener
         currentEdit = lastEdit;
         
         if (currentEdit == undoManager) {
-            editor.updateUndoControls();
-            editor.updateRedoControls();
+            editor.updateUndoRedoControls();
         }
     }
     

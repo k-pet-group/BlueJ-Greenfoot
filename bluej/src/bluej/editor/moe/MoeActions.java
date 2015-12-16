@@ -1496,8 +1496,7 @@ public final class MoeActions
             catch (CannotUndoException ex) {
                 Debug.message("moe: cannot undo...");
             }
-            editor.updateUndoControls();
-            editor.updateRedoControls();
+            editor.updateUndoRedoControls();
         }
     }
 
@@ -1522,8 +1521,7 @@ public final class MoeActions
             catch (CannotRedoException ex) {
                 Debug.message("moe: cannot redo...");
             }
-            editor.updateUndoControls();
-            editor.updateRedoControls();
+            editor.updateUndoRedoControls();
         }
     }
     
