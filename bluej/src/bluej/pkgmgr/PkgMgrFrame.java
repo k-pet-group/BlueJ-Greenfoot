@@ -1609,6 +1609,7 @@ public class PkgMgrFrame extends JFrame
         if (pkg.isUnnamedPackage()) {
             // The unnamed package also contains project properties
             p = getProject().getProjectProperties();
+            getProject().saveEditorLocations(p);
         }
         else {
             p = new Properties();

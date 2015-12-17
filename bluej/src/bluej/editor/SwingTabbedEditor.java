@@ -37,6 +37,7 @@ import java.util.List;
 import javax.swing.*;
 
 import bluej.Config;
+import bluej.pkgmgr.TabbedEditorWindow;
 import bluej.utility.Utility;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -47,7 +48,7 @@ import bluej.pkgmgr.Project;
  * A window which contains all the (Swing) editor tabs for Java
  */
 @OnThread(Tag.Swing)
-public class SwingTabbedEditor
+public class SwingTabbedEditor implements TabbedEditorWindow
 {
     /** The actual GUI window */
     private final JFrame window;
@@ -172,7 +173,10 @@ public class SwingTabbedEditor
             if (!window.isShowing())
             {
                 window.pack();
+                // Default:
                 window.setSize(700, 700);
+                // Override with saved if available:
+                project.recallPosition(this);
                 window.setVisible(true);
                 // On Windows7, there was a problem with the window rendering white on re-show,
                 // until it was resized.  As a work-around, we do the resize ourselves:
@@ -479,5 +483,37 @@ public class SwingTabbedEditor
             this.menuBar = menuBar;
             this.moveMenu = moveMenu;
         }
+    }
+
+    public int getX()
+    {
+        return window.getX();
+    }
+
+    public int getY()
+    {
+        return window.getY();
+    }
+
+    public int getWidth()
+    {
+        return window.getWidth();
+    }
+
+    public int getHeight()
+    {
+        return window.getHeight();
+    }
+
+    @Override
+    public void setSize(int width, int height)
+    {
+        window.setSize(width, height);
+    }
+
+    @Override
+    public void setPosition(int x, int y)
+    {
+        window.setLocation(x, y);
     }
 }

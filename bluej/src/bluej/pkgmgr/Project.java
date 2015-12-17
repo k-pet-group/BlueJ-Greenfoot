@@ -244,15 +244,6 @@ public class Project implements DebuggerListener, InspectorManager
         packages = new TreeMap<String, Package>();
         docuGenerator = new DocuGenerator(this);
 
-        fXTabbedEditors.add(new FXTabbedEditor(Project.this));
-        // This line initialises JavaFX:
-        new JFXPanel();
-        // Prevent JavaFX exiting when all JavaFX windows are closed (would prevent re-opening editor):
-        Platform.setImplicitExit(false);
-        fXTabbedEditors.get(0).initialise();
-        
-        swingTabbedEditors.add(new SwingTabbedEditor(Project.this));
-        
         try {
             Package unnamed = new Package(this);
             Properties props = unnamed.getLastSavedProperties();
@@ -262,6 +253,13 @@ public class Project implements DebuggerListener, InspectorManager
         } catch (IOException exc) {
             Debug.reportError("could not read package file (unnamed package)");
         }
+
+        // This line initialises JavaFX:
+        new JFXPanel();
+        // Prevent JavaFX exiting when all JavaFX windows are closed (would prevent re-opening editor):
+        Platform.setImplicitExit(false);
+        createNewFXTabbedEditor();
+        createNewSwingTabbedEditor();
 
         debugger = Debugger.getDebuggerImpl(getProjectDir(), getTerminal());
         debugger.setUserLibraries(libraryUrls.toArray(new URL[libraryUrls.size()]));
@@ -2228,4 +2226,54 @@ public class Project implements DebuggerListener, InspectorManager
         fXTabbedEditors.forEach(FXTabbedEditor::updateMoveMenus);
     }
 
+    public void saveEditorLocations(Properties props)
+    {
+        for (int i = 0; i < swingTabbedEditors.size(); i++)
+        {
+            SwingTabbedEditor editor = swingTabbedEditors.get(i);
+            String prefix = "editor.swing." + i;
+            saveEditorLocation(props, editor, prefix);
+        }
+        for (int i = 0; i < fXTabbedEditors.size(); i++)
+        {
+            FXTabbedEditor editor = fXTabbedEditors.get(i);
+            String prefix = "editor.fx." + i;
+            saveEditorLocation(props, editor, prefix);
+        }
+    }
+
+    private void saveEditorLocation(Properties props, TabbedEditorWindow editor, String prefix)
+    {
+        props.put(prefix + ".x", String.valueOf(editor.getX()));
+        props.put(prefix + ".y", String.valueOf(editor.getY()));
+        props.put(prefix + ".width", String.valueOf(editor.getWidth()));
+        props.put(prefix + ".height", String.valueOf(editor.getHeight()));
+    }
+
+    public void recallPosition(TabbedEditorWindow ed)
+    {
+        int index;
+        String prefix;
+        if (ed instanceof FXTabbedEditor)
+        {
+            index = fXTabbedEditors.indexOf(ed);
+            prefix = "editor.fx.";
+        }
+        else
+        {
+            index = swingTabbedEditors.indexOf(ed);
+            prefix = "editor.swing.";
+        }
+        if (index < 0)
+            return;
+        Properties props = getPackage("").getLastSavedProperties();
+        int x = Integer.parseInt(props.getProperty(prefix + index + ".x", "-1"));
+        int y = Integer.parseInt(props.getProperty(prefix + index + ".y", "-1"));
+        if (x >= 0 && y >= 0)
+            ed.setPosition(x, y);
+        int width = Integer.parseInt(props.getProperty(prefix + index + ".width", "-1"));
+        int height = Integer.parseInt(props.getProperty(prefix + index + ".height", "-1"));
+        if (width > 100 && height > 100)
+            ed.setSize(width, height);
+    }
 }

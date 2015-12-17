@@ -37,8 +37,10 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import bluej.pkgmgr.TabbedEditorWindow;
 import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
@@ -111,7 +113,7 @@ import bluej.utility.javafx.JavaFXUtil;
  *
  * It is also responsible for changing the menus on the window when the tab changes.
  */
-public @OnThread(Tag.FX) class FXTabbedEditor
+public @OnThread(Tag.FX) class FXTabbedEditor implements TabbedEditorWindow
 {
     /** Are we currently showing the frame catalogue/cheat sheet? */
     private final SimpleBooleanProperty showingCatalogue = new SimpleBooleanProperty(true);
@@ -147,6 +149,11 @@ public @OnThread(Tag.FX) class FXTabbedEditor
     private ImageView dragIcon = null;
     /** Cached so it can be read from any thread: */
     private String projectTitle;
+    /** Atomic caches to be read from Swing thread: */
+    private AtomicInteger locationX = new AtomicInteger(0);
+    private AtomicInteger locationY = new AtomicInteger(0);
+    private AtomicInteger locationWidth = new AtomicInteger(700);
+    private AtomicInteger locationHeight = new AtomicInteger(700);
 
     // Neither the constructor nor any initialisers should do any JavaFX work until
     // initialise is called.
@@ -337,6 +344,11 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         stage.titleProperty().bind(Bindings.concat(
             JavaFXUtil.apply(tabPane.getSelectionModel().selectedItemProperty(), t -> ((FXTab)t).windowTitleProperty(), "Unknown")
                 ," - ", projectTitle));
+
+        JavaFXUtil.addChangeListener(stage.xProperty(), x -> locationX.set(x.intValue()));
+        JavaFXUtil.addChangeListener(stage.yProperty(), y -> locationY.set(y.intValue()));
+        JavaFXUtil.addChangeListener(stage.widthProperty(), w -> locationWidth.set(w.intValue()));
+        JavaFXUtil.addChangeListener(stage.heightProperty(), h -> locationHeight.set(h.intValue()));
     }
 
     private void updateMenusForTab(FXTab selTab)
@@ -443,6 +455,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         if (visible)
         {
             if (!stage.isShowing()) {
+                SwingUtilities.invokeLater(() -> project.recallPosition(this));
                 stage.show();
                 //ScenicView.show(stage.getScene());
             }
@@ -733,6 +746,24 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         return Utility.mapList(tabPane.getTabs(), t -> (FXTab)t);
     }
 
+    @OnThread(Tag.Swing)
+    public void setPosition(int x, int y)
+    {
+        Platform.runLater(() -> {
+            stage.setX(x);
+            stage.setY(y);
+        });
+    }
+
+    @OnThread(Tag.Swing)
+    public void setSize(int width, int height)
+    {
+        Platform.runLater(() -> {
+            stage.setWidth(width);
+            stage.setHeight(height);
+        });
+    }
+
     public static enum CodeCompletionState
     {
         NOT_POSSIBLE, SHOWING, POSSIBLE;
@@ -831,5 +862,29 @@ public @OnThread(Tag.FX) class FXTabbedEditor
     public void updateMoveMenus()
     {
         tabPane.getTabs().forEach(t -> updateMenusForTab((FXTab)t));
+    }
+
+    @OnThread(Tag.Swing)
+    public int getX()
+    {
+        return locationX.get();
+    }
+
+    @OnThread(Tag.Swing)
+    public int getY()
+    {
+        return locationY.get();
+    }
+
+    @OnThread(Tag.Swing)
+    public int getWidth()
+    {
+        return locationWidth.get();
+    }
+
+    @OnThread(Tag.Swing)
+    public int getHeight()
+    {
+        return locationHeight.get();
     }
 }
