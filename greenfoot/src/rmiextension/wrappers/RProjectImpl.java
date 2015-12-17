@@ -70,7 +70,7 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
      * A launcher object with a field called "transportField", used to
      * allow obtaining a remote reference to a debug VM object.
      */
-    private WeakReference<BObject> transportObject = null;
+    private BObject transportObject = null;
     
     private List<RProjectListener> listeners = new ArrayList<RProjectListener>();
 
@@ -103,7 +103,7 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
      */
     public synchronized void setTransportObject(BObject transportObject)
     {
-        this.transportObject = new WeakReference<>(transportObject);
+        this.transportObject = transportObject;
         notifyAll();
     }
     
@@ -129,6 +129,7 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
      */
     public void notifyClosing()
     {
+        transportObject = null;
         List<RProjectListener> listeners;
         synchronized (this.listeners) {
             listeners = new ArrayList<RProjectListener>(this.listeners);
@@ -278,10 +279,10 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
             while (transportObject == null) {
                 wait();
             }
-            BClass bClass = transportObject.get().getBClass();
+            BClass bClass = transportObject.getBClass();
             BField field = bClass.getField("transportField");
-            final BObject value = (BObject) field.getValue(transportObject.get());
-            
+            final BObject value = (BObject) field.getValue(transportObject);
+
             if (value != null) {
                 EventQueue.invokeAndWait(new Runnable() {
                     @Override
