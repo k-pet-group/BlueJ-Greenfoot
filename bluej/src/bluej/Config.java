@@ -524,13 +524,39 @@ public final class Config
         return Config.isRaspberryPi;
     }
 
+    private static boolean osVersionNumberAtLeast(int... target)
+    {
+        return versionAtLeast(System.getProperty("os.version"), target);
+    }
+
+    private static boolean javaVersionNumberAtLeast(int... target)
+    {
+        return versionAtLeast(System.getProperty("java.specification.version"), target);
+    }
+
+    private static boolean versionAtLeast(String version, int[] target)
+    {
+        String[] versionChunks = version.split("\\.");
+        for (int i = 0; i < target.length; i++)
+        {
+            if (versionChunks.length <= i)
+                return false; // Play safe
+            if (target[i] < Integer.parseInt(versionChunks[i]))
+                return true;
+            if (target[i] > Integer.parseInt(versionChunks[i]))
+                return false;
+        }
+        // Must be equal
+        return true;
+    }
+
     /**
      * Tell us whether we are running on MacOS 10.5 (Leopard) or later
      */
     public static boolean isMacOSLeopard()
     {
         return osname.startsWith("Mac") &&
-                System.getProperty("os.version").compareTo("10.5") >= 0;
+                osVersionNumberAtLeast(10, 5);
     }
     
     /**
@@ -539,7 +565,7 @@ public final class Config
     public static boolean isMacOSSnowLeopard()
     {
         return osname.startsWith("Mac") &&
-                System.getProperty("os.version").compareTo("10.6") >= 0;
+            osVersionNumberAtLeast(10, 6);
     }
     
     /**
@@ -556,7 +582,7 @@ public final class Config
     public static boolean isModernWinOS()
     {
         return isWinOS()
-                && System.getProperty("os.version").compareTo("6.0") >= 0;
+                && osVersionNumberAtLeast(6, 0);
     }
     
     /**
@@ -580,7 +606,7 @@ public final class Config
      */
     public static boolean isJava15()
     {
-        return System.getProperty("java.specification.version").compareTo("1.5") >= 0;
+        return javaVersionNumberAtLeast(1, 5);
     }
     
     /**
@@ -588,7 +614,7 @@ public final class Config
      */
     public static boolean isJava16()
     {
-        return System.getProperty("java.specification.version").compareTo("1.6") >= 0;
+        return javaVersionNumberAtLeast(1, 6);
     }
     
     /**
@@ -596,7 +622,7 @@ public final class Config
      */
     public static boolean isJava17()
     {
-        return System.getProperty("java.specification.version").compareTo("1.7") >= 0;
+        return javaVersionNumberAtLeast(1, 7);
     }
     
     /**
