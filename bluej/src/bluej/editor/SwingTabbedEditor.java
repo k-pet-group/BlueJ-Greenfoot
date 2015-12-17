@@ -65,13 +65,16 @@ public class SwingTabbedEditor implements TabbedEditorWindow
     private final IdentityHashMap<MoeEditor, HeaderPanel> editorToHeader = new IdentityHashMap<>();
     /** Maps editor to menu bar */
     private final IdentityHashMap<MoeEditor, MenuInfo> menuBars = new IdentityHashMap<>();
+    /** The size to load up with.  May be null */
+    private Rectangle startSize;
 
     /**
      * Constructs a SwingTabbedEditor for the given project
      */
-    public SwingTabbedEditor(Project project)
+    public SwingTabbedEditor(Project project, Rectangle startSize)
     {
         window = new JFrame(project.getProjectName() + " - Java");
+        this.startSize = startSize;
         tabPane = new JTabbedPane();
         // Create some actions for selecting tabs, which will later be bound to Ctrl+1, etc
         for (int i = 1; i <= 9; i++)
@@ -176,7 +179,11 @@ public class SwingTabbedEditor implements TabbedEditorWindow
                 // Default:
                 window.setSize(700, 700);
                 // Override with saved if available:
-                project.recallPosition(this);
+                if (startSize != null)
+                {
+                    window.setLocation(startSize.x, startSize.y);
+                    window.setSize(startSize.width, startSize.height);
+                }
                 window.setVisible(true);
                 // On Windows7, there was a problem with the window rendering white on re-show,
                 // until it was resized.  As a work-around, we do the resize ourselves:
@@ -503,17 +510,5 @@ public class SwingTabbedEditor implements TabbedEditorWindow
     public int getHeight()
     {
         return window.getHeight();
-    }
-
-    @Override
-    public void setSize(int width, int height)
-    {
-        window.setSize(width, height);
-    }
-
-    @Override
-    public void setPosition(int x, int y)
-    {
-        window.setLocation(x, y);
     }
 }

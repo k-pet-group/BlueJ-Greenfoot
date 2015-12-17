@@ -124,6 +124,8 @@ public @OnThread(Tag.FX) class FXTabbedEditor implements TabbedEditorWindow
     /** Relative to window overlay, not to scene */
     private final SimpleDoubleProperty mouseDragXProperty = new SimpleDoubleProperty();
     private final SimpleDoubleProperty mouseDragYProperty = new SimpleDoubleProperty();
+    /** The starting size of the window.  May be null. */
+    private final Rectangle startSize;
     /** The actual window */
     private Stage stage;
     /** The scene within the stage */
@@ -158,9 +160,10 @@ public @OnThread(Tag.FX) class FXTabbedEditor implements TabbedEditorWindow
     // Neither the constructor nor any initialisers should do any JavaFX work until
     // initialise is called.
     @OnThread(Tag.Any)
-    public FXTabbedEditor(Project project)
+    public FXTabbedEditor(Project project, Rectangle startSize)
     {
         this.project = project;
+        this.startSize = startSize;
     }
 
     /**
@@ -455,8 +458,14 @@ public @OnThread(Tag.FX) class FXTabbedEditor implements TabbedEditorWindow
         if (visible)
         {
             if (!stage.isShowing()) {
-                SwingUtilities.invokeLater(() -> project.recallPosition(this));
                 stage.show();
+                if (startSize != null)
+                {
+                    stage.setX(startSize.getX());
+                    stage.setY(startSize.getY());
+                    stage.setWidth(startSize.getWidth());
+                    stage.setHeight(startSize.getHeight());
+                }
                 //ScenicView.show(stage.getScene());
             }
             if (!tabPane.getTabs().contains(tab))

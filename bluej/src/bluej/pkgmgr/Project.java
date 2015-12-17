@@ -21,9 +21,7 @@
  */
 package bluej.pkgmgr;
 
-import java.awt.Component;
-import java.awt.EventQueue;
-import java.awt.Window;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -2166,7 +2164,7 @@ public class Project implements DebuggerListener, InspectorManager
 
     public SwingTabbedEditor createNewSwingTabbedEditor()
     {
-        SwingTabbedEditor newEditor = new SwingTabbedEditor(this);
+        SwingTabbedEditor newEditor = new SwingTabbedEditor(this, recallPosition("editor.swing." + swingTabbedEditors.size()));
         swingTabbedEditors.add(newEditor);
         updateSwingTabbedEditorDestinations();
         return newEditor;
@@ -2199,7 +2197,7 @@ public class Project implements DebuggerListener, InspectorManager
      */
     public FXTabbedEditor createNewFXTabbedEditor()
     {
-        FXTabbedEditor ed = new FXTabbedEditor(Project.this);
+        FXTabbedEditor ed = new FXTabbedEditor(Project.this, recallPosition("editor.fx." + fXTabbedEditors.size()));
         ed.initialise();
         Platform.runLater(() -> {
             fXTabbedEditors.add(ed);
@@ -2250,30 +2248,16 @@ public class Project implements DebuggerListener, InspectorManager
         props.put(prefix + ".height", String.valueOf(editor.getHeight()));
     }
 
-    public void recallPosition(TabbedEditorWindow ed)
+    private Rectangle recallPosition(String prefix)
     {
-        int index;
-        String prefix;
-        if (ed instanceof FXTabbedEditor)
-        {
-            index = fXTabbedEditors.indexOf(ed);
-            prefix = "editor.fx.";
-        }
-        else
-        {
-            index = swingTabbedEditors.indexOf(ed);
-            prefix = "editor.swing.";
-        }
-        if (index < 0)
-            return;
         Properties props = getPackage("").getLastSavedProperties();
-        int x = Integer.parseInt(props.getProperty(prefix + index + ".x", "-1"));
-        int y = Integer.parseInt(props.getProperty(prefix + index + ".y", "-1"));
-        if (x >= 0 && y >= 0)
-            ed.setPosition(x, y);
-        int width = Integer.parseInt(props.getProperty(prefix + index + ".width", "-1"));
-        int height = Integer.parseInt(props.getProperty(prefix + index + ".height", "-1"));
-        if (width > 100 && height > 100)
-            ed.setSize(width, height);
+        int x = Integer.parseInt(props.getProperty(prefix +  ".x", "-1"));
+        int y = Integer.parseInt(props.getProperty(prefix + ".y", "-1"));
+        int width = Integer.parseInt(props.getProperty(prefix + ".width", "-1"));
+        int height = Integer.parseInt(props.getProperty(prefix + ".height", "-1"));
+        if (x >= 0 && y >= 0 && width > 100 && height > 100)
+            return new Rectangle(x, y, width, height);
+        else
+            return null;
     }
 }

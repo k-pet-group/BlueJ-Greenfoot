@@ -14,7 +14,4 @@ public interface TabbedEditorWindow
     public int getY();
     public int getWidth();
     public int getHeight();
-
-    public void setPosition(int x, int y);
-    public void setSize(int width, int height);
 }
