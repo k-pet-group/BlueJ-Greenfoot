@@ -768,15 +768,25 @@ public abstract class World
     <A> A getOneObjectAt(Actor object, int dx, int dy, Class<A> cls)
     {
         final Actor o = collisionChecker.getOneObjectAt(object, dx, dy, (Class) cls);
-        A a = cls.cast(o);
-        return a;
+        if (cls == null)
+            return (A)o;
+        else
+        {
+            A a = cls.cast(o);
+            return a;
+        }
     }
 
     <A> A getOneIntersectingObject(Actor object, Class<A> cls)
     {
         final Actor o = collisionChecker.getOneIntersectingObject(object, (Class) cls);
-        A a = cls.cast(o);
-        return a;
+        if (cls == null)
+            return (A)o;
+        else
+        {
+            A a = cls.cast(o);
+            return a;
+        }
     }
     
     /**
