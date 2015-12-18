@@ -458,7 +458,6 @@ public @OnThread(Tag.FX) class FXTabbedEditor implements TabbedEditorWindow
         if (visible)
         {
             if (!stage.isShowing()) {
-                stage.show();
                 if (startSize != null)
                 {
                     stage.setX(startSize.getX());
@@ -466,6 +465,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor implements TabbedEditorWindow
                     stage.setWidth(startSize.getWidth());
                     stage.setHeight(startSize.getHeight());
                 }
+                stage.show();
                 //ScenicView.show(stage.getScene());
             }
             if (!tabPane.getTabs().contains(tab))
