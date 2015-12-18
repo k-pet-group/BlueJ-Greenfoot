@@ -873,25 +873,25 @@ public @OnThread(Tag.FX) class FXTabbedEditor implements TabbedEditorWindow
         tabPane.getTabs().forEach(t -> updateMenusForTab((FXTab)t));
     }
 
-    @OnThread(Tag.Swing)
+    @OnThread(value = Tag.Any, ignoreParent = true)
     public int getX()
     {
         return locationX.get();
     }
 
-    @OnThread(Tag.Swing)
+    @OnThread(value = Tag.Any, ignoreParent = true)
     public int getY()
     {
         return locationY.get();
     }
 
-    @OnThread(Tag.Swing)
+    @OnThread(value = Tag.Any, ignoreParent = true)
     public int getWidth()
     {
         return locationWidth.get();
     }
 
-    @OnThread(Tag.Swing)
+    @OnThread(value = Tag.Any, ignoreParent = true)
     public int getHeight()
     {
         return locationHeight.get();
