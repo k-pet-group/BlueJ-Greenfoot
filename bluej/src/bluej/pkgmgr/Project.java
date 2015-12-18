@@ -249,7 +249,6 @@ public class Project implements DebuggerListener, InspectorManager
             Properties props = unnamed.getLastSavedProperties();
             setProjectProperties(props);
             packages.put("", unnamed);
-            unnamed.refreshPackage();
         } catch (IOException exc) {
             Debug.reportError("could not read package file (unnamed package)");
         }
@@ -260,6 +259,9 @@ public class Project implements DebuggerListener, InspectorManager
         Platform.setImplicitExit(false);
         createNewFXTabbedEditor();
         createNewSwingTabbedEditor();
+
+        // Must do this after the editors have been created:
+        getPackage("").refreshPackage();
 
         debugger = Debugger.getDebuggerImpl(getProjectDir(), getTerminal());
         debugger.setUserLibraries(libraryUrls.toArray(new URL[libraryUrls.size()]));
