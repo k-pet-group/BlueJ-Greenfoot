@@ -892,7 +892,7 @@ public abstract class Actor
      * @param cls Class of objects to look for (passing 'null' will find all objects).
      * @return An object at the given location, or null if none found.
      */
-    protected <A> A getOneObjectAtOffset(int dx, int dy, Class<A> cls)
+    protected Actor getOneObjectAtOffset(int dx, int dy, Class<?> cls)
     {
         failIfNotInWorld();
         return world.getOneObjectAt(this, x + dx, y + dy, cls);        
@@ -937,7 +937,7 @@ public abstract class Actor
      * @param cls Class of objects to look for (passing 'null' will find all objects).
      * @return An object of the given class type that intersects with the current object.
      */
-    protected <A> A getOneIntersectingObject(Class<A> cls)
+    protected Actor getOneIntersectingObject(Class<?> cls)
     {
         failIfNotInWorld();
         return world.getOneIntersectingObject(this, cls);

@@ -765,28 +765,14 @@ public abstract class World
         collisionChecker.startSequence();
     }
 
-    <A> A getOneObjectAt(Actor object, int dx, int dy, Class<A> cls)
+    Actor getOneObjectAt(Actor object, int dx, int dy, Class<?> cls)
     {
-        final Actor o = collisionChecker.getOneObjectAt(object, dx, dy, (Class) cls);
-        if (cls == null)
-            return (A)o;
-        else
-        {
-            A a = cls.cast(o);
-            return a;
-        }
+        return collisionChecker.getOneObjectAt(object, dx, dy, (Class)cls);
     }
 
-    <A> A getOneIntersectingObject(Actor object, Class<A> cls)
+    Actor getOneIntersectingObject(Actor object, Class<?> cls)
     {
-        final Actor o = collisionChecker.getOneIntersectingObject(object, (Class) cls);
-        if (cls == null)
-            return (A)o;
-        else
-        {
-            A a = cls.cast(o);
-            return a;
-        }
+        return collisionChecker.getOneIntersectingObject(object, (Class) cls);
     }
     
     /**
