@@ -2418,9 +2418,9 @@ class InfixExpression implements TextFieldDelegate<ExpressionSlotField>
                         b.getContent().insertAtPos(new CaretPos(0, new CaretPos(0, null)), commas.toString());
                     }
                     // else if there are brackets with content, leave them alone.
-                    
+
                     // We use a runLater as we need to request focus after the suggestion window has been hidden:
-                    Platform.runLater(() -> 
+                    Platform.runLater(() ->
                         b.focusAtStart()
                     );
                 }
@@ -2665,6 +2665,7 @@ class InfixExpression implements TextFieldDelegate<ExpressionSlotField>
             {
                 // No fixed arity; we know field must be near-blank, so just
                 // replace it with the right number of commas (may be zero):
+                boolean wasFocused = isFocused();
                 blank();
                 for (int i = 0; i < match.size() - 1; i++)
                 {
@@ -2672,6 +2673,8 @@ class InfixExpression implements TextFieldDelegate<ExpressionSlotField>
                     insertChar(getEndPos(), ',', false);
                 }
                 curParams = getSimpleParameters();
+                if (wasFocused)
+                    getFirstField().requestFocus();
             }
             
             for (int i = 0; i < match.size(); i++)
@@ -3062,3 +3065,4 @@ class InfixExpression implements TextFieldDelegate<ExpressionSlotField>
         public int counter = 0;
     }
 }
+
