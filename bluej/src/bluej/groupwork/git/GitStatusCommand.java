@@ -45,6 +45,7 @@ public class GitStatusCommand extends GitCommand
     StatusListener listener;
     FileFilter filter;
     boolean includeRemote;
+    private final String ignoreFilesArray[] = {".class"};
 
     public GitStatusCommand(GitRepository repository, StatusListener listener, FileFilter filter, boolean includeRemote) 
     {
@@ -63,27 +64,27 @@ public class GitStatusCommand extends GitCommand
             Status s = repo.status().call();
 
             File gitPath = new File(this.getRepository().getProjectPath().getParent());
-            s.getMissing().stream().map((item) -> new TeamStatusInfo(new File(gitPath, item), "", null, TeamStatusInfo.STATUS_NEEDSCHECKOUT)).forEach((teamInfo) -> {
+            s.getMissing().stream().filter(p -> validFile(p)).map((item) -> new TeamStatusInfo(new File(gitPath, item), "", null, TeamStatusInfo.STATUS_NEEDSCHECKOUT)).forEach((teamInfo) -> {
                 returnInfo.add(teamInfo);
             });
             
-            s.getUncommittedChanges().stream().map((item) -> new TeamStatusInfo(new File(gitPath, item), "", null, TeamStatusInfo.STATUS_NEEDSCOMMIT)).forEach((teamInfo) -> {
+            s.getUncommittedChanges().stream().filter(p -> validFile(p)).map((item) -> new TeamStatusInfo(new File(gitPath, item), "", null, TeamStatusInfo.STATUS_NEEDSCOMMIT)).forEach((teamInfo) -> {
                 returnInfo.add(teamInfo);
             });
             
-            s.getConflicting().stream().map((item) -> new TeamStatusInfo(new File(gitPath, item), "", null, TeamStatusInfo.STATUS_NEEDSMERGE)).forEach((teamInfo) -> {
+            s.getConflicting().stream().filter(p -> validFile(p)).map((item) -> new TeamStatusInfo(new File(gitPath, item), "", null, TeamStatusInfo.STATUS_NEEDSMERGE)).forEach((teamInfo) -> {
                 returnInfo.add(teamInfo);
             });
 
-            s.getUntracked().stream().map((item) -> new TeamStatusInfo(new File(gitPath, item), "", null, TeamStatusInfo.STATUS_NEEDSADD)).forEach((teamInfo) -> {
+            s.getUntracked().stream().filter(p -> validFile(p)).map((item) -> new TeamStatusInfo(new File(gitPath, item), "", null, TeamStatusInfo.STATUS_NEEDSADD)).forEach((teamInfo) -> {
                 returnInfo.add(teamInfo);
             });
             
-            s.getUntrackedFolders().stream().map((item) -> new TeamStatusInfo(new File(gitPath, item), "", null, TeamStatusInfo.STATUS_NEEDSADD)).forEach((teamInfo) -> {
+            s.getUntrackedFolders().stream().filter(p -> validFile(p)).map((item) -> new TeamStatusInfo(new File(gitPath, item), "", null, TeamStatusInfo.STATUS_NEEDSADD)).forEach((teamInfo) -> {
                 returnInfo.add(teamInfo);
             });
             
-            s.getRemoved().stream().map((item) -> new TeamStatusInfo(new File(gitPath, item), "", null, TeamStatusInfo.STATUS_REMOVED)).forEach((teamInfo) -> {
+            s.getRemoved().stream().filter(p -> validFile(p)).map((item) -> new TeamStatusInfo(new File(gitPath, item), "", null, TeamStatusInfo.STATUS_REMOVED)).forEach((teamInfo) -> {
                 returnInfo.add(teamInfo);
             });
 
@@ -98,6 +99,18 @@ public class GitStatusCommand extends GitCommand
             listener.statusComplete(new GitStatusHandle(getRepository()));
         }
         return new TeamworkCommandResult();
+    }
+    
+
+    private boolean validFile(String file)
+    {
+        for (String c : ignoreFilesArray) {
+            if (file.endsWith(c)){
+                return false;
+            }
+        }
+        
+        return true;
     }
 
 }
