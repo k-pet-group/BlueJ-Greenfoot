@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -1481,10 +1481,11 @@ public class Project implements DebuggerListener, InspectorManager
     {
         // remove bench objects for all frames in this project
         PkgMgrFrame[] frames = PkgMgrFrame.getAllProjectFrames(this);
-
-        for (int i = 0; i < frames.length; i++) {
-            frames[i].getObjectBench().removeAllObjects(getUniqueId());
-            frames[i].clearTextEval();
+        if (frames != null) {
+            for (int i = 0; i < frames.length; i++) {
+                frames[i].getObjectBench().removeAllObjects(getUniqueId());
+                frames[i].clearTextEval();
+            }
         }
     }
 
