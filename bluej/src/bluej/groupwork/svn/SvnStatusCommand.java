@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -112,7 +112,7 @@ public class SvnStatusCommand extends SvnCommand
                         rinfo = new TeamStatusInfo(file, rev, "", TeamStatusInfo.STATUS_DELETED);
                     }
                 }
-                else if (textStat == StatusKind.unversioned) {
+                else if ((textStat == StatusKind.unversioned)) {
                     if (filter.accept(file)) {
                         if (reposStat != StatusKind.added) {
                             rinfo = new TeamStatusInfo(file, "", "", TeamStatusInfo.STATUS_NEEDSADD);
@@ -159,6 +159,9 @@ public class SvnStatusCommand extends SvnCommand
                 else if (textStat == StatusKind.none) {
                     if (reposStat == StatusKind.added) {
                         rinfo = new TeamStatusInfo(file, "", "" + reposRev, TeamStatusInfo.STATUS_NEEDSCHECKOUT);
+                    } else if (textStat == StatusKind.none && filter.accept(file)){
+                        //for some repos, like sourceforge.
+                         rinfo = new TeamStatusInfo(file, "", "", TeamStatusInfo.STATUS_NEEDSADD);
                     }
                 }
                 else if (textStat == StatusKind.added) {
