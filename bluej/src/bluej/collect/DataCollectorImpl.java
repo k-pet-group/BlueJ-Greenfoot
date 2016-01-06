@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2012,2013,2014,2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 2012,2013,2014,2015,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -32,6 +32,7 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
+import bluej.Boot;
 import org.apache.http.entity.mime.MultipartEntity;
 
 import threadchecker.OnThread;
@@ -223,7 +224,7 @@ public class DataCollectorImpl
     
     public static void bluejOpened(String osVersion, String javaVersion, String bluejVersion, String interfaceLanguage, List<ExtensionWrapper> extensions)
     {
-        if (Config.isGreenfoot()) return; //Don't even look for UUID
+        if (Config.isGreenfoot() && !Boot.isTrialRecording()) return; //Don't even look for UUID
         DataSubmitter.initSequence();
         
         MultipartEntity mpe = new MultipartEntity();

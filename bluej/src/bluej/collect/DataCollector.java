@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 2014,2015,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import bluej.Boot;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.Config;
@@ -90,7 +91,7 @@ public class DataCollector
      */
     private static synchronized boolean dontSend()
     {
-        return Config.isGreenfoot() || !recordingThisSession;
+        return (Config.isGreenfoot() && !Boot.isTrialRecording()) || !recordingThisSession;
     }
 
     private static synchronized void startSession()
@@ -223,7 +224,7 @@ public class DataCollector
     
     public static void bluejOpened(String osVersion, String javaVersion, String bluejVersion, String interfaceLanguage, List<ExtensionWrapper> extensions)
     {
-        if (Config.isGreenfoot()) return;
+        if (Config.isGreenfoot() && !Boot.isTrialRecording()) return;
         startSession();
         if (dontSend()) return;
         DataCollectorImpl.bluejOpened(osVersion, javaVersion, bluejVersion, interfaceLanguage, extensions);
