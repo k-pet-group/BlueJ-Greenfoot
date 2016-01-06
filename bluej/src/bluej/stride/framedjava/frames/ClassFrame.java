@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -743,7 +743,9 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
                     // For params, need to check that name and type matches
                     for (int j = 0; j < ap.size(); j++)
                     {
-                        if (!ap.get(j).getFormalName().equals(bp.get(j).getFormalName()) ||
+                        String aFormalName = ap.get(j).getFormalName();
+                        String bFormalName = bp.get(j).getFormalName();
+                        if ((aFormalName == null ? bFormalName != null : !aFormalName.equals(bFormalName)) ||
                             !ap.get(j).getQualifiedType().equals(bp.get(j).getQualifiedType()))
                             return false;
                     }
