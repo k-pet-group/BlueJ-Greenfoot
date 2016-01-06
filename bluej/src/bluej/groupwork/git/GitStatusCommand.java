@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2015,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,12 +24,11 @@ package bluej.groupwork.git;
 import bluej.groupwork.StatusListener;
 import bluej.groupwork.TeamStatusInfo;
 import bluej.groupwork.TeamworkCommandResult;
+import bluej.utility.Debug;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.util.LinkedList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -89,7 +88,7 @@ public class GitStatusCommand extends GitCommand
             });
 
         } catch (IOException | GitAPIException | NoWorkTreeException ex) {
-            Logger.getLogger(GitStatusCommand.class.getName()).log(Level.SEVERE, null, ex);
+            Debug.reportError("Git status command exception", ex);
         }
         if (listener != null) {
             while (!returnInfo.isEmpty()) {
