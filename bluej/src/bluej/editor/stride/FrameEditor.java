@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -38,7 +38,6 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -46,9 +45,6 @@ import java.util.stream.Stream;
 import bluej.utility.Utility;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.collections.ListChangeListener;
-import javafx.collections.ObservableList;
-import javafx.scene.control.Tab;
 
 import javax.swing.SwingUtilities;
 import javax.swing.text.BadLocationException;
@@ -120,6 +116,8 @@ public class FrameEditor implements Editor
     // If the code has been changed since last save (only modify on FX thread):
     // Start true, because we haven't actually saved before, so technically we have changed:
     private boolean changedSinceLastSave = true;
+    // The code at point of last save (only modify on FX thread)
+    private String lastSavedSource = null;
     /**
      * Location of the .stride file
      */
@@ -236,21 +234,24 @@ public class FrameEditor implements Editor
     @OnThread(Tag.Swing)
     public void save() throws IOException
     {
-        final CompletableFuture<Optional<IOException>> q = new CompletableFuture<>();
-        Platform.runLater(() -> { q.complete(Optional.ofNullable(_saveFX()));});
-        Optional<IOException> e = null;
+        final CompletableFuture<SaveResult> q = new CompletableFuture<>();
+        Platform.runLater(() -> { q.complete(_saveFX());});
+        SaveResult result = null;
         try
         {
-            e = q.get();
+            result = q.get();
         }
         catch (InterruptedException | ExecutionException e1)
         {
             Debug.reportError(e1);
         }
-        if (e.isPresent())
-            throw new IOException(e.get());
+        // result can be null if an exception occurred completing the future
+        if (result != null && result.exception != null)
+            throw new IOException(result.exception);
         
         setSaved();
+        if (watcher != null)
+            watcher.recordEdit(result.savedSource, true);
     }
     
     /**
@@ -263,16 +264,34 @@ public class FrameEditor implements Editor
         }
     }
 
+    private static class SaveResult
+    {
+        private final IOException exception;
+        private final String savedSource;
+
+        public SaveResult(IOException exception)
+        {
+            this.exception = exception;
+            this.savedSource = null;
+        }
+
+        public SaveResult(String savedSource)
+        {
+            this.savedSource = savedSource;
+            this.exception = null;
+        }
+    }
+
     /**
      * Saves the code on the FX thread.  If any IOException occurs, it is caught and returned
-     * (so it can be re-thrown on the Swing thread).  If all is well, null is returned.
+     * (so it can be re-thrown on the Swing thread).  Otherwise, the saved XML source is returned.
+     * Null is never returned
      */
     @OnThread(Tag.FX)
-    // Returns null if no exception
-    private IOException _saveFX()
+    private SaveResult _saveFX()
     {
         if (!changedSinceLastSave)
-            return null;
+            return new SaveResult(lastSavedSource);
 
         try
         {
@@ -280,36 +299,49 @@ public class FrameEditor implements Editor
             if (panel == null || panel.getSource() == null)
             {
                 saveJava(lastSource, true);
-                return null;
+                return new SaveResult(serialiseCodeToString(lastSource));
             }
             
             panel.regenerateAndReparse(null);
             TopLevelCodeElement source = panel.getSource();
             
             if (source == null)
-                return null; // classFrame not initialised yet
+                return new SaveResult(serialiseCodeToString(lastSource)); // classFrame not initialised yet
 
             // Save Frame source:
             FileOutputStream os = new FileOutputStream(frameFilename);
-            Serializer s = new Serializer(os);
-            s.setLineSeparator("\n");
-            s.setIndent(4);
-            Element saveEl = source.toXML();
-            saveEl.addNamespaceDeclaration("xml", "http://www.w3.org/XML/1998/namespace");
-            s.write(new Document(saveEl));
-            s.flush();
+            serialiseCodeTo(source, os);
             os.close();
 
             saveJava(panel.getSource(), true);
             changedSinceLastSave = false;
+            lastSavedSource = serialiseCodeToString(source);
         
             panel.saved();
-            return null;
+            return new SaveResult(lastSavedSource);
         }
         catch (IOException e)
         {
-            return e;
+            return new SaveResult(e);
         }
+    }
+
+    private static String serialiseCodeToString(TopLevelCodeElement source) throws IOException
+    {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        serialiseCodeTo(source, baos);
+        return baos.toString("UTF-8");
+    }
+
+    private static void serialiseCodeTo(TopLevelCodeElement source, OutputStream os) throws IOException
+    {
+        Serializer s = new Serializer(os);
+        s.setLineSeparator("\n");
+        s.setIndent(4);
+        Element saveEl = source.toXML();
+        saveEl.addNamespaceDeclaration("xml", "http://www.w3.org/XML/1998/namespace");
+        s.write(new Document(saveEl));
+        s.flush();
     }
 
     /**
@@ -907,7 +939,7 @@ public class FrameEditor implements Editor
                             {
                                 Debug.message("Retrying showing error after saving");
                                 Platform.runLater(() -> {
-                                    if (_saveFX() == null)
+                                    if (_saveFX().exception == null)
                                     {
                                         boolean result = javaSource.get().handleError((int) e.startLine, (int) e.startColumn, (int) e.endLine, (int) e.endColumn, e.message, true);
                                         Debug.message("Retrying: " + (result ? "success" : "failure"));
