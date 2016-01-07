@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program.
- Copyright (C) 2015  Michael Kolling and John Rosenberg
+ Copyright (C) 2015,2016  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -112,7 +112,7 @@ public class WebTab extends FXTab
     }
 
     @Override
-    void setParent(FXTabbedEditor parent)
+    void setParent(FXTabbedEditor parent, boolean partOfMove)
     {
         this.parent = parent;
     }
@@ -128,5 +128,11 @@ public class WebTab extends FXTab
     {
         // Take it from the tab title:
         return textProperty();
+    }
+
+    @Override
+    public void notifySelected()
+    {
+        // Nothing to do
     }
 }

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2012,2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 2012,2015,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -41,6 +41,9 @@ enum EventName
     RENAME("rename"),
     EDIT("edit"),
     COMPILE("compile"),
+    FILE_OPEN("file_open"),
+    FILE_SELECT("file_select"),
+    FILE_CLOSE("file_close"),
     
     // Debugger: 
     DEBUGGER_OPEN("debugger_open"),

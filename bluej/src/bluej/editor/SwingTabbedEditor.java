@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program.
- Copyright (C) 2015  Michael Kolling and John Rosenberg
+ Copyright (C) 2015,2016  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -156,13 +156,18 @@ public class SwingTabbedEditor implements TabbedEditorWindow
         project.updateSwingTabbedEditorDestinations();
     }
 
+    public void setEditorVisible(boolean visible, MoeEditor editor)
+    {
+        setEditorVisible(visible, editor, false);
+    }
+
     /**
      * Sets the given editor visible or not.
      * @param visible If true, makes tab for MoeEditor if needed, and shows the tab and the window.
      *                If false, closes the tab.
      * @param editor The editor in question
      */
-    public void setEditorVisible(boolean visible, MoeEditor editor)
+    public void setEditorVisible(boolean visible, MoeEditor editor, boolean partOfMove)
     {
         if (editor == null)
             throw new IllegalArgumentException("Cannot show null editor");
@@ -171,7 +176,7 @@ public class SwingTabbedEditor implements TabbedEditorWindow
         {
             // Must ask for editorTab before calling pack(), otherwise pack makes window zero-size:
             
-            Component editorTab = getMoeEditorTab(editor);
+            Component editorTab = getMoeEditorTab(editor, partOfMove);
             
             if (!window.isShowing())
             {
@@ -207,7 +212,7 @@ public class SwingTabbedEditor implements TabbedEditorWindow
             panelToEditor.remove(tab);
             editorToPanel.remove(editor);
             editorToHeader.remove(editor);
-            editor.setParent(null);
+            editor.setParent(null, partOfMove);
             if (tabPane.getTabCount() == 0)
             {
                 window.dispose();
@@ -221,7 +226,7 @@ public class SwingTabbedEditor implements TabbedEditorWindow
      * Fetches the editor tab component corresponding to the given editor.  If it doesn't
      * currently exist, creates it and adds it to the tab pane.
      */
-    private Component getMoeEditorTab(final MoeEditor editor)
+    private Component getMoeEditorTab(final MoeEditor editor, boolean partOfMove)
     {
         // If you try to put MoeEditor directly into the JTabbedPane as a tab, it will not work.
         // I am not 100% sure why, but presumably we are doing something complex with the JPanel
@@ -237,7 +242,7 @@ public class SwingTabbedEditor implements TabbedEditorWindow
             tmp.add(editor,BorderLayout.CENTER);
             panelToEditor.put(tmp, editor);
             editorToPanel.put(editor, tmp);
-            editor.setParent(this);
+            editor.setParent(this, partOfMove);
             HeaderPanel header = new HeaderPanel(editor);
             editorToHeader.put(editor, header);
             tabPane.addTab(editor.getTitle(), tmp);
@@ -431,8 +436,8 @@ public class SwingTabbedEditor implements TabbedEditorWindow
         // Copy across the menu bar first, before we remove it:
         final MenuInfo menuInfo = menuBars.get(editor);
         window.setJMenuBar(editor, menuInfo.menuBar, menuInfo.moveMenu);
-        setEditorVisible(false, editor);
-        window.setEditorVisible(true, editor);
+        setEditorVisible(false, editor, true);
+        window.setEditorVisible(true, editor, true);
         window.bringToFront();
     }
 

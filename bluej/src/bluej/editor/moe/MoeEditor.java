@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2015,2016  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -4062,20 +4062,32 @@ public final class MoeEditor extends JPanel
             // Hide any error tooltip:
             showErrorOverlay(null, 0);
         }
-        
+
+        if (visible)
+            watcher.recordSelected();
     }
 
     /**
      * Sets the parent SwingTabbedEditor reference.
+     *
+     * @param partOfMove True if this is part of a move to another window (and thus we shouldn't record
+     *                   open or close)
      */
-    public void setParent(SwingTabbedEditor swingTabbedEditor)
+    public void setParent(SwingTabbedEditor swingTabbedEditor, boolean partOfMove)
     {
+        if (!partOfMove && swingTabbedEditor != null)
+            watcher.recordOpen();
+        else if (!partOfMove && swingTabbedEditor == null)
+            watcher.recordClose();
+
         // If we are closing, force a compilation in case there are pending changes:
         if (swingTabbedEditor == null)
             this.swingTabbedEditor.scheduleCompilation(false);
         this.swingTabbedEditor = swingTabbedEditor;
         if (this.swingTabbedEditor != null)
             this.swingTabbedEditor.setJMenuBar(this, menubar, (JMenu)menubar.getMenu(0).getItem(0));
+
+
     }
 
     private static class ErrorDisplay extends JFrame
@@ -4305,14 +4317,16 @@ public final class MoeEditor extends JPanel
         @Override
         protected AssistContent[] doInBackground() throws Exception
         {
-            AssistContent[] completions = ParseUtils.getPossibleCompletions(suggests, javadocResolver, new AssistContentConsumer() {
+            AssistContent[] completions = ParseUtils.getPossibleCompletions(suggests, javadocResolver, new AssistContentConsumer()
+            {
                 @Override
-                public void consume(AssistContent ac, boolean overridden) {
+                public void consume(AssistContent ac, boolean overridden)
+                {
                     if (!overridden && ac.getKind() == CompletionKind.METHOD)
                         publish(ac);
                 }
             });
-            
+
             return completions;
         }
 
@@ -4322,9 +4336,11 @@ public final class MoeEditor extends JPanel
         @Override
         protected void process(List<AssistContent> chunks)
         {
-            if (chunks != null && !chunks.isEmpty()) {
+            if (chunks != null && !chunks.isEmpty())
+            {
                 //there are elements to show
-                if (codeCompletionDlg == null) {
+                if (codeCompletionDlg == null)
+                {
                     AssistContent[] initialElements = chunks.toArray(new AssistContent[chunks.size()]);
                     codeCompletionDlg = new CodeCompletionDisplay(this.moe,
                             suggests.getSuggestionType().toString(false),
@@ -4332,7 +4348,8 @@ public final class MoeEditor extends JPanel
                     codeCompletionDlg.setLocation(xpos, ypos);
                     codeCompletionDlg.setVisible(true);
                     codeCompletionDlg.requestFocus();
-                } else {
+                } else
+                {
                     //component was already created. update it.
                     codeCompletionDlg.addElements(chunks);
                 }
@@ -4342,21 +4359,25 @@ public final class MoeEditor extends JPanel
         @Override
         protected void done()
         {
-            try {
+            try
+            {
                 AssistContent[] result = get();
-                if (result != null && result.length == 0) {
+                if (result != null && result.length == 0)
+                {
                     //set message on status bar
                     info.warning("No completions available.");
-                } else {
+                } else
+                {
                     // No need to update the JList, as all results have been
                     // published already.
                 }
-            }
-            catch (InterruptedException ie) {}
-            catch (ExecutionException ee) {
+            } catch (InterruptedException ie)
+            {
+            } catch (ExecutionException ee)
+            {
                 Debug.reportError(ee);
             }
         }
-        
+
     }
 }

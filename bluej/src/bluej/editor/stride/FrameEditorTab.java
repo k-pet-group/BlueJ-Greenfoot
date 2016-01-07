@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2012,2013,2014,2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 2012,2013,2014,2015,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -2284,9 +2284,15 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         }
     }
 
-    public void setParent(FXTabbedEditor parent)
+    public void setParent(FXTabbedEditor parent, boolean partOfMove)
     {
+        if (!partOfMove && parent != null)
+            SwingUtilities.invokeLater(() -> editor.getWatcher().recordOpen());
+        else if (!partOfMove && parent == null)
+            SwingUtilities.invokeLater(() -> editor.getWatcher().recordClose());
+
         this.parent.set(parent);
+
     }
 
     //package-visible
@@ -2332,5 +2338,11 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     String getWebAddress()
     {
         return null;
+    }
+
+    @Override
+    public void notifySelected()
+    {
+        SwingUtilities.invokeLater(() -> editor.getWatcher().recordSelected());
     }
 }

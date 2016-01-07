@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2014,2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 2014,2015,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -273,6 +273,10 @@ public @OnThread(Tag.FX) class FXTabbedEditor implements TabbedEditorWindow
         tabPane.getSelectionModel().selectedItemProperty().addListener((a, b, selTab) -> {
             if (selTab != null)
                 updateMenusForTab((FXTab)selTab);
+
+            if (selTab != null && stage.isFocused())
+                ((FXTab)selTab).notifySelected();
+
             if (isWindowVisible())
             {
                 if (!(selTab instanceof FrameEditorTab))
@@ -295,6 +299,11 @@ public @OnThread(Tag.FX) class FXTabbedEditor implements TabbedEditorWindow
             // Must take a copy to avoid concurrent modification:
             List<Tab> tabs = new ArrayList<>(tabPane.getTabs());
             tabs.forEach(t -> close((FXTab)t));
+        });
+
+        JavaFXUtil.addChangeListener(stage.focusedProperty(), focused -> {
+            if (focused)
+                ((FXTab)tabPane.getSelectionModel().getSelectedItem()).notifySelected();
         });
         
         // Add shortcuts for Ctrl-1, Ctrl-2 etc and Ctrl-Tab and Ctrl-Shift-Tab to move between tabs
@@ -376,7 +385,13 @@ public @OnThread(Tag.FX) class FXTabbedEditor implements TabbedEditorWindow
     @OnThread(Tag.FX)
     public void addTab(final FXTab panel, boolean visible, boolean toFront)
     {
-        panel.setParent(this);
+        addTab(panel, visible, toFront, false);
+    }
+
+    @OnThread(Tag.FX)
+    public void addTab(final FXTab panel, boolean visible, boolean toFront, boolean partOfMove)
+    {
+        panel.setParent(this, partOfMove);
         // This is ok to call multiple times:
         panel.initialiseFX();
         if (!tabPane.getTabs().contains(panel)) {
@@ -518,8 +533,13 @@ public @OnThread(Tag.FX) class FXTabbedEditor implements TabbedEditorWindow
      */
     public void close(FXTab tab)
     {
+        close(tab, false);
+    }
+
+    private void close(FXTab tab, boolean partOfMove)
+    {
         tabPane.getTabs().remove(tab);
-        tab.setParent(null);
+        tab.setParent(null, partOfMove);
     }
 
 
@@ -864,8 +884,8 @@ public @OnThread(Tag.FX) class FXTabbedEditor implements TabbedEditorWindow
 
     public void moveTabTo(FXTab tab, FXTabbedEditor destination)
     {
-        close(tab);
-        destination.addTab(tab, true, true);
+        close(tab, true);
+        destination.addTab(tab, true, true, true);
     }
 
     public void updateMoveMenus()

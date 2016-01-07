@@ -326,6 +326,7 @@ public class FrameEditor implements Editor
         }
     }
 
+    @OnThread(Tag.Any)
     private static String serialiseCodeToString(TopLevelCodeElement source) throws IOException
     {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -333,6 +334,7 @@ public class FrameEditor implements Editor
         return baos.toString("UTF-8");
     }
 
+    @OnThread(Tag.Any)
     private static void serialiseCodeTo(TopLevelCodeElement source, OutputStream os) throws IOException
     {
         Serializer s = new Serializer(os);
@@ -1221,5 +1223,12 @@ public class FrameEditor implements Editor
     //    public void changedName(String oldName, String newName)
 //    {
 //        watcher.changedName(oldName, newName);
-//    }    
+//    }
+
+    //package-protected
+    @OnThread(Tag.Any)
+    EditorWatcher getWatcher()
+    {
+        return watcher;
+    }
 }

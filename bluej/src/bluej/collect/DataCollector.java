@@ -392,6 +392,24 @@ public class DataCollector
         if (dontSend()) return;
         DataCollectorImpl.removeClass(pkg, sourceFile);
     }
+
+    public static void openClass(Package pkg, File sourceFile)
+    {
+        if (dontSend()) return;
+        DataCollectorImpl.openClass(pkg, sourceFile);
+    }
+
+    public static void closeClass(Package pkg, File sourceFile)
+    {
+        if (dontSend()) return;
+        DataCollectorImpl.closeClass(pkg, sourceFile);
+    }
+
+    public static void selectClass(Package pkg, File sourceFile)
+    {
+        if (dontSend()) return;
+        DataCollectorImpl.selectClass(pkg, sourceFile);
+    }
     
     public static void ConvertStrideToJava(Package pkg, File sourceFile)
     {

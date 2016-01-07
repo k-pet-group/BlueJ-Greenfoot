@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2013,2014,2015  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2013,2014,2015,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -219,4 +219,13 @@ public class ReadmeTarget extends EditableTarget
     {
         return "README";
     }
+
+    @Override
+    public void recordClose() { }
+
+    @Override
+    public void recordOpen() { }
+
+    @Override
+    public void recordSelected() { }
 }

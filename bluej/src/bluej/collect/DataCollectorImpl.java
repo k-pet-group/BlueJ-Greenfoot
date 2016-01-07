@@ -591,7 +591,30 @@ public class DataCollectorImpl
             }
         });
     }
-    
+
+    public static void openClass(Package pkg, File sourceFile)
+    {
+        classEvent(pkg, sourceFile, EventName.FILE_OPEN);
+    }
+
+    public static void closeClass(Package pkg, File sourceFile)
+    {
+        classEvent(pkg, sourceFile, EventName.FILE_CLOSE);
+    }
+
+    public static void selectClass(Package pkg, File sourceFile)
+    {
+        classEvent(pkg, sourceFile, EventName.FILE_SELECT);
+    }
+
+    private static void classEvent(Package pkg, File sourceFile, EventName eventName)
+    {
+        final MultipartEntity mpe = new MultipartEntity();
+        final ProjectDetails projDetails = new ProjectDetails(pkg.getProject());
+        mpe.addPart("event[source_file_name]", CollectUtility.toBodyLocal(projDetails, sourceFile));
+        submitEvent(pkg.getProject(), pkg, eventName, new PlainEvent(mpe));
+    }
+
     public static void teamShareProject(Project project, Repository repo)
     {
         submitEvent(project, null, EventName.VCS_SHARE, new PlainEvent(DataCollectorImpl.getRepoMPE(repo)));    
