@@ -63,7 +63,7 @@ public class GitStatusCommand extends GitCommand
             Status s = repo.status().call();
 
             File gitPath = new File(this.getRepository().getProjectPath().getParent());
-            s.getMissing().stream().filter(p -> validFile(p)).map((item) -> new TeamStatusInfo(new File(gitPath, item), "", null, TeamStatusInfo.STATUS_NEEDSCHECKOUT)).forEach((teamInfo) -> {
+            s.getMissing().stream().filter(p -> validFile(p)).map((item) -> new TeamStatusInfo(new File(gitPath, item), "", null, TeamStatusInfo.STATUS_REMOVED)).forEach((teamInfo) -> {
                 returnInfo.add(teamInfo);
             });
             
@@ -83,7 +83,7 @@ public class GitStatusCommand extends GitCommand
                 returnInfo.add(teamInfo);
             });
             
-            s.getRemoved().stream().filter(p -> validFile(p)).map((item) -> new TeamStatusInfo(new File(gitPath, item), "", null, TeamStatusInfo.STATUS_REMOVED)).forEach((teamInfo) -> {
+            s.getRemoved().stream().filter(p -> validFile(p)).map((item) -> new TeamStatusInfo(new File(gitPath, item), "", null, TeamStatusInfo.STATUS_NEEDSADD)).forEach((teamInfo) -> {
                 returnInfo.add(teamInfo);
             });
 
