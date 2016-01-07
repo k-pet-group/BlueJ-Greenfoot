@@ -39,7 +39,6 @@ import bluej.groupwork.actions.ValidateConnectionAction;
 import bluej.groupwork.git.GitRepository;
 import bluej.utility.MiksGridLayout;
 import java.io.File;
-import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 
 /**
  * A panel for team settings.
