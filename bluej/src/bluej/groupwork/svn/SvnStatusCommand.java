@@ -112,22 +112,30 @@ public class SvnStatusCommand extends SvnCommand
                         rinfo = new TeamStatusInfo(file, rev, "", TeamStatusInfo.STATUS_DELETED);
                     }
                 }
-                else if ((textStat == StatusKind.unversioned)) {
+                else if ((textStat == StatusKind.unversioned)
+                        || (textStat == StatusKind.none && reposStat == StatusKind.none)) {
+                    // Bug in SVNKit 1.8.11 returns a local and remote status of "none" for unversioned local
+                    // files which do not exist in the repository.
+                    // https://issues.tmatesoft.com/issue/SVNKIT-643
                     if (filter.accept(file)) {
                         if (reposStat != StatusKind.added) {
                             rinfo = new TeamStatusInfo(file, "", "", TeamStatusInfo.STATUS_NEEDSADD);
+                            if (file.isDirectory()) {
+                                statLocalDir(file);
+                            }
                         }
                         else {
                             // conflict: added locally and in repository
                             rinfo = new TeamStatusInfo(file, "", "" + status[i].getReposLastCmtRevisionNumber(), TeamStatusInfo.STATUS_CONFLICT_ADD);
                         }
-                        if (file.isDirectory()) {
-                            statLocalDir(file);
-                        }
                     }
                 }
                 else if (textStat == StatusKind.normal) {
-                    if (filter.accept(file)) {
+                    if (reposStat == StatusKind.none && status[i].getRevisionNumber() == -1) {
+                        // Bug in SVNKit
+                        rinfo = new TeamStatusInfo(file, "", "", TeamStatusInfo.STATUS_NEEDSCOMMIT);
+                    }
+                    else if (filter.accept(file)) {
                         String rev = "" + status[i].getLastChangedRevisionNumber();
                         if (reposStat == StatusKind.deleted) {
                             rinfo = new TeamStatusInfo(file, rev, "", TeamStatusInfo.STATUS_REMOVED);
@@ -159,9 +167,6 @@ public class SvnStatusCommand extends SvnCommand
                 else if (textStat == StatusKind.none) {
                     if (reposStat == StatusKind.added) {
                         rinfo = new TeamStatusInfo(file, "", "" + reposRev, TeamStatusInfo.STATUS_NEEDSCHECKOUT);
-                    } else if (textStat == StatusKind.none && filter.accept(file)){
-                        //for some repos, like sourceforge.
-                         rinfo = new TeamStatusInfo(file, "", "", TeamStatusInfo.STATUS_NEEDSADD);
                     }
                 }
                 else if (textStat == StatusKind.added) {
