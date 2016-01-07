@@ -49,9 +49,6 @@ import javafx.beans.property.SimpleObjectProperty;
 import javax.swing.SwingUtilities;
 import javax.swing.text.BadLocationException;
 
-import nu.xom.Document;
-import nu.xom.Element;
-import nu.xom.Serializer;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.compiler.Diagnostic;
@@ -299,23 +296,23 @@ public class FrameEditor implements Editor
             if (panel == null || panel.getSource() == null)
             {
                 saveJava(lastSource, true);
-                return new SaveResult(serialiseCodeToString(lastSource));
+                return new SaveResult(Utility.serialiseCodeToString(lastSource.toXML()));
             }
             
             panel.regenerateAndReparse(null);
             TopLevelCodeElement source = panel.getSource();
             
             if (source == null)
-                return new SaveResult(serialiseCodeToString(lastSource)); // classFrame not initialised yet
+                return new SaveResult(Utility.serialiseCodeToString(lastSource.toXML())); // classFrame not initialised yet
 
             // Save Frame source:
             FileOutputStream os = new FileOutputStream(frameFilename);
-            serialiseCodeTo(source, os);
+            Utility.serialiseCodeTo(source.toXML(), os);
             os.close();
 
             saveJava(panel.getSource(), true);
             changedSinceLastSave = false;
-            lastSavedSource = serialiseCodeToString(source);
+            lastSavedSource = Utility.serialiseCodeToString(source.toXML());
         
             panel.saved();
             return new SaveResult(lastSavedSource);
@@ -324,26 +321,6 @@ public class FrameEditor implements Editor
         {
             return new SaveResult(e);
         }
-    }
-
-    @OnThread(Tag.Any)
-    private static String serialiseCodeToString(TopLevelCodeElement source) throws IOException
-    {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        serialiseCodeTo(source, baos);
-        return baos.toString("UTF-8");
-    }
-
-    @OnThread(Tag.Any)
-    private static void serialiseCodeTo(TopLevelCodeElement source, OutputStream os) throws IOException
-    {
-        Serializer s = new Serializer(os);
-        s.setLineSeparator("\n");
-        s.setIndent(4);
-        Element saveEl = source.toXML();
-        saveEl.addNamespaceDeclaration("xml", "http://www.w3.org/XML/1998/namespace");
-        s.write(new Document(saveEl));
-        s.flush();
     }
 
     /**

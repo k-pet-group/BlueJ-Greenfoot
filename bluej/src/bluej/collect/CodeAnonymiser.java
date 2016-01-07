@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 2012,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,16 +21,67 @@
  */
 package bluej.collect;
 
+import java.io.IOException;
 import java.io.StringReader;
 
 import bluej.parser.lexer.JavaLexer;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
+import bluej.utility.Debug;
+import bluej.utility.Utility;
+import nu.xom.Builder;
+import nu.xom.Element;
+import nu.xom.Node;
+import nu.xom.ParsingException;
+import nu.xom.Text;
 
 //package-visible
 class CodeAnonymiser
 {
     public static String anonymise(String sourceCode)
+    {
+        if (sourceCode.startsWith("<?xml"))
+            return anonymiseStride(sourceCode);
+        else
+            return anonymiseJava(sourceCode);
+    }
+
+    private static String anonymiseStride(String sourceCode)
+    {
+        try
+        {
+            Element topLevel = new Element(new Builder().build(new StringReader(sourceCode)).getRootElement());
+
+            for (int i = 0; i < topLevel.getChildElements().size(); i++)
+            {
+                Element sub = topLevel.getChildElements().get(i);
+                if (sub.getLocalName().equals("javadoc"))
+                {
+                    // Should only really be one child node, a Text node, but we do all:
+                    for (int j = 0; j < sub.getChildCount(); j++)
+                    {
+                        Node childofJavadoc = sub.getChild(j);
+                        if (childofJavadoc instanceof Text)
+                        {
+                            Text text = (Text)childofJavadoc;
+                            text.setValue(replaceWords(text.getValue()));
+                        }
+                    }
+                }
+            }
+
+            return Utility.serialiseCodeToString(topLevel);
+        }
+        catch (ParsingException | IOException e)
+        {
+            Debug.reportError(e);
+            // If we run into problems, we'll have to leave as-is:
+            return sourceCode;
+        }
+    }
+
+
+    private static String anonymiseJava(String sourceCode)
     {
         StringBuilder result = new StringBuilder();
         

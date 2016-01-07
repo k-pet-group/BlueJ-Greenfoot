@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2012,2013,2014,2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2012,2013,2014,2015,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -33,6 +33,7 @@ import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorConvertOp;
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -84,6 +85,10 @@ import javax.swing.text.TabExpander;
 
 import javafx.application.Platform;
 import javafx.stage.Stage;
+
+import nu.xom.Document;
+import nu.xom.Element;
+import nu.xom.Serializer;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.Config;
@@ -1395,6 +1400,25 @@ public class Utility
                 return i;
         }
         return -1;
+    }
+
+    @OnThread(Tag.Any)
+    public static String serialiseCodeToString(Element xml) throws IOException
+    {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        serialiseCodeTo(xml, baos);
+        return baos.toString("UTF-8");
+    }
+
+    @OnThread(Tag.Any)
+    public static void serialiseCodeTo(Element xml, OutputStream os) throws IOException
+    {
+        Serializer s = new Serializer(os);
+        s.setLineSeparator("\n");
+        s.setIndent(4);
+        xml.addNamespaceDeclaration("xml", "http://www.w3.org/XML/1998/namespace");
+        s.write(new Document(xml));
+        s.flush();
     }
 
     @FunctionalInterface
