@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2015,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -49,7 +49,11 @@ public class GitStatusHandle implements StatusHandle
     @Override
     public TeamworkCommand commitAll(Set<File> newFiles, Set<File> binaryNewFiles, Set<File> deletedFiles, Set<File> files, Set<TeamStatusInfo> forceFiles, String commitComment)
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        //we dont' need a list of binary files and regular files. merge them.
+        newFiles.addAll(binaryNewFiles);
+        
+            return new GitCommitAllCommand(repository, newFiles, deletedFiles, commitComment);
+
     }
 
     @Override
@@ -61,7 +65,7 @@ public class GitStatusHandle implements StatusHandle
     @Override
     public Repository getRepository()
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return repository;
     }
 
 }

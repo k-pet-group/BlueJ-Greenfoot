@@ -33,9 +33,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.NoWorkTreeException;
 import org.eclipse.jgit.api.Status;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
@@ -148,9 +148,12 @@ public class GitRepository implements Repository
     }
 
     @Override
-    public TeamworkCommand commitAll(Set<File> newFiles, Set<File> binaryNewFiles, Set<File> deletedFiles, Set<File> files, String commitComment) 
+    public TeamworkCommand commitAll(Set<File> newFiles, Set<File> binaryNewFiles, Set<File> deletedFiles, Set<File> files, String commitComment)
     {
-        throw new UnsupportedOperationException("Not implemented yet.");
+        //we dont' need a list of binary files and regular files. merge them.
+        newFiles.addAll(binaryNewFiles);
+
+        return new GitCommitAllCommand(this, newFiles, deletedFiles, commitComment);
     }
 
     @Override
@@ -202,9 +205,20 @@ public class GitRepository implements Repository
     }
 
     @Override
-    public void getAllLocallyDeletedFiles(Set<File> files) 
+    public void getAllLocallyDeletedFiles(Set<File> files)
     {
-        throw new UnsupportedOperationException("Not implemented yet.");
+        
+        try (Git repo = Git.open(getProjectPath())) {
+            Status s = repo.status().call();
+
+            File gitPath = new File(getProjectPath().getParent());
+            Set<String> filesStr = s.getMissing();
+            filesStr.stream().forEach((fileName) -> {
+                files.add(new File(fileName));
+            });
+        }catch (IOException | GitAPIException | NoWorkTreeException ex) {
+            Debug.reportError("Git get all locally deleted command exception", ex);
+        }
     }
 
     @Override
