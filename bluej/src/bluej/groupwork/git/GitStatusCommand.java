@@ -59,31 +59,31 @@ public class GitStatusCommand extends GitCommand
     {
         LinkedList<TeamStatusInfo> returnInfo = new LinkedList<>();
         
-        try (Git repo = Git.open(this.getRepository().getProjectPath().getParentFile())) {
+        try (Git repo = Git.open(this.getRepository().getProjectPath())) {
             Status s = repo.status().call();
 
-            File gitPath = new File(this.getRepository().getProjectPath().getParent());
-            s.getMissing().stream().filter(p -> validFile(p)).map((item) -> new TeamStatusInfo(new File(gitPath, item), "", null, TeamStatusInfo.STATUS_REMOVED)).forEach((teamInfo) -> {
+            File gitPath =this.getRepository().getProjectPath();
+            s.getMissing().stream().filter(p -> filter.accept(new File(gitPath, p))).map((item) -> new TeamStatusInfo(new File(gitPath, item), "", null, TeamStatusInfo.STATUS_REMOVED)).forEach((teamInfo) -> {
                 returnInfo.add(teamInfo);
             });
             
-            s.getUncommittedChanges().stream().filter(p -> validFile(p)).map((item) -> new TeamStatusInfo(new File(gitPath, item), "", null, TeamStatusInfo.STATUS_NEEDSCOMMIT)).forEach((teamInfo) -> {
+            s.getUncommittedChanges().stream().filter(p -> filter.accept(new File(gitPath, p))).map((item) -> new TeamStatusInfo(new File(gitPath, item), "", null, TeamStatusInfo.STATUS_NEEDSCOMMIT)).forEach((teamInfo) ->{
                 returnInfo.add(teamInfo);
             });
             
-            s.getConflicting().stream().filter(p -> validFile(p)).map((item) -> new TeamStatusInfo(new File(gitPath, item), "", null, TeamStatusInfo.STATUS_NEEDSMERGE)).forEach((teamInfo) -> {
+            s.getConflicting().stream().filter(p -> filter.accept(new File(gitPath, p))).map((item) -> new TeamStatusInfo(new File(gitPath, item), "", null, TeamStatusInfo.STATUS_NEEDSMERGE)).forEach((teamInfo) -> {
                 returnInfo.add(teamInfo);
             });
 
-            s.getUntracked().stream().filter(p -> validFile(p)).map((item) -> new TeamStatusInfo(new File(gitPath, item), "", null, TeamStatusInfo.STATUS_NEEDSADD)).forEach((teamInfo) -> {
+            s.getUntracked().stream().filter(p -> filter.accept(new File(gitPath, p))).map((item) -> new TeamStatusInfo(new File(gitPath, item), "", null, TeamStatusInfo.STATUS_NEEDSADD)).forEach((teamInfo) -> {
                 returnInfo.add(teamInfo);
             });
             
-            s.getUntrackedFolders().stream().filter(p -> validFile(p)).map((item) -> new TeamStatusInfo(new File(gitPath, item), "", null, TeamStatusInfo.STATUS_NEEDSADD)).forEach((teamInfo) -> {
+            s.getUntrackedFolders().stream().filter(p -> filter.accept(new File(gitPath, p))).map((item) -> new TeamStatusInfo(new File(gitPath, item), "", null, TeamStatusInfo.STATUS_NEEDSADD)).forEach((teamInfo) -> {
                 returnInfo.add(teamInfo);
             });
             
-            s.getRemoved().stream().filter(p -> validFile(p)).map((item) -> new TeamStatusInfo(new File(gitPath, item), "", null, TeamStatusInfo.STATUS_NEEDSADD)).forEach((teamInfo) -> {
+            s.getRemoved().stream().filter(p -> filter.accept(new File(gitPath, p))).map((item) -> new TeamStatusInfo(new File(gitPath, item), "", null, TeamStatusInfo.STATUS_NEEDSADD)).forEach((teamInfo) -> {
                 returnInfo.add(teamInfo);
             });
 
@@ -101,15 +101,5 @@ public class GitStatusCommand extends GitCommand
     }
     
 
-    private boolean validFile(String file)
-    {
-        for (String c : ignoreFilesArray) {
-            if (file.endsWith(c)){
-                return false;
-            }
-        }
-        
-        return true;
-    }
 
 }

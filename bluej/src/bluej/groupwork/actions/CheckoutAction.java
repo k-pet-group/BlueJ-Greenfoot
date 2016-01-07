@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2014,2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014,2015,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -33,7 +33,6 @@ import bluej.groupwork.TeamworkCommand;
 import bluej.groupwork.TeamworkCommandResult;
 import bluej.groupwork.ui.ModuleSelectDialog;
 import bluej.groupwork.ui.TeamSettingsDialog;
-import bluej.pkgmgr.BlueJPackageFile;
 import bluej.pkgmgr.Import;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
@@ -114,7 +113,7 @@ public class CheckoutAction extends TeamAction
                     }
                     
                     File projectDir = new File(parentDir, moduleName);
-                    if ((!isGitRepo && projectDir.exists()) || (isGitRepo && projectDir.list().length > 0)) {
+                    if (projectDir.exists()) {
                         DialogManager.showError(null, "directory-exists");
                         return;
                     }
