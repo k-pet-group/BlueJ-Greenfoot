@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2015,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -466,27 +466,18 @@ public class TeamSettingsPanel extends JPanel
     }
     
     private String getYourName(){
-        if (yourNameField.isEnabled()){
-            return yourNameField.getText();
-        }
-        return null;
+        return yourNameField.getText();
     }
     
     private String getYourEmail(){
-        if (yourEmailField.isEnabled()){
-            return yourEmailField.getText();
-        }
-        return null;
+        return yourEmailField.getText();
     }
     
-    public TeamSettings getSettings()
-    {
+    public TeamSettings getSettings() {
         TeamSettings result = new TeamSettings(getSelectedProvider(), getProtocolKey(),
                 getServer(), getPrefix(), getGroup(), getUser(), getPassword());
-        if (yourEmailField.isEnabled() && yourNameField.isEnabled()){
-            result.setYourEmail(getYourEmail());
-            result.setYourName(getYourName());
-        }
+        result.setYourEmail(getYourEmail());
+        result.setYourName(getYourName());
         return result;
     }
 }
