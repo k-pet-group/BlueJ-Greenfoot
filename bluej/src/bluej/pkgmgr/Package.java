@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2012,2013,2014,2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -43,6 +43,7 @@ import java.util.Set;
 
 import javax.swing.SwingUtilities;
 
+import bluej.compiler.CompileInputFile;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.Config;
@@ -1480,11 +1481,11 @@ public final class Package extends Graph
             return;
         }
 
-        List<File> srcFiles = Utility.mapList(targetList, ClassTarget::getCompileInputFile);
+        List<CompileInputFile> srcFiles = Utility.mapList(targetList, ClassTarget::getCompileInputFile);
                
         if (srcFiles.size() > 0)
         {
-            JobQueue.getJobQueue().addJob(srcFiles.toArray(new File[0]), observer, project.getClassLoader(), project.getProjectDir(),
+            JobQueue.getJobQueue().addJob(srcFiles.toArray(new CompileInputFile[0]), observer, project.getClassLoader(), project.getProjectDir(),
                 ! PrefMgr.getFlag(PrefMgr.SHOW_UNCHECKED), project.getProjectCharset());
         }
     }
@@ -2584,10 +2585,10 @@ public final class Package extends Graph
             this.chainObserver = chainObserver;
         }
         
-        private void markAsCompiling(File[] sources)
+        private void markAsCompiling(CompileInputFile[] sources)
         {
             for (int i = 0; i < sources.length; i++) {
-                String fileName = sources[i].getPath();
+                String fileName = sources[i].getJavaCompileInputFile().getPath();
                 String fullName = getProject().convertPathToPackageName(fileName);
 
                 if (fullName != null) {
@@ -2622,10 +2623,10 @@ public final class Package extends Graph
          * currently compiled.
          */
         @Override
-        public void startCompile(File[] sources)
+        public void startCompile(CompileInputFile[] sources)
         {
             // Send a compilation starting event to extensions.
-            CompileEvent aCompileEvent = new CompileEvent(CompileEvent.COMPILE_START_EVENT, sources);
+            CompileEvent aCompileEvent = new CompileEvent(CompileEvent.COMPILE_START_EVENT, Utility.mapList(Arrays.asList(sources), CompileInputFile::getUserSourceFile).toArray(new File[0]));
             ExtensionsManager.getInstance().delegateEvent(aCompileEvent);
 
             // Set BlueJ status bar message
@@ -2669,10 +2670,10 @@ public final class Package extends Graph
          * again.
          */
         @Override
-        public void endCompile(File[] sources, boolean successful)
+        public void endCompile(CompileInputFile[] sources, boolean successful)
         {
             for (int i = 0; i < sources.length; i++) {
-                String filename = sources[i].getPath();
+                String filename = sources[i].getJavaCompileInputFile().getPath();
 
                 String fullName = getProject().convertPathToPackageName(filename);
                 if (fullName == null) {
@@ -2732,7 +2733,7 @@ public final class Package extends Graph
 
             // Send a compilation done event to extensions.
             int eventId = successful ? CompileEvent.COMPILE_DONE_EVENT : CompileEvent.COMPILE_FAILED_EVENT;
-            CompileEvent aCompileEvent = new CompileEvent(eventId, sources);
+            CompileEvent aCompileEvent = new CompileEvent(eventId, Utility.mapList(Arrays.asList(sources), CompileInputFile::getUserSourceFile).toArray(new File[0]));
             ExtensionsManager.getInstance().delegateEvent(aCompileEvent);
             
             if (chainObserver != null) {
@@ -2865,7 +2866,7 @@ public final class Package extends Graph
         }
         
         @Override
-        public void startCompile(File[] sources)
+        public void startCompile(CompileInputFile[] sources)
         {
             numErrors = 0;
             super.startCompile(sources);
@@ -2938,7 +2939,7 @@ public final class Package extends Graph
         }
         
         @Override
-        public void endCompile(File[] sources, boolean successful)
+        public void endCompile(CompileInputFile[] sources, boolean successful)
         {
             super.endCompile(sources, successful);
             

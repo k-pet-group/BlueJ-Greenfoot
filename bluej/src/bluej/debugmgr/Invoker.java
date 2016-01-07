@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2014,2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2012,2014,2015,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,12 +29,17 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import javax.swing.JFrame;
 
+import bluej.compiler.CompileInputFile;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.Config;
@@ -284,7 +289,8 @@ public class Invoker
             public void compile(File[] files, CompileObserver observer)
             {
                 Project project = pkg.getProject();
-                JobQueue.getJobQueue().addJob(files, observer, project.getClassLoader(),
+                List<CompileInputFile> wrapped = Utility.mapList(Arrays.asList(files), f -> new CompileInputFile(f, f));
+                JobQueue.getJobQueue().addJob(wrapped.toArray(new CompileInputFile[0]), observer, project.getClassLoader(),
                         project.getProjectDir(), true, project.getProjectCharset());
             }
         };
@@ -560,7 +566,7 @@ public class Invoker
                 compileInvocationFile(shell);
             }
             else {
-                endCompile(new File[0], false);
+                endCompile(new CompileInputFile[0], false);
             }
         }
     }
@@ -1040,7 +1046,7 @@ public class Invoker
 
     // not interested in these events:
     @Override
-    public void startCompile(File[] sources) { }
+    public void startCompile(CompileInputFile[] sources) { }
 
     /*
      * @see bluej.compiler.CompileObserver#compilerMessage(bluej.compiler.Diagnostic)
@@ -1077,7 +1083,7 @@ public class Invoker
      * now. Then clean up.
      */
     @Override
-    public synchronized void endCompile(File[] sources, boolean successful)
+    public synchronized void endCompile(CompileInputFile[] sources, boolean successful)
     {
         if (dialog != null) {
             dialog.setWaitCursor(false);

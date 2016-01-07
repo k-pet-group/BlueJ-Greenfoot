@@ -31,8 +31,10 @@ import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import bluej.Boot;
+import bluej.compiler.CompileInputFile;
 import org.apache.http.entity.mime.MultipartEntity;
 
 import threadchecker.OnThread;
@@ -77,6 +79,7 @@ public class DataCollectorImpl
      * so that we can re-use it when the inspector is hidden. 
      */
     private static IdentityHashMap<Inspector, Package> inspectorPackages = new IdentityHashMap<Inspector, Package>();
+    private static AtomicInteger compileOutputSequence = new AtomicInteger(1);
 
     /**
      * Submits an event with no extra data.  A useful short-hand for calling submitEvent
@@ -189,16 +192,16 @@ public class DataCollectorImpl
         });
     }
 
-    public static void compiled(Project proj, Package pkg, File[] sources, List<DiagnosticWithShown> diagnostics, boolean success)
+    public static void compiled(Project proj, Package pkg, CompileInputFile[] sources, List<DiagnosticWithShown> diagnostics, boolean success)
     {
         MultipartEntity mpe = new MultipartEntity();
         
         mpe.addPart("event[compile_success]", CollectUtility.toBody(success));
         
         ProjectDetails projDetails = new ProjectDetails(proj);
-        for (File src : sources)
+        for (CompileInputFile src : sources)
         {
-            mpe.addPart("event[compile_input][][source_file_name]", CollectUtility.toBody(CollectUtility.toPath(projDetails, src)));
+            mpe.addPart("event[compile_input][][source_file_name]", CollectUtility.toBody(CollectUtility.toPath(projDetails, src.getUserSourceFile())));
         }        
         
         for (DiagnosticWithShown dws : diagnostics)
@@ -208,6 +211,7 @@ public class DataCollectorImpl
             mpe.addPart("event[compile_output][][is_error]", CollectUtility.toBody(d.getType() == Diagnostic.ERROR));
             mpe.addPart("event[compile_output][][shown]", CollectUtility.toBody(dws.wasShownToUser()));
             mpe.addPart("event[compile_output][][message]", CollectUtility.toBody(d.getMessage()));
+            mpe.addPart("event[compile_output][][session_sequence]", CollectUtility.toBody(compileOutputSequence.getAndIncrement()));
             if (d.getFileName() != null)
             {
                 mpe.addPart("event[compile_output][][start_line]", CollectUtility.toBody(d.getStartLine()));
@@ -215,7 +219,7 @@ public class DataCollectorImpl
                 mpe.addPart("event[compile_output][][start_column]", CollectUtility.toBody(d.getStartColumn()));
                 mpe.addPart("event[compile_output][][end_column]", CollectUtility.toBody(d.getEndColumn()));
                 // Must make file name relative for anonymisation:
-                String relative = CollectUtility.toPath(projDetails, new File(d.getFileName()));
+                String relative = CollectUtility.toPath(projDetails, dws.getUserFileName());
                 mpe.addPart("event[compile_output][][source_file_name]", CollectUtility.toBody(relative));
             }
         }
@@ -525,7 +529,7 @@ public class DataCollectorImpl
             
         });
     }
-    
+
     public static void removeClass(Package pkg, final File sourceFile)
     {
         final ProjectDetails projDetails = new ProjectDetails(pkg.getProject());
@@ -541,28 +545,35 @@ public class DataCollectorImpl
                 fileVersions.remove(new FileKey(projDetails, CollectUtility.toPath(projDetails, sourceFile)));
                 return super.makeData(sequenceNum, fileVersions);
             }
-            
+
         });
     }
-    
 
-    public static void ConvertStrideToJava(Package pkg, File sourceFile)
+    public static void convertStrideToJava(Package pkg, File oldSourceFile, File newSourceFile)
     {
         final ProjectDetails projDetails = new ProjectDetails(pkg.getProject());
         MultipartEntity mpe = new MultipartEntity();
-        mpe.addPart("source_histories[][source_history_type]", CollectUtility.toBody("stride_converted_to_java"));
-        mpe.addPart("source_histories[][name]", CollectUtility.toBodyLocal(projDetails, sourceFile));
+        mpe.addPart("source_histories[][source_history_type]", CollectUtility.toBody("stride_to_java"));
+        mpe.addPart("source_histories[][content]", CollectUtility.toBodyLocal(projDetails, oldSourceFile));
+        mpe.addPart("source_histories[][name]", CollectUtility.toBodyLocal(projDetails, newSourceFile));
+        final String contents = CollectUtility.readFileAndAnonymise(projDetails, newSourceFile);
+        mpe.addPart("source_histories[][converted]", CollectUtility.toBody(contents));
         submitEvent(pkg.getProject(), pkg, EventName.CONVERT_TO_JAVA, new PlainEvent(mpe) {
 
             @Override
             public MultipartEntity makeData(int sequenceNum, Map<FileKey, List<String>> fileVersions)
             {
+                // We need to change the fileVersions hash to remove the old content and add new content:
+                FileKey oldKey = new FileKey(projDetails, CollectUtility.toPath(projDetails, oldSourceFile));
+                FileKey newKey = new FileKey(projDetails, CollectUtility.toPath(projDetails, newSourceFile));
+                fileVersions.put(newKey, Arrays.asList(Utility.splitLines(contents)));
+                fileVersions.remove(oldKey);
+
                 return super.makeData(sequenceNum, fileVersions);
             }
-            
         });
     }
-    
+
     public static void addClass(Package pkg, File sourceFile)
     {
         final MultipartEntity mpe = new MultipartEntity();

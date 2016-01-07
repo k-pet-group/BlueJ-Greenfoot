@@ -29,7 +29,7 @@
   \begin{center}
     \includegraphics[width=10cm]{../../lib/images/bluej-icon-256.png}\\
     \huge BlueJ Blackbox Data Collection\\~\\Researchers' Handbook
-    (version 1.6, 24 March 2015)
+    (version 1.7, ? January 2016)
   \end{center}
 \end{titlepage}
 
@@ -504,6 +504,41 @@ appear some time after the actual relevant source code edit takes place.
 The event will always have exactly one associated entry in the
 \tabref{source_histories}, which will be a |rename| event.
 
+\subsection{\lstinline!"stride_converted_to_java"!}
+
+This event will have a |package_id|, which indicates which package the file
+was renamed in.
+
+This event is fired when the user permanently converts a Stride class to Java.
+
+The event will always have exactly one associated entry in the
+\tabref{source_histories}, which will be a |stride_to_java| event.
+
+\subsection{\lstinline!"file_open"!, \lstinline!"file_select"! and \lstinline!"file_close"!}
+
+This event will have a |package_id|, which indicates which package the relevant file
+was in.
+
+These three events will only be recorded in versions of BlueJ from 3.2.0 onwards.
+
+These three events do not affect the content of a file, but instead correspond to
+GUI actions: opening a source file for editing, focusing the editor of a source file, and
+closing a source file.  A select or close should always be preceded in a session by an
+open event for the file, and an open event is typically immediately followed by a
+select event (but this may not always be the case, if the editor opens in the background).
+It should not be possible for two open events to occur for a file without a close event
+inbetween, but don't take that as a cast-iron guarantee.
+
+A select event occurs when the user switches tab in an already-focused tabbed editor window,
+and for the current tab when the editor window receives the focus.
+
+A close event occurs when the tab is closed, either individually or because the tabbed editor
+window was closed.  It may be possible for a BlueJ session to finish without all editors being
+closed first.
+
+Each event will always have exactly one associated entry in the \tabref{source_files},
+indicating the relevant file.
+
 \section{Compilation}
 
 \subsection{\lstinline!"compile"!}
@@ -548,6 +583,11 @@ whether or not this error or warning was actually displayed to the user.  The
 |message| field shows the text that would be displayed to the user, and the
 line and column fields indicate the error's location, as reported by the
 compiler  (lines and columns begin at 1, not 0).
+
+Since BlueJ 3.2.0, which shows errors as a red underline, all errors are marked
+as shown (unless there is an unexpected problem, such as an invalid location).
+
+Stride files report the error location in the Java file.
 
 \section{Miscellaneous Events}
 
@@ -994,6 +1034,9 @@ Each entry in the |source_histories| table belongs to a particular
   id (in the |source_files| table) of the old file id before the rename.  |content| will be blank.
   Note that renames were broken at the start of the project; if |old_source_file_id| is null, you should
   treat the rename as broken and ignore it.
+\item |source_history_type| is |"stride_to_java"| -- |old_source_file_id| will contain the
+        id (in the |source_files| table) of the old Stride file id before the conversion.
+        |content| will be the new (Java) content of this source file.
 \item |source_history_type| is |"file_delete"| -- |content| will be blank.
 \end{itemize}
 

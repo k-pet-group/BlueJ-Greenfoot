@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2012,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2012,2013,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -78,7 +78,7 @@ public class JobQueue
      * @param destDir   Destination for class files?
      * @param suppressUnchecked    Suppress "unchecked" warning in java 1.5
      */
-    public void addJob(File[] sources, CompileObserver observer, BPClassLoader bpClassLoader, File destDir,
+    public void addJob(CompileInputFile[] sources, CompileObserver observer, BPClassLoader bpClassLoader, File destDir,
             boolean suppressUnchecked, Charset fileCharset)
     {
         List<String> options = new ArrayList<String>();

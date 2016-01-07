@@ -49,6 +49,7 @@ import javax.swing.JPopupMenu;
 
 import bluej.Config;
 import bluej.collect.DataCollector;
+import bluej.compiler.CompileInputFile;
 import bluej.compiler.CompileObserver;
 import bluej.compiler.Diagnostic;
 import bluej.debugger.DebuggerClass;
@@ -1208,12 +1209,12 @@ public class ClassTarget extends DependentTarget
             getPackage().compile(new CompileObserver() {
                 
                 @Override
-                public void startCompile(File[] sources)
+                public void startCompile(CompileInputFile[] sources)
                 {
                 }
                 
                 @Override
-                public void endCompile(File[] sources, boolean successful)
+                public void endCompile(CompileInputFile[] sources, boolean successful)
                 {
                     editor.compileFinished(successful);
                 }
@@ -1226,7 +1227,7 @@ public class ClassTarget extends DependentTarget
             getPackage().compile(this, false, new CompileObserver() {
                 
                 @Override
-                public void startCompile(File[] sources)
+                public void startCompile(CompileInputFile[] sources)
                 {
                 }
 
@@ -1234,7 +1235,7 @@ public class ClassTarget extends DependentTarget
                 public boolean compilerMessage(Diagnostic diagnostic) { return false; }
                 
                 @Override
-                public void endCompile(File[] sources, boolean succesful)
+                public void endCompile(CompileInputFile[] sources, boolean succesful)
                 {
                     editor.compileFinished(succesful);
                 }
@@ -2160,7 +2161,8 @@ public class ClassTarget extends DependentTarget
         }
         sourceAvailable = SourceType.Java;
 
-        DataCollector.ConvertStrideToJava(getPackage(), srcFile);
+        // getSourceFile() will now return the Java file:
+        DataCollector.convertStrideToJava(getPackage(), srcFile, getSourceFile());
     }
 
     @Override
@@ -2281,9 +2283,9 @@ public class ClassTarget extends DependentTarget
         DataCollector.selectClass(getPackage(), getSourceFile());
     }
 
-    public File getCompileInputFile()
+    public CompileInputFile getCompileInputFile()
     {
-        return getJavaSourceFile();
+        return new CompileInputFile(getJavaSourceFile(), getSourceFile());
     }
 
     public void markKnownError()

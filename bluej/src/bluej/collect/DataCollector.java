@@ -28,6 +28,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import bluej.Boot;
+import bluej.compiler.CompileInputFile;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.Config;
@@ -236,7 +237,7 @@ public class DataCollector
         DataCollectorImpl.bluejClosed();
     }
     
-    public static void compiled(Project proj, Package pkg, File[] sources, List<DiagnosticWithShown> diagnostics, boolean success)
+    public static void compiled(Project proj, Package pkg, CompileInputFile[] sources, List<DiagnosticWithShown> diagnostics, boolean success)
     {
         if (dontSend()) return;
         DataCollectorImpl.compiled(proj, pkg, sources, diagnostics, success);
@@ -411,10 +412,10 @@ public class DataCollector
         DataCollectorImpl.selectClass(pkg, sourceFile);
     }
     
-    public static void ConvertStrideToJava(Package pkg, File sourceFile)
+    public static void convertStrideToJava(Package pkg, File oldSourceFile, File newSourceFile)
     {
         if (dontSend()) return;
-        DataCollectorImpl.ConvertStrideToJava(pkg, sourceFile);
+        DataCollectorImpl.convertStrideToJava(pkg, oldSourceFile, newSourceFile);
     }
 
     public static void edit(Package pkg, File path, String source, boolean includeOneLineEdits)

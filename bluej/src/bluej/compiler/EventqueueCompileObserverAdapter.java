@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2012,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2012,2014,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -44,7 +44,7 @@ final public class EventqueueCompileObserverAdapter
     private static final int COMMAND_END = 2;
     
     // parameters for COMMAND_START/COMMAND_END
-    private File [] sources;
+    private CompileInputFile [] sources;
     private boolean successful;  // COMMAND_END only
     
     // parameters for COMMAND_DIAG
@@ -83,14 +83,14 @@ final public class EventqueueCompileObserverAdapter
         return wasShown;
     }
     
-    public synchronized void startCompile(File[] csources)
+    public synchronized void startCompile(CompileInputFile[] csources)
     {
         command = COMMAND_START;
         this.sources = csources;
         runOnEventQueue();
     }
 
-    public synchronized void endCompile(File[] sources, boolean successful)
+    public synchronized void endCompile(CompileInputFile[] sources, boolean successful)
     {
         command = COMMAND_END;
         this.sources = sources;

@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2010,2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2010,2011,2016  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,6 +24,7 @@ package rmiextension.wrappers;
 import java.io.File;
 import java.rmi.RemoteException;
 
+import bluej.compiler.CompileInputFile;
 import bluej.compiler.Diagnostic;
 
 /**
@@ -36,7 +37,7 @@ public interface RCompileObserver extends java.rmi.Remote
     /**
      * A compilation job has started.
      */
-    void startCompile(File[] sources) throws RemoteException;
+    void startCompile(CompileInputFile[] sources) throws RemoteException;
     
     /**
      * An error or warning message occurred during compilation
@@ -46,5 +47,5 @@ public interface RCompileObserver extends java.rmi.Remote
     /**
      * A Compilation job finished.
      */
-    void endCompile(File[] sources, boolean succesful) throws RemoteException;
+    void endCompile(CompileInputFile[] sources, boolean succesful) throws RemoteException;
 }

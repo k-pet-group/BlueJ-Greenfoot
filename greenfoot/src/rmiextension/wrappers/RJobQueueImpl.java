@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2010,2011,2012  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2010,2011,2012,2016  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,12 +25,15 @@ import java.io.File;
 import java.rmi.RemoteException;
 import java.rmi.ServerError;
 import java.rmi.ServerException;
+import java.util.Arrays;
 
+import bluej.compiler.CompileInputFile;
 import bluej.compiler.CompileObserver;
 import bluej.compiler.Diagnostic;
 import bluej.compiler.JobQueue;
 import bluej.pkgmgr.Package;
 import bluej.utility.Debug;
+import bluej.utility.Utility;
 
 /**
  * Implementation of a remote compiler queue.
@@ -56,7 +59,7 @@ public class RJobQueueImpl extends java.rmi.server.UnicastRemoteObject
     {
         CompileObserver cobserver = new CompileObserver() {
             @Override
-            public void startCompile(File[] sources)
+            public void startCompile(CompileInputFile[] sources)
             {
                 try {
                     observer.startCompile(sources);
@@ -72,7 +75,7 @@ public class RJobQueueImpl extends java.rmi.server.UnicastRemoteObject
                 }
             }
             @Override
-            public void endCompile(File[] sources, boolean successful)
+            public void endCompile(CompileInputFile[] sources, boolean successful)
             {
                 try {
                     observer.endCompile(sources, successful);
@@ -105,7 +108,9 @@ public class RJobQueueImpl extends java.rmi.server.UnicastRemoteObject
                 return true;
             }
         };
-        queue.addJob(files, cobserver, pkg.getProject().getClassLoader(), pkg.getPath(), true,
+        CompileInputFile[] ciFiles = Utility.mapList(Arrays.asList(files), f -> new CompileInputFile(f, f)).toArray(new CompileInputFile[0]);
+
+        queue.addJob(ciFiles, cobserver, pkg.getProject().getClassLoader(), pkg.getPath(), true,
                 pkg.getProject().getProjectCharset());
     }
 }

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2012,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -41,7 +41,7 @@ class Job
     CompileObserver observer;
     File destDir;
     BPClassLoader bpClassLoader;
-    File sources[];
+    CompileInputFile sources[];
     boolean internal; // true for compiling shell files, 
                       // or user files if we want to suppress 
                       // "unchecked" warnings, false otherwise
@@ -51,7 +51,7 @@ class Job
     /**
      * Create a job with a set of sources.
      */
-    public Job(File[] sourceFiles, Compiler compiler, CompileObserver observer,
+    public Job(CompileInputFile[] sourceFiles, Compiler compiler, CompileObserver observer,
                         BPClassLoader bpClassLoader, File destDir, boolean internal,
                         List<String> userCompileOptions, Charset fileCharset)
     {
@@ -90,7 +90,11 @@ class Job
                 userCompileOptions.add(1, majorVersion);
             }
 
-            boolean successful = compiler.compile(sources, observer, internal, userCompileOptions, fileCharset);
+            File[] actualSourceFiles = new File[sources.length];
+            for (int i = 0; i < sources.length; i++)
+                actualSourceFiles[i] = sources[i].getJavaCompileInputFile();
+
+            boolean successful = compiler.compile(actualSourceFiles, observer, internal, userCompileOptions, fileCharset);
 
             if(observer != null) {
                 observer.endCompile(sources, successful);

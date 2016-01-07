@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 2012,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,18 +21,35 @@
  */
 package bluej.collect;
 
+import java.io.File;
+
 import bluej.compiler.Diagnostic;
 
+/**
+ * Wraps a Diagnostic with two extra pieces of information:
+ *
+ * - Whether the message was shown to the user (previously, only the first message was shown;
+ *   now it is all the messages unless there is an internal problem showing it)
+ *
+ * - What the original file name was (.stride file for Stride)
+ */
 // package-visible
 class DiagnosticWithShown
 {
     private Diagnostic diagnostic;
     private boolean shownToUser;
-    
-    public DiagnosticWithShown(Diagnostic diagnostic, boolean shownToUser)
+    private File userFileName;
+
+    /**
+     *
+     * @param diagnostic
+     * @param shownToUser Will now usually be true (unless editor cannot be found, or similar) , since we switched to red underlines for errors.
+     */
+    public DiagnosticWithShown(Diagnostic diagnostic, boolean shownToUser, File userFileName)
     {
         this.diagnostic = diagnostic;
         this.shownToUser = shownToUser;
+        this.userFileName = userFileName;
     }
     public Diagnostic getDiagnostic()
     {
@@ -41,6 +58,10 @@ class DiagnosticWithShown
     public boolean wasShownToUser()
     {
         return shownToUser;
+    }
+    public File getUserFileName()
+    {
+        return userFileName;
     }
     
     

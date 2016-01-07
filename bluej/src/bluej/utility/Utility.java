@@ -1158,7 +1158,7 @@ public class Utility
     {
         return original.stream().map(func).collect(Collectors.toList());
     }
-    
+
     /*
      * NOTE: the functions below are all generic and many use lambdas.  There is/was an Eclipse
      * bug, 436542 ( https://bugs.eclipse.org/bugs/show_bug.cgi?id=436542 ) that meant lambdas

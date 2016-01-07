@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2016  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,6 +24,7 @@ package greenfoot.core;
 import java.io.File;
 import java.rmi.RemoteException;
 
+import bluej.compiler.CompileInputFile;
 import rmiextension.wrappers.RCompileObserver;
 import bluej.compiler.CompileObserver;
 import bluej.compiler.Diagnostic;
@@ -44,13 +45,13 @@ public class LocalCompileObserverWrapper extends java.rmi.server.UnicastRemoteOb
     }
     
     @Override
-    public void startCompile(File[] sources)
+    public void startCompile(CompileInputFile[] sources)
     {
         observer.startCompile(sources);
     }
     
     @Override
-    public void endCompile(File[] sources, boolean succesful)
+    public void endCompile(CompileInputFile[] sources, boolean succesful)
     {
         observer.endCompile(sources, succesful);
     }
