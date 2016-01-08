@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2013,2014,2015  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2013,2014,2015,2016  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -136,7 +136,6 @@ import bluej.utility.Utility;
 import com.apple.eawt.Application;
 
 import java.awt.Font;
-import java.util.stream.Stream;
 
 /**
  * The main frame for a Greenfoot project (one per project)
@@ -202,6 +201,12 @@ public class GreenfootFrame extends JFrame
      * (Behind the scenes, the project is actually still open).
      */
     private boolean isClosedProject = true;
+    
+    /**
+     * Indicates whether the VM was restarted (which we assume is via the debugger). If this
+     * is the case, we should not try to instantiate a world until requested by the user.
+     */
+    private boolean wasRestarted = false;
     
     /**
      * Returns whether the project is closed or not
@@ -352,8 +357,11 @@ public class GreenfootFrame extends JFrame
             isClosedProject = false;
             
             Simulation.getInstance().setPaused(true);
+            wasRestarted = project.isVmRestarted();
 
-            WorldHandler.getInstance().instantiateNewWorld();
+            if (! wasRestarted) {  
+                worldHandlerDelegate.instantiateNewWorld();
+            }
         }
         updateBackgroundMessage();
     }
@@ -1056,10 +1064,9 @@ public class GreenfootFrame extends JFrame
                 else if (worldHandlerDelegate.initialising()) {
                     message = Config.getString("centrePanel.message.initialising");
                 }
-                else if (worldHandlerDelegate.isVmRestarted()) {
+                else if (wasRestarted) {
                     message = Config.getString("centrePanel.message.afterRestarting1");
                     message2 = Config.getString("centrePanel.message.afterRestarting2");
-                    worldHandlerDelegate.setVmRestarted(false);
                 }
                 else if (worldHandlerDelegate.isMissingConstructor()) {
                     message = Config.getString("centrePanel.message.missingWorldConstructor1");
@@ -1098,7 +1105,7 @@ public class GreenfootFrame extends JFrame
         if (!isClosedProject())
         {
             Arrays.stream(project.getDefaultPackage().getClasses(false)).forEach(GClass::cancelFreshState);
-            if (!WorldHandler.getInstance().hasWorld()) {
+            if (!wasRestarted && !WorldHandler.getInstance().hasWorld()) {
                 WorldHandler.getInstance().instantiateNewWorld();
             }
         }
@@ -1141,7 +1148,8 @@ public class GreenfootFrame extends JFrame
     public void compileSucceeded(RCompileEvent event)
     {
         EventQueue.invokeLater(() -> {
-            if (GreenfootFrame.this.isActive()) {
+            System.out.println("compileSucceeded, wasRestarted=" + wasRestarted);
+            if (! wasRestarted && GreenfootFrame.this.isActive()) {
                 WorldHandler.getInstance().instantiateNewWorld();
             }
             classBrowser.repaint();
@@ -1166,6 +1174,7 @@ public class GreenfootFrame extends JFrame
     @Override
     public void worldCreated(WorldEvent e)
     {
+        wasRestarted = false;
         World newWorld = e.getWorld();
         if (needsResize() && newWorld != null) {
             // ensure we don't lose fullscreen on resize

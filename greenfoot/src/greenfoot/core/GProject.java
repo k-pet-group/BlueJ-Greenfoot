@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012,2016  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -267,6 +267,19 @@ public class GProject extends RProjectListenerImpl
     public void setLastWorldClassName(String name)
     {
         projectProperties.setString("world.lastInstantiated", name);
+    }
+    
+    /**
+     * Check if the this project was open previously, and the VM has been restarted.
+     */
+    public boolean isVmRestarted()
+    {
+        try {
+            return rProject.isVMRestarted();
+        } catch (RemoteException re) {
+            Debug.reportError("Checking VM restart status", re);
+            throw new InternalGreenfootError(re);
+        }
     }
     
     /**

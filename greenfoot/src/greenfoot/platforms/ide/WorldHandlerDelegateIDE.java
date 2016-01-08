@@ -64,7 +64,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
 import rmiextension.wrappers.RObject;
-import rmiextension.wrappers.RProject;
 import bluej.Config;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.gentype.JavaType;
@@ -105,7 +104,8 @@ public class WorldHandlerDelegateIDE
     private long startedInitialisingAt;
     private boolean worldInvocationError;
     private boolean missingConstructor;
-    private boolean vmRestarted;
+    
+    private Timer timer;
     
     public WorldHandlerDelegateIDE(GreenfootFrame frame, InspectorManager inspectorManager,
             ClassStateManager classStateManager)
@@ -374,6 +374,24 @@ public class WorldHandlerDelegateIDE
         this.worldHandler = handler;
     }
 
+    private void resetTimer()
+    {
+        if (timer == null) {
+            timer = new Timer(WORLD_INITIALISING_TIMEOUT, new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e)
+                {
+                    if (worldInitialising) {
+                        frame.updateBackgroundMessage();
+                    }
+                }
+            });
+            timer.setRepeats(false);
+        }
+        
+        timer.restart();
+    }
+    
     @Override
     public void instantiateNewWorld()
     {
@@ -381,112 +399,95 @@ public class WorldHandlerDelegateIDE
             return;
         }
         
-        final RProject rProject = project.getRProject();
-        try {
-            if (!rProject.isVMRestarted()) {
-                greenfootRecorder.reset();
-                worldInitialising = true;
-                worldInvocationError = false;
-                Class<? extends World> cls = getLastWorldClass();
-                GClass lastWorldGClass = getLastWorldGClass();
+        greenfootRecorder.reset();
+        worldInitialising = true;
+        worldInvocationError = false;
+        Class<? extends World> cls = getLastWorldClass();
+        GClass lastWorldGClass = getLastWorldGClass();
 
-                if (lastWorldGClass == null) {
-                    // Either the last instantiated world no longer exists, or there is no record
-                    // of a last instantiated world class. Find a world arbitrarily.
-                    List<Class<? extends World>> worldClasses = project.getDefaultPackage().getWorldClasses();
-                    if(worldClasses.isEmpty() ) {
-                        return;
-                    }
-
-                    for (Class<? extends World> wclass : worldClasses) {
-                        try {
-                            wclass.getConstructor(new Class<?>[0]);
-                            cls = wclass;
-                            break;
-                        }
-                        catch (LinkageError le) { }
-                        catch (NoSuchMethodException nsme) { }
-                    }
-                    if (cls == null) {
-                        // Couldn't find a world with a suitable constructor
-                        missingConstructor = true;
-                        return;
-                    }
-                }
-
-                if (cls == null) {
-                    // Can occur if last instantiated world class is not compiled.
-                    return;
-                }
-                
-                startedInitialisingAt = System.currentTimeMillis();
-                frame.updateBackgroundMessage();
-
-                final Timer timer = new Timer(WORLD_INITIALISING_TIMEOUT, new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e)
-                    {
-                        if (worldInitialising) {
-                            frame.updateBackgroundMessage();
-                        }
-                    }
-                });
-                timer.setRepeats(false);
-                timer.start();
-                
-                final Class<? extends World> icls = cls;
-                Simulation.getInstance().runLater(new Runnable() {
-
-                    @Override
-                    public void run()
-                    {
-                        try {
-                            Constructor<?> cons = icls.getConstructor(new Class<?>[0]);
-                            WorldHandler.getInstance().clearWorldSet();
-                            World newWorld = (World) Simulation.newInstance(cons);
-                            if (! WorldHandler.getInstance().checkWorldSet()) {
-                                ImageCache.getInstance().clearImageCache();
-                                WorldHandler.getInstance().setWorld(newWorld);
-                            }
-                            saveWorldAction.setRecordingValid(true);
-                            project.setLastWorldClassName(icls.getName());
-                        }
-                        catch (LinkageError e) { }
-                        catch (NoSuchMethodException nsme) {
-                            missingConstructor = true;
-                        }
-                        catch (InstantiationException e) {
-                            // abstract class; shouldn't happen
-                        }
-                        catch (IllegalAccessException e) {
-                            missingConstructor = true;
-                        }
-                        catch (InvocationTargetException ite) {
-                            // This can happen if a static initializer block throws a Throwable.
-                            // Or for other reasons.
-                            ite.getCause().printStackTrace();
-                            worldInvocationError = true;
-                            frame.updateBackgroundMessage();
-                        }
-                        catch (Exception e) {
-                            System.err.println("Exception during World initialisation:");
-                            e.printStackTrace();
-                            worldInvocationError = true;
-                            frame.updateBackgroundMessage();
-                        }
-                        worldInitialising = false;
-                        timer.stop();
-                    }
-                });
+        if (lastWorldGClass == null) {
+            // Either the last instantiated world no longer exists, or there is no record
+            // of a last instantiated world class. Find a world arbitrarily.
+            List<Class<? extends World>> worldClasses = project.getDefaultPackage().getWorldClasses();
+            if(worldClasses.isEmpty() ) {
+                return;
             }
-            else {
-                vmRestarted = true;
-                rProject.setVmRestarted(false);
+
+            for (Class<? extends World> wclass : worldClasses) {
+                try {
+                    wclass.getConstructor(new Class<?>[0]);
+                    cls = wclass;
+                    break;
+                }
+                catch (LinkageError le) { }
+                catch (NoSuchMethodException nsme) { }
+            }
+            if (cls == null) {
+                // Couldn't find a world with a suitable constructor
+                missingConstructor = true;
+                return;
             }
         }
-        catch (RemoteException ex) {
-            Debug.reportError("RemoteException checking VM state in WorldHandlerDelegateIDE", ex);
+
+        if (cls == null) {
+            // Can occur if last instantiated world class is not compiled.
+            return;
         }
+
+        startedInitialisingAt = System.currentTimeMillis();
+        frame.updateBackgroundMessage();
+
+        resetTimer();
+
+        final Class<? extends World> icls = cls;
+        Simulation.getInstance().runLater(new Runnable() {
+
+            @Override
+            public void run()
+            {
+                try {
+                    Constructor<?> cons = icls.getConstructor(new Class<?>[0]);
+                    WorldHandler.getInstance().clearWorldSet();
+                    World newWorld = (World) Simulation.newInstance(cons);
+                    if (! WorldHandler.getInstance().checkWorldSet()) {
+                        ImageCache.getInstance().clearImageCache();
+                        WorldHandler.getInstance().setWorld(newWorld);
+                    }
+                    saveWorldAction.setRecordingValid(true);
+                    project.setLastWorldClassName(icls.getName());
+                }
+                catch (LinkageError e) { }
+                catch (NoSuchMethodException | IllegalAccessException nsme) {
+                    EventQueue.invokeLater(() -> {
+                        missingConstructor = true;                        
+                    });
+                }
+                catch (InstantiationException e) {
+                    // abstract class; shouldn't happen
+                }
+                catch (InvocationTargetException ite) {
+                    // This can happen if a static initializer block throws a Throwable.
+                    // Or for other reasons.
+                    ite.getCause().printStackTrace();
+                    EventQueue.invokeLater(() -> {
+                        worldInvocationError = true;
+                        frame.updateBackgroundMessage();
+                    });
+                }
+                catch (Exception e) {
+                    System.err.println("Exception during World initialisation:");
+                    e.printStackTrace();
+                    EventQueue.invokeLater(() -> {
+                        worldInvocationError = true;
+                        frame.updateBackgroundMessage();
+                    });
+                }
+                EventQueue.invokeLater(() -> {
+                    worldInitialising = false;
+                });
+                timer.stop();
+            }
+        });
     }
 
     /**
@@ -699,26 +700,6 @@ public class WorldHandlerDelegateIDE
     public void setMissingConstructor(boolean missingConstructor)
     {
         this.missingConstructor = missingConstructor;
-    }
-
-    /**
-     * Has the VM just been restarted?
-     * 
-     * @return true if the VM just been restarted 
-     */
-    public boolean isVmRestarted()
-    {
-        return vmRestarted;
-    }
-
-    /**
-     * Sets the VM state, has it just been restarted or not 
-     * 
-     * @param vmRestarted a boolean flag, which is true if the VM just been restarted
-     */
-    public void setVmRestarted(boolean vmRestarted)
-    {
-        this.vmRestarted = vmRestarted;
     }
 
     @Override
