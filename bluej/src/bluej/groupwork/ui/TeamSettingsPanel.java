@@ -36,7 +36,6 @@ import bluej.groupwork.TeamSettings;
 import bluej.groupwork.TeamSettingsController;
 import bluej.groupwork.TeamworkProvider;
 import bluej.groupwork.actions.ValidateConnectionAction;
-import bluej.groupwork.git.GitRepository;
 import bluej.utility.MiksGridLayout;
 import java.io.File;
 
