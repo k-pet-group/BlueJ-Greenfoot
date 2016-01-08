@@ -81,44 +81,6 @@ public class GitRepository implements Repository
         this.yourEmail = yourEmail;
     }
     
-    /**
-     * opens the Git repository and returns the stored Name
-     * @param projectPath path to the BlueJ project
-     * @return String with the stored name in the Git repo.
-     */
-    static public String getYourNameFromRepo(File projectPath) 
-    {
-        String result = null;
-        try {
-            try (Git repo = Git.open(projectPath)) {
-                StoredConfig repoConfig = repo.getRepository().getConfig(); //get repo config
-                result = repoConfig.getString("user", null, "name"); //recover the user name
-                repo.close();
-            } //close the repo
-        } catch (IOException ex) { }
-        return result;
-    }
-    
-    
-    /**
-     * opens the Git repository and returns the stored email
-     * @param projectPath path to the BlueJ project
-     * @return String with the stored email in the Git repo.
-     */
-    static public String getYourEmailFromRepo(File projectPath) 
-    {
-        String result = null;
-        try {
-            try (Git repo = Git.open(projectPath)) {
-                StoredConfig repoConfig = repo.getRepository().getConfig(); //get repo config
-                result = repoConfig.getString("user", null, "email"); //recover the user email
-                repo.close();
-            } //close the repo
-        } catch (IOException ex) { }
-        return result;
-    }
-
-    
     public void setReposUrl(String url) 
     {
         this.reposUrl = url;

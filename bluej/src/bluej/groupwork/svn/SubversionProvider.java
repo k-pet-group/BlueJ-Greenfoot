@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012,2015,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -193,6 +193,18 @@ public class SubversionProvider implements TeamworkProvider
     public boolean needsName()
     {
         return false;
+    }
+
+    @Override
+    public String getYourEmailFromRepo(File projectPath)
+    {
+        return null;
+    }
+
+    @Override
+    public String getYourNameFromRepo(File projectPath)
+    {
+        return null;
     }
     
 }

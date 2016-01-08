@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2015,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -33,9 +33,11 @@ import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import java.io.File;
+import java.io.IOException;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.LsRemoteCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.transport.JschConfigSessionFactory;
 import org.eclipse.jgit.transport.OpenSshConfig;
@@ -171,6 +173,44 @@ public class GitProvider implements TeamworkProvider
     public boolean needsName()
     {
         return true;
+    }
+    
+    /**
+     * opens the Git repository and returns the stored Name
+     * @param projectPath path to the BlueJ project
+     * @return String with the stored name in the Git repo.
+     */
+    @Override
+    public String getYourNameFromRepo(File projectPath) 
+    {
+        String result = null;
+        try {
+            try (Git repo = Git.open(projectPath)) {
+                StoredConfig repoConfig = repo.getRepository().getConfig(); //get repo config
+                result = repoConfig.getString("user", null, "name"); //recover the user name
+                repo.close();
+            } //close the repo
+        } catch (IOException ex) { }
+        return result;
+    }
+    
+    /**
+     * opens the Git repository and returns the stored email
+     * @param projectPath path to the BlueJ project
+     * @return String with the stored email in the Git repo.
+     */
+    @Override
+    public String getYourEmailFromRepo(File projectPath) 
+    {
+        String result = null;
+        try {
+            try (Git repo = Git.open(projectPath)) {
+                StoredConfig repoConfig = repo.getRepository().getConfig(); //get repo config
+                result = repoConfig.getString("user", null, "email"); //recover the user email
+                repo.close();
+            } //close the repo
+        } catch (IOException ex) { }
+        return result;
     }
 
 }

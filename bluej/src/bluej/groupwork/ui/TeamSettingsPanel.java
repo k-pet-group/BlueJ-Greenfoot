@@ -327,9 +327,9 @@ public class TeamSettingsPanel extends JPanel
                             //settings panel being open within a project. 
                             //fill the data.
                             File respositoryRoot = teamSettingsController.getProject().getProjectDir();
-                            yourEmailField.setText(GitRepository.getYourEmailFromRepo(respositoryRoot));
+                            yourEmailField.setText(provider.getYourEmailFromRepo(respositoryRoot));
                             yourEmailField.setEnabled(false);
-                            yourNameField.setText(GitRepository.getYourNameFromRepo(respositoryRoot));
+                            yourNameField.setText(provider.getYourNameFromRepo(respositoryRoot));
                             yourNameField.setEnabled(false);
                         }
                         
