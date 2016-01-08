@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012,2014  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012,2014,2016  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -188,8 +188,10 @@ public class WorldInvokeListener
                             }
                             else if(o instanceof greenfoot.World) {
                                 interactionListener.worldConstructed(o);
+                                // We cleared the "world set" flag at the start of the invocation, so if
+                                // it is set now, it means the world was set programmatically during the
+                                // invocation. In that case we don't want to replace it:
                                 if (! worldHandler.checkWorldSet()) {
-                                    ImageCache.getInstance().clearImageCache();
                                     worldHandler.setWorld((World) o);
                                 }
                             }
