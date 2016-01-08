@@ -1,0 +1,41 @@
+# Frame Catalogue:
+frame.catalogue.title=Arkusz podpowiedzi
+frame.catalogue.commands=Polecenia
+frame.catalogue.shortcuts=Skr\u00f3ty klawiaturowe
+frame.catalogue.selection=Enclose Selection
+frame.catalogue.codecompletion=Uzupe\u0142nianie kodu
+frame.catalogue.codecompletion.hide=Ukryj uzupe\u0142nianie kodu
+frame.catalogue.codecompletion.up=Przesu\u0144 w g\u00f3r\u0119
+frame.catalogue.codecompletion.down=Przesu\u0144 w d\u00f3\u0142
+frame.catalogue.codecompletion.select=Wybierz
+
+frame.catalogue.birdseye.exit=Opu\u015b\u0107 podgl\u0105d
+frame.catalogue.birdseye.up=Przesu\u0144 w g\u00f3r\u0119
+frame.catalogue.birdseye.down=Przesu\u0144 w d\u00f3\u0142
+frame.catalogue.birdseye.select=Wybierz
+
+frame.catalogue.examples=Przyk\u0142ady
+
+
+# Error Bar:
+frame.error.overview.bar.error.single=b\u0142\u0105d
+frame.error.overview.bar.error.plural=b\u0142\u0119dy
+frame.error.overview.bar.error.none=Brak b\u0142\u0119d\u00f3w
+frame.error.overview.bar.error.editing=Edytowanie
+
+# Slot menu:
+frame.slot.cut=Wytnij
+frame.slot.copy=Kopiuj
+frame.slot.paste=Wklej
+frame.slot.recent=Aktualne warto\u015bci
+
+
+# View menu:
+frame.viewmenu.title=Widok
+frame.viewmenu.nextError=Nast\u0119pny b\u0142\u0105d
+frame.viewmenu.cheatsheet=Arkusz podpowiedzi
+frame.viewmenu.birdseye=Bird's eye
+frame.viewmenu.java=Podgl\u0105d kodu - Java 
+frame.viewmenu.fontbigger=Zwi\u0119ksz rozmiar czcionek
+frame.viewmenu.fontsmaller=Zmniejsz rozmiar czcionek
+frame.viewmenu.fontdefault=Domy\u015blny rozmiar czcionek

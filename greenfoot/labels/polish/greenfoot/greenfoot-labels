@@ -1,0 +1,363 @@
+#i18n for greenfoot
+
+greenfoot.nyi=Jeszcze nie zaimplementowane, przepraszamy
+greenfoot.preferences=Preferencje...
+greenfoot.copyright=Copyright...
+greenfoot.quit=Wyj\u015bcie
+greenfoot.continue=Kontynuuj
+greenfoot.cancel=Anuluj
+
+greenfoot.launchFailed=B\u0142\u0105d uruchomienia \u015brodowiska Greenfoot. Po pomoc zwr\u00f3\u0107 si\u0119 tu: http://www.greenfoot.org/support
+
+# About dialog
+about.title=O programie
+about.moreInfo=Wi\u0119cej informacji znajdziesz na www.greenfoot.org
+
+
+# Greenfoot project version info
+project.version.none=Otwierany scenariusz zosta\u0142 zapisany przy u\u017cyciu starszej wersji \u015brodowiska Greenfoot (wcze\u015bniejsze ni\u017c 0.5). To najprawdopodobniej skutkowa\u0107 b\u0119dzie pewnymi b\u0142\u0119dami, kt\u00f3re nale\u017cy naprawi\u0107 samodzielnie. 
+project.version.notGreenfoot=To nie jest scenariusz \u015brodowiska Greenfoot: 
+project.version.mismatch=Niezgodno\u015b\u0107 wersji
+# The next 3 items will be shown if the major digit in the version number has changed. 
+# part3 should be updated to describe the changes that has happened.
+project.version.older.part1=Otwierany scenariusz zosta\u0142 zapisany przy u\u017cyciu starszej wersji \u015brodowiska Greenfoot (wesja API 
+# project version inserted here by Greenfoot
+project.version.older.part2=). Scenariusz zostanie zaktualizowany do aktualnej wersji (API version 
+# api version inserted here by Greenfoot
+
+#Info about changes in this new version of the API that might break existing scenarios.
+project.version.older.part3=). Nast\u0119pujace zmiany API klas Greenfoot mog\u0105 wp\u0142yn\u0105\u0107 negatywnie na ten scenariusz:
+
+# Note the versions here are API versions, not Greenfoot versions!
+project.version.changes.1=2.1.0 Metody 'stopSimulation', 'startSimulation' oraz 'setSimulationSpeed' pochodz\u0105ce z klas Greenfoot zosta\u0142y przemianowane na 'start', 'stop' and 'setSpeed'. 
+project.version.changes.2=2.1.0 Metody klasy Actor 'getWidth' oraz 'getHeight' zosta\u0142y usuni\u0119te. U\u017cyj w zamian 'getImage().getWidth()' oraz 'getImage().getHeight()'.
+project.version.changes.3=2.1.0 Metody klasy Actor 'getObjectsInRange' teraz u\u017cywaj\u0105 kom\u00f3rek zamiast pikseli jako jednostki zakresu. 
+project.version.changes.4=2.1.0 Greenfoot odr\u00f3\u017cnia wielko\u015b\u0107 liter podczas obs\u0142ugi plik\u00f3w d\u017awi\u0119kowych i graficznych.
+project.version.changes.5=2.1.0 Metody klasy World 'setTiled' oraz 'getTiled' zosta\u0142y usuni\u0119te.
+project.version.changes.6=2.1.0 Metoda klasy World 'getBackground' teraz zwraca grafik\u0119 o rozmiarze ca\u0142ego t\u0142a.
+project.version.changes.7=2.2.0 Metody 'move' oraz 'turn' zosta\u0142y dodane do klasy Actor.
+project.version.changes.8=2.3.0 Greenfoot.getMouseInfo() zwraca 'null' je\u017celi wska\u017anik myszy znajduje si\u0119 poza \u015bwiatem.
+project.version.changes.9=2.3.0 Metoda 'turnTowards(int,int)' zosta\u0142a dodana do klasy Actor.
+project.version.changes.10=2.4.0 Klasa 'UserInfo' zosta\u0142a dodana (przemianowana z 'PlayerData' w wersji 2.2.0 beta \u015brodowiska Greenfoot 2.2.0).
+project.version.changes.11=2.5.0 Metody 'isTouching' oraz 'removeTouching' zosta\u0142y dodane do klasy Actor.
+project.version.changes.12=2.6.0 Metoda 'showText' zosta\u0142a dodana do klasy World, a ponaddto dodano nowy konstruktor do GreenfootImage.
+project.version.changes.13=2.7.0 Metoda 'ask' zosta\u0142a dodana do klasy Greenfoot.
+project.version.changes.14=2.8.0 Metoda 'getWorldOfType' zosta\u0142a dodana do klasy Actor, a do API dodano typy generyczne.
+
+project.version.newer.part1=Otwierany scenariusz zosta\u0142 zapisany przy u\u017cyciu nowszej wersji \u015brodowiska Greenfoot (wersja API 
+# project version inserted here by Greenfoot
+project.version.newer.part2=). Otwarcie tego scenariusza w obecnej wersji \u015brodowiska Greenfoot mo\u017ce skutkowa\u0107 kilkoma b\u0142\u0119dami, kt\u00f3re b\u0119d\u0105 musia\u0142y zosta\u0107 naprawione samodzielnie. \n\nCzy kontynuowa\u0107 otwieranie scenariusza?
+project.close=Zamknij
+
+# Actions
+greenfoot.about=O \u015brodowisku Greenfoot...
+compile.all=Kompiluj
+compile.class=Kompiluj
+duplicate.class=Powiel...
+edit.class=Otworz edytor
+edit.images=Ilustracje scenariusza...
+new.other.class=Nowa klasa...
+new.sub.class=Nowa podklasa...
+stride.new.project=Nowy scenariusz - tryb Stride...
+java.new.project=Nowy scenariusz - tryb Java...
+open.project=Otw\u00f3rz...
+open.recentProject=Otw\u00f3rz ostatnio u\u017cywane
+remove.class=Usu\u0144
+remove.selected=Usu\u0144 klas\u0119
+convert.to.java.class=Przekszta\u0142\u0107 do j\u0119zyka Java
+convert.to.java.selected=Przekszta\u0142\u0107 klas\u0119 do j\u0119zyka Java
+inspect.class=Inspect
+reset.world=Reset
+run.once=Jeden krok
+run.simulation=Uruchom
+project.save=Zapisz
+project.saveAs=Zapisz jako...
+select.image=Ustaw grafik\u0119...
+show.readme=Informacja o scenariuszu
+pause.simulation=Pauza
+show.apidoc=Otw\u00f3rz dokumentacj\u0119
+save.world=Zapisz \u015bwiat
+
+# Remove class confirmation
+remove.confirm.title=Potwierd\u017a usuni\u0119cie klasy
+remove.confirm.text1=O usunieciu klasy
+remove.confirm.text2=Kontynuowa\u0107?
+
+# Convert to Java class confirmation
+convert.to.java.confirm.title=Potwierd\u017a przekszta\u0142cenie klasy
+convert.to.java.confirm.text1=O przekszta\u0142ceniu
+convert.to.java.confirm.text2=z formatu Stride do Java.
+convert.to.java.confirm.text3=Ta operacja jest nieodwracalna, kontynuowa\u0107?
+
+# Save As project dialog
+project.saveAs.title=Zapisz scenariusz jako
+
+# Export scenario dialog
+export.project=Udost\u0119pnij...
+export.progress.bundling=Budowanie scenariusza...
+export.progress.publishing=Publikowanie...
+export.progress.writingHTML=Zapisywanie strony WWW...
+export.progress.writingJar=Zapisywanie pliku jar...
+export.progress.writingGfar=Zapisywanie pliku gfar ...
+export.progress.complete=Eksport zako\u0144czony.
+export.publish.fail=Publikowanie nieudane:
+export.publish.unknownHost=Publikowanie nieudane: Nieznany host
+export.publish.errorResponse=Nierozpoznana odpowied\u017a serwera.
+export.publish.errorPassword=Z\u0142a nazwa u\u017cytkownika lub has\u0142o.
+export.publish.errorTooLarge=Zbyt d\u0142ugi scenariusz.
+export.publish.complete=Publikowanie zako\u0144czone
+export.publish.proxyAuth=Uwierzytelnianie serwera po\u015brednicz\u0105cego
+export.publish.needProxyAuth=Uwierzytelnianie serwera po\u015brednicz\u0105cego jest wymagane.
+export.app.help=Create an executable jar file that can be run on its own.
+export.app.location=Zapisz do: 
+export.app.browse=Przegl\u0105daj
+export.app.choose=Zapisz wykonywalny plik jar
+export.project.help=Utw\u00f3rz samodzielny plik projektu w formacie gfar.
+export.project.location=Zapisz do:
+export.project.browse=Przegl\u0105daj
+export.project.choose=Zapisz plik projektu gfar
+export.compile.help=Nie wszystkie klasy scenariusza zosta\u0142y skompilowane. Aby kontynuuwa\u0107 eksport, kompiluj teraz klasy.
+export.compile.notCompiled=Scenariusz nie zosta\u0142 skompilowany.
+export.dialog.title=Udost\u0119pnij
+export.dialog.export=Eksport
+export.dialog.share=Udost\u0119pnij
+export.dialog.update=Aktualizuj
+export.lock.label=Zablokuj scenariusz
+export.controls.label=Ukryj sterowanie
+export.fullScreen.label=Pe\u0142ny ekran
+export.fullScreen.description=Otwiera scenariusz w trybie pe\u0142nego ekranu
+export.controls.description=ukrywa pasek zawieraj\u0105cy przyciski: Play/Pauza oraz Reset.
+export.snapshot.label=Zatrzymaj obecny zrzut ekranu:
+export.lock.description=Uniemo\u017cliwia: Zmian\u0119 pr\u0119dko\u015bci, dzia\u0142anie przycisku Jeden krok oraz zmian\u0119 pozycji podczas pauzy.
+export.publish.help=Opublikuj scenariusz do:
+export.publish.info=Informacje do opublikowania na
+export.publish.image1=Ikona scenariusza:
+export.publish.image2=(skaluj i przesuwaj to)
+export.publish.title=Tytu\u0142:
+export.publish.tags.additional1=Dodatkowe etykiety:
+export.publish.tags.additional2=(jedna etykieta na lini\u0119)
+export.publish.tags.popular=Popularne etykiety:
+export.publish.tags.loading=\u0142adowanie...
+export.publish.shortDescription=Opis online:
+export.publish.longDescription=D\u0142u\u017cszy opis:
+export.publish.update=Changes in update:
+export.publish.url=Twoja w\u0142asna strona WWW (URL):
+export.publish.login=Login
+export.publish.username=Nazwa u\u017cytkownika:
+export.publish.password=Has\u0142o:
+export.publish.createAccount=Utw\u00f3rz konto
+export.publish.includeSource=Publikuj kod \u017ar\u00f3d\u0142owy
+export.web.help=Utw\u00f3rz strob\u0119 WWW z apletem.
+export.web.exportLocation=Po\u0142o\u017cenie eksportu: 
+export.web.browse=Przegl\u0105daj
+export.web.choose=Wybierz nazw\u0119 katalogu do eksportu
+export.icontab.publish=Publikuj
+export.icontab.webpage=Strona WWW
+export.icontab.application=Aplikacja
+export.icontab.project=Projekt
+export.noworld.dialog.title=B\u0142\u0105d: nie znaleziono klasy \u015bwiata
+export.noworld.dialog.msg=Nie znaleziono klasy \u015bwiata w scenariuszu. Aby eksportowa\u0107, konieczna jest podklasa klasy World. 
+export.noconstructor.dialog.title=B\u0142\u0105d: brak pasuj\u0105cego kontruktora
+export.noconstructor.dialog.msg=Klasa \u015bwiata nie posiada domy\u015blnego kontruktora. 
+Aby eksportowa\u0107, konieczny jest konstruktor z zerow\u0105 liczb\u0105 argument\u00f3w.
+export.fileExists.message=ju\u017c istnieje. Nadpisa\u0107? 
+
+publish.event.error=B\u0142\u0105d: 
+publish.event.status=Status: 
+
+world.handlerDelegate.inspect=Sprawd\u017a
+world.handlerDelegate.remove=Usu\u0144
+
+record.method.comment1=Przygotuj \u015bwiat na pocz\u0105tku programu.
+record.method.comment2=To znaczy: utw\u00f3rz pocz\u0105tkowe obiekty i dodaj je do \u015bwiata. 
+
+greenfoot.utilDelegate.newScenario=Nowy scenariusz
+
+#File choosers
+chooser.newFile.button=Wybierz
+chooser.scenario.title=Otw\u00f3rz scenariusz
+chooser.scenario.button=Otw\u00f3rz
+
+#New Class dialog
+newclass.dialog.title=Utw\u00f3rz now\u0105 klas\u0119
+newclass.dialog.help1=Nazwa klasy nie mo\u017ce zawiera\u0107 spacji ani znak\u00f3w 
+newclass.dialog.help2=interpunkcyjnych i powinna zaczyna\u0107 si\u0119 Du\u017c\u0105 liter\u0105
+newclass.dialog.className=Nazwa nowej klasy: 
+newclass.dialog.err.classExists=Klasa o tej nazwie ju\u017c istnieje.
+newclass.dialog.err.classNameIllegal=To nie jest w\u0142a\u015bciwa nazwa klasy j\u0119zyka Java.
+newclass.dialog.selectionLabel=J\u0119zyk:
+newclass.dialog.class=Klasa
+newclass.dialog.interface=Interfejs
+
+# Image Lib Preview
+paste.image=Wklej ilustracj\u0119...
+imagelib.title=Wybierz ilustracj\u0119 klasy:
+imagelib.newClass=Nowa klasa
+imagelib.projectImages=Ilustracje do scenariusza:
+imagelib.categories=Kategorie ilustracji:
+imagelib.images=Ilustracje z biblioteki:
+imagelib.browse.button=Importuj z pliku...
+imagelib.create.button=Utw\u00f3rz now\u0105 ilustracj\u0119...
+imagelib.edit=Edytuj
+imagelib.edit.tooltip=Edytuj wybran\u0105 ilustracj\u0119 za pomoc\u0105 domy\u015blnego edytora obraz\u00f3w..
+imagelib.duplicate=Powiel 
+imagelib.duplicate.tooltip=Powiel wskazan\u0105 ilustracj\u0119.
+imagelib.delete=Usu\u0144
+imagelib.delete.tooltip=Usu\u0144 wskazan\u0105 ilustracj\u0119.
+imagelib.import.button=Wczytaj z biblioteki...
+imagelib.create.tooltip=Utw\u00f3rz now\u0105 ilustracj\u0119 w domy\u015blnym rozmiarze oraz z domy\u015bln\u0105 nazw\u0105 i edytuj j\u0105 za pomoc\u0105 domy\u015blnego edytora obraz\u00f3w. 
+imagelib.className=Nowa nazwa klasy:
+imagelib.help.selectImage=Wybierz ilustracj\u0119 klasy z listy poni\u017cej.
+imagelib.newClass.image=Nowa ilustracja klasy:
+imagelib.file.noPreview=Brak podgl\u0105du
+imagelib.choose.button=Wybierz
+imagelib.write.exists.part1=Plik: \"
+# Greenfoot inserts filename here
+imagelib.write.exists.part2=\" ju\u017c istnieje. Czy chcesz go nadpisa\u0107?
+imagelib.write.exists.title=Potwierd\u017a nadpisanie pliku
+imagelib.greenfoot.frame.title=Bibioteka ilustracji Greenfoota
+imagelib.scenario.frame.title=Ilustracje scenariusza
+imagelib.delete.confirm.title=Potwierd\u017a usuwanie
+imagelib.delete.confirm.text=Czy na pewno usu\u0105\u0107
+imagelib.image.invalid.title=Niew\u0142a\u015bciwa ilustracja
+imagelib.image.invalid.text=nie jest poprawn\u0105 ilustracj\u0105.
+imagelib.image.unsupportedformat.title=Nieobs\u0142ugiwany format
+imagelib.image.unsupportedformat.text=nie jest obs\u0142ugiwany w Twoim systemie. Wybierz inny i spr\u00f3buj ponownie.
+imagelib.rename.exists.text=Nie mo\u017cna zmieni\u0107 nazwy pliku albowiem plik o tej nazwie ju\u017c istnieje. 
+imagelib.rename.exists.title=Zmiana nazwy nie powiod\u0142a si\u0119
+imagelib.new.image.title=Nowa ilustracja
+imagelib.new.image.name=Nazwa:
+imagelib.new.image.width=Szeroko\u015b\u0107:
+imagelib.new.image.height=Wysoko\u015b\u0107:  
+imagelib.new.image.type=Typ:
+imagelib.more=Wi\u0119cej dzia\u0142a\u0144...
+
+editor.paste.image.title=Wklej ilustracj\u0119
+editor.paste.image.prompt=Nazwa pliku:
+
+scenario.viewer.appletInfo=Aplet stworzony w Greenfoot (www.greenfoot.org). Nazwa scenariusza:
+
+# Simulation Control Panel
+controls.runonce.shortDescription=Uruchom 'act' jeden raz dla ka\u017cdego aktora.
+controls.runonce.longDescription=Uruchom 'act' jeden raz dla ka\u017cdego aktora.
+controls.run.shortDescription=Uruchom symulacj\u0119.
+controls.run.longDescription=Uruchom symulacj\u0119 do czasu zatrzymania. 
+controls.pause.shortDescription=Wstrzymaj symulacj\u0119. 
+controls.pause.longDescription=Wstrzymaj symulacj\u0119 pozostawiaj\u0105c aktualny stan. 
+controls.run.button=Uruchom
+controls.pause.button=Pauza
+controls.reset.shortDescription=Przywr\u00f3\u0107 pocz\u0105tkowy stan \u015bwiata.
+controls.reset.longDescription=Przywr\u00f3\u0107 pocz\u0105tkowy stan \u015bwiata.
+controls.speed.label=Szybko\u015b\u0107:
+controls.speedSlider.tooltip=Ustaw szyko\u015b\u0107 wykonywania
+
+# Class browser
+browser.border.world=Klasy pochodne World
+browser.border.actors=Klasy pochodne Actor
+browser.border.others=Pozosta\u0142e klasy
+
+# Sound Recorder
+
+soundRecorder.title=Rejestrator d\u017awi\u0119ku
+soundRecorder.record=Rejestruj
+soundRecorder.stopRecord=Zatrzymaj rejestracj\u0119
+soundRecorder.trim=Przytnij do zaznaczenia.
+soundRecorder.play=Odtwarzaj 
+soundRecorder.playSelection=Odtwarzaj zaznaczenie
+soundRecorder.stopPlay=Zatrzymaj odtwarzanie
+soundRecorder.filename=Nazwa pliku
+soundRecorder.save=Zapisz
+soundRecorder.done=Zamknij
+soundRecorder.saved=Zapisano
+soundRecorder.notSaved=Nie zapisano
+soundRecorder.overwrite.part1=Plik \"
+soundRecorder.overwrite.part2=\" ju\u017c istnieje. Nadpisa\u0107 plik?
+soundRecorder.overwrite.title=Potwierd\u017a nadpisanie pliku. 
+soundRecorder.overwrite=Nadpisz
+soundRecorder.closeAnyway=Zamknij pomimo wszystko
+soundRecorder.closeTitle=Zamknij bez zapisywania
+soundRecorder.closeQuestion=Nagranie zosta\u0142o zmienione od czasu ostatniego zapisu. Je\u017celi zamkniesz rejestrator d\u017awi\u0119ku, te zmiany zostan\u0105 porzucone. 
+
+# Import 
+import.import=Wczytywanie
+import.dialogTitle=Wczytaj klas\u0119
+import.action=Wczytaj klas\u0119...
+import.restartMessage=Greenfoot musi zosta\u0107 uruchomiony ponownie, aby poprawnie dzia\u0142a\u0107.
+
+set.player=Ustaw nazw\u0119 gracza
+playername.dialog.title=Ustaw nazw\u0119 gracza
+playername.dialog.help=Ustaw nazw\u0119 u\u017cytkiwnika, u\u017cywan\u0105 przez klas\u0119 UserInfo
+playername.dialog.playerName=Nazwa gracza
+
+prefmgr.misc.playername.title=Nazwa gracza
+prefmgr.misc.playerNameNote=Mo\u017cesz to zmieni\u0107 szybko wykorzystuj\u0105c skr\u00f3t klawiszowy:
+
+# Menus
+
+menu.openRecent=Otwarte niedawno
+
+menu.scenario=Scenariusz
+
+menu.edit=Edycja
+menu.new=Nowy
+
+menu.controls=Sterowanie
+
+menu.debugger=Uruchom Debbuger
+
+menu.soundRecorder=Poka\u017c rejestrator d\u017awi\u0119ku
+
+menu.help=Pomoc
+menu.help.about=O programie...
+menu.help.classDoc=Dokumentacja klas \u015brodowiska Greenfoot
+menu.help.javadoc=Dokumentacja bibliotek j\u0119zyka Java
+menu.help.tutorial=Samouczek Greenfoota
+menu.help.website=Witryna WWW Greenfoota
+menu.help.moreScenarios=Pobierz wi\u0119cej scenariuszy
+menu.help.discuss=Dyskusje n/t Greenfoota
+
+#Copyright
+
+menu.help.copyright.title=Greenfoot Copyright, Licensing and Redistribution
+menu.help.copyright.line0=Greenfoot \u00a9 2005-2015 Michael K\u00F6lling, Poul Henriksen.
+menu.help.copyright.line1=Greenfoot jest dost\u0119pny na licencji GNU General Public License  
+menu.help.copyright.line2=version 2 with Classpath exception.
+menu.help.copyright.line3=Wi\u0119cej informacji w pliku LICENSE.txt 
+menu.help.copyright.line4=oraz THIRDPARTYLICENSE.txt.
+
+
+# Popup menu
+classPopup.needsCompile=Wymaga kompilacji
+classPopup.containsError=Zawiera b\u0142\u0119dy
+
+# Project does not exist dialog
+noproject.dialog.title=B\u0142\u0105d otwierania projektu
+noproject.dialog.msg=Projekt nie istnieje: 
+ 
+# Header for the properties file
+properties.heading.greenfoot=Ustawienia \u015brodowiska Greenfoot. Ustawienia w tym pliku nadpisuj\u0105  ustawienia z \"bluej.defs\" oraz \"greenfoot.defs\"
+
+# Message to display if a file cannot be created
+greenfoot.cannotCreateClass=Plik z klas\u0105 nie mo\u017ce zosta\u0107 utworzony. Sprawd\u017a czy katalog projektu umo\u017cliwia zapisywanie. 
+
+# General error messages
+greenfoot.cannotFindAPIDocumentation=Brak dokumentacji API  lub jej odczytanie jest niemo\u017cliwe.
+
+# Message for sound related errors
+sound-line-unavailable=Nie mo\u017cna uzyska\u0107 dost\u0119pu do karty d\u017awi\u0119kowe. Je\u017celi posiadasz kart\u0119 \n d\u017awi\u0119kow\u0105, sprawd\u017a ustawienia sytemu oraz zamknij \ninne programy, kt\u00f3re mog\u0105 blokowa\u0107 kart\u0119. 
+
+# MainFrame central messages
+centrePanel.message.openScenario=\u2196 Utw\u00f3rz lub otw\u00f3rz scenariusz u\u017cywaj\u0105c menu Scenariusz. 
+centrePanel.message.createWorldClass=Utw\u00f3rz now\u0105 podklas\u0119 dla klasy World. 
+centrePanel.message.compile=The world class may have an error, check it to initialize the scenario \u2197
+centrePanel.message.initialising=\u015awiat jest w trakcie tworzenia...
+centrePanel.message.initialisingTooLong1=Wykonanie konstruktora \u015bwiata trwa zbyt d\u0142ugo.
+centrePanel.message.initialisingTooLong2=Mo\u017cliwe, \u017ce jest tam niesko\u0144czona p\u0119tla. 
+centrePanel.message.notFocused=Aby utworzy\u0107 \u015bwiat, kliknij w to okno. 
+centrePanel.restartButton.label=Uruchom ponownie
+centrePanel.message.error1=Konstruktor \u015bwiata rzuci\u0142 wyj\u0105tkiem.
+centrePanel.message.error2=Wi\u0119cej szczeg\u00f3\u0142\u00f3w znajdziesz w oknie terminala.
+centrePanel.message.afterRestarting1=Greenfoot zosta\u0142 uruchomiony ponownie, poniewa\u017c \u015bwiat nie m\u00f3g\u0142 zosta\u0107 utworzony. 
+centrePanel.message.afterRestarting2=Sprawd\u017a konstruktor w podklasie klasy World.
+centrePanel.message.missingWorldConstructor1=\u015awiat nie mo\u017ce zosta\u0107 utworzony. Podklasa klasy World
+centrePanel.message.missingWorldConstructor2=nie zawiera bezparametrowych konstruktor\u00f3w typu public. 

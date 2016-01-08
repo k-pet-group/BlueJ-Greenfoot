@@ -1,0 +1,47 @@
+editor-crashed
+Wygl\u0105da na to, \u017ce Greenfoot uleg\u0142 by\u0142 ostatnim razem 
+awarii podczas zapisu tej klasy na dysk. Kod \u017ar\u00f3d\u0142owy 
+m\u00f3g\u0142 zosta\u0107 utracony lub te\u017c jest niekompletny. 
+W katalogu projektu powinna znajdowa\u0107 si\u0119
+kopia zapasowa tej klasy. 
+Je\u017celi klasa wygl\u0105da na uszkodzon\u0105, 
+   1 - zamknij \u015brodowisko Greenfoot
+   2 - uczy\u0144 kopi\u0119 zapasow\u0105 katalogu z projektem (tak na wszelki wypadek)
+   3 - odnajd\u017a w katalogu projektu kopi\u0119 zapasow\u0105 tego pliku 
+	i zmie\u0144 jej nazw\u0119 na w\u0142a\u015bciw\u0105 (z rozszerzeniem '.java')
+
+error-create-vm
+Greenfoot nie potrafi\u0142 utworzy\u0107 maszyny wirtualnej (VM) 
+uruchamiaj\u0105cej ten scenariusz. Zazwyczaj jest to spowodowane
+nadmiernie ograniczaj\u0105cymi ustawieniami firewalla.  
+Prosz\u0119, zobacz [ http://www.greenfoot.org/doc/firewall ], 
+aby zdoby\u0107 wi\u0119cej informacji.
+
+project-is-readonly
+Scenariusz jest otwarty tylko do odczytu:
+:
+    $
+:
+Aby skorzysta\u0107 z tego scenariusza, nale\u017cy najpierw wybra\u0107 nowe
+po\u0142o\u017cenie i tam go zapisa\u0107. 
+
+cannot-save-project
+Scenariusz nie mo\u017ce by\u0107 zapisany we wskazanym po\u0142o\u017ceniu. 
+Sprawd\u017a czy masz tam prawa zapisu lub wska\u017c inne miejsce.
+
+cannot-create-project
+Scenariusz nie mo\u017ce by\u0107 utworzony. 
+Sprawd\u017a czy wskazany katalog pozwala na zapis plik\u00f3w. 
+
+project-already-exists
+Wskazany katalog scenariusza ju\u017c istnieje. 
+Aby utworzy\u0107 nowy scenariusz, wybierz po\u0142o\u017cenie 
+i okre\u015bl unikaln\u0105 nazw\u0119 (musisz t\u0119 nazw\u0119 wpisa\u0107 oknie dialogowym).
+
+archive-not-greenfoot-project
+Plik archiwum, kt\u00f3ry wskazano, nie wygl\u0105da na taki, 
+kt\u00f3ry by zawiera\u0142 projekt \u015brodowiska Greenfoot. 
+Spr\u00f3buj rozpakowa\u0107 zawarto\u015b\u0107 achiwum korzystaj\u0105c z innego narz\u0119dzia. 
+
+no-clipboard-image-data
+W schowku nie ma grafiki do wklejenia. 

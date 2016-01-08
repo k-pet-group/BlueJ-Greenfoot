@@ -64,6 +64,7 @@
         <include name="lib/italian/" />
         <include name="lib/japanese/" />
         <include name="lib/korean/" />
+        <include name="lib/polish/" />
         <include name="lib/portuguese/" />
         <include name="lib/russian/" />
         <include name="lib/slovak/" />

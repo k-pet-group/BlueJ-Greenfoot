@@ -35,9 +35,11 @@ bluej.language=english
 #bluej.language=german
 #bluej.language=greek
 #bluej.language=italian
+#bluej.language=korean
+#bluej.language=polish
+#bluej.language=portuguese
 #bluej.language=russian
 #bluej.language=spanish
-#bluej.language=chinese
 
 #####################################################################
 ## If you have a translated version of the Greenfoot API documentation
