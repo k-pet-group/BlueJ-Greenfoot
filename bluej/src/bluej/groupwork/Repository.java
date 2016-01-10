@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2012,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -75,6 +75,11 @@ public interface Repository
      */
     public TeamworkCommand shareProject();
 
+    /**
+     * Push project changes to the upstream server.
+     * This is used *only* by distributed version control.
+     */
+    public TeamworkCommand pushChanges();
     /**
      * Get status of all the given files.
      * Returns a List of TeamStatusInfo.

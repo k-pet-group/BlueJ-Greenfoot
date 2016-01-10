@@ -67,7 +67,10 @@ public class GitCommitAllCommand extends GitCommand
             
             
             for (File f:newFiles){
-                repo.add().addFilepattern(basePath.relativize(f.toPath()).toString()).call();
+                String fileName = basePath.relativize(f.toPath()).toString();
+                if (!fileName.isEmpty()){
+                    repo.add().addFilepattern(fileName).call();
+                }
             }
 
             //deleted files are handled by the commit command.

@@ -36,7 +36,6 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.errors.NoWorkTreeException;
 import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
@@ -100,7 +99,7 @@ public class GitRepository implements Repository
     @Override
     public boolean versionsDirectories() 
     {
-        throw new UnsupportedOperationException("Not implemented yet.");
+        return true;
     }
 
     @Override
@@ -121,7 +120,13 @@ public class GitRepository implements Repository
     @Override
     public TeamworkCommand shareProject() 
     {
-        throw new UnsupportedOperationException("Not implemented yet.");
+        return new GitShareCommand(this);
+    }
+
+    @Override
+    public TeamworkCommand pushChanges()
+    {
+        return new GitPushChangesCommand(this);
     }
 
     @Override
