@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012,2013,2014,2015  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012,2013,2014,2015,2016  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,7 +21,6 @@
  */
 package greenfoot.gui;
 
-import bluej.utility.Debug;
 import greenfoot.Actor;
 import greenfoot.ActorVisitor;
 import greenfoot.GreenfootImage;
@@ -72,8 +71,6 @@ public class WorldCanvas extends JPanel
     private BufferedImage dragImage;
     /** Preferred size (not counting insets) */
     private Dimension size;
-    /** Font for text labels on the world */
-    private Font textLabelFont;
     private Image overrideImage;
     
     public WorldCanvas(World world)
@@ -90,8 +87,8 @@ public class WorldCanvas extends JPanel
     public void setWorld(World world)
     {
         this.world = world;
-        setOverrideImage(null);
         if (world != null) {
+            setOverrideImage(null);
             this.setSize(getPreferredSize());
             revalidate();
             repaint();
@@ -183,6 +180,7 @@ public class WorldCanvas extends JPanel
             Color c = g.getColor();
             g.setColor(getParent().getBackground());
             g.fillRect(0, 0, getWidth(), getHeight());
+            g.setColor(c);
             WorldHandler.getInstance().repainted();
             return;
         }

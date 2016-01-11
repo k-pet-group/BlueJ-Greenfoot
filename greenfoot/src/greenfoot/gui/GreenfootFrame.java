@@ -1119,12 +1119,14 @@ public class GreenfootFrame extends JFrame
     @Override
     public void compileStarted(RCompileEvent event)
     {
-        Image snapshot = getWorldGreyedSnapShot();
-        WorldHandler.getInstance().discardWorld();
-        if (snapshot != null) {
-            EventQueue.invokeLater(() -> worldCanvas.getGraphics().drawImage(snapshot, 1, 1, null));
-        }
-        this.isCompiling = true;
+        EventQueue.invokeLater(() -> {
+            Image snapshot = getWorldGreyedSnapShot();
+            WorldHandler.getInstance().discardWorld();
+            if (snapshot != null) {
+                worldCanvas.setOverrideImage(snapshot);
+            }
+            this.isCompiling = true;
+        });
     }
 
     private Image getWorldGreyedSnapShot()
