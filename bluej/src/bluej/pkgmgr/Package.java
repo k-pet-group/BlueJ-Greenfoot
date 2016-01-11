@@ -2626,7 +2626,7 @@ public final class Package extends Graph
         public void startCompile(CompileInputFile[] sources)
         {
             // Send a compilation starting event to extensions.
-            CompileEvent aCompileEvent = new CompileEvent(CompileEvent.COMPILE_START_EVENT, Utility.mapList(Arrays.asList(sources), CompileInputFile::getUserSourceFile).toArray(new File[0]));
+            CompileEvent aCompileEvent = new CompileEvent(CompileEvent.COMPILE_START_EVENT, Utility.mapList(Arrays.asList(sources), CompileInputFile::getJavaCompileInputFile).toArray(new File[0]));
             ExtensionsManager.getInstance().delegateEvent(aCompileEvent);
 
             // Set BlueJ status bar message
@@ -2733,7 +2733,7 @@ public final class Package extends Graph
 
             // Send a compilation done event to extensions.
             int eventId = successful ? CompileEvent.COMPILE_DONE_EVENT : CompileEvent.COMPILE_FAILED_EVENT;
-            CompileEvent aCompileEvent = new CompileEvent(eventId, Utility.mapList(Arrays.asList(sources), CompileInputFile::getUserSourceFile).toArray(new File[0]));
+            CompileEvent aCompileEvent = new CompileEvent(eventId, Utility.mapList(Arrays.asList(sources), CompileInputFile::getJavaCompileInputFile).toArray(new File[0]));
             ExtensionsManager.getInstance().delegateEvent(aCompileEvent);
             
             if (chainObserver != null) {
