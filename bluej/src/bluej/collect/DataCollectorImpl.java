@@ -192,11 +192,12 @@ public class DataCollectorImpl
         });
     }
 
-    public static void compiled(Project proj, Package pkg, CompileInputFile[] sources, List<DiagnosticWithShown> diagnostics, boolean success)
+    public static void compiled(Project proj, Package pkg, CompileInputFile[] sources, List<DiagnosticWithShown> diagnostics, boolean success, boolean automatic)
     {
         MultipartEntity mpe = new MultipartEntity();
         
         mpe.addPart("event[compile_success]", CollectUtility.toBody(success));
+        mpe.addPart("event[compile_automatic]", CollectUtility.toBody(automatic));
         
         ProjectDetails projDetails = new ProjectDetails(proj);
         for (CompileInputFile src : sources)

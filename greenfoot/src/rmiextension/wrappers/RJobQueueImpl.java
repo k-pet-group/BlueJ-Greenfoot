@@ -59,10 +59,10 @@ public class RJobQueueImpl extends java.rmi.server.UnicastRemoteObject
     {
         CompileObserver cobserver = new CompileObserver() {
             @Override
-            public void startCompile(CompileInputFile[] sources)
+            public void startCompile(CompileInputFile[] sources, boolean automatic)
             {
                 try {
-                    observer.startCompile(sources);
+                    observer.startCompile(sources, automatic);
                 }
                 catch (ServerError se) {
                     Debug.reportError("Server error in RMI call: " + se.getCause());
@@ -111,6 +111,6 @@ public class RJobQueueImpl extends java.rmi.server.UnicastRemoteObject
         CompileInputFile[] ciFiles = Utility.mapList(Arrays.asList(files), f -> new CompileInputFile(f, f)).toArray(new CompileInputFile[0]);
 
         queue.addJob(ciFiles, cobserver, pkg.getProject().getClassLoader(), pkg.getPath(), true,
-                pkg.getProject().getProjectCharset());
+                pkg.getProject().getProjectCharset(), true);
     }
 }

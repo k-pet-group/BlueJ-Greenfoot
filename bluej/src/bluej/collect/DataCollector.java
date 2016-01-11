@@ -237,10 +237,10 @@ public class DataCollector
         DataCollectorImpl.bluejClosed();
     }
     
-    public static void compiled(Project proj, Package pkg, CompileInputFile[] sources, List<DiagnosticWithShown> diagnostics, boolean success)
+    public static void compiled(Project proj, Package pkg, CompileInputFile[] sources, List<DiagnosticWithShown> diagnostics, boolean success, boolean automatic)
     {
         if (dontSend()) return;
-        DataCollectorImpl.compiled(proj, pkg, sources, diagnostics, success);
+        DataCollectorImpl.compiled(proj, pkg, sources, diagnostics, success, automatic);
     }
 
     public static void debuggerTerminate(Project project)

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2013,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2013,2014,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -142,7 +142,7 @@ public abstract class EditableTarget extends Target
     /*
      * The "compile" function was invoked in the editor
      */
-    public void compile(Editor editor) {}
+    public void compile(Editor editor, boolean automatic) {}
 
     // --- end of EditorWatcher interface ---
 }

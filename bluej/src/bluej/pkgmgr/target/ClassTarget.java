@@ -1197,8 +1197,28 @@ public class ClassTarget extends DependentTarget
      * @param editor Description of the Parameter
      */
     @Override
-    public void compile(final Editor editor)
+    public void compile(final Editor editor, boolean automatic)
     {
+        final CompileObserver compObserver = new CompileObserver()
+        {
+            @Override
+            public void startCompile(CompileInputFile[] sources, boolean automatic)
+            {
+            }
+
+            @Override
+            public void endCompile(CompileInputFile[] sources, boolean successful)
+            {
+                editor.compileFinished(successful);
+            }
+
+            @Override
+            public boolean compilerMessage(Diagnostic diagnostic)
+            {
+                return false;
+            }
+        };
+
         if (Config.isGreenfoot()) {
             //In Greenfoot compiling always compiles the whole package, and at least
             // compiles this target:
@@ -1206,40 +1226,11 @@ public class ClassTarget extends DependentTarget
 
             // Even though we do a package compile, we must let the editor know when
             // the compile finishes, so that it updates its status correctly:
-            getPackage().compile(new CompileObserver() {
-                
-                @Override
-                public void startCompile(CompileInputFile[] sources)
-                {
-                }
-                
-                @Override
-                public void endCompile(CompileInputFile[] sources, boolean successful)
-                {
-                    editor.compileFinished(successful);
-                }
-                
-                @Override
-                public boolean compilerMessage(Diagnostic diagnostic) { return false; }
-            });
+
+            getPackage().compile(compObserver, automatic);
         }
         else {
-            getPackage().compile(this, false, new CompileObserver() {
-                
-                @Override
-                public void startCompile(CompileInputFile[] sources)
-                {
-                }
-
-                @Override
-                public boolean compilerMessage(Diagnostic diagnostic) { return false; }
-                
-                @Override
-                public void endCompile(CompileInputFile[] sources, boolean succesful)
-                {
-                    editor.compileFinished(succesful);
-                }
-            });
+            getPackage().compile(this, false, compObserver, automatic);
         }
         
     }

@@ -265,11 +265,11 @@ public class SwingTabbedEditor implements TabbedEditorWindow
     }
 
     /**
-     * Delete for Project.scheduleCompilation
+     * Delegate for Project.scheduleCompilation
      */
-    public void scheduleCompilation(boolean immediate)
+    public void scheduleCompilation(boolean immediate, boolean automatic)
     {
-        project.scheduleCompilation(immediate);
+        project.scheduleCompilation(immediate, automatic);
     }
 
     /**

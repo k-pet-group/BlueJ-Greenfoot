@@ -291,7 +291,7 @@ public class Invoker
                 Project project = pkg.getProject();
                 List<CompileInputFile> wrapped = Utility.mapList(Arrays.asList(files), f -> new CompileInputFile(f, f));
                 JobQueue.getJobQueue().addJob(wrapped.toArray(new CompileInputFile[0]), observer, project.getClassLoader(),
-                        project.getProjectDir(), true, project.getProjectCharset());
+                        project.getProjectDir(), true, project.getProjectCharset(), false);
             }
         };
         this.sourceCharset = pmf.getProject().getProjectCharset();
@@ -1046,7 +1046,7 @@ public class Invoker
 
     // not interested in these events:
     @Override
-    public void startCompile(CompileInputFile[] sources) { }
+    public void startCompile(CompileInputFile[] sources, boolean automatic) { }
 
     /*
      * @see bluej.compiler.CompileObserver#compilerMessage(bluej.compiler.Diagnostic)

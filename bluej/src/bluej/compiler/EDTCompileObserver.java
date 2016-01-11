@@ -37,7 +37,7 @@ public interface EDTCompileObserver
     /**
      * A compilation job has started.
      */
-    void startCompile(CompileInputFile[] sources);
+    void startCompile(CompileInputFile[] sources, boolean automatic);
     
     /**
      * An error or warning message occurred during compilation

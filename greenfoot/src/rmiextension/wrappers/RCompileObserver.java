@@ -37,7 +37,7 @@ public interface RCompileObserver extends java.rmi.Remote
     /**
      * A compilation job has started.
      */
-    void startCompile(CompileInputFile[] sources) throws RemoteException;
+    void startCompile(CompileInputFile[] sources, boolean automatic) throws RemoteException;
     
     /**
      * An error or warning message occurred during compilation

@@ -51,7 +51,8 @@ final public class EventqueueCompileObserverAdapter
     private Diagnostic diagnostic;
     // return value for COMMAND_DIAG:
     private boolean wasShown;
-    
+    private boolean automatic; // COMMAND_START only
+
     /**
      * Constructor for EventqueueCompileObserver. The link parameter is a compiler
      * observer; all messages will be passed on to it, but on the GUI thread.
@@ -83,10 +84,11 @@ final public class EventqueueCompileObserverAdapter
         return wasShown;
     }
     
-    public synchronized void startCompile(CompileInputFile[] csources)
+    public synchronized void startCompile(CompileInputFile[] csources, boolean automatic)
     {
         command = COMMAND_START;
         this.sources = csources;
+        this.automatic = automatic;
         runOnEventQueue();
     }
 
@@ -108,7 +110,7 @@ final public class EventqueueCompileObserverAdapter
         
         switch (command) {
             case COMMAND_START:
-                link.startCompile(sources);
+                link.startCompile(sources, automatic);
                 break;
             case COMMAND_DIAG:
                 wasShown = link.compilerMessage(diagnostic);

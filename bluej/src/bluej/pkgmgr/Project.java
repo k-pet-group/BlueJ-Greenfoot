@@ -277,7 +277,7 @@ public class Project implements DebuggerListener, InspectorManager
         // Compile once on load.  If Greenfoot, it will schedule when ready, so we only need do this
         // for BlueJ:
         if (!Config.isGreenfoot())
-            scheduleCompilation(false);
+            scheduleCompilation(false, true);
     }
 
     /**
@@ -2122,7 +2122,7 @@ public class Project implements DebuggerListener, InspectorManager
     }
     
     @OnThread(Tag.Any)
-    public synchronized void scheduleCompilation(boolean immediate)
+    public synchronized void scheduleCompilation(boolean immediate, boolean automatic)
     {
         if (immediate)
         {
@@ -2131,7 +2131,7 @@ public class Project implements DebuggerListener, InspectorManager
 
             // We must use invokeLater, even if already on event queue,
             // to make sure all actions are resolved (e.g. auto-indent post-newline)
-            EventQueue.invokeLater(() -> getPackage("").compileOnceIdle());
+            EventQueue.invokeLater(() -> getPackage("").compileOnceIdle(automatic));
         }
         else
         {
@@ -2148,7 +2148,7 @@ public class Project implements DebuggerListener, InspectorManager
                     @Override
                     public void actionPerformed(ActionEvent e)
                     {
-                        getPackage("").compileOnceIdle();
+                        getPackage("").compileOnceIdle(automatic);
                     }
                 };
                 compilerTimer = new Timer(1000, listener);

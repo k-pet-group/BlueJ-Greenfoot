@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2012,2013,2014,2015  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -1398,7 +1398,7 @@ public class PkgMgrFrame extends JFrame
         }
 
         // Schedule compilation of new class:
-        pkg.getProject().scheduleCompilation(false);
+        pkg.getProject().scheduleCompilation(false, true);
         
         DataCollector.addClass(pkg, target.getSourceFile());
         
@@ -2394,7 +2394,7 @@ public class PkgMgrFrame extends JFrame
                 if (target instanceof ClassTarget) {
                     ClassTarget t = (ClassTarget) target;
                     if (t.hasSourceCode())
-                        pkg.compile(t);
+                        pkg.compile(t, false);
                 }
             }
         }

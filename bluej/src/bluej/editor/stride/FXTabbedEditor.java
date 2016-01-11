@@ -525,7 +525,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor implements TabbedEditorWindow
     @OnThread(Tag.Any)
     public void scheduleCompilation()
     {
-        project.scheduleCompilation(false);
+        project.scheduleCompilation(false, true);
     }
 
     /**

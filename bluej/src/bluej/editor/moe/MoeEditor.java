@@ -286,7 +286,7 @@ public final class MoeEditor extends JPanel
         undoManager = new MoeUndoManager(this);
 
         initWindow(parameters.getProjectResolver());
-        swingTabbedEditor.scheduleCompilation(false);
+        swingTabbedEditor.scheduleCompilation(false, true);
         callbackOnOpen = parameters.getCallbackOnOpen();
 
         undoMenuItem = findMenuItem("undo");
@@ -1592,7 +1592,7 @@ public final class MoeEditor extends JPanel
         {
             saveState.setState(StatusLabel.CHANGED);
             setChanged();
-            swingTabbedEditor.scheduleCompilation(true);
+            swingTabbedEditor.scheduleCompilation(true, true);
             madeChangeOnCurrentLine = false; // Not since last compilation
         }
         else
@@ -1639,7 +1639,7 @@ public final class MoeEditor extends JPanel
         {
             saveState.setState(StatusLabel.CHANGED);
             setChanged();
-            swingTabbedEditor.scheduleCompilation(true);
+            swingTabbedEditor.scheduleCompilation(true, true);
             madeChangeOnCurrentLine = false; // Not since last compilation
         }
         else
@@ -2819,7 +2819,7 @@ public final class MoeEditor extends JPanel
             setSaved();  // notify watcher that we are saved
             
             scheduleReparseRunner();
-            swingTabbedEditor.scheduleCompilation(false);
+            swingTabbedEditor.scheduleCompilation(false, true);
         }
         catch (FileNotFoundException ex) {
             info.warning(Config.getString("editor.info.fileDisappeared"));
@@ -2957,7 +2957,7 @@ public final class MoeEditor extends JPanel
 
             if (madeChangeOnCurrentLine)
             {
-                swingTabbedEditor.scheduleCompilation(true);
+                swingTabbedEditor.scheduleCompilation(true, true);
             }
             madeChangeOnCurrentLine = false;
         }
@@ -2990,7 +2990,7 @@ public final class MoeEditor extends JPanel
         if (madeChangeOnCurrentLine)
         {
             if (swingTabbedEditor != null)
-                swingTabbedEditor.scheduleCompilation(true);
+                swingTabbedEditor.scheduleCompilation(true, true);
             madeChangeOnCurrentLine = false;
         }
     }
@@ -4037,7 +4037,7 @@ public final class MoeEditor extends JPanel
     {
         if (madeChangeOnCurrentLine)
         {
-            swingTabbedEditor.scheduleCompilation(true);
+            swingTabbedEditor.scheduleCompilation(true, false);
             madeChangeOnCurrentLine = false;
         }
         
@@ -4082,7 +4082,7 @@ public final class MoeEditor extends JPanel
 
         // If we are closing, force a compilation in case there are pending changes:
         if (swingTabbedEditor == null)
-            this.swingTabbedEditor.scheduleCompilation(false);
+            this.swingTabbedEditor.scheduleCompilation(false, true);
         this.swingTabbedEditor = swingTabbedEditor;
         if (this.swingTabbedEditor != null)
             this.swingTabbedEditor.setJMenuBar(this, menubar, (JMenu)menubar.getMenu(0).getItem(0));

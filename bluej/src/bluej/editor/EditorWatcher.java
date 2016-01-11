@@ -56,7 +56,7 @@ public interface EditorWatcher
     /**
      * Called by Editor when a file is to be compiled
      */
-    void compile(Editor editor);
+    void compile(Editor editor, boolean automatic);
     
     /**
      * Called by Editor when documentation is to be compiled

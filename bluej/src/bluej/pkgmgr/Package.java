@@ -1240,7 +1240,7 @@ public final class Package extends Graph
      * classes.
      * @param observer 
      */
-    public void compile(CompileObserver compObserver)
+    public void compile(CompileObserver compObserver, boolean automatic)
     {
         if (!checkCompile()) {
             return;
@@ -1265,7 +1265,7 @@ public final class Package extends Graph
             {
                 project.removeClassLoader();
                 project.newRemoteClassLoaderLeavingBreakpoints();
-                doCompile(toCompile, new PackageCompileObserver(compObserver));
+                doCompile(toCompile, new PackageCompileObserver(compObserver), automatic);
             }
         }
         catch (IOException ioe) {
@@ -1281,23 +1281,23 @@ public final class Package extends Graph
      * The standard compile user function: Find and compile all uncompiled
      * classes.
      */
-    public void compile()
+    public void compile(boolean automatic)
     {
-        compile((CompileObserver)null);
+        compile((CompileObserver)null, automatic);
     }
     
     /**
      * Compile a single class.
      */
-    public void compile(ClassTarget ct)
+    public void compile(ClassTarget ct, boolean automatic)
     {
-        compile(ct, false, null);
+        compile(ct, false, null, automatic);
     }
     
     /**
      * Compile a single class.
      */
-    public void compile(ClassTarget ct, boolean forceQuiet, CompileObserver compObserver)
+    public void compile(ClassTarget ct, boolean forceQuiet, CompileObserver compObserver, boolean automatic)
     {
         if (!checkCompile()) {
             return;
@@ -1332,11 +1332,11 @@ public final class Package extends Graph
                 } else {
                     observer = new PackageCompileObserver(compObserver);
                 }
-                searchCompile(ct, observer);
+                searchCompile(ct, observer, automatic);
             }
 
             if (assocTarget != null) {
-                searchCompile(assocTarget, new QuietPackageCompileObserver(null));
+                searchCompile(assocTarget, new QuietPackageCompileObserver(null), automatic);
             }
         }
     }
@@ -1351,7 +1351,7 @@ public final class Package extends Graph
         }
 
         ct.setInvalidState(); // to force compile
-        searchCompile(ct, new QuietPackageCompileObserver(null));
+        searchCompile(ct, new QuietPackageCompileObserver(null), true);
     }
 
     /**
@@ -1392,7 +1392,7 @@ public final class Package extends Graph
                 project.removeClassLoader();
                 project.newRemoteClassLoader();
 
-                doCompile(compileTargets, new PackageCompileObserver(null));
+                doCompile(compileTargets, new PackageCompileObserver(null), false);
             }
         }
         catch (IOException ioe) {
@@ -1424,7 +1424,7 @@ public final class Package extends Graph
     /**
      * Compile a class together with its dependencies, as necessary.
      */
-    private void searchCompile(ClassTarget t, EDTCompileObserver observer)
+    private void searchCompile(ClassTarget t, EDTCompileObserver observer, boolean automatic)
     {
         if (! t.isInvalidState() || t.isQueued()) {
             return;
@@ -1459,7 +1459,7 @@ public final class Package extends Graph
                 }
             }
 
-            doCompile(toCompile, observer);
+            doCompile(toCompile, observer, automatic);
         }
         catch (IOException ioe) {
             // Failed to save; abort the compile
@@ -1474,7 +1474,7 @@ public final class Package extends Graph
      * Compile every Target in 'targetList'. Every compilation goes through this method.
      * All targets in the list should have been saved beforehand.
      */
-    private void doCompile(Collection<ClassTarget> targetList, EDTCompileObserver edtObserver)
+    private void doCompile(Collection<ClassTarget> targetList, EDTCompileObserver edtObserver, boolean automatic)
     {
         CompileObserver observer = new EventqueueCompileObserverAdapter(new DataCollectionCompileObserverWrapper(project, edtObserver));
         if (targetList.isEmpty()) {
@@ -1486,7 +1486,7 @@ public final class Package extends Graph
         if (srcFiles.size() > 0)
         {
             JobQueue.getJobQueue().addJob(srcFiles.toArray(new CompileInputFile[0]), observer, project.getClassLoader(), project.getProjectDir(),
-                ! PrefMgr.getFlag(PrefMgr.SHOW_UNCHECKED), project.getProjectCharset());
+                ! PrefMgr.getFlag(PrefMgr.SHOW_UNCHECKED), project.getProjectCharset(), automatic);
         }
     }
 
@@ -1516,11 +1516,11 @@ public final class Package extends Graph
     /**
      * Compile the package, but only when the debugger is in an idle state.
      */
-    public void compileOnceIdle()
+    public void compileOnceIdle(boolean automatic)
     {
         if (isDebuggerIdle())
         {
-            compile();
+            compile(automatic);
         }
         else if (!waitingForIdleToCompile)
         {
@@ -1536,7 +1536,7 @@ public final class Package extends Graph
                         // We call compileOnceIdle, not compile, because we might not still be idle
                         // by the time we run on the Swing thread, so we may have to do the whole
                         // thing again:
-                        SwingUtilities.invokeLater(() -> { waitingForIdleToCompile = false; compileOnceIdle(); });
+                        SwingUtilities.invokeLater(() -> { waitingForIdleToCompile = false; compileOnceIdle(automatic); });
                     }
                 }
             });
@@ -2623,7 +2623,7 @@ public final class Package extends Graph
          * currently compiled.
          */
         @Override
-        public void startCompile(CompileInputFile[] sources)
+        public void startCompile(CompileInputFile[] sources, boolean automatic)
         {
             // Send a compilation starting event to extensions.
             CompileEvent aCompileEvent = new CompileEvent(CompileEvent.COMPILE_START_EVENT, Utility.mapList(Arrays.asList(sources), CompileInputFile::getJavaCompileInputFile).toArray(new File[0]));
@@ -2866,10 +2866,10 @@ public final class Package extends Graph
         }
         
         @Override
-        public void startCompile(CompileInputFile[] sources)
+        public void startCompile(CompileInputFile[] sources, boolean automatic)
         {
             numErrors = 0;
-            super.startCompile(sources);
+            super.startCompile(sources, automatic);
         }
         
         @Override

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,7 +29,7 @@ import bluej.pkgmgr.PkgMgrFrame;
  * be compiled.
  * 
  * @author Davin McCall
- * @version $Id: CompileAction.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: CompileAction.java 15256 2016-01-11 15:16:23Z nccb $
  */
 final public class CompileAction extends PkgMgrAction
 {
@@ -42,6 +42,6 @@ final public class CompileAction extends PkgMgrAction
     public void actionPerformed(PkgMgrFrame pmf)
     {
         pmf.menuCall();
-        pmf.getPackage().compile();
+        pmf.getPackage().compile(false);
     }
 }

@@ -45,6 +45,7 @@ public class DataCollectionCompileObserverWrapper implements EDTCompileObserver
     private EDTCompileObserver wrapped;
     private List<DiagnosticWithShown> diagnostics = new ArrayList<DiagnosticWithShown>();
     private CompileInputFile[] sources;
+    private boolean automatic;
     private Project project;
     
     public DataCollectionCompileObserverWrapper(Project project, EDTCompileObserver wrapped)
@@ -54,11 +55,12 @@ public class DataCollectionCompileObserverWrapper implements EDTCompileObserver
     }
 
     @Override
-    public void startCompile(CompileInputFile[] sources)
+    public void startCompile(CompileInputFile[] sources, boolean automatic)
     {
         diagnostics.clear();
         this.sources = sources;
-        wrapped.startCompile(sources);
+        this.automatic = automatic;
+        wrapped.startCompile(sources, automatic);
 
     }
 
@@ -80,7 +82,7 @@ public class DataCollectionCompileObserverWrapper implements EDTCompileObserver
     }
 
     @Override
-    public void endCompile(CompileInputFile[] sources, boolean succesful)
+    public void endCompile(CompileInputFile[] sources, boolean successful)
     {
         // Heuristic: if all files are in the same package, record the compile as being with that package
         // (I'm fairly sure the BlueJ interface doesn't let you do cross-package compile,
@@ -92,8 +94,8 @@ public class DataCollectionCompileObserverWrapper implements EDTCompileObserver
         }
         bluej.pkgmgr.Package pkg = packages.size() == 1 ? project.getPackage(packages.iterator().next()) : null;
         
-        DataCollector.compiled(project, pkg, sources, diagnostics, succesful);
-        wrapped.endCompile(sources, succesful);
+        DataCollector.compiled(project, pkg, sources, diagnostics, successful, automatic);
+        wrapped.endCompile(sources, successful);
     }
 
 }

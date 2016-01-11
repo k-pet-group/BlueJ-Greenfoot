@@ -47,13 +47,14 @@ class Job
                       // "unchecked" warnings, false otherwise
     private List<String> userCompileOptions;
     private Charset fileCharset;
+    private boolean automatic;
     
     /**
      * Create a job with a set of sources.
      */
     public Job(CompileInputFile[] sourceFiles, Compiler compiler, CompileObserver observer,
                         BPClassLoader bpClassLoader, File destDir, boolean internal,
-                        List<String> userCompileOptions, Charset fileCharset)
+                        List<String> userCompileOptions, Charset fileCharset, boolean automatic)
     {
         this.sources = sourceFiles;
         this.compiler = compiler;
@@ -63,6 +64,7 @@ class Job
         this.internal = internal;
         this.userCompileOptions = userCompileOptions;
         this.fileCharset = fileCharset;
+        this.automatic = automatic;
     }
     
     /**
@@ -72,7 +74,7 @@ class Job
     {
         try {
             if(observer != null) {
-                observer.startCompile(sources);
+                observer.startCompile(sources, automatic);
             }
 
             if(destDir != null) {

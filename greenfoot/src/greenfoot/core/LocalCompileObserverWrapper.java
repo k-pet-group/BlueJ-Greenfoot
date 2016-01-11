@@ -45,9 +45,9 @@ public class LocalCompileObserverWrapper extends java.rmi.server.UnicastRemoteOb
     }
     
     @Override
-    public void startCompile(CompileInputFile[] sources)
+    public void startCompile(CompileInputFile[] sources, boolean automatic)
     {
-        observer.startCompile(sources);
+        observer.startCompile(sources, automatic);
     }
     
     @Override
