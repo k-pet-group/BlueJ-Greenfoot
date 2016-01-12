@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,7 +26,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
-import java.util.function.Supplier;
+
 import java.util.stream.Stream;
 
 import javax.swing.SwingUtilities;
@@ -87,12 +87,12 @@ public class InterfaceElement extends DocumentContainerCodeElement implements To
             member.setParent(this);
         }
         this.enable = enabled;
-        
+
         if (documentation == null) {
             documentation = new JavadocUnit("");
         }
-        
-        this.projectResolver = projectResolver;        
+
+        this.projectResolver = projectResolver;
     }
 
     public InterfaceElement(Element el, EntityResolver projectResolver)
@@ -111,9 +111,6 @@ public class InterfaceElement extends DocumentContainerCodeElement implements To
         extendsTypes = Utility.mapList(TopLevelCodeElement.xmlToStringList(el, "extends", "extendstype", "type"), (Function<String, TypeSlotFragment>)TypeSlotFragment::new); 
                 
         enable = Boolean.valueOf(el.getAttributeValue("enable"));
-        if (documentation == null) {
-            documentation = new JavadocUnit("");
-        }
     }
 
     @Override
