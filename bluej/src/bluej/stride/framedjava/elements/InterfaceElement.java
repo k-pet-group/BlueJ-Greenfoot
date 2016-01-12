@@ -80,18 +80,13 @@ public class InterfaceElement extends DocumentContainerCodeElement implements To
         this.frame = frame;
         this.interfaceName = interfaceName;
         this.extendsTypes = new ArrayList<>(extendsTypes);
-        this.documentation = documentation;
+        this.documentation = documentation != null ? documentation : new JavadocUnit("");
         this.imports = new ArrayList<>(imports);
         this.members = new ArrayList<CodeElement>(members);
         for (CodeElement member : members) {
             member.setParent(this);
         }
         this.enable = enabled;
-
-        if (documentation == null) {
-            documentation = new JavadocUnit("");
-        }
-
         this.projectResolver = projectResolver;
     }
 
