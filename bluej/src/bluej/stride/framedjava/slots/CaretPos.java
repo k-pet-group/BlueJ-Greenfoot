@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -65,10 +65,15 @@ class CaretPos
         if (o instanceof CaretPos)
         {
             CaretPos pos = (CaretPos)o;
-            return pos != null && index == pos.index && ((subPos == null && pos.subPos == null) || (subPos != null && subPos.equals(pos.subPos)));
+            return index == pos.index && ((subPos == null && pos.subPos == null) || (subPos != null && subPos.equals(pos.subPos)));
         }
-        else
-            return false;
+        return false;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return index % 31;
     }
 
     /**
