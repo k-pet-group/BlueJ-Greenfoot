@@ -130,8 +130,8 @@ public class ImportAction extends TeamAction
                     command = repository.commitAll(newFiles, binFiles, Collections.<File>emptySet(),
                             files.get(), Config.getString("team.import.initialMessage"));
                     result = command.getResult();
-                    //In Git we need an aditional command: pushChanges.
-                    if (repository.getVCSType().equals("Git")){
+                    //In DVCS, we need an aditional command: pushChanges.
+                    if (repository.isDVCS()){
                         command = repository.pushChanges();
                         result = command.getResult();
                     }

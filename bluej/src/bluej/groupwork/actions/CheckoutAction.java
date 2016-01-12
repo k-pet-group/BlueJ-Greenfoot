@@ -89,16 +89,15 @@ public class CheckoutAction extends TeamAction
         
         String moduleName = new String("/");
         if (tsd.doTeamSettings() == TeamSettingsDialog.OK) {
-            if (!tsc.getRepository(true).getVCSType().equals("Git")) {
-                //if not git, we need to select module.
+            if (!tsc.getRepository(true).isDVCS()) {
+                //if not DVCS, we need to select module.
                 ModuleSelectDialog moduleDialog = new ModuleSelectDialog(oldFrame, tsc.getRepository(true));
                 moduleDialog.setLocationRelativeTo(oldFrame);
                 moduleDialog.setVisible(true);
 
                 moduleName = moduleDialog.getModuleName();
             }
-            boolean isGitRepo = tsc.getRepository(true).getVCSType().equals("Git");
-            if (moduleName != null || isGitRepo) {
+            if (moduleName != null || tsc.getRepository(true).isDVCS()) {
                 // Select parent directory for the new project
                 
                 File parentDir = FileUtility.getDirName(oldFrame, Config.getString("team.checkout.filechooser.title"),
