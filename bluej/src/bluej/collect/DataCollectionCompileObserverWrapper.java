@@ -31,6 +31,7 @@ import bluej.compiler.CompileInputFile;
 import bluej.compiler.CompileObserver;
 import bluej.compiler.Diagnostic;
 import bluej.compiler.EDTCompileObserver;
+import bluej.extensions.SourceType;
 import bluej.pkgmgr.Project;
 
 /**
@@ -94,7 +95,7 @@ public class DataCollectionCompileObserverWrapper implements EDTCompileObserver
         }
         bluej.pkgmgr.Package pkg = packages.size() == 1 ? project.getPackage(packages.iterator().next()) : null;
         
-        DataCollector.compiled(project, pkg, sources, diagnostics, successful, automatic);
+        DataCollector.compiled(project, pkg, sources, diagnostics, successful, automatic, SourceType.Java);
         wrapped.endCompile(sources, successful);
     }
 

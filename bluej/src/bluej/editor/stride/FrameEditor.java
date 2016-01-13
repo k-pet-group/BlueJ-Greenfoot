@@ -42,6 +42,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import bluej.extensions.SourceType;
 import bluej.stride.framedjava.errors.SyntaxCodeError;
 import bluej.utility.Utility;
 import javafx.application.Platform;
@@ -251,7 +252,7 @@ public class FrameEditor implements Editor
         
         setSaved();
         if (watcher != null)
-            watcher.recordEdit(result.savedSource, true);
+            watcher.recordEdit(SourceType.Stride, result.savedSource, true);
     }
     
     /**
@@ -376,6 +377,8 @@ public class FrameEditor implements Editor
         // it's important that we first generate the string above, before storing it into the property,
         // to make sure all the source positions have been recorded.
         javaSource.set(js);
+
+        SwingUtilities.invokeLater(() -> watcher.recordEdit(SourceType.Java, javaString, true));
     }
 
     /**

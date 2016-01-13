@@ -85,6 +85,7 @@ import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.HTMLFrameHyperlinkEvent;
 
 import bluej.collect.DataCollector;
+import bluej.extensions.SourceType;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.BlueJEvent;
@@ -3843,7 +3844,7 @@ public final class MoeEditor extends JPanel
         if (watcher != null)
         {
             try {
-                watcher.recordEdit(sourceDocument.getText(0, sourceDocument.getLength()), includeOneLineEdits);
+                watcher.recordEdit(SourceType.Java, sourceDocument.getText(0, sourceDocument.getLength()), includeOneLineEdits);
             }
             catch (BadLocationException e) {
                 e.printStackTrace();

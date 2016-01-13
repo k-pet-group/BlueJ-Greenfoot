@@ -1400,7 +1400,7 @@ public class PkgMgrFrame extends JFrame
         // Schedule compilation of new class:
         pkg.getProject().scheduleCompilation(false, true);
         
-        DataCollector.addClass(pkg, target.getSourceFile());
+        DataCollector.addClass(pkg, target);
         
         return true;
     }

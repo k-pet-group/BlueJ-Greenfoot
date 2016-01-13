@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2014,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -34,7 +34,6 @@ import java.util.Properties;
 
 import javax.swing.Action;
 import javax.swing.JMenuItem;
-import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 
 import bluej.Config;
@@ -335,7 +334,7 @@ public abstract class ClassRole
         List<File> rlist = new ArrayList<File>();
         
         rlist.add(ct.getClassFile());
-        rlist.addAll(ct.getAllSourceFiles());
+        rlist.addAll(ct.getAllSourceFilesJavaLast());
         rlist.add(ct.getContextFile());
         rlist.add(ct.getDocumentationFile());
         

@@ -30,6 +30,8 @@ import java.util.UUID;
 
 import bluej.Boot;
 import bluej.compiler.CompileInputFile;
+import bluej.extensions.SourceType;
+import bluej.pkgmgr.target.ClassTarget;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.Config;
@@ -243,10 +245,10 @@ public @OnThread(Tag.Swing) class DataCollector
         DataCollectorImpl.bluejClosed();
     }
     
-    public static void compiled(Project proj, Package pkg, CompileInputFile[] sources, List<DiagnosticWithShown> diagnostics, boolean success, boolean automatic)
+    public static void compiled(Project proj, Package pkg, CompileInputFile[] sources, List<DiagnosticWithShown> diagnostics, boolean success, boolean automatic, SourceType inputType)
     {
         if (dontSend()) return;
-        DataCollectorImpl.compiled(proj, pkg, sources, diagnostics, success, automatic);
+        DataCollectorImpl.compiled(proj, pkg, sources, diagnostics, success, automatic, inputType);
     }
 
     public static void debuggerTerminate(Project project)
@@ -358,10 +360,10 @@ public @OnThread(Tag.Swing) class DataCollector
         DataCollectorImpl.teamShareProject(project, repo);
     }
 
-    public static void addClass(Package pkg, File sourceFile)
+    public static void addClass(Package pkg, ClassTarget ct)
     {
         if (dontSend()) return;
-        DataCollectorImpl.addClass(pkg, sourceFile);
+        DataCollectorImpl.addClass(pkg, ct);
     }
 
     public static void teamUpdateProject(Project project, Repository repo, Set<File> updatedFiles)

@@ -39,6 +39,7 @@ import bluej.Config;
 import bluej.collect.DiagnosticWithShown;
 import bluej.editor.Editor;
 import bluej.editor.EditorManager;
+import bluej.extensions.SourceType;
 import bluej.graph.GraphEditor;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.graphPainter.ReadmeTargetPainter;
@@ -214,7 +215,7 @@ public class ReadmeTarget extends EditableTarget
     public void setProperty(String key, String value) { }
     
     @Override
-    public void recordEdit(String curSource, boolean includeOneLineEdits) { }
+    public void recordEdit(SourceType sourceType, String curSource, boolean includeOneLineEdits) { }
 
     @Override
     public String getTooltipText()

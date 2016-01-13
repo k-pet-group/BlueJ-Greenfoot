@@ -26,15 +26,16 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import bluej.Boot;
 import bluej.compiler.CompileInputFile;
+import bluej.extensions.SourceType;
 import org.apache.http.entity.mime.MultipartEntity;
 
 import threadchecker.OnThread;
@@ -191,7 +192,7 @@ public class DataCollectorImpl
         });
     }
 
-    public static void compiled(Project proj, Package pkg, CompileInputFile[] sources, List<DiagnosticWithShown> diagnostics, boolean success, boolean automatic)
+    public static void compiled(Project proj, Package pkg, CompileInputFile[] sources, List<DiagnosticWithShown> diagnostics, boolean success, boolean automatic, SourceType inputType)
     {
         MultipartEntity mpe = new MultipartEntity();
         
@@ -201,7 +202,7 @@ public class DataCollectorImpl
         ProjectDetails projDetails = new ProjectDetails(proj);
         for (CompileInputFile src : sources)
         {
-            mpe.addPart("event[compile_input][][source_file_name]", CollectUtility.toBody(CollectUtility.toPath(projDetails, src.getUserSourceFile())));
+            mpe.addPart("event[compile_input][][source_file_name]", CollectUtility.toBody(CollectUtility.toPath(projDetails, inputType == SourceType.Stride ? src.getUserSourceFile() : src.getJavaCompileInputFile())));
         }        
         
         for (DiagnosticWithShown dws : diagnostics)
@@ -214,12 +215,16 @@ public class DataCollectorImpl
             mpe.addPart("event[compile_output][][session_sequence]", CollectUtility.toBody(d.getIdentifier()));
             if (d.getFileName() != null)
             {
-                mpe.addPart("event[compile_output][][start_line]", CollectUtility.toBody(d.getStartLine()));
-                mpe.addPart("event[compile_output][][end_line]", CollectUtility.toBody(d.getEndLine()));
-                mpe.addPart("event[compile_output][][start_column]", CollectUtility.toBody(d.getStartColumn()));
-                mpe.addPart("event[compile_output][][end_column]", CollectUtility.toBody(d.getEndColumn()));
+                if (d.getStartLine() >= 1)
+                    mpe.addPart("event[compile_output][][start_line]", CollectUtility.toBody(d.getStartLine()));
+                if (d.getEndLine() >= 1)
+                    mpe.addPart("event[compile_output][][end_line]", CollectUtility.toBody(d.getEndLine()));
+                if (d.getStartColumn() >= 1)
+                    mpe.addPart("event[compile_output][][start_column]", CollectUtility.toBody(d.getStartColumn()));
+                if (d.getEndColumn() >= 1)
+                    mpe.addPart("event[compile_output][][end_column]", CollectUtility.toBody(d.getEndColumn()));
                 // Must make file name relative for anonymisation:
-                String relative = CollectUtility.toPath(projDetails, dws.getUserFileName());
+                String relative = CollectUtility.toPath(projDetails, inputType == SourceType.Stride ? dws.getUserFileName() : new File(dws.getDiagnostic().getFileName()));
                 mpe.addPart("event[compile_output][][source_file_name]", CollectUtility.toBody(relative));
             }
         }
@@ -270,38 +275,52 @@ public class DataCollectorImpl
     
     public static void packageOpened(Package pkg)
     {
-        final ProjectDetails proj = new ProjectDetails(pkg.getProject());
-        
-        final MultipartEntity mpe = new MultipartEntity();
-        
-        final Map<FileKey, List<String>> versions = new HashMap<FileKey, List<String>>();
-        
-        for (ClassTarget ct : pkg.getClassTargets())
-        {
+        addCompleteFiles(pkg, EventName.PACKAGE_OPENING, pkg.getClassTargets());
+    }
 
-            String relative = CollectUtility.toPath(proj, ct.getSourceFile());
-            
-            mpe.addPart("project[source_files][][name]", CollectUtility.toBody(relative));
-            
-            String anonymisedContent = CollectUtility.readFileAndAnonymise(proj, ct.getSourceFile());
-            
-            if (anonymisedContent != null)
+    private static void addCompleteFiles(Package pkg, EventName eventName, List<ClassTarget> classTargets)
+    {
+        final MultipartEntity mpe = new MultipartEntity();
+
+        final ProjectDetails proj = new ProjectDetails(pkg.getProject());
+
+        final Map<FileKey, List<String>> versions = new HashMap<>();
+
+        for (ClassTarget ct : classTargets)
+        {
+            // It is important we add Stride file first, then Java, because Java will note it is generated from the Stride
+            // file, so server needs to process the Stride file first:
+            for (File file : ct.getAllSourceFilesJavaLast())
             {
-                mpe.addPart("source_histories[][source_history_type]", CollectUtility.toBody("complete"));
-                mpe.addPart("source_histories[][name]", CollectUtility.toBody(relative));
-                mpe.addPart("source_histories[][content]", CollectUtility.toBody(anonymisedContent));
-                versions.put(new FileKey(proj, relative), Arrays.asList(Utility.splitLines(anonymisedContent)));
+                String relative = CollectUtility.toPath(proj, file);
+                mpe.addPart("project[source_files][][name]", CollectUtility.toBody(relative));
+                // If this is the Java file and there was a Stride file, note the relation:
+                if (file.getName().endsWith(".java") && ct.getSourceType() == SourceType.Stride)
+                {
+                    String relativeStride = CollectUtility.toPath(proj, ct.getSourceFile());
+                    mpe.addPart("project[source_files][][generated_from]", CollectUtility.toBody(relativeStride));
+                }
+
+                String anonymisedContent = CollectUtility.readFileAndAnonymise(proj, file);
+
+                if (anonymisedContent != null)
+                {
+                    mpe.addPart("source_histories[][source_history_type]", CollectUtility.toBody("complete"));
+                    mpe.addPart("source_histories[][name]", CollectUtility.toBody(relative));
+                    mpe.addPart("source_histories[][content]", CollectUtility.toBody(anonymisedContent));
+                    versions.put(new FileKey(proj, relative), Arrays.asList(Utility.splitLines(anonymisedContent)));
+                }
             }
         }
-        
-        submitEvent(pkg.getProject(), pkg, EventName.PACKAGE_OPENING, new Event() {
-            
+
+        submitEvent(pkg.getProject(), pkg, eventName, new Event() {
+
             @Override
             public void success(Map<FileKey, List<String>> fileVersions)
             {
-                fileVersions.putAll(versions);                
+                fileVersions.putAll(versions);
             }
-            
+
             @Override
             public MultipartEntity makeData(int sequenceNum, Map<FileKey, List<String>> fileVersions)
             {
@@ -309,7 +328,7 @@ public class DataCollectorImpl
             }
         });
     }
-    
+
     public static void packageClosed(Package pkg)
     {
         submitEventNoData(pkg.getProject(), pkg, EventName.PACKAGE_CLOSING);
@@ -574,33 +593,9 @@ public class DataCollectorImpl
         });
     }
 
-    public static void addClass(Package pkg, File sourceFile)
+    public static void addClass(Package pkg, ClassTarget ct)
     {
-        final MultipartEntity mpe = new MultipartEntity();
-        final ProjectDetails projDetails = new ProjectDetails(pkg.getProject());
-        
-        final String contents = CollectUtility.readFileAndAnonymise(projDetails, sourceFile);
-        
-        mpe.addPart("project[source_files][][name]", CollectUtility.toBodyLocal(projDetails, sourceFile));
-        mpe.addPart("source_histories[][source_history_type]", CollectUtility.toBody("complete"));
-        mpe.addPart("source_histories[][name]", CollectUtility.toBodyLocal(projDetails, sourceFile));
-        mpe.addPart("source_histories[][content]", CollectUtility.toBody(contents));
-        final FileKey key = new FileKey(projDetails, CollectUtility.toPath(projDetails, sourceFile));
-        
-        submitEvent(pkg.getProject(), pkg, EventName.ADD, new Event() {
-            
-            @Override
-            public void success(Map<FileKey, List<String>> fileVersions)
-            {
-                fileVersions.put(key, Arrays.asList(Utility.splitLines(contents)));
-            }
-            
-            @Override
-            public MultipartEntity makeData(int sequenceNum, Map<FileKey, List<String>> fileVersions)
-            {
-                return mpe;
-            }
-        });
+        addCompleteFiles(pkg, EventName.ADD, Collections.singletonList(ct));
     }
 
     public static void openClass(Package pkg, File sourceFile)

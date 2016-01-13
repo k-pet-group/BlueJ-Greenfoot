@@ -871,14 +871,19 @@ public class ClassTarget extends DependentTarget
         }
         return null;
     }
-    
-    public Collection<File> getAllSourceFiles()
+
+    /**
+     * If this is a Java class, returns the .java source file only.
+     * If this is a Stride class, returns the .stride and .java source files, *in that order*.
+     * This is a strict requirement in the call in DataCollectorImpl, do not change the order.
+     */
+    public Collection<File> getAllSourceFilesJavaLast()
     {
         List<File> list = new ArrayList<File>();
-        list.add(getJavaSourceFile());
         if (sourceAvailable.equals(SourceType.Stride)) {
             list.add(getFrameSourceFile());
         }
+        list.add(getJavaSourceFile());
         return list;
     }
 
@@ -2252,9 +2257,20 @@ public class ClassTarget extends DependentTarget
     }
     
     @Override
-    public void recordEdit(String latest, boolean includeOneLineEdits)
+    public void recordEdit(SourceType sourceType, String latest, boolean includeOneLineEdits)
     {
-        DataCollector.edit(getPackage(), getSourceFile(), latest, includeOneLineEdits);
+        if (sourceType == SourceType.Java)
+        {
+            DataCollector.edit(getPackage(), getJavaSourceFile(), latest, includeOneLineEdits);
+        }
+        else if (sourceType == SourceType.Stride && this.sourceAvailable == SourceType.Stride)
+        {
+            DataCollector.edit(getPackage(), getFrameSourceFile(), latest, includeOneLineEdits);
+        }
+        else
+        {
+            Debug.message("Attempting to send " + sourceType + " source when available is: " + this.sourceAvailable);
+        }
     }
 
     @Override
@@ -2302,6 +2318,6 @@ public class ClassTarget extends DependentTarget
         if (diagnostics.isEmpty())
             return;
 
-        DataCollector.compiled(getPackage().getProject(), getPackage(), new CompileInputFile[] {getCompileInputFile()}, diagnostics, false, true);
+        DataCollector.compiled(getPackage().getProject(), getPackage(), new CompileInputFile[] {getCompileInputFile()}, diagnostics, false, true, SourceType.Stride);
     }
 }

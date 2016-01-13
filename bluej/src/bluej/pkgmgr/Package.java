@@ -1148,7 +1148,7 @@ public final class Package extends Graph
         findSpaceForVertex(t);
         t.analyseSource();
         
-        DataCollector.addClass(this, destFile);
+        DataCollector.addClass(this, t);
 
         return NO_ERROR;
     }

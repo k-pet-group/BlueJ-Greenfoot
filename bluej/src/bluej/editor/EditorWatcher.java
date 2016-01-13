@@ -25,6 +25,7 @@ import java.util.List;
 
 import bluej.collect.DiagnosticWithShown;
 import bluej.compiler.Diagnostic;
+import bluej.extensions.SourceType;
 
 /**
  * @author Michael Kolling
@@ -78,7 +79,7 @@ public interface EditorWatcher
      */
     String getProperty(String key);
     
-    void recordEdit(String curSource, boolean includeOneLineEdits);
+    void recordEdit(SourceType sourceType, String curSource, boolean includeOneLineEdits);
 
     void clearAllBreakpoints();
 
