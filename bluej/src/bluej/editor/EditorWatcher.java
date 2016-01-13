@@ -21,6 +21,11 @@
  */
 package bluej.editor;
 
+import java.util.List;
+
+import bluej.collect.DiagnosticWithShown;
+import bluej.compiler.Diagnostic;
+
 /**
  * @author Michael Kolling
  * Interface between the editor and the rest of BlueJ
@@ -82,4 +87,8 @@ public interface EditorWatcher
     void recordSelected();
 
     void recordClose();
+
+    void recordShowError(int identifier);
+
+    void recordEarlyErrors(List<DiagnosticWithShown> diagnostics);
 } // end class EditorWatcher

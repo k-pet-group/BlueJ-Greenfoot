@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2011,2013,2014,2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 2011,2013,2014,2015,2016  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -76,7 +76,7 @@ public class MoeErrorManager implements MoeDocumentListener
      * @param startPos  The document position where the error highlight should begin
      * @param endPos    The document position where the error highlight should end
      */
-    public void addErrorHighlight(int startPos, int endPos, String message)
+    public void addErrorHighlight(int startPos, int endPos, String message, int identifier)
     {
         if (endPos < startPos)
             throw new IllegalArgumentException("Error ends before it begins: " + startPos + " to " + endPos);
@@ -86,7 +86,7 @@ public class MoeErrorManager implements MoeDocumentListener
             MoeHighlighter highlighter = (MoeHighlighter) sourcePane.getHighlighter();
             AdvancedHighlightPainter painter = new MoeSquigglyUnderlineHighlighterPainter(Color.RED, offs -> editor.getLineColumnFromOffset(offs).getLine());
             Object errorHighlightTag = highlighter.addHighlight(startPos, endPos, painter);
-            errorInfos.add(new ErrorDetails(errorHighlightTag, startPos, endPos, message));
+            errorInfos.add(new ErrorDetails(errorHighlightTag, startPos, endPos, message, identifier));
             setNextErrorEnabled.accept(true);
         }
         catch (BadLocationException ble) {
@@ -273,13 +273,15 @@ public class MoeErrorManager implements MoeDocumentListener
         public final int startPos;
         public final int endPos;
         public final String message;
+        public final int identifier;
         private final Object highlightTag;
-        private ErrorDetails(Object highlightTag, int startPos, int endPos, String message)
+        private ErrorDetails(Object highlightTag, int startPos, int endPos, String message, int identifier)
         {
             this.highlightTag = highlightTag;
             this.startPos = startPos;
             this.endPos = endPos;
             this.message = message;
+            this.identifier = identifier;
         }
         
         public boolean containsPosition(int pos)

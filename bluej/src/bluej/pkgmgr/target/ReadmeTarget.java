@@ -27,6 +27,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Properties;
 
 import javax.swing.AbstractAction;
@@ -35,6 +36,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
 import bluej.Config;
+import bluej.collect.DiagnosticWithShown;
 import bluej.editor.Editor;
 import bluej.editor.EditorManager;
 import bluej.graph.GraphEditor;
@@ -228,4 +230,10 @@ public class ReadmeTarget extends EditableTarget
 
     @Override
     public void recordSelected() { }
+
+    @Override
+    public void recordShowError(int identifier) { }
+
+    @Override
+    public void recordEarlyErrors(List<DiagnosticWithShown> diagnostics) { }
 }

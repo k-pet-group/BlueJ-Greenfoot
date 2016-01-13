@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,6 +22,7 @@
 package bluej.stride.generic;
 
 import bluej.editor.stride.FrameCatalogue;
+import bluej.editor.stride.FrameEditor;
 import bluej.stride.slots.LinkedIdentifier;
 import bluej.stride.framedjava.ast.links.PossibleLink;
 import javafx.beans.Observable;
@@ -135,6 +136,8 @@ public interface InteractionManager
     Paint getHighlightColor();
 
     List<AssistContentThreadSafe> getThisConstructors();
+
+    FrameEditor getFrameEditor();
 
     public static enum ShortcutKey
     {

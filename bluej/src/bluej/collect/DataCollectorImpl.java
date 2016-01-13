@@ -79,7 +79,6 @@ public class DataCollectorImpl
      * so that we can re-use it when the inspector is hidden. 
      */
     private static IdentityHashMap<Inspector, Package> inspectorPackages = new IdentityHashMap<Inspector, Package>();
-    private static AtomicInteger compileOutputSequence = new AtomicInteger(1);
 
     /**
      * Submits an event with no extra data.  A useful short-hand for calling submitEvent
@@ -212,7 +211,7 @@ public class DataCollectorImpl
             mpe.addPart("event[compile_output][][is_error]", CollectUtility.toBody(d.getType() == Diagnostic.ERROR));
             mpe.addPart("event[compile_output][][shown]", CollectUtility.toBody(dws.wasShownToUser()));
             mpe.addPart("event[compile_output][][message]", CollectUtility.toBody(d.getMessage()));
-            mpe.addPart("event[compile_output][][session_sequence]", CollectUtility.toBody(compileOutputSequence.getAndIncrement()));
+            mpe.addPart("event[compile_output][][session_sequence]", CollectUtility.toBody(d.getIdentifier()));
             if (d.getFileName() != null)
             {
                 mpe.addPart("event[compile_output][][start_line]", CollectUtility.toBody(d.getStartLine()));
@@ -916,5 +915,14 @@ public class DataCollectorImpl
         mpe.addPart("event[vcs][vcs_type]", CollectUtility.toBody(repo.getVCSType()));
         mpe.addPart("event[vcs][protocol]", CollectUtility.toBody(repo.getVCSProtocol()));
         return mpe;
+    }
+
+    public static void showError(Package pkg, int errorIdentifier)
+    {
+        MultipartEntity mpe = new MultipartEntity();
+
+        mpe.addPart("event[error_sequence]", CollectUtility.toBody(errorIdentifier));
+
+        submitEvent(pkg.getProject(), pkg, EventName.SHOWN_ERROR, new PlainEvent(mpe));
     }
 }

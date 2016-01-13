@@ -49,6 +49,7 @@ import javax.swing.JPopupMenu;
 
 import bluej.Config;
 import bluej.collect.DataCollector;
+import bluej.collect.DiagnosticWithShown;
 import bluej.compiler.CompileInputFile;
 import bluej.compiler.CompileObserver;
 import bluej.compiler.Diagnostic;
@@ -2288,5 +2289,19 @@ public class ClassTarget extends DependentTarget
     {
         return knownError;
     }
-    
+
+    @Override
+    public void recordShowError(int identifier)
+    {
+        DataCollector.showError(getPackage(), identifier);
+    }
+
+    @Override
+    public void recordEarlyErrors(List<DiagnosticWithShown> diagnostics)
+    {
+        if (diagnostics.isEmpty())
+            return;
+
+        DataCollector.compiled(getPackage().getProject(), getPackage(), new CompileInputFile[] {getCompileInputFile()}, diagnostics, false, true);
+    }
 }

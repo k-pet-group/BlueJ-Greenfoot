@@ -44,6 +44,8 @@ enum EventName
     FILE_OPEN("file_open"),
     FILE_SELECT("file_select"),
     FILE_CLOSE("file_close"),
+
+    SHOWN_ERROR("shown_error"),
     
     // Debugger: 
     DEBUGGER_OPEN("debugger_open"),

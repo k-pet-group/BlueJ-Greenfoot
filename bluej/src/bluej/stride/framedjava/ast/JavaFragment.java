@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -108,23 +108,23 @@ public abstract class JavaFragment
     }
 
     @OnThread(Tag.FX)
-    public final void showCompileError(int startLine, int startColumn, int endLine, int endColumn, String message)
+    public final void showCompileError(int startLine, int startColumn, int endLine, int endColumn, String message, int identifier)
     {
         // This makes sure we can't end up in a loop; we only ever do one redirect:
         JavaFragment redirect = getCompileErrorRedirect();
         if (redirect != null)
         {
             // If we redirect, we span the whole fragment:
-            new JavaCompileError(redirect, 0, redirect.len, message);
+            new JavaCompileError(redirect, 0, redirect.len, message, identifier);
         }
         else
-            this.showCompileErrorDirect(startLine, startColumn, endLine, endColumn, message);
+            this.showCompileErrorDirect(startLine, startColumn, endLine, endColumn, message, identifier);
     }
 
     @OnThread(Tag.FX)
     protected abstract JavaFragment getCompileErrorRedirect();
 
-    private void showCompileErrorDirect(int startLine, int startColumn, int endLine, int endColumn, String message)
+    private void showCompileErrorDirect(int startLine, int startColumn, int endLine, int endColumn, String message, int identifier)
     {
         int startPos;
         int endPos;
@@ -143,7 +143,7 @@ public abstract class JavaFragment
         else // If endLine is earlier, we are the nearest fragment; highlight everything:
             endPos = len;
 
-        new JavaCompileError(this, startPos, endPos, message);
+        new JavaCompileError(this, startPos, endPos, message, identifier);
     }
     
     /**

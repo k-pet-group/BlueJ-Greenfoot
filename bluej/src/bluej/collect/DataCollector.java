@@ -22,6 +22,7 @@
 package bluej.collect;
 
 import java.io.File;
+import java.util.BitSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -54,8 +55,7 @@ import bluej.pkgmgr.Project;
  * This class mainly acts as a proxy for the DataCollectorImpl class, which implements the actual
  * collection logic.
  */
-@OnThread(Tag.Swing)
-public class DataCollector
+public @OnThread(Tag.Swing) class DataCollector
 {
     private static final String PROPERTY_UUID = "blackbox.uuid";
     private static final String PROPERTY_EXPERIMENT = "blackbox.experiment";
@@ -83,6 +83,12 @@ public class DataCollector
     private static String uuid;
     private static String experimentIdentifier;
     private static String participantIdentifier;
+
+    /**
+     * Keep track of which errors (per-session compile error sequence ids) we have shown,
+     * and thus already sent an event about.
+     */
+    private static final BitSet shownErrors = new BitSet();
     
     
     /**
@@ -503,6 +509,15 @@ public class DataCollector
     {
         if (dontSend()) return;
         DataCollectorImpl.inspectorClassShow(pkg, inspector, className);        
+    }
+
+    public static void showError(Package pkg, int errorIdentifier)
+    {
+        if (dontSend()) return;
+        // Only send an event for each error the first time it is shown:
+        if (shownErrors.get(errorIdentifier)) return;
+        shownErrors.set(errorIdentifier);
+        DataCollectorImpl.showError(pkg, errorIdentifier);
     }
 
     public static class NamedTyped

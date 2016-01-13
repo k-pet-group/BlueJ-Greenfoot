@@ -1,8 +1,12 @@
 package bluej.stride.framedjava.errors;
 
+import bluej.compiler.CompilerAPICompiler;
 import bluej.stride.framedjava.ast.SlotFragment;
 import bluej.stride.framedjava.ast.StringSlotFragment;
 import bluej.stride.slots.EditableSlot;
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 import javafx.application.Platform;
 
 /**
@@ -12,8 +16,18 @@ import javafx.application.Platform;
  */
 public abstract class DirectSlotError extends CodeError
 {
+    private final int identifier;
+
     public DirectSlotError(SlotFragment code)
     {
         super(code);
+        this.identifier = CompilerAPICompiler.getNewErrorIdentifer();
+    }
+
+    @Override
+    @OnThread(Tag.Any)
+    public int getIdentifier()
+    {
+        return identifier;
     }
 }

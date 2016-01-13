@@ -691,7 +691,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         {
             saved();
             // Force generation of early errors on load:
-            topLevelFrame.getCode().findEarlyErrors().count();
+            editor.earlyErrorCheck(topLevelFrame.getCode().findEarlyErrors());
             Platform.runLater(this::updateDisplays);
         }
         
@@ -2344,5 +2344,11 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     public void notifySelected()
     {
         SwingUtilities.invokeLater(() -> editor.getWatcher().recordSelected());
+    }
+
+    @Override
+    public FrameEditor getFrameEditor()
+    {
+        return editor;
     }
 }

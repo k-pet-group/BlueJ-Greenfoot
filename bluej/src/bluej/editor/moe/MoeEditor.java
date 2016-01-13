@@ -85,6 +85,7 @@ import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.HTMLFrameHyperlinkEvent;
 
+import bluej.collect.DataCollector;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.BlueJEvent;
@@ -913,7 +914,7 @@ public final class MoeEditor extends JPanel
                     Debug.reportError(e);
                 }
             }
-            errorManager.addErrorHighlight(startPos, endPos, diagnostic.getMessage());
+            errorManager.addErrorHighlight(startPos, endPos, diagnostic.getMessage(), diagnostic.getIdentifier());
         }
 
         // display the message
@@ -3021,6 +3022,8 @@ public final class MoeEditor extends JPanel
                     int ypos = pos.y + (3*pos.height/2) + spLoc.y;
                     errorDisplay.setLocation(xpos, ypos);
                     errorDisplay.setVisible(true);
+
+                    watcher.recordShowError(details.identifier);
                 }
                 catch (BadLocationException ble)
                 {

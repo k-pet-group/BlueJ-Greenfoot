@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,10 +21,9 @@
  */
 package bluej.stride.framedjava.errors;
 
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
-
-import bluej.editor.stride.CodeOverlayPane.WidthLimit;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
@@ -32,7 +31,10 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
+
+import bluej.editor.EditorWatcher;
 import bluej.editor.stride.CodeOverlayPane;
+import bluej.editor.stride.CodeOverlayPane.WidthLimit;
 import bluej.stride.generic.InteractionManager;
 import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
@@ -113,9 +115,16 @@ public class ErrorAndFixDisplay
             // them getting in the way of code completion:
             vbox.toBack();
             error.focusedProperty().set(true);
+            recordShow();
         });
     }
-    
+
+    private void recordShow()
+    {
+        final EditorWatcher watcher = editor.getFrameEditor().getWatcher();
+        SwingUtilities.invokeLater(() -> watcher.recordShowError(error.getIdentifier()));
+    }
+
     public void showAbove(final Region n)
     {
         showAbove(n, SHOW_DELAY);
@@ -139,6 +148,7 @@ public class ErrorAndFixDisplay
             // them getting in the way of code completion:
             vbox.toBack();
             error.focusedProperty().set(true);
+            recordShow();
         });
     }
     

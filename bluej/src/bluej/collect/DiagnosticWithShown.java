@@ -34,7 +34,7 @@ import bluej.compiler.Diagnostic;
  * - What the original file name was (.stride file for Stride)
  */
 // package-visible
-class DiagnosticWithShown
+public class DiagnosticWithShown
 {
     private Diagnostic diagnostic;
     private boolean shownToUser;

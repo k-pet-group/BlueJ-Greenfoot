@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -174,7 +174,7 @@ public class JavaSource
     
     @OnThread(Tag.FX)
     public boolean handleError(int startLine, int startColumn,
-            int endLine, int endColumn, String message, boolean force)
+            int endLine, int endColumn, String message, boolean force, int identifier)
     {
         // If it's on the last empty line, use handler from last line:
         if (startLine == lines.size() + 1) {
@@ -196,7 +196,7 @@ public class JavaSource
                     JavaFragment f = frags.get(j);
                     if (f.checkCompileError(startLine, startColumn, endLine, endColumn) != ErrorRelation.CANNOT_SHOW)
                     {
-                        f.showCompileError(startLine, startColumn, endLine, endColumn, "Error at unexpected position: " + message);
+                        f.showCompileError(startLine, startColumn, endLine, endColumn, "Error at unexpected position: " + message, identifier);
                         return true;
                     }
                 }
@@ -215,19 +215,19 @@ public class JavaSource
             
             if (r == ErrorRelation.BEFORE_FRAGMENT && last != null)
             {
-                last.showCompileError(startLine, startColumn, endLine, endColumn, message);
+                last.showCompileError(startLine, startColumn, endLine, endColumn, message, identifier);
                 return true;
             }
             else if (r != ErrorRelation.AFTER_FRAGMENT)
             {
-                f.showCompileError(startLine, startColumn, endLine, endColumn, message);
+                f.showCompileError(startLine, startColumn, endLine, endColumn, message, identifier);
                 return true;
             }
             last = f;
         }
         if (last != null)
         {
-            last.showCompileError(startLine, startColumn, endLine, endColumn, message);
+            last.showCompileError(startLine, startColumn, endLine, endColumn, message, identifier);
             return true;
         }
         else

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,9 +21,12 @@
  */
 package bluej.stride.framedjava.errors;
 
+import java.io.File;
 import java.util.Collections;
 import java.util.List;
 
+import bluej.collect.DiagnosticWithShown;
+import bluej.compiler.Diagnostic;
 import bluej.stride.framedjava.ast.JavaFragment;
 import bluej.stride.framedjava.ast.SlotFragment;
 import bluej.stride.framedjava.ast.StringSlotFragment;
@@ -32,7 +35,7 @@ import threadchecker.Tag;
 
 public class SyntaxCodeError extends DirectSlotError
 {
-    private String message;
+    private final String message;
 
     @OnThread(Tag.Any)
     public SyntaxCodeError(SlotFragment slot)
@@ -63,5 +66,11 @@ public class SyntaxCodeError extends DirectSlotError
     public boolean isJavaPos()
     {
         return false;
+    }
+
+    @OnThread(Tag.Any)
+    public DiagnosticWithShown toDiagnostic(String javaFileName, File strideFileName)
+    {
+        return new DiagnosticWithShown(new Diagnostic(Diagnostic.ERROR, message, javaFileName, -1, -1, -1, -1, getIdentifier()), true, strideFileName);
     }
 }

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -143,4 +143,10 @@ public abstract class CodeError
     {
         freshProperty.bind(fresh);
     }
+
+    /**
+     * Gets the identifier of the error, for recording purposes.
+     */
+    @OnThread(Tag.Any)
+    public abstract int getIdentifier();
 }

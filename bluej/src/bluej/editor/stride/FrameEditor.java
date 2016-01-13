@@ -42,6 +42,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import bluej.stride.framedjava.errors.SyntaxCodeError;
 import bluej.utility.Utility;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
@@ -153,14 +154,16 @@ public class FrameEditor implements Editor
     {
         private final long startLine, startColumn, endLine, endColumn;
         private final String message;
+        private final int identifier;
 
-        private QueuedError(long startLine, long startColumn, long endLine, long endColumn, String message)
+        private QueuedError(long startLine, long startColumn, long endLine, long endColumn, String message, int identifier)
         {
             this.startLine = startLine;
             this.startColumn = startColumn;
             this.endLine = endLine;
             this.endColumn = endColumn;
             this.message = message;
+            this.identifier = identifier;
         }
     }
 
@@ -769,12 +772,12 @@ public class FrameEditor implements Editor
 
                 JavaFXUtil.onceNotNull(javaSource, js ->
                         js.handleError((int) diagnostic.getStartLine(), (int) diagnostic.getStartColumn(),
-                            (int) diagnostic.getEndLine(), (int) diagnostic.getEndColumn(), diagnostic.getMessage(), true)
+                            (int) diagnostic.getEndLine(), (int) diagnostic.getEndColumn(), diagnostic.getMessage(), true, diagnostic.getIdentifier())
                 );
             }
             else
             {
-                queuedErrors.add(new QueuedError(diagnostic.getStartLine(), diagnostic.getStartColumn(), diagnostic.getEndLine(), diagnostic.getEndColumn(), diagnostic.getMessage()));
+                queuedErrors.add(new QueuedError(diagnostic.getStartLine(), diagnostic.getStartColumn(), diagnostic.getEndLine(), diagnostic.getEndColumn(), diagnostic.getMessage(), diagnostic.getIdentifier()));
 
             }
         });
@@ -914,13 +917,13 @@ public class FrameEditor implements Editor
                         for (QueuedError e : queueCopy)
                         {
                             if (!js.handleError((int) e.startLine, (int) e.startColumn,
-                                    (int) e.endLine, (int) e.endColumn, e.message, false))
+                                    (int) e.endLine, (int) e.endColumn, e.message, false, e.identifier))
                             {
                                 Debug.message("Retrying showing error after saving");
                                 Platform.runLater(() -> {
                                     if (_saveFX().exception == null)
                                     {
-                                        boolean result = javaSource.get().handleError((int) e.startLine, (int) e.startColumn, (int) e.endLine, (int) e.endColumn, e.message, true);
+                                        boolean result = javaSource.get().handleError((int) e.startLine, (int) e.startColumn, (int) e.endLine, (int) e.endColumn, e.message, true, e.identifier);
                                         Debug.message("Retrying: " + (result ? "success" : "failure"));
                                     }
                                 });
@@ -1026,17 +1029,28 @@ public class FrameEditor implements Editor
             if (el != null)
             {
                 // By using count, we force evaluation of the whole stream:
-                return el.findEarlyErrors().count() > 0;
+                return earlyErrorCheck(el.findEarlyErrors());
             }
             return true;
         }
         else
         {
             queuedErrors.clear();
-            return lastSource.findEarlyErrors().count() > 0;
+            return earlyErrorCheck(lastSource.findEarlyErrors());
         }
     }
 
+    /**
+     * Given a stream of early errors, records them and returns true if there were any errors (i.e. if the stream was non-empty)
+     */
+    //package-visible
+    @OnThread(Tag.Any)
+    boolean earlyErrorCheck(Stream<SyntaxCodeError> earlyErrors)
+    {
+        List<SyntaxCodeError> earlyList = earlyErrors.collect(Collectors.toList());
+        SwingUtilities.invokeLater(() -> watcher.recordEarlyErrors(Utility.mapList(earlyList, e -> e.toDiagnostic(javaFilename.getName(), frameFilename))));
+        return !earlyList.isEmpty();
+    }
 
 
     public boolean readyToCompile()
@@ -1202,9 +1216,8 @@ public class FrameEditor implements Editor
 //        watcher.changedName(oldName, newName);
 //    }
 
-    //package-protected
     @OnThread(Tag.Any)
-    EditorWatcher getWatcher()
+    public EditorWatcher getWatcher()
     {
         return watcher;
     }
