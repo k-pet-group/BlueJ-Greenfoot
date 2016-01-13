@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -76,9 +76,6 @@ public class DocumentationTextArea extends ScrollFreeTextArea implements Editabl
 
     private boolean hacking;
 
-    private InteractionManager editor;
-
-
     public DocumentationTextArea(InteractionManager editor, Frame frameParent, FocusParent<? super DocumentationTextArea> focusParent, final String stylePrefix)
     {
         this(editor, frameParent, focusParent, stylePrefix, null);
@@ -91,7 +88,6 @@ public class DocumentationTextArea extends ScrollFreeTextArea implements Editabl
         super(editor);
         wrapper = new BorderPane(super.getNode());
         JavaFXUtil.addStyleClass(wrapper, "documentation-text-wrapper", stylePrefix + "documentation-text-wrapper");
-        this.editor = editor;
         this.frameParent = frameParent;
         addTextStyleClasses("documentation-text", stylePrefix + "documentation-text");
         //maxHeightProperty().bind(cssMaxHeightProperty);
