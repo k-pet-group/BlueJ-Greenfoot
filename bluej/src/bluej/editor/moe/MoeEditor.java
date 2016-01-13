@@ -399,7 +399,7 @@ public final class MoeEditor extends JPanel
      * Check if an item is in the reserved list for disabled interface options
      *  
      * @return boolean reflects if it is enabled ie false=disabled
-     * @param buttonText  String with button text name
+     * @param text  String with button text name
      */
     private static boolean isEditAction(String text)
     {       
@@ -877,8 +877,6 @@ public final class MoeEditor extends JPanel
         
         Element line = getSourceLine((int) diagnostic.getStartLine());
         if (line != null) {
-            int pos = line.getStartOffset();
-
             // Limit diagnostic display to a single line.
             int startPos = getPosFromColumn(line, (int) diagnostic.getStartColumn());
             int endPos;
@@ -2064,9 +2062,10 @@ public final class MoeEditor extends JPanel
     /**
      * doFindSelect - finds all the instances in the document from where the 
      * caret position is, optionally selects the first one and highlights all others
-     * @param select indicates whether the first occurrence should be selected or only highlighted
-     * @param s search string 
-     * 
+     * @param s search string
+     * @param ignoreCase true to ignore the letters case
+     * @param wrap true if the search to include wrapping
+     *
      * @return Returns false if not found.
      */
     int doFindSelect(String s, boolean ignoreCase, boolean wrap)
@@ -3456,8 +3455,6 @@ public final class MoeEditor extends JPanel
      * Create a button on the toolbar.
      * 
      * @param key  The internal key identifying the action and label
-     * @param position  The position in the button group. One of "first", 
-     *                  "middle", "last", "only". Only used on MacOS.
      */
     private AbstractButton createToolbarButton(String key)
     {
