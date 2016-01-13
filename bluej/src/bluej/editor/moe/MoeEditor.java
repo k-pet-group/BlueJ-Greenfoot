@@ -62,7 +62,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Supplier;
@@ -191,7 +190,7 @@ public final class MoeEditor extends JPanel
     private final Supplier<SwingTabbedEditor> defaultSwingTabbedEditor;
     private SwingTabbedEditor swingTabbedEditor;
     //private StringProperty titleProperty;
-    private final AtomicBoolean panelOpen = new AtomicBoolean();
+    //private final AtomicBoolean panelOpen = new AtomicBoolean();
     public MoeUndoManager undoManager;
     private final EditorWatcher watcher;
     private final Properties resources;
@@ -4015,19 +4014,11 @@ public final class MoeEditor extends JPanel
         errorManager.removeAllErrorHighlights();
         return false;
     }
-    
-/*
-    @OnThread(Tag.FX)
-    public void setTab(Tab panel)
-    {
-        ObservableList<Tab> tabs = fXTabbedEditor.tabsProperty();
-        tabs.addListener((ListChangeListener<Tab>)c -> panelOpen.set(Boolean.valueOf(tabs.contains(panel))));
-    }
-    */
+
     @Override
     public boolean isOpen()
     {
-        return panelOpen.get();
+        return isVisible();
     }
     
     public String getTitle()
