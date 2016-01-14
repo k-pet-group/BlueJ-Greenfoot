@@ -294,6 +294,15 @@ public class DataCollectorImpl
             {
                 String relative = CollectUtility.toPath(proj, file);
                 mpe.addPart("project[source_files][][name]", CollectUtility.toBody(relative));
+                switch (ct.getSourceType())
+                {
+                    case Java:
+                        mpe.addPart("project[source_files][][source_type]", CollectUtility.toBody("java"));
+                        break;
+                    case Stride:
+                        mpe.addPart("project[source_files][][source_type]", CollectUtility.toBody("stride"));
+                        break;
+                }
                 // If this is the Java file and there was a Stride file, note the relation:
                 if (file.getName().endsWith(".java") && ct.getSourceType() == SourceType.Stride)
                 {
