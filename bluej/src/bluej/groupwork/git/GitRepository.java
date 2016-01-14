@@ -144,7 +144,7 @@ public class GitRepository implements Repository
     @Override
     public TeamworkCommand getLogHistory(LogHistoryListener listener) 
     {
-        throw new UnsupportedOperationException("Not implemented yet.");
+        return new GitHistoryCommand(this, listener);
     }
 
     @Override
