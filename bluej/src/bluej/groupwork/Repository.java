@@ -152,7 +152,8 @@ public interface Repository
      * Checks if this is a Distributed Version Control System
      * @return true if this is a Distributed Version Control (e.g.: Git)
      */
-    default public boolean isDVCS(){
+    default public boolean isDVCS()
+    {
         return false;
     }
 }
