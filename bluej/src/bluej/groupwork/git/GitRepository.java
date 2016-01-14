@@ -36,7 +36,6 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.errors.NoWorkTreeException;
 import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
 /**
@@ -50,11 +49,10 @@ public class GitRepository implements Repository
     private final String protocol; // Only for data collection
     private String reposUrl;
 
-    private final FileRepositoryBuilder fileRepoBuilder;
     private final String userName;
     private String password;
-    private String yourName;
-    private String yourEmail;
+    private final String yourName;
+    private final String yourEmail;
 
     /**
      * Create a Git repository when all fields are known. Usually when cloning a
@@ -68,12 +66,11 @@ public class GitRepository implements Repository
      * @param yourName user name to be registered on the local git repository
      * @param yourEmail user e-mail to be registered on the local git repository
      */
-    public GitRepository(File projectPath, String protocol, String reposUrl, FileRepositoryBuilder fileRepoBuilder, String userName, String password, String yourName, String yourEmail) 
+    public GitRepository(File projectPath, String protocol, String reposUrl, String userName, String password, String yourName, String yourEmail) 
     {
         this.projectPath = projectPath;
         this.protocol = protocol;
         this.reposUrl = reposUrl;
-        this.fileRepoBuilder = fileRepoBuilder;
         this.userName = userName;
         this.password = password;
         this.yourName = yourName;

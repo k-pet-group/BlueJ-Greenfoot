@@ -38,7 +38,6 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.LsRemoteCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.StoredConfig;
-import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.transport.JschConfigSessionFactory;
 import org.eclipse.jgit.transport.OpenSshConfig;
 import org.eclipse.jgit.transport.SshSessionFactory;
@@ -131,8 +130,7 @@ public class GitProvider implements TeamworkProvider
     public Repository getRepository(File projectDir, TeamSettings settings)
     {
         try {
-            FileRepositoryBuilder builder = new FileRepositoryBuilder();
-            return new GitRepository(projectDir, settings.getProtocol(), makeGitUrl(settings), builder, settings.getUserName(), settings.getPassword(), settings.getYourName(), settings.getYourEmail());
+            return new GitRepository(projectDir, settings.getProtocol(), makeGitUrl(settings), settings.getUserName(), settings.getPassword(), settings.getYourName(), settings.getYourEmail());
         } catch (UnsupportedSettingException e) {
             Debug.reportError("GitProvider.getRepository", e);
             return null;
