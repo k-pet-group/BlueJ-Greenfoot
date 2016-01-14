@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,6 +23,7 @@ package bluej.stride.framedjava.ast;
 
 import java.util.List;
 
+import bluej.stride.framedjava.elements.LocatableElement;
 import bluej.utility.Debug;
 import nu.xom.Attribute;
 import nu.xom.Element;
@@ -48,9 +49,9 @@ public class ParamFragment
     
     public Element toXML()
     {
-        Element paramEl = new Element(ELEMENT);
-        paramEl.addAttribute(new Attribute("type", paramType.getContent()));
-        paramEl.addAttribute(new Attribute("name", paramName.getContent()));
+        LocatableElement paramEl = new LocatableElement(null, ELEMENT);
+        paramEl.addAttributeCode("type", paramType);
+        paramEl.addAttributeCode("name", paramName);
         return paramEl;
     }
     

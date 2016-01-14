@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -70,11 +70,10 @@ public class WhileElement extends ContainerCodeElement implements JavaSingleLine
     }
 
     @Override
-    public Element toXML()
+    public LocatableElement toXML()
     {
-        Element whileEl = new Element(ELEMENT);
-        whileEl.addAttribute(new Attribute("condition", condition.getContent()));
-        whileEl.addAttribute(new Attribute("condition-java", condition.getJavaCode()));
+        LocatableElement whileEl = new LocatableElement(this, ELEMENT);
+        whileEl.addAttributeExpression("condition", condition);
         addEnableAttribute(whileEl);
         for (CodeElement c : contents)
         {

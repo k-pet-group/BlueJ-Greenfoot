@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -73,11 +73,11 @@ public class CatchElement extends ContainerCodeElement implements JavaSingleLine
     }
 
     @Override
-    public Element toXML()
+    public LocatableElement toXML()
     {
-        Element catchEl = new Element(ELEMENT);
-        catchEl.addAttribute(new Attribute("type", exceptionTypeFragment.getContent()));
-        catchEl.addAttribute(new Attribute("name", exceptionNameFragment.getContent()));
+        LocatableElement catchEl = new LocatableElement(this, ELEMENT);
+        catchEl.addAttributeCode("type", exceptionTypeFragment);
+        catchEl.addAttributeCode("name", exceptionNameFragment);
         addEnableAttribute(catchEl);
         for (CodeElement c : contents) {
             catchEl.appendChild(c.toXML());

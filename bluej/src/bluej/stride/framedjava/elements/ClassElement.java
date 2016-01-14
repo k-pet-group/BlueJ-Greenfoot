@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -240,15 +240,15 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
     }
     
     @Override
-    public Element toXML()
-    {    
-        Element classEl = new Element(ELEMENT);
+    public LocatableElement toXML()
+    {
+        LocatableElement classEl = new LocatableElement(this, ELEMENT);
         if (abstractModifier) {
             classEl.addAttribute(new Attribute("abstract", String.valueOf(abstractModifier)));
         }
-        classEl.addAttribute(new Attribute("name", className.getContent()));
+        classEl.addAttributeCode("name", className);
         if (extendsName != null) {
-            classEl.addAttribute(new Attribute("extends", extendsName.getContent()));
+            classEl.addAttributeCode("extends", extendsName);
         }
         addEnableAttribute(classEl);
         
@@ -257,7 +257,7 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
         }
         
         appendCollection(classEl, imports, "imports");
-        classEl.appendChild(TopLevelCodeElement.stringListToXML(Utility.mapList(implementsList, TypeSlotFragment::getContent), "implements", "implementstype", "type"));
+        classEl.appendChild(TopLevelCodeElement.stringListToXML(implementsList, "implements", "implementstype", "type"));
         
         appendCollection(classEl, fields, "fields");
         appendCollection(classEl, constructors, "constructors");
@@ -620,5 +620,11 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
             }
             return document;
         }
+    }
+
+    @Override
+    public Stream<SyntaxCodeError> findEarlyErrors()
+    {
+        return findEarlyErrors(toXML().buildLocationMap(new HashMap<>()));
     }
 }

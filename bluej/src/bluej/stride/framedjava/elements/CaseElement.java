@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -69,11 +69,10 @@ public class CaseElement extends ContainerCodeElement implements JavaSingleLineD
     }
 
     @Override
-    public Element toXML()
+    public LocatableElement toXML()
     {
-        Element caseEl = new Element(ELEMENT);
-        caseEl.addAttribute(new Attribute("expression", expression.getContent()));
-        caseEl.addAttribute(new Attribute("expression-java", expression.getJavaCode()));
+        LocatableElement caseEl = new LocatableElement(this, ELEMENT);
+        caseEl.addAttributeExpression("expression", expression);
         addEnableAttribute(caseEl);
         for (CodeElement c : contents) {
             caseEl.appendChild(c.toXML());

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -112,9 +112,9 @@ public class NormalMethodElement extends MethodWithBodyElement
     }
 
     @Override
-    public Element toXML()
+    public LocatableElement toXML()
     {
-        Element methodEl = new Element(ELEMENT);
+        LocatableElement methodEl = new LocatableElement(this, ELEMENT);
         accessToXML(methodEl);
         
         if (staticModifier) {
@@ -124,8 +124,8 @@ public class NormalMethodElement extends MethodWithBodyElement
             methodEl.addAttribute(new Attribute("final", "true"));
         }
         
-        methodEl.addAttribute(new Attribute("type", returnType.getContent()));
-        methodEl.addAttribute(new Attribute("name", name.getContent()));
+        methodEl.addAttributeCode("type", returnType);
+        methodEl.addAttributeCode("name", name);
         
         addEnableAttribute(methodEl);
         

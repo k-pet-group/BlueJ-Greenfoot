@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -108,9 +108,9 @@ public class ConstructorElement extends MethodWithBodyElement
     }
 
     @Override
-    public Element toXML()
+    public LocatableElement toXML()
     {
-        Element methodEl = new Element(ELEMENT);
+        LocatableElement methodEl = new LocatableElement(this, ELEMENT);
         accessToXML(methodEl);
         addEnableAttribute(methodEl);
 
@@ -119,12 +119,11 @@ public class ConstructorElement extends MethodWithBodyElement
         paramsToXML(methodEl);
         throwsToXML(methodEl);
         
-        Element delegateEl = null;
+        LocatableElement delegateEl = null;
         if (delegate != null) {
-            delegateEl = new Element("delegate");
-            delegateEl.addAttribute(new Attribute("target", delegate.getValue().toString()));
-            delegateEl.addAttribute(new Attribute("params", delegateParams.getContent()));
-            delegateEl.addAttribute(new Attribute("params-java", delegateParams.getJavaCode()));
+            delegateEl = new LocatableElement(null, "delegate");
+            delegateEl.addAttributeSuperThis("target", delegate);
+            delegateEl.addAttributeExpression("params", delegateParams);
             methodEl.appendChild(delegateEl);
         }
         

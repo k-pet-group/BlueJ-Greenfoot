@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -31,6 +31,7 @@ import java.util.stream.Stream;
 
 import bluej.debugger.gentype.ConstructorReflective;
 import bluej.stride.framedjava.ast.FrameFragment;
+import bluej.stride.framedjava.ast.TypeSlotFragment;
 import bluej.stride.generic.AssistContentThreadSafe;
 import bluej.stride.generic.InteractionManager;
 import nu.xom.Attribute;
@@ -74,13 +75,13 @@ public interface TopLevelCodeElement
     }
 
     // Makes an XML element named container, with an element per string (of type itemName) with content put in the given itemAttribute
-    public static Element stringListToXML(List<String> items, String container, String itemName, String itemAttribute)
+    public static Element stringListToXML(List<TypeSlotFragment> items, String container, String itemName, String itemAttribute)
     {
         Element el = new Element(container);
-        for (String s : items)
+        for (TypeSlotFragment s : items)
         {
-            Element child = new Element(itemName);
-            child.addAttribute(new Attribute(itemAttribute, s));
+            LocatableElement child = new LocatableElement(null, itemName);
+            child.addAttributeCode(itemAttribute, s);
             el.appendChild(child);
         }
         return el;

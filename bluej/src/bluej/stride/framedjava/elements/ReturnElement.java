@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -67,12 +67,11 @@ public class ReturnElement extends CodeElement implements JavaSingleLineDebugHan
     }
 
     @Override
-    public Element toXML()
+    public LocatableElement toXML()
     {
-        Element retEl = new Element(ELEMENT);
+        LocatableElement retEl = new LocatableElement(this, ELEMENT);
         if (val != null) {
-            retEl.addAttribute(new Attribute("value", val.getContent()));
-            retEl.addAttribute(new Attribute("value-java", val.getJavaCode()));
+            retEl.addAttributeExpression("value", val);
         }
         addEnableAttribute(retEl);
         return retEl;

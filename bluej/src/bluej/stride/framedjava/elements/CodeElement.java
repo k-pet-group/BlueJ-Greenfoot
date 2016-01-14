@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,6 +24,7 @@ package bluej.stride.framedjava.elements;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -68,11 +69,11 @@ public abstract class CodeElement
      * 
      * (TODO in the future, this should strengthen to: returning no errors means code won't give syntax error)
      */
-    public final Stream<SyntaxCodeError> findEarlyErrors()
+    public final Stream<SyntaxCodeError> findEarlyErrors(Map<JavaFragment, String> rootPathMap)
     {
         if (!isEnable())
             return Stream.empty();
-        return toJavaSource().getAllFragments().flatMap(JavaFragment::findEarlyErrors);
+        return toJavaSource().getAllFragments().flatMap(fragment -> fragment.findEarlyErrors().peek(e -> e.recordPath(rootPathMap.get(fragment))));
     }
     
     public final Stream<Future<List<CodeError>>> findDirectLateErrors(InteractionManager editor)
@@ -89,7 +90,7 @@ public abstract class CodeElement
     @OnThread(Tag.Any)
     public abstract JavaSource toJavaSource();
     
-    public abstract Element toXML();
+    public abstract LocatableElement toXML();
 
     @OnThread(Tag.FX)
     public abstract Frame createFrame(InteractionManager editor);

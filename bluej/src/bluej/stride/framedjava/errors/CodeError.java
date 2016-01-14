@@ -40,6 +40,7 @@ public abstract class CodeError
     private final BooleanProperty focusedProperty = new SimpleBooleanProperty(false);
     protected final JavaFragment relevantSlot;
     private final BooleanProperty freshProperty = new SimpleBooleanProperty(false);
+    protected String path;
     
     @OnThread(Tag.Any)
     protected CodeError(JavaFragment code)
@@ -149,4 +150,10 @@ public abstract class CodeError
      */
     @OnThread(Tag.Any)
     public abstract int getIdentifier();
+
+    @OnThread(Tag.Any)
+    public void recordPath(String path)
+    {
+        this.path = path;
+    }
 }

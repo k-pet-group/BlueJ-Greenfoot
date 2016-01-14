@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -95,13 +95,13 @@ public class TryElement extends SandwichCanvasesElement
     }
 
     @Override
-    protected void addMainAttributes(Element element) {}
+    protected void addMainAttributes(LocatableElement element) {}
 
     @Override
-    protected void addIntermediateAttributes(Element element, int index)
+    protected void addIntermediateAttributes(LocatableElement element, int index)
     {
-        element.addAttribute(new Attribute(EXCEPTION_TYPE_LABEL, catchTypes.get(index).getContent()));
-        element.addAttribute(new Attribute(EXCEPTION_NAME_LABEL, catchNames.get(index).getContent()));
+        element.addAttributeCode(EXCEPTION_TYPE_LABEL, catchTypes.get(index));
+        element.addAttributeCode(EXCEPTION_NAME_LABEL, catchNames.get(index));
     }
 
     @OnThread(Tag.FX)

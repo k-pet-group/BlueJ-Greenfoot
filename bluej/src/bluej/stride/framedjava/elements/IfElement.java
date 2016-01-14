@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -111,17 +111,15 @@ public class IfElement extends SandwichCanvasesElement
     }
 
     @Override
-    protected void addMainAttributes(Element element)
+    protected void addMainAttributes(LocatableElement element)
     {
-        element.addAttribute(new Attribute(CONDITION_LABEL, condition.getContent()));
-        element.addAttribute(new Attribute(CONDITION_JAVA_LABEL, condition.getJavaCode()));
+        element.addAttributeExpression(CONDITION_LABEL, condition);
     }
 
     @Override
-    protected void addIntermediateAttributes(Element element, int index)
+    protected void addIntermediateAttributes(LocatableElement element, int index)
     {
-        element.addAttribute(new Attribute(CONDITION_LABEL, elseIfConditions.get(index).getContent()));
-        element.addAttribute(new Attribute(CONDITION_JAVA_LABEL, elseIfConditions.get(index).getJavaCode()));
+        element.addAttributeExpression(CONDITION_LABEL, elseIfConditions.get(index));
     }
 
     @OnThread(Tag.FX)

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -56,11 +56,10 @@ public class ThrowElement extends CodeElement implements JavaSingleLineDebugHand
     }
 
     @Override
-    public Element toXML()
+    public LocatableElement toXML()
     {
-        Element throwEl = new Element(ELEMENT);
-        throwEl.addAttribute(new Attribute("value", val.getContent()));
-        throwEl.addAttribute(new Attribute("value-java", val.getJavaCode()));
+        LocatableElement throwEl = new LocatableElement(this, ELEMENT);
+        throwEl.addAttributeExpression("value", val);
         addEnableAttribute(throwEl);
         return throwEl;
     }

@@ -223,6 +223,8 @@ public class DataCollectorImpl
                     mpe.addPart("event[compile_output][][start_column]", CollectUtility.toBody(d.getStartColumn()));
                 if (d.getEndColumn() >= 1)
                     mpe.addPart("event[compile_output][][end_column]", CollectUtility.toBody(d.getEndColumn()));
+                if (d.getXPath() != null)
+                    mpe.addPart("event[compile_output][][xpath]", CollectUtility.toBody(d.getXPath()));
                 // Must make file name relative for anonymisation:
                 String relative = CollectUtility.toPath(projDetails, inputType == SourceType.Stride ? dws.getUserFileName() : new File(dws.getDiagnostic().getFileName()));
                 mpe.addPart("event[compile_output][][source_file_name]", CollectUtility.toBody(relative));

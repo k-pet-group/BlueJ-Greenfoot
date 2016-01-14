@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -96,11 +96,10 @@ public class SwitchElement extends ContainerCodeElement implements JavaSingleLin
     }
 
     @Override
-    public Element toXML()
+    public LocatableElement toXML()
     {
-        Element switchEl = new Element(ELEMENT);
-        switchEl.addAttribute(new Attribute("expression", expression.getContent()));
-        switchEl.addAttribute(new Attribute("expression-java", expression.getJavaCode()));
+        LocatableElement switchEl = new LocatableElement(this, ELEMENT);
+        switchEl.addAttributeExpression("expression", expression);
         addEnableAttribute(switchEl);
 
         Element casesEl = new Element("cases");

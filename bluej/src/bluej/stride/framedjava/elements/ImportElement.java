@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -64,10 +64,10 @@ public class ImportElement extends CodeElement
     }
 
     @Override
-    public Element toXML()
+    public LocatableElement toXML()
     {
-        Element importEl = new Element(ELEMENT);
-        importEl.addAttribute(new Attribute("target", importValue.getContent()));
+        LocatableElement importEl = new LocatableElement(this, ELEMENT);
+        importEl.addAttributeCode("target", importValue);
         addEnableAttribute(importEl);
         return importEl;
     }

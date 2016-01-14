@@ -41,6 +41,7 @@ public class Diagnostic implements Serializable
     private long startColumn;
     private long endLine;
     private long endColumn;
+    private String xpath;
 
     // May be -1 if it wasn't a compiler error with specific location
     private final int diagnosticIdentifier;
@@ -71,7 +72,7 @@ public class Diagnostic implements Serializable
      *                    {@code startLine} is greater than 0. Tab stops are every 8 spaces.
      */
     public Diagnostic(int type, String message, String fileName,
-            long startLine, long startColumn, long endLine, long endColumn, int identifier)
+            long startLine, long startColumn, long endLine, long endColumn, String xpath, int identifier)
     {
         this.type = type;
         this.message = message;
@@ -80,6 +81,7 @@ public class Diagnostic implements Serializable
         this.startColumn = startColumn;
         this.endLine = endLine;
         this.endColumn = endColumn;
+        this.xpath = xpath;
         this.diagnosticIdentifier = identifier;
     }
     
@@ -160,5 +162,10 @@ public class Diagnostic implements Serializable
     public int getIdentifier()
     {
         return diagnosticIdentifier;
+    }
+
+    public String getXPath()
+    {
+        return xpath;
     }
 }

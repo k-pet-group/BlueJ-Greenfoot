@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,6 +21,7 @@
  */
 package bluej.stride.framedjava.ast;
 
+import bluej.stride.framedjava.elements.LocatableElement;
 import nu.xom.Attribute;
 import nu.xom.Element;
 
@@ -41,8 +42,8 @@ public class ThrowsTypeFragment
     
     public Element toXML()
     {
-        Element typeEl = new Element(ELEMENT);
-        typeEl.addAttribute(new Attribute("type", throwType.getContent()));
+        LocatableElement typeEl = new LocatableElement(null, ELEMENT);
+        typeEl.addAttributeCode("type", throwType);
         return typeEl;
     }
     

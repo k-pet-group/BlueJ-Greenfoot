@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -123,11 +123,11 @@ public class VarElement extends CodeElement implements JavaSingleLineDebugHandle
     }
 
     @Override
-    public Element toXML()
+    public LocatableElement toXML()
     {
-        Element varEl = new Element(ELEMENT);
+        LocatableElement varEl = new LocatableElement(this, ELEMENT);
         if (varAccess != null) {
-            varEl.addAttribute(new Attribute("access", varAccess.getContent()));
+            varEl.addAttributeAccess("access", varAccess);
         }
         if (staticModifier) {
             varEl.addAttribute(new Attribute("static", "true"));
@@ -135,11 +135,10 @@ public class VarElement extends CodeElement implements JavaSingleLineDebugHandle
         if (finalModifier) {
             varEl.addAttribute(new Attribute("final", "true"));
         }
-        varEl.addAttribute(new Attribute("type", varType.getContent()));
-        varEl.addAttribute(new Attribute("name", varName.getContent()));
+        varEl.addAttributeCode("type", varType);
+        varEl.addAttributeCode("name", varName);
         if (varValue != null) {
-            varEl.addAttribute(new Attribute("value", varValue.getContent()));
-            varEl.addAttribute(new Attribute("value-java", varValue.getJavaCode()));
+            varEl.addAttributeExpression("value", varValue);
         }
         addEnableAttribute(varEl);
         return varEl;

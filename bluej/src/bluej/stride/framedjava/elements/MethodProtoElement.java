@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -128,11 +128,11 @@ public class MethodProtoElement extends DocumentContainerCodeElement
     }
 
     @Override
-    public Element toXML()
+    public LocatableElement toXML()
     {
-        Element methodEl = new Element(ELEMENT);
-        methodEl.addAttribute(new Attribute("type", returnType.getContent()));
-        methodEl.addAttribute(new Attribute("name", name.getContent()));
+        LocatableElement methodEl = new LocatableElement(this, ELEMENT);
+        methodEl.addAttributeCode("type", returnType);
+        methodEl.addAttributeCode("name", name);
         addEnableAttribute(methodEl);
         methodEl.appendChild(documentation.toXML());
         params.forEach(param -> methodEl.appendChild(param.toXML()));

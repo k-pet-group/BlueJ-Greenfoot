@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -69,11 +69,10 @@ public class CallElement extends CodeElement implements JavaSingleLineDebugHandl
     }
 
     @Override
-    public Element toXML()
+    public LocatableElement toXML()
     {
-        Element callEl = new Element(ELEMENT);
-        callEl.addAttribute(new Attribute("expression", call.getContent()));
-        callEl.addAttribute(new Attribute("expression-java", call.getJavaCode()));
+        LocatableElement callEl = new LocatableElement(this, ELEMENT);
+        callEl.addAttributeExpression("expression", call);
         addEnableAttribute(callEl);
        return callEl;
     }

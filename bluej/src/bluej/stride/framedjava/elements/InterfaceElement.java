@@ -24,6 +24,7 @@ package bluej.stride.framedjava.elements;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.function.Function;
 
@@ -33,6 +34,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.text.BadLocationException;
 
 import bluej.debugger.gentype.ConstructorReflective;
+import bluej.stride.framedjava.errors.SyntaxCodeError;
 import bluej.stride.generic.AssistContentThreadSafe;
 import bluej.stride.generic.InteractionManager;
 import nu.xom.Attribute;
@@ -117,15 +119,15 @@ public class InterfaceElement extends DocumentContainerCodeElement implements To
     }
 
     @Override
-    public Element toXML()
+    public LocatableElement toXML()
     {
-        Element interfaceEl = new Element(ELEMENT);
-        interfaceEl.addAttribute(new Attribute("name", interfaceName.getContent()));
+        LocatableElement interfaceEl = new LocatableElement(this, ELEMENT);
+        interfaceEl.addAttributeCode("name", interfaceName);
         if (!extendsTypes.isEmpty())
         {
             interfaceEl.appendChild(
                 TopLevelCodeElement.stringListToXML(
-                    Utility.mapList(extendsTypes, TypeSlotFragment::getContent),
+                    extendsTypes,
                     "extends", "extendstype", "type"));
         }
         addEnableAttribute(interfaceEl);
@@ -286,5 +288,11 @@ public class InterfaceElement extends DocumentContainerCodeElement implements To
     {
         // No constructors in an interface:
         return Collections.emptyList();
+    }
+
+    @Override
+    public Stream<SyntaxCodeError> findEarlyErrors()
+    {
+        return findEarlyErrors(toXML().buildLocationMap(new HashMap<>()));
     }
 }

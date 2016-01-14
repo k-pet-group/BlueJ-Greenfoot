@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2015 Michael Kölling and John Rosenberg
+ Copyright (C) 2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -188,9 +188,9 @@ public abstract class SandwichCanvasesElement extends ContainerCodeElement imple
     }
 
     @Override
-    public Element toXML()
+    public LocatableElement toXML()
     {
-        Element mainEl = new Element(frameCaption);
+        LocatableElement mainEl = new LocatableElement(this, frameCaption);
         addMainAttributes(mainEl);
         addEnableAttribute(mainEl);
         Element firstCanvasStatementsEl = new Element(frameCaption + "Statements");
@@ -199,7 +199,7 @@ public abstract class SandwichCanvasesElement extends ContainerCodeElement imple
 
         for (int i = 0; i < intermediateCanvasContents.size(); i++)
         {
-            Element intermediateCanvasEl = new Element(intermediateCanvasElement);
+            LocatableElement intermediateCanvasEl = new LocatableElement(null, intermediateCanvasElement);
             addIntermediateAttributes(intermediateCanvasEl, i);
             intermediateCanvasContents.get(i).forEach(f -> intermediateCanvasEl.appendChild(f.toXML()));
             mainEl.appendChild(intermediateCanvasEl);
@@ -214,9 +214,9 @@ public abstract class SandwichCanvasesElement extends ContainerCodeElement imple
         return mainEl;
     }
 
-    protected abstract void addMainAttributes(Element element);
+    protected abstract void addMainAttributes(LocatableElement element);
 
-    protected abstract void addIntermediateAttributes(Element element, int index);
+    protected abstract void addIntermediateAttributes(LocatableElement element, int index);
 
     @Override
     public Frame createFrame(InteractionManager editor)

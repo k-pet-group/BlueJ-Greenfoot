@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -80,13 +80,12 @@ public class ForeachElement extends ContainerCodeElement
     }
 
     @Override
-    public Element toXML()
+    public LocatableElement toXML()
     {
-        Element loopEl = new Element(ELEMENT);
-        loopEl.addAttribute(new Attribute("type", type.getContent()));
-        loopEl.addAttribute(new Attribute("var", var.getContent()));
-        loopEl.addAttribute(new Attribute("collection", collection.getContent()));
-        loopEl.addAttribute(new Attribute("collection-java", collection.getJavaCode()));
+        LocatableElement loopEl = new LocatableElement(this, ELEMENT);
+        loopEl.addAttributeCode("type", type);
+        loopEl.addAttributeCode("var", var);
+        loopEl.addAttributeExpression("collection", collection);
         addEnableAttribute(loopEl);
         for (CodeElement c : contents)
         {

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -133,10 +133,10 @@ public abstract class MethodWithBodyElement extends DocumentContainerCodeElement
         }
     }
     
-    protected void accessToXML(Element methodEl)
+    protected void accessToXML(LocatableElement methodEl)
     {
         if (access != null) {
-            methodEl.addAttribute(new Attribute("access", access.getContent()));
+            methodEl.addAttributeAccess("access", access);
         }
     }
 
