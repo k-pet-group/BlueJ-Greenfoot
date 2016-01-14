@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2013,2014,2015  Poul Henriksen and Michael Kolling
+ Copyright (C) 2005-2009,2010,2013,2014,2015,2016  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -279,34 +279,32 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
             while (transportObject == null) {
                 wait();
             }
-            BClass bClass = transportObject.getBClass();
-            BField field = bClass.getField("transportField");
-            final BObject value = (BObject) field.getValue(transportObject);
 
-            if (value != null) {
-                EventQueue.invokeAndWait(new Runnable() {
-                    @Override
-                    public void run()
-                    {
-                        try {
-                            String cName = value.getBClass().getName();
-                            cName = cName.toLowerCase();
-                            value.addToBench(cName);
-                        }
-                        catch (bluej.extensions.ClassNotFoundException cnfe) { }
-                        catch (PackageNotFoundException pnfe) { }
-                        catch (ProjectNotOpenException pnoe) { }
+            BObject[] val_a = new BObject[1];
+            
+            EventQueue.invokeAndWait(new Runnable() {
+                @Override
+                public void run()
+                {
+                    try {
+                        BClass bClass = transportObject.getBClass();
+                        BField field = bClass.getField("transportField");
+                        BObject value = (BObject) field.getValue(transportObject);
+                        
+                        String cName = value.getBClass().getName();
+                        cName = cName.toLowerCase();
+                        value.addToBench(cName);
+                        val_a[0] = value;
                     }
-                });
-                
-                value.getInstanceName();
-                return WrapperPool.instance().getWrapper(value);
-            }
+                    catch (bluej.extensions.ClassNotFoundException cnfe) { }
+                    catch (PackageNotFoundException pnfe) { }
+                    catch (ProjectNotOpenException pnoe) { }
+                }
+            });
+
+            return WrapperPool.instance().getWrapper(val_a[0]);
         }
         catch (InterruptedException ie) { }
-        catch (bluej.extensions.ClassNotFoundException cnfe) { }
-        catch (PackageNotFoundException pnfe) { }
-        catch (ProjectNotOpenException pnoe) { }
         catch (InvocationTargetException ite) {
             Debug.reportError("Error adding object to bench", ite);
         }
