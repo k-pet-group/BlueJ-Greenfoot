@@ -59,7 +59,6 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.function.Consumer;
@@ -84,7 +83,6 @@ import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.HTMLFrameHyperlinkEvent;
 
-import bluej.collect.DataCollector;
 import bluej.extensions.SourceType;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -253,9 +251,9 @@ public final class MoeEditor extends JPanel
     private boolean madeChangeOnCurrentLine = false;
     private AbstractButton nextErrorButton;
     /** Manages display of compiler and parse errors */
-    private final MoeErrorManager errorManager = new MoeErrorManager(this, enable -> {
-        setNextErrorEnabled(enable || madeChangeOnCurrentLine, madeChangeOnCurrentLine);
-    });
+    private final MoeErrorManager errorManager = new MoeErrorManager(this, enable ->
+        setNextErrorEnabled(enable || madeChangeOnCurrentLine, madeChangeOnCurrentLine)
+    );
     private Timer mouseHover;
     private int mouseCaretPos = -1;
 
@@ -3989,14 +3987,8 @@ public final class MoeEditor extends JPanel
 
     private Iterable<NodeAndPosition<ParsedNode>> iterable(final NodeAndPosition<ParsedNode> parent)
     {
-      return new Iterable<NodeAndPosition<ParsedNode>>()
-      {
-          public Iterator<NodeAndPosition<ParsedNode>> iterator()
-          {
-              return parent.getNode().getChildren(parent.getPosition());
-          }
-      };
-  }
+      return () -> parent.getNode().getChildren(parent.getPosition());
+    }
 
     @Override
     @OnThread(Tag.FX)
