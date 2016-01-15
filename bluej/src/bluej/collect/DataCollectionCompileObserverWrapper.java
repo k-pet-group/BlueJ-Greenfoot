@@ -69,16 +69,19 @@ public class DataCollectionCompileObserverWrapper implements EDTCompileObserver
     public boolean compilerMessage(Diagnostic diagnostic)
     {
         boolean shownToUser = wrapped.compilerMessage(diagnostic);
-        File userFile = new File(diagnostic.getFileName());
-        for (CompileInputFile input : sources)
+        if (diagnostic.getFileName() != null)
         {
-            if (input.getJavaCompileInputFile().getName().equals(userFile.getName()))
+            File userFile = new File(diagnostic.getFileName());
+            for (CompileInputFile input : sources)
             {
-                userFile = input.getUserSourceFile();
-                break;
+                if (input.getJavaCompileInputFile().getName().equals(userFile.getName()))
+                {
+                    userFile = input.getUserSourceFile();
+                    break;
+                }
             }
+            diagnostics.add(new DiagnosticWithShown(diagnostic, shownToUser, userFile));
         }
-        diagnostics.add(new DiagnosticWithShown(diagnostic, shownToUser, userFile));
         return shownToUser;
     }
 
