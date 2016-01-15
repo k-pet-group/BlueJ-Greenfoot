@@ -2319,4 +2319,13 @@ public class ClassTarget extends DependentTarget
 
         DataCollector.compiled(getPackage().getProject(), getPackage(), new CompileInputFile[] {getCompileInputFile()}, diagnostics, false, true, SourceType.Stride);
     }
+
+    @Override
+    public void recordLateErrors(List<DiagnosticWithShown> diagnostics)
+    {
+        if (diagnostics.isEmpty())
+            return;
+
+        DataCollector.compiled(getPackage().getProject(), getPackage(), new CompileInputFile[] {getCompileInputFile()}, diagnostics, false, true, SourceType.Stride);
+    }
 }

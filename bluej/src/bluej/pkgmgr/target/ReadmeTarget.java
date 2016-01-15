@@ -237,4 +237,7 @@ public class ReadmeTarget extends EditableTarget
 
     @Override
     public void recordEarlyErrors(List<DiagnosticWithShown> diagnostics) { }
+
+    @Override
+    public void recordLateErrors(List<DiagnosticWithShown> diagnostics) { }
 }

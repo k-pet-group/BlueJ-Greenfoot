@@ -26,12 +26,15 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Future;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import bluej.debugger.gentype.ConstructorReflective;
 import bluej.stride.framedjava.ast.FrameFragment;
+import bluej.stride.framedjava.ast.JavaFragment;
 import bluej.stride.framedjava.ast.TypeSlotFragment;
+import bluej.stride.framedjava.errors.DirectSlotError;
 import bluej.stride.generic.AssistContentThreadSafe;
 import bluej.stride.generic.InteractionManager;
 import nu.xom.Attribute;
@@ -134,7 +137,7 @@ public interface TopLevelCodeElement
 
     public Stream<SyntaxCodeError> findEarlyErrors();
 
-    public Stream<Future<List<CodeError>>> findDirectLateErrors(InteractionManager editor);
+    public Stream<Future<List<DirectSlotError>>> findDirectLateErrors(InteractionManager editor, Function<JavaFragment, String> rootPathMap);
     
     public JavaSource toJavaSource();
 

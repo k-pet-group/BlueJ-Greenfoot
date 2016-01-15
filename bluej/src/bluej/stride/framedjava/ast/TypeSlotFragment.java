@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,12 +26,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import bluej.stride.framedjava.ast.links.PossibleLink;
 import bluej.stride.framedjava.ast.links.PossibleTypeLink;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.errors.CodeError;
+import bluej.stride.framedjava.errors.DirectSlotError;
 import bluej.stride.framedjava.errors.EmptyError;
 import bluej.stride.framedjava.errors.SyntaxCodeError;
 import bluej.stride.framedjava.errors.UnknownTypeError;
@@ -81,9 +83,9 @@ public class TypeSlotFragment extends TextSlotFragment
     }
 
     @Override
-    public Future<List<CodeError>> findLateErrors(InteractionManager editor, CodeElement parent)
+    public Future<List<DirectSlotError>> findLateErrors(InteractionManager editor, CodeElement parent, Function<JavaFragment, String> rootPathMap)
     {
-        CompletableFuture<List<CodeError>> f = new CompletableFuture<>();
+        CompletableFuture<List<DirectSlotError>> f = new CompletableFuture<>();
         
         // No point looking for a type that isn't syntactically valid:
         // Also, don't mess with arrays or generics:
@@ -105,7 +107,9 @@ public class TypeSlotFragment extends TextSlotFragment
                 }
             }
             // Otherwise, give error and suggest corrections 
-            f.complete(Arrays.asList(new UnknownTypeError(this, content, slot, editor, types.stream(), editor.getOtherPopularImports().stream())));
+            final UnknownTypeError error = new UnknownTypeError(this, content, slot, editor, types.stream(), editor.getOtherPopularImports().stream());
+            error.recordPath(rootPathMap.apply(this));
+            f.complete(Arrays.asList(error));
         });
         return f;
     }

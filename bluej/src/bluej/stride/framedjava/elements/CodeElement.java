@@ -30,6 +30,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import bluej.stride.framedjava.errors.DirectSlotError;
 import bluej.stride.generic.InteractionManager;
 import nu.xom.Attribute;
 import nu.xom.Element;
@@ -77,11 +78,11 @@ public abstract class CodeElement
         return toJavaSource().getAllFragments().flatMap(fragment -> fragment.findEarlyErrors().peek(e -> e.recordPath(rootPathMap.apply(fragment))));
     }
     
-    public final Stream<Future<List<CodeError>>> findDirectLateErrors(InteractionManager editor)
+    public final Stream<Future<List<DirectSlotError>>> findDirectLateErrors(InteractionManager editor, Function<JavaFragment, String> rootPathMap)
     {
         if (!isEnable())
             return Stream.empty();
-        return getDirectSlotFragments().map(g -> g.findLateErrors(editor, this)).filter(x -> x != null);
+        return getDirectSlotFragments().map(g -> g.findLateErrors(editor, this, rootPathMap)).filter(x -> x != null);
     }
     
     protected abstract Stream<SlotFragment> getDirectSlotFragments();

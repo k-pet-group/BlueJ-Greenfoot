@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -80,14 +80,6 @@ public class NameDefSlotFragment extends TextSlotFragment
         // TODO look for unknown types
         return Stream.empty();
     } 
-    
-    
-    
-    @Override
-    public Future<List<CodeError>> findLateErrors(InteractionManager editor, CodeElement parent)
-    {
-        return null;
-    }
 
     @Override
     public TextSlot<NameDefSlotFragment> getSlot()

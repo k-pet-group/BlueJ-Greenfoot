@@ -108,13 +108,6 @@ public class ImportElement extends CodeElement
         }
 
         @Override
-        public Future<List<CodeError>> findLateErrors(InteractionManager editor, CodeElement parent)
-        {
-            // No late errors at the moment.  Could provide typo corrections.
-            return null;
-        }
-
-        @Override
         protected String getJavaCode(Destination dest, ExpressionSlot<?> completing)
         {
             return getContent();

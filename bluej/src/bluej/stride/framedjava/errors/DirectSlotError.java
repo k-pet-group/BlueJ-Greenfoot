@@ -1,6 +1,10 @@
 package bluej.stride.framedjava.errors;
 
+import java.io.File;
+
+import bluej.collect.DiagnosticWithShown;
 import bluej.compiler.CompilerAPICompiler;
+import bluej.compiler.Diagnostic;
 import bluej.stride.framedjava.ast.SlotFragment;
 import bluej.stride.framedjava.ast.StringSlotFragment;
 import bluej.stride.slots.EditableSlot;
@@ -29,5 +33,12 @@ public abstract class DirectSlotError extends CodeError
     public int getIdentifier()
     {
         return identifier;
+    }
+
+    public @OnThread(Tag.Any) DiagnosticWithShown toDiagnostic(String javaFileName, File strideFileName)
+    {
+        final Diagnostic diagnostic = new Diagnostic(Diagnostic.ERROR, getMessage(), javaFileName, -1, -1, -1, -1, getIdentifier());
+        diagnostic.setXPath(path, -1, -1);
+        return new DiagnosticWithShown(diagnostic, true, strideFileName);
     }
 }

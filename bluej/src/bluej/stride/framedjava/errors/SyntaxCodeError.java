@@ -68,11 +68,4 @@ public class SyntaxCodeError extends DirectSlotError
         return false;
     }
 
-    @OnThread(Tag.Any)
-    public DiagnosticWithShown toDiagnostic(String javaFileName, File strideFileName)
-    {
-        final Diagnostic diagnostic = new Diagnostic(Diagnostic.ERROR, message, javaFileName, -1, -1, -1, -1, getIdentifier());
-        diagnostic.setXPath(path, -1, -1);
-        return new DiagnosticWithShown(diagnostic, true, strideFileName);
-    }
 }

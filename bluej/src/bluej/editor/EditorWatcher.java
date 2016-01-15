@@ -92,4 +92,6 @@ public interface EditorWatcher
     void recordShowError(int identifier);
 
     void recordEarlyErrors(List<DiagnosticWithShown> diagnostics);
+
+    void recordLateErrors(List<DiagnosticWithShown> diagnostics);
 } // end class EditorWatcher

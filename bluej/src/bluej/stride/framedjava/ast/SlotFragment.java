@@ -2,10 +2,12 @@ package bluej.stride.framedjava.ast;
 
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.errors.CodeError;
+import bluej.stride.framedjava.errors.DirectSlotError;
 import bluej.stride.generic.InteractionManager;
 
 import java.util.List;
 import java.util.concurrent.Future;
+import java.util.function.Function;
 
 /**
  * Created by neil on 20/02/2015.
@@ -25,5 +27,8 @@ public abstract class SlotFragment extends JavaFragment
      * @param editor
      * @return Null if no future, otherwise a future to complete for errors
      */
-    public abstract Future<List<CodeError>> findLateErrors(InteractionManager editor, CodeElement parent);
+    public Future<List<DirectSlotError>> findLateErrors(InteractionManager editor, CodeElement parent, Function<JavaFragment, String> rootPathMap)
+    {
+        return null;
+    }
 }

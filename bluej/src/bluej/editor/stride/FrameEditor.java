@@ -46,6 +46,7 @@ import java.util.stream.Stream;
 
 import bluej.extensions.SourceType;
 import bluej.stride.framedjava.ast.JavaFragment;
+import bluej.stride.framedjava.errors.DirectSlotError;
 import bluej.stride.framedjava.errors.SyntaxCodeError;
 import bluej.utility.Utility;
 import javafx.application.Platform;
@@ -1043,21 +1044,24 @@ public class FrameEditor implements Editor
         panel.removeOldErrors();
         TopLevelCodeElement el = panel.getSource();
         Stream<CodeElement> allElements = Stream.concat(Stream.of((CodeElement)el), el.streamContained());
+        Function<JavaFragment, String> rootPathMap = el.toXML().buildLocationMap();
         // We must start these futures going on the FX thread
-        List<Future<List<CodeError>>> futures = allElements.flatMap(e -> e.findDirectLateErrors(panel)).collect(Collectors.toList());
+        List<Future<List<DirectSlotError>>> futures = allElements.flatMap(e -> e.findDirectLateErrors(panel, rootPathMap)).collect(Collectors.toList());
         // Then wait for them on another thread, and hop back to FX to finish:
         Utility.runBackground(() -> {
+            ArrayList<DirectSlotError> allLates = new ArrayList<>();
             try
             {
                 // Wait for all futures:
-                for (Future<List<CodeError>> f : futures)
-                    f.get();
+                for (Future<List<DirectSlotError>> f : futures)
+                    allLates.addAll(f.get());
             }
             catch (ExecutionException | InterruptedException e)
             {
                 Debug.reportError(e);
             }
             Platform.runLater(() -> panel.updateErrorOverviewBar(false));
+            SwingUtilities.invokeLater(() -> watcher.recordLateErrors(Utility.mapList(allLates, e -> e.toDiagnostic(javaFilename.getName(), frameFilename))));
         });
     }
         

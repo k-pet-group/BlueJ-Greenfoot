@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -39,6 +40,7 @@ import bluej.parser.JavaParser;
 import bluej.parser.lexer.LocatableToken;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.errors.CodeError;
+import bluej.stride.framedjava.errors.DirectSlotError;
 import bluej.stride.framedjava.errors.SyntaxCodeError;
 import bluej.stride.framedjava.errors.UndeclaredVariableInExpressionError;
 import bluej.stride.framedjava.errors.UndeclaredVariableLvalueError;
@@ -227,9 +229,9 @@ public abstract class ExpressionSlotFragment extends StringSlotFragment
     
     
     @Override
-    public Future<List<CodeError>> findLateErrors(InteractionManager editor, CodeElement parent)
+    public Future<List<DirectSlotError>> findLateErrors(InteractionManager editor, CodeElement parent, Function<JavaFragment, String> rootPathMap)
     {
-        CompletableFuture<List<CodeError>> f = new CompletableFuture<>();
+        CompletableFuture<List<DirectSlotError>> f = new CompletableFuture<>();
         Platform.runLater(() -> ASTUtility.withLocalsParamsAndFields(parent, editor, getPosInSourceDoc(), includeDirectDecl(), vars -> {
             this.vars = vars;
 
@@ -248,7 +250,7 @@ public abstract class ExpressionSlotFragment extends StringSlotFragment
                             identToken.getColumn() - 1 + identToken.getLength(), slot, vars.keySet());
                 }
                 return null;
-            }).filter(x -> x != null).collect(Collectors.toList()));
+            }).filter(x -> x != null).peek(e -> e.recordPath(rootPathMap.apply(this))).collect(Collectors.toList()));
             // TODO errors for compounds and types
         }));
         return f;
