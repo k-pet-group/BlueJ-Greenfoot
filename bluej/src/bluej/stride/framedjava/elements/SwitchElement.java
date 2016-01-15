@@ -86,12 +86,12 @@ public class SwitchElement extends ContainerCodeElement implements JavaSingleLin
         List<JavaSource> contentsJavaSource = CodeElement.toJavaCodes(casesContents);
         if (defaultContents != null) {
             JavaContainerDebugHandler defaultHandler = debug -> { return frame.getDefaultDebug().showDebugAtEnd(debug);};
-            contentsJavaSource.add(JavaSource.createCompoundStatement(frame, this, defaultHandler, Arrays.asList(f(frame, "default :")),
+            contentsJavaSource.add(JavaSource.createCompoundStatement(frame, this, this, defaultHandler, Arrays.asList(f(frame, "default :")),
                     CodeElement.toJavaCodes(defaultContents)));
         }
 
         JavaContainerDebugHandler casesHandler = debug -> { return frame.getCasesDebug().showDebugAtEnd(debug);};
-        return JavaSource.createCompoundStatement(frame, this, casesHandler, Arrays.asList(f(frame, "switch ("),
+        return JavaSource.createCompoundStatement(frame, this, this, casesHandler, Arrays.asList(f(frame, "switch ("),
                 expression, f(frame, ")")), contentsJavaSource);
     }
 

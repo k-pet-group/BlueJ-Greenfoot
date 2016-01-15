@@ -132,8 +132,8 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
             JavadocUnit documentation, List<ImportElement> imports, boolean enabled)
     {
         this.frame = frame;
-        this.openingCurly = new FrameFragment(this.frame, "{");
-        this.closingCurly = new FrameFragment(this.frame, "}");
+        this.openingCurly = new FrameFragment(this.frame, this, "{");
+        this.closingCurly = new FrameFragment(this.frame, this, "}");
         this.abstractModifier = abstractModifier;
         this.className = className;
         this.extendsName = extendsName;
@@ -187,8 +187,8 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
        
         enable = new Boolean(el.getAttributeValue("enable"));
         this.projectResolver = projectResolver;
-        this.openingCurly = new FrameFragment(null, "{");
-        this.closingCurly = new FrameFragment(null, "}");
+        this.openingCurly = new FrameFragment(null, this, "{");
+        this.closingCurly = new FrameFragment(null, this, "}");
     }
     
     @Override
@@ -200,11 +200,11 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
     private JavaSource generateJavaSource()
     {
         List<JavaFragment> header = new ArrayList<>();
-        header.add(new FrameFragment(frame, "public "));
+        header.add(new FrameFragment(frame, this, "public "));
         if (abstractModifier) {
             header.add(f(frame, "abstract "));
         }
-        classKeyword = new FrameFragment(frame, "class ");
+        classKeyword = new FrameFragment(frame, this, "class ");
         Collections.addAll(header, classKeyword, className);
         
         if (extendsName != null && !extendsName.isEmpty()) {
@@ -625,6 +625,6 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
     @Override
     public Stream<SyntaxCodeError> findEarlyErrors()
     {
-        return findEarlyErrors(toXML().buildLocationMap(new HashMap<>()));
+        return findEarlyErrors(toXML().buildLocationMap());
     }
 }

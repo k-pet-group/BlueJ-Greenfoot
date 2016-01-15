@@ -114,7 +114,7 @@ public class MethodProtoElement extends DocumentContainerCodeElement
     {
         List<JavaFragment> header = new ArrayList<>();
         Collections.addAll(header, returnType, space(),  name, f(frame, "("));
-        ParamFragment.addParamsToHeader(frame, params, header);
+        ParamFragment.addParamsToHeader(frame, this, params, header);
         header.add(f(frame, ");"));
         return header;
     }

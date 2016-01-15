@@ -65,7 +65,7 @@ public class CaseElement extends ContainerCodeElement implements JavaSingleLineD
     @Override
     public JavaSource toJavaSource()
     {
-        return JavaSource.createCompoundStatement(frame, this, null, Arrays.asList(f(frame, "case "),  expression, f(frame, " :")), CodeElement.toJavaCodes(contents));
+        return JavaSource.createCompoundStatement(frame, this, this, null, Arrays.asList(f(frame, "case "),  expression, f(frame, " :")), CodeElement.toJavaCodes(contents));
     }
 
     @Override

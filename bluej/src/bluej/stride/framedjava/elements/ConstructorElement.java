@@ -91,7 +91,7 @@ public class ConstructorElement extends MethodWithBodyElement
         
         Collections.addAll(header, access, space(), ((ClassElement)getParent()).getNameElement((ConstructorFrame)frame), f(frame, "("));
                 
-        ParamFragment.addParamsToHeader(frame, params, header);
+        ParamFragment.addParamsToHeader(frame, this, params, header);
         header.add(f(frame, ")"));
 
         header.addAll(throwsToJava());
@@ -104,7 +104,7 @@ public class ConstructorElement extends MethodWithBodyElement
         
         effectiveContents.addAll(CodeElement.toJavaCodes(contents));
         
-        return JavaSource.createMethod(frame, this, documentation, header, effectiveContents); 
+        return JavaSource.createMethod(frame, this, this, documentation, header, effectiveContents);
     }
 
     @Override

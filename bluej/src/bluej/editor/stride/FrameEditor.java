@@ -40,6 +40,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -371,9 +372,9 @@ public class FrameEditor implements Editor
     private class SaveJavaResult
     {
         private final JavaSource javaSource;
-        private final IdentityHashMap<JavaFragment, String> xpathLocations;
+        private final Function<JavaFragment, String> xpathLocations;
 
-        public SaveJavaResult(JavaSource javaSource, IdentityHashMap<JavaFragment, String> xpathLocations)
+        public SaveJavaResult(JavaSource javaSource, Function<JavaFragment, String> xpathLocations)
         {
             this.javaSource = javaSource;
             this.xpathLocations = xpathLocations;
@@ -403,7 +404,7 @@ public class FrameEditor implements Editor
 
         SwingUtilities.invokeLater(() -> watcher.recordEdit(SourceType.Java, javaString, true));
 
-        return new SaveJavaResult(js, source.toXML().buildLocationMap(new HashMap<>()));
+        return new SaveJavaResult(js, source.toXML().buildLocationMap());
     }
 
     /**
@@ -796,7 +797,7 @@ public class FrameEditor implements Editor
             JavaFragment fragment = lastSavedJavaSwing.javaSource.findError((int)diagnostic.getStartLine(), (int)diagnostic.getStartColumn(), (int)diagnostic.getEndLine(), (int)diagnostic.getEndColumn(), diagnostic.getMessage(), true);
             if (fragment != null)
             {
-                String xpath = lastSavedJavaSwing.xpathLocations.get(fragment);
+                String xpath = lastSavedJavaSwing.xpathLocations.apply(fragment);
                 int start = fragment.getErrorStartPos((int)diagnostic.getStartLine(), (int)diagnostic.getStartColumn());
                 int end = fragment.getErrorEndPos((int)diagnostic.getEndLine(), (int)diagnostic.getEndColumn());
                 if (xpath != null)

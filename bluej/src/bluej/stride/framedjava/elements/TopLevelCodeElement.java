@@ -146,7 +146,7 @@ public interface TopLevelCodeElement
 
             // Clone before modifying:
             java = new JavaSource(java);
-            java.prependLine(Arrays.asList(new FrameFragment(null, "// WARNING: This file is auto-generated and any changes to it will be overwritten")), null);
+            java.prependLine(Arrays.asList(new FrameFragment(null, (CodeElement)this, "// WARNING: This file is auto-generated and any changes to it will be overwritten")), null);
         }
         return java;
     }

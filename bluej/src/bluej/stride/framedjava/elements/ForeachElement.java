@@ -75,7 +75,7 @@ public class ForeachElement extends ContainerCodeElement
     @Override
     public JavaSource toJavaSource()
     {
-        return JavaSource.createCompoundStatement(frame, this, this, Arrays.asList(f(frame, "for (final "), type, space(), var, f(frame, " : "), collection, 
+        return JavaSource.createCompoundStatement(frame, this, this, this, Arrays.asList(f(frame, "for (final "), type, space(), var, f(frame, " : "), collection,
                 f(frame, ")")), CodeElement.toJavaCodes(contents));
     }
 

@@ -293,6 +293,6 @@ public class InterfaceElement extends DocumentContainerCodeElement implements To
     @Override
     public Stream<SyntaxCodeError> findEarlyErrors()
     {
-        return findEarlyErrors(toXML().buildLocationMap(new HashMap<>()));
+        return findEarlyErrors(toXML().buildLocationMap());
     }
 }

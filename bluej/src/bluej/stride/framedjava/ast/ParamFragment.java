@@ -23,6 +23,7 @@ package bluej.stride.framedjava.ast;
 
 import java.util.List;
 
+import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.LocatableElement;
 import bluej.utility.Debug;
 import nu.xom.Attribute;
@@ -65,15 +66,15 @@ public class ParamFragment
         return paramName;
     }
     
-    public static void addParamsToHeader(Frame frame, List<ParamFragment> params, List<JavaFragment> header)
+    public static void addParamsToHeader(Frame frame, CodeElement src, List<ParamFragment> params, List<JavaFragment> header)
     {
         for (int i = 0; i < params.size();i++)
         {
             header.add(params.get(i).getParamType());
-            header.add(new FrameFragment(frame, " "));
+            header.add(new FrameFragment(frame, src, " "));
             header.add(params.get(i).getParamName());
             if (i != params.size() - 1) {
-                header.add(new FrameFragment(frame, ", "));
+                header.add(new FrameFragment(frame, src, ", "));
             }
         }
     }

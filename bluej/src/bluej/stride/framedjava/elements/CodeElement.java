@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -69,11 +70,11 @@ public abstract class CodeElement
      * 
      * (TODO in the future, this should strengthen to: returning no errors means code won't give syntax error)
      */
-    public final Stream<SyntaxCodeError> findEarlyErrors(Map<JavaFragment, String> rootPathMap)
+    public final Stream<SyntaxCodeError> findEarlyErrors(Function<JavaFragment, String> rootPathMap)
     {
         if (!isEnable())
             return Stream.empty();
-        return toJavaSource().getAllFragments().flatMap(fragment -> fragment.findEarlyErrors().peek(e -> e.recordPath(rootPathMap.get(fragment))));
+        return toJavaSource().getAllFragments().flatMap(fragment -> fragment.findEarlyErrors().peek(e -> e.recordPath(rootPathMap.apply(fragment))));
     }
     
     public final Stream<Future<List<CodeError>>> findDirectLateErrors(InteractionManager editor)
@@ -165,14 +166,14 @@ public abstract class CodeElement
     }
     */
     // Convenience helper for constructing FrameFragment:
-    protected static FrameFragment f(Frame frame, String s)
+    protected FrameFragment f(Frame frame, String s)
     {
-        return new FrameFragment(frame, s);
+        return new FrameFragment(frame, this, s);
     }
     
-    protected static JavaFragment space()
+    protected JavaFragment space()
     {
-        return new FrameFragment(null, " ");
+        return new FrameFragment(null, this, " ");
     }
     
     /**

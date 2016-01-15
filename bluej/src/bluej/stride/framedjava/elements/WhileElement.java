@@ -66,7 +66,7 @@ public class WhileElement extends ContainerCodeElement implements JavaSingleLine
     @Override
     public JavaSource toJavaSource()
     {
-        return JavaSource.createCompoundStatement(frame, this, this, Arrays.asList(f(frame, "while ("), condition, f(frame, ")")), CodeElement.toJavaCodes(contents));
+        return JavaSource.createCompoundStatement(frame, this, this, this, Arrays.asList(f(frame, "while ("), condition, f(frame, ")")), CodeElement.toJavaCodes(contents));
     }
 
     @Override

@@ -68,7 +68,7 @@ public class CatchElement extends ContainerCodeElement implements JavaSingleLine
     @Override
     public JavaSource toJavaSource()
     {
-        return JavaSource.createCompoundStatement(frame, this, null, Arrays.asList(f(frame, "catch ("),
+        return JavaSource.createCompoundStatement(frame, this, this, null, Arrays.asList(f(frame, "catch ("),
                 exceptionTypeFragment, f(frame, " "), exceptionNameFragment, f(frame, ")")), CodeElement.toJavaCodes(contents));
     }
 

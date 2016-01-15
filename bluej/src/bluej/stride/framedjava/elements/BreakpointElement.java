@@ -48,7 +48,7 @@ public class BreakpointElement extends CodeElement implements JavaSingleLineDebu
     @Override
     public JavaSource toJavaSource()
     {
-        return JavaSource.createBreakpoint(frame, this);
+        return JavaSource.createBreakpoint(frame, this, this);
     }
 
     @Override

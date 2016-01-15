@@ -47,7 +47,7 @@ public class BlankElement extends CodeElement
     @Override
     public JavaSource toJavaSource()
     {
-        return new JavaSource(null, new FrameFragment(null, ""));
+        return new JavaSource(null, new FrameFragment(null, this, ""));
     }
 
     @Override

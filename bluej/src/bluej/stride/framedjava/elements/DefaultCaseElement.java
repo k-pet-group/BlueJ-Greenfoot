@@ -62,7 +62,7 @@ public class DefaultCaseElement extends ContainerCodeElement implements JavaSing
     @Override
     public JavaSource toJavaSource()
     {
-        return JavaSource.createCompoundStatement(frame, this, this, Arrays.asList(f(frame, "default: ")), CodeElement.toJavaCodes(contents), f(frame, "break;"));
+        return JavaSource.createCompoundStatement(frame, this, this, this, Arrays.asList(f(frame, "default: ")), CodeElement.toJavaCodes(contents), f(frame, "break;"));
     }
 
     @Override

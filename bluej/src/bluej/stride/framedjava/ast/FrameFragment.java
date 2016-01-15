@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,6 +25,8 @@ import java.security.InvalidParameterException;
 import java.util.stream.Stream;
 
 import bluej.stride.framedjava.ast.JavaFragment.Destination;
+import bluej.stride.framedjava.elements.CodeElement;
+import bluej.stride.framedjava.elements.LocatableElement;
 import bluej.stride.framedjava.errors.CodeError;
 import bluej.stride.framedjava.errors.ErrorShower;
 import bluej.stride.framedjava.errors.SyntaxCodeError;
@@ -38,11 +40,13 @@ public class FrameFragment extends JavaFragment
 {
     private Frame frame;
     private final String content;
+    private final CodeElement element;
     
-    public FrameFragment(Frame frame, String content)
+    public FrameFragment(Frame frame, CodeElement src, String content)
     {
         this.frame = frame;
         this.content = content;
+        this.element = src;
         
         if (content == null)
         {
@@ -106,5 +110,10 @@ public class FrameFragment extends JavaFragment
     public void setFrame(Frame frame)
     {
         this.frame = frame;
+    }
+
+    public CodeElement getElement()
+    {
+        return element;
     }
 }

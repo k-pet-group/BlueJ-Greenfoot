@@ -103,12 +103,12 @@ public class NormalMethodElement extends MethodWithBodyElement
         
         Collections.addAll(header, access, space(), returnType, space(),  name, f(frame, "("));
         
-        ParamFragment.addParamsToHeader(frame, params, header);
+        ParamFragment.addParamsToHeader(frame, this, params, header);
         header.add(f(frame, ")"));
         
         header.addAll(throwsToJava());
         
-        return JavaSource.createMethod(frame, this, documentation, header, CodeElement.toJavaCodes(contents));
+        return JavaSource.createMethod(frame, this, this, documentation, header, CodeElement.toJavaCodes(contents));
     }
 
     @Override

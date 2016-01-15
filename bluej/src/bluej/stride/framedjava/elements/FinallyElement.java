@@ -62,7 +62,7 @@ public class FinallyElement extends ContainerCodeElement implements JavaSingleLi
     @Override
     public JavaSource toJavaSource()
     {
-        return JavaSource.createCompoundStatement(frame, this, this, Arrays.asList(f(frame, "finally")), CodeElement.toJavaCodes(contents), f(frame, "break;"));
+        return JavaSource.createCompoundStatement(frame, this, this, this, Arrays.asList(f(frame, "finally")), CodeElement.toJavaCodes(contents), f(frame, "break;"));
     }
 
     @Override

@@ -28,6 +28,7 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.stream.Stream;
 
+import bluej.stride.framedjava.elements.CodeElement;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.editor.Editor;
@@ -285,33 +286,33 @@ public class JavaSource
     }
 
     // Header line should have no curly brackets
-    public static JavaSource createMethod(Frame frame, JavaSingleLineDebugHandler debugHandler, 
-            JavadocUnit documentation, List<JavaFragment> header, List<JavaSource> contents)
+    public static JavaSource createMethod(Frame frame, CodeElement srcEl, JavaSingleLineDebugHandler debugHandler,
+                                          JavadocUnit documentation, List<JavaFragment> header, List<JavaSource> contents)
     {
         JavaSource parent = new JavaSource(debugHandler, header);
         parent.prependJavadoc(documentation.getJavaCode());
-        parent.appendLine(Arrays.asList(new FrameFragment(frame, "{")), null);
+        parent.appendLine(Arrays.asList(new FrameFragment(frame, srcEl, "{")), null);
         for (JavaSource src : contents) {
             parent.addIndented(src);
         }
         // Methods can have breakpoint on last line so no need for extra code:
-        parent.appendLine(Arrays.asList(new FrameFragment(frame, "}")), debugHandler);
+        parent.appendLine(Arrays.asList(new FrameFragment(frame, srcEl, "}")), debugHandler);
         return parent;
         
     }
     
-    public static JavaSource createCompoundStatement(Frame frame, JavaSingleLineDebugHandler headerDebugHandler,
+    public static JavaSource createCompoundStatement(Frame frame, CodeElement srcEl, JavaSingleLineDebugHandler headerDebugHandler,
             JavaContainerDebugHandler endDebugHandler, List<JavaFragment> header, List<JavaSource> contents)
     {
-        return createCompoundStatement(frame, headerDebugHandler, endDebugHandler, header, contents, null);
+        return createCompoundStatement(frame, srcEl, headerDebugHandler, endDebugHandler, header, contents, null);
     }
     
     // Header line should have no curly brackets
-    public static JavaSource createCompoundStatement(Frame frame, JavaSingleLineDebugHandler headerDebugHandler, 
+    public static JavaSource createCompoundStatement(Frame frame, CodeElement srcEl, JavaSingleLineDebugHandler headerDebugHandler,
             final JavaContainerDebugHandler endDebugHandler, List<JavaFragment> header, List<JavaSource> contents, JavaFragment footer)
     {
         ArrayList<JavaFragment> headerAndBrace = new ArrayList<>(header);
-        headerAndBrace.add(new FrameFragment(frame, " {"));
+        headerAndBrace.add(new FrameFragment(frame, srcEl, " {"));
         JavaSource parent = new JavaSource(headerDebugHandler, headerAndBrace);
         for (JavaSource src : contents) {
             parent.addIndented(src);
@@ -334,7 +335,7 @@ public class JavaSource
         }
         */
        
-        parent.appendLine(Arrays.asList(new FrameFragment(frame, "}")), null);
+        parent.appendLine(Arrays.asList(new FrameFragment(frame, srcEl, "}")), null);
         
         if (footer != null) {
             parent.addIndented(new JavaSource(headerDebugHandler, footer));
@@ -342,12 +343,12 @@ public class JavaSource
         return parent;
     }
 
-    public static JavaSource createBreakpoint(Frame frame, JavaSingleLineDebugHandler handler)
+    public static JavaSource createBreakpoint(Frame frame, CodeElement srcEl, JavaSingleLineDebugHandler handler)
     {
         // We need a valid line of Java code for the breakpoint, but no method calls
         // (so step-over/-into work the same).  This may trigger a warning in future javac:
         JavaSource r = new JavaSource(handler);
-        r.lines.add(new SourceLine("", Arrays.asList(new FrameFragment(frame, "{ int org_greenfoot_debug_frame = 7; } /* dummy code for breakpoint */")), handler, true));
+        r.lines.add(new SourceLine("", Arrays.asList(new FrameFragment(frame, srcEl, "{ int org_greenfoot_debug_frame = 7; } /* dummy code for breakpoint */")), handler, true));
          
         return r;
     }
@@ -366,7 +367,7 @@ public class JavaSource
     public void prependJavadoc(List<String> javadocLines)
     {
         for (int i = javadocLines.size() - 1; i >= 0; i--) {
-            prependLine(Arrays.asList(new FrameFragment(null, javadocLines.get(i))), null);
+            prependLine(Arrays.asList(new FrameFragment(null, null, javadocLines.get(i))), null);
         }
     }
     

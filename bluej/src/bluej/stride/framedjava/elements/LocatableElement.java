@@ -24,15 +24,19 @@ package bluej.stride.framedjava.elements;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Map;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 import bluej.stride.framedjava.ast.AccessPermissionFragment;
 import bluej.stride.framedjava.ast.ExpressionSlotFragment;
 import bluej.stride.framedjava.ast.FilledExpressionSlotFragment;
+import bluej.stride.framedjava.ast.FrameFragment;
 import bluej.stride.framedjava.ast.JavaFragment;
 import bluej.stride.framedjava.ast.StringSlotFragment;
 import bluej.stride.framedjava.ast.SuperThisFragment;
 import bluej.stride.framedjava.ast.TextSlotFragment;
 import bluej.stride.framedjava.ast.TypeSlotFragment;
+import bluej.stride.generic.Frame;
 import nu.xom.Attribute;
 import nu.xom.Element;
 import nu.xom.Elements;
@@ -111,21 +115,43 @@ public class LocatableElement extends Element
      *                      a unique index to each element.
      * @return A map from JavaFragment to XPath String identifying the location of that fragment.
      */
-    public IdentityHashMap<JavaFragment, String> buildLocationMap(Map<String, Integer> siblingCounts)
+    public Function<JavaFragment, String> buildLocationMap()
     {
         IdentityHashMap<JavaFragment, String> map = new IdentityHashMap<>();
+        IdentityHashMap<CodeElement, String> elementMap = new IdentityHashMap<>();
 
+        addToLocationMap(new HashMap<>(), map::put, elementMap::put);
+
+        return fragment -> {
+            if (map.containsKey(fragment))
+            {
+                return map.get(fragment);
+            }
+            else if (fragment instanceof FrameFragment)
+            {
+                FrameFragment ff = (FrameFragment)fragment;
+                return elementMap.get(ff.getElement());
+            }
+            else
+                return null;
+        };
+    }
+
+    private void addToLocationMap(Map<String, Integer> siblingCounts, BiConsumer<JavaFragment, String> map, BiConsumer<CodeElement, String> elementMap)
+    {
         // Form an XPath like "/method[2]" for us, and update counts:
         String me = "/" + getLocalName() + "[" + siblingCounts.getOrDefault(getLocalName(), 1) + "]";
         siblingCounts.put(getLocalName(), siblingCounts.getOrDefault(getLocalName(), 1) + 1);
 
-        attrNames.forEach((attrName, fragment) -> map.put(fragment, me + "/@" + attrName));
-        processChildren(map, getChildElements(), me);
-
-        return map;
+        if (origin != null)
+            elementMap.accept(origin, me);
+        attrNames.forEach((attrName, fragment) -> map.accept(fragment, me + "/@" + attrName));
+        processChildren(map, elementMap, getChildElements(), me);
     }
 
-    private static void processChildren(IdentityHashMap<JavaFragment, String> map, Elements childElements, String me)
+
+
+    private static void processChildren(BiConsumer<JavaFragment, String> map, BiConsumer<CodeElement, String> elementMap, Elements childElements, String me)
     {
         Map<String, Integer> childCounts = new HashMap<>();
         for (int i = 0; i < childElements.size(); i++)
@@ -133,8 +159,9 @@ public class LocatableElement extends Element
             Element child = childElements.get(i);
             if (child instanceof LocatableElement)
             {
-                ((LocatableElement)child).buildLocationMap(childCounts).forEach((frag, path) ->
-                    map.put(frag, me + path));
+                ((LocatableElement)child).addToLocationMap(childCounts,
+                        (frag, path) -> map.accept(frag, me + path),
+                        (el, path) -> elementMap.accept(el, me + path));
             }
             else
             {
@@ -143,7 +170,7 @@ public class LocatableElement extends Element
                 childCounts.put(child.getLocalName(), childCounts.getOrDefault(child.getLocalName(), 1) + 1);
                 // Can't record the attributes of plain elements
                 // For grandchildren, recurse:
-                processChildren(map, child.getChildElements(), me + them);
+                processChildren(map, elementMap, child.getChildElements(), me + them);
             }
         }
     }
