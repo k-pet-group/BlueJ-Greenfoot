@@ -71,6 +71,8 @@ public class SyntaxCodeError extends DirectSlotError
     @OnThread(Tag.Any)
     public DiagnosticWithShown toDiagnostic(String javaFileName, File strideFileName)
     {
-        return new DiagnosticWithShown(new Diagnostic(Diagnostic.ERROR, message, javaFileName, -1, -1, -1, -1, path, getIdentifier()), true, strideFileName);
+        final Diagnostic diagnostic = new Diagnostic(Diagnostic.ERROR, message, javaFileName, -1, -1, -1, -1, getIdentifier());
+        diagnostic.setXPath(path, -1, -1);
+        return new DiagnosticWithShown(diagnostic, true, strideFileName);
     }
 }

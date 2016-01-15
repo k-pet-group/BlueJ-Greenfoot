@@ -31,6 +31,10 @@ import bluej.stride.framedjava.slots.ExpressionSlot;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
+/**
+ * A JavaFragment is a small piece of content in a Java class.  It never spans more than one line,
+ * and thus never includes a newline character.
+ */
 public abstract class JavaFragment
 {
     // Positions in .java file on disk:
@@ -80,7 +84,8 @@ public abstract class JavaFragment
             return ErrorRelation.BEFORE_FRAGMENT;
         
         // Assuming startLine < endLine, now we know that the startLine--endLine range includes lineNumber
-        
+        // But we could still be outside the range, if we are before the start column on the start line,
+        // or after the end column on the end line, so we need to check those cases.
         if (startLine == lineNumber)
         {
             if (startColumn > columnNumber + len)
@@ -126,26 +131,36 @@ public abstract class JavaFragment
 
     private void showCompileErrorDirect(int startLine, int startColumn, int endLine, int endColumn, String message, int identifier)
     {
-        int startPos;
-        int endPos;
+        int startPos = getErrorStartPos(startLine, startColumn);
+        int endPos = getErrorEndPos(endLine, endColumn);
 
-        if (startLine < lineNumber)
-            startPos = 0;
-        else if (startLine == lineNumber)
-            startPos = Math.min(Math.max(0, startColumn - columnNumber), len);
-        else // If startLine is later, we are the nearest fragment; highlight everything:
-            startPos = 0;
-        
+        new JavaCompileError(this, startPos, endPos, message, identifier);
+    }
+
+    public int getErrorEndPos(int endLine, int endColumn)
+    {
+        int endPos;
         if (endLine > lineNumber)
             endPos = len;
         else if (endLine == lineNumber)
             endPos = Math.max(0, Math.min(len, endColumn - columnNumber));
         else // If endLine is earlier, we are the nearest fragment; highlight everything:
             endPos = len;
-
-        new JavaCompileError(this, startPos, endPos, message, identifier);
+        return endPos;
     }
-    
+
+    public int getErrorStartPos(int startLine, int startColumn)
+    {
+        int startPos;
+        if (startLine < lineNumber)
+            startPos = 0;
+        else if (startLine == lineNumber)
+            startPos = Math.min(Math.max(0, startColumn - columnNumber), len);
+        else // If startLine is later, we are the nearest fragment; highlight everything:
+            startPos = 0;
+        return startPos;
+    }
+
     /**
      * Finds any pre-compilation errors in this element, i.e. syntax errors.
      * 

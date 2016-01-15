@@ -797,8 +797,10 @@ public class FrameEditor implements Editor
             if (fragment != null)
             {
                 String xpath = lastSavedJavaSwing.xpathLocations.get(fragment);
+                int start = fragment.getErrorStartPos((int)diagnostic.getStartLine(), (int)diagnostic.getStartColumn());
+                int end = fragment.getErrorEndPos((int)diagnostic.getEndLine(), (int)diagnostic.getEndColumn());
                 if (xpath != null)
-                    diagnostic.setXPath(xpath);
+                    diagnostic.setXPath(xpath, start, end);
             }
         }
 

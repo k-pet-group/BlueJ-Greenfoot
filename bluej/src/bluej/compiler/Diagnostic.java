@@ -41,7 +41,9 @@ public class Diagnostic implements Serializable
     private long startColumn;
     private long endLine;
     private long endColumn;
-    private String xpath;
+    private String xpath = null;
+    private int xmlStart = -1;
+    private int xmlEnd = -1;
 
     // May be -1 if it wasn't a compiler error with specific location
     private final int diagnosticIdentifier;
@@ -72,7 +74,7 @@ public class Diagnostic implements Serializable
      *                    {@code startLine} is greater than 0. Tab stops are every 8 spaces.
      */
     public Diagnostic(int type, String message, String fileName,
-            long startLine, long startColumn, long endLine, long endColumn, String xpath, int identifier)
+            long startLine, long startColumn, long endLine, long endColumn, int identifier)
     {
         this.type = type;
         this.message = message;
@@ -169,8 +171,20 @@ public class Diagnostic implements Serializable
         return xpath;
     }
 
-    public void setXPath(String XPath)
+    public void setXPath(String XPath, int xmlStart, int xmlEnd)
     {
         this.xpath = XPath;
+        this.xmlStart = xmlStart;
+        this.xmlEnd = xmlEnd;
+    }
+
+    public int getXmlStart()
+    {
+        return xmlStart;
+    }
+
+    public int getXmlEnd()
+    {
+        return xmlEnd;
     }
 }
