@@ -1219,9 +1219,8 @@ public class ClassTarget extends DependentTarget
             }
 
             @Override
-            public boolean compilerMessage(Diagnostic diagnostic)
+            public void compilerMessage(Diagnostic diagnostic)
             {
-                return false;
             }
         };
 

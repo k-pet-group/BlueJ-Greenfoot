@@ -49,8 +49,6 @@ final public class EventqueueCompileObserverAdapter
     
     // parameters for COMMAND_DIAG
     private Diagnostic diagnostic;
-    // return value for COMMAND_DIAG:
-    private boolean wasShown;
     private boolean automatic; // COMMAND_START only
 
     /**
@@ -76,12 +74,11 @@ final public class EventqueueCompileObserverAdapter
     
     // ---------------- CompileObserver interface ---------------------
     
-    public synchronized boolean compilerMessage(Diagnostic diagnostic)
+    public synchronized void compilerMessage(Diagnostic diagnostic)
     {
         command = COMMAND_DIAG;
         this.diagnostic = diagnostic;
         runOnEventQueue();
-        return wasShown;
     }
     
     public synchronized void startCompile(CompileInputFile[] csources, boolean automatic)
@@ -113,7 +110,7 @@ final public class EventqueueCompileObserverAdapter
                 link.startCompile(sources, automatic);
                 break;
             case COMMAND_DIAG:
-                wasShown = link.compilerMessage(diagnostic);
+                link.compilerMessage(diagnostic);
                 break;
             case COMMAND_END:
                 link.endCompile(sources, successful);

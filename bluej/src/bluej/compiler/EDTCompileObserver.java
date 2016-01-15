@@ -29,6 +29,11 @@ import threadchecker.Tag;
  *
  * All events will be received on the event dispatch thread.
  *
+ * Note this is no longer an exact copy of CompileObserver.  That class returns void
+ * from the compilerMessage method, because none of the CompileObserver callers actually care.
+ * The only observer which cares is the data collection observer, which implements
+ * EDTCompileObserver (this class), so only this class returns something from compilerMessage.
+ *
  * @author  Michael Cahill
  */
 @OnThread(Tag.Swing)

@@ -91,7 +91,7 @@ public class RJobQueueImpl extends java.rmi.server.UnicastRemoteObject
                 }
             }
             @Override
-            public boolean compilerMessage(Diagnostic diagnostic)
+            public void compilerMessage(Diagnostic diagnostic)
             {
                 try {
                     observer.compilerMessage(diagnostic);
@@ -105,7 +105,6 @@ public class RJobQueueImpl extends java.rmi.server.UnicastRemoteObject
                 catch (RemoteException re) {
                     // probably, connection broken
                 }
-                return true;
             }
         };
         CompileInputFile[] ciFiles = Utility.mapList(Arrays.asList(files), f -> new CompileInputFile(f, f)).toArray(new CompileInputFile[0]);

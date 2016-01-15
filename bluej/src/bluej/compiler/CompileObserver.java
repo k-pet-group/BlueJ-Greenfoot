@@ -39,10 +39,8 @@ public interface CompileObserver
     
     /**
      * An error or warning message occurred during compilation
-     * 
-     * Returns whether or not the error was shown to the user (for data collection purposes)
      */
-    boolean compilerMessage(Diagnostic diagnostic);
+    void compilerMessage(Diagnostic diagnostic);
     
     /**
      * A Compilation job finished.
