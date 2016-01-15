@@ -44,6 +44,7 @@ import java.util.Set;
 import javax.swing.SwingUtilities;
 
 import bluej.compiler.CompileInputFile;
+import bluej.compiler.CompileReason;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.Config;
@@ -1240,7 +1241,7 @@ public final class Package extends Graph
      * classes.
      * @param observer 
      */
-    public void compile(CompileObserver compObserver, boolean automatic)
+    public void compile(CompileObserver compObserver, CompileReason reason)
     {
         if (!checkCompile()) {
             return;
@@ -1265,7 +1266,7 @@ public final class Package extends Graph
             {
                 project.removeClassLoader();
                 project.newRemoteClassLoaderLeavingBreakpoints();
-                doCompile(toCompile, new PackageCompileObserver(compObserver), automatic);
+                doCompile(toCompile, new PackageCompileObserver(compObserver), reason);
             }
         }
         catch (IOException ioe) {
@@ -1281,23 +1282,23 @@ public final class Package extends Graph
      * The standard compile user function: Find and compile all uncompiled
      * classes.
      */
-    public void compile(boolean automatic)
+    public void compile(CompileReason reason)
     {
-        compile((CompileObserver)null, automatic);
+        compile((CompileObserver)null, reason);
     }
     
     /**
      * Compile a single class.
      */
-    public void compile(ClassTarget ct, boolean automatic)
+    public void compile(ClassTarget ct, CompileReason reason)
     {
-        compile(ct, false, null, automatic);
+        compile(ct, false, null, reason);
     }
     
     /**
      * Compile a single class.
      */
-    public void compile(ClassTarget ct, boolean forceQuiet, CompileObserver compObserver, boolean automatic)
+    public void compile(ClassTarget ct, boolean forceQuiet, CompileObserver compObserver, CompileReason reason)
     {
         if (!checkCompile()) {
             return;
@@ -1332,11 +1333,11 @@ public final class Package extends Graph
                 } else {
                     observer = new PackageCompileObserver(compObserver);
                 }
-                searchCompile(ct, observer, automatic);
+                searchCompile(ct, observer, reason);
             }
 
             if (assocTarget != null) {
-                searchCompile(assocTarget, new QuietPackageCompileObserver(null), automatic);
+                searchCompile(assocTarget, new QuietPackageCompileObserver(null), reason);
             }
         }
     }
@@ -1344,14 +1345,14 @@ public final class Package extends Graph
     /**
      * Compile a single class quietly.
      */
-    public void compileQuiet(ClassTarget ct)
+    public void compileQuiet(ClassTarget ct, CompileReason reason)
     {
         if (!isDebuggerIdle()) {
             return;
         }
 
         ct.setInvalidState(); // to force compile
-        searchCompile(ct, new QuietPackageCompileObserver(null), true);
+        searchCompile(ct, new QuietPackageCompileObserver(null), reason);
     }
 
     /**
@@ -1392,7 +1393,7 @@ public final class Package extends Graph
                 project.removeClassLoader();
                 project.newRemoteClassLoader();
 
-                doCompile(compileTargets, new PackageCompileObserver(null), false);
+                doCompile(compileTargets, new PackageCompileObserver(null), CompileReason.REBUILD);
             }
         }
         catch (IOException ioe) {
@@ -1424,7 +1425,7 @@ public final class Package extends Graph
     /**
      * Compile a class together with its dependencies, as necessary.
      */
-    private void searchCompile(ClassTarget t, EDTCompileObserver observer, boolean automatic)
+    private void searchCompile(ClassTarget t, EDTCompileObserver observer, CompileReason reason)
     {
         if (! t.isInvalidState() || t.isQueued()) {
             return;
@@ -1459,7 +1460,7 @@ public final class Package extends Graph
                 }
             }
 
-            doCompile(toCompile, observer, automatic);
+            doCompile(toCompile, observer, reason);
         }
         catch (IOException ioe) {
             // Failed to save; abort the compile
@@ -1474,7 +1475,7 @@ public final class Package extends Graph
      * Compile every Target in 'targetList'. Every compilation goes through this method.
      * All targets in the list should have been saved beforehand.
      */
-    private void doCompile(Collection<ClassTarget> targetList, EDTCompileObserver edtObserver, boolean automatic)
+    private void doCompile(Collection<ClassTarget> targetList, EDTCompileObserver edtObserver, CompileReason reason)
     {
         CompileObserver observer = new EventqueueCompileObserverAdapter(new DataCollectionCompileObserverWrapper(project, edtObserver));
         if (targetList.isEmpty()) {
@@ -1486,7 +1487,7 @@ public final class Package extends Graph
         if (srcFiles.size() > 0)
         {
             JobQueue.getJobQueue().addJob(srcFiles.toArray(new CompileInputFile[0]), observer, project.getClassLoader(), project.getProjectDir(),
-                ! PrefMgr.getFlag(PrefMgr.SHOW_UNCHECKED), project.getProjectCharset(), automatic);
+                ! PrefMgr.getFlag(PrefMgr.SHOW_UNCHECKED), project.getProjectCharset(), reason);
         }
     }
 
@@ -1516,11 +1517,11 @@ public final class Package extends Graph
     /**
      * Compile the package, but only when the debugger is in an idle state.
      */
-    public void compileOnceIdle(boolean automatic)
+    public void compileOnceIdle(CompileReason reason)
     {
         if (isDebuggerIdle())
         {
-            compile(automatic);
+            compile(reason);
         }
         else if (!waitingForIdleToCompile)
         {
@@ -1536,7 +1537,7 @@ public final class Package extends Graph
                         // We call compileOnceIdle, not compile, because we might not still be idle
                         // by the time we run on the Swing thread, so we may have to do the whole
                         // thing again:
-                        SwingUtilities.invokeLater(() -> { waitingForIdleToCompile = false; compileOnceIdle(automatic); });
+                        SwingUtilities.invokeLater(() -> { waitingForIdleToCompile = false; compileOnceIdle(reason); });
                     }
                 }
             });
@@ -2623,7 +2624,7 @@ public final class Package extends Graph
          * currently compiled.
          */
         @Override
-        public void startCompile(CompileInputFile[] sources, boolean automatic)
+        public void startCompile(CompileInputFile[] sources, CompileReason reason)
         {
             // Send a compilation starting event to extensions.
             CompileEvent aCompileEvent = new CompileEvent(CompileEvent.COMPILE_START_EVENT, Utility.mapList(Arrays.asList(sources), CompileInputFile::getJavaCompileInputFile).toArray(new File[0]));
@@ -2866,10 +2867,10 @@ public final class Package extends Graph
         }
         
         @Override
-        public void startCompile(CompileInputFile[] sources, boolean automatic)
+        public void startCompile(CompileInputFile[] sources, CompileReason reason)
         {
             numErrors = 0;
-            super.startCompile(sources, automatic);
+            super.startCompile(sources, reason);
         }
         
         @Override

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2012,2014,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -45,6 +45,7 @@ import javax.swing.Action;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
+import bluej.compiler.CompileReason;
 import org.junit.Test;
 
 import bluej.Config;
@@ -695,7 +696,7 @@ public class UnitTestClassRole extends ClassRole
                     "generic-file-save-error", ioe.getLocalizedMessage());
         }
         
-        pmf.getPackage().compileQuiet(ct);
+        pmf.getPackage().compileQuiet(ct, CompileReason.MODIFIED);
         
         pmf.getProject().removeClassLoader();
         pmf.getProject().newRemoteClassLoaderLeavingBreakpoints();

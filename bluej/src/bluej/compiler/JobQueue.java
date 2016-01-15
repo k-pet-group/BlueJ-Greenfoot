@@ -28,6 +28,7 @@ import java.util.List;
 
 import bluej.Config;
 import bluej.classmgr.BPClassLoader;
+import bluej.utility.Debug;
 import bluej.utility.Utility;
 
 /**
@@ -79,7 +80,7 @@ public class JobQueue
      * @param suppressUnchecked    Suppress "unchecked" warning in java 1.5
      */
     public void addJob(CompileInputFile[] sources, CompileObserver observer, BPClassLoader bpClassLoader, File destDir,
-            boolean suppressUnchecked, Charset fileCharset, boolean automatic)
+            boolean suppressUnchecked, Charset fileCharset, CompileReason reason)
     {
         List<String> options = new ArrayList<String>();
         if (bpClassLoader.loadsForJavaMEproject()) {
@@ -90,7 +91,7 @@ public class JobQueue
         options.addAll(Utility.dequoteCommandLine(optionString));
         
         thread.addJob(new Job(sources, compiler, observer, bpClassLoader,
-                destDir, suppressUnchecked, options, fileCharset, automatic));
+                destDir, suppressUnchecked, options, fileCharset, reason));
     }
 
     /**

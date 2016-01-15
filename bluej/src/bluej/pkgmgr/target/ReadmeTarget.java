@@ -37,6 +37,7 @@ import javax.swing.JPopupMenu;
 
 import bluej.Config;
 import bluej.collect.DiagnosticWithShown;
+import bluej.compiler.CompileReason;
 import bluej.editor.Editor;
 import bluej.editor.EditorManager;
 import bluej.extensions.SourceType;
@@ -240,4 +241,10 @@ public class ReadmeTarget extends EditableTarget
 
     @Override
     public void recordLateErrors(List<DiagnosticWithShown> diagnostics) { }
+
+    /*
+     * The "compile" function was invoked in the editor
+     */
+    public void compile(Editor editor, CompileReason reason) {}
+
 }

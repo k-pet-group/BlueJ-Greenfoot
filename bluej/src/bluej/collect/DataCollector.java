@@ -30,6 +30,7 @@ import java.util.UUID;
 
 import bluej.Boot;
 import bluej.compiler.CompileInputFile;
+import bluej.compiler.CompileReason;
 import bluej.extensions.SourceType;
 import bluej.pkgmgr.target.ClassTarget;
 import threadchecker.OnThread;
@@ -245,10 +246,10 @@ public @OnThread(Tag.Swing) class DataCollector
         DataCollectorImpl.bluejClosed();
     }
     
-    public static void compiled(Project proj, Package pkg, CompileInputFile[] sources, List<DiagnosticWithShown> diagnostics, boolean success, boolean automatic, SourceType inputType)
+    public static void compiled(Project proj, Package pkg, CompileInputFile[] sources, List<DiagnosticWithShown> diagnostics, boolean success, CompileReason reason, SourceType inputType)
     {
         if (dontSend()) return;
-        DataCollectorImpl.compiled(proj, pkg, sources, diagnostics, success, automatic, inputType);
+        DataCollectorImpl.compiled(proj, pkg, sources, diagnostics, success, reason, inputType);
     }
 
     public static void debuggerTerminate(Project project)

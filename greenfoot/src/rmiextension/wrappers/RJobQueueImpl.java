@@ -29,6 +29,7 @@ import java.util.Arrays;
 
 import bluej.compiler.CompileInputFile;
 import bluej.compiler.CompileObserver;
+import bluej.compiler.CompileReason;
 import bluej.compiler.Diagnostic;
 import bluej.compiler.JobQueue;
 import bluej.pkgmgr.Package;
@@ -59,10 +60,10 @@ public class RJobQueueImpl extends java.rmi.server.UnicastRemoteObject
     {
         CompileObserver cobserver = new CompileObserver() {
             @Override
-            public void startCompile(CompileInputFile[] sources, boolean automatic)
+            public void startCompile(CompileInputFile[] sources, CompileReason reason)
             {
                 try {
-                    observer.startCompile(sources, automatic);
+                    observer.startCompile(sources, reason);
                 }
                 catch (ServerError se) {
                     Debug.reportError("Server error in RMI call: " + se.getCause());
@@ -110,6 +111,6 @@ public class RJobQueueImpl extends java.rmi.server.UnicastRemoteObject
         CompileInputFile[] ciFiles = Utility.mapList(Arrays.asList(files), f -> new CompileInputFile(f, f)).toArray(new CompileInputFile[0]);
 
         queue.addJob(ciFiles, cobserver, pkg.getProject().getClassLoader(), pkg.getPath(), true,
-                pkg.getProject().getProjectCharset(), true);
+                pkg.getProject().getProjectCharset(), CompileReason.INVOKE);
     }
 }

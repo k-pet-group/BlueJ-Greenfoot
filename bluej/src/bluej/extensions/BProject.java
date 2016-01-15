@@ -28,6 +28,7 @@ import java.util.ListIterator;
 
 import javafx.application.Platform;
 import bluej.collect.DataCollector;
+import bluej.compiler.CompileReason;
 import bluej.editor.stride.FXTabbedEditor;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
@@ -243,6 +244,6 @@ public class BProject
 
     public void scheduleCompilation(boolean immediate) throws ProjectNotOpenException
     {
-        projectId.getBluejProject().scheduleCompilation(immediate, true);
+        projectId.getBluejProject().scheduleCompilation(immediate, CompileReason.EXTENSION);
     }
 }

@@ -35,6 +35,7 @@ import java.util.Map;
 
 import bluej.Boot;
 import bluej.compiler.CompileInputFile;
+import bluej.compiler.CompileReason;
 import bluej.extensions.SourceType;
 import org.apache.http.entity.mime.MultipartEntity;
 
@@ -192,12 +193,12 @@ public class DataCollectorImpl
         });
     }
 
-    public static void compiled(Project proj, Package pkg, CompileInputFile[] sources, List<DiagnosticWithShown> diagnostics, boolean success, boolean automatic, SourceType inputType)
+    public static void compiled(Project proj, Package pkg, CompileInputFile[] sources, List<DiagnosticWithShown> diagnostics, boolean success, CompileReason compileReason, SourceType inputType)
     {
         MultipartEntity mpe = new MultipartEntity();
         
         mpe.addPart("event[compile_success]", CollectUtility.toBody(success));
-        mpe.addPart("event[compile_automatic]", CollectUtility.toBody(automatic));
+        mpe.addPart("event[compile_reason]", CollectUtility.toBody(compileReason.getServerString()));
         
         ProjectDetails projDetails = new ProjectDetails(proj);
         for (CompileInputFile src : sources)

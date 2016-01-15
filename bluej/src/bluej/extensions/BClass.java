@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.WeakHashMap;
 
+import bluej.compiler.CompileReason;
 import bluej.compiler.JobQueue;
 import bluej.extensions.editor.Editor;
 import bluej.extensions.editor.EditorBridge;
@@ -268,7 +269,7 @@ public class BClass
         }
 
         // Ask for compilation of this target
-        bluejPkg.compile(aTarget, forceQuiet, null, false);
+        bluejPkg.compile(aTarget, forceQuiet, null, CompileReason.EXTENSION);
 
         // if requested wait for the compilation to finish.
         if (waitCompileEnd) {

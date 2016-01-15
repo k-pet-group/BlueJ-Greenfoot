@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import bluej.compiler.CompileReason;
 import threadchecker.OnThread;
 import bluej.compiler.JobQueue;
 import bluej.debugmgr.objectbench.ObjectBench;
@@ -272,7 +273,7 @@ public class BPackage
             throw new CompilationNotStartedException ("BlueJ is currently executing Java code");
 
         // Start compilation
-        bluejPkg.compile(false);
+        bluejPkg.compile(CompileReason.EXTENSION);
 
         // if requested wait for the compilation to finish.
         if ( waitCompileEnd ) JobQueue.getJobQueue().waitForEmptyQueue();

@@ -24,6 +24,7 @@ package bluej.editor;
 import java.util.List;
 
 import bluej.collect.DiagnosticWithShown;
+import bluej.compiler.CompileReason;
 import bluej.compiler.Diagnostic;
 import bluej.extensions.SourceType;
 
@@ -62,7 +63,7 @@ public interface EditorWatcher
     /**
      * Called by Editor when a file is to be compiled
      */
-    void compile(Editor editor, boolean automatic);
+    void compile(Editor editor, CompileReason reason);
     
     /**
      * Called by Editor when documentation is to be compiled

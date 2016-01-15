@@ -81,6 +81,7 @@ import javax.swing.JToggleButton;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 
+import bluej.compiler.CompileReason;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.BlueJEvent;
@@ -1394,11 +1395,11 @@ public class PkgMgrFrame extends JFrame
         }
 
         if (target.getRole() instanceof UnitTestClassRole) {
-            pkg.compileQuiet(target);
+            pkg.compileQuiet(target, CompileReason.NEW_CLASS);
         }
 
         // Schedule compilation of new class:
-        pkg.getProject().scheduleCompilation(false, true);
+        pkg.getProject().scheduleCompilation(false, CompileReason.NEW_CLASS);
         
         DataCollector.addClass(pkg, target);
         
@@ -2273,7 +2274,7 @@ public class PkgMgrFrame extends JFrame
             // try to compile the test class we have just changed. Do this before
             // installing the new class loader, because that causes a short machine
             // execution during which compilation fails with an error message
-            getPackage().compileQuiet(testTarget);
+            getPackage().compileQuiet(testTarget, CompileReason.MODIFIED);
 
             // remove objects from object bench
             getProject().removeClassLoader();
@@ -2394,7 +2395,7 @@ public class PkgMgrFrame extends JFrame
                 if (target instanceof ClassTarget) {
                     ClassTarget t = (ClassTarget) target;
                     if (t.hasSourceCode())
-                        pkg.compile(t, false);
+                        pkg.compile(t, CompileReason.USER);
                 }
             }
         }

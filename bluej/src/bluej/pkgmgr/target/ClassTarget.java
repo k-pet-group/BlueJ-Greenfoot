@@ -52,6 +52,7 @@ import bluej.collect.DataCollector;
 import bluej.collect.DiagnosticWithShown;
 import bluej.compiler.CompileInputFile;
 import bluej.compiler.CompileObserver;
+import bluej.compiler.CompileReason;
 import bluej.compiler.Diagnostic;
 import bluej.debugger.DebuggerClass;
 import bluej.debugger.gentype.Reflective;
@@ -107,6 +108,8 @@ import bluej.utility.JavaUtils;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
 import javafx.application.Platform;
+
+import com.sun.org.apache.xalan.internal.xsltc.cmdline.Compile;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -1203,12 +1206,12 @@ public class ClassTarget extends DependentTarget
      * @param editor Description of the Parameter
      */
     @Override
-    public void compile(final Editor editor, boolean automatic)
+    public void compile(final Editor editor, CompileReason reason)
     {
         final CompileObserver compObserver = new CompileObserver()
         {
             @Override
-            public void startCompile(CompileInputFile[] sources, boolean automatic)
+            public void startCompile(CompileInputFile[] sources, CompileReason reason)
             {
             }
 
@@ -1232,10 +1235,10 @@ public class ClassTarget extends DependentTarget
             // Even though we do a package compile, we must let the editor know when
             // the compile finishes, so that it updates its status correctly:
 
-            getPackage().compile(compObserver, automatic);
+            getPackage().compile(compObserver, reason);
         }
         else {
-            getPackage().compile(this, false, compObserver, automatic);
+            getPackage().compile(this, false, compObserver, reason);
         }
         
     }
@@ -2317,7 +2320,7 @@ public class ClassTarget extends DependentTarget
         if (diagnostics.isEmpty())
             return;
 
-        DataCollector.compiled(getPackage().getProject(), getPackage(), new CompileInputFile[] {getCompileInputFile()}, diagnostics, false, true, SourceType.Stride);
+        DataCollector.compiled(getPackage().getProject(), getPackage(), new CompileInputFile[] {getCompileInputFile()}, diagnostics, false, CompileReason.EARLY, SourceType.Stride);
     }
 
     @Override
@@ -2326,6 +2329,6 @@ public class ClassTarget extends DependentTarget
         if (diagnostics.isEmpty())
             return;
 
-        DataCollector.compiled(getPackage().getProject(), getPackage(), new CompileInputFile[] {getCompileInputFile()}, diagnostics, false, true, SourceType.Stride);
+        DataCollector.compiled(getPackage().getProject(), getPackage(), new CompileInputFile[] {getCompileInputFile()}, diagnostics, false, CompileReason.LATE, SourceType.Stride);
     }
 }

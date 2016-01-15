@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 
+import bluej.compiler.CompileReason;
 import bluej.editor.Editor;
 import bluej.editor.EditorWatcher;
 import bluej.pkgmgr.Package;
@@ -138,11 +139,6 @@ public abstract class EditableTarget extends Target
     { return null; }
 
     public void clearAllBreakpoints() { }
-    
-    /*
-     * The "compile" function was invoked in the editor
-     */
-    public void compile(Editor editor, boolean automatic) {}
 
     // --- end of EditorWatcher interface ---
 }

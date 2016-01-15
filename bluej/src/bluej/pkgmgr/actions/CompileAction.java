@@ -22,6 +22,7 @@
 package bluej.pkgmgr.actions;
 
 import bluej.Config;
+import bluej.compiler.CompileReason;
 import bluej.pkgmgr.PkgMgrFrame;
 
 /**
@@ -29,7 +30,7 @@ import bluej.pkgmgr.PkgMgrFrame;
  * be compiled.
  * 
  * @author Davin McCall
- * @version $Id: CompileAction.java 15256 2016-01-11 15:16:23Z nccb $
+ * @version $Id: CompileAction.java 15289 2016-01-15 17:08:04Z nccb $
  */
 final public class CompileAction extends PkgMgrAction
 {
@@ -42,6 +43,6 @@ final public class CompileAction extends PkgMgrAction
     public void actionPerformed(PkgMgrFrame pmf)
     {
         pmf.menuCall();
-        pmf.getPackage().compile(false);
+        pmf.getPackage().compile(CompileReason.USER);
     }
 }

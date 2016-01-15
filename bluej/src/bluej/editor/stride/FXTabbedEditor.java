@@ -40,6 +40,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import bluej.compiler.CompileReason;
 import bluej.pkgmgr.TabbedEditorWindow;
 import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
@@ -525,7 +526,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor implements TabbedEditorWindow
     @OnThread(Tag.Any)
     public void scheduleCompilation()
     {
-        project.scheduleCompilation(false, true);
+        project.scheduleCompilation(false, CompileReason.MODIFIED);
     }
 
     /**

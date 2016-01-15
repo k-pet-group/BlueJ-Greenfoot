@@ -53,6 +53,7 @@ import javafx.embed.swing.JFXPanel;
 
 import javax.swing.*;
 
+import bluej.compiler.CompileReason;
 import bluej.utility.ImportScanner;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -190,6 +191,7 @@ public class Project implements DebuggerListener, InspectorManager
     private final List<Rectangle> fxCachedEditorSizes = new ArrayList<>();
     
     private Timer compilerTimer;
+    private CompileReason latestCompileReason;
 
     /* ------------------- end of field declarations ------------------- */
     private BProject singleBProject;  // Every Project has none or one BProject
@@ -277,7 +279,7 @@ public class Project implements DebuggerListener, InspectorManager
         // Compile once on load.  If Greenfoot, it will schedule when ready, so we only need do this
         // for BlueJ:
         if (!Config.isGreenfoot())
-            scheduleCompilation(false, true);
+            scheduleCompilation(false, CompileReason.LOADED);
     }
 
     /**
@@ -2122,7 +2124,7 @@ public class Project implements DebuggerListener, InspectorManager
     }
     
     @OnThread(Tag.Any)
-    public synchronized void scheduleCompilation(boolean immediate, boolean automatic)
+    public synchronized void scheduleCompilation(boolean immediate, CompileReason reason)
     {
         if (immediate)
         {
@@ -2131,24 +2133,26 @@ public class Project implements DebuggerListener, InspectorManager
 
             // We must use invokeLater, even if already on event queue,
             // to make sure all actions are resolved (e.g. auto-indent post-newline)
-            EventQueue.invokeLater(() -> getPackage("").compileOnceIdle(automatic));
+            EventQueue.invokeLater(() -> getPackage("").compileOnceIdle(reason));
         }
         else
         {
             if (compilerTimer != null)
             {
                 // Re-use existing timer, to avoid lots of reallocation:
+                latestCompileReason = reason;
                 compilerTimer.restart();
             }
             else
             {
+                latestCompileReason = reason;
                 // needs to be anonymous inner class for compiler plugin:
                 ActionListener listener = new ActionListener()
                 {
                     @Override
                     public void actionPerformed(ActionEvent e)
                     {
-                        getPackage("").compileOnceIdle(automatic);
+                        getPackage("").compileOnceIdle(latestCompileReason);
                     }
                 };
                 compilerTimer = new Timer(1000, listener);

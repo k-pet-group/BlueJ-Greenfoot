@@ -40,6 +40,7 @@ import java.util.function.Function;
 import javax.swing.JFrame;
 
 import bluej.compiler.CompileInputFile;
+import bluej.compiler.CompileReason;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.Config;
@@ -291,7 +292,7 @@ public class Invoker
                 Project project = pkg.getProject();
                 List<CompileInputFile> wrapped = Utility.mapList(Arrays.asList(files), f -> new CompileInputFile(f, f));
                 JobQueue.getJobQueue().addJob(wrapped.toArray(new CompileInputFile[0]), observer, project.getClassLoader(),
-                        project.getProjectDir(), true, project.getProjectCharset(), false);
+                        project.getProjectDir(), true, project.getProjectCharset(), CompileReason.INVOKE);
             }
         };
         this.sourceCharset = pmf.getProject().getProjectCharset();
@@ -1046,7 +1047,7 @@ public class Invoker
 
     // not interested in these events:
     @Override
-    public void startCompile(CompileInputFile[] sources, boolean automatic) { }
+    public void startCompile(CompileInputFile[] sources, CompileReason reason) { }
 
     /*
      * @see bluej.compiler.CompileObserver#compilerMessage(bluej.compiler.Diagnostic)

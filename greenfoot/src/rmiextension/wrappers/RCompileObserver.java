@@ -25,6 +25,7 @@ import java.io.File;
 import java.rmi.RemoteException;
 
 import bluej.compiler.CompileInputFile;
+import bluej.compiler.CompileReason;
 import bluej.compiler.Diagnostic;
 
 /**
@@ -37,7 +38,7 @@ public interface RCompileObserver extends java.rmi.Remote
     /**
      * A compilation job has started.
      */
-    void startCompile(CompileInputFile[] sources, boolean automatic) throws RemoteException;
+    void startCompile(CompileInputFile[] sources, CompileReason reason) throws RemoteException;
     
     /**
      * An error or warning message occurred during compilation

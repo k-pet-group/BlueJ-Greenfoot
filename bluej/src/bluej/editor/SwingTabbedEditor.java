@@ -37,6 +37,7 @@ import java.util.List;
 import javax.swing.*;
 
 import bluej.Config;
+import bluej.compiler.CompileReason;
 import bluej.pkgmgr.TabbedEditorWindow;
 import bluej.utility.Utility;
 import threadchecker.OnThread;
@@ -267,9 +268,9 @@ public class SwingTabbedEditor implements TabbedEditorWindow
     /**
      * Delegate for Project.scheduleCompilation
      */
-    public void scheduleCompilation(boolean immediate, boolean automatic)
+    public void scheduleCompilation(boolean immediate, CompileReason reason)
     {
-        project.scheduleCompilation(immediate, automatic);
+        project.scheduleCompilation(immediate, reason);
     }
 
     /**

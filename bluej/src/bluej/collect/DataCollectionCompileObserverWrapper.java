@@ -29,6 +29,7 @@ import java.util.Set;
 
 import bluej.compiler.CompileInputFile;
 import bluej.compiler.CompileObserver;
+import bluej.compiler.CompileReason;
 import bluej.compiler.Diagnostic;
 import bluej.compiler.EDTCompileObserver;
 import bluej.extensions.SourceType;
@@ -46,7 +47,7 @@ public class DataCollectionCompileObserverWrapper implements EDTCompileObserver
     private EDTCompileObserver wrapped;
     private List<DiagnosticWithShown> diagnostics = new ArrayList<DiagnosticWithShown>();
     private CompileInputFile[] sources;
-    private boolean automatic;
+    private CompileReason reason;
     private Project project;
     
     public DataCollectionCompileObserverWrapper(Project project, EDTCompileObserver wrapped)
@@ -56,12 +57,12 @@ public class DataCollectionCompileObserverWrapper implements EDTCompileObserver
     }
 
     @Override
-    public void startCompile(CompileInputFile[] sources, boolean automatic)
+    public void startCompile(CompileInputFile[] sources, CompileReason reason)
     {
         diagnostics.clear();
         this.sources = sources;
-        this.automatic = automatic;
-        wrapped.startCompile(sources, automatic);
+        this.reason = reason;
+        wrapped.startCompile(sources, reason);
 
     }
 
@@ -98,7 +99,7 @@ public class DataCollectionCompileObserverWrapper implements EDTCompileObserver
         }
         bluej.pkgmgr.Package pkg = packages.size() == 1 ? project.getPackage(packages.iterator().next()) : null;
         
-        DataCollector.compiled(project, pkg, sources, diagnostics, successful, automatic, SourceType.Java);
+        DataCollector.compiled(project, pkg, sources, diagnostics, successful, reason, SourceType.Java);
         wrapped.endCompile(sources, successful);
     }
 
