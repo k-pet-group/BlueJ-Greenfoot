@@ -168,4 +168,9 @@ public class Diagnostic implements Serializable
     {
         return xpath;
     }
+
+    public void setXPath(String XPath)
+    {
+        this.xpath = XPath;
+    }
 }

@@ -111,7 +111,7 @@ public class LocatableElement extends Element
      *                      a unique index to each element.
      * @return A map from JavaFragment to XPath String identifying the location of that fragment.
      */
-    public Map<JavaFragment, String> buildLocationMap(Map<String, Integer> siblingCounts)
+    public IdentityHashMap<JavaFragment, String> buildLocationMap(Map<String, Integer> siblingCounts)
     {
         IdentityHashMap<JavaFragment, String> map = new IdentityHashMap<>();
 

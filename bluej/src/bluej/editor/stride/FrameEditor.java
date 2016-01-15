@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -43,6 +44,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import bluej.extensions.SourceType;
+import bluej.stride.framedjava.ast.JavaFragment;
 import bluej.stride.framedjava.errors.SyntaxCodeError;
 import bluej.utility.Utility;
 import javafx.application.Platform;
@@ -117,6 +119,10 @@ public class FrameEditor implements Editor
     private boolean changedSinceLastSave = true;
     // The code at point of last save (only modify on FX thread)
     private String lastSavedSource = null;
+    // Only touch on FX thread:
+    private SaveJavaResult lastSavedJavaFX = null;
+    // Only touch on Swing thread:
+    private SaveJavaResult lastSavedJavaSwing = null;
     /**
      * Location of the .stride file
      */
@@ -253,6 +259,8 @@ public class FrameEditor implements Editor
         setSaved();
         if (watcher != null)
             watcher.recordEdit(SourceType.Stride, result.savedSource, true);
+        if (result.javaResult != null)
+            this.lastSavedJavaSwing = result.javaResult;
     }
     
     /**
@@ -269,16 +277,19 @@ public class FrameEditor implements Editor
     {
         private final IOException exception;
         private final String savedSource;
+        private final SaveJavaResult javaResult;
 
         public SaveResult(IOException exception)
         {
             this.exception = exception;
             this.savedSource = null;
+            this.javaResult = null;
         }
 
-        public SaveResult(String savedSource)
+        public SaveResult(String savedSource, SaveJavaResult javaResult)
         {
             this.savedSource = savedSource;
+            this.javaResult = javaResult;
             this.exception = null;
         }
     }
@@ -292,34 +303,34 @@ public class FrameEditor implements Editor
     private SaveResult _saveFX()
     {
         if (!changedSinceLastSave)
-            return new SaveResult(lastSavedSource);
+            return new SaveResult(lastSavedSource, lastSavedJavaFX);
 
         try
         {
             // If frame editor is closed, we just need to write the Java code
             if (panel == null || panel.getSource() == null)
             {
-                saveJava(lastSource, true);
-                return new SaveResult(Utility.serialiseCodeToString(lastSource.toXML()));
+                SaveJavaResult javaResult = saveJava(lastSource, true);
+                return new SaveResult(Utility.serialiseCodeToString(lastSource.toXML()), javaResult);
             }
             
             panel.regenerateAndReparse(null);
             TopLevelCodeElement source = panel.getSource();
             
             if (source == null)
-                return new SaveResult(Utility.serialiseCodeToString(lastSource.toXML())); // classFrame not initialised yet
+                return new SaveResult(Utility.serialiseCodeToString(lastSource.toXML()), null); // classFrame not initialised yet
 
             // Save Frame source:
             FileOutputStream os = new FileOutputStream(frameFilename);
             Utility.serialiseCodeTo(source.toXML(), os);
             os.close();
 
-            saveJava(panel.getSource(), true);
+            lastSavedJavaFX = saveJava(panel.getSource(), true);
             changedSinceLastSave = false;
             lastSavedSource = Utility.serialiseCodeToString(source.toXML());
         
             panel.saved();
-            return new SaveResult(lastSavedSource);
+            return new SaveResult(lastSavedSource, lastSavedJavaFX);
         }
         catch (IOException e)
         {
@@ -357,14 +368,26 @@ public class FrameEditor implements Editor
             throw new IOException(e.get());
     }
 
+    private class SaveJavaResult
+    {
+        private final JavaSource javaSource;
+        private final IdentityHashMap<JavaFragment, String> xpathLocations;
+
+        public SaveJavaResult(JavaSource javaSource, IdentityHashMap<JavaFragment, String> xpathLocations)
+        {
+            this.javaSource = javaSource;
+            this.xpathLocations = xpathLocations;
+        }
+    }
+
     /**
      * @param warning Whether to include the "auto-generated" warning at the top of the file
      */
     @OnThread(Tag.FX)
-    private void saveJava(TopLevelCodeElement source, boolean warning) throws IOException
+    private SaveJavaResult saveJava(TopLevelCodeElement source, boolean warning) throws IOException
     {
         if (source == null)
-            return; // Not fully loaded yet
+            return null; // Not fully loaded yet
 
         FileOutputStream fos = new FileOutputStream(javaFilename);
         OutputStreamWriter w = new OutputStreamWriter(fos, Charset.forName("UTF-8"));
@@ -379,6 +402,8 @@ public class FrameEditor implements Editor
         javaSource.set(js);
 
         SwingUtilities.invokeLater(() -> watcher.recordEdit(SourceType.Java, javaString, true));
+
+        return new SaveJavaResult(js, source.toXML().buildLocationMap(new HashMap<>()));
     }
 
     /**
@@ -766,6 +791,17 @@ public class FrameEditor implements Editor
     @Override
     public boolean displayDiagnostic(final Diagnostic diagnostic, int errorIndex)
     {
+        if (lastSavedJavaSwing != null && lastSavedJavaSwing.javaSource != null && lastSavedJavaSwing.xpathLocations != null)
+        {
+            JavaFragment fragment = lastSavedJavaSwing.javaSource.findError((int)diagnostic.getStartLine(), (int)diagnostic.getStartColumn(), (int)diagnostic.getEndLine(), (int)diagnostic.getEndColumn(), diagnostic.getMessage(), true);
+            if (fragment != null)
+            {
+                String xpath = lastSavedJavaSwing.xpathLocations.get(fragment);
+                if (xpath != null)
+                    diagnostic.setXPath(xpath);
+            }
+        }
+
         // We are on the compile thread, but need to do GUI bits on the FX thread:
         Platform.runLater(() -> {
             // Don't show javac errors if we are not valid for compilation:

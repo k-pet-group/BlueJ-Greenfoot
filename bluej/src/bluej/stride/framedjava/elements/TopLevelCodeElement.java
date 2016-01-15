@@ -126,7 +126,7 @@ public interface TopLevelCodeElement
     public @OnThread(Tag.FX) InteractionManager getEditor();
 
     // Methods mirroring CodeElement:
-    public Element toXML();
+    public LocatableElement toXML();
 
     public TopLevelFrame getFrame();
 
