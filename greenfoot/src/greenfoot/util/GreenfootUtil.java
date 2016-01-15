@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012,2014,2015  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012,2014,2015,2016  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -945,7 +945,9 @@ public class GreenfootUtil
     {
         if (Config.isWinOS())
         {
-            Kernel32 kernel32 = Kernel32.INSTANCE;
+            // We must reference the Kernel32 class in order to load it and perform
+            // the native initialisation:
+            @SuppressWarnings("unused") Kernel32 kernel32 = Kernel32.INSTANCE;
             User32Ext user32 = User32Ext.INSTANCE;
             user32.AllowSetForegroundWindow(new DWORD(processId));
         }
