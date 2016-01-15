@@ -176,6 +176,19 @@ public class JavaSource
     public boolean handleError(int startLine, int startColumn,
             int endLine, int endColumn, String message, boolean force, int identifier)
     {
+        JavaFragment fragment = findError(startLine, startColumn, endLine, endColumn, message, force);
+        if (fragment != null)
+        {
+            fragment.showCompileError(startLine, startColumn, endLine, endColumn, message, identifier);
+            return true;
+        }
+        else
+            return false;
+    }
+
+    @OnThread(Tag.Any)
+    public JavaFragment findError(int startLine, int startColumn, int endLine, int endColumn, String message, boolean force)
+    {
         // If it's on the last empty line, use handler from last line:
         if (startLine == lines.size() + 1) {
             startLine -= 1;
@@ -185,7 +198,7 @@ public class JavaSource
         {
             // We'll retry in a minute anyway:
             if (!force)
-                return false;
+                return null;
 
             // Just show on the very last fragment we can find:
             for (int i = lines.size() - 1; i >= 0; i--)
@@ -196,14 +209,13 @@ public class JavaSource
                     JavaFragment f = frags.get(j);
                     if (f.checkCompileError(startLine, startColumn, endLine, endColumn) != ErrorRelation.CANNOT_SHOW)
                     {
-                        f.showCompileError(startLine, startColumn, endLine, endColumn, "Error at unexpected position: " + message, identifier);
-                        return true;
+                        return f;
                     }
                 }
             }
             // Nothing at all?!  Give up!
             Debug.message("No fragments found capable of showing error (shouldn't happen): " + message);
-            return false;
+            return null;
         }
 
         JavaFragment last = null;
@@ -212,31 +224,28 @@ public class JavaSource
             ErrorRelation r = f.checkCompileError(startLine, startColumn, endLine, endColumn);
             if (r == ErrorRelation.CANNOT_SHOW)
                 continue;
-            
+
             if (r == ErrorRelation.BEFORE_FRAGMENT && last != null)
             {
-                last.showCompileError(startLine, startColumn, endLine, endColumn, message, identifier);
-                return true;
+                return last;
             }
             else if (r != ErrorRelation.AFTER_FRAGMENT)
             {
-                f.showCompileError(startLine, startColumn, endLine, endColumn, message, identifier);
-                return true;
+                return f;
             }
             last = f;
         }
         if (last != null)
         {
-            last.showCompileError(startLine, startColumn, endLine, endColumn, message, identifier);
-            return true;
+            return last;
         }
         else
         {
             Debug.reportError("No slots found to show compile error: (" + startLine + "," + startColumn + ")->(" + endLine + "," + endColumn + "): " + message);
-            return false;
+            return null;
         }
     }
-    
+
     @OnThread(Tag.FX)
     public HighlightedBreakpoint handleStop(int line, DebugInfo debug)
     {
