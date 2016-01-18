@@ -61,7 +61,6 @@ import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
-import javax.swing.Timer;
 
 import rmiextension.wrappers.RObject;
 import bluej.Config;
@@ -87,8 +86,6 @@ public class WorldHandlerDelegateIDE
 {
     protected final Color envOpColour = Config.ENV_COLOUR;
 
-    private final static int WORLD_INITIALISING_TIMEOUT = 4000;
-
     private WorldHandler worldHandler;
 
     private GProject project;
@@ -101,11 +98,8 @@ public class WorldHandlerDelegateIDE
     private SaveWorldAction saveWorldAction;
 
     private boolean worldInitialising;
-    private long startedInitialisingAt;
     private boolean worldInvocationError;
     private boolean missingConstructor;
-    
-    private Timer timer;
     
     public WorldHandlerDelegateIDE(GreenfootFrame frame, InspectorManager inspectorManager,
             ClassStateManager classStateManager)
@@ -374,24 +368,6 @@ public class WorldHandlerDelegateIDE
         this.worldHandler = handler;
     }
 
-    private void resetTimer()
-    {
-        if (timer == null) {
-            timer = new Timer(WORLD_INITIALISING_TIMEOUT, new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e)
-                {
-                    if (worldInitialising) {
-                        frame.updateBackgroundMessage();
-                    }
-                }
-            });
-            timer.setRepeats(false);
-        }
-        
-        timer.restart();
-    }
-    
     @Override
     public void instantiateNewWorld()
     {
@@ -434,10 +410,8 @@ public class WorldHandlerDelegateIDE
             return;
         }
 
-        startedInitialisingAt = System.currentTimeMillis();
         frame.updateBackgroundMessage();
-
-        resetTimer();
+        frame.resetTimer();
 
         final Class<? extends World> icls = cls;
         Simulation.getInstance().runLater(new Runnable() {
@@ -485,7 +459,6 @@ public class WorldHandlerDelegateIDE
                 EventQueue.invokeLater(() -> {
                     worldInitialising = false;
                 });
-                timer.stop();
             }
         });
     }
@@ -665,14 +638,6 @@ public class WorldHandlerDelegateIDE
         return worldInitialising;
     }
 
-    /**
-     * Returns true if the world is currently initialising, and has gone behind its timeout
-     */
-    public boolean initialisingForTooLong()
-    {
-        return worldInitialising && System.currentTimeMillis() > startedInitialisingAt + WORLD_INITIALISING_TIMEOUT;
-    }
-    
     /**
      * Did the last world invocation end in an error?
      */

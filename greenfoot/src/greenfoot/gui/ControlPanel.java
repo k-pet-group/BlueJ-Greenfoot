@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2011,2016  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -68,8 +68,8 @@ public class ControlPanel extends Box
     private JButton runButton;
     
     /**
-     * 
-     * @param simulation
+     * Control panel constructor
+     * @param simulation  A reference to the simulation controlled by this control panel
      * @param includeAllControls If false, the act-button and speedslider will be excluded.
      */
     public ControlPanel(Simulation simulation, boolean includeAllControls)
@@ -87,6 +87,24 @@ public class ControlPanel extends Box
 
     }
 
+    /**
+     * Control panel constructor (with speed slider and act button visible)
+     * @param simulation  A reference to the simulation controlled by this control panel
+     * @param execComponent an extra component to be displayed in the control panel
+     */
+    public ControlPanel(Simulation simulation, JComponent execComponent)
+    {
+        super(BoxLayout.X_AXIS);
+        
+        this.simulation = simulation;
+        
+        add(createButtonPanel(simulation, true));
+        add(createSpeedSlider());
+        simulation.addSimulationListener(this);
+
+        add(execComponent);
+    }
+    
     private JPanel createButtonPanel(Simulation simulation, boolean includeAllControls)
     {
         buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));

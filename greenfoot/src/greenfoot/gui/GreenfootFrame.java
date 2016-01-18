@@ -121,6 +121,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
 import javax.swing.OverlayLayout;
+import javax.swing.Timer;
 
 import rmiextension.wrappers.RBlueJ;
 import rmiextension.wrappers.event.RCompileEvent;
@@ -173,6 +174,7 @@ public class GreenfootFrame extends JFrame
     private JButton tooLongRestartButton;
     private CardLayout card;
     private DBox worldBox;
+    private ExecutionTwirler executionTwirler;
     
     private NewClassAction newClassAction;
     private ImportClassAction importClassAction;
@@ -190,6 +192,11 @@ public class GreenfootFrame extends JFrame
     
     private ToggleDebuggerAction toggleDebuggerAction;
     private ToggleSoundAction toggleSoundAction;
+    
+    // "Watchdog": make sure user code (world initialisation etc) doesn't stall for too long
+    private Timer timer;
+    private final static int WORLD_INITIALISING_TIMEOUT = 4000;
+    private long startedInitialisingAt;
     
     /**
      * Specifies whether a compilation operation is in progress
@@ -564,9 +571,19 @@ public class GreenfootFrame extends JFrame
         
         centrePanel.add(canvasPanel, BorderLayout.CENTER);
         
+        // Execution control
+        
+        JPanel executionControl = new JPanel();
+        executionTwirler = new ExecutionTwirler();
+        executionControl.add(executionTwirler);
+        Dimension d = executionControl.getPreferredSize();
+        d.width = 100;
+        executionControl.setPreferredSize(d);
+        executionControl.setMaximumSize(d);
+        
         // the control panel
         
-        controlPanel = new ControlPanel(sim, true);
+        controlPanel = new ControlPanel(sim, executionControl);
         controlPanel.setBorder(BorderFactory.createEtchedBorder());
 
         centrePanel.add(controlPanel, BorderLayout.SOUTH);
@@ -1051,7 +1068,7 @@ public class GreenfootFrame extends JFrame
                     message = Config.getString("centrePanel.message.error1");
                     message2 = Config.getString("centrePanel.message.error2");
                 }
-                else if (worldHandlerDelegate.initialisingForTooLong()) {
+                else if (initialisingForTooLong()) {
                     if (this.isFocused()) {
                         message = Config.getString("centrePanel.message.initialisingTooLong1");
                         message2 = Config.getString("centrePanel.message.initialisingTooLong2");
@@ -1078,6 +1095,46 @@ public class GreenfootFrame extends JFrame
         }
         messageLabel.setText(message);
         messageLabel2.setText(message2);
+    }
+    
+    /**
+     * Reset/restart the watchdog timer. Once it times out, the "execution twirler" will be
+     * enabled and (potentially) a message will be displayed in the world background.
+     */
+    public void resetTimer()
+    {
+        startedInitialisingAt = System.currentTimeMillis();
+        if (timer == null) {
+            timer = new Timer(WORLD_INITIALISING_TIMEOUT, new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e)
+                {
+                    updateBackgroundMessage();
+                    executionTwirler.setEnabled(true);
+                }
+            });
+            timer.setRepeats(false);
+        }
+        
+        timer.restart();
+    }
+    
+    /**
+     * Stop the watchdog timer.
+     */
+    public void stopTimer()
+    {
+        timer.stop();
+        executionTwirler.setEnabled(false);
+    }
+
+    /**
+     * Returns true if the world is currently initialising, and has gone behind its timeout
+     */
+    public boolean initialisingForTooLong()
+    {
+        return worldHandlerDelegate.initialising()
+                && System.currentTimeMillis() > startedInitialisingAt + WORLD_INITIALISING_TIMEOUT;
     }
     
     // ----------- WindowListener interface -----------
@@ -1133,7 +1190,7 @@ public class GreenfootFrame extends JFrame
     {
         BufferedImage screenShot = WorldHandler.getInstance().getSnapShot();
         if (screenShot != null) {
-            Utility.convertToGreyImage(screenShot);
+            GreenfootUtil.convertToGreyImage(screenShot);
             // With stripes           
             Utility.stripeRect(screenShot.getGraphics(), 0, 0, screenShot.getWidth(), screenShot.getHeight(), 40, 1, Color.GRAY);
         }
@@ -1175,7 +1232,12 @@ public class GreenfootFrame extends JFrame
     @Override
     public void worldCreated(WorldEvent e)
     {
+        stopTimer();
+        
+        // Having instantiated a world successfully, we can assume it's safe to
+        // try to do so again:
         wasRestarted = false;
+        
         World newWorld = e.getWorld();
         if (needsResize() && newWorld != null) {
             // ensure we don't lose fullscreen on resize
