@@ -186,7 +186,10 @@ public class ClassTarget extends DependentTarget
     
     //properties map to store values used in the editor from the props (if necessary)
     private Map<String,String> properties = new HashMap<String,String>();
-    
+    // Keep track of whether the editor is open or not; we get a lot of
+    // potential open events, and don't want to keep recording ourselves as re-opening
+    private boolean recordedAsOpen = false;
+
     /**
      * Create a new class target in package 'pkg'.
      * 
@@ -2278,12 +2281,17 @@ public class ClassTarget extends DependentTarget
     public void recordClose()
     {
         DataCollector.closeClass(getPackage(), getSourceFile());
+        recordedAsOpen = false;
     }
 
     @Override
     public void recordOpen()
     {
-        DataCollector.openClass(getPackage(), getSourceFile());
+        if (recordedAsOpen == false)
+        {
+            DataCollector.openClass(getPackage(), getSourceFile());
+            recordedAsOpen = true;
+        }
     }
 
     @Override
