@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -128,7 +128,7 @@ public interface EditableSlot extends HeaderItem, RecallableFocus, UnderlineInfo
         CUT(30), COPY(30), PASTE(30),
         DELETE(40), ENABLE_FRAME(40), DISABLE_FRAME(40),
         INSERT_FRAME(60),
-        TRANSFORM(70), TOGGLE_FINAL(70), TOGGLE_ABSTRACT(70), TOGGLE_STATIC(70), TOGGLE_EXTENDS(70), TOGGLE_IMPLEMENTS(70), OVERRIDE(70),
+        TRANSFORM(70), TOGGLE_BOOLEAN(70), TOGGLE_FINAL(70), TOGGLE_ABSTRACT(70), TOGGLE_STATIC(70), TOGGLE_EXTENDS(70), TOGGLE_IMPLEMENTS(70), OVERRIDE(70),
         GOTO_DEFINITION(80), GOTO_OVERRIDE(80), SHOW_HIDE_USES(80);
 
         private final int block;

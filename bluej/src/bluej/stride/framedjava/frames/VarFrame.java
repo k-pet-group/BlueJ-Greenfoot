@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -19,10 +19,6 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package bluej.stride.framedjava.frames;
 
 
@@ -31,18 +27,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import bluej.stride.slots.EditableSlot.MenuItemOrder;
-
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.control.CustomMenuItem;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCodeCombination;
+//import javafx.scene.input.KeyCode;
 
 import bluej.stride.framedjava.ast.AccessPermission;
 import bluej.stride.framedjava.ast.AccessPermissionFragment;
@@ -63,9 +53,10 @@ import bluej.stride.generic.FrameContentItem;
 import bluej.stride.generic.FrameFactory;
 import bluej.stride.generic.InteractionManager;
 import bluej.stride.generic.SingleLineFrame;
+import bluej.stride.operations.FrameOperation;
+import bluej.stride.operations.ToggleBooleanProperty;
 import bluej.stride.slots.AccessPermissionSlot;
 import bluej.stride.slots.EditableSlot;
-import bluej.stride.operations.FrameOperation;
 import bluej.stride.slots.ChoiceSlot;
 import bluej.stride.slots.Focus;
 import bluej.stride.slots.FocusParent;
@@ -76,7 +67,7 @@ import bluej.stride.slots.SlotValueListener;
 import bluej.stride.slots.TypeCompletionCalculator;
 import bluej.stride.slots.TypeTextSlot;
 import bluej.stride.slots.VariableNameDefTextSlot;
-import bluej.utility.Debug;
+
 import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
@@ -88,11 +79,17 @@ import bluej.utility.javafx.SharedTransition;
 public class VarFrame extends SingleLineFrame
   implements CodeFrame<VarElement>, DebuggableFrame
 {
+    //TODO make them private after refactoring
+    public static final String STATIC_NAME = "static";
+    public static final String FINAL_NAME = "final";
+    public static final String TOGGLE_STATIC_VAR = "toggleStaticVar";
+    public static final String TOGGLE_FINAL_VAR = "toggleFinalVar";
+
     private final BooleanProperty accessModifier = new SimpleBooleanProperty(false);
     private final ChoiceSlot<AccessPermission> access; // present only when it is a class field
-    private final SlotLabel staticLabel = new SlotLabel("static ");
+    private final SlotLabel staticLabel = new SlotLabel(STATIC_NAME + " ");
     private final BooleanProperty staticModifier = new SimpleBooleanProperty(false);
-    private final SlotLabel finalLabel = new SlotLabel("final ");
+    private final SlotLabel finalLabel = new SlotLabel(FINAL_NAME + " ");
     public final BooleanProperty finalModifier = new SimpleBooleanProperty(false);
     private final TypeTextSlot slotType;
     private final VariableNameDefTextSlot slotName;
@@ -114,6 +111,9 @@ public class VarFrame extends SingleLineFrame
         finalModifier.set(isFinal);
         // If it's final, show initialisation value from outset:
         showingValue.set(isFinal);
+
+        modifiers.put(STATIC_NAME, staticModifier);
+        modifiers.put(FINAL_NAME, finalModifier);
         
         headerCaptionLabel.setAnimateCaption(false);
 
@@ -351,9 +351,9 @@ public class VarFrame extends SingleLineFrame
         List<FrameOperation> r = new ArrayList<>(super.getContextOperations());
         // is in class?
         if (isField(getParentCanvas())) {
-            r.add(new ToggleStaticVar(getEditor()));
+            r.add(new ToggleBooleanProperty(getEditor(), TOGGLE_STATIC_VAR, STATIC_NAME));
         }
-        r.add(new ToggleFinalVar(getEditor()));
+        r.add(new ToggleBooleanProperty(getEditor(), TOGGLE_FINAL_VAR, FINAL_NAME));
         return r;
     }
 
@@ -455,100 +455,12 @@ public class VarFrame extends SingleLineFrame
     private void addStaticFinalToList(List<ExtensionDescription> actions)
     {
         actions.add(new ExtensionDescription('n', "Add/Remove final", () ->
-                        new ToggleFinalVar(getEditor()).activate(this), false, true));
+                //, KeyCode.N
+                new ToggleBooleanProperty(getEditor(), TOGGLE_FINAL_VAR, FINAL_NAME).activate(this), false, true));
         if (isField(getParentCanvas())) {
             actions.add(new ExtensionDescription('s', "Add/Remove static", () ->
-                    new ToggleStaticVar(getEditor()).activate(this), false, true));
-        }
-    }
-
-    public static class ToggleFinalVar extends FrameOperation
-    {
-        private SimpleStringProperty name = new SimpleStringProperty("Toggle final");
-
-        public ToggleFinalVar(InteractionManager editor)
-        {
-            super(editor, "toggleFinalVar", Combine.ALL);
-        }
-
-        @Override
-        protected void execute(List<Frame> frames)
-        {
-            frames.forEach(f -> ((VarFrame)f).finalModifier.set(!targetedAllFinal(frames)));
-        }
-
-        @Override
-        public List<ItemLabel> getLabels()
-        {
-            return Arrays.asList(new ItemLabel(name, MenuItemOrder.TOGGLE_FINAL));
-        }
-
-        @Override
-        public void onMenuShowing(CustomMenuItem item)
-        {
-            super.onMenuShowing(item);
-            updateName();
-        }
-
-        private void updateName()
-        {
-            name.set(targetedAllFinal(editor.getSelection().getSelected()) ? "Remove final" : "Make final");
-        }
-
-        private boolean targetedAllFinal(List<Frame> frames)
-        {
-            return frames.stream().allMatch(f -> ((VarFrame)f).finalModifier.get());
-        }
-
-        @Override
-        public boolean onlyOnContextMenu()
-        {
-            return true;
-        }
-    }
-
-    public static class ToggleStaticVar extends FrameOperation
-    {
-        private SimpleStringProperty name = new SimpleStringProperty("Toggle static");
-
-        public ToggleStaticVar(InteractionManager editor)
-        {
-            super(editor, "toggleStaticVar", Combine.ALL, new KeyCodeCombination(KeyCode.S));
-        }
-
-        @Override
-        protected void execute(List<Frame> frames)
-        {
-            frames.forEach(f -> ((VarFrame) f).staticModifier.set(!targetedAllStatic(frames)));
-        }
-
-        @Override
-        public List<ItemLabel> getLabels()
-        {
-            return Arrays.asList(new ItemLabel(name, MenuItemOrder.TOGGLE_STATIC));
-        }
-
-        @Override
-        public void onMenuShowing(CustomMenuItem item)
-        {
-            super.onMenuShowing(item);
-            updateName();
-        }
-
-        private void updateName()
-        {
-            name.set(targetedAllStatic(editor.getSelection().getSelected()) ? "Remove static" : "Make static");
-        }
-
-        private boolean targetedAllStatic(List<Frame> frames)
-        {
-            return frames.stream().allMatch(f -> ((VarFrame)f).staticModifier.get());
-        }
-
-        @Override
-        public boolean onlyOnContextMenu()
-        {
-            return true;
+                    // , KeyCode.S
+                    new ToggleBooleanProperty(getEditor(), TOGGLE_STATIC_VAR, STATIC_NAME).activate(this), false, true));
         }
     }
 }

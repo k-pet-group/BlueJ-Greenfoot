@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -31,9 +31,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.WeakHashMap;
 import java.util.stream.Collectors;
 
+import bluej.stride.operations.ToggleBooleanProperty;
 import bluej.stride.slots.EditableSlot.MenuItemOrder;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
@@ -147,7 +147,7 @@ public class FrameCursor implements RecallableFocus
                     // If all disabled, enabled all. Otherwise, disable all.
                     boolean allDisabled = targets.stream().filter(f -> f.canHaveEnabledState(false)).allMatch(f -> !f.isFrameEnabled());
 
-                    // TODO Refactor the Enable/Disable FrameOperations to make them more consistent and use them here instead of next lines
+                    // TODO Refactor the Enable/Disable FrameOperations to make them more consistent and use them instead of next lines
                     editor.beginRecordingState(this);
                     targets.stream().filter(f -> f.canHaveEnabledState(allDisabled ? true : false))
                             .forEach(t -> t.setFrameEnabled(allDisabled ? true : false));
@@ -157,10 +157,10 @@ public class FrameCursor implements RecallableFocus
                 }
                 // Toggle variable final
                 if (key == 'n') {
-                    // If all final, remove final. Otherwise, make all final.
                     List<Frame> nonIgnoredFrames = targets.stream().filter(f -> f.isEffectiveFrame()).collect(Collectors.toList());
                     if (nonIgnoredFrames.stream().allMatch(f -> f instanceof VarFrame)) {
-                        new VarFrame.ToggleFinalVar(editor).activate(nonIgnoredFrames);
+                        //TODO This should be refactored
+                        new ToggleBooleanProperty(editor, VarFrame.TOGGLE_FINAL_VAR, VarFrame.FINAL_NAME).activate(nonIgnoredFrames);
                         return true;
                     }
                     if (nonIgnoredFrames.stream().allMatch(f -> f instanceof NormalMethodFrame)) {
@@ -170,10 +170,10 @@ public class FrameCursor implements RecallableFocus
                 }
                 // Toggle variable static
                 if (key == 's') {
-                    // If all static, remove static. Otherwise, make all static.
                     List<Frame> nonIgnoredFrames = targets.stream().filter(f -> f.isEffectiveFrame()).collect(Collectors.toList());
                     if (nonIgnoredFrames.stream().allMatch(f -> f instanceof VarFrame && ((VarFrame)f).isField(getParentCanvas()))) {
-                        new VarFrame.ToggleStaticVar(editor).activate(nonIgnoredFrames);
+                        //TODO This should be refactored
+                        new ToggleBooleanProperty(editor, VarFrame.TOGGLE_STATIC_VAR, VarFrame.STATIC_NAME).activate(nonIgnoredFrames);
                         return true;
                     }
                     if (nonIgnoredFrames.stream().allMatch(f -> f instanceof NormalMethodFrame)) {
@@ -201,8 +201,6 @@ public class FrameCursor implements RecallableFocus
                     // Done
                     return true;
                 }
-
-
             }
 
             // Third, check if the canvas we are in supports this block generally:

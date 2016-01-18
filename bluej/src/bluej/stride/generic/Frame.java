@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -19,21 +19,18 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package bluej.stride.generic;
 
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import bluej.stride.framedjava.elements.CodeElement;
 import javafx.application.Platform;
 import javafx.beans.binding.When;
 import javafx.beans.property.BooleanProperty;
@@ -59,6 +56,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 
+import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.errors.CodeError;
 import bluej.stride.framedjava.errors.ErrorShower;
 import bluej.stride.framedjava.frames.BlankFrame;
@@ -72,6 +70,8 @@ import bluej.stride.slots.EditableSlot;
 import bluej.stride.slots.FocusParent;
 import bluej.stride.slots.HeaderItem;
 import bluej.stride.slots.SlotLabel;
+
+import bluej.utility.Debug;
 import bluej.utility.Utility;
 import bluej.utility.javafx.BetterVBox;
 import bluej.utility.javafx.FXRunnable;
@@ -202,7 +202,8 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
      * had no content inserted yet can be removed by pressing the escape key.
      */
     private boolean alwaysBeenBlank = true;
-    
+
+    protected Map<String, BooleanProperty> modifiers = new HashMap<>();
     /**
      * Creates a new frame.
      * 
@@ -1411,6 +1412,21 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
     public boolean isEffectiveFrame()
     {
         return true;
+    }
+
+    public void setModifier(String name, boolean value)
+    {
+        if (modifiers.containsKey(name)) {
+            modifiers.get(name).set(value);
+        }
+        else {
+            Debug.reportError("No such modifier: " + name + " in Frame: " + this);
+        }
+    }
+
+    public BooleanProperty getModifier(String name)
+    {
+        return modifiers.get(name);
     }
 
     public static enum ShowReason { EXCEPTION, LINK_TARGET }
