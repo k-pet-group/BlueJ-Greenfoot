@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2013,2014,2015  Poul Henriksen and Michael Kolling
+ Copyright (C) 2005-2009,2010,2013,2014,2015,2016  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -189,5 +189,8 @@ public interface RProject
      * Start scanning imports in the background, ready for editor opening.
      */
     public void startImportsScan()
+            throws RemoteException, ProjectNotOpenException;
+
+    public void recordWindowActivated()
             throws RemoteException, ProjectNotOpenException;
 }

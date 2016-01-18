@@ -47,6 +47,8 @@ enum EventName
 
     SHOWN_ERROR("shown_error"),
     FIX_EXECUTED("fix_executed"),
+
+    GREENFOOT_WINDOW_ACTIVATED("greenfoot_window_activated"),
     
     // Debugger: 
     DEBUGGER_OPEN("debugger_open"),

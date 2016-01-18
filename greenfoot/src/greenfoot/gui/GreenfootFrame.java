@@ -1161,6 +1161,7 @@ public class GreenfootFrame extends JFrame
     public void windowActivated(WindowEvent e) {
         if (!isClosedProject())
         {
+            project.recordWindowActivated();
             Arrays.stream(project.getDefaultPackage().getClasses(false)).forEach(GClass::cancelFreshState);
             if (!wasRestarted && !WorldHandler.getInstance().hasWorld()) {
                 WorldHandler.getInstance().instantiateNewWorld();

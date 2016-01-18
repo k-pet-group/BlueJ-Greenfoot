@@ -475,4 +475,15 @@ public class GProject extends RProjectListenerImpl
         }
         return false;
     }
+
+    public void recordWindowActivated()
+    {
+        try
+        {
+            rProject.recordWindowActivated();
+        } catch (RemoteException | ProjectNotOpenException e)
+        {
+            e.printStackTrace();
+        }
+    }
 }

@@ -529,6 +529,12 @@ public @OnThread(Tag.Swing) class DataCollector
         DataCollectorImpl.fixExecuted(aPackage, errorIdentifier, fixIndex);
     }
 
+    public static void recordGreenfootWindowActivated(Project project)
+    {
+        if (dontSend()) return;
+        DataCollectorImpl.greenfootWindowActivated(project, project.getPackage(""));
+    }
+
     public static class NamedTyped
     {
         private  String name;

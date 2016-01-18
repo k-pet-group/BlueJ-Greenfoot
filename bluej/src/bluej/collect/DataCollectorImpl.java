@@ -953,4 +953,10 @@ public class DataCollectorImpl
         mpe.addPart("event[fix_order]", CollectUtility.toBody(fixIndex));
         submitEvent(pkg.getProject(), pkg, EventName.FIX_EXECUTED, new PlainEvent(mpe));
     }
+
+    public static void greenfootWindowActivated(Project project, Package pkg)
+    {
+        MultipartEntity mpe = new MultipartEntity();
+        submitEvent(project, pkg, EventName.GREENFOOT_WINDOW_ACTIVATED, new PlainEvent(mpe));
+    }
 }
