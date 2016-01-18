@@ -164,7 +164,9 @@ public class FrameCursor implements RecallableFocus
                         return true;
                     }
                     if (nonIgnoredFrames.stream().allMatch(f -> f instanceof NormalMethodFrame)) {
-                        new NormalMethodFrame.ToggleFinalMethod(editor).activate(nonIgnoredFrames);
+                        //TODO This should be refactored
+                        new ToggleBooleanProperty(editor, NormalMethodFrame.TOGGLE_FINAL_METHOD, NormalMethodFrame.FINAL_NAME)
+                                .activate(nonIgnoredFrames);
                         return true;
                     }
                 }
@@ -177,7 +179,9 @@ public class FrameCursor implements RecallableFocus
                         return true;
                     }
                     if (nonIgnoredFrames.stream().allMatch(f -> f instanceof NormalMethodFrame)) {
-                        new NormalMethodFrame.ToggleStaticMethod(editor).activate(nonIgnoredFrames);
+                        //TODO This should be refactored
+                        new ToggleBooleanProperty(editor, NormalMethodFrame.TOGGLE_STATIC_METHOD, NormalMethodFrame.STATIC_NAME)
+                                .activate(nonIgnoredFrames);
                         return true;
                     }
                 }

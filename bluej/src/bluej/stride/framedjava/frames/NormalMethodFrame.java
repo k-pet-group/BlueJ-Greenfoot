@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,21 +27,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import bluej.stride.slots.EditableSlot.MenuItemOrder;
 import javafx.application.Platform;
 import javafx.beans.binding.StringExpression;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.control.CustomMenuItem;
 import javafx.scene.control.TextField;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCodeCombination;
 
-import bluej.utility.javafx.HangingFlowPane;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -71,8 +64,10 @@ import bluej.stride.generic.FrameFactory;
 import bluej.stride.generic.InteractionManager;
 import bluej.stride.operations.CustomFrameOperation;
 import bluej.stride.operations.FrameOperation;
+import bluej.stride.operations.ToggleBooleanProperty;
 import bluej.stride.slots.CompletionCalculator;
 import bluej.stride.slots.EditableSlot;
+import bluej.stride.slots.EditableSlot.MenuItemOrder;
 import bluej.stride.slots.Focus;
 import bluej.stride.slots.FormalParameters;
 import bluej.stride.slots.HeaderItem;
@@ -86,13 +81,21 @@ import bluej.stride.slots.TextSlot;
 import bluej.stride.slots.TypeCompletionCalculator;
 import bluej.stride.slots.TypeTextSlot;
 import bluej.stride.slots.WrappableSlotLabel;
+
+import bluej.utility.javafx.FXConsumer;
+import bluej.utility.javafx.HangingFlowPane;
+import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
 import bluej.utility.Utility;
-import bluej.utility.javafx.FXConsumer;
-import bluej.utility.javafx.JavaFXUtil;
 
 public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> //implements CodeFrame<NormalMethodElement>
 {
+    //TODO Refactor and make them private
+    public static final String STATIC_NAME = "static";
+    public static final String TOGGLE_STATIC_METHOD = "toggleStaticMethod";
+    public static final String FINAL_NAME = "final";
+    public static final String TOGGLE_FINAL_METHOD = "toggleFinalMethod";
+
     private final SlotLabel staticLabel;
     private BooleanProperty staticModifier = new SimpleBooleanProperty(false);
     private final SlotLabel finalLabel;
@@ -316,9 +319,12 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
     {
         return Utility.concat(super.getAvailablePrefixes(), Arrays.asList(
                 new ExtensionDescription('n', "Add/Remove final", () ->
-                    new ToggleFinalMethod(getEditor()).activate(this), false, false),
+                    // , KeyCode.N
+                    new ToggleBooleanProperty(getEditor(), TOGGLE_FINAL_METHOD, FINAL_NAME).activate(this), false, false),
                 new ExtensionDescription('s', "Add/Remove static", () ->
-                    new ToggleStaticMethod(getEditor()).activate(this), false, false)));
+                    // , KeyCode.S
+                    new ToggleBooleanProperty(getEditor(), TOGGLE_STATIC_METHOD, STATIC_NAME).activate(this), false, false)
+        ));
     }
     
     // Used by ReturnFrame
@@ -404,95 +410,5 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
             return true;
         }
         return false;
-    }
-
-    public static class ToggleFinalMethod extends FrameOperation
-    {
-        private SimpleStringProperty name = new SimpleStringProperty("Toggle final");
-
-        public ToggleFinalMethod(InteractionManager editor)
-        {
-            super(editor, "toggleFinalMethod", Combine.ALL);
-        }
-
-        @Override
-        protected void execute(List<Frame> frames)
-        {
-            frames.forEach(f -> ((NormalMethodFrame)f).finalModifier.set(!targetedAllFinal(frames)));
-        }
-
-        @Override
-        public List<ItemLabel> getLabels()
-        {
-            return Arrays.asList(new ItemLabel(name, MenuItemOrder.TOGGLE_FINAL));
-        }
-
-        @Override
-        public void onMenuShowing(CustomMenuItem item)
-        {
-            super.onMenuShowing(item);
-            updateName();
-        }
-
-        private void updateName()
-        {
-            name.set(targetedAllFinal(editor.getSelection().getSelected()) ? "Remove final" : "Make final");
-        }
-
-        private boolean targetedAllFinal(List<Frame> frames)
-        {
-            return frames.stream().allMatch(f -> ((NormalMethodFrame)f).finalModifier.get());
-        }
-
-        @Override
-        public boolean onlyOnContextMenu()
-        {
-            return true;
-        }
-    }
-
-    public static class ToggleStaticMethod extends FrameOperation
-    {
-        private SimpleStringProperty name = new SimpleStringProperty("Toggle static");
-
-        public ToggleStaticMethod(InteractionManager editor)
-        {
-            super(editor, "toggleStaticMethod", Combine.ALL, new KeyCodeCombination(KeyCode.S));
-        }
-
-        @Override
-        protected void execute(List<Frame> frames)
-        {
-            frames.forEach(f -> ((NormalMethodFrame) f).staticModifier.set(!targetedAllStatic(frames)));
-        }
-
-        @Override
-        public List<ItemLabel> getLabels()
-        {
-            return Arrays.asList(new ItemLabel(name, MenuItemOrder.TOGGLE_STATIC));
-        }
-
-        @Override
-        public void onMenuShowing(CustomMenuItem item)
-        {
-            super.onMenuShowing(item);
-            updateName();
-        }
-
-        private void updateName()
-        {
-            name.set(targetedAllStatic(editor.getSelection().getSelected()) ? "Remove static" : "Make static");
-        }
-
-        private boolean targetedAllStatic(List<Frame> frames)
-        {
-            return frames.stream().allMatch(f -> ((NormalMethodFrame) f).staticModifier.get());
-        }
-
-        @Override
-        public boolean onlyOnContextMenu()
-        {
-            return true;
-        }
     }
 }
