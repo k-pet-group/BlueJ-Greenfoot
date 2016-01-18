@@ -29,9 +29,6 @@ import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.Shape;
 import java.awt.Window;
-import java.awt.color.ColorSpace;
-import java.awt.image.BufferedImage;
-import java.awt.image.ColorConvertOp;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -59,7 +56,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -162,16 +158,6 @@ public class Utility
             }
         }
         g.setColor(prev);
-    }
-
-    /**
-     * Convert a bufferedImage from any color space to a grey one.
-     * @param image
-     * @return
-     */
-    public static BufferedImage convertToGreyImage(BufferedImage image)
-    {
-        return new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_GRAY), null).filter(image, image);
     }
 
     /**
@@ -619,9 +605,9 @@ public class Utility
         }
     }
 
-    public static Comparator<List<? extends Comparable>> listComparator()
+    public static <T extends Comparable<T>> Comparator<List<T>> listComparator()
     {
-        return Comparator.<List<? extends Comparable>>comparingInt(List::size).<List<? extends Comparable>>thenComparing((a, b) -> {
+        return Comparator.<List<T>>comparingInt(List::size).thenComparing((a, b) -> {
             // We know lists are same size because we have reached here:
             for (int i = 0; i < a.size(); i++)
             {
@@ -1175,7 +1161,7 @@ public class Utility
      */
     
     /** Concatenates any non-null streams in the list together */
-    //@SafeVarargs
+    @SafeVarargs
     public static <T3> Stream<T3> concat(Stream<? extends T3>... streams)
     {
         List<Stream<? extends T3>> l = Arrays.asList(streams);

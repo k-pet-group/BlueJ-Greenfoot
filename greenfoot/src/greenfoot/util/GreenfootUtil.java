@@ -62,6 +62,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import javax.imageio.ImageIO;
@@ -627,10 +628,13 @@ public class GreenfootUtil
     /**
      * Creates a new font derived from the one passed in, but with an added underline.
      */
-    @SuppressWarnings("unchecked")
     private static Font deriveUnderlinedFont(Font f)
     {
-        Map attr =  f.getAttributes();                
+        // Note that deriveFont() merges the specified attributes into the font's current attributes
+        // to create the new font. So it is not necessary, as is done in some examples that can be
+        // found in the wild, to retrieve the original attribute map and modify it; we can just
+        // create a new map and put the attributes we want in it.
+        Map<TextAttribute,Integer> attr = new TreeMap<>();                
         attr.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
         Font underLineFont = f.deriveFont(attr);
         return underLineFont;
@@ -926,10 +930,12 @@ public class GreenfootUtil
         return delegate.getNearbyUserInfo(maxAmount);
     }
     
-    // When we merge with Greenfoot 3, this will be a duplicate method; delete this one (from Greenfoot 2.4.1):
-    public static BufferedImage convertToGreyImage(BufferedImage image)
+    /**
+     * Convert an image to grayscale.
+     */
+    public static void convertToGreyImage(BufferedImage image)
     {
-        return new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_GRAY), null).filter(image, image);
+        new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_GRAY), null).filter(image, image);
     }
 
     public interface User32Ext extends User32
