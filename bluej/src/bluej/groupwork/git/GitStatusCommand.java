@@ -44,7 +44,6 @@ public class GitStatusCommand extends GitCommand
     StatusListener listener;
     FileFilter filter;
     boolean includeRemote;
-    private final String ignoreFilesArray[] = {".class"};
 
     public GitStatusCommand(GitRepository repository, StatusListener listener, FileFilter filter, boolean includeRemote) 
     {
