@@ -53,6 +53,6 @@ public class GreenfootLabel extends SplashLabel
                     RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
             g2d.addRenderingHints(hints);
         }
-        g.drawString("Version " + Boot.GREENFOOT_VERSION + (Boot.isTrialRecording() ? "-TRIAL" : ""), 187, 219);
+        g.drawString("Version " + Boot.GREENFOOT_VERSION + (Boot.isTrialRecording() ? "-RESEARCH" : ""), 187, 219);
     }
 }
