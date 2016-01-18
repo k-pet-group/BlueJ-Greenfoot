@@ -37,7 +37,23 @@ input_contents.each do |line|
     puts "\\caption[\\lstinline!#{table_name}! schema]{Schema for the \\lstinline!#{table_name}! table. #{caption}}"
     puts "\\begin{tabular}{l@{\\hspace{2cm}}l@{\\hspace{1cm}}l}"
     puts "Field Name & Type & Can Be Null?\\\\ \\hline"
-    info = `mysql -u root blackbox_development -e "show columns from #{table_name}" | tail -n +2`.lines.map {|l| l.split "\t" }
+    # Put view columns in manually, as they are not usually available on your local machine:
+    case table_name
+    when "participant_identifiers_for_experiment" then
+      info = [["participant_identifiers_for_experiment", "varchar(32)","NO","","NULL",""]]
+    when "sessions_for_experiment"
+      info = [["id","bigint(20)","NO","","0",""],
+              ["user_id","bigint(20)","NO","","NULL",""],
+              ["participant_id","bigint(20)","YES","","NULL",""],
+              ["created_at","datetime","NO","","NULL",""],
+              ["installation_details_id","bigint(20)","NO","","NULL",""],
+              ["identifier","varchar(64)","NO","","NULL",""],
+              ["last_sequence_id","int(11)","NO","","NULL",""],
+              ["participant_identifier","varchar(32)","NO","","NULL",""]]
+    else
+      info = `mysql -u root blackbox_development -e "show columns from #{table_name}" | tail -n +2`.lines.map {|l| l.split "\t" }
+    end
+    # Make id column come first:
     info.sort_by {|c| c[0] == "id" ? "" : c[0]}.each do |cols|
       t = cols[1]
       #Remove display width for int, tinyint, bigint:
