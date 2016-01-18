@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,7 +28,7 @@ import java.io.File;
  * Team status information for a file
  * 
  * @author Davin McCall
- * @version $Id: TeamStatusInfo.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: TeamStatusInfo.java 15301 2016-01-18 19:12:07Z fdlh $
  */
 public class TeamStatusInfo
 {
@@ -36,6 +36,7 @@ public class TeamStatusInfo
     private String localVersion;
     private String remoteVersion;
     private int status;
+    private int remoteStatus;
     
     /** The file is up-to-date, the local revision is the same as in the repository */
     public final static int STATUS_UPTODATE = 0;
@@ -83,6 +84,9 @@ public class TeamStatusInfo
      * Locally deleted, but modified in repository (conflict)
      */
     public final static int STATUS_CONFLICT_LDRM = 14;
+
+    /** The file was renamed **/
+    public final static int STATUS_RENAMED = 15;
     
     
     /* It has no status, only used for default constructor while waiting for cvs */
@@ -112,7 +116,7 @@ public class TeamStatusInfo
      */
     public TeamStatusInfo()
     {
-        this(new File(""), "", "", STATUS_BLANK);
+        this(new File(""), "", "", STATUS_BLANK, STATUS_BLANK);
     }
     
     public TeamStatusInfo(File file, String localVersion, String remoteVersion, int status)
@@ -121,6 +125,21 @@ public class TeamStatusInfo
         this.localVersion = localVersion;
         this.remoteVersion = remoteVersion;
         this.status = status;
+    }
+    
+    /**
+     * constructor used with DVCS.
+     * 
+     * @param file file in the local file system.
+     * @param localVersion file version in the local repository.
+     * @param remoteVersion file version in the remote server. 
+     * @param status file status in the local repository.
+     * @param remoteStatus file status in the remote server.
+     */
+        public TeamStatusInfo(File file, String localVersion, String remoteVersion, int status, int remoteStatus)
+    {
+        this(file, localVersion, remoteVersion, status);
+        this.remoteStatus = remoteStatus;
     }
     
     public File getFile()
@@ -144,6 +163,18 @@ public class TeamStatusInfo
         return status;
     }
     
+    
+    public int getRemoteStatus()
+    {
+        return remoteStatus;
+    }
+
+    public void setRemoteStatus(int s)
+    {
+        remoteStatus = s;
+    }
+    
+    @Override
     public String toString()
     {
         return getFile().getName();

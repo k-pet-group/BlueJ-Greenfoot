@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -36,12 +36,13 @@ import bluej.pkgmgr.Project;
  * 
  * 
  * @author Bruce Quig
- * @cvs $Id: StatusTableModel.java 6215 2009-03-30 13:28:25Z polle $
+ * @cvs $Id: StatusTableModel.java 15301 2016-01-18 19:12:07Z fdlh $
  */
 public class StatusTableModel extends AbstractTableModel
 {
     static final String resourceLabel = Config.getString("team.status.resource");
     static final String statusLabel = Config.getString("team.status.status");
+    static final String remoteStatusLabel = Config.getString("team.status.remoteStatus");
     static final String versionLabel = Config.getString("team.status.version");
  
     private Project project;
@@ -67,12 +68,18 @@ public class StatusTableModel extends AbstractTableModel
      */
     public String getColumnName(int col)
     {
-        if (col == 0)
-            return resourceLabel;
-         else if (col == 1)
-            return versionLabel;
-        else if (col == 2)
-            return statusLabel;
+        switch (col) {
+            case 0:
+                return resourceLabel;
+            case 1:
+                return versionLabel;
+            case 2:
+                return statusLabel;
+            case 3:
+                return remoteStatusLabel;
+            default:
+                break;
+        }
 
         throw new IllegalArgumentException("bad column number in StatusTableModel::getColumnName()");
     }
@@ -94,6 +101,10 @@ public class StatusTableModel extends AbstractTableModel
      */
     public int getColumnCount()
     {
+        if (project.getRepository().isDVCS()) {
+            //include Remote status
+            return 4;
+        } 
         return 3;
     }
     
@@ -108,12 +119,18 @@ public class StatusTableModel extends AbstractTableModel
     {
         TeamStatusInfo info = (TeamStatusInfo) resources.get(row);
         
-        if (col == 0)
-            return ResourceDescriptor.getResource(project, info, false);
-        else if (col == 1)
-            return info.getLocalVersion(); 
-        else if (col == 2)
-            return new Integer(info.getStatus());
+        switch (col) {
+            case 0:
+                return ResourceDescriptor.getResource(project, info, false);
+            case 1:
+                return info.getLocalVersion();
+            case 2:
+                return new Integer(info.getStatus());
+            case 3:
+                return info.getRemoteStatus();
+            default:
+                break;
+        }
 
         return null;
     }
