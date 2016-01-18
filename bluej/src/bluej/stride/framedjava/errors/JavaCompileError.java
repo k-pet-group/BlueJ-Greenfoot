@@ -49,6 +49,7 @@ public class JavaCompileError extends CodeError
     }
 
     @Override
+    @OnThread(Tag.Any)
     public String getMessage()
     {
         return message;

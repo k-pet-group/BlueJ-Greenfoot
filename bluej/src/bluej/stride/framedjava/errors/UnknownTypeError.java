@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -31,6 +31,8 @@ import bluej.stride.framedjava.errors.Correction.CorrectionInfo;
 import bluej.stride.generic.AssistContentThreadSafe;
 import bluej.stride.generic.InteractionManager;
 import bluej.stride.slots.TypeTextSlot;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 public class UnknownTypeError extends DirectSlotError
 {
@@ -105,6 +107,7 @@ public class UnknownTypeError extends DirectSlotError
     }    
     
     @Override
+    @OnThread(Tag.Any)
     public String getMessage()
     {
         return "Unknown type: " + typeName;

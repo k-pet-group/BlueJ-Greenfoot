@@ -62,7 +62,8 @@ public abstract class CodeError
     }
     
     public abstract boolean isJavaPos();
-    
+
+    @OnThread(Tag.Any)
     public abstract String getMessage();
     
     public abstract List<? extends FixSuggestion> getFixSuggestions();

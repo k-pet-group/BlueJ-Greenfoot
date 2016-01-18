@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -37,24 +37,29 @@ import bluej.stride.framedjava.frames.ClassFrame;
 import bluej.stride.framedjava.frames.VarFrame;
 import bluej.stride.generic.Frame;
 import bluej.stride.generic.FrameCursor;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 public class UndeclaredVariableLvalueError extends DirectSlotError
 {
     private final AssignFrame assignFrame;
     private final List<Correction> corrections;
-    
+    private final String varName;
+
     public UndeclaredVariableLvalueError(StringSlotFragment slotFragment, AssignFrame assignFrame, Set<String> possibleCorrections)
     {
         super(slotFragment);
         this.assignFrame = assignFrame;
         this.corrections = Correction.winnowAndCreateCorrections(assignFrame.getLHS().getText(), possibleCorrections.stream().map(SimpleCorrectionInfo::new), s -> assignFrame.getLHS().setText(s));
+        this.varName = assignFrame.getLHS().getText();
     }
     
     
     @Override
+    @OnThread(Tag.Any)
     public String getMessage()
     {
-        return "Undeclared variable: " + assignFrame.getLHS().getText();
+        return "Undeclared variable: " + varName;
     }
 
     @Override

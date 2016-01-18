@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,6 +27,8 @@ import java.util.Set;
 import bluej.stride.framedjava.ast.StringSlotFragment;
 import bluej.stride.framedjava.errors.Correction.SimpleCorrectionInfo;
 import bluej.stride.framedjava.slots.ExpressionSlot;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 public class UndeclaredVariableInExpressionError extends DirectSlotError
 {
@@ -58,6 +60,7 @@ public class UndeclaredVariableInExpressionError extends DirectSlotError
     }    
 
     @Override
+    @OnThread(Tag.Any)
     public String getMessage()
     {
         return "Undeclared variable: " + varName;

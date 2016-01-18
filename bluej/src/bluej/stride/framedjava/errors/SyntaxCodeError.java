@@ -51,6 +51,7 @@ public class SyntaxCodeError extends DirectSlotError
     }
     
     @Override
+    @OnThread(Tag.Any)
     public String getMessage()
     {
         return message;
