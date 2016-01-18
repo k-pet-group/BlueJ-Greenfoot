@@ -36,6 +36,7 @@ import bluej.editor.EditorWatcher;
 import bluej.editor.stride.CodeOverlayPane;
 import bluej.editor.stride.CodeOverlayPane.WidthLimit;
 import bluej.stride.generic.InteractionManager;
+import bluej.utility.Utility;
 import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 
@@ -81,6 +82,7 @@ public class ErrorAndFixDisplay
             FixDisplay l = new FixDisplay("  Fix: " + fix.getDescription());
             l.onMouseClickedProperty().set(e ->
                 {
+                    recordExecute(fixes.indexOf(l));
                     fix.execute();
                     ErrorAndFixDisplay.this.hide();
                     slot.fixedError(error);
@@ -122,7 +124,7 @@ public class ErrorAndFixDisplay
     private void recordShow()
     {
         final EditorWatcher watcher = editor.getFrameEditor().getWatcher();
-        SwingUtilities.invokeLater(() -> watcher.recordShowError(error.getIdentifier()));
+        SwingUtilities.invokeLater(() -> watcher.recordShowError(error.getIdentifier(), Utility.mapList(fixes, FixDisplay::getDisplayText)));
     }
 
     public void showAbove(final Region n)
@@ -205,9 +207,11 @@ public class ErrorAndFixDisplay
     private static class FixDisplay extends HBox
     {
         private final Label enterHint = new Label("\u21B5");
-        
+        private final String displayText;
+
         public FixDisplay(String display)
         {
+            this.displayText = display;
             enterHint.setVisible(false);
             Label l = new Label(display);
             getChildren().addAll(l, enterHint);
@@ -224,16 +228,28 @@ public class ErrorAndFixDisplay
             
             enterHint.setVisible(highlight);
         }
+
+        public String getDisplayText()
+        {
+            return displayText;
+        }
     }
 
     public void executeSelected()
     {
         if (highlighted != -1)
         {
+            recordExecute(highlighted);
             error.getFixSuggestions().get(highlighted).execute();
             ErrorAndFixDisplay.this.hide();
             slot.fixedError(error);
         }
+    }
+
+    private void recordExecute(int fixIndex)
+    {
+        final EditorWatcher watcher = editor.getFrameEditor().getWatcher();
+        watcher.recordFix(error.getIdentifier(), fixIndex);
     }
 }
 

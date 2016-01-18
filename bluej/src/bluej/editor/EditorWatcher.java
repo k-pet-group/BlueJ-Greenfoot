@@ -25,8 +25,8 @@ import java.util.List;
 
 import bluej.collect.DiagnosticWithShown;
 import bluej.compiler.CompileReason;
-import bluej.compiler.Diagnostic;
 import bluej.extensions.SourceType;
+import threadchecker.OnThread;
 
 /**
  * @author Michael Kolling
@@ -90,9 +90,11 @@ public interface EditorWatcher
 
     void recordClose();
 
-    void recordShowError(int identifier);
+    void recordShowError(int identifier, List<String> quickFixes);
 
     void recordEarlyErrors(List<DiagnosticWithShown> diagnostics);
 
     void recordLateErrors(List<DiagnosticWithShown> diagnostics);
+
+    void recordFix(int errorIdentifier, int fixIndex);
 } // end class EditorWatcher

@@ -930,12 +930,27 @@ public class DataCollectorImpl
         return mpe;
     }
 
-    public static void showError(Package pkg, int errorIdentifier)
+    public static void showError(Package pkg, int errorIdentifier, List<String> quickFixes)
     {
         MultipartEntity mpe = new MultipartEntity();
 
         mpe.addPart("event[error_sequence]", CollectUtility.toBody(errorIdentifier));
 
+        if (quickFixes != null && !quickFixes.isEmpty())
+        {
+            quickFixes.forEach(fix ->
+                mpe.addPart("event[quick_fixes][][text]", CollectUtility.toBody(fix))
+            );
+        }
+
         submitEvent(pkg.getProject(), pkg, EventName.SHOWN_ERROR, new PlainEvent(mpe));
+    }
+
+    public static void fixExecuted(Package pkg, int errorIdentifier, int fixIndex)
+    {
+        MultipartEntity mpe = new MultipartEntity();
+        mpe.addPart("event[error_sequence]", CollectUtility.toBody(errorIdentifier));
+        mpe.addPart("event[fix_order]", CollectUtility.toBody(fixIndex));
+        submitEvent(pkg.getProject(), pkg, EventName.FIX_EXECUTED, new PlainEvent(mpe));
     }
 }

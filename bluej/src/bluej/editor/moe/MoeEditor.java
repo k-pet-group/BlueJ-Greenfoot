@@ -58,6 +58,7 @@ import java.io.Writer;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
@@ -3021,7 +3022,7 @@ public final class MoeEditor extends JPanel
                     errorDisplay.setLocation(xpos, ypos);
                     errorDisplay.setVisible(true);
 
-                    watcher.recordShowError(details.identifier);
+                    watcher.recordShowError(details.identifier, Collections.emptyList());
                 }
                 catch (BadLocationException ble)
                 {

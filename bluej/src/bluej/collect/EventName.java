@@ -46,6 +46,7 @@ enum EventName
     FILE_CLOSE("file_close"),
 
     SHOWN_ERROR("shown_error"),
+    FIX_EXECUTED("fix_executed"),
     
     // Debugger: 
     DEBUGGER_OPEN("debugger_open"),

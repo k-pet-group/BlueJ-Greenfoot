@@ -109,7 +109,6 @@ import bluej.views.ConstructorView;
 import bluej.views.MethodView;
 import javafx.application.Platform;
 
-import com.sun.org.apache.xalan.internal.xsltc.cmdline.Compile;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -2309,9 +2308,9 @@ public class ClassTarget extends DependentTarget
     }
 
     @Override
-    public void recordShowError(int identifier)
+    public void recordShowError(int identifier, List<String> quickFixes)
     {
-        DataCollector.showError(getPackage(), identifier);
+        DataCollector.showError(getPackage(), identifier, quickFixes);
     }
 
     @Override
@@ -2330,5 +2329,11 @@ public class ClassTarget extends DependentTarget
             return;
 
         DataCollector.compiled(getPackage().getProject(), getPackage(), new CompileInputFile[] {getCompileInputFile()}, diagnostics, false, CompileReason.LATE, SourceType.Stride);
+    }
+
+    @Override
+    public void recordFix(int errorIdentifier, int fixIndex)
+    {
+        DataCollector.fixExecuted(getPackage(), errorIdentifier, fixIndex);
     }
 }

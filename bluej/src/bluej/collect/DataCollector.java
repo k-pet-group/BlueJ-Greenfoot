@@ -514,13 +514,19 @@ public @OnThread(Tag.Swing) class DataCollector
         DataCollectorImpl.inspectorClassShow(pkg, inspector, className);        
     }
 
-    public static void showError(Package pkg, int errorIdentifier)
+    public static void showError(Package pkg, int errorIdentifier, List<String> quickFixes)
     {
         if (dontSend()) return;
         // Only send an event for each error the first time it is shown:
         if (shownErrors.get(errorIdentifier)) return;
         shownErrors.set(errorIdentifier);
-        DataCollectorImpl.showError(pkg, errorIdentifier);
+        DataCollectorImpl.showError(pkg, errorIdentifier, quickFixes);
+    }
+
+    public static void fixExecuted(Package aPackage, int errorIdentifier, int fixIndex)
+    {
+        if (dontSend()) return;
+        DataCollectorImpl.fixExecuted(aPackage, errorIdentifier, fixIndex);
     }
 
     public static class NamedTyped
