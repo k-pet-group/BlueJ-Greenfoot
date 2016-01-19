@@ -44,7 +44,7 @@ public class ToggleBooleanProperty extends FrameOperation
 
     public ToggleBooleanProperty(InteractionManager editor, String identifier, String name, KeyCode keyCode)
     {
-        super(editor, identifier, Combine.ALL, new KeyCodeCombination(keyCode));
+        super(editor, identifier, Combine.ALL, keyCode == null ? null : new KeyCodeCombination(keyCode));
         this.name = name;
         this.label = new SimpleStringProperty("Toggle " + name);
     }
