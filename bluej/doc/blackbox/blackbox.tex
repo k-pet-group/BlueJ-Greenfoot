@@ -519,7 +519,8 @@ The event will always have exactly one associated entry in the
 This event will have a |package_id|, which indicates which package the relevant file
 was in.
 
-These three events will only be recorded in versions of BlueJ from 3.2.0 onwards.
+These three events will only be recorded in versions of BlueJ from 3.2.0 onwards, and
+in Greenfoot.
 
 These three events do not affect the content of a file, but instead correspond to
 GUI actions: opening a source file for editing, focusing the editor of a source file, and
@@ -556,6 +557,43 @@ that entry in the |compile_events| table, will be linked to by one or more
 |compile_inputs| and zero or more |compile_outputs|, but see the
 \tabref{compile_events} for more details.)
 
+Note that compilation will undergo an overhaul in BlueJ 3.2.0, and has already
+changed in Greenfoot 3.0.0.  In Greenfoot 3.0.0 onwards, compilation is performed
+automatically in a number of different cases.  This is/will be documented in the new
+reason column in the \tabref{compile_events}.
+
+\subsection{\lstinline!"shown_error"!}
+
+Since BlueJ 3.2.0 (and in Greenfoot 3.0.0 onwards), error display has changed.  Errors
+are no longer shown one at a time in BlueJ in the bottom pane.  Instead, red underlines
+throughout the code (in Java and Stride editors) indicate an error.  So when compilation
+has finished, the user will see one red underline for each error located.  (Where error locations
+overlap, only one is shown, but due to technical difficulties we do not record this in Blackbox;
+the user will see a red underline at the location, but which one is not very important.)  All
+errors are then marked as shown, but only in the sense that the red underline is shown.
+
+For these software versions, an |"shown_error"| master event is generated when the user is
+actually shown the text of the error message, by using keyboard or mouse focus to hover in
+the location of the red underline.  Each error (which is stored in the \tabref{compile_outputs}, below)
+will only get an |"shown_error"| event generated once, the first time it is shown.  If another
+compilation occurs, an error with the same text at the same location will get a new entry in the
+\tabref{compile_outputs}, and thus be considered a new error.
+
+The |sub_event_type| of |"shown_error"| events will be |"CompileOutput"| and the |sub_event_id|
+will contain an |id| from an entry in the \tabref{compile_outputs}.
+
+In Stride, when an error is shown, it may be presented along with a list of quick fixes (e.g.
+correcting a typo in a variable name).  In this case, there will be entries recorded in the
+\tabref{quick_fixes} table.  If one of these fixes is executed it will lead to a |"fix_executed"|
+event being generated.
+
+\subsection{\lstinline!"fix_executed"!}
+
+As described in the previous section, a Stride error may be shown along with some suggested quick
+fixes.  These are recorded in the \tabref{quick_fixes}.  If the user selects to execute one
+of the quick fixes, a |"fix_executed"| master event is generated, where the |sub_event_type| is |"QuickFix"|
+and the |sub_event_id| is the |id| of an item in the \tabref{quick_fixes}.
+
 \subsection{Related Tables}
 
 The |compile_events| table records whether the compilation was a success
@@ -564,7 +602,28 @@ The |compile_events| table records whether the compilation was a success
 %schema:compile_events
 
 The |compile_events| may then be linked to by entries in the |compile_inputs| and
-|compile_outputs| table.
+|compile_outputs| table.  Note that the reason column is not yet added to the main
+Blackbox project, but will be soon.  It is available for Greenfoot recordings.
+Possible values for reason are:
+
+\begin{itemize}
+\item |"early"| -- A check in Stride for errors that can be spotted without full javac
+ compilation, such as a slot being empty or having a parse error.
+\item |"late"| -- A post-compilation check in Stride for errors which will have shown
+a compiler error, but for which we can show a more helpful error message, for example if
+ the user has typoed a variable name.
+\item |"invoke"| -- A compilation of some generated code, required to execute a user's
+invocation (e.g. when they right click on an object in the object bench to call a method).
+\item |"rebuild"| -- A full rebuild of a project
+\item |"extension"| -- Compilation was requested by an extension.  This includes some cases
+in Greenfoot where the system requests compilation.
+\item |"loaded"| -- Compilation triggered after loading a project or a new class.
+\item |"modified"| -- Compilation caused by modifying code.  This is the most common case.
+\item |"new_class"| -- Compilation which happens after creating a new class.
+\item |"user"| -- Explicitly requested compilation by the user.  This can still happen for
+example in the Java editor, if the user modifies a line of code without moving the caret away,
+ and then clicks the Compile button.
+\end{itemize}
 
 %schema:compile_inputs
 
@@ -578,16 +637,30 @@ occurred.  Note that these warnings and errors are reported from the standard Ja
 compiler from the JDK.  However, BlueJ may alter the format of some messages,
 and will only display at most one error, and may ignore some warnings.  The
 message recorded here is the altered format, and the |shown| flag indicates
-whether or not this error or warning was actually displayed to the user.  The
+whether or not this error or warning was actually displayed to the user (but read on).  The
 |is_error| flag indicates if it was an error (otherwise it was a warning), the
-|message| field shows the text that would be displayed to the user, and the
-line and column fields indicate the error's location, as reported by the
-compiler  (lines and columns begin at 1, not 0).
+|message| field shows the text that would be displayed to the user.
+
+For Java errors, the line and column fields indicate the error's location, as reported by the
+compiler  (lines and columns begin at 1, not 0), and the source file referenced is of
+course the Java file.  For pure-Stride errors (e.g. early errors, where a slot is marked as
+an error for being empty, even without Java compilation), the start/end line/column fields
+are null, and the source file points to the Stride file.  Instead, the |xpath| column
+gives an XPath path in the Stride source to the item causing an error, and |xml_start| and |xml_end|
+give start/end character locations within that item.  For Java errors in Stride classes which
+occur in compilation, the error points to the Java file, fills in the start/end line/column fields
+and fills in the |xpath|, |xml_start| and |xml_end| fields.
 
 Since BlueJ 3.2.0, which shows errors as a red underline, all errors are marked
-as shown (unless there is an unexpected problem, such as an invalid location).
+as shown (unless there is an unexpected problem, such as an invalid location) in
+this table, but see the details on the |"shown_error"| event above.
 
-Stride files report the error location in the Java file.
+%schema:quick_fixes
+
+See earlier sections for the purpose of this table.  The |display| field gives the text of the
+quick fix, the |fix_order| gives the index in the list (0 being first item) as it was presented
+to the user, and the |compile_output_id| points to the error (in the \tabref{compile_outputs})
+which these fixes were shown for.
 
 \section{Miscellaneous Events}
 
@@ -935,6 +1008,19 @@ This event gets an associated entry in the |version_control_events|
 table, and also zero or more entries in the |version_control_files|
 table, with the |file| field filled in, and the |status| field filled
 in.
+
+\section{Greenfoot Events}
+
+Data collection is not enabled for the mainstream release of Greenfoot,
+so these events will only occur in specialised builds of Greenfoot
+used for research projects.  They will not occur in the main Blackbox
+data set, but are documented here for completeness.
+
+\subsection{\lstinline!"greenfoot_window_activated"!}
+
+Event occurs when the main Greenfoot window (with the world display) is
+focused, which will cause Greenfoot to attempt to instantiate the world.
+There are no further details associated with this event.
 
 \chapter{Other Database Tables}
 \label{sec:other_tables}
