@@ -21,6 +21,7 @@
  */
 package bluej.stride.generic;
 
+import bluej.collect.StrideEditReason;
 import bluej.editor.stride.FrameCatalogue;
 import bluej.editor.stride.FrameEditor;
 import bluej.stride.slots.LinkedIdentifier;
@@ -196,6 +197,8 @@ public interface InteractionManager
     public CodeOverlayPane getCodeOverlayPane();
 
     public void modifiedFrame(Frame f);
+
+    public void recordEdits(StrideEditReason reason);
     
     /**
      * Generates the Java code, parses it 

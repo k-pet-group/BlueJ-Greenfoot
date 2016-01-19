@@ -366,7 +366,7 @@ public class DataCollectorImpl
         submitEventNoData(project, null, EventName.RESETTING_VM);        
     }
 
-    public static void edit(final Package pkg, final File path, final String source, final boolean includeOneLineEdits)
+    public static void edit(final Package pkg, final File path, final String source, final boolean includeOneLineEdits, StrideEditReason reason)
     {
         final Project proj = pkg.getProject();
         final ProjectDetails projDetails = new ProjectDetails(proj);
@@ -408,7 +408,12 @@ public class DataCollectorImpl
                 
                 mpe.addPart("source_histories[][content]", CollectUtility.toBody(diff));
                 mpe.addPart("source_histories[][source_history_type]", CollectUtility.toBody("diff"));
-                mpe.addPart("source_histories[][name]", CollectUtility.toBody(CollectUtility.toPath(projDetails, path))); 
+                mpe.addPart("source_histories[][name]", CollectUtility.toBody(CollectUtility.toPath(projDetails, path)));
+
+                if (reason != null && reason.getText() != null)
+                {
+                    mpe.addPart("source_histories[][reason]", CollectUtility.toBody(reason.getText()));
+                }
                 
                 return mpe;
             }

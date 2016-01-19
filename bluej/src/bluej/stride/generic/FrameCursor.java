@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import bluej.collect.StrideEditReason;
 import bluej.stride.operations.ToggleBooleanProperty;
 import bluej.stride.slots.EditableSlot.MenuItemOrder;
 import javafx.animation.Animation;
@@ -216,6 +217,7 @@ public class FrameCursor implements RecallableFocus
 
                 if (!selection || frameType.validOnSelection()) {
                     editor.beginRecordingState(FrameCursor.this);
+                    editor.recordEdits(StrideEditReason.FLUSH);
 
                     //Don't animate our removal when adding blocks,
                     //just disappear:
@@ -236,6 +238,7 @@ public class FrameCursor implements RecallableFocus
                         newFrame = frameType.getFactory().createBlock(editor);
                         insertBlockBefore(newFrame);
                     }
+                    editor.recordEdits(selection ? StrideEditReason.SELECTION_WRAP_KEY : StrideEditReason.SINGLE_FRAME_INSERTION_KEY);
                     editor.modifiedFrame(newFrame);
                     newFrame.markFresh();
 

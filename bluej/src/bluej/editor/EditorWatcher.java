@@ -24,6 +24,7 @@ package bluej.editor;
 import java.util.List;
 
 import bluej.collect.DiagnosticWithShown;
+import bluej.collect.StrideEditReason;
 import bluej.compiler.CompileReason;
 import bluej.extensions.SourceType;
 import threadchecker.OnThread;
@@ -79,8 +80,13 @@ public interface EditorWatcher
      * Gets a property
      */
     String getProperty(String key);
-    
-    void recordEdit(SourceType sourceType, String curSource, boolean includeOneLineEdits);
+
+    default void recordEdit(SourceType sourceType, String curSource, boolean includeOneLineEdits)
+    {
+        recordEdit(sourceType, curSource, includeOneLineEdits, null);
+    }
+
+    void recordEdit(SourceType sourceType, String curSource, boolean includeOneLineEdits, StrideEditReason reason);
 
     void clearAllBreakpoints();
 

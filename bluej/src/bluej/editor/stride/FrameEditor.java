@@ -44,6 +44,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import bluej.collect.DataCollector;
+import bluej.collect.StrideEditReason;
 import bluej.extensions.SourceType;
 import bluej.stride.framedjava.ast.JavaFragment;
 import bluej.stride.framedjava.errors.DirectSlotError;
@@ -154,7 +156,7 @@ public class FrameEditor implements Editor
      * A callback to call (on the Swing thread) when this editor is opened.
      */
     private final Runnable callbackOnOpen;
-    
+
     /**
      * A javac compile error.
      */
@@ -1266,5 +1268,17 @@ public class FrameEditor implements Editor
     public EditorWatcher getWatcher()
     {
         return watcher;
+    }
+
+    @OnThread(Tag.FX)
+    public void recordEdits(StrideEditReason reason)
+    {
+        SaveResult result = _saveFX();
+        if (result.exception == null)
+        {
+            watcher.recordEdit(SourceType.Stride, result.savedSource, true, reason);
+        }
+        else
+            Debug.reportError(result.exception);
     }
 }

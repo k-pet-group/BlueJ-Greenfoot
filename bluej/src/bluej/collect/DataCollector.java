@@ -427,10 +427,10 @@ public @OnThread(Tag.Swing) class DataCollector
         DataCollectorImpl.convertStrideToJava(pkg, oldSourceFile, newSourceFile);
     }
 
-    public static void edit(Package pkg, File path, String source, boolean includeOneLineEdits)
+    public static void edit(Package pkg, File path, String source, boolean includeOneLineEdits, StrideEditReason reason)
     {
         if (dontSend()) return;
-        DataCollectorImpl.edit(pkg, path, source, includeOneLineEdits);
+        DataCollectorImpl.edit(pkg, path, source, includeOneLineEdits, reason);
     }
 
     public static void packageOpened(Package pkg)

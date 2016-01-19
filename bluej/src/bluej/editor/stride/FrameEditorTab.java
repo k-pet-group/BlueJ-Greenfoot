@@ -43,6 +43,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import bluej.collect.StrideEditReason;
 import bluej.parser.AssistContent;
 import bluej.parser.AssistContent.ParamInfo;
 import bluej.parser.ConstructorCompletion;
@@ -2350,5 +2351,11 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     public FrameEditor getFrameEditor()
     {
         return editor;
+    }
+
+    @Override
+    public void recordEdits(StrideEditReason reason)
+    {
+        editor.recordEdits(reason);
     }
 }

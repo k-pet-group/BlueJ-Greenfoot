@@ -37,6 +37,7 @@ import javax.swing.JPopupMenu;
 
 import bluej.Config;
 import bluej.collect.DiagnosticWithShown;
+import bluej.collect.StrideEditReason;
 import bluej.compiler.CompileReason;
 import bluej.editor.Editor;
 import bluej.editor.EditorManager;
@@ -216,7 +217,7 @@ public class ReadmeTarget extends EditableTarget
     public void setProperty(String key, String value) { }
     
     @Override
-    public void recordEdit(SourceType sourceType, String curSource, boolean includeOneLineEdits) { }
+    public void recordEdit(SourceType sourceType, String curSource, boolean includeOneLineEdits, StrideEditReason reason) { }
 
     @Override
     public String getTooltipText()

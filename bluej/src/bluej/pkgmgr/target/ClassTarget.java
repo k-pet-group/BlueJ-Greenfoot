@@ -50,6 +50,7 @@ import javax.swing.JPopupMenu;
 import bluej.Config;
 import bluej.collect.DataCollector;
 import bluej.collect.DiagnosticWithShown;
+import bluej.collect.StrideEditReason;
 import bluej.compiler.CompileInputFile;
 import bluej.compiler.CompileObserver;
 import bluej.compiler.CompileReason;
@@ -2261,15 +2262,15 @@ public class ClassTarget extends DependentTarget
     }
     
     @Override
-    public void recordEdit(SourceType sourceType, String latest, boolean includeOneLineEdits)
+    public void recordEdit(SourceType sourceType, String latest, boolean includeOneLineEdits, StrideEditReason reason)
     {
         if (sourceType == SourceType.Java)
         {
-            DataCollector.edit(getPackage(), getJavaSourceFile(), latest, includeOneLineEdits);
+            DataCollector.edit(getPackage(), getJavaSourceFile(), latest, includeOneLineEdits, null);
         }
         else if (sourceType == SourceType.Stride && this.sourceAvailable == SourceType.Stride)
         {
-            DataCollector.edit(getPackage(), getFrameSourceFile(), latest, includeOneLineEdits);
+            DataCollector.edit(getPackage(), getFrameSourceFile(), latest, includeOneLineEdits, reason);
         }
         else
         {
