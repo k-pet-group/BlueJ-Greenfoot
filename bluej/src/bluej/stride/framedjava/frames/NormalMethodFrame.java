@@ -146,6 +146,9 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
         staticLabel = new SlotLabel("static ");
         finalLabel = new SlotLabel("final ");
 
+        modifiers.put(STATIC_NAME, staticModifier);
+        modifiers.put(FINAL_NAME, finalModifier);
+
         overrideLabel.addStyleClass("method-override-label");
         overrideLabel.setAlignment(HangingFlowPane.FlowAlignment.RIGHT);
         
@@ -318,12 +321,12 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
     public List<ExtensionDescription> getAvailablePrefixes()
     {
         return Utility.concat(super.getAvailablePrefixes(), Arrays.asList(
-                new ExtensionDescription('n', "Add/Remove final", () ->
-                    // , KeyCode.N
-                    new ToggleBooleanProperty(getEditor(), TOGGLE_FINAL_METHOD, FINAL_NAME).activate(this), false, false),
                 new ExtensionDescription('s', "Add/Remove static", () ->
                     // , KeyCode.S
-                    new ToggleBooleanProperty(getEditor(), TOGGLE_STATIC_METHOD, STATIC_NAME).activate(this), false, false)
+                    new ToggleBooleanProperty(getEditor(), TOGGLE_STATIC_METHOD, STATIC_NAME).activate(this), false, false),
+                new ExtensionDescription('n', "Add/Remove final", () ->
+                    // , KeyCode.N
+                    new ToggleBooleanProperty(getEditor(), TOGGLE_FINAL_METHOD, FINAL_NAME).activate(this), false, false)
         ));
     }
     
