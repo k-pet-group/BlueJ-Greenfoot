@@ -63,7 +63,10 @@ public class ToggleBooleanProperty extends FrameOperation
     @Override
     protected void execute(List<Frame> frames)
     {
-        frames.forEach(f -> f.setModifier(name, !targetedAllTrue(frames)));
+        // The variable is created to solve a bug:
+        // If the method is called inside lambda, the method return value may changes after toggling the first frame.
+        boolean targetedAllTrue = targetedAllTrue(frames);
+        frames.forEach(f -> f.setModifier(name, !targetedAllTrue));
     }
 
     @Override
