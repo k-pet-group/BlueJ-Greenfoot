@@ -1102,6 +1102,12 @@ project.  So files that are within packages will have a path with the
 parent package names as directories (which may use forward slash or
 backslash for separation).
 
+The forthcoming |source_type| field will be either |"java"| or |"stride"|.
+In the case of a Stride class, there will be two entries in the source files
+table: one for the Stride file and one for the Java file.  They will be linked
+by the |generated_from_source_file_id| of the Java file pointing to the |id| of the
+ Stride file.
+
 \section{Source Histories}
 
 %schema:source_histories
