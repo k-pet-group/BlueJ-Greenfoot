@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009, 2010  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2016  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -37,9 +37,9 @@ import bluej.utility.Debug;
 
 public class ResetWorldAction extends AbstractAction implements SimulationListener
 {
-
     private Simulation simulation;
     private static ResetWorldAction instance = new ResetWorldAction();
+    private Runnable actionListener;
 
     private static final String iconFile = "reset.png";
     
@@ -76,6 +76,8 @@ public class ResetWorldAction extends AbstractAction implements SimulationListen
             Debug.reportError("attempt to reset a simulation while none exists.");
         }
         else {
+            if (actionListener != null)
+                actionListener.run();
             resetWorld();
         }
     }
@@ -111,4 +113,8 @@ public class ResetWorldAction extends AbstractAction implements SimulationListen
         });
     }
 
+    public void setActionListener(Runnable actionListener)
+    {
+        this.actionListener = actionListener;
+    }
 }

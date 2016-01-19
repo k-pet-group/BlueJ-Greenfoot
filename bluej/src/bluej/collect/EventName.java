@@ -49,6 +49,10 @@ enum EventName
     FIX_EXECUTED("fix_executed"),
 
     GREENFOOT_WINDOW_ACTIVATED("greenfoot_window_activated"),
+    GREENFOOT_WORLD_RESET("greenfoot_world_reset"),
+    GREENFOOT_WORLD_ACT("greenfoot_world_act"),
+    GREENFOOT_WORLD_RUN("greenfoot_world_run"),
+    GREENFOOT_WORLD_PAUSE("greenfoot_world_pause"),
     
     // Debugger: 
     DEBUGGER_OPEN("debugger_open"),

@@ -22,6 +22,7 @@
 package rmiextension.wrappers;
 
 import bluej.collect.DataCollector;
+import bluej.collect.GreenfootInterfaceEvent;
 import greenfoot.util.DebugUtil;
 
 import java.awt.EventQueue;
@@ -458,8 +459,8 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
     }
 
     @Override
-    public void recordWindowActivated() throws RemoteException, ProjectNotOpenException
+    public void recordEvent(GreenfootInterfaceEvent event) throws RemoteException, ProjectNotOpenException
     {
-        DataCollector.recordGreenfootWindowActivated(ExtensionBridge.getProject(getBProject()));
+        DataCollector.recordGreenfootEvent(ExtensionBridge.getProject(getBProject()), event);
     }
 }

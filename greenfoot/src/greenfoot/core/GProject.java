@@ -21,6 +21,7 @@
  */
 package greenfoot.core;
 
+import bluej.collect.GreenfootInterfaceEvent;
 import greenfoot.event.CompileListener;
 
 import java.io.File;
@@ -476,11 +477,11 @@ public class GProject extends RProjectListenerImpl
         return false;
     }
 
-    public void recordWindowActivated()
+    public void recordEvent(GreenfootInterfaceEvent event)
     {
         try
         {
-            rProject.recordWindowActivated();
+            rProject.recordEvent(event);
         } catch (RemoteException | ProjectNotOpenException e)
         {
             e.printStackTrace();

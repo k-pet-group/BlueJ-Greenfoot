@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2016  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -48,7 +48,8 @@ public class RunOnceSimulationAction extends AbstractAction
 
     private Simulation simulation;
     protected boolean stateOnDebugResume;
-    private SimulationUIListener listener; 
+    private SimulationUIListener listener;
+    private Runnable actionListener;
     
     /**
      * Singleton factory method for action.
@@ -90,6 +91,10 @@ public class RunOnceSimulationAction extends AbstractAction
         if (listener != null) {
             listener.simulationActive();
         }
+        if (actionListener != null)
+        {
+            actionListener.run();
+        }
         simulation.runOnce();
     }
 
@@ -120,5 +125,10 @@ public class RunOnceSimulationAction extends AbstractAction
                 }
             }
         });
+    }
+
+    public void setActionListener(Runnable actionListener)
+    {
+        this.actionListener = actionListener;
     }
 }

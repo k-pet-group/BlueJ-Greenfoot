@@ -24,6 +24,7 @@ package rmiextension.wrappers;
 import java.io.File;
 import java.rmi.RemoteException;
 
+import bluej.collect.GreenfootInterfaceEvent;
 import rmiextension.wrappers.event.RProjectListener;
 import bluej.extensions.PackageAlreadyExistsException;
 import bluej.extensions.ProjectNotOpenException;
@@ -191,6 +192,6 @@ public interface RProject
     public void startImportsScan()
             throws RemoteException, ProjectNotOpenException;
 
-    public void recordWindowActivated()
+    public void recordEvent(GreenfootInterfaceEvent event)
             throws RemoteException, ProjectNotOpenException;
 }

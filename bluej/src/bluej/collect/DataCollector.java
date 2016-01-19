@@ -529,10 +529,10 @@ public @OnThread(Tag.Swing) class DataCollector
         DataCollectorImpl.fixExecuted(aPackage, errorIdentifier, fixIndex);
     }
 
-    public static void recordGreenfootWindowActivated(Project project)
+    public static void recordGreenfootEvent(Project project, GreenfootInterfaceEvent event)
     {
         if (dontSend()) return;
-        DataCollectorImpl.greenfootWindowActivated(project, project.getPackage(""));
+        DataCollectorImpl.greenfootEvent(project, project.getPackage(""), event);
     }
 
     public static class NamedTyped

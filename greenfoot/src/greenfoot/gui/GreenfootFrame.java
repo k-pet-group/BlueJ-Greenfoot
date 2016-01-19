@@ -57,6 +57,7 @@ import greenfoot.core.GClass;
 import greenfoot.core.GCoreClass;
 import greenfoot.core.GPackage;
 import greenfoot.core.GProject;
+import bluej.collect.GreenfootInterfaceEvent;
 import greenfoot.core.GreenfootMain;
 import greenfoot.core.ProjectProperties;
 import greenfoot.core.Simulation;
@@ -804,6 +805,11 @@ public class GreenfootFrame extends JFrame
         RunOnceSimulationAction.getInstance().attachListener(worldHandlerDelegate);
         RunSimulationAction.getInstance().attachListener(worldHandlerDelegate);
 
+        ResetWorldAction.getInstance().setActionListener(() -> getProject().recordEvent(GreenfootInterfaceEvent.WORLD_RESET));
+        RunOnceSimulationAction.getInstance().setActionListener(() -> getProject().recordEvent(GreenfootInterfaceEvent.WORLD_ACT));
+        RunSimulationAction.getInstance().setActionListener(() -> getProject().recordEvent(GreenfootInterfaceEvent.WORLD_RUN));
+        PauseSimulationAction.getInstance().setActionListener(() -> getProject().recordEvent(GreenfootInterfaceEvent.WORLD_PAUSE));
+
         ctrlMenu.addSeparator();
         toggleDebuggerAction = new ToggleDebuggerAction(Config.getString("menu.debugger"), project);
         createCheckboxMenuItem(toggleDebuggerAction, false, ctrlMenu, KeyEvent.VK_B, false, KeyEvent.VK_B);
@@ -1186,7 +1192,7 @@ public class GreenfootFrame extends JFrame
     public void windowActivated(WindowEvent e) {
         if (!isClosedProject())
         {
-            project.recordWindowActivated();
+            project.recordEvent(GreenfootInterfaceEvent.WINDOW_ACTIVATED);
             Arrays.stream(project.getDefaultPackage().getClasses(false)).forEach(GClass::cancelFreshState);
             if (!wasRestarted && !WorldHandler.getInstance().hasWorld() && executionCount == 0) {
                 WorldHandler.getInstance().instantiateNewWorld();

@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2016  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -36,7 +36,7 @@ import bluej.utility.Debug;
 
 /**
  * @author Poul Henriksen
- * @version $Id: PauseSimulationAction.java 8628 2011-02-02 05:07:36Z davmac $
+ * @version $Id: PauseSimulationAction.java 15309 2016-01-19 14:04:44Z nccb $
  */
 public class PauseSimulationAction extends AbstractAction
     implements SimulationListener
@@ -54,6 +54,7 @@ public class PauseSimulationAction extends AbstractAction
     
     private Simulation simulation;
     protected boolean stateOnDebugResume;
+    private Runnable actionListener;
 
     private PauseSimulationAction()
     {
@@ -78,6 +79,10 @@ public class PauseSimulationAction extends AbstractAction
             Debug.reportError("attempt to pause a simulation while none exists.");
         }
         else {
+            if (actionListener != null)
+            {
+                actionListener.run();
+            }
             simulation.setPaused(true);
         }
     }
@@ -109,5 +114,10 @@ public class PauseSimulationAction extends AbstractAction
                 }
             }            
         });
+    }
+
+    public void setActionListener(Runnable actionListener)
+    {
+        this.actionListener = actionListener;
     }
 }

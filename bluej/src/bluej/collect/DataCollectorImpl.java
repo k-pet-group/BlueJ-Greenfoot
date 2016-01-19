@@ -954,9 +954,29 @@ public class DataCollectorImpl
         submitEvent(pkg.getProject(), pkg, EventName.FIX_EXECUTED, new PlainEvent(mpe));
     }
 
-    public static void greenfootWindowActivated(Project project, Package pkg)
+    public static void greenfootEvent(Project project, Package pkg, GreenfootInterfaceEvent greenfootEvent)
     {
         MultipartEntity mpe = new MultipartEntity();
-        submitEvent(project, pkg, EventName.GREENFOOT_WINDOW_ACTIVATED, new PlainEvent(mpe));
+        EventName event = null;
+        switch (greenfootEvent)
+        {
+            case WINDOW_ACTIVATED:
+                event = EventName.GREENFOOT_WINDOW_ACTIVATED;
+                break;
+            case WORLD_RESET:
+                event = EventName.GREENFOOT_WORLD_RESET;
+                break;
+            case WORLD_ACT:
+                event = EventName.GREENFOOT_WORLD_ACT;
+                break;
+            case WORLD_RUN:
+                event = EventName.GREENFOOT_WORLD_RUN;
+                break;
+            case WORLD_PAUSE:
+                event = EventName.GREENFOOT_WORLD_PAUSE;
+                break;
+        }
+        if (event != null)
+            submitEvent(project, pkg, event, new PlainEvent(mpe));
     }
 }
