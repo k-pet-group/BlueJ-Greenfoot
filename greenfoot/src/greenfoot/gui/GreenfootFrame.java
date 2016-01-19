@@ -198,6 +198,10 @@ public class GreenfootFrame extends JFrame
     private final static int WORLD_INITIALISING_TIMEOUT = 4000;
     private long startedInitialisingAt;
     
+    // Count of things we are executing for user (ideally is only 0 or 1).
+    // Includes world instantiation, interactive method/constructor calls, act rounds
+    private int executionCount;
+    
     /**
      * Specifies whether a compilation operation is in progress
      */
@@ -1096,6 +1100,27 @@ public class GreenfootFrame extends JFrame
         messageLabel.setText(message);
         messageLabel2.setText(message2);
     }
+        
+    /**
+     * Mark the beginning of user code execution - world instantiation, interactive call, act round
+     */
+    public void beginExecution()
+    {
+        if (executionCount == 0) {
+            resetTimer(); // Start timer for this execution
+        }
+        executionCount++;
+    }
+    
+    /**
+     * Mark the end of a user code execution
+     */
+    public void endExecution()
+    {
+        if (--executionCount == 0) {
+            stopTimer();
+        }
+    }
     
     /**
      * Reset/restart the watchdog timer. Once it times out, the "execution twirler" will be
@@ -1163,7 +1188,7 @@ public class GreenfootFrame extends JFrame
         {
             project.recordWindowActivated();
             Arrays.stream(project.getDefaultPackage().getClasses(false)).forEach(GClass::cancelFreshState);
-            if (!wasRestarted && !WorldHandler.getInstance().hasWorld()) {
+            if (!wasRestarted && !WorldHandler.getInstance().hasWorld() && executionCount == 0) {
                 WorldHandler.getInstance().instantiateNewWorld();
             }
         }
@@ -1233,8 +1258,6 @@ public class GreenfootFrame extends JFrame
     @Override
     public void worldCreated(WorldEvent e)
     {
-        stopTimer();
-        
         // Having instantiated a world successfully, we can assume it's safe to
         // try to do so again:
         wasRestarted = false;
