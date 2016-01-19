@@ -312,9 +312,9 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
             c.getParentCanvas().removeBlock(this);
         }));
         
-        r.add(new CustomFrameOperation(editor, "addRemoveStatic", Arrays.asList("Toggle static"), MenuItemOrder.TOGGLE_STATIC, this, () ->  staticModifier.set(!staticModifier.get())));
-        r.add(new CustomFrameOperation(editor, "addRemoveFinal", Arrays.asList("Toggle final"), MenuItemOrder.TOGGLE_FINAL, this, () ->  finalModifier.set(!finalModifier.get())));
-        
+        r.add(new ToggleBooleanProperty(editor, TOGGLE_STATIC_METHOD, STATIC_NAME));
+        r.add(new ToggleBooleanProperty(editor, TOGGLE_FINAL_METHOD, FINAL_NAME));
+
         return r;
     }
 
