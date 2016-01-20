@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -47,7 +47,7 @@ public class PasteFrameOperation extends FrameOperation
     {
         if (frames.size() > 0) {
             FrameCursor insertionCursor = frames.get(0).getCursorBefore();
-            new DeleteFrameOperation(editor).execute(frames);
+            DeleteFrameOperation.deleteFrames(frames, editor);
             editor.getSelection().clear();
             insertionCursor.requestFocus();
         }

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,6 +24,7 @@ package bluej.stride.operations;
 import java.util.Arrays;
 import java.util.List;
 
+import bluej.collect.StrideEditReason;
 import bluej.stride.generic.FrameCursor;
 import bluej.stride.slots.EditableSlot.MenuItemOrder;
 import javafx.beans.value.ObservableValue;
@@ -60,6 +61,13 @@ public class DeleteFrameOperation extends FrameOperation
 
     @Override
     protected void execute(List<Frame> frames)
+    {
+        editor.recordEdits(StrideEditReason.FLUSH);
+        deleteFrames(frames, editor);
+        editor.recordEdits(StrideEditReason.DELETE_FRAMES_MENU);
+    }
+
+    public static void deleteFrames(List<Frame> frames, InteractionManager editor)
     {
         if (!frames.isEmpty())
         {

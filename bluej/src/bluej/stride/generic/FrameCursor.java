@@ -486,9 +486,11 @@ public class FrameCursor implements RecallableFocus
                 // Check they are from our canvas:
                 if (toDelete.stream().allMatch(f -> f.getParentCanvas() == getParentCanvas()))
                 {
+                    editor.recordEdits(StrideEditReason.FLUSH);
                     // We might get deleted during this code, so cache value of getParentCanvas:
                     FrameCanvas c = getParentCanvas();
                     toDelete.forEach(f -> c.removeBlock(f));
+                    editor.recordEdits(event.getCode() == KeyCode.BACK_SPACE ? StrideEditReason.DELETE_FRAMES_KEY_BKSP : StrideEditReason.DELETE_FRAMES_KEY_DELETE);
                 }
                 else
                 {
@@ -509,7 +511,9 @@ public class FrameCursor implements RecallableFocus
                 {
                     editor.beginRecordingState(FrameCursor.this);
                     FrameCursor cursorBeforeTarget = parentCanvas.getCursorBefore(target);
+                    editor.recordEdits(StrideEditReason.FLUSH);
                     parentCanvas.removeBlock(target);
+                    editor.recordEdits(StrideEditReason.DELETE_FRAMES_KEY_BKSP);
                     editor.modifiedFrame(target);
                     cursorBeforeTarget.requestFocus();
                     editor.endRecordingState(cursorBeforeTarget);
@@ -546,7 +550,9 @@ public class FrameCursor implements RecallableFocus
                 if (target != null)
                 {
                     editor.beginRecordingState(FrameCursor.this);
+                    editor.recordEdits(StrideEditReason.FLUSH);
                     parentCanvas.removeBlock(target);
+                    editor.recordEdits(StrideEditReason.DELETE_FRAMES_KEY_DELETE);
                     editor.modifiedFrame(target);
                     editor.endRecordingState(FrameCursor.this);
                 }

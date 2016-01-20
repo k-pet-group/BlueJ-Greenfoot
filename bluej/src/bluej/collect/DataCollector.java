@@ -33,6 +33,7 @@ import bluej.compiler.CompileInputFile;
 import bluej.compiler.CompileReason;
 import bluej.extensions.SourceType;
 import bluej.pkgmgr.target.ClassTarget;
+import bluej.utility.Debug;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.Config;

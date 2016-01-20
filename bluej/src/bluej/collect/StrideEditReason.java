@@ -36,6 +36,10 @@ public enum StrideEditReason
     // The frame catalogue/cheat sheet was clicked in order to insert a single frame:
     SINGLE_FRAME_INSERTION_CHEAT("frame_insert_cheat"),
 
+    DELETE_FRAMES_MENU("delete_frames_menu"),
+    DELETE_FRAMES_KEY_BKSP("delete_frames_key_backspace"),
+    DELETE_FRAMES_KEY_DELETE("delete_frames_key_delete"),
+
     // Just used to flush any old edits; no recorded reason for edit:
     FLUSH(null);
 
