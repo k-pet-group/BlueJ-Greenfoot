@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import bluej.collect.StrideEditReason;
+import bluej.stride.generic.InteractionManager;
 import bluej.utility.javafx.binding.ConcatListBinding;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -312,12 +314,15 @@ public class FrameCatalogue extends VBox
         item.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
             if (currentCursor != null)
             {
+                InteractionManager editor = currentCursor.getEditor();
+                editor.recordEdits(StrideEditReason.FLUSH);
                 FrameSelection selection = currentCursor.getEditor().getSelection();
                 if (selection.getSelected().isEmpty())
                 {
                     Frame f = factory.createBlock(currentCursor.getEditor());
                     currentCursor.insertBlockAfter(f);
                     f.focusWhenJustAdded();
+                    editor.recordEdits(StrideEditReason.SINGLE_FRAME_INSERTION_CHEAT);
                 }
                 else
                 {
@@ -330,6 +335,7 @@ public class FrameCatalogue extends VBox
                     selected.forEach(f -> f.getParentCanvas().removeBlock(f));
                     selection.clear();
                     newFrame.focusWhenJustAdded();
+                    editor.recordEdits(StrideEditReason.SELECTION_WRAP_CHEAT);
                 }
             }
             e.consume();

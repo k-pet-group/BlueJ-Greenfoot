@@ -29,8 +29,12 @@ public enum StrideEditReason
 {
     // A key was used to insert a frame which wrapped a selection:
     SELECTION_WRAP_KEY("selection_wrap_key"),
+    // The frame catalogue/cheat sheet was clicked in order to wrap a selection:
+    SELECTION_WRAP_CHEAT("selection_wrap_cheat"),
     // A key was used to insert a frame on its own:
     SINGLE_FRAME_INSERTION_KEY("frame_insert_key"),
+    // The frame catalogue/cheat sheet was clicked in order to insert a single frame:
+    SINGLE_FRAME_INSERTION_CHEAT("frame_insert_cheat"),
 
     // Just used to flush any old edits; no recorded reason for edit:
     FLUSH(null);
