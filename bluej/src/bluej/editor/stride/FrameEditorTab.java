@@ -1081,6 +1081,8 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     {
         boolean shouldDisable = !dragTarget.getParentCanvas().getParent().getFrame().isFrameEnabled();
 
+        editor.recordEdits(StrideEditReason.FLUSH);
+
         // We must add blocks in reverse order after cursor:
         Collections.reverse(dragSourceFrames);
         if (!copying) {
@@ -1101,6 +1103,8 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
                     frame.setFrameEnabled(false);
             }
         }
+
+        editor.recordEdits(StrideEditReason.FRAMES_DRAG);
     }    
 
     // Called by mouse events

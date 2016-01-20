@@ -42,6 +42,8 @@ public enum StrideEditReason
     DELETE_FRAMES_KEY_BKSP("delete_frames_key_backspace"),
     DELETE_FRAMES_KEY_DELETE("delete_frames_key_delete"),
 
+    FRAMES_DRAG("drag_frames"),
+
     // Just used to flush any old edits; no recorded reason for edit:
     FLUSH(null);
 
