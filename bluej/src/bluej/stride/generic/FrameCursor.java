@@ -863,8 +863,10 @@ public class FrameCursor implements RecallableFocus
             public void handle(ActionEvent e)
             {
                 editor.beginRecordingState(FrameCursor.this);
+                editor.recordEdits(StrideEditReason.FLUSH);
                 Frame newFrame = entry.getFactory().createBlock(editor);
                 cursor.insertBlockAfter(newFrame);
+                editor.recordEdits(StrideEditReason.SINGLE_FRAME_INSERTION_CONTEXT_MENU);
                 newFrame.focusWhenJustAdded();
                 editor.endRecordingState(null);
                 editor.getSelection().clear();

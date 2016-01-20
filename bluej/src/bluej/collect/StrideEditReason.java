@@ -35,6 +35,8 @@ public enum StrideEditReason
     SINGLE_FRAME_INSERTION_KEY("frame_insert_key"),
     // The frame catalogue/cheat sheet was clicked in order to insert a single frame:
     SINGLE_FRAME_INSERTION_CHEAT("frame_insert_cheat"),
+    // The right-click context menu was used on a frame cursor to insert a frame:
+    SINGLE_FRAME_INSERTION_CONTEXT_MENU("frame_insert_menu"),
 
     DELETE_FRAMES_MENU("delete_frames_menu"),
     DELETE_FRAMES_KEY_BKSP("delete_frames_key_backspace"),
