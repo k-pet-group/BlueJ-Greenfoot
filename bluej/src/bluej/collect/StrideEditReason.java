@@ -42,7 +42,11 @@ public enum StrideEditReason
     DELETE_FRAMES_KEY_BKSP("delete_frames_key_backspace"),
     DELETE_FRAMES_KEY_DELETE("delete_frames_key_delete"),
 
+    // Frames have been moved or copied by dragging:
     FRAMES_DRAG("drag_frames"),
+
+    // Frame was removed because user pressed escape immediately after inserting a frame:
+    ESCAPE_FRESH("escape_fresh"),
 
     // Just used to flush any old edits; no recorded reason for edit:
     FLUSH(null);

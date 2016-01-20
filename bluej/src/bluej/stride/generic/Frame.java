@@ -56,6 +56,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 
+import bluej.collect.StrideEditReason;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.errors.CodeError;
 import bluej.stride.framedjava.errors.ErrorShower;
@@ -1303,7 +1304,9 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
             // Delete ourselves
             FrameCanvas parentCanvas = getParentCanvas();
             FrameCursor cursorBefore = getCursorBefore();
+            editor.recordEdits(StrideEditReason.FLUSH);
             parentCanvas.removeBlock(this);
+            editor.recordEdits(StrideEditReason.ESCAPE_FRESH);
             cursorBefore.requestFocus();
         }
     }
