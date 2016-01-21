@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2012,2014,2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2012,2014,2015,2016  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -39,6 +39,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 import java.awt.event.WindowListener;
+import java.io.IOException;
 import java.util.List;
 import java.util.Vector;
 import java.util.ArrayList;
@@ -73,11 +74,13 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.text.html.HTMLEditorKit;
 
 import bluej.Config;
+import bluej.editor.EditorWatcher;
 import bluej.parser.AssistContent;
 import bluej.parser.AssistContent.ParamInfo;
 import bluej.parser.SourceLocation;
 import bluej.parser.lexer.LocatableToken;
 import bluej.prefmgr.PrefMgr;
+import bluej.utility.Debug;
 import bluej.utility.JavaUtils;
 import bluej.utility.Utility;
 
@@ -90,8 +93,9 @@ public class CodeCompletionDisplay extends JFrame
         implements ListSelectionListener, MouseListener
 {
     private static final Color msgTextColor = new Color(200,170,100);
+    private final EditorWatcher watcher;
 
-    private MoeEditor editor;
+    private final MoeEditor editor;
     private final WindowListener editorListener;
     private TreeSet<AssistContent> values;
     private String prefix;
@@ -112,8 +116,8 @@ public class CodeCompletionDisplay extends JFrame
      * suggestions. The location specifies the partial identifier entered by the user before
      * requesting suggestions (if any - it may be null).
      */
-    public CodeCompletionDisplay(MoeEditor ed, String suggestionType,
-            AssistContent[] assistContents, LocatableToken location)
+    public CodeCompletionDisplay(MoeEditor ed, EditorWatcher watcher, String suggestionType,
+                                 AssistContent[] assistContents, LocatableToken location)
     {
         this.values= new TreeSet<AssistContent>(new TreeComparator());
 
@@ -172,6 +176,9 @@ public class CodeCompletionDisplay extends JFrame
         };
 
         //TODO adapt the window listener to the new tabbed arrangement
+
+        this.watcher = watcher;
+        watcher.recordCodeCompletionStarted(prefixBegin.getLine(), prefixBegin.getColumn(), null, null, prefix);
     }
 
     /**
@@ -440,6 +447,7 @@ public class CodeCompletionDisplay extends JFrame
             // Replace prefix with the full name:
             editor.setSelection(prefixBegin, prefixEnd);
             editor.insertText(start, false);
+            String inserted = start;
             
             if (params != null)
             {
@@ -448,13 +456,28 @@ public class CodeCompletionDisplay extends JFrame
                 SourceLocation selLoc = editor.getCaretLocation();
                 // Put all available params in, separated by ", "
                 if (!params.isEmpty())
-                    editor.insertText(params.stream().map(ParamInfo::getDummyName).collect(Collectors.joining(", ")), false);
+                {
+                    final String joinedParams = params.stream().map(ParamInfo::getDummyName).collect(Collectors.joining(", "));
+                    editor.insertText(joinedParams, false);
+                    inserted += joinedParams;
+                }
                         
                 editor.insertText(")", false);
+                inserted += ")";
                         
                 // If there were any dummy parameters, go back and select first one:
                 if (params.size() > 0)
                     editor.setSelection(selLoc.getLine(), selLoc.getColumn(), params.get(0).getDummyName().length());
+            }
+
+            watcher.recordCodeCompletionEnded(prefixBegin.getLine(), prefixBegin.getColumn(), null, null, prefix, inserted);
+            try
+            {
+                editor.save();
+            }
+            catch (IOException e)
+            {
+                Debug.reportError(e);
             }
         }
 

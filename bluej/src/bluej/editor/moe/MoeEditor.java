@@ -3645,12 +3645,12 @@ public final class MoeEditor extends JPanel
         }
         if (suggests != null) {
             suggestToken = suggests.getSuggestionToken();
-            PopulateCompletionsWorker worker = new PopulateCompletionsWorker(this, suggests, suggestToken, xpos, ypos);
+            PopulateCompletionsWorker worker = new PopulateCompletionsWorker(suggests, suggestToken, xpos, ypos);
             worker.execute();
         } else {
             //no completions found. no need to search.
              info.warning("No completions available.");
-             CodeCompletionDisplay codeCompletionDlg = new CodeCompletionDisplay(this,
+             CodeCompletionDisplay codeCompletionDlg = new CodeCompletionDisplay(this, watcher,
                             null, new AssistContent[0], null);
             codeCompletionDlg.setLocation(xpos, ypos);
             codeCompletionDlg.setVisible(true);
@@ -4281,16 +4281,13 @@ public final class MoeEditor extends JPanel
      */
     class PopulateCompletionsWorker extends SwingWorker<AssistContent[], AssistContent>
     {
-
         CodeCompletionDisplay codeCompletionDlg;
-        MoeEditor moe;
         CodeSuggestions suggests;
         LocatableToken suggestToken;
         int xpos = 0, ypos = 0;
 
-        public PopulateCompletionsWorker(MoeEditor m, CodeSuggestions sug, LocatableToken sugT, int x, int y)
+        public PopulateCompletionsWorker(CodeSuggestions sug, LocatableToken sugT, int x, int y)
         {
-            this.moe = m;
             this.suggests = sug;
             this.suggestToken = sugT;
             this.xpos = x;
@@ -4328,7 +4325,7 @@ public final class MoeEditor extends JPanel
                 if (codeCompletionDlg == null)
                 {
                     AssistContent[] initialElements = chunks.toArray(new AssistContent[chunks.size()]);
-                    codeCompletionDlg = new CodeCompletionDisplay(this.moe,
+                    codeCompletionDlg = new CodeCompletionDisplay(MoeEditor.this, watcher,
                             suggests.getSuggestionType().toString(false),
                             initialElements, suggestToken);
                     codeCompletionDlg.setLocation(xpos, ypos);
