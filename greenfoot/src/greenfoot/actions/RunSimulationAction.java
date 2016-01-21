@@ -29,7 +29,6 @@ import greenfoot.event.SimulationUIListener;
 
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
@@ -104,28 +103,33 @@ public class RunSimulationAction extends AbstractAction
      */
     public void simulationChanged(final SimulationEvent e)
     {
-        EventQueue.invokeLater(new Runnable() {
-            public void run()
-            {
-                int eventType = e.getType();
-                if (eventType == SimulationEvent.STOPPED) {
-                    setEnabled(stateOnDebugResume = true);
-                }
-                else if (eventType == SimulationEvent.STARTED) {
-                    setEnabled(stateOnDebugResume = false);
-                }
-                else if (eventType == SimulationEvent.DISABLED) {
-                    setEnabled(stateOnDebugResume = false);
-                }
-                else if (eventType == SimulationEvent.DEBUGGER_PAUSED) {
-                    stateOnDebugResume = isEnabled();
-                    setEnabled(false);                        
-                }
-                else if (eventType == SimulationEvent.DEBUGGER_RESUMED) {
-                    setEnabled(stateOnDebugResume);
-                }
-            }
-        });
+        int eventType = e.getType();
+        if (eventType == SimulationEvent.STOPPED) {
+            EventQueue.invokeLater(() -> {
+                setEnabled(stateOnDebugResume = true);
+            });
+        }
+        else if (eventType == SimulationEvent.STARTED) {
+            EventQueue.invokeLater(() -> {
+                setEnabled(stateOnDebugResume = false);
+            });
+        }
+        else if (eventType == SimulationEvent.DISABLED) {
+            EventQueue.invokeLater(() -> {
+                setEnabled(stateOnDebugResume = false);
+            });
+        }
+        else if (eventType == SimulationEvent.DEBUGGER_PAUSED) {
+            EventQueue.invokeLater(() -> {
+                stateOnDebugResume = isEnabled();
+                setEnabled(false);                        
+            });
+        }
+        else if (eventType == SimulationEvent.DEBUGGER_RESUMED) {
+            EventQueue.invokeLater(() -> {
+                setEnabled(stateOnDebugResume);
+            });
+        }
     }
 
     public void setActionListener(Runnable actionListener)

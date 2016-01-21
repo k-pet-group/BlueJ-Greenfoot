@@ -35,6 +35,9 @@ import javax.swing.ImageIcon;
 import bluej.Config;
 import bluej.utility.Debug;
 
+/**
+ * Action to reset the world (initialise and show a new world).
+ */
 public class ResetWorldAction extends AbstractAction implements SimulationListener
 {
     private Simulation simulation;
@@ -96,21 +99,22 @@ public class ResetWorldAction extends AbstractAction implements SimulationListen
      */
     public void simulationChanged(final SimulationEvent e)
     {
-        EventQueue.invokeLater(new Runnable() {
-            public void run()
-            {
-                int eventType = e.getType();
-                if (eventType == SimulationEvent.STOPPED) {
-                    setEnabled(true);
-                }
-                else if (eventType == SimulationEvent.STARTED) {
-                    setEnabled(true);
-                }
-                else if (eventType == SimulationEvent.DISABLED) {
-                    setEnabled(false);
-                }
-            }
-        });
+        int eventType = e.getType();
+        if (eventType == SimulationEvent.STOPPED) {
+            EventQueue.invokeLater(() -> {
+                setEnabled(true);
+            });
+        }
+        else if (eventType == SimulationEvent.STARTED) {
+            EventQueue.invokeLater(() -> {
+                setEnabled(true);
+            });
+        }
+        else if (eventType == SimulationEvent.DISABLED) {
+            EventQueue.invokeLater(() -> {
+                setEnabled(false);
+            });
+        }
     }
 
     public void setActionListener(Runnable actionListener)

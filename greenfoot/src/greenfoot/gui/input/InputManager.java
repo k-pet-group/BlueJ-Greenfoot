@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2013  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2013,2016  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -206,18 +206,16 @@ public class InputManager
     public void simulationChanged(final SimulationEvent e)
     {
         // Simulation events occur on the simulation thread.
-        EventQueue.invokeLater(new Runnable() {
-           @Override
-            public void run()
-            {
-               if (e.getType() == SimulationEvent.STARTED) {
-                   state.switchToNextState(State.Event.SIMULATION_STARTED, null);
-               }
-               else if (e.getType() == SimulationEvent.STOPPED) {
-                   state.switchToNextState(State.Event.SIMULATION_STOPPED, null);
-               }
-            } 
-        });
+        if (e.getType() == SimulationEvent.STARTED) {
+            EventQueue.invokeLater(() -> {
+                state.switchToNextState(State.Event.SIMULATION_STARTED, null);
+            });
+        }
+        else if (e.getType() == SimulationEvent.STOPPED) {
+            EventQueue.invokeLater(() -> {
+                state.switchToNextState(State.Event.SIMULATION_STOPPED, null);
+            });
+        }
     }
 
     /**
@@ -228,7 +226,6 @@ public class InputManager
     {
         state.switchToNextState(State.Event.CONSTRUCTOR_INVOKED, object);
     }
-    
 
     /**
      * When an actor is created via constructor the constructor in the context menu.

@@ -30,6 +30,7 @@ import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
 import greenfoot.util.GreenfootUtil;
 
+import java.awt.EventQueue;
 import java.awt.FlowLayout;
 
 import javax.swing.AbstractButton;
@@ -41,7 +42,6 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
-import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -197,41 +197,44 @@ public class ControlPanel extends Box
             return;
         }
 
-        SwingUtilities.invokeLater(new Thread() {
-            public void run()
-            {
-                if (etype == SimulationEvent.STARTED) {
-                    if (speedSlider != null) {
-                        speedSlider.setEnabled(true);
-                    }
-                    buttonPanel.remove(runButton);
-                    buttonPanel.add(pauseButton, 1);
-                    buttonPanel.validate();
+        if (etype == SimulationEvent.STARTED) {
+            EventQueue.invokeLater(() -> {
+                if (speedSlider != null) {
+                    speedSlider.setEnabled(true);
                 }
-                else if (etype == SimulationEvent.STOPPED) {
-                    if (speedSlider != null) {
-                        speedSlider.setEnabled(true);
-                    }
-                    buttonPanel.remove(pauseButton);
-                    buttonPanel.add(runButton, 1);
-                    buttonPanel.validate();
+                buttonPanel.remove(runButton);
+                buttonPanel.add(pauseButton, 1);
+                buttonPanel.validate();
+            });
+        }
+        else if (etype == SimulationEvent.STOPPED) {
+            EventQueue.invokeLater(() -> {
+                if (speedSlider != null) {
+                    speedSlider.setEnabled(true);
                 }
-                else if (etype == SimulationEvent.CHANGED_SPEED) {
-                    if (speedSlider != null) {
-                        speedSlider.setEnabled(true);
-                        int newSpeed = simulation.getSpeed();
-                        if (newSpeed != speedSlider.getValue()) {
-                            speedSlider.setValue(newSpeed);
-                        }
-                    }
-                }
-                else if (etype == SimulationEvent.DISABLED) {
-                    if (speedSlider != null) {
-                        speedSlider.setEnabled(false);
+                buttonPanel.remove(pauseButton);
+                buttonPanel.add(runButton, 1);
+                buttonPanel.validate();
+            });
+        }
+        else if (etype == SimulationEvent.CHANGED_SPEED) {
+            EventQueue.invokeLater(() -> {
+                if (speedSlider != null) {
+                    speedSlider.setEnabled(true);
+                    int newSpeed = simulation.getSpeed();
+                    if (newSpeed != speedSlider.getValue()) {
+                        speedSlider.setValue(newSpeed);
                     }
                 }
-            }
-        });
+            });
+        }
+        else if (etype == SimulationEvent.DISABLED) {
+            EventQueue.invokeLater(() -> {
+                if (speedSlider != null) {
+                    speedSlider.setEnabled(false);
+                }
+            });
+        }
     }
     
 
