@@ -480,7 +480,6 @@ pkgmgr.importfailed.helpLine3=being present in the destination project.
 pkgmgr.versionDlg.title=BlueJ:  Check for new version
 pkgmgr.versionDlg.helpLine1=This function will check whether a newer BlueJ version
 pkgmgr.versionDlg.helpLine2=is available. You must be online for this to work.
-pkgmgr.versionDlg.check=Check Version
 pkgmgr.versionDlg.upToDate=The current version is up to date.
 pkgmgr.versionDlg.currentVersion=Your current BlueJ version is
 pkgmgr.versionDlg.newVersion=The most recent BlueJ version is

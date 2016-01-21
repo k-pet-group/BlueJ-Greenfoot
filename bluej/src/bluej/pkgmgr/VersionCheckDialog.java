@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,7 +21,6 @@
  */
 package bluej.pkgmgr;
 
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
@@ -55,7 +54,6 @@ import bluej.utility.EscapeDialog;
  * Dialog implementing version check functionality.
  *
  * @author  Michael Kolling
- * @version $Id: VersionCheckDialog.java 12517 2014-10-09 11:46:47Z nccb $
  */
 
 final public class VersionCheckDialog extends EscapeDialog
@@ -63,7 +61,6 @@ final public class VersionCheckDialog extends EscapeDialog
 {
     // Internationalisation
     private static final String close = Config.getString("close");
-    private static final String check = Config.getString("pkgmgr.versionDlg.check");
     private static final String dialogTitle = Config.getString("pkgmgr.versionDlg.title");
     private static final String helpLine1 = Config.getString("pkgmgr.versionDlg.helpLine1");
     private static final String helpLine2 = Config.getString("pkgmgr.versionDlg.helpLine2");
@@ -93,11 +90,7 @@ final public class VersionCheckDialog extends EscapeDialog
     public void actionPerformed(ActionEvent evt)
     {
         String cmd = evt.getActionCommand();
-        if(check.equals(cmd)) {
-            doVersionCheck();
-            getRootPane().setDefaultButton(closeButton);
-        }
-        else if(close.equals(cmd))
+        if(close.equals(cmd))
             doClose();
     }
 
@@ -158,21 +151,12 @@ final public class VersionCheckDialog extends EscapeDialog
             {
                 buttonPanel.setAlignmentX(LEFT_ALIGNMENT);
 
-                JButton checkButton = new JButton(check);
-                checkButton.addActionListener(this);
-
                 closeButton = new JButton(close);
                 closeButton.addActionListener(this);
 
-                DialogManager.addOKCancelButtons(buttonPanel, checkButton, closeButton);
-
-                getRootPane().setDefaultButton(checkButton);
-                checkButton.requestFocus();
-
-                // try to make the OK and cancel buttons have equal width
-                closeButton.setPreferredSize(
-                                 new Dimension(checkButton.getPreferredSize().width,
-                                 closeButton.getPreferredSize().height));
+                buttonPanel.add(closeButton);
+                getRootPane().setDefaultButton(closeButton);
+                closeButton.requestFocus();
             }
 
             mainPanel.add(buttonPanel);
@@ -182,6 +166,8 @@ final public class VersionCheckDialog extends EscapeDialog
         pack();
 
         DialogManager.centreDialog(this);
+
+        doVersionCheck();
     }
 
     @OnThread(Tag.Any)
