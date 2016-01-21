@@ -21,6 +21,7 @@
  */
 package bluej.stride.operations;
 
+import bluej.collect.StrideEditReason;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.frames.GreenfootFrameUtil;
 import bluej.stride.generic.Frame;
@@ -45,17 +46,19 @@ public class PasteFrameOperation extends FrameOperation
     @Override
     protected void execute(List<Frame> frames)
     {
-        if (frames.size() > 0) {
-            FrameCursor insertionCursor = frames.get(0).getCursorBefore();
-            DeleteFrameOperation.deleteFrames(frames, editor);
-            editor.getSelection().clear();
-            insertionCursor.requestFocus();
-        }
-
-        boolean shouldDisable = !editor.getFocusedCursor().getParentCanvas().getParent().getFrame().isFrameEnabled();
-
         List<CodeElement> elements = GreenfootFrameUtil.getClipboardElements();
         if (elements != null && elements.size() > 0) {
+            editor.recordEdits(StrideEditReason.FLUSH);
+            if (frames.size() > 0) {
+                FrameCursor insertionCursor = frames.get(0).getCursorBefore();
+                DeleteFrameOperation.deleteFrames(frames, editor);
+                editor.getSelection().clear();
+                insertionCursor.requestFocus();
+            }
+
+            boolean shouldDisable = !editor.getFocusedCursor().getParentCanvas().getParent().getFrame().isFrameEnabled();
+
+
             elements.forEach(codeElement -> {
                 final Frame frame = codeElement.createFrame(editor);
                 if (editor.getFocusedCursor().check().canPlace(frame.getClass()))
@@ -68,6 +71,7 @@ public class PasteFrameOperation extends FrameOperation
                     frame.getCursorAfter().requestFocus();
                 }
             });
+            editor.recordEdits(StrideEditReason.PASTE_FRAMES);
         }
     }
 

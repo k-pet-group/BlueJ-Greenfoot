@@ -56,6 +56,9 @@ public enum StrideEditReason
     REDO_GLOBAL("redo_global"),
     UNDO_LOCAL("undo_local"),
 
+    CUT_FRAMES("cut_frames"),
+    PASTE_FRAMES("paste_frames"),
+
     // Just used to flush any old edits; no recorded reason for edit:
     FLUSH(null);
 
