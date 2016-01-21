@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012,2013,2014,2015  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012,2013,2014,2015,2016  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -864,7 +864,7 @@ public class WorldHandler
      * 
      * @see greenfoot.collision.CollisionChecker#startSequence()
      */
-    public void startSequence()
+    private void startSequence()
     {
         // Guard against world getting nulled concurrently:
         World world = this.world;
@@ -903,7 +903,12 @@ public class WorldHandler
 
     public void simulationChanged(SimulationEvent e)
     {
-        inputManager.simulationChanged(e);
+        if (e.getType() == SimulationEvent.NEW_ACT_ROUND) {
+            startSequence();
+        }
+        else {
+            inputManager.simulationChanged(e);
+        }
     }
 
     /**

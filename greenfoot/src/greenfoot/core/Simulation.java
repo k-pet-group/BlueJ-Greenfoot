@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2010,2011,2012,2013,2014  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2010,2011,2012,2013,2014,2016  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -95,6 +95,7 @@ public class Simulation extends Thread
     private SimulationEvent speedChangeEvent;
     private SimulationEvent debuggerPausedEvent;
     private SimulationEvent debuggerResumedEvent;
+    private SimulationEvent newActRoundEvent;
     
     private static Simulation instance;
 
@@ -152,6 +153,7 @@ public class Simulation extends Thread
         disabledEvent = new SimulationEvent(this, SimulationEvent.DISABLED);
         debuggerPausedEvent = new SimulationEvent(this, SimulationEvent.DEBUGGER_PAUSED);
         debuggerResumedEvent = new SimulationEvent(this, SimulationEvent.DEBUGGER_RESUMED);
+        newActRoundEvent = new SimulationEvent(this, SimulationEvent.NEW_ACT_ROUND);
         setPriority(Thread.MIN_PRIORITY);
         paused = true;
         speed = 50;
@@ -517,8 +519,8 @@ public class Simulation extends Thread
      */
     private void runOneLoop(World world)
     {
-        worldHandler.startSequence();
-
+        fireSimulationEvent(newActRoundEvent);
+        
         // We don't want to be interrupted in the middle of an act-loop
         // so we remember the first interrupted exception and throw it
         // when all the actors have acted.

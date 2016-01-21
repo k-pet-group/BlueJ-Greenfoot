@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2011,2016  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -43,7 +43,7 @@ public class SimulationEvent extends EventObject
     public final static int CHANGED_SPEED = 2;   
     
     /** 
-     * The simulation was stopped and cannot be restarted
+     * The simulation was disabled and cannot be restarted
      * until a STOPPED event is received.
      */
     public final static int DISABLED = 3; 
@@ -64,6 +64,10 @@ public class SimulationEvent extends EventObject
      */
     public final static int DEBUGGER_RESUMED = 6;
     
+    /**
+     * Execution of a new "Act" round has commenced.
+     */
+    public final static int NEW_ACT_ROUND = 7;
 
     private int type;
 
