@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 2013,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,6 +27,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import bluej.Boot;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -50,7 +51,7 @@ import org.apache.http.util.EntityUtils;
 class DataSubmitter
 {
     private static final String submitUrl = "http://blackbox.bluej.org/master_events";
-        //For testing: "http://localhost:3000/master_events"; 
+        //For testing: "http://localhost:3000/master_events";
 
     
     private static volatile boolean givenUp = false;
@@ -131,8 +132,8 @@ class DataSubmitter
     private static boolean postData(Event evt)
     {   
         HttpParams params = new BasicHttpParams();
-        HttpConnectionParams.setConnectionTimeout(params, 10000);
-        HttpConnectionParams.setSoTimeout(params, 10000);
+        HttpConnectionParams.setConnectionTimeout(params, Boot.isTrialRecording() ? 30000 : 10000);
+        HttpConnectionParams.setSoTimeout(params, Boot.isTrialRecording() ? 30000 : 10000);
         HttpClient client = new DefaultHttpClient(params);
         
         try {
