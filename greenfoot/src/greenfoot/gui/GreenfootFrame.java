@@ -470,7 +470,9 @@ public class GreenfootFrame extends JFrame
                 // focus to the world canvas to allow control of Actors
                 // via the keyboard
                 if (e.getType() == SimulationEvent.STARTED) {
-                    worldCanvas.requestFocusInWindow();
+                    EventQueue.invokeLater(() -> {
+                        worldCanvas.requestFocusInWindow();
+                    });
                 }
             }
         });

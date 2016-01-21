@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012,2013,2014,2015  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012,2013,2014,2015,2016  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -258,11 +258,13 @@ public class GreenfootScenarioViewer extends JApplet
             // focus to the world canvas to allow control of Actors
             // via the keyboard
             if (e.getType() == SimulationEvent.STARTED) {
-                canvas.requestFocusInWindow();
-                // Have to use requestFocus, since it is the only way to
-                // make it work in some browsers: (Ubuntu's Firefox 1.5
-                // and 2.0)
-                canvas.requestFocus();
+                EventQueue.invokeLater(() -> {
+                    canvas.requestFocusInWindow();
+                    // Have to use requestFocus, since it is the only way to
+                    // make it work in some browsers: (Ubuntu's Firefox 1.5
+                    // and 2.0)
+                    canvas.requestFocus();
+                });
             }
         });
 
