@@ -113,7 +113,7 @@ public @OnThread(Tag.Swing) class DataCollector
         // If there is no UUID in the file, or it's invalid, ask them if they want to opt in or opt out:
         if (!(OPT_OUT.equals(uuid)) && !uuidValidForRecording() )
         {
-            changeOptInOut();
+            changeOptInOut(Boot.isTrialRecording());
         }
         
         recordingThisSession = uuidValidForRecording();
@@ -146,13 +146,22 @@ public @OnThread(Tag.Swing) class DataCollector
      * Show a dialog to ask the user for their opt-in/opt-out preference,
      * and then update the UUID accordingly
      */
-    public static synchronized void changeOptInOut()
+    public static synchronized void changeOptInOut(boolean forceOptIn)
     {
-        DataCollectionDialog dlg = new DataCollectionDialog();
-        dlg.setLocationRelativeTo(null); // Centre on screen
-        dlg.setVisible(true);
-        
-        if (dlg.optedIn())
+        boolean optedIn;
+        if (forceOptIn)
+        {
+            optedIn = true;
+        }
+        else
+        {
+            DataCollectionDialog dlg = new DataCollectionDialog();
+            dlg.setLocationRelativeTo(null); // Centre on screen
+            dlg.setVisible(true);
+            optedIn = dlg.optedIn();
+        }
+
+        if (optedIn)
         {
             // Only generate new UUID if didn't have one already:
             if (!uuidValidForRecording())

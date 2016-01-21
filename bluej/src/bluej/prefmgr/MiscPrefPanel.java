@@ -119,7 +119,7 @@ public class MiscPrefPanel extends JPanel
                 @Override
                 public void actionPerformed(ActionEvent e)
                 {
-                    DataCollector.changeOptInOut();
+                    DataCollector.changeOptInOut(false);
                     statusLabel.setText(DataCollector.getOptInOutStatus());
                 }
             });
