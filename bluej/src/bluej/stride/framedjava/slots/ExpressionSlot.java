@@ -30,6 +30,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import bluej.collect.StrideEditReason;
 import bluej.editor.stride.FrameCatalogue;
 
 import bluej.stride.framedjava.ast.SuperThis;
@@ -1154,7 +1155,12 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
                 recentMenu.setDisable(false);
                 recentValues.forEach(v -> {
                     MenuItem item = new MenuItem(v);
-                    item.setOnAction(e -> setText(v));
+                    item.setOnAction(e -> {
+                        editor.recordEdits(StrideEditReason.FLUSH);
+                        setText(v);
+                        modified();
+                        editor.recordEdits(StrideEditReason.UNDO_LOCAL);
+                    });
                     recentMenu.getItems().add(item);
                 });
             }

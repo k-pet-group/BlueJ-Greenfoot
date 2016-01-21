@@ -51,6 +51,11 @@ public enum StrideEditReason
     // Code completion was used
     CODE_COMPLETION("code_completion"),
 
+    // Undo/redo, either editor-wide (global) or using the local frame/slot undo.
+    UNDO_GLOBAL("undo_global"),
+    REDO_GLOBAL("redo_global"),
+    UNDO_LOCAL("undo_local"),
+
     // Just used to flush any old edits; no recorded reason for edit:
     FLUSH(null);
 

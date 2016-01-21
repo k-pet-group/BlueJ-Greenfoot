@@ -1547,16 +1547,20 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
 
     public void undo()
     {
+        editor.recordEdits(StrideEditReason.FLUSH);
         undoRedoManager.startRestoring();
         updateClassContents(undoRedoManager.undo());
         undoRedoManager.stopRestoring();
+        editor.recordEdits(StrideEditReason.UNDO_GLOBAL);
     }
 
     public void redo()
     {
+        editor.recordEdits(StrideEditReason.FLUSH);
         undoRedoManager.startRestoring();
         updateClassContents(undoRedoManager.redo());
         undoRedoManager.stopRestoring();
+        editor.recordEdits(StrideEditReason.REDO_GLOBAL);
     }
 
     private void updateClassContents(FrameState state)

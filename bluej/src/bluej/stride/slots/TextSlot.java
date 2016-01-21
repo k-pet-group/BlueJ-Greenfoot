@@ -35,6 +35,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import bluej.collect.StrideEditReason;
 import bluej.editor.stride.FrameCatalogue;
 import bluej.stride.framedjava.ast.links.PossibleLink;
 import javafx.application.Platform;
@@ -1000,7 +1001,11 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
                 recent.setDisable(false);
                 recentValues.forEach(v -> {
                     MenuItem item = new MenuItem(v);
-                    item.setOnAction(e -> setText(v));
+                    item.setOnAction(e -> {
+                        editor.recordEdits(StrideEditReason.FLUSH);
+                        setText(v);
+                        editor.recordEdits(StrideEditReason.UNDO_LOCAL);
+                    });
                     recent.getItems().add(item);
                 });
             }
