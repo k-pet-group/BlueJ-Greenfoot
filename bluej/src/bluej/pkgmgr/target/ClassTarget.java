@@ -2345,4 +2345,16 @@ public class ClassTarget extends DependentTarget
     {
         DataCollector.fixExecuted(getPackage(), errorIdentifier, fixIndex);
     }
+
+    @Override
+    public void recordCodeCompletionStarted(Integer lineNumber, Integer columnNumber, String xpath, Integer subIndex, String stem)
+    {
+        DataCollector.codeCompletionStarted(this, lineNumber, columnNumber, xpath, subIndex, stem);
+    }
+
+    @Override
+    public void recordCodeCompletionEnded(Integer lineNumber, Integer columnNumber, String xpath, Integer elementOffset, String stem, String replacement)
+    {
+        DataCollector.codeCompletionEnded(this, lineNumber, columnNumber, xpath, elementOffset, stem, replacement);
+    }
 }

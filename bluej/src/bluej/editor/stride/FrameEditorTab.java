@@ -40,6 +40,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -48,6 +49,8 @@ import bluej.parser.AssistContent;
 import bluej.parser.AssistContent.ParamInfo;
 import bluej.parser.ConstructorCompletion;
 import bluej.prefmgr.PrefMgr;
+import bluej.stride.framedjava.ast.JavaFragment;
+import bluej.stride.framedjava.ast.SlotFragment;
 import bluej.stride.framedjava.ast.links.PossibleLink;
 import bluej.stride.framedjava.ast.links.PossibleKnownMethodLink;
 import bluej.stride.framedjava.ast.links.PossibleMethodUseLink;
@@ -2361,5 +2364,25 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     public void recordEdits(StrideEditReason reason)
     {
         editor.recordEdits(reason);
+    }
+
+    @Override
+    public void recordCodeCompletionStarted(SlotFragment element, int index, String stem)
+    {
+        recordEdits(StrideEditReason.FLUSH);
+
+        Function<JavaFragment, String> locationMap = topLevelFrame.getCode().toXML().buildLocationMap();
+
+        editor.getWatcher().recordCodeCompletionStarted(null, null, locationMap.apply(element), index, stem);
+    }
+
+    @Override
+    public void recordCodeCompletionEnded(SlotFragment element, int index, String stem, String replacement)
+    {
+        recordEdits(StrideEditReason.CODE_COMPLETION);
+
+        Function<JavaFragment, String> locationMap = topLevelFrame.getCode().toXML().buildLocationMap();
+
+        editor.getWatcher().recordCodeCompletionEnded(null, null, locationMap.apply(element), index, stem, replacement);
     }
 }

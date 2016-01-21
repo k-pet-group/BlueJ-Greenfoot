@@ -246,8 +246,14 @@ public class ReadmeTarget extends EditableTarget
     @Override
     public void recordFix(int errorIdentifier, int fixIndex) { }
 
+    @Override
+    public void recordCodeCompletionStarted(Integer line, Integer column, String xpath, Integer index, String stem) { }
+
+    @Override
+    public void recordCodeCompletionEnded(Integer lineNumber, Integer columnNumber, String xpath, Integer elementOffset, String stem, String replacement) { }
+
     /*
-         * The "compile" function was invoked in the editor
-         */
+                 * The "compile" function was invoked in the editor
+                 */
     public void compile(Editor editor, CompileReason reason) {}
 }

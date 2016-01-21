@@ -48,6 +48,9 @@ enum EventName
     SHOWN_ERROR("shown_error"),
     FIX_EXECUTED("fix_executed"),
 
+    CODE_COMPLETION_STARTED("code_completion_started"),
+    CODE_COMPLETION_ENDED("code_completion_ended"),
+
     GREENFOOT_WINDOW_ACTIVATED("greenfoot_window_activated"),
     GREENFOOT_WORLD_RESET("greenfoot_world_reset"),
     GREENFOOT_WORLD_ACT("greenfoot_world_act"),

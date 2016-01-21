@@ -536,6 +536,18 @@ public @OnThread(Tag.Swing) class DataCollector
         DataCollectorImpl.greenfootEvent(project, project.getPackage(""), event);
     }
 
+    public static void codeCompletionStarted(ClassTarget ct, Integer lineNumber, Integer columnNumber, String xpath, Integer subIndex, String stem)
+    {
+        if (dontSend()) return;
+        DataCollectorImpl.codeCompletionStarted(ct.getPackage().getProject(), ct.getPackage(), lineNumber, columnNumber, xpath, subIndex, stem);
+    }
+
+    public static void codeCompletionEnded(ClassTarget ct, Integer lineNumber, Integer columnNumber, String xpath, Integer subIndex, String stem, String replacement)
+    {
+        if (dontSend()) return;
+        DataCollectorImpl.codeCompletionEnded(ct.getPackage().getProject(), ct.getPackage(), lineNumber, columnNumber, xpath, subIndex, stem, replacement);
+    }
+
     public static class NamedTyped
     {
         private  String name;

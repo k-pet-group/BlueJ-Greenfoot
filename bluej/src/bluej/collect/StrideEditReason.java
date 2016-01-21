@@ -48,6 +48,9 @@ public enum StrideEditReason
     // Frame was removed because user pressed escape immediately after inserting a frame:
     ESCAPE_FRESH("escape_fresh"),
 
+    // Code completion was used
+    CODE_COMPLETION("code_completion"),
+
     // Just used to flush any old edits; no recorded reason for edit:
     FLUSH(null);
 

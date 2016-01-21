@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -691,8 +691,10 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
         else {
             // TODO we shouldn't need to regen whole code repeatedly if they only modify this slot:
             editor.regenerateAndReparse(this);
-            PosInSourceDoc posInFile = getSlotElement().getPosInSourceDoc(topLevel.caretPosToStringPos(topLevel.getCurrentPos(), true));
+            final int stringPos = topLevel.caretPosToStringPos(topLevel.getCurrentPos(), true);
+            PosInSourceDoc posInFile = getSlotElement().getPosInSourceDoc(stringPos);
             completionCalculator.withCalculatedSuggestionList(posInFile, this, parentCodeFrame.getCode(), ExpressionSlot.this, (targetType == null /* || not at start getStartOfCurWord() != 0 */) ? null : targetType.get(), withSuggList);
+            editor.recordCodeCompletionStarted(getSlotElement(), stringPos, field.getText().substring(0, caretPosition));
         }
         
     }
@@ -782,16 +784,23 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
     
     private void executeSuggestion(int selected)
     {
+        String name;
+        List<String> params;
         if (fileCompletions != null && selected != -1)
         {
             FileCompletion fc = fileCompletions.get(selected);
-            topLevel.insertSuggestion(suggestionLocation, fc.getFile().getName(), null);
+            name = fc.getFile().getName();
+            params = null;
         }
         else
         {
-            topLevel.insertSuggestion(suggestionLocation, completionCalculator.getName(selected), completionCalculator.getParams(selected));
+            name = completionCalculator.getName(selected);
+            params = completionCalculator.getParams(selected);
         }
+        topLevel.insertSuggestion(suggestionLocation, name, params);
         modified();
+        String completion = name + (params == null ? "" : "(" + params.stream().collect(Collectors.joining(",")) + ")");
+        editor.recordCodeCompletionEnded(getSlotElement(), topLevel.caretPosToStringPos(suggestionLocation, false), getCurSuggestionWord(), completion);
     }
     
     // Package-visible

@@ -984,4 +984,38 @@ public class DataCollectorImpl
         if (event != null)
             submitEvent(project, pkg, event, new PlainEvent(mpe));
     }
+
+    public static void codeCompletionStarted(Project project, Package pkg, Integer lineNumber, Integer columnNumber, String xpath, Integer subIndex, String stem)
+    {
+        MultipartEntity mpe = new MultipartEntity();
+        addCodeCompletionLocation(mpe, lineNumber, columnNumber, xpath, subIndex);
+        if (stem != null)
+            mpe.addPart("event[code_completion][stem]", CollectUtility.toBody(stem));
+        submitEvent(project, pkg, EventName.CODE_COMPLETION_STARTED, new PlainEvent(mpe));
+    }
+
+    public static void codeCompletionEnded(Project project, Package pkg, Integer lineNumber, Integer columnNumber, String xpath, Integer subIndex, String stem, String replacement)
+    {
+        MultipartEntity mpe = new MultipartEntity();
+        addCodeCompletionLocation(mpe, lineNumber, columnNumber, xpath, subIndex);
+        if (stem != null)
+            mpe.addPart("event[code_completion][stem]", CollectUtility.toBody(stem));
+        if (replacement != null)
+            mpe.addPart("event[code_completion][replacement]", CollectUtility.toBody(replacement));
+        submitEvent(project, pkg, EventName.CODE_COMPLETION_ENDED, new PlainEvent(mpe));
+    }
+
+    private static void addCodeCompletionLocation(MultipartEntity mpe, Integer lineNumber, Integer columnNumber, String xpath, Integer subIndex)
+    {
+        if (lineNumber != null)
+            mpe.addPart("event[code_completion][line_number]", CollectUtility.toBody(lineNumber));
+        if (columnNumber != null)
+            mpe.addPart("event[code_completion][column_number]", CollectUtility.toBody(columnNumber));
+        if (xpath != null)
+            mpe.addPart("event[code_completion][xpath]", CollectUtility.toBody(xpath));
+        if (subIndex != null)
+            mpe.addPart("event[code_completion][xml_index]", CollectUtility.toBody(subIndex));
+    }
+
+
 }

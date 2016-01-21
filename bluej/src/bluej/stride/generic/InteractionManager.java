@@ -24,6 +24,8 @@ package bluej.stride.generic;
 import bluej.collect.StrideEditReason;
 import bluej.editor.stride.FrameCatalogue;
 import bluej.editor.stride.FrameEditor;
+import bluej.stride.framedjava.ast.ExpressionSlotFragment;
+import bluej.stride.framedjava.ast.SlotFragment;
 import bluej.stride.slots.LinkedIdentifier;
 import bluej.stride.framedjava.ast.links.PossibleLink;
 import javafx.beans.Observable;
@@ -139,6 +141,10 @@ public interface InteractionManager
     List<AssistContentThreadSafe> getThisConstructors();
 
     FrameEditor getFrameEditor();
+
+    void recordCodeCompletionStarted(SlotFragment position, int index, String stem);
+
+    void recordCodeCompletionEnded(SlotFragment position, int index, String stem, String completion);
 
     public static enum ShortcutKey
     {

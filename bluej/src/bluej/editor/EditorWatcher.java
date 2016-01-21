@@ -103,4 +103,12 @@ public interface EditorWatcher
     void recordLateErrors(List<DiagnosticWithShown> diagnostics);
 
     void recordFix(int errorIdentifier, int fixIndex);
+
+    // Either lineNumber and columnNumber are non-null and xpath and elementOffset are null,
+    // or vice versa
+    void recordCodeCompletionStarted(Integer lineNumber, Integer columnNumber, String xpath, Integer elementOffset, String stem);
+
+    // If replacement is null, it was cancelled
+    void recordCodeCompletionEnded(Integer lineNumber, Integer columnNumber, String xpath, Integer elementOffset, String stem, String replacement);
+
 } // end class EditorWatcher

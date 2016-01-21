@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -32,8 +32,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -56,23 +54,17 @@ import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
-import javafx.scene.effect.BlendMode;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.text.Font;
-import javafx.scene.web.WebView;
 import javafx.util.Duration;
 import bluej.Config;
-import bluej.editor.stride.CodeOverlayPane;
 import bluej.stride.framedjava.ast.TextSlotFragment;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.errors.CodeError;
@@ -80,17 +72,11 @@ import bluej.stride.framedjava.errors.ErrorAndFixDisplay;
 import bluej.stride.framedjava.errors.ErrorAndFixDisplay.ErrorFixListener;
 import bluej.stride.framedjava.frames.CodeFrame;
 import bluej.stride.framedjava.slots.TextOverlayPosition;
-import bluej.stride.generic.AssistContentThreadSafe;
 import bluej.stride.generic.Frame;
 import bluej.stride.generic.Frame.View;
 import bluej.stride.generic.FrameContentRow;
 import bluej.stride.generic.InteractionManager;
-import bluej.stride.generic.InteractionManager.FileCompletion;
-import bluej.stride.slots.SuggestionList.SuggestionDetails;
 import bluej.stride.slots.SuggestionList.SuggestionListListener;
-import bluej.utility.Debug;
-import bluej.utility.JavaUtils;
-import bluej.utility.Utility;
 import bluej.utility.javafx.AnnotatableTextField;
 import bluej.utility.javafx.ErrorUnderlineCanvas;
 import bluej.utility.javafx.FXConsumer;
@@ -555,7 +541,9 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
             };
             // TODO we shouldn't need to regen whole code repeatedly if they only modify this slot:
             editor.regenerateAndReparse(null);
-            completionCalculator.withCalculatedSuggestionList(getSlotElement().getPosInSourceDoc(field.getCaretPosition()), codeFrameParent.getCode(), listener, (targetType == null || getStartOfCurWord() != 0) ? null : targetType.get(), handler);
+            final int stringPos = field.getCaretPosition();
+            completionCalculator.withCalculatedSuggestionList(getSlotElement().getPosInSourceDoc(stringPos), codeFrameParent.getCode(), listener, (targetType == null || getStartOfCurWord() != 0) ? null : targetType.get(), handler);
+            editor.recordCodeCompletionStarted(getSlotElement(), stringPos, getCurWord());
         }
 
 
@@ -815,7 +803,14 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
     // Returns true if should be dismissed
     private boolean executeSuggestion(int highlighted)
     {
-        return field.executeCompletion(completionCalculator, highlighted, getStartOfCurWord());
+        final int position = getStartOfCurWord();
+        String word = field.getCurWord();
+        final boolean success = field.executeCompletion(completionCalculator, highlighted, position);
+        if (success)
+        {
+            editor.recordCodeCompletionEnded(getSlotElement(), position, word, getText());
+        }
+        return success;
     }
 
     public boolean isEmpty()
