@@ -1276,7 +1276,9 @@ public class FrameEditor implements Editor
         SaveResult result = _saveFX();
         if (result.exception == null)
         {
-            watcher.recordEdit(SourceType.Stride, result.savedSource, true, reason);
+            SwingUtilities.invokeLater(() -> {
+                watcher.recordEdit(SourceType.Stride, result.savedSource, true, reason);
+            });
         }
         else
             Debug.reportError(result.exception);

@@ -39,6 +39,8 @@ import bluej.stride.generic.InteractionManager;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 public class ErrorAndFixDisplay
 {
@@ -229,6 +231,7 @@ public class ErrorAndFixDisplay
             enterHint.setVisible(highlight);
         }
 
+        @OnThread(Tag.Any)
         public String getDisplayText()
         {
             return displayText;
@@ -249,7 +252,7 @@ public class ErrorAndFixDisplay
     private void recordExecute(int fixIndex)
     {
         final EditorWatcher watcher = editor.getFrameEditor().getWatcher();
-        watcher.recordFix(error.getIdentifier(), fixIndex);
+        SwingUtilities.invokeLater(() -> watcher.recordFix(error.getIdentifier(), fixIndex));
     }
 }
 

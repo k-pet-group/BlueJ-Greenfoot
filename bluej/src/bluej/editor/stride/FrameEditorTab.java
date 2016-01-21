@@ -2377,7 +2377,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
 
         Function<JavaFragment, String> locationMap = topLevelFrame.getCode().toXML().buildLocationMap();
 
-        editor.getWatcher().recordCodeCompletionStarted(null, null, locationMap.apply(element), index, stem);
+        SwingUtilities.invokeLater(() -> editor.getWatcher().recordCodeCompletionStarted(null, null, locationMap.apply(element), index, stem));
     }
 
     @Override
@@ -2387,6 +2387,6 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
 
         Function<JavaFragment, String> locationMap = topLevelFrame.getCode().toXML().buildLocationMap();
 
-        editor.getWatcher().recordCodeCompletionEnded(null, null, locationMap.apply(element), index, stem, replacement);
+        SwingUtilities.invokeLater(() -> editor.getWatcher().recordCodeCompletionEnded(null, null, locationMap.apply(element), index, stem, replacement));
     }
 }
