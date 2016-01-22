@@ -1,0 +1,237 @@
+Instructions for setting up the Blackbox server software on a new machine
+===
+
+You will need a copy of the server software (which lives in the repository in trunk/blackboxserver).  Using a Linux machine is by the far the easiest option for a server; this guide assumes you have a package manager available.  Mac may be possible, Windows is right out due to library incompatibilities.
+
+To begin with, install MySQL (server, client, and development libraries), Nginx, Ruby and Bundler with your package manager.
+
+Configuring MySQL
+===
+
+Configure MySQL as you like, with sensible security settings (i.e. do set a root password).  You will probably want to limit access to connections from localhost (see MySQL docs on how to do this).
+
+Create a database (I strongly recommend "blackbox_production" as the name), and create a user (recommend: "blackbox_user") which has all permissions on that database (including table creation, insertion, etc).  Again, see the MySQL docs on how to do this.
+
+
+Configuring Server Software
+===
+
+I strongly recommend creating a new user (strongly recommend "blackbox") to run the Blackbox server software.  Put the source code somewhere (strongly recommend "/home/blackbox/blackboxserver").  cd to that directory, and run "bundle install".  That should install all the necessary Ruby "gem" libraries.  Do not run "bundle update" even if you get into trouble as that changes all the versions.  "bundle install" installs a set of known good versions.
+
+Edit the config/database.yml file.  You only need a production section; the only uncommented part you need should look like this (minus the curly brackets, which I'm using as a delimiter):
+
+{{{
+production:
+  adapter: mysql2
+  encoding: utf8
+  reconnect: false
+  database: blackbox_production
+  pool: 5
+  username: blackbox_user
+  password: XXX
+  socket: /var/run/mysqld/mysqld.sock
+}}}
+  
+If you used a different database name, alter the database line.  Similar for the username line.  Fill in the XXX part with your MySQL user's password (do not use the root user).  The socket should be a way to connect to the MySQL server; that address is I think the default on Ubuntu, if your distribution is different either alter the MySQL config or the database config file so that they match each other.
+
+The config/unicorn.rb file is setup to put its socket, PID file, and its log file in the /home/blackbox/blackboxserver/unicorn directory.  If you've used the default recommendations above, this directory should already exist.  If not, replace any mentions of that directory in the config file.  These log files are likely to be tiny; the full Blackbox server only writes about 20KB a day.
+
+Once you have edited the config files, there is one more thing to do, which is to run the commands to setup the database.  In the blackboxserver directory, run:
+
+    RAILS_ENV=production bundle exec rake db:schema:load
+
+If you get any errors at this stage, it is either because your database.yml config doesn't match the MySQL config, or because there was a problem installing the gems.  Do not run this more than once if it succeeds, as I believe it wipes the database each time.  One-time setup only!
+
+Running the Server Software
+===
+
+To run the server software, you need one setup step (compiling assets) and then one command to run the server.  Our start shell script looks like this (minus curly bracket delimiters):
+
+{{{
+# Start blackbox
+# we redirect to /dev/null as it is logged by rails anyway.
+bundle exec rake assets:precompile RAILS_ENV=production
+RAILS_ENV=production bundle exec unicorn -c config/unicorn.rb -E production > /dev/null 2>&1 &
+echo "$!" > blackbox.pid
+disown %1
+}}}
+
+After you run it, if it was successful then "ps -ef | grep blackbox" should show a bunch of unicorn processes: one master and twenty workers.  If you see those, the Rails server is up and running, and all that is left is to connect nginx to it (see below).
+
+Stopping the server is as simple as "kill"-ing the master process, which should have its pid stored in the blackbox.pid file.
+
+Each worker will store its own log file in the "log" subdirectory.  This can get large if you have lots of users.  The Blackbox project, serving around 10k-20k users each day all day, generates around 2GB of log files each day.  (For this, we use logrotate to swap out the logs and only keep the last month.)  But obviously if you run a small study with 20 users for a few hours, you are probably looking at a few megabytes.
+
+Configuring Nginx
+===
+
+The Rails "Unicorn" server runs multi-threaded with several workers, to accommodate demand.  But it doesn't interface directly to the outside world; for this we use nginx (Unicorn+ngnix is a common use case) which is a load-balancing reverse proxy.  Anyway: we need Nginx to operate as a web server on an externally available port (e.g. port 80) and forward requests on to Unicorn, which operates on an internal Unix socket.  I am only barely familiar with Nginx, so I'm just going to paste the complete config we use, below (from /etc/nginx/nginx.conf, the default config location on Ubuntu).  If you want to operate on port 80, with the Unicorn socket in /home/blackbox/blackboxserver/unicorn/unicorn.socket, this should work fine.  The socket or port is easily editable, but anything else and all bets are off.
+
+{{{
+
+# Config derived from: https://raw.github.com/defunkt/unicorn/master/examples/nginx.conf
+#
+# This is example contains the bare mininum to get nginx going with
+# Unicorn or Rainbows! servers.  Generally these configuration settings
+# are applicable to other HTTP application servers (and not just Ruby
+# ones), so if you have one working well for proxying another app
+# server, feel free to continue using it.
+#
+# The only setting we feel strongly about is the fail_timeout=0
+# directive in the "upstream" block.  max_fails=0 also has the same
+# effect as fail_timeout=0 for current versions of nginx and may be
+# used in its place.
+#
+# Users are strongly encouraged to refer to nginx documentation for more
+# details and search for other example configs.
+
+# you generally only need one nginx worker unless you're serving
+# large amounts of static files which require blocking disk reads
+worker_processes 1;
+
+# # drop privileges, root is needed on most systems for binding to port 80
+# # (or anything < 1024).  Capability-based security may be available for
+# # your system and worth checking out so you won't need to be root to
+# # start nginx to bind on 80
+user nobody nogroup; # for systems with a "nogroup"
+# user nobody nobody; # for systems with "nobody" as a group instead
+
+# Feel free to change all paths to suite your needs here, of course
+pid /var/run/nginx.pid;
+error_log /var/log/nginx/error.log;
+
+events {
+  worker_connections 1024; # increase if you have lots of clients
+  accept_mutex off; # "on" if nginx worker_processes > 1
+  use epoll; # enable for Linux 2.6+
+  # use kqueue; # enable for FreeBSD, OSX
+}
+
+http {
+  # nginx will find this file in the config directory set at nginx build time
+  include mime.types;
+
+  # fallback in case we can't determine a type
+  default_type application/octet-stream;
+
+  # click tracking!
+  access_log /var/log/nginx/access.log combined;
+
+  # you generally want to serve static files with nginx since neither
+  # Unicorn nor Rainbows! is optimized for it at the moment
+  sendfile off;
+
+  tcp_nopush on; # off may be better for *some* Comet/long-poll stuff
+  tcp_nodelay off; # on may be better for some Comet/long-poll stuff
+
+  # we haven't checked to see if Rack::Deflate on the app server is
+  # faster or not than doing compression via nginx.  It's easier
+  # to configure it all in one place here for static files and also
+  # to disable gzip for clients who don't get gzip/deflate right.
+  # There are other gzip settings that may be needed used to deal with
+  # bad clients out there, see http://wiki.nginx.org/NginxHttpGzipModule
+  gzip off;
+  #gzip_http_version 1.0;
+  #gzip_proxied any;
+  #gzip_min_length 500;
+  #gzip_disable "MSIE [1-6]\.";
+  #gzip_types text/plain text/html text/xml text/css
+  #           text/comma-separated-values
+  #           text/javascript application/x-javascript
+  #           application/atom+xml;
+
+  # this can be any application server, not just Unicorn/Rainbows!
+  upstream app_server {
+    # fail_timeout=0 means we always retry an upstream even if it failed
+    # to return a good HTTP response (in case the Unicorn master nukes a
+    # single worker for timing out).
+
+    # for UNIX domain socket setups:
+    server unix:/home/blackbox/blackboxserver/unicorn/unicorn.socket fail_timeout=0;
+
+    # for TCP setups, point these to your backend servers
+    # server 192.168.0.7:8080 fail_timeout=0;
+    # server 192.168.0.8:8080 fail_timeout=0;
+    # server 192.168.0.9:8080 fail_timeout=0;
+  }
+
+  server {
+    # enable one of the following if you're on Linux or FreeBSD
+    listen 80 default deferred; # for Linux
+    # listen 80 default accept_filter=httpready; # for FreeBSD
+
+    # If you have IPv6, you'll likely want to have two separate listeners.
+    # One on IPv4 only (the default), and another on IPv6 only instead
+    # of a single dual-stack listener.  A dual-stack listener will make
+    # for ugly IPv4 addresses in $remote_addr (e.g ":ffff:10.0.0.1"
+    # instead of just "10.0.0.1") and potentially trigger bugs in
+    # some software.
+    # listen [::]:80 ipv6only=on; # deferred or accept_filter recommended
+
+    client_max_body_size 10M;
+    server_name _;
+
+    # ~2 seconds is often enough for most folks to parse HTML/CSS and
+    # retrieve needed images/icons/frames, connections are cheap in
+    # nginx so increasing this is generally safe...
+    keepalive_timeout 30;
+
+    # path for static files
+    # root /path/to/app/current/public;
+
+    # Prefer to serve static files directly from nginx to avoid unnecessary
+    # data copies from the application server.
+    #
+    # try_files directive appeared in in nginx 0.7.27 and has stabilized
+    # over time.  Older versions of nginx (e.g. 0.6.x) requires
+    # "if (!-f $request_filename)" which was less efficient:
+    # http://bogomips.org/unicorn.git/tree/examples/nginx.conf?id=v3.3.1#n127
+    # try_files $uri/index.html $uri.html $uri @app;
+
+    location / {
+      # an HTTP header important enough to have its own Wikipedia entry:
+      #   http://en.wikipedia.org/wiki/X-Forwarded-For
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+      # enable this if you forward HTTPS traffic to unicorn,
+      # this helps Rack set the proper URL scheme for doing redirects:
+      # proxy_set_header X-Forwarded-Proto $scheme;
+
+      # pass the Host: header from the client right along so redirects
+      # can be set properly within the Rack application
+      proxy_set_header Host $http_host;
+
+      # we don't want nginx trying to do something clever with
+      # redirects, we set the Host: header above already.
+      proxy_redirect off;
+
+      # set "proxy_buffering off" *only* for Rainbows! when doing
+      # Comet/long-poll/streaming.  It's also safe to set if you're using
+      # only serving fast clients with Unicorn + nginx, but not slow
+      # clients.  You normally want nginx to buffer responses to slow
+      # clients, even with Rails 3.1 streaming because otherwise a slow
+      # client can become a bottleneck of Unicorn.
+      #
+      # The Rack application may also set "X-Accel-Buffering (yes|no)"
+      # in the response headers do disable/enable buffering on a
+      # per-response basis.
+      # proxy_buffering off;
+
+      proxy_pass http://app_server;
+    }
+
+    # Rails error pages
+    #error_page 500 502 503 504 /500.html;
+    #location = /500.html {
+    #  root /path/to/app/current/public;
+    #}
+  }
+}
+
+}}}
+
+The log files are in /var/log/nginx/ by default.  On the full Blackbox server they generate about 200MB a day, but as mentioned previously, this should be much smaller for a local installation.
+
+Once you've edited the config file, you'll need to start nginx.  On Ubuntu this is done with "sudo service nginx start" but you'll have to work out for nginx on your platform.  If nginx and Unicorn are both working, visiting the URL for your server should result in a page looking identical to the one at: http://black.kent.ac.uk/
+
+Of course after that, the best test is to run the custom BlueJ/Greenfoot version which points to the server, and look for items appearing in the blackbox_production database.  Every event received by the server generates a new event in the "master_events" table in the database, so do a "select * from master_events order by id desc limit 20" on that database using the MySQL command client event to see the events that are arriving.
