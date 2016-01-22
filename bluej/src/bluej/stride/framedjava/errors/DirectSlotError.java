@@ -35,10 +35,11 @@ public abstract class DirectSlotError extends CodeError
         return identifier;
     }
 
-    public @OnThread(Tag.Any) DiagnosticWithShown toDiagnostic(String javaFileName, File strideFileName)
+    @OnThread(Tag.Any)
+    public DiagnosticWithShown toDiagnostic(String javaFileName, File strideFileName)
     {
         final Diagnostic diagnostic = new Diagnostic(Diagnostic.ERROR, getMessage(), javaFileName, -1, -1, -1, -1, getIdentifier());
         diagnostic.setXPath(path, -1, -1);
-        return new DiagnosticWithShown(diagnostic, true, strideFileName);
+        return new DiagnosticWithShown(diagnostic, false, strideFileName);
     }
 }

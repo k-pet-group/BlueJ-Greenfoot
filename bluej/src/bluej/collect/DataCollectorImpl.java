@@ -935,7 +935,14 @@ public class DataCollectorImpl
         return mpe;
     }
 
-    public static void showError(Package pkg, int errorIdentifier, List<String> quickFixes)
+    public static void showErrorIndicator(Package pkg, int errorIdentifier)
+    {
+        MultipartEntity mpe = new MultipartEntity();
+        mpe.addPart("event[error_sequence]", CollectUtility.toBody(errorIdentifier));
+        submitEvent(pkg.getProject(), pkg, EventName.SHOWN_ERROR_INDICATOR, new PlainEvent(mpe));
+    }
+
+    public static void showErrorMessage(Package pkg, int errorIdentifier, List<String> quickFixes)
     {
         MultipartEntity mpe = new MultipartEntity();
 

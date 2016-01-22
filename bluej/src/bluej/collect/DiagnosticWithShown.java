@@ -63,6 +63,9 @@ public class DiagnosticWithShown
     {
         return userFileName;
     }
-    
-    
+
+    public void markShownToUser()
+    {
+        shownToUser = true;
+    }
 }

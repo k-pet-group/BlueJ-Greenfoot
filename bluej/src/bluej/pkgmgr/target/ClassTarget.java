@@ -2317,9 +2317,15 @@ public class ClassTarget extends DependentTarget
     }
 
     @Override
-    public void recordShowError(int identifier, List<String> quickFixes)
+    public void recordShowErrorMessage(int identifier, List<String> quickFixes)
     {
-        DataCollector.showError(getPackage(), identifier, quickFixes);
+        DataCollector.showErrorMessage(getPackage(), identifier, quickFixes);
+    }
+
+    @Override
+    public void recordShowErrorIndicator(int identifier)
+    {
+        DataCollector.showErrorIndicator(getPackage(), identifier);
     }
 
     @Override

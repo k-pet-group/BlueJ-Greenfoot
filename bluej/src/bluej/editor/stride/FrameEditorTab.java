@@ -2400,4 +2400,10 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
 
         SwingUtilities.invokeLater(() -> editor.getWatcher().recordUnknownCommandKey(xpath, cursorIndex, key));
     }
+
+    @Override
+    public void recordErrorIndicatorShown(int identifier)
+    {
+        SwingUtilities.invokeLater(() -> editor.getWatcher().recordShowErrorIndicator(identifier));
+    }
 }

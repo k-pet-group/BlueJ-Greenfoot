@@ -235,7 +235,7 @@ public class ReadmeTarget extends EditableTarget
     public void recordSelected() { }
 
     @Override
-    public void recordShowError(int identifier, List<String> quickFixes) { }
+    public void recordShowErrorMessage(int identifier, List<String> quickFixes) { }
 
     @Override
     public void recordEarlyErrors(List<DiagnosticWithShown> diagnostics) { }
@@ -255,8 +255,11 @@ public class ReadmeTarget extends EditableTarget
     @Override
     public void recordUnknownCommandKey(String enclosingFrameXpath, int cursorIndex, char key) { }
 
+    @Override
+    public void recordShowErrorIndicator(int identifier) { }
+
     /*
-                     * The "compile" function was invoked in the editor
-                     */
+                         * The "compile" function was invoked in the editor
+                         */
     public void compile(Editor editor, CompileReason reason) {}
 }

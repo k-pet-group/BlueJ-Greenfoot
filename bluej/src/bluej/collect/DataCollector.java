@@ -33,7 +33,6 @@ import bluej.compiler.CompileInputFile;
 import bluej.compiler.CompileReason;
 import bluej.extensions.SourceType;
 import bluej.pkgmgr.target.ClassTarget;
-import bluej.utility.Debug;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.Config;
@@ -89,10 +88,23 @@ public @OnThread(Tag.Swing) class DataCollector
     private static String participantIdentifier;
 
     /**
-     * Keep track of which errors (per-session compile error sequence ids) we have shown,
+     * Keep track of which error (per-session compile error sequence ids) *messages* we have shown,
      * and thus already sent an event about.
      */
-    private static final BitSet shownErrors = new BitSet();
+    private static final BitSet shownErrorMessages = new BitSet();
+
+    /**
+     * Keep track of which error (per-session compile error sequence ids) *indicators* we have shown,
+     * and thus already told the server about, either in a compiled event, or a shown_error_indicator event.
+     */
+    private static final BitSet shownErrorIndicators = new BitSet();
+
+    /**
+     * Keep track of which errors (per-session compile error sequence ids) we have told the server
+     * have been created.  Due to threading back and forths, it is possible for us to be told that
+     * error indicators have been shown before we've been told about the compile event that generated them.
+     */
+    private static final BitSet createdErrors = new BitSet();
     
     
     /**
@@ -259,6 +271,17 @@ public @OnThread(Tag.Swing) class DataCollector
     public static void compiled(Project proj, Package pkg, CompileInputFile[] sources, List<DiagnosticWithShown> diagnostics, boolean success, CompileReason reason, SourceType inputType)
     {
         if (dontSend()) return;
+        diagnostics.forEach(dws -> {
+            // If the error was shown to the user, store that in our set.  Conversely,
+            // if we have been told already that the error has been shown to the user,
+            // we want to reflect that in the event
+            if (dws.wasShownToUser())
+                shownErrorIndicators.set(dws.getDiagnostic().getIdentifier());
+            else if (shownErrorIndicators.get(dws.getDiagnostic().getIdentifier()))
+                dws.markShownToUser();
+
+            createdErrors.set(dws.getDiagnostic().getIdentifier());
+        });
         DataCollectorImpl.compiled(proj, pkg, sources, diagnostics, success, reason, inputType);
     }
 
@@ -524,13 +547,30 @@ public @OnThread(Tag.Swing) class DataCollector
         DataCollectorImpl.inspectorClassShow(pkg, inspector, className);        
     }
 
-    public static void showError(Package pkg, int errorIdentifier, List<String> quickFixes)
+    public static void showErrorIndicator(Package pkg, int errorIdentifier)
+    {
+        if (dontSend()) return;
+        // Already know about this:
+        if (shownErrorIndicators.get(errorIdentifier))
+            return;
+
+        if (createdErrors.get(errorIdentifier))
+        {
+            // Creation has already been sent, so fine to follow it up with a shown event:
+            DataCollectorImpl.showErrorIndicator(pkg, errorIdentifier);
+        }
+        // Otherwise, we haven't sent the creation yet, so do nothing but flag it in the bitset
+        shownErrorIndicators.set(errorIdentifier);
+    }
+
+    public static void showErrorMessage(Package pkg, int errorIdentifier, List<String> quickFixes)
     {
         if (dontSend()) return;
         // Only send an event for each error the first time it is shown:
-        if (shownErrors.get(errorIdentifier)) return;
-        shownErrors.set(errorIdentifier);
-        DataCollectorImpl.showError(pkg, errorIdentifier, quickFixes);
+        if (shownErrorMessages.get(errorIdentifier))
+            return;
+        shownErrorMessages.set(errorIdentifier);
+        DataCollectorImpl.showErrorMessage(pkg, errorIdentifier, quickFixes);
     }
 
     public static void fixExecuted(Package aPackage, int errorIdentifier, int fixIndex)

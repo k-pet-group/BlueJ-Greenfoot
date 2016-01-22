@@ -1242,7 +1242,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
     public void addError(CodeError err)
     {
         allFrameErrors.add(err);
-        err.bindFresh(fresh);
+        err.bindFresh(fresh, editor);
     }
 
     @Override

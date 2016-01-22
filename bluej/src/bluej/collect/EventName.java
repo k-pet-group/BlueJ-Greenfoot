@@ -45,6 +45,7 @@ enum EventName
     FILE_SELECT("file_select"),
     FILE_CLOSE("file_close"),
 
+    SHOWN_ERROR_INDICATOR("shown_error_indicator"),
     SHOWN_ERROR_MESSAGE("shown_error_message"),
     FIX_EXECUTED("fix_executed"),
 

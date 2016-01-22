@@ -21,26 +21,20 @@
  */
 package bluej.stride.framedjava.elements;
 
+import bluej.stride.framedjava.ast.AccessPermissionFragment;
+import bluej.stride.framedjava.ast.ExpressionSlotFragment;
+import bluej.stride.framedjava.ast.FrameFragment;
+import bluej.stride.framedjava.ast.JavaFragment;
+import bluej.stride.framedjava.ast.SuperThisFragment;
+import bluej.stride.framedjava.ast.TextSlotFragment;
+import nu.xom.Attribute;
+import nu.xom.Element;
+import nu.xom.Elements;
+
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
-import java.util.function.Function;
-
-import bluej.stride.framedjava.ast.AccessPermissionFragment;
-import bluej.stride.framedjava.ast.ExpressionSlotFragment;
-import bluej.stride.framedjava.ast.FilledExpressionSlotFragment;
-import bluej.stride.framedjava.ast.FrameFragment;
-import bluej.stride.framedjava.ast.JavaFragment;
-import bluej.stride.framedjava.ast.StringSlotFragment;
-import bluej.stride.framedjava.ast.SuperThisFragment;
-import bluej.stride.framedjava.ast.TextSlotFragment;
-import bluej.stride.framedjava.ast.TypeSlotFragment;
-import bluej.stride.generic.Frame;
-import com.sun.org.apache.bcel.internal.classfile.Code;
-import nu.xom.Attribute;
-import nu.xom.Element;
-import nu.xom.Elements;
 
 /**
  * An extension of the XML Element class which also keeps track of enough information

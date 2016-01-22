@@ -24,6 +24,7 @@ package bluej.stride.framedjava.errors;
 import java.util.List;
 
 import bluej.stride.slots.EditableSlot;
+import bluej.utility.javafx.JavaFXUtil;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -41,7 +42,8 @@ public abstract class CodeError
     protected final JavaFragment relevantSlot;
     private final BooleanProperty freshProperty = new SimpleBooleanProperty(false);
     protected String path;
-    
+    protected boolean recordedShownIndicator = false;
+
     @OnThread(Tag.Any)
     protected CodeError(JavaFragment code)
     {
@@ -141,9 +143,23 @@ public abstract class CodeError
         return freshProperty.not();
     }
     
-    public void bindFresh(ObservableBooleanValue fresh)
+    public void bindFresh(ObservableBooleanValue fresh, InteractionManager editor)
     {
         freshProperty.bind(fresh);
+        if (!visibleProperty().get())
+        {
+            // Add a listener to send an event when we become visible:
+            JavaFXUtil.addSelfRemovingListener(visibleProperty(), vis -> {
+                if (vis) // Should always be true, but check anyway
+                {
+                    editor.recordErrorIndicatorShown(getIdentifier());
+                }
+            });
+        }
+        else
+        {
+            editor.recordErrorIndicatorShown(getIdentifier());
+        }
     }
 
     /**

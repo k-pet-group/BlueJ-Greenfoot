@@ -146,6 +146,8 @@ public interface InteractionManager
 
     void recordCodeCompletionEnded(SlotFragment position, int index, String stem, String completion);
 
+    void recordErrorIndicatorShown(int identifier);
+
     public static enum ShortcutKey
     {
         YES_ANYWHERE,

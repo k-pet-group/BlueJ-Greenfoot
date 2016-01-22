@@ -340,7 +340,7 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
     public void addError(CodeError err)
     {
         allErrors.add(err);
-        err.bindFresh(getParentFrame().freshProperty());
+        err.bindFresh(getParentFrame().freshProperty(), editor);
         recalculateShownErrors();
     }
     

@@ -3022,7 +3022,7 @@ public final class MoeEditor extends JPanel
                     errorDisplay.setLocation(xpos, ypos);
                     errorDisplay.setVisible(true);
 
-                    watcher.recordShowError(details.identifier, Collections.emptyList());
+                    watcher.recordShowErrorMessage(details.identifier, Collections.emptyList());
                 }
                 catch (BadLocationException ble)
                 {

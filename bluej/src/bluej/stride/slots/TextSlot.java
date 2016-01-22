@@ -651,7 +651,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
     public void addError(CodeError err)
     {
         allErrors.add(err);
-        err.bindFresh(getFreshExtra(err).or(getParentFrame().freshProperty()));
+        err.bindFresh(getFreshExtra(err).or(getParentFrame().freshProperty()), editor);
         recalculateShownErrors();
     }
 

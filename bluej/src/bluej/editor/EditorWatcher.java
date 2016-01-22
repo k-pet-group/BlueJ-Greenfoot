@@ -96,7 +96,9 @@ public interface EditorWatcher
 
     void recordClose();
 
-    void recordShowError(int identifier, List<String> quickFixes);
+    void recordShowErrorIndicator(int identifier);
+
+    void recordShowErrorMessage(int identifier, List<String> quickFixes);
 
     void recordEarlyErrors(List<DiagnosticWithShown> diagnostics);
 

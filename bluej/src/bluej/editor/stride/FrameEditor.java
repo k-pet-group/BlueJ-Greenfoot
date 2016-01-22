@@ -45,6 +45,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import bluej.collect.DataCollector;
+import bluej.collect.DiagnosticWithShown;
 import bluej.collect.StrideEditReason;
 import bluej.extensions.SourceType;
 import bluej.stride.framedjava.ast.JavaFragment;
@@ -827,7 +828,7 @@ public class FrameEditor implements Editor
 
             }
         });
-        return true;
+        return false;
     }
 
     @Override
@@ -1064,7 +1065,8 @@ public class FrameEditor implements Editor
                 Debug.reportError(e);
             }
             Platform.runLater(() -> panel.updateErrorOverviewBar(false));
-            SwingUtilities.invokeLater(() -> watcher.recordLateErrors(Utility.mapList(allLates, e -> e.toDiagnostic(javaFilename.getName(), frameFilename))));
+            List<DiagnosticWithShown> diagnostics = Utility.mapList(allLates, e -> e.toDiagnostic(javaFilename.getName(), frameFilename));
+            SwingUtilities.invokeLater(() -> watcher.recordLateErrors(diagnostics));
         });
     }
         
@@ -1097,7 +1099,8 @@ public class FrameEditor implements Editor
     boolean earlyErrorCheck(Stream<SyntaxCodeError> earlyErrors)
     {
         List<SyntaxCodeError> earlyList = earlyErrors.collect(Collectors.toList());
-        SwingUtilities.invokeLater(() -> watcher.recordEarlyErrors(Utility.mapList(earlyList, e -> e.toDiagnostic(javaFilename.getName(), frameFilename))));
+        List<DiagnosticWithShown> diagnostics = Utility.mapList(earlyList, e -> e.toDiagnostic(javaFilename.getName(), frameFilename));
+        SwingUtilities.invokeLater(() -> watcher.recordEarlyErrors(diagnostics));
         return !earlyList.isEmpty();
     }
 
