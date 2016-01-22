@@ -30,6 +30,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import bluej.stride.framedjava.elements.LocatableElement.LocationMap;
 import bluej.stride.framedjava.errors.DirectSlotError;
 import bluej.stride.generic.InteractionManager;
 import nu.xom.Attribute;
@@ -71,14 +72,14 @@ public abstract class CodeElement
      * 
      * (TODO in the future, this should strengthen to: returning no errors means code won't give syntax error)
      */
-    public final Stream<SyntaxCodeError> findEarlyErrors(Function<JavaFragment, String> rootPathMap)
+    public final Stream<SyntaxCodeError> findEarlyErrors(LocationMap rootPathMap)
     {
         if (!isEnable())
             return Stream.empty();
-        return toJavaSource().getAllFragments().flatMap(fragment -> fragment.findEarlyErrors().peek(e -> e.recordPath(rootPathMap.apply(fragment))));
+        return toJavaSource().getAllFragments().flatMap(fragment -> fragment.findEarlyErrors().peek(e -> e.recordPath(rootPathMap.locationFor(fragment))));
     }
     
-    public final Stream<Future<List<DirectSlotError>>> findDirectLateErrors(InteractionManager editor, Function<JavaFragment, String> rootPathMap)
+    public final Stream<Future<List<DirectSlotError>>> findDirectLateErrors(InteractionManager editor, LocationMap rootPathMap)
     {
         if (!isEnable())
             return Stream.empty();

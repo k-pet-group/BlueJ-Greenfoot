@@ -48,6 +48,8 @@ enum EventName
     SHOWN_ERROR("shown_error"),
     FIX_EXECUTED("fix_executed"),
 
+    UNKNOWN_FRAME_COMMAND("unknown_frame_command"),
+
     CODE_COMPLETION_STARTED("code_completion_started"),
     CODE_COMPLETION_ENDED("code_completion_ended"),
 

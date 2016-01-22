@@ -35,6 +35,7 @@ import bluej.stride.framedjava.ast.links.PossibleLink;
 import bluej.stride.framedjava.ast.links.PossibleMethodUseLink;
 import bluej.stride.framedjava.ast.links.PossibleTypeLink;
 import bluej.stride.framedjava.ast.links.PossibleVarLink;
+import bluej.stride.framedjava.elements.LocatableElement.LocationMap;
 import javafx.application.Platform;
 import bluej.parser.JavaParser;
 import bluej.parser.lexer.LocatableToken;
@@ -229,7 +230,7 @@ public abstract class ExpressionSlotFragment extends StringSlotFragment
     
     
     @Override
-    public Future<List<DirectSlotError>> findLateErrors(InteractionManager editor, CodeElement parent, Function<JavaFragment, String> rootPathMap)
+    public Future<List<DirectSlotError>> findLateErrors(InteractionManager editor, CodeElement parent, LocationMap rootPathMap)
     {
         CompletableFuture<List<DirectSlotError>> f = new CompletableFuture<>();
         Platform.runLater(() -> ASTUtility.withLocalsParamsAndFields(parent, editor, getPosInSourceDoc(), includeDirectDecl(), vars -> {
@@ -250,7 +251,7 @@ public abstract class ExpressionSlotFragment extends StringSlotFragment
                             identToken.getColumn() - 1 + identToken.getLength(), slot, vars.keySet());
                 }
                 return null;
-            }).filter(x -> x != null).peek(e -> e.recordPath(rootPathMap.apply(this))).collect(Collectors.toList()));
+            }).filter(x -> x != null).peek(e -> e.recordPath(rootPathMap.locationFor(this))).collect(Collectors.toList()));
             // TODO errors for compounds and types
         }));
         return f;

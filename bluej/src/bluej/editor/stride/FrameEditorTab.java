@@ -56,6 +56,7 @@ import bluej.stride.framedjava.ast.links.PossibleKnownMethodLink;
 import bluej.stride.framedjava.ast.links.PossibleMethodUseLink;
 import bluej.stride.framedjava.ast.links.PossibleTypeLink;
 import bluej.stride.framedjava.ast.links.PossibleVarLink;
+import bluej.stride.framedjava.elements.LocatableElement.LocationMap;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -2375,9 +2376,9 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     {
         recordEdits(StrideEditReason.FLUSH);
 
-        Function<JavaFragment, String> locationMap = topLevelFrame.getCode().toXML().buildLocationMap();
+        LocationMap locationMap = topLevelFrame.getCode().toXML().buildLocationMap();
 
-        SwingUtilities.invokeLater(() -> editor.getWatcher().recordCodeCompletionStarted(null, null, locationMap.apply(element), index, stem));
+        SwingUtilities.invokeLater(() -> editor.getWatcher().recordCodeCompletionStarted(null, null, locationMap.locationFor(element), index, stem));
     }
 
     @Override
@@ -2385,8 +2386,18 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     {
         recordEdits(StrideEditReason.CODE_COMPLETION);
 
-        Function<JavaFragment, String> locationMap = topLevelFrame.getCode().toXML().buildLocationMap();
+        LocationMap locationMap = topLevelFrame.getCode().toXML().buildLocationMap();
 
-        SwingUtilities.invokeLater(() -> editor.getWatcher().recordCodeCompletionEnded(null, null, locationMap.apply(element), index, stem, replacement));
+        SwingUtilities.invokeLater(() -> editor.getWatcher().recordCodeCompletionEnded(null, null, locationMap.locationFor(element), index, stem, replacement));
+    }
+
+    public void recordUnknownCommandKey(Frame enclosingFrame, int cursorIndex, char key)
+    {
+        recordEdits(StrideEditReason.FLUSH);
+        LocationMap locationMap = topLevelFrame.getCode().toXML().buildLocationMap();
+
+        String xpath = (enclosingFrame instanceof CodeFrame) ? locationMap.locationFor(((CodeFrame<? extends CodeElement>)enclosingFrame).getCode()) : null;
+
+        SwingUtilities.invokeLater(() -> editor.getWatcher().recordUnknownCommandKey(xpath, cursorIndex, key));
     }
 }

@@ -37,6 +37,7 @@ import bluej.stride.framedjava.ast.SuperThisFragment;
 import bluej.stride.framedjava.ast.TextSlotFragment;
 import bluej.stride.framedjava.ast.TypeSlotFragment;
 import bluej.stride.generic.Frame;
+import com.sun.org.apache.bcel.internal.classfile.Code;
 import nu.xom.Attribute;
 import nu.xom.Element;
 import nu.xom.Elements;
@@ -88,6 +89,12 @@ public class LocatableElement extends Element
         addAttribute(new Attribute(name, content.getContent()));
     }
 
+    public static interface LocationMap
+    {
+        public String locationFor(JavaFragment fragment);
+        public String locationFor(CodeElement element);
+    }
+
     /**
      * Builds a location map, from JavaFragment to the XPath within the Element, taking this
      * node as the root, and handling all children.  So if you have something like:
@@ -115,25 +122,36 @@ public class LocatableElement extends Element
      *                      a unique index to each element.
      * @return A map from JavaFragment to XPath String identifying the location of that fragment.
      */
-    public Function<JavaFragment, String> buildLocationMap()
+    public LocationMap buildLocationMap()
     {
         IdentityHashMap<JavaFragment, String> map = new IdentityHashMap<>();
         IdentityHashMap<CodeElement, String> elementMap = new IdentityHashMap<>();
 
         addToLocationMap(new HashMap<>(), map::put, elementMap::put);
 
-        return fragment -> {
-            if (map.containsKey(fragment))
+        return new LocationMap()
+        {
+            @Override
+            public String locationFor(JavaFragment fragment)
             {
-                return map.get(fragment);
+                if (map.containsKey(fragment))
+                {
+                    return map.get(fragment);
+                }
+                else if (fragment instanceof FrameFragment)
+                {
+                    FrameFragment ff = (FrameFragment)fragment;
+                    return elementMap.get(ff.getElement());
+                }
+                else
+                    return null;
             }
-            else if (fragment instanceof FrameFragment)
+
+            @Override
+            public String locationFor(CodeElement element)
             {
-                FrameFragment ff = (FrameFragment)fragment;
-                return elementMap.get(ff.getElement());
+                return elementMap.get(element);
             }
-            else
-                return null;
         };
     }
 

@@ -252,8 +252,11 @@ public class ReadmeTarget extends EditableTarget
     @Override
     public void recordCodeCompletionEnded(Integer lineNumber, Integer columnNumber, String xpath, Integer elementOffset, String stem, String replacement) { }
 
+    @Override
+    public void recordUnknownCommandKey(String enclosingFrameXpath, int cursorIndex, char key) { }
+
     /*
-                 * The "compile" function was invoked in the editor
-                 */
+                     * The "compile" function was invoked in the editor
+                     */
     public void compile(Editor editor, CompileReason reason) {}
 }

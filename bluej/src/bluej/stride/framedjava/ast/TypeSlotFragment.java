@@ -32,6 +32,7 @@ import java.util.stream.Stream;
 import bluej.stride.framedjava.ast.links.PossibleLink;
 import bluej.stride.framedjava.ast.links.PossibleTypeLink;
 import bluej.stride.framedjava.elements.CodeElement;
+import bluej.stride.framedjava.elements.LocatableElement.LocationMap;
 import bluej.stride.framedjava.errors.CodeError;
 import bluej.stride.framedjava.errors.DirectSlotError;
 import bluej.stride.framedjava.errors.EmptyError;
@@ -83,7 +84,7 @@ public class TypeSlotFragment extends TextSlotFragment
     }
 
     @Override
-    public Future<List<DirectSlotError>> findLateErrors(InteractionManager editor, CodeElement parent, Function<JavaFragment, String> rootPathMap)
+    public Future<List<DirectSlotError>> findLateErrors(InteractionManager editor, CodeElement parent, LocationMap rootPathMap)
     {
         CompletableFuture<List<DirectSlotError>> f = new CompletableFuture<>();
         
@@ -108,7 +109,7 @@ public class TypeSlotFragment extends TextSlotFragment
             }
             // Otherwise, give error and suggest corrections 
             final UnknownTypeError error = new UnknownTypeError(this, content, slot, editor, types.stream(), editor.getOtherPopularImports().stream());
-            error.recordPath(rootPathMap.apply(this));
+            error.recordPath(rootPathMap.locationFor(this));
             f.complete(Arrays.asList(error));
         });
         return f;

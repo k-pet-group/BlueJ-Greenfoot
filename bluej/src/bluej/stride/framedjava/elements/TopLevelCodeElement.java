@@ -34,6 +34,7 @@ import bluej.debugger.gentype.ConstructorReflective;
 import bluej.stride.framedjava.ast.FrameFragment;
 import bluej.stride.framedjava.ast.JavaFragment;
 import bluej.stride.framedjava.ast.TypeSlotFragment;
+import bluej.stride.framedjava.elements.LocatableElement.LocationMap;
 import bluej.stride.framedjava.errors.DirectSlotError;
 import bluej.stride.generic.AssistContentThreadSafe;
 import bluej.stride.generic.InteractionManager;
@@ -137,7 +138,7 @@ public interface TopLevelCodeElement
 
     public Stream<SyntaxCodeError> findEarlyErrors();
 
-    public Stream<Future<List<DirectSlotError>>> findDirectLateErrors(InteractionManager editor, Function<JavaFragment, String> rootPathMap);
+    public Stream<Future<List<DirectSlotError>>> findDirectLateErrors(InteractionManager editor, LocationMap rootPathMap);
     
     public JavaSource toJavaSource();
 

@@ -48,6 +48,7 @@ import bluej.collect.DataCollector;
 import bluej.collect.StrideEditReason;
 import bluej.extensions.SourceType;
 import bluej.stride.framedjava.ast.JavaFragment;
+import bluej.stride.framedjava.elements.LocatableElement.LocationMap;
 import bluej.stride.framedjava.errors.DirectSlotError;
 import bluej.stride.framedjava.errors.SyntaxCodeError;
 import bluej.utility.Utility;
@@ -375,9 +376,9 @@ public class FrameEditor implements Editor
     private class SaveJavaResult
     {
         private final JavaSource javaSource;
-        private final Function<JavaFragment, String> xpathLocations;
+        private final LocationMap xpathLocations;
 
-        public SaveJavaResult(JavaSource javaSource, Function<JavaFragment, String> xpathLocations)
+        public SaveJavaResult(JavaSource javaSource, LocationMap xpathLocations)
         {
             this.javaSource = javaSource;
             this.xpathLocations = xpathLocations;
@@ -800,7 +801,7 @@ public class FrameEditor implements Editor
             JavaFragment fragment = lastSavedJavaSwing.javaSource.findError((int)diagnostic.getStartLine(), (int)diagnostic.getStartColumn(), (int)diagnostic.getEndLine(), (int)diagnostic.getEndColumn(), diagnostic.getMessage(), true);
             if (fragment != null)
             {
-                String xpath = lastSavedJavaSwing.xpathLocations.apply(fragment);
+                String xpath = lastSavedJavaSwing.xpathLocations.locationFor(fragment);
                 int start = fragment.getErrorStartPos((int)diagnostic.getStartLine(), (int)diagnostic.getStartColumn());
                 int end = fragment.getErrorEndPos((int)diagnostic.getEndLine(), (int)diagnostic.getEndColumn());
                 if (xpath != null)
@@ -1046,7 +1047,7 @@ public class FrameEditor implements Editor
         panel.removeOldErrors();
         TopLevelCodeElement el = panel.getSource();
         Stream<CodeElement> allElements = Stream.concat(Stream.of((CodeElement)el), el.streamContained());
-        Function<JavaFragment, String> rootPathMap = el.toXML().buildLocationMap();
+        LocationMap rootPathMap = el.toXML().buildLocationMap();
         // We must start these futures going on the FX thread
         List<Future<List<DirectSlotError>>> futures = allElements.flatMap(e -> e.findDirectLateErrors(panel, rootPathMap)).collect(Collectors.toList());
         // Then wait for them on another thread, and hop back to FX to finish:

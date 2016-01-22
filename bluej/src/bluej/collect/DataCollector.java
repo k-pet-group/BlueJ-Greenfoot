@@ -557,6 +557,12 @@ public @OnThread(Tag.Swing) class DataCollector
         DataCollectorImpl.codeCompletionEnded(ct.getPackage().getProject(), ct.getPackage(), lineNumber, columnNumber, xpath, subIndex, stem, replacement);
     }
 
+    public static void unknownFrameCommandKey(ClassTarget ct, String enclosingFrameXpath, int cursorIndex, char key)
+    {
+        if (dontSend()) return;
+        DataCollectorImpl.unknownFrameCommandKey(ct.getPackage().getProject(), ct.getPackage(), enclosingFrameXpath, cursorIndex, key);
+    }
+
     public static class NamedTyped
     {
         private  String name;

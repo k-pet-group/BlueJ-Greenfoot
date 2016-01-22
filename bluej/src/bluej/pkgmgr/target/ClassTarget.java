@@ -2357,4 +2357,10 @@ public class ClassTarget extends DependentTarget
     {
         DataCollector.codeCompletionEnded(this, lineNumber, columnNumber, xpath, elementOffset, stem, replacement);
     }
+
+    @Override
+    public void recordUnknownCommandKey(String enclosingFrameXpath, int cursorIndex, char key)
+    {
+        DataCollector.unknownFrameCommandKey(this, enclosingFrameXpath, cursorIndex, key);
+    }
 }

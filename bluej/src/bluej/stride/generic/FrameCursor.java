@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import bluej.collect.DataCollector;
 import bluej.collect.StrideEditReason;
 import bluej.stride.operations.ToggleBooleanProperty;
 import bluej.stride.slots.EditableSlot.MenuItemOrder;
@@ -267,9 +268,14 @@ public class FrameCursor implements RecallableFocus
                 if (consecutiveErrors >= ERROR_COUNT_TRIGGER) {
                     editor.cheatSheetShowingProperty().set(true);
                 }
+                editor.recordUnknownCommandKey(getEnclosingFrame(), parentCanvas.getCursors().indexOf(this), key);
                 //Ignore one-off mis-typing, just to stop every slip-up triggering a dialog
                 return true;
             }
+        }
+        else
+        {
+            editor.recordUnknownCommandKey(getEnclosingFrame(), parentCanvas.getCursors().indexOf(this), key);
         }
         editor.getSelection().clear();
         return false;
@@ -769,7 +775,12 @@ public class FrameCursor implements RecallableFocus
     
     public Frame getEnclosingFrame()
     {
-        return getParentCanvas().getParent().getFrame();
+        final FrameCanvas parentCanvas = getParentCanvas();
+        if (parentCanvas == null) return null;
+        final CanvasParent canvasParent = parentCanvas.getParent();
+        if (canvasParent == null) return null;
+        return canvasParent.getFrame();
+
     }
     
     public Region getNode()

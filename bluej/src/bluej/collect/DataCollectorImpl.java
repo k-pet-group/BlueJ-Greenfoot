@@ -1018,4 +1018,15 @@ public class DataCollectorImpl
     }
 
 
+    public static void unknownFrameCommandKey(Project project, Package pkg, String enclosingFrameXpath, int cursorIndex, char key)
+    {
+        MultipartEntity mpe = new MultipartEntity();
+        if (enclosingFrameXpath != null)
+        {
+            mpe.addPart("event[unknown_frame_command][enclosing_xpath]", CollectUtility.toBody(enclosingFrameXpath));
+            mpe.addPart("event[unknown_frame_command][enclosing_index]", CollectUtility.toBody(cursorIndex));
+        }
+        mpe.addPart("event[unknown_frame_command][command]", CollectUtility.toBody(Character.toString(key)));
+        submitEvent(project, pkg, EventName.UNKNOWN_FRAME_COMMAND, new PlainEvent(mpe));
+    }
 }
