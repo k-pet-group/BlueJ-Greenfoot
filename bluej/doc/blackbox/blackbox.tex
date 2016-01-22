@@ -562,7 +562,7 @@ changed in Greenfoot 3.0.0.  In Greenfoot 3.0.0 onwards, compilation is performe
 automatically in a number of different cases.  This is/will be documented in the new
 reason column in the \tabref{compile_events}.
 
-\subsection{\lstinline!"shown_error"!}
+\subsection{\lstinline!"shown_error_message"!}
 
 Since BlueJ 3.2.0 (and in Greenfoot 3.0.0 onwards), error display has changed.  Errors
 are no longer shown one at a time in BlueJ in the bottom pane.  Instead, red underlines
@@ -572,14 +572,14 @@ overlap, only one is shown, but due to technical difficulties we do not record t
 the user will see a red underline at the location, but which one is not very important.)  All
 errors are then marked as shown, but only in the sense that the red underline is shown.
 
-For these software versions, an |"shown_error"| master event is generated when the user is
+For these software versions, an |"shown_error_message"| master event is generated when the user is
 actually shown the text of the error message, by using keyboard or mouse focus to hover in
 the location of the red underline.  Each error (which is stored in the \tabref{compile_outputs}, below)
-will only get an |"shown_error"| event generated once, the first time it is shown.  If another
+will only get an |"shown_error_message"| event generated once, the first time it is shown.  If another
 compilation occurs, an error with the same text at the same location will get a new entry in the
 \tabref{compile_outputs}, and thus be considered a new error.
 
-The |sub_event_type| of |"shown_error"| events will be |"CompileOutput"| and the |sub_event_id|
+The |sub_event_type| of |"shown_error_message"| events will be |"CompileOutput"| and the |sub_event_id|
 will contain an |id| from an entry in the \tabref{compile_outputs}.
 
 In Stride, when an error is shown, it may be presented along with a list of quick fixes (e.g.
@@ -653,7 +653,7 @@ and fills in the |xpath|, |xml_start| and |xml_end| fields.
 
 Since BlueJ 3.2.0, which shows errors as a red underline, all errors are marked
 as shown (unless there is an unexpected problem, such as an invalid location) in
-this table, but see the details on the |"shown_error"| event above.
+this table, but see the details on the |"shown_error_message"| event above.
 
 %schema:quick_fixes
 

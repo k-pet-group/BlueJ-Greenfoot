@@ -948,7 +948,7 @@ public class DataCollectorImpl
             );
         }
 
-        submitEvent(pkg.getProject(), pkg, EventName.SHOWN_ERROR, new PlainEvent(mpe));
+        submitEvent(pkg.getProject(), pkg, EventName.SHOWN_ERROR_MESSAGE, new PlainEvent(mpe));
     }
 
     public static void fixExecuted(Package pkg, int errorIdentifier, int fixIndex)
