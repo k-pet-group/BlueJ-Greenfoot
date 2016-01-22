@@ -2393,6 +2393,9 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
 
     public void recordUnknownCommandKey(Frame enclosingFrame, int cursorIndex, char key)
     {
+        if (key < 32 || key == 127)
+            return; // Don't worry about command keys
+
         recordEdits(StrideEditReason.FLUSH);
         LocationMap locationMap = topLevelFrame.getCode().toXML().buildLocationMap();
 
