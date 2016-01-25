@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2013,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012,2013,2014,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -531,6 +531,10 @@ public final class BlueJ
             synchronized (applicationListeners) {
                 applicationListeners.add(listener);
             }
+
+            // Relay a previous given up message:
+            if (DataCollector.hasGivenUp())
+                listener.dataSubmissionFailed(new ApplicationEvent(ApplicationEvent.DATA_SUBMISSION_FAILED_EVENT));
         }
     }
 
@@ -744,8 +748,10 @@ public final class BlueJ
         
         for (int i = 0; i < listeners.length; i++) {
             ApplicationListener eventListener = listeners[i];
-            // Just this for the time being.
-            eventListener.blueJReady(event);
+            if (event.getEvent() == ApplicationEvent.APP_READY_EVENT)
+                eventListener.blueJReady(event);
+            else if (event.getEvent() == ApplicationEvent.DATA_SUBMISSION_FAILED_EVENT)
+                eventListener.dataSubmissionFailed(event);
         }
     }
 

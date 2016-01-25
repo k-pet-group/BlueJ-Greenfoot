@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,7 +24,7 @@ package bluej.extensions.event;
 /**
  * This class encapsulates BlueJ application events.
  * 
- * @version $Id: ApplicationEvent.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: ApplicationEvent.java 15356 2016-01-25 18:23:50Z nccb $
  */
 
  /*
@@ -37,6 +37,12 @@ public class ApplicationEvent implements ExtensionEvent
    * Event generated when the BlueJ application is initialised and ready.
    */
   public static final int APP_READY_EVENT=1;
+  /**
+   * Event generated when connection to the data collection servers (e.g. Blackbox)
+   * is broken, or the event generates an error code when sent.  This means that
+   * recording will be suspended for the rest of the session.
+   */
+  public static final int DATA_SUBMISSION_FAILED_EVENT=2;
 
   private int eventId;
 
@@ -63,6 +69,7 @@ public class ApplicationEvent implements ExtensionEvent
   public String toString()
     {
     if ( eventId == APP_READY_EVENT ) return "AppEvent: APP_READY_EVENT";
+    if ( eventId == DATA_SUBMISSION_FAILED_EVENT ) return "AppEvent: DATA_SUBMISSION_FAILED_EVENT";
 
     return "AppEvent: UNKNOWN eventId="+eventId;
     }

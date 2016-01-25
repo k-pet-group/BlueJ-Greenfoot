@@ -54,6 +54,8 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -157,6 +159,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor implements TabbedEditorWindow
     private AtomicInteger locationY = new AtomicInteger(0);
     private AtomicInteger locationWidth = new AtomicInteger(700);
     private AtomicInteger locationHeight = new AtomicInteger(700);
+    private StringProperty titleStatus = new SimpleStringProperty("");
 
     // Neither the constructor nor any initialisers should do any JavaFX work until
     // initialise is called.
@@ -356,7 +359,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor implements TabbedEditorWindow
 
         stage.titleProperty().bind(Bindings.concat(
             JavaFXUtil.apply(tabPane.getSelectionModel().selectedItemProperty(), t -> ((FXTab)t).windowTitleProperty(), "Unknown")
-                ," - ", projectTitle));
+                ," - ", projectTitle, titleStatus));
 
         JavaFXUtil.addChangeListener(stage.xProperty(), x -> locationX.set(x.intValue()));
         JavaFXUtil.addChangeListener(stage.yProperty(), y -> locationY.set(y.intValue()));
@@ -792,6 +795,11 @@ public @OnThread(Tag.FX) class FXTabbedEditor implements TabbedEditorWindow
             stage.setWidth(width);
             stage.setHeight(height);
         });
+    }
+
+    public void setTitleStatus(String status)
+    {
+        this.titleStatus.set(status);
     }
 
     public static enum CodeCompletionState

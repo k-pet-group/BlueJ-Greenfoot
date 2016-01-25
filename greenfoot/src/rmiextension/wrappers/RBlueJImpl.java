@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2013,2014,2015  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2013,2014,2015,2016  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,6 +27,8 @@ import bluej.extensions.BProject;
 import bluej.extensions.BlueJ;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.extensions.SourceType;
+import bluej.extensions.event.ApplicationEvent;
+import bluej.extensions.event.ApplicationListener;
 import bluej.extensions.event.ClassListener;
 import bluej.extensions.event.CompileEvent;
 import bluej.extensions.event.CompileListener;
@@ -36,6 +38,7 @@ import bluej.utility.Debug;
 import bluej.utility.ImportScanner;
 import bluej.utility.Utility;
 import rmiextension.ProjectManager;
+import rmiextension.wrappers.event.RApplicationListener;
 import rmiextension.wrappers.event.RClassListener;
 import rmiextension.wrappers.event.RClassListenerWrapper;
 import rmiextension.wrappers.event.RCompileListener;
@@ -419,5 +422,31 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     public long getBlueJProcessId() throws RemoteException
     {
         return Long.parseLong(Utility.getProcessId());
+    }
+
+    @Override
+    public void addApplicationListener(RApplicationListener listener) throws RemoteException
+    {
+        blueJ.addApplicationListener(new ApplicationListener()
+        {
+            @Override
+            public void blueJReady(ApplicationEvent event)
+            {
+
+            }
+
+            @Override
+            public void dataSubmissionFailed(ApplicationEvent event)
+            {
+                try
+                {
+                    listener.dataSubmissionFailed();
+                }
+                catch (RemoteException e)
+                {
+                    Debug.reportError(e);
+                }
+            }
+        });
     }
 }

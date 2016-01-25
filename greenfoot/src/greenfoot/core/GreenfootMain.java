@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2013,2014,2015  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2013,2014,2015,2016  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,6 +21,8 @@
  */
 package greenfoot.core;
 
+import bluej.Boot;
+import bluej.collect.DataSubmissionFailedDialog;
 import greenfoot.ObjectTracker;
 import greenfoot.actions.NewSubActorAction;
 import greenfoot.actions.NewSubWorldAction;
@@ -54,6 +56,7 @@ import rmiextension.wrappers.RBlueJ;
 import rmiextension.wrappers.RClass;
 import rmiextension.wrappers.RPackage;
 import rmiextension.wrappers.RProject;
+import rmiextension.wrappers.event.RApplicationListenerImpl;
 import rmiextension.wrappers.event.RCompileEvent;
 import rmiextension.wrappers.event.RInvocationListener;
 import rmiextension.wrappers.event.RProjectListener;
@@ -184,6 +187,17 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
         currentLoader = ExecServer.getCurrentClassLoader();
         addCompileListener(this);
         try {
+            this.rBlueJ.addApplicationListener(new RApplicationListenerImpl() {
+                @Override
+                public void dataSubmissionFailed() throws RemoteException
+                {
+                    if (Boot.isTrialRecording())
+                    {
+                        new DataSubmissionFailedDialog().setVisible(true);
+                    }
+                }
+            });
+
             // determine the path of the startup project
             File startupProj = rBlueJ.getSystemLibDir();
             startupProj = new File(startupProj, "greenfoot");

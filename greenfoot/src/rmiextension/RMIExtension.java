@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2013  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2013,2016  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -163,5 +163,11 @@ public class RMIExtension extends Extension implements ApplicationListener
     public void blueJReady(ApplicationEvent event)
     {
         GreenfootLauncherBlueJVM.getInstance().launch(this);
+    }
+
+    @Override
+    public void dataSubmissionFailed(ApplicationEvent event)
+    {
+
     }
 }

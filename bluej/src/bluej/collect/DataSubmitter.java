@@ -21,13 +21,19 @@
  */
 package bluej.collect;
 
+import javax.swing.*;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import bluej.Boot;
+import bluej.Config;
+import bluej.extensions.event.ApplicationEvent;
+import bluej.extmgr.ExtensionsManager;
+import bluej.pkgmgr.Project;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -54,7 +60,7 @@ class DataSubmitter
         //For testing: "http://localhost:3000/master_events";
 
     
-    private static volatile boolean givenUp = false;
+    private static AtomicBoolean givenUp = new AtomicBoolean(false);
     
     /**
      * isRunning is only touched while synchonized on queue
@@ -82,7 +88,7 @@ class DataSubmitter
     static void submitEvent(Event evt)
     {
         //This thread only reads the boolean, and is an optimisation:
-        if (givenUp)
+        if (givenUp.get())
             return;
         
         synchronized (queue) {
@@ -117,9 +123,24 @@ class DataSubmitter
             }
             
 
-            if (!givenUp)
+            if (!givenUp.get())
             {
-                givenUp = !postData(evt);
+                givenUp.set(!postData(evt));
+                // If we just gave up on this event:
+                if (givenUp.get())
+                {
+                    SwingUtilities.invokeLater(() -> {
+                        ExtensionsManager.getInstance().delegateEvent(new ApplicationEvent(ApplicationEvent.DATA_SUBMISSION_FAILED_EVENT));
+                        if (Boot.isTrialRecording())
+                        {
+                            // If we just gave up, and we are specifically in a trial, show a dialog
+                            // to the user warning them of this:
+                            if (!Config.isGreenfoot()) // Greenfoot shows the dialog on the Greenfoot VM, only show if we are BlueJ:
+                                new DataSubmissionFailedDialog().setVisible(true);
+                            Project.getProjects().forEach(project -> project.setAllEditorStatus(" - NOT RECORDING"));
+                        }
+                    });
+                }
             }
         }
     }
@@ -233,5 +254,10 @@ class DataSubmitter
     {
         sequenceNum = 1; //Server relies on it starting at 1, do not change
         
+    }
+
+    public static boolean hasGivenUp()
+    {
+        return givenUp.get();
     }
 }

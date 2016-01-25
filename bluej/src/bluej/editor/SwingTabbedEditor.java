@@ -68,6 +68,8 @@ public class SwingTabbedEditor implements TabbedEditorWindow
     private final IdentityHashMap<MoeEditor, MenuInfo> menuBars = new IdentityHashMap<>();
     /** The size to load up with.  May be null */
     private Rectangle startSize;
+    /** Extra string to add to title of window: */
+    private String titleStatus = "";
 
     /**
      * Constructs a SwingTabbedEditor for the given project
@@ -151,9 +153,9 @@ public class SwingTabbedEditor implements TabbedEditorWindow
     {
         final MoeEditor editor = panelToEditor.get(tabPane.getSelectedComponent());
         if (editor != null)
-            window.setTitle(editor.getTitle() + " - " + project.getProjectName());
+            window.setTitle(editor.getTitle() + " - " + project.getProjectName() + titleStatus);
         else
-            window.setTitle(project.getProjectName());
+            window.setTitle(project.getProjectName() + titleStatus);
         project.updateSwingTabbedEditorDestinations();
     }
 
@@ -301,6 +303,12 @@ public class SwingTabbedEditor implements TabbedEditorWindow
     public void updateMoveDestinations()
     {
         editorToHeader.values().forEach(HeaderPanel::updateMoveMenuDestinations);
+    }
+
+    public void setTitleStatus(String status)
+    {
+        this.titleStatus = status;
+        updateTitle();
     }
 
     /**

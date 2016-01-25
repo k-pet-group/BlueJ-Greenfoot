@@ -603,6 +603,11 @@ public @OnThread(Tag.Swing) class DataCollector
         DataCollectorImpl.unknownFrameCommandKey(ct.getPackage().getProject(), ct.getPackage(), enclosingFrameXpath, cursorIndex, key);
     }
 
+    public static boolean hasGivenUp()
+    {
+        return DataSubmitter.hasGivenUp();
+    }
+
     public static class NamedTyped
     {
         private  String name;

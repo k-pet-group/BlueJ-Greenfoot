@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2013,2014,2015  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2013,2014,2015,2016  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,6 +26,8 @@ import java.rmi.RemoteException;
 import java.util.Properties;
 
 import bluej.extensions.SourceType;
+import rmiextension.wrappers.event.RApplicationListener;
+import rmiextension.wrappers.event.RApplicationListenerImpl;
 import rmiextension.wrappers.event.RClassListener;
 import rmiextension.wrappers.event.RCompileListener;
 import rmiextension.wrappers.event.RInvocationListener;
@@ -173,5 +175,8 @@ public interface RBlueJ
         throws RemoteException;
 
     public long getBlueJProcessId()
+        throws RemoteException;
+
+    public void addApplicationListener(RApplicationListener listener)
         throws RemoteException;
 }

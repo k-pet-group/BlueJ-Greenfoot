@@ -2289,6 +2289,12 @@ public class Project implements DebuggerListener, InspectorManager
         props.put(prefix + ".height", String.valueOf(rect.height));
     }
 
+    public void setAllEditorStatus(String status)
+    {
+        swingTabbedEditors.forEach(ste -> ste.setTitleStatus(status));
+        Platform.runLater(() -> fXTabbedEditors.forEach(fte -> fte.setTitleStatus(status)));
+    }
+
     private static enum EditorType { SWING, FX }
 
     private Rectangle recallPosition(EditorType ed, int index)
