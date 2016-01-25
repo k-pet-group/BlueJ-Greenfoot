@@ -83,6 +83,8 @@ public class DataSubmissionFailedDialog extends JDialog
         box.add(message);
         box.add(Box.createRigidArea(new Dimension(1, 10)));
         box.add(ok);
+        // To make the dialog size correctly:
+        box.add(Box.createRigidArea(new Dimension(1, 15)));
         box.setBorder(new EmptyBorder(10, 10, 10, 10));
         setContentPane(box);
         setLocationRelativeTo(null);

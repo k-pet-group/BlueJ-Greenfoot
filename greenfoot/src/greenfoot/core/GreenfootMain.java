@@ -49,8 +49,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.swing.JButton;
-import javax.swing.JOptionPane;
+import javax.swing.*;
 
 import rmiextension.wrappers.RBlueJ;
 import rmiextension.wrappers.RClass;
@@ -187,17 +186,6 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
         currentLoader = ExecServer.getCurrentClassLoader();
         addCompileListener(this);
         try {
-            this.rBlueJ.addApplicationListener(new RApplicationListenerImpl() {
-                @Override
-                public void dataSubmissionFailed() throws RemoteException
-                {
-                    if (Boot.isTrialRecording())
-                    {
-                        new DataSubmissionFailedDialog().setVisible(true);
-                    }
-                }
-            });
-
             // determine the path of the startup project
             File startupProj = rBlueJ.getSystemLibDir();
             startupProj = new File(startupProj, "greenfoot");
@@ -269,6 +257,30 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                             new NewSubWorldAction(frame, true, sourceType, frame.getWorldHandlerDelegate()).actionPerformed(null);
                         }
                     });
+
+                    // We can do this late on, because although the submission failure may have already
+                    // happened, the event is re-issued to new listeners.  And we don't want to accidentally
+                    // show the dialog during load because we may interrupt important processes:
+                    try
+                    {
+                        GreenfootMain.this.rBlueJ.addApplicationListener(new RApplicationListenerImpl() {
+                            @Override
+                            public void dataSubmissionFailed() throws RemoteException
+                            {
+                                if (Boot.isTrialRecording())
+                                {
+                                    SwingUtilities.invokeLater(() -> new DataSubmissionFailedDialog().setVisible(true));
+                                }
+                            }
+                        });
+                    }
+                    catch (RemoteException e)
+                    {
+                        Debug.reportError(e);
+                        // Show the dialog anyway; probably best to restart:
+                        new DataSubmissionFailedDialog().setVisible(true);
+                    }
+
                 }
             });
         }
