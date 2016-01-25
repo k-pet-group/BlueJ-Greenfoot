@@ -34,7 +34,7 @@ import javax.swing.table.DefaultTableCellRenderer;
  * StatusCellRenderer.java
  * Renderer to add colour to the status message of resources inside a StatusFrame
  * @author Bruce Quig
- * @cvs $Id: StatusMessageCellRenderer.java 15301 2016-01-18 19:12:07Z fdlh $
+ * @cvs $Id: StatusMessageCellRenderer.java 15351 2016-01-25 14:42:45Z fdlh $
  */
 public class StatusMessageCellRenderer extends DefaultTableCellRenderer 
 {
@@ -69,7 +69,7 @@ public class StatusMessageCellRenderer extends DefaultTableCellRenderer
     {
         super.getTableCellRendererComponent(jTable, object, isSelected, hasFocus, row, column);
         
-        int remoteStatusColumn = jTable.getColumnModel().getColumnIndex(Config.getString("team.status.remoteStatus"));
+        int remoteStatusColumn = getRemoteStatusColumnIndex(jTable);
         
         int status = getStatus(jTable, row, LOCAL);
         int remoteStatus = getStatus(jTable, row, REMOTE);
@@ -91,7 +91,9 @@ public class StatusMessageCellRenderer extends DefaultTableCellRenderer
         Object val;
         
         int localStatusColumn = table.getColumnModel().getColumnIndex(Config.getString("team.status.status"));
-        int remoteStatusColumn = table.getColumnModel().getColumnIndex(Config.getString("team.status.remoteStatus"));
+        
+        int remoteStatusColumn = getRemoteStatusColumnIndex(table);
+        
         if (location == LOCAL){
             val = table.getModel().getValueAt(row, localStatusColumn);
         } else {
@@ -153,5 +155,20 @@ public class StatusMessageCellRenderer extends DefaultTableCellRenderer
         }
         
         return color;
+    }
+    
+    /**
+     * return the column index of the remote status, if this is a distributed VCS
+     * @param jTable
+     * @return the column number, -1 if this is not a DCVS.
+     */
+    private int getRemoteStatusColumnIndex(JTable jTable)
+    {
+        int result = -1;
+
+        if (project.getRepository().isDVCS()) {
+            result = jTable.getColumnModel().getColumnIndex(Config.getString("team.status.remoteStatus"));
+        }
+        return result;
     }
 }
