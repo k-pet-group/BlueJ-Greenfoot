@@ -196,7 +196,7 @@ public class GreenfootFrame extends JFrame
     
     // "Watchdog": make sure user code (world initialisation etc) doesn't stall for too long
     private Timer timer;
-    private final static int WORLD_INITIALISING_TIMEOUT = 4000;
+    private final static int EXECUTION_TIMEOUT = 4000;
     private long startedInitialisingAt;
     
     // Count of things we are executing for user (ideally is only 0 or 1).
@@ -474,6 +474,19 @@ public class GreenfootFrame extends JFrame
                         worldCanvas.requestFocusInWindow();
                     });
                 }
+                else if (e.getType() == SimulationEvent.NEW_ACT_ROUND) {
+                    // New act round - will be followed by another NEW_ACT_ROUND event if the simulation
+                    // is running, or a STOPPED event if the act round finishes and the simulation goes
+                    // back to the stopped state.
+                    EventQueue.invokeLater(() -> {
+                        resetExecutionTimer();
+                    });
+                }
+                else if (e.getType() == SimulationEvent.STOPPED) {
+                    EventQueue.invokeLater(() -> {
+                        stopExecutionTimer();
+                    });
+                }
             }
         });
 
@@ -582,6 +595,7 @@ public class GreenfootFrame extends JFrame
         
         JPanel executionControl = new JPanel();
         executionTwirler = new ExecutionTwirler();
+        executionTwirler.setEnabled(false);
         executionControl.add(executionTwirler);
         Dimension d = executionControl.getPreferredSize();
         d.width = 100;
@@ -1045,6 +1059,11 @@ public class GreenfootFrame extends JFrame
         this.resizeWhenPossible = b;
     }
     
+    /**
+     * Update the world background / display area according to a variety of possible
+     * conditions (no world class, no compilable world class, error during world
+     * constructor invocation, world initialisation taking too long, etc).
+     */
     public void updateBackgroundMessage()
     {
         String message = "";
@@ -1087,6 +1106,10 @@ public class GreenfootFrame extends JFrame
                         tooLongRestartButton.setVisible(true);
                     }
                     else {
+                        // "Click this window to create the world". This is currently only displayed
+                        // in the rare case that Greenfoot was started with no compilable world,
+                        // and the user has then edited the world class to make it compilable (but
+                        // has not yet focused the main window).
                         message = Config.getString("centrePanel.message.notFocused");
                     }
                 }
@@ -1115,7 +1138,7 @@ public class GreenfootFrame extends JFrame
     public void beginExecution()
     {
         if (executionCount == 0) {
-            resetTimer(); // Start timer for this execution
+            resetExecutionTimer(); // Start timer for this execution
         }
         executionCount++;
     }
@@ -1126,19 +1149,19 @@ public class GreenfootFrame extends JFrame
     public void endExecution()
     {
         if (--executionCount == 0) {
-            stopTimer();
+            stopExecutionTimer();
         }
     }
     
     /**
-     * Reset/restart the watchdog timer. Once it times out, the "execution twirler" will be
-     * enabled and (potentially) a message will be displayed in the world background.
+     * Reset/restart the execution watchdog timer. Once it times out, the "execution twirler"
+     * will be enabled and (potentially) a message will be displayed in the world background.
      */
-    public void resetTimer()
+    public void resetExecutionTimer()
     {
         startedInitialisingAt = System.currentTimeMillis();
         if (timer == null) {
-            timer = new Timer(WORLD_INITIALISING_TIMEOUT, new ActionListener() {
+            timer = new Timer(EXECUTION_TIMEOUT, new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e)
                 {
@@ -1153,9 +1176,9 @@ public class GreenfootFrame extends JFrame
     }
     
     /**
-     * Stop the watchdog timer.
+     * Stop the execution watchdog timer.
      */
-    public void stopTimer()
+    public void stopExecutionTimer()
     {
         timer.stop();
         executionTwirler.setEnabled(false);
@@ -1167,7 +1190,7 @@ public class GreenfootFrame extends JFrame
     public boolean initialisingForTooLong()
     {
         return worldHandlerDelegate.initialising()
-                && System.currentTimeMillis() > startedInitialisingAt + WORLD_INITIALISING_TIMEOUT;
+                && System.currentTimeMillis() > startedInitialisingAt + EXECUTION_TIMEOUT;
     }
     
     // ----------- WindowListener interface -----------
