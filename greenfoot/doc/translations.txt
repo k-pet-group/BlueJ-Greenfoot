@@ -12,11 +12,15 @@ czech			3.0.0			 x             all Rev: 14946               Zdeněk Chalupský <
 dutch			3.0.0            x             all Rev: 14946               Renske Smetsers-Weeda <renske.weeda@gmail.com>
 french          1.5.0            x    labels+dialog+frames, Rev: 14946      Pierre Lefebvre and Denis Bureau <D.Bureau@esiee.fr>
 german          3.0.0            x             all Rev: 14946               stefan mueller <stefan.mueller@hof-university.de>; Michael Kolling
+                                                                             Matthias Taulien <mail@m-taulien.de> offered help translation
+
 greek           1.5.0            x    labels+dialog+frames, Rev: 14946      Elevtherios Chrysochoidis <it1370@uom.edu.gr>
 italian         3.0.0            x             all Rev: 14924               Stefano Federici <s_federici@yahoo.com>
 korean          2.1.2*                             labels
 polish          3.0.0            x             all Rev: 14946               Przemysław Adam Śmiejek <informatyk@zso5.zabrze.pl>
 portuguese      3.0.0            x             all Rev: 14946               Paulo Abadie <paulo.abadie@gmail.com> and Fabio Hedayioglu <F.D.L.Hedayioglu@kent.ac.uk>
+                                                                             Angelo de Oliveira <mrxyztplk@gmail.com> offered help translation
+
 russian         1.5.5
 spanish         1.5.5            x    labels+dialog+frames, Rev: 14946      Cabral Ignacio (<icabral@itesm.mx> or <nacho.cabral@gmail.com>)
                                                                               José Ramón Puente Lerma <puenram@gmail.com> offered help translation
@@ -25,7 +29,6 @@ spanish         1.5.5            x    labels+dialog+frames, Rev: 14946      Cabr
 
 IMPORTANT:
 When adding a new translation, it should be added in the build scripts: package/build.xml and package/greenfoot-build.xml
-
 It should also be added to greenfoot.defs so users can see the available languages.
 
 
