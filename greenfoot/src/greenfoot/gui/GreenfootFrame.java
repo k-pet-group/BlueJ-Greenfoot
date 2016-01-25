@@ -474,7 +474,8 @@ public class GreenfootFrame extends JFrame
                         worldCanvas.requestFocusInWindow();
                     });
                 }
-                else if (e.getType() == SimulationEvent.NEW_ACT_ROUND) {
+                else if (e.getType() == SimulationEvent.NEW_ACT_ROUND
+                        || e.getType() == SimulationEvent.QUEUED_TASK_BEGIN) {
                     // New act round - will be followed by another NEW_ACT_ROUND event if the simulation
                     // is running, or a STOPPED event if the act round finishes and the simulation goes
                     // back to the stopped state.
@@ -482,7 +483,8 @@ public class GreenfootFrame extends JFrame
                         resetExecutionTimer();
                     });
                 }
-                else if (e.getType() == SimulationEvent.STOPPED) {
+                else if (e.getType() == SimulationEvent.STOPPED
+                        || e.getType() == SimulationEvent.QUEUED_TASK_END) {
                     EventQueue.invokeLater(() -> {
                         stopExecutionTimer();
                     });

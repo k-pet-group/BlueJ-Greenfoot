@@ -96,6 +96,8 @@ public class Simulation extends Thread
     private SimulationEvent debuggerPausedEvent;
     private SimulationEvent debuggerResumedEvent;
     private SimulationEvent newActRoundEvent;
+    private SimulationEvent taskBeginEvent;
+    private SimulationEvent taskEndEvent;
     
     private static Simulation instance;
 
@@ -154,6 +156,8 @@ public class Simulation extends Thread
         debuggerPausedEvent = new SimulationEvent(this, SimulationEvent.DEBUGGER_PAUSED);
         debuggerResumedEvent = new SimulationEvent(this, SimulationEvent.DEBUGGER_RESUMED);
         newActRoundEvent = new SimulationEvent(this, SimulationEvent.NEW_ACT_ROUND);
+        taskBeginEvent = new SimulationEvent(this, SimulationEvent.QUEUED_TASK_BEGIN);
+        taskEndEvent = new SimulationEvent(this, SimulationEvent.QUEUED_TASK_END);
         setPriority(Thread.MIN_PRIORITY);
         paused = true;
         speed = 50;
@@ -491,6 +495,8 @@ public class Simulation extends Thread
                     lock.writeLock().lock();
                 }
                 
+                fireSimulationEvent(taskBeginEvent);
+                
                 try {
                     // This may run user code, which might throw an exception.
                     r.run();
@@ -502,6 +508,8 @@ public class Simulation extends Thread
                 if (world != null) {
                     lock.writeLock().unlock();
                 }
+                
+                fireSimulationEvent(taskEndEvent);
             }
             finally {
                 

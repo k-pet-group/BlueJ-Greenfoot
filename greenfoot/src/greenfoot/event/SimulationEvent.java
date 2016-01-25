@@ -68,6 +68,16 @@ public class SimulationEvent extends EventObject
      * Execution of a new "Act" round has commenced.
      */
     public final static int NEW_ACT_ROUND = 7;
+    
+    /**
+     * A task was queued to run on the simulation thread and is now being run.
+     */
+    public final static int QUEUED_TASK_BEGIN = 8;
+    
+    /**
+     * A task was queued to run on the simulation thread and has now finished.
+     */
+    public final static int QUEUED_TASK_END = 9;
 
     private int type;
 
