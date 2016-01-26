@@ -25,6 +25,7 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.FilteredImageSource;
@@ -32,16 +33,22 @@ import java.awt.image.ImageFilter;
 import java.awt.image.ImageProducer;
 import java.awt.image.WritableRaster;
 import java.io.IOException;
+import java.rmi.RemoteException;
 
 import javax.imageio.ImageIO;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.GrayFilter;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JPopupMenu;
 import javax.swing.Timer;
 
+import bluej.Config;
+import bluej.extensions.ProjectNotOpenException;
 import greenfoot.util.GreenfootUtil;
 
 /**
@@ -51,6 +58,8 @@ import greenfoot.util.GreenfootUtil;
  */
 public class ExecutionTwirler extends JButton
 {
+    private GreenfootFrame gfFrame;
+    
     private Image[] imgs = new Image[5];
     private int currentImg = 0;
     private boolean previouslyEnabled = false;
@@ -64,9 +73,10 @@ public class ExecutionTwirler extends JButton
     /**
      * Constructor for ExecutionTwirler.
      */
-    public ExecutionTwirler()
+    public ExecutionTwirler(GreenfootFrame gfFrame)
     {
         super();
+        this.gfFrame = gfFrame;
         
         BufferedImage img = null;
 
@@ -131,6 +141,10 @@ public class ExecutionTwirler extends JButton
                 }
             }
         });
+        
+        addActionListener((event) -> {
+            createPopup();
+        });
     }
     
     /**
@@ -180,5 +194,40 @@ public class ExecutionTwirler extends JButton
     {
         if (timer != null) timer.stop();
         imgLabel.setIcon(new ImageIcon(greyImage));
+    }
+    
+    /**
+     * Create and show a popup menu with various actions (restart Greenfoot, show debugger)
+     */
+    public void createPopup()
+    {
+        JPopupMenu menu = new JPopupMenu();
+        
+        Action restart = new AbstractAction(Config.getString("executionDisplay.restart")) {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                try {
+                    gfFrame.getProject().getRProject().restartVM();
+                } catch (RemoteException re) {
+                    throw new RuntimeException(re);
+                } catch (ProjectNotOpenException e1) {
+                    // This should be impossible. If the project is closed,
+                    // we can't be executing...
+                }
+            }
+        };
+
+        Action debug = new AbstractAction(Config.getString("executionDisplay.openDebugger")) {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                gfFrame.getProject().toggleExecControls();
+            }
+        };
+        
+        menu.add(debug);
+        menu.add(restart);
+        menu.show(this, 0, getHeight());
     }
 }

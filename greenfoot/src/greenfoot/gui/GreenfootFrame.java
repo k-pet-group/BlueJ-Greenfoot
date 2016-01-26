@@ -596,7 +596,7 @@ public class GreenfootFrame extends JFrame
         // Execution control
         
         JPanel executionControl = new JPanel();
-        executionTwirler = new ExecutionTwirler();
+        executionTwirler = new ExecutionTwirler(this);
         executionTwirler.setEnabled(false);
         executionControl.add(executionTwirler);
         Dimension d = executionControl.getPreferredSize();
