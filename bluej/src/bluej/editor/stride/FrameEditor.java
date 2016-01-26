@@ -963,22 +963,17 @@ public class FrameEditor implements Editor
                     JavaFXUtil.onceNotNull(javaSource, js -> {
                         for (QueuedError e : queueCopy)
                         {
-                            if (!js.handleError((int) e.startLine, (int) e.startColumn,
-                                    (int) e.endLine, (int) e.endColumn, e.message, false, e.identifier))
-                            {
-                                Debug.message("Retrying showing error after saving");
-                                Platform.runLater(() -> {
-                                    if (_saveFX().exception == null)
-                                    {
-                                        boolean result = javaSource.get().handleError((int) e.startLine, (int) e.startColumn, (int) e.endLine, (int) e.endColumn, e.message, true, e.identifier);
-                                        Debug.message("Retrying: " + (result ? "success" : "failure"));
-                                    }
-                                });
-                            }
+                            // Use runlater because we might be mid-save, so need to wait for current code to finish:
+                            Platform.runLater(() -> {
+                                if (!js.handleError((int) e.startLine, (int) e.startColumn,
+                                        (int) e.endLine, (int) e.endColumn, e.message, false, e.identifier))
+                                {
+                                    Debug.message("Could not display queued error");
+                                }
+                            });
                         }
-                        // Eugh.  We need one runLater to account for the fact that adding errors uses a runLater,
-                        // and a second to be after any retries above:
-                        Platform.runLater(() -> Platform.runLater(() -> panel.updateErrorOverviewBar(false)));
+                        // We need to use runLater to account for the fact that adding errors uses a runLater:
+                        Platform.runLater(() -> panel.updateErrorOverviewBar(false));
                     });
                 }
             });
