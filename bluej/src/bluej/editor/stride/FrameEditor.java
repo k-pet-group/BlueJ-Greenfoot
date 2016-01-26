@@ -955,17 +955,25 @@ public class FrameEditor implements Editor
 
         if (show)
         {
+            // We need this runLater to make sure we only run after we've finished setting up the editor
+            // (and it case it uses any runLaters)
             Platform.runLater(() -> {
+                // We only need to worry about queued errors from the latest compile:
                 if (!queuedErrors.isEmpty())
                 {
+                    // First, save, so that the AST elements all have the correct references back to
+                    // the GUI frames which generated them:
                     Exception ex = _saveFX().exception;
                     if (ex != null)
                     {
                         Debug.reportError(ex);
                         return;
                     }
+                    // Take a copy of the queue so we can leave it empty, but still use the queue in our listener:
                     final ArrayList<QueuedError> queueCopy = new ArrayList<>(queuedErrors);
                     queuedErrors.clear();
+                    // We can only show the errors once the Java source is available.  I believe it will now
+                    // (after r15373) actually always be available, but that means the code will just run immediately so that's fine:
                     JavaFXUtil.onceNotNull(javaSource, js -> {
                         for (QueuedError e : queueCopy)
                         {
