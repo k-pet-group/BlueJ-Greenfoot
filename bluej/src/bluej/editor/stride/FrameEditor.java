@@ -958,6 +958,12 @@ public class FrameEditor implements Editor
             Platform.runLater(() -> {
                 if (!queuedErrors.isEmpty())
                 {
+                    Exception e = _saveFX().exception;
+                    if (e != null)
+                    {
+                        Debug.reportError(e);
+                        return;
+                    }
                     final ArrayList<QueuedError> queueCopy = new ArrayList<>(queuedErrors);
                     queuedErrors.clear();
                     JavaFXUtil.onceNotNull(javaSource, js -> {
