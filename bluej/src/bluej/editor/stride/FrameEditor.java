@@ -958,10 +958,10 @@ public class FrameEditor implements Editor
             Platform.runLater(() -> {
                 if (!queuedErrors.isEmpty())
                 {
-                    Exception e = _saveFX().exception;
-                    if (e != null)
+                    Exception ex = _saveFX().exception;
+                    if (ex != null)
                     {
-                        Debug.reportError(e);
+                        Debug.reportError(ex);
                         return;
                     }
                     final ArrayList<QueuedError> queueCopy = new ArrayList<>(queuedErrors);
