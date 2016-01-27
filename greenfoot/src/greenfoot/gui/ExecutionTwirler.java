@@ -49,6 +49,7 @@ import javax.swing.Timer;
 
 import bluej.Config;
 import bluej.extensions.ProjectNotOpenException;
+import greenfoot.core.GProject;
 import greenfoot.util.GreenfootUtil;
 
 /**
@@ -222,7 +223,9 @@ public class ExecutionTwirler extends JButton
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                gfFrame.getProject().toggleExecControls();
+                GProject gproj = gfFrame.getProject();
+                gproj.toggleExecControls();
+                gproj.haltExecution();
             }
         };
         

@@ -374,6 +374,12 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
         });
     }
     
+    @Override
+    public void haltExecution() throws RemoteException
+    {
+        RProjectImpl.this.simulationThread.get().halt();
+    }
+    
     /**
      * Set the Greenfoot simulation thread.
      */

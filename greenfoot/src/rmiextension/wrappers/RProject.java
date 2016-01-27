@@ -141,13 +141,21 @@ public interface RProject
         throws RemoteException;
 
     /**
-     * @return Whether or not the debugger window is currently visible
+     * Check whether or not the debugger window is currently visible
+     * @return true if the debugger window is visible
      * @throws RemoteException   if an RMI error occurs
      * @throws ProjectNotOpenException   if the project is no longer open
      */
     public abstract boolean isExecControlVisible()
         throws RemoteException, ProjectNotOpenException;
 
+    /**
+     * Halt execution of the simulation thread in the User VM.
+     * @throws RemoteException   if an RMI error occurs
+     */
+    public abstract void haltExecution()
+        throws RemoteException;
+    
     /**
      * Restart the debug VM
      * @throws RemoteException   if an RMI error occurs

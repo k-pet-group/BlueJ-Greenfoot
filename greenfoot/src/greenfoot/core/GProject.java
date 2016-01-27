@@ -476,6 +476,19 @@ public class GProject extends RProjectListenerImpl
         }
         return false;
     }
+    
+    /**
+     * Halt execution of the simulation thread.
+     */
+    public void haltExecution()
+    {
+        try {
+            rProject.haltExecution();
+        }
+        catch (RemoteException ex) {
+            Debug.reportError("RemoteException when halting execution", ex);
+        }
+    }
 
     public void recordEvent(GreenfootInterfaceEvent event)
     {
