@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -186,7 +186,10 @@ public class TryFrame extends SandwichCanvasesFrame
             @Override
             public TryFrame createBlock(InteractionManager editor, List<Frame> contents)
             {
-                return new TryFrame(editor, contents);
+                final TryFrame tryFrame = new TryFrame(editor, contents);
+                tryFrame.addIntermediateCanvas();
+                tryFrame.getFirstCanvas().getFirstCursor().requestFocus();
+                return tryFrame;
             }
 
             @Override
