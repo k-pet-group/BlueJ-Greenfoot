@@ -733,6 +733,16 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
         return Collections.emptyList();
     }
 
+    /**
+     * Allows blocks to respond to a keypress when they are selected.
+     * e.g. selecting multiple vars and then pressing a key to make them static.
+     * By default, no selection modifiers: override to specify.
+     */
+    public List<ExtensionDescription> getAvailableSelectionModifiers()
+    {
+        return Collections.emptyList();
+    }
+
     public final boolean notifyExtensionKey(char c, RecallableFocus rc)
     {
         return notifyKey(c, rc, getAvailableExtensions(), "extension");

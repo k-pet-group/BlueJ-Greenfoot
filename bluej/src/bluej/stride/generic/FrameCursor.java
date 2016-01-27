@@ -157,33 +157,43 @@ public class FrameCursor implements RecallableFocus
 
                     return true;
                 }
+
+                final char keyFinal = key;
+                List<Frame> nonIgnoredFrames = targets.stream().filter(f -> f.isEffectiveFrame()).collect(Collectors.toList());
+                if (nonIgnoredFrames.stream().allMatch(f -> f.getAvailableSelectionModifiers().stream()
+                        .filter(m -> m.getShortcutKey() == keyFinal).count() == 1)) {
+                    nonIgnoredFrames.stream().flatMap(f -> f.getAvailableSelectionModifiers().stream())
+                            .filter(e -> e.getShortcutKey() == keyFinal).forEach(e -> e.activate());
+                    return true;
+                }
+
                 // Toggle variable final
                 if (key == 'n') {
-                    List<Frame> nonIgnoredFrames = targets.stream().filter(f -> f.isEffectiveFrame()).collect(Collectors.toList());
-                    if (nonIgnoredFrames.stream().allMatch(f -> f instanceof VarFrame)) {
-                        //TODO This should be refactored
-                        new ToggleBooleanProperty(editor, VarFrame.TOGGLE_FINAL_VAR, VarFrame.FINAL_NAME).activate(nonIgnoredFrames);
-                        return true;
-                    }
-                    if (nonIgnoredFrames.stream().allMatch(f -> f instanceof NormalMethodFrame)) {
+                    List<Frame> nonIgnoredFrames1 = targets.stream().filter(f -> f.isEffectiveFrame()).collect(Collectors.toList());
+//                    if (nonIgnoredFrames1.stream().allMatch(f -> f instanceof VarFrame)) {
+//                        //TODO This should be refactored
+//                        new ToggleBooleanProperty(editor, VarFrame.TOGGLE_FINAL_VAR, VarFrame.FINAL_NAME).activate(nonIgnoredFrames1);
+//                        return true;
+//                    }
+                    if (nonIgnoredFrames1.stream().allMatch(f -> f instanceof NormalMethodFrame)) {
                         //TODO This should be refactored
                         new ToggleBooleanProperty(editor, NormalMethodFrame.TOGGLE_FINAL_METHOD, NormalMethodFrame.FINAL_NAME)
-                                .activate(nonIgnoredFrames);
+                                .activate(nonIgnoredFrames1);
                         return true;
                     }
                 }
                 // Toggle variable static
                 if (key == 's') {
-                    List<Frame> nonIgnoredFrames = targets.stream().filter(f -> f.isEffectiveFrame()).collect(Collectors.toList());
-                    if (nonIgnoredFrames.stream().allMatch(f -> f instanceof VarFrame && ((VarFrame)f).isField(getParentCanvas()))) {
-                        //TODO This should be refactored
-                        new ToggleBooleanProperty(editor, VarFrame.TOGGLE_STATIC_VAR, VarFrame.STATIC_NAME).activate(nonIgnoredFrames);
-                        return true;
-                    }
-                    if (nonIgnoredFrames.stream().allMatch(f -> f instanceof NormalMethodFrame)) {
+                    List<Frame> nonIgnoredFrames2 = targets.stream().filter(f -> f.isEffectiveFrame()).collect(Collectors.toList());
+//                    if (nonIgnoredFrames2.stream().allMatch(f -> f instanceof VarFrame && ((VarFrame)f).isField(getParentCanvas()))) {
+//                        //TODO This should be refactored
+//                        new ToggleBooleanProperty(editor, VarFrame.TOGGLE_STATIC_VAR, VarFrame.STATIC_NAME).activate(nonIgnoredFrames2);
+//                        return true;
+//                    }
+                    if (nonIgnoredFrames2.stream().allMatch(f -> f instanceof NormalMethodFrame)) {
                         //TODO This should be refactored
                         new ToggleBooleanProperty(editor, NormalMethodFrame.TOGGLE_STATIC_METHOD, NormalMethodFrame.STATIC_NAME)
-                                .activate(nonIgnoredFrames);
+                                .activate(nonIgnoredFrames2);
                         return true;
                     }
                 }

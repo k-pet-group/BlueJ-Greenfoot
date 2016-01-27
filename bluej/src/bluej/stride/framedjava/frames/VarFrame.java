@@ -452,6 +452,14 @@ public class VarFrame extends SingleLineFrame
         return extensions;
     }
 
+    @Override
+    public List<ExtensionDescription> getAvailableSelectionModifiers()
+    {
+        final List<ExtensionDescription> modifiers = new ArrayList<>(super.getAvailableSelectionModifiers());
+        addStaticFinalToList(modifiers);
+        return modifiers;
+    }
+
     private void addStaticFinalToList(List<ExtensionDescription> actions)
     {
         actions.add(new ExtensionDescription('n', "Add/Remove final", () ->
