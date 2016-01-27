@@ -121,7 +121,7 @@ public class WorldHandlerDelegateIDE
 
         ObjectWrapper.createMethodMenuItems(menu, obj.getClass(),
                 new WorldInvokeListener(frame, obj, this, inspectorManager, this, project),
-                LocalObject.getLocalObject(obj), null, false);
+                LocalObject.getLocalObject(obj), "", false);
 
         // "inspect" menu item
         JMenuItem m = getInspectMenuItem(obj);
@@ -158,7 +158,7 @@ public class WorldHandlerDelegateIDE
         ObjectWrapper.createMethodMenuItems(menu, world.getClass(),
                 new WorldInvokeListener(frame, world, WorldHandlerDelegateIDE.this,
                         inspectorManager, this, project),
-                LocalObject.getLocalObject(world), null, false);
+                LocalObject.getLocalObject(world), "", false);
         // "inspect" menu item
         JMenuItem m = getInspectMenuItem(world);
 
