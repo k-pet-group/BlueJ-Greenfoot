@@ -833,13 +833,14 @@ public class FrameCursor implements RecallableFocus
     
     public EditableSlot.MenuItems getMenuItems(boolean contextMenu)
     {
-        EditableSlot.MenuItems menuItems = new EditableSlot.MenuItems(FXCollections.observableArrayList(new PasteFrameOperation(editor).getMenuItem(contextMenu)));
+        boolean selection = !editor.getSelection().isEmpty();
+        EditableSlot.MenuItems menuItems = new EditableSlot.MenuItems(selection ? FXCollections.observableArrayList() : FXCollections.observableArrayList(new PasteFrameOperation(editor).getMenuItem(contextMenu)));
         if (!editor.getSelection().isEmpty())
         {
             menuItems = EditableSlot.MenuItems.concat( editor.getSelection().getMenuItems(contextMenu), menuItems);
         }
 
-        if (canInsert() && contextMenu)
+        if (canInsert() && contextMenu && !selection)
         {
             Menu insertMenu = new Menu("Insert");
             insertMenu.getItems().addAll(getAcceptedFramesMenuItems());
