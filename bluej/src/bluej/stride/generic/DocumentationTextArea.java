@@ -92,7 +92,7 @@ public class DocumentationTextArea extends ScrollFreeTextArea implements Editabl
         addTextStyleClasses("documentation-text", stylePrefix + "documentation-text");
         //maxHeightProperty().bind(cssMaxHeightProperty);
         setFocusTraversable(true);
-        editor.setupFocusableSlotComponent(this, getNode(), false, Collections.emptyList());
+        editor.setupFocusableSlotComponent(this, super.getNode(), false, Collections.emptyList());
         textProperty().addListener((e, oldValue, newValue) -> {
             if (!hacking) editor.modifiedFrame(frameParent);
         });
