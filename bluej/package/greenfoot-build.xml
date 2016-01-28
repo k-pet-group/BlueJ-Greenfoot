@@ -105,7 +105,7 @@
 	</patternset>
 
 	<target name="pre-dist">
-        <delete dir="install_tmp" />
+        <delete dir="install_tmp" failonerror="false"/>
         <mkdir dir="install_tmp" />
 
         <!-- construct the directory structure we want for the distribution -->

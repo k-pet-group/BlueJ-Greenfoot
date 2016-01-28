@@ -2,6 +2,7 @@
 <Wix xmlns='http://schemas.microsoft.com/wix/2006/wi'>
 
 <!--  To change the version for a new release:
+        Change the Id value in the Product tag (get new GUID from http://www.guidgen.com/).  This is essential to allow upgrades from previous versions.
         Change Version in the Product item here
         Change Version in SOFTWAREVERSION property, below -->
 
@@ -14,7 +15,11 @@
     
     <!-- Embeds all the files to install inside the MSI -->
     <Media Id='1' Cabinet='BlueJ.cab' EmbedCab='yes' />
-    
+
+	<Property Id="REINSTALLMODE" Value="amus" />
+    <!-- Be fairly permissive, don't want to get in the way of the user: -->
+    <MajorUpgrade AllowDowngrades="yes" />
+
     <Property Id="ALLUSERS" Secure="yes" />
     
     <Property Id="SOFTWARE" Value="BlueJ"/>
