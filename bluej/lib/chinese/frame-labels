@@ -1,0 +1,54 @@
+# Frame Catalogue:
+frame.catalogue.title=\u5907\u5fd8\u5f55
+frame.catalogue.commands=\u547d\u4ee4
+frame.catalogue.shortcuts=\u5feb\u6377\u952e
+frame.catalogue.selection=\u56f4\u7ed5\u9009\u533a
+frame.catalogue.codecompletion=\u4ee3\u7801\u8865\u5168
+frame.catalogue.codecompletion.hide=\u9690\u85cf\u4ee3\u7801\u8865\u5168
+frame.catalogue.codecompletion.up=\u4e0a\u79fb
+frame.catalogue.codecompletion.down=\u4e0b\u79fb
+frame.catalogue.codecompletion.select=\u9009\u62e9
+
+frame.catalogue.birdseye.exit=\u9000\u51fa\u89c6\u56fe
+frame.catalogue.birdseye.up=\u4e0a\u79fb
+frame.catalogue.birdseye.down=\u4e0b\u79fb
+frame.catalogue.birdseye.select=\u9009\u62e9
+
+frame.catalogue.examples=\u793a\u4f8b
+
+
+# Error Bar:
+frame.error.overview.bar.error.single=\u9519\u8bef
+frame.error.overview.bar.error.plural=\u9519\u8bef
+frame.error.overview.bar.error.none=\u6ca1\u6709\u9519\u8bef
+frame.error.overview.bar.error.editing=\u7f16\u8f91
+
+# Class menu:
+frame.classmenu.title=\u7c7b
+frame.classmenu.close=\u5173\u95ed
+frame.classmenu.move=\u79fb\u52a8\u6807\u7b7e...
+frame.classmenu.move.new=\u8f6c\u81f3\u65b0\u7a97\u53e3
+frame.classmenu.move.existing=\u7a97\u53e3
+
+# Web/documentation menu
+frame.webmenu.title=\u6587\u6863
+
+# Edit menu:
+frame.editmenu.title=\u7f16\u8f91
+
+# Slot menu:
+frame.slot.cut=\u526a\u5207
+frame.slot.copy=\u590d\u5236
+frame.slot.paste=\u7c98\u8d34
+frame.slot.recent=\u6700\u8fd1\u7684\u503c
+
+
+# View menu:
+frame.viewmenu.title=\u89c6\u56fe
+frame.viewmenu.nextError=\u4e0b\u4e00\u5904\u9519\u8bef
+frame.viewmenu.cheatsheet=\u5907\u5fd8\u5f55
+frame.viewmenu.birdseye=\u9e1f\u77b0\u6548\u679c
+frame.viewmenu.java=Java\u4ee3\u7801\u9884\u89c8
+frame.viewmenu.fontbigger=\u653e\u5927\u5b57\u4f53
+frame.viewmenu.fontsmaller=\u7f29\u5c0f\u5b57\u4f53
+frame.viewmenu.fontdefault=\u91cd\u7f6e\u5b57\u4f53\u5927\u5c0f
