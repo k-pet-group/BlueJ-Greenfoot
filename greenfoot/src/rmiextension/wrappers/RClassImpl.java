@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2014,2015  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2014,2015,2016  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -45,6 +45,7 @@ import bluej.stride.framedjava.ast.Loader;
 import bluej.stride.framedjava.elements.CallElement;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.NormalMethodElement;
+import bluej.utility.Debug;
 
 /**
  * Implementation of the remote class interface.
@@ -73,9 +74,17 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
 
     @Override
     public void compile(boolean waitCompileEnd, boolean forceQuiet)
-        throws ProjectNotOpenException, PackageNotFoundException, CompilationNotStartedException
     {
-        bClass.compile(waitCompileEnd, forceQuiet);
+        EventQueue.invokeLater(() -> {
+            try
+            {
+                bClass.compile(waitCompileEnd, forceQuiet);
+            }
+            catch (ProjectNotOpenException | PackageNotFoundException | CompilationNotStartedException e)
+            {
+                Debug.reportError(e);
+            }
+        });
     }
     
     @Override
