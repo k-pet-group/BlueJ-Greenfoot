@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2010-2015  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2010-2015,2016  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -39,6 +39,7 @@ import bluej.stride.framedjava.elements.CallElement;
 import bluej.stride.framedjava.elements.NormalMethodElement;
 import bluej.utility.Debug;
 import java.rmi.RemoteException;
+import java.util.Optional;
 
 /**
  * Action to "save the world" - i.e. write out code which restores the world and the
@@ -90,11 +91,18 @@ public class SaveWorldAction extends AbstractAction implements CompiledStateList
 
     /**
      * Check whether the action should currently be enabled.
+     *
+     * @param compiledState The compiled state of the last world class, if we know it.
+     *                      Otherwise, we use the isCompiled method.  We don't just always
+     *                      use isCompiled because it might not be up to date yet.
      */
-    private synchronized boolean shouldBeEnabled()
+    private synchronized boolean shouldBeEnabled(Optional<Boolean> compiledState)
     {
         GClass lastWorld = getLastWorldGClass();
-        return recordingValid && lastWorld != null && lastWorld.isCompiled();
+
+        boolean compiled = compiledState.orElse(lastWorld == null ? false : lastWorld.isCompiled());
+
+        return recordingValid && lastWorld != null && compiled;
     }
 
     /**
@@ -111,15 +119,15 @@ public class SaveWorldAction extends AbstractAction implements CompiledStateList
                 @Override
                 public void run()
                 {
-                    updateEnabledStatus();
+                    updateEnabledStatus(Optional.empty());
                 }
             });
         }        
     }
     
-    private void updateEnabledStatus()
+    private void updateEnabledStatus(Optional<Boolean> compiledState)
     {
-        setEnabled(shouldBeEnabled());
+        setEnabled(shouldBeEnabled(compiledState));
     }
 
     @Override
@@ -129,8 +137,11 @@ public class SaveWorldAction extends AbstractAction implements CompiledStateList
             public void run()
             {
                 GClass lastClass = getLastWorldGClass();
-                if (lastClass != null && gclass.getQualifiedName().equals(lastClass.getQualifiedName())) {            
-                    updateEnabledStatus();
+                if (lastClass != null && gclass.getQualifiedName().equals(lastClass.getQualifiedName())) {
+                    // Because we are in a race with the compiled state update, we can't
+                    // rely on gclass.isCompiled being up to date yet, so we pass in our copy of
+                    // the compiled state:
+                    updateEnabledStatus(Optional.of(compiled));
                 }
             }
         });
