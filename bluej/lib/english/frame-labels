@@ -48,6 +48,7 @@ frame.viewmenu.title=View
 frame.viewmenu.nextError=Next error
 frame.viewmenu.cheatsheet=Cheat sheet
 frame.viewmenu.birdseye=Bird's eye
+frame.viewmenu.birdseye.doc=Bird's eye (with documentation)
 frame.viewmenu.java=Java preview
 frame.viewmenu.fontbigger=Increase font size
 frame.viewmenu.fontsmaller=Decrease font size

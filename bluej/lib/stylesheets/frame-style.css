@@ -230,7 +230,7 @@
 .method-frame {
   -fx-padding: 10 0 0 0;
 }
-.method-frame:bj-birdseye {
+.method-frame:bj-birdseye-nodoc {
   -fx-padding: 0;
 }
 
