@@ -19,6 +19,12 @@ public interface BirdseyeManager
     Node getNodeForRectangle();
 
     /**
+     * Gets the node which should be in view.  This is typically the header row of
+     * the frame which the selection rectangle is drawn around.
+     */
+    Node getNodeForVisibility();
+
+    /**
      * Notify about a click at the given scene X/Y.
      *
      * The return value will be non-null if there was a frame, 

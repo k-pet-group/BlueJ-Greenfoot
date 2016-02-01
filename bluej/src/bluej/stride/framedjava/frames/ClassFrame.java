@@ -828,6 +828,12 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
                 return frame.getNode();
             }
 
+            @Override
+            public Node getNodeForVisibility()
+            {
+                return getHeaderNodeOf(frame);
+            }
+
             private Frame getFrameAt(double sceneX, double sceneY)
             {
                 // Need to see if those coordinates match a rectangle:

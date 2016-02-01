@@ -1756,6 +1756,8 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         
         birdseyeSelection.setFocusTraversable(true);
         birdseyeSelection.requestFocus();
+        
+        ensureNodeVisible(birdseyeManager.getNodeForVisibility());
     }
     
     @OnThread(Tag.Swing)

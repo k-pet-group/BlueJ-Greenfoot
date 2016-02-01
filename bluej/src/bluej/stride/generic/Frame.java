@@ -1452,5 +1452,8 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
         }
     }
 
-
+    protected static Node getHeaderNodeOf(Frame f)
+    {
+        return f.header.getNode();
+    }
 }
