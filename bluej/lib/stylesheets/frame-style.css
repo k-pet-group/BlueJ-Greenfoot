@@ -228,7 +228,7 @@
 
 /* method definitions */
 .method-frame {
-  -fx-padding: 10 0 0 0;
+  -fx-padding: 10 0 2 0;
 }
 .method-frame:bj-birdseye-nodoc {
   -fx-padding: 0;
