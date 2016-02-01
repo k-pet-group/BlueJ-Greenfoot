@@ -1334,7 +1334,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
         // Our local bounds are unreliable because of the way we transform
         // the side label -- therefore use last canvas plus margin:
         final FrameCanvas lastCanvas = canvases.get(canvases.size() - 1);
-        double sceneMaxY = lastCanvas.getSceneBounds().getMaxY() + lastCanvas.getBottomMargin();
+        double sceneMaxY = lastCanvas.getSceneBounds().getMaxY();
 
         Bounds headerRowBounds = getHeaderRow().getSceneBounds();
 
@@ -1364,7 +1364,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
 
         for (int canvasIndex = 0; canvasIndex < canvases.size(); canvasIndex++)
         {
-            Bounds canvasBounds = canvases.get(canvasIndex).getSceneBounds();
+            Bounds canvasBounds = canvases.get(canvasIndex).getContentSceneBounds();
 
             double nextY;
             if (canvasIndex == canvases.size() - 1) {
@@ -1401,10 +1401,9 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
     public double lowestCursorY()
     {
         // Our local bounds are potentially unreliable because of the way we transform
-        // the side label -- therefore use canvas plus margin:
+        // the side label -- therefore use canvas which includes margin:
         FrameCanvas lastCanvas = Utility.findLast(getCanvases()).orElse(null);
-        Bounds canvasBounds = lastCanvas.getSceneBounds();
-        return canvasBounds.getMaxY() + lastCanvas.getBottomMargin();
+        return lastCanvas.getSceneBounds().getMaxY();
     }
 
     /**

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -235,9 +235,8 @@ public abstract class SingleCanvasFrame extends Frame implements CanvasParent
     public double lowestCursorY()
     {
         // Our local bounds are unreliable because of the way we transform
-        // the side label -- therefore use canvas plus margin:
-        Bounds canvasBounds = canvas.getSceneBounds();
-        return canvasBounds.getMaxY() + canvas.getBottomMargin();
+        // the side label -- therefore use canvas which includes margin:
+        return canvas.getSceneBounds().getMaxY();
     }
 
     /*

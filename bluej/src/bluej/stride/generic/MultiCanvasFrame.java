@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -127,7 +127,7 @@ public abstract class MultiCanvasFrame extends Frame implements CanvasParent
         // Our local bounds are unreliable because of the way we transform
         // the side label -- therefore use canvas plus margin:
         Bounds canvasBounds = getLastCanvas().getSceneBounds();
-        return canvasBounds.getMaxY() + getLastCanvas().getBottomMargin();
+        return canvasBounds.getMaxY();
     }
 
     /**
