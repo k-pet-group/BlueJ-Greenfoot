@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -194,7 +194,7 @@ public class SlotLabel implements HeaderItem, Styleable, CopyableHeaderItem
         else
         {
             JavaFXUtil.setPseudoclass("bj-java-preview", newView == Frame.View.JAVA_PREVIEW, l);
-            JavaFXUtil.setPseudoclass("bj-birdseye", newView == Frame.View.BIRDSEYE, l);
+            JavaFXUtil.setPseudoclass("bj-birdseye", newView.isBirdseye(), l);
             animate.addOnStopped(() -> {
                 l.minWidthProperty().unbind();
                 l.setMinWidth(0);

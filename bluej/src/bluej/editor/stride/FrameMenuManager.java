@@ -9,11 +9,16 @@ import bluej.Config;
 import bluej.stride.generic.Frame.View;
 import bluej.stride.slots.EditableSlot.MenuItemOrder;
 import bluej.stride.slots.EditableSlot.SortedMenuItem;
+
+import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Bindings;
+import javafx.beans.binding.StringBinding;
 import javafx.beans.binding.StringExpression;
+import javafx.beans.binding.When;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -46,20 +51,14 @@ class FrameMenuManager extends TabMenuManager
     private EditableSlot.MenuItems editMenuListener;
     private EditableSlot.MenuItems viewMenuListener;
     private List<Menu> menus = null;
-    private final BooleanProperty birdsEyeViewShowing;
     private final BooleanProperty javaPreviewShowing;
 
     FrameMenuManager(FrameEditorTab editor)
     {
         super(editor);
         this.editor = editor;
-        this.birdsEyeViewShowing = new SimpleBooleanProperty(editor.getView() == View.BIRDSEYE);
         this.javaPreviewShowing = new SimpleBooleanProperty(editor.getView() == View.JAVA_PREVIEW);
         // I don't think this should go in a loop with notifyView because it converges (second listener sets property to current value):
-        JavaFXUtil.addChangeListener(birdsEyeViewShowing, b -> {
-            if (b) editor.enableBirdseyeView();
-            else editor.disableBirdseyeView();
-        });
         JavaFXUtil.addChangeListener(javaPreviewShowing, b -> {
             if (b) editor.enableJavaPreview();
             else editor.disableJavaPreview();
@@ -77,7 +76,6 @@ class FrameMenuManager extends TabMenuManager
 
     void notifyView(View v)
     {
-        birdsEyeViewShowing.set(v == View.BIRDSEYE);
         javaPreviewShowing.set(v == View.JAVA_PREVIEW);
     }
 
@@ -90,11 +88,26 @@ class FrameMenuManager extends TabMenuManager
             editMenu.setOnShowing(e -> Utility.ifNotNull(editMenuListener, EditableSlot.MenuItems::onShowing));
             editMenu.setOnHidden(e -> Utility.ifNotNull(editMenuListener, EditableSlot.MenuItems::onHidden));
 
+            MenuItem birdsEyeItem = JavaFXUtil.makeMenuItem("", editor::enableCycleBirdseyeView, new KeyCharacterCombination("d", KeyCombination.SHORTCUT_DOWN));
+            birdsEyeItem.textProperty().bind(new StringBinding()
+            {
+                {super.bind(editor.viewProperty());}
+                @Override
+                protected String computeValue()
+                {
+                    switch (editor.viewProperty().get())
+                    {
+                        case BIRDSEYE_NODOC: return Config.getString("frame.viewmenu.birdseye.doc");
+                        default: return Config.getString("frame.viewmenu.birdseye");
+                    }
+                }
+            });
+            
             ObservableList<MenuItem> standardViewMenuItems = FXCollections.observableArrayList(
                     JavaFXUtil.makeMenuItem(Config.getString("frame.viewmenu.nextError"), editor::nextError, new KeyCharacterCombination("k", KeyCombination.SHORTCUT_DOWN))
                     ,new SeparatorMenuItem()
                     ,JavaFXUtil.makeCheckMenuItem(Config.getString("frame.viewmenu.cheatsheet"), editor.cheatSheetShowingProperty(), new KeyCodeCombination(KeyCode.F1))
-                    ,JavaFXUtil.makeCheckMenuItem(Config.getString("frame.viewmenu.birdseye"), birdsEyeViewShowing, new KeyCharacterCombination("d", KeyCombination.SHORTCUT_DOWN))
+                    ,birdsEyeItem
                     ,JavaFXUtil.makeCheckMenuItem(Config.getString("frame.viewmenu.java"), javaPreviewShowing, new KeyCharacterCombination("j", KeyCombination.SHORTCUT_DOWN))
                     ,new SeparatorMenuItem()
                     ,JavaFXUtil.makeMenuItem(Config.getString("frame.viewmenu.fontbigger"), editor::increaseFontSize, new KeyCharacterCombination("=", KeyCombination.SHORTCUT_DOWN))

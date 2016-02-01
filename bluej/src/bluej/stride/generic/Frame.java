@@ -1444,7 +1444,13 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
 
     public static enum ShowReason { EXCEPTION, LINK_TARGET }
 
-    public static enum View { NORMAL, JAVA_PREVIEW, BIRDSEYE }
+    public static enum View { NORMAL, JAVA_PREVIEW, BIRDSEYE_NODOC, BIRDSEYE_DOC;
+
+        public boolean isBirdseye()
+        {
+            return this == BIRDSEYE_DOC || this == BIRDSEYE_NODOC;
+        }
+    }
 
 
 }

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -351,13 +351,13 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
             }
 
 
-            if (newView == View.BIRDSEYE || oldView == View.BIRDSEYE)
+            if (newView.isBirdseye() || oldView.isBirdseye())
             {
                 animate.getProgress().addListener((prop, oldVal, newVal) -> {
                     // When you cross the half way point:
                     if (oldVal.doubleValue() < 0.5 && newVal.doubleValue() >= 0.5)
                     {
-                        callRow.setVisible(newView != View.BIRDSEYE);
+                        callRow.setVisible(!newView.isBirdseye());
                     }
                 });
             }

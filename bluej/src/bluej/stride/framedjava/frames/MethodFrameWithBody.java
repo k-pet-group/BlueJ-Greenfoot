@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -417,27 +417,30 @@ public abstract class MethodFrameWithBody<T extends MethodWithBodyElement>
     {
         super.setView(oldView, newView, animate);
         paramsPane.setView(newView, animate);
-        if (newView == View.BIRDSEYE || (newView == View.NORMAL && showingBirdseye))
+        if (newView.isBirdseye() != oldView.isBirdseye())
         {
             //TODO
             //getDocumentationTextArea().bindScale(animate);
-            if (newView == View.BIRDSEYE) {
+            if (newView.isBirdseye()) {
                 canvas.shrinkUsing(animate.getProgress().negate().add(1.0));
             }
             else {
                 canvas.growUsing(animate.getProgress());
             }
-
-            // We change the CSS styles halfway through animation so that the step-change in height is less noticeable:
-            animate.getProgress().addListener((a, oldVal, newVal) -> {
-                // When we pass 0.5:
-                if (Math.round(oldVal.doubleValue()) != Math.round(newVal.doubleValue()))
-                {
-                    JavaFXUtil.setPseudoclass("bj-birdseye", newView == View.BIRDSEYE, getNode(), canvas.getNode());
-                }
-            });
-            showingBirdseye = newView == View.BIRDSEYE;
+            
+            showingBirdseye = newView.isBirdseye();
         }
+
+        // We change the CSS styles halfway through animation so that the step-change in height is less noticeable:
+        animate.getProgress().addListener((a, oldVal, newVal) -> {
+            // When we pass 0.5:
+            if (Math.round(oldVal.doubleValue()) != Math.round(newVal.doubleValue()))
+            {
+                JavaFXUtil.setPseudoclass("bj-birdseye", newView.isBirdseye(), getNode(), canvas.getNode());
+                JavaFXUtil.setPseudoclass("bj-birdseye-nodoc", newView == View.BIRDSEYE_NODOC, getNode(), canvas.getNode());
+                JavaFXUtil.setPseudoclass("bj-birdseye-doc", newView == View.BIRDSEYE_DOC, getNode(), canvas.getNode());
+            }
+        });
     }
 
     protected void restoreDetails(MethodWithBodyElement nme)

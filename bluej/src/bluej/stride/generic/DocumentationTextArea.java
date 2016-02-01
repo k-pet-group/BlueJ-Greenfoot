@@ -297,12 +297,15 @@ public class DocumentationTextArea extends ScrollFreeTextArea implements Editabl
     {
         setDisable(newView != View.NORMAL);
 
-        if (newView == View.BIRDSEYE)
+        if (newView == View.BIRDSEYE_NODOC)
         {
+            // The only view in which we show no documentation, and thus we must
+            // have been showing documentation before:
             shrinkToNothingUsing(animate);
         }
-        else if (curView == View.BIRDSEYE)
+        else
         {
+            // vice versa:
             growFromNothingUsing(animate);
         }
         

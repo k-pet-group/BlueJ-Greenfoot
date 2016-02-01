@@ -634,7 +634,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
                     }
                     break;
                 case UP:
-                    if (viewProperty.get() == View.BIRDSEYE)
+                    if (viewProperty.get().isBirdseye())
                     {
                         birdseyeManager.up();
                         calculateBirdseyeRectangle();
@@ -642,7 +642,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
                     }
                     break;
                 case DOWN:
-                    if (viewProperty.get() == View.BIRDSEYE)
+                    if (viewProperty.get().isBirdseye())
                     {
                         birdseyeManager.down();
                         calculateBirdseyeRectangle();
@@ -650,7 +650,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
                     }
                     break;
                 case ENTER:
-                    if (viewProperty.get() == View.BIRDSEYE)
+                    if (viewProperty.get().isBirdseye())
                     {
                         FrameCursor target = birdseyeManager.getCursorForCurrent();
                         disableBirdseyeView(target.getNode(), target::requestFocus);
@@ -662,7 +662,8 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
                     {
                         disableJavaPreview();
                         event.consume();
-                    } else if (viewProperty.get() == View.BIRDSEYE)
+                    }
+                    else if (viewProperty.get().isBirdseye())
                     {
                         disableBirdseyeView();
                         event.consume();
@@ -892,7 +893,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         callback.accept(Optional.empty());
     }
 
-    void enableBirdseyeView()
+    void enableCycleBirdseyeView()
     {
         if (viewProperty.get() == View.NORMAL && topLevelFrame.canDoBirdseye())
         {
@@ -908,21 +909,39 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
             birdseyeDefaultRequestFocusAfter = () -> { if (birdseyeDefaultFocusAfter != null) birdseyeDefaultFocusAfter.requestFocus(); };
             birdseyeManager = topLevelFrame.prepareBirdsEyeView(viewChange);
 
-            viewProperty.set(View.BIRDSEYE);
-            setupAnimateViewTo(View.NORMAL, View.BIRDSEYE, viewChange);
+            viewProperty.set(View.BIRDSEYE_NODOC);
+            setupAnimateViewTo(View.NORMAL, View.BIRDSEYE_NODOC, viewChange);
 
             viewChange.animateOver(Duration.millis(500));
         }
         else if (viewProperty.get() == View.JAVA_PREVIEW)
         {
             disableJavaPreview();
-            enableBirdseyeView();
+            enableCycleBirdseyeView();
+        }
+        else if (viewProperty.get().isBirdseye())
+        {
+            if (viewChange != null)
+                viewChange.stop();
+            viewChange = new SharedTransition();
+
+            viewChange.addOnStopped(() -> JavaFXUtil.runAfter(Duration.millis(50), () -> {
+                calculateBirdseyeRectangle();
+            }));
+            JavaFXUtil.addChangeListener(viewChange.getProgress(), t -> calculateBirdseyeRectangle());
+            
+            View oldView = viewProperty.get();
+            View newView = viewProperty.get() == View.BIRDSEYE_DOC ? View.BIRDSEYE_NODOC : View.BIRDSEYE_DOC;
+            viewProperty.set(newView);
+            setupAnimateViewTo(oldView, newView, viewChange);
+
+            viewChange.animateOver(Duration.millis(500));
         }
     }
 
     void disableBirdseyeView(Node viewTarget, FXRunnable requestFocus)
     {
-        if (viewProperty.get() == View.BIRDSEYE)
+        if (viewProperty.get().isBirdseye())
         {
             if (viewChange != null)
                 viewChange.stop();
@@ -941,8 +960,9 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
                     requestFocus.run();
                 }
             });
+            View oldView = viewProperty.get();
             viewProperty.set(View.NORMAL);
-            setupAnimateViewTo(View.BIRDSEYE, View.NORMAL, viewChange);
+            setupAnimateViewTo(oldView, View.NORMAL, viewChange);
             viewChange.animateOver(Duration.millis(500));
         }
     }
@@ -964,7 +984,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
             setupAnimateViewTo(View.NORMAL, View.JAVA_PREVIEW, viewChange);
             viewChange.animateOver(Duration.millis(3000));
         }
-        else if (viewProperty.get() == View.BIRDSEYE)
+        else if (viewProperty.get().isBirdseye())
         {
             disableBirdseyeView();
             enableJavaPreview();
@@ -1440,7 +1460,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         List<ErrorInfo> errors = getAllErrors()
                 .filter(e -> e.getRelevantNode() != null)
                 .map(e -> new ErrorInfo(e.getMessage(), e.getRelevantNode(), e.visibleProperty(), e.focusedProperty(),
-                        () -> { if (getView() == View.BIRDSEYE)
+                        () -> { if (getView().isBirdseye())
                                     disableBirdseyeView(e.getRelevantNode(), () -> e.jumpTo(this));
                                 else
                                     e.jumpTo(this); }))

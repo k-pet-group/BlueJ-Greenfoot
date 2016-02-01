@@ -1061,7 +1061,7 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
         if (java)
             importTriangleLabel.expandedProperty().set(true);
         // And don't show in bird's eye:
-        else if (newView == View.BIRDSEYE)
+        else if (newView.isBirdseye())
             importTriangleLabel.expandedProperty().set(false);
 
         List<SlotLabel> animateLabels = Arrays.asList(importsLabel, fieldsLabel, constructorsLabel, methodsLabel);

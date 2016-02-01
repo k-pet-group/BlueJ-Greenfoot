@@ -270,8 +270,8 @@ public class FrameCatalogue extends VBox
                 Node content = makeTextItem(shortcut, actionName, false);
                 standardItems.add(content);
                 catalogueUpdate.add((c, codeCompletion, selection, view) -> {
-                    content.setVisible(view == Frame.View.BIRDSEYE);
-                    content.setManaged(view == Frame.View.BIRDSEYE);
+                    content.setVisible(view.isBirdseye());
+                    content.setManaged(view.isBirdseye());
                 });
             };
             addBirdseyeShortcut.accept("Esc", Config.getString("frame.catalogue.birdseye.exit"));
