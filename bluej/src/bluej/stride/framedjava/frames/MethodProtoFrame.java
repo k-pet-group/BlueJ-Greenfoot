@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -30,6 +30,8 @@ import bluej.stride.slots.EditableSlot.MenuItemOrder;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
+import javafx.scene.layout.Region;
+
 import bluej.stride.framedjava.ast.AccessPermission;
 import bluej.stride.framedjava.ast.AccessPermissionFragment;
 import bluej.stride.framedjava.ast.JavadocUnit;
@@ -86,7 +88,9 @@ public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeF
             s.setPromptText("thrown type");
             return s;
         }, () -> getCursorAfter().requestFocus(), editor);
-        
+
+        getHeaderRow().getNode().getStyleClass().add("method-header");
+
         bindHeader();
     }
     

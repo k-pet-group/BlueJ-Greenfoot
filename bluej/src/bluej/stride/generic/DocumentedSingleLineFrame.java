@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -20,6 +20,8 @@
  LICENSE.txt file that accompanied this code.
  */
 package bluej.stride.generic;
+
+import javafx.scene.Node;
 
 import bluej.utility.javafx.SharedTransition;
 
@@ -60,5 +62,32 @@ public abstract class DocumentedSingleLineFrame extends SingleLineFrame
     {
         super.setView(oldView, newView, animate);
         documentationPane.setView(oldView, newView, animate);
+    }
+
+    @Override
+    protected double getRightMarginFor(Node n)
+    {
+        if (n == documentationPane.getNode())
+            return 6.0;
+        else
+            return super.getRightMarginFor(n);
+    }
+
+    @Override
+    protected double getLeftMarginFor(Node n)
+    {
+        if (n == documentationPane.getNode())
+            return 6.0;
+        else
+            return super.getLeftMarginFor(n);
+    }
+
+    @Override
+    protected double getBottomMarginFor(Node n)
+    {
+        if (n == documentationPane.getNode())
+            return 4.0;
+        else
+            return super.getBottomMarginFor(n);
     }
 }
