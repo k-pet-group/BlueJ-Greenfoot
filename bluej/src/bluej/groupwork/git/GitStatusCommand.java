@@ -79,7 +79,7 @@ public class GitStatusCommand extends GitCommand
             s.getMissing().stream().filter(p -> filter.accept(new File(gitPath, p))).map((item) -> new TeamStatusInfo(new File(gitPath, item), "", null, TeamStatusInfo.STATUS_REMOVED)).forEach((teamInfo) -> {
                 returnInfo.add(teamInfo);
             });
-
+            
             s.getUncommittedChanges().stream().filter(p -> filter.accept(new File(gitPath, p))).map((item) -> new TeamStatusInfo(new File(gitPath, item), "", null, TeamStatusInfo.STATUS_NEEDSCOMMIT)).forEach((teamInfo) -> {
                 returnInfo.add(teamInfo);
             });
@@ -131,6 +131,7 @@ public class GitStatusCommand extends GitCommand
                                 //avoid duplicate entries, 
                                 if (status == null) {
                                     //create a new entry.
+                                    teamInfo.setStatus(TeamStatusInfo.STATUS_NEEDSADD);
                                     returnInfo.add(teamInfo);
                                 } else {
                                     //update an exisiting entry.
