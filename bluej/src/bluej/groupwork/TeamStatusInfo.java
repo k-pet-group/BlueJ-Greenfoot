@@ -28,7 +28,7 @@ import java.io.File;
  * Team status information for a file
  * 
  * @author Davin McCall
- * @version $Id: TeamStatusInfo.java 15301 2016-01-18 19:12:07Z fdlh $
+ * @version $Id: TeamStatusInfo.java 15403 2016-02-02 15:27:39Z fdlh $
  */
 public class TeamStatusInfo
 {
@@ -163,6 +163,10 @@ public class TeamStatusInfo
         return status;
     }
     
+    public void setStatus(int s)
+    {
+        status = s;
+    }
     
     public int getRemoteStatus()
     {
