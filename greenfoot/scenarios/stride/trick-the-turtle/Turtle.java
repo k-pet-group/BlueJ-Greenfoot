@@ -1,6 +1,4 @@
 // WARNING: This file is auto-generated and any changes to it will be overwritten
-// WARNING: This file is auto-generated and any changes to it will be overwritten
-// WARNING: This file is auto-generated and any changes to it will be overwritten
 import java.util.*;
 import greenfoot.*;
 import java.awt.Color;
@@ -49,16 +47,21 @@ public class Turtle extends Actor
     }
 
     /**
-     * Check whether we have stumbled upon a worm.
-     * If we have, eat it. If not, do nothing. If we have eaten eight worms, we win.
+     * Check whether we have stumbled upon a lettuce.
+     * If we have, eat it. If not, do nothing. If we have eaten eight lettuces, we win.
      */
     public void lookForLettuce()
     {
         if (isTouching(Lettuce.class)) {
             removeTouching(Lettuce.class);
+            Greenfoot.playSound("slurp.wav");
+            
             lettucesEaten = lettucesEaten + 1;
             getWorld().showText("Lettuces: " + lettucesEaten, 100, 30);
-            Greenfoot.playSound("slurp.wav");
+            if (lettucesEaten == 8) {
+                Greenfoot.playSound("fanfare.wav");
+                Greenfoot.stop();
+            }
         }
     }
 }

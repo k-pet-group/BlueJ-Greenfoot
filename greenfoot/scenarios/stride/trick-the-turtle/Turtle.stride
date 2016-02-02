@@ -55,17 +55,24 @@ If it has, react accordingly.</javadoc>
             </body>
         </method>
         <method access="public" type="void" name="lookForLettuce" enable="true">
-            <javadoc xml:space="preserve">Check whether we have stumbled upon a worm.
-If we have, eat it. If not, do nothing. If we have eaten eight worms, we win.</javadoc>
+            <javadoc xml:space="preserve">Check whether we have stumbled upon a lettuce.
+If we have, eat it. If not, do nothing. If we have eaten eight lettuces, we win.</javadoc>
             <params/>
             <throws/>
             <body>
                 <if condition="isTouching(Lettuce.class)" condition-java="isTouching(Lettuce.class)" enable="true">
                     <ifStatements>
                         <call expression="removeTouching(Lettuce.class)" expression-java="removeTouching(Lettuce.class)" enable="true"/>
+                        <call expression="Greenfoot.playSound(&quot;slurp.wav&quot;)" expression-java="Greenfoot.playSound(&quot;slurp.wav&quot;)" enable="true"/>
+                        <blank/>
                         <assign dest="lettucesEaten" dest-java="lettucesEaten" src="lettucesEaten+1" src-java="lettucesEaten + 1" enable="true"/>
                         <call expression="getWorld().showText(&quot;Lettuces: &quot;+lettucesEaten,100,30)" expression-java="getWorld().showText(&quot;Lettuces: &quot; + lettucesEaten, 100, 30)" enable="true"/>
-                        <call expression="Greenfoot.playSound(&quot;slurp.wav&quot;)" expression-java="Greenfoot.playSound(&quot;slurp.wav&quot;)" enable="true"/>
+                        <if condition="lettucesEaten==8" condition-java="lettucesEaten == 8" enable="true">
+                            <ifStatements>
+                                <call expression="Greenfoot.playSound(&quot;fanfare.wav&quot;)" expression-java="Greenfoot.playSound(&quot;fanfare.wav&quot;)" enable="true"/>
+                                <call expression="Greenfoot.stop()" expression-java="Greenfoot.stop()" enable="true"/>
+                            </ifStatements>
+                        </if>
                     </ifStatements>
                 </if>
             </body>
