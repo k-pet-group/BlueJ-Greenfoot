@@ -103,7 +103,7 @@ bluej.compiler.options=-source 1.8 -target 1.8
 ## if not configured properly.  
 #####################################################################
 
-bluej.vm.args=-Dawt.useSystemAAFontSettings=on -XX:MaxGCPauseMillis=50 -client
+bluej.vm.args=-Dawt.useSystemAAFontSettings=on -XX:MaxGCPauseMillis=50
 
 #####################################################################
 ## External program used for editing images.
