@@ -360,3 +360,6 @@ centrePanel.message.afterRestarting1=Greenfoot has been restarted because the Wo
 centrePanel.message.afterRestarting2=Check the constructor of the World subclass.
 centrePanel.message.missingWorldConstructor1=The world could not be constructed. The world subclass may not
 centrePanel.message.missingWorldConstructor2=have a public constructor without parameters, or may not be public.
+
+executionDisplay.openDebugger=Open debugger
+executionDisplay.restart=Restart Greenfoot
