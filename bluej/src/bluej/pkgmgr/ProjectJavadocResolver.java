@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2010,2011,2014,2015  Michael Kolling and John Rosenberg
+ Copyright (C) 2010,2011,2014,2015,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -43,7 +43,6 @@ import bluej.debugger.gentype.MethodReflective;
 import bluej.debugger.gentype.Reflective;
 import bluej.extensions.SourceType;
 import bluej.parser.ConstructorOrMethodReflective;
-import bluej.parser.InfoParser;
 import bluej.parser.JavadocParser;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.PackageResolver;
@@ -52,7 +51,6 @@ import bluej.utility.Debug;
 import bluej.utility.JavaNames;
 import bluej.views.CallableView;
 import bluej.views.Comment;
-import bluej.views.MethodView;
 import bluej.views.View;
 
 /**
@@ -263,8 +261,7 @@ public class ProjectJavadocResolver implements JavadocResolver
                 }
                 fullEntryName += entName;
                 Reader r = null;
-                try {
-                    ZipFile zipFile = new ZipFile(jarFile);
+                try (ZipFile zipFile = new ZipFile(jarFile)) {
                     ZipEntry zipEnt = zipFile.getEntry(fullEntryName);
                     if (zipEnt != null) {
                         InputStream zeis = zipFile.getInputStream(zipEnt);
@@ -397,8 +394,7 @@ public class ProjectJavadocResolver implements JavadocResolver
                 }
                 fullEntryName += entName;
                 Reader r = null;
-                try {
-                    ZipFile zipFile = new ZipFile(jarFile);
+                try (ZipFile zipFile = new ZipFile(jarFile)) {
                     ZipEntry zipEnt = zipFile.getEntry(fullEntryName);
                     if (zipEnt != null) {
                         InputStream zeis = zipFile.getInputStream(zipEnt);
