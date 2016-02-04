@@ -1,0 +1,17 @@
+FILEVERSION 3,0,2,0
+PRODUCTVERSION 3,0,2,0
+BEGIN
+	BLOCK "StringFileInfo"
+	BEGIN
+		BLOCK "04091200"
+		BEGIN
+			VALUE "CompanyName", "BlueJ group"
+			VALUE "FileDescription", "Greenfoot Launcher"
+			VALUE "FileVersion", "3.0.2"
+			VALUE "InternalName", "greenfoot"
+			VALUE "OriginalFilename", "greenfoot.exe"
+			VALUE "ProductName", "Greenfoot"
+			VALUE "ProductVersion", "3.0.2"
+		END
+	END
+END

@@ -6,26 +6,3 @@ The launcher is built using the MinGW (Minimalist GNU for Windows) environment:
 http://www.mingw.org/
 
 See MINGW.TXT for information on required packages and setup.
-
-Step 1.
--------
-
-Edit the bjlaunch.rc file and correct the version numbers. This needs to be done
-in two places. Make sure to change the information (protected by #ifdef) for the
-correct product, either BlueJ or Greenfoot.
-
-Example settings to look for:
-
-  FILEVERSION 1,5,1,0
-  PRODUCTVERSION 1,5,1,0
-
-            VALUE "FileVersion", "1.5.1"
-            VALUE "InternalName", "greenfoot"
-            VALUE "OriginalFilename", "greenfoot.exe"
-            VALUE "ProductName", "Greenfoot"
-            VALUE "ProductVersion", "1.5.1"
-
-*** Also *** edit the appropriate manifest file - either bjmanifest.xml or
-gfmanifest.xml - and update the version there. It should be a four digit
-version, eg "3.0.4.0" for version 3.0.4, the last digit can be used as a
-build ID or just left at 0.

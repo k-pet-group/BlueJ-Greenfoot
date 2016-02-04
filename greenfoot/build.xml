@@ -47,6 +47,8 @@
 
     <property name="greenfoot.version" value="${greenfoot.version.major}.${greenfoot.version.minor}.${greenfoot.version.micro}${greenfoot.version.suffix}"/>
     <property name="greenfoot.version.nodots" value="${greenfoot.version.major}${greenfoot.version.minor}${greenfoot.version.micro}${greenfoot.version.suffix}"/>
+    <property name="greenfoot.version.commas" value="${greenfoot.version.major},${greenfoot.version.minor},${greenfoot.version.micro}"/>
+    <property name="greenfoot.version.nosuffix" value="${greenfoot.version.major}.${greenfoot.version.minor}.${greenfoot.version.micro}"/>
 
     <!-- Suffix added after version number in output files -->
     <property name="greenfoot.rcsuffix" value=""/>
@@ -937,5 +939,19 @@ LICENSE.txt file that accompanied this code.${line.separator}
             <substitution expression="version: ${greenfoot.version}"/>
             <fileset dir="doc" includes="Greenfoot-README.txt"/>
         </replaceregexp>
+
+        <!-- Update Greenfoot version number in launcher EXE info: -->
+        <replaceregexp byline="true" match="(FILE|PRODUCT)VERSION .*" replace="\1VERSION ${greenfoot.version.commas},0">
+            <fileset dir="${bluej_home}/package/winlaunch" includes="greenfoot-version.rc" />
+        </replaceregexp>
+        <replaceregexp byline="true" match="(\s*VALUE &quot;\w+Version&quot;,).*" replace="\1 &quot;${greenfoot.version.nosuffix}&quot;">
+            <fileset dir="${bluej_home}/package/winlaunch" includes="greenfoot-version.rc" />
+        </replaceregexp>
+
+        <!-- And in the launcher manifest: -->
+        <replaceregexp byline="true" match="(\s*&lt;assemblyIdentity\s+version=)&quot;.*&quot;" replace="\1&quot;${greenfoot.version.nosuffix}.0&quot;">
+            <fileset dir="${bluej_home}/package/winlaunch" includes="gfmanifest.xml" />
+        </replaceregexp>
+
     </target>
 </project>

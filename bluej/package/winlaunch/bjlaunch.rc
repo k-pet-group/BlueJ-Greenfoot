@@ -45,48 +45,13 @@ BEGIN
 END
 
 1 VERSIONINFO
-#ifdef GREENFOOT
-FILEVERSION 3,0,0,0
-PRODUCTVERSION 3,0,0,0
-#else
-FILEVERSION 3,1,6,0
-PRODUCTVERSION 3,1,6,0
-#endif
 FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
 FILEFLAGS 0
 FILEOS VOS_NT
 FILETYPE VFT_APP
 FILESUBTYPE 0
-#ifndef GREENFOOT
-BEGIN
-	BLOCK "StringFileInfo"
-	BEGIN
-		BLOCK "04091200"
-		BEGIN
-			VALUE "CompanyName", "BlueJ group"
-			VALUE "FileDescription", "BlueJ Launcher"
-			VALUE "FileVersion", "3.1.6"
-			VALUE "InternalName", "bluej"
-			VALUE "OriginalFilename", "bluej.exe"
-			VALUE "ProductName", "BlueJ"
-			VALUE "ProductVersion", "3.1.6"
-		END
-	END
-END
+#ifdef GREENFOOT
+#include "greenfoot-version.rc"
 #else
-BEGIN
-	BLOCK "StringFileInfo"
-	BEGIN
-		BLOCK "04091200"
-		BEGIN
-			VALUE "CompanyName", "BlueJ group"
-			VALUE "FileDescription", "Greenfoot Launcher"
-			VALUE "FileVersion", "3.0.0"
-			VALUE "InternalName", "greenfoot"
-			VALUE "OriginalFilename", "greenfoot.exe"
-			VALUE "ProductName", "Greenfoot"
-			VALUE "ProductVersion", "3.0.0"
-		END
-	END
-END
+#include "bluej-version.rc"
 #endif

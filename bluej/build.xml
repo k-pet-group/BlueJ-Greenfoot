@@ -21,6 +21,8 @@
     <property name="bluej.version.nonspace.suffix" value="" />
     
     <property name="bluej.version" value="${bluej.version.major}.${bluej.version.minor}.${bluej.version.release}${bluej.version.suffix}" />
+    <property name="bluej.version.nosuffix" value="${bluej.version.major}.${bluej.version.minor}.${bluej.version.release}" />
+    <property name="bluej.version.commas" value="${bluej.version.major},${bluej.version.minor},${bluej.version.release}" />
     <property name="bluej.version.nodots" value="${bluej.version.major}${bluej.version.minor}${bluej.version.release}${bluej.version.suffix}" />
     <property name="bluej.version.debian" value="${bluej.version.major}.${bluej.version.minor}.${bluej.version.release}${bluej.version.nonspace.suffix}" />
 
@@ -440,6 +442,20 @@
             <substitution expression="BlueJ version ${bluej.version} \1"/>
             <fileset dir="doc" includes="README.TXT" />
         </replaceregexp>
+
+        <!-- Update BlueJ version number in launcher EXE info: -->
+        <replaceregexp byline="true" match="(FILE|PRODUCT)VERSION .*" replace="\1VERSION ${bluej.version.commas},0">
+            <fileset dir="package/winlaunch" includes="bluej-version.rc" />
+        </replaceregexp>
+        <replaceregexp byline="true" match="(\s*VALUE &quot;\w+Version&quot;,).*" replace="\1 &quot;${bluej.version.nosuffix}&quot;">
+            <fileset dir="package/winlaunch" includes="bluej-version.rc" />
+        </replaceregexp>
+
+        <!-- And in the launcher manifest: -->
+        <replaceregexp byline="true" match="(\s*&lt;assemblyIdentity\s+version=)&quot;.*&quot;" replace="\1&quot;${bluej.version.nosuffix}.0&quot;">
+            <fileset dir="package/winlaunch" includes="bjmanifest.xml" />
+        </replaceregexp>
+
     </target>
     
     <target name="clean-boot">

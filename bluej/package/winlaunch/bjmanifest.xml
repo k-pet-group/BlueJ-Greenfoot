@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0"> 
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+  <!-- Note: the following line is matched by a regex in the build file -->
   <assemblyIdentity version="3.1.6.0"
      processorArchitecture="X86"
      name="BlueJ"

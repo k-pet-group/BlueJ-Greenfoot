@@ -1,0 +1,17 @@
+FILEVERSION 3,1,6,0
+PRODUCTVERSION 3,1,6,0
+BEGIN
+	BLOCK "StringFileInfo"
+	BEGIN
+		BLOCK "04091200"
+		BEGIN
+			VALUE "CompanyName", "BlueJ group"
+			VALUE "FileDescription", "BlueJ Launcher"
+			VALUE "FileVersion", "3.1.6"
+			VALUE "InternalName", "bluej"
+			VALUE "OriginalFilename", "bluej.exe"
+			VALUE "ProductName", "BlueJ"
+			VALUE "ProductVersion", "3.1.6"
+		END
+	END
+END
