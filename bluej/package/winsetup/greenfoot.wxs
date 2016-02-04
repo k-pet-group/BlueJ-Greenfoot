@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns='http://schemas.microsoft.com/wix/2006/wi'>
 
-<!--  To change the version for a new release:
-        Change the Id value in the Product tag (get new GUID from http://www.guidgen.com/).  This is essential to allow upgrades from previous versions.
-        -->
-
-<!-- This next line is matched by a regex in the build file, so it is important that it be kept as-is: -->
-<Product Version='3.0.2'
-    Name='Greenfoot' Id='8c838b70-3a71-41e8-91a6-4adcf2e483d0' UpgradeCode='3ec7b829-9e53-4132-b2bf-fb7d4c08aebc'
+<!-- This next line is matched by a regex in the build file, so it is important that it be kept as-is.
+     If you get a build failure here with a message about ${greenfoot-3.1.0} or similar not being a legal
+      guid value, then it is because you failed to make a new GUID for this version: see the
+      update-version-number task in ant for details on what to do. -->
+<Product Version='3.0.2' Id='8c838b70-3a71-41e8-91a6-4adcf2e483d0'
+    Name='Greenfoot' UpgradeCode='3ec7b829-9e53-4132-b2bf-fb7d4c08aebc'
     Language='1033' Codepage='1252' Manufacturer='Greenfoot Team'>
     
     <Package Id='*' Keywords='Installer' Description="Greenfoot Installer"

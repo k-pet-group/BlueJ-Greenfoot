@@ -909,6 +909,15 @@ LICENSE.txt file that accompanied this code.${line.separator}
         </replaceregexp>
     </target>
 
+    <!-- From https://ant.apache.org/faq.html#propertyvalue-as-name-for-property, avoids extra libraries -->
+    <macrodef name="propertycopy">
+        <attribute name="name"/>
+        <attribute name="from"/>
+        <sequential>
+            <property name="@{name}" value="${@{from}}"/>
+        </sequential>
+    </macrodef>
+
     <target name="update-version-number" description="updates the version number in all files where it appears" >
         <!-- This should be done manually instead, only for files actually changed: -->
         <!--
@@ -953,8 +962,18 @@ LICENSE.txt file that accompanied this code.${line.separator}
             <fileset dir="${bluej_home}/package/winlaunch" includes="gfmanifest.xml" />
         </replaceregexp>
 
-        <!-- And in the WiX build files: -->
-        <replaceregexp byline="true" match="(&lt;Product Version=)'.*'" replace="\1'${greenfoot.version.nosuffix}'">
+        <!-- Get the new Installer Id.  Every time you make a new version, you need to add a
+             new GUID to the version-guids file, with a line of the form:
+                bluej-3.1.7=GUID
+                greenfoot-3.0.10a=GUID
+             You can get new GUIDs from the website http://guidgen.com/
+             If you don't do this, you'll get a build failure.
+             -->
+        <loadproperties srcFile="${bluej_home}/package/winsetup/version-guids"/>
+        <propertycopy name="msi.product.id" from="greenfoot-${greenfoot.version}"/>
+
+        <!-- Update the WiX build files: -->
+        <replaceregexp byline="true" match="&lt;Product Version='.*' Id='.*'" replace="&lt;Product Version='${greenfoot.version.nosuffix}' Id='${msi.product.id}'">
             <fileset dir="${bluej_home}/package/winsetup" includes="greenfoot.wxs" />
         </replaceregexp>
         <replaceregexp byline="true" match="(\s*&lt;Property\s+Id=&quot;SOFTWAREVERSION&quot;\s+Value=).*" replace="\1&quot;${greenfoot.version.nosuffix}&quot;/&gt;">
